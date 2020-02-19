@@ -19,7 +19,7 @@ import Config from "../../core/Config";
 import BufferView from "../../memory/BufferView";
 import Accessor from "../../memory/Accessor";
 import ISingleShader from "../../../webgl/shaders/ISingleShader";
-import { ShaderType } from "../../definitions/ShaderType";
+import { ShaderType, ShaderTypeEnum } from "../../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
 import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../commontypes/CommonTypes";
 import DataUtil from "../../misc/DataUtil";
@@ -882,12 +882,12 @@ ${prerequisitesShaderityObject.code}
       vertexShaderBody += GLSLShader.glslMainEnd;
     }
 
-    const isAnyTypeInput = function(input: ShaderSocket) {
-      return input.compositionType === CompositionType.Unknown ||
-            input.componentType === ComponentType.Unknown;
-    }
     // pixel main process
     {
+      const isAnyTypeInput = function(input: ShaderSocket) {
+        return input.compositionType === CompositionType.Unknown ||
+              input.componentType === ComponentType.Unknown;
+      }
       pixelShaderBody += GLSLShader.glslMainBegin;
       pixelShaderBody += mainPrerequisitesShaderityObject.code;
       const varInputNames: Array<Array<string>> = [];
@@ -1021,6 +1021,134 @@ ${prerequisitesShaderityObject.code}
     return { vertexShader, pixelShader, attributeNames, attributeSemantics, vertexShaderBody, pixelShaderBody };
   }
 
+  static constructShaderWithNodes(materialNodes: AbstractMaterialNode[], shaderType: ShaderTypeEnum) {
+    let shaderTypeStr = 'vertex'
+    let shaderTypeStrC = 'Vertex'
+    if (shaderType === ShaderType.PixelShader) {
+      shaderTypeStr = 'pixel'
+      shaderTypeStrC = 'Pixel'
+    }
+    let shaderBody = ''
+          const isAnyTypeInput = function(input: ShaderSocket) {
+        return input.compositionType === CompositionType.Unknown ||
+              input.componentType === ComponentType.Unknown;
+      }
+      shaderBody += GLSLShader.glslMainBegin;
+      shaderBody += mainPrerequisitesShaderityObject.code;
+      const varInputNames: Array<Array<string>> = [];
+      const varOutputNames: Array<Array<string>> = [];
+      const existingInputs: MaterialNodeUID[] = [];
+      const existingOutputsVarName: Map<MaterialNodeUID, string> = new Map()
+      const existingOutputs: MaterialNodeUID[] = [];
+      for (let i = 1; i < materialNodes.length; i++) {
+        const materialNode = materialNodes[i];
+        if (varInputNames[i] == null) {
+          varInputNames[i] = [];
+        }
+        if (i - 1 >= 0) {
+          if (varOutputNames[i - 1] == null) {
+            varOutputNames[i - 1] = [];
+          }
+        }
+        const inputConnections = (materialNode as any)[shaderTypeStr+'InputConnections']
+        for (let j = 0; j < inputConnections.length; j++) {
+          const inputConnection = inputConnections[j];
+          const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+          if (isAnyTypeInput((materialNode as any)[`get${shaderTypeStrC}Inputs`]()[j])) {
+            continue
+          }
+          const outputSocketOfPrev = (inputNode as any)[`get${shaderTypeStrC}Output`](inputConnection.outputNameOfPrev);
+          const inputSocketOfThis = (materialNode as any)[`get${shaderTypeStrC}Input`](inputConnection.inputNameOfThis);
+          const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
+          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
+            const rowStr = `${glslTypeStr} ${varName};\n`;
+            shaderBody += rowStr;
+          }
+          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
+          if (existVarName) {
+            varName = existVarName;
+          }
+          varInputNames[i].push(varName);
+          existingInputs.push(inputConnection.materialNodeUid)
+        }
+        for (let j = i; j < materialNodes.length; j++) {
+          const targetMaterialNode = materialNodes[j];
+          const prevMaterialNodeInner = materialNodes[i - 1];
+          const targetNodeInputConnections = (targetMaterialNode as any)[shaderTypeStr+'InputConnections']
+          for (let k = 0; k < targetNodeInputConnections.length; k++) {
+            const inputConnection = targetNodeInputConnections[k];
+            if (prevMaterialNodeInner != null && inputConnection.materialNodeUid !== prevMaterialNodeInner.materialNodeUid) {
+              continue;
+            }
+            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+            if (!isAnyTypeInput((targetMaterialNode as any).getPixelInputs()[k])) {
+              if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
+                const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+                const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${targetMaterialNode.materialNodeUid}`;
+
+                if (i - 1 >= 0) {
+                  varOutputNames[i - 1].push(varName);
+                }
+                existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
+              }
+              existingOutputs.push(inputConnection.materialNodeUid)
+            }
+          }
+        }
+
+      }
+
+      let ifCondition = ''
+      for (let i = 0; i < materialNodes.length; i++) {
+        const materialNode = materialNodes[i];
+        const functionName = materialNode.shaderFunctionName;
+        if (varInputNames[i] == null) {
+          varInputNames[i] = [];
+        }
+        if (varOutputNames[i] == null) {
+          varOutputNames[i] = [];
+        }
+
+        let rowStr = ''
+        if (functionName === 'ifStatement') {
+          ifCondition = varInputNames[i][0];
+        } else if (functionName === 'blockBegin') {
+          rowStr += `if (${ifCondition}) {\n`;
+          ifCondition = ''
+        } else if (functionName === 'blockEnd') {
+          rowStr += `}\n`;
+        } else {
+          if (materialNode.getPixelInputs().length != varInputNames[i].length ||
+            materialNode.getPixelOutputs().length != varOutputNames[i].length) {
+            continue;
+          }
+          const varNames = varInputNames[i].concat(varOutputNames[i]);
+          if (varNames.length === 0) {
+            continue;
+          }
+          // Call node functions
+          rowStr += `${functionName}(`;
+          for (let k = 0; k < varNames.length; k++) {
+            const varName = varNames[k];
+            if (varName == null) {
+              continue;
+            }
+            if (k !== 0) {
+              rowStr += ', ';
+            }
+            rowStr += varNames[k];
+          }
+          rowStr += ');\n';
+        }
+
+        shaderBody += rowStr;
+      }
+
+      shaderBody += GLSLShader.glslMainEnd;
+
+      return shaderBody;
+  }
 
   createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
 
