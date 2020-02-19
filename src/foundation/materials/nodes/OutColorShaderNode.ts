@@ -1,10 +1,9 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import EndShader from "../../../webgl/shaders/nodes/EndShader";
 import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class OutColorMaterialNode extends AbstractShaderNode {
+export default class OutColorShaderNode extends AbstractShaderNode {
 
   constructor() {
     super('outColor', undefined, EndShader.getInstance());

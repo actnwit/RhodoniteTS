@@ -2,10 +2,10 @@ import RnObj, { RnType } from "../../../../dist/rhodonite";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import Material from "../core/Material";
-import ScalarToVector4MaterialNode from "./ScalarToVector4MaterialNode";
-import EndMaterialNode from "./OutPositionMaterialNode";
+import ScalarToVector4MaterialNode from "./ScalarToVector4ShaderNode";
+import EndMaterialNode from "./OutPositionShaderNode";
 import Scalar from "../../math/Scalar";
-import AttributePositionMaterialNode from "./AttributePositionMaterialNode";
+import AttributePositionShaderNode from "./AttributePositionShaderNode";
 
 const Rn: RnType = RnObj as any;
 
@@ -16,7 +16,7 @@ test('AttributePosition works correctly 1', async () => {
   Material.registerMaterial('MyMaterial', []);
   const material = Material.createMaterial('MyMaterial')!;
 
-  const a_position = new AttributePositionMaterialNode()
+  const a_position = new AttributePositionShaderNode()
 
   const endMaterialNode = new EndMaterialNode();
   endMaterialNode.addVertexInputConnection(a_position, 'outValue', 'inPosition');

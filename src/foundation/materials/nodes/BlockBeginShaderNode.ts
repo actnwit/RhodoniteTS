@@ -5,7 +5,7 @@ import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentTyp
 import IfStatementShader from "../../../webgl/shaders/nodes/IfStatementShader";
 import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class BlockBeginMaterialNode extends AbstractShaderNode {
+export default class BlockBeginShaderNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('blockBegin', undefined, new IfStatementShader());

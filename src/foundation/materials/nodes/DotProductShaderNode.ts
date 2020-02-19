@@ -4,7 +4,7 @@ import AbstractShaderNode from "../core/AbstractShaderNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 
-export default class DotProductMaterialNode extends AbstractShaderNode {
+export default class DotProductShaderNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('dotProduct', DotProductShaderityObject.code);

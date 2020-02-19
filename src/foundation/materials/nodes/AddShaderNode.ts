@@ -3,7 +3,7 @@ import { CompositionType, CompositionTypeEnum } from "../../definitions/Composit
 import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
 import AddShaderityObject from "../../../webgl/shaderity_shaders/nodes/Add.glsl"
 
-export default class AddMaterialNode extends AbstractShaderNode {
+export default class AddShaderNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('add', AddShaderityObject.code);

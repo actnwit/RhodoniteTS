@@ -2,11 +2,11 @@ import RnObj, { RnType } from "../../../../dist/rhodonite";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import Material from "../core/Material";
-import ConstantVariableMaterialNode from "./ConstantVariableMaterialNode";
+import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import ScalarToVector4MaterialNode from "./ScalarToVector4MaterialNode";
-import EndMaterialNode from "./OutPositionMaterialNode";
+import ScalarToVector4MaterialNode from "./ScalarToVector4ShaderNode";
+import EndMaterialNode from "./OutPositionShaderNode";
 import Scalar from "../../math/Scalar";
 
 const Rn: RnType = RnObj as any;
@@ -18,13 +18,13 @@ test('ScalarToVector4 works correctly 1', async () => {
   Material.registerMaterial('MyMaterial', []);
   const material = Material.createMaterial('MyMaterial')!;
 
-  const constant1 = new ConstantVariableMaterialNode(CompositionType.Scalar, ComponentType.Float);
+  const constant1 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
   constant1.setDefaultInputValue('value', new Scalar(1));
-  const constant2 = new ConstantVariableMaterialNode(CompositionType.Scalar, ComponentType.Float);
+  const constant2 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
   constant2.setDefaultInputValue('value', new Scalar(2));
-  const constant3 = new ConstantVariableMaterialNode(CompositionType.Scalar, ComponentType.Float);
+  const constant3 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
   constant3.setDefaultInputValue('value', new Scalar(3));
-  const constant4 = new ConstantVariableMaterialNode(CompositionType.Scalar, ComponentType.Float);
+  const constant4 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
   constant4.setDefaultInputValue('value', new Scalar(4));
 
   const scalarToVector4MaterialNode = new ScalarToVector4MaterialNode();

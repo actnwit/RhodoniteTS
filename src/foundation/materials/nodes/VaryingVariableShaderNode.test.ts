@@ -2,40 +2,41 @@ import RnObj, { RnType } from "../../../../dist/rhodonite";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import Material from "../core/Material";
-import ConstantVariableMaterialNode from "./ConstantVariableMaterialNode";
+import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
+import VaryingVariableMaterialNode from "./VaryingInVariableShaderNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import AddMaterialNode from "./AddMaterialNode";
-import EndMaterialNode from "./OutPositionMaterialNode";
+import AddShaderNode from "./AddShaderNode";
+import EndMaterialNode from "./OutPositionShaderNode";
 import Vector4 from "../../math/Vector4";
+import { ShaderType } from "../../definitions/ShaderType";
 
 const Rn: RnType = RnObj as any;
 
-test('ConstantVariable works correctly 1', async () => {
+test('VaryingVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
   Material.registerMaterial('MyMaterial', []);
   const material = Material.createMaterial('MyMaterial')!;
 
-  const constant1 = new ConstantVariableMaterialNode(CompositionType.Vec4, ComponentType.Float);
-  constant1.setDefaultInputValue('value', new Vector4(1, 2, 3, 4));
-  const constant2 = new ConstantVariableMaterialNode(CompositionType.Vec4, ComponentType.Float);
-  constant2.setDefaultInputValue('value', new Vector4(4, 3, 2, 1));
-
-  const addMaterialNode = new AddMaterialNode();
-  addMaterialNode.addVertexInputConnection(constant1, 'outValue', 'lhs');
-  addMaterialNode.addVertexInputConnection(constant2, 'outValue', 'rhs');
+  const varying1 = new VaryingVariableMaterialNode(CompositionType.Vec4, ComponentType.Float);
+  varying1.setVaryingVariableName('v_position');
+  const constant1 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
+  constant1.setDefaultInputValue('value', new Vector4(4, 3, 2, 1));
+  constant1.shaderType = ShaderType.VertexShader;
 
   const endMaterialNode = new EndMaterialNode();
-  endMaterialNode.addVertexInputConnection(addMaterialNode, 'outValue', 'inPosition');
-  endMaterialNode.addPixelInputConnection(constant2, 'outValue', 'inColor');
+  varying1.addVertexInputConnection(constant1, 'outValue', 'value');
+  endMaterialNode.addVertexInputConnection(constant1, 'outValue', 'inPosition');
+  endMaterialNode.addPixelInputConnection(varying1, 'outValue', 'inColor');
 
   // nodes are intentionally made the order random
-  material.setMaterialNodes([endMaterialNode, addMaterialNode, constant1, constant2]);
+  material.setMaterialNodes([endMaterialNode, varying1, constant1]);
 
   const returnValues = material.createProgramString();
- expect((returnValues.vertexShaderBody+returnValues.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
+  console.log(returnValues!.vertexShaderBody+returnValues!.pixelShaderBody)
+ expect((returnValues!.vertexShaderBody+returnValues!.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
 
 
     void constantVariable_1(

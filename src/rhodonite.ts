@@ -75,27 +75,27 @@ import { BoneDataType } from './foundation/definitions/BoneDataType';
 import ShaderityUtility from './foundation/materials/core/ShaderityUtility';
 import AbstractMaterialNode from './foundation/materials/core/AbstractMaterialNode';
 import { PixelFormat } from './foundation/definitions/PixelFormat';
-import ConstantVariableMaterialNode from './foundation/materials/nodes/ConstantVariableMaterialNode';
-import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
-import DotProductMaterialNode from './foundation/materials/nodes/DotProductMaterialNode';
-import MultiplyMaterialNode from './foundation/materials/nodes/MultiplyMaterialNode';
-import OutPositionMaterialNode from './foundation/materials/nodes/OutPositionMaterialNode';
-import OutColorMaterialNode from './foundation/materials/nodes/OutColorMaterialNode';
-import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
-import Vector3AndScalarToVector4MaterialNode from './foundation/materials/nodes/Vector3AndScalarToVector4MaterialNode';
-import AttributePositionMaterialNode from './foundation/materials/nodes/AttributePositionMaterialNode';
-import AttributeNormalMaterialNode from './foundation/materials/nodes/AttributeNormalMaterialNode';
-import WorldMatrixMaterialNode from './foundation/materials/nodes/WorldMatrixMaterialNode';
-import ViewMatrixMaterialNode from './foundation/materials/nodes/ViewMatrixMaterialNode';
-import NormalMatrixMaterialNode from './foundation/materials/nodes/NormalMatrixMaterialNode';
-import ProjectionMatrixMaterialNode from './foundation/materials/nodes/ProjectionMatrixMaterialNode';
-import VaryingInVariableMaterialNode from './foundation/materials/nodes/VaryingInVariableMaterialNode';
-import VaryingOutVariableMaterialNode from './foundation/materials/nodes/VaryingOutVariableMaterialNode';
-import UniformDataMaterialNode from './foundation/materials/nodes/UniformDataMaterialNode';
-import NormalizeMaterialNode from './foundation/materials/nodes/NormalizeMaterialNode';
-import IfStatementMaterialNode from './foundation/materials/nodes/IfStatementMaterialNode';
-import BlockBeginMaterialNode from './foundation/materials/nodes/BlockBeginMaterialNode';
-import BlockEndMaterialNode from './foundation/materials/nodes/BlockEndMaterialNode';
+import ConstantVariableShaderNode from './foundation/materials/nodes/ConstantVariableShaderNode';
+import AddShaderNode from './foundation/materials/nodes/AddShaderNode';
+import DotProductShaderNode from './foundation/materials/nodes/DotProductShaderNode';
+import MultiplyShaderNode from './foundation/materials/nodes/MultiplyShaderNode';
+import OutPositionShaderNode from './foundation/materials/nodes/OutPositionShaderNode';
+import OutColorShaderNode from './foundation/materials/nodes/OutColorShaderNode';
+import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4ShaderNode';
+import Vector3AndScalarToVector4MaterialNode from './foundation/materials/nodes/Vector3AndScalarToVector4ShaderNode';
+import AttributePositionShaderNode from './foundation/materials/nodes/AttributePositionShaderNode';
+import AttributeNormalShaderNode from './foundation/materials/nodes/AttributeNormalShaderNode';
+import WorldMatrixShaderNode from './foundation/materials/nodes/WorldMatrixShaderNode';
+import ViewMatrixShaderNode from './foundation/materials/nodes/ViewMatrixShaderNode';
+import NormalMatrixShaderNode from './foundation/materials/nodes/NormalMatrixShaderNode';
+import ProjectionMatrixShaderNode from './foundation/materials/nodes/ProjectionMatrixShaderNode';
+import VaryingInVariableShaderNode from './foundation/materials/nodes/VaryingInVariableShaderNode';
+import VaryingOutVariableShaderNode from './foundation/materials/nodes/VaryingOutVariableShaderNode';
+import UniformDataShaderNode from './foundation/materials/nodes/UniformDataShaderNode';
+import NormalizeShaderNode from './foundation/materials/nodes/NormalizeShaderNode';
+import IfStatementShaderNode from './foundation/materials/nodes/IfStatementShaderNode';
+import BlockBeginShaderNode from './foundation/materials/nodes/BlockBeginShaderNode';
+import BlockEndShaderNode from './foundation/materials/nodes/BlockEndShaderNode';
 
 let Rn = {
   EntityRepository,
@@ -175,27 +175,27 @@ let Rn = {
   ShaderityUtility,
   AbstractMaterialNode,
   PixelFormat,
-  ConstantVariableMaterialNode,
-  AddMaterialNode,
-  DotProductMaterialNode,
-  MultiplyMaterialNode,
-  OutPositionMaterialNode,
-  OutColorMaterialNode,
+  ConstantVariableShaderNode,
+  AddShaderNode,
+  DotProductShaderNode,
+  MultiplyShaderNode,
+  OutPositionShaderNode,
+  OutColorShaderNode,
   ScalarToVector4MaterialNode,
   Vector3AndScalarToVector4MaterialNode,
-  AttributePositionMaterialNode,
-  AttributeNormalMaterialNode,
-  WorldMatrixMaterialNode,
-  ViewMatrixMaterialNode,
-  ProjectionMatrixMaterialNode,
-  VaryingInVariableMaterialNode,
-  VaryingOutVariableMaterialNode,
-  NormalMatrixMaterialNode,
-  UniformDataMaterialNode,
-  NormalizeMaterialNode,
-  IfStatementMaterialNode,
-  BlockBeginMaterialNode,
-  BlockEndMaterialNode,
+  AttributePositionShaderNode,
+  AttributeNormalShaderNode,
+  WorldMatrixShaderNode,
+  ViewMatrixShaderNode,
+  ProjectionMatrixShaderNode,
+  VaryingInVariableShaderNode,
+  VaryingOutVariableShaderNode,
+  NormalMatrixShaderNode,
+  UniformDataShaderNode,
+  NormalizeShaderNode,
+  IfStatementShaderNode,
+  BlockBeginShaderNode,
+  BlockEndShaderNode,
 };
 
 if (typeof exports !== 'undefined') {

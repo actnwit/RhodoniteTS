@@ -5,9 +5,9 @@ import { ComponentType } from "../../definitions/ComponentType";
 import { CompositionType } from "../../definitions/CompositionType";
 import GetVarsMaterialNode from "../nodes/GetVarsMaterialNode";
 import Material from "./Material";
-import EndMaterialNode from "../nodes/OutPositionMaterialNode";
+import EndMaterialNode from "../nodes/OutPositionShaderNode";
 import { VertexAttribute } from "../../definitions/VertexAttribute";
-import AddMaterialNode from "../nodes/AddMaterialNode";
+import AddShaderNode from "../nodes/AddShaderNode";
 import { ShaderSemantics } from "../../definitions/ShaderSemantics";
 import MemoryManager from "../../core/MemoryManager";
 import ModuleManager from "../../system/ModuleManager";
@@ -102,15 +102,15 @@ test('Material works correctly 1', async () => {
     }
   );
 
-  const addMaterialNode = new AddMaterialNode();
+  const addMaterialNode = new AddShaderNode();
   addMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'position_inLocal', 'lhs');
   addMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'normal_inLocal', 'rhs');
 
-  const addMaterialNode2 = new AddMaterialNode();
+  const addMaterialNode2 = new AddShaderNode();
   addMaterialNode2.addVertexInputConnection(getVarsMaterialNode, 'baseColor', 'lhs');
   addMaterialNode2.addVertexInputConnection(getVarsMaterialNode, 'specularColor', 'rhs');
 
-  const addMaterialNode3 = new AddMaterialNode();
+  const addMaterialNode3 = new AddShaderNode();
   addMaterialNode3.addVertexInputConnection(addMaterialNode, 'outValue', 'lhs');
   addMaterialNode3.addVertexInputConnection(addMaterialNode2, 'outValue', 'rhs');
 

@@ -1,21 +1,21 @@
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import ProjectionMatrixShaderityObject from "../../../webgl/shaderity_shaders/nodes/ProjectionMatrix.vert"
+import AttributeNormalShaderityObject from "../../../webgl/shaderity_shaders/nodes/AttributeNormal.vert"
 import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class ProjectionMatrixMaterialNode extends AbstractShaderNode {
+export default class AttributePositionShaderNode extends AbstractShaderNode {
 
   constructor() {
-    super('projectionMatrix',  ProjectionMatrixShaderityObject.code);
+    super('attributeNormal', AttributeNormalShaderityObject.code);
 
     this.__outputs.push(
       {
-        compositionType: CompositionType.Mat4,
+        compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
         name: 'outValue',
       });
+
   }
 
 }
-
 

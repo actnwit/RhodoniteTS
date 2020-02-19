@@ -2,7 +2,7 @@ import NormalizeShaderityObject from "../../../webgl/shaderity_shaders/nodes/Nor
 import { CompositionTypeEnum, ComponentTypeEnum } from "../../../rhodonite";
 import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class NormalizeMaterialNode extends AbstractShaderNode {
+export default class NormalizeShaderNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('normalize', NormalizeShaderityObject.code);
