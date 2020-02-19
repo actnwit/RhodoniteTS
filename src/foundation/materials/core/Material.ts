@@ -766,10 +766,10 @@ ${prerequisitesShaderityObject.code}
     }
 
     // vertex main process
-    Material.constructShaderWithNodes(vertexMaterialNodes, ShaderType.VertexShader)
+    vertexShaderBody += Material.constructShaderWithNodes(vertexMaterialNodes, ShaderType.VertexShader)
 
     // pixel main process
-    Material.constructShaderWithNodes(pixelMaterialNodes, ShaderType.PixelShader)
+    pixelShaderBody += Material.constructShaderWithNodes(pixelMaterialNodes, ShaderType.PixelShader)
 
 
     let attributeNames: AttributeNames = [];
@@ -845,10 +845,10 @@ ${prerequisitesShaderityObject.code}
             if (prevMaterialNodeInner != null && inputConnection.shaderNodeUid !== prevMaterialNodeInner.shaderNodeUid) {
               continue;
             }
-            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.shaderNodeUid];
-            if (!isAnyTypeInput((targetMaterialNode as any).getPixelInputs()[k])) {
-              if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
-                const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+            const inputNode = AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
+            if (!isAnyTypeInput(targetMaterialNode.getInputs()[k])) {
+              if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
+                const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
                 const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${targetMaterialNode.shaderNodeUid}`;
 
                 if (i - 1 >= 0) {

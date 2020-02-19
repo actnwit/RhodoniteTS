@@ -23,6 +23,7 @@ export default abstract class AbstractShaderNode extends RnObject {
     this.__shaderFunctionName = shaderNodeName;
     this.__shaderCode = shaderCode
     this.__shaderNodeUid = ++AbstractShaderNode.__invalidShaderNodeCount;
+    AbstractShaderNode.shaderNodes[AbstractShaderNode.__invalidShaderNodeCount] = this;
     this.__shader = shader
   }
 

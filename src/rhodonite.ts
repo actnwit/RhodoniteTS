@@ -180,6 +180,7 @@ let Rn = {
   DotProductMaterialNode,
   MultiplyMaterialNode,
   OutPositionMaterialNode,
+  OutColorMaterialNode,
   ScalarToVector4MaterialNode,
   Vector3AndScalarToVector4MaterialNode,
   AttributePositionMaterialNode,
