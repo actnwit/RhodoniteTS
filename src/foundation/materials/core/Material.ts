@@ -507,7 +507,7 @@ export default class Material extends RnObject {
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
-    let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
+    let { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(propertySetter);
 
     let definitions = materialNode.definitions;
 
@@ -563,8 +563,11 @@ export default class Material extends RnObject {
     }
   }
 
-
-  private __getProperties(propertySetter: getShaderPropertyFunc) {
+  /**
+   * @private
+   * @param propertySetter 
+   */
+  _getProperties(propertySetter: getShaderPropertyFunc) {
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
     this.__fieldsInfo.forEach((value, propertyIndex: Index) => {
@@ -581,35 +584,20 @@ export default class Material extends RnObject {
     return { vertexPropertiesStr, pixelPropertiesStr };
   }
 
-  createProgramString(vertexShaderMethodDefinitions_uniform = '', propertySetter?: getShaderPropertyFunc) {
-
-    const materialNodesVertex = this.__materialNodes.filter((node)=>{
-      if (node.shaderType === ShaderType.VertexShader || node.shaderType === ShaderType.VertexAndPixelShader) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    const materialNodesPixel = this.__materialNodes.filter((node)=>{
-      if (node.shaderType === ShaderType.PixelShader || node.shaderType === ShaderType.VertexAndPixelShader) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+  static createProgramString(materialNodesVertex: AbstractShaderNode[], materialNodesPixel: AbstractShaderNode[]) {
 
     // Find Start Node
-    let firstMaterialNodeVertex: AbstractMaterialNode;
-    let firstMaterialNodePixel: AbstractMaterialNode;
+    let firstMaterialNodeVertex: AbstractShaderNode;
+    let firstMaterialNodePixel: AbstractShaderNode;
     for (let i = 0; i < materialNodesVertex.length; i++) {
       const materialNode = materialNodesVertex[i];
-      if (materialNode.vertexInputConnections.length === 0) {
+      if (materialNode.inputConnections.length === 0) {
         firstMaterialNodeVertex = materialNode;
       }
     }
     for (let i = 0; i < materialNodesPixel.length; i++) {
       const materialNode = materialNodesPixel[i];
-      if (materialNode.pixelInputConnections.length === 0) {
+      if (materialNode.inputConnections.length === 0) {
         firstMaterialNodePixel = materialNode;
       }
     }
@@ -619,19 +607,19 @@ export default class Material extends RnObject {
     }
 
     // Topological Sorting
-    const ignoredInputUidsVertex: Index[] = [firstMaterialNodeVertex!.materialNodeUid];
-    const sortedNodeArrayVertex: AbstractMaterialNode[] = [firstMaterialNodeVertex!];
-    const ignoredInputUidsPixel: Index[] = [firstMaterialNodePixel!.materialNodeUid];
-    const sortedNodeArrayPixel: AbstractMaterialNode[] = [firstMaterialNodePixel!];
+    const ignoredInputUidsVertex: Index[] = [firstMaterialNodeVertex!.shaderNodeUid];
+    const sortedNodeArrayVertex: AbstractShaderNode[] = [firstMaterialNodeVertex!];
+    const ignoredInputUidsPixel: Index[] = [firstMaterialNodePixel!.shaderNodeUid];
+    const sortedNodeArrayPixel: AbstractShaderNode[] = [firstMaterialNodePixel!];
     /// delete first nodes from existing array
     materialNodesVertex.splice(materialNodesVertex.indexOf(firstMaterialNodeVertex!), 1);
     materialNodesPixel.splice(materialNodesPixel.indexOf(firstMaterialNodePixel!), 1);
     do {
-      let materialNodeWhichHasNoInputs: AbstractMaterialNode;
+      let materialNodeWhichHasNoInputs: AbstractShaderNode;
       materialNodesVertex.forEach((materialNode) => {
         let inputCount = 0;
-        for (let inputConnection of materialNode.vertexInputConnections) {
-          if (ignoredInputUidsVertex.indexOf(inputConnection.materialNodeUid) === -1) {
+        for (let inputConnection of materialNode.inputConnections) {
+          if (ignoredInputUidsVertex.indexOf(inputConnection.shaderNodeUid) === -1) {
             inputCount++;
           }
         }
@@ -640,16 +628,16 @@ export default class Material extends RnObject {
         }
       });
       sortedNodeArrayVertex.push(materialNodeWhichHasNoInputs!);
-      ignoredInputUidsVertex.push(materialNodeWhichHasNoInputs!.materialNodeUid);
+      ignoredInputUidsVertex.push(materialNodeWhichHasNoInputs!.shaderNodeUid);
       materialNodesVertex.splice(materialNodesVertex.indexOf(materialNodeWhichHasNoInputs!), 1);
 
     } while (materialNodesVertex.length !== 0);
     do {
-      let materialNodeWhichHasNoInputs: AbstractMaterialNode;
+      let materialNodeWhichHasNoInputs: AbstractShaderNode;
       materialNodesPixel.forEach((materialNode) => {
         let inputCount = 0;
-        for (let inputConnection of materialNode.pixelInputConnections) {
-          if (ignoredInputUidsPixel.indexOf(inputConnection.materialNodeUid) === -1) {
+        for (let inputConnection of materialNode.inputConnections) {
+          if (ignoredInputUidsPixel.indexOf(inputConnection.shaderNodeUid) === -1) {
             inputCount++;
           }
         }
@@ -658,7 +646,7 @@ export default class Material extends RnObject {
         }
       });
       sortedNodeArrayPixel.push(materialNodeWhichHasNoInputs!);
-      ignoredInputUidsPixel.push(materialNodeWhichHasNoInputs!.materialNodeUid);
+      ignoredInputUidsPixel.push(materialNodeWhichHasNoInputs!.shaderNodeUid);
       materialNodesPixel.splice(materialNodesPixel.indexOf(materialNodeWhichHasNoInputs!), 1);
     } while (materialNodesPixel.length !== 0);
 
@@ -737,7 +725,6 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     vertexShaderPrerequisites += '/* shaderity: ${matricesGetters} */'
     vertexShaderPrerequisites += '/* shaderity: ${getters} */'
 
-    vertexShaderPrerequisites += vertexShaderMethodDefinitions_uniform;
 
     pixelShaderPrerequisites += `
 precision highp float;
@@ -746,11 +733,6 @@ ${prerequisitesShaderityObject.code}
 `
     pixelShaderPrerequisites += '/* shaderity: ${getters} */'
 
-    if (propertySetter) {
-      let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
-      vertexShaderPrerequisites += vertexPropertiesStr;
-      pixelShaderPrerequisites += pixelPropertiesStr;
-    }
 
     let vertexShaderBody = ''
     let pixelShaderBody = ''
@@ -762,14 +744,12 @@ ${prerequisitesShaderityObject.code}
       if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      if ((materialNode.shaderType === ShaderType.VertexShader || materialNode.shaderType === ShaderType.VertexAndPixelShader)) {
-        if (materialNode.vertexShaderityObject) {
-          vertexShaderBody += materialNode.vertexShaderityObject.code;
-        } else {
-          vertexShaderBody += (materialNode.shader! as any).vertexShaderDefinitions;
-        }
-        existVertexFunctions.push(materialNode.shaderFunctionName);
+      if (materialNode.shaderCode) {
+        vertexShaderBody += materialNode.shaderCode;
+      } else {
+        vertexShaderBody += (materialNode.shader! as any).vertexShaderDefinitions;
       }
+      existVertexFunctions.push(materialNode.shaderFunctionName);
     }
     const existPixelFunctions: string[] = [];
     for (let i = 0; i < pixelMaterialNodes.length; i++) {
@@ -777,230 +757,19 @@ ${prerequisitesShaderityObject.code}
       if (existPixelFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      if ((materialNode.shaderType === ShaderType.PixelShader || materialNode.shaderType === ShaderType.VertexAndPixelShader)) {
-        if (materialNode.pixelShaderityObject) {
-          pixelShaderBody += materialNode.pixelShaderityObject.code;
-        } else {
-          pixelShaderBody += (materialNode.shader! as any).pixelShaderDefinitions;
-        }
-        existPixelFunctions.push(materialNode.shaderFunctionName);
+      if (materialNode.shaderCode) {
+        pixelShaderBody += materialNode.shaderCode;
+      } else {
+        pixelShaderBody += (materialNode.shader! as any).pixelShaderDefinitions;
       }
+      existPixelFunctions.push(materialNode.shaderFunctionName);
     }
 
     // vertex main process
-    {
-      vertexShaderBody += GLSLShader.glslMainBegin;
-      vertexShaderBody += mainPrerequisitesShaderityObject.code;
-      const varInputNames: Array<Array<string>> = [];
-      const varOutputNames: Array<Array<string>> = [];
-      const existingInputs: MaterialNodeUID[] = [];
-      const existingOutputsVarName: Map<MaterialNodeUID, string> = new Map()
-      const existingOutputs: MaterialNodeUID[] = [];
-      for (let i = 1; i < vertexMaterialNodes.length; i++) {
-        const materialNode = vertexMaterialNodes[i];
-        if (varInputNames[i] == null) {
-          varInputNames[i] = [];
-        }
-        if (i - 1 >= 0) {
-          if (varOutputNames[i - 1] == null) {
-            varOutputNames[i - 1] = [];
-          }
-        }
-        for (let j = 0; j < materialNode.vertexInputConnections.length; j++) {
-          const inputConnection = materialNode.vertexInputConnections[j];
-          const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-          const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
-          const inputSocketOfThis = materialNode.getVertexInput(inputConnection.inputNameOfThis);
-          const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
-          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
-            const rowStr = `${glslTypeStr} ${varName};\n`;
-            vertexShaderBody += rowStr;
-          }
-          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
-          if (existVarName) {
-            varName = existVarName;
-          }
-          varInputNames[i].push(varName);
-          existingInputs.push(inputConnection.materialNodeUid)
-        }
-        for (let j = i; j < vertexMaterialNodes.length; j++) {
-          const materialNodeInner = vertexMaterialNodes[j];
-          const prevMaterialNodeInner = vertexMaterialNodes[i - 1];
-          for (let k = 0; k < materialNodeInner.vertexInputConnections.length; k++) {
-            const inputConnection = materialNodeInner.vertexInputConnections[k];
-            if (prevMaterialNodeInner != null && inputConnection.materialNodeUid !== prevMaterialNodeInner.materialNodeUid) {
-              continue;
-            }
-            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-            if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
-              const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
-              const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNodeInner.materialNodeUid}`;
-
-              if (i - 1 >= 0) {
-                varOutputNames[i - 1].push(varName);
-              }
-              existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
-            }
-            existingOutputs.push(inputConnection.materialNodeUid)
-          }
-        }
-
-      }
-
-      for (let i = 0; i < vertexMaterialNodes.length; i++) {
-        const materialNode = vertexMaterialNodes[i];
-        const functionName = materialNode.shaderFunctionName;
-        if (varInputNames[i] == null) {
-          varInputNames[i] = [];
-        }
-        if (varOutputNames[i] == null) {
-          varOutputNames[i] = [];
-        }
-        if (materialNode.getVertexInputs().length != varInputNames[i].length ||
-          materialNode.getVertexOutputs().length != varOutputNames[i].length) {
-          continue;
-        }
-        const varNames = varInputNames[i].concat(varOutputNames[i]);
-        if (varNames.length === 0) {
-          continue;
-        }
-        let rowStr = `${functionName}(`;
-        for (let k = 0; k < varNames.length; k++) {
-          const varName = varNames[k];
-          if (varName == null) {
-            continue;
-          }
-          if (k !== 0) {
-            rowStr += ', ';
-          }
-          rowStr += varNames[k];
-        }
-        rowStr += ');\n';
-        vertexShaderBody += rowStr;
-      }
-
-      vertexShaderBody += GLSLShader.glslMainEnd;
-    }
+    Material.constructShaderWithNodes(vertexMaterialNodes, ShaderType.VertexShader)
 
     // pixel main process
-    {
-      const isAnyTypeInput = function(input: ShaderSocket) {
-        return input.compositionType === CompositionType.Unknown ||
-              input.componentType === ComponentType.Unknown;
-      }
-      pixelShaderBody += GLSLShader.glslMainBegin;
-      pixelShaderBody += mainPrerequisitesShaderityObject.code;
-      const varInputNames: Array<Array<string>> = [];
-      const varOutputNames: Array<Array<string>> = [];
-      const existingInputs: MaterialNodeUID[] = [];
-      const existingOutputsVarName: Map<MaterialNodeUID, string> = new Map()
-      const existingOutputs: MaterialNodeUID[] = [];
-      for (let i = 1; i < pixelMaterialNodes.length; i++) {
-        const materialNode = pixelMaterialNodes[i];
-        if (varInputNames[i] == null) {
-          varInputNames[i] = [];
-        }
-        if (i - 1 >= 0) {
-          if (varOutputNames[i - 1] == null) {
-            varOutputNames[i - 1] = [];
-          }
-        }
-        for (let j = 0; j < materialNode.pixelInputConnections.length; j++) {
-          const inputConnection = materialNode.pixelInputConnections[j];
-          const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-          if (isAnyTypeInput(materialNode.getPixelInputs()[j])) {
-            continue
-          }
-          const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
-          const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
-          const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
-          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
-            const rowStr = `${glslTypeStr} ${varName};\n`;
-            pixelShaderBody += rowStr;
-          }
-          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
-          if (existVarName) {
-            varName = existVarName;
-          }
-          varInputNames[i].push(varName);
-          existingInputs.push(inputConnection.materialNodeUid)
-        }
-        for (let j = i; j < pixelMaterialNodes.length; j++) {
-          const targetMaterialNode = pixelMaterialNodes[j];
-          const prevMaterialNodeInner = pixelMaterialNodes[i - 1];
-          for (let k = 0; k < targetMaterialNode.pixelInputConnections.length; k++) {
-            const inputConnection = targetMaterialNode.pixelInputConnections[k];
-            if (prevMaterialNodeInner != null && inputConnection.materialNodeUid !== prevMaterialNodeInner.materialNodeUid) {
-              continue;
-            }
-            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-            if (!isAnyTypeInput(targetMaterialNode.getPixelInputs()[k])) {
-              if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
-                const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
-                const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${targetMaterialNode.materialNodeUid}`;
-
-                if (i - 1 >= 0) {
-                  varOutputNames[i - 1].push(varName);
-                }
-                existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
-              }
-              existingOutputs.push(inputConnection.materialNodeUid)
-            }
-          }
-        }
-
-      }
-
-      let ifCondition = ''
-      for (let i = 0; i < pixelMaterialNodes.length; i++) {
-        const materialNode = pixelMaterialNodes[i];
-        const functionName = materialNode.shaderFunctionName;
-        if (varInputNames[i] == null) {
-          varInputNames[i] = [];
-        }
-        if (varOutputNames[i] == null) {
-          varOutputNames[i] = [];
-        }
-
-        let rowStr = ''
-        if (functionName === 'ifStatement') {
-          ifCondition = varInputNames[i][0];
-        } else if (functionName === 'blockBegin') {
-          rowStr += `if (${ifCondition}) {\n`;
-          ifCondition = ''
-        } else if (functionName === 'blockEnd') {
-          rowStr += `}\n`;
-        } else {
-          if (materialNode.getPixelInputs().length != varInputNames[i].length ||
-            materialNode.getPixelOutputs().length != varOutputNames[i].length) {
-            continue;
-          }
-          const varNames = varInputNames[i].concat(varOutputNames[i]);
-          if (varNames.length === 0) {
-            continue;
-          }
-          // Call node functions
-          rowStr += `${functionName}(`;
-          for (let k = 0; k < varNames.length; k++) {
-            const varName = varNames[k];
-            if (varName == null) {
-              continue;
-            }
-            if (k !== 0) {
-              rowStr += ', ';
-            }
-            rowStr += varNames[k];
-          }
-          rowStr += ');\n';
-        }
-
-        pixelShaderBody += rowStr;
-      }
-
-      pixelShaderBody += GLSLShader.glslMainEnd;
-    }
+    Material.constructShaderWithNodes(pixelMaterialNodes, ShaderType.PixelShader)
 
 
     let attributeNames: AttributeNames = [];
@@ -1146,43 +915,7 @@ ${prerequisitesShaderityObject.code}
   }
 
   createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
-
-    if (this.__materialNodes[0].isSingleOperation) {
-      return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
-    } else {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform)!;
-
-      const wholeShaderText = returnValue.vertexShader + returnValue.pixelShader;
-
-
-      // Cache
-      let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
-      if (shaderProgramUid) {
-        this._shaderProgramUid = shaderProgramUid;
-        return shaderProgramUid;
-      }
-
-      const hash = DataUtil.toCRC32(wholeShaderText);
-      shaderProgramUid = Material.__shaderHashMap.get(hash);
-      if (shaderProgramUid) {
-        this._shaderProgramUid = shaderProgramUid;
-        return this._shaderProgramUid;
-      } else {
-        this._shaderProgramUid = webglResourceRepository.createShaderProgram(
-        {
-          materialTypeName: this.__materialTypeName,
-          vertexShaderStr: returnValue.vertexShader,
-          fragmentShaderStr: returnValue.pixelShader,
-          attributeNames: returnValue.attributeNames,
-          attributeSemantics: returnValue.attributeSemantics
-        }
-        );
-        Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
-        Material.__shaderHashMap.set(hash, this._shaderProgramUid);
-        return this._shaderProgramUid;
-      }
-    }
+    return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
   }
 
   isBlend() {

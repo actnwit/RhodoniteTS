@@ -71,4 +71,8 @@ export default abstract class AbstractShaderNode extends RnObject {
   get inputConnections(): ShaderNodeInputConnectionType[] {
     return this.__inputConnections;
   }
+
+  get shader() {
+    return this.__shader;
+  }
 }
