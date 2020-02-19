@@ -27,7 +27,7 @@ export default class IfStatementMaterialNode extends AbstractMaterialNode {
         name: 'ifStart',
       });
 
-    this.__vertexInputs.push(
+    this.__pixelInputs.push(
       {
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Bool,

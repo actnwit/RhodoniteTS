@@ -5,10 +5,10 @@ import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import IfStatementShader from "../../../webgl/shaders/nodes/IfStatementShader";
 
-export default class EndIfStatementMaterialNode extends AbstractMaterialNode {
+export default class BlockEndMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(new IfStatementShader(), 'endIfStatement');
+    super(new IfStatementShader(), 'blockEnd');
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];
@@ -18,14 +18,14 @@ export default class EndIfStatementMaterialNode extends AbstractMaterialNode {
       {
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Bool,
-        name: 'endif',
+        name: 'blockEnd',
       });
 
-    this.__vertexInputs.push(
+    this.__pixelInputs.push(
       {
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Bool,
-        name: 'endif',
+        name: 'blockEnd',
       });
 
   }

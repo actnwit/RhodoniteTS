@@ -92,7 +92,8 @@ import VaryingVariableMaterialNode from './foundation/materials/nodes/VaryingVar
 import UniformDataMaterialNode from './foundation/materials/nodes/UniformDataMaterialNode';
 import NormalizeMaterialNode from './foundation/materials/nodes/NormalizeMaterialNode';
 import IfStatementMaterialNode from './foundation/materials/nodes/IfStatementMaterialNode';
-import EndIfStatementMaterialNode from './foundation/materials/nodes/EndIfStatementMaterialNode';
+import BlockBeginMaterialNode from './foundation/materials/nodes/BlockBeginMaterialNode';
+import BlockEndMaterialNode from './foundation/materials/nodes/BlockEndMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -189,7 +190,8 @@ let Rn = {
   UniformDataMaterialNode,
   NormalizeMaterialNode,
   IfStatementMaterialNode,
-  EndIfStatementMaterialNode
+  BlockBeginMaterialNode,
+  BlockEndMaterialNode,
 };
 
 if (typeof exports !== 'undefined') {
