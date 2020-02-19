@@ -3,11 +3,11 @@ import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import Material from "../core/Material";
 import ConstantVariableMaterialNode from "./ConstantVariableMaterialNode";
-import VaryingVariableMaterialNode from "./VaryingVariableMaterialNode";
+import VaryingVariableMaterialNode from "./VaryingInVariableMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import AddMaterialNode from "./AddMaterialNode";
-import EndMaterialNode from "./EndMaterialNode";
+import EndMaterialNode from "./OutPositionMaterialNode";
 import Vector4 from "../../math/Vector4";
 import { ShaderType } from "../../definitions/ShaderType";
 

@@ -1,52 +1,33 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
 import DotProductShaderityObject from "../../../webgl/shaderity_shaders/nodes/DotProduct.glsl"
 import { CompositionTypeEnum, ComponentTypeEnum } from "../../../rhodonite";
+import AbstractShaderNode from "../core/AbstractShaderNode";
+import { CompositionType } from "../../definitions/CompositionType";
+import { ComponentType } from "../../definitions/ComponentType";
 
-export default class DotProductMaterialNode extends AbstractMaterialNode {
+export default class DotProductMaterialNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super(null, 'dotProduct', {}, DotProductShaderityObject, DotProductShaderityObject);
+    super('dotProduct', DotProductShaderityObject.code);
 
-        this.__vertexInputs.push(
+    this.__inputs.push(
       {
         compositionType: compositionType,
         componentType: componentType,
         name: 'lhs',
       });
-    this.__vertexInputs.push(
+    this.__inputs.push(
       {
         compositionType: compositionType,
         componentType: ComponentType.Float,
         name: 'rhs',
       });
-    this.__vertexOutputs.push(
+    this.__outputs.push(
       {
         compositionType: CompositionType.Scalar,
         componentType: componentType,
         name: 'outValue',
       });
 
-    this.__pixelInputs.push(
-      {
-        compositionType: compositionType,
-        componentType: componentType,
-        name: 'lhs',
-      });
-    this.__pixelInputs.push(
-      {
-        compositionType: compositionType,
-        componentType: componentType,
-        name: 'rhs',
-      });
-    this.__pixelOutputs.push(
-      {
-        compositionType: CompositionType.Scalar,
-        componentType: componentType,
-        name: 'outValue',
-      });
   }
 
 }

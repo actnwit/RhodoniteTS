@@ -3,7 +3,7 @@ import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import Material from "../core/Material";
 import ScalarToVector4MaterialNode from "./ScalarToVector4MaterialNode";
-import EndMaterialNode from "./EndMaterialNode";
+import EndMaterialNode from "./OutPositionMaterialNode";
 import Scalar from "../../math/Scalar";
 import AttributePositionMaterialNode from "./AttributePositionMaterialNode";
 

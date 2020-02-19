@@ -79,7 +79,8 @@ import ConstantVariableMaterialNode from './foundation/materials/nodes/ConstantV
 import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
 import DotProductMaterialNode from './foundation/materials/nodes/DotProductMaterialNode';
 import MultiplyMaterialNode from './foundation/materials/nodes/MultiplyMaterialNode';
-import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
+import OutPositionMaterialNode from './foundation/materials/nodes/OutPositionMaterialNode';
+import OutColorMaterialNode from './foundation/materials/nodes/OutColorMaterialNode';
 import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
 import Vector3AndScalarToVector4MaterialNode from './foundation/materials/nodes/Vector3AndScalarToVector4MaterialNode';
 import AttributePositionMaterialNode from './foundation/materials/nodes/AttributePositionMaterialNode';
@@ -88,7 +89,8 @@ import WorldMatrixMaterialNode from './foundation/materials/nodes/WorldMatrixMat
 import ViewMatrixMaterialNode from './foundation/materials/nodes/ViewMatrixMaterialNode';
 import NormalMatrixMaterialNode from './foundation/materials/nodes/NormalMatrixMaterialNode';
 import ProjectionMatrixMaterialNode from './foundation/materials/nodes/ProjectionMatrixMaterialNode';
-import VaryingVariableMaterialNode from './foundation/materials/nodes/VaryingVariableMaterialNode';
+import VaryingInVariableMaterialNode from './foundation/materials/nodes/VaryingInVariableMaterialNode';
+import VaryingOutVariableMaterialNode from './foundation/materials/nodes/VaryingOutVariableMaterialNode';
 import UniformDataMaterialNode from './foundation/materials/nodes/UniformDataMaterialNode';
 import NormalizeMaterialNode from './foundation/materials/nodes/NormalizeMaterialNode';
 import IfStatementMaterialNode from './foundation/materials/nodes/IfStatementMaterialNode';
@@ -177,7 +179,7 @@ let Rn = {
   AddMaterialNode,
   DotProductMaterialNode,
   MultiplyMaterialNode,
-  EndMaterialNode,
+  OutPositionMaterialNode,
   ScalarToVector4MaterialNode,
   Vector3AndScalarToVector4MaterialNode,
   AttributePositionMaterialNode,
@@ -185,7 +187,8 @@ let Rn = {
   WorldMatrixMaterialNode,
   ViewMatrixMaterialNode,
   ProjectionMatrixMaterialNode,
-  VaryingVariableMaterialNode,
+  VaryingInVariableMaterialNode,
+  VaryingOutVariableMaterialNode,
   NormalMatrixMaterialNode,
   UniformDataMaterialNode,
   NormalizeMaterialNode,

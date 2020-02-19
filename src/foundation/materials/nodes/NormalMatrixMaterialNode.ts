@@ -1,15 +1,14 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import NormalMatrixShaderityObject from "../../../webgl/shaderity_shaders/nodes/NormalMatrix.vert"
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class NormalMatrixMaterialNode extends AbstractMaterialNode {
+export default class NormalMatrixMaterialNode extends AbstractShaderNode {
 
   constructor() {
-    super(null, 'normalMatrix', {}, NormalMatrixShaderityObject, NormalMatrixShaderityObject);
+    super('normalMatrix', NormalMatrixShaderityObject.code);
 
-    this.__vertexOutputs.push(
+    this.__outputs.push(
       {
         compositionType: CompositionType.Mat3,
         componentType: ComponentType.Float,

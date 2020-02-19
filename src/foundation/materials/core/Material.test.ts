@@ -5,7 +5,7 @@ import { ComponentType } from "../../definitions/ComponentType";
 import { CompositionType } from "../../definitions/CompositionType";
 import GetVarsMaterialNode from "../nodes/GetVarsMaterialNode";
 import Material from "./Material";
-import EndMaterialNode from "../nodes/EndMaterialNode";
+import EndMaterialNode from "../nodes/OutPositionMaterialNode";
 import { VertexAttribute } from "../../definitions/VertexAttribute";
 import AddMaterialNode from "../nodes/AddMaterialNode";
 import { ShaderSemantics } from "../../definitions/ShaderSemantics";

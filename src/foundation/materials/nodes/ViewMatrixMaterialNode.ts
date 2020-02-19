@@ -1,15 +1,15 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import ViewMatrixShaderityObject from "../../../webgl/shaderity_shaders/nodes/ViewMatrix.vert"
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class ViewMatrixMaterialNode extends AbstractMaterialNode {
+export default class ViewMatrixMaterialNode extends AbstractShaderNode {
 
   constructor() {
-    super(null, 'viewMatrix', {}, ViewMatrixShaderityObject, ViewMatrixShaderityObject);
+    super('viewMatrix', ViewMatrixShaderityObject.code);
 
-    this.__vertexOutputs.push(
+    this.__outputs.push(
       {
         compositionType: CompositionType.Mat4,
         componentType: ComponentType.Float,
@@ -18,4 +18,3 @@ export default class ViewMatrixMaterialNode extends AbstractMaterialNode {
   }
 
 }
-

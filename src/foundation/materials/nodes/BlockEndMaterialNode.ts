@@ -1,27 +1,15 @@
 
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import IfStatementShader from "../../../webgl/shaders/nodes/IfStatementShader";
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class BlockEndMaterialNode extends AbstractMaterialNode {
+export default class BlockEndMaterialNode extends AbstractShaderNode {
 
   constructor() {
-    super(new IfStatementShader(), 'blockEnd');
+    super('blockEnd', undefined, new IfStatementShader());
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-    ];
-    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
-
-    this.__vertexInputs.push(
-      {
-        compositionType: CompositionType.Unknown,
-        componentType: ComponentType.Unknown,
-        name: 'blockEnd',
-      });
-
-    this.__pixelInputs.push(
+    this.__inputs.push(
       {
         compositionType: CompositionType.Unknown,
         componentType: ComponentType.Unknown,
@@ -29,5 +17,4 @@ export default class BlockEndMaterialNode extends AbstractMaterialNode {
       });
 
   }
-
 }

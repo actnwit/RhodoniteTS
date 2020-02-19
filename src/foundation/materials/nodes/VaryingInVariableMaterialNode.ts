@@ -1,19 +1,18 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType, CompositionTypeEnum } from "../../definitions/CompositionType";
 import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
 import VaryingVariableShader from "../../../webgl/shaders/nodes/VaryingVariableShader";
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class VaryingVariableMaterialNode extends AbstractMaterialNode {
+export default class VaryingInVariableMaterialNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super(null, 'varyingVariable');
+    super('varyingInVariable');
 
-    this.__shaderFunctionName += '_' + this.__materialNodeUid;
+    this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
     this.__shader = new VaryingVariableShader(this.__shaderFunctionName, compositionType, componentType);
 
-    this.__vertexInputs.push(
+    this.__inputs.push(
       {
         compositionType: compositionType,
         componentType: componentType,
@@ -21,12 +20,6 @@ export default class VaryingVariableMaterialNode extends AbstractMaterialNode {
         isClosed: true
       });
 
-      this.__pixelOutputs.push(
-      {
-        compositionType: compositionType,
-        componentType: componentType,
-        name: 'outValue',
-      });
   }
 
   setVaryingVariableName(value: any) {

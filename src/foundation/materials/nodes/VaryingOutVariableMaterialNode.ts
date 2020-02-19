@@ -1,30 +1,27 @@
 import { CompositionType, CompositionTypeEnum } from "../../definitions/CompositionType";
 import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
-import ConstantVariableShader from "../../../webgl/shaders/nodes/ConstantVariableShader";
+import VaryingVariableShader from "../../../webgl/shaders/nodes/VaryingVariableShader";
 import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class ConstantVariableMaterialNode extends AbstractShaderNode {
+export default class VaryingOutVariableMaterialNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super('constantVariable', undefined, undefined);
+    super('varyingOutVariable');
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__shader = new ConstantVariableShader(this.__shaderFunctionName, compositionType, componentType);
+    this.__shader = new VaryingVariableShader(this.__shaderFunctionName, compositionType, componentType);
 
-    this.__outputs.push(
+      this.__outputs.push(
       {
         compositionType: compositionType,
         componentType: componentType,
         name: 'outValue',
       });
-
   }
 
-  setDefaultInputValue(inputName: string, value: any) {
-    if (inputName === 'value') {
-      (this.__shader as ConstantVariableShader).setConstantValue(value);
-    }
+  setVaryingVariableName(value: any) {
+    (this.__shader as VaryingVariableShader).setVariableName(value);
   }
 }
 

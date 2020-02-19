@@ -33,6 +33,7 @@ import { AttributeNames } from "../../../webgl/shaders/EnvConstantShader";
 import GLSLShader from "../../../webgl/shaders/GLSLShader";
 import mainPrerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl"
 import prerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/prerequisites.glsl"
+import AbstractShaderNode from "./AbstractShaderNode";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -1021,15 +1022,9 @@ ${prerequisitesShaderityObject.code}
     return { vertexShader, pixelShader, attributeNames, attributeSemantics, vertexShaderBody, pixelShaderBody };
   }
 
-  static constructShaderWithNodes(materialNodes: AbstractMaterialNode[], shaderType: ShaderTypeEnum) {
-    let shaderTypeStr = 'vertex'
-    let shaderTypeStrC = 'Vertex'
-    if (shaderType === ShaderType.PixelShader) {
-      shaderTypeStr = 'pixel'
-      shaderTypeStrC = 'Pixel'
-    }
-    let shaderBody = ''
-          const isAnyTypeInput = function(input: ShaderSocket) {
+  static constructShaderWithNodes(materialNodes: AbstractShaderNode[], shaderType: ShaderTypeEnum) {
+      let shaderBody = ''
+      const isAnyTypeInput = function(input: ShaderSocket) {
         return input.compositionType === CompositionType.Unknown ||
               input.componentType === ComponentType.Unknown;
       }
@@ -1050,49 +1045,49 @@ ${prerequisitesShaderityObject.code}
             varOutputNames[i - 1] = [];
           }
         }
-        const inputConnections = (materialNode as any)[shaderTypeStr+'InputConnections']
+        const inputConnections = materialNode.inputConnections
         for (let j = 0; j < inputConnections.length; j++) {
           const inputConnection = inputConnections[j];
-          const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-          if (isAnyTypeInput((materialNode as any)[`get${shaderTypeStrC}Inputs`]()[j])) {
+          const inputNode = AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
+          if (isAnyTypeInput(materialNode.getInputs()[j])) {
             continue
           }
-          const outputSocketOfPrev = (inputNode as any)[`get${shaderTypeStrC}Output`](inputConnection.outputNameOfPrev);
-          const inputSocketOfThis = (materialNode as any)[`get${shaderTypeStrC}Input`](inputConnection.inputNameOfThis);
+          const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
+          const inputSocketOfThis = materialNode.getInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
-          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
+          let varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${materialNode.shaderNodeUid}`;
+          if (existingInputs.indexOf(inputNode.shaderNodeUid) === -1) {
             const rowStr = `${glslTypeStr} ${varName};\n`;
             shaderBody += rowStr;
           }
-          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
+          const existVarName = existingOutputsVarName.get(inputNode.shaderNodeUid);
           if (existVarName) {
             varName = existVarName;
           }
           varInputNames[i].push(varName);
-          existingInputs.push(inputConnection.materialNodeUid)
+          existingInputs.push(inputConnection.shaderNodeUid)
         }
         for (let j = i; j < materialNodes.length; j++) {
           const targetMaterialNode = materialNodes[j];
           const prevMaterialNodeInner = materialNodes[i - 1];
-          const targetNodeInputConnections = (targetMaterialNode as any)[shaderTypeStr+'InputConnections']
+          const targetNodeInputConnections = targetMaterialNode.inputConnections
           for (let k = 0; k < targetNodeInputConnections.length; k++) {
             const inputConnection = targetNodeInputConnections[k];
-            if (prevMaterialNodeInner != null && inputConnection.materialNodeUid !== prevMaterialNodeInner.materialNodeUid) {
+            if (prevMaterialNodeInner != null && inputConnection.shaderNodeUid !== prevMaterialNodeInner.shaderNodeUid) {
               continue;
             }
-            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.shaderNodeUid];
             if (!isAnyTypeInput((targetMaterialNode as any).getPixelInputs()[k])) {
               if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
                 const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
-                const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${targetMaterialNode.materialNodeUid}`;
+                const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${targetMaterialNode.shaderNodeUid}`;
 
                 if (i - 1 >= 0) {
                   varOutputNames[i - 1].push(varName);
                 }
-                existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
+                existingOutputsVarName.set(inputConnection.shaderNodeUid, varName)
               }
-              existingOutputs.push(inputConnection.materialNodeUid)
+              existingOutputs.push(inputConnection.shaderNodeUid)
             }
           }
         }
@@ -1119,8 +1114,8 @@ ${prerequisitesShaderityObject.code}
         } else if (functionName === 'blockEnd') {
           rowStr += `}\n`;
         } else {
-          if (materialNode.getPixelInputs().length != varInputNames[i].length ||
-            materialNode.getPixelOutputs().length != varOutputNames[i].length) {
+          if (materialNode.getInputs().length != varInputNames[i].length ||
+            materialNode.getOutputs().length != varOutputNames[i].length) {
             continue;
           }
           const varNames = varInputNames[i].concat(varOutputNames[i]);

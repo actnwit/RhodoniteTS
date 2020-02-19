@@ -6,7 +6,7 @@ import ConstantVariableMaterialNode from "./ConstantVariableMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import ScalarToVector4MaterialNode from "./ScalarToVector4MaterialNode";
-import EndMaterialNode from "./EndMaterialNode";
+import EndMaterialNode from "./OutPositionMaterialNode";
 import Scalar from "../../math/Scalar";
 
 const Rn: RnType = RnObj as any;

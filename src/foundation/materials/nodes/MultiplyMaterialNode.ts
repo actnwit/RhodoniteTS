@@ -1,16 +1,15 @@
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
 import MultiplyShaderityObject from "../../../webgl/shaderity_shaders/nodes/Multiply.glsl"
 import { CompositionTypeEnum, ComponentTypeEnum } from "../../../rhodonite";
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class MultiplyMaterialNode extends AbstractMaterialNode {
+export default class MultiplyMaterialNode extends AbstractShaderNode {
 
   constructor(
     lhsCompositionType: CompositionTypeEnum, lhsComponentType: ComponentTypeEnum,
     rhsCompositionType: CompositionTypeEnum, rhsComponentType: ComponentTypeEnum,
     ) {
-    super(null, 'multiply', {}, MultiplyShaderityObject, MultiplyShaderityObject);
+    super('multiply', MultiplyShaderityObject.code);
 
 
     let outValueCompositionType = CompositionType.Unknown;
@@ -21,38 +20,19 @@ export default class MultiplyMaterialNode extends AbstractMaterialNode {
     } else if (lhsCompositionType === CompositionType.Scalar && rhsCompositionType === CompositionType.Scalar) {
       outValueCompositionType = CompositionType.Scalar;
     }
-    this.__vertexInputs.push(
+    this.__inputs.push(
       {
         compositionType: lhsCompositionType,
         componentType: lhsComponentType,
         name: 'lhs',
       });
-    this.__vertexInputs.push(
+    this.__inputs.push(
       {
         compositionType: rhsCompositionType,
         componentType: rhsComponentType,
         name: 'rhs',
       });
-    this.__vertexOutputs.push(
-      {
-        compositionType: outValueCompositionType,
-        componentType: lhsComponentType,
-        name: 'outValue',
-      });
-
-    this.__pixelInputs.push(
-      {
-        compositionType: lhsCompositionType,
-        componentType: lhsComponentType,
-        name: 'lhs',
-      });
-    this.__pixelInputs.push(
-      {
-        compositionType: rhsCompositionType,
-        componentType: rhsComponentType,
-        name: 'rhs',
-      });
-    this.__pixelOutputs.push(
+    this.__outputs.push(
       {
         compositionType: outValueCompositionType,
         componentType: lhsComponentType,

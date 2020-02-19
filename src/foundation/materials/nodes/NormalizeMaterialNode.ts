@@ -1,41 +1,25 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
 import NormalizeShaderityObject from "../../../webgl/shaderity_shaders/nodes/Normalize.glsl"
 import { CompositionTypeEnum, ComponentTypeEnum } from "../../../rhodonite";
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class NormalizeMaterialNode extends AbstractMaterialNode {
+export default class NormalizeMaterialNode extends AbstractShaderNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super(null, 'normalize', {}, NormalizeShaderityObject, NormalizeShaderityObject);
+    super('normalize', NormalizeShaderityObject.code);
 
-    this.__vertexInputs.push(
+    this.__inputs.push(
       {
         compositionType: compositionType,
         componentType: componentType,
         name: 'value',
       });
-    this.__vertexOutputs.push(
+    this.__outputs.push(
       {
         compositionType: compositionType,
         componentType: componentType,
         name: 'outValue',
       });
 
-    this.__pixelInputs.push(
-      {
-        compositionType: compositionType,
-        componentType: componentType,
-        name: 'value',
-      });
-    this.__pixelOutputs.push(
-      {
-        compositionType: compositionType,
-        componentType: componentType,
-        name: 'outValue',
-      });
-  }
-
+    }
 }
 

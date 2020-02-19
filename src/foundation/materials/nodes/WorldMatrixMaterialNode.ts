@@ -1,15 +1,14 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import WorldMatrixShaderityObject from "../../../webgl/shaderity_shaders/nodes/WorldMatrix.vert"
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class WorldMatrixMaterialNode extends AbstractMaterialNode {
+export default class WorldMatrixMaterialNode extends AbstractShaderNode {
 
   constructor() {
-    super(null, 'worldMatrix', {}, WorldMatrixShaderityObject, WorldMatrixShaderityObject);
+    super('worldMatrix', WorldMatrixShaderityObject.code);
 
-    this.__vertexOutputs.push(
+    this.__outputs.push(
       {
         compositionType: CompositionType.Mat4,
         componentType: ComponentType.Float,

@@ -1,25 +1,29 @@
 import RnObject from "../../core/RnObject";
 import { ShaderNode } from "../../definitions/ShaderNode";
 import { ShaderSocket } from "./AbstractMaterialNode";
+import GLSLShader from "../../../webgl/shaders/GLSLShader";
 
 type ShaderNodeUID = number;
 type ShaderNodeInputConnectionType = { shaderNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string };
 
 export default abstract class AbstractShaderNode extends RnObject {
-  private __shaderFunctionName: string;
-  private __shaderCode: string;
+  static shaderNodes: AbstractShaderNode[] = [];
+  protected __shaderFunctionName: string;
+  private __shaderCode?: string;
   protected __inputs: ShaderSocket[] = [];
   protected __outputs: ShaderSocket[] = [];
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
   private static readonly __invalidShaderNodeUid = -1;
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
+  protected __shader?: GLSLShader;
 
-  constructor(shaderNodeName: string, shaderCode: string) {
+  constructor(shaderNodeName: string, shaderCode?: string, shader?: GLSLShader) {
     super();
     this.__shaderFunctionName = shaderNodeName;
     this.__shaderCode = shaderCode
     this.__shaderNodeUid = ++AbstractShaderNode.__invalidShaderNodeCount;
+    this.__shader = shader
   }
 
   get shaderFunctionName() {

@@ -1,15 +1,14 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import ProjectionMatrixShaderityObject from "../../../webgl/shaderity_shaders/nodes/ProjectionMatrix.vert"
+import AbstractShaderNode from "../core/AbstractShaderNode";
 
-export default class ProjectionMatrixMaterialNode extends AbstractMaterialNode {
+export default class ProjectionMatrixMaterialNode extends AbstractShaderNode {
 
   constructor() {
-    super(null, 'projectionMatrix', {}, ProjectionMatrixShaderityObject, ProjectionMatrixShaderityObject);
+    super('projectionMatrix',  ProjectionMatrixShaderityObject.code);
 
-    this.__vertexOutputs.push(
+    this.__outputs.push(
       {
         compositionType: CompositionType.Mat4,
         componentType: ComponentType.Float,
