@@ -584,7 +584,10 @@ export default class Material extends RnObject {
     return { vertexPropertiesStr, pixelPropertiesStr };
   }
 
-  static createProgramString(materialNodesVertex: AbstractShaderNode[], materialNodesPixel: AbstractShaderNode[]) {
+  static createProgramString(nodesVertex_: AbstractShaderNode[], nodesPixel_: AbstractShaderNode[]) {
+
+    const materialNodesVertex = nodesVertex_.concat();
+    const materialNodesPixel = nodesPixel_.concat();
 
     // Find Start Node
     let firstMaterialNodeVertex: AbstractShaderNode;
