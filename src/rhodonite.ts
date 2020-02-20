@@ -96,6 +96,7 @@ import NormalizeShaderNode from './foundation/materials/nodes/NormalizeShaderNod
 import IfStatementShaderNode from './foundation/materials/nodes/IfStatementShaderNode';
 import BlockBeginShaderNode from './foundation/materials/nodes/BlockBeginShaderNode';
 import BlockEndShaderNode from './foundation/materials/nodes/BlockEndShaderNode';
+import GreaterShaderNode from './foundation/materials/nodes/GreaterShaderNode';
 
 let Rn = {
   EntityRepository,
@@ -196,6 +197,7 @@ let Rn = {
   IfStatementShaderNode,
   BlockBeginShaderNode,
   BlockEndShaderNode,
+  GreaterShaderNode,
 };
 
 if (typeof exports !== 'undefined') {
