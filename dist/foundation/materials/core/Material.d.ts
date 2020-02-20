@@ -2,11 +2,9 @@ import RnObject from "../../core/RnObject";
 import { AlphaModeEnum } from "../../definitions/AlphaMode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../../definitions/ShaderSemantics";
-import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
 import AbstractTexture from "../../textures/AbstractTexture";
 import Accessor from "../../memory/Accessor";
 import { Index, CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
-import { AttributeNames } from "../../../webgl/shaders/EnvConstantShader";
 export declare type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
 /**
  * The material class.
@@ -98,15 +96,14 @@ export default class Material extends RnObject {
     }): void;
     private __setupGlobalShaderDefinition;
     createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc): number;
-    private __getProperties;
-    createProgramString(vertexShaderMethodDefinitions_uniform?: string, propertySetter?: getShaderPropertyFunc): {
-        vertexShader: string;
-        pixelShader: string;
-        attributeNames: AttributeNames;
-        attributeSemantics: VertexAttributeEnum[];
-        vertexShaderBody: string;
-        pixelShaderBody: string;
-    } | undefined;
+    /**
+     * @private
+     * @param propertySetter
+     */
+    _getProperties(propertySetter: getShaderPropertyFunc): {
+        vertexPropertiesStr: string;
+        pixelPropertiesStr: string;
+    };
     createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc): number;
     isBlend(): boolean;
     static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): number;

@@ -20,9 +20,11 @@ export default class ConstantVariableShader extends GLSLShader {
   setConstantValue(value: any) {
     let constant = '';
     if (this.__componentType.isFloatingPoint()) {
-      constant = value.glslStrAsFloat
+      constant = value.glslStrAsFloat;
     } else if (this.__componentType.isInteger()) {
-      constant = value.glslStrAsInt
+      constant = value.glslStrAsInt;
+    } else if (this.__componentType === ComponentType.Bool) {
+      constant = value.x ? 'true' : 'false';
     }
     this.__constantValueStr = constant;
   }

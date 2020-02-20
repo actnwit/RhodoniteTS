@@ -1,7 +1,7 @@
 #pragma shaderity: require(../common/version.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
-/* shaderity: ${definitions} */
+/* shaderity: @{definitions} */
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -12,7 +12,7 @@ in float v_instanceID;
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-/* shaderity: ${getters} */
+/* shaderity: @{getters} */
 
 #pragma shaderity: require(../common/packing.glsl)
 

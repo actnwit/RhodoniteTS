@@ -1,6 +1,6 @@
-version: 0.1.5-298-g5b8c4-mod
+version: 0.1.5-315-g6b02-mod
 branch: feat/node-editor
-c1405400a1a029debf706f7d04bc3c923081fb230b14662d7653ee642a16306e ./dist/rhodonite.js
-4e374b6bd679e3277b783cf4fd47391e44386ac426ebb945ceafa07d405c6486 ./dist/rhodonite.min.js
-04700e51bdd5afa2c0084a342fa9072aa78a253ce85ebaf91b9cb7f8ccacdcd8 ./dist/rhodonite-webgl.js
-04700e51bdd5afa2c0084a342fa9072aa78a253ce85ebaf91b9cb7f8ccacdcd8 ./dist/rhodonite-webgl.min.js
+61f41bba758c85f25326ca479b09b53151fd21431764fe751ab23d30fb2f9f6e ./dist/rhodonite.js
+5e7efb26181b50948cb51a38a866da6f0e3c47fff7f3c4344339f26ac1c6ca78 ./dist/rhodonite.min.js
+ae3e64213ee68377e99c7d49e055ad70fdd8a8b688ac10ac5d5ad58e1076f48b ./dist/rhodonite-webgl.js
+ae3e64213ee68377e99c7d49e055ad70fdd8a8b688ac10ac5d5ad58e1076f48b ./dist/rhodonite-webgl.min.js
