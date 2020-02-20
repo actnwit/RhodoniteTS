@@ -1,15 +1,16 @@
 import RnObj, { RnType } from "../../../../dist/rhodonite";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
-import Material from "../core/Material";
 import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
-import VaryingVariableMaterialNode from "./VaryingInVariableShaderNode";
+import VaryingInVariableShaderNode from "./VaryingInVariableShaderNode";
+import VaryingOutVariableShaderNode from "./VaryingOutVariableShaderNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import AddShaderNode from "./AddShaderNode";
-import EndMaterialNode from "./OutPositionShaderNode";
+import OutPositionShaderNode from "./OutPositionShaderNode";
+import OutColorShaderNode from "./OutColorShaderNode";
 import Vector4 from "../../math/Vector4";
 import { ShaderType } from "../../definitions/ShaderType";
+import ShaderGraphResolver from "../core/ShaderGraphResolver";
 
 const Rn: RnType = RnObj as any;
 
@@ -17,108 +18,123 @@ test('VaryingVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
-  Material.registerMaterial('MyMaterial', []);
-  const material = Material.createMaterial('MyMaterial')!;
-
-  const varying1 = new VaryingVariableMaterialNode(CompositionType.Vec4, ComponentType.Float);
-  varying1.setVaryingVariableName('v_position');
+  const varyingOut1 = new VaryingOutVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
+  varyingOut1.setVaryingVariableName('v_position');
+  const varyingIn1 = new VaryingInVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
+  varyingIn1.setVaryingVariableName('v_position');
   const constant1 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
   constant1.setDefaultInputValue('value', new Vector4(4, 3, 2, 1));
-  constant1.shaderType = ShaderType.VertexShader;
+  const outPositionNode = new OutPositionShaderNode();
+  const outColorNode = new OutColorShaderNode();
 
-  const endMaterialNode = new EndMaterialNode();
-  varying1.addVertexInputConnection(constant1, 'outValue', 'value');
-  endMaterialNode.addVertexInputConnection(constant1, 'outValue', 'inPosition');
-  endMaterialNode.addPixelInputConnection(varying1, 'outValue', 'inColor');
+  varyingOut1.addInputConnection(constant1, 'outValue', 'value');
+  outPositionNode.addInputConnection(constant1, 'outValue', 'value');
+  outColorNode.addInputConnection(varyingIn1, 'outValue', 'value');
 
   // nodes are intentionally made the order random
-  material.setMaterialNodes([endMaterialNode, varying1, constant1]);
+  const vertexRet = ShaderGraphResolver.createVertexShaderCode([outPositionNode, varyingOut1, constant1]);
+  const pixelRet = ShaderGraphResolver.createPixelShaderCode([outColorNode, varyingIn1]);
 
-  const returnValues = material.createProgramString();
-  console.log(returnValues!.vertexShaderBody+returnValues!.pixelShaderBody)
- expect((returnValues!.vertexShaderBody+returnValues!.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
+  console.log(vertexRet.shaderBody+pixelRet.shaderBody)
+ expect((vertexRet.shaderBody+pixelRet.shaderBody).replace(/\s+/g, "")).toEqual(`
 
+        void constantVariable_2(
+          out vec4 outValue) {
+          outValue = vec4(4.0, 3.0, 2.0, 1.0);
+        }
+        
+        out vec4 v_position;
+        void varyingOutVariable_0(
+          in vec4 value) {
+          v_position = value;
+        }
 
-    void constantVariable_1(
-      out vec4 outValue) {
-      outValue = vec4(4.0, 3.0, 2.0, 1.0);
-    }
+        void outPosition(in vec4 inPosition) {
+          gl_Position = inPosition;
+        }
 
-    void constantVariable_0(
-      out vec4 outValue) {
-      outValue = vec4(1.0, 2.0, 3.0, 4.0);
-    }
+        void main() {
+        #ifdef RN_IS_FASTEST_MODE
+      float materialSID = u_currentComponentSIDs[0];
 
-void add(in float lfs, in float rhs, out float outValue) {
-  outValue = lfs + rhs;
-}
-void add(in int lfs, in int rhs, out int outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
-  outValue = lfs + rhs;
-}
+      int lightNumber = 0;
+      #ifdef RN_IS_LIGHTING
+        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
+      #endif
 
-    void end(in vec4 inPosition) {
-      gl_Position = inPosition;
-    }
+      float skeletalComponentSID = -1.0;
+      #ifdef RN_IS_SKINNING
+        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
+      #endif
 
-    void main() {
-    vec4 outValue_0_to_lhs_2;
-vec4 outValue_1_to_rhs_2;
-vec4 outValue_2_to_inPosition_3;
-constantVariable_1(outValue_1_to_rhs_2);
-constantVariable_0(outValue_0_to_lhs_2);
-add(outValue_0_to_lhs_2, outValue_1_to_rhs_2, outValue_2_to_inPosition_3);
-end(outValue_2_to_inPosition_3);
+    #else
 
-    }
+      float materialSID = u_materialSID;
+    
+      int lightNumber = 0;
+      #ifdef RN_IS_LIGHTING
+        lightNumber = get_lightNumber(0.0, 0);
+      #endif
 
+      float skeletalComponentSID = -1.0;
+      #ifdef RN_IS_SKINNING
+        skeletalComponentSID = float(get_skinningMode(0.0, 0));
+      #endif
+    
+    #endif
+    vec4 outValue_2_to_0;
+    constantVariable_2(outValue_2_to_0);
+    varyingOutVariable_0(outValue_2_to_0);
+    outPosition(outValue_2_to_0);
 
+        }
 
-    void constantVariable_1(
-      out vec4 outValue) {
-      outValue = vec4(4.0, 3.0, 2.0, 1.0);
-    }
+        in vec4 v_position;
+        void varyingInVariable_1(
+          out vec4 outValue) {
+          outValue = v_position;
+        }
 
-    void constantVariable_0(
-      out vec4 outValue) {
-      outValue = vec4(1.0, 2.0, 3.0, 4.0);
-    }
+        void outColor(in vec4 inColor) {
+          vec4 rt0 = inColor;
+          gl_FragColor = rt0;
 
-void add(in float lfs, in float rhs, out float outValue) {
-  outValue = lfs + rhs;
-}
-void add(in int lfs, in int rhs, out int outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
-  outValue = lfs + rhs;
-}
+        }
+        
+        void main() {
+        #ifdef RN_IS_FASTEST_MODE
+      float materialSID = u_currentComponentSIDs[0];
 
-    void end(in vec4 inColor) {
-      vec4 rt0 = inColor;
-      gl_FragColor = rt0;
+      int lightNumber = 0;
+      #ifdef RN_IS_LIGHTING
+        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
+      #endif
+    
+      float skeletalComponentSID = -1.0;
+      #ifdef RN_IS_SKINNING
+        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
+      #endif
 
-    }
+    #else
 
-    void main() {
-    vec4 outValue_1_to_inColor_3;
-constantVariable_1(outValue_1_to_inColor_3);
-end(outValue_1_to_inColor_3);
+      float materialSID = u_materialSID;
 
-    }
+      int lightNumber = 0;
+      #ifdef RN_IS_LIGHTING
+        lightNumber = get_lightNumber(0.0, 0);
+      #endif
+
+      float skeletalComponentSID = -1.0;
+      #ifdef RN_IS_SKINNING
+        skeletalComponentSID = float(get_skinningMode(0.0, 0));
+      #endif
+
+    #endif
+    vec4 outValue_1_to_4;
+    varyingInVariable_1(outValue_1_to_4);
+    outColor(outValue_1_to_4);
+
+        }
+
     `.replace(/\s+/g, ""))
 });
