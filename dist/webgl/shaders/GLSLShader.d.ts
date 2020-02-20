@@ -11,7 +11,7 @@ export default abstract class GLSLShader {
     get glsl_fragColor(): "" | "gl_FragColor = rt0;\n";
     get glsl_vertex_in(): "in" | "attribute";
     get glsl_fragment_in(): "in" | "varying";
-    get glsl_vertex_out(): "out" | "varying";
+    get glsl_vertex_out(): "varying" | "out";
     get glsl_vertex_centroid_out(): "varying" | "centroid out";
     get glsl_texture(): "texture" | "texture2D";
     get glsl_textureCube(): "texture" | "textureCube";

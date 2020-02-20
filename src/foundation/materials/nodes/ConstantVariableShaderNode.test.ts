@@ -1,13 +1,13 @@
 import RnObj, { RnType } from "../../../../dist/rhodonite";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
-import Material from "../core/Material";
 import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import AddShaderNode from "./AddShaderNode";
-import EndMaterialNode from "./OutPositionShaderNode";
+import OutPositionShaderNode from "./OutPositionShaderNode";
 import Vector4 from "../../math/Vector4";
+import ShaderGraphResolver from "../core/ShaderGraphResolver";
 
 const Rn: RnType = RnObj as any;
 
@@ -15,109 +15,91 @@ test('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
-  Material.registerMaterial('MyMaterial', []);
-  const material = Material.createMaterial('MyMaterial')!;
-
   const constant1 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
   constant1.setDefaultInputValue('value', new Vector4(1, 2, 3, 4));
   const constant2 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
   constant2.setDefaultInputValue('value', new Vector4(4, 3, 2, 1));
 
-  const addMaterialNode = new AddShaderNode();
-  addMaterialNode.addVertexInputConnection(constant1, 'outValue', 'lhs');
-  addMaterialNode.addVertexInputConnection(constant2, 'outValue', 'rhs');
+  const add = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
+  add.addInputConnection(constant1, 'outValue', 'lhs');
+  add.addInputConnection(constant2, 'outValue', 'rhs');
 
-  const endMaterialNode = new EndMaterialNode();
-  endMaterialNode.addVertexInputConnection(addMaterialNode, 'outValue', 'inPosition');
-  endMaterialNode.addPixelInputConnection(constant2, 'outValue', 'inColor');
+  const outPosition = new OutPositionShaderNode();
+  outPosition.addInputConnection(add, 'outValue', 'value');
 
   // nodes are intentionally made the order random
-  material.setMaterialNodes([endMaterialNode, addMaterialNode, constant1, constant2]);
+  const ret = ShaderGraphResolver.createVertexShaderCode([constant1, constant2, add, outPosition])
 
-  const returnValues = material.createProgramString();
- expect((returnValues.vertexShaderBody+returnValues.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
+  console.log(ret.shaderBody, ret.shader)
 
+  expect((ret.shaderBody).replace(/\s+/g, "")).toEqual(`
+        void constantVariable_1(
+          out vec4 outValue) {
+          outValue = vec4(4.0, 3.0, 2.0, 1.0);
+        }
 
-    void constantVariable_1(
-      out vec4 outValue) {
-      outValue = vec4(4.0, 3.0, 2.0, 1.0);
+        void constantVariable_0(
+          out vec4 outValue) {
+          outValue = vec4(1.0, 2.0, 3.0, 4.0);
+        }
+
+    void add(in float lfs, in float rhs, out float outValue) {
+      outValue = lfs + rhs;
+    }
+    void add(in int lfs, in int rhs, out int outValue) {
+      outValue = lfs + rhs;
+    }
+    void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
+      outValue = lfs + rhs;
+    }
+    void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
+      outValue = lfs + rhs;
+    }
+    void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
+      outValue = lfs + rhs;
     }
 
-    void constantVariable_0(
-      out vec4 outValue) {
-      outValue = vec4(1.0, 2.0, 3.0, 4.0);
-    }
+        void outPosition(in vec4 inPosition) {
+          gl_Position = inPosition;
+        }
 
-void add(in float lfs, in float rhs, out float outValue) {
-  outValue = lfs + rhs;
-}
-void add(in int lfs, in int rhs, out int outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
-  outValue = lfs + rhs;
-}
+        void main() {
+        #ifdef RN_IS_FASTEST_MODE
+      float materialSID = u_currentComponentSIDs[0];
 
-    void end(in vec4 inPosition) {
-      gl_Position = inPosition;
-    }
+      int lightNumber = 0;
+      #ifdef RN_IS_LIGHTING
+        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
+      #endif
 
-    void main() {
-    vec4 outValue_0_to_lhs_2;
-vec4 outValue_1_to_rhs_2;
-vec4 outValue_2_to_inPosition_3;
-constantVariable_1(outValue_1_to_rhs_2);
-constantVariable_0(outValue_0_to_lhs_2);
-add(outValue_0_to_lhs_2, outValue_1_to_rhs_2, outValue_2_to_inPosition_3);
-end(outValue_2_to_inPosition_3);
+      float skeletalComponentSID = -1.0;
+      #ifdef RN_IS_SKINNING
+        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
+      #endif
 
-    }
+    #else
 
+      float materialSID = u_materialSID;
 
+      int lightNumber = 0;
+      #ifdef RN_IS_LIGHTING
+        lightNumber = get_lightNumber(0.0, 0);
+      #endif
 
-    void constantVariable_1(
-      out vec4 outValue) {
-      outValue = vec4(4.0, 3.0, 2.0, 1.0);
-    }
+      float skeletalComponentSID = -1.0;
+      #ifdef RN_IS_SKINNING
+        skeletalComponentSID = float(get_skinningMode(0.0, 0));
+      #endif
 
-    void constantVariable_0(
-      out vec4 outValue) {
-      outValue = vec4(1.0, 2.0, 3.0, 4.0);
-    }
+    #endif
+    vec4 outValue_0_to_2;
+    vec4 outValue_1_to_2;
+    vec4 outValue_2_to_3;
+    constantVariable_1(outValue_1_to_2);
+    constantVariable_0(outValue_0_to_2);
+    add(outValue_0_to_2, outValue_1_to_2, outValue_2_to_3);
+    outPosition(outValue_2_to_3);
 
-void add(in float lfs, in float rhs, out float outValue) {
-  outValue = lfs + rhs;
-}
-void add(in int lfs, in int rhs, out int outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
-  outValue = lfs + rhs;
-}
-void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
-  outValue = lfs + rhs;
-}
-
-    void end(in vec4 inColor) {
-      vec4 rt0 = inColor;
-      gl_FragColor = rt0;
-
-    }
-
-    void main() {
-    vec4 outValue_1_to_inColor_3;
-constantVariable_1(outValue_1_to_inColor_3);
-end(outValue_1_to_inColor_3);
-
-    }
+        }
     `.replace(/\s+/g, ""))
 });

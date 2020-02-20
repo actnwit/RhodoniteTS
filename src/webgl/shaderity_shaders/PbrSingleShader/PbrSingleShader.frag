@@ -2,7 +2,7 @@
 #pragma shaderity: require(../common/enableExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
-/* shaderity: ${definitions} */
+/* shaderity: @{definitions} */
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -19,7 +19,7 @@ in vec3 v_baryCentricCoord;
 
 #pragma shaderity: require(./pbrDefinition.glsl)
 
-/* shaderity: ${getters} */
+/* shaderity: @{getters} */
 
 vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
 {
@@ -151,7 +151,7 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
   albedo.rgb *= (1.0 - metallic);
 
   // ViewDirection
-  float cameraSID = u_currentComponentSIDs[/* shaderity: ${WellKnownComponentTIDs.CameraComponentTID} */];
+  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
 
@@ -163,7 +163,7 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
   // Lighting
   if (length(normal_inWorld) > 0.02) {
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < /* shaderity: ${Config.maxLightNumberInShader} */; i++) {
+    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
       if (i >= lightNumber) {
         break;
       }

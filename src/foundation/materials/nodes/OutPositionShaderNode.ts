@@ -12,7 +12,7 @@ export default class OutPositionShaderNode extends AbstractShaderNode {
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
-        name: 'outValue',
+        name: 'value',
       });
 
   }

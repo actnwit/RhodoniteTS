@@ -3,7 +3,7 @@ import { ShaderNode } from "../../definitions/ShaderNode";
 import { ShaderSocket } from "./AbstractMaterialNode";
 import GLSLShader from "../../../webgl/shaders/GLSLShader";
 
-type ShaderNodeUID = number;
+export type ShaderNodeUID = number;
 type ShaderNodeInputConnectionType = { shaderNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string };
 
 export default abstract class AbstractShaderNode extends RnObject {

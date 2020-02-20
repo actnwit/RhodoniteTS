@@ -1,7 +1,7 @@
 #pragma shaderity: require(../common/version.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
-/* shaderity: ${definitions} */
+/* shaderity: @{definitions} */
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -12,9 +12,9 @@ out vec2 v_texcoord;
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-/* shaderity: ${getters} */
+/* shaderity: @{getters} */
 
-/* shaderity: ${matricesGetters} */
+/* shaderity: @{matricesGetters} */
 
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)

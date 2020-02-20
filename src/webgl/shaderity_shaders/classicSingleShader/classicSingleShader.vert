@@ -1,7 +1,7 @@
 #pragma shaderity: require(../common/version.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
-/* shaderity: ${definitions} */
+/* shaderity: @{definitions} */
 
 in vec3 a_position;
 in vec3 a_color;
@@ -22,9 +22,9 @@ uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
-/* shaderity: ${getters} */
+/* shaderity: @{getters} */
 
-/* shaderity: ${matricesGetters} */
+/* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/toNormalMatrix.glsl)
 
@@ -37,7 +37,7 @@ void main()
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  float cameraSID = u_currentComponentSIDs[/* shaderity: ${WellKnownComponentTIDs.CameraComponentTID} */];
+  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);

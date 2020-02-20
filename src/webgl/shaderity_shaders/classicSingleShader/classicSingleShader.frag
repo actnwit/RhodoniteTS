@@ -1,7 +1,7 @@
 #pragma shaderity: require(../common/version.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
-/* shaderity: ${definitions} */
+/* shaderity: @{definitions} */
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -19,7 +19,7 @@ uniform sampler2D u_normalTexture; // initialValue=(1,blue)
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-/* shaderity: ${getters} */
+/* shaderity: @{getters} */
 
 void main ()
 {
@@ -60,7 +60,7 @@ void main ()
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < /* shaderity: ${Config.maxLightNumberInShader} */ ; i++) {
+    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */ ; i++) {
       if (i >= lightNumber) {
         break;
       }
@@ -97,7 +97,7 @@ void main ()
       float shininess = get_shininess(materialSID, 0);
       int shadingModel = get_shadingModel(materialSID, 0);
 
-      float cameraSID = u_currentComponentSIDs[/* shaderity: ${WellKnownComponentTIDs.CameraComponentTID} */];
+      float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
       vec3 viewPosition = get_viewPosition(cameraSID, 0);
 
       if (shadingModel == 2) {// BLINN
