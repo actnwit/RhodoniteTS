@@ -12,11 +12,6 @@ import Scalar from "../../math/Scalar";
 const Rn: RnType = RnObj as any;
 
 test('ScalarToVector4 works correctly 1', async () => {
-  await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1);
-
-  Material.registerMaterial('MyMaterial', []);
-  const material = Material.createMaterial('MyMaterial')!;
 
   const constant1 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
   constant1.setDefaultInputValue('value', new Scalar(1));
@@ -28,13 +23,13 @@ test('ScalarToVector4 works correctly 1', async () => {
   constant4.setDefaultInputValue('value', new Scalar(4));
 
   const scalarToVector4MaterialNode = new ScalarToVector4MaterialNode();
-  scalarToVector4MaterialNode.addVertexInputConnection(constant1, 'outValue', 'x');
-  scalarToVector4MaterialNode.addVertexInputConnection(constant2, 'outValue', 'y');
-  scalarToVector4MaterialNode.addVertexInputConnection(constant3, 'outValue', 'z');
-  scalarToVector4MaterialNode.addVertexInputConnection(constant4, 'outValue', 'w');
+  scalarToVector4MaterialNode.addInputConnection(constant1, 'outValue', 'x');
+  scalarToVector4MaterialNode.addInputConnection(constant2, 'outValue', 'y');
+  scalarToVector4MaterialNode.addInputConnection(constant3, 'outValue', 'z');
+  scalarToVector4MaterialNode.addInputConnection(constant4, 'outValue', 'w');
 
   const endMaterialNode = new EndMaterialNode();
-  endMaterialNode.addVertexInputConnection(scalarToVector4MaterialNode, 'outValue', 'inPosition');
+  endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'inPosition');
 
   // nodes are intentionally made the order random
   material.setMaterialNodes([endMaterialNode, scalarToVector4MaterialNode, constant1, constant2, constant3, constant4]);
