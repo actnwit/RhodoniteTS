@@ -12,11 +12,11 @@ export default class VaryingOutVariableShaderNode extends AbstractShaderNode {
 
     this.__shader = new VaryingVariableShader(this.__shaderFunctionName, compositionType, componentType);
 
-      this.__outputs.push(
+      this.__inputs.push(
       {
         compositionType: compositionType,
         componentType: componentType,
-        name: 'outValue',
+        name: 'value',
       });
   }
 

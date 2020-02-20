@@ -81,8 +81,8 @@ import DotProductShaderNode from './foundation/materials/nodes/DotProductShaderN
 import MultiplyShaderNode from './foundation/materials/nodes/MultiplyShaderNode';
 import OutPositionShaderNode from './foundation/materials/nodes/OutPositionShaderNode';
 import OutColorShaderNode from './foundation/materials/nodes/OutColorShaderNode';
-import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4ShaderNode';
-import Vector3AndScalarToVector4MaterialNode from './foundation/materials/nodes/Vector3AndScalarToVector4ShaderNode';
+import ScalarToVector4ShaderNode from './foundation/materials/nodes/ScalarToVector4ShaderNode';
+import Vector3AndScalarToVector4ShaderNode from './foundation/materials/nodes/Vector3AndScalarToVector4ShaderNode';
 import AttributePositionShaderNode from './foundation/materials/nodes/AttributePositionShaderNode';
 import AttributeNormalShaderNode from './foundation/materials/nodes/AttributeNormalShaderNode';
 import WorldMatrixShaderNode from './foundation/materials/nodes/WorldMatrixShaderNode';
@@ -181,8 +181,8 @@ let Rn = {
   MultiplyShaderNode,
   OutPositionShaderNode,
   OutColorShaderNode,
-  ScalarToVector4MaterialNode,
-  Vector3AndScalarToVector4MaterialNode,
+  ScalarToVector4ShaderNode,
+  Vector3AndScalarToVector4ShaderNode,
   AttributePositionShaderNode,
   AttributeNormalShaderNode,
   WorldMatrixShaderNode,
