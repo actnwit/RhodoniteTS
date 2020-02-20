@@ -1,5 +1,5 @@
 {
-  "name": "@emadurandal/rhodonite-ts",
+  "name": "@emadurandal/rhodonite",
   "version": "0.1.5",
   "main": "dist/rhodonite.js",
   "types": "dist/rhodonite.d.ts",
