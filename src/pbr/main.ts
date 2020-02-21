@@ -4,4 +4,5 @@ const pbrCookTorranceBrdfLutDataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUh
 const PBR = Object.freeze({
   pbrCookTorranceBrdfLutDataUrl,
 });
+
 export default PBR;

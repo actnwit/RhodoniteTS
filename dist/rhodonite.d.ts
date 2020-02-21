@@ -501,10 +501,10 @@ declare let Rn: {
     GreaterShaderNode: typeof GreaterShaderNode;
     ShaderGraphResolver: typeof ShaderGraphResolver;
 };
+export default Rn;
 export declare type RnType = typeof Rn;
 export declare type CompositionTypeEnum = compositionTypeEnum;
 export declare type ComponentTypeEnum = componentTypeEnum;
 export declare type VertexAttributeEnum = vertexAttributeEnum;
 export declare type PrimitiveModeEnum = primitiveModeEnum;
 export declare type CameraControllerTypeEnum = cameraControllerTypeEnum;
-export {};

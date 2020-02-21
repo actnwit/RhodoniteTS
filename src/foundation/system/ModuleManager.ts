@@ -6,7 +6,7 @@ export default class ModuleManager {
   async loadModule(moduleName: string) {
     let module: any;
     if (moduleName.toLowerCase() === 'webgl') {
-      module = await import(/* webpackChunkName: "webgl" */'../../rhodonite-webgl');
+      module = await import(/* webpackChunkName: "webgl" */'../../webgl/main');
     } else if (moduleName.toLowerCase() === 'effekseer') {
       module = await import(/* webpackChunkName: "effekseer" */'../../effekseer/main');
     } else if (moduleName.toLowerCase() === 'sparkgear') {

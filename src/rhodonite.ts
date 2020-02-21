@@ -208,6 +208,7 @@ if (typeof exports !== 'undefined') {
   });
   exports.default = Rn;
 }
+export default Rn;
 
 export type RnType = typeof Rn;
 (0,eval)('this').Rn = Rn;
