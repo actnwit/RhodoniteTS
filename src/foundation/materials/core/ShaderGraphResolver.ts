@@ -29,6 +29,7 @@ export default class ShaderGraphResolver {
       in_ = 'in'
     }
     vertexShaderPrerequisites += `
+#version 300 es
 precision highp float;
 precision highp int;
 ${prerequisitesShaderityObject.code}
@@ -65,6 +66,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     // Add additional functions by system
     let pixelShaderPrerequisites = '';
     pixelShaderPrerequisites += `
+#version 300 es
 precision highp float;
 precision highp int;
 ${prerequisitesShaderityObject.code}

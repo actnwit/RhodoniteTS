@@ -501,17 +501,21 @@ export default class Material extends RnObject {
 
     // Shader Construction
     let vertexShader = this.__setupGlobalShaderDefinition();
-    let fragmentShader = this.__setupGlobalShaderDefinition();
+    let pixelShader = this.__setupGlobalShaderDefinition();
+    let vertexShaderBody = '';
+    let pixelShaderBody = '';
     if (materialNode.vertexShaderityObject != null) {
-      vertexShader += ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
-      fragmentShader += ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
+      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
+      pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
     } else {
-      vertexShader += (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
-      fragmentShader += (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions, materialNode: materialNode });
+      vertexShaderBody = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+      pixelShaderBody = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions, materialNode: materialNode });
     }
 
+    vertexShader += vertexShaderBody.replace(/#version\s+300\s+es/, '');
+    pixelShader += pixelShaderBody.replace(/#version\s+300\s+es/, '');
 
-    const wholeShaderText = vertexShader + fragmentShader;
+    const wholeShaderText = vertexShader + pixelShader;
 
     // Cache
     let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
@@ -540,7 +544,7 @@ export default class Material extends RnObject {
         {
           materialTypeName: this.__materialTypeName,
           vertexShaderStr: vertexShader,
-          fragmentShaderStr: fragmentShader,
+          fragmentShaderStr: pixelShader,
           attributeNames: attributeNames,
           attributeSemantics: attributeSemantics
         }
