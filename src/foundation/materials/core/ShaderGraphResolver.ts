@@ -180,10 +180,11 @@ ${prerequisitesShaderityObject.code}
           }
           const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
           const inputSocketOfThis = materialNode.getInput(inputConnection.inputNameOfThis);
-          const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
           let varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${materialNode.shaderNodeUid}`;
           if (existingInputs.indexOf(inputNode.shaderNodeUid) === -1) {
-            const rowStr = `${glslTypeStr} ${varName};\n`;
+            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+            const glslInitialValue = inputSocketOfThis!.compositionType.getGlslInitialValue(inputSocketOfThis!.componentType);
+            const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
             shaderBody += rowStr;
           }
           const existVarName = existingOutputsVarName.get(inputNode.shaderNodeUid);
@@ -234,33 +235,36 @@ ${prerequisitesShaderityObject.code}
         let rowStr = ''
         if (functionName === 'ifStatement') {
           ifCondition = varInputNames[i][0];
-        } else if (functionName === 'blockBegin') {
-          rowStr += `if (${ifCondition}) {\n`;
-          ifCondition = ''
-        } else if (functionName === 'blockEnd') {
-          rowStr += `}\n`;
         } else {
+          if (functionName.match(/^blockBegin_/)) {
+            rowStr += `if (${ifCondition}) {\n`;
+            ifCondition = ''
+          }
+
           if (materialNode.getInputs().length != varInputNames[i].length ||
             materialNode.getOutputs().length != varOutputNames[i].length) {
             continue;
           }
           const varNames = varInputNames[i].concat(varOutputNames[i]);
-          if (varNames.length === 0) {
-            continue;
-          }
-          // Call node functions
-          rowStr += `${functionName}(`;
-          for (let k = 0; k < varNames.length; k++) {
-            const varName = varNames[k];
-            if (varName == null) {
-              continue;
+          if (varNames.length > 0) {
+            // Call node functions
+            rowStr += `${functionName}(`;
+            for (let k = 0; k < varNames.length; k++) {
+              const varName = varNames[k];
+              if (varName == null) {
+                continue;
+              }
+              if (k !== 0) {
+                rowStr += ', ';
+              }
+              rowStr += varNames[k];
             }
-            if (k !== 0) {
-              rowStr += ', ';
-            }
-            rowStr += varNames[k];
+            rowStr += ');\n';
           }
-          rowStr += ');\n';
+
+          if (functionName.match(/^blockEnd_/)) {
+            rowStr += `}\n`;
+          }
         }
 
         shaderBody += rowStr;

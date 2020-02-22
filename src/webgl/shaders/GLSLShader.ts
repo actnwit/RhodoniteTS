@@ -113,13 +113,13 @@ precision highp int;
 
   static get glslMainBegin() {
     return `
-    void main() {
-    `
+void main() {
+`
   }
 
   static get glslMainEnd() {
     return `
-    }
+}
     `
   }
 
