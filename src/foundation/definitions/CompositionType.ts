@@ -5,6 +5,7 @@ import { Count } from "../../commontypes/CommonTypes";
 export interface CompositionTypeEnum extends EnumIO {
   getNumberOfComponents(): Count;
   getGlslStr(componentType: ComponentTypeEnum): string;
+  getGlslInitialValue(componentType: ComponentTypeEnum): string;
 }
 
 class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
@@ -33,6 +34,55 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       }
     } else if (componentType === ComponentType.Bool) {
       return 'bool';
+    }
+    return 'unknown';
+  }
+
+  getGlslInitialValue(componentType: ComponentTypeEnum) {
+    if (componentType === ComponentType.Float || componentType === ComponentType.Double) {
+      if (this === CompositionType.Scalar) {
+        return '0.0';
+      } else {
+        if (this.__numberOfComponents === 2) {
+          return this.__glslStr + '(0.0, 0.0)';
+        } else if (this.__numberOfComponents === 3) {
+          return this.__glslStr + '(0.0, 0.0, 0.0)';
+        } else if (this.__numberOfComponents === 4) {
+          return this.__glslStr + '(0.0, 0.0, 0.0, 0.0)';
+        } else if (this.__numberOfComponents === 9) {
+          return this.__glslStr + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
+        } else if (this.__numberOfComponents === 16) {
+          return this.__glslStr + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
+        }
+      }
+    } else if (componentType === ComponentType.Byte || componentType === ComponentType.Short || componentType === ComponentType.Int) {
+      if (this === CompositionType.Scalar) {
+        return '0';
+      } else {
+        if (this.__numberOfComponents === 2) {
+          return this.__glslStr + '(0, 0)';
+        } else if (this.__numberOfComponents === 3) {
+          return this.__glslStr + '(0, 0, 0)';
+        } else if (this.__numberOfComponents === 4) {
+          return this.__glslStr + '(0, 0, 0, 0)';
+        } else if (this.__numberOfComponents === 9) {
+          return this.__glslStr + '(0, 0, 0, 0, 0, 0, 0, 0, 0)';
+        } else if (this.__numberOfComponents === 16) {
+          return this.__glslStr + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)';
+        }
+      }
+    } else if (componentType === ComponentType.Bool) {
+      if (this === CompositionType.Scalar) {
+        return 'false';
+      } else {
+        if (this.__numberOfComponents === 2) {
+          return this.__glslStr + '(false, false)';
+        } else if (this.__numberOfComponents === 3) {
+          return this.__glslStr + '(false, false, false)';
+        } else if (this.__numberOfComponents === 4) {
+          return this.__glslStr + '(false, false, false, false)';
+        }
+      }
     }
     return 'unknown';
   }
