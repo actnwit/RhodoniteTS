@@ -82,7 +82,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
   }
 
   /**
-   * to the identity matrix（static版）
+   * to the identity matrix（static version）
    */
   static identity() {
     return new MutableMatrix44(
@@ -117,21 +117,21 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     );
   }
 
-  addScale(vec: Vector3) {
+  putScale(vec: Vector3) {
     this.m00 *= vec.x;
-    this.m10 *= vec.x;
-    this.m20 *= vec.x;
-    this.m30 *= vec.x;
+    this.m01 *= vec.x;
+    this.m02 *= vec.x;
+    this.m03 *= vec.x;
 
-    this.m01 *= vec.y;
+    this.m10 *= vec.y;
     this.m11 *= vec.y;
-    this.m21 *= vec.y;
-    this.m31 *= vec.y;
+    this.m12 *= vec.y;
+    this.m13 *= vec.y;
 
-    this.m02 *= vec.z;
-    this.m12 *= vec.z;
+    this.m20 *= vec.z;
+    this.m21 *= vec.z;
     this.m22 *= vec.z;
-    this.m32 *= vec.z;
+    this.m23 *= vec.z;
 
     return this;
   }
