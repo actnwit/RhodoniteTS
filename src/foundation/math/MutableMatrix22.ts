@@ -151,8 +151,11 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
     );
   }
 
-  addScale(vec: Vector2) {
+  putScale(vec: Vector2) {
     this.m00 *= vec.x;
+    this.m01 *= vec.x;
+
+    this.m10 *= vec.y;
     this.m11 *= vec.y;
 
     return this;
