@@ -64,7 +64,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
      */
     multiply(mat: Matrix33): MutableMatrix33;
     invert(): MutableMatrix33;
-    addScale(vec: Vector3): this;
+    putScale(vec: Vector3): this;
     set m00(val: number);
     get m00(): number;
     set m10(val: number);

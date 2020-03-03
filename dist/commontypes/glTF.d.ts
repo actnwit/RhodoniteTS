@@ -265,6 +265,7 @@ export declare type glTF2 = {
             version?: string;
             fileType?: string;
         };
+        version?: string;
     };
     buffers: Gltf2Buffer[];
     scenes: Gltf2Scene[];

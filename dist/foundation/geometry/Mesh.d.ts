@@ -74,7 +74,7 @@ export default class Mesh {
     private __calcArenbergInverseMatrices;
     getPrimitiveAt(i: number): Primitive;
     getPrimitiveNumber(): number;
-    __calcFaceNormals(): void;
+    __calcFaceNormalsIfNonNormal(): void;
     makeVerticesSeparated(): void;
     __calcBaryCentricCoord(): void;
     __initMorphPrimitives(): void;

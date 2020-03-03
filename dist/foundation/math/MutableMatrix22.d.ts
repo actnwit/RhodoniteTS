@@ -42,7 +42,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
      */
     multiply(mat: Matrix22): MutableMatrix22;
     invert(): MutableMatrix22;
-    addScale(vec: Vector2): this;
+    putScale(vec: Vector2): this;
     set m00(val: number);
     get m00(): number;
     set m10(val: number);

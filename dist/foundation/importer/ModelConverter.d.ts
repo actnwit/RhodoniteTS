@@ -44,6 +44,7 @@ export default class ModelConverter {
     private __setMorphingAndSkinningArgument;
     private __setVRMMaterial;
     private __generateAppropriateMaterial;
+    private __isLighting;
     private __isSkinning;
     private __setupMaterial;
     static _createTexture(textureType: any, gltfModel: glTF2): Texture;

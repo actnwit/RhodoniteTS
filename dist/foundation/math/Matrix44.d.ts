@@ -26,7 +26,7 @@ export default class Matrix44 implements IMatrix44 {
     clone(): Matrix44;
     static fromQuaternionTo(m: Quaternion, outMat: MutableMatrix44): void;
     /**
-     * to the identity matrix（static版）
+     * to the identity matrix（static version）
      */
     static identity(): Matrix44;
     isEqual(mat: Matrix44, delta?: number): boolean;
@@ -91,5 +91,13 @@ export default class Matrix44 implements IMatrix44 {
     toStringApproximately(): string;
     getScale(): Vector3;
     getRotate(): Matrix44;
+    /**
+   * get translate vector from this matrix
+   */
+    getTranslateTo(out: MutableVector3): void;
+    /**
+     * get scale vector from this matrix
+     */
+    getScaleTo(out: MutableVector3): void;
 }
 export {};

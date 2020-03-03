@@ -19,13 +19,13 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
     static dummy(): MutableMatrix44;
     /**
-     * to the identity matrix（static版）
+     * to the identity matrix（static version）
      */
     static identity(): MutableMatrix44;
     translate(vec: Vector3): this;
     putTranslate(vec: Vector3): void;
     scale(vec: Vector3): this;
-    addScale(vec: Vector3): this;
+    putScale(vec: Vector3): this;
     /**
      * Create X oriented Rotation Matrix
      */

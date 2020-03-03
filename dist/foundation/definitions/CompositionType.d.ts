@@ -4,6 +4,7 @@ import { Count } from "../../commontypes/CommonTypes";
 export interface CompositionTypeEnum extends EnumIO {
     getNumberOfComponents(): Count;
     getGlslStr(componentType: ComponentTypeEnum): string;
+    getGlslInitialValue(componentType: ComponentTypeEnum): string;
 }
 declare function from(index: number): CompositionTypeEnum;
 declare function fromString(str: string): CompositionTypeEnum;
