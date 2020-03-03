@@ -77,7 +77,7 @@ export default class MeshComponent extends Component {
     this.__mesh.__calcTangents();
     this.__mesh._calcArenbergInverseMatrices();
     // this.__mesh.__initMorphPrimitives();
-    // this.__mesh!.__calcFaceNormals();
+    this.__mesh!.__calcFaceNormalsIfNonNormal();
     if (this.__blendShapeComponent && this.__blendShapeComponent.weights.length > 0) {
       this.__mesh!.__calcBaryCentricCoord();
     }

@@ -375,8 +375,12 @@ export default class Mesh {
     }
   }
 
-  __calcFaceNormals() {
+  __calcFaceNormalsIfNonNormal() {
     for (let primitive of this.__primitives) {
+      const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal);
+      if (normalIdx !== -1) {
+        return;
+      }
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
