@@ -38,103 +38,104 @@ test('VaryingVariable works correctly 1', async () => {
   console.log(vertexRet.shaderBody+pixelRet.shaderBody)
  expect((vertexRet.shaderBody+pixelRet.shaderBody).replace(/\s+/g, "")).toEqual(`
 
-        void constantVariable_2(
-          out vec4 outValue) {
-          outValue = vec4(4.0, 3.0, 2.0, 1.0);
-        }
-        
-        out vec4 v_position;
-        void varyingOutVariable_0(
-          in vec4 value) {
-          v_position = value;
-        }
+    void constantVariable_2(
+      out vec4 outValue) {
+      outValue = vec4(4.0, 3.0, 2.0, 1.0);
+    }
 
-        void outPosition(in vec4 inPosition) {
-          gl_Position = inPosition;
-        }
+    out vec4 v_position;
+    void varyingOutVariable_0(
+      in vec4 value) {
+      v_position = value;
+    }
 
-        void main() {
-        #ifdef RN_IS_FASTEST_MODE
-      float materialSID = u_currentComponentSIDs[0];
+    void outPosition(in vec4 inPosition) {
+      gl_Position = inPosition;
+    }
 
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
-      #endif
+void main() {
+#ifdef RN_IS_FASTEST_MODE
+  float materialSID = u_currentComponentSIDs[0];
 
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
-      #endif
+  int lightNumber = 0;
+  #ifdef RN_IS_LIGHTING
+    lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
+  #endif
 
-    #else
+  float skeletalComponentSID = -1.0;
+  #ifdef RN_IS_SKINNING
+    skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
+  #endif
 
-      float materialSID = u_materialSID;
-    
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = get_lightNumber(0.0, 0);
-      #endif
+#else
 
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = float(get_skinningMode(0.0, 0));
-      #endif
-    
-    #endif
-    vec4 outValue_2_to_0;
-    constantVariable_2(outValue_2_to_0);
-    varyingOutVariable_0(outValue_2_to_0);
-    outPosition(outValue_2_to_0);
+  float materialSID = u_materialSID;
 
-        }
+  int lightNumber = 0;
+  #ifdef RN_IS_LIGHTING
+    lightNumber = get_lightNumber(0.0, 0);
+  #endif
 
-        in vec4 v_position;
-        void varyingInVariable_1(
-          out vec4 outValue) {
-          outValue = v_position;
-        }
+  float skeletalComponentSID = -1.0;
+  #ifdef RN_IS_SKINNING
+    skeletalComponentSID = float(get_skinningMode(0.0, 0));
+  #endif
 
-        void outColor(in vec4 inColor) {
-          vec4 rt0 = inColor;
-          gl_FragColor = rt0;
+#endif
+vec4 outValue_2_to_0 = vec4(0.0, 0.0, 0.0, 0.0);
+constantVariable_2(outValue_2_to_0);
+varyingOutVariable_0(outValue_2_to_0);
+outPosition(outValue_2_to_0);
 
-        }
-        
-        void main() {
-        #ifdef RN_IS_FASTEST_MODE
-      float materialSID = u_currentComponentSIDs[0];
+}
 
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
-      #endif
-    
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
-      #endif
+    in vec4 v_position;
+    void varyingInVariable_1(
+      out vec4 outValue) {
+      outValue = v_position;
+    }
 
-    #else
+    void outColor(in vec4 inColor) {
+      vec4 rt0 = inColor;
+      gl_FragColor = rt0;
 
-      float materialSID = u_materialSID;
+    }
 
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = get_lightNumber(0.0, 0);
-      #endif
+void main() {
+#ifdef RN_IS_FASTEST_MODE
+  float materialSID = u_currentComponentSIDs[0];
 
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = float(get_skinningMode(0.0, 0));
-      #endif
+  int lightNumber = 0;
+  #ifdef RN_IS_LIGHTING
+    lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
+  #endif
 
-    #endif
-    vec4 outValue_1_to_4;
-    varyingInVariable_1(outValue_1_to_4);
-    outColor(outValue_1_to_4);
+  float skeletalComponentSID = -1.0;
+  #ifdef RN_IS_SKINNING
+    skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
+  #endif
 
-        }
+#else
+
+  float materialSID = u_materialSID;
+
+  int lightNumber = 0;
+  #ifdef RN_IS_LIGHTING
+    lightNumber = get_lightNumber(0.0, 0);
+  #endif
+
+  float skeletalComponentSID = -1.0;
+  #ifdef RN_IS_SKINNING
+    skeletalComponentSID = float(get_skinningMode(0.0, 0));
+  #endif
+
+#endif
+vec4 outValue_1_to_4 = vec4(0.0, 0.0, 0.0, 0.0);
+varyingInVariable_1(outValue_1_to_4);
+outColor(outValue_1_to_4);
+
+}
+
 
     `.replace(/\s+/g, ""))
 });

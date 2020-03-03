@@ -92,9 +92,9 @@ test('ConstantVariable works correctly 1', async () => {
       #endif
 
     #endif
-    vec4 outValue_0_to_2;
-    vec4 outValue_1_to_2;
-    vec4 outValue_2_to_3;
+    vec4 outValue_0_to_2=vec4(0.0,0.0,0.0,0.0);
+    vec4 outValue_1_to_2=vec4(0.0,0.0,0.0,0.0);
+    vec4 outValue_2_to_3=vec4(0.0,0.0,0.0,0.0);
     constantVariable_1(outValue_1_to_2);
     constantVariable_0(outValue_0_to_2);
     add(outValue_0_to_2, outValue_1_to_2, outValue_2_to_3);

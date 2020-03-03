@@ -99,11 +99,11 @@ test('ScalarToVector4 works correctly 1', async () => {
       #endif
 
     #endif
-    float outValue_0_to_4;
-    float outValue_1_to_4;
-    float outValue_2_to_4;
-    float outValue_3_to_4;
-    vec4 outValue_4_to_5;
+    float outValue_0_to_4=0.0;
+    float outValue_1_to_4=0.0;
+    float outValue_2_to_4=0.0;
+    float outValue_3_to_4=0.0;
+    vec4 outValue_4_to_5=vec4(0.0,0.0,0.0,0.0);
     constantVariable_3(outValue_3_to_4);
     constantVariable_2(outValue_2_to_4);
     constantVariable_1(outValue_1_to_4);

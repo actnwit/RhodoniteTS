@@ -66,7 +66,7 @@ test('AttributePosition works correctly 1', async () => {
       #endif
 
     #endif
-    vec4 outValue_0_to_1;
+    vec4 outValue_0_to_1=vec4(0.0,0.0,0.0,0.0);
     attributePosition(outValue_0_to_1);
     outPosition(outValue_0_to_1);
 
