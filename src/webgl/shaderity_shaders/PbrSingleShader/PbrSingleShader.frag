@@ -217,7 +217,7 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
   //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
     }
 
-    vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+    vec3 reflection = rotEnvMatrix * reflect(viewDirection, normal_inWorld);
 
     vec3 F = fresnel(F0, NV);
     vec3 ibl = IBLContribution(materialSID, normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
