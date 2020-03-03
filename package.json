@@ -1,6 +1,6 @@
 {
   "name": "rhodonite",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "dist/rhodonite.js",
   "types": "dist/rhodonite.d.ts",
   "files": [
