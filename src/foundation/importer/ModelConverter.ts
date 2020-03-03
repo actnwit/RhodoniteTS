@@ -651,7 +651,7 @@ export default class ModelConverter {
     return undefined;
   }
 
-  private __generateAppropriateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {
+  private __generateAppropriateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: Gltf2Material): Material {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -681,11 +681,20 @@ export default class ModelConverter {
     }
     const isMorphing = this.__isMorphing(node);
     const isSkinning = this.__isSkinning(node);
+    const isLighting = this.__isLighting(materialJson)
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
-      return MaterialHelper.createPbrUberMaterial({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
+      return MaterialHelper.createPbrUberMaterial({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     } else {
-      return MaterialHelper.createClassicUberMaterial({ isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
+      return MaterialHelper.createClassicUberMaterial({ isSkinning: isSkinning, isLighting: isLighting, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
+    }
+  }
+
+  private __isLighting(materialJson: Gltf2Material) {
+    if (materialJson.extensions?.KHR_materials_unlit != null) {
+      return false;
+    } else {
+      return true;
     }
   }
 

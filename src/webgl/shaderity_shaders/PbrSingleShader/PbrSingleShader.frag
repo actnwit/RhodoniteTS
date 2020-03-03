@@ -126,6 +126,8 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
     discard;
   }
 
+#ifdef RN_IS_LIGHTING
+
   // Metallic & Roughness
   vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
   float userRoughness = metallicRoughnessFactor.y;
@@ -161,74 +163,72 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
   // Lighting
-  if (length(normal_inWorld) > 0.02) {
-    vec3 diffuse = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
-      if (i >= lightNumber) {
-        break;
-      }
-
-      // Light
-      vec4 gotLightDirection = get_lightDirection(0.0, i);
-      vec4 gotLightPosition = get_lightPosition(0.0, i);
-      vec4 gotLightIntensity = get_lightIntensity(0.0, i);
-      vec3 lightDirection = gotLightDirection.xyz;
-      vec3 lightIntensity = gotLightIntensity.xyz;
-      vec3 lightPosition = gotLightPosition.xyz;
-      float lightType = gotLightPosition.w;
-      float spotCosCutoff = gotLightDirection.w;
-      float spotExponent = gotLightIntensity.w;
-
-      if (0.75 < lightType) { // is pointlight or spotlight
-        lightDirection = normalize(lightPosition.xyz - v_position_inWorld.xyz);
-      }
-      float spotEffect = 1.0;
-      if (lightType > 1.75) { // is spotlight
-        spotEffect = dot(gotLightDirection.xyz, lightDirection);
-        if (spotEffect > spotCosCutoff) {
-          spotEffect = pow(spotEffect, spotExponent);
-        } else {
-          spotEffect = 0.0;
-        }
-      }
-      //diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * lightIntensity.xyz;
-
-      // IncidentLight
-      vec3 incidentLight = spotEffect * lightIntensity.xyz;
-      incidentLight *= M_PI;
-
-      // Fresnel
-      vec3 halfVector = normalize(lightDirection + viewDirection);
-      float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
-      vec3 F = fresnel(F0, VH);
-
-      // Diffuse
-      vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
-
-      // Specular
-      float NL = clamp(dot(normal_inWorld, lightDirection), 0.0, 1.0);
-      float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
-      vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
-      vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
-
-      rt0.xyz += diffuseAndSpecular;
-//      rt0.xyz += specularContrib * vec3(NL) * incidentLight.rgb;
-  //    rt0.xyz += diffuseContrib * vec3(NL) * incidentLight.rgb;
-  //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
+  vec3 diffuse = vec3(0.0, 0.0, 0.0);
+  for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+    if (i >= lightNumber) {
+      break;
     }
 
-    vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+    // Light
+    vec4 gotLightDirection = get_lightDirection(0.0, i);
+    vec4 gotLightPosition = get_lightPosition(0.0, i);
+    vec4 gotLightIntensity = get_lightIntensity(0.0, i);
+    vec3 lightDirection = gotLightDirection.xyz;
+    vec3 lightIntensity = gotLightIntensity.xyz;
+    vec3 lightPosition = gotLightPosition.xyz;
+    float lightType = gotLightPosition.w;
+    float spotCosCutoff = gotLightDirection.w;
+    float spotExponent = gotLightIntensity.w;
 
-    vec3 F = fresnel(F0, NV);
-    vec3 ibl = IBLContribution(materialSID, normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
-    float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
+    if (0.75 < lightType) { // is pointlight or spotlight
+      lightDirection = normalize(lightPosition.xyz - v_position_inWorld.xyz);
+    }
+    float spotEffect = 1.0;
+    if (lightType > 1.75) { // is spotlight
+      spotEffect = dot(gotLightDirection.xyz, lightDirection);
+      if (spotEffect > spotCosCutoff) {
+        spotEffect = pow(spotEffect, spotExponent);
+      } else {
+        spotEffect = 0.0;
+      }
+    }
+    //diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * lightIntensity.xyz;
 
-    // Occlution to Indirect Lights
-    rt0.xyz += ibl * occlusion;
+    // IncidentLight
+    vec3 incidentLight = spotEffect * lightIntensity.xyz;
+    incidentLight *= M_PI;
 
-  } else {
-    rt0 = vec4(baseColor, alpha);
+    // Fresnel
+    vec3 halfVector = normalize(lightDirection + viewDirection);
+    float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
+    vec3 F = fresnel(F0, VH);
+
+    // Diffuse
+    vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
+
+    // Specular
+    float NL = clamp(dot(normal_inWorld, lightDirection), 0.0, 1.0);
+    float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
+    vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
+    vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
+
+    rt0.xyz += diffuseAndSpecular;
+//      rt0.xyz += specularContrib * vec3(NL) * incidentLight.rgb;
+//    rt0.xyz += diffuseContrib * vec3(NL) * incidentLight.rgb;
+//    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
   }
+
+  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+
+  vec3 F = fresnel(F0, NV);
+  vec3 ibl = IBLContribution(materialSID, normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
+  float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
+
+  // Occlution to Indirect Lights
+  rt0.xyz += ibl * occlusion;
+#else
+  rt0 = vec4(baseColor, alpha);
+#endif
 
   // Emissive
   vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, v_texcoord).xyz);
