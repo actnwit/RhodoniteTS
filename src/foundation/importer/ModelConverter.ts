@@ -1359,6 +1359,8 @@ export default class ModelConverter {
       let dracoAttributeName = attributeName;
       if (attributeName === 'TEXCOORD_0') {
         dracoAttributeName = 'TEX_COORD';
+      } else if (attributeName === 'COLOR_0') {
+        dracoAttributeName = 'COLOR';
       } else if (attributeName === 'TANGENT') {
         dracoAttributeName = 'GENERIC';
       }
