@@ -682,7 +682,7 @@ export default class ModelConverter {
     const isMorphing = this.__isMorphing(node);
     const isSkinning = this.__isSkinning(node);
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
-    if (materialJson != null && materialJson.pbrMetallicRoughness) {
+    if (parseFloat(gltfModel.asset?.version!) >= 2) {
       return MaterialHelper.createPbrUberMaterial({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     } else {
       return MaterialHelper.createClassicUberMaterial({ isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
