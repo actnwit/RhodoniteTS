@@ -690,8 +690,8 @@ export default class ModelConverter {
     }
   }
 
-  private __isLighting(materialJson: Gltf2Material) {
-    if (materialJson.extensions?.KHR_materials_unlit != null) {
+  private __isLighting(materialJson?: Gltf2Material) {
+    if (materialJson?.extensions?.KHR_materials_unlit != null) {
       return false;
     } else {
       return true;
