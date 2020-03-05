@@ -153,7 +153,11 @@ export default class RenderPass extends RnObject {
    */
   setFramebuffer(framebuffer: FrameBuffer) {
     this.__frameBuffer = framebuffer;
-    this.setViewport(new Vector4(0, 0, framebuffer.width, framebuffer.height));
+    if (framebuffer != null) {
+      this.setViewport(new Vector4(0, 0, framebuffer.width, framebuffer.height));
+    } else {
+      this.__viewport = undefined;
+    }
   }
 
   /**

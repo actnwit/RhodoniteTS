@@ -11,6 +11,7 @@ import MeshRendererComponent from '../components/MeshRendererComponent';
 import CameraComponent from '../components/CameraComponent';
 import BlendShapeComponent from '../components/BlendShapeComponent';
 import PhysicsComponent from '../components/PhysicsComponent';
+import CameraControllerComponent from '../components/CameraControllerComponent';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
@@ -30,6 +31,7 @@ export default class Entity extends RnObject {
   private __meshComponent?: MeshComponent;
   private __meshRendererComponent?: MeshRendererComponent;
   private __cameraComponent?: CameraComponent;
+  private __cameraControllerComponent?: CameraControllerComponent;
   private __blendShapeComponent?: BlendShapeComponent;
   private __physicsComponent?: PhysicsComponent;
 
@@ -128,6 +130,13 @@ export default class Entity extends RnObject {
       this.__cameraComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as CameraComponent;
     }
     return this.__cameraComponent;
+  }
+
+  getCameraController(): CameraControllerComponent {
+    if (this.__cameraControllerComponent == null) {
+      this.__cameraControllerComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.CameraControllerComponentTID) as CameraControllerComponent;
+    }
+    return this.__cameraControllerComponent;
   }
 
   getBlendShape(): BlendShapeComponent {

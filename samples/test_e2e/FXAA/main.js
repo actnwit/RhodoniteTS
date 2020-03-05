@@ -46,9 +46,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var p = null;
+    var expressionWithFXAA = new Rn.Expression();
+    var expressionWithOutFXAA = new Rn.Expression();
+    var expression;
+    var framebuffer;
+    var renderPassMain;
     var load = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var importer, system, gl, entityRepository, texture, response, buffer, uint8Array, modelMaterial, planeEntity, planePrimitive, planeMeshComponent, planeMesh, sphereEntity, spherePrimitive, sphereMaterial, environmentCubeTexture, response, buffer, uint8Array, sphereMeshComponent, sphereMesh, cameraEntity, cameraComponent, cameraControllerComponent, controller, renderPass, expression, startTime, rotationVec3, count, draw;
+            var importer, system, canvas, gl, entityRepository, renderPassFxaa, startTime, rotationVec3, count, draw;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Rn.ModuleManager.getInstance().loadModule('webgl')];
@@ -59,62 +64,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         _a.sent();
                         importer = Rn.Gltf1Importer.getInstance();
                         system = Rn.System.getInstance();
-                        gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.FastestWebGL1, document.getElementById('world'));
+                        canvas = document.getElementById('world');
+                        gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, canvas, 1, { antialias: false });
                         entityRepository = Rn.EntityRepository.getInstance();
-                        texture = new Rn.Texture();
-                        return [4 /*yield*/, fetch('../../../assets/images/Rn.basis')];
+                        return [4 /*yield*/, setupRenderPassMain(entityRepository)];
                     case 3:
-                        response = _a.sent();
-                        return [4 /*yield*/, response.arrayBuffer()];
+                        renderPassMain = _a.sent();
+                        framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
+                        renderPassMain.setFramebuffer(framebuffer);
+                        return [4 /*yield*/, setupRenderPassFxaa(entityRepository, framebuffer.colorAttachments[0], canvas.clientWidth, canvas.clientHeight)];
                     case 4:
-                        buffer = _a.sent();
-                        uint8Array = new Uint8Array(buffer);
-                        texture.generateTextureFromBasis(uint8Array);
-                        modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-                        modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
-                        planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-                        planePrimitive = new Rn.Plane();
-                        planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, material: modelMaterial });
-                        planeMeshComponent = planeEntity.getMesh();
-                        planeMesh = new Rn.Mesh();
-                        planeMesh.addPrimitive(planePrimitive);
-                        planeMeshComponent.setMesh(planeMesh);
-                        planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
-                        sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-                        spherePrimitive = new Rn.Sphere();
-                        sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-                        spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
-                        environmentCubeTexture = new Rn.CubeTexture();
-                        return [4 /*yield*/, fetch('../../../assets/images/cubemap_test.basis')];
-                    case 5:
-                        response = _a.sent();
-                        return [4 /*yield*/, response.arrayBuffer()];
-                    case 6:
-                        buffer = _a.sent();
-                        uint8Array = new Uint8Array(buffer);
-                        environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
-                        sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-                        sphereMeshComponent = sphereEntity.getMesh();
-                        sphereMesh = new Rn.Mesh();
-                        sphereMesh.addPrimitive(spherePrimitive);
-                        sphereMeshComponent.setMesh(sphereMesh);
-                        cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
-                        cameraComponent = cameraEntity.getCamera();
-                        //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
-                        cameraComponent.zNear = 0.1;
-                        cameraComponent.zFar = 1000;
-                        cameraComponent.setFovyAndChangeFocalLength(90);
-                        cameraComponent.aspect = 1;
-                        cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
-                        cameraControllerComponent = cameraEntity.getCameraController();
-                        controller = cameraControllerComponent.controller;
-                        controller.setTarget(planeEntity);
-                        controller.zFarAdjustingFactorBasedOnAABB = 1000;
-                        renderPass = new Rn.RenderPass();
-                        renderPass.toClearColorBuffer = true;
-                        renderPass.addEntities([planeEntity, sphereEntity]);
-                        expression = new Rn.Expression();
-                        expression.addRenderPasses([renderPass]);
+                        renderPassFxaa = _a.sent();
+                        // expression
+                        expressionWithFXAA.addRenderPasses([renderPassMain, renderPassFxaa]);
+                        expressionWithOutFXAA.addRenderPasses([renderPassMain]);
+                        expression = expressionWithFXAA;
                         Rn.CameraComponent.main = 0;
                         startTime = Date.now();
                         rotationVec3 = Rn.MutableVector3.one();
@@ -152,4 +116,91 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         });
     };
     load();
+    function setupRenderPassMain(entityRepository) {
+        return __awaiter(this, void 0, void 0, function () {
+            var modelMaterial, planeEntity, planePrimitive, planeMeshComponent, planeMesh, sphereEntity, spherePrimitive, sphereMaterial, environmentCubeTexture, response, buffer, uint8Array, sphereMeshComponent, sphereMesh, cameraEntity, cameraComponent, cameraControllerComponent, controller, renderPass;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
+                        planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+                        planePrimitive = new Rn.Plane();
+                        planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, material: modelMaterial });
+                        planeMeshComponent = planeEntity.getMesh();
+                        planeMesh = new Rn.Mesh();
+                        planeMesh.addPrimitive(planePrimitive);
+                        planeMeshComponent.setMesh(planeMesh);
+                        planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, Math.PI / 3);
+                        sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+                        spherePrimitive = new Rn.Sphere();
+                        sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+                        spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+                        environmentCubeTexture = new Rn.CubeTexture();
+                        return [4 /*yield*/, fetch('../../../assets/images/cubemap_test.basis')];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.arrayBuffer()];
+                    case 2:
+                        buffer = _a.sent();
+                        uint8Array = new Uint8Array(buffer);
+                        environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
+                        sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+                        sphereMeshComponent = sphereEntity.getMesh();
+                        sphereMesh = new Rn.Mesh();
+                        sphereMesh.addPrimitive(spherePrimitive);
+                        sphereMeshComponent.setMesh(sphereMesh);
+                        cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+                        cameraComponent = cameraEntity.getCamera();
+                        //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
+                        cameraComponent.zNear = 0.1;
+                        cameraComponent.zFar = 1000;
+                        cameraComponent.setFovyAndChangeFocalLength(90);
+                        cameraComponent.aspect = 1;
+                        cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+                        cameraControllerComponent = cameraEntity.getCameraController();
+                        controller = cameraControllerComponent.controller;
+                        controller.setTarget(planeEntity);
+                        controller.zFarAdjustingFactorBasedOnAABB = 1000;
+                        renderPass = new Rn.RenderPass();
+                        renderPass.toClearColorBuffer = true;
+                        renderPass.addEntities([planeEntity, sphereEntity]);
+                        return [2 /*return*/, renderPass];
+                }
+            });
+        });
+    }
+    function setupRenderPassFxaa(entityRepository, renderable, width, height) {
+        var renderPassFxaa = new Rn.RenderPass();
+        var entityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+        var primitiveFxaa = new Rn.Plane();
+        primitiveFxaa.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false });
+        primitiveFxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
+        primitiveFxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, renderable);
+        primitiveFxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(width, height));
+        var meshComponentFxaa = entityFxaa.getComponent(Rn.MeshComponent);
+        var meshFxaa = new Rn.Mesh();
+        meshFxaa.addPrimitive(primitiveFxaa);
+        meshComponentFxaa.setMesh(meshFxaa);
+        entityFxaa.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0);
+        renderPassFxaa.addEntities([entityFxaa]);
+        var cameraEntityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
+        var cameraComponentFxaa = cameraEntityFxaa.getComponent(Rn.CameraComponent);
+        cameraEntityFxaa.getTransform().translate = new Rn.Vector3(0.0, 0.0, 1.0);
+        cameraComponentFxaa.type = Rn.CameraType.Orthographic;
+        renderPassFxaa.cameraComponent = cameraComponentFxaa;
+        return renderPassFxaa;
+    }
+    window.toggleFXAA = function () {
+        var toggleButton = document.getElementById('toggleFXAAButton');
+        if (expression === expressionWithFXAA) {
+            expression = expressionWithOutFXAA;
+            renderPassMain.setFramebuffer(undefined);
+            toggleButton.firstChild.textContent = 'Now FXAA Off';
+        }
+        else {
+            expression = expressionWithFXAA;
+            renderPassMain.setFramebuffer(framebuffer);
+            toggleButton.firstChild.textContent = 'Now FXAA On';
+        }
+    };
 });

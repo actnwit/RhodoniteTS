@@ -6,12 +6,14 @@
     "PixelPickingTest",
     "SeamlessTexture",
     "VRMImporter",
-    "VRMAnimation"
+    "VRMAnimation",
+    "FXAA"
   ],
   "simple": [
     "Effekseer",
     "Gltf1Importer",
     "Gltf2Importer",
-    "SparkGear"
+    "SparkGear",
+    "BasisTexture"
   ]
 }
