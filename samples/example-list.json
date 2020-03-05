@@ -6,7 +6,8 @@
     "PixelPickingTest",
     "SeamlessTexture",
     "VRMImporter",
-    "VRMAnimation"
+    "VRMAnimation",
+    "FXAA"
   ],
   "simple": [
     "Effekseer",
