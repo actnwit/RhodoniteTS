@@ -9,6 +9,7 @@ import MeshRendererComponent from '../components/MeshRendererComponent';
 import CameraComponent from '../components/CameraComponent';
 import BlendShapeComponent from '../components/BlendShapeComponent';
 import PhysicsComponent from '../components/PhysicsComponent';
+import CameraControllerComponent from '../components/CameraControllerComponent';
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
@@ -25,6 +26,7 @@ export default class Entity extends RnObject {
     private __meshComponent?;
     private __meshRendererComponent?;
     private __cameraComponent?;
+    private __cameraControllerComponent?;
     private __blendShapeComponent?;
     private __physicsComponent?;
     /**
@@ -70,6 +72,7 @@ export default class Entity extends RnObject {
     getMesh(): MeshComponent;
     getMeshRenderer(): MeshRendererComponent;
     getCamera(): CameraComponent;
+    getCameraController(): CameraControllerComponent;
     getBlendShape(): BlendShapeComponent;
     getPhysics(): PhysicsComponent;
 }
