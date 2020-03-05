@@ -12,6 +12,7 @@
     "Effekseer",
     "Gltf1Importer",
     "Gltf2Importer",
-    "SparkGear"
+    "SparkGear",
+    "BasisTexture"
   ]
 }
