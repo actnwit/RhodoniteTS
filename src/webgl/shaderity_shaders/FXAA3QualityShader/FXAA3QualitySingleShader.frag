@@ -60,8 +60,8 @@ in vec2 v_texcoord;
 
 
   #define FXAA_PC 1
-  #define FXAA_QUALITY_PRESET 12
-  #define FXAA_GREEN_AS_LUMA 1
+  #define FXAA_QUALITYPRESET 39
+  #define FXAA_GREEN_AS_LUMA 0
   #define FXAA_GLSL_100 1
 
   /*============================================================================
@@ -571,9 +571,10 @@ in vec2 v_texcoord;
                    GREEN AS LUMA OPTION SUPPORT FUNCTION
 ============================================================================*/
 #if (FXAA_GREEN_AS_LUMA == 0)
-  FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.w; }
+  FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return dot(rgba.rgb, vec3(0.298912, 0.586611, 0.114478)); }
+  // FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.w; }
 #else
-FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.y; }
+  FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.y; }
 #endif
 
 
