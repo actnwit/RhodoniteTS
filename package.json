@@ -15,10 +15,10 @@
   "scripts": {
     "setup": "cp ./pre-commit ./.git/hooks",
     "prepare": "npm run build",
-    "build": "npm run build-dev && npm run build-prod && npm run build-type && bash versioning.sh",
+    "build": "rm -rf dist && npm run build-dev && npm run build-prod && npm run build-type && bash versioning.sh",
     "build-dev": "webpack --config webpack.config.development.js",
     "build-prod": "webpack --config webpack.config.production.js",
-    "build-type": "npx tsc --emitDeclarationOnly",
+    "build-type": "tsc --emitDeclarationOnly",
     "serv": "node server.js",
     "test": "yarn test-unit ; yarn test-e2e",
     "test-unit": "jest --config jest.config.js ./src",
