@@ -1,5 +1,5 @@
-import RnObj, { RnType } from "../../dist/rhodonite";
-import WebGLResourceRepository from "../../dist/webgl/WebGLResourceRepository";
+import RnObj, { RnType } from "../rhodonite";
+import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
 
 const Rn: RnType = RnObj as any;
 

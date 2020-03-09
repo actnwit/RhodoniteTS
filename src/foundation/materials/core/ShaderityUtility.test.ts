@@ -1,4 +1,4 @@
-import RnObj, { RnType } from "../../../../dist/rhodonite";
+import RnObj, { RnType } from "../../../rhodonite";
 import { ShaderityObject } from "shaderity";
 import MutableScalar from "../../math/MutableScalar";
 import MutableVector2 from "../../math/MutableVector2";

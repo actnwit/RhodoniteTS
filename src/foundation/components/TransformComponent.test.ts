@@ -1,4 +1,4 @@
-import RnObj, { RnType } from "../../../dist/rhodonite";
+import RnObj, { RnType } from "../../rhodonite";
 
 const Rn: RnType = RnObj as any;
 
