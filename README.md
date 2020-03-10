@@ -16,20 +16,18 @@ IE11 is not supported.
 
 ### Prerequisites
 
-* Node.js 8.x or later
-* yarn package manager
+* Node.js 12.4 or later
 
 ### Setup Project
 
 ```bash
-$ yarn install
-$ yarn setup
+$ npm install
 ```
 
 ### Library build command
 
 ```bash
-$ yarn build
+$ npm run build
 ```
 
 ## How to write the code with Rhodonite
@@ -122,7 +120,7 @@ $ yarn test
 ## Watching Test Samples
 
 ```bash
-$ yarn serv
+$ yarn start
 ```
 
 Then, access http://localhost:8082/ with your web browser.

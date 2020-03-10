@@ -12,8 +12,5 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: 12.4.0
-    - run: npm install -g yarn
-    # - run: npm install -g rimraf
-    # - run: rimraf yarn.lock
     - run: npm install
     - run: npm run test
