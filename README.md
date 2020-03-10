@@ -9,20 +9,22 @@ Rhodonite is a WebGL library written in TypeScript.
 
 ## Support Browsers
 
-Google Chrome, Firefox, Safari and other modern browsers.
+Google Chrome, Firefox, Safari, Microsoft Edge(chronium based) and other modern browsers.
 IE11 is not supported.
 
 ## Building Rhodonite
 
 ### Prerequisites
 
-* Node.js 12.4 or later
+* Node.js 12.4.0 or later
 
 ### Setup Project
 
 ```bash
 $ npm install
 ```
+
+You can use yarn instead.
 
 ### Library build command
 
@@ -108,19 +110,19 @@ $ npx tsc ./main.ts --lib es2015,dom --target es5 --module umd --moduleResolutio
 ## Building API Documents
 
 ```bash
-$ yarn doc
+$ npm run doc
 ```
 
 ## Testing Rhodonite
 
 ```bash
-$ yarn test
+$ npm run test
 ```
 
 ## Watching Test Samples
 
 ```bash
-$ yarn start
+$ npm run start
 ```
 
 Then, access http://localhost:8082/ with your web browser.
