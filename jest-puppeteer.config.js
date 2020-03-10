@@ -9,8 +9,6 @@ module.exports = {
     headless: false,
     devtools: false,
 
-    // executablePath: "/usr/bin/google-chrome",
-
     args: ["--start-maximized", "--no-sandbox"],
   },
 };
