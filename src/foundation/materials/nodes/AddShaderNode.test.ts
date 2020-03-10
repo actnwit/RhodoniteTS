@@ -1,4 +1,4 @@
-import RnObj, { RnType } from "../../../../dist/rhodonite";
+import RnObj, { RnType } from "../../../rhodonite";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import Material from "../core/Material";
