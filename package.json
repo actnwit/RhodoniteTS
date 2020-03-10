@@ -20,7 +20,7 @@
     "build-prod": "webpack --config webpack.config.production.js",
     "build-type": "tsc --emitDeclarationOnly",
     "versioning": "bash versioning.sh",
-    "prepublish": "npm run build && npm run versioning && npm run test",
+    "prepublishOnly": "npm run build && npm run versioning && npm run test",
     "test": "npm run test-unit && npm run test-e2e",
     "test-unit": "jest --config jest.config.js ./src",
     "test-e2e": "jest ./samples/test_e2e --runInBand --config jest.config.e2e.js",
