@@ -13,5 +13,7 @@ jobs:
       with:
         node-version: 12.4.0
     - run: npm install -g yarn
+    - run: npm install -g rimraf
+    - run: rimraf yarn.lock
     - run: yarn install
     - run: yarn test
