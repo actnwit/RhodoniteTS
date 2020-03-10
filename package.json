@@ -15,7 +15,7 @@
   "scripts": {
     "setup": "npx shx cp ./pre-commit ./.git/hooks",
     "prepare": "npm run build",
-    "build": "npx shx rm -rf dist && npm run build-dev && npm run build-prod && npm run build-type && bash versioning.sh",
+    "build": "npx shx rm -rf dist && npm run build-dev && npm run build-prod && npm run build-type",
     "build-dev": "webpack --config webpack.config.development.js",
     "build-prod": "webpack --config webpack.config.production.js",
     "build-type": "tsc --emitDeclarationOnly",
