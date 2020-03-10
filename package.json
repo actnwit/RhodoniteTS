@@ -19,6 +19,7 @@
     "build-dev": "webpack --config webpack.config.development.js",
     "build-prod": "webpack --config webpack.config.production.js",
     "build-type": "tsc --emitDeclarationOnly",
+    "build-and-ver": "npm run build && npm run versioning",
     "versioning": "bash versioning.sh",
     "prepublishOnly": "npm run build && npm run versioning && npm run test",
     "test": "npm run test-unit && npm run test-e2e",
