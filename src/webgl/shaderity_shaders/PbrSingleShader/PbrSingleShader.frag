@@ -25,7 +25,7 @@ vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float mipCount = iblParameter.x;
-  float lod = (userRoughness * mipCount);
+  float lod = (userRoughness * (mipCount - 1.0));
 
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
