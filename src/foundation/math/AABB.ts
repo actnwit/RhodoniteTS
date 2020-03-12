@@ -45,6 +45,8 @@ export default class AABB {
 
   set minPoint(val: Vector3) {
     this.__min = new MutableVector3(val);
+    this.__isCenterPointDirty = true;
+    this.__isLengthCenterToCornerDirty = true;
   }
 
   get minPoint() {
@@ -53,6 +55,8 @@ export default class AABB {
 
   set maxPoint(val: Vector3) {
     this.__max = new MutableVector3(val);
+    this.__isCenterPointDirty = true;
+    this.__isLengthCenterToCornerDirty = true;
   }
 
   get maxPoint() {
@@ -104,6 +108,9 @@ export default class AABB {
       return isUpdated;
     }
 
+    this.__isCenterPointDirty = true;
+    this.__isLengthCenterToCornerDirty = true;
+
     if (this.isVanilla()) {
       this.__min.x = aabb.minPoint.x;
       this.__min.y = aabb.minPoint.y;
@@ -139,9 +146,6 @@ export default class AABB {
       this.__max.z = aabb.maxPoint.z;
       isUpdated = true;
     }
-
-    this.__isCenterPointDirty = true;
-    this.__isLengthCenterToCornerDirty = true;
 
     return isUpdated;
   }
