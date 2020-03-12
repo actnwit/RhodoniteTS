@@ -114,6 +114,9 @@ function differentWithLastBlendFuncFactor(srcFactor: number, dstFactor: number, 
 }
 
 function startDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
+  if (MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+    return;
+  }
   if (idx === MeshRendererComponent.firstTransparentIndex) {
     gl.depthMask(false);
   }

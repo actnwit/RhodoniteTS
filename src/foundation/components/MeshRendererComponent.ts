@@ -53,6 +53,7 @@ export default class MeshRendererComponent extends Component {
   private static __manualTransparentSids?: ComponentSID[];
   public _readyForRendering = false;
   public static isViewFrustumCullingEnabled = true;
+  public static isDepthMaskTrueForTransparencies = false;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
