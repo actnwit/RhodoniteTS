@@ -331,11 +331,7 @@ export default class MeshRendererComponent extends Component {
     // Sort transparent meshes
     const transparentPartiallyOrAllMeshComponents = transparentPartiallyMeshComponents.concat(transparentCompletelyMeshComponents);
     transparentPartiallyOrAllMeshComponents.sort(function (a, b) {
-      if (a.viewDepth < b.viewDepth)
-        return -1;
-      if (a.viewDepth > b.viewDepth)
-        return 1;
-      return 0;
+      return a.viewDepth - b.viewDepth;
     });
 
     let transparentMeshComponentSids;

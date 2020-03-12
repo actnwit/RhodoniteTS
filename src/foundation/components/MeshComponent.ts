@@ -101,8 +101,13 @@ export default class MeshComponent extends Component {
 
   calcViewDepth(cameraComponent: CameraComponent) {
     const viewMatrix = cameraComponent.viewMatrix;
-    const centerPosition_inLocal = new Vector4(this.__mesh!.AABB.centerPoint);
-    const centerPosition_inView = viewMatrix.multiplyVector(centerPosition_inLocal);
+    let centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
+    const skeletal = this.entity.getSkeletal();
+    if (skeletal?._bindShapeMatrix) {
+      centerPosition_inLocal = skeletal._bindShapeMatrix.multiplyVector3(this.__mesh!.AABB.centerPoint);
+    }
+    const centerPosition_inWorld = this.entity.getSceneGraph().worldMatrixInner.multiplyVector3(centerPosition_inLocal);
+    const centerPosition_inView = viewMatrix.multiplyVector3(centerPosition_inWorld);
     this.__viewDepth = centerPosition_inView.z;
 
     return this.__viewDepth;
