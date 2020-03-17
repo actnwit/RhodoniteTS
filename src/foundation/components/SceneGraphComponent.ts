@@ -382,7 +382,7 @@ export default class SceneGraphComponent extends Component {
       let {t, intersectedPositionInWorld} = meshComponent.castRayFromScreen(x, y, camera, viewport, dotThreshold);
       if (t < rayDistance) {
         rayDistance = t;
-        intersectedPositionInWorld = intersectedPositionInWorld;
+        intersectedPosition = intersectedPositionInWorld;
         selectedMeshComponent = meshComponent;
       }
     }
