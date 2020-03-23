@@ -47,16 +47,17 @@ function createEmptyMaterial() {
 
 
 function createPbrUberMaterial({
-  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false,
+  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, isAlphaMasking = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'PbrUber'
     + `_${additionalName}_`
     + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
-    + (isLighting ? '' : '-lighting');
+    + (isLighting ? '' : '-lighting')
+    + (isAlphaMasking ? '+isAlphaMasking' : '');
 
-  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing, isSkinning, isLighting });
+  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, isAlphaMasking: isAlphaMasking });
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
@@ -89,9 +90,11 @@ function createClassicUberMaterial({
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new CustomSingleMaterialNode({ name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+  const materialNode = new CustomSingleMaterialNode({
+    name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
     vertexShader: classicSingleShaderVertex,
-    pixelShader: classicSingleShaderFragment });
+    pixelShader: classicSingleShaderFragment
+  });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
 
@@ -193,10 +196,12 @@ function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string,
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new CustomSingleMaterialNode({ name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
-    vertexShader: {code: vertexShaderStr, shaderStage: 'vertex'},
-    pixelShader: { code: pixelShaderStr, shaderStage: 'fragment'}}
-    );
+  const materialNode = new CustomSingleMaterialNode({
+    name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+    vertexShader: { code: vertexShaderStr, shaderStage: 'vertex' },
+    pixelShader: { code: pixelShaderStr, shaderStage: 'fragment' }
+  }
+  );
   materialNode.isSingleOperation = true;
   const material = recreateMaterial(materialName, [materialNode], maxInstancesNumber);
 

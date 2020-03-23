@@ -39,13 +39,13 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   static metallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
   static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
 
-  constructor({ isMorphing, isSkinning, isLighting }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean }) {
+  constructor({ isMorphing, isSkinning, isLighting, isAlphaMasking }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, isAlphaMasking: boolean }) {
     super(null, 'pbrShading'
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
-      + (isLighting ? '' : '-lighting'),
-      { isMorphing, isSkinning, isLighting },
-      pbrSingleShaderVertex, pbrSingleShaderFragment
+      + (isLighting ? '' : '-lighting')
+      + (isAlphaMasking ? '+isAlphaMasking' : ''),
+      { isMorphing, isSkinning, isLighting }, pbrSingleShaderVertex, pbrSingleShaderFragment
     );
 
 
@@ -288,6 +288,16 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           semantic: ShaderSemantics.MorphWeights, componentType: ComponentType.Float, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader, isSystem: true, soloDatum: true,
           initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
+        }
+      );
+    }
+
+    if (isAlphaMasking) {
+      this.__definitions += '#define RN_IS_ALPHAMASKING\n';
+      shaderSemanticsInfoArray.push(
+        {
+          semantic: ShaderSemantics.AlphaCutoff, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+          stage: ShaderType.PixelShader, min: 0, max: 1.0, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0.01)
         }
       );
     }

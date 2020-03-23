@@ -681,12 +681,19 @@ export default class ModelConverter {
     }
     const isMorphing = this.__isMorphing(node);
     const isSkinning = this.__isSkinning(node);
-    const isLighting = this.__isLighting(materialJson)
+    const isLighting = this.__isLighting(materialJson);
+    const isAlphaMasking = this.__isAlphaMasking(materialJson);
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
-      return MaterialHelper.createPbrUberMaterial({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
+      return MaterialHelper.createPbrUberMaterial({
+        isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting,
+        isAlphaMasking: isAlphaMasking, additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
+      });
     } else {
-      return MaterialHelper.createClassicUberMaterial({ isSkinning: isSkinning, isLighting: isLighting, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
+      return MaterialHelper.createClassicUberMaterial({
+        isSkinning: isSkinning, isLighting: isLighting,
+        additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
+      });
     }
   }
 
@@ -695,6 +702,14 @@ export default class ModelConverter {
       return false;
     } else {
       return true;
+    }
+  }
+
+  private __isAlphaMasking(materialJson?: Gltf2Material) {
+    if (materialJson?.alphaMode === AlphaMode.Mask.str) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -775,6 +790,10 @@ export default class ModelConverter {
     }
     if (alphaMode != null) {
       material.alphaMode = AlphaMode.fromString(alphaMode)!;
+
+      if (material.alphaMode === AlphaMode.Mask) {
+        material.setParameter(ShaderSemantics.AlphaCutoff, new Scalar(materialJson.alphaCutoff));
+      }
     }
 
     // For glTF1.0

@@ -122,9 +122,12 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
   baseColor *= srgbToLinear(textureColor.rgb);
   alpha *= textureColor.a;
 
-  if (alpha < 0.01) {
+#ifdef RN_IS_ALPHAMASKING
+  float alphaCutoff = get_alphaCutoff(materialSID, 0);
+  if (alpha < alphaCutoff) {
     discard;
   }
+#endif
 
 #ifdef RN_IS_LIGHTING
 
