@@ -12,6 +12,7 @@ in vec2 v_texcoord;
 in vec3 v_baryCentricCoord;
 
 uniform int u_shadingModel; // initialValue=0
+uniform float u_alphaCutoff; // initialValue=0.01
 uniform float u_shininess; // initialValue=5
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
@@ -51,6 +52,8 @@ void main ()
   vec4 textureColor = texture2D(u_diffuseColorTexture, v_texcoord);
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
+
+#pragma shaderity: require(../common/alphaMask.glsl)
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);

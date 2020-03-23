@@ -82,16 +82,17 @@ function createClassicUberMaterialOld({
 }
 
 function createClassicUberMaterial({
-  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false,
+  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false, isAlphaMasking = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'ClassicUber'
     + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
-    + (isLighting ? '' : '-lighting');
+    + (isLighting ? '' : '-lighting')
+    + (isAlphaMasking ? '+isAlphaMasking' : '');
 
   const materialNode = new CustomSingleMaterialNode({
-    name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+    name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing, isAlphaMasking,
     vertexShader: classicSingleShaderVertex,
     pixelShader: classicSingleShaderFragment
   });
@@ -188,16 +189,18 @@ function createMToonMaterial({
 }
 
 function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, {
-  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false,
+  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false, isAlphaMasking = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'Custom'
     + `_${additionalName}_`
+    + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
-    + (isLighting ? '' : '-lighting');
+    + (isLighting ? '' : '-lighting')
+    + (isAlphaMasking ? '+isAlphaMasking' : '');
 
   const materialNode = new CustomSingleMaterialNode({
-    name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+    name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing, isAlphaMasking: isAlphaMasking,
     vertexShader: { code: vertexShaderStr, shaderStage: 'vertex' },
     pixelShader: { code: pixelShaderStr, shaderStage: 'fragment' }
   }

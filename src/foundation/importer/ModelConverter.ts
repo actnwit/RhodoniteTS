@@ -13,13 +13,10 @@ import { PrimitiveMode } from "../definitions/PrimitiveMode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import { VertexAttribute, VertexAttributeEnum } from "../definitions/VertexAttribute";
-import MutableMatrix44 from "../math/MutableMatrix44";
-import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { CameraType } from "../definitions/CameraType";
 import Texture from "../textures/Texture";
 import Vector4 from "../math/Vector4";
-import Vector2_F64 from "../math/Vector2";
 import AnimationComponent from "../components/AnimationComponent";
 import { AnimationInterpolation } from "../definitions/AnimationInterpolation";
 import { MathUtil } from "../math/MathUtil";
@@ -692,7 +689,7 @@ export default class ModelConverter {
     } else {
       return MaterialHelper.createClassicUberMaterial({
         isSkinning: isSkinning, isLighting: isLighting,
-        additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
+        isAlphaMasking: isAlphaMasking, additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
       });
     }
   }

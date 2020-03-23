@@ -1,22 +1,11 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import Vector2 from "../../math/Vector2";
-import { ComponentType } from "../../definitions/ComponentType";
 import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import ModuleManager from "../../system/ModuleManager";
-import { PixelFormat } from "../../definitions/PixelFormat";
-import { TextureParameter } from "../../definitions/TextureParameter";
-import Vector4 from "../../math/Vector4";
-import Vector3 from "../../math/Vector3";
-import AbstractTexture from "../../textures/AbstractTexture";
 import { ShaderType } from "../../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
-import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";
 import Material from "../core/Material";
-import MeshRendererComponent from "../../components/MeshRendererComponent";
 import { HdriFormat } from "../../definitions/HdriFormat";
 import MeshComponent from "../../components/MeshComponent";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
@@ -34,12 +23,13 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
   private static __shaderityUtility: ShaderityUtility = ShaderityUtility.getInstance();
 
-  constructor({ name, isMorphing, isSkinning, isLighting, vertexShader, pixelShader}:
-    { name: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
+  constructor({ name, isMorphing, isSkinning, isLighting, isAlphaMasking, vertexShader, pixelShader }:
+    { name: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, isAlphaMasking: boolean, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
     super(null, name
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
-      + (isLighting ? '' : '-lighting'),
+      + (isLighting ? '' : '-lighting')
+      + (isAlphaMasking ? '+isAlphaMasking' : ''),
       { isMorphing, isSkinning, isLighting }
     );
 
@@ -58,7 +48,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
     }
     for (let pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
-      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find((vertexInfo: ShaderSemanticsInfo)=>{
+      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find((vertexInfo: ShaderSemanticsInfo) => {
         if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
           return true;
         } else {
@@ -83,6 +73,10 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
 
     if (isMorphing) {
       this.__definitions += '#define RN_IS_MORPHING\n';
+    }
+
+    if (isAlphaMasking) {
+      this.__definitions += '#define RN_IS_ALPHAMASKING\n';
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
