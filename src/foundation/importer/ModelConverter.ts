@@ -1327,35 +1327,11 @@ export default class ModelConverter {
       draco.destroy(decoder);
       return void 0;
     }
+
     const numPoints = dracoGeometry.num_points();
+    const rnBufferForDraco = this.__createBufferForDecompressedData(primitive, numPoints);
 
-    const posAttId = decoder.GetAttributeId(dracoGeometry, draco.POSITION);
-    if (posAttId == -1) {
-      const errorMsg = 'Position attribute not found in draco.';
-      console.error(errorMsg);
-      draco.destroy(dracoGeometry);
-      draco.destroy(decoder);
-      return void 0;
-    }
-
-    let lengthOfRnBufferForDraco = 0;
-    if (primitive.indices) {
-      const count = primitive.indices.count;
-      lengthOfRnBufferForDraco += count * 4;
-    }
-    for (let attributeName in primitive.attributes) {
-      const accessor = primitive.attributes[attributeName];
-      const compositionNum = CompositionType.fromString(accessor.type).getNumberOfComponents();
-      const attributeByteLength = numPoints * compositionNum * 4;
-      lengthOfRnBufferForDraco += attributeByteLength;
-    }
-
-    const rnDracoBuffer = new Buffer({
-      byteLength: lengthOfRnBufferForDraco,
-      buffer: new ArrayBuffer(lengthOfRnBufferForDraco),
-      name: 'Draco'
-    });
-
+    // decode indices
     const primitiveMode = PrimitiveMode.from(primitive.mode);
     let isTriangleStrip = false;
     if (primitiveMode === PrimitiveMode.TriangleStrip) {
@@ -1363,56 +1339,54 @@ export default class ModelConverter {
     }
 
     const indices = this.__getIndicesFromDraco(draco, decoder, dracoGeometry, isTriangleStrip)!;
-    const indicesDracoAccessor = this.__createRnAccessor(primitive.indices, indices.length, 1, rnDracoBuffer);
+    const indicesRnAccessor = this.__createRnAccessor(primitive.indices, indices.length, 1, rnBufferForDraco);
     for (let i = 0; i < indices.length; i++) {
-      indicesDracoAccessor.setScalar(i, indices[i], {});
+      indicesRnAccessor.setScalar(i, indices[i], {});
     }
 
+    // decode attributes
     for (let attributeName in primitive.attributes) {
-      const attributeAccessor = primitive.attributes[attributeName];
+      const dracoAttributeId = primitive.extensions.KHR_draco_mesh_compression.attributes[attributeName];
 
-      const compositionNum = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents();
-      const attributeRnDracoAccessor = this.__createRnAccessor(attributeAccessor, numPoints, compositionNum, rnDracoBuffer);
+      const attributeGltf2Accessor = primitive.attributes[attributeName] as Gltf2Accessor;
+      let attributeRnAccessor;
 
-      let dracoAttributeName = attributeName;
-      if (attributeName === 'TEXCOORD_0') {
-        dracoAttributeName = 'TEX_COORD';
-      } else if (attributeName === 'COLOR_0') {
-        dracoAttributeName = 'COLOR';
-      } else if (attributeName === 'TANGENT') {
-        dracoAttributeName = 'GENERIC';
-      }
+      if (dracoAttributeId == null) {
+        // non-encoded data
 
-      const attId = decoder.GetAttributeId(dracoGeometry, draco[dracoAttributeName]);
-      if (attId === -1) {
-        const errorMsg = attributeName + 'attribute not found in draco.';
-        console.error(errorMsg);
-        continue;
-      }
+        attributeRnAccessor = this.__getRnAccessor(attributeGltf2Accessor, rnBuffers[(attributeGltf2Accessor.bufferView as Gltf2BufferView).bufferIndex!]);
+      } else {
+        // encoded data
 
-      const attribute = decoder.GetAttribute(dracoGeometry, attId);
-      const attributeData = new draco.DracoFloat32Array();
-      decoder.GetAttributeFloatForAllPoints(dracoGeometry, attribute, attributeData);
+        const compositionNum = CompositionType.fromString(attributeGltf2Accessor.type).getNumberOfComponents();
+        attributeRnAccessor = this.__createRnAccessor(attributeGltf2Accessor, numPoints, compositionNum, rnBufferForDraco);
 
-      for (let i = 0; i < numPoints; i++) {
-        if (compositionNum === 1) {
-          attributeRnDracoAccessor.setScalar(i, attributeData.GetValue(i * compositionNum), {});
-        } else if (compositionNum === 2) {
-          attributeRnDracoAccessor.setVec2(i, attributeData.GetValue(i * compositionNum), attributeData.GetValue(i * compositionNum + 1), {});
-        } else if (compositionNum === 3) {
-          attributeRnDracoAccessor.setVec3(i, attributeData.GetValue(i * compositionNum), attributeData.GetValue(i * compositionNum + 1), attributeData.GetValue(i * compositionNum + 2), {});
-        } else if (compositionNum === 4) {
-          attributeRnDracoAccessor.setVec4(i, attributeData.GetValue(i * compositionNum), attributeData.GetValue(i * compositionNum + 1), attributeData.GetValue(i * compositionNum + 2), attributeData.GetValue(i * compositionNum + 3), {});
+        const dracoAttributePointer = decoder.GetAttributeByUniqueId(dracoGeometry, dracoAttributeId);
+        const decompressedAttributeData = new draco.DracoFloat32Array();
+        decoder.GetAttributeFloatForAllPoints(dracoGeometry, dracoAttributePointer, decompressedAttributeData);
+
+        for (let i = 0; i < numPoints; i++) {
+          if (compositionNum === 1) {
+            attributeRnAccessor.setScalar(i, decompressedAttributeData.GetValue(i * compositionNum), {});
+          } else if (compositionNum === 2) {
+            attributeRnAccessor.setVec2(i, decompressedAttributeData.GetValue(i * compositionNum), decompressedAttributeData.GetValue(i * compositionNum + 1), {});
+          } else if (compositionNum === 3) {
+            attributeRnAccessor.setVec3(i, decompressedAttributeData.GetValue(i * compositionNum), decompressedAttributeData.GetValue(i * compositionNum + 1), decompressedAttributeData.GetValue(i * compositionNum + 2), {});
+          } else if (compositionNum === 4) {
+            attributeRnAccessor.setVec4(i, decompressedAttributeData.GetValue(i * compositionNum), decompressedAttributeData.GetValue(i * compositionNum + 1), decompressedAttributeData.GetValue(i * compositionNum + 2), decompressedAttributeData.GetValue(i * compositionNum + 3), {});
+          }
         }
+
+        draco.destroy(decompressedAttributeData);
       }
 
-      draco.destroy(attributeData);
-      map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnDracoAccessor);
+      map.set(VertexAttribute.fromString(attributeGltf2Accessor.extras.attributeName), attributeRnAccessor);
     }
+
     draco.destroy(dracoGeometry);
     draco.destroy(decoder);
 
-    return indicesDracoAccessor;
+    return indicesRnAccessor;
   }
 
   static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum) {
@@ -1436,5 +1410,35 @@ export default class ModelConverter {
       rnMaterial.setParameter(textureTransformShaderSemantic, transform);
       rnMaterial.setParameter(textureRotationShaderSemantic, rotation);
     }
+  }
+
+  private __createBufferForDecompressedData(primitive: any, numPoints: number): Buffer {
+    let byteLengthOfBufferForDraco = 0;
+
+    if (primitive.indices) {
+      const count = primitive.indices.count;
+      byteLengthOfBufferForDraco += count * 4;
+    }
+
+    const drcAttributes = primitive.extensions.KHR_draco_mesh_compression.attributes;
+    for (let attributeName in primitive.attributes) {
+
+      if (drcAttributes[attributeName] == null) {
+        // non-encoded data
+
+        continue;
+      }
+
+      const accessor = primitive.attributes[attributeName];
+      const compositionNum = CompositionType.fromString(accessor.type).getNumberOfComponents();
+      const attributeByteLength = numPoints * compositionNum * 4;
+      byteLengthOfBufferForDraco += attributeByteLength;
+    }
+
+    return new Buffer({
+      byteLength: byteLengthOfBufferForDraco,
+      buffer: new ArrayBuffer(byteLengthOfBufferForDraco),
+      name: 'Draco'
+    });
   }
 }
