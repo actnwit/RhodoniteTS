@@ -1,14 +1,12 @@
-import RnObject from "../core/RnObject";
 import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { thisExpression } from "@babel/types";
 import { Size, TypedArray } from "../../commontypes/CommonTypes";
 import Config from "../core/Config";
-import {BasisFile, BasisTranscoder, BASIS} from "../../commontypes/BasisTexture";
+import { BasisFile, BasisTranscoder, BASIS } from "../../commontypes/BasisTexture";
+import { ComponentTypeEnum } from "../../rhodonite";
 
 declare const BASIS: BASIS;
 
@@ -16,6 +14,9 @@ export default class Texture extends AbstractTexture {
   private __imageData?: ImageData;
   public autoResize = true;
   public autoDetectTransparency = false;
+  private static __loadedBasisFunc = false;
+  private static __basisCallback: { instance: Texture, uint8Array: Uint8Array, options: any }[] = [];
+  private static __BasisFile?: new (x: Uint8Array) => BasisFile;
 
   constructor() {
     super();
@@ -59,7 +60,65 @@ export default class Texture extends AbstractTexture {
     return canvas;
   }
 
-  async generateTextureFromBasis(uint8Array: Uint8Array, {
+  generateTextureFromBasis(uint8Array: Uint8Array, options: {
+    level: number,
+    internalFormat: PixelFormatEnum,
+    format: PixelFormatEnum,
+    type: ComponentTypeEnum,
+    magFilter: TextureParameterEnum,
+    minFilter: TextureParameterEnum,
+    wrapS: TextureParameterEnum,
+    wrapT: TextureParameterEnum,
+    generateMipmap: boolean,
+    anisotropy: boolean
+  } = {
+      level: 0,
+      internalFormat: PixelFormat.RGBA,
+      format: PixelFormat.RGBA,
+      type: ComponentType.Float,
+      magFilter: TextureParameter.Linear,
+      minFilter: TextureParameter.LinearMipmapLinear,
+      wrapS: TextureParameter.Repeat,
+      wrapT: TextureParameter.Repeat,
+      generateMipmap: true,
+      anisotropy: true
+    }) {
+    this.__startedToLoad = true;
+
+    if (typeof BASIS === 'undefined') {
+      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
+    }
+
+    // download basis_transcoder.wasm once
+    if (!Texture.__loadedBasisFunc) {
+      Texture.__loadedBasisFunc = true;
+
+      BASIS().then((basisTransCoder: BasisTranscoder) => {
+        const { initializeBasis } = basisTransCoder;
+        initializeBasis();
+        Texture.__BasisFile = basisTransCoder.BasisFile;
+
+        this.__setBasisTexture(uint8Array, options);
+        for (let callback of Texture.__basisCallback) {
+          callback.instance.__setBasisTexture(callback.uint8Array, callback.options);
+        }
+      });
+    } else {
+      // already download basis_transcoder.wasm or not
+      if (Texture.__BasisFile) {
+        this.__setBasisTexture(uint8Array, options);
+
+      } else {
+        Texture.__basisCallback.push({
+          instance: this,
+          uint8Array: uint8Array,
+          options: options
+        });
+      }
+    }
+  }
+
+  private __setBasisTexture(uint8Array: Uint8Array, {
     level = 0,
     internalFormat = PixelFormat.RGBA,
     format = PixelFormat.RGBA,
@@ -70,43 +129,32 @@ export default class Texture extends AbstractTexture {
     wrapT = TextureParameter.Repeat,
     generateMipmap = true,
     anisotropy = true
-  } = {}) {
-    this.__startedToLoad = true;
+  } = {}): void {
 
-    if (typeof BASIS === 'undefined') {
-      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
-    }
+    const basisFile = new Texture.__BasisFile!(uint8Array);
+    const width = basisFile.getImageWidth(0, 0);
+    const height = basisFile.getImageHeight(0, 0);
 
-    BASIS().then((basisTransCoder: BasisTranscoder) => {
-      const {initializeBasis} = basisTransCoder;
-      initializeBasis();
-
-      const BasisFile = basisTransCoder.BasisFile;
-      const basisFile = new BasisFile(uint8Array);
-      const width = basisFile.getImageWidth(0, 0);
-      const height = basisFile.getImageHeight(0, 0);
-
-      if (!basisFile.startTranscoding()) {
-        console.error("failed to start transcoding.");
-        basisFile.close();
-        basisFile.delete();
-        return;
-      }
-
-      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
-        border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-        wrapS: wrapS, wrapT: wrapT, anisotropy: anisotropy
-      });
-
-      this.cgApiResourceUid = texture;
-      this.__isTextureReady = true;
-
-      AbstractTexture.__textureMap.set(texture, this);
-
+    if (!basisFile.startTranscoding()) {
+      console.error("failed to start transcoding.");
       basisFile.close();
       basisFile.delete();
+      return;
+    }
+
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
+      border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
+      wrapS: wrapS, wrapT: wrapT, anisotropy: anisotropy
     });
+
+    this.cgApiResourceUid = texture;
+    this.__isTextureReady = true;
+
+    AbstractTexture.__textureMap.set(texture, this);
+
+    basisFile.close();
+    basisFile.delete();
   }
 
   generateTextureFromImage(image: HTMLImageElement, {
@@ -243,8 +291,7 @@ export default class Texture extends AbstractTexture {
       wrapT: TextureParameterEnum,
       generateMipmap: boolean,
       anisotropy: boolean
-    })
-    {
+    }) {
 
     const type = ComponentType.fromTypedArray(typedArray);
 
