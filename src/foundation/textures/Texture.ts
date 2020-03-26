@@ -15,7 +15,7 @@ export default class Texture extends AbstractTexture {
   public autoResize = true;
   public autoDetectTransparency = false;
   private static __loadedBasisFunc = false;
-  private static __basisCallback: { instance: Texture, uint8Array: Uint8Array, options: any }[] = [];
+  private static __basisLoadPromise?: Promise<void>;
   private static __BasisFile?: new (x: Uint8Array) => BasisFile;
 
   constructor() {
@@ -93,26 +93,25 @@ export default class Texture extends AbstractTexture {
     if (!Texture.__loadedBasisFunc) {
       Texture.__loadedBasisFunc = true;
 
-      BASIS().then((basisTransCoder: BasisTranscoder) => {
-        const { initializeBasis } = basisTransCoder;
-        initializeBasis();
-        Texture.__BasisFile = basisTransCoder.BasisFile;
+      Texture.__basisLoadPromise = new Promise((resolve) => {
+        BASIS().then((basisTransCoder: BasisTranscoder) => {
+          const { initializeBasis } = basisTransCoder;
+          initializeBasis();
+          Texture.__BasisFile = basisTransCoder.BasisFile;
 
-        this.__setBasisTexture(uint8Array, options);
-        for (let callback of Texture.__basisCallback) {
-          callback.instance.__setBasisTexture(callback.uint8Array, callback.options);
-        }
+          this.__setBasisTexture(uint8Array, options);
+          resolve();
+        });
       });
+
     } else {
       // already download basis_transcoder.wasm or not
       if (Texture.__BasisFile) {
         this.__setBasisTexture(uint8Array, options);
 
       } else {
-        Texture.__basisCallback.push({
-          instance: this,
-          uint8Array: uint8Array,
-          options: options
+        Texture.__basisLoadPromise?.then(() => {
+          this.__setBasisTexture(uint8Array, options);
         });
       }
     }
