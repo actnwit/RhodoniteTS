@@ -69,11 +69,7 @@ void main()
 
   if (abs(length(a_normal)) > 0.01) {
     // if normal exist
-    vec3 tangent_inWorld;
-    if (!isSkinning) {
-      tangent_inWorld = normalMatrix * a_tangent.xyz;
-      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-    }
+    vec3 tangent_inWorld = normalMatrix * a_tangent.xyz;
 
     v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld) * a_tangent.w;
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
