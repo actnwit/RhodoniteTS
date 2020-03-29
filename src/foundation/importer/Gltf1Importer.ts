@@ -750,18 +750,22 @@ export default class Gltf1Importer {
       }
 
       if (imageUri.match(/basis$/)) {
-        const promise = new Promise(async (resolve)=> {
-          const response = await fetch(imageUri);
-          const buffer = await response.arrayBuffer();
-          const uint8Array = new Uint8Array(buffer);
-          imageJson.basis = uint8Array;
-          resolve();
+        const promise = new Promise((resolve) => {
+          fetch(imageUri).then((response) => {
+            response.arrayBuffer().then((buffer) => {
+              imageJson.basis = new Uint8Array(buffer);
+              DataUtil.createRnTextureFromBasisAndSetToImgExtra(imageJson.basis, options, imageJson);
+              resolve();
+            });
+          });
         });
+
         promisesToLoadResources.push(promise);
 
       } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
-        const promise = new Promise((resolve)=>{
+        const promise = new Promise((resolve) => {
           imageJson.basis = new Uint8Array(options.files[imageJson.uri!])
+          DataUtil.createRnTextureFromBasisAndSetToImgExtra(imageJson.basis, options, imageJson);
           resolve();
         });
         promisesToLoadResources.push(promise);
@@ -795,7 +799,9 @@ export default class Gltf1Importer {
       }
     }
 
-    return Promise.all(promisesToLoadResources);
+    return Promise.all(promisesToLoadResources).catch((err) => {
+      console.log('Promise.all error', err);
+    });
   }
 
   static getInstance() {

@@ -288,7 +288,7 @@ export default class GltfImporter {
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createTexture({ texture: gltfTextures[i] }, gltfModel);
+      const rnTexture = ModelConverter._getOrCreateRnTexture({ texture: gltfTextures[i] }, gltfModel);
       rnTextures[i] = rnTexture;
     }
 
