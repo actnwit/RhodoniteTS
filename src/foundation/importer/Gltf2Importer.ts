@@ -2,7 +2,6 @@ import DataUtil from "../misc/DataUtil";
 import { glTF2, GltfLoadOption, Gltf2Image } from "../../commontypes/glTF";
 import RnPromise from "../misc/RnPromise";
 import { expression } from "@babel/template";
-import Texture from "../textures/Texture";
 
 declare var Rn: any;
 
@@ -657,22 +656,18 @@ export default class Gltf2Importer {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       // }
       if (imageUri.match(/basis$/)) {
-        const promise = new Promise((resolve) => {
-          fetch(imageUri).then((response) => {
-            response.arrayBuffer().then((buffer) => {
-              imageJson.basis = new Uint8Array(buffer);
-              DataUtil.createRnTextureFromBasisAndSetToImgExtra(imageJson.basis, options, imageJson);
-              resolve();
-            });
-          });
+        const promise = new Promise(async (resolve)=> {
+          const response = await fetch(imageUri);
+          const buffer = await response.arrayBuffer();
+          const uint8Array = new Uint8Array(buffer);
+          imageJson.basis = uint8Array;
+          resolve();
         });
-
         promisesToLoadResources.push(promise);
 
       } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
-        const promise = new Promise((resolve) => {
+        const promise = new Promise((resolve)=>{
           imageJson.basis = new Uint8Array(options.files[imageJson.uri!])
-          DataUtil.createRnTextureFromBasisAndSetToImgExtra(imageJson.basis, options, imageJson);
           resolve();
         });
         promisesToLoadResources.push(promise);

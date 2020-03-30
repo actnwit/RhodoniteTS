@@ -661,35 +661,13 @@ export default class DrcPointCloudImporter {
 
       // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
-      // }
-      if (imageUri.match(/basis$/)) {
-        const promise = new Promise((resolve) => {
-          fetch(imageUri).then((response) => {
-            response.arrayBuffer().then((buffer) => {
-              imageJson.basis = new Uint8Array(buffer);
-              DataUtil.createRnTextureFromBasisAndSetToImgExtra(imageJson.basis, options, imageJson);
-              resolve();
-            });
-          });
-        });
-
-        promisesToLoadResources.push(promise);
-
-      } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
-        const promise = new Promise((resolve) => {
-          imageJson.basis = new Uint8Array(options.files[imageJson.uri!])
-          DataUtil.createRnTextureFromBasisAndSetToImgExtra(imageJson.basis, options, imageJson);
-          resolve();
-        });
-        promisesToLoadResources.push(promise);
-      } else {
-        const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(function (image) {
-          image.crossOrigin = 'Anonymous';
-          resources.images[i] = image;
-          imageJson.image = image;
-        });
-        promisesToLoadResources.push(promise);
-      }
+      //
+      const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(function (image) {
+        image.crossOrigin = 'Anonymous';
+        resources.images[i] = image;
+        imageJson.image = image;
+      });
+      promisesToLoadResources.push(promise);
     }
 
     if (options.defaultTextures) {
@@ -799,7 +777,7 @@ export default class DrcPointCloudImporter {
           buffer[currentBufferIndex + 1] = 1.0 - attributeDataAll[i].GetValue(2 * j + 1);
         }
       } else {
-        for (var j = 0; j < numPoints * attributeComponents[i]; currentBufferIndex++, j++) {
+        for (var j = 0; j < numPoints * attributeComponents[i]; currentBufferIndex++ , j++) {
           buffer[currentBufferIndex] = attributeDataAll[i].GetValue(j);
         }
       }
