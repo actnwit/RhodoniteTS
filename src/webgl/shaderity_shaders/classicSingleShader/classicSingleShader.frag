@@ -33,7 +33,7 @@ void main ()
   vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
 
 
-  // diffuseColor
+  // diffuseColor (Considered to be premultiplied alpha)
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
   if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
@@ -48,7 +48,7 @@ void main ()
     diffuseColor = vec3(1.0, 1.0, 1.0);
   }
 
-  // diffuseColorTexture
+  // diffuseColorTexture (Considered to be premultiplied alpha)
   vec4 textureColor = texture2D(u_diffuseColorTexture, v_texcoord);
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
@@ -124,7 +124,7 @@ void main ()
   shadingColor = diffuseColor;
 #endif
 
-  rt0 = vec4(shadingColor * alpha, alpha);
+  rt0 = vec4(shadingColor, alpha);
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
   // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
   // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);

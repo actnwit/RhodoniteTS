@@ -631,10 +631,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
-  createTexture(data: DirectTextureData, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }:
+  createTexture(data: DirectTextureData, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha }:
     {
       level: Index, internalFormat: TextureParameterEnum | PixelFormatEnum, width: Size, height: Size, border: Size, format: PixelFormatEnum,
-      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean
+      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum,
+      generateMipmap: boolean, anisotropy: boolean, isPremultipliedAlpha: boolean
     }): WebGLResourceHandle {
     const gl = this.__glw!.getRawContext();
 
@@ -644,6 +645,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, texture!);
 
     this.__glw!.bindTexture2D(0, texture);
+    if (isPremultipliedAlpha) {
+      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    }
+  
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
       if (this.__glw!.isWebGL2) {
         gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, border,
@@ -682,10 +689,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy }:
+  createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy, isPremultipliedAlpha }:
     {
       border: Size, format: PixelFormatEnum,
-      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, anisotropy: boolean
+      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum,
+      anisotropy: boolean, isPremultipliedAlpha: boolean
     }): WebGLResourceHandle {
 
     let basisCompressionType: BasisCompressionTypeEnum;
@@ -730,6 +738,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       compressionType = astc.COMPRESSED_RGBA_ASTC_4x4_KHR;
     }
     const mipmapDepth = basisFile.getNumLevels(0);
+    
+    if (isPremultipliedAlpha) {
+      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    }
 
     for (let i=0; i<mipmapDepth; i++) {
       const width = basisFile.getImageWidth(0, i);
@@ -1185,10 +1199,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.createCubeTexture(1, [{ posX: canvas, negX: canvas, posY: canvas, negY: canvas, posZ: canvas, negZ: canvas }], 1, 1);
   }
 
-  async createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }:
+  async createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha }:
     {
       level: Index, internalFormat: TextureParameterEnum | PixelFormatEnum, border: Size, format: PixelFormatEnum,
-      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean
+      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean, isPremultipliedAlpha: boolean
     }): Promise<WebGLResourceHandle> {
     return new Promise<WebGLResourceHandle>((resolve) => {
       const img = new Image();
@@ -1199,7 +1213,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         const width = img.width;
         const height = img.height;
 
-        let texture = this.createTexture(img, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy });
+        let texture = this.createTexture(img, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha });
 
         resolve(texture);
       };
@@ -1257,7 +1271,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.createTexture(canvas, {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
       border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
+      wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: false
     });
   }
 
@@ -1282,7 +1296,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.createTexture(new Uint8Array(arrayBuffer), {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
       border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
+      wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: false
     });
   }
 
