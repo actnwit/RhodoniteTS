@@ -390,7 +390,7 @@ export default class Primitive extends RnObject {
         const result = this.__castRayInner(
           origVec3,
           dirVec3,
-          j,
+          i,
           pos0IndexBase,
           pos1IndexBase,
           pos2IndexBase,
@@ -422,7 +422,7 @@ export default class Primitive extends RnObject {
         const result = this.__castRayInner(
           origVec3,
           dirVec3,
-          this.__indices!.getScalar(k, {}),
+          j,
           pos0IndexBase,
           pos1IndexBase,
           pos2IndexBase,
@@ -525,10 +525,11 @@ export default class Primitive extends RnObject {
     this.__inverseArenbergMatrix = [];
     this.__arenberg3rdPosition = [];
     if (!this.hasIndices()) {
-      for (let i = 0; i < positionAccessor.elementCount - 2; i += incrementNum) {
-        let pos0IndexBase = i;
-        let pos1IndexBase = (i + 1);
-        let pos2IndexBase = (i + 2);
+      for (let i = 0; i < positionAccessor.elementCount - 2; i++) {
+        const j = i * incrementNum;
+        let pos0IndexBase = j;
+        let pos1IndexBase = (j + 1);
+        let pos2IndexBase = (j + 2);
 
         this._calcArenbergMatrixFor3Vertices(
           i,
@@ -539,13 +540,14 @@ export default class Primitive extends RnObject {
         );
       }
     } else {
-      for (let j = 0; j < this.__indices!.elementCount - 2; j += incrementNum) {
-        if (j + 2 > this.__indices!.elementCount - 1) {
+      for (let j = 0; j < this.__indices!.elementCount - 2; j++) {
+        const k = j * incrementNum;
+        if (k + 2 > this.__indices!.elementCount - 1) {
           break;
         }
-        let pos0IndexBase = this.__indices!.getScalar(j, {});
-        let pos1IndexBase = this.__indices!.getScalar(j + 1, {});
-        let pos2IndexBase = this.__indices!.getScalar(j + 2, {});
+        let pos0IndexBase = this.__indices!.getScalar(k, {});
+        let pos1IndexBase = this.__indices!.getScalar(k + 1, {});
+        let pos2IndexBase = this.__indices!.getScalar(k + 2, {});
 
         this._calcArenbergMatrixFor3Vertices(
           j,
@@ -604,19 +606,7 @@ export default class Primitive extends RnObject {
 
     const inverseArenbergMatrix = arenbergMatrix.invert();
 
-    let arenberg0IndexBase = i;
-    // let arenberg1IndexBase = i + 1;
-    // let arenberg2IndexBase = i + 2;
-    if (this.hasIndices()) {
-      arenberg0IndexBase = this.__indices!.getScalar(i, {});
-      // arenberg1IndexBase = this.__indices!.getScalar(i + 1, {});
-      // arenberg2IndexBase = this.__indices!.getScalar(i + 2, {});
-    }
-
-    //    const triangleIdx = i/incrementNum;
-    this.__inverseArenbergMatrix[
-      arenberg0IndexBase
-    ] = inverseArenbergMatrix;
-    this.__arenberg3rdPosition[arenberg0IndexBase] = pos2Vec3;
+    this.__inverseArenbergMatrix[i] = inverseArenbergMatrix;
+    this.__arenberg3rdPosition[i] = pos2Vec3;
   }
 }
