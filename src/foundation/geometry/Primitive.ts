@@ -2,12 +2,10 @@ import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { VertexAttributeEnum, VertexAttribute } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
 import RnObject from '../core/RnObject';
-import BufferView from '../memory/BufferView';
 import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import AccessorBase from '../memory/AccessorBase';
-import { BufferUse } from '../definitions/BufferUse';
 import AABB from '../math/AABB';
 import Material from '../materials/core/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
@@ -17,6 +15,7 @@ import { PrimitiveUID, TypedArray, Count, Index } from '../../commontypes/Common
 import Vector3 from '../math/Vector3';
 import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';
+import MutableVector3 from '../math/MutableVector3';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -380,13 +379,13 @@ export default class Primitive extends RnObject {
       incrementNum = 1;
     }
 
-    const posComponentN = positionAccessor.numberOfComponents;
     if (!this.hasIndices()) {
       for (let i = 0; i < positionAccessor.elementCount; i++) {
         const j = i * incrementNum;
         let pos0IndexBase = j;
         let pos1IndexBase = (j + 1);
         let pos2IndexBase = (j + 2);
+
         const result = this.__castRayInner(
           origVec3,
           dirVec3,
@@ -408,21 +407,19 @@ export default class Primitive extends RnObject {
         }
       }
     } else {
-      for (let j = 0; j < this.__indices!.elementCount; j++) {
-        const k = j * incrementNum;
-        if (k + 2 > this.__indices!.elementCount - 1) {
+      for (let i = 0; i < this.__indices!.elementCount; i++) {
+        const j = i * incrementNum;
+        if (j + 2 > this.__indices!.elementCount - 1) {
           break;
         }
-        let pos0IndexBase = this.__indices!.getScalar(k, {});
-        let pos1IndexBase =
-          this.__indices!.getScalar(k + 1, {});
-        let pos2IndexBase =
-          this.__indices!.getScalar(k + 2, {});
+        let pos0IndexBase = this.__indices!.getScalar(j, {});
+        let pos1IndexBase = this.__indices!.getScalar(j + 1, {});
+        let pos2IndexBase = this.__indices!.getScalar(j + 2, {});
 
         const result = this.__castRayInner(
           origVec3,
           dirVec3,
-          j,
+          i,
           pos0IndexBase,
           pos1IndexBase,
           pos2IndexBase,
@@ -471,16 +468,9 @@ export default class Primitive extends RnObject {
       }
     }
 
-    const vec3 = Vector3.subtract(
-      origVec3,
-      this.__arenberg3rdPosition[i]
-    );
-    const convertedOrigVec3 = this.__inverseArenbergMatrix[
-      i
-    ].multiplyVector(vec3);
-    const convertedDirVec3 = this.__inverseArenbergMatrix[
-      i
-    ].multiplyVector(dirVec3);
+    const vec3 = Vector3.subtract(origVec3, this.__arenberg3rdPosition[i]);
+    const convertedOrigVec3 = this.__inverseArenbergMatrix[i].multiplyVector(vec3);
+    const convertedDirVec3 = this.__inverseArenbergMatrix[i].multiplyVector(dirVec3);
 
     if (convertedDirVec3.z >= -1e-6 && convertedDirVec3.z <= 1e-6) {
       return null;
@@ -508,14 +498,13 @@ export default class Primitive extends RnObject {
     const pos0 = Vector3.multiply(pos0Vec3, u);
     const pos1 = Vector3.multiply(pos1Vec3, v);
     const pos2 = Vector3.multiply(pos2Vec3, fDat);
-    const intersectedPosVec3 = Vector3.add(Vector3.add(pos0, pos1), pos2);
+    const intersectedPosVec3 = MutableVector3.zero().add(pos0).add(pos1).add(pos2);
 
     return [t, intersectedPosVec3];
   }
 
   _calcArenbergInverseMatrices() {
     const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
-    const positionElementNumPerVertex = positionAccessor.numberOfComponents
 
     let incrementNum = 3; // gl.TRIANGLES
     if (this.__mode === PrimitiveMode.TriangleStrip) {
@@ -531,31 +520,20 @@ export default class Primitive extends RnObject {
         let pos1IndexBase = (j + 1);
         let pos2IndexBase = (j + 2);
 
-        this._calcArenbergMatrixFor3Vertices(
-          i,
-          pos0IndexBase,
-          pos1IndexBase,
-          pos2IndexBase,
-          incrementNum
-        );
+        this._calcArenbergMatrixFor3Vertices(i, pos0IndexBase, pos1IndexBase, pos2IndexBase);
       }
     } else {
-      for (let j = 0; j < this.__indices!.elementCount - 2; j++) {
-        const k = j * incrementNum;
-        if (k + 2 > this.__indices!.elementCount - 1) {
+      for (let i = 0; i < this.__indices!.elementCount - 2; i++) {
+        const j = i * incrementNum;
+        if (j + 2 > this.__indices!.elementCount - 1) {
+          console.warn('The number of indices is invalid');
           break;
         }
-        let pos0IndexBase = this.__indices!.getScalar(k, {});
-        let pos1IndexBase = this.__indices!.getScalar(k + 1, {});
-        let pos2IndexBase = this.__indices!.getScalar(k + 2, {});
+        let pos0IndexBase = this.__indices!.getScalar(j, {});
+        let pos1IndexBase = this.__indices!.getScalar(j + 1, {});
+        let pos2IndexBase = this.__indices!.getScalar(j + 2, {});
 
-        this._calcArenbergMatrixFor3Vertices(
-          j,
-          pos0IndexBase,
-          pos1IndexBase,
-          pos2IndexBase,
-          incrementNum
-        );
+        this._calcArenbergMatrixFor3Vertices(i, pos0IndexBase, pos1IndexBase, pos2IndexBase);
       }
     }
   }
@@ -564,8 +542,7 @@ export default class Primitive extends RnObject {
     i: Index,
     pos0IndexBase: Index,
     pos1IndexBase: Index,
-    pos2IndexBase: Index,
-    incrementNum: number
+    pos2IndexBase: Index
   ) {
 
     const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
