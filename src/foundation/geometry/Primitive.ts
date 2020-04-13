@@ -407,9 +407,10 @@ export default class Primitive extends RnObject {
         }
       }
     } else {
-      for (let i = 0; i < this.__indices!.elementCount; i++) {
+      for (let i = 0; i < this.__indices!.elementCount - 2; i++) {
         const j = i * incrementNum;
         if (j + 2 > this.__indices!.elementCount - 1) {
+          // gl.TRIANGLES
           break;
         }
         let pos0IndexBase = this.__indices!.getScalar(j, {});
@@ -526,7 +527,7 @@ export default class Primitive extends RnObject {
       for (let i = 0; i < this.__indices!.elementCount - 2; i++) {
         const j = i * incrementNum;
         if (j + 2 > this.__indices!.elementCount - 1) {
-          console.warn('The number of indices is invalid');
+          // gl.TRIANGLES
           break;
         }
         let pos0IndexBase = this.__indices!.getScalar(j, {});
