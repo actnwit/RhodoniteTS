@@ -95,27 +95,15 @@ export default class WalkThroughCameraController implements ICameraController {
       eventTargetDom.addEventListener("keyup", this._onKeyup);
 
       if ("ontouchend" in document) {
-        document.addEventListener(
-          "touchstart",
-          this._mouseDownBind
-        );
+        document.addEventListener("touchstart", this._mouseDownBind);
         document.addEventListener("touchend", this._mouseUpBind);
-        document.addEventListener(
-          "touchmove",
-          this._mouseMoveBind
-        );
+        document.addEventListener("touchmove", this._mouseMoveBind);
       }
       if ("onmouseup" in document) {
-        eventTargetDom.addEventListener(
-          "mousedown",
-          this._mouseDownBind
-        );
+        eventTargetDom.addEventListener("mousedown", this._mouseDownBind);
         eventTargetDom.addEventListener("mouseup", this._mouseUpBind);
         eventTargetDom.addEventListener("mouseleave", this._mouseUpBind);
-        eventTargetDom.addEventListener(
-          "mousemove",
-          this._mouseMoveBind
-        );
+        eventTargetDom.addEventListener("mousemove", this._mouseMoveBind);
       }
       if ("onwheel" in document) {
         eventTargetDom.addEventListener("wheel", this._mouseWheelBind);
@@ -131,30 +119,18 @@ export default class WalkThroughCameraController implements ICameraController {
       eventTargetDom.removeEventListener("keyup", this._onKeyup);
 
       if ("ontouchend" in document) {
-        document.removeEventListener(
-          "touchstart",
-          (this._mouseDown as any).bind(this)
-        );
+        document.removeEventListener("touchstart", this._mouseDownBind);
         document.removeEventListener("touchend", this._mouseUpBind);
         document.removeEventListener("touchmove", this._mouseMoveBind)
       }
       if ("onmouseup" in document) {
-        eventTargetDom.removeEventListener(
-          "mousedown",
-          this._mouseDownBind
-        );
+        eventTargetDom.removeEventListener("mousedown", this._mouseDownBind);
         eventTargetDom.removeEventListener("mouseup", this._mouseUpBind);
         eventTargetDom.removeEventListener("mouseleave", this._mouseUpBind);
-        eventTargetDom.removeEventListener(
-          "mousemove",
-          this._mouseMoveBind
-        );
+        eventTargetDom.removeEventListener("mousemove", this._mouseMoveBind);
       }
       if ("onwheel" in document) {
-        eventTargetDom.removeEventListener(
-          "wheel",
-          this._mouseWheelBind
-        );
+        eventTargetDom.removeEventListener("wheel", this._mouseWheelBind);
       }
     }
   }
