@@ -48,7 +48,7 @@ export default class OrbitCameraController implements ICameraController {
   private __targetEntity?: Entity;
   private __lengthCameraToObject = 1;
   private __scaleOfLengthCameraToCenter = 1;
-  private __zFarAdjustingFactorBasedOnAABB = 2.0;
+  private __zFarAdjustingFactorBasedOnAABB = 150;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
   public moveSpeed = 1;
@@ -635,8 +635,7 @@ export default class OrbitCameraController implements ICameraController {
     let ratio = 1;
 
     if (this.__targetEntity) {
-      newZFar =
-        camera.zNear + Vector3.subtract(newCenterVec, newEyeVec).length();
+      newZFar = camera.zNear + Vector3.lengthBtw(newCenterVec, newEyeVec);
       newZFar +=
         this.__getTargetAABB().lengthCenterToCorner *
         this.__zFarAdjustingFactorBasedOnAABB;
