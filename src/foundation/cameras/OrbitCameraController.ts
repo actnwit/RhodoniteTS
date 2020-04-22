@@ -48,7 +48,7 @@ export default class OrbitCameraController implements ICameraController {
   private __targetEntity?: Entity;
   private __lengthCameraToObject = 1;
   private __scaleOfLengthCameraToCenter = 1;
-  private __zFarAdjustingFactorBasedOnAABB = 2.0;
+  private __zFarAdjustingFactorBasedOnAABB = 150;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
   public moveSpeed = 1;
