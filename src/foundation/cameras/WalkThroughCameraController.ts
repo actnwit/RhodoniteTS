@@ -26,6 +26,7 @@ export default class WalkThroughCameraController implements ICameraController {
   private _currentDir = new MutableVector3(0, 0, -1);
   private _currentPos = new MutableVector3(0, 0, 0);
   private _currentCenter = new MutableVector3(0, 0, -1);
+  private _currentHorizontalDir = new MutableVector3(0, 0, -1);
   private _newDir = new MutableVector3(0, 0, -1);
   private _isMouseDown: boolean = false;
   private _clickedMouseXOnCanvas = -1;
@@ -220,6 +221,7 @@ export default class WalkThroughCameraController implements ICameraController {
     this._currentPos = new MutableVector3(0, 0, 0);
     this._currentCenter = new MutableVector3(0, 0, -1);
     this._currentDir = new MutableVector3(0, 0, -1);
+    this._currentHorizontalDir = new MutableVector3(0, 0, -1);
     this._isMouseDown = false;
     this._isMouseDrag = false;
     this._draggedMouseXOnCanvas = -1;
@@ -283,100 +285,63 @@ export default class WalkThroughCameraController implements ICameraController {
     this._newDir.z = this._currentDir.z * (1 - t);
     this._newDir.normalize();
 
+    this._currentHorizontalDir.x = this._currentDir.x;
+    this._currentHorizontalDir.y = 0;
+    this._currentHorizontalDir.z = this._currentDir.z;
+    this._currentHorizontalDir.normalize();
+
     switch (this._lastKeyCode) {
       case 87: // w key
       case 38: // arrow upper key
-        {
-          const horizontalDir = new MutableVector3(
-            this._currentDir.x,
-            0,
-            this._currentDir.z
-          ).normalize();
-          this._currentPos.add(
-            Vector3.multiply(horizontalDir, this._horizontalSpeed)
-          );
-          this._currentCenter.add(
-            Vector3.multiply(horizontalDir, this._horizontalSpeed)
-          );
-        }
+        this._currentPos.x += this._currentHorizontalDir.x * this._horizontalSpeed;
+        this._currentPos.z += this._currentHorizontalDir.z * this._horizontalSpeed;
+        this._currentCenter.x += this._currentHorizontalDir.x * this._horizontalSpeed;
+        this._currentCenter.z += this._currentHorizontalDir.z * this._horizontalSpeed;
         break;
       case 65: // a key
       case 37: // arrow left key
-        {
-          const horizontalDir = new MutableVector3(
-            this._currentDir.x,
-            0,
-            this._currentDir.z
-          ).normalize();
-          const leftDir = Matrix33.rotateY(MathUtil.degreeToRadian(90)).multiplyVector(horizontalDir);
-          this._currentPos.add(
-            Vector3.multiply(leftDir, this._horizontalSpeed)
-          );
-          this._currentCenter.add(
-            Vector3.multiply(leftDir, this._horizontalSpeed)
-          );
-        }
+        this._currentPos.x += this._currentHorizontalDir.z * this._horizontalSpeed;
+        this._currentPos.z -= this._currentHorizontalDir.x * this._horizontalSpeed;
+        this._currentCenter.x += this._currentHorizontalDir.z * this._horizontalSpeed;
+        this._currentCenter.z -= this._currentHorizontalDir.x * this._horizontalSpeed;
         break;
       case 83: // s key
       case 40: // arrow down key
-        {
-          const horizontalDir = new MutableVector3(
-            this._currentDir.x,
-            0,
-            this._currentDir.z
-          ).normalize();
-          this._currentPos.add(
-            Vector3.multiply(horizontalDir, -this._horizontalSpeed)
-          );
-          this._currentCenter.add(
-            Vector3.multiply(horizontalDir, -this._horizontalSpeed)
-          );
-        }
+        this._currentPos.x -= this._currentHorizontalDir.x * this._horizontalSpeed;
+        this._currentPos.z -= this._currentHorizontalDir.z * this._horizontalSpeed;
+        this._currentCenter.x -= this._currentHorizontalDir.x * this._horizontalSpeed;
+        this._currentCenter.z -= this._currentHorizontalDir.z * this._horizontalSpeed;
         break;
       case 68: // d key
       case 39: // arrow right key
-        {
-          const horizontalDir = new MutableVector3(
-            this._currentDir.x,
-            0,
-            this._currentDir.z
-          ).normalize();
-          const rightDir = Matrix33.rotateY(MathUtil.degreeToRadian(-90)).multiplyVector(horizontalDir);
-          this._currentPos.add(
-            Vector3.multiply(rightDir, this._horizontalSpeed)
-          );
-          this._currentCenter.add(
-            Vector3.multiply(rightDir, this._horizontalSpeed)
-          );
-        }
+        this._currentPos.x -= this._currentHorizontalDir.z * this._horizontalSpeed;
+        this._currentPos.z += this._currentHorizontalDir.x * this._horizontalSpeed;
+        this._currentCenter.x -= this._currentHorizontalDir.z * this._horizontalSpeed;
+        this._currentCenter.z += this._currentHorizontalDir.x * this._horizontalSpeed;
         break;
       case 81: // q key
-        {
-          this._currentPos.add(
-            Vector3.multiply(this._newDir, -this._horizontalSpeed)
-          );
-          this._currentCenter.add(
-            Vector3.multiply(this._newDir, -this._horizontalSpeed)
-          );
-        }
+        this._currentPos.x -= this._newDir.x * this._horizontalSpeed;
+        this._currentPos.y -= this._newDir.y * this._horizontalSpeed;
+        this._currentPos.z -= this._newDir.z * this._horizontalSpeed;
+        this._currentCenter.x -= this._newDir.x * this._horizontalSpeed;
+        this._currentCenter.y -= this._newDir.y * this._horizontalSpeed;
+        this._currentCenter.z -= this._newDir.z * this._horizontalSpeed;
         break;
       case 69: // e key
-        {
-          this._currentPos.add(
-            Vector3.multiply(this._newDir, this._horizontalSpeed)
-          );
-          this._currentCenter.add(
-            Vector3.multiply(this._newDir, this._horizontalSpeed)
-          );
-        }
+        this._currentPos.x += this._newDir.x * this._horizontalSpeed;
+        this._currentPos.y += this._newDir.y * this._horizontalSpeed;
+        this._currentPos.z += this._newDir.z * this._horizontalSpeed;
+        this._currentCenter.x += this._newDir.x * this._horizontalSpeed;
+        this._currentCenter.y += this._newDir.y * this._horizontalSpeed;
+        this._currentCenter.z += this._newDir.z * this._horizontalSpeed;
         break;
       case 82: // r key
-        this._currentPos.add(new Vector3(0, this._verticalSpeed, 0));
-        this._currentCenter.add(new Vector3(0, this._verticalSpeed, 0));
+        this._currentPos.y += this._verticalSpeed;
+        this._currentCenter.y += this._verticalSpeed;
         break;
       case 70: // f key
-        this._currentPos.add(new Vector3(0, -this._verticalSpeed, 0));
-        this._currentCenter.add(new Vector3(0, -this._verticalSpeed, 0));
+        this._currentPos.y -= this._verticalSpeed;
+        this._currentCenter.y -= this._verticalSpeed;
         break;
     }
 
