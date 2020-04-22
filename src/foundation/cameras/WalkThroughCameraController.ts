@@ -3,11 +3,8 @@ import Matrix33 from "../math/Matrix33";
 import MathClassUtil from "../math/MathClassUtil";
 import { MiscUtil } from "../misc/MiscUtil";
 import ICameraController from "./ICameraController";
-import { FunctionDeclaration } from "@babel/types";
 import MutableVector3 from "../math/MutableVector3";
 import CameraComponent from "../components/CameraComponent";
-import Matrix44 from "../math/Matrix44";
-import MutableMatrix44 from "../math/MutableMatrix44";
 import { MathUtil } from "../math/MathUtil";
 import Entity from "../core/Entity";
 
@@ -46,6 +43,10 @@ export default class WalkThroughCameraController implements ICameraController {
   private _mouseMoveBind = (this._mouseMove as any).bind(this);
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
   private _eventTargetDom?: any;
+  private _fixedInitialPosition = true;
+  private _targetEntity?: Entity;
+  private _zFarAdjustingFactorBasedOnAABB = 150.0;
+  private __scaleOfZNearAndZFar = 5000;
 
   constructor(
     options = {
@@ -245,26 +246,33 @@ export default class WalkThroughCameraController implements ICameraController {
     cc.rightInner = data.newRight;
     cc.topInner = data.newTop;
     cc.bottomInner = data.newBottom;
-
     cc.fovyInner = data.fovy;
   }
 
 
   private __convert(camera: CameraComponent) {
-    if (this._currentPos === null) {
-      this._currentPos = new MutableVector3(camera.eye.clone());
-    }
-    const sg = camera.entity.getSceneGraph();
-    const mat = sg.worldMatrixInner;
-    const center = mat.multiplyVector3(Vector3.zero());
-    if (this._currentCenter === null) {
-      this._currentCenter = new MutableVector3(center);
-    }
-    if (this._currentDir === null) {
-      this._currentDir = Vector3.subtract(
-        new MutableVector3(center),
-        camera.eye
-      ).normalize();
+    let newZNear;
+    let newZFar;
+    if (!this._fixedInitialPosition && this._targetEntity) {
+      const targetAABB = this._targetEntity.getSceneGraph().worldAABB;
+      const lengthCameraToObject = targetAABB.lengthCenterToCorner / Math.sin((camera.fovy * Math.PI) / 180 / 2);
+
+      this._currentPos.copyComponents(targetAABB.centerPoint);
+      this._currentPos.z += lengthCameraToObject;
+      this._currentCenter.copyComponents(targetAABB.centerPoint);
+      this._currentDir = new MutableVector3(0, 0, -1);
+
+      newZFar = camera.zNear + Vector3.lengthBtw(this._currentCenter, this._currentPos);
+      newZFar += targetAABB.lengthCenterToCorner * this._zFarAdjustingFactorBasedOnAABB;
+
+      let scale = newZFar / camera.zNear;
+      scale /= this.__scaleOfZNearAndZFar;
+      newZNear = camera.zNear * scale;
+
+      this._fixedInitialPosition = true;
+    } else {
+      newZNear = camera.zNearInner;
+      newZFar = camera.zFarInner;
     }
 
     let newEyeToCenter = null;
@@ -413,8 +421,8 @@ export default class WalkThroughCameraController implements ICameraController {
       newEyeVec: this._currentPos,
       newCenterVec: this._currentCenter,
       newUpVec: camera.up.clone(),
-      newZNear: camera.zNear,
-      newZFar: camera.zFar,
+      newZNear: newZNear,
+      newZFar: newZFar,
       newLeft,
       newRight,
       newTop,
@@ -447,6 +455,29 @@ export default class WalkThroughCameraController implements ICameraController {
     const speed = targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
+
+    this._targetEntity = targetEntity;
+    this._fixedInitialPosition = false;
+  }
+
+  getTarget(): Entity | undefined {
+    return this._targetEntity;
+  }
+
+  set zFarAdjustingFactorBasedOnAABB(value: number) {
+    this._zFarAdjustingFactorBasedOnAABB = value;
+  }
+
+  get zFarAdjustingFactorBasedOnAABB() {
+    return this._zFarAdjustingFactorBasedOnAABB;
+  }
+
+  set scaleOfZNearAndZFar(value: number) {
+    this.__scaleOfZNearAndZFar = value;
+  }
+
+  get scaleOfZNearAndZFar() {
+    return this.__scaleOfZNearAndZFar;
   }
 
   get allInfo() {
