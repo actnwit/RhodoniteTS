@@ -635,8 +635,7 @@ export default class OrbitCameraController implements ICameraController {
     let ratio = 1;
 
     if (this.__targetEntity) {
-      newZFar =
-        camera.zNear + Vector3.subtract(newCenterVec, newEyeVec).length();
+      newZFar = camera.zNear + Vector3.lengthBtw(newCenterVec, newEyeVec);
       newZFar +=
         this.__getTargetAABB().lengthCenterToCorner *
         this.__zFarAdjustingFactorBasedOnAABB;
