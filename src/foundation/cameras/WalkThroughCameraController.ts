@@ -1,5 +1,5 @@
 import Vector3 from "../math/Vector3";
-import Matrix33 from "../math/Matrix33";
+import Matrix44 from "../math/Matrix44";
 import MathClassUtil from "../math/MathClassUtil";
 import { MiscUtil } from "../misc/MiscUtil";
 import ICameraController from "./ICameraController";
@@ -7,6 +7,7 @@ import MutableVector3 from "../math/MutableVector3";
 import CameraComponent from "../components/CameraComponent";
 import { MathUtil } from "../math/MathUtil";
 import Entity from "../core/Entity";
+import MutableMatrix33 from "../math/MutableMatrix33";
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 type MouseEventListener = (evt: MouseEvent) => any;
@@ -44,10 +45,13 @@ export default class WalkThroughCameraController implements ICameraController {
   private _mouseMoveBind = (this._mouseMove as any).bind(this);
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
   private _eventTargetDom?: any;
-  private _fixedInitialPosition = true;
+  private _needInitialize = true;
   private _targetEntity?: Entity;
   private _zFarAdjustingFactorBasedOnAABB = 150.0;
   private __scaleOfZNearAndZFar = 5000;
+
+  private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmpMoveVec: MutableVector3 = MutableVector3.zero();
 
   constructor(
     options = {
@@ -229,17 +233,11 @@ export default class WalkThroughCameraController implements ICameraController {
 
 
   private __convert(camera: CameraComponent) {
-    let newZNear;
-    let newZFar;
-    if (!this._fixedInitialPosition && this._targetEntity) {
+    let newZNear = camera.zNearInner;
+    let newZFar = camera.zFarInner;
+
+    if (this._needInitialize && this._targetEntity) {
       const targetAABB = this._targetEntity.getSceneGraph().worldAABB;
-      const lengthCameraToObject = targetAABB.lengthCenterToCorner / Math.sin((camera.fovy * Math.PI) / 180 / 2);
-
-      this._currentPos.copyComponents(targetAABB.centerPoint);
-      this._currentPos.z += lengthCameraToObject;
-      this._currentCenter.copyComponents(targetAABB.centerPoint);
-      this._currentDir = new MutableVector3(0, 0, -1);
-
       newZFar = camera.zNear + Vector3.lengthBtw(this._currentCenter, this._currentPos);
       newZFar += targetAABB.lengthCenterToCorner * this._zFarAdjustingFactorBasedOnAABB;
 
@@ -247,13 +245,22 @@ export default class WalkThroughCameraController implements ICameraController {
       scale /= this.__scaleOfZNearAndZFar;
       newZNear = camera.zNear * scale;
 
-      this._fixedInitialPosition = true;
-    } else {
-      newZNear = camera.zNearInner;
-      newZFar = camera.zFarInner;
-    }
+      const lengthCameraToObject = targetAABB.lengthCenterToCorner / Math.sin((camera.fovy * Math.PI) / 180 / 2);
+      this._currentPos.copyComponents(targetAABB.centerPoint);
+      this._currentPos.z += lengthCameraToObject;
 
-    let newEyeToCenter = null;
+      this._currentCenter.copyComponents(targetAABB.centerPoint);
+      this._currentDir = new MutableVector3(0, 0, -1);
+
+      if (camera.entity.getSceneGraph()) {
+        const sg = camera.entity.getSceneGraph();
+        const mat = Matrix44.invert(sg.worldMatrixInner);
+        this._currentPos.copyComponents(mat.multiplyVector3(this._currentPos));
+        this._currentCenter.copyComponents(mat.multiplyVector3(this._currentCenter));
+      }
+
+      this._needInitialize = false;
+    }
 
     const t = this._deltaY / 90;
     this._newDir.x = this._currentDir.x * (1 - t);
@@ -266,60 +273,48 @@ export default class WalkThroughCameraController implements ICameraController {
     this._currentHorizontalDir.z = this._currentDir.z;
     this._currentHorizontalDir.normalize();
 
+    const moveVector = WalkThroughCameraController.__tmpMoveVec.zero();
     switch (this._lastKeyCode) {
       case 87: // w key
       case 38: // arrow upper key
-        this._currentPos.x += this._currentHorizontalDir.x * this._horizontalSpeed;
-        this._currentPos.z += this._currentHorizontalDir.z * this._horizontalSpeed;
-        this._currentCenter.x += this._currentHorizontalDir.x * this._horizontalSpeed;
-        this._currentCenter.z += this._currentHorizontalDir.z * this._horizontalSpeed;
+        moveVector.x = this._currentHorizontalDir.x * this._horizontalSpeed;
+        moveVector.z = this._currentHorizontalDir.z * this._horizontalSpeed;
         break;
       case 65: // a key
       case 37: // arrow left key
-        this._currentPos.x += this._currentHorizontalDir.z * this._horizontalSpeed;
-        this._currentPos.z -= this._currentHorizontalDir.x * this._horizontalSpeed;
-        this._currentCenter.x += this._currentHorizontalDir.z * this._horizontalSpeed;
-        this._currentCenter.z -= this._currentHorizontalDir.x * this._horizontalSpeed;
+        moveVector.x = this._currentHorizontalDir.z * this._horizontalSpeed;
+        moveVector.z = -this._currentHorizontalDir.x * this._horizontalSpeed;
         break;
       case 83: // s key
       case 40: // arrow down key
-        this._currentPos.x -= this._currentHorizontalDir.x * this._horizontalSpeed;
-        this._currentPos.z -= this._currentHorizontalDir.z * this._horizontalSpeed;
-        this._currentCenter.x -= this._currentHorizontalDir.x * this._horizontalSpeed;
-        this._currentCenter.z -= this._currentHorizontalDir.z * this._horizontalSpeed;
+        moveVector.x = -this._currentHorizontalDir.x * this._horizontalSpeed;
+        moveVector.z = -this._currentHorizontalDir.z * this._horizontalSpeed;
         break;
       case 68: // d key
       case 39: // arrow right key
-        this._currentPos.x -= this._currentHorizontalDir.z * this._horizontalSpeed;
-        this._currentPos.z += this._currentHorizontalDir.x * this._horizontalSpeed;
-        this._currentCenter.x -= this._currentHorizontalDir.z * this._horizontalSpeed;
-        this._currentCenter.z += this._currentHorizontalDir.x * this._horizontalSpeed;
+        moveVector.x = -this._currentHorizontalDir.z * this._horizontalSpeed;
+        moveVector.z = this._currentHorizontalDir.x * this._horizontalSpeed;
         break;
       case 81: // q key
-        this._currentPos.x -= this._newDir.x * this._horizontalSpeed;
-        this._currentPos.y -= this._newDir.y * this._horizontalSpeed;
-        this._currentPos.z -= this._newDir.z * this._horizontalSpeed;
-        this._currentCenter.x -= this._newDir.x * this._horizontalSpeed;
-        this._currentCenter.y -= this._newDir.y * this._horizontalSpeed;
-        this._currentCenter.z -= this._newDir.z * this._horizontalSpeed;
+        moveVector.x = -this._newDir.x * this._horizontalSpeed;
+        moveVector.y = -this._newDir.y * this._horizontalSpeed;
+        moveVector.z = -this._newDir.z * this._horizontalSpeed;
         break;
       case 69: // e key
-        this._currentPos.x += this._newDir.x * this._horizontalSpeed;
-        this._currentPos.y += this._newDir.y * this._horizontalSpeed;
-        this._currentPos.z += this._newDir.z * this._horizontalSpeed;
-        this._currentCenter.x += this._newDir.x * this._horizontalSpeed;
-        this._currentCenter.y += this._newDir.y * this._horizontalSpeed;
-        this._currentCenter.z += this._newDir.z * this._horizontalSpeed;
+        moveVector.x = this._newDir.x * this._horizontalSpeed;
+        moveVector.y = this._newDir.y * this._horizontalSpeed;
+        moveVector.z = this._newDir.z * this._horizontalSpeed;
         break;
       case 82: // r key
-        this._currentPos.y += this._verticalSpeed;
-        this._currentCenter.y += this._verticalSpeed;
+        moveVector.y = this._verticalSpeed;
         break;
       case 70: // f key
-        this._currentPos.y -= this._verticalSpeed;
-        this._currentCenter.y -= this._verticalSpeed;
+        moveVector.y = -this._verticalSpeed;
         break;
     }
+    this._currentPos.add(moveVector);
+    this._currentCenter.add(moveVector);
+
 
     if (this._isMouseDrag) {
       if (this._inverseHorizontalRotating) {
@@ -334,18 +329,17 @@ export default class WalkThroughCameraController implements ICameraController {
       }
       this._deltaY = Math.max(-120, Math.min(50, this._deltaY));
 
-      this._currentDir = Matrix33.rotateY(MathUtil.degreeToRadian(this._deltaX)).multiplyVector(
-        this._currentDir
-      );
+      const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(MathUtil.degreeToRadian(this._deltaX));
+      this._currentDir = rotateMatrix.multiplyVector(this._currentDir);
 
-      newEyeToCenter = Matrix33.rotateY(MathUtil.degreeToRadian(this._deltaX)).multiplyVector(
-        Vector3.subtract(this._currentCenter, this._currentPos)
-      );
+      const newEyeToCenter = rotateMatrix.multiplyVector(Vector3.subtract(this._currentCenter, this._currentPos));
       newEyeToCenter.x = newEyeToCenter.x * (1 - t);
       newEyeToCenter.y = t;
       newEyeToCenter.z = newEyeToCenter.z * (1 - t);
       newEyeToCenter.normalize();
-      this._currentCenter = Vector3.add(this._currentPos, newEyeToCenter);
+
+      this._currentCenter.copyComponents(this._currentPos);
+      this._currentCenter.add(newEyeToCenter);
 
       this._clickedMouseXOnCanvas = this._draggedMouseXOnCanvas;
       this._clickedMouseYOnCanvas = this._draggedMouseYOnCanvas;
@@ -353,10 +347,10 @@ export default class WalkThroughCameraController implements ICameraController {
       this._deltaMouseYOnCanvas = 0;
     }
 
-    let newLeft = camera.left;
-    let newRight = camera.right;
-    let newTop = camera.top;
-    let newBottom = camera.bottom;
+    const newLeft = camera.left;
+    const newRight = camera.right;
+    const newTop = camera.top;
+    const newBottom = camera.bottom;
 
     return {
       newEyeVec: this._currentPos,
@@ -398,7 +392,7 @@ export default class WalkThroughCameraController implements ICameraController {
     this.horizontalSpeed = speed;
 
     this._targetEntity = targetEntity;
-    this._fixedInitialPosition = false;
+    this._needInitialize = true;
   }
 
   getTarget(): Entity | undefined {
