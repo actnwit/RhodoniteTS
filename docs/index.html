@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>rhodonite-ts</title>
+	<title>rhodonite</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">rhodonite-ts</a>
+					<a href="index.html" class="title">rhodonite</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1> rhodonite-ts</h1>
+			<h1> rhodonite</h1>
 		</div>
 	</div>
 </header>
@@ -71,20 +71,21 @@
 					<li>Entity Component System</li>
 					<li>Original high speed drawing system with data texture</li>
 				</ul>
+				<h2 id="support-browsers">Support Browsers</h2>
+				<p>Google Chrome, Firefox, Safari, Microsoft Edge(chronium based) and other modern browsers.
+				IE11 is not supported.</p>
 				<h2 id="building-rhodonite">Building Rhodonite</h2>
 				<h3 id="prerequisites">Prerequisites</h3>
 				<ul>
-					<li>Node.js 8.x or later</li>
-					<li>yarn package manager</li>
+					<li>Node.js 12.4.0 or later</li>
 				</ul>
 				<h3 id="setup-project">Setup Project</h3>
-				<pre><code class="language-bash">$ yarn install
-$ yarn setup</code></pre>
+				<pre><code class="language-bash">$ npm install</code></pre>
+				<p>You can use yarn instead.</p>
 				<h3 id="library-build-command">Library build command</h3>
-				<pre><code class="language-bash">$ yarn build</code></pre>
+				<pre><code class="language-bash">$ npm run build</code></pre>
 				<h2 id="how-to-write-the-code-with-rhodonite">How to write the code with Rhodonite</h2>
 				<h3 id="in-javascipt">In Javascipt</h3>
-				<h4 id="for-modern-browsers-excludes-ie11-">For modern browsers (excludes IE11)</h4>
 				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"world"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../../../dist/rhodonite.min.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
@@ -102,31 +103,6 @@ $ yarn setup</code></pre>
   }
   </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span></code></pre>
-				<h4 id="for-all-browsers-which-support-webgl-include-ie11-">For All browsers which support WebGL (include IE11)</h4>
-				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"world"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span> <span class="hljs-comment">&lt;!-- only for IE11 support -- &gt;
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/3.3.1/es6-promise.min.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.4/fetch.min.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
-  &lt;script src="../../../dist/rhodonite.min.ie11.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
-  &lt;script&gt;
-    // All Rhodonite classes you need are window.Rn object.
-    const promises = [];
-    const promise1 = Rn.ModuleManager.getInstance().loadModule('webgl');
-    const promise2 = Rn.ModuleManager.getInstance().loadModule('pbr');
-    promises.push(promise1);
-    promises.push(promise2);
-    promises.all(promises).then(function(){
-      const system = Rn.System.getInstance();
-      const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
-      const entityRepository = Rn.EntityRepository.getInstance();
-      ...
-      (After that, please refer to the sample codes.)
-      ...
-    });
-  &lt;/script&gt;
-&lt;/body&gt;</span></code></pre>
 				<h3 id="in-typescript">In TypeScript</h3>
 				<h4 id="html">HTML</h4>
 				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
@@ -164,11 +140,11 @@ $ yarn setup</code></pre>
 }</code></pre>
 				<p>For build main.ts, Use the following command.</p>
 				<pre><code>$ npx tsc ./main.ts --<span class="hljs-class"><span class="hljs-keyword">lib</span> <span class="hljs-title">es2015</span>,<span class="hljs-title">dom</span> --<span class="hljs-title">target</span> <span class="hljs-title">es5</span> --<span class="hljs-title">module</span> <span class="hljs-title">umd</span> --<span class="hljs-title">moduleResolution</span> <span class="hljs-title">node</span></span></code></pre><h2 id="building-api-documents">Building API Documents</h2>
-				<pre><code class="language-bash">$ yarn doc</code></pre>
+				<pre><code class="language-bash">$ npm run doc</code></pre>
 				<h2 id="testing-rhodonite">Testing Rhodonite</h2>
-				<pre><code class="language-bash">$ yarn <span class="hljs-built_in">test</span></code></pre>
+				<pre><code class="language-bash">$ npm run <span class="hljs-built_in">test</span></code></pre>
 				<h2 id="watching-test-samples">Watching Test Samples</h2>
-				<pre><code class="language-bash">$ yarn serv</code></pre>
+				<pre><code class="language-bash">$ npm run start</code></pre>
 				<p>Then, access <a href="http://localhost:8082/">http://localhost:8082/</a> with your web browser.</p>
 			</div>
 		</div>
@@ -179,10 +155,31 @@ $ yarn setup</code></pre>
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_commontypes_basistexture_.html">"commontypes/<wbr>Basis<wbr>Texture"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_commontypes_commontypes_.html">"commontypes/<wbr>Common<wbr>Types"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_commontypes_vrm_.html">"commontypes/VRM"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_commontypes_gltf_.html">"commontypes/glTF"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_effekseer_effekseercomponent_.html">"effekseer/<wbr>Effekseer<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_effekseer_main_.html">"effekseer/main"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_cameras_icameracontroller_.html">"foundation/cameras/ICamera<wbr>Controller"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_cameras_orbitcameracontroller_.html">"foundation/cameras/<wbr>Orbit<wbr>Camera<wbr>Controller"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_cameras_walkthroughcameracontroller_.html">"foundation/cameras/<wbr>Walk<wbr>Through<wbr>Camera<wbr>Controller"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_components_animationcomponent_.html">"foundation/components/<wbr>Animation<wbr>Component"</a>
@@ -206,6 +203,9 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_components_meshrenderercomponent_.html">"foundation/components/<wbr>Mesh<wbr>Renderer<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_components_physicscomponent_.html">"foundation/components/<wbr>Physics<wbr>Component"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_components_scenegraphcomponent_.html">"foundation/components/<wbr>Scene<wbr>Graph<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -227,13 +227,13 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_core_config_.html">"foundation/core/<wbr>Config"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_core_context_.html">"foundation/core/<wbr>Context"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_core_entity_.html">"foundation/core/<wbr>Entity"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_core_entityrepository_.html">"foundation/core/<wbr>Entity<wbr>Repository"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_core_globaldatarepository_.html">"foundation/core/<wbr>Global<wbr>Data<wbr>Repository"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_core_memorymanager_.html">"foundation/core/<wbr>Memory<wbr>Manager"</a>
@@ -245,10 +245,22 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_definitions_alphamode_.html">"foundation/definitions/<wbr>Alpha<wbr>Mode"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_definitions_animation_.html">"foundation/definitions/<wbr>Animation"</a>
+						<a href="modules/_foundation_definitions_animationattribute_.html">"foundation/definitions/<wbr>Animation<wbr>Attribute"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_definitions_animationinterpolation_.html">"foundation/definitions/<wbr>Animation<wbr>Interpolation"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_definitions_basiscompressiontype_.html">"foundation/definitions/<wbr>Basis<wbr>Compression<wbr>Type"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_definitions_bonedatatype_.html">"foundation/definitions/<wbr>Bone<wbr>Data<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_definitions_bufferuse_.html">"foundation/definitions/<wbr>Buffer<wbr>Use"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_definitions_cameracontrollertype_.html">"foundation/definitions/<wbr>Camera<wbr>Controller<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_definitions_cameratype_.html">"foundation/definitions/<wbr>Camera<wbr>Type"</a>
@@ -290,6 +302,9 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_definitions_shadertype_.html">"foundation/definitions/<wbr>Shader<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_definitions_shadervariabletyoe_.html">"foundation/definitions/<wbr>Shader<wbr>Variable<wbr>Tyoe"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_definitions_shadervariableupdateinterval_.html">"foundation/definitions/<wbr>Shader<wbr>Variable<wbr>Update<wbr>Interval"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -323,6 +338,12 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_geometry_sphere_.html">"foundation/geometry/<wbr>Sphere"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_gizmos_aabbgizmo_.html">"foundation/gizmos/AABBGizmo"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_gizmos_gizmo_.html">"foundation/gizmos/<wbr>Gizmo"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_helpers_entityhelper_.html">"foundation/helpers/<wbr>Entity<wbr>Helper"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -330,6 +351,9 @@ $ yarn setup</code></pre>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_helpers_renderablehelper_.html">"foundation/helpers/<wbr>Renderable<wbr>Helper"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_importer_animationassigner_.html">"foundation/importer/<wbr>Animation<wbr>Assigner"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_importer_drcpointcloudimporter_.html">"foundation/importer/<wbr>Drc<wbr>Point<wbr>Cloud<wbr>Importer"</a>
@@ -344,6 +368,9 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_importer_gltf2importer_.html">"foundation/importer/<wbr>Gltf2<wbr>Importer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_importer_gltfimporter_.html">"foundation/importer/<wbr>Gltf<wbr>Importer"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_importer_iloaderextension_.html">"foundation/importer/ILoader<wbr>Extension"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -353,58 +380,118 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_importer_rhodoniteimportextension_.html">"foundation/importer/<wbr>Rhodonite<wbr>Import<wbr>Extension"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_main_.html">"foundation/main"</a>
+						<a href="modules/_foundation_importer_vrmimporter_.html">"foundation/importer/VRMImporter"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_abstractmaterialnode_.html">"foundation/materials/<wbr>Abstract<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_core_abstractmaterialnode_.html">"foundation/materials/core/<wbr>Abstract<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_addmaterialnode_.html">"foundation/materials/<wbr>Add<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_core_abstractshadernode_.html">"foundation/materials/core/<wbr>Abstract<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_classicshadingmaterialnode_.html">"foundation/materials/<wbr>Classic<wbr>Shading<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_core_material_.html">"foundation/materials/core/<wbr>Material"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_classicshadingsinglematerialnode_.html">"foundation/materials/<wbr>Classic<wbr>Shading<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_core_shadergraphresolver_.html">"foundation/materials/core/<wbr>Shader<wbr>Graph<wbr>Resolver"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_depthencodesinglematerialnode_.html">"foundation/materials/<wbr>Depth<wbr>Encode<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_core_shaderityutility_.html">"foundation/materials/core/<wbr>Shaderity<wbr>Utility"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_endmaterialnode_.html">"foundation/materials/<wbr>End<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_addshadernode_.html">"foundation/materials/nodes/<wbr>Add<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_entityuidoutputsinglematerialnode_.html">"foundation/materials/<wbr>EntityUIDOutput<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_attributenormalshadernode_.html">"foundation/materials/nodes/<wbr>Attribute<wbr>Normal<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_envconstantsinglematerialnode_.html">"foundation/materials/<wbr>Env<wbr>Constant<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_attributepositionshadernode_.html">"foundation/materials/nodes/<wbr>Attribute<wbr>Position<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_fxaa3qualitysinglematerialnode_.html">"foundation/materials/FXAA3<wbr>Quality<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_blockbeginshadernode_.html">"foundation/materials/nodes/<wbr>Block<wbr>Begin<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_gammacorrectionsinglematerialnode_.html">"foundation/materials/<wbr>Gamma<wbr>Correction<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_blockendshadernode_.html">"foundation/materials/nodes/<wbr>Block<wbr>End<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_getvarsmaterialnode_.html">"foundation/materials/<wbr>Get<wbr>Vars<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_constantvariableshadernode_.html">"foundation/materials/nodes/<wbr>Constant<wbr>Variable<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_material_.html">"foundation/materials/<wbr>Material"</a>
+						<a href="modules/_foundation_materials_nodes_dotproductshadernode_.html">"foundation/materials/nodes/<wbr>Dot<wbr>Product<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_pbrshadingmaterialnode_.html">"foundation/materials/<wbr>Pbr<wbr>Shading<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_greatershadernode_.html">"foundation/materials/nodes/<wbr>Greater<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_shadowmapdecodeclassicsinglematerialnode_.html">"foundation/materials/<wbr>Shadow<wbr>Map<wbr>Decode<wbr>Classic<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_ifstatementshadernode_.html">"foundation/materials/nodes/<wbr>IfStatement<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_skeletalmaterialnode_.html">"foundation/materials/<wbr>Skeletal<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_multiplyshadernode_.html">"foundation/materials/nodes/<wbr>Multiply<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_texturefetchmaterialnode_.html">"foundation/materials/<wbr>Texture<wbr>Fetch<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_normalmatrixshadernode_.html">"foundation/materials/nodes/<wbr>Normal<wbr>Matrix<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_wireframematerialnode_.html">"foundation/materials/<wbr>Wireframe<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_nodes_normalizeshadernode_.html">"foundation/materials/nodes/<wbr>Normalize<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_outcolorshadernode_.html">"foundation/materials/nodes/<wbr>Out<wbr>Color<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_outpositionshadernode_.html">"foundation/materials/nodes/<wbr>Out<wbr>Position<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_projectionmatrixshadernode_.html">"foundation/materials/nodes/<wbr>Projection<wbr>Matrix<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_scalartovector4shadernode_.html">"foundation/materials/nodes/<wbr>Scalar<wbr>ToVector4<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_uniformdatashadernode_.html">"foundation/materials/nodes/<wbr>Uniform<wbr>Data<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_varyinginvariableshadernode_.html">"foundation/materials/nodes/<wbr>Varying<wbr>InVariable<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_varyingoutvariableshadernode_.html">"foundation/materials/nodes/<wbr>Varying<wbr>Out<wbr>Variable<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_vector3andscalartovector4shadernode_.html">"foundation/materials/nodes/<wbr>Vector3<wbr>And<wbr>Scalar<wbr>ToVector4<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_viewmatrixshadernode_.html">"foundation/materials/nodes/<wbr>View<wbr>Matrix<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_nodes_worldmatrixshadernode_.html">"foundation/materials/nodes/<wbr>World<wbr>Matrix<wbr>Shader<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_classicshadingsinglematerialnode_.html">"foundation/materials/singles/<wbr>Classic<wbr>Shading<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_customsinglematerialnode_.html">"foundation/materials/singles/<wbr>Custom<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_depthencodesinglematerialnode_.html">"foundation/materials/singles/<wbr>Depth<wbr>Encode<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_entityuidoutputsinglematerialnode_.html">"foundation/materials/singles/<wbr>EntityUIDOutput<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_envconstantsinglematerialnode_.html">"foundation/materials/singles/<wbr>Env<wbr>Constant<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_fxaa3qualitysinglematerialnode_.html">"foundation/materials/singles/FXAA3<wbr>Quality<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_gammacorrectionsinglematerialnode_.html">"foundation/materials/singles/<wbr>Gamma<wbr>Correction<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_mtoonsinglematerialnode_.html">"foundation/materials/singles/MToon<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_pbrshadingsinglematerialnode_.html">"foundation/materials/singles/<wbr>Pbr<wbr>Shading<wbr>Single<wbr>Material<wbr>Node"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_materials_singles_shadowmapdecodeclassicsinglematerialnode_.html">"foundation/materials/singles/<wbr>Shadow<wbr>Map<wbr>Decode<wbr>Classic<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_aabb_.html">"foundation/math/AABB"</a>
@@ -452,7 +539,7 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_math_mutablematrix44_.html">"foundation/math/<wbr>Mutable<wbr>Matrix44"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_math_mutablequaterion_.html">"foundation/math/<wbr>Mutable<wbr>Quaterion"</a>
+						<a href="modules/_foundation_math_mutablequaternion_.html">"foundation/math/<wbr>Mutable<wbr>Quaternion"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_mutablescalar_.html">"foundation/math/<wbr>Mutable<wbr>Scalar"</a>
@@ -512,6 +599,27 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_misc_miscutil_.html">"foundation/misc/<wbr>Misc<wbr>Util"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_misc_rnpromise_.html">"foundation/misc/<wbr>RnPromise"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_misc_time_.html">"foundation/misc/<wbr>Time"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_physics_physicsstrategy_.html">"foundation/physics/<wbr>Physics<wbr>Strategy"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_physics_spherecollider_.html">"foundation/physics/<wbr>Sphere<wbr>Collider"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_physics_vrmcollidergroup_.html">"foundation/physics/VRMCollider<wbr>Group"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_physics_vrmspringbonegroup_.html">"foundation/physics/VRMSpring<wbr>Bone<wbr>Group"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_physics_vrmspringbonephysicsstrategy_.html">"foundation/physics/VRMSpring<wbr>Bone<wbr>Physics<wbr>Strategy"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_renderer_cgapiresourcerepository_.html">"foundation/renderer/CGAPIResource<wbr>Repository"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -528,6 +636,9 @@ $ yarn setup</code></pre>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_system_system_.html">"foundation/system/<wbr>System"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_system_systemstate_.html">"foundation/system/<wbr>System<wbr>State"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_textures_abstracttexture_.html">"foundation/textures/<wbr>Abstract<wbr>Texture"</a>
@@ -548,19 +659,22 @@ $ yarn setup</code></pre>
 						<a href="modules/_foundation_textures_texture_.html">"foundation/textures/<wbr>Texture"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_textures_texturedatafloat_.html">"foundation/textures/<wbr>Texture<wbr>Data<wbr>Float"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_pbr_main_.html">"pbr/main"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_rhodonite_.html">"rhodonite"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_rhodonite_xr_.html">"rhodonite-<wbr>xr"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_sparkgear_sparkgearcomponent_.html">"sparkgear/<wbr>Spark<wbr>Gear<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_sparkgear_main_.html">"sparkgear/main"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_types_commontypes_.html">"types/<wbr>Common<wbr>Types"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_types_gltf_.html">"types/glTF"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_webglcontextwrapper_.html">"webgl/<wbr>WebGLContext<wbr>Wrapper"</a>
@@ -587,43 +701,19 @@ $ yarn setup</code></pre>
 						<a href="modules/_webgl_main_.html">"webgl/main"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_addshader_.html">"webgl/shaders/<wbr>Add<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_classicshader_.html">"webgl/shaders/<wbr>Classic<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_classicshadingshader_.html">"webgl/shaders/<wbr>Classic<wbr>Shading<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_shaders_depthencodeshader_.html">"webgl/shaders/<wbr>Depth<wbr>Encode<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_endshader_.html">"webgl/shaders/<wbr>End<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_entityuidoutputsingleshader_.html">"webgl/shaders/<wbr>EntityUIDOutput<wbr>Single<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_envcostantshader_.html">"webgl/shaders/<wbr>Env<wbr>Costant<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_fxaa3quality_.html">"webgl/shaders/FXAA3<wbr>Quality"</a>
+						<a href="modules/_webgl_shaders_envconstantshader_.html">"webgl/shaders/<wbr>Env<wbr>Constant<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_shaders_glslshader_.html">"webgl/shaders/GLSLShader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_gammacorrectionshader_.html">"webgl/shaders/<wbr>Gamma<wbr>Correction<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_getvarsshader_.html">"webgl/shaders/<wbr>Get<wbr>Vars<wbr>Shader"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_shaders_isingleshader_.html">"webgl/shaders/ISingle<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_pbrshader_.html">"webgl/shaders/PBRShader"</a>
+						<a href="modules/_webgl_shaders_mtoonshader_.html">"webgl/shaders/MToon<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_shaders_shadowmapdecodeclassicshader_.html">"webgl/shaders/<wbr>Shadow<wbr>Map<wbr>Decode<wbr>Classic<wbr>Shader"</a>
@@ -639,6 +729,33 @@ $ yarn setup</code></pre>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_shaders_wireframeshader_.html">"webgl/shaders/<wbr>Wireframe<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_blockbeginshader_.html">"webgl/shaders/nodes/<wbr>Block<wbr>Begin<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_blockendshader_.html">"webgl/shaders/nodes/<wbr>Block<wbr>End<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_classicshadingshader_.html">"webgl/shaders/nodes/<wbr>Classic<wbr>Shading<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_constantvariableshader_.html">"webgl/shaders/nodes/<wbr>Constant<wbr>Variable<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_endshader_.html">"webgl/shaders/nodes/<wbr>End<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_ifstatementshader_.html">"webgl/shaders/nodes/<wbr>IfStatement<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_uniformdatashader_.html">"webgl/shaders/nodes/<wbr>Uniform<wbr>Data<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_webgl_shaders_nodes_varyingvariableshader_.html">"webgl/shaders/nodes/<wbr>Varying<wbr>Variable<wbr>Shader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_xr_webvrsystem_.html">"xr/<wbr>WebVRSystem"</a>
 					</li>
 				</ul>
 			</nav>

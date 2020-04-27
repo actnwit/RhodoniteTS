@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Primitive | rhodonite-ts</title>
+	<title>Primitive | rhodonite</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">rhodonite-ts</a>
+					<a href="../index.html" class="title">rhodonite</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -104,13 +104,16 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__aabb" class="tsd-kind-icon">__aabb</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__arenberg3rdposition" class="tsd-kind-icon">__arenberg3rd<wbr>Position</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__attributes" class="tsd-kind-icon">__attributes</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__indices" class="tsd-kind-icon">__indices</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__inversearenbergmatrix" class="tsd-kind-icon">__inverse<wbr>Arenberg<wbr>Matrix</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__material" class="tsd-kind-icon">__material</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__mode" class="tsd-kind-icon">__mode</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__primitiveuid" class="tsd-kind-icon">__primitive<wbr>Uid</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__targets" class="tsd-kind-icon">__targets</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__vertexhandles" class="tsd-kind-icon">__vertex<wbr>Handles</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#material" class="tsd-kind-icon">material</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#_prevmaterial" class="tsd-kind-icon">_prev<wbr>Material</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_foundation_geometry_primitive_.primitive.html#invalidobjectuid" class="tsd-kind-icon">Invalid<wbr>ObjectUID</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_foundation_geometry_primitive_.primitive.html#__headeraccessor" class="tsd-kind-icon">__header<wbr>Accessor</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_foundation_geometry_primitive_.primitive.html#__primitivecount" class="tsd-kind-icon">__primitive<wbr>Count</a></li>
@@ -127,6 +130,7 @@
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#attributeentries" class="tsd-kind-icon">attribute<wbr>Entries</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#attributesemantics" class="tsd-kind-icon">attribute<wbr>Semantics</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#indicesaccessor" class="tsd-kind-icon">indices<wbr>Accessor</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#material" class="tsd-kind-icon">material</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_geometry_primitive_.primitive.html#objectuid" class="tsd-kind-icon">objectUID</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#primitivemode" class="tsd-kind-icon">primitive<wbr>Mode</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#primitiveuid" class="tsd-kind-icon">primitive<wbr>Uid</a></li>
@@ -140,6 +144,12 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_foundation_geometry_primitive_.primitive.html#__castrayinner" class="tsd-kind-icon">__cast<wbr>Ray<wbr>Inner</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#_backupmaterial" class="tsd-kind-icon">_backup<wbr>Material</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#_calcarenberginversematrices" class="tsd-kind-icon">_calc<wbr>Arenberg<wbr>Inverse<wbr>Matrices</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#_calcarenbergmatrixfor3vertices" class="tsd-kind-icon">_calc<wbr>Arenberg<wbr>Matrix<wbr>For3<wbr>Vertices</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#_restorematerial" class="tsd-kind-icon">_restore<wbr>Material</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#castray" class="tsd-kind-icon">cast<wbr>Ray</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#create3dapivertexdata" class="tsd-kind-icon">create3DAPIVertex<wbr>Data</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#delete3dapivertexdata" class="tsd-kind-icon">delete3DAPIVertex<wbr>Data</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#getattribute" class="tsd-kind-icon">get<wbr>Attribute</a></li>
@@ -158,6 +168,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_geometry_primitive_.primitive.html#matchtagsasfreestrings" class="tsd-kind-icon">match<wbr>Tags<wbr>AsFree<wbr>Strings</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#removeindices" class="tsd-kind-icon">remove<wbr>Indices</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_geometry_primitive_.primitive.html#removetag" class="tsd-kind-icon">remove<wbr>Tag</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_geometry_primitive_.primitive.html#searchbytag" class="tsd-kind-icon">search<wbr>ByTag</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#setdata" class="tsd-kind-icon">set<wbr>Data</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#setindices" class="tsd-kind-icon">set<wbr>Indices</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_geometry_primitive_.primitive.html#settargets" class="tsd-kind-icon">set<wbr>Targets</a></li>
@@ -165,6 +176,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_geometry_primitive_.primitive.html#trytosettag" class="tsd-kind-icon">try<wbr>ToSet<wbr>Tag</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_geometry_primitive_.primitive.html#trytosetuniquename" class="tsd-kind-icon">try<wbr>ToSet<wbr>Unique<wbr>Name</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_geometry_primitive_.primitive.html#validatetagstring" class="tsd-kind-icon">validate<wbr>Tag<wbr>String</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static"><a href="_foundation_geometry_primitive_.primitive.html#_reset" class="tsd-kind-icon">_reset</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_geometry_primitive_.primitive.html#createprimitive" class="tsd-kind-icon">create<wbr>Primitive</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_foundation_geometry_primitive_.primitive.html#getrnobject" class="tsd-kind-icon">get<wbr>RnObject</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_foundation_geometry_primitive_.primitive.html#getrnobjectbyname" class="tsd-kind-icon">get<wbr>RnObject<wbr>ByName</a></li>
@@ -186,7 +198,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L30">foundation/geometry/Primitive.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L35">foundation/geometry/Primitive.ts:35</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_geometry_primitive_.primitive.html" class="tsd-signature-type">Primitive</a></h4>
@@ -202,7 +214,17 @@
 					<div class="tsd-signature tsd-kind-icon">__aabb<span class="tsd-signature-symbol">:</span> <a href="_foundation_math_aabb_.aabb.html" class="tsd-signature-type">AABB</a><span class="tsd-signature-symbol"> =&nbsp;new AABB()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L28">foundation/geometry/Primitive.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L31">foundation/geometry/Primitive.ts:31</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="__arenberg3rdposition" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __arenberg3rd<wbr>Position</h3>
+					<div class="tsd-signature tsd-kind-icon">__arenberg3rd<wbr>Position<span class="tsd-signature-symbol">:</span> <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L35">foundation/geometry/Primitive.ts:35</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -212,7 +234,7 @@
 					<div class="tsd-signature tsd-kind-icon">__attributes<span class="tsd-signature-symbol">:</span> <a href="../modules/_foundation_geometry_primitive_.html#attributes" class="tsd-signature-type">Attributes</a><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L23">foundation/geometry/Primitive.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L26">foundation/geometry/Primitive.ts:26</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -222,7 +244,27 @@
 					<div class="tsd-signature tsd-kind-icon">__indices<span class="tsd-signature-symbol">:</span> <a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L24">foundation/geometry/Primitive.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L27">foundation/geometry/Primitive.ts:27</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="__inversearenbergmatrix" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __inverse<wbr>Arenberg<wbr>Matrix</h3>
+					<div class="tsd-signature tsd-kind-icon">__inverse<wbr>Arenberg<wbr>Matrix<span class="tsd-signature-symbol">:</span> <a href="_foundation_math_matrix33_.matrix33.html" class="tsd-signature-type">Matrix33</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L34">foundation/geometry/Primitive.ts:34</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="__material" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __material</h3>
+					<div class="tsd-signature tsd-kind-icon">__material<span class="tsd-signature-symbol">:</span> <a href="_foundation_materials_core_material_.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol"> =&nbsp;MaterialHelper.createEmptyMaterial()</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L24">foundation/geometry/Primitive.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -232,17 +274,17 @@
 					<div class="tsd-signature tsd-kind-icon">__mode<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_foundation_definitions_primitivemode_.primitivemodeenum.html" class="tsd-signature-type">PrimitiveModeEnum</a><span class="tsd-signature-symbol"> =&nbsp;PrimitiveMode.Unknown</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L21">foundation/geometry/Primitive.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L23">foundation/geometry/Primitive.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__primitiveuid" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __primitive<wbr>Uid</h3>
-					<div class="tsd-signature tsd-kind-icon">__primitive<wbr>Uid<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#primitiveuid" class="tsd-signature-type">PrimitiveUID</a><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
+					<div class="tsd-signature tsd-kind-icon">__primitive<wbr>Uid<span class="tsd-signature-symbol">:</span> <a href="../modules/_commontypes_commontypes_.html#primitiveuid" class="tsd-signature-type">PrimitiveUID</a><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L26">foundation/geometry/Primitive.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L29">foundation/geometry/Primitive.ts:29</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -252,27 +294,27 @@
 					<div class="tsd-signature tsd-kind-icon">__targets<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_geometry_primitive_.html#attributes" class="tsd-signature-type">Attributes</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L29">foundation/geometry/Primitive.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L32">foundation/geometry/Primitive.ts:32</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__vertexhandles" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagOptional">Optional</span> __vertex<wbr>Handles</h3>
-					<div class="tsd-signature tsd-kind-icon">__vertex<wbr>Handles<span class="tsd-signature-symbol">:</span> <a href="../modules/_webgl_webglresourcerepository_.html#vertexhandles" class="tsd-signature-type">VertexHandles</a></div>
+					<div class="tsd-signature tsd-kind-icon">__vertex<wbr>Handles<span class="tsd-signature-symbol">:</span> <a href="../modules/_webgl_main_.html#vertexhandles" class="tsd-signature-type">VertexHandles</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L30">foundation/geometry/Primitive.ts:30</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L33">foundation/geometry/Primitive.ts:33</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="material" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> material</h3>
-					<div class="tsd-signature tsd-kind-icon">material<span class="tsd-signature-symbol">:</span> <a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></div>
+					<a name="_prevmaterial" class="tsd-anchor"></a>
+					<h3>_prev<wbr>Material</h3>
+					<div class="tsd-signature tsd-kind-icon">_prev<wbr>Material<span class="tsd-signature-symbol">:</span> <a href="_foundation_materials_core_material_.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol"> =&nbsp;MaterialHelper.createEmptyMaterial()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L22">foundation/geometry/Primitive.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L25">foundation/geometry/Primitive.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -283,7 +325,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#invalidobjectuid">InvalidObjectUID</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L9">foundation/core/RnObject.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L13">foundation/core/RnObject.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -293,28 +335,28 @@
 					<div class="tsd-signature tsd-kind-icon">__header<wbr>Accessor<span class="tsd-signature-symbol">:</span> <a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L27">foundation/geometry/Primitive.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L30">foundation/geometry/Primitive.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
 					<a name="__primitivecount" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __primitive<wbr>Count</h3>
-					<div class="tsd-signature tsd-kind-icon">__primitive<wbr>Count<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#count" class="tsd-signature-type">Count</a><span class="tsd-signature-symbol"> =&nbsp;0</span></div>
+					<div class="tsd-signature tsd-kind-icon">__primitive<wbr>Count<span class="tsd-signature-symbol">:</span> <a href="../modules/_commontypes_commontypes_.html#count" class="tsd-signature-type">Count</a><span class="tsd-signature-symbol"> =&nbsp;0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L25">foundation/geometry/Primitive.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L28">foundation/geometry/Primitive.ts:28</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="currentmaxobjectcount" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> current<wbr>Max<wbr>Object<wbr>Count</h3>
-					<div class="tsd-signature tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;RnObject.InvalidObjectUID</span></div>
+					<div class="tsd-signature tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#currentmaxobjectcount">currentMaxObjectCount</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L10">foundation/core/RnObject.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L15">foundation/core/RnObject.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -324,282 +366,345 @@
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="aabb" class="tsd-anchor"></a>
 					<h3>AABB</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> AABB<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_aabb_.aabb.html" class="tsd-signature-type">AABB</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L272">foundation/geometry/Primitive.ts:272</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_aabb_.aabb.html" class="tsd-signature-type">AABB</a></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">AABB<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L295">foundation/geometry/Primitive.ts:295</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="attributeaccessors" class="tsd-anchor"></a>
 					<h3>attribute<wbr>Accessors</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> attributeAccessors<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L222">foundation/geometry/Primitive.ts:222</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">attribute<wbr>Accessors<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L245">foundation/geometry/Primitive.ts:245</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="attributecomponenttypes" class="tsd-anchor"></a>
 					<h3>attribute<wbr>Component<wbr>Types</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> attributeComponentTypes<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_foundation_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L255">foundation/geometry/Primitive.ts:255</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_foundation_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">attribute<wbr>Component<wbr>Types<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L278">foundation/geometry/Primitive.ts:278</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="attributecompositiontypes" class="tsd-anchor"></a>
 					<h3>attribute<wbr>Composition<wbr>Types</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> attributeCompositionTypes<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L246">foundation/geometry/Primitive.ts:246</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">attribute<wbr>Composition<wbr>Types<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L269">foundation/geometry/Primitive.ts:269</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="attributeentries" class="tsd-anchor"></a>
 					<h3>attribute<wbr>Entries</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> attributeEntries<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IterableIterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">[</span><a href="../interfaces/_foundation_definitions_vertexattribute_.vertexattributeenum.html" class="tsd-signature-type">VertexAttributeEnum</a><span class="tsd-signature-symbol">, </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L242">foundation/geometry/Primitive.ts:242</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IterableIterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">[</span><a href="../interfaces/_foundation_definitions_vertexattribute_.vertexattributeenum.html" class="tsd-signature-type">VertexAttributeEnum</a><span class="tsd-signature-symbol">, </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">attribute<wbr>Entries<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L265">foundation/geometry/Primitive.ts:265</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="attributesemantics" class="tsd-anchor"></a>
 					<h3>attribute<wbr>Semantics</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> attributeSemantics<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_foundation_definitions_vertexattribute_.vertexattributeenum.html" class="tsd-signature-type">VertexAttributeEnum</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L234">foundation/geometry/Primitive.ts:234</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_foundation_definitions_vertexattribute_.vertexattributeenum.html" class="tsd-signature-type">VertexAttributeEnum</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">attribute<wbr>Semantics<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L257">foundation/geometry/Primitive.ts:257</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="indicesaccessor" class="tsd-anchor"></a>
 					<h3>indices<wbr>Accessor</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> indicesAccessor<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L170">foundation/geometry/Primitive.ts:170</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">undefined</span>
-							</h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">indices<wbr>Accessor<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L193">foundation/geometry/Primitive.ts:193</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="material" class="tsd-anchor"></a>
+					<h3>material</h3>
+					<div class="tsd-signature tsd-kind-icon">material<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L41">foundation/geometry/Primitive.ts:41</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L45">foundation/geometry/Primitive.ts:45</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="objectuid" class="tsd-anchor"></a>
 					<h3>objectUID</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> objectUID<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#objectuid">objectUID</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L30">foundation/core/RnObject.ts:30</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Gets the objectUID of the object.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">objectUID<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#objectuid">objectUID</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L46">foundation/core/RnObject.ts:46</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="primitivemode" class="tsd-anchor"></a>
 					<h3>primitive<wbr>Mode</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> primitiveMode<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_primitivemode_.primitivemodeenum.html" class="tsd-signature-type">PrimitiveModeEnum</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L264">foundation/geometry/Primitive.ts:264</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_foundation_definitions_primitivemode_.primitivemodeenum.html" class="tsd-signature-type">PrimitiveModeEnum</a></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">primitive<wbr>Mode<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L287">foundation/geometry/Primitive.ts:287</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="primitiveuid" class="tsd-anchor"></a>
 					<h3>primitive<wbr>Uid</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> primitiveUid<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#primitiveuid" class="tsd-signature-type">PrimitiveUID</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L268">foundation/geometry/Primitive.ts:268</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#primitiveuid" class="tsd-signature-type">PrimitiveUID</a></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">primitive<wbr>Uid<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L291">foundation/geometry/Primitive.ts:291</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="targets" class="tsd-anchor"></a>
 					<h3>targets</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> targets<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_geometry_primitive_.html#attributes" class="tsd-signature-type">Attributes</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L302">foundation/geometry/Primitive.ts:302</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_geometry_primitive_.html#attributes" class="tsd-signature-type">Attributes</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">targets<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L325">foundation/geometry/Primitive.ts:325</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="uniquename" class="tsd-anchor"></a>
 					<h3>unique<wbr>Name</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> uniqueName<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#uniquename">uniqueName</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L200">foundation/core/RnObject.ts:200</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get the unique name of the entity.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">unique<wbr>Name<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#uniquename">uniqueName</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L216">foundation/core/RnObject.ts:216</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="vertexhandles" class="tsd-anchor"></a>
 					<h3>vertex<wbr>Handles</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> vertexHandles<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L337">foundation/geometry/Primitive.ts:337</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">object</span>
-							</h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">vertex<wbr>Handles<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L360">foundation/geometry/Primitive.ts:360</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
 					<a name="headeraccessor" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> header<wbr>Accessor</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> headerAccessor<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L97">foundation/geometry/Primitive.ts:97</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a>
-							</h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">header<wbr>Accessor<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L117">foundation/geometry/Primitive.ts:117</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
 					<a name="maxprimitivecount" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> max<wbr>Primitive<wbr>Count</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> maxPrimitiveCount<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					<div class="tsd-signature tsd-kind-icon">max<wbr>Primitive<wbr>Count<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L113">foundation/geometry/Primitive.ts:113</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="__castrayinner" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __cast<wbr>Ray<wbr>Inner</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">__cast<wbr>Ray<wbr>Inner<span class="tsd-signature-symbol">(</span>origVec3<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a>, dirVec3<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a>, i<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a>, pos0IndexBase<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a>, pos1IndexBase<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a>, pos2IndexBase<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a>, isFrontFacePickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, isBackFacePickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, dotThreshold<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L93">foundation/geometry/Primitive.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L445">foundation/geometry/Primitive.ts:445</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>origVec3: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+								<li>
+									<h5>dirVec3: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+								<li>
+									<h5>i: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>pos0IndexBase: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>pos1IndexBase: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>pos2IndexBase: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>isFrontFacePickable: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5>isBackFacePickable: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5>dotThreshold: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">null</span>
+							</h4>
 						</li>
 					</ul>
 				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="_backupmaterial" class="tsd-anchor"></a>
+					<h3>_backup<wbr>Material</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">_backup<wbr>Material<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L49">foundation/geometry/Primitive.ts:49</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="_calcarenberginversematrices" class="tsd-anchor"></a>
+					<h3>_calc<wbr>Arenberg<wbr>Inverse<wbr>Matrices</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">_calc<wbr>Arenberg<wbr>Inverse<wbr>Matrices<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L507">foundation/geometry/Primitive.ts:507</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="_calcarenbergmatrixfor3vertices" class="tsd-anchor"></a>
+					<h3>_calc<wbr>Arenberg<wbr>Matrix<wbr>For3<wbr>Vertices</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">_calc<wbr>Arenberg<wbr>Matrix<wbr>For3<wbr>Vertices<span class="tsd-signature-symbol">(</span>i<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a>, pos0IndexBase<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a>, pos1IndexBase<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a>, pos2IndexBase<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L542">foundation/geometry/Primitive.ts:542</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>i: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>pos0IndexBase: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>pos1IndexBase: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>pos2IndexBase: <a href="../modules/_commontypes_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="_restorematerial" class="tsd-anchor"></a>
+					<h3>_restore<wbr>Material</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">_restore<wbr>Material<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L53">foundation/geometry/Primitive.ts:53</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="castray" class="tsd-anchor"></a>
+					<h3>cast<wbr>Ray</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">cast<wbr>Ray<span class="tsd-signature-symbol">(</span>origVec3<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a>, dirVec3<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a>, isFrontFacePickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, isBackFacePickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, dotThreshold<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L364">foundation/geometry/Primitive.ts:364</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>origVec3: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+								<li>
+									<h5>dirVec3: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+								<li>
+									<h5>isFrontFacePickable: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5>isBackFacePickable: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5>dotThreshold: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>current<wbr>Shortest<wbr>Intersected<wbr>Pos<wbr>Vec3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>current<wbr>ShortestT<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="create3dapivertexdata" class="tsd-anchor"></a>
 					<h3>create3DAPIVertex<wbr>Data</h3>
@@ -610,7 +715,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L317">foundation/geometry/Primitive.ts:317</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L340">foundation/geometry/Primitive.ts:340</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -627,7 +732,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L327">foundation/geometry/Primitive.ts:327</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L350">foundation/geometry/Primitive.ts:350</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -644,7 +749,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L230">foundation/geometry/Primitive.ts:230</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L253">foundation/geometry/Primitive.ts:253</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -664,31 +769,31 @@
 					<a name="gettag" class="tsd-anchor"></a>
 					<h3>get<wbr>Tag</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Tag<span class="tsd-signature-symbol">(</span>tagName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Tag<span class="tsd-signature-symbol">(</span>tagName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#gettag">getTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L120">foundation/core/RnObject.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L134">foundation/core/RnObject.ts:134</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Gets the tag object.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The tag name.</p>
-									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>tag<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -696,31 +801,23 @@
 					<a name="gettagvalue" class="tsd-anchor"></a>
 					<h3>get<wbr>Tag<wbr>Value</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Tag<wbr>Value<span class="tsd-signature-symbol">(</span>tagName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Tag<wbr>Value<span class="tsd-signature-symbol">(</span>tagName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#gettagvalue">getTagValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L112">foundation/core/RnObject.ts:112</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L126">foundation/core/RnObject.ts:126</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Gets the value of the tag.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The tag name.</p>
-									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -734,7 +831,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L187">foundation/geometry/Primitive.ts:187</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L210">foundation/geometry/Primitive.ts:210</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -751,7 +848,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L204">foundation/geometry/Primitive.ts:204</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L227">foundation/geometry/Primitive.ts:227</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -768,7 +865,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L174">foundation/geometry/Primitive.ts:174</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L197">foundation/geometry/Primitive.ts:197</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -785,7 +882,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L182">foundation/geometry/Primitive.ts:182</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L205">foundation/geometry/Primitive.ts:205</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -802,7 +899,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L218">foundation/geometry/Primitive.ts:218</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L241">foundation/geometry/Primitive.ts:241</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -820,21 +917,13 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#hastag">hasTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L130">foundation/core/RnObject.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L146">foundation/core/RnObject.ts:146</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Gets the boolean value whether this object has the tag or not.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The tag name.</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -851,7 +940,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L306">foundation/geometry/Primitive.ts:306</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L329">foundation/geometry/Primitive.ts:329</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -868,7 +957,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L313">foundation/geometry/Primitive.ts:313</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L336">foundation/geometry/Primitive.ts:336</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -886,27 +975,16 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtag">matchTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L153">foundation/core/RnObject.ts:153</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L169">foundation/core/RnObject.ts:169</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Confirms the matching of the tag name and tag value.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The tag name.</p>
-									</div>
 								</li>
 								<li>
 									<h5>tagValue: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The tag value.</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -917,28 +995,20 @@
 					<a name="matchtags" class="tsd-anchor"></a>
 					<h3>match<wbr>Tags</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">match<wbr>Tags<span class="tsd-signature-symbol">(</span>tags<span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#rntags" class="tsd-signature-type">RnTags</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">match<wbr>Tags<span class="tsd-signature-symbol">(</span>tags<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#rntags" class="tsd-signature-type">RnTags</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtags">matchTags</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L183">foundation/core/RnObject.ts:183</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L199">foundation/core/RnObject.ts:199</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Comfirm that this object&#39;s tags includes given set of tags.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tags: <a href="../modules/_types_commontypes_.html#rntags" class="tsd-signature-type">RnTags</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The set of tags.</p>
-									</div>
+									<h5>tags: <a href="../modules/_commontypes_commontypes_.html#rntags" class="tsd-signature-type">RnTags</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -956,21 +1026,13 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtagsasfreestrings">matchTagsAsFreeStrings</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L165">foundation/core/RnObject.ts:165</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L181">foundation/core/RnObject.ts:181</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Comfirm that this object&#39;s tags includes given an array of string.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>stringArray: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>an array of string.</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -987,7 +1049,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L290">foundation/geometry/Primitive.ts:290</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L313">foundation/geometry/Primitive.ts:313</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1005,24 +1067,46 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#removetag">removeTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L142">foundation/core/RnObject.ts:142</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L158">foundation/core/RnObject.ts:158</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Remove the tag.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The tag name.</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="searchbytag" class="tsd-anchor"></a>
+					<h3>search<wbr>ByTag</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">search<wbr>ByTag<span class="tsd-signature-symbol">(</span>tag<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#searchbytag">searchByTag</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L34">foundation/core/RnObject.ts:34</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>tag: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>value: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<a href="_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a>
+							</h4>
 						</li>
 					</ul>
 				</section>
@@ -1030,13 +1114,13 @@
 					<a name="setdata" class="tsd-anchor"></a>
 					<h3>set<wbr>Data</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Data<span class="tsd-signature-symbol">(</span>attributes<span class="tsd-signature-symbol">: </span><a href="../modules/_foundation_geometry_primitive_.html#attributes" class="tsd-signature-type">Attributes</a>, mode<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_primitivemode_.primitivemodeenum.html" class="tsd-signature-type">PrimitiveModeEnum</a>, material<span class="tsd-signature-symbol">?: </span><a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a>, indicesAccessor<span class="tsd-signature-symbol">?: </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Data<span class="tsd-signature-symbol">(</span>attributes<span class="tsd-signature-symbol">: </span><a href="../modules/_foundation_geometry_primitive_.html#attributes" class="tsd-signature-type">Attributes</a>, mode<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_primitivemode_.primitivemodeenum.html" class="tsd-signature-type">PrimitiveModeEnum</a>, material<span class="tsd-signature-symbol">: </span><a href="_foundation_materials_core_material_.material.html" class="tsd-signature-type">Material</a>, indicesAccessor<span class="tsd-signature-symbol">: </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L36">foundation/geometry/Primitive.ts:36</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L57">foundation/geometry/Primitive.ts:57</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1048,7 +1132,7 @@
 									<h5>mode: <a href="../interfaces/_foundation_definitions_primitivemode_.primitivemodeenum.html" class="tsd-signature-type">PrimitiveModeEnum</a></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> material: <a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> material: <a href="_foundation_materials_core_material_.material.html" class="tsd-signature-type">Material</a></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> indicesAccessor: <a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a></h5>
@@ -1068,7 +1152,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L294">foundation/geometry/Primitive.ts:294</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L317">foundation/geometry/Primitive.ts:317</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1091,7 +1175,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L298">foundation/geometry/Primitive.ts:298</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L321">foundation/geometry/Primitive.ts:321</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1114,7 +1198,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L286">foundation/geometry/Primitive.ts:286</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L309">foundation/geometry/Primitive.ts:309</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1134,34 +1218,20 @@
 					<a name="trytosettag" class="tsd-anchor"></a>
 					<h3>try<wbr>ToSet<wbr>Tag</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">try<wbr>ToSet<wbr>Tag<span class="tsd-signature-symbol">(</span>tagName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, tagValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">try<wbr>ToSet<wbr>Tag<span class="tsd-signature-symbol">(</span>tag<span class="tsd-signature-symbol">: </span><a href="../modules/_foundation_core_rnobject_.html#tag" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#trytosettag">tryToSetTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L93">foundation/core/RnObject.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L109">foundation/core/RnObject.ts:109</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Tries to set tag (name and value).</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The tag name.</p>
-									</div>
-								</li>
-								<li>
-									<h5>tagValue: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Tha value of the tag.</p>
-									</div>
+									<h5>tag: <a href="../modules/_foundation_core_rnobject_.html#tag" class="tsd-signature-type">Tag</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1179,14 +1249,9 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#trytosetuniquename">tryToSetUniqueName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L55">foundation/core/RnObject.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L71">foundation/core/RnObject.ts:71</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Try to set a unique name of the entity.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -1194,9 +1259,6 @@
 								</li>
 								<li>
 									<h5>toAddNameIfConflict: <span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>If true, force to add name string to the current unique name string. If false, give up to change name.</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1214,24 +1276,34 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#validatetagstring">validateTagString</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L80">foundation/core/RnObject.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L96">foundation/core/RnObject.ts:96</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Validate the string of tags.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>val: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The string to be validated</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static">
+					<a name="_reset" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> _reset</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">_reset<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#_reset">_reset</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L223">foundation/core/RnObject.ts:223</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1245,7 +1317,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/geometry/Primitive.ts#L101">foundation/geometry/Primitive.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/geometry/Primitive.ts#L121">foundation/geometry/Primitive.ts:121</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1260,13 +1332,13 @@
 											<h5>attribute<wbr>Semantics<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_vertexattribute_.vertexattributeenum.html" class="tsd-signature-type">VertexAttributeEnum</a><span class="tsd-signature-symbol">[]</span></h5>
 										</li>
 										<li class="tsd-parameter">
-											<h5>attributes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">Int8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8ClampedArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float64Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5>
+											<h5>attributes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8ClampedArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float64Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5>
 										</li>
 										<li class="tsd-parameter">
-											<h5>indices<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8ClampedArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float64Array</span></h5>
+											<h5>indices<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8ClampedArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float64Array</span></h5>
 										</li>
 										<li class="tsd-parameter">
-											<h5>material<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h5>
+											<h5>material<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_foundation_materials_core_material_.material.html" class="tsd-signature-type">Material</a></h5>
 										</li>
 										<li class="tsd-parameter">
 											<h5>primitive<wbr>Mode<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_primitivemode_.primitivemodeenum.html" class="tsd-signature-type">PrimitiveModeEnum</a></h5>
@@ -1282,28 +1354,20 @@
 					<a name="getrnobject" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>RnObject</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>RnObject<span class="tsd-signature-symbol">(</span>objectUid<span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>RnObject<span class="tsd-signature-symbol">(</span>objectUid<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#getrnobject">getRnObject</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L38">foundation/core/RnObject.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L54">foundation/core/RnObject.ts:54</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Gets the object by corresponding to the objectUID.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>objectUid: <a href="../modules/_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The objectUID of the object.</p>
-									</div>
+									<h5>objectUid: <a href="../modules/_commontypes_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></h4>
@@ -1321,21 +1385,13 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#getrnobjectbyname">getRnObjectByName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L46">foundation/core/RnObject.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/core/RnObject.ts#L62">foundation/core/RnObject.ts:62</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Gets the object by the unique name.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>uniqueName: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The unique name of the object.</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
@@ -1372,10 +1428,19 @@
 								<a href="_foundation_geometry_primitive_.primitive.html#__aabb" class="tsd-kind-icon">__aabb</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_foundation_geometry_primitive_.primitive.html#__arenberg3rdposition" class="tsd-kind-icon">__arenberg3rd<wbr>Position</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_foundation_geometry_primitive_.primitive.html#__attributes" class="tsd-kind-icon">__attributes</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_foundation_geometry_primitive_.primitive.html#__indices" class="tsd-kind-icon">__indices</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_foundation_geometry_primitive_.primitive.html#__inversearenbergmatrix" class="tsd-kind-icon">__inverse<wbr>Arenberg<wbr>Matrix</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_foundation_geometry_primitive_.primitive.html#__material" class="tsd-kind-icon">__material</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_foundation_geometry_primitive_.primitive.html#__mode" class="tsd-kind-icon">__mode</a>
@@ -1390,7 +1455,7 @@
 								<a href="_foundation_geometry_primitive_.primitive.html#__vertexhandles" class="tsd-kind-icon">__vertex<wbr>Handles</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="_foundation_geometry_primitive_.primitive.html#material" class="tsd-kind-icon">material</a>
+								<a href="_foundation_geometry_primitive_.primitive.html#_prevmaterial" class="tsd-kind-icon">_prev<wbr>Material</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 								<a href="_foundation_geometry_primitive_.primitive.html#invalidobjectuid" class="tsd-kind-icon">Invalid<wbr>ObjectUID</a>
@@ -1425,6 +1490,9 @@
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="_foundation_geometry_primitive_.primitive.html#indicesaccessor" class="tsd-kind-icon">indices<wbr>Accessor</a>
 							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="_foundation_geometry_primitive_.primitive.html#material" class="tsd-kind-icon">material</a>
+							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_geometry_primitive_.primitive.html#objectuid" class="tsd-kind-icon">objectUID</a>
 							</li>
@@ -1448,6 +1516,24 @@
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_geometry_primitive_.primitive.html#maxprimitivecount" class="tsd-kind-icon">max<wbr>Primitive<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_foundation_geometry_primitive_.primitive.html#__castrayinner" class="tsd-kind-icon">__cast<wbr>Ray<wbr>Inner</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_geometry_primitive_.primitive.html#_backupmaterial" class="tsd-kind-icon">_backup<wbr>Material</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_geometry_primitive_.primitive.html#_calcarenberginversematrices" class="tsd-kind-icon">_calc<wbr>Arenberg<wbr>Inverse<wbr>Matrices</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_geometry_primitive_.primitive.html#_calcarenbergmatrixfor3vertices" class="tsd-kind-icon">_calc<wbr>Arenberg<wbr>Matrix<wbr>For3<wbr>Vertices</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_geometry_primitive_.primitive.html#_restorematerial" class="tsd-kind-icon">_restore<wbr>Material</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_geometry_primitive_.primitive.html#castray" class="tsd-kind-icon">cast<wbr>Ray</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_foundation_geometry_primitive_.primitive.html#create3dapivertexdata" class="tsd-kind-icon">create3DAPIVertex<wbr>Data</a>
@@ -1503,6 +1589,9 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_geometry_primitive_.primitive.html#removetag" class="tsd-kind-icon">remove<wbr>Tag</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_foundation_geometry_primitive_.primitive.html#searchbytag" class="tsd-kind-icon">search<wbr>ByTag</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_foundation_geometry_primitive_.primitive.html#setdata" class="tsd-kind-icon">set<wbr>Data</a>
 							</li>
@@ -1523,6 +1612,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_geometry_primitive_.primitive.html#validatetagstring" class="tsd-kind-icon">validate<wbr>Tag<wbr>String</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static">
+								<a href="_foundation_geometry_primitive_.primitive.html#_reset" class="tsd-kind-icon">_reset</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_geometry_primitive_.primitive.html#createprimitive" class="tsd-kind-icon">create<wbr>Primitive</a>

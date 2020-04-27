@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ISingleShader | rhodonite-ts</title>
+	<title>ISingleShader | rhodonite</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">rhodonite-ts</a>
+					<a href="../index.html" class="title">rhodonite</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -80,13 +80,9 @@
 			<section class="tsd-panel">
 				<h3>Implemented by</h3>
 				<ul class="tsd-hierarchy">
-					<li><a href="../classes/_webgl_shaders_classicshader_.classicshader.html" class="tsd-signature-type">ClassicShader</a></li>
 					<li><a href="../classes/_webgl_shaders_depthencodeshader_.depthencodeshader.html" class="tsd-signature-type">DepthEncodeShader</a></li>
-					<li><a href="../classes/_webgl_shaders_entityuidoutputsingleshader_.entityuidoutputshader.html" class="tsd-signature-type">EntityUIDOutputShader</a></li>
-					<li><a href="../classes/_webgl_shaders_envcostantshader_.envconstantshader.html" class="tsd-signature-type">EnvConstantShader</a></li>
-					<li><a href="../classes/_webgl_shaders_fxaa3quality_.fxaa3qualityshader.html" class="tsd-signature-type">FXAA3QualityShader</a></li>
-					<li><a href="../classes/_webgl_shaders_gammacorrectionshader_.gammacorrectionshader.html" class="tsd-signature-type">GammaCorrectionShader</a></li>
-					<li><a href="../classes/_webgl_shaders_pbrshader_.pbrshader.html" class="tsd-signature-type">PBRShader</a></li>
+					<li><a href="../classes/_webgl_shaders_envconstantshader_.envconstantshader.html" class="tsd-signature-type">EnvConstantShader</a></li>
+					<li><a href="../classes/_webgl_shaders_mtoonshader_.mtoonshader.html" class="tsd-signature-type">MToonShader</a></li>
 					<li><a href="../classes/_webgl_shaders_shadowmapdecodeclassicshader_.shadowmapdecodeclassicshader.html" class="tsd-signature-type">ShadowMapDecodeClassicShader</a></li>
 				</ul>
 			</section>
@@ -97,7 +93,6 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_webgl_shaders_isingleshader_.isingleshader.html#getfragmentshader" class="tsd-kind-icon">get<wbr>Fragment<wbr>Shader</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_webgl_shaders_isingleshader_.isingleshader.html#getpixelshaderbody" class="tsd-kind-icon">get<wbr>Pixel<wbr>Shader<wbr>Body</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_webgl_shaders_isingleshader_.isingleshader.html#getvertexshaderbody" class="tsd-kind-icon">get<wbr>Vertex<wbr>Shader<wbr>Body</a></li>
 							</ul>
@@ -108,39 +103,16 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="getfragmentshader" class="tsd-anchor"></a>
-					<h3>get<wbr>Fragment<wbr>Shader</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Fragment<wbr>Shader<span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/webgl/shaders/ISingleShader.ts#L2">webgl/shaders/ISingleShader.ts:2</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> args: <span class="tsd-signature-type">Object</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="getpixelshaderbody" class="tsd-anchor"></a>
 					<h3>get<wbr>Pixel<wbr>Shader<wbr>Body</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Pixel<wbr>Shader<wbr>Body<span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Pixel<wbr>Shader<wbr>Body<span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/webgl/shaders/ISingleShader.ts#L3">webgl/shaders/ISingleShader.ts:3</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/webgl/shaders/ISingleShader.ts#L2">webgl/shaders/ISingleShader.ts:2</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -155,15 +127,15 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="getvertexshaderbody" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> get<wbr>Vertex<wbr>Shader<wbr>Body</h3>
+					<h3>get<wbr>Vertex<wbr>Shader<wbr>Body</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Vertex<wbr>Shader<wbr>Body<span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Vertex<wbr>Shader<wbr>Body<span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/webgl/shaders/ISingleShader.ts#L4">webgl/shaders/ISingleShader.ts:4</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/webgl/shaders/ISingleShader.ts#L3">webgl/shaders/ISingleShader.ts:3</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -196,9 +168,6 @@
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="_webgl_shaders_isingleshader_.isingleshader.html" class="tsd-kind-icon">ISingle<wbr>Shader</a>
 						<ul>
-							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="_webgl_shaders_isingleshader_.isingleshader.html#getfragmentshader" class="tsd-kind-icon">get<wbr>Fragment<wbr>Shader</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="_webgl_shaders_isingleshader_.isingleshader.html#getpixelshaderbody" class="tsd-kind-icon">get<wbr>Pixel<wbr>Shader<wbr>Body</a>
 							</li>

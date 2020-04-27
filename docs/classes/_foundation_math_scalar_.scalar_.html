@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Scalar_ | rhodonite-ts</title>
+	<title>Scalar_ | rhodonite</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">rhodonite-ts</a>
+					<a href="../index.html" class="title">rhodonite</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -73,7 +73,7 @@
 				<h3>Type parameters</h3>
 				<ul class="tsd-type-parameters">
 					<li>
-						<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#typedarrayconstructor" class="tsd-signature-type">TypedArrayConstructor</a></h4>
+						<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#typedarrayconstructor" class="tsd-signature-type">TypedArrayConstructor</a></h4>
 					</li>
 				</ul>
 			</section>
@@ -121,6 +121,8 @@
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#glslstrasfloat" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsFloat</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#glslstrasint" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsInt</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#raw" class="tsd-kind-icon">raw</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#x" class="tsd-kind-icon">x</a></li>
 							</ul>
@@ -130,6 +132,8 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#getvalue" class="tsd-kind-icon">get<wbr>Value</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#getvalueinarray" class="tsd-kind-icon">get<wbr>Value<wbr>InArray</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#isequal" class="tsd-kind-icon">is<wbr>Equal</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_scalar_.scalar_.html#isstrictequal" class="tsd-kind-icon">is<wbr>Strict<wbr>Equal</a></li>
 							</ul>
 						</section>
 					</div>
@@ -141,19 +145,19 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Scalar_<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, __namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_scalar_.scalar_.html" class="tsd-signature-type">Scalar_</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Scalar_<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, __namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_scalar_.scalar_.html" class="tsd-signature-type">Scalar_</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Scalar.ts#L5">foundation/math/Scalar.ts:5</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L6">foundation/math/Scalar.ts:6</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>x: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+									<h5>x: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
 								</li>
 								<li>
 									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
@@ -174,10 +178,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="v" class="tsd-anchor"></a>
 					<h3>v</h3>
-					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
+					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Scalar.ts#L5">foundation/math/Scalar.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L6">foundation/math/Scalar.ts:6</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -185,55 +189,45 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Accessors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="glslstrasfloat" class="tsd-anchor"></a>
+					<h3>glsl<wbr>Str<wbr>AsFloat</h3>
+					<div class="tsd-signature tsd-kind-icon">glsl<wbr>Str<wbr>AsFloat<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L54">foundation/math/Scalar.ts:54</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="glslstrasint" class="tsd-anchor"></a>
+					<h3>glsl<wbr>Str<wbr>AsInt</h3>
+					<div class="tsd-signature tsd-kind-icon">glsl<wbr>Str<wbr>AsInt<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L58">foundation/math/Scalar.ts:58</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="raw" class="tsd-anchor"></a>
 					<h3>raw</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> raw<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Int8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8ClampedArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float64Array</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Scalar.ts#L33">foundation/math/Scalar.ts:33</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Int8Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint8Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint8ClampedArray</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Int16Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint16Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Int32Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint32Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Float32Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Float64Array</span>
-							</h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">raw<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L34">foundation/math/Scalar.ts:34</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="x" class="tsd-anchor"></a>
 					<h3>x</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> x<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Scalar.ts#L29">foundation/math/Scalar.ts:29</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">x<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.iscalar.html">IScalar</a>.<a href="../interfaces/_foundation_math_ivector_.iscalar.html#x">x</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L30">foundation/math/Scalar.ts:30</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -248,7 +242,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Scalar.ts#L21">foundation/math/Scalar.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L22">foundation/math/Scalar.ts:22</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -265,10 +259,59 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Scalar.ts#L25">foundation/math/Scalar.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L26">foundation/math/Scalar.ts:26</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="isequal" class="tsd-anchor"></a>
+					<h3>is<wbr>Equal</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Equal<span class="tsd-signature-symbol">(</span>scalar<span class="tsd-signature-symbol">: </span><a href="_foundation_math_scalar_.scalar_.html" class="tsd-signature-type">Scalar_</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span>, delta<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L46">foundation/math/Scalar.ts:46</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>scalar: <a href="_foundation_math_scalar_.scalar_.html" class="tsd-signature-type">Scalar_</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> delta: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Number.EPSILON</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="isstrictequal" class="tsd-anchor"></a>
+					<h3>is<wbr>Strict<wbr>Equal</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Strict<wbr>Equal<span class="tsd-signature-symbol">(</span>scalar<span class="tsd-signature-symbol">: </span><a href="_foundation_math_scalar_.scalar_.html" class="tsd-signature-type">Scalar_</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Scalar.ts#L38">foundation/math/Scalar.ts:38</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>scalar: <a href="_foundation_math_scalar_.scalar_.html" class="tsd-signature-type">Scalar_</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -302,6 +345,12 @@
 								<a href="_foundation_math_scalar_.scalar_.html#v" class="tsd-kind-icon">v</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_foundation_math_scalar_.scalar_.html#glslstrasfloat" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsFloat</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_foundation_math_scalar_.scalar_.html#glslstrasint" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsInt</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="_foundation_math_scalar_.scalar_.html#raw" class="tsd-kind-icon">raw</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
@@ -312,6 +361,12 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_foundation_math_scalar_.scalar_.html#getvalueinarray" class="tsd-kind-icon">get<wbr>Value<wbr>InArray</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_math_scalar_.scalar_.html#isequal" class="tsd-kind-icon">is<wbr>Equal</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_math_scalar_.scalar_.html#isstrictequal" class="tsd-kind-icon">is<wbr>Strict<wbr>Equal</a>
 							</li>
 						</ul>
 					</li>

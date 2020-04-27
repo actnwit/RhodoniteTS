@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>MutableVector4 | rhodonite-ts</title>
+	<title>MutableVector4 | rhodonite</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">rhodonite-ts</a>
+					<a href="../index.html" class="title">rhodonite</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -109,6 +109,8 @@
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_math_mutablevector4_.mutablevector4.html#classname" class="tsd-kind-icon">class<wbr>Name</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_math_mutablevector4_.mutablevector4.html#glslstrasfloat" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsFloat</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_math_mutablevector4_.mutablevector4.html#glslstrasint" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsInt</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_math_mutablevector4_.mutablevector4.html#raw" class="tsd-kind-icon">raw</a></li>
 								<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited"><a href="_foundation_math_mutablevector4_.mutablevector4.html#w" class="tsd-kind-icon">w</a></li>
 								<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited"><a href="_foundation_math_mutablevector4_.mutablevector4.html#x" class="tsd-kind-icon">x</a></li>
@@ -161,20 +163,20 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Mutable<wbr>Vector4<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector2_.vector2.html" class="tsd-signature-type">Vector2</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector3.html" class="tsd-signature-type">IVector3</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector4.html" class="tsd-signature-type">IVector4</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, y<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, w<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablevector4_.mutablevector4.html" class="tsd-signature-type">MutableVector4</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Mutable<wbr>Vector4<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector2_.vector2.html" class="tsd-signature-type">Vector2</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector3.html" class="tsd-signature-type">IVector3</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector4.html" class="tsd-signature-type">IVector4</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, w<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablevector4_.mutablevector4.html" class="tsd-signature-type">MutableVector4</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L164">foundation/math/MutableVector4.ts:164</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L164">foundation/math/MutableVector4.ts:164</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>x: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector2_.vector2.html" class="tsd-signature-type">Vector2</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector3.html" class="tsd-signature-type">IVector3</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector4.html" class="tsd-signature-type">IVector4</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+									<h5>x: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector2_.vector2.html" class="tsd-signature-type">Vector2</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector3.html" class="tsd-signature-type">IVector3</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_foundation_math_ivector_.ivector4.html" class="tsd-signature-type">IVector4</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> y: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
@@ -196,11 +198,11 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="v" class="tsd-anchor"></a>
 					<h3>v</h3>
-					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
+					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#v">v</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L9">foundation/math/Vector4.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L10">foundation/math/Vector4.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -210,218 +212,114 @@
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="classname" class="tsd-anchor"></a>
 					<h3>class<wbr>Name</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> className<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#classname">className</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L50">foundation/math/Vector4.ts:50</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">class<wbr>Name<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#classname">className</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L51">foundation/math/Vector4.ts:51</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+					<a name="glslstrasfloat" class="tsd-anchor"></a>
+					<h3>glsl<wbr>Str<wbr>AsFloat</h3>
+					<div class="tsd-signature tsd-kind-icon">glsl<wbr>Str<wbr>AsFloat<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#glslstrasfloat">glslStrAsFloat</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L191">foundation/math/Vector4.ts:191</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+					<a name="glslstrasint" class="tsd-anchor"></a>
+					<h3>glsl<wbr>Str<wbr>AsInt</h3>
+					<div class="tsd-signature tsd-kind-icon">glsl<wbr>Str<wbr>AsInt<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#glslstrasint">glslStrAsInt</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L195">foundation/math/Vector4.ts:195</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="raw" class="tsd-anchor"></a>
 					<h3>raw</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> raw<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Int8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8ClampedArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint16Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Int32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float64Array</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#raw">raw</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L139">foundation/math/MutableVector4.ts:139</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Int8Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint8Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint8ClampedArray</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Int16Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint16Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Int32Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Uint32Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Float32Array</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">Float64Array</span>
-							</h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">raw<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#raw">raw</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L139">foundation/math/MutableVector4.ts:139</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
 					<a name="w" class="tsd-anchor"></a>
 					<h3>w</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> w<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> w<span class="tsd-signature-symbol">(</span>w<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#w">w</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#w">w</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L119">foundation/math/MutableVector4.ts:119</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#w">w</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#w">w</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L135">foundation/math/MutableVector4.ts:135</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>w: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">w<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.imutablevector4.html">IMutableVector4</a>.<a href="../interfaces/_foundation_math_ivector_.imutablevector4.html#w">w</a></p>
+						<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#w">w</a></p>
+						<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#w">w</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L119">foundation/math/MutableVector4.ts:119</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L135">foundation/math/MutableVector4.ts:135</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
 					<a name="x" class="tsd-anchor"></a>
 					<h3>x</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> x<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> x<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#x">x</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#x">x</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L107">foundation/math/MutableVector4.ts:107</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#x">x</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#x">x</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L123">foundation/math/MutableVector4.ts:123</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>x: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">x<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.imutablevector4.html">IMutableVector4</a>.<a href="../interfaces/_foundation_math_ivector_.imutablevector4.html#x">x</a></p>
+						<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#x">x</a></p>
+						<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#x">x</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L107">foundation/math/MutableVector4.ts:107</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L123">foundation/math/MutableVector4.ts:123</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
 					<a name="y" class="tsd-anchor"></a>
 					<h3>y</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> y<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> y<span class="tsd-signature-symbol">(</span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#y">y</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#y">y</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L111">foundation/math/MutableVector4.ts:111</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#y">y</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#y">y</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L127">foundation/math/MutableVector4.ts:127</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>y: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">y<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.imutablevector4.html">IMutableVector4</a>.<a href="../interfaces/_foundation_math_ivector_.imutablevector4.html#y">y</a></p>
+						<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#y">y</a></p>
+						<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#y">y</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L111">foundation/math/MutableVector4.ts:111</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L127">foundation/math/MutableVector4.ts:127</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
 					<a name="z" class="tsd-anchor"></a>
 					<h3>z</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> z<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> z<span class="tsd-signature-symbol">(</span>z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#z">z</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#z">z</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L115">foundation/math/MutableVector4.ts:115</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#z">z</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#z">z</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L131">foundation/math/MutableVector4.ts:131</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>z: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">z<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.imutablevector4.html">IMutableVector4</a>.<a href="../interfaces/_foundation_math_ivector_.imutablevector4.html#z">z</a></p>
+						<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#z">z</a></p>
+						<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#z">z</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L115">foundation/math/MutableVector4.ts:115</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L131">foundation/math/MutableVector4.ts:131</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-static">
 					<a name="compositiontype" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> composition<wbr>Type</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> compositionType<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#compositiontype">compositionType</a></p>
-								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#compositiontype">compositionType</a></p>
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L13">foundation/math/MutableVector4.ts:13</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">composition<wbr>Type<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#compositiontype">compositionType</a></p>
+						<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#compositiontype">compositionType</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L13">foundation/math/MutableVector4.ts:13</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -437,14 +335,9 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#add">add</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L35">foundation/math/MutableVector4.ts:35</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L35">foundation/math/MutableVector4.ts:35</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>add value</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -466,14 +359,9 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#addwithoutw">addWithOutW</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L47">foundation/math/MutableVector4.ts:47</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L47">foundation/math/MutableVector4.ts:47</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>add value except w component</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -495,7 +383,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#clone">clone</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L169">foundation/math/MutableVector4.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L169">foundation/math/MutableVector4.ts:169</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_mutablevector4_.mutablevector4.html" class="tsd-signature-type">MutableVector4</a></h4>
@@ -513,7 +401,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#copycomponents">copyComponents</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L101">foundation/math/Vector4.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L102">foundation/math/Vector4.ts:102</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -537,7 +425,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#divide">divide</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L82">foundation/math/MutableVector4.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L82">foundation/math/MutableVector4.ts:82</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -561,7 +449,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#dividevector">divideVector</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L98">foundation/math/MutableVector4.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L98">foundation/math/MutableVector4.ts:98</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -585,14 +473,9 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#dotproduct">dotProduct</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L159">foundation/math/Vector4.ts:159</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L160">foundation/math/Vector4.ts:160</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>dot product</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -614,7 +497,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#isdummy">isDummy</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L58">foundation/math/Vector4.ts:58</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L59">foundation/math/Vector4.ts:59</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -632,7 +515,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#isequal">isEqual</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L74">foundation/math/Vector4.ts:74</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L75">foundation/math/Vector4.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -659,7 +542,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#isstrictequal">isStrictEqual</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L66">foundation/math/Vector4.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L67">foundation/math/Vector4.ts:67</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -683,7 +566,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#length">length</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L96">foundation/math/Vector4.ts:96</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L97">foundation/math/Vector4.ts:97</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -701,7 +584,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#multiply">multiply</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L64">foundation/math/MutableVector4.ts:64</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L64">foundation/math/MutableVector4.ts:64</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -725,7 +608,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#multiplyvector">multiplyVector</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L73">foundation/math/MutableVector4.ts:73</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L73">foundation/math/MutableVector4.ts:73</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -749,7 +632,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#normalize">normalize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L17">foundation/math/MutableVector4.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L17">foundation/math/MutableVector4.ts:17</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
@@ -767,7 +650,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#normalize3">normalize3</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L24">foundation/math/MutableVector4.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L24">foundation/math/MutableVector4.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -785,7 +668,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_mutablevector4_.mutablevector4_.html">MutableVector4_</a>.<a href="_foundation_math_mutablevector4_.mutablevector4_.html#subtract">subtract</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L55">foundation/math/MutableVector4.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L55">foundation/math/MutableVector4.ts:55</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -809,7 +692,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#tostring">toString</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L170">foundation/math/Vector4.ts:170</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L171">foundation/math/Vector4.ts:171</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -827,14 +710,9 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#add">add</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L111">foundation/math/Vector4.ts:111</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L112">foundation/math/Vector4.ts:112</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>add value（static version）</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -859,14 +737,9 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#addwithoutw">addWithOutW</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L122">foundation/math/Vector4.ts:122</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L123">foundation/math/Vector4.ts:123</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>add value except w component（static version）</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -891,7 +764,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#divide">divide</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L135">foundation/math/Vector4.ts:135</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L136">foundation/math/Vector4.ts:136</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -918,7 +791,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#dividevector">divideVector</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L144">foundation/math/Vector4.ts:144</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L145">foundation/math/Vector4.ts:145</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -945,18 +818,13 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#dotproduct-1">dotProduct</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L166">foundation/math/Vector4.ts:166</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L167">foundation/math/Vector4.ts:167</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>dot product(static version)</p>
-								</div>
-							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
-									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#typedarrayconstructor" class="tsd-signature-type">TypedArrayConstructor</a></h4>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_commontypes_commontypes_.html#typedarrayconstructor" class="tsd-signature-type">TypedArrayConstructor</a></h4>
 								</li>
 							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -982,7 +850,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L177">foundation/math/MutableVector4.ts:177</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L177">foundation/math/MutableVector4.ts:177</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_mutablevector4_.mutablevector4.html" class="tsd-signature-type">MutableVector4</a></h4>
@@ -1000,7 +868,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#multiply">multiply</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L126">foundation/math/Vector4.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L127">foundation/math/Vector4.ts:127</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1027,7 +895,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#multiplyvector">multiplyVector</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L130">foundation/math/Vector4.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L131">foundation/math/Vector4.ts:131</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1054,7 +922,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#normalize">normalize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L148">foundation/math/Vector4.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L149">foundation/math/Vector4.ts:149</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1077,7 +945,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L173">foundation/math/MutableVector4.ts:173</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L173">foundation/math/MutableVector4.ts:173</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_mutablevector4_.mutablevector4.html" class="tsd-signature-type">MutableVector4</a></h4>
@@ -1095,7 +963,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#subtract">subtract</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Vector4.ts#L116">foundation/math/Vector4.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Vector4.ts#L117">foundation/math/Vector4.ts:117</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1122,7 +990,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_foundation_math_vector4_.vector4_.html">Vector4_</a>.<a href="_foundation_math_vector4_.vector4_.html#zero">zero</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L181">foundation/math/MutableVector4.ts:181</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L181">foundation/math/MutableVector4.ts:181</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_mutablevector4_.mutablevector4.html" class="tsd-signature-type">MutableVector4</a></h4>
@@ -1139,7 +1007,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/MutableVector4.ts#L185">foundation/math/MutableVector4.ts:185</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/MutableVector4.ts#L185">foundation/math/MutableVector4.ts:185</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_mutablevector4_.mutablevector4.html" class="tsd-signature-type">MutableVector4</a></h4>
@@ -1174,6 +1042,12 @@
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_math_mutablevector4_.mutablevector4.html#classname" class="tsd-kind-icon">class<wbr>Name</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+								<a href="_foundation_math_mutablevector4_.mutablevector4.html#glslstrasfloat" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsFloat</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+								<a href="_foundation_math_mutablevector4_.mutablevector4.html#glslstrasint" class="tsd-kind-icon">glsl<wbr>Str<wbr>AsInt</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_math_mutablevector4_.mutablevector4.html#raw" class="tsd-kind-icon">raw</a>

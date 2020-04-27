@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Matrix44 | rhodonite-ts</title>
+	<title>Matrix44 | rhodonite</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">rhodonite-ts</a>
+					<a href="../index.html" class="title">rhodonite</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -135,7 +135,9 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#flattenasarray" class="tsd-kind-icon">flatten<wbr>AsArray</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#getrotate" class="tsd-kind-icon">get<wbr>Rotate</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#getscale" class="tsd-kind-icon">get<wbr>Scale</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#getscaleto" class="tsd-kind-icon">get<wbr>Scale<wbr>To</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#gettranslate" class="tsd-kind-icon">get<wbr>Translate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#gettranslateto" class="tsd-kind-icon">get<wbr>Translate<wbr>To</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#isdummy" class="tsd-kind-icon">is<wbr>Dummy</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#isequal" class="tsd-kind-icon">is<wbr>Equal</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_matrix44_.matrix44.html#multiplyvector" class="tsd-kind-icon">multiply<wbr>Vector</a></li>
@@ -174,19 +176,19 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="../modules/_foundation_math_matrix44_.html#floatarray" class="tsd-signature-type">FloatArray</a>, isColumnMajor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span>, isColumnMajor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix33_.matrix33.html" class="tsd-signature-type">Matrix33</a>, isColumnMajor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a>, isColumnMajor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, isColumnMajor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="../modules/_foundation_math_matrix44_.html#floatarray" class="tsd-signature-type">FloatArray</a>, isColumnMajor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span>, isColumnMajor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix33_.matrix33.html" class="tsd-signature-type">Matrix33</a>, isColumnMajor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a>, isColumnMajor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, isColumnMajor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
 						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m5<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m6<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m12<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, isColumnMajor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Matrix44<span class="tsd-signature-symbol">(</span>m0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m5<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m6<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m12<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, m15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, isColumnMajor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span>, notCopyFloatArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L17">foundation/math/Matrix44.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L18">foundation/math/Matrix44.ts:18</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -206,7 +208,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L19">foundation/math/Matrix44.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L20">foundation/math/Matrix44.ts:20</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -226,7 +228,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L20">foundation/math/Matrix44.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L21">foundation/math/Matrix44.ts:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -246,7 +248,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L21">foundation/math/Matrix44.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L22">foundation/math/Matrix44.ts:22</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -266,7 +268,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L22">foundation/math/Matrix44.ts:22</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L23">foundation/math/Matrix44.ts:23</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -286,7 +288,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L23">foundation/math/Matrix44.ts:23</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L24">foundation/math/Matrix44.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -300,7 +302,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L24">foundation/math/Matrix44.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L25">foundation/math/Matrix44.ts:25</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -370,10 +372,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="v" class="tsd-anchor"></a>
 					<h3>v</h3>
-					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
+					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L17">foundation/math/Matrix44.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L18">foundation/math/Matrix44.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -383,308 +385,198 @@
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="classname" class="tsd-anchor"></a>
 					<h3>class<wbr>Name</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> className<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L176">foundation/math/Matrix44.ts:176</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">class<wbr>Name<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L161">foundation/math/Matrix44.ts:161</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m00" class="tsd-anchor"></a>
 					<h3>m00</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m00<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L580">foundation/math/Matrix44.ts:580</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m00<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m00">m00</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L567">foundation/math/Matrix44.ts:567</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m01" class="tsd-anchor"></a>
 					<h3>m01</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m01<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L596">foundation/math/Matrix44.ts:596</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m01<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m01">m01</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L583">foundation/math/Matrix44.ts:583</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m02" class="tsd-anchor"></a>
 					<h3>m02</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m02<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L612">foundation/math/Matrix44.ts:612</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m02<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m02">m02</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L599">foundation/math/Matrix44.ts:599</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m03" class="tsd-anchor"></a>
 					<h3>m03</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m03<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L628">foundation/math/Matrix44.ts:628</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m03<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m03">m03</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L615">foundation/math/Matrix44.ts:615</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m10" class="tsd-anchor"></a>
 					<h3>m10</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m10<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L584">foundation/math/Matrix44.ts:584</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m10<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m10">m10</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L571">foundation/math/Matrix44.ts:571</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m11" class="tsd-anchor"></a>
 					<h3>m11</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m11<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L600">foundation/math/Matrix44.ts:600</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m11<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m11">m11</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L587">foundation/math/Matrix44.ts:587</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m12" class="tsd-anchor"></a>
 					<h3>m12</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m12<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L616">foundation/math/Matrix44.ts:616</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m12<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m12">m12</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L603">foundation/math/Matrix44.ts:603</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m13" class="tsd-anchor"></a>
 					<h3>m13</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m13<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L632">foundation/math/Matrix44.ts:632</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m13<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m13">m13</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L619">foundation/math/Matrix44.ts:619</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m20" class="tsd-anchor"></a>
 					<h3>m20</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m20<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L588">foundation/math/Matrix44.ts:588</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m20<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m20">m20</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L575">foundation/math/Matrix44.ts:575</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m21" class="tsd-anchor"></a>
 					<h3>m21</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m21<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L604">foundation/math/Matrix44.ts:604</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m21<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m21">m21</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L591">foundation/math/Matrix44.ts:591</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m22" class="tsd-anchor"></a>
 					<h3>m22</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m22<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L620">foundation/math/Matrix44.ts:620</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m22<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m22">m22</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L607">foundation/math/Matrix44.ts:607</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m23" class="tsd-anchor"></a>
 					<h3>m23</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m23<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L636">foundation/math/Matrix44.ts:636</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m23<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m23">m23</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L623">foundation/math/Matrix44.ts:623</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m30" class="tsd-anchor"></a>
 					<h3>m30</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m30<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L592">foundation/math/Matrix44.ts:592</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m30<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m30">m30</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L579">foundation/math/Matrix44.ts:579</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m31" class="tsd-anchor"></a>
 					<h3>m31</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m31<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L608">foundation/math/Matrix44.ts:608</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m31<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m31">m31</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L595">foundation/math/Matrix44.ts:595</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m32" class="tsd-anchor"></a>
 					<h3>m32</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m32<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L624">foundation/math/Matrix44.ts:624</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m32<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m32">m32</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L611">foundation/math/Matrix44.ts:611</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="m33" class="tsd-anchor"></a>
 					<h3>m33</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> m33<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L640">foundation/math/Matrix44.ts:640</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">m33<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_imatrix_.imatrix44.html">IMatrix44</a>.<a href="../interfaces/_foundation_math_imatrix_.imatrix44.html#m33">m33</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L627">foundation/math/Matrix44.ts:627</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
 					<a name="compositiontype" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> composition<wbr>Type</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> compositionType<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L164">foundation/math/Matrix44.ts:164</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">composition<wbr>Type<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L149">foundation/math/Matrix44.ts:149</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -699,7 +591,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L180">foundation/math/Matrix44.ts:180</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L165">foundation/math/Matrix44.ts:165</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></h4>
@@ -716,7 +608,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L469">foundation/math/Matrix44.ts:469</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L454">foundation/math/Matrix44.ts:454</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -733,7 +625,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L350">foundation/math/Matrix44.ts:350</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L335">foundation/math/Matrix44.ts:335</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -750,7 +642,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L677">foundation/math/Matrix44.ts:677</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L664">foundation/math/Matrix44.ts:664</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></h4>
@@ -767,10 +659,33 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L669">foundation/math/Matrix44.ts:669</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L656">foundation/math/Matrix44.ts:656</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getscaleto" class="tsd-anchor"></a>
+					<h3>get<wbr>Scale<wbr>To</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Scale<wbr>To<span class="tsd-signature-symbol">(</span>out<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablevector3_.mutablevector3.html" class="tsd-signature-type">MutableVector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L682">foundation/math/Matrix44.ts:682</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>out: <a href="_foundation_math_mutablevector3_.mutablevector3.html" class="tsd-signature-type">MutableVector3</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -784,10 +699,33 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L242">foundation/math/Matrix44.ts:242</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L227">foundation/math/Matrix44.ts:227</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="gettranslateto" class="tsd-anchor"></a>
+					<h3>get<wbr>Translate<wbr>To</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Translate<wbr>To<span class="tsd-signature-symbol">(</span>out<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablevector3_.mutablevector3.html" class="tsd-signature-type">MutableVector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L673">foundation/math/Matrix44.ts:673</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>out: <a href="_foundation_math_mutablevector3_.mutablevector3.html" class="tsd-signature-type">MutableVector3</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -801,7 +739,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L168">foundation/math/Matrix44.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L153">foundation/math/Matrix44.ts:153</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -818,7 +756,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L219">foundation/math/Matrix44.ts:219</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L204">foundation/math/Matrix44.ts:204</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -844,7 +782,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L372">foundation/math/Matrix44.ts:372</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L357">foundation/math/Matrix44.ts:357</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -867,7 +805,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L401">foundation/math/Matrix44.ts:401</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L386">foundation/math/Matrix44.ts:386</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -884,19 +822,19 @@
 					<a name="multiplyvector3to" class="tsd-anchor"></a>
 					<h3>multiply<wbr>Vector3<wbr>To</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">multiply<wbr>Vector3<wbr>To<span class="tsd-signature-symbol">(</span>vec<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a>, outVec<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablevector3_.mutablevector3.html" class="tsd-signature-type">MutableVector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">multiply<wbr>Vector3<wbr>To<span class="tsd-signature-symbol">(</span>vec<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_math_ivector_.ivector3.html" class="tsd-signature-type">IVector3</a>, outVec<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablevector3_.mutablevector3.html" class="tsd-signature-type">MutableVector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L409">foundation/math/Matrix44.ts:409</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L394">foundation/math/Matrix44.ts:394</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>vec: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+									<h5>vec: <a href="../interfaces/_foundation_math_ivector_.ivector3.html" class="tsd-signature-type">IVector3</a></h5>
 								</li>
 								<li>
 									<h5>outVec: <a href="_foundation_math_mutablevector3_.mutablevector3.html" class="tsd-signature-type">MutableVector3</a></h5>
@@ -916,7 +854,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L381">foundation/math/Matrix44.ts:381</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L366">foundation/math/Matrix44.ts:366</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -942,7 +880,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L392">foundation/math/Matrix44.ts:392</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L377">foundation/math/Matrix44.ts:377</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -968,7 +906,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L651">foundation/math/Matrix44.ts:651</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L638">foundation/math/Matrix44.ts:638</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -991,11 +929,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L311">foundation/math/Matrix44.ts:311</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L296">foundation/math/Matrix44.ts:296</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-							</div>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h4>
 							<p>Euler Angles Rotation (x, y, z)</p>
 						</li>
@@ -1011,7 +947,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L327">foundation/math/Matrix44.ts:327</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L312">foundation/math/Matrix44.ts:312</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1034,7 +970,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L644">foundation/math/Matrix44.ts:644</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L631">foundation/math/Matrix44.ts:631</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -1051,7 +987,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L662">foundation/math/Matrix44.ts:662</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L649">foundation/math/Matrix44.ts:649</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -1068,7 +1004,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L481">foundation/math/Matrix44.ts:481</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L466">foundation/math/Matrix44.ts:466</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1091,7 +1027,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L160">foundation/math/Matrix44.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L145">foundation/math/Matrix44.ts:145</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></h4>
@@ -1108,7 +1044,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L189">foundation/math/Matrix44.ts:189</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L174">foundation/math/Matrix44.ts:174</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1134,14 +1070,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L210">foundation/math/Matrix44.ts:210</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L195">foundation/math/Matrix44.ts:195</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>to the identity matrix（static版）</p>
-								</div>
-							</div>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></h4>
 						</li>
 					</ul>
@@ -1156,7 +1087,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L501">foundation/math/Matrix44.ts:501</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L486">foundation/math/Matrix44.ts:486</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1173,13 +1104,13 @@
 					<a name="invertto" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> invert<wbr>To</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">invert<wbr>To<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a>, outM<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablematrix44_.mutablematrix44.html" class="tsd-signature-type">MutableMatrix44</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">invert<wbr>To<span class="tsd-signature-symbol">(</span>m<span class="tsd-signature-symbol">: </span><a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a>, outM<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablematrix44_.mutablematrix44.html" class="tsd-signature-type">MutableMatrix44</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablematrix44_.mutablematrix44.html" class="tsd-signature-type">MutableMatrix44</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L544">foundation/math/Matrix44.ts:544</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L529">foundation/math/Matrix44.ts:529</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1191,7 +1122,7 @@
 									<h5>outM: <a href="_foundation_math_mutablematrix44_.mutablematrix44.html" class="tsd-signature-type">MutableMatrix44</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_mutablematrix44_.mutablematrix44.html" class="tsd-signature-type">MutableMatrix44</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -1205,14 +1136,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L418">foundation/math/Matrix44.ts:418</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L403">foundation/math/Matrix44.ts:403</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>multiply zero matrix and zero matrix(static version)</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -1236,7 +1162,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L447">foundation/math/Matrix44.ts:447</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L432">foundation/math/Matrix44.ts:432</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1265,14 +1191,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L268">foundation/math/Matrix44.ts:268</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L253">foundation/math/Matrix44.ts:253</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Create X oriented Rotation Matrix</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -1293,14 +1214,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L282">foundation/math/Matrix44.ts:282</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L267">foundation/math/Matrix44.ts:267</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Create Y oriented Rotation Matrix</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -1321,14 +1237,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L297">foundation/math/Matrix44.ts:297</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L282">foundation/math/Matrix44.ts:282</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Create Z oriented Rotation Matrix</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -1349,7 +1260,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L256">foundation/math/Matrix44.ts:256</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L241">foundation/math/Matrix44.ts:241</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1372,7 +1283,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L246">foundation/math/Matrix44.ts:246</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L231">foundation/math/Matrix44.ts:231</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1395,14 +1306,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L360">foundation/math/Matrix44.ts:360</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L345">foundation/math/Matrix44.ts:345</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>transpose(static version)</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -1423,7 +1329,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Matrix44.ts#L346">foundation/math/Matrix44.ts:346</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Matrix44.ts#L331">foundation/math/Matrix44.ts:331</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></h4>
@@ -1526,7 +1432,13 @@
 								<a href="_foundation_math_matrix44_.matrix44.html#getscale" class="tsd-kind-icon">get<wbr>Scale</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_math_matrix44_.matrix44.html#getscaleto" class="tsd-kind-icon">get<wbr>Scale<wbr>To</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_foundation_math_matrix44_.matrix44.html#gettranslate" class="tsd-kind-icon">get<wbr>Translate</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_math_matrix44_.matrix44.html#gettranslateto" class="tsd-kind-icon">get<wbr>Translate<wbr>To</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_foundation_math_matrix44_.matrix44.html#isdummy" class="tsd-kind-icon">is<wbr>Dummy</a>

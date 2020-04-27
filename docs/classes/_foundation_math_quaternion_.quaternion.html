@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Quaternion | rhodonite-ts</title>
+	<title>Quaternion | rhodonite</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">rhodonite-ts</a>
+					<a href="../index.html" class="title">rhodonite</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -76,7 +76,7 @@
 						<span class="target">Quaternion</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="_foundation_math_mutablequaterion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a>
+								<a href="_foundation_math_mutablequaternion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a>
 							</li>
 						</ul>
 					</li>
@@ -123,6 +123,8 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_quaternion_.quaternion.html#isdummy" class="tsd-kind-icon">is<wbr>Dummy</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_quaternion_.quaternion.html#isequal" class="tsd-kind-icon">is<wbr>Equal</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_quaternion_.quaternion.html#length" class="tsd-kind-icon">length</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_quaternion_.quaternion.html#multiplyvector3" class="tsd-kind-icon">multiply<wbr>Vector3</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_quaternion_.quaternion.html#toeulerangleto" class="tsd-kind-icon">to<wbr>Euler<wbr>Angle<wbr>To</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_math_quaternion_.quaternion.html#tostring" class="tsd-kind-icon">to<wbr>String</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#add" class="tsd-kind-icon">add</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#axisangle" class="tsd-kind-icon">axis<wbr>Angle</a></li>
@@ -131,6 +133,9 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#fromposition" class="tsd-kind-icon">from<wbr>Position</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#invert" class="tsd-kind-icon">invert</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#lerpto" class="tsd-kind-icon">lerp<wbr>To</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#lookforward" class="tsd-kind-icon">look<wbr>Forward</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#lookforwardaccordingtothisup" class="tsd-kind-icon">look<wbr>Forward<wbr>According<wbr>ToThis<wbr>Up</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#lookfromto" class="tsd-kind-icon">look<wbr>From<wbr>To</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#multiply" class="tsd-kind-icon">multiply</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#multiplynumber" class="tsd-kind-icon">multiply<wbr>Number</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_math_quaternion_.quaternion.html#qlerp" class="tsd-kind-icon">qlerp</a></li>
@@ -147,19 +152,19 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Quaternion<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector4_.vector4.html" class="tsd-signature-type">Vector4</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, y<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, w<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Quaternion<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector4_.vector4.html" class="tsd-signature-type">Vector4</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, w<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L13">foundation/math/Quaternion.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L11">foundation/math/Quaternion.ts:11</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> x: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector4_.vector4.html" class="tsd-signature-type">Vector4</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> x: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_vector4_.vector4.html" class="tsd-signature-type">Vector4</a><span class="tsd-signature-symbol"> | </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> y: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
@@ -181,10 +186,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="v" class="tsd-anchor"></a>
 					<h3>v</h3>
-					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
+					<div class="tsd-signature tsd-kind-icon">v<span class="tsd-signature-symbol">:</span> <a href="../modules/_commontypes_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L13">foundation/math/Quaternion.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L11">foundation/math/Quaternion.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -194,104 +199,66 @@
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="classname" class="tsd-anchor"></a>
 					<h3>class<wbr>Name</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> className<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L90">foundation/math/Quaternion.ts:90</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">class<wbr>Name<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L88">foundation/math/Quaternion.ts:88</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="w" class="tsd-anchor"></a>
 					<h3>w</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> w<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L297">foundation/math/Quaternion.ts:297</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">w<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.ivector4.html">IVector4</a>.<a href="../interfaces/_foundation_math_ivector_.ivector4.html#w">w</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L400">foundation/math/Quaternion.ts:400</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="x" class="tsd-anchor"></a>
 					<h3>x</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> x<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L285">foundation/math/Quaternion.ts:285</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">x<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.ivector4.html">IVector4</a>.<a href="../interfaces/_foundation_math_ivector_.ivector4.html#x">x</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L388">foundation/math/Quaternion.ts:388</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="y" class="tsd-anchor"></a>
 					<h3>y</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> y<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L289">foundation/math/Quaternion.ts:289</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">y<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.ivector4.html">IVector4</a>.<a href="../interfaces/_foundation_math_ivector_.ivector4.html#y">y</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L392">foundation/math/Quaternion.ts:392</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="z" class="tsd-anchor"></a>
 					<h3>z</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> z<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L293">foundation/math/Quaternion.ts:293</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">z<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.ivector4.html">IVector4</a>.<a href="../interfaces/_foundation_math_ivector_.ivector4.html#z">z</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L396">foundation/math/Quaternion.ts:396</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
 					<a name="compositiontype" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> composition<wbr>Type</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> compositionType<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L74">foundation/math/Quaternion.ts:74</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></h4>
-						</li>
-					</ul>
+					<div class="tsd-signature tsd-kind-icon">composition<wbr>Type<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L72">foundation/math/Quaternion.ts:72</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -306,7 +273,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L263">foundation/math/Quaternion.ts:263</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L281">foundation/math/Quaternion.ts:281</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -332,7 +299,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L94">foundation/math/Quaternion.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L92">foundation/math/Quaternion.ts:92</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></h4>
@@ -349,7 +316,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L82">foundation/math/Quaternion.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L80">foundation/math/Quaternion.ts:80</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -366,7 +333,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L66">foundation/math/Quaternion.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L64">foundation/math/Quaternion.ts:64</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -390,10 +357,56 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_foundation_math_ivector_.ivector4.html">IVector4</a>.<a href="../interfaces/_foundation_math_ivector_.ivector4.html#length">length</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L259">foundation/math/Quaternion.ts:259</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L277">foundation/math/Quaternion.ts:277</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="multiplyvector3" class="tsd-anchor"></a>
+					<h3>multiply<wbr>Vector3</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">multiply<wbr>Vector3<span class="tsd-signature-symbol">(</span>point<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L363">foundation/math/Quaternion.ts:363</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>point: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="toeulerangleto" class="tsd-anchor"></a>
+					<h3>to<wbr>Euler<wbr>Angle<wbr>To</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Euler<wbr>Angle<wbr>To<span class="tsd-signature-symbol">(</span>out<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L253">foundation/math/Quaternion.ts:253</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>out: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -407,7 +420,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L281">foundation/math/Quaternion.ts:281</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L384">foundation/math/Quaternion.ts:384</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -424,7 +437,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L273">foundation/math/Quaternion.ts:273</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L291">foundation/math/Quaternion.ts:291</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -450,7 +463,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L195">foundation/math/Quaternion.ts:195</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L194">foundation/math/Quaternion.ts:194</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -476,7 +489,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L78">foundation/math/Quaternion.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L76">foundation/math/Quaternion.ts:76</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></h4>
@@ -493,7 +506,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L220">foundation/math/Quaternion.ts:220</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L219">foundation/math/Quaternion.ts:219</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -516,7 +529,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L254">foundation/math/Quaternion.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L272">foundation/math/Quaternion.ts:272</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -539,7 +552,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L98">foundation/math/Quaternion.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L96">foundation/math/Quaternion.ts:96</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -556,13 +569,13 @@
 					<a name="lerpto" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> lerp<wbr>To</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">lerp<wbr>To<span class="tsd-signature-symbol">(</span>lhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, rhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, ratio<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, outQ<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablequaterion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">lerp<wbr>To<span class="tsd-signature-symbol">(</span>lhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, rhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, ratio<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, outQ<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablequaternion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L149">foundation/math/Quaternion.ts:149</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L148">foundation/math/Quaternion.ts:148</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -577,10 +590,85 @@
 									<h5>ratio: <span class="tsd-signature-type">number</span></h5>
 								</li>
 								<li>
-									<h5>outQ: <a href="_foundation_math_mutablequaterion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a></h5>
+									<h5>outQ: <a href="_foundation_math_mutablequaternion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="lookforward" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> look<wbr>Forward</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">look<wbr>Forward<span class="tsd-signature-symbol">(</span>forward<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L307">foundation/math/Quaternion.ts:307</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>forward: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="lookforwardaccordingtothisup" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> look<wbr>Forward<wbr>According<wbr>ToThis<wbr>Up</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">look<wbr>Forward<wbr>According<wbr>ToThis<wbr>Up<span class="tsd-signature-symbol">(</span>forward<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a>, up<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L312">foundation/math/Quaternion.ts:312</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>forward: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+								<li>
+									<h5>up: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="lookfromto" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> look<wbr>From<wbr>To</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">look<wbr>From<wbr>To<span class="tsd-signature-symbol">(</span>fromDirection<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a>, toDirection<span class="tsd-signature-symbol">: </span><a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L299">foundation/math/Quaternion.ts:299</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fromDirection: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+								<li>
+									<h5>toDirection: <a href="_foundation_math_vector3_.vector3.html" class="tsd-signature-type">Vector3</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -594,7 +682,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L207">foundation/math/Quaternion.ts:207</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L206">foundation/math/Quaternion.ts:206</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -620,7 +708,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L216">foundation/math/Quaternion.ts:216</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L215">foundation/math/Quaternion.ts:215</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -646,7 +734,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L108">foundation/math/Quaternion.ts:108</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L107">foundation/math/Quaternion.ts:107</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -669,13 +757,13 @@
 					<a name="qlerpto" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> qlerp<wbr>To</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">qlerp<wbr>To<span class="tsd-signature-symbol">(</span>lhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, rhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, ratio<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, outQ<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablequaterion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">qlerp<wbr>To<span class="tsd-signature-symbol">(</span>lhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, rhq<span class="tsd-signature-symbol">: </span><a href="_foundation_math_quaternion_.quaternion.html" class="tsd-signature-type">Quaternion</a>, ratio<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, outQ<span class="tsd-signature-symbol">: </span><a href="_foundation_math_mutablequaternion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L156">foundation/math/Quaternion.ts:156</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L155">foundation/math/Quaternion.ts:155</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -690,7 +778,7 @@
 									<h5>ratio: <span class="tsd-signature-type">number</span></h5>
 								</li>
 								<li>
-									<h5>outQ: <a href="_foundation_math_mutablequaterion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a></h5>
+									<h5>outQ: <a href="_foundation_math_mutablequaternion_.mutablequaternion.html" class="tsd-signature-type">MutableQuaternion</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -707,7 +795,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/math/Quaternion.ts#L277">foundation/math/Quaternion.ts:277</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/533ecff8/src/foundation/math/Quaternion.ts#L295">foundation/math/Quaternion.ts:295</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -783,6 +871,12 @@
 								<a href="_foundation_math_quaternion_.quaternion.html#length" class="tsd-kind-icon">length</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_math_quaternion_.quaternion.html#multiplyvector3" class="tsd-kind-icon">multiply<wbr>Vector3</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_math_quaternion_.quaternion.html#toeulerangleto" class="tsd-kind-icon">to<wbr>Euler<wbr>Angle<wbr>To</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_foundation_math_quaternion_.quaternion.html#tostring" class="tsd-kind-icon">to<wbr>String</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
@@ -805,6 +899,15 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_math_quaternion_.quaternion.html#lerpto" class="tsd-kind-icon">lerp<wbr>To</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_foundation_math_quaternion_.quaternion.html#lookforward" class="tsd-kind-icon">look<wbr>Forward</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_foundation_math_quaternion_.quaternion.html#lookforwardaccordingtothisup" class="tsd-kind-icon">look<wbr>Forward<wbr>According<wbr>ToThis<wbr>Up</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_foundation_math_quaternion_.quaternion.html#lookfromto" class="tsd-kind-icon">look<wbr>From<wbr>To</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_math_quaternion_.quaternion.html#multiply" class="tsd-kind-icon">multiply</a>
