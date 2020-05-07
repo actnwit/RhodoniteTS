@@ -78,7 +78,7 @@ export default class Frustum {
    * @param bias The bias value.
    */
   clipping(plane: Vector4, point: Vector3, bias: number) {
-    const dot = Vector3.dotProduct(plane as any as Vector3, point);
+    const dot = Vector3.dot(plane as any as Vector3, point);
     const d = dot + plane.w;
     if (d + bias < 0) {
       return Visibility.Invisible; // outside completely

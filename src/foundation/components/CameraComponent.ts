@@ -170,7 +170,7 @@ export default class CameraComponent extends Component {
       const relativeXaxis = Vector3.cross(oldDirection, oldUp);
       newUpNonNormalize = Vector3.cross(relativeXaxis, newDirection);
     } else {
-      const newDirectionComponentInOldUp = Vector3.multiply(newDirection, newDirection.dotProduct(oldUp));
+      const newDirectionComponentInOldUp = Vector3.multiply(newDirection, newDirection.dot(oldUp));
       newUpNonNormalize = Vector3.subtract(oldUp, newDirectionComponentInOldUp);
     }
 
@@ -438,15 +438,15 @@ export default class CameraComponent extends Component {
       s.x,
       s.y,
       s.z,
-      -Vector3.dotProduct(s, eye),
+      -Vector3.dot(s, eye),
       u.x,
       u.y,
       u.z,
-      -Vector3.dotProduct(u, eye),
+      -Vector3.dot(u, eye),
       -f.x,
       -f.y,
       -f.z,
-      Vector3.dotProduct(f, eye),
+      Vector3.dot(f, eye),
       0,
       0,
       0,
