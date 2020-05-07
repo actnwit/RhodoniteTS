@@ -50,7 +50,7 @@ const pick = function (e: any) {
   console.log(pickedPixel.toString());
 
   const bitDec = new Rn.Vector4(1, 255, 65025, 0);
-  const pickedEntityUID = bitDec.dotProduct(pickedPixel);
+  const pickedEntityUID = bitDec.dot(pickedPixel);
   console.log(pickedEntityUID);
 
   return pickedEntityUID;

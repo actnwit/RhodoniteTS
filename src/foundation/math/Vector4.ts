@@ -157,14 +157,14 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
   /**
    * dot product
    */
-  dotProduct(vec4: Vector4_<T>) {
+  dot(vec4: Vector4_<T>) {
     return this.v[0] * vec4.v[0] + this.v[1] * vec4.v[1] + this.v[2] * vec4.v[2] + this.v[3] * vec4.v[3];
   }
 
   /**
    * dot product(static version)
    */
-  static dotProduct<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
+  static dot<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
     return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2] + lv.v[3] * rv.v[3];
   }
 

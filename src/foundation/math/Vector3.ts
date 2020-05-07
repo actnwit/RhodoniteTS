@@ -117,14 +117,14 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
   /**
    * dot product
    */
-  dotProduct(vec3: Vector3_<T>) {
+  dot(vec3: Vector3_<T>) {
     return this.v[0] * vec3.v[0] + this.v[1] * vec3.v[1] + this.v[2] * vec3.v[2];
   }
 
   /**
    * dot product(static version)
    */
-  static dotProduct<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>) {
+  static dot<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>) {
     return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2];
   }
 
@@ -236,7 +236,7 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
   }
 
   static angleOfVectors<T extends TypedArrayConstructor>(lhv: Vector3_<T>, rhv: Vector3_<T>) {
-    let cos_sita = Vector3_.dotProduct(lhv, rhv) / (lhv.length() * rhv.length());
+    let cos_sita = Vector3_.dot(lhv, rhv) / (lhv.length() * rhv.length());
 
     let sita = Math.acos(cos_sita);
 
