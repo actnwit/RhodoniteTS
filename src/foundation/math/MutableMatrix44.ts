@@ -71,6 +71,8 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     this.v[13] = m[13];
     this.v[14] = m[14];
     this.v[15] = m[15];
+
+    return this;
   }
 
   static get compositionType() {
@@ -106,6 +108,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     this.m03 = vec.x;
     this.m13 = vec.y;
     this.m23 = vec.z;
+    return this;
   }
 
   scale(vec: Vector3) {
