@@ -123,7 +123,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
   }
 
   /**
-   * multiply zero matrix and zero matrix
+   * multiply the input matrix from right side
    */
   multiply(mat: Matrix22) {
     const m00 = this.m00 * mat.m00 + this.m01 * mat.m10;
