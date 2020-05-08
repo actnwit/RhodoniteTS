@@ -170,8 +170,9 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
 
   setAt(i: number, value: number) {
     this.v[i] = value;
+    return this;
   }
-} 
+}
 
 
 export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
