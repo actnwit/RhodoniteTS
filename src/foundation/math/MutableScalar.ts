@@ -17,6 +17,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
 
   setValue(value: number) {
     this.x = value;
+    return this;
   }
 
 }
