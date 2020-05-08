@@ -27,6 +27,8 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     this.y /= length;
     this.z /= length;
     this.w /= length;
+
+    return this;
   }
 
   /**
