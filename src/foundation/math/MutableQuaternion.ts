@@ -94,12 +94,13 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
   }
 
   setAt(i: number, val: number) {
-    switch (i%4) {
-    case 0: this.x = val; break;
-    case 1: this.y = val; break;
-    case 2: this.z = val; break;
-    case 3: this.w = val; break;
+    switch (i % 4) {
+      case 0: this.x = val; break;
+      case 1: this.y = val; break;
+      case 2: this.z = val; break;
+      case 3: this.w = val; break;
     }
+    return this;
   }
 
   normalize() {
@@ -116,6 +117,7 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     this.y = 0;
     this.x = 0;
     this.w = 1;
+    return this;
   }
 
   static fromMatrixTo(m:Matrix44, q: MutableQuaternion) {
