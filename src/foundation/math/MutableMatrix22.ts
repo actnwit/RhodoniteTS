@@ -105,8 +105,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
   }
 
   flattenAsArray() {
-    return [this.v[0], this.v[1],
-    this.v[2], this.v[3]];
+    return [this.v[0], this.v[1], this.v[2], this.v[3]];
   }
 
   _swap(l: Index, r: Index) {
