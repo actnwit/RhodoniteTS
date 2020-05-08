@@ -1,7 +1,6 @@
 import Matrix44 from "./Matrix44";
 import { IMutableMatrix22 } from "./IMatrix";
 import Matrix22 from "./Matrix22";
-import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 import Matrix33 from "./Matrix33";
@@ -43,6 +42,8 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
     this.m01 = m.m01;
     this.m10 = m.m10;
     this.m11 = m.m11;
+
+    return this;
   }
 
   static get compositionType() {
@@ -96,8 +97,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
    * zero matrix
    */
   zero() {
-    this.setComponents(0, 0, 0, 0);
-    return this;
+    return this.setComponents(0, 0, 0, 0);
   }
 
   raw() {
