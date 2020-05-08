@@ -53,6 +53,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     this.m20 = m.m20;
     this.m21 = m.m21;
     this.m22 = m.m22;
+
+    return this;
   }
 
   static get compositionType() {
