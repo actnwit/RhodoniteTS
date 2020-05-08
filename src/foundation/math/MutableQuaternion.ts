@@ -1,14 +1,14 @@
 import Vector3 from "./Vector3";
 import Vector4 from "./Vector4";
 import Quaternion from "./Quaternion";
-import {IVector4} from "./IVector";
+import { IVector4 } from "./IVector";
 import Matrix44 from "./Matrix44";
 import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray } from "../../commontypes/CommonTypes";
 
 export default class MutableQuaternion extends Quaternion implements IVector4 {
 
-  constructor(x?:number|TypedArray|Vector3|Vector4|Quaternion|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y, z, w);
   }
 
@@ -20,7 +20,7 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return new MutableQuaternion(this.x, this.y, this.z, this.w);
   }
 
-  axisAngle(axisVec3:Vector3, radian:number) {
+  axisAngle(axisVec3: Vector3, radian: number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
@@ -33,7 +33,7 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return this;
   }
 
-  add(q:Quaternion) {
+  add(q: Quaternion) {
     this.x += q.x;
     this.y += q.y;
     this.z += q.z;
@@ -42,12 +42,12 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return this;
   }
 
-  multiply(q:Quaternion) {
+  multiply(q: Quaternion) {
     let result = new Quaternion(0, 0, 0, 1);
-    result.v[0] =   q.w*this.x + q.z*this.y + q.y*this.z - q.x*this.w;
-    result.v[1] = - q.z*this.x + q.w*this.y + q.x*this.z - q.y*this.w;
-    result.v[2] =   q.y*this.x + q.x*this.y + q.w*this.z - q.z*this.w;
-    result.v[3] = - q.x*this.x - q.y*this.y - q.z*this.z - q.w*this.w;
+    result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
+    result.v[1] = - q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
+    result.v[2] = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
+    result.v[3] = - q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
     this.x = result.x;
     this.y = result.y;
     this.z = result.z;
@@ -56,12 +56,12 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return this;
   }
 
-  fromMatrix(m:Matrix44) {
+  fromMatrix(m: Matrix44) {
 
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr+1.0);
+      let S = 0.5 / Math.sqrt(tr + 1.0);
       this.v[0] = (m.m21 - m.m12) * S;
       this.v[1] = (m.m02 - m.m20) * S;
       this.v[2] = (m.m10 - m.m01) * S;
@@ -104,7 +104,7 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
   }
 
   normalize() {
-    let norm = Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z + this.w*this.w);
+    let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
     this.x /= norm;
     this.y /= norm;
     this.z /= norm;
@@ -120,12 +120,12 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return this;
   }
 
-  static fromMatrixTo(m:Matrix44, q: MutableQuaternion) {
+  static fromMatrixTo(m: Matrix44, q: MutableQuaternion) {
 
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr+1.0);
+      let S = 0.5 / Math.sqrt(tr + 1.0);
       q.v[3] = 0.25 / S;
       q.v[0] = (m.m21 - m.m12) * S;
       q.v[1] = (m.m02 - m.m20) * S;
@@ -153,13 +153,13 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return q;
   }
 
-  static fromMatrix(m:Matrix44) {
+  static fromMatrix(m: Matrix44) {
 
-    let q = new MutableQuaternion(0,0,0,1);
+    let q = new MutableQuaternion(0, 0, 0, 1);
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr+1.0);
+      let S = 0.5 / Math.sqrt(tr + 1.0);
       q.v[3] = 0.25 / S;
       q.v[0] = (m.m21 - m.m12) * S;
       q.v[1] = (m.m02 - m.m20) * S;
@@ -187,35 +187,35 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return q;
   }
 
-  get x():number {
+  get x(): number {
     return this.v[0];
   }
 
-  set x(x:number) {
+  set x(x: number) {
     this.v[0] = x;
   }
 
-  get y():number {
+  get y(): number {
     return this.v[1];
   }
 
-  set y(y:number) {
+  set y(y: number) {
     this.v[1] = y;
   }
 
-  get z():number {
+  get z(): number {
     return this.v[2];
   }
 
-  set z(z:number) {
+  set z(z: number) {
     this.v[2] = z;
   }
 
-  get w():number {
+  get w(): number {
     return this.v[3];
   }
 
-  set w(w:number) {
+  set w(w: number) {
     this.v[3] = w;
   }
 
