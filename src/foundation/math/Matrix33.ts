@@ -5,6 +5,7 @@ import { IMatrix33 } from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
+import MutableVector3 from './MutableVector3';
 
 export default class Matrix33 implements IMatrix33 {
   v: TypedArray;
@@ -387,11 +388,26 @@ export default class Matrix33 implements IMatrix33 {
     return new (vec.constructor as any)(x, y, z);
   }
 
+  multiplyVectorTo(vec: Vector3, outVec: MutableVector3) {
+    var x = this.v[0] * vec.x + this.v[3] * vec.y + this.v[6] * vec.z;
+    var y = this.v[1] * vec.x + this.v[4] * vec.y + this.v[7] * vec.z;
+    var z = this.v[2] * vec.x + this.v[5] * vec.y + this.v[8] * vec.z;
+    outVec.x = x;
+    outVec.y = y;
+    outVec.z = z;
+  }
+
   getScale() {
     return new Vector3(
       Math.sqrt(this.v[0] * this.v[0] + this.v[3] * this.v[3] + this.v[6] * this.v[6]),
       Math.sqrt(this.v[1] * this.v[1] + this.v[4] * this.v[4] + this.v[7] * this.v[7]),
       Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8])
     );
+  }
+
+  getScaleTo(out: MutableVector3) {
+    out.x = Math.sqrt(this.v[0] * this.v[0] + this.v[3] * this.v[3] + this.v[6] * this.v[6]);
+    out.y = Math.sqrt(this.v[1] * this.v[1] + this.v[4] * this.v[4] + this.v[7] * this.v[7]);
+    out.z = Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8]);
   }
 }
