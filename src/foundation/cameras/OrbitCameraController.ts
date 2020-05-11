@@ -572,10 +572,11 @@ export default class OrbitCameraController implements ICameraController {
         horizontalSign = -1;
       }
       horizontalAngleOfVectors *= horizontalSign;
-      let rotateM_Reset = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(horizontalAngleOfVectors), OrbitCameraController.__tmp_rotateM_Reset);
-      let rotateM_X = MutableMatrix33.rotateXTo(MathUtil.degreeToRadian(this.__rot_y), OrbitCameraController.__tmp_rotateM_X);
-      let rotateM_Y = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(this.__rot_x), OrbitCameraController.__tmp_rotateM_Y);
-      let rotateM_Revert = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(-horizontalAngleOfVectors), OrbitCameraController.__tmp_rotateM_Revert);
+      let rotateM_X = OrbitCameraController.__tmp_rotateM_X.rotateX(MathUtil.degreeToRadian(this.__rot_y));
+      let rotateM_Y = OrbitCameraController.__tmp_rotateM_Y.rotateY(MathUtil.degreeToRadian(this.__rot_x));
+      let rotateM_Reset = OrbitCameraController.__tmp_rotateM_Reset.rotateY(MathUtil.degreeToRadian(horizontalAngleOfVectors));
+      let rotateM_Revert = OrbitCameraController.__tmp_rotateM_Revert.rotateY(MathUtil.degreeToRadian(-horizontalAngleOfVectors));
+
       MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, OrbitCameraController.__tmp_mat3);
       MutableMatrix33.multiplyTo(rotateM_Y, OrbitCameraController.__tmp_mat3, OrbitCameraController.__tmp_mat3_2);
       let rotateM = MutableMatrix33.multiplyTo(rotateM_Revert, OrbitCameraController.__tmp_mat3_2, OrbitCameraController.__tmp_rotateM);
@@ -606,8 +607,9 @@ export default class OrbitCameraController implements ICameraController {
       }
       //this._verticalAngleOfVectors *= verticalSign;
     } else {
-      let rotateM_X = Matrix33.rotateXTo(MathUtil.degreeToRadian(this.__rot_y), OrbitCameraController.__tmp_rotateM_X);
-      let rotateM_Y = Matrix33.rotateYTo(MathUtil.degreeToRadian(this.__rot_x), OrbitCameraController.__tmp_rotateM_Y);
+
+      let rotateM_X = OrbitCameraController.__tmp_rotateM_X.rotateX(MathUtil.degreeToRadian(this.__rot_y));
+      let rotateM_Y = OrbitCameraController.__tmp_rotateM_Y.rotateY(MathUtil.degreeToRadian(this.__rot_x));
       let rotateM = Matrix33.multiply(rotateM_Y, rotateM_X);
 
       newUpVec = rotateM.multiplyVector(this.__upVec);
