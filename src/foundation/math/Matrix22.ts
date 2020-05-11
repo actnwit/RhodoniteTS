@@ -4,6 +4,7 @@ import { IMatrix22 } from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import Vector2 from './Vector2';
+import MutableMatrix22 from './MutableMatrix22';
 
 export default class Matrix22 implements IMatrix22 {
   v: TypedArray;
@@ -92,126 +93,6 @@ export default class Matrix22 implements IMatrix22 {
     }
   }
 
-  get className() {
-    return this.constructor.name;
-  }
-
-  static get compositionType() {
-    return CompositionType.Mat2;
-  }
-
-  multiplyVector(vec: Vector2) {
-    const x = this.v[0] * vec.x + this.v[2] * vec.y;
-    const y = this.v[1] * vec.x + this.v[3] * vec.y;
-
-    return new (vec.constructor as any)(x, y);
-  }
-
-  /**
-   * Make this identity matrix（static method version）
-   */
-  static identity() {
-    return new Matrix22(
-      1, 0,
-      0, 1,
-    );
-  }
-
-  static dummy() {
-    return new Matrix22(null);
-  }
-
-  isDummy() {
-    if (this.v.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  clone() {
-    return new Matrix22(
-      this.v[0], this.v[2],
-      this.v[1], this.v[3]
-    );
-  }
-
-  /**
-   * Create Rotation Matrix
-   */
-  static rotate(radian: number) {
-    const cos = Math.cos(radian);
-    const sin = Math.sin(radian);
-    return new Matrix22(
-      cos, -sin,
-      sin, cos
-    );
-  }
-
-  static scale(vec: Vector2) {
-    return new Matrix22(
-      vec.x, 0,
-      0, vec.y
-    );
-  }
-
-  /**
-   * zero matrix(static version)
-   */
-  static zero() {
-    return new Matrix22(0, 0, 0, 0);
-  }
-
-  /**
-   * transpose(static version)
-   */
-  static transpose(mat: Matrix22) {
-
-    const mat_t = new Matrix22(
-      mat.m00, mat.m10,
-      mat.m01, mat.m11
-    );
-
-    return mat_t;
-  }
-
-  /**
-   * multiply matrixes (static version)
-   */
-  static multiply(l_m: Matrix22, r_m: Matrix22) {
-    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
-    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
-
-    const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
-    const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
-
-    return new Matrix22(
-      m00, m01,
-      m10, m11
-    );
-  }
-
-  determinant() {
-    return this.v[0] * this.v[3] - this.v[1] * this.v[2];
-  }
-
-  static determinant(mat: Matrix22) {
-    return mat.m00 * mat.m11 - mat.m10 * mat.m01;
-  }
-
-  static invert(mat: Matrix22) {
-    const det = mat.determinant();
-    const m00 = mat.m11 / det;
-    const m01 = mat.m01 / det * (-1.0);
-    const m10 = mat.m10 / det * (-1.0);
-    const m11 = mat.m00 / det;
-
-    return new Matrix22(
-      m00, m01,
-      m10, m11
-    );
-  }
-
   public get m00() {
     return this.v[0];
   }
@@ -228,9 +109,22 @@ export default class Matrix22 implements IMatrix22 {
     return this.v[3];
   }
 
+  get className() {
+    return this.constructor.name;
+  }
+
+  static get compositionType() {
+    return CompositionType.Mat2;
+  }
+
   toString() {
     return this.v[0] + ' ' + this.v[2] + '\n' +
       this.v[1] + ' ' + this.v[3] + ' \n';
+  }
+
+  toStringApproximately() {
+    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[2]) + '\n' +
+      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[3]) + ' \n';
   }
 
   nearZeroToZero(value: number) {
@@ -244,25 +138,150 @@ export default class Matrix22 implements IMatrix22 {
     return value;
   }
 
-  toStringApproximately() {
-    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[2]) + '\n' +
-      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[3]) + ' \n';
+  flattenAsArray() {
+    return [this.v[0], this.v[1],
+    this.v[2], this.v[3]];
   }
 
-
-  isEqual(mat: Matrix22, delta: number = Number.EPSILON) {
-    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-      Math.abs(mat.v[1] - this.v[1]) < delta &&
-      Math.abs(mat.v[2] - this.v[2]) < delta &&
-      Math.abs(mat.v[3] - this.v[3]) < delta &&
-      Math.abs(mat.v[4] - this.v[4]) < delta &&
-      Math.abs(mat.v[5] - this.v[5]) < delta &&
-      Math.abs(mat.v[6] - this.v[6]) < delta &&
-      Math.abs(mat.v[7] - this.v[7]) < delta &&
-      Math.abs(mat.v[8] - this.v[8]) < delta) {
+  isDummy() {
+    if (this.v.length === 0) {
       return true;
     } else {
       return false;
     }
   }
+
+  isEqual(mat: Matrix22, delta: number = Number.EPSILON) {
+    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
+      Math.abs(mat.v[1] - this.v[1]) < delta &&
+      Math.abs(mat.v[2] - this.v[2]) < delta &&
+      Math.abs(mat.v[3] - this.v[3]) < delta) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Create zero matrix
+   */
+  static zero() {
+    return new Matrix22(0, 0, 0, 0);
+  }
+
+  /**
+   * Create identity matrix
+   */
+  static identity() {
+    return new Matrix22(
+      1, 0,
+      0, 1,
+    );
+  }
+
+  static dummy() {
+    return new Matrix22(null);
+  }
+
+  /**
+   * Create transpose matrix
+   */
+  static transpose(mat: Matrix22) {
+    return new Matrix22(
+      mat.m00, mat.m10,
+      mat.m01, mat.m11
+    );
+  }
+
+  /**
+   * Create invert matrix
+   */
+  static invert(mat: Matrix22) {
+    const det = mat.determinant();
+    const m00 = mat.m11 / det;
+    const m01 = mat.m01 / det * (-1.0);
+    const m10 = mat.m10 / det * (-1.0);
+    const m11 = mat.m00 / det;
+
+    return new Matrix22(
+      m00, m01,
+      m10, m11
+    );
+  }
+
+  /**
+   * Create Rotation Matrix
+   */
+  static rotate(radian: number) {
+    const cos = Math.cos(radian);
+    const sin = Math.sin(radian);
+    return new Matrix22(
+      cos, -sin,
+      sin, cos
+    );
+  }
+
+  /**
+   * Create Scale Matrix
+   */
+  static scale(vec: Vector2) {
+    return new Matrix22(
+      vec.x, 0,
+      0, vec.y
+    );
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiply(l_m: Matrix22, r_m: Matrix22) {
+    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
+    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
+
+    const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
+    const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
+
+    return new Matrix22(
+      m00, m01,
+      m10, m11
+    );
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix22) {
+    out.m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
+    out.m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
+
+    out.m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
+    out.m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
+
+    return out;
+  }
+
+  clone() {
+    return new Matrix22(
+      this.v[0], this.v[2],
+      this.v[1], this.v[3]
+    );
+  }
+
+
+  static determinant(mat: Matrix22) {
+    return mat.m00 * mat.m11 - mat.m10 * mat.m01;
+  }
+
+  determinant() {
+    return this.v[0] * this.v[3] - this.v[1] * this.v[2];
+  }
+
+  multiplyVector(vec: Vector2) {
+    const x = this.v[0] * vec.x + this.v[2] * vec.y;
+    const y = this.v[1] * vec.x + this.v[3] * vec.y;
+
+    return new (vec.constructor as any)(x, y);
+  }
+
+
 }
