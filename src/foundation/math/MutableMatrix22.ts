@@ -138,7 +138,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
   }
 
   invert() {
-    const det = this.determinant();
+    const det = Matrix22.determinant(this);
     const m00 = this.m11 / det;
     const m01 = this.m01 / det * (-1.0);
     const m10 = this.m10 / det * (-1.0);
