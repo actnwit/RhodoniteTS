@@ -14,6 +14,13 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return CompositionType.Vec4;
   }
 
+  copyComponents(vec: Vector4_<T>) {
+    this.v[0] = vec.v[0];
+    this.v[1] = vec.v[1];
+    this.v[2] = vec.v[2];
+    this.v[3] = vec.v[3];
+  }
+
   normalize() {
     var length = this.length();
     this.divide(length);

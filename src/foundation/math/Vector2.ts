@@ -1,13 +1,11 @@
 import { IVector2, IVector3, IVector4 } from "./IVector";
-import Vector4 from "./Vector4";
-import Vector3 from "./Vector3";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { MathUtil } from "./MathUtil";
 
 export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|IVector2|IVector3|IVector4|Array<number>|null, y:number, {type}: {type: T}) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, { type }: { type: T }) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -55,7 +53,7 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     }
   }
 
-  static multiply<T extends TypedArrayConstructor>(vec2:Vector2_<T>, val:number) {
+  static multiply<T extends TypedArrayConstructor>(vec2: Vector2_<T>, val: number) {
     return new (vec2.constructor as any)(vec2.x * val, vec2.y * val);
   }
 
@@ -81,8 +79,8 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
 }
 
 export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
-  constructor(x:number|TypedArray|IVector2|IVector3|IVector4|Array<number>|null, y?:number) {
-    super(x, y!, {type: Float32Array})
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number) {
+    super(x, y!, { type: Float32Array })
   }
 
   static zero() {
@@ -103,8 +101,8 @@ export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
 }
 
 export class Vector2d extends Vector2_<Float64ArrayConstructor> {
-  constructor(x:number|TypedArray|IVector2|IVector3|IVector4|Array<number>|null, y?:number) {
-    super(x, y!, {type: Float64Array})
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number) {
+    super(x, y!, { type: Float64Array })
   }
 
   static zero() {

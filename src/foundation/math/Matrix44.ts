@@ -1,4 +1,3 @@
-//import GLBoost from '../../globals';
 import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';

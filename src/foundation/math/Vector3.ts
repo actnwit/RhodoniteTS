@@ -88,11 +88,6 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
     return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2]);
   }
 
-  copyComponents(vec: Vector3_<T>) {
-    this.v[0] = vec.v[0];
-    this.v[1] = vec.v[1];
-    this.v[2] = vec.v[2];
-  }
   /**
    * to square length(static version)
    */
