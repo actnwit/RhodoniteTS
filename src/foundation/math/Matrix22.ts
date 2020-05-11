@@ -5,6 +5,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import Vector2 from './Vector2';
 import MutableMatrix22 from './MutableMatrix22';
+import MutableVector2 from './MutableVector2';
 
 export default class Matrix22 implements IMatrix22 {
   v: TypedArray;
@@ -279,5 +280,11 @@ export default class Matrix22 implements IMatrix22 {
     return new (vec.constructor as any)(x, y);
   }
 
+  multiplyVectorTo(vec: Vector2, outVec: MutableVector2) {
+    const x = this.v[0] * vec.x + this.v[2] * vec.y;
+    const y = this.v[1] * vec.x + this.v[3] * vec.y;
+    outVec.x = x;
+    outVec.y = y;
+  }
 
 }

@@ -435,7 +435,6 @@ export default class Matrix44 implements IMatrix44 {
     );
   }
 
-
   /**
    * Create Z oriented Rotation Matrix
    */
@@ -611,11 +610,15 @@ export default class Matrix44 implements IMatrix44 {
     out.z = this.m23;
   }
 
-
   getRotate() {
     const quat = Quaternion.fromMatrix(this);
     const rotateMat = new Matrix44(quat);
     return rotateMat;
+  }
+
+  getRotateTo(out: MutableMatrix44) {
+    const quat = Quaternion.fromMatrix(this);
+    Matrix44.fromQuaternionTo(quat, out);
   }
 
   getScale() {
@@ -636,6 +639,7 @@ export default class Matrix44 implements IMatrix44 {
   }
 
 
+
   static fromQuaternionTo(m: Quaternion, outMat: MutableMatrix44) {
     const sx = m.x * m.x;
     const sy = m.y * m.y;
@@ -651,7 +655,6 @@ export default class Matrix44 implements IMatrix44 {
     outMat.m10 = 2.0 * (cz + wz); outMat.m11 = 1.0 - 2.0 * (sx + sz); outMat.m12 = 2.0 * (cx - wx); outMat.m13 = 0;
     outMat.m20 = 2.0 * (cy - wy); outMat.m21 = 2.0 * (cx + wx); outMat.m22 = 1.0 - 2.0 * (sx + sy); outMat.m23 = 0;
     outMat.m30 = 0; outMat.m31 = 0; outMat.m32 = 0; outMat.m33 = 1;
-
   }
 
   /**
