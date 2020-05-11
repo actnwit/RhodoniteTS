@@ -242,16 +242,16 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
 
 
   invert() {
-    var det = this.determinant();
-    var m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
-    var m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
-    var m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
-    var m10 = (this.m12 * this.m20 - this.m10 * this.m22) / det;
-    var m11 = (this.m00 * this.m22 - this.m02 * this.m20) / det;
-    var m12 = (this.m02 * this.m10 - this.m00 * this.m12) / det;
-    var m20 = (this.m10 * this.m21 - this.m11 * this.m20) / det;
-    var m21 = (this.m01 * this.m20 - this.m00 * this.m21) / det;
-    var m22 = (this.m00 * this.m11 - this.m01 * this.m10) / det;
+    const det = Matrix33.determinant(this);
+    const m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
+    const m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
+    const m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
+    const m10 = (this.m12 * this.m20 - this.m10 * this.m22) / det;
+    const m11 = (this.m00 * this.m22 - this.m02 * this.m20) / det;
+    const m12 = (this.m02 * this.m10 - this.m00 * this.m12) / det;
+    const m20 = (this.m10 * this.m21 - this.m11 * this.m20) / det;
+    const m21 = (this.m01 * this.m20 - this.m00 * this.m21) / det;
+    const m22 = (this.m00 * this.m11 - this.m01 * this.m10) / det;
 
     return this.setComponents(
       m00, m01, m02,

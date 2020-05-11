@@ -197,7 +197,7 @@ export default class Matrix22 implements IMatrix22 {
    * Create invert matrix
    */
   static invert(mat: Matrix22) {
-    const det = mat.determinant();
+    const det = Matrix22.determinant(mat);
     const m00 = mat.m11 / det;
     const m01 = mat.m01 / det * (-1.0);
     const m10 = mat.m10 / det * (-1.0);
@@ -270,10 +270,6 @@ export default class Matrix22 implements IMatrix22 {
 
   static determinant(mat: Matrix22) {
     return mat.m00 * mat.m11 - mat.m10 * mat.m01;
-  }
-
-  determinant() {
-    return this.v[0] * this.v[3] - this.v[1] * this.v[2];
   }
 
   multiplyVector(vec: Vector2) {

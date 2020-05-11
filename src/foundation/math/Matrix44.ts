@@ -555,18 +555,6 @@ export default class Matrix44 implements IMatrix44 {
     return det;
   }
 
-  determinant() {
-    return this.v[0] * this.v[5] * this.v[10] * this.m33 + this.v[0] * this.v[9] * this.m23 * this.v[7] + this.v[0] * this.m13 * this.v[6] * this.v[11] +
-      this.v[4] * this.v[1] * this.m23 * this.v[11] + this.v[4] * this.v[9] * this.v[2] * this.m33 + this.v[4] * this.m13 * this.v[10] * this.v[3] +
-      this.v[8] * this.v[1] * this.v[6] * this.m33 + this.v[8] * this.v[5] * this.m23 * this.v[3] + this.v[8] * this.m13 * this.v[2] * this.v[7] +
-      this.m03 * this.v[1] * this.v[10] * this.v[7] + this.m03 * this.v[5] * this.v[2] * this.v[11] + this.m03 * this.v[9] * this.v[6] * this.v[3] -
-
-      this.v[0] * this.v[5] * this.m23 * this.v[11] - this.v[0] * this.v[9] * this.v[6] * this.m33 - this.v[0] * this.m13 * this.v[10] * this.v[7] -
-      this.v[4] * this.v[1] * this.v[10] * this.m33 - this.v[4] * this.v[9] * this.m23 * this.v[3] - this.v[4] * this.m13 * this.v[2] * this.v[11] -
-      this.v[8] * this.v[1] * this.m23 * this.v[7] - this.v[8] * this.v[5] * this.v[2] * this.m33 - this.v[8] * this.m13 * this.v[6] * this.v[3] -
-      this.m03 * this.v[1] * this.v[6] * this.v[11] - this.m03 * this.v[5] * this.v[10] * this.v[3] - this.m03 * this.v[9] * this.v[2] * this.v[7];
-  }
-
   multiplyVector(vec: Vector4) {
     var x = this.v[0] * vec.x + this.v[4] * vec.y + this.v[8] * vec.z + this.m03 * vec.w;
     var y = this.v[1] * vec.x + this.v[5] * vec.y + this.v[9] * vec.z + this.m13 * vec.w;
