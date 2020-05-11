@@ -1,6 +1,6 @@
 import Vector2 from "./Vector2";
 import Vector3 from "./Vector3";
-import Vector4, { Vector4_ } from "./Vector4";
+import { Vector4_ } from "./Vector4";
 import { IVector4, IMutableVector4, IVector3 } from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
@@ -27,6 +27,8 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     this.y /= length;
     this.z /= length;
     this.w /= length;
+
+    return this;
   }
 
   /**

@@ -1,7 +1,6 @@
 import Matrix44 from "./Matrix44";
 import { IMutableMatrix22 } from "./IMatrix";
 import Matrix22 from "./Matrix22";
-import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 import Matrix33 from "./Matrix33";
@@ -43,6 +42,8 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
     this.m01 = m.m01;
     this.m10 = m.m10;
     this.m11 = m.m11;
+
+    return this;
   }
 
   static get compositionType() {
@@ -96,8 +97,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
    * zero matrix
    */
   zero() {
-    this.setComponents(0, 0, 0, 0);
-    return this;
+    return this.setComponents(0, 0, 0, 0);
   }
 
   raw() {
@@ -105,8 +105,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
   }
 
   flattenAsArray() {
-    return [this.v[0], this.v[1],
-    this.v[2], this.v[3]];
+    return [this.v[0], this.v[1], this.v[2], this.v[3]];
   }
 
   _swap(l: Index, r: Index) {
@@ -123,7 +122,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
   }
 
   /**
-   * multiply zero matrix and zero matrix
+   * multiply the input matrix from right side
    */
   multiply(mat: Matrix22) {
     const m00 = this.m00 * mat.m00 + this.m01 * mat.m10;

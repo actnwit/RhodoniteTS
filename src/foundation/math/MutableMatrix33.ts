@@ -53,6 +53,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     this.m20 = m.m20;
     this.m21 = m.m21;
     this.m22 = m.m22;
+
+    return this;
   }
 
   static get compositionType() {
@@ -215,7 +217,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
   }
 
   /**
-   * multiply zero matrix and zero matrix
+   * multiply the input matrix from right side
    */
   multiply(mat: Matrix33) {
     var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
