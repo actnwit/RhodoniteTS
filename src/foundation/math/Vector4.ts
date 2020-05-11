@@ -98,14 +98,6 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
     return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2] + this.v[3] * this.v[3]);
   }
 
-
-  copyComponents(vec: Vector4_<T>) {
-    this.v[0] = vec.v[0];
-    this.v[1] = vec.v[1];
-    this.v[2] = vec.v[2];
-    this.v[3] = vec.v[3];
-  }
-
   /**
    * add value（static version）
    */

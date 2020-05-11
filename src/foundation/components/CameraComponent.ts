@@ -26,10 +26,10 @@ import CameraControllerComponent from './CameraControllerComponent';
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: Vector3 = Vector3.dummy();
-  private _direction: Vector3 = Vector3.dummy();
-  private _directionInner: Vector3 = Vector3.dummy();
-  private _up: Vector3 = Vector3.dummy();
-  private _upInner: Vector3 = Vector3.dummy();
+  private _direction: MutableVector3 = MutableVector3.dummy();
+  private _directionInner: MutableVector3 = MutableVector3.dummy();
+  private _up: MutableVector3 = MutableVector3.dummy();
+  private _upInner: MutableVector3 = MutableVector3.dummy();
   private _filmWidth = 36; // mili meter
   private _filmHeight = 24; // mili meter
   private _focalLength = 20;
@@ -69,11 +69,11 @@ export default class CameraComponent extends Component {
 
     this.maxNumberOfComponent = Math.max(10, Math.floor(Config.maxEntityNumber / 100));
 
-    this.registerMember(BufferUse.CPUGeneric, 'eyeInner', Vector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'up', Vector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'directionInner', Vector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'upInner', Vector3, ComponentType.Float, [0, 1, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'eyeInner', MutableVector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'direction', MutableVector3, ComponentType.Float, [0, 0, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'up', MutableVector3, ComponentType.Float, [0, 1, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'directionInner', MutableVector3, ComponentType.Float, [0, 0, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'upInner', MutableVector3, ComponentType.Float, [0, 1, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'corner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'cornerInner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'parameters', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);

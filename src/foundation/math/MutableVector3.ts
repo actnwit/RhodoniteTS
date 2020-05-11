@@ -13,6 +13,12 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return CompositionType.Vec3;
   }
 
+  copyComponents(vec: Vector3_<T>) {
+    this.v[0] = vec.v[0];
+    this.v[1] = vec.v[1];
+    this.v[2] = vec.v[2];
+  }
+
 
   zero() {
     this.x = 0;
