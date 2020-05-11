@@ -1,6 +1,5 @@
 import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
-import Primitive from '../geometry/Primitive';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import Vector3 from '../math/Vector3';
@@ -51,9 +50,6 @@ export default class CameraComponent extends Component {
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private __isViewMatrixUpToDate = false;
 
-  private _tmp_f: Vector3 = Vector3.dummy();
-  private _tmp_s: Vector3 = Vector3.dummy();
-  private _tmp_u: Vector3 = Vector3.dummy();
   private static __main: ComponentSID = -1;
   private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
@@ -81,10 +77,6 @@ export default class CameraComponent extends Component {
 
     this.registerMember(BufferUse.CPUGeneric, 'projectionMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-
-    this.registerMember(BufferUse.CPUGeneric, 'tmp_f', Vector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'tmp_u', Vector3, ComponentType.Float, [0, 0, 0]);
 
     this.submitToAllocation(Config.maxCameraNumber);
 
