@@ -383,46 +383,4 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
       Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8])
     );
   }
-
-
-  /**
-   * Create X oriented Rotation Matrix
-   */
-  static rotateXTo(radian: number, out: MutableMatrix33) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-
-    out.m00 = 1;
-    out.m01 = 0;
-    out.m02 = 0;
-    out.m10 = 0;
-    out.m11 = cos;
-    out.m12 = -sin;
-    out.m20 = 0;
-    out.m21 = sin;
-    out.m22 = cos;
-
-    return out;
-  }
-
-  /**
-   * Create Y oriented Rotation Matrix
-   */
-  static rotateYTo(radian: number, out: MutableMatrix33) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-
-    out.m00 = cos;
-    out.m01 = 0;
-    out.m02 = sin;
-    out.m10 = 0;
-    out.m11 = 1;
-    out.m12 = 0;
-    out.m20 = -sin;
-    out.m21 = 0;
-    out.m22 = cos;
-
-    return out;
-  }
-
 }
