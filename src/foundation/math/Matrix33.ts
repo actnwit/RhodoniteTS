@@ -211,6 +211,11 @@ export default class Matrix33 implements IMatrix33 {
     }
   }
 
+  static determinant(mat: Matrix33) {
+    return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
+      - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
+  }
+
   /**
    * zero matrix(static version)
    */
@@ -375,10 +380,6 @@ export default class Matrix33 implements IMatrix33 {
   }
 
 
-  static determinant(mat: Matrix33) {
-    return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
-      - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
-  }
 
   multiplyVector(vec: Vector3) {
     var x = this.v[0] * vec.x + this.v[3] * vec.y + this.v[6] * vec.z;

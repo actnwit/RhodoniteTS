@@ -276,6 +276,24 @@ export default class Matrix44 implements IMatrix44 {
     }
   }
 
+  static determinant(m: Matrix44) {
+    let n00 = m.v[0] * m.v[5] - m.v[4] * m.v[1];
+    let n01 = m.v[0] * m.v[9] - m.v[8] * m.v[1];
+    let n02 = m.v[0] * m.v[13] - m.v[12] * m.v[1];
+    let n03 = m.v[4] * m.v[9] - m.v[8] * m.v[5];
+    let n04 = m.v[4] * m.v[13] - m.v[12] * m.v[5];
+    let n05 = m.v[8] * m.v[13] - m.v[12] * m.v[9];
+    let n06 = m.v[2] * m.v[7] - m.v[6] * m.v[3];
+    let n07 = m.v[2] * m.v[11] - m.v[10] * m.v[3];
+    let n08 = m.v[2] * m.v[15] - m.v[14] * m.v[3];
+    let n09 = m.v[6] * m.v[11] - m.v[10] * m.v[7];
+    let n10 = m.v[6] * m.v[15] - m.v[14] * m.v[7];
+    let n11 = m.v[10] * m.v[15] - m.v[14] * m.v[11];
+
+    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
+    return det;
+  }
+
   /**
    * zero matrix(static version)
    */
@@ -535,24 +553,6 @@ export default class Matrix44 implements IMatrix44 {
     );
   }
 
-
-  static determinant(m: Matrix44) {
-    let n00 = m.v[0] * m.v[5] - m.v[4] * m.v[1];
-    let n01 = m.v[0] * m.v[9] - m.v[8] * m.v[1];
-    let n02 = m.v[0] * m.v[13] - m.v[12] * m.v[1];
-    let n03 = m.v[4] * m.v[9] - m.v[8] * m.v[5];
-    let n04 = m.v[4] * m.v[13] - m.v[12] * m.v[5];
-    let n05 = m.v[8] * m.v[13] - m.v[12] * m.v[9];
-    let n06 = m.v[2] * m.v[7] - m.v[6] * m.v[3];
-    let n07 = m.v[2] * m.v[11] - m.v[10] * m.v[3];
-    let n08 = m.v[2] * m.v[15] - m.v[14] * m.v[3];
-    let n09 = m.v[6] * m.v[11] - m.v[10] * m.v[7];
-    let n10 = m.v[6] * m.v[15] - m.v[14] * m.v[7];
-    let n11 = m.v[10] * m.v[15] - m.v[14] * m.v[11];
-
-    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
-    return det;
-  }
 
   multiplyVector(vec: Vector4) {
     var x = this.v[0] * vec.x + this.v[4] * vec.y + this.v[8] * vec.z + this.m03 * vec.w;

@@ -163,6 +163,10 @@ export default class Matrix22 implements IMatrix22 {
     }
   }
 
+  static determinant(mat: Matrix22) {
+    return mat.m00 * mat.m11 - mat.m10 * mat.m01;
+  }
+
   /**
    * Create zero matrix
    */
@@ -269,9 +273,6 @@ export default class Matrix22 implements IMatrix22 {
   }
 
 
-  static determinant(mat: Matrix22) {
-    return mat.m00 * mat.m11 - mat.m10 * mat.m01;
-  }
 
   multiplyVector(vec: Vector2) {
     const x = this.v[0] * vec.x + this.v[2] * vec.y;
