@@ -298,14 +298,14 @@ export default class Matrix44 implements IMatrix44 {
    * zero matrix(static version)
    */
   static zero() {
-    return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return new (this as any)(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
    * Create identity matrix
    */
   static identity() {
-    return new Matrix44(
+    return new (this as any)(
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
@@ -314,14 +314,14 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   static dummy() {
-    return new Matrix44(null);
+    return new (this as any)(null);
   }
 
   /**
    * Create transpose matrix
    */
   static transpose(mat: Matrix44) {
-    return new Matrix44(
+    return new (this as any)(
       mat.m00, mat.m10, mat.m20, mat.m30,
       mat.m01, mat.m11, mat.m21, mat.m31,
       mat.m02, mat.m12, mat.m22, mat.m32,
@@ -367,7 +367,7 @@ export default class Matrix44 implements IMatrix44 {
     const out14 = (m.v[7] * n01 - m.v[3] * n03 - m.v[11] * n00) * det;
     const out15 = (m.v[2] * n03 - m.v[6] * n01 + m.v[10] * n00) * det;
 
-    return new Matrix44(
+    return new (this as any)(
       out0, out1, out2, out3,
       out4, out5, out6, out7,
       out8, out9, out10, out11,
@@ -417,7 +417,7 @@ export default class Matrix44 implements IMatrix44 {
    * Create translation Matrix
    */
   static translate(vec: Vector3) {
-    return new Matrix44(
+    return new (this as any)(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
       0, 0, 1, vec.z,
@@ -431,7 +431,7 @@ export default class Matrix44 implements IMatrix44 {
   static rotateX(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new (this as any)(
       1, 0, 0, 0,
       0, cos, -sin, 0,
       0, sin, cos, 0,
@@ -445,7 +445,7 @@ export default class Matrix44 implements IMatrix44 {
   static rotateY(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new (this as any)(
       cos, 0, sin, 0,
       0, 1, 0, 0,
       -sin, 0, cos, 0,
@@ -459,7 +459,7 @@ export default class Matrix44 implements IMatrix44 {
   static rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new (this as any)(
       cos, -sin, 0, 0,
       sin, cos, 0, 0,
       0, 0, 1, 0,
@@ -468,18 +468,18 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   static rotateXYZ(x: number, y: number, z: number) {
-    return Matrix44.multiply(Matrix44.multiply(Matrix44.rotateZ(z), Matrix44.rotateY(y)), Matrix44.rotateX(x));
+    return (this as any).multiply((this as any).multiply((this as any).rotateZ(z), (this as any).rotateY(y)), (this as any).rotateX(x));
   }
 
   static rotate(vec3: Vector3) {
-    return Matrix44.multiply(Matrix44.multiply(Matrix44.rotateZ(vec3.z), Matrix44.rotateY(vec3.y)), Matrix44.rotateX(vec3.x));
+    return (this as any).multiply((this as any).multiply((this as any).rotateZ(vec3.z), (this as any).rotateY(vec3.y)), (this as any).rotateX(vec3.x));
   }
 
   /**
    * Create Scale Matrix
    */
   static scale(vec: Vector3) {
-    return new Matrix44(
+    return new (this as any)(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
       0, 0, vec.z, 0,
@@ -511,7 +511,7 @@ export default class Matrix44 implements IMatrix44 {
     var m23 = l_m.v[2] * r_m.v[12] + l_m.v[6] * r_m.v[13] + l_m.v[10] * r_m.v[14] + l_m.v[14] * r_m.v[15];
     var m33 = l_m.v[3] * r_m.v[12] + l_m.v[7] * r_m.v[13] + l_m.v[11] * r_m.v[14] + l_m.v[15] * r_m.v[15];
 
-    return new Matrix44(
+    return new (this as any)(
       m00, m01, m02, m03,
       m10, m11, m12, m13,
       m20, m21, m22, m23,
