@@ -166,6 +166,10 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     return this.v[15];
   }
 
+  raw() {
+    return this.v;
+  }
+
   setComponents(
     m00: number, m01: number, m02: number, m03: number,
     m10: number, m11: number, m12: number, m13: number,
