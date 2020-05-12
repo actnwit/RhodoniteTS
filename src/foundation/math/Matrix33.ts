@@ -271,6 +271,21 @@ export default class Matrix33 implements IMatrix33 {
     );
   }
 
+  static invertTo(m: Matrix33, outM: MutableMatrix33) {
+    const det = Matrix33.determinant(m);
+    outM.m00 = (m.m11 * m.m22 - m.m12 * m.m21) / det;
+    outM.m01 = (m.m02 * m.m21 - m.m01 * m.m22) / det;
+    outM.m02 = (m.m01 * m.m12 - m.m02 * m.m11) / det;
+    outM.m10 = (m.m12 * m.m20 - m.m10 * m.m22) / det;
+    outM.m11 = (m.m00 * m.m22 - m.m02 * m.m20) / det;
+    outM.m12 = (m.m02 * m.m10 - m.m00 * m.m12) / det;
+    outM.m20 = (m.m10 * m.m21 - m.m11 * m.m20) / det;
+    outM.m21 = (m.m01 * m.m20 - m.m00 * m.m21) / det;
+    outM.m22 = (m.m00 * m.m11 - m.m01 * m.m10) / det;
+
+    return outM;
+  }
+
   /**
  * Create X oriented Rotation Matrix
  */
@@ -378,8 +393,6 @@ export default class Matrix33 implements IMatrix33 {
       this.v[2], this.v[5], this.v[8]
     );
   }
-
-
 
   multiplyVector(vec: Vector3) {
     var x = this.v[0] * vec.x + this.v[3] * vec.y + this.v[6] * vec.z;
