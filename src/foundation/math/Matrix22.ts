@@ -118,53 +118,8 @@ export default class Matrix22 implements IMatrix22 {
     return CompositionType.Mat2;
   }
 
-  toString() {
-    return this.v[0] + ' ' + this.v[2] + '\n' +
-      this.v[1] + ' ' + this.v[3] + ' \n';
-  }
-
-  toStringApproximately() {
-    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[2]) + '\n' +
-      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[3]) + ' \n';
-  }
-
-  nearZeroToZero(value: number) {
-    if (Math.abs(value) < 0.00001) {
-      value = 0;
-    } else if (0.99999 < value && value < 1.00001) {
-      value = 1;
-    } else if (-1.00001 < value && value < -0.99999) {
-      value = -1;
-    }
-    return value;
-  }
-
-  flattenAsArray() {
-    return [this.v[0], this.v[1],
-    this.v[2], this.v[3]];
-  }
-
-  isDummy() {
-    if (this.v.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  isEqual(mat: Matrix22, delta: number = Number.EPSILON) {
-    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-      Math.abs(mat.v[1] - this.v[1]) < delta &&
-      Math.abs(mat.v[2] - this.v[2]) < delta &&
-      Math.abs(mat.v[3] - this.v[3]) < delta) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static determinant(mat: Matrix22) {
-    return mat.m00 * mat.m11 - mat.m10 * mat.m01;
+  static determinant(m: Matrix22) {
+    return m.m00 * m.m11 - m.m10 * m.m01;
   }
 
   /**
@@ -191,22 +146,22 @@ export default class Matrix22 implements IMatrix22 {
   /**
    * Create transpose matrix
    */
-  static transpose(mat: Matrix22) {
+  static transpose(m: Matrix22) {
     return new (this as any)(
-      mat.m00, mat.m10,
-      mat.m01, mat.m11
+      m.m00, m.m10,
+      m.m01, m.m11
     );
   }
 
   /**
    * Create invert matrix
    */
-  static invert(mat: Matrix22) {
-    const det = Matrix22.determinant(mat);
-    const m00 = mat.m11 / det;
-    const m01 = mat.m01 / det * (-1.0);
-    const m10 = mat.m10 / det * (-1.0);
-    const m11 = mat.m00 / det;
+  static invert(m: Matrix22) {
+    const det = Matrix22.determinant(m);
+    const m00 = m.m11 / det;
+    const m01 = m.m01 / det * (-1.0);
+    const m10 = m.m10 / det * (-1.0);
+    const m11 = m.m00 / det;
 
     return new (this as any)(
       m00, m01,
@@ -214,13 +169,13 @@ export default class Matrix22 implements IMatrix22 {
     );
   }
 
-  static invertTo(m: Matrix22, outM: MutableMatrix22) {
+  static invertTo(m: Matrix22, out: MutableMatrix22) {
     const det = Matrix22.determinant(m);
-    outM.m00 = m.m11 / det;
-    outM.m01 = m.m01 / det * (-1.0);
-    outM.m10 = m.m10 / det * (-1.0);
-    outM.m11 = m.m00 / det;
-    return outM;
+    out.m00 = m.m11 / det;
+    out.m01 = m.m01 / det * (-1.0);
+    out.m10 = m.m10 / det * (-1.0);
+    out.m11 = m.m00 / det;
+    return out;
   }
 
   /**
@@ -274,14 +229,57 @@ export default class Matrix22 implements IMatrix22 {
     return out;
   }
 
+  toString() {
+    return this.v[0] + ' ' + this.v[2] + '\n' +
+      this.v[1] + ' ' + this.v[3] + ' \n';
+  }
+
+  toStringApproximately() {
+    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[2]) + '\n' +
+      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[3]) + ' \n';
+  }
+
+  nearZeroToZero(value: number) {
+    if (Math.abs(value) < 0.00001) {
+      value = 0;
+    } else if (0.99999 < value && value < 1.00001) {
+      value = 1;
+    } else if (-1.00001 < value && value < -0.99999) {
+      value = -1;
+    }
+    return value;
+  }
+
+  flattenAsArray() {
+    return [this.v[0], this.v[1],
+    this.v[2], this.v[3]];
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(mat: Matrix22, delta: number = Number.EPSILON) {
+    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
+      Math.abs(mat.v[1] - this.v[1]) < delta &&
+      Math.abs(mat.v[2] - this.v[2]) < delta &&
+      Math.abs(mat.v[3] - this.v[3]) < delta) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   clone() {
     return new Matrix22(
       this.v[0], this.v[2],
       this.v[1], this.v[3]
     );
   }
-
-
 
   multiplyVector(vec: Vector2) {
     const x = this.v[0] * vec.x + this.v[2] * vec.y;

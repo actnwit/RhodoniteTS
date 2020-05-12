@@ -158,62 +158,9 @@ export default class Matrix33 implements IMatrix33 {
     return CompositionType.Mat3;
   }
 
-  toString() {
-    return this.v[0] + ' ' + this.v[3] + ' ' + this.v[6] + '\n' +
-      this.v[1] + ' ' + this.v[4] + ' ' + this.v[7] + '\n' +
-      this.v[2] + ' ' + this.v[5] + ' ' + this.v[8] + '\n';
-  }
-
-  toStringApproximately() {
-    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[3]) + ' ' + this.nearZeroToZero(this.v[6]) + '\n' +
-      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[4]) + ' ' + this.nearZeroToZero(this.v[7]) + ' \n' +
-      this.nearZeroToZero(this.v[2]) + ' ' + this.nearZeroToZero(this.v[5]) + ' ' + this.nearZeroToZero(this.v[8]) + '\n';
-  }
-
-  nearZeroToZero(value: number) {
-    if (Math.abs(value) < 0.00001) {
-      value = 0;
-    } else if (0.99999 < value && value < 1.00001) {
-      value = 1;
-    } else if (-1.00001 < value && value < -0.99999) {
-      value = -1;
-    }
-    return value;
-  }
-
-  flattenAsArray() {
-    return [this.v[0], this.v[1], this.v[2],
-    this.v[3], this.v[4], this.v[5],
-    this.v[6], this.v[7], this.v[8]];
-  }
-
-  isDummy() {
-    if (this.v.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  isEqual(mat: Matrix33, delta: number = Number.EPSILON) {
-    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-      Math.abs(mat.v[1] - this.v[1]) < delta &&
-      Math.abs(mat.v[2] - this.v[2]) < delta &&
-      Math.abs(mat.v[3] - this.v[3]) < delta &&
-      Math.abs(mat.v[4] - this.v[4]) < delta &&
-      Math.abs(mat.v[5] - this.v[5]) < delta &&
-      Math.abs(mat.v[6] - this.v[6]) < delta &&
-      Math.abs(mat.v[7] - this.v[7]) < delta &&
-      Math.abs(mat.v[8] - this.v[8]) < delta) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static determinant(mat: Matrix33) {
-    return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
-      - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
+  static determinant(m: Matrix33) {
+    return m.m00 * m.m11 * m.m22 + m.m10 * m.m21 * m.m02 + m.m20 * m.m01 * m.m12
+      - m.m00 * m.m21 * m.m12 - m.m20 * m.m11 * m.m02 - m.m10 * m.m01 * m.m22;
   }
 
   /**
@@ -241,28 +188,28 @@ export default class Matrix33 implements IMatrix33 {
   /**
    * Create transpose matrix
    */
-  static transpose(mat: Matrix33) {
+  static transpose(m: Matrix33) {
     return new (this as any)(
-      mat.m00, mat.m10, mat.m20,
-      mat.m01, mat.m11, mat.m21,
-      mat.m02, mat.m12, mat.m22
+      m.m00, m.m10, m.m20,
+      m.m01, m.m11, m.m21,
+      m.m02, m.m12, m.m22
     );
   }
 
   /**
    * Create invert matrix
    */
-  static invert(mat: Matrix33) {
-    const det = Matrix33.determinant(mat);
-    const m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-    const m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-    const m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-    const m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-    const m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-    const m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-    const m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-    const m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-    const m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+  static invert(m: Matrix33) {
+    const det = Matrix33.determinant(m);
+    const m00 = (m.m11 * m.m22 - m.m12 * m.m21) / det;
+    const m01 = (m.m02 * m.m21 - m.m01 * m.m22) / det;
+    const m02 = (m.m01 * m.m12 - m.m02 * m.m11) / det;
+    const m10 = (m.m12 * m.m20 - m.m10 * m.m22) / det;
+    const m11 = (m.m00 * m.m22 - m.m02 * m.m20) / det;
+    const m12 = (m.m02 * m.m10 - m.m00 * m.m12) / det;
+    const m20 = (m.m10 * m.m21 - m.m11 * m.m20) / det;
+    const m21 = (m.m01 * m.m20 - m.m00 * m.m21) / det;
+    const m22 = (m.m00 * m.m11 - m.m01 * m.m10) / det;
 
     return new (this as any)(
       m00, m01, m02,
@@ -271,19 +218,19 @@ export default class Matrix33 implements IMatrix33 {
     );
   }
 
-  static invertTo(m: Matrix33, outM: MutableMatrix33) {
+  static invertTo(m: Matrix33, out: MutableMatrix33) {
     const det = Matrix33.determinant(m);
-    outM.m00 = (m.m11 * m.m22 - m.m12 * m.m21) / det;
-    outM.m01 = (m.m02 * m.m21 - m.m01 * m.m22) / det;
-    outM.m02 = (m.m01 * m.m12 - m.m02 * m.m11) / det;
-    outM.m10 = (m.m12 * m.m20 - m.m10 * m.m22) / det;
-    outM.m11 = (m.m00 * m.m22 - m.m02 * m.m20) / det;
-    outM.m12 = (m.m02 * m.m10 - m.m00 * m.m12) / det;
-    outM.m20 = (m.m10 * m.m21 - m.m11 * m.m20) / det;
-    outM.m21 = (m.m01 * m.m20 - m.m00 * m.m21) / det;
-    outM.m22 = (m.m00 * m.m11 - m.m01 * m.m10) / det;
+    out.m00 = (m.m11 * m.m22 - m.m12 * m.m21) / det;
+    out.m01 = (m.m02 * m.m21 - m.m01 * m.m22) / det;
+    out.m02 = (m.m01 * m.m12 - m.m02 * m.m11) / det;
+    out.m10 = (m.m12 * m.m20 - m.m10 * m.m22) / det;
+    out.m11 = (m.m00 * m.m22 - m.m02 * m.m20) / det;
+    out.m12 = (m.m02 * m.m10 - m.m00 * m.m12) / det;
+    out.m20 = (m.m10 * m.m21 - m.m11 * m.m20) / det;
+    out.m21 = (m.m01 * m.m20 - m.m00 * m.m21) / det;
+    out.m22 = (m.m00 * m.m11 - m.m01 * m.m10) / det;
 
-    return outM;
+    return out;
   }
 
   /**
@@ -329,8 +276,8 @@ export default class Matrix33 implements IMatrix33 {
     return (this as any).multiply((this as any).multiply((this as any).rotateZ(z), (this as any).rotateY(y)), (this as any).rotateX(x));
   }
 
-  static rotate(vec3: Vector3) {
-    return (this as any).multiply((this as any).multiply((this as any).rotateZ(vec3.z), (this as any).rotateY(vec3.y)), (this as any).rotateX(vec3.x));
+  static rotate(vec: Vector3) {
+    return (this as any).multiply((this as any).multiply((this as any).rotateZ(vec.z), (this as any).rotateY(vec.y)), (this as any).rotateX(vec.x));
   }
 
   /**
@@ -384,6 +331,59 @@ export default class Matrix33 implements IMatrix33 {
     out.m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
 
     return out;
+  }
+
+  toString() {
+    return this.v[0] + ' ' + this.v[3] + ' ' + this.v[6] + '\n' +
+      this.v[1] + ' ' + this.v[4] + ' ' + this.v[7] + '\n' +
+      this.v[2] + ' ' + this.v[5] + ' ' + this.v[8] + '\n';
+  }
+
+  toStringApproximately() {
+    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[3]) + ' ' + this.nearZeroToZero(this.v[6]) + '\n' +
+      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[4]) + ' ' + this.nearZeroToZero(this.v[7]) + ' \n' +
+      this.nearZeroToZero(this.v[2]) + ' ' + this.nearZeroToZero(this.v[5]) + ' ' + this.nearZeroToZero(this.v[8]) + '\n';
+  }
+
+  nearZeroToZero(value: number) {
+    if (Math.abs(value) < 0.00001) {
+      value = 0;
+    } else if (0.99999 < value && value < 1.00001) {
+      value = 1;
+    } else if (-1.00001 < value && value < -0.99999) {
+      value = -1;
+    }
+    return value;
+  }
+
+  flattenAsArray() {
+    return [this.v[0], this.v[1], this.v[2],
+    this.v[3], this.v[4], this.v[5],
+    this.v[6], this.v[7], this.v[8]];
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(mat: Matrix33, delta: number = Number.EPSILON) {
+    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
+      Math.abs(mat.v[1] - this.v[1]) < delta &&
+      Math.abs(mat.v[2] - this.v[2]) < delta &&
+      Math.abs(mat.v[3] - this.v[3]) < delta &&
+      Math.abs(mat.v[4] - this.v[4]) < delta &&
+      Math.abs(mat.v[5] - this.v[5]) < delta &&
+      Math.abs(mat.v[6] - this.v[6]) < delta &&
+      Math.abs(mat.v[7] - this.v[7]) < delta &&
+      Math.abs(mat.v[8] - this.v[8]) < delta) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   clone() {
