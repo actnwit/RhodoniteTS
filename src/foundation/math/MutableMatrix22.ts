@@ -57,26 +57,6 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
     return this.v[3];
   }
 
-  static get compositionType() {
-    return CompositionType.Mat2;
-  }
-
-  static dummy() {
-    return new MutableMatrix22(null);
-  }
-
-  /**
- * Create Rotation Matrix
- */
-  static rotate(radian: number) {
-    const cos = Math.cos(radian);
-    const sin = Math.sin(radian);
-    return new MutableMatrix22(
-      cos, -sin,
-      sin, cos
-    );
-  }
-
   raw() {
     return this.v;
   }
