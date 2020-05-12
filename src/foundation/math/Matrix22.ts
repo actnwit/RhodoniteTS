@@ -275,7 +275,7 @@ export default class Matrix22 implements IMatrix22 {
   }
 
   clone() {
-    return new Matrix22(
+    return new (this.constructor as any)(
       this.v[0], this.v[2],
       this.v[1], this.v[3]
     );

@@ -387,7 +387,7 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   clone() {
-    return new Matrix33(
+    return new (this.constructor as any)(
       this.v[0], this.v[3], this.v[6],
       this.v[1], this.v[4], this.v[7],
       this.v[2], this.v[5], this.v[8]
