@@ -1,7 +1,6 @@
 import Matrix44 from "./Matrix44";
 import { IMutableMatrix22 } from "./IMatrix";
 import Matrix22 from "./Matrix22";
-import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 import Matrix33 from "./Matrix33";
 import Vector2 from "./Vector2";
@@ -88,6 +87,9 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
     return this.setComponents(0, 0, 0, 0);
   }
 
+  /**
+   * to the identity matrix
+   */
   identity() {
     this.setComponents(
       1, 0,
@@ -123,7 +125,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
   }
 
   /**
-   * Create Rotation Matrix
+   * to the Rotation Matrix
    */
   rotate(radian: number) {
     const cos = Math.cos(radian);

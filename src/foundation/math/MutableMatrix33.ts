@@ -3,7 +3,6 @@ import Quaternion from "./Quaternion";
 import { IMutableMatrix33 } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Vector3 from "./Vector3";
-import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix33 {
@@ -139,6 +138,9 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     return this;
   }
 
+  /**
+   * to the identity matrix
+   */
   identity() {
     this.setComponents(
       1, 0, 0,
@@ -182,9 +184,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     );
   }
 
-
   /**
-   * Create X oriented Rotation Matrix
+   * to the X oriented Rotation Matrix
    */
   rotateX(radian: number) {
 
@@ -198,7 +199,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
   }
 
   /**
-   * Create Y oriented Rotation Matrix
+   * to the Y oriented Rotation Matrix
    */
   rotateY(radian: number) {
 
@@ -213,7 +214,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
   }
 
   /**
-   * Create Z oriented Rotation Matrix
+   * to the Z oriented Rotation Matrix
    */
   rotateZ(radian: number): MutableMatrix33 {
     var cos = Math.cos(radian);
