@@ -3,7 +3,6 @@ import Vector4 from "./Vector4";
 import Quaternion from "./Quaternion";
 import { IVector4 } from "./IVector";
 import Matrix44 from "./Matrix44";
-import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray } from "../../commontypes/CommonTypes";
 
 export default class MutableQuaternion extends Quaternion implements IVector4 {
@@ -44,87 +43,8 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     this.v[3] = w;
   }
 
-  get raw() {
+  raw() {
     return this.v;
-  }
-
-  static get compositionType() {
-    return CompositionType.Vec4;
-  }
-
-  static dummy() {
-    return new MutableQuaternion(null);
-  }
-
-  static fromMatrixTo(m: Matrix44, q: MutableQuaternion) {
-
-    let tr = m.m00 + m.m11 + m.m22;
-
-    if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr + 1.0);
-      q.v[3] = 0.25 / S;
-      q.v[0] = (m.m21 - m.m12) * S;
-      q.v[1] = (m.m02 - m.m20) * S;
-      q.v[2] = (m.m10 - m.m01) * S;
-    } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-      let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-      q.v[3] = (m.m21 - m.m12) / S;
-      q.v[0] = 0.25 * S;
-      q.v[1] = (m.m01 + m.m10) / S;
-      q.v[2] = (m.m02 + m.m20) / S;
-    } else if (m.m11 > m.m22) {
-      let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      q.v[3] = (m.m02 - m.m20) / S;
-      q.v[0] = (m.m01 + m.m10) / S;
-      q.v[1] = 0.25 * S;
-      q.v[2] = (m.m12 + m.m21) / S;
-    } else {
-      let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      q.v[3] = (m.m10 - m.m01) / S;
-      q.v[0] = (m.m02 + m.m20) / S;
-      q.v[1] = (m.m12 + m.m21) / S;
-      q.v[2] = 0.25 * S;
-    }
-
-    return q;
-  }
-
-  static fromMatrix(m: Matrix44) {
-
-    let q = new MutableQuaternion(0, 0, 0, 1);
-    let tr = m.m00 + m.m11 + m.m22;
-
-    if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr + 1.0);
-      q.v[3] = 0.25 / S;
-      q.v[0] = (m.m21 - m.m12) * S;
-      q.v[1] = (m.m02 - m.m20) * S;
-      q.v[2] = (m.m10 - m.m01) * S;
-    } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-      let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-      q.v[3] = (m.m21 - m.m12) / S;
-      q.v[0] = 0.25 * S;
-      q.v[1] = (m.m01 + m.m10) / S;
-      q.v[2] = (m.m02 + m.m20) / S;
-    } else if (m.m11 > m.m22) {
-      let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      q.v[3] = (m.m02 - m.m20) / S;
-      q.v[0] = (m.m01 + m.m10) / S;
-      q.v[1] = 0.25 * S;
-      q.v[2] = (m.m12 + m.m21) / S;
-    } else {
-      let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      q.v[3] = (m.m10 - m.m01) / S;
-      q.v[0] = (m.m02 + m.m20) / S;
-      q.v[1] = (m.m12 + m.m21) / S;
-      q.v[2] = 0.25 * S;
-    }
-
-    return q;
-  }
-
-  clone() {
-    return new MutableQuaternion(this.x, this.y, this.z, this.w);
   }
 
   identity() {
@@ -155,7 +75,6 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
   }
 
   fromMatrix(m: Matrix44) {
-
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {

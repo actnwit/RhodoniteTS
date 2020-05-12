@@ -85,12 +85,44 @@ export default class Quaternion implements IVector4 {
   }
 
   static dummy() {
-    return new Quaternion(null);
+    return new (this as any)(null);
   }
 
   static fromMatrix(m: Matrix44) {
 
-    let q = new Quaternion(0, 0, 0, 1);
+    let q = new (this as any)(0, 0, 0, 1);
+    let tr = m.m00 + m.m11 + m.m22;
+
+    if (tr > 0) {
+      let S = 0.5 / Math.sqrt(tr + 1.0);
+      q.v[3] = 0.25 / S;
+      q.v[0] = (m.m21 - m.m12) * S;
+      q.v[1] = (m.m02 - m.m20) * S;
+      q.v[2] = (m.m10 - m.m01) * S;
+    } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+      let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+      q.v[3] = (m.m21 - m.m12) / S;
+      q.v[0] = 0.25 * S;
+      q.v[1] = (m.m01 + m.m10) / S;
+      q.v[2] = (m.m02 + m.m20) / S;
+    } else if (m.m11 > m.m22) {
+      let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+      q.v[3] = (m.m02 - m.m20) / S;
+      q.v[0] = (m.m01 + m.m10) / S;
+      q.v[1] = 0.25 * S;
+      q.v[2] = (m.m12 + m.m21) / S;
+    } else {
+      let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+      q.v[3] = (m.m10 - m.m01) / S;
+      q.v[0] = (m.m02 + m.m20) / S;
+      q.v[1] = (m.m12 + m.m21) / S;
+      q.v[2] = 0.25 * S;
+    }
+
+    return q;
+  }
+
+  static fromMatrixTo(m: Matrix44, q: MutableQuaternion) {
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
@@ -123,7 +155,7 @@ export default class Quaternion implements IVector4 {
   }
 
   static invert(quat: Quaternion) {
-    quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
+    quat = new (this as any)(-quat.x, -quat.y, -quat.z, quat.w);
     const norm = quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w;
     const inorm2 = norm ? 1.0 / norm : 0;
     quat.v[0] *= inorm2;
@@ -135,7 +167,7 @@ export default class Quaternion implements IVector4 {
 
   static qlerp(lhq: Quaternion, rhq: Quaternion, ratio: number) {
 
-    let q = new Quaternion(0, 0, 0, 1);
+    let q = new (this as any)(0, 0, 0, 1);
     let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
     let ss = 1.0 - qr * qr;
 
@@ -176,7 +208,6 @@ export default class Quaternion implements IVector4 {
 
   static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
 
-    //    let q = new Quaternion(0, 0, 0, 1);
     let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
     let ss = 1.0 - qr * qr;
 
@@ -225,7 +256,7 @@ export default class Quaternion implements IVector4 {
     let sin = Math.sin(halfAngle);
 
     let axis = Vector3.normalize(axisVec3);
-    return new Quaternion(
+    return new (this as any)(
       sin * axis.x,
       sin * axis.y,
       sin * axis.z,
@@ -233,14 +264,14 @@ export default class Quaternion implements IVector4 {
   }
 
   static fromPosition(vec3: Vector3) {
-    let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
+    let q = new (this as any)(vec3.x, vec3.y, vec3.z, 0);
     return q;
   }
 
   static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
 
     if (fromDirection.isEqual(toDirection)) {
-      return new Quaternion(0, 0, 0, 1);
+      return new (this as any)(0, 0, 0, 1);
     }
     return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
   }
@@ -269,7 +300,7 @@ export default class Quaternion implements IVector4 {
     if (num8 > 0) {
       let num = Math.sqrt(num8 + 1);
       let num2 = 0.5 / num;
-      return new Quaternion(
+      return new (this as any)(
         (m12 - m21) * num2,
         (m20 - m02) * num2,
         (m01 - m10) * num2,
@@ -277,7 +308,7 @@ export default class Quaternion implements IVector4 {
     } else if ((m00 >= m11) && (m00 >= m22)) {
       let num7 = Math.sqrt(((1 + m00) - m11) - m22);
       let num4 = 0.5 / num7;
-      return new Quaternion(
+      return new (this as any)(
         0.5 * num7,
         (m01 + m10) * num4,
         (m02 + m20) * num4,
@@ -285,7 +316,7 @@ export default class Quaternion implements IVector4 {
     } else if (m11 > m22) {
       let num6 = Math.sqrt(((1 + m11) - m00) - m22);
       let num3 = 0.5 / num6;
-      return new Quaternion(
+      return new (this as any)(
         (m10 + m01) * num3,
         0.5 * num6,
         (m21 + m12) * num3,
@@ -293,7 +324,7 @@ export default class Quaternion implements IVector4 {
     } else {
       let num5 = Math.sqrt(((1 + m22) - m00) - m11);
       let num2 = 0.5 / num5;
-      return new Quaternion(
+      return new (this as any)(
         (m20 + m02) * num2,
         (m21 + m12) * num2,
         0.5 * num5,
@@ -302,15 +333,15 @@ export default class Quaternion implements IVector4 {
   }
 
   static add(lhs: Quaternion, rhs: Quaternion) {
-    return new Quaternion(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
+    return new (this as any)(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
   }
 
   static subtract(lhs: Quaternion, rhs: Quaternion) {
-    return new Quaternion(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w)
+    return new (this as any)(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w)
   }
 
   static multiply(q1: Quaternion, q2: Quaternion) {
-    let result = new Quaternion(0, 0, 0, 1);
+    let result = new (this as any)(0, 0, 0, 1);
     result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
     result.v[1] = - q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
     result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
@@ -319,7 +350,7 @@ export default class Quaternion implements IVector4 {
   }
 
   static multiplyNumber(q1: Quaternion, val: number) {
-    return new Quaternion(q1.x * val, q1.y * val, q1.z * val, q1.w * val);
+    return new (this as any)(q1.x * val, q1.y * val, q1.z * val, q1.w * val);
   }
 
   toString() {
@@ -357,7 +388,7 @@ export default class Quaternion implements IVector4 {
   }
 
   clone() {
-    return new Quaternion(this.x, this.y, this.z, this.w);
+    return new (this.constructor as any)(this.x, this.y, this.z, this.w);
   }
 
   toEulerAngleTo(out: Vector3) {
