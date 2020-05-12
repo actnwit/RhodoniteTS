@@ -214,6 +214,15 @@ export default class Matrix22 implements IMatrix22 {
     );
   }
 
+  static invertTo(m: Matrix22, outM: MutableMatrix22) {
+    const det = Matrix22.determinant(m);
+    outM.m00 = m.m11 / det;
+    outM.m01 = m.m01 / det * (-1.0);
+    outM.m10 = m.m10 / det * (-1.0);
+    outM.m11 = m.m00 / det;
+    return outM;
+  }
+
   /**
    * Create Rotation Matrix
    */
