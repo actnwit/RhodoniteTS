@@ -3,7 +3,6 @@ import { IMutableMatrix44 } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
 import Vector3 from "./Vector3";
-import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 
 const FloatArray = Float32Array;
@@ -460,7 +459,6 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     );
   }
 
-
   multiplyByLeft(mat: Matrix44) {
     var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;
     var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;
@@ -489,5 +487,4 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
       m30, m31, m32, m33
     );
   }
-
 }
