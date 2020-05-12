@@ -34,7 +34,7 @@ export default class Matrix22 implements IMatrix22 {
       return;
     }
 
-    if (arguments.length === 4) {
+    if (4 <= arguments.length && arguments.length <= 5 && m3 != null) {
       this.v = new Float32Array(4);
       if (_isColumnMajor === true) {
         let m = arguments;
@@ -70,7 +70,7 @@ export default class Matrix22 implements IMatrix22 {
           this.v[1] = m[2]; this.v[3] = m[3];
         }
       }
-    } else if (!!m && typeof m.v[8] !== 'undefined') {
+    } else if (!!m && m.v != null && m.v[3] !== null) {
       if (_notCopyFloatArray) {
         this.v = m.v;
       } else {
