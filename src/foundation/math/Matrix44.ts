@@ -562,7 +562,7 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   clone() {
-    return new Matrix44(
+    return new (this.constructor as any)(
       this.v[0], this.v[4], this.v[8], this.v[12],
       this.v[1], this.v[5], this.v[9], this.v[13],
       this.v[2], this.v[6], this.v[10], this.v[14],
@@ -628,7 +628,7 @@ export default class Matrix44 implements IMatrix44 {
 
   getRotate() {
     const quat = Quaternion.fromMatrix(this);
-    const rotateMat = new Matrix44(quat);
+    const rotateMat = new (this.constructor as any)(quat);
     return rotateMat;
   }
 
