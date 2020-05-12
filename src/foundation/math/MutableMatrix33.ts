@@ -273,4 +273,23 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     );
   }
 
+  multiplyByLeft(mat: Matrix33) {
+    var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20;
+    var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21;
+    var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22;
+
+    var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20;
+    var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21;
+    var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22;
+
+    var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20;
+    var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21;
+    var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22;
+
+    return this.setComponents(
+      m00, m01, m02,
+      m10, m11, m12,
+      m20, m21, m22
+    );
+  }
 }
