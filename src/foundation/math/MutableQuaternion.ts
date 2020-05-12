@@ -210,15 +210,14 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
   }
 
   multiply(q: Quaternion) {
-    let result = new Quaternion(0, 0, 0, 1);
-    result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
-    result.v[1] = - q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
-    result.v[2] = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
-    result.v[3] = - q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
-    this.x = result.x;
-    this.y = result.y;
-    this.z = result.z;
-    this.w = result.w;
+    const q0 = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
+    const q1 = - q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
+    const q2 = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
+    const q3 = - q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
+    this.x = q0;
+    this.y = q1;
+    this.z = q2;
+    this.w = q3;
 
     return this;
   }
