@@ -598,9 +598,10 @@ export default class Gltf2Importer {
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
-      } else if (options.files && options.files[filename!]) {
+      } else if (options.files && this.__containsFileName(options.files, filename!)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
-          const arrayBuffer = options.files[filename];
+          const fullPath = this.__getFullPathOfFileName(options.files, filename);
+          const arrayBuffer = options.files[fullPath!];
           resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
@@ -704,6 +705,30 @@ export default class Gltf2Importer {
     return Promise.all(promisesToLoadResources).catch((err) => {
       console.log('Promise.all error', err);
     });
+  }
+
+  private __containsFileName(optionsFiles: {[s: string]: ArrayBuffer}, filename: string) {
+    for (let key in optionsFiles) {
+      const split = key.split('/');
+      const last = split[split.length - 1];
+      if (last === filename) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private __getFullPathOfFileName(optionsFiles: {[s: string]: ArrayBuffer}, filename: string) {
+    for (let key in optionsFiles) {
+      const split = key.split('/');
+      const last = split[split.length - 1];
+      if (last === filename) {
+        return key;
+      }
+    }
+
+    return undefined;
   }
 
   static getInstance() {
