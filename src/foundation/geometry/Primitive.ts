@@ -34,6 +34,10 @@ export default class Primitive extends RnObject {
   private __inverseArenbergMatrix: Matrix33[] = [];
   private __arenberg3rdPosition: Vector3[] = [];
 
+  private __tmpVec3_0 = MutableVector3.zero();
+  private __tmpVec3_1 = MutableVector3.zero();
+  private __tmpVec3_2 = MutableVector3.zero();
+
   constructor() {
     super();
   }
@@ -551,36 +555,37 @@ export default class Primitive extends RnObject {
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
 
-    const ax = pos0Vec3.x - pos2Vec3.x;
-    const ay = pos0Vec3.y - pos2Vec3.y;
-    const az = pos0Vec3.z - pos2Vec3.z;
-    const bx = pos1Vec3.x - pos2Vec3.x;
-    const by = pos1Vec3.y - pos2Vec3.y;
-    const bz = pos1Vec3.z - pos2Vec3.z;
+    const pos2To0 = this.__tmpVec3_0;
+    pos2To0.x = pos0Vec3.x - pos2Vec3.x;
+    pos2To0.y = pos0Vec3.y - pos2Vec3.y;
+    pos2To0.z = pos0Vec3.z - pos2Vec3.z;
 
-    let nx = ay * bz - az * by;
-    let ny = az * bx - ax * bz;
-    let nz = ax * by - ay * bx;
-    let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
-    if (da <= 1e-6) {
-      da = 0.0001;
-    }
-    da = 1.0 / da;
-    nx *= da;
-    ny *= da;
-    nz *= da;
+    const pos2To1 = this.__tmpVec3_1;
+    pos2To1.x = pos1Vec3.x - pos2Vec3.x;
+    pos2To1.y = pos1Vec3.y - pos2Vec3.y;
+    pos2To1.z = pos1Vec3.z - pos2Vec3.z;
+
+    const normal = this.__tmpVec3_2;
+    MutableVector3.crossTo(pos2To0, pos2To1, normal);
+    normal.normalize();
 
     const arenbergMatrix = new MutableMatrix33(
-      pos0Vec3.x - pos2Vec3.x,
-      pos1Vec3.x - pos2Vec3.x,
-      nx - pos2Vec3.x,
-      pos0Vec3.y - pos2Vec3.y,
-      pos1Vec3.y - pos2Vec3.y,
-      ny - pos2Vec3.y,
-      pos0Vec3.z - pos2Vec3.z,
-      pos1Vec3.z - pos2Vec3.z,
-      nz - pos2Vec3.z
+      pos2To0.x, pos2To1.x, normal.x - pos2Vec3.x,
+      pos2To0.y, pos2To1.y, normal.y - pos2Vec3.y,
+      pos2To0.z, pos2To1.z, normal.z - pos2Vec3.z
     );
+
+    if (arenbergMatrix.determinant() === 0) {
+      // exchange order of cross product
+      MutableVector3.crossTo(pos2To1, pos2To0, normal);
+      normal.normalize();
+
+      arenbergMatrix.setComponents(
+        pos2To1.x, pos2To0.x, normal.x - pos2Vec3.x,
+        pos2To1.y, pos2To0.y, normal.y - pos2Vec3.y,
+        pos2To1.z, pos2To0.z, normal.z - pos2Vec3.z
+      );
+    }
 
     const inverseArenbergMatrix = arenbergMatrix.invert();
 
