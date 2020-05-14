@@ -386,6 +386,19 @@ export default class Matrix33 implements IMatrix33 {
     }
   }
 
+  isStrictEqual(mat: Matrix33) {
+    if (this.v.length !== mat.v.length) {
+      false;
+    }
+
+    for (let i = 0; i < this.v.length; i++) {
+      if (mat.v[i] !== this.v[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   clone() {
     return new (this.constructor as any)(
       this.v[0], this.v[3], this.v[6],

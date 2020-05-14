@@ -274,6 +274,19 @@ export default class Matrix22 implements IMatrix22 {
     }
   }
 
+  isStrictEqual(mat: Matrix22) {
+    if (this.v.length !== mat.v.length) {
+      false;
+    }
+
+    for (let i = 0; i < this.v.length; i++) {
+      if (mat.v[i] !== this.v[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   clone() {
     return new (this.constructor as any)(
       this.v[0], this.v[2],
