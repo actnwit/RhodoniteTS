@@ -1,15 +1,13 @@
-//import GLBoost from './../../globals';
-import Vector2 from './Vector2';
+
 import Vector4 from './Vector4';
-import {IVector3} from './IVector';
-import {IColorRgb} from './IColor';
+import { IVector3 } from './IVector';
 import Quaternion from './Quaternion';
 import { TypedArray } from '../../commontypes/CommonTypes';
 
 export default class LogQuaternion implements IVector3 {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|IVector3|Vector4|Array<number>|null, y?:number, z?:number) {
+  constructor(x?: number | TypedArray | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -27,9 +25,9 @@ export default class LogQuaternion implements IVector3 {
     } else if (x instanceof Quaternion) {
       const theta = Math.acos(x.w);
       const sin = Math.sin(theta)
-      this.v[0] = x.x * (theta/sin);
-      this.v[1] = x.y * (theta/sin);
-      this.v[2] = x.z * (theta/sin);
+      this.v[0] = x.x * (theta / sin);
+      this.v[1] = x.y * (theta / sin);
+      this.v[2] = x.z * (theta / sin);
     } else if (Array.isArray(x)) {
       this.v[0] = x[0];
       this.v[1] = x[1];

@@ -73,10 +73,6 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     }
   }
 
-  clone() {
-    return new Vector2(this.x, this.y);
-  }
-
 }
 
 export default class Vector2 extends Vector2_<Float32ArrayConstructor> {

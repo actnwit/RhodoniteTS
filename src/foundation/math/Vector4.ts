@@ -132,13 +132,6 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
     return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2] + lv.v[3] * rv.v[3];
   }
 
-  /**
-   * Zero Vector
-   */
-  static zero() {
-    return new (this as any)(0, 0, 0, 1);
-  }
-
   toString() {
     return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ', ' + this.v[3] + ')';
   }
@@ -179,10 +172,6 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
    */
   dot(vec4: Vector4_<T>) {
     return this.v[0] * vec4.v[0] + this.v[1] * vec4.v[1] + this.v[2] * vec4.v[2] + this.v[3] * vec4.v[3];
-  }
-
-  clone() {
-    return new (this.constructor as any)(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 
 }
