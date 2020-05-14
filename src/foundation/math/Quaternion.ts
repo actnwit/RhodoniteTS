@@ -375,7 +375,7 @@ export default class Quaternion implements IVector4 {
   }
 
   length() {
-    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    return Math.hypot(this.x, this.y, this.z, this.w);
   }
 
   at(i: number) {

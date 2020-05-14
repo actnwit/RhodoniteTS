@@ -310,14 +310,14 @@ export default class Matrix22 implements IMatrix22 {
 
   getScale() {
     return new Vector2(
-      Math.sqrt(this.v[0] * this.v[0] + this.v[2] * this.v[2]),
-      Math.sqrt(this.v[1] * this.v[1] + this.v[3] * this.v[3])
+      Math.hypot(this.m00, this.m01),
+      Math.hypot(this.m10, this.m11)
     );
   }
 
   getScaleTo(outVec: MutableVector2) {
-    outVec.x = Math.sqrt(this.v[0] * this.v[0] + this.v[2] * this.v[2]);
-    outVec.y = Math.sqrt(this.v[1] * this.v[1] + this.v[3] * this.v[3]);
+    outVec.x = Math.hypot(this.m00, this.m01);
+    outVec.y = Math.hypot(this.m10, this.m11);
   }
 
 }
