@@ -170,7 +170,7 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     this.v[2] = z;
   }
 
-  get raw() {
+  raw() {
     return this.v;
   }
 

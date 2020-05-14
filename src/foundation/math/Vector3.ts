@@ -77,10 +77,6 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
     return this.constructor.name;
   }
 
-  get raw() {
-    return this.v;
-  }
-
   static get compositionType() {
     return CompositionType.Vec3;
   }

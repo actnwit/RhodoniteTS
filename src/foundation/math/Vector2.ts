@@ -40,10 +40,6 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     return this.constructor.name;
   }
 
-  get raw() {
-    return this.v;
-  }
-
   static add<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>) {
     return new (lvec.constructor as any)(lvec.x + rvec.x, lvec.y + rvec.y);
   }

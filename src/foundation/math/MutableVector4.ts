@@ -145,7 +145,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     this.v[3] = w;
   }
 
-  get raw() {
+  raw() {
     return this.v;
   }
 

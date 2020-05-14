@@ -28,6 +28,11 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
     this.v[1] = y;
   }
 
+  raw() {
+    return this.v;
+  }
+
+
   multiply(val: number) {
     this.x *= val;
     this.y *= val;
