@@ -20,12 +20,28 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     this.v[1] = ((y as any) as number);
   }
 
+  get x() {
+    return this.v[0];
+  }
+
+  get y() {
+    return this.v[1];
+  }
+
+  get glslStrAsFloat() {
+    return `vec2(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)})`;
+  }
+
+  get glslStrAsInt() {
+    return `ivec2(${Math.floor(this.x)}, ${Math.floor(this.y)})`;
+  }
+
   get className() {
     return this.constructor.name;
   }
 
-  clone() {
-    return new Vector2(this.x, this.y);
+  get raw() {
+    return this.v;
   }
 
   static add<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>) {
@@ -36,12 +52,8 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     return new (lvec.constructor as any)(lvec.x - rvec.x, lvec.y - rvec.y);
   }
 
-  isStrictEqual(vec: Vector2_<T>) {
-    if (this.x === vec.x && this.y === vec.y) {
-      return true;
-    } else {
-      return false;
-    }
+  static multiply<T extends TypedArrayConstructor>(vec2: Vector2_<T>, val: number) {
+    return new (vec2.constructor as any)(vec2.x * val, vec2.y * val);
   }
 
   isEqual(vec: Vector2_<T>, delta: number = Number.EPSILON) {
@@ -53,29 +65,18 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     }
   }
 
-  static multiply<T extends TypedArrayConstructor>(vec2: Vector2_<T>, val: number) {
-    return new (vec2.constructor as any)(vec2.x * val, vec2.y * val);
+  isStrictEqual(vec: Vector2_<T>) {
+    if (this.x === vec.x && this.y === vec.y) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  get x() {
-    return this.v[0];
+  clone() {
+    return new Vector2(this.x, this.y);
   }
 
-  get y() {
-    return this.v[1];
-  }
-
-  get raw() {
-    return this.v;
-  }
-
-  get glslStrAsFloat() {
-    return `vec2(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)})`;
-  }
-
-  get glslStrAsInt() {
-    return `ivec2(${Math.floor(this.x)}, ${Math.floor(this.y)})`;
-  }
 }
 
 export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
