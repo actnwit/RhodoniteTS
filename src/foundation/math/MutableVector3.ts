@@ -36,16 +36,6 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this;
   }
 
-
-
-  /**
-   * to square length
-   */
-  lengthSquared() {
-    return this.x * this.x + this.y * this.y + this.z * this.z;
-  }
-
-
   /**
    * cross product
    */

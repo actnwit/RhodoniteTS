@@ -266,6 +266,10 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
     return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
   }
 
+  squaredLength() {
+    return this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2];
+  }
+
   /**
    * dot product
    */

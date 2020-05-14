@@ -67,7 +67,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   get parentRotation() {
     // return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
-    return (this.__transform!.parent != null) ? Quaternion.fromMatrix(this.__transform!.parent!.worldMatrixInner): new Quaternion(0, 0, 0, 1);
+    return (this.__transform!.parent != null) ? Quaternion.fromMatrix(this.__transform!.parent!.worldMatrixInner) : new Quaternion(0, 0, 0, 1);
   }
 
 
@@ -81,7 +81,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const dragForce = boneGroup.dragForce;
     const stiffnessForce = boneGroup.stiffnessForce * Time.lastTickTimeInterval * 1;
     const external = Vector3.multiply(boneGroup.gravityDir, boneGroup.gravityPower * Time.lastTickTimeInterval * 1);
-    let center: SceneGraphComponent|undefined = void 0;
+    let center: SceneGraphComponent | undefined = void 0;
 
     const collisionGroups = VRMSpringBonePhysicsStrategy.getColliderGroups(boneGroup.colliderGroupIndices);
 
@@ -116,7 +116,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     } else {
       const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
       let childPosition = new Vector3(1, 1, 1);
-      if (delta.lengthSquared() > 0) {
+      if (delta.squaredLength() > 0) {
         childPosition = Vector3.add(sceneGraph.worldPosition, Vector3.multiply(Vector3.normalize(delta), 0.07));
       }
       vrmSpringBone.initialize(sceneGraph,
@@ -156,7 +156,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       // this.head.children[0].entity.getTransform().matrix = Matrix44.identity();
       this.head.children[0].entity.getTransform().translate = this.__transform!.getLocalPositionOf(nextTail);
       // this.head.children[0].entity.getTransform().translate = new Vector3(1, 0, 0);
-    // this.head.children[0].entity.getTransform().quaternion = resultRotation;
+      // this.head.children[0].entity.getTransform().quaternion = resultRotation;
     }
 
     // VRMSpringBonePhysicsStrategy.initialize(this.__transform!);
