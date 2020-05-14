@@ -546,9 +546,7 @@ export default class ModelConverter {
   }
 
   static setDefaultTextures(material: Material, gltfModel: glTF2): void {
-    if (gltfModel.asset.extras == null ||
-      gltfModel.asset.extras.rnLoaderOptions == null ||
-      gltfModel.asset.extras.rnLoaderOptions.defaultTextures == null) {
+    if (gltfModel.asset.extras?.rnLoaderOptions?.defaultTextures == null) {
       return;
     }
 
