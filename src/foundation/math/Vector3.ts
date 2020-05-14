@@ -1,7 +1,7 @@
 import Vector2 from './Vector2';
 import Vector4 from './Vector4';
 import is from '../misc/IsUtil';
-import { IVector3 } from './IVector';
+import { IVector2, IVector3, IVector4 } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
 import { MutableVector3_ } from './MutableVector3';
@@ -10,7 +10,7 @@ import { MathUtil } from './MathUtil';
 
 export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
   v: TypedArray;
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
 
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
