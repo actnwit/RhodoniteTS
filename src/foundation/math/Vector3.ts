@@ -164,11 +164,8 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
    * normalize(static version)
    */
   static normalize<T extends TypedArrayConstructor>(vec3: Vector3_<T>) {
-    var length = vec3.length();
-    var newVec = new (vec3.constructor as any)(vec3.v[0], vec3.v[1], vec3.v[2]);
-    newVec = Vector3_.divide(newVec, length);
-
-    return newVec;
+    const length = vec3.length();
+    return (this as any).divide(vec3, length);
   }
 
   /**
