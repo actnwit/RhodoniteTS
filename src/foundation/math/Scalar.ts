@@ -5,7 +5,7 @@ import { MathUtil } from "./MathUtil";
 export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
   v: TypedArray;
 
-  constructor(x: number|TypedArray|null, {type}: {type: T}) {
+  constructor(x: number | TypedArray | null, { type }: { type: T }) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -19,28 +19,20 @@ export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
     this.v[0] = ((x as any) as number);
   }
 
-  getValue() {
-    return this.v[0];
-  }
-
-  getValueInArray() {
-    return [this.v[0]];
-  }
-
   get x() {
     return this.v[0];
   }
 
-  get raw() {
-    return this.v;
+  get glslStrAsFloat() {
+    return `${MathUtil.convertToStringAsGLSLFloat(this.x)}`;
   }
 
-  isStrictEqual(scalar: Scalar_<T>) {
-    if (this.x === scalar.x) {
-      return true;
-    } else {
-      return false;
-    }
+  get glslStrAsInt() {
+    return `${Math.floor(this.x)}`;
+  }
+
+  get raw() {
+    return this.v;
   }
 
   isEqual(scalar: Scalar_<T>, delta: number = Number.EPSILON) {
@@ -51,18 +43,26 @@ export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
     }
   }
 
-  get glslStrAsFloat() {
-    return `${MathUtil.convertToStringAsGLSLFloat(this.x)}`;
+  isStrictEqual(scalar: Scalar_<T>) {
+    if (this.x === scalar.x) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  get glslStrAsInt() {
-    return `${Math.floor(this.x)}`;
+  getValue() {
+    return this.v[0];
+  }
+
+  getValueInArray() {
+    return [this.v[0]];
   }
 }
 
 export default class Scalar extends Scalar_<Float32ArrayConstructor> {
-  constructor(x:number|TypedArray|null) {
-    super(x, {type: Float32Array})
+  constructor(x: number | TypedArray | null) {
+    super(x, { type: Float32Array })
   }
 
   static zero() {
@@ -83,8 +83,8 @@ export default class Scalar extends Scalar_<Float32ArrayConstructor> {
 }
 
 export class Scalard extends Scalar_<Float64ArrayConstructor> {
-  constructor(x:number|TypedArray|null) {
-    super(x, {type: Float64Array})
+  constructor(x: number | TypedArray | null) {
+    super(x, { type: Float64Array })
   }
 
   static zero() {
