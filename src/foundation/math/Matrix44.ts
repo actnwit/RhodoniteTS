@@ -9,6 +9,7 @@ import MutableMatrix44 from './MutableMatrix44';
 import MutableVector4 from './MutableVector4';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import { IVector3 } from './IVector';
+import { MathUtil } from './MathUtil';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -506,21 +507,10 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   toStringApproximately() {
-    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[4]) + ' ' + this.nearZeroToZero(this.v[8]) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
-      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[5]) + ' ' + this.nearZeroToZero(this.v[9]) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
-      this.nearZeroToZero(this.v[2]) + ' ' + this.nearZeroToZero(this.v[6]) + ' ' + this.nearZeroToZero(this.v[10]) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
-      this.nearZeroToZero(this.v[3]) + ' ' + this.nearZeroToZero(this.v[7]) + ' ' + this.nearZeroToZero(this.v[11]) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
-  }
-
-  nearZeroToZero(value: number) {
-    if (Math.abs(value) < 0.00001) {
-      value = 0;
-    } else if (0.99999 < value && value < 1.00001) {
-      value = 1;
-    } else if (-1.00001 < value && value < -0.99999) {
-      value = -1;
-    }
-    return value;
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[4]) + ' ' + MathUtil.nearZeroToZero(this.v[8]) + ' ' + MathUtil.nearZeroToZero(this.m03) + ' \n' +
+      MathUtil.nearZeroToZero(this.v[1]) + ' ' + MathUtil.nearZeroToZero(this.v[5]) + ' ' + MathUtil.nearZeroToZero(this.v[9]) + ' ' + MathUtil.nearZeroToZero(this.m13) + ' \n' +
+      MathUtil.nearZeroToZero(this.v[2]) + ' ' + MathUtil.nearZeroToZero(this.v[6]) + ' ' + MathUtil.nearZeroToZero(this.v[10]) + ' ' + MathUtil.nearZeroToZero(this.m23) + ' \n' +
+      MathUtil.nearZeroToZero(this.v[3]) + ' ' + MathUtil.nearZeroToZero(this.v[7]) + ' ' + MathUtil.nearZeroToZero(this.v[11]) + ' ' + MathUtil.nearZeroToZero(this.m33) + ' \n';
   }
 
   flattenAsArray() {

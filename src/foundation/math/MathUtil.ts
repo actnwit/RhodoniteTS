@@ -103,8 +103,22 @@ function convertToStringAsGLSLFloat(value: number): string {
   if (Number.isInteger(value)) {
     return `${value}.0`;
   } else {
-    return ''+value;
+    return '' + value;
   }
 }
 
-export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture, packNormalizedVec4ToVec2, convertToStringAsGLSLFloat});
+function nearZeroToZero(value: number): number {
+  if (Math.abs(value) < 0.00001) {
+    value = 0;
+  } else if (0.99999 < value && value < 1.00001) {
+    value = 1;
+  } else if (-1.00001 < value && value < -0.99999) {
+    value = -1;
+  }
+  return value;
+}
+
+export const MathUtil = Object.freeze({
+  radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo,
+  isPowerOfTwoTexture, packNormalizedVec4ToVec2, convertToStringAsGLSLFloat, nearZeroToZero
+});

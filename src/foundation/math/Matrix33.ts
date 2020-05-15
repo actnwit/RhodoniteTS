@@ -6,6 +6,7 @@ import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import MutableVector3 from './MutableVector3';
+import { MathUtil } from './MathUtil';
 
 export default class Matrix33 implements IMatrix33 {
   v: TypedArray;
@@ -340,20 +341,9 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   toStringApproximately() {
-    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[3]) + ' ' + this.nearZeroToZero(this.v[6]) + '\n' +
-      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[4]) + ' ' + this.nearZeroToZero(this.v[7]) + ' \n' +
-      this.nearZeroToZero(this.v[2]) + ' ' + this.nearZeroToZero(this.v[5]) + ' ' + this.nearZeroToZero(this.v[8]) + '\n';
-  }
-
-  nearZeroToZero(value: number) {
-    if (Math.abs(value) < 0.00001) {
-      value = 0;
-    } else if (0.99999 < value && value < 1.00001) {
-      value = 1;
-    } else if (-1.00001 < value && value < -0.99999) {
-      value = -1;
-    }
-    return value;
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[3]) + ' ' + MathUtil.nearZeroToZero(this.v[6]) + '\n' +
+      MathUtil.nearZeroToZero(this.v[1]) + ' ' + MathUtil.nearZeroToZero(this.v[4]) + ' ' + MathUtil.nearZeroToZero(this.v[7]) + ' \n' +
+      MathUtil.nearZeroToZero(this.v[2]) + ' ' + MathUtil.nearZeroToZero(this.v[5]) + ' ' + MathUtil.nearZeroToZero(this.v[8]) + '\n';
   }
 
   flattenAsArray() {
