@@ -269,10 +269,6 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
   dot(vec3: Vector3_<T>) {
     return this.v[0] * vec3.v[0] + this.v[1] * vec3.v[1] + this.v[2] * vec3.v[2];
   }
-
-  at(i: number) {
-    return this.v[i];
-  }
 }
 
 export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
