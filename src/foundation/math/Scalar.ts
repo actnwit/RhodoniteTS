@@ -74,14 +74,6 @@ export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
       return false;
     }
   }
-
-  getValue() {
-    return this.v[0];
-  }
-
-  getValueInArray() {
-    return [this.v[0]];
-  }
 }
 
 export default class Scalar extends Scalar_<Float32ArrayConstructor> {
