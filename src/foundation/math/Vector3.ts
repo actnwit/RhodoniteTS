@@ -200,18 +200,11 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
     return out;
   }
 
-  /**
- * to square length(static version)
- */
-  static lengthSquared<T extends TypedArrayConstructor>(vec3: Vector3_<T>) {
-    return vec3.v[0] * vec3.v[0] + vec3.v[1] * vec3.v[1] + vec3.v[2] * vec3.v[2];
-  }
-
   static lengthBtw<T extends TypedArrayConstructor>(lhv: Vector3_<T>, rhv: Vector3_<T>) {
-    var deltaX = rhv.v[0] - lhv.v[0];
-    var deltaY = rhv.v[1] - lhv.v[1];
-    var deltaZ = rhv.v[2] - lhv.v[2];
-    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+    const deltaX = rhv.v[0] - lhv.v[0];
+    const deltaY = rhv.v[1] - lhv.v[1];
+    const deltaZ = rhv.v[2] - lhv.v[2];
+    return Math.hypot(deltaX, deltaY, deltaZ);
   }
 
   static angleOfVectors<T extends TypedArrayConstructor>(lhv: Vector3_<T>, rhv: Vector3_<T>) {
@@ -256,18 +249,18 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
   }
 
   length() {
-    return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2]);
+    return Math.hypot(this.x, this.y, this.z);
   }
 
   lengthTo(vec3: Vector3_<T>) {
-    var deltaX = vec3.v[0] - this.v[0];
-    var deltaY = vec3.v[1] - this.v[1];
-    var deltaZ = vec3.v[2] - this.v[2];
-    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+    const deltaX = vec3.v[0] - this.v[0];
+    const deltaY = vec3.v[1] - this.v[1];
+    const deltaZ = vec3.v[2] - this.v[2];
+    return Math.hypot(deltaX, deltaY, deltaZ);
   }
 
   squaredLength() {
-    return this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2];
+    return this.x * this.x + this.y + this.y + this.z + this.z;
   }
 
   /**
