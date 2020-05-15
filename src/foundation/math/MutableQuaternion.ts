@@ -56,7 +56,7 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
   }
 
   normalize() {
-    let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    const norm = this.length();
     this.x /= norm;
     this.y /= norm;
     this.z /= norm;

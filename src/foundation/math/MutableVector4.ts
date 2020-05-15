@@ -29,7 +29,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
   }
 
   normalize3() {
-    var length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+    var length = Math.hypot(this.x, this.y, this.z);
     this.x /= length;
     this.y /= length;
     this.z /= length;
