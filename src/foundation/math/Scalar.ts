@@ -1,6 +1,7 @@
 import { IScalar } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { MathUtil } from "./MathUtil";
+import { CompositionType } from "../definitions/CompositionType";
 
 export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
   v: TypedArray;
@@ -31,8 +32,31 @@ export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
     return `${Math.floor(this.x)}`;
   }
 
-  get raw() {
-    return this.v;
+  get className() {
+    return this.constructor.name;
+  }
+
+  static get compositionType() {
+    return CompositionType.Scalar;
+  }
+
+  /**
+   * change to string
+   */
+  toString() {
+    return '(' + this.x + ')';
+  }
+
+  flattenAsArray() {
+    return [this.x];
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   isEqual(scalar: Scalar_<T>, delta: number = Number.EPSILON) {
