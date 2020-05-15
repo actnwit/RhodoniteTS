@@ -1,6 +1,8 @@
 import { IVector2, IVector3, IVector4 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { MathUtil } from "./MathUtil";
+import { CompositionType } from "../definitions/CompositionType";
+import { MutableVector2_ } from "./MutableVector2";
 
 export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
   v: TypedArray;
@@ -40,16 +42,142 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     return this.constructor.name;
   }
 
+  static get compositionType() {
+    return CompositionType.Vec2;
+  }
+
+  /**
+    * add value（static version）
+    */
   static add<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>) {
     return new (lvec.constructor as any)(lvec.x + rvec.x, lvec.y + rvec.y);
   }
 
+  /**
+   * add value（static version）
+   */
+  static addTo<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>, out2: MutableVector2_<T>) {
+    out2.x = lvec.x + rvec.x;
+    out2.y = lvec.y + rvec.y;
+    return out2;
+  }
+
+  /**
+   * subtract(subtract)
+   */
   static subtract<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>) {
     return new (lvec.constructor as any)(lvec.x - rvec.x, lvec.y - rvec.y);
   }
 
+  /**
+   * subtract(subtract)
+   */
+  static subtractTo<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>, out2: MutableVector2_<T>) {
+    out2.x = lvec.x - rvec.x;
+    out2.y = lvec.y - rvec.y;
+    return out2;
+  }
+
+  /**
+   * multiply(static version)
+   */
   static multiply<T extends TypedArrayConstructor>(vec2: Vector2_<T>, val: number) {
     return new (vec2.constructor as any)(vec2.x * val, vec2.y * val);
+  }
+
+  /**
+   * multiplyTo(static version)
+   */
+  static multiplyTo<T extends TypedArrayConstructor>(in2: Vector2_<T>, val: number, out2: MutableVector2_<T>) {
+    out2.x = in2.x * val;
+    out2.y = in2.y * val;
+
+    return out2;
+  }
+
+  /**
+   * multiply vector(static version)
+   */
+  static multiplyVector<T extends TypedArrayConstructor>(vec2: Vector2_<T>, vec: Vector2_<T>) {
+    return new (vec.constructor as any)(vec2.x * vec.x, vec2.y * vec.y);
+  }
+
+  /**
+   * divide(static version)
+   */
+  static divide<T extends TypedArrayConstructor>(vec2: Vector2_<T>, val: number) {
+    if (val !== 0) {
+      return new (vec2.constructor as any)(vec2.x / val, vec2.y / val);
+    } else {
+      console.error("0 division occurred!");
+      return new (vec2.constructor as any)(Infinity, Infinity);
+    }
+  }
+
+  /**
+   * divide vector(static version)
+   */
+  static divideVector<T extends TypedArrayConstructor>(lvec2: Vector2_<T>, rvec2: Vector2_<T>) {
+    if (rvec2.x !== 0 && rvec2.y !== 0) {
+      return new (lvec2.constructor as any)(lvec2.x / rvec2.x, lvec2.y / rvec2.y);
+    } else {
+      console.error("0 division occurred!");
+      const x = rvec2.x === 0 ? Infinity : lvec2.x / rvec2.x;
+      const y = rvec2.y === 0 ? Infinity : lvec2.y / rvec2.y;
+
+      return new (lvec2.constructor as any)(x, y);
+    }
+  }
+
+  /**
+   * normalize(static version)
+   */
+  static normalize<T extends TypedArrayConstructor>(vec2: Vector2_<T>) {
+    var length = vec2.length();
+    var newVec = new (vec2.constructor as any)(vec2.x, vec2.y);
+    newVec = this.divide(newVec, length);
+
+    return newVec;
+  }
+
+  /**
+   * dot product(static version)
+   */
+  static dot<T extends TypedArrayConstructor>(lv: Vector2_<T>, rv: Vector2_<T>) {
+    return lv.x * rv.x + lv.y * rv.y;
+  }
+
+  static lengthBtw<T extends TypedArrayConstructor>(lhv: Vector2_<T>, rhv: Vector2_<T>) {
+    const deltaX = rhv.x - lhv.x;
+    const deltaY = rhv.y - lhv.y;
+    return Math.hypot(deltaX, deltaY);
+  }
+
+  static angleOfVectors<T extends TypedArrayConstructor>(lhv: Vector2_<T>, rhv: Vector2_<T>) {
+    const cos_sita = this.dot(lhv, rhv) / (lhv.length() * rhv.length());
+
+    const sita = Math.acos(cos_sita);
+
+    return sita;
+  }
+
+  /**
+   * change to string
+   */
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+
+  flattenAsArray() {
+    return [this.x, this.y];
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   isEqual(vec: Vector2_<T>, delta: number = Number.EPSILON) {
@@ -67,6 +195,27 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     } else {
       return false;
     }
+  }
+
+  length() {
+    return Math.hypot(this.x, this.y);
+  }
+
+  lengthTo(vec2: Vector2_<T>) {
+    const deltaX = vec2.x - this.x;
+    const deltaY = vec2.y - this.y;
+    return Math.hypot(deltaX, deltaY);
+  }
+
+  squaredLength() {
+    return this.x * this.x + this.y + this.y;
+  }
+
+  /**
+   * dot product
+   */
+  dot(vec2: Vector2_<T>) {
+    return this.x * vec2.x + this.y * vec2.y;
   }
 
 }
