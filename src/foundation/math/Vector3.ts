@@ -257,7 +257,7 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
   }
 
   squaredLength() {
-    return this.x * this.x + this.y + this.y + this.z + this.z;
+    return this.x * this.x + this.y * this.y + this.z * this.z;
   }
 
   /**

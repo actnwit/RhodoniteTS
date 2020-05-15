@@ -205,7 +205,7 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
   }
 
   squaredLength() {
-    return this.x * this.x + this.y + this.y;
+    return this.x * this.x + this.y * this.y;
   }
 
   /**
