@@ -100,14 +100,14 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
   }
 
   /**
-   * subtract(subtract)
+   * subtract(static version)
    */
   static subtract<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>) {
     return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2]);
   }
 
   /**
-   * subtract(subtract)
+   * subtract(static version)
    */
   static subtractTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>) {
     out.v[0] = lv.v[0] - rv.v[0];
