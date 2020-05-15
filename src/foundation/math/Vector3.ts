@@ -219,6 +219,10 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
     return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ')';
   }
 
+  flattenAsArray() {
+    return [this.x, this.y, this.z];
+  }
+
   isDummy() {
     if (this.v.length === 0) {
       return true;

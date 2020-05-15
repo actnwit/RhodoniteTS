@@ -3,6 +3,7 @@ import { IVector2, IVector3, IVector4 } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
 import { MathUtil } from './MathUtil';
+import { MutableVector4_ } from './MutableVector4';
 
 export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   v: TypedArray;
@@ -81,30 +82,70 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   /**
    * add value（static version）
    */
-  static add(lv: Vector4, rv: Vector4) {
-    return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2] + rv.v[2]);
+  static add<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
+    return new (lv.constructor as any)(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.w + rv.w);
   }
 
   /**
- * add value except w component（static version）
+ * add value（static version）
  */
-  static addWithOutW(lv: Vector4, rv: Vector4) {
-    return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2]);
+  static addTo<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>, out: MutableVector4_<T>) {
+    out.x = lv.x + rv.x;
+    out.y = lv.y + rv.y;
+    out.z = lv.z + rv.z;
+    out.w = lv.w + rv.w;
+    return out;
   }
 
-  static subtract(lv: Vector4, rv: Vector4) {
-    return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2], lv.v[3] - rv.v[3]);
+  /**
+   * subtract(static version)
+   */
+  static subtract<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
+    return new (lv.constructor as any)(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
   }
 
-  static multiply(vec4: Vector4, val: number) {
+  /**
+   * subtract(static version)
+   */
+  static subtractTo<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>, out: MutableVector4_<T>) {
+    out.x = lv.x - rv.x;
+    out.y = lv.y - rv.y;
+    out.z = lv.z - rv.z;
+    out.w = lv.w - rv.w;
+
+    return out;
+  }
+
+  /**
+   * multiply(static version)
+   */
+  static multiply<T extends TypedArrayConstructor>(vec4: Vector4_<T>, val: number) {
     return new (vec4.constructor as any)(vec4.v[0] * val, vec4.v[1] * val, vec4.v[2] * val, vec4.v[3] * val);
   }
 
-  static multiplyVector(vec4: Vector4, vec: Vector4) {
+  /**
+   * multiplyTo(static version)
+   */
+  static multiplyTo<T extends TypedArrayConstructor>(vec4: Vector4_<T>, val: number, out4: MutableVector4_<T>) {
+    out4.x = vec4.x * val;
+    out4.y = vec4.y * val;
+    out4.z = vec4.z * val;
+    out4.w = vec4.w * val;
+
+    return out4;
+  }
+
+  /**
+   * multiply vector(static version)
+   */
+  static multiplyVector<T extends TypedArrayConstructor>(vec4: Vector4_<T>, vec: Vector4_<T>) {
     return new (vec4.constructor as any)(vec4.v[0] * vec.v[0], vec4.v[1] * vec.v[1], vec4.v[2] * vec.v[2], vec4.v[3] * vec.v[3]);
   }
 
-  static divide(vec4: Vector4, val: number) {
+  /**
+   * divide(static version)
+   */
+  static divide<T extends TypedArrayConstructor>(vec4: Vector4_<T>, val: number) {
     if (val !== 0) {
       return new (vec4.constructor as any)(vec4.v[0] / val, vec4.v[1] / val, vec4.v[2] / val, vec4.v[3] / val);
     } else {
@@ -113,16 +154,29 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
     }
   }
 
-  static divideVector(lvec4: Vector4, rvec4: Vector4) {
-    return new (lvec4.constructor as any)(lvec4.v[0] / rvec4.v[0], lvec4.v[1] / rvec4.v[1], lvec4.v[2] / rvec4.v[2], lvec4.v[3] / rvec4.v[3]);
+  /**
+   * divide vector(static version)
+   */
+  static divideVector<T extends TypedArrayConstructor>(lvec4: Vector4_<T>, rvec4: Vector4_<T>) {
+    if (rvec4.x !== 0 && rvec4.y !== 0 && rvec4.z !== 0 && rvec4.w !== 0) {
+      return new (lvec4.constructor as any)(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+    } else {
+      console.error("0 division occurred!");
+      const x = rvec4.x === 0 ? Infinity : lvec4.x / rvec4.x;
+      const y = rvec4.y === 0 ? Infinity : lvec4.y / rvec4.y;
+      const z = rvec4.z === 0 ? Infinity : lvec4.z / rvec4.z;
+      const w = rvec4.w === 0 ? Infinity : lvec4.w / rvec4.w;
+
+      return new (lvec4.constructor as any)(x, y, z, w);
+    }
   }
 
-  static normalize(vec4: Vector4) {
+  /**
+   * normalize(static version)
+   */
+  static normalize<T extends TypedArrayConstructor>(vec4: Vector4_<T>) {
     const length = vec4.length();
-    let newVec = new (vec4.constructor as any)(vec4.v[0], vec4.v[1], vec4.v[2], vec4.v[3]);
-    newVec = Vector4_.divide(newVec, length);
-
-    return newVec;
+    return (this as any).divide(vec4, length);
   }
 
   /**
@@ -132,8 +186,30 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
     return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2] + lv.v[3] * rv.v[3];
   }
 
+  static lengthBtw<T extends TypedArrayConstructor>(lhv: Vector4_<T>, rhv: Vector4_<T>) {
+    const deltaX = rhv.x - lhv.x;
+    const deltaY = rhv.y - lhv.y;
+    const deltaZ = rhv.z - lhv.z;
+    const deltaW = rhv.w - lhv.w;
+    return Math.hypot(deltaX, deltaY, deltaZ, deltaW);
+  }
+
+  /**
+* add value except w component（static version）
+*/
+  static addWithOutW<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
+    return new (lv.constructor as any)(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.w);
+  }
+
+  /**
+ * change to string
+ */
   toString() {
     return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ', ' + this.v[3] + ')';
+  }
+
+  flattenAsArray() {
+    return [this.x, this.y, this.z, this.w];
   }
 
   isDummy() {
@@ -165,6 +241,18 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
 
   length() {
     return Math.hypot(this.x, this.y, this.z, this.w);
+  }
+
+  lengthTo(vec4: Vector4_<T>) {
+    const deltaX = vec4.x - this.x;
+    const deltaY = vec4.y - this.y;
+    const deltaZ = vec4.z - this.z;
+    const deltaW = vec4.w - this.w;
+    return Math.hypot(deltaX, deltaY, deltaZ, deltaW);
+  }
+
+  squaredLength() {
+    return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
   }
 
   /**
