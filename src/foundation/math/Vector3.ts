@@ -157,7 +157,16 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
    * divide vector(static version)
    */
   static divideVector<T extends TypedArrayConstructor>(lvec3: Vector3_<T>, rvec3: Vector3_<T>) {
-    return new (lvec3.constructor as any)(lvec3.v[0] / rvec3.v[0], lvec3.v[1] / rvec3.v[1], lvec3.v[2] / rvec3.v[2]);
+    if (rvec3.x !== 0 && rvec3.y !== 0 && rvec3.z !== 0) {
+      return new (lvec3.constructor as any)(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
+    } else {
+      console.error("0 division occurred!");
+      const x = rvec3.x === 0 ? Infinity : lvec3.x / rvec3.x;
+      const y = rvec3.y === 0 ? Infinity : lvec3.y / rvec3.y;
+      const z = rvec3.z === 0 ? Infinity : lvec3.z / rvec3.z;
+
+      return new (lvec3.constructor as any)(x, y, z);
+    }
   }
 
   /**
