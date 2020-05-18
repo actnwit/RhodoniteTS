@@ -10,8 +10,44 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     super(x, y, z, w, { type });
   }
 
+  set x(x: number) {
+    this.v[0] = x;
+  }
+
+  get x(): number {
+    return this.v[0];
+  }
+
+  set y(y: number) {
+    this.v[1] = y;
+  }
+
+  get y(): number {
+    return this.v[1];
+  }
+
+  set z(z: number) {
+    this.v[2] = z;
+  }
+
+  get z(): number {
+    return this.v[2];
+  }
+
+  set w(w: number) {
+    this.v[3] = w;
+  }
+
+  get w(): number {
+    return this.v[3];
+  }
+
   static get compositionType() {
     return CompositionType.Vec4;
+  }
+
+  raw() {
+    return this.v;
   }
 
   copyComponents(vec: Vector4_<T>) {
@@ -19,23 +55,6 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     this.v[1] = vec.v[1];
     this.v[2] = vec.v[2];
     this.v[3] = vec.v[3];
-  }
-
-  normalize() {
-    var length = this.length();
-    this.divide(length);
-
-    return this;
-  }
-
-  normalize3() {
-    var length = Math.hypot(this.x, this.y, this.z);
-    this.x /= length;
-    this.y /= length;
-    this.z /= length;
-    this.w /= length;
-
-    return this;
   }
 
   /**
@@ -113,40 +132,21 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-  get x(): number {
-    return this.v[0];
+  normalize() {
+    var length = this.length();
+    this.divide(length);
+
+    return this;
   }
 
-  get y(): number {
-    return this.v[1];
-  }
+  normalize3() {
+    var length = Math.hypot(this.x, this.y, this.z);
+    this.x /= length;
+    this.y /= length;
+    this.z /= length;
+    this.w /= length;
 
-  get z(): number {
-    return this.v[2];
-  }
-
-  get w(): number {
-    return this.v[3];
-  }
-
-  set x(x: number) {
-    this.v[0] = x;
-  }
-
-  set y(y: number) {
-    this.v[1] = y;
-  }
-
-  set z(z: number) {
-    this.v[2] = z;
-  }
-
-  set w(w: number) {
-    this.v[3] = w;
-  }
-
-  raw() {
-    return this.v;
+    return this;
   }
 
   // set w(w:number) {
@@ -175,8 +175,8 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     super(x, y!, z!, w!, { type: Float32Array })
   }
 
-  clone() {
-    return new MutableVector4(this.x, this.y, this.z, this.w);
+  static zero() {
+    return new MutableVector4(0, 0, 0, 0);
   }
 
   static one() {
@@ -187,12 +187,12 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     return new MutableVector4(null, 0, 0, 0);
   }
 
-  static zero() {
-    return new MutableVector4(0, 0, 0, 0);
-  }
-
   static zeroWithWOne() {
     return new MutableVector4(0, 0, 0, 1);
+  }
+
+  clone() {
+    return new MutableVector4(this.x, this.y, this.z, this.w);
   }
 }
 
@@ -201,8 +201,8 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
     super(x, y!, z!, w!, { type: Float64Array })
   }
 
-  clone() {
-    return new MutableVector4d(this.x, this.y, this.z, this.w);
+  static zero() {
+    return new MutableVector4d(0, 0, 0, 0);
   }
 
   static one() {
@@ -213,12 +213,12 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
     return new MutableVector4d(null, 0, 0, 0);
   }
 
-  static zero() {
-    return new MutableVector4d(0, 0, 0, 0);
-  }
-
   static zeroWithWOne() {
     return new MutableVector4d(0, 0, 0, 1);
+  }
+
+  clone() {
+    return new MutableVector4d(this.x, this.y, this.z, this.w);
   }
 }
 
