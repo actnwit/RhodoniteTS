@@ -37,27 +37,26 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this.v;
   }
 
-  copyComponents(vec: Vector3_<T>) {
-    this.v[0] = vec.v[0];
-    this.v[1] = vec.v[1];
-    this.v[2] = vec.v[2];
+  setComponents(x: number, y: number, z: number) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    return this;
   }
 
+  copyComponents(vec: Vector3_<T>) {
+    this.x = vec.x;
+    this.y = vec.y;
+    this.z = vec.z;
+    return this;
+  }
 
   zero() {
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-
-    return this;
+    return this.setComponents(0, 0, 0);
   }
 
   one() {
-    this.x = 1;
-    this.y = 1;
-    this.z = 1;
-
-    return this;
+    return this.setComponents(1, 1, 1);
   }
 
   /**
@@ -125,11 +124,17 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   /**
  * divide vector
  */
-  divideVector(vec3: Vector3) {
-    this.x /= vec3.x;
-    this.y /= vec3.y;
-    this.z /= vec3.z;
-
+  divideVector(vec: Vector3_<T>) {
+    if (vec.x !== 0 && vec.y !== 0 && vec.z !== 0) {
+      this.x /= vec.x;
+      this.y /= vec.y;
+      this.z /= vec.z;
+    } else {
+      console.error("0 division occurred!");
+      this.x = vec.x === 0 ? Infinity : this.x / vec.x;
+      this.y = vec.y === 0 ? Infinity : this.y / vec.y;
+      this.z = vec.z === 0 ? Infinity : this.z / vec.z;
+    }
     return this;
   }
 
@@ -137,11 +142,9 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
  * normalize
  */
   normalize() {
-    var length = this.length();
-    this.divide(length);
-
-    return this;
+    return this.divide(this.length());
   }
+
   /**
    * cross product
    */

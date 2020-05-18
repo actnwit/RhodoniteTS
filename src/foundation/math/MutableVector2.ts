@@ -27,16 +27,94 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
     return this.v;
   }
 
-  copyComponents(vec: Vector2_<T>) {
-    this.v[0] = vec.v[0];
-    this.v[1] = vec.v[1];
+  setComponents(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+    return this;
   }
 
+  copyComponents(vec: Vector2_<T>) {
+    this.x = vec.x;
+    this.y = vec.y;
+    return this;
+  }
+
+  zero() {
+    return this.setComponents(0, 0);
+  }
+
+  one() {
+    return this.setComponents(1, 1);
+  }
+
+  add(v: Vector2_<T>) {
+    this.x += v.x;
+    this.y += v.y;
+    return this;
+  }
+
+  /**
+ * subtract
+ */
+  subtract(v: Vector2_<T>) {
+    this.x -= v.x;
+    this.y -= v.y;
+    return this;
+  }
+
+  /**
+   * multiply
+   */
   multiply(val: number) {
     this.x *= val;
     this.y *= val;
-
     return this;
+  }
+
+  /**
+   * multiply vector
+   */
+  multiplyVector(vec: Vector2_<T>) {
+    this.x *= vec.x;
+    this.y *= vec.y;
+    return this;
+  }
+
+  /**
+ * divide
+ */
+  divide(val: number) {
+    if (val !== 0) {
+      this.x /= val;
+      this.y /= val;
+    } else {
+      console.error("0 division occurred!");
+      this.x = Infinity;
+      this.y = Infinity;
+    }
+    return this;
+  }
+
+  /**
+ * divide vector
+ */
+  divideVector(vec: Vector2_<T>) {
+    if (vec.x !== 0 && vec.y !== 0) {
+      this.x /= vec.x;
+      this.y /= vec.y;
+    } else {
+      console.error("0 division occurred!");
+      this.x = vec.x === 0 ? Infinity : this.x / vec.x;
+      this.y = vec.y === 0 ? Infinity : this.y / vec.y;
+    }
+    return this;
+  }
+
+  /**
+ * normalize
+ */
+  normalize() {
+    return this.divide(this.length());
   }
 }
 

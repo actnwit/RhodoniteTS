@@ -15,8 +15,19 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
     return this.v[0];
   }
 
-  copyComponents(vec: Scalar_<T>) {
-    this.v[0] = vec.v[0];
+  raw() {
+    return this.v;
+  }
+
+
+  setComponents(number: number) {
+    this.x = number;
+    return this;
+  }
+
+  copyComponents(scalar: Scalar_<T>) {
+    this.x = scalar.x;
+    return this;
   }
 
 }
