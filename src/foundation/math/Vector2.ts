@@ -133,8 +133,7 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
    * normalize(static version)
    */
   static normalize<T extends TypedArrayConstructor>(vec2: Vector2_<T>) {
-    const length = vec2.length();
-    return (this as any).divide(vec2, length);
+    return (this as any).divide(vec2, vec2.length());
   }
 
   /**

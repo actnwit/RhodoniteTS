@@ -120,7 +120,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
    * multiply(static version)
    */
   static multiply<T extends TypedArrayConstructor>(vec4: Vector4_<T>, val: number) {
-    return new (vec4.constructor as any)(vec4.v[0] * val, vec4.v[1] * val, vec4.v[2] * val, vec4.v[3] * val);
+    return new (vec4.constructor as any)(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
   }
 
   /**
@@ -139,7 +139,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
    * multiply vector(static version)
    */
   static multiplyVector<T extends TypedArrayConstructor>(vec4: Vector4_<T>, vec: Vector4_<T>) {
-    return new (vec4.constructor as any)(vec4.v[0] * vec.v[0], vec4.v[1] * vec.v[1], vec4.v[2] * vec.v[2], vec4.v[3] * vec.v[3]);
+    return new (vec4.constructor as any)(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
   }
 
   /**
@@ -147,7 +147,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
    */
   static divide<T extends TypedArrayConstructor>(vec4: Vector4_<T>, val: number) {
     if (val !== 0) {
-      return new (vec4.constructor as any)(vec4.v[0] / val, vec4.v[1] / val, vec4.v[2] / val, vec4.v[3] / val);
+      return new (vec4.constructor as any)(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
     } else {
       console.warn("0 division occurred!");
       return new (vec4.constructor as any)(Infinity, Infinity, Infinity, Infinity);
@@ -175,15 +175,14 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
    * normalize(static version)
    */
   static normalize<T extends TypedArrayConstructor>(vec4: Vector4_<T>) {
-    const length = vec4.length();
-    return (this as any).divide(vec4, length);
+    return (this as any).divide(vec4, vec4.length());
   }
 
   /**
    * dot product(static version)
    */
   static dot<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
-    return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2] + lv.v[3] * rv.v[3];
+    return lv.x * rv.x + lv.y * rv.y + lv.z * rv.z + lv.w * rv.w;
   }
 
   static lengthBtw<T extends TypedArrayConstructor>(lhv: Vector4_<T>, rhv: Vector4_<T>) {
@@ -205,7 +204,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
  * change to string
  */
   toString() {
-    return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ', ' + this.v[3] + ')';
+    return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
   }
 
   flattenAsArray() {
@@ -221,10 +220,10 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   }
 
   isEqual(vec: Vector4_<T>, delta: number = Number.EPSILON) {
-    if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-      Math.abs(vec.v[1] - this.v[1]) < delta &&
-      Math.abs(vec.v[2] - this.v[2]) < delta &&
-      Math.abs(vec.v[3] - this.v[3]) < delta) {
+    if (Math.abs(vec.x - this.x) < delta &&
+      Math.abs(vec.y - this.y) < delta &&
+      Math.abs(vec.z - this.z) < delta &&
+      Math.abs(vec.w - this.w) < delta) {
       return true;
     } else {
       return false;
@@ -232,7 +231,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   }
 
   isStrictEqual(vec: Vector4_<T>): boolean {
-    if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
+    if (this.x === vec.x && this.y === vec.y && this.z === vec.z && this.w === vec.w) {
       return true;
     } else {
       return false;
@@ -259,7 +258,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
    * dot product
    */
   dot(vec4: Vector4_<T>) {
-    return this.v[0] * vec4.v[0] + this.v[1] * vec4.v[1] + this.v[2] * vec4.v[2] + this.v[3] * vec4.v[3];
+    return this.x * vec4.x + this.y * vec4.y + this.z * vec4.z + this.w * vec4.w;
   }
 
 }
@@ -286,7 +285,7 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
   }
 
   clone() {
-    return new Vector4(this.v[0], this.v[1], this.v[2], this.v[3]);
+    return new Vector4(this.x, this.y, this.z, this.w);
   }
 }
 
@@ -312,7 +311,7 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   }
 
   clone() {
-    return new Vector4d(this.v[0], this.v[1], this.v[2], this.v[3]);
+    return new Vector4d(this.x, this.y, this.z, this.w);
   }
 }
 
