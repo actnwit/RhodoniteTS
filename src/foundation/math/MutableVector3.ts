@@ -1,11 +1,9 @@
-import Vector2 from "./Vector2";
-import Vector3, { Vector3_ } from "./Vector3";
-import { IVector3, IVector4 } from "./IVector";
-import { CompositionType } from "../definitions/CompositionType";
+import { Vector3_ } from "./Vector3";
+import { IVector3, IVector4, IVector2, IMutableVector3 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 
-export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IVector3 {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
+export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IMutableVector3 {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
     super(x as any, y, z, { type });
   }
 
@@ -62,7 +60,7 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   /**
  * add value
  */
-  add(v: Vector3) {
+  add(v: Vector3_<T>) {
     this.x += v.x;
     this.y += v.y;
     this.z += v.z;
@@ -73,7 +71,7 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   /**
  * subtract
  */
-  subtract(v: Vector3) {
+  subtract(v: Vector3_<T>) {
     this.x -= v.x;
     this.y -= v.y;
     this.z -= v.z;
@@ -95,7 +93,7 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   /**
    * multiply vector
    */
-  multiplyVector(vec: Vector3) {
+  multiplyVector(vec: Vector3_<T>) {
     this.x *= vec.x;
     this.y *= vec.y;
     this.z *= vec.z;
@@ -148,7 +146,7 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   /**
    * cross product
    */
-  cross(v: Vector3) {
+  cross(v: Vector3_<T>) {
     var x = this.y * v.z - this.z * v.y;
     var y = this.z * v.x - this.x * v.z;
     var z = this.x * v.y - this.y * v.x;
@@ -163,7 +161,7 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
 
 
 export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float32Array })
   }
 
@@ -185,7 +183,7 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
 }
 
 export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float64Array })
   }
 
