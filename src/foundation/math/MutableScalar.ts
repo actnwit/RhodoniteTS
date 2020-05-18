@@ -19,10 +19,6 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
     this.v[0] = vec.v[0];
   }
 
-  setValue(value: number) {
-    this.x = value;
-    return this;
-  }
 }
 
 export default class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {

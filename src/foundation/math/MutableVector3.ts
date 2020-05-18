@@ -33,10 +33,6 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this.v[2];
   }
 
-  static get compositionType() {
-    return CompositionType.Vec3;
-  }
-
   raw() {
     return this.v;
   }
@@ -158,11 +154,6 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     this.y = y;
     this.z = z;
 
-    return this;
-  }
-
-  setAt(i: number, value: number) {
-    this.v[i] = value;
     return this;
   }
 }

@@ -42,10 +42,6 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this.v[3];
   }
 
-  static get compositionType() {
-    return CompositionType.Vec4;
-  }
-
   raw() {
     return this.v;
   }
@@ -148,25 +144,6 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
 
     return this;
   }
-
-  // set w(w:number) {
-  //   this.__Error();
-  // }
-  // get w(): number {
-  //   return this.v[3];
-  // }
-
-  // get raw(): TypedArray {
-  //   this.__Error();
-  //   return new Float32Array(0);
-  // }
-
-  private __Error() {
-    //console.error('Not available because this Vector class is immutable.');
-    throw new Error('Not available because this Vector class is immutable.');
-  }
-
-
 }
 
 
