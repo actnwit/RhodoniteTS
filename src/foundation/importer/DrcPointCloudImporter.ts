@@ -28,35 +28,7 @@ export default class DrcPointCloudImporter {
    * @returns a glTF2 based JSON pre-processed
    */
   async importPointCloud(uri: string, options?: GltfLoadOption) {
-    let defaultOptions: GltfLoadOption = {
-      files: {
-        //        "foo.gltf": content of file as ArrayBuffer,
-        //        "foo.bin": content of file as ArrayBuffer,
-        //        "boo.png": content of file as ArrayBuffer
-      },
-      loaderExtension: null,
-      defaultMaterialHelperName: null,
-      defaultMaterialHelperArgumentArray: [],
-      statesOfElements: [
-        {
-          targets: [], //["name_foo", "name_boo"],
-          states: {
-            enable: [
-              // 3042,  // BLEND
-            ],
-            functions: {
-              //"blendFuncSeparate": [1, 0, 1, 0],
-            }
-          },
-          isTransparent: true,
-          opacity: 1.0,
-          isTextureImageToLoadPreMultipliedAlpha: false,
-        }
-      ],
-      tangentCalculationMode: 1,
-      isPreComputeForRayCastPickingEnable: false,
-      extendedJson: void 0 //   URI string / JSON Object / ArrayBuffer
-    };
+    const defaultOptions = DataUtil.createDefaultGltfOptions();
 
     if (options && options.files) {
       for (let fileName in options.files) {
@@ -922,25 +894,7 @@ export default class DrcPointCloudImporter {
    * @returns a primitive of Rhodonite object
    */
   async importPointCloudToPrimitive(uri: string, options: GltfLoadOption) {
-    const defaultOptions: GltfLoadOption = {
-      files: {},
-      loaderExtension: null,
-      defaultMaterialHelperName: null,
-      defaultMaterialHelperArgumentArray: [],
-      statesOfElements: [
-        {
-          targets: [],
-          states: {
-            enable: [],
-            functions: {}
-          },
-          isTransparent: true,
-          opacity: 1.0,
-          isTextureImageToLoadPreMultipliedAlpha: false,
-        }
-      ],
-      extendedJson: void 0
-    };
+    const defaultOptions = DataUtil.createDefaultGltfOptions();
 
     if (options && options.files) {
       for (let fileName in options.files) {
