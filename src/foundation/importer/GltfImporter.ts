@@ -78,14 +78,13 @@ export default class GltfImporter {
 
       // download arrayBuffer
       if (Object.keys(options.files).length === 0) {
-        let response: Response;
         try {
-          response = await fetch(uri);
+          const response = await fetch(uri);
+          const arrayBuffer = await response.arrayBuffer();
+          options.files[response.url] = arrayBuffer;
         } catch (err) {
           throw new Error('import' + err);
         };
-        const arrayBuffer = await response.arrayBuffer();
-        options.files[uri] = arrayBuffer;
       }
 
       fileType = await detectFormat(uri, options.files) as string;
