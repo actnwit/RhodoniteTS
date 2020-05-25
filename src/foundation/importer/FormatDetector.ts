@@ -44,6 +44,7 @@ export default async function detectFormat(uri: string, files?: { [s: string]: A
     (resolve: Function, response: any) => {
       const arrayBuffer = response;
       checkArrayBufferOfGltf(arrayBuffer, resolve);
+      console.warn('discard downloaded arrayBuffer');
     }, (rejects: any, status: any) => {
       console.log(status);
     }
