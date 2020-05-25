@@ -17,6 +17,7 @@ import DrcPointCloudImporter from "./DrcPointCloudImporter";
 import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
 import { VRM } from "../../commontypes/VRM";
+import DataUtil from "../misc/DataUtil";
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -68,11 +69,26 @@ export default class GltfImporter {
   private async __importModel(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
 
     let fileType = options?.fileType;
-    if (fileType != null) {
-    } else if (options != null && options.files != null) {
+    if (fileType == null) {
+      if (options == null) {
+        options = DataUtil.createDefaultGltfOptions();
+      } else if (options.files == null) {
+        options.files = {}
+      }
+
+      // download arrayBuffer
+      if (Object.keys(options.files).length === 0) {
+        let response: Response;
+        try {
+          response = await fetch(uri);
+        } catch (err) {
+          throw new Error('import' + err);
+        };
+        const arrayBuffer = await response.arrayBuffer();
+        options.files[uri] = arrayBuffer;
+      }
+
       fileType = await detectFormat(uri, options.files) as string;
-    } else {
-      fileType = await detectFormat(uri) as string;
     }
 
     let importer: any, gltfModel: any, renderPasses: RenderPass[];
