@@ -1,7 +1,6 @@
 import DataUtil from "../misc/DataUtil";
 import { glTF2, GltfLoadOption, Gltf2Image } from "../../commontypes/glTF";
 import RnPromise from "../misc/RnPromise";
-import { expression } from "@babel/template";
 
 declare var Rn: any;
 
@@ -36,14 +35,7 @@ export default class Gltf2Importer {
       }
     }
 
-    let response: Response;
-    try {
-      response = await fetch(uri);
-    } catch (err) {
-      throw new Error('import' + err);
-    };
-    const arrayBuffer = await response.arrayBuffer();
-
+    const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       console.log('this.__loadFromArrayBuffer error', err);
     });;
@@ -101,7 +93,6 @@ export default class Gltf2Importer {
     if (gltfVer !== 2) {
       throw new Error('invalid version field in this binary glTF file.');
     }
-    let lengthOfThisFile = dataView.getUint32(8, isLittleEndian);
     let lengthOfJSonChunkData = dataView.getUint32(12, isLittleEndian);
     let chunkType = dataView.getUint32(16, isLittleEndian);
     // 0x4E4F534A means JSON format (0x4E4F534A is 'JSON' in ASCII codes)

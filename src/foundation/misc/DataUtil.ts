@@ -364,5 +364,18 @@ export default class DataUtil {
 
     return defaultOptions;
   }
+
+  static fetchArrayBuffer(uri: string): Promise<ArrayBuffer> {
+
+    return new Promise((resolve) => {
+      fetch(uri).then((response) => {
+        response.arrayBuffer().then((arrayBuffer) => {
+          resolve(arrayBuffer);
+        });
+      }).catch((err) => {
+        throw new Error('import error: ' + err);
+      });
+    });
+  }
 }
 

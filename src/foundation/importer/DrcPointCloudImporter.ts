@@ -43,14 +43,7 @@ export default class DrcPointCloudImporter {
       }
     }
 
-    let response: Response;
-    try {
-      response = await fetch(uri);
-    } catch (err) {
-      throw new Error('importPointCloud' + err);
-    };
-    const arrayBuffer = await response.arrayBuffer();
-
+    const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     return await this.__decodeDraco(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       console.log('this.__decodeDraco error', err);
     });
@@ -108,7 +101,6 @@ export default class DrcPointCloudImporter {
     if (gltfVer !== 2) {
       throw new Error('invalid version field in this binary glTF file.');
     }
-    let lengthOfThisFile = dataView.getUint32(8, isLittleEndian);
     let lengthOfJSonChunkData = dataView.getUint32(12, isLittleEndian);
     let chunkType = dataView.getUint32(16, isLittleEndian);
     // 0x4E4F534A means JSON format (0x4E4F534A is 'JSON' in ASCII codes)
@@ -899,14 +891,7 @@ export default class DrcPointCloudImporter {
       }
     }
 
-    let response: Response;
-    try {
-      response = await fetch(uri);
-    } catch (err) {
-      console.log('this.__loadFromArrayBuffer', err);
-    };
-    const arrayBuffer = await response!.arrayBuffer();
-
+    const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     return this.__decodeDracoDirect(arrayBuffer, options);
   }
 

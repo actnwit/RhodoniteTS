@@ -30,11 +30,7 @@ export default class Gltf1Importer {
       }
     }
 
-
-
-    const response = await fetch(uri);
-    const arrayBuffer = await response.arrayBuffer();
-
+    const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options);
 
   }
@@ -86,7 +82,6 @@ export default class Gltf1Importer {
     if (gltfVer !== 1) {
       throw new Error('invalid version field in this binary glTF file.');
     }
-    let lengthOfThisFile = dataView.getUint32(8, isLittleEndian);
     let lengthOfJSonChunkData = dataView.getUint32(12, isLittleEndian);
     let chunkType = dataView.getUint32(16, isLittleEndian);
     // 0 means JSON format
