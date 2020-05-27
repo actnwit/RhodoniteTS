@@ -97,10 +97,6 @@ export default class DrcPointCloudImporter {
   }
 
   async _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
-    let gltfVer = dataView.getUint32(4, isLittleEndian);
-    if (gltfVer !== 2) {
-      throw new Error('invalid version field in this binary glTF file.');
-    }
     let lengthOfJSonChunkData = dataView.getUint32(12, isLittleEndian);
     let chunkType = dataView.getUint32(16, isLittleEndian);
     // 0x4E4F534A means JSON format (0x4E4F534A is 'JSON' in ASCII codes)
