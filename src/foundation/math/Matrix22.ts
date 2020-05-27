@@ -247,12 +247,7 @@ export default class Matrix22 implements IMatrix22 {
     if (Math.abs(mat.v[0] - this.v[0]) < delta &&
       Math.abs(mat.v[1] - this.v[1]) < delta &&
       Math.abs(mat.v[2] - this.v[2]) < delta &&
-      Math.abs(mat.v[3] - this.v[3]) < delta &&
-      Math.abs(mat.v[4] - this.v[4]) < delta &&
-      Math.abs(mat.v[5] - this.v[5]) < delta &&
-      Math.abs(mat.v[6] - this.v[6]) < delta &&
-      Math.abs(mat.v[7] - this.v[7]) < delta &&
-      Math.abs(mat.v[8] - this.v[8]) < delta) {
+      Math.abs(mat.v[3] - this.v[3]) < delta) {
       return true;
     } else {
       return false;
