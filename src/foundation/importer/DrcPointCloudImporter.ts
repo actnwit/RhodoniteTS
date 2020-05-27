@@ -114,7 +114,7 @@ export default class DrcPointCloudImporter {
     let uint8array = new Uint8Array(arrayBuffer, 20 + lengthOfJSonChunkData + 8);
 
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = { fileType: "glTF", version: "2" };
+      gltfJson.asset.extras = { fileType: "glTF", version: "1" };
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.basePath = basePath;
@@ -130,7 +130,7 @@ export default class DrcPointCloudImporter {
 
   async _loadAsTextJson(gltfJson: glTF2, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = { fileType: "glTF", version: "2" };
+      gltfJson.asset.extras = { fileType: "glTF", version: "1" };
     }
 
     options = this._getOptions(defaultOptions, gltfJson, options);
@@ -746,7 +746,7 @@ export default class DrcPointCloudImporter {
   private async __decodedBufferToJSON(buffer: Float32Array, numPoints: number, geometryAttributes: string[], attributeComponents: number[]) {
     let json: any = {
       "asset": {
-        version: "2.0"
+        version: "1.0"
       },
       "nodes": [
         {
