@@ -1,3 +1,10 @@
+export interface IMatrix {
+}
+
+
+export interface IMutableMatrix {
+}
+
 export interface IMatrix22 {
   readonly m00: number;
   readonly m01: number;

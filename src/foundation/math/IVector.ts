@@ -1,3 +1,9 @@
+export interface IVector {
+}
+
+export interface IMutableVector {
+}
+
 export interface IScalar {
   readonly x: number;
 }

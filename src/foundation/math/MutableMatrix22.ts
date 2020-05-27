@@ -1,12 +1,12 @@
 import Matrix44 from "./Matrix44";
-import { IMutableMatrix22 } from "./IMatrix";
+import { IMutableMatrix22, IMutableMatrix } from "./IMatrix";
 import Matrix22 from "./Matrix22";
 import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 import Matrix33 from "./Matrix33";
 import Vector2 from "./Vector2";
 
-export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix22 {
+export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutableMatrix22 {
 
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?: boolean, notCopyFloatArray?: boolean);

@@ -2,7 +2,7 @@ import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector4 from './Vector4';
-import { IMatrix44 } from './IMatrix';
+import { IMatrix, IMatrix44 } from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
@@ -14,7 +14,7 @@ import { MathUtil } from './MathUtil';
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class Matrix44 implements IMatrix44 {
+export default class Matrix44 implements IMatrix, IMatrix44 {
   v: TypedArray;
 
   constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);

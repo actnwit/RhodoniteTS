@@ -1,5 +1,5 @@
 import Matrix44 from "./Matrix44";
-import { IMutableMatrix44 } from "./IMatrix";
+import { IMutableMatrix44, IMutableMatrix } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
 import Vector3 from "./Vector3";
@@ -9,7 +9,7 @@ import { Index } from "../../commontypes/CommonTypes";
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix44 {
+export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
   constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Array<number>, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);

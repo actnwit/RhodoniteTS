@@ -1,6 +1,6 @@
 import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
-import { IMatrix22 } from './IMatrix';
+import { IMatrix, IMatrix22 } from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import Vector2 from './Vector2';
@@ -8,7 +8,7 @@ import MutableMatrix22 from './MutableMatrix22';
 import { MathUtil } from './MathUtil';
 import MutableVector2 from './MutableVector2';
 
-export default class Matrix22 implements IMatrix22 {
+export default class Matrix22 implements IMatrix, IMatrix22 {
   v: TypedArray;
 
   constructor(m: null);
