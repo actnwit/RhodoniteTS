@@ -216,10 +216,6 @@ export default class Matrix22 implements IMatrix22 {
     return out;
   }
 
-  static determinant(mat: Matrix22) {
-    return mat.m00 * mat.m11 - mat.m10 * mat.m01;
-  }
-
   toString() {
     return this.v[0] + ' ' + this.v[2] + '\n' +
       this.v[1] + ' ' + this.v[3] + ' \n';
