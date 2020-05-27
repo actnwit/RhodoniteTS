@@ -1,6 +1,22 @@
-export interface IMatrix {
-}
+import { IVector, IVector2, IMutableVector2, IMutableVector } from "./IVector";
 
+export interface IMatrix {
+  readonly className: string;
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(mat: IMatrix, delta: number): boolean;
+
+  // ---Add following methods later---
+  // isStrictEqual(mat: IMatrix): boolean;
+  // clone(): IMatrix;
+  // determinant(): number;
+  // multiplyVector(vec: IVector): IVector;
+  // multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
+  // getScale(): IVector;
+  // getScaleTo(outVec: IMutableVector): IMutableVector
+}
 
 export interface IMutableMatrix {
 }
@@ -10,6 +26,13 @@ export interface IMatrix22 {
   readonly m01: number;
   readonly m10: number;
   readonly m11: number;
+  isEqual(mat: IMatrix22, delta: number): boolean;
+  isStrictEqual(mat: IMatrix22): boolean;
+  clone(): IMatrix22;
+  multiplyVector(vec: IVector2): IVector2;
+  multiplyVectorTo(vec: IVector2, outVec: IMutableVector2): IMutableVector2;
+  getScale(): IVector2;
+  getScaleTo(outVec: IMutableVector2): IMutableVector2
 }
 
 export interface IMatrix33 {
