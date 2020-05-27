@@ -123,28 +123,28 @@ export default class Matrix22 implements IMatrix22 {
    * Create zero matrix
    */
   static zero() {
-    return new Matrix22(0, 0, 0, 0);
+    return new this(0, 0, 0, 0);
   }
 
   /**
    * Create identity matrix
    */
   static identity() {
-    return new Matrix22(
+    return new this(
       1, 0,
       0, 1,
     );
   }
 
   static dummy() {
-    return new Matrix22(null);
+    return new this(null);
   }
 
   /**
    * Create transpose matrix
    */
   static transpose(mat: Matrix22) {
-    return new Matrix22(
+    return new this(
       mat.m00, mat.m10,
       mat.m01, mat.m11
     );
@@ -160,7 +160,7 @@ export default class Matrix22 implements IMatrix22 {
     const m10 = mat.m10 / det * (-1.0);
     const m11 = mat.m00 / det;
 
-    return new Matrix22(
+    return new this(
       m00, m01,
       m10, m11
     );
@@ -181,7 +181,7 @@ export default class Matrix22 implements IMatrix22 {
   static rotate(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return new Matrix22(
+    return new this(
       cos, -sin,
       sin, cos
     );
@@ -191,7 +191,7 @@ export default class Matrix22 implements IMatrix22 {
    * Create Scale Matrix
    */
   static scale(vec: Vector2) {
-    return new Matrix22(
+    return new this(
       vec.x, 0,
       0, vec.y
     );
@@ -207,7 +207,7 @@ export default class Matrix22 implements IMatrix22 {
     const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
     const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
 
-    return new Matrix22(
+    return new this(
       m00, m01,
       m10, m11
     );
@@ -274,7 +274,7 @@ export default class Matrix22 implements IMatrix22 {
   }
 
   clone() {
-    return new Matrix22(
+    return new (this.constructor as any)(
       this.v[0], this.v[2],
       this.v[1], this.v[3]
     );
