@@ -6,6 +6,7 @@ import { TypedArray } from '../../commontypes/CommonTypes';
 import Vector2 from './Vector2';
 import MutableMatrix22 from './MutableMatrix22';
 import { MathUtil } from './MathUtil';
+import MutableVector2 from './MutableVector2';
 
 export default class Matrix22 implements IMatrix22 {
   v: TypedArray;
@@ -165,6 +166,15 @@ export default class Matrix22 implements IMatrix22 {
     );
   }
 
+  static invertTo(m: Matrix22, out: MutableMatrix22) {
+    const det = m.determinant();
+    out.m00 = m.m11 / det;
+    out.m01 = m.m01 / det * (-1.0);
+    out.m10 = m.m10 / det * (-1.0);
+    out.m11 = m.m00 / det;
+    return out;
+  }
+
   /**
    * Create Rotation Matrix
    */
@@ -250,6 +260,19 @@ export default class Matrix22 implements IMatrix22 {
     }
   }
 
+  isStrictEqual(mat: Matrix22) {
+    if (this.v.length !== mat.v.length) {
+      false;
+    }
+
+    for (let i = 0; i < this.v.length; i++) {
+      if (mat.v[i] !== this.v[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   clone() {
     return new Matrix22(
       this.v[0], this.v[2],
@@ -268,5 +291,25 @@ export default class Matrix22 implements IMatrix22 {
     return new (vec.constructor as any)(x, y);
   }
 
+  multiplyVectorTo(vec: Vector2, outVec: MutableVector2) {
+    const x = this.v[0] * vec.x + this.v[2] * vec.y;
+    const y = this.v[1] * vec.x + this.v[3] * vec.y;
+    outVec.x = x;
+    outVec.y = y;
+    return outVec;
+  }
+
+  getScale() {
+    return new Vector2(
+      Math.hypot(this.m00, this.m01),
+      Math.hypot(this.m10, this.m11)
+    );
+  }
+
+  getScaleTo(outVec: MutableVector2) {
+    outVec.x = Math.hypot(this.m00, this.m01);
+    outVec.y = Math.hypot(this.m10, this.m11);
+    return outVec;
+  }
 
 }
