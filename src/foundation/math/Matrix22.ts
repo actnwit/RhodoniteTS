@@ -5,6 +5,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import Vector2 from './Vector2';
 import MutableMatrix22 from './MutableMatrix22';
+import { MathUtil } from './MathUtil';
 
 export default class Matrix22 implements IMatrix22 {
   v: TypedArray;
@@ -225,19 +226,8 @@ export default class Matrix22 implements IMatrix22 {
   }
 
   toStringApproximately() {
-    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[2]) + '\n' +
-      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[3]) + ' \n';
-  }
-
-  nearZeroToZero(value: number) {
-    if (Math.abs(value) < 0.00001) {
-      value = 0;
-    } else if (0.99999 < value && value < 1.00001) {
-      value = 1;
-    } else if (-1.00001 < value && value < -0.99999) {
-      value = -1;
-    }
-    return value;
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[2]) + '\n' +
+      MathUtil.nearZeroToZero(this.v[1]) + ' ' + MathUtil.nearZeroToZero(this.v[3]) + ' \n';
   }
 
   flattenAsArray() {

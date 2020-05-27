@@ -12,7 +12,7 @@ function degreeToRadian(deg: number) {
 }
 
 // https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
-const toHalfFloat = (function() {
+const toHalfFloat = (function () {
 
   var floatView = new Float32Array(1);
   var int32View = new Int32Array(floatView.buffer);
@@ -76,25 +76,25 @@ function isPowerOfTwoTexture(width: Size, height: Size) {
   return isPowerOfTwo(width) && isPowerOfTwo(height);
 }
 
-  // values range must be [-1, 1]
+// values range must be [-1, 1]
 function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number) {
   let v0 = 0.0;
   let v1 = 0.0;
 
-  x = (x + 1)/2.0;
-  y = (y + 1)/2.0;
-  z = (z + 1)/2.0;
-  w = (w + 1)/2.0;
+  x = (x + 1) / 2.0;
+  y = (y + 1) / 2.0;
+  z = (z + 1) / 2.0;
+  w = (w + 1) / 2.0;
 
-  let ir = Math.floor(x*(criteria-1.0));
-  let ig = Math.floor(y*(criteria-1.0));
-  let irg = ir*criteria + ig;
+  let ir = Math.floor(x * (criteria - 1.0));
+  let ig = Math.floor(y * (criteria - 1.0));
+  let irg = ir * criteria + ig;
   v0 = irg / criteria;
 
-  let ib =  Math.floor(z*(criteria-1.0));
-  let ia =  Math.floor(w*(criteria-1.0));
-  let iba = ib*criteria + ia;
-  v1 =iba / criteria;
+  let ib = Math.floor(z * (criteria - 1.0));
+  let ia = Math.floor(w * (criteria - 1.0));
+  let iba = ib * criteria + ia;
+  v1 = iba / criteria;
 
   return [v0, v1];
 }
@@ -103,8 +103,22 @@ function convertToStringAsGLSLFloat(value: number): string {
   if (Number.isInteger(value)) {
     return `${value}.0`;
   } else {
-    return ''+value;
+    return '' + value;
   }
 }
 
-export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture, packNormalizedVec4ToVec2, convertToStringAsGLSLFloat});
+function nearZeroToZero(value: number): number {
+  if (Math.abs(value) < 0.00001) {
+    value = 0;
+  } else if (0.99999 < value && value < 1.00001) {
+    value = 1;
+  } else if (-1.00001 < value && value < -0.99999) {
+    value = -1;
+  }
+  return value;
+}
+
+export const MathUtil = Object.freeze({
+  radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture,
+  packNormalizedVec4ToVec2, convertToStringAsGLSLFloat, nearZeroToZero
+});
