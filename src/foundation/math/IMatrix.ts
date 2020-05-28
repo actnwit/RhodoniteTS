@@ -35,6 +35,13 @@ export interface IMatrix22 {
   getScaleTo(outVec: IMutableVector2): IMutableVector2
 }
 
+export interface IMutableMatrix22 {
+  m00: number;
+  m01: number;
+  m10: number;
+  m11: number;
+}
+
 export interface IMatrix33 {
   readonly m00: number;
   readonly m01: number;
@@ -45,6 +52,18 @@ export interface IMatrix33 {
   readonly m20: number;
   readonly m21: number;
   readonly m22: number;
+}
+
+export interface IMutableMatrix33 {
+  m00: number;
+  m01: number;
+  m02: number;
+  m10: number;
+  m11: number;
+  m12: number;
+  m20: number;
+  m21: number;
+  m22: number;
 }
 
 export interface IMatrix44 {
@@ -64,24 +83,6 @@ export interface IMatrix44 {
   readonly m31: number;
   readonly m32: number;
   readonly m33: number;
-}
-
-export interface IMutableMatrix22 {
-  m00: number;
-  m01: number;
-  m10: number;
-  m11: number;
-}
-export interface IMutableMatrix33 {
-  m00: number;
-  m01: number;
-  m02: number;
-  m10: number;
-  m11: number;
-  m12: number;
-  m20: number;
-  m21: number;
-  m22: number;
 }
 
 export interface IMutableMatrix44 {
