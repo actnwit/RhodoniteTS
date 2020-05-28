@@ -166,4 +166,17 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
       m10, m11
     );
   }
+
+  multiplyByLeft(mat: Matrix22) {
+    const m00 = mat.m00 * this.m00 + mat.m01 * this.m10;
+    const m01 = mat.m00 * this.m01 + mat.m01 * this.m11;
+
+    const m10 = mat.m10 * this.m00 + mat.m11 * this.m10;
+    const m11 = mat.m10 * this.m01 + mat.m11 * this.m11;
+
+    return this.setComponents(
+      m00, m01,
+      m10, m11
+    );
+  }
 }
