@@ -1,13 +1,13 @@
-// import GLBoost from '../../globals';
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import Quaternion from './Quaternion';
-import { IMatrix33 } from './IMatrix';
+import { IMatrix, IMatrix33 } from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
+import { MathUtil } from './MathUtil';
 
-export default class Matrix33 implements IMatrix33 {
+export default class Matrix33 implements IMatrix, IMatrix33 {
   v: TypedArray;
 
   constructor(m: null);
@@ -114,246 +114,6 @@ export default class Matrix33 implements IMatrix33 {
     }
   }
 
-  get className() {
-    return this.constructor.name;
-  }
-
-  static get compositionType() {
-    return CompositionType.Mat3;
-  }
-
-  multiplyVector(vec: Vector3) {
-    var x = this.v[0] * vec.x + this.v[3] * vec.y + this.v[6] * vec.z;
-    var y = this.v[1] * vec.x + this.v[4] * vec.y + this.v[7] * vec.z;
-    var z = this.v[2] * vec.x + this.v[5] * vec.y + this.v[8] * vec.z;
-
-    return new (vec.constructor as any)(x, y, z);
-  }
-
-  /**
-   * Make this identity matrix（static method version）
-   */
-  static identity() {
-    return new Matrix33(
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
-    );
-  }
-
-  static dummy() {
-    return new Matrix33(null);
-  }
-
-  isDummy() {
-    if (this.v.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  clone() {
-    return new Matrix33(
-      this.v[0], this.v[3], this.v[6],
-      this.v[1], this.v[4], this.v[7],
-      this.v[2], this.v[5], this.v[8]
-    );
-  }
-
-  /**
-   * Create X oriented Rotation Matrix
-   */
-  static rotateX(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new Matrix33(
-      1, 0, 0,
-      0, cos, -sin,
-      0, sin, cos
-    );
-  }
-
-  /**
-   * Create X oriented Rotation Matrix
-   */
-  static rotateXTo(radian:number, out: MutableMatrix33) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-
-    out.m00 = 1;
-    out.m01 = 0;
-    out.m02 = 0;
-    out.m10 = 0;
-    out.m11 = cos;
-    out.m12 = -sin;
-    out.m20 = 0;
-    out.m21 = sin;
-    out.m22 = cos;
-
-    return out;
-  }
-
-  /**
-   * Create Y oriented Rotation Matrix
-   */
-  static rotateY(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new Matrix33(
-      cos, 0, sin,
-      0, 1, 0,
-      -sin, 0, cos
-    );
-  }
-
-  /**
-   * Create Y oriented Rotation Matrix
-   */
-  static rotateYTo(radian:number, out: MutableMatrix33) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-
-    out.m00 = cos;
-    out.m01 = 0;
-    out.m02 = sin;
-    out.m10 = 0;
-    out.m11 = 1;
-    out.m12 = 0;
-    out.m20 = -sin;
-    out.m21 = 0;
-    out.m22 = cos;
-
-    return out;
-  }
-
-  /**
-   * Create Z oriented Rotation Matrix
-   */
-  static rotateZ(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new Matrix33(
-      cos, -sin, 0,
-      sin, cos, 0,
-      0, 0, 1
-    );
-  }
-
-  static rotateXYZ(x: number, y: number, z: number) {
-    return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(z), Matrix33.rotateY(y)), Matrix33.rotateX(x));
-  }
-
-  static rotate(vec3: Vector3) {
-    return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(vec3.z), Matrix33.rotateY(vec3.y)), Matrix33.rotateX(vec3.x));
-  }
-
-  static scale(vec: Vector3) {
-    return new Matrix33(
-      vec.x, 0, 0,
-      0, vec.y, 0,
-      0, 0, vec.z
-    );
-  }
-
-  /**
-   * zero matrix(static version)
-   */
-  static zero() {
-    return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
-  }
-
-
-  /**
-   * transpose(static version)
-   */
-  static transpose(mat: Matrix33) {
-
-    var mat_t = new Matrix33(
-      mat.m00, mat.m10, mat.m20,
-      mat.m01, mat.m11, mat.m21,
-      mat.m02, mat.m12, mat.m22
-    );
-
-    return mat_t;
-  }
-
-  /**
-   * multiply matrixes (static version)
-   */
-  static multiply(l_m: Matrix33, r_m: Matrix33) {
-    var m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];
-    var m10 = l_m.v[1] * r_m.v[0] + l_m.v[4] * r_m.v[1] + l_m.v[7] * r_m.v[2];
-    var m20 = l_m.v[2] * r_m.v[0] + l_m.v[5] * r_m.v[1] + l_m.v[8] * r_m.v[2];
-
-    var m01 = l_m.v[0] * r_m.v[3] + l_m.v[3] * r_m.v[4] + l_m.v[6] * r_m.v[5];
-    var m11 = l_m.v[1] * r_m.v[3] + l_m.v[4] * r_m.v[4] + l_m.v[7] * r_m.v[5];
-    var m21 = l_m.v[2] * r_m.v[3] + l_m.v[5] * r_m.v[4] + l_m.v[8] * r_m.v[5];
-
-    var m02 = l_m.v[0] * r_m.v[6] + l_m.v[3] * r_m.v[7] + l_m.v[6] * r_m.v[8];
-    var m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
-    var m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
-
-    return new Matrix33(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
-  }
-
-  /**
-   * multiply matrixes (static version)
-   */
-  static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix33) {
-    out.m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];
-    out.m10 = l_m.v[1] * r_m.v[0] + l_m.v[4] * r_m.v[1] + l_m.v[7] * r_m.v[2];
-    out.m20 = l_m.v[2] * r_m.v[0] + l_m.v[5] * r_m.v[1] + l_m.v[8] * r_m.v[2];
-
-    out.m01 = l_m.v[0] * r_m.v[3] + l_m.v[3] * r_m.v[4] + l_m.v[6] * r_m.v[5];
-    out.m11 = l_m.v[1] * r_m.v[3] + l_m.v[4] * r_m.v[4] + l_m.v[7] * r_m.v[5];
-    out.m21 = l_m.v[2] * r_m.v[3] + l_m.v[5] * r_m.v[4] + l_m.v[8] * r_m.v[5];
-
-    out.m02 = l_m.v[0] * r_m.v[6] + l_m.v[3] * r_m.v[7] + l_m.v[6] * r_m.v[8];
-    out.m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
-    out.m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
-
-    return out;
-
-  }
-
-
-
-
-  determinant() {
-    return this.v[0] * this.v[4] * this.v[8] + this.v[1] * this.v[5] * this.v[6] + this.v[2] * this.v[3] * this.v[7]
-      - this.v[0] * this.v[5] * this.v[7] - this.v[2] * this.v[4] * this.v[6] - this.v[1] * this.v[3] * this.v[8];
-  }
-
-  static determinant(mat: Matrix33) {
-    return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
-      - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
-  }
-
-
-  static invert(mat: Matrix33) {
-    var det = mat.determinant();
-    var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-    var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-    var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-    var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-    var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-    var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-    var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-    var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-    var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
-
-    return new Matrix33(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
-  }
-
   public get m00() {
     return this.v[0];
   }
@@ -390,37 +150,199 @@ export default class Matrix33 implements IMatrix33 {
     return this.v[8];
   }
 
+  get className() {
+    return this.constructor.name;
+  }
+
+  static get compositionType() {
+    return CompositionType.Mat3;
+  }
+
+  /**
+   * zero matrix(static version)
+   */
+  static zero() {
+    return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+  }
+
+  /**
+   * Create identity matrix
+   */
+  static identity() {
+    return new Matrix33(
+      1, 0, 0,
+      0, 1, 0,
+      0, 0, 1
+    );
+  }
+
+  static dummy() {
+    return new Matrix33(null);
+  }
+
+  /**
+   * Create transpose matrix
+   */
+  static transpose(mat: Matrix33) {
+    return new Matrix33(
+      mat.m00, mat.m10, mat.m20,
+      mat.m01, mat.m11, mat.m21,
+      mat.m02, mat.m12, mat.m22
+    );
+  }
+
+  /**
+   * Create invert matrix
+   */
+  static invert(mat: Matrix33) {
+    var det = mat.determinant();
+    var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
+    var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
+    var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
+    var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
+    var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
+    var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
+    var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
+    var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
+    var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+
+    return new Matrix33(
+      m00, m01, m02,
+      m10, m11, m12,
+      m20, m21, m22
+    );
+  }
+
+  /**
+ * Create X oriented Rotation Matrix
+ */
+  static rotateX(radian: number) {
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+    return new Matrix33(
+      1, 0, 0,
+      0, cos, -sin,
+      0, sin, cos
+    );
+  }
+
+  /**
+   * Create Y oriented Rotation Matrix
+   */
+  static rotateY(radian: number) {
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+    return new Matrix33(
+      cos, 0, sin,
+      0, 1, 0,
+      -sin, 0, cos
+    );
+  }
+
+  /**
+   * Create Z oriented Rotation Matrix
+   */
+  static rotateZ(radian: number) {
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+    return new Matrix33(
+      cos, -sin, 0,
+      sin, cos, 0,
+      0, 0, 1
+    );
+  }
+
+  static rotateXYZ(x: number, y: number, z: number) {
+    return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(z), Matrix33.rotateY(y)), Matrix33.rotateX(x));
+  }
+
+  static rotate(vec3: Vector3) {
+    return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(vec3.z), Matrix33.rotateY(vec3.y)), Matrix33.rotateX(vec3.x));
+  }
+
+  /**
+   * Create Scale Matrix
+   */
+  static scale(vec: Vector3) {
+    return new Matrix33(
+      vec.x, 0, 0,
+      0, vec.y, 0,
+      0, 0, vec.z
+    );
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiply(l_m: Matrix33, r_m: Matrix33) {
+    var m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];
+    var m10 = l_m.v[1] * r_m.v[0] + l_m.v[4] * r_m.v[1] + l_m.v[7] * r_m.v[2];
+    var m20 = l_m.v[2] * r_m.v[0] + l_m.v[5] * r_m.v[1] + l_m.v[8] * r_m.v[2];
+
+    var m01 = l_m.v[0] * r_m.v[3] + l_m.v[3] * r_m.v[4] + l_m.v[6] * r_m.v[5];
+    var m11 = l_m.v[1] * r_m.v[3] + l_m.v[4] * r_m.v[4] + l_m.v[7] * r_m.v[5];
+    var m21 = l_m.v[2] * r_m.v[3] + l_m.v[5] * r_m.v[4] + l_m.v[8] * r_m.v[5];
+
+    var m02 = l_m.v[0] * r_m.v[6] + l_m.v[3] * r_m.v[7] + l_m.v[6] * r_m.v[8];
+    var m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
+    var m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
+
+    return new Matrix33(
+      m00, m01, m02,
+      m10, m11, m12,
+      m20, m21, m22
+    );
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix33) {
+    out.m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];
+    out.m10 = l_m.v[1] * r_m.v[0] + l_m.v[4] * r_m.v[1] + l_m.v[7] * r_m.v[2];
+    out.m20 = l_m.v[2] * r_m.v[0] + l_m.v[5] * r_m.v[1] + l_m.v[8] * r_m.v[2];
+
+    out.m01 = l_m.v[0] * r_m.v[3] + l_m.v[3] * r_m.v[4] + l_m.v[6] * r_m.v[5];
+    out.m11 = l_m.v[1] * r_m.v[3] + l_m.v[4] * r_m.v[4] + l_m.v[7] * r_m.v[5];
+    out.m21 = l_m.v[2] * r_m.v[3] + l_m.v[5] * r_m.v[4] + l_m.v[8] * r_m.v[5];
+
+    out.m02 = l_m.v[0] * r_m.v[6] + l_m.v[3] * r_m.v[7] + l_m.v[6] * r_m.v[8];
+    out.m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
+    out.m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
+
+    return out;
+  }
+
+  static determinant(mat: Matrix33) {
+    return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
+      - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
+  }
+
   toString() {
     return this.v[0] + ' ' + this.v[3] + ' ' + this.v[6] + '\n' +
       this.v[1] + ' ' + this.v[4] + ' ' + this.v[7] + '\n' +
       this.v[2] + ' ' + this.v[5] + ' ' + this.v[8] + '\n';
   }
 
-  nearZeroToZero(value: number) {
-    if (Math.abs(value) < 0.00001) {
-      value = 0;
-    } else if (0.99999 < value && value < 1.00001) {
-      value = 1;
-    } else if (-1.00001 < value && value < -0.99999) {
-      value = -1;
-    }
-    return value;
-  }
-
   toStringApproximately() {
-    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[3]) + ' ' + this.nearZeroToZero(this.v[6]) + '\n' +
-      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[4]) + ' ' + this.nearZeroToZero(this.v[7]) + ' \n' +
-      this.nearZeroToZero(this.v[2]) + ' ' + this.nearZeroToZero(this.v[5]) + ' ' + this.nearZeroToZero(this.v[8]) + '\n';
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[3]) + ' ' + MathUtil.nearZeroToZero(this.v[6]) + '\n' +
+      MathUtil.nearZeroToZero(this.v[1]) + ' ' + MathUtil.nearZeroToZero(this.v[4]) + ' ' + MathUtil.nearZeroToZero(this.v[7]) + ' \n' +
+      MathUtil.nearZeroToZero(this.v[2]) + ' ' + MathUtil.nearZeroToZero(this.v[5]) + ' ' + MathUtil.nearZeroToZero(this.v[8]) + '\n';
   }
 
-  getScale() {
-    return new Vector3(
-      Math.sqrt(this.v[0] * this.v[0] + this.v[3] * this.v[3] + this.v[6] * this.v[6]),
-      Math.sqrt(this.v[1] * this.v[1] + this.v[4] * this.v[4] + this.v[7] * this.v[7]),
-      Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8])
-    );
+  flattenAsArray() {
+    return [this.v[0], this.v[1], this.v[2],
+    this.v[3], this.v[4], this.v[5],
+    this.v[6], this.v[7], this.v[8]];
   }
 
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   isEqual(mat: Matrix33, delta: number = Number.EPSILON) {
     if (Math.abs(mat.v[0] - this.v[0]) < delta &&
@@ -437,4 +359,75 @@ export default class Matrix33 implements IMatrix33 {
       return false;
     }
   }
+
+  clone() {
+    return new Matrix33(
+      this.v[0], this.v[3], this.v[6],
+      this.v[1], this.v[4], this.v[7],
+      this.v[2], this.v[5], this.v[8]
+    );
+  }
+
+  determinant() {
+    return this.v[0] * this.v[4] * this.v[8] + this.v[1] * this.v[5] * this.v[6] + this.v[2] * this.v[3] * this.v[7]
+      - this.v[0] * this.v[5] * this.v[7] - this.v[2] * this.v[4] * this.v[6] - this.v[1] * this.v[3] * this.v[8];
+  }
+
+  multiplyVector(vec: Vector3) {
+    var x = this.v[0] * vec.x + this.v[3] * vec.y + this.v[6] * vec.z;
+    var y = this.v[1] * vec.x + this.v[4] * vec.y + this.v[7] * vec.z;
+    var z = this.v[2] * vec.x + this.v[5] * vec.y + this.v[8] * vec.z;
+
+    return new (vec.constructor as any)(x, y, z);
+  }
+
+  getScale() {
+    return new Vector3(
+      Math.sqrt(this.v[0] * this.v[0] + this.v[3] * this.v[3] + this.v[6] * this.v[6]),
+      Math.sqrt(this.v[1] * this.v[1] + this.v[4] * this.v[4] + this.v[7] * this.v[7]),
+      Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8])
+    );
+  }
+
+
+  /**
+   * Create X oriented Rotation Matrix
+   */
+  static rotateXTo(radian: number, out: MutableMatrix33) {
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+
+    out.m00 = 1;
+    out.m01 = 0;
+    out.m02 = 0;
+    out.m10 = 0;
+    out.m11 = cos;
+    out.m12 = -sin;
+    out.m20 = 0;
+    out.m21 = sin;
+    out.m22 = cos;
+
+    return out;
+  }
+
+  /**
+   * Create Y oriented Rotation Matrix
+   */
+  static rotateYTo(radian: number, out: MutableMatrix33) {
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+
+    out.m00 = cos;
+    out.m01 = 0;
+    out.m02 = sin;
+    out.m10 = 0;
+    out.m11 = 1;
+    out.m12 = 0;
+    out.m20 = -sin;
+    out.m21 = 0;
+    out.m22 = cos;
+
+    return out;
+  }
+
 }

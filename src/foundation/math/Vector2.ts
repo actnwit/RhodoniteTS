@@ -1,8 +1,8 @@
-import { IVector2, IVector3, IVector4 } from "./IVector";
+import { IVector2, IVector3, IVector4, IVector } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { MathUtil } from "./MathUtil";
 
-export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
+export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVector2 {
   v: TypedArray;
 
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, { type }: { type: T }) {
