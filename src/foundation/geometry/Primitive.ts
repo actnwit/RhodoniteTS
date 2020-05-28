@@ -377,6 +377,8 @@ export default class Primitive extends RnObject {
     if (this.__mode === PrimitiveMode.TriangleStrip) {
       // gl.TRIANGLE_STRIP
       incrementNum = 1;
+    } else if (this.__mode === PrimitiveMode.Points) {
+      return { currentShortestIntersectedPosVec3, currentShortestT };
     }
 
     if (!this.hasIndices()) {
@@ -511,7 +513,10 @@ export default class Primitive extends RnObject {
     if (this.__mode === PrimitiveMode.TriangleStrip) {
       // gl.TRIANGLE_STRIP
       incrementNum = 1;
+    } else if (this.__mode === PrimitiveMode.Points) {
+      return;
     }
+
     this.__inverseArenbergMatrix = [];
     this.__arenberg3rdPosition = [];
     if (!this.hasIndices()) {
