@@ -593,11 +593,13 @@ export default class Gltf2Importer {
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(gltfJson, imageJson.bufferView!, uint8Array);
         imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, imageJson.mimeType!);
       } else {
-        let imageFileStr = imageJson.uri;
-        const splitted = imageFileStr.split('/');
-        const filename = splitted[splitted.length - 1];
-        if (options.files && options.files[filename]) {
-          const arrayBuffer = options.files[filename];
+        const imageFileStr = imageJson.uri;
+        const splitUri = imageFileStr.split('/');
+        const filename = splitUri[splitUri.length - 1];
+
+        if (options.files && this.__containsFileName(options.files, filename)) {
+          const fullPath = this.__getFullPathOfFileName(options.files, filename);
+          const arrayBuffer = options.files[fullPath!];
           imageUri = DataUtil.createBlobImageUriFromUint8Array(new Uint8Array(arrayBuffer), imageJson.mimeType!);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
