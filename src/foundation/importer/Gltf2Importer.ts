@@ -532,12 +532,12 @@ export default class Gltf2Importer {
     for (let i in gltfJson.buffers) {
       let bufferInfo = gltfJson.buffers[i];
 
-      let splitted: string[];
-      let filename: string;
+      let filename = '';
       if (bufferInfo.uri) {
-        splitted = bufferInfo.uri.split('/');
-        filename = splitted[splitted.length - 1];
+        const splitUri = bufferInfo.uri.split('/');
+        filename = splitUri[splitUri.length - 1];
       }
+
       if (typeof bufferInfo.uri === 'undefined') {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
           resources.buffers[i] = uint8Array;
@@ -551,7 +551,7 @@ export default class Gltf2Importer {
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
-      } else if (options.files && this.__containsFileName(options.files, filename!)) {
+      } else if (options.files && this.__containsFileName(options.files, filename)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
           const fullPath = this.__getFullPathOfFileName(options.files, filename);
           const arrayBuffer = options.files[fullPath!];
