@@ -803,9 +803,10 @@ export default class DrcPointCloudImporter {
       }
 
       let byteOffsetOfAccessor = 0;
+      const attributeName = attributeNames[i];
       while (i < attributeNames.length) {
         accessors.push({
-          "name": "point-cloud_" + attributeNames[i].toLowerCase() + "s_" + i,
+          "name": "point-cloud_" + attributeName + "_" + i,
           "componentType": 5126, // gl.FLOAT
           "count": numPoints,
           "type": type,
@@ -820,13 +821,13 @@ export default class DrcPointCloudImporter {
         }
 
         i++;
-        if (numOfComponents !== attributeComponents[i]) {
+        if (attributeName != attributeNames[i]) {
           break;
         }
       }
 
       bufferViews[indexOfBufferView] = {
-        "name": "bufferView_" + indexOfBufferView,
+        "name": "bufferView_" + attributeName,
         "buffer": 0,
         "byteLength": byteOffsetOfAccessor,
         "byteOffset": byteOffsetOfBufferView,
