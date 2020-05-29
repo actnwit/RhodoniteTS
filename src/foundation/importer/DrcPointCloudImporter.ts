@@ -733,6 +733,12 @@ export default class DrcPointCloudImporter {
       "asset": {
         version: "2.0"
       },
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "extensionsRequired": [
+        "KHR_materials_unlit"
+      ],
       "nodes": [
         {
           "name": "Node",
@@ -741,10 +747,19 @@ export default class DrcPointCloudImporter {
       ],
       "scenes": [
         {
-          "nodes": [
-            0
-          ]
+          "nodes": [0]
         }
+      ],
+      "materials": [
+        {
+          "name": "point-cloud_material",
+          "pbrMetallicRoughness": {
+            "baseColorFactor": [1.0, 1.0, 1.0, 1.0]
+          },
+          "extensions": {
+            "KHR_materials_unlit": {}
+          }
+        },
       ]
     };
 
@@ -859,6 +874,7 @@ export default class DrcPointCloudImporter {
       "primitives": [
         {
           "mode": 0,
+          "material": 0,
           "attributes": attributes
         }
       ]
