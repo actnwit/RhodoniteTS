@@ -623,12 +623,12 @@ export default class Gltf1Importer {
     for (let i in gltfJson.buffers) {
       let bufferInfo = gltfJson.buffers[i];
 
-      let splitted: string;
-      let filename: string;
+      let filename = '';
       if (bufferInfo.uri) {
-        splitted = bufferInfo.uri.split('/');
-        filename = splitted[splitted.length - 1];
+        const splitUri = bufferInfo.uri.split('/');
+        filename = splitUri[splitUri.length - 1];
       }
+
       if (typeof bufferInfo.uri === 'undefined') {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
