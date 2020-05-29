@@ -623,12 +623,12 @@ export default class Gltf1Importer {
     for (let i in gltfJson.buffers) {
       let bufferInfo = gltfJson.buffers[i];
 
-      let splitted: string;
-      let filename: string;
+      let filename = '';
       if (bufferInfo.uri) {
-        splitted = bufferInfo.uri.split('/');
-        filename = splitted[splitted.length - 1];
+        const splitUri = bufferInfo.uri.split('/');
+        filename = splitUri[splitUri.length - 1];
       }
+
       if (typeof bufferInfo.uri === 'undefined') {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
@@ -648,16 +648,17 @@ export default class Gltf1Importer {
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
+            const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
             resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           })
         );
-      } else if (options.files && options.files[filename!]) {
+      } else if (options.files && this.__containsFileName(options.files, filename)) {
         promisesToLoadResources.push(
-          new Promise((resolve, rejected) => {
-            const arrayBuffer = options.files[filename];
+          new Promise((resolve, reject) => {
+            const fullPath = this.__getFullPathOfFileName(options.files, filename);
+            const arrayBuffer = options.files[fullPath!];
             resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
@@ -695,11 +696,13 @@ export default class Gltf1Importer {
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(gltfJson, imageJson.bufferView!, uint8Array);
         imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, imageJson.mimeType!);
       } else {
-        let imageFileStr = imageJson.uri;
-        const splitted = imageFileStr.split('/');
-        const filename = splitted[splitted.length - 1];
-        if (options.files && options.files[filename]) {
-          const arrayBuffer = options.files[filename];
+        const imageFileStr = imageJson.uri;
+        const splitUri = imageFileStr.split('/');
+        const filename = splitUri[splitUri.length - 1];
+
+        if (options.files && this.__containsFileName(options.files, filename)) {
+          const fullPath = this.__getFullPathOfFileName(options.files, filename);
+          const arrayBuffer = options.files[fullPath!];
           imageUri = DataUtil.createBlobImageUriFromUint8Array(new Uint8Array(arrayBuffer), imageJson.mimeType!);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
@@ -755,6 +758,30 @@ export default class Gltf1Importer {
     }
 
     return Promise.all(promisesToLoadResources);
+  }
+
+  private __containsFileName(optionsFiles: { [s: string]: ArrayBuffer }, filename: string) {
+    for (let key in optionsFiles) {
+      const split = key.split('/');
+      const last = split[split.length - 1];
+      if (last === filename) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private __getFullPathOfFileName(optionsFiles: { [s: string]: ArrayBuffer }, filename: string) {
+    for (let key in optionsFiles) {
+      const split = key.split('/');
+      const last = split[split.length - 1];
+      if (last === filename) {
+        return key;
+      }
+    }
+
+    return undefined;
   }
 
   static getInstance() {
