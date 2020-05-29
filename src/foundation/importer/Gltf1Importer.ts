@@ -648,16 +648,17 @@ export default class Gltf1Importer {
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
+            const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
             resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           })
         );
-      } else if (options.files && options.files[filename!]) {
+      } else if (options.files && this.__containsFileName(options.files, filename)) {
         promisesToLoadResources.push(
-          new Promise((resolve, rejected) => {
-            const arrayBuffer = options.files[filename];
+          new Promise((resolve, reject) => {
+            const fullPath = this.__getFullPathOfFileName(options.files, filename);
+            const arrayBuffer = options.files[fullPath!];
             resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
