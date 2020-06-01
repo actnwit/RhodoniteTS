@@ -11,18 +11,20 @@ export interface IMatrix {
 
   // ---Add following methods later---
   // isStrictEqual(mat: IMatrix): boolean;
+  // at(row_i: number, column_i: number): number;
   // clone(): IMatrix;
   // determinant(): number;
   // multiplyVector(vec: IVector): IVector;
   // multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
   // getScale(): IVector;
-  // getScaleTo(outVec: IMutableVector): IMutableVector
+  // getScaleTo(outVec: IMutableVector): IMutableVector;
 }
 
 export interface IMutableMatrix {
 
   // ---Add following methods later---
   // raw(): TypedArray;
+  // setAt(row_i: number, column_i: number, val: number): void;
   // setComponents(...num: number[]): IMutableMatrix;
   // copyComponents(mat: IMatrix): IMutableMatrix;
   // zero(): IMutableMatrix;
