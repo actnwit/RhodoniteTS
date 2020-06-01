@@ -429,9 +429,9 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
 
   getScale() {
     return new Vector3(
-      Math.sqrt(this.v[0] * this.v[0] + this.v[3] * this.v[3] + this.v[6] * this.v[6]),
-      Math.sqrt(this.v[1] * this.v[1] + this.v[4] * this.v[4] + this.v[7] * this.v[7]),
-      Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8])
+      Math.hypot(this.m00, this.m01, this.m02),
+      Math.hypot(this.m10, this.m11, this.m12),
+      Math.hypot(this.m20, this.m21, this.m22)
     );
   }
 
