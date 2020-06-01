@@ -273,6 +273,10 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     return true;
   }
 
+  at(row_i: number, column_i: number) {
+    return this.v[row_i + column_i * 2];
+  }
+
   clone() {
     return new (this.constructor as any)(
       this.v[0], this.v[2],
@@ -311,5 +315,4 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     outVec.y = Math.hypot(this.m10, this.m11);
     return outVec;
   }
-
 }

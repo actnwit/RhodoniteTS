@@ -61,6 +61,10 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     return this.v;
   }
 
+  setAt(row_i: number, column_i: number, val: number) {
+    this.v[row_i + column_i * 2] = val;
+  }
+
   setComponents(
     m00: number, m01: number,
     m10: number, m11: number
