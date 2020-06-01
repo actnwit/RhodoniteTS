@@ -97,10 +97,6 @@ export default class DrcPointCloudImporter {
   }
 
   async _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
-    let gltfVer = dataView.getUint32(4, isLittleEndian);
-    if (gltfVer !== 2) {
-      throw new Error('invalid version field in this binary glTF file.');
-    }
     let lengthOfJSonChunkData = dataView.getUint32(12, isLittleEndian);
     let chunkType = dataView.getUint32(16, isLittleEndian);
     // 0x4E4F534A means JSON format (0x4E4F534A is 'JSON' in ASCII codes)
@@ -348,17 +344,6 @@ export default class DrcPointCloudImporter {
           emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
         }
 
-        if (material.extensions && material.extensions.ZOZO_materials_pbrMultiLayer) {
-          const zMaterial = material.extensions.ZOZO_materials_pbrMultiLayer
-          let diffuseTexture = zMaterial.diffuseTexture;
-          if (diffuseTexture !== void 0) {
-            diffuseTexture.texture = gltfJson.textures[diffuseTexture.index];
-          }
-          let specularGlossinessTexture = zMaterial.specularGlossinessTexture;
-          if (specularGlossinessTexture !== void 0) {
-            specularGlossinessTexture.texture = gltfJson.textures[specularGlossinessTexture.index];
-          }
-        }
         if (this._checkRnGltfLoaderOptionsExist(gltfJson) &&
           gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension &&
           gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures) {
@@ -688,16 +673,16 @@ export default class DrcPointCloudImporter {
       throw new Error('Draco: No position attribute found.');
     }
 
-    const geometryAttributes = ['POSITION', 'NORMAL', 'COLOR', 'TEX_COORD', 'GENERIC'];
+    const attributeNames = ['POSITION', 'NORMAL', 'COLOR', 'TEX_COORD', 'GENERIC'];
     const numPoints = dracoGeometry.num_points();
 
     const attributeDataAll: any[] = [];
     const attributeComponents: number[] = [];
     let bufferLength = 0;
-    for (let i = 0; i < geometryAttributes.length; i++) {
-      const attId = decoder.GetAttributeId(dracoGeometry, draco[geometryAttributes[i]]);
+    for (let i = 0; i < attributeNames.length; i++) {
+      const attId = decoder.GetAttributeId(dracoGeometry, draco[attributeNames[i]]);
       if (attId === -1) {
-        geometryAttributes.splice(i, 1);
+        attributeNames.splice(i, 1);
         i--;
         continue;
       }
@@ -707,9 +692,9 @@ export default class DrcPointCloudImporter {
       decoder.GetAttributeFloatForAllPoints(dracoGeometry, attribute, attributeData);
       attributeDataAll[i] = attributeData;
 
-      let numComponent = attribute.num_components();
+      const numComponent = attribute.num_components();
       attributeComponents[i] = numComponent;
-      if (geometryAttributes[i] === 'COLOR') {
+      if (attributeNames[i] === 'COLOR') {
         bufferLength += numPoints * 4;
       } else {
         bufferLength += numPoints * numComponent;
@@ -717,15 +702,15 @@ export default class DrcPointCloudImporter {
     }
 
     const buffer = new Float32Array(bufferLength);
-    for (let i = 0, currentBufferIndex = 0; i < geometryAttributes.length; i++) {
-      if (geometryAttributes[i] === 'COLOR' && attributeComponents[i] === 3) {
+    for (let i = 0, currentBufferIndex = 0; i < attributeNames.length; i++) {
+      if (attributeNames[i] === 'COLOR' && attributeComponents[i] === 3) {
         for (var j = 0; j < numPoints; currentBufferIndex += 4, j += 3) {
           buffer[currentBufferIndex] = attributeDataAll[i].GetValue(j);
           buffer[currentBufferIndex + 1] = attributeDataAll[i].GetValue(j + 1);
           buffer[currentBufferIndex + 2] = attributeDataAll[i].GetValue(j + 2);
           buffer[currentBufferIndex + 3] = 1.0; // alpha value
         }
-      } else if (geometryAttributes[i] === 'TEX_COORD') {
+      } else if (attributeNames[i] === 'TEX_COORD') {
         for (var j = 0; j < numPoints; currentBufferIndex += 2, j++) {
           buffer[currentBufferIndex] = attributeDataAll[i].GetValue(2 * j);
           buffer[currentBufferIndex + 1] = 1.0 - attributeDataAll[i].GetValue(2 * j + 1);
@@ -740,14 +725,20 @@ export default class DrcPointCloudImporter {
     draco.destroy(decoder);
     draco.destroy(dracoGeometry);
 
-    return this.__decodedBufferToJSON(buffer, numPoints, geometryAttributes, attributeComponents);
+    return this.__decodedBufferToJSON(buffer, numPoints, attributeNames, attributeComponents);
   }
 
-  private async __decodedBufferToJSON(buffer: Float32Array, numPoints: number, geometryAttributes: string[], attributeComponents: number[]) {
-    let json: any = {
+  private async __decodedBufferToJSON(buffer: Float32Array, numPoints: number, attributeNames: string[], attributeComponents: number[]) {
+    const json: any = {
       "asset": {
         version: "2.0"
       },
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "extensionsRequired": [
+        "KHR_materials_unlit"
+      ],
       "nodes": [
         {
           "name": "Node",
@@ -756,15 +747,34 @@ export default class DrcPointCloudImporter {
       ],
       "scenes": [
         {
-          "nodes": [
-            0
-          ]
+          "nodes": [0]
         }
+      ],
+      "materials": [
+        {
+          "name": "point-cloud_material",
+          "pbrMetallicRoughness": {
+            "baseColorFactor": [1.0, 1.0, 1.0, 1.0]
+          },
+          "extensions": {
+            "KHR_materials_unlit": {}
+          }
+        },
       ]
     };
 
-    const mimeType = 'application/octet-stream';
-    await this.__convertBufferToURI(buffer.buffer, mimeType).then((uri) => {
+
+    await this.__setBuffersToJSON(buffer, json);
+    this.__setAccessorsAndBufferViewsToJSON(numPoints, attributeNames, attributeComponents, json);
+    this.__setMeshesToJSON(attributeNames, json);
+
+    return new Promise((resolve, reject) => {
+      resolve(json);
+    });
+  }
+
+  private __setBuffersToJSON(buffer: Float32Array, json: any) {
+    return this.__convertBufferToURI(buffer.buffer).then((uri) => {
       json["buffers"] = [
         {
           "name": "input",
@@ -775,96 +785,102 @@ export default class DrcPointCloudImporter {
     }).catch((err) => {
       console.log('this.__convertBufferToURI error:', err);
     });
+  }
 
-    const accessors: any = [];
-    const bufferViews: any = [];
+  private __convertBufferToURI(arrayBuffer: ArrayBuffer) {
+    return new Promise((resolve, reject) => {
+      const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+      const fr = new FileReader();
+
+      fr.onload = () => {
+        resolve(fr.result!);
+      };
+      fr.onerror = () => {
+        reject(fr.error);
+      };
+      fr.readAsDataURL(blob);
+    });
+  }
+
+  private __setAccessorsAndBufferViewsToJSON(numPoints: number, attributeNames: string[], attributeComponents: number[], json: any) {
+    const accessors = [];
+    const bufferViews = [];
 
     let byteOffsetOfBufferView = 0;
-    for (let i = 0, currentIndexOfBufferView = 0; i < geometryAttributes.length; currentIndexOfBufferView++) {
-      const currentComponent = attributeComponents[i];
+    for (let i = 0, indexOfBufferView = 0; i < attributeNames.length; indexOfBufferView++) {
+      const numOfComponents = attributeComponents[i];
 
       let type;
-      if (currentComponent === 1) {
+      if (numOfComponents === 1) {
         type = "SCALAR";
       } else {
-        type = "VEC" + currentComponent;
+        type = "VEC" + numOfComponents;
       }
 
       let byteOffsetOfAccessor = 0;
-      while (i < geometryAttributes.length && currentComponent === attributeComponents[i]) {
+      const attributeName = attributeNames[i];
+      while (i < attributeNames.length) {
         accessors.push({
-          "name": "point-cloud_" + geometryAttributes[i].toLowerCase() + "s",
+          "name": "point-cloud_" + attributeName + "_" + i,
           "componentType": 5126, // gl.FLOAT
           "count": numPoints,
           "type": type,
-          "bufferView": currentIndexOfBufferView,
+          "bufferView": indexOfBufferView,
           "byteOffset": byteOffsetOfAccessor
         });
-        if (geometryAttributes[i] === 'COLOR') {
+
+        if (attributeNames[i] === 'COLOR') {
           byteOffsetOfAccessor += numPoints * 4 * 4;
         } else {
-          byteOffsetOfAccessor += numPoints * attributeComponents[i] * 4;
+          byteOffsetOfAccessor += numPoints * numOfComponents * 4;
         }
+
         i++;
+        if (attributeName != attributeNames[i]) {
+          break;
+        }
       }
 
-      bufferViews[currentIndexOfBufferView] = {
-        "name": "bufferView_" + currentIndexOfBufferView,
+      bufferViews[indexOfBufferView] = {
+        "name": "bufferView_" + attributeName,
         "buffer": 0,
         "byteLength": byteOffsetOfAccessor,
         "byteOffset": byteOffsetOfBufferView,
-        "byteStride": currentComponent * 4,
+        "byteStride": numOfComponents * 4,
         "target": 34962 // gl.ARRAY_BUFFER
       };
       byteOffsetOfBufferView += byteOffsetOfAccessor;
-
     }
 
     json["accessors"] = accessors;
     json["bufferViews"] = bufferViews;
+  }
+
+  private __setMeshesToJSON(attributeNames: string[], json: any) {
+    const attributes: any = {};
+
+    for (let i = 0; i < attributeNames.length; i++) {
+      if (attributeNames[i] === 'TEX_COORD') {
+        attributes['TEXCOORD_0'] = i;
+      } else if (attributeNames[i] === 'GENERIC') {
+        attributes['TANGENT'] = i;
+      } else {
+        attributes[attributeNames[i]] = i;
+      }
+    }
 
     const mesh: any = {
       "name": "Node-Mesh",
       "primitives": [
         {
-          "mode": 0
+          "mode": 0,
+          "material": 0,
+          "attributes": attributes
         }
       ]
     };
 
-    const attributes: any = {};
-    for (let i = 0; i < geometryAttributes.length; i++) {
-      if (geometryAttributes[i] === 'TEX_COORD') {
-        attributes['TEXCOORD_0'] = i;
-      } else if (geometryAttributes[i] === 'GENERIC') {
-        attributes['TANGENT'] = i;
-      } else {
-        attributes[geometryAttributes[i]] = i;
-      }
-    }
-
-    mesh.primitives[0].attributes = attributes;
     json["meshes"] = [mesh];
-
-
-    return new Promise((resolve, reject) => {
-      resolve(json);
-    });
-  }
-
-  private __convertBufferToURI(arrayBuffer: ArrayBuffer, mimeType: string) {
-    return new Promise((resolve, reject) => {
-      var blob = new Blob([arrayBuffer], { type: mimeType });
-      var fr = new FileReader();
-
-      fr.onload = (event) => {
-        resolve(fr.result!);
-      };
-      fr.onerror = (event) => {
-        reject(fr.error);
-      };
-      fr.readAsDataURL(blob);
-    });
   }
 
 
