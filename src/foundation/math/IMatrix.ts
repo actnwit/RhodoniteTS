@@ -1,4 +1,4 @@
-import { IVector, IVector2, IMutableVector2, IMutableVector } from "./IVector";
+import { IVector, IMutableVector, IVector2, IMutableVector2, IVector3, IMutableVector3 } from "./IVector";
 import { TypedArray, Index } from "../../commontypes/CommonTypes";
 
 export interface IMatrix {
@@ -51,6 +51,7 @@ export interface IMatrix22 {
   isDummy(): boolean;
   isEqual(mat: IMatrix22, delta: number): boolean;
   isStrictEqual(mat: IMatrix22): boolean;
+  at(row_i: number, column_i: number): number;
   clone(): IMatrix22;
   determinant(): number;
   multiplyVector(vec: IVector2): IVector2;
@@ -65,6 +66,7 @@ export interface IMutableMatrix22 {
   m10: number;
   m11: number;
   raw(): TypedArray;
+  setAt(row_i: number, column_i: number, val: number): void;
   setComponents(...num: number[]): IMutableMatrix22;
   copyComponents(mat: IMatrix22 | IMatrix33 | IMatrix44): IMutableMatrix22;
   zero(): IMutableMatrix22;
@@ -89,6 +91,19 @@ export interface IMatrix33 {
   readonly m20: number;
   readonly m21: number;
   readonly m22: number;
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(mat: IMatrix33, delta: number): boolean;
+  isStrictEqual(mat: IMatrix33): boolean;
+  at(row_i: number, column_i: number): number;
+  clone(): IMatrix33;
+  determinant(): number;
+  multiplyVector(vec: IVector3): IVector3;
+  multiplyVectorTo(vec: IVector3, outVec: IMutableVector3): IMutableVector3;
+  getScale(): IVector3;
+  getScaleTo(outVec: IMutableVector3): IMutableVector3
 }
 
 export interface IMutableMatrix33 {
