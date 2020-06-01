@@ -213,6 +213,25 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     );
   }
 
+  static invertTo(mat: Matrix33, out: MutableMatrix33) {
+    const det = mat.determinant();
+    const m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
+    const m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
+    const m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
+    const m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
+    const m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
+    const m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
+    const m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
+    const m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
+    const m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+
+    return out.setComponents(
+      m00, m01, m02,
+      m10, m11, m12,
+      m20, m21, m22
+    );
+  }
+
   /**
  * Create X oriented Rotation Matrix
  */
@@ -298,19 +317,23 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
    * multiply matrixes
    */
   static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix33) {
-    out.m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];
-    out.m10 = l_m.v[1] * r_m.v[0] + l_m.v[4] * r_m.v[1] + l_m.v[7] * r_m.v[2];
-    out.m20 = l_m.v[2] * r_m.v[0] + l_m.v[5] * r_m.v[1] + l_m.v[8] * r_m.v[2];
+    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];
+    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[4] * r_m.v[1] + l_m.v[7] * r_m.v[2];
+    const m20 = l_m.v[2] * r_m.v[0] + l_m.v[5] * r_m.v[1] + l_m.v[8] * r_m.v[2];
 
-    out.m01 = l_m.v[0] * r_m.v[3] + l_m.v[3] * r_m.v[4] + l_m.v[6] * r_m.v[5];
-    out.m11 = l_m.v[1] * r_m.v[3] + l_m.v[4] * r_m.v[4] + l_m.v[7] * r_m.v[5];
-    out.m21 = l_m.v[2] * r_m.v[3] + l_m.v[5] * r_m.v[4] + l_m.v[8] * r_m.v[5];
+    const m01 = l_m.v[0] * r_m.v[3] + l_m.v[3] * r_m.v[4] + l_m.v[6] * r_m.v[5];
+    const m11 = l_m.v[1] * r_m.v[3] + l_m.v[4] * r_m.v[4] + l_m.v[7] * r_m.v[5];
+    const m21 = l_m.v[2] * r_m.v[3] + l_m.v[5] * r_m.v[4] + l_m.v[8] * r_m.v[5];
 
-    out.m02 = l_m.v[0] * r_m.v[6] + l_m.v[3] * r_m.v[7] + l_m.v[6] * r_m.v[8];
-    out.m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
-    out.m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
+    const m02 = l_m.v[0] * r_m.v[6] + l_m.v[3] * r_m.v[7] + l_m.v[6] * r_m.v[8];
+    const m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
+    const m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
 
-    return out;
+    return out.setComponents(
+      m00, m01, m02,
+      m10, m11, m12,
+      m20, m21, m22
+    );
   }
 
   toString() {

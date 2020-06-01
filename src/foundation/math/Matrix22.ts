@@ -168,11 +168,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
 
   static invertTo(m: Matrix22, out: MutableMatrix22) {
     const det = m.determinant();
-    out.m00 = m.m11 / det;
-    out.m01 = m.m01 / det * (-1.0);
-    out.m10 = m.m10 / det * (-1.0);
-    out.m11 = m.m00 / det;
-    return out;
+    const m00 = m.m11 / det;
+    const m01 = m.m01 / det * (-1.0);
+    const m10 = m.m10 / det * (-1.0);
+    const m11 = m.m00 / det;
+    return out.setComponents(
+      m00, m01,
+      m10, m11
+    );
   }
 
   /**
@@ -217,13 +220,16 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
    * multiply matrixes
    */
   static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix22) {
-    out.m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
-    out.m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
+    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
+    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
 
-    out.m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
-    out.m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
+    const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
+    const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
 
-    return out;
+    return out.setComponents(
+      m00, m01,
+      m10, m11
+    );
   }
 
   toString() {
@@ -311,8 +317,10 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   }
 
   getScaleTo(outVec: MutableVector2) {
-    outVec.x = Math.hypot(this.m00, this.m01);
-    outVec.y = Math.hypot(this.m10, this.m11);
+    const x = Math.hypot(this.m00, this.m01);
+    const y = Math.hypot(this.m10, this.m11);
+    outVec.x = x;
+    outVec.y = y;
     return outVec;
   }
 }
