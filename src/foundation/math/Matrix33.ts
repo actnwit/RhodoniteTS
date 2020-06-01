@@ -313,11 +313,6 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     return out;
   }
 
-  static determinant(mat: Matrix33) {
-    return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
-      - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
-  }
-
   toString() {
     return this.v[0] + ' ' + this.v[3] + ' ' + this.v[6] + '\n' +
       this.v[1] + ' ' + this.v[4] + ' ' + this.v[7] + '\n' +
