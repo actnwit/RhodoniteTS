@@ -6,6 +6,7 @@ import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import { MathUtil } from './MathUtil';
+import MutableVector3 from './MutableVector3';
 
 export default class Matrix33 implements IMatrix, IMatrix33 {
   v: TypedArray;
@@ -378,6 +379,23 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     }
   }
 
+  isStrictEqual(mat: Matrix33) {
+    if (this.v.length !== mat.v.length) {
+      false;
+    }
+
+    for (let i = 0; i < this.v.length; i++) {
+      if (mat.v[i] !== this.v[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  at(row_i: number, column_i: number) {
+    return this.v[row_i + column_i * 3];
+  }
+
   clone() {
     return new Matrix33(
       this.v[0], this.v[3], this.v[6],
@@ -399,11 +417,31 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     return new (vec.constructor as any)(x, y, z);
   }
 
+  multiplyVectorTo(vec: Vector3, outVec: MutableVector3) {
+    const x = this.v[0] * vec.x + this.v[3] * vec.y + this.v[6] * vec.z;
+    const y = this.v[1] * vec.x + this.v[4] * vec.y + this.v[7] * vec.z;
+    const z = this.v[2] * vec.x + this.v[5] * vec.y + this.v[8] * vec.z;
+    outVec.x = x;
+    outVec.y = y;
+    outVec.z = z;
+    return outVec;
+  }
+
   getScale() {
     return new Vector3(
       Math.sqrt(this.v[0] * this.v[0] + this.v[3] * this.v[3] + this.v[6] * this.v[6]),
       Math.sqrt(this.v[1] * this.v[1] + this.v[4] * this.v[4] + this.v[7] * this.v[7]),
       Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8])
     );
+  }
+
+  getScaleTo(outVec: MutableVector3) {
+    const x = Math.hypot(this.m00, this.m01, this.m02);
+    const y = Math.hypot(this.m10, this.m11, this.m12);
+    const z = Math.hypot(this.m20, this.m21, this.m22);
+    outVec.x = x;
+    outVec.y = y;
+    outVec.z = z;
+    return outVec;
   }
 }
