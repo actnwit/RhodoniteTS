@@ -101,70 +101,79 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     return this.v[8];
   }
 
-  static get compositionType() {
-    return CompositionType.Mat3;
+  /**
+   * zero matrix(static version)
+   */
+  static zero() {
+    return super.zero() as MutableMatrix33;
+  }
+
+  /**
+   * Create identity matrix
+   */
+  static identity() {
+    return super.identity() as MutableMatrix33;
   }
 
   static dummy() {
-    return new MutableMatrix33(null);
+    return super.dummy() as MutableMatrix33;
   }
 
   /**
-   * Make this identity matrix（static method version）
+   * Create transpose matrix
    */
-  static identity() {
-    return new MutableMatrix33(
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
-    );
+  static transpose(mat: Matrix33) {
+    return super.transpose(mat) as MutableMatrix33;
   }
 
   /**
-   * Create X oriented Rotation Matrix
+   * Create invert matrix
    */
+  static invert(mat: Matrix33) {
+    return super.invert(mat) as MutableMatrix33;
+  }
+
+  /**
+ * Create X oriented Rotation Matrix
+ */
   static rotateX(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new MutableMatrix33(
-      1, 0, 0,
-      0, cos, -sin,
-      0, sin, cos
-    );
+    return super.rotateX(radian) as MutableMatrix33;
   }
 
   /**
    * Create Y oriented Rotation Matrix
    */
   static rotateY(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new MutableMatrix33(
-      cos, 0, sin,
-      0, 1, 0,
-      -sin, 0, cos
-    );
+    return super.rotateY(radian) as MutableMatrix33;
   }
 
   /**
    * Create Z oriented Rotation Matrix
    */
   static rotateZ(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new MutableMatrix33(
-      cos, -sin, 0,
-      sin, cos, 0,
-      0, 0, 1
-    );
+    return super.rotateZ(radian) as MutableMatrix33;
   }
 
   static rotateXYZ(x: number, y: number, z: number) {
-    return (MutableMatrix33.rotateZ(z).multiply(MutableMatrix33.rotateY(y).multiply(MutableMatrix33.rotateX(x))));
+    return super.rotateXYZ(x, y, z) as MutableMatrix33;
   }
 
   static rotate(vec3: Vector3) {
-    return (MutableMatrix33.rotateZ(vec3.z).multiply(MutableMatrix33.rotateY(vec3.y).multiply(MutableMatrix33.rotateX(vec3.x))));
+    return super.rotateXYZ(vec3.x, vec3.y, vec3.z) as MutableMatrix33;
+  }
+
+  /**
+   * Create Scale Matrix
+   */
+  static scale(vec: Vector3) {
+    return super.scale(vec) as MutableMatrix33;
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiply(l_m: Matrix33, r_m: Matrix33) {
+    return super.multiply(l_m, r_m) as MutableMatrix33;
   }
 
   flattenAsArray() {

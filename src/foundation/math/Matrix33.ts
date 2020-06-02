@@ -163,14 +163,14 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
    * zero matrix(static version)
    */
   static zero() {
-    return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return new this(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
    * Create identity matrix
    */
   static identity() {
-    return new Matrix33(
+    return new this(
       1, 0, 0,
       0, 1, 0,
       0, 0, 1
@@ -178,14 +178,14 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   }
 
   static dummy() {
-    return new Matrix33(null);
+    return new this(null);
   }
 
   /**
    * Create transpose matrix
    */
   static transpose(mat: Matrix33) {
-    return new Matrix33(
+    return new this(
       mat.m00, mat.m10, mat.m20,
       mat.m01, mat.m11, mat.m21,
       mat.m02, mat.m12, mat.m22
@@ -207,7 +207,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
     var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
 
-    return new Matrix33(
+    return new this(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
@@ -239,7 +239,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   static rotateX(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix33(
+    return new this(
       1, 0, 0,
       0, cos, -sin,
       0, sin, cos
@@ -252,7 +252,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   static rotateY(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix33(
+    return new this(
       cos, 0, sin,
       0, 1, 0,
       -sin, 0, cos
@@ -265,7 +265,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   static rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix33(
+    return new this(
       cos, -sin, 0,
       sin, cos, 0,
       0, 0, 1
@@ -332,7 +332,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     const m21 = yx21;
     const m22 = yx22;
 
-    return new Matrix33(
+    return new this(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
@@ -347,7 +347,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
    * Create Scale Matrix
    */
   static scale(vec: Vector3) {
-    return new Matrix33(
+    return new this(
       vec.x, 0, 0,
       0, vec.y, 0,
       0, 0, vec.z
@@ -370,7 +370,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     var m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
     var m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
 
-    return new Matrix33(
+    return new this(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
