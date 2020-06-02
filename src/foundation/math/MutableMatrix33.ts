@@ -176,12 +176,6 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     return super.multiply(l_m, r_m) as MutableMatrix33;
   }
 
-  flattenAsArray() {
-    return [this.v[0], this.v[1], this.v[2],
-    this.v[3], this.v[4], this.v[5],
-    this.v[6], this.v[7], this.v[8]];
-  }
-
   raw() {
     return this.v;
   }
