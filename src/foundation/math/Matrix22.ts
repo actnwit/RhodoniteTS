@@ -283,13 +283,6 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     return this.v[row_i + column_i * 2];
   }
 
-  clone() {
-    return new (this.constructor as any)(
-      this.v[0], this.v[2],
-      this.v[1], this.v[3]
-    );
-  }
-
   determinant() {
     return this.v[0] * this.v[3] - this.v[1] * this.v[2];
   }
@@ -322,5 +315,12 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     outVec.x = x;
     outVec.y = y;
     return outVec;
+  }
+
+  clone() {
+    return new (this.constructor as any)(
+      this.m00, this.m01,
+      this.m10, this.m11
+    ) as Matrix22;
   }
 }

@@ -110,6 +110,11 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     return super.multiply(l_m, r_m) as MutableMatrix22;
   }
 
+  clone() {
+    const result = super.clone() as MutableMatrix22;
+    return result;
+  }
+
   raw() {
     return this.v;
   }

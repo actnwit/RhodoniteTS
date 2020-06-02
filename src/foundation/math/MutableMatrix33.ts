@@ -174,6 +174,11 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     return super.multiply(l_m, r_m) as MutableMatrix33;
   }
 
+  clone() {
+    const result = super.clone() as MutableMatrix33;
+    return result;
+  }
+
   raw() {
     return this.v;
   }

@@ -459,14 +459,6 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     return this.v[row_i + column_i * 3];
   }
 
-  clone() {
-    return new Matrix33(
-      this.v[0], this.v[3], this.v[6],
-      this.v[1], this.v[4], this.v[7],
-      this.v[2], this.v[5], this.v[8]
-    );
-  }
-
   determinant() {
     return this.v[0] * this.v[4] * this.v[8] + this.v[1] * this.v[5] * this.v[6] + this.v[2] * this.v[3] * this.v[7]
       - this.v[0] * this.v[5] * this.v[7] - this.v[2] * this.v[4] * this.v[6] - this.v[1] * this.v[3] * this.v[8];
@@ -506,5 +498,13 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     outVec.y = y;
     outVec.z = z;
     return outVec;
+  }
+
+  clone() {
+    return new (this.constructor as any)(
+      this.m00, this.m01, this.m02,
+      this.m10, this.m11, this.m12,
+      this.m20, this.m21, this.m22
+    ) as Matrix33;
   }
 }
