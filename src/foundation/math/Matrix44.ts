@@ -549,6 +549,25 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     );
   }
 
+  static fromQuaternionTo(m: Quaternion, outMat: MutableMatrix44) {
+    const sx = m.x * m.x;
+    const sy = m.y * m.y;
+    const sz = m.z * m.z;
+    const cx = m.y * m.z;
+    const cy = m.x * m.z;
+    const cz = m.x * m.y;
+    const wx = m.w * m.x;
+    const wy = m.w * m.y;
+    const wz = m.w * m.z;
+
+    outMat.m00 = 1.0 - 2.0 * (sy + sz); outMat.m01 = 2.0 * (cz - wz); outMat.m02 = 2.0 * (cy + wy); outMat.m03 = 0;
+    outMat.m10 = 2.0 * (cz + wz); outMat.m11 = 1.0 - 2.0 * (sx + sz); outMat.m12 = 2.0 * (cx - wx); outMat.m13 = 0;
+    outMat.m20 = 2.0 * (cy - wy); outMat.m21 = 2.0 * (cx + wx); outMat.m22 = 1.0 - 2.0 * (sx + sy); outMat.m23 = 0;
+    outMat.m30 = 0; outMat.m31 = 0; outMat.m32 = 0; outMat.m33 = 1;
+
+    return outMat;
+  }
+
   toString() {
     return this.v[0] + ' ' + this.v[4] + ' ' + this.v[8] + ' ' + this.m03 + ' \n' +
       this.v[1] + ' ' + this.v[5] + ' ' + this.v[9] + ' ' + this.m13 + ' \n' +
@@ -616,15 +635,6 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
   at(row_i: number, column_i: number) {
     return this.v[row_i + column_i * 4];
-  }
-
-  clone() {
-    return new (this.constructor as any)(
-      this.v[0], this.v[4], this.v[8], this.v[12],
-      this.v[1], this.v[5], this.v[9], this.v[13],
-      this.v[2], this.v[6], this.v[10], this.v[14],
-      this.v[3], this.v[7], this.v[11], this.v[15]
-    ) as Matrix44;
   }
 
   determinant() {
@@ -699,13 +709,6 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     return outVec;
   }
 
-
-  getRotate() {
-    const quat = Quaternion.fromMatrix(this);
-    const rotateMat = new (this.constructor as any)(quat) as Matrix44;
-    return rotateMat;
-  }
-
   getScale() {
     return new Vector3(
       Math.hypot(this.m00, this.m01, this.m02),
@@ -722,26 +725,6 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     outVec.y = Math.hypot(this.m10, this.m11, this.m12);
     outVec.z = Math.hypot(this.m20, this.m21, this.m22);
     return outVec;
-  }
-
-
-  static fromQuaternionTo(m: Quaternion, outMat: MutableMatrix44) {
-    const sx = m.x * m.x;
-    const sy = m.y * m.y;
-    const sz = m.z * m.z;
-    const cx = m.y * m.z;
-    const cy = m.x * m.z;
-    const cz = m.x * m.y;
-    const wx = m.w * m.x;
-    const wy = m.w * m.y;
-    const wz = m.w * m.z;
-
-    outMat.m00 = 1.0 - 2.0 * (sy + sz); outMat.m01 = 2.0 * (cz - wz); outMat.m02 = 2.0 * (cy + wy); outMat.m03 = 0;
-    outMat.m10 = 2.0 * (cz + wz); outMat.m11 = 1.0 - 2.0 * (sx + sz); outMat.m12 = 2.0 * (cx - wx); outMat.m13 = 0;
-    outMat.m20 = 2.0 * (cy - wy); outMat.m21 = 2.0 * (cx + wx); outMat.m22 = 1.0 - 2.0 * (sx + sy); outMat.m23 = 0;
-    outMat.m30 = 0; outMat.m31 = 0; outMat.m32 = 0; outMat.m33 = 1;
-
-    return outMat;
   }
 
   /**
@@ -782,5 +765,20 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     }
 
     return outVec3;
+  }
+
+  clone() {
+    return new (this.constructor as any)(
+      this.v[0], this.v[4], this.v[8], this.v[12],
+      this.v[1], this.v[5], this.v[9], this.v[13],
+      this.v[2], this.v[6], this.v[10], this.v[14],
+      this.v[3], this.v[7], this.v[11], this.v[15]
+    ) as Matrix44;
+  }
+
+  getRotate() {
+    const quat = Quaternion.fromMatrix(this);
+    const rotateMat = new (this.constructor as any)(quat) as Matrix44;
+    return rotateMat;
   }
 }
