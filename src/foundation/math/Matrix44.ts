@@ -619,20 +619,20 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
   getScale() {
     return new Vector3(
-      Math.sqrt(this.v[0] * this.v[0] + this.v[4] * this.v[4] + this.v[8] * this.v[8]),
-      Math.sqrt(this.v[1] * this.v[1] + this.v[5] * this.v[5] + this.v[9] * this.v[9]),
-      Math.sqrt(this.v[2] * this.v[2] + this.v[6] * this.v[6] + this.v[10] * this.v[10])
+      Math.hypot(this.m00, this.m01, this.m02),
+      Math.hypot(this.m10, this.m11, this.m12),
+      Math.hypot(this.m20, this.m21, this.m22)
     );
   }
 
   /**
    * get scale vector from this matrix
    */
-  getScaleTo(out: MutableVector3): void {
-    out.x = Math.sqrt(this.v[0] * this.v[0] + this.v[4] * this.v[4] + this.v[8] * this.v[8]);
-    out.y = Math.sqrt(this.v[1] * this.v[1] + this.v[5] * this.v[5] + this.v[9] * this.v[9]);
-    out.z = Math.sqrt(this.v[2] * this.v[2] + this.v[6] * this.v[6] + this.v[10] * this.v[10]);
-    return out;
+  getScaleTo(outVec: MutableVector3) {
+    outVec.x = Math.hypot(this.m00, this.m01, this.m02);
+    outVec.y = Math.hypot(this.m10, this.m11, this.m12);
+    outVec.z = Math.hypot(this.m20, this.m21, this.m22);
+    return outVec;
   }
 
 
