@@ -1,7 +1,6 @@
 import Matrix44 from "./Matrix44";
 import { IMutableMatrix22, IMutableMatrix } from "./IMatrix";
 import Matrix22 from "./Matrix22";
-import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 import Matrix33 from "./Matrix33";
 import Vector2 from "./Vector2";
@@ -106,8 +105,8 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   /**
    * multiply matrixes
    */
-  static multiply(l_m: Matrix22, r_m: Matrix22) {
-    return super.multiply(l_m, r_m) as MutableMatrix22;
+  static multiply(l_mat: Matrix22, r_mat: Matrix22) {
+    return super.multiply(l_mat, r_mat) as MutableMatrix22;
   }
 
   clone() {
@@ -128,18 +127,15 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     m00: number, m01: number,
     m10: number, m11: number
   ): MutableMatrix22 {
-    this.v[0] = m00; this.v[3] = m01;
-    this.v[1] = m10; this.v[4] = m11;
+    this.m00 = m00; this.m01 = m01;
+    this.m10 = m10; this.m11 = m11;
+
     return this;
   }
 
   copyComponents(mat: Matrix22 | Matrix33 | Matrix44) {
-    const m = mat;
-
-    this.m00 = m.m00;
-    this.m01 = m.m01;
-    this.m10 = m.m10;
-    this.m11 = m.m11;
+    this.m00 = mat.m00; this.m01 = mat.m01;
+    this.m10 = mat.m10; this.m11 = mat.m11;
 
     return this;
   }
@@ -152,11 +148,10 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   }
 
   identity() {
-    this.setComponents(
+    return this.setComponents(
       1, 0,
       0, 1
     );
-    return this;
   }
 
   _swap(l: Index, r: Index) {
