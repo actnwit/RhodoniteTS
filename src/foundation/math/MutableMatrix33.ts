@@ -25,8 +25,6 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     m6?: number, m7?: number, m8?: number,
     isColumnMajor: boolean = false, notCopyFloatArray: boolean = false) {
     super(m0, m1, m2, m3!, m4!, m5!, m6!, m7!, m8!, isColumnMajor);
-
-
   }
 
   public set m00(val) {
@@ -101,80 +99,92 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     return this.v[8];
   }
 
-  static get compositionType() {
-    return CompositionType.Mat3;
+  /**
+   * zero matrix(static version)
+   */
+  static zero() {
+    return super.zero() as MutableMatrix33;
+  }
+
+  /**
+   * Create identity matrix
+   */
+  static identity() {
+    return super.identity() as MutableMatrix33;
   }
 
   static dummy() {
-    return new MutableMatrix33(null);
+    return super.dummy() as MutableMatrix33;
   }
 
   /**
-   * Make this identity matrix（static method version）
+   * Create transpose matrix
    */
-  static identity() {
-    return new MutableMatrix33(
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
-    );
+  static transpose(mat: Matrix33) {
+    return super.transpose(mat) as MutableMatrix33;
   }
 
   /**
-   * Create X oriented Rotation Matrix
+   * Create invert matrix
    */
+  static invert(mat: Matrix33) {
+    return super.invert(mat) as MutableMatrix33;
+  }
+
+  /**
+ * Create X oriented Rotation Matrix
+ */
   static rotateX(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new MutableMatrix33(
-      1, 0, 0,
-      0, cos, -sin,
-      0, sin, cos
-    );
+    return super.rotateX(radian) as MutableMatrix33;
   }
 
   /**
    * Create Y oriented Rotation Matrix
    */
   static rotateY(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new MutableMatrix33(
-      cos, 0, sin,
-      0, 1, 0,
-      -sin, 0, cos
-    );
+    return super.rotateY(radian) as MutableMatrix33;
   }
 
   /**
    * Create Z oriented Rotation Matrix
    */
   static rotateZ(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    return new MutableMatrix33(
-      cos, -sin, 0,
-      sin, cos, 0,
-      0, 0, 1
-    );
+    return super.rotateZ(radian) as MutableMatrix33;
   }
 
   static rotateXYZ(x: number, y: number, z: number) {
-    return (MutableMatrix33.rotateZ(z).multiply(MutableMatrix33.rotateY(y).multiply(MutableMatrix33.rotateX(x))));
+    return super.rotateXYZ(x, y, z) as MutableMatrix33;
   }
 
   static rotate(vec3: Vector3) {
-    return (MutableMatrix33.rotateZ(vec3.z).multiply(MutableMatrix33.rotateY(vec3.y).multiply(MutableMatrix33.rotateX(vec3.x))));
+    return super.rotateXYZ(vec3.x, vec3.y, vec3.z) as MutableMatrix33;
   }
 
-  flattenAsArray() {
-    return [this.v[0], this.v[1], this.v[2],
-    this.v[3], this.v[4], this.v[5],
-    this.v[6], this.v[7], this.v[8]];
+  /**
+   * Create Scale Matrix
+   */
+  static scale(vec: Vector3) {
+    return super.scale(vec) as MutableMatrix33;
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiply(l_m: Matrix33, r_m: Matrix33) {
+    return super.multiply(l_m, r_m) as MutableMatrix33;
+  }
+
+  clone() {
+    const result = super.clone() as MutableMatrix33;
+    return result;
   }
 
   raw() {
     return this.v;
+  }
+
+  setAt(row_i: number, column_i: number, val: number) {
+    this.v[row_i + column_i * 3] = val;
   }
 
   setComponents(
@@ -298,6 +308,78 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     );
   }
 
+  rotateXYZ(x: number, y: number, z: number) {
+    const cosX = Math.cos(x);
+    const sinX = Math.sin(x);
+    const cosY = Math.cos(y);
+    const sinY = Math.sin(y);
+    const cosZ = Math.cos(z);
+    const sinZ = Math.sin(z);
+
+    // const x00 = 1;
+    // const x01 = 0;
+    // const x02 = 0;
+    // const x10 = 0;
+    const x11 = cosX;
+    const x12 = -sinX;
+    // const x20 = 0;
+    const x21 = sinX;
+    const x22 = cosX;
+
+    const y00 = cosY;
+    // const y01 = 0;
+    const y02 = sinY;
+    // const y10 = 0;
+    // const y11 = 1;
+    // const y12 = 0;
+    const y20 = -sinY;
+    // const y21 = 0;
+    const y22 = cosY;
+
+    const z00 = cosZ;
+    const z01 = -sinZ;
+    // const z02 = 0;
+    const z10 = sinZ;
+    const z11 = cosZ;
+    // const z12 = 0;
+    // const z20 = 0;
+    // const z21 = 0;
+    // const z22 = 1;
+
+    // calculate this.multiply(this.rotateY(y), this.rotateX(x))
+    const yx00 = y00;
+    const yx01 = y02 * x21;
+    const yx02 = y02 * x22;
+    //const yx10 = 0;
+    const yx11 = x11;
+    const yx12 = x12;
+    const yx20 = y20;
+    const yx21 = y22 * x21;
+    const yx22 = y22 * x22;
+
+    // calculate this.multiply(this.rotateZ(z), this.multiply(this.rotateY(y), this.rotateX(x)))
+    const m00 = z00 * yx00;
+    const m01 = z00 * yx01 + z01 * yx11;
+    const m02 = z00 * yx02 + z01 * yx12;
+    const m10 = z10 * yx00;
+    const m11 = z10 * yx01 + z11 * yx11;
+    const m12 = z10 * yx02 + z11 * yx12;
+    const m20 = yx20;
+    const m21 = yx21;
+    const m22 = yx22;
+
+    return this.setComponents(
+      m00, m01, m02,
+      m10, m11, m12,
+      m20, m21, m22
+    );
+  }
+
+  rotate(vec3: Vector3) {
+    return this.rotateXYZ(vec3.x, vec3.y, vec3.z);
+  }
+
+
   scale(vec: Vector3) {
     return this.setComponents(
       vec.x, 0, 0,
@@ -346,4 +428,23 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     );
   }
 
+  multiplyByLeft(mat: Matrix33) {
+    const m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20;
+    const m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21;
+    const m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22;
+
+    const m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20;
+    const m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21;
+    const m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22;
+
+    const m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20;
+    const m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21;
+    const m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22;
+
+    return this.setComponents(
+      m00, m01, m02,
+      m10, m11, m12,
+      m20, m21, m22
+    );
+  }
 }

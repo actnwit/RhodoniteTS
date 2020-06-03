@@ -57,6 +57,64 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     return this.v[3];
   }
 
+  /**
+   * Create zero matrix
+   */
+  static zero() {
+    return super.zero() as MutableMatrix22;
+  }
+
+  /**
+   * Create identity matrix
+   */
+  static identity() {
+    return super.identity() as MutableMatrix22;
+  }
+
+  static dummy() {
+    return super.dummy() as MutableMatrix22;
+  }
+
+  /**
+   * Create transpose matrix
+   */
+  static transpose(mat: Matrix22) {
+    return super.transpose(mat) as MutableMatrix22;
+  }
+
+  /**
+   * Create invert matrix
+   */
+  static invert(mat: Matrix22) {
+    return super.invert(mat) as MutableMatrix22;
+  }
+
+  /**
+   * Create Rotation Matrix
+   */
+  static rotate(radian: number) {
+    return super.rotate(radian) as MutableMatrix22;
+  }
+
+  /**
+   * Create Scale Matrix
+   */
+  static scale(vec: Vector2) {
+    return super.scale(vec) as MutableMatrix22;
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiply(l_m: Matrix22, r_m: Matrix22) {
+    return super.multiply(l_m, r_m) as MutableMatrix22;
+  }
+
+  clone() {
+    const result = super.clone() as MutableMatrix22;
+    return result;
+  }
+
   raw() {
     return this.v;
   }
