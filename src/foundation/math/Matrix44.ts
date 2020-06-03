@@ -568,6 +568,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     outVec.y = y;
     outVec.z = z;
     outVec.w = w;
+    return outVec;
   }
 
   multiplyVectorToVec3(vec: Vector4, outVec: MutableVector3) {
@@ -577,6 +578,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     outVec.x = x;
     outVec.y = y;
     outVec.z = z;
+    return outVec;
   }
 
   multiplyVector3(vec: Vector3) {
@@ -591,6 +593,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     outVec.x = this.v[0] * vec.x + this.v[4] * vec.y + this.v[8] * vec.z + this.m03 * vec.w;
     outVec.y = this.v[1] * vec.x + this.v[5] * vec.y + this.v[9] * vec.z + this.m13 * vec.w;
     outVec.z = this.v[2] * vec.x + this.v[6] * vec.y + this.v[10] * vec.z + this.m23 * vec.w;
+    return outVec;
   }
 
   getTranslate() {
@@ -600,10 +603,11 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   /**
    * get translate vector from this matrix
    */
-  getTranslateTo(out: MutableVector3): void {
-    out.x = this.m03;
-    out.y = this.m13;
-    out.z = this.m23;
+  getTranslateTo(outVec: MutableVector3) {
+    outVec.x = this.m03;
+    outVec.y = this.m13;
+    outVec.z = this.m23;
+    return outVec;
   }
 
 
@@ -628,6 +632,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     out.x = Math.sqrt(this.v[0] * this.v[0] + this.v[4] * this.v[4] + this.v[8] * this.v[8]);
     out.y = Math.sqrt(this.v[1] * this.v[1] + this.v[5] * this.v[5] + this.v[9] * this.v[9]);
     out.z = Math.sqrt(this.v[2] * this.v[2] + this.v[6] * this.v[6] + this.v[10] * this.v[10]);
+    return out;
   }
 
 
@@ -647,6 +652,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     outMat.m20 = 2.0 * (cy - wy); outMat.m21 = 2.0 * (cx + wx); outMat.m22 = 1.0 - 2.0 * (sx + sy); outMat.m23 = 0;
     outMat.m30 = 0; outMat.m31 = 0; outMat.m32 = 0; outMat.m33 = 1;
 
+    return outMat;
   }
 
   /**
@@ -685,5 +691,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
       outVec3.y = -Math.PI / 2.0;
       outVec3.z = 0.0;
     }
+
+    return outVec3;
   }
 }
