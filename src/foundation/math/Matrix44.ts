@@ -252,85 +252,61 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   /**
    * Create invert matrix
    */
-  static invert(m: Matrix44) {
+  static invert(mat: Matrix44) {
+    const det = mat.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
 
-    let n00 = m.v[0] * m.v[5] - m.v[4] * m.v[1];
-    let n01 = m.v[0] * m.v[9] - m.v[8] * m.v[1];
-    let n02 = m.v[0] * m.v[13] - m.v[12] * m.v[1];
-    let n03 = m.v[4] * m.v[9] - m.v[8] * m.v[5];
-    let n04 = m.v[4] * m.v[13] - m.v[12] * m.v[5];
-    let n05 = m.v[8] * m.v[13] - m.v[12] * m.v[9];
-    let n06 = m.v[2] * m.v[7] - m.v[6] * m.v[3];
-    let n07 = m.v[2] * m.v[11] - m.v[10] * m.v[3];
-    let n08 = m.v[2] * m.v[15] - m.v[14] * m.v[3];
-    let n09 = m.v[6] * m.v[11] - m.v[10] * m.v[7];
-    let n10 = m.v[6] * m.v[15] - m.v[14] * m.v[7];
-    let n11 = m.v[10] * m.v[15] - m.v[14] * m.v[11];
-
-    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
-    det = 1.0 / det;
-
-    const out0 = (m.v[5] * n11 - m.v[9] * n10 + m.v[13] * n09) * det;
-    const out1 = (m.v[8] * n10 - m.v[4] * n11 - m.v[12] * n09) * det;
-    const out2 = (m.v[7] * n05 - m.v[11] * n04 + m.v[15] * n03) * det;
-    const out3 = (m.v[10] * n04 - m.v[6] * n05 - m.v[14] * n03) * det;
-    const out4 = (m.v[9] * n08 - m.v[1] * n11 - m.v[13] * n07) * det;
-    const out5 = (m.v[0] * n11 - m.v[8] * n08 + m.v[12] * n07) * det;
-    const out6 = (m.v[11] * n02 - m.v[3] * n05 - m.v[15] * n01) * det;
-    const out7 = (m.v[2] * n05 - m.v[10] * n02 + m.v[14] * n01) * det;
-    const out8 = (m.v[1] * n10 - m.v[5] * n08 + m.v[13] * n06) * det;
-    const out9 = (m.v[4] * n08 - m.v[0] * n10 - m.v[12] * n06) * det;
-    const out10 = (m.v[3] * n04 - m.v[7] * n02 + m.v[15] * n00) * det;
-    const out11 = (m.v[6] * n02 - m.v[2] * n04 - m.v[14] * n00) * det;
-    const out12 = (m.v[5] * n07 - m.v[1] * n09 - m.v[9] * n06) * det;
-    const out13 = (m.v[0] * n09 - m.v[4] * n07 + m.v[8] * n06) * det;
-    const out14 = (m.v[7] * n01 - m.v[3] * n03 - m.v[11] * n00) * det;
-    const out15 = (m.v[2] * n03 - m.v[6] * n01 + m.v[10] * n00) * det;
+    const m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
+    const m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
+    const m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;
+    const m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;
+    const m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;
+    const m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;
+    const m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;
+    const m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;
+    const m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;
+    const m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;
+    const m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;
+    const m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;
+    const m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;
+    const m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
+    const m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
+    const m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
 
     return new this(
-      out0, out1, out2, out3,
-      out4, out5, out6, out7,
-      out8, out9, out10, out11,
-      out12, out13, out14, out15
+      m00, m01, m02, m03,
+      m10, m11, m12, m13,
+      m20, m21, m22, m23,
+      m30, m31, m32, m33
     );
   }
 
-  static invertTo(m: Matrix44, out: MutableMatrix44) {
+  static invertTo(mat: Matrix44, outMat: MutableMatrix44) {
+    const det = mat.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
 
-    const n00 = m.v[0] * m.v[5] - m.v[4] * m.v[1];
-    const n01 = m.v[0] * m.v[9] - m.v[8] * m.v[1];
-    const n02 = m.v[0] * m.v[13] - m.v[12] * m.v[1];
-    const n03 = m.v[4] * m.v[9] - m.v[8] * m.v[5];
-    const n04 = m.v[4] * m.v[13] - m.v[12] * m.v[5];
-    const n05 = m.v[8] * m.v[13] - m.v[12] * m.v[9];
-    const n06 = m.v[2] * m.v[7] - m.v[6] * m.v[3];
-    const n07 = m.v[2] * m.v[11] - m.v[10] * m.v[3];
-    const n08 = m.v[2] * m.v[15] - m.v[14] * m.v[3];
-    const n09 = m.v[6] * m.v[11] - m.v[10] * m.v[7];
-    const n10 = m.v[6] * m.v[15] - m.v[14] * m.v[7];
-    const n11 = m.v[10] * m.v[15] - m.v[14] * m.v[11];
+    const m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
+    const m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
+    const m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;
+    const m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;
+    const m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;
+    const m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;
+    const m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;
+    const m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;
+    const m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;
+    const m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;
+    const m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;
+    const m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;
+    const m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;
+    const m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
+    const m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
+    const m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
 
-    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
-    det = 1.0 / det;
-
-    const m00 = (m.v[5] * n11 - m.v[9] * n10 + m.v[13] * n09) * det;
-    const m01 = (m.v[8] * n10 - m.v[4] * n11 - m.v[12] * n09) * det;
-    const m02 = (m.v[7] * n05 - m.v[11] * n04 + m.v[15] * n03) * det;
-    const m03 = (m.v[10] * n04 - m.v[6] * n05 - m.v[14] * n03) * det;
-    const m10 = (m.v[9] * n08 - m.v[1] * n11 - m.v[13] * n07) * det;
-    const m11 = (m.v[0] * n11 - m.v[8] * n08 + m.v[12] * n07) * det;
-    const m12 = (m.v[11] * n02 - m.v[3] * n05 - m.v[15] * n01) * det;
-    const m13 = (m.v[2] * n05 - m.v[10] * n02 + m.v[14] * n01) * det;
-    const m20 = (m.v[1] * n10 - m.v[5] * n08 + m.v[13] * n06) * det;
-    const m21 = (m.v[4] * n08 - m.v[0] * n10 - m.v[12] * n06) * det;
-    const m22 = (m.v[3] * n04 - m.v[7] * n02 + m.v[15] * n00) * det;
-    const m23 = (m.v[6] * n02 - m.v[2] * n04 - m.v[14] * n00) * det;
-    const m30 = (m.v[5] * n07 - m.v[1] * n09 - m.v[9] * n06) * det;
-    const m31 = (m.v[0] * n09 - m.v[4] * n07 + m.v[8] * n06) * det;
-    const m32 = (m.v[7] * n01 - m.v[3] * n03 - m.v[11] * n00) * det;
-    const m33 = (m.v[2] * n03 - m.v[6] * n01 + m.v[10] * n00) * det;
-
-    return out.setComponents(
+    return outMat.setComponents(
       m00, m01, m02, m03,
       m10, m11, m12, m13,
       m20, m21, m22, m23,
@@ -377,7 +353,6 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
       0, 0, 0, 1
     );
   }
-
 
   /**
    * Create Z oriented Rotation Matrix

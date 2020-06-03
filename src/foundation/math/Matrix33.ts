@@ -196,16 +196,20 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
    * Create invert matrix
    */
   static invert(mat: Matrix33) {
-    var det = mat.determinant();
-    var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-    var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-    var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-    var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-    var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-    var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-    var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-    var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-    var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+    const det = mat.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
+    const m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
+    const m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
+    const m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
+    const m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
+    const m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
+    const m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
+    const m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
+    const m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
 
     return new this(
       m00, m01, m02,
@@ -216,6 +220,10 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
 
   static invertTo(mat: Matrix33, out: MutableMatrix33) {
     const det = mat.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
     const m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
     const m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
     const m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
