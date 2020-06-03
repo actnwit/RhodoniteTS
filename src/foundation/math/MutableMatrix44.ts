@@ -248,6 +248,24 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return super.multiply(l_m, r_m) as MutableMatrix44;
   }
 
+  clone() {
+    const result = super.clone() as MutableMatrix44;
+    return result;
+  }
+
+  getRotate() {
+    const rotateMat = super.getRotate() as MutableMatrix44;
+    return rotateMat;
+  }
+
+  raw() {
+    return this.v;
+  }
+
+  setAt(row_i: number, column_i: number, val: number) {
+    this.v[row_i + column_i * 4] = val;
+  }
+
   setComponents(
     m00: number, m01: number, m02: number, m03: number,
     m10: number, m11: number, m12: number, m13: number,
@@ -475,7 +493,10 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     this.v[15] = 1;
 
     return this;
+  }
 
+  rotate(vec3: Vector3) {
+    return this.rotateXYZ(vec3.x, vec3.y, vec3.z);
   }
 
   scale(vec: Vector3) {
