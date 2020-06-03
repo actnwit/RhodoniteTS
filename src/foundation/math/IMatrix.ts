@@ -1,4 +1,4 @@
-import { IVector, IMutableVector, IVector2, IMutableVector2, IVector3, IMutableVector3 } from "./IVector";
+import { IVector, IMutableVector, IVector2, IMutableVector2, IVector3, IMutableVector3, IVector4, IMutableVector4 } from "./IVector";
 import { TypedArray, Index } from "../../commontypes/CommonTypes";
 
 export interface IMatrix {
@@ -8,36 +8,32 @@ export interface IMatrix {
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
   isEqual(mat: IMatrix, delta: number): boolean;
-
-  // ---Add following methods later---
-  // isStrictEqual(mat: IMatrix): boolean;
-  // at(row_i: number, column_i: number): number;
-  // determinant(): number;
-  // multiplyVector(vec: IVector): IVector;
-  // multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
-  // getScale(): IVector;
-  // getScaleTo(outVec: IMutableVector): IMutableVector;
-  // clone(): IMatrix;
+  isStrictEqual(mat: IMatrix): boolean;
+  at(row_i: number, column_i: number): number;
+  determinant(): number;
+  multiplyVector(vec: IVector): IVector;
+  multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
+  getScale(): IVector;
+  getScaleTo(outVec: IMutableVector): IMutableVector;
+  clone(): IMatrix;
 }
 
 export interface IMutableMatrix {
-
-  // ---Add following methods later---
-  // clone(): IMutableMatrix;
-  // raw(): TypedArray;
-  // setAt(row_i: number, column_i: number, val: number): void;
-  // setComponents(...num: number[]): IMutableMatrix;
-  // copyComponents(mat: IMatrix): IMutableMatrix;
-  // zero(): IMutableMatrix;
-  // identity(): IMutableMatrix;
+  clone(): IMutableMatrix;
+  raw(): TypedArray;
+  setAt(row_i: number, column_i: number, val: number): void;
+  setComponents(...num: number[]): IMutableMatrix;
+  copyComponents(mat: IMatrix): IMutableMatrix;
+  zero(): IMutableMatrix;
+  identity(): IMutableMatrix;
   _swap(l: Index, r: Index): void;
-  // transpose(): IMutableMatrix;
-  // invert(): IMutableMatrix;
-  // rotate(any:any): IMutableMatrix;
-  // scale(vec: IVector): IMutableMatrix;
-  // putScale(vec: IVector): IMutableMatrix;
-  // multiply(mat: IMatrix): IMutableMatrix;
-  // multiplyByLeft(mat: IMatrix): IMutableMatrix;
+  transpose(): IMutableMatrix;
+  invert(): IMutableMatrix;
+  rotate(any: any): IMutableMatrix;
+  scale(vec: IVector): IMutableMatrix;
+  putScale(vec: IVector): IMutableMatrix;
+  multiply(mat: IMatrix): IMutableMatrix;
+  multiplyByLeft(mat: IMatrix): IMutableMatrix;
 }
 
 export interface IMatrix22 {
@@ -45,7 +41,6 @@ export interface IMatrix22 {
   readonly m01: number;
   readonly m10: number;
   readonly m11: number;
-  readonly className: string;
   toString(): string;
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
@@ -188,6 +183,27 @@ export interface IMatrix44 {
   readonly m31: number;
   readonly m32: number;
   readonly m33: number;
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(mat: IMatrix44, delta: number): boolean;
+  isStrictEqual(mat: IMatrix44): boolean;
+  at(row_i: number, column_i: number): number;
+  determinant(): number;
+  multiplyVector(vec: IVector4): IVector4;
+  multiplyVectorTo(vec: IVector4, outVec: IMutableVector4): IMutableVector4;
+  multiplyVectorToVec3(vec: IVector4, outVec: IMutableVector3): IMutableVector3;
+  multiplyVector3(vec: IVector3): IVector3;
+  multiplyVector3To(vec: IVector3, outVec: IMutableVector3): IMutableVector3;
+  getTranslate(): IVector3;
+  getTranslateTo(outVec: IMutableVector3): IMutableVector3;
+  getScale(): IVector4;
+  getScaleTo(outVec: IMutableVector4): IMutableVector4;
+  toEulerAngles(): IVector3;
+  toEulerAnglesTo(outVec3: IMutableVector3): IMutableVector3;
+  clone(): IMatrix44;
+  getRotate(): IMatrix44;
 }
 
 export interface IMutableMatrix44 {
@@ -207,5 +223,50 @@ export interface IMutableMatrix44 {
   m31: number;
   m32: number;
   m33: number;
+
+  // common with immutable matrix33
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(mat: IMatrix44, delta: number): boolean;
+  isStrictEqual(mat: IMatrix44): boolean;
+  at(row_i: number, column_i: number): number;
+  determinant(): number;
+  multiplyVector(vec: IVector4): IVector4;
+  multiplyVectorTo(vec: IVector4, outVec: IMutableVector4): IMutableVector4;
+  multiplyVectorToVec3(vec: IVector4, outVec: IMutableVector3): IMutableVector3;
+  multiplyVector3(vec: IVector3): IVector3;
+  multiplyVector3To(vec: IVector3, outVec: IMutableVector3): IMutableVector3;
+  getTranslate(): IVector3;
+  getTranslateTo(outVec: IMutableVector3): IMutableVector3;
+  getScale(): IVector4;
+  getScaleTo(outVec: IMutableVector4): IMutableVector4;
+  toEulerAngles(): IVector3;
+  toEulerAnglesTo(outVec3: IMutableVector3): IMutableVector3;
+
+  // only for mutable matrix44
+  clone(): IMutableMatrix44; // override
+  getRotate(): IMutableMatrix44; // override
+  raw(): TypedArray;
+  setAt(row_i: number, column_i: number, val: number): void;
+  setComponents(...num: number[]): IMutableMatrix44;
+  copyComponents(mat: IMatrix44): IMutableMatrix44;
+  zero(): IMutableMatrix44;
+  identity(): IMutableMatrix44;
+  _swap(l: Index, r: Index): void;
+  transpose(): IMutableMatrix44;
+  invert(): IMutableMatrix44;
+  translate(vec: IVector3): IMutableMatrix44;
+  putTranslate(vec: IVector3): IMutableMatrix44;
+  rotateX(radian: number): IMutableMatrix44;
+  rotateY(radian: number): IMutableMatrix44;
+  rotateZ(radian: number): IMutableMatrix44;
+  rotateXYZ(x: number, y: number, z: number): IMutableMatrix44;
+  rotate(vec3: IVector3): IMutableMatrix44;
+  scale(vec: IVector3): IMutableMatrix44;
+  putScale(vec: IVector3): IMutableMatrix44;
+  multiply(mat: IMatrix44): IMutableMatrix44;
+  multiplyByLeft(mat: IMatrix44): IMutableMatrix44;
 }
 
