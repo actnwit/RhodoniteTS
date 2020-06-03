@@ -3,7 +3,6 @@ import Quaternion from "./Quaternion";
 import { IMutableMatrix33, IMutableMatrix } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Vector3 from "./Vector3";
-import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
@@ -156,8 +155,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     return super.rotateXYZ(x, y, z) as MutableMatrix33;
   }
 
-  static rotate(vec3: Vector3) {
-    return super.rotateXYZ(vec3.x, vec3.y, vec3.z) as MutableMatrix33;
+  static rotate(vec: Vector3) {
+    return super.rotateXYZ(vec.x, vec.y, vec.z) as MutableMatrix33;
   }
 
   /**
@@ -170,8 +169,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   /**
    * multiply matrixes
    */
-  static multiply(l_m: Matrix33, r_m: Matrix33) {
-    return super.multiply(l_m, r_m) as MutableMatrix33;
+  static multiply(l_mat: Matrix33, r_mat: Matrix33) {
+    return super.multiply(l_mat, r_mat) as MutableMatrix33;
   }
 
   clone() {
@@ -193,25 +192,17 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     m10: number, m11: number, m12: number,
     m20: number, m21: number, m22: number
   ): MutableMatrix33 {
-    this.v[0] = m00; this.v[3] = m01; this.v[6] = m02;
-    this.v[1] = m10; this.v[4] = m11; this.v[7] = m12;
-    this.v[2] = m20; this.v[5] = m21; this.v[8] = m22;
+    this.m00 = m00; this.m01 = m01; this.m02 = m02;
+    this.m10 = m10; this.m11 = m11; this.m12 = m12;
+    this.m20 = m20; this.m21 = m21; this.m22 = m22;
 
     return this;
   }
 
   copyComponents(mat: Matrix33 | Matrix44) {
-    const m = mat;
-
-    this.m00 = m.m00;
-    this.m01 = m.m01;
-    this.m02 = m.m02;
-    this.m10 = m.m10;
-    this.m11 = m.m11;
-    this.m12 = m.m12;
-    this.m20 = m.m20;
-    this.m21 = m.m21;
-    this.m22 = m.m22;
+    this.m00 = mat.m00; this.m01 = mat.m01; this.m02 = mat.m02;
+    this.m10 = mat.m10; this.m11 = mat.m11; this.m12 = mat.m12;
+    this.m20 = mat.m20; this.m21 = mat.m21; this.m22 = mat.m22;
 
     return this;
   }
@@ -220,17 +211,15 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
    * zero matrix
    */
   zero() {
-    this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
-    return this;
+    return this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   identity() {
-    this.setComponents(
+    return this.setComponents(
       1, 0, 0,
       0, 1, 0,
       0, 0, 1
     );
-    return this;
   }
 
   _swap(l: Index, r: Index) {
@@ -275,9 +264,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
    * Create X oriented Rotation Matrix
    */
   rotateX(radian: number) {
-
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
+    const cos = Math.cos(radian);
+    const sin = Math.sin(radian);
     return this.setComponents(
       1, 0, 0,
       0, cos, -sin,
@@ -289,23 +277,21 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
    * Create Y oriented Rotation Matrix
    */
   rotateY(radian: number) {
-
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
-    this.setComponents(
+    const cos = Math.cos(radian);
+    const sin = Math.sin(radian);
+    return this.setComponents(
       cos, 0, sin,
       0, 1, 0,
       -sin, 0, cos
     );
-    return this;
   }
 
   /**
    * Create Z oriented Rotation Matrix
    */
   rotateZ(radian: number): MutableMatrix33 {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
+    const cos = Math.cos(radian);
+    const sin = Math.sin(radian);
     return this.setComponents(
       cos, -sin, 0,
       sin, cos, 0,
@@ -380,10 +366,9 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     );
   }
 
-  rotate(vec3: Vector3) {
-    return this.rotateXYZ(vec3.x, vec3.y, vec3.z);
+  rotate(vec: Vector3) {
+    return this.rotateXYZ(vec.x, vec.y, vec.z);
   }
-
 
   scale(vec: Vector3) {
     return this.setComponents(
@@ -413,18 +398,17 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
    * multiply the input matrix from right side
    */
   multiply(mat: Matrix33) {
-    var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
-    var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21;
-    var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22;
+    const m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
+    const m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21;
+    const m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22;
 
-    var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20;
-    var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21;
-    var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22;
+    const m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20;
+    const m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21;
+    const m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22;
 
-    var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20;
-    var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21;
-    var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22;
-
+    const m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20;
+    const m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21;
+    const m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22;
 
     return this.setComponents(
       m00, m01, m02,
