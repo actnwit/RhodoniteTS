@@ -428,71 +428,79 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
   }
 
   rotateXYZ(x: number, y: number, z: number) {
-    var cosX = Math.cos(x);
-    var sinX = Math.sin(x);
-    var cosY = Math.cos(y);
-    var sinY = Math.sin(y);
-    var cosZ = Math.cos(z);
-    var sinZ = Math.sin(z);
+    const cosX = Math.cos(x);
+    const sinX = Math.sin(x);
+    const cosY = Math.cos(y);
+    const sinY = Math.sin(y);
+    const cosZ = Math.cos(z);
+    const sinZ = Math.sin(z);
 
-    const xm00 = 1;
-    //const xm01 = 0;
-    //const xm02 = 0;
-    //const xm10 = 0;
-    const xm11 = cosX;
-    const xm12 = -sinX;
-    //const xm20 = 0;
-    const xm21 = sinX;
-    const xm22 = cosX;
+    // const x00 = 1;
+    // const x01 = 0;
+    // const x02 = 0;
+    // const x10 = 0;
+    const x11 = cosX;
+    const x12 = -sinX;
+    // const x20 = 0;
+    const x21 = sinX;
+    const x22 = cosX;
 
-    const ym00 = cosY;
-    //const ym01 = 0;
-    const ym02 = sinY;
-    //const ym10 = 0;
-    const ym11 = 1;
-    //const ym12 = 0;
-    const ym20 = -sinY;
-    //const ym21 = 0;
-    const ym22 = cosY;
+    const y00 = cosY;
+    // const y01 = 0;
+    const y02 = sinY;
+    // const y10 = 0;
+    // const y11 = 1;
+    // const y12 = 0;
+    const y20 = -sinY;
+    // const y21 = 0;
+    const y22 = cosY;
 
-    const zm00 = cosZ;
-    const zm01 = -sinZ;
-    //const zm02 = 0;
-    const zm10 = sinZ;
-    const zm11 = cosZ;
-    //const zm12 = 0;
-    //const zm20 = 0;
-    //const zm21 = 0;
-    const zm22 = 1;
+    const z00 = cosZ;
+    const z01 = -sinZ;
+    // const z02 = 0;
+    const z10 = sinZ;
+    const z11 = cosZ;
+    // const z12 = 0;
+    // const z20 = 0;
+    // const z21 = 0;
+    // const z22 = 1;
 
-    const yxm00 = ym00 * xm00;
-    const yxm01 = ym02 * xm21;
-    const yxm02 = ym02 * xm22;
-    //const yxm10 = 0;
-    const yxm11 = ym11 * xm11;
-    const yxm12 = ym11 * xm12;
-    const yxm20 = ym20 * xm00;
-    const yxm21 = ym22 * xm21;
-    const yxm22 = ym22 * xm22;
+    // Y * X
+    const yx00 = y00;
+    const yx01 = y02 * x21;
+    const yx02 = y02 * x22;
+    //const yx10 = 0;
+    const yx11 = x11;
+    const yx12 = x12;
+    const yx20 = y20;
+    const yx21 = y22 * x21;
+    const yx22 = y22 * x22;
 
-    this.v[0] = zm00 * yxm00;
-    this.v[4] = zm00 * yxm01 + zm01 * yxm11;
-    this.v[8] = zm00 * yxm02 + zm01 * yxm12;
-    this.v[12] = 0;
-    this.v[1] = zm10 * yxm00;
-    this.v[5] = zm10 * yxm01 + zm11 * yxm11;
-    this.v[9] = zm10 * yxm02 + zm11 * yxm12;
-    this.v[13] = 0;
-    this.v[2] = zm22 * yxm20;
-    this.v[6] = zm22 * yxm21;
-    this.v[10] = zm22 * yxm22;
-    this.v[14] = 0;
-    this.v[3] = 0;
-    this.v[7] = 0;
-    this.v[11] = 0;
-    this.v[15] = 1;
+    // Z * Y * X
+    const m00 = z00 * yx00;
+    const m01 = z00 * yx01 + z01 * yx11;
+    const m02 = z00 * yx02 + z01 * yx12;
+    const m10 = z10 * yx00;
+    const m11 = z10 * yx01 + z11 * yx11;
+    const m12 = z10 * yx02 + z11 * yx12;
+    const m20 = yx20;
+    const m21 = yx21;
+    const m22 = yx22;
 
-    return this;
+    const m03 = 0;
+    const m13 = 0;
+    const m23 = 0;
+    const m30 = 0;
+    const m31 = 0;
+    const m32 = 0;
+    const m33 = 1;
+
+    return this.setComponents(
+      m00, m01, m02, m03,
+      m10, m11, m12, m13,
+      m20, m21, m22, m23,
+      m30, m31, m32, m33
+    );
   }
 
   rotate(vec3: Vector3) {
