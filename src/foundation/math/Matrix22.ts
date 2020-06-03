@@ -180,6 +180,7 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     const m01 = mat.m01 / det * (-1.0);
     const m10 = mat.m10 / det * (-1.0);
     const m11 = mat.m00 / det;
+
     return out.setComponents(
       m00, m01,
       m10, m11
@@ -211,12 +212,12 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   /**
    * multiply matrixes
    */
-  static multiply(l_m: Matrix22, r_m: Matrix22) {
-    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
-    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
+  static multiply(l_mat: Matrix22, r_mat: Matrix22) {
+    const m00 = l_mat.v[0] * r_mat.v[0] + l_mat.v[2] * r_mat.v[1];
+    const m10 = l_mat.v[1] * r_mat.v[0] + l_mat.v[3] * r_mat.v[1];
 
-    const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
-    const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
+    const m01 = l_mat.v[0] * r_mat.v[2] + l_mat.v[2] * r_mat.v[3];
+    const m11 = l_mat.v[1] * r_mat.v[2] + l_mat.v[3] * r_mat.v[3];
 
     return new this(
       m00, m01,
@@ -227,14 +228,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   /**
    * multiply matrixes
    */
-  static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix22) {
-    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
-    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
+  static multiplyTo(l_mat: Matrix33, r_mat: Matrix33, outMat: MutableMatrix22) {
+    const m00 = l_mat.v[0] * r_mat.v[0] + l_mat.v[2] * r_mat.v[1];
+    const m10 = l_mat.v[1] * r_mat.v[0] + l_mat.v[3] * r_mat.v[1];
 
-    const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
-    const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
+    const m01 = l_mat.v[0] * r_mat.v[2] + l_mat.v[2] * r_mat.v[3];
+    const m11 = l_mat.v[1] * r_mat.v[2] + l_mat.v[3] * r_mat.v[3];
 
-    return out.setComponents(
+    return outMat.setComponents(
       m00, m01,
       m10, m11
     );
@@ -292,21 +293,22 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   }
 
   determinant() {
-    return this.v[0] * this.v[3] - this.v[1] * this.v[2];
+    return this.m00 * this.m11 - this.m10 * this.m01;
   }
 
   multiplyVector(vec: Vector2) {
-    const x = this.v[0] * vec.x + this.v[2] * vec.y;
-    const y = this.v[1] * vec.x + this.v[3] * vec.y;
+    const x = this.m00 * vec.x + this.m01 * vec.y;
+    const y = this.m10 * vec.x + this.m11 * vec.y;
 
     return new (vec.constructor as any)(x, y);
   }
 
   multiplyVectorTo(vec: Vector2, outVec: MutableVector2) {
-    const x = this.v[0] * vec.x + this.v[2] * vec.y;
-    const y = this.v[1] * vec.x + this.v[3] * vec.y;
+    const x = this.m00 * vec.x + this.m01 * vec.y;
+    const y = this.m10 * vec.x + this.m11 * vec.y;
     outVec.x = x;
     outVec.y = y;
+
     return outVec;
   }
 
