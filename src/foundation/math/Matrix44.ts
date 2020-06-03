@@ -218,14 +218,14 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
    * zero matrix(static version)
    */
   static zero() {
-    return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return new this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
    * Create identity matrix
    */
   static identity() {
-    return new Matrix44(
+    return new this(
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
@@ -234,14 +234,14 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   }
 
   static dummy() {
-    return new Matrix44(null);
+    return new this(null);
   }
 
   /**
    * Create transpose matrix
    */
   static transpose(mat: Matrix44) {
-    return new Matrix44(
+    return new this(
       mat.m00, mat.m10, mat.m20, mat.m30,
       mat.m01, mat.m11, mat.m21, mat.m31,
       mat.m02, mat.m12, mat.m22, mat.m32,
@@ -287,7 +287,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     const out14 = (m.v[7] * n01 - m.v[3] * n03 - m.v[11] * n00) * det;
     const out15 = (m.v[2] * n03 - m.v[6] * n01 + m.v[10] * n00) * det;
 
-    return new Matrix44(
+    return new this(
       out0, out1, out2, out3,
       out4, out5, out6, out7,
       out8, out9, out10, out11,
@@ -342,7 +342,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
    * Create translation Matrix
    */
   static translate(vec: Vector3) {
-    return new Matrix44(
+    return new this(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
       0, 0, 1, vec.z,
@@ -356,7 +356,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   static rotateX(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new this(
       1, 0, 0, 0,
       0, cos, -sin, 0,
       0, sin, cos, 0,
@@ -370,7 +370,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   static rotateY(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new this(
       cos, 0, sin, 0,
       0, 1, 0, 0,
       -sin, 0, cos, 0,
@@ -385,7 +385,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   static rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new this(
       cos, -sin, 0, 0,
       sin, cos, 0, 0,
       0, 0, 1, 0,
@@ -461,7 +461,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     const m32 = 0;
     const m33 = 1;
 
-    return new Matrix44(
+    return new this(
       m00, m01, m02, m03,
       m10, m11, m12, m13,
       m20, m21, m22, m23,
@@ -477,7 +477,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
    * Create Scale Matrix
    */
   static scale(vec: Vector3) {
-    return new Matrix44(
+    return new this(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
       0, 0, vec.z, 0,
@@ -509,7 +509,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     var m23 = l_m.v[2] * r_m.v[12] + l_m.v[6] * r_m.v[13] + l_m.v[10] * r_m.v[14] + l_m.v[14] * r_m.v[15];
     var m33 = l_m.v[3] * r_m.v[12] + l_m.v[7] * r_m.v[13] + l_m.v[11] * r_m.v[14] + l_m.v[15] * r_m.v[15];
 
-    return new Matrix44(
+    return new this(
       m00, m01, m02, m03,
       m10, m11, m12, m13,
       m20, m21, m22, m23,
@@ -619,12 +619,12 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   }
 
   clone() {
-    return new Matrix44(
+    return new (this.constructor as any)(
       this.v[0], this.v[4], this.v[8], this.v[12],
       this.v[1], this.v[5], this.v[9], this.v[13],
       this.v[2], this.v[6], this.v[10], this.v[14],
       this.v[3], this.v[7], this.v[11], this.v[15]
-    );
+    ) as Matrix44;
   }
 
   determinant() {
@@ -702,7 +702,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
   getRotate() {
     const quat = Quaternion.fromMatrix(this);
-    const rotateMat = new Matrix44(quat);
+    const rotateMat = new (this.constructor as any)(quat) as Matrix44;
     return rotateMat;
   }
 

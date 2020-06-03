@@ -166,60 +166,86 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return this.v[15];
   }
 
-  static get compositionType() {
-    return CompositionType.Mat4;
+  /**
+   * zero matrix(static version)
+   */
+  static zero() {
+    return super.zero() as MutableMatrix44;
+  }
+
+  /**
+   * Create identity matrix
+   */
+  static identity() {
+    return super.identity() as MutableMatrix44;
   }
 
   static dummy() {
-    return new MutableMatrix44(null);
+    return super.dummy() as MutableMatrix44;
   }
 
   /**
-   * to the identity matrix（static version）
+   * Create transpose matrix
    */
-  static identity() {
-    return new MutableMatrix44(
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    );
-  }
-
-  static zero() {
-    return new MutableMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  static transpose(mat: Matrix44) {
+    return super.transpose(mat) as MutableMatrix44;
   }
 
   /**
-   * multiply zero matrix and zero matrix(static version)
+   * Create invert matrix
+   */
+  static invert(mat: Matrix44) {
+    return super.invert(mat) as MutableMatrix44;
+  }
+
+  /**
+   * Create translation Matrix
+   */
+  static translate(vec: Vector3) {
+    return super.translate(vec) as MutableMatrix44;
+  }
+
+  /**
+   * Create X oriented Rotation Matrix
+   */
+  static rotateX(radian: number) {
+    return super.rotateX(radian) as MutableMatrix44;
+  }
+
+  /**
+   * Create Y oriented Rotation Matrix
+   */
+  static rotateY(radian: number) {
+    return super.rotateY(radian) as MutableMatrix44;
+  }
+
+  /**
+   * Create Z oriented Rotation Matrix
+   */
+  static rotateZ(radian: number) {
+    return super.rotateZ(radian) as MutableMatrix44;
+  }
+
+  static rotateXYZ(x: number, y: number, z: number) {
+    return super.rotateXYZ(x, y, z) as MutableMatrix44;
+  }
+
+  static rotate(vec3: Vector3) {
+    return super.rotateXYZ(vec3.x, vec3.y, vec3.z) as MutableMatrix44;
+  }
+
+  /**
+   * Create Scale Matrix
+   */
+  static scale(vec3: Vector3) {
+    return super.scale(vec3) as MutableMatrix44;
+  }
+
+  /**
+   * multiply matrixes
    */
   static multiply(l_m: Matrix44, r_m: Matrix44) {
-    var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
-    var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
-    var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
-    var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
-
-    var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
-    var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
-    var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
-    var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
-
-    var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
-    var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
-    var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
-    var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
-
-    var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
-    var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
-    var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
-    var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-
-    return new MutableMatrix44(
-      m00, m01, m02, m03,
-      m10, m11, m12, m13,
-      m20, m21, m22, m23,
-      m30, m31, m32, m33
-    );
+    return super.multiply(l_m, r_m) as MutableMatrix44;
   }
 
   setComponents(
