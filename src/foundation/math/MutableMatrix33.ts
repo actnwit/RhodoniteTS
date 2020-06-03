@@ -185,6 +185,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
 
   setAt(row_i: number, column_i: number, val: number) {
     this.v[row_i + column_i * 3] = val;
+    return this;
   }
 
   setComponents(

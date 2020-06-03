@@ -79,7 +79,7 @@ export interface IMutableMatrix22 {
   // only for mutable matrix22
   clone(): IMutableMatrix22; // override
   raw(): TypedArray;
-  setAt(row_i: number, column_i: number, val: number): void;
+  setAt(row_i: number, column_i: number, val: number): IMutableMatrix22;
   setComponents(...num: number[]): IMutableMatrix22;
   copyComponents(mat: IMatrix22 | IMatrix33 | IMatrix44): IMutableMatrix22;
   zero(): IMutableMatrix22;
@@ -147,7 +147,7 @@ export interface IMutableMatrix33 {
   // only for mutable matrix33
   clone(): IMutableMatrix33; // override
   raw(): TypedArray;
-  setAt(row_i: number, column_i: number, val: number): void;
+  setAt(row_i: number, column_i: number, val: number): IMutableMatrix33;
   setComponents(...num: number[]): IMutableMatrix33;
   copyComponents(mat: IMatrix33 | IMatrix44): IMutableMatrix33;
   zero(): IMutableMatrix33;
@@ -249,7 +249,7 @@ export interface IMutableMatrix44 {
   clone(): IMutableMatrix44; // override
   getRotate(): IMutableMatrix44; // override
   raw(): TypedArray;
-  setAt(row_i: number, column_i: number, val: number): void;
+  setAt(row_i: number, column_i: number, val: number): IMutableMatrix44;
   setComponents(...num: number[]): IMutableMatrix44;
   copyComponents(mat: IMatrix44): IMutableMatrix44;
   zero(): IMutableMatrix44;
