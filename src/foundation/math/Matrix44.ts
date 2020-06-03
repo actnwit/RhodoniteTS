@@ -394,11 +394,83 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   }
 
   static rotateXYZ(x: number, y: number, z: number) {
-    return Matrix44.multiply(Matrix44.multiply(Matrix44.rotateZ(z), Matrix44.rotateY(y)), Matrix44.rotateX(x));
+    const cosX = Math.cos(x);
+    const sinX = Math.sin(x);
+    const cosY = Math.cos(y);
+    const sinY = Math.sin(y);
+    const cosZ = Math.cos(z);
+    const sinZ = Math.sin(z);
+
+    // const x00 = 1;
+    // const x01 = 0;
+    // const x02 = 0;
+    // const x10 = 0;
+    const x11 = cosX;
+    const x12 = -sinX;
+    // const x20 = 0;
+    const x21 = sinX;
+    const x22 = cosX;
+
+    const y00 = cosY;
+    // const y01 = 0;
+    const y02 = sinY;
+    // const y10 = 0;
+    // const y11 = 1;
+    // const y12 = 0;
+    const y20 = -sinY;
+    // const y21 = 0;
+    const y22 = cosY;
+
+    const z00 = cosZ;
+    const z01 = -sinZ;
+    // const z02 = 0;
+    const z10 = sinZ;
+    const z11 = cosZ;
+    // const z12 = 0;
+    // const z20 = 0;
+    // const z21 = 0;
+    // const z22 = 1;
+
+    // Y * X
+    const yx00 = y00;
+    const yx01 = y02 * x21;
+    const yx02 = y02 * x22;
+    //const yx10 = 0;
+    const yx11 = x11;
+    const yx12 = x12;
+    const yx20 = y20;
+    const yx21 = y22 * x21;
+    const yx22 = y22 * x22;
+
+    // Z * Y * X
+    const m00 = z00 * yx00;
+    const m01 = z00 * yx01 + z01 * yx11;
+    const m02 = z00 * yx02 + z01 * yx12;
+    const m10 = z10 * yx00;
+    const m11 = z10 * yx01 + z11 * yx11;
+    const m12 = z10 * yx02 + z11 * yx12;
+    const m20 = yx20;
+    const m21 = yx21;
+    const m22 = yx22;
+
+    const m03 = 0;
+    const m13 = 0;
+    const m23 = 0;
+    const m30 = 0;
+    const m31 = 0;
+    const m32 = 0;
+    const m33 = 1;
+
+    return new Matrix44(
+      m00, m01, m02, m03,
+      m10, m11, m12, m13,
+      m20, m21, m22, m23,
+      m30, m31, m32, m33
+    );
   }
 
   static rotate(vec3: Vector3) {
-    return Matrix44.multiply(Matrix44.multiply(Matrix44.rotateZ(vec3.z), Matrix44.rotateY(vec3.y)), Matrix44.rotateX(vec3.x));
+    return this.rotateXYZ(vec3.x, vec3.y, vec3.z);
   }
 
   /**
