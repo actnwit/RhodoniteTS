@@ -465,24 +465,6 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     out.m33 = l_m.v[3] * r_m.v[12] + l_m.v[7] * r_m.v[13] + l_m.v[11] * r_m.v[14] + l_m.v[15] * r_m.v[15];
   }
 
-  static determinant(m: Matrix44) {
-    let n00 = m.v[0] * m.v[5] - m.v[4] * m.v[1];
-    let n01 = m.v[0] * m.v[9] - m.v[8] * m.v[1];
-    let n02 = m.v[0] * m.v[13] - m.v[12] * m.v[1];
-    let n03 = m.v[4] * m.v[9] - m.v[8] * m.v[5];
-    let n04 = m.v[4] * m.v[13] - m.v[12] * m.v[5];
-    let n05 = m.v[8] * m.v[13] - m.v[12] * m.v[9];
-    let n06 = m.v[2] * m.v[7] - m.v[6] * m.v[3];
-    let n07 = m.v[2] * m.v[11] - m.v[10] * m.v[3];
-    let n08 = m.v[2] * m.v[15] - m.v[14] * m.v[3];
-    let n09 = m.v[6] * m.v[11] - m.v[10] * m.v[7];
-    let n10 = m.v[6] * m.v[15] - m.v[14] * m.v[7];
-    let n11 = m.v[10] * m.v[15] - m.v[14] * m.v[11];
-
-    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
-    return det;
-  }
-
   toString() {
     return this.v[0] + ' ' + this.v[4] + ' ' + this.v[8] + ' ' + this.m03 + ' \n' +
       this.v[1] + ' ' + this.v[5] + ' ' + this.v[9] + ' ' + this.m13 + ' \n' +
