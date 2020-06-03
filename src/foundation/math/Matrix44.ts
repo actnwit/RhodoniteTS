@@ -601,6 +601,23 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     }
   }
 
+  isStrictEqual(mat: Matrix44) {
+    if (this.v.length !== mat.v.length) {
+      false;
+    }
+
+    for (let i = 0; i < this.v.length; i++) {
+      if (mat.v[i] !== this.v[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  at(row_i: number, column_i: number) {
+    return this.v[row_i + column_i * 4];
+  }
+
   clone() {
     return new Matrix44(
       this.v[0], this.v[4], this.v[8], this.v[12],
