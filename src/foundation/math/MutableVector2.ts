@@ -23,6 +23,10 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
     return this.v[1];
   }
 
+  raw() {
+    return this.v;
+  }
+
   copyComponents(vec: Vector2_<T>) {
     this.v[0] = vec.v[0];
     this.v[1] = vec.v[1];
