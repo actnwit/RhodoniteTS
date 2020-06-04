@@ -2,11 +2,23 @@ import { TypedArray } from "../../commontypes/CommonTypes";
 
 export interface IVector {
   readonly v: TypedArray;
+  readonly className: string;
+  // toString(): string;
+  // toStringApproximately(): string;
+  // flattenAsArray(): Array<number>;
+  // isDummy(): boolean;
+  // isEqual(vec: IVector, delta: number): boolean;
+  // isStrictEqual(vec: IVector): boolean;
+  // at(i: number): number;
+  // length(): number;
+  // lengthSquared(): number;
+  // lengthTo(vec: IVector): number;
+  // dot(vec: IVector): number;
+  // clone(): IVector;
 }
 
 export interface IMutableVector {
   v: TypedArray;
-
 }
 
 export interface IScalar {
