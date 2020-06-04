@@ -9,8 +9,41 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     super(x as any, y, z, { type });
   }
 
+  set x(x: number) {
+    this.v[0] = x;
+  }
+
+  get x() {
+    return this.v[0];
+  }
+
+  set y(y: number) {
+    this.v[1] = y;
+  }
+
+  get y() {
+    return this.v[1];
+  }
+
+  set z(z: number) {
+    this.v[2] = z;
+  }
+
+  get z() {
+    return this.v[2];
+  }
+
+  get raw() {
+    return this.v;
+  }
+
   static get compositionType() {
     return CompositionType.Vec3;
+  }
+
+  setAt(i: number, value: number) {
+    this.v[i] = value;
+    return this;
   }
 
   copyComponents(vec: Vector3_<T>) {
@@ -18,7 +51,6 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     this.v[1] = vec.v[1];
     this.v[2] = vec.v[2];
   }
-
 
   zero() {
     this.x = 0;
@@ -36,29 +68,11 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this;
   }
 
-
-
   /**
    * to square length
    */
   lengthSquared() {
     return this.x * this.x + this.y * this.y + this.z * this.z;
-  }
-
-
-  /**
-   * cross product
-   */
-  cross(v: Vector3) {
-    var x = this.y * v.z - this.z * v.y;
-    var y = this.z * v.x - this.x * v.z;
-    var z = this.x * v.y - this.y * v.x;
-
-    this.x = x;
-    this.y = y;
-    this.z = z;
-
-    return this;
   }
 
   /**
@@ -93,24 +107,6 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this;
   }
 
-  /**
-   * divide
-   */
-  divide(val: number) {
-    if (val !== 0) {
-      this.x /= val;
-      this.y /= val;
-      this.z /= val;
-    } else {
-      console.error("0 division occurred!");
-      this.x = Infinity;
-      this.y = Infinity;
-      this.z = Infinity;
-    }
-
-    return this;
-  }
-
 
   /**
    * multiply
@@ -135,6 +131,24 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   }
 
   /**
+   * divide
+   */
+  divide(val: number) {
+    if (val !== 0) {
+      this.x /= val;
+      this.y /= val;
+      this.z /= val;
+    } else {
+      console.error("0 division occurred!");
+      this.x = Infinity;
+      this.y = Infinity;
+      this.z = Infinity;
+    }
+
+    return this;
+  }
+
+  /**
  * divide vector
  */
   divideVector(vec3: Vector3) {
@@ -145,37 +159,18 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this;
   }
 
+  /**
+   * cross product
+   */
+  cross(v: Vector3) {
+    var x = this.y * v.z - this.z * v.y;
+    var y = this.z * v.x - this.x * v.z;
+    var z = this.x * v.y - this.y * v.x;
 
-  get x() {
-    return this.v[0];
-  }
+    this.x = x;
+    this.y = y;
+    this.z = z;
 
-  set x(x: number) {
-    this.v[0] = x;
-  }
-
-  get y() {
-    return this.v[1];
-  }
-
-  set y(y: number) {
-    this.v[1] = y;
-  }
-
-  get z() {
-    return this.v[2];
-  }
-
-  set z(z: number) {
-    this.v[2] = z;
-  }
-
-  get raw() {
-    return this.v;
-  }
-
-  setAt(i: number, value: number) {
-    this.v[i] = value;
     return this;
   }
 }
@@ -186,8 +181,8 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     super(x, y!, z!, { type: Float32Array })
   }
 
-  clone() {
-    return new MutableVector3(this.x, this.y, this.z);
+  static zero() {
+    return new MutableVector3(0, 0, 0);
   }
 
   static one() {
@@ -198,8 +193,8 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     return new MutableVector3(null, 0, 0);
   }
 
-  static zero() {
-    return new MutableVector3(0, 0, 0);
+  clone() {
+    return new MutableVector3(this.x, this.y, this.z);
   }
 }
 
@@ -208,8 +203,8 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
     super(x, y!, z!, { type: Float64Array })
   }
 
-  clone() {
-    return new MutableVector3d(this.x, this.y, this.z);
+  static zero() {
+    return new MutableVector3d(0, 0, 0);
   }
 
   static one() {
@@ -220,8 +215,8 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
     return new MutableVector3d(null, 0, 0);
   }
 
-  static zero() {
-    return new MutableVector3d(0, 0, 0);
+  clone() {
+    return new MutableVector3d(this.x, this.y, this.z);
   }
 }
 

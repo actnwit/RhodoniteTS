@@ -10,6 +10,42 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     super(x, y, z, w, { type });
   }
 
+  set x(x: number) {
+    this.v[0] = x;
+  }
+
+  get x(): number {
+    return this.v[0];
+  }
+
+  set y(y: number) {
+    this.v[1] = y;
+  }
+
+  get y(): number {
+    return this.v[1];
+  }
+
+  set z(z: number) {
+    this.v[2] = z;
+  }
+
+  get z(): number {
+    return this.v[2];
+  }
+
+  set w(w: number) {
+    this.v[3] = w;
+  }
+
+  get w(): number {
+    return this.v[3];
+  }
+
+  get raw() {
+    return this.v;
+  }
+
   static get compositionType() {
     return CompositionType.Vec4;
   }
@@ -113,42 +149,6 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-  get x(): number {
-    return this.v[0];
-  }
-
-  get y(): number {
-    return this.v[1];
-  }
-
-  get z(): number {
-    return this.v[2];
-  }
-
-  get w(): number {
-    return this.v[3];
-  }
-
-  set x(x: number) {
-    this.v[0] = x;
-  }
-
-  set y(y: number) {
-    this.v[1] = y;
-  }
-
-  set z(z: number) {
-    this.v[2] = z;
-  }
-
-  set w(w: number) {
-    this.v[3] = w;
-  }
-
-  get raw() {
-    return this.v;
-  }
-
   // set w(w:number) {
   //   this.__Error();
   // }
@@ -165,8 +165,6 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     //console.error('Not available because this Vector class is immutable.');
     throw new Error('Not available because this Vector class is immutable.');
   }
-
-
 }
 
 
@@ -175,8 +173,12 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     super(x, y!, z!, w!, { type: Float32Array })
   }
 
-  clone() {
-    return new MutableVector4(this.x, this.y, this.z, this.w);
+  static zero() {
+    return new MutableVector4(0, 0, 0, 0);
+  }
+
+  static zeroWithWOne() {
+    return new MutableVector4(0, 0, 0, 1);
   }
 
   static one() {
@@ -187,12 +189,8 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     return new MutableVector4(null, 0, 0, 0);
   }
 
-  static zero() {
-    return new MutableVector4(0, 0, 0, 0);
-  }
-
-  static zeroWithWOne() {
-    return new MutableVector4(0, 0, 0, 1);
+  clone() {
+    return new MutableVector4(this.x, this.y, this.z, this.w);
   }
 }
 
@@ -201,8 +199,12 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
     super(x, y!, z!, w!, { type: Float64Array })
   }
 
-  clone() {
-    return new MutableVector4d(this.x, this.y, this.z, this.w);
+  static zero() {
+    return new MutableVector4d(0, 0, 0, 0);
+  }
+
+  static zeroWithWOne() {
+    return new MutableVector4d(0, 0, 0, 1);
   }
 
   static one() {
@@ -213,12 +215,8 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
     return new MutableVector4d(null, 0, 0, 0);
   }
 
-  static zero() {
-    return new MutableVector4d(0, 0, 0, 0);
-  }
-
-  static zeroWithWOne() {
-    return new MutableVector4d(0, 0, 0, 1);
+  clone() {
+    return new MutableVector4d(this.x, this.y, this.z, this.w);
   }
 }
 

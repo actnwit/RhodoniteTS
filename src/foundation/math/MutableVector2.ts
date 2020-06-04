@@ -7,25 +7,25 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
     super(x as any, y, { type });
   }
 
-  copyComponents(vec: Vector2_<T>) {
-    this.v[0] = vec.v[0];
-    this.v[1] = vec.v[1];
+  set x(x: number) {
+    this.v[0] = x;
   }
 
   get x() {
     return this.v[0];
   }
 
+  set y(y: number) {
+    this.v[1] = y;
+  }
+
   get y() {
     return this.v[1];
   }
 
-  set x(x: number) {
-    this.v[0] = x;
-  }
-
-  set y(y: number) {
-    this.v[1] = y;
+  copyComponents(vec: Vector2_<T>) {
+    this.v[0] = vec.v[0];
+    this.v[1] = vec.v[1];
   }
 
   multiply(val: number) {
@@ -34,7 +34,6 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
 
     return this;
   }
-
 }
 
 export default class MutableVector2 extends MutableVector2_<Float32ArrayConstructor> {
@@ -42,8 +41,8 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
     super(x, y!, { type: Float32Array })
   }
 
-  clone() {
-    return new MutableVector2(this.x, this.y);
+  static zero() {
+    return new MutableVector2(0, 0);
   }
 
   static one() {
@@ -54,8 +53,8 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
     return new MutableVector2(null, 0);
   }
 
-  static zero() {
-    return new MutableVector2(0, 0);
+  clone() {
+    return new MutableVector2(this.x, this.y);
   }
 }
 
@@ -64,8 +63,8 @@ export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
     super(x, y!, { type: Float64Array })
   }
 
-  clone() {
-    return new MutableVector2d(this.x, this.y);
+  static zero() {
+    return new MutableVector2d(0, 0);
   }
 
   static one() {
@@ -76,8 +75,8 @@ export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
     return new MutableVector2d(null, 0);
   }
 
-  static zero() {
-    return new MutableVector2d(0, 0);
+  clone() {
+    return new MutableVector2d(this.x, this.y);
   }
 }
 
