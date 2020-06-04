@@ -52,7 +52,30 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
     return new (vec2.constructor as any)(vec2.x * val, vec2.y * val);
   }
 
-  isEqual(vec: Vector2_<T>, delta: number = Number.EPSILON) {
+  /**
+ * change to string
+ */
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+
+  toStringApproximately() {
+    return MathUtil.nearZeroToZero(this.x) + ' ' + MathUtil.nearZeroToZero(this.y) + '\n';
+  }
+
+  flattenAsArray() {
+    return [this.x, this.y];
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(vec: IVector2, delta: number = Number.EPSILON) {
     if (Math.abs(vec.x - this.x) < delta &&
       Math.abs(vec.y - this.y) < delta) {
       return true;
@@ -61,12 +84,37 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
     }
   }
 
-  isStrictEqual(vec: Vector2_<T>) {
+  isStrictEqual(vec: IVector2) {
     if (this.x === vec.x && this.y === vec.y) {
       return true;
     } else {
       return false;
     }
+  }
+
+  at(i: number) {
+    return this.v[i];
+  }
+
+  length() {
+    return Math.hypot(this.x, this.y);
+  }
+
+  lengthSquared(): number {
+    return this.x * this.x + this.y * this.y;
+  }
+
+  lengthTo(vec: IVector2) {
+    const deltaX = this.x - vec.x;
+    const deltaY = this.y - vec.y;
+    return Math.hypot(deltaX, deltaY);
+  }
+
+  /**
+   * dot product
+   */
+  dot(vec: IVector2) {
+    return this.x * vec.x + this.y * vec.y;
   }
 
   clone() {
