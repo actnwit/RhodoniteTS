@@ -142,7 +142,7 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
   }
 
   clone() {
-    return new MutableVector2(this.x, this.y);
+    return super.clone() as MutableVector2;
   }
 }
 
@@ -164,7 +164,7 @@ export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
   }
 
   clone() {
-    return new MutableVector2d(this.x, this.y);
+    return super.clone() as MutableVector2d;
   }
 }
 

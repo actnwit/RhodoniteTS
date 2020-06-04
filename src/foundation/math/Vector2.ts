@@ -118,7 +118,7 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   clone() {
-    return new Vector2(this.x, this.y);
+    return new (this.constructor as any)(this.x, this.y);
   }
 }
 
@@ -140,7 +140,7 @@ export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
   }
 
   clone() {
-    return new Vector2(this.x, this.y);
+    return super.clone() as Vector2;
   }
 }
 
@@ -162,7 +162,7 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
   }
 
   clone() {
-    return new Vector2d(this.x, this.y);
+    return super.clone() as Vector2d;
   }
 }
 
