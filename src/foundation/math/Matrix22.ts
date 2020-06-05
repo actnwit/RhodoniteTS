@@ -155,10 +155,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
    */
   static invert(mat: Matrix22) {
     const det = mat.determinant();
-    const m00 = mat.m11 / det;
-    const m01 = mat.m01 / det * (-1.0);
-    const m10 = mat.m10 / det * (-1.0);
-    const m11 = mat.m00 / det;
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = mat.v[3] / det;
+    const m01 = mat.v[2] / det * (-1.0);
+    const m10 = mat.v[1] / det * (-1.0);
+    const m11 = mat.v[0] / det;
 
     return new this(
       m00, m01,
@@ -166,13 +170,18 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     );
   }
 
-  static invertTo(m: Matrix22, out: MutableMatrix22) {
-    const det = m.determinant();
-    const m00 = m.m11 / det;
-    const m01 = m.m01 / det * (-1.0);
-    const m10 = m.m10 / det * (-1.0);
-    const m11 = m.m00 / det;
-    return out.setComponents(
+  static invertTo(mat: Matrix22, outMat: MutableMatrix22) {
+    const det = mat.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = mat.v[3] / det;
+    const m01 = mat.v[2] / det * (-1.0);
+    const m10 = mat.v[1] / det * (-1.0);
+    const m11 = mat.v[0] / det;
+
+    return outMat.setComponents(
       m00, m01,
       m10, m11
     );

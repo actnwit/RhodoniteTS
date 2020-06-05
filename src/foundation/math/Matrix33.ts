@@ -196,16 +196,20 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
    * Create invert matrix
    */
   static invert(mat: Matrix33) {
-    var det = mat.determinant();
-    var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-    var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-    var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-    var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-    var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-    var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-    var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-    var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-    var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+    const det = mat.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = (mat.v[4] * mat.v[8] - mat.v[7] * mat.v[5]) / det;
+    const m01 = (mat.v[6] * mat.v[5] - mat.v[3] * mat.v[8]) / det;
+    const m02 = (mat.v[3] * mat.v[7] - mat.v[6] * mat.v[4]) / det;
+    const m10 = (mat.v[7] * mat.v[2] - mat.v[1] * mat.v[8]) / det;
+    const m11 = (mat.v[0] * mat.v[8] - mat.v[6] * mat.v[2]) / det;
+    const m12 = (mat.v[6] * mat.v[1] - mat.v[0] * mat.v[7]) / det;
+    const m20 = (mat.v[1] * mat.v[5] - mat.v[4] * mat.v[2]) / det;
+    const m21 = (mat.v[3] * mat.v[2] - mat.v[0] * mat.v[5]) / det;
+    const m22 = (mat.v[0] * mat.v[4] - mat.v[3] * mat.v[1]) / det;
 
     return new this(
       m00, m01, m02,
@@ -216,15 +220,19 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
 
   static invertTo(mat: Matrix33, outMat: MutableMatrix33) {
     const det = mat.determinant();
-    const m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-    const m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-    const m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-    const m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-    const m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-    const m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-    const m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-    const m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-    const m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = (mat.v[4] * mat.v[8] - mat.v[7] * mat.v[5]) / det;
+    const m01 = (mat.v[6] * mat.v[5] - mat.v[3] * mat.v[8]) / det;
+    const m02 = (mat.v[3] * mat.v[7] - mat.v[6] * mat.v[4]) / det;
+    const m10 = (mat.v[7] * mat.v[2] - mat.v[1] * mat.v[8]) / det;
+    const m11 = (mat.v[0] * mat.v[8] - mat.v[6] * mat.v[2]) / det;
+    const m12 = (mat.v[6] * mat.v[1] - mat.v[0] * mat.v[7]) / det;
+    const m20 = (mat.v[1] * mat.v[5] - mat.v[4] * mat.v[2]) / det;
+    const m21 = (mat.v[3] * mat.v[2] - mat.v[0] * mat.v[5]) / det;
+    const m22 = (mat.v[0] * mat.v[4] - mat.v[3] * mat.v[1]) / det;
 
     return outMat.setComponents(
       m00, m01, m02,

@@ -329,23 +329,40 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
   }
 
   invert() {
-    var det = this.determinant();
-    var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;
-    var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;
-    var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;
-    var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;
-    var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;
-    var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;
-    var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;
-    var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;
-    var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;
-    var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;
-    var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;
-    var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;
-    var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;
-    var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;
-    var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;
-    var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;
+    const n00 = this.v[0] * this.v[5] - this.v[4] * this.v[1];
+    const n01 = this.v[0] * this.v[9] - this.v[8] * this.v[1];
+    const n02 = this.v[0] * this.v[13] - this.v[12] * this.v[1];
+    const n03 = this.v[4] * this.v[9] - this.v[8] * this.v[5];
+    const n04 = this.v[4] * this.v[13] - this.v[12] * this.v[5];
+    const n05 = this.v[8] * this.v[13] - this.v[12] * this.v[9];
+    const n06 = this.v[2] * this.v[7] - this.v[6] * this.v[3];
+    const n07 = this.v[2] * this.v[11] - this.v[10] * this.v[3];
+    const n08 = this.v[2] * this.v[15] - this.v[14] * this.v[3];
+    const n09 = this.v[6] * this.v[11] - this.v[10] * this.v[7];
+    const n10 = this.v[6] * this.v[15] - this.v[14] * this.v[7];
+    const n11 = this.v[10] * this.v[15] - this.v[14] * this.v[11];
+
+    const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = (this.v[5] * n11 - this.v[9] * n10 + this.v[13] * n09) / det;
+    const m01 = (this.v[8] * n10 - this.v[4] * n11 - this.v[12] * n09) / det;
+    const m02 = (this.v[7] * n05 - this.v[11] * n04 + this.v[15] * n03) / det;
+    const m03 = (this.v[10] * n04 - this.v[6] * n05 - this.v[14] * n03) / det;
+    const m10 = (this.v[9] * n08 - this.v[1] * n11 - this.v[13] * n07) / det;
+    const m11 = (this.v[0] * n11 - this.v[8] * n08 + this.v[12] * n07) / det;
+    const m12 = (this.v[11] * n02 - this.v[3] * n05 - this.v[15] * n01) / det;
+    const m13 = (this.v[2] * n05 - this.v[10] * n02 + this.v[14] * n01) / det;
+    const m20 = (this.v[1] * n10 - this.v[5] * n08 + this.v[13] * n06) / det;
+    const m21 = (this.v[4] * n08 - this.v[0] * n10 - this.v[12] * n06) / det;
+    const m22 = (this.v[3] * n04 - this.v[7] * n02 + this.v[15] * n00) / det;
+    const m23 = (this.v[6] * n02 - this.v[2] * n04 - this.v[14] * n00) / det;
+    const m30 = (this.v[5] * n07 - this.v[1] * n09 - this.v[9] * n06) / det;
+    const m31 = (this.v[0] * n09 - this.v[4] * n07 + this.v[8] * n06) / det;
+    const m32 = (this.v[7] * n01 - this.v[3] * n03 - this.v[11] * n00) / det;
+    const m33 = (this.v[2] * n03 - this.v[6] * n01 + this.v[10] * n00) / det;
 
     return this.setComponents(
       m00, m01, m02, m03,

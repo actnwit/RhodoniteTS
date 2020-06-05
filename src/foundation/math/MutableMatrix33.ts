@@ -239,6 +239,10 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
 
   invert() {
     var det = this.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
     var m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
     var m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
     var m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
