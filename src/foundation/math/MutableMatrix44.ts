@@ -3,7 +3,6 @@ import { IMutableMatrix44, IMutableMatrix } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
 import Vector3 from "./Vector3";
-import { CompositionType } from "../definitions/CompositionType";
 import { Index } from "../../commontypes/CommonTypes";
 
 const FloatArray = Float32Array;
@@ -166,60 +165,105 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return this.v[15];
   }
 
-  static get compositionType() {
-    return CompositionType.Mat4;
+  /**
+   * zero matrix(static version)
+   */
+  static zero() {
+    return super.zero() as MutableMatrix44;
+  }
+
+  /**
+   * Create identity matrix
+   */
+  static identity() {
+    return super.identity() as MutableMatrix44;
   }
 
   static dummy() {
-    return new MutableMatrix44(null);
+    return super.dummy() as MutableMatrix44;
   }
 
   /**
-   * to the identity matrix（static version）
+   * Create transpose matrix
    */
-  static identity() {
-    return new MutableMatrix44(
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    );
-  }
-
-  static zero() {
-    return new MutableMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  static transpose(mat: Matrix44) {
+    return super.transpose(mat) as MutableMatrix44;
   }
 
   /**
-   * multiply zero matrix and zero matrix(static version)
+   * Create invert matrix
    */
-  static multiply(l_m: Matrix44, r_m: Matrix44) {
-    var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
-    var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
-    var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
-    var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
+  static invert(mat: Matrix44) {
+    return super.invert(mat) as MutableMatrix44;
+  }
 
-    var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
-    var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
-    var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
-    var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
+  /**
+   * Create translation Matrix
+   */
+  static translate(vec: Vector3) {
+    return super.translate(vec) as MutableMatrix44;
+  }
 
-    var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
-    var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
-    var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
-    var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
+  /**
+   * Create X oriented Rotation Matrix
+   */
+  static rotateX(radian: number) {
+    return super.rotateX(radian) as MutableMatrix44;
+  }
 
-    var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
-    var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
-    var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
-    var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
+  /**
+   * Create Y oriented Rotation Matrix
+   */
+  static rotateY(radian: number) {
+    return super.rotateY(radian) as MutableMatrix44;
+  }
 
-    return new MutableMatrix44(
-      m00, m01, m02, m03,
-      m10, m11, m12, m13,
-      m20, m21, m22, m23,
-      m30, m31, m32, m33
-    );
+  /**
+   * Create Z oriented Rotation Matrix
+   */
+  static rotateZ(radian: number) {
+    return super.rotateZ(radian) as MutableMatrix44;
+  }
+
+  static rotateXYZ(x: number, y: number, z: number) {
+    return super.rotateXYZ(x, y, z) as MutableMatrix44;
+  }
+
+  static rotate(vec: Vector3) {
+    return super.rotateXYZ(vec.v[0], vec.v[1], vec.v[2]) as MutableMatrix44;
+  }
+
+  /**
+   * Create Scale Matrix
+   */
+  static scale(vec: Vector3) {
+    return super.scale(vec) as MutableMatrix44;
+  }
+
+  /**
+   * multiply matrixes
+   */
+  static multiply(l_mat: Matrix44, r_mat: Matrix44) {
+    return super.multiply(l_mat, r_mat) as MutableMatrix44;
+  }
+
+  clone() {
+    const result = super.clone() as MutableMatrix44;
+    return result;
+  }
+
+  getRotate() {
+    const rotateMat = super.getRotate() as MutableMatrix44;
+    return rotateMat;
+  }
+
+  raw() {
+    return this.v;
+  }
+
+  setAt(row_i: number, column_i: number, val: number) {
+    this.v[row_i + column_i * 4] = val;
+    return this;
   }
 
   setComponents(
@@ -236,25 +280,11 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return this;
   }
 
-  copyComponents(mat4: Matrix44) {
-    //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
-    const m = mat4.v;
-    this.v[0] = m[0];
-    this.v[1] = m[1];
-    this.v[2] = m[2];
-    this.v[3] = m[3];
-    this.v[4] = m[4];
-    this.v[5] = m[5];
-    this.v[6] = m[6];
-    this.v[7] = m[7];
-    this.v[8] = m[8];
-    this.v[9] = m[9];
-    this.v[10] = m[10];
-    this.v[11] = m[11];
-    this.v[12] = m[12];
-    this.v[13] = m[13];
-    this.v[14] = m[14];
-    this.v[15] = m[15];
+  copyComponents(mat: Matrix44) {
+    this.v[0] = mat.v[0]; this.v[4] = mat.v[4]; this.v[8] = mat.v[8]; this.v[12] = mat.v[12];
+    this.v[1] = mat.v[1]; this.v[5] = mat.v[5]; this.v[9] = mat.v[9]; this.v[13] = mat.v[13];
+    this.v[2] = mat.v[2]; this.v[6] = mat.v[6]; this.v[10] = mat.v[10]; this.v[14] = mat.v[14];
+    this.v[3] = mat.v[3]; this.v[7] = mat.v[7]; this.v[11] = mat.v[11]; this.v[15] = mat.v[15];
 
     return this;
   }
@@ -263,25 +293,23 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
    * zero matrix
    */
   zero() {
-    this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    return this;
+    return this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
    * to the identity matrix
    */
   identity() {
-    this.setComponents(
+    return this.setComponents(
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
       0, 0, 0, 1
     );
-    return this;
   }
 
   _swap(l: Index, r: Index) {
-    this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
+    this.v[r] = [this.v[l], this.v[l] = this.v[r]][0];
   }
 
   /**
@@ -299,23 +327,40 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
   }
 
   invert() {
-    var det = this.determinant();
-    var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;
-    var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;
-    var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;
-    var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;
-    var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;
-    var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;
-    var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;
-    var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;
-    var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;
-    var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;
-    var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;
-    var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;
-    var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;
-    var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;
-    var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;
-    var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;
+    const n00 = this.v[0] * this.v[5] - this.v[4] * this.v[1];
+    const n01 = this.v[0] * this.v[9] - this.v[8] * this.v[1];
+    const n02 = this.v[0] * this.v[13] - this.v[12] * this.v[1];
+    const n03 = this.v[4] * this.v[9] - this.v[8] * this.v[5];
+    const n04 = this.v[4] * this.v[13] - this.v[12] * this.v[5];
+    const n05 = this.v[8] * this.v[13] - this.v[12] * this.v[9];
+    const n06 = this.v[2] * this.v[7] - this.v[6] * this.v[3];
+    const n07 = this.v[2] * this.v[11] - this.v[10] * this.v[3];
+    const n08 = this.v[2] * this.v[15] - this.v[14] * this.v[3];
+    const n09 = this.v[6] * this.v[11] - this.v[10] * this.v[7];
+    const n10 = this.v[6] * this.v[15] - this.v[14] * this.v[7];
+    const n11 = this.v[10] * this.v[15] - this.v[14] * this.v[11];
+
+    const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = (this.v[5] * n11 - this.v[9] * n10 + this.v[13] * n09) / det;
+    const m01 = (this.v[8] * n10 - this.v[4] * n11 - this.v[12] * n09) / det;
+    const m02 = (this.v[7] * n05 - this.v[11] * n04 + this.v[15] * n03) / det;
+    const m03 = (this.v[10] * n04 - this.v[6] * n05 - this.v[14] * n03) / det;
+    const m10 = (this.v[9] * n08 - this.v[1] * n11 - this.v[13] * n07) / det;
+    const m11 = (this.v[0] * n11 - this.v[8] * n08 + this.v[12] * n07) / det;
+    const m12 = (this.v[11] * n02 - this.v[3] * n05 - this.v[15] * n01) / det;
+    const m13 = (this.v[2] * n05 - this.v[10] * n02 + this.v[14] * n01) / det;
+    const m20 = (this.v[1] * n10 - this.v[5] * n08 + this.v[13] * n06) / det;
+    const m21 = (this.v[4] * n08 - this.v[0] * n10 - this.v[12] * n06) / det;
+    const m22 = (this.v[3] * n04 - this.v[7] * n02 + this.v[15] * n00) / det;
+    const m23 = (this.v[6] * n02 - this.v[2] * n04 - this.v[14] * n00) / det;
+    const m30 = (this.v[5] * n07 - this.v[1] * n09 - this.v[9] * n06) / det;
+    const m31 = (this.v[0] * n09 - this.v[4] * n07 + this.v[8] * n06) / det;
+    const m32 = (this.v[7] * n01 - this.v[3] * n03 - this.v[11] * n00) / det;
+    const m33 = (this.v[2] * n03 - this.v[6] * n01 + this.v[10] * n00) / det;
 
     return this.setComponents(
       m00, m01, m02, m03,
@@ -327,17 +372,17 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
 
   translate(vec: Vector3) {
     return this.setComponents(
-      1, 0, 0, vec.x,
-      0, 1, 0, vec.y,
-      0, 0, 1, vec.z,
+      1, 0, 0, vec.v[0],
+      0, 1, 0, vec.v[1],
+      0, 0, 1, vec.v[2],
       0, 0, 0, 1
     );
   }
 
   putTranslate(vec: Vector3) {
-    this.m03 = vec.x;
-    this.m13 = vec.y;
-    this.m23 = vec.z;
+    this.v[12] = vec.v[0];
+    this.v[13] = vec.v[1];
+    this.v[14] = vec.v[2];
     return this;
   }
 
@@ -345,8 +390,8 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
    * Create X oriented Rotation Matrix
    */
   rotateX(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
+    const cos = Math.cos(radian);
+    const sin = Math.sin(radian);
     return this.setComponents(
       1, 0, 0, 0,
       0, cos, -sin, 0,
@@ -359,8 +404,8 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
    * Create Y oriented Rotation Matrix
    */
   rotateY(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
+    const cos = Math.cos(radian);
+    const sin = Math.sin(radian);
     return this.setComponents(
       cos, 0, sin, 0,
       0, 1, 0, 0,
@@ -373,8 +418,8 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
  * Create Z oriented Rotation Matrix
  */
   rotateZ(radian: number) {
-    var cos = Math.cos(radian);
-    var sin = Math.sin(radian);
+    const cos = Math.cos(radian);
+    const sin = Math.sin(radian);
     return this.setComponents(
       cos, -sin, 0, 0,
       sin, cos, 0, 0,
@@ -384,98 +429,109 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
   }
 
   rotateXYZ(x: number, y: number, z: number) {
-    var cosX = Math.cos(x);
-    var sinX = Math.sin(x);
-    var cosY = Math.cos(y);
-    var sinY = Math.sin(y);
-    var cosZ = Math.cos(z);
-    var sinZ = Math.sin(z);
+    const cosX = Math.cos(x);
+    const sinX = Math.sin(x);
+    const cosY = Math.cos(y);
+    const sinY = Math.sin(y);
+    const cosZ = Math.cos(z);
+    const sinZ = Math.sin(z);
 
-    const xm00 = 1;
-    //const xm01 = 0;
-    //const xm02 = 0;
-    //const xm10 = 0;
-    const xm11 = cosX;
-    const xm12 = -sinX;
-    //const xm20 = 0;
-    const xm21 = sinX;
-    const xm22 = cosX;
+    // const x00 = 1;
+    // const x01 = 0;
+    // const x02 = 0;
+    // const x10 = 0;
+    const x11 = cosX;
+    const x12 = -sinX;
+    // const x20 = 0;
+    const x21 = sinX;
+    const x22 = cosX;
 
-    const ym00 = cosY;
-    //const ym01 = 0;
-    const ym02 = sinY;
-    //const ym10 = 0;
-    const ym11 = 1;
-    //const ym12 = 0;
-    const ym20 = -sinY;
-    //const ym21 = 0;
-    const ym22 = cosY;
+    const y00 = cosY;
+    // const y01 = 0;
+    const y02 = sinY;
+    // const y10 = 0;
+    // const y11 = 1;
+    // const y12 = 0;
+    const y20 = -sinY;
+    // const y21 = 0;
+    const y22 = cosY;
 
-    const zm00 = cosZ;
-    const zm01 = -sinZ;
-    //const zm02 = 0;
-    const zm10 = sinZ;
-    const zm11 = cosZ;
-    //const zm12 = 0;
-    //const zm20 = 0;
-    //const zm21 = 0;
-    const zm22 = 1;
+    const z00 = cosZ;
+    const z01 = -sinZ;
+    // const z02 = 0;
+    const z10 = sinZ;
+    const z11 = cosZ;
+    // const z12 = 0;
+    // const z20 = 0;
+    // const z21 = 0;
+    // const z22 = 1;
 
-    const yxm00 = ym00 * xm00;
-    const yxm01 = ym02 * xm21;
-    const yxm02 = ym02 * xm22;
-    //const yxm10 = 0;
-    const yxm11 = ym11 * xm11;
-    const yxm12 = ym11 * xm12;
-    const yxm20 = ym20 * xm00;
-    const yxm21 = ym22 * xm21;
-    const yxm22 = ym22 * xm22;
+    // Y * X
+    const yx00 = y00;
+    const yx01 = y02 * x21;
+    const yx02 = y02 * x22;
+    //const yx10 = 0;
+    const yx11 = x11;
+    const yx12 = x12;
+    const yx20 = y20;
+    const yx21 = y22 * x21;
+    const yx22 = y22 * x22;
 
-    this.v[0] = zm00 * yxm00;
-    this.v[4] = zm00 * yxm01 + zm01 * yxm11;
-    this.v[8] = zm00 * yxm02 + zm01 * yxm12;
-    this.v[12] = 0;
-    this.v[1] = zm10 * yxm00;
-    this.v[5] = zm10 * yxm01 + zm11 * yxm11;
-    this.v[9] = zm10 * yxm02 + zm11 * yxm12;
-    this.v[13] = 0;
-    this.v[2] = zm22 * yxm20;
-    this.v[6] = zm22 * yxm21;
-    this.v[10] = zm22 * yxm22;
-    this.v[14] = 0;
-    this.v[3] = 0;
-    this.v[7] = 0;
-    this.v[11] = 0;
-    this.v[15] = 1;
+    // Z * Y * X
+    const m00 = z00 * yx00;
+    const m01 = z00 * yx01 + z01 * yx11;
+    const m02 = z00 * yx02 + z01 * yx12;
+    const m10 = z10 * yx00;
+    const m11 = z10 * yx01 + z11 * yx11;
+    const m12 = z10 * yx02 + z11 * yx12;
+    const m20 = yx20;
+    const m21 = yx21;
+    const m22 = yx22;
 
-    return this;
+    const m03 = 0;
+    const m13 = 0;
+    const m23 = 0;
+    const m30 = 0;
+    const m31 = 0;
+    const m32 = 0;
+    const m33 = 1;
 
+    return this.setComponents(
+      m00, m01, m02, m03,
+      m10, m11, m12, m13,
+      m20, m21, m22, m23,
+      m30, m31, m32, m33
+    );
+  }
+
+  rotate(vec: Vector3) {
+    return this.rotateXYZ(vec.v[0], vec.v[1], vec.v[2]);
   }
 
   scale(vec: Vector3) {
     return this.setComponents(
-      vec.x, 0, 0, 0,
-      0, vec.y, 0, 0,
-      0, 0, vec.z, 0,
+      vec.v[0], 0, 0, 0,
+      0, vec.v[1], 0, 0,
+      0, 0, vec.v[2], 0,
       0, 0, 0, 1
     );
   }
 
   putScale(vec: Vector3) {
-    this.m00 *= vec.x;
-    this.m01 *= vec.x;
-    this.m02 *= vec.x;
-    this.m03 *= vec.x;
+    this.v[0] *= vec.v[0];
+    this.v[4] *= vec.v[0];
+    this.v[8] *= vec.v[0];
+    this.v[12] *= vec.v[0];
 
-    this.m10 *= vec.y;
-    this.m11 *= vec.y;
-    this.m12 *= vec.y;
-    this.m13 *= vec.y;
+    this.v[1] *= vec.v[1];
+    this.v[5] *= vec.v[1];
+    this.v[9] *= vec.v[1];
+    this.v[13] *= vec.v[1];
 
-    this.m20 *= vec.z;
-    this.m21 *= vec.z;
-    this.m22 *= vec.z;
-    this.m23 *= vec.z;
+    this.v[2] *= vec.v[2];
+    this.v[6] *= vec.v[2];
+    this.v[10] *= vec.v[2];
+    this.v[14] *= vec.v[2];
 
     return this;
   }
@@ -484,25 +540,25 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
    * multiply the input matrix from right side
    */
   multiply(mat: Matrix44) {
-    var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;
-    var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;
-    var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;
-    var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;
+    const m00 = this.v[0] * mat.v[0] + this.v[4] * mat.v[1] + this.v[8] * mat.v[2] + this.v[12] * mat.v[3];
+    const m01 = this.v[0] * mat.v[4] + this.v[4] * mat.v[5] + this.v[8] * mat.v[6] + this.v[12] * mat.v[7];
+    const m02 = this.v[0] * mat.v[8] + this.v[4] * mat.v[9] + this.v[8] * mat.v[10] + this.v[12] * mat.v[11];
+    const m03 = this.v[0] * mat.v[12] + this.v[4] * mat.v[13] + this.v[8] * mat.v[14] + this.v[12] * mat.v[15];
 
-    var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;
-    var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;
-    var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;
-    var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;
+    const m10 = this.v[1] * mat.v[0] + this.v[5] * mat.v[1] + this.v[9] * mat.v[2] + this.v[13] * mat.v[3];
+    const m11 = this.v[1] * mat.v[4] + this.v[5] * mat.v[5] + this.v[9] * mat.v[6] + this.v[13] * mat.v[7];
+    const m12 = this.v[1] * mat.v[8] + this.v[5] * mat.v[9] + this.v[9] * mat.v[10] + this.v[13] * mat.v[11];
+    const m13 = this.v[1] * mat.v[12] + this.v[5] * mat.v[13] + this.v[9] * mat.v[14] + this.v[13] * mat.v[15];
 
-    var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;
-    var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;
-    var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;
-    var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;
+    const m20 = this.v[2] * mat.v[0] + this.v[6] * mat.v[1] + this.v[10] * mat.v[2] + this.v[14] * mat.v[3];
+    const m21 = this.v[2] * mat.v[4] + this.v[6] * mat.v[5] + this.v[10] * mat.v[6] + this.v[14] * mat.v[7];
+    const m22 = this.v[2] * mat.v[8] + this.v[6] * mat.v[9] + this.v[10] * mat.v[10] + this.v[14] * mat.v[11];
+    const m23 = this.v[2] * mat.v[12] + this.v[6] * mat.v[13] + this.v[10] * mat.v[14] + this.v[14] * mat.v[15];
 
-    var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;
-    var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;
-    var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;
-    var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;
+    const m30 = this.v[3] * mat.v[0] + this.v[7] * mat.v[1] + this.v[11] * mat.v[2] + this.v[15] * mat.v[3];
+    const m31 = this.v[3] * mat.v[4] + this.v[7] * mat.v[5] + this.v[11] * mat.v[6] + this.v[15] * mat.v[7];
+    const m32 = this.v[3] * mat.v[8] + this.v[7] * mat.v[9] + this.v[11] * mat.v[10] + this.v[15] * mat.v[11];
+    const m33 = this.v[3] * mat.v[12] + this.v[7] * mat.v[13] + this.v[11] * mat.v[14] + this.v[15] * mat.v[15];
 
     return this.setComponents(
       m00, m01, m02, m03,
@@ -513,25 +569,25 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
   }
 
   multiplyByLeft(mat: Matrix44) {
-    var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;
-    var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;
-    var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;
-    var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;
+    const m00 = mat.v[0] * this.v[0] + mat.v[4] * this.v[1] + mat.v[8] * this.v[2] + mat.v[12] * this.v[3];
+    const m01 = mat.v[0] * this.v[4] + mat.v[4] * this.v[5] + mat.v[8] * this.v[6] + mat.v[12] * this.v[7];
+    const m02 = mat.v[0] * this.v[8] + mat.v[4] * this.v[9] + mat.v[8] * this.v[10] + mat.v[12] * this.v[11];
+    const m03 = mat.v[0] * this.v[12] + mat.v[4] * this.v[13] + mat.v[8] * this.v[14] + mat.v[12] * this.v[15];
 
-    var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;
-    var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;
-    var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;
-    var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;
+    const m10 = mat.v[1] * this.v[0] + mat.v[5] * this.v[1] + mat.v[9] * this.v[2] + mat.v[13] * this.v[3];
+    const m11 = mat.v[1] * this.v[4] + mat.v[5] * this.v[5] + mat.v[9] * this.v[6] + mat.v[13] * this.v[7];
+    const m12 = mat.v[1] * this.v[8] + mat.v[5] * this.v[9] + mat.v[9] * this.v[10] + mat.v[13] * this.v[11];
+    const m13 = mat.v[1] * this.v[12] + mat.v[5] * this.v[13] + mat.v[9] * this.v[14] + mat.v[13] * this.v[15];
 
-    var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;
-    var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;
-    var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;
-    var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;
+    const m20 = mat.v[2] * this.v[0] + mat.v[6] * this.v[1] + mat.v[10] * this.v[2] + mat.v[14] * this.v[3];
+    const m21 = mat.v[2] * this.v[4] + mat.v[6] * this.v[5] + mat.v[10] * this.v[6] + mat.v[14] * this.v[7];
+    const m22 = mat.v[2] * this.v[8] + mat.v[6] * this.v[9] + mat.v[10] * this.v[10] + mat.v[14] * this.v[11];
+    const m23 = mat.v[2] * this.v[12] + mat.v[6] * this.v[13] + mat.v[10] * this.v[14] + mat.v[14] * this.v[15];
 
-    var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;
-    var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;
-    var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;
-    var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;
+    const m30 = mat.v[3] * this.v[0] + mat.v[7] * this.v[1] + mat.v[11] * this.v[2] + mat.v[15] * this.v[3];
+    const m31 = mat.v[3] * this.v[4] + mat.v[7] * this.v[5] + mat.v[11] * this.v[6] + mat.v[15] * this.v[7];
+    const m32 = mat.v[3] * this.v[8] + mat.v[7] * this.v[9] + mat.v[11] * this.v[10] + mat.v[15] * this.v[11];
+    const m33 = mat.v[3] * this.v[12] + mat.v[7] * this.v[13] + mat.v[11] * this.v[14] + mat.v[15] * this.v[15];
 
     return this.setComponents(
       m00, m01, m02, m03,
@@ -540,5 +596,4 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
       m30, m31, m32, m33
     );
   }
-
 }

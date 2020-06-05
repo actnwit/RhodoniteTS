@@ -145,8 +145,8 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
    */
   static transpose(mat: Matrix22) {
     return new this(
-      mat.m00, mat.m10,
-      mat.m01, mat.m11
+      mat.v[0], mat.v[1],
+      mat.v[2], mat.v[3]
     );
   }
 
@@ -155,10 +155,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
    */
   static invert(mat: Matrix22) {
     const det = mat.determinant();
-    const m00 = mat.m11 / det;
-    const m01 = mat.m01 / det * (-1.0);
-    const m10 = mat.m10 / det * (-1.0);
-    const m11 = mat.m00 / det;
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = mat.v[3] / det;
+    const m01 = mat.v[2] / det * (-1.0);
+    const m10 = mat.v[1] / det * (-1.0);
+    const m11 = mat.v[0] / det;
 
     return new this(
       m00, m01,
@@ -166,13 +170,18 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     );
   }
 
-  static invertTo(m: Matrix22, out: MutableMatrix22) {
-    const det = m.determinant();
-    const m00 = m.m11 / det;
-    const m01 = m.m01 / det * (-1.0);
-    const m10 = m.m10 / det * (-1.0);
-    const m11 = m.m00 / det;
-    return out.setComponents(
+  static invertTo(mat: Matrix22, outMat: MutableMatrix22) {
+    const det = mat.determinant();
+    if (det === 0) {
+      console.error("the determinant is 0!");
+    }
+
+    const m00 = mat.v[3] / det;
+    const m01 = mat.v[2] / det * (-1.0);
+    const m10 = mat.v[1] / det * (-1.0);
+    const m11 = mat.v[0] / det;
+
+    return outMat.setComponents(
       m00, m01,
       m10, m11
     );
@@ -195,20 +204,20 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
    */
   static scale(vec: Vector2) {
     return new this(
-      vec.x, 0,
-      0, vec.y
+      vec.v[0], 0,
+      0, vec.v[1]
     );
   }
 
   /**
    * multiply matrixes
    */
-  static multiply(l_m: Matrix22, r_m: Matrix22) {
-    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
-    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
+  static multiply(l_mat: Matrix22, r_mat: Matrix22) {
+    const m00 = l_mat.v[0] * r_mat.v[0] + l_mat.v[2] * r_mat.v[1];
+    const m10 = l_mat.v[1] * r_mat.v[0] + l_mat.v[3] * r_mat.v[1];
 
-    const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
-    const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
+    const m01 = l_mat.v[0] * r_mat.v[2] + l_mat.v[2] * r_mat.v[3];
+    const m11 = l_mat.v[1] * r_mat.v[2] + l_mat.v[3] * r_mat.v[3];
 
     return new this(
       m00, m01,
@@ -219,14 +228,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   /**
    * multiply matrixes
    */
-  static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix22) {
-    const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];
-    const m10 = l_m.v[1] * r_m.v[0] + l_m.v[3] * r_m.v[1];
+  static multiplyTo(l_mat: Matrix33, r_mat: Matrix33, outMat: MutableMatrix22) {
+    const m00 = l_mat.v[0] * r_mat.v[0] + l_mat.v[2] * r_mat.v[1];
+    const m10 = l_mat.v[1] * r_mat.v[0] + l_mat.v[3] * r_mat.v[1];
 
-    const m01 = l_m.v[0] * r_m.v[2] + l_m.v[2] * r_m.v[3];
-    const m11 = l_m.v[1] * r_m.v[2] + l_m.v[3] * r_m.v[3];
+    const m01 = l_mat.v[0] * r_mat.v[2] + l_mat.v[2] * r_mat.v[3];
+    const m11 = l_mat.v[1] * r_mat.v[2] + l_mat.v[3] * r_mat.v[3];
 
-    return out.setComponents(
+    return outMat.setComponents(
       m00, m01,
       m10, m11
     );
@@ -267,16 +276,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   }
 
   isStrictEqual(mat: Matrix22) {
-    if (this.v.length !== mat.v.length) {
-      false;
+    if (
+      mat.v[0] === this.v[0] && mat.v[1] === this.v[1] &&
+      mat.v[2] === this.v[2] && mat.v[3] === this.v[3]
+    ) {
+      return true;
+    } else {
+      return false;
     }
-
-    for (let i = 0; i < this.v.length; i++) {
-      if (mat.v[i] !== this.v[i]) {
-        return false;
-      }
-    }
-    return true;
   }
 
   at(row_i: number, column_i: number) {
@@ -288,17 +295,16 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   }
 
   multiplyVector(vec: Vector2) {
-    const x = this.v[0] * vec.x + this.v[2] * vec.y;
-    const y = this.v[1] * vec.x + this.v[3] * vec.y;
-
+    const x = this.v[0] * vec.v[0] + this.v[2] * vec.v[1];
+    const y = this.v[1] * vec.v[0] + this.v[3] * vec.v[1];
     return new (vec.constructor as any)(x, y);
   }
 
   multiplyVectorTo(vec: Vector2, outVec: MutableVector2) {
-    const x = this.v[0] * vec.x + this.v[2] * vec.y;
-    const y = this.v[1] * vec.x + this.v[3] * vec.y;
-    outVec.x = x;
-    outVec.y = y;
+    const x = this.v[0] * vec.v[0] + this.v[2] * vec.v[1];
+    const y = this.v[1] * vec.v[0] + this.v[3] * vec.v[1];
+    outVec.v[0] = x;
+    outVec.v[1] = y;
     return outVec;
   }
 
@@ -310,17 +316,15 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   }
 
   getScaleTo(outVec: MutableVector2) {
-    const x = Math.hypot(this.m00, this.m01);
-    const y = Math.hypot(this.m10, this.m11);
-    outVec.x = x;
-    outVec.y = y;
+    outVec.v[0] = Math.hypot(this.v[0], this.v[2]);
+    outVec.v[1] = Math.hypot(this.v[1], this.v[3]);
     return outVec;
   }
 
   clone() {
     return new (this.constructor as any)(
-      this.m00, this.m01,
-      this.m10, this.m11
+      this.v[0], this.v[2],
+      this.v[1], this.v[3]
     ) as Matrix22;
   }
 }
