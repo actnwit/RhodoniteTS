@@ -169,10 +169,6 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
 
   invert() {
     const det = this.determinant();
-    if (det === 0) {
-      console.error("the determinant is 0!");
-    }
-
     const m00 = this.m11 / det;
     const m01 = this.m01 / det * (-1.0);
     const m10 = this.m10 / det * (-1.0);
