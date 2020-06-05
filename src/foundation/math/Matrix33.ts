@@ -451,16 +451,15 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   }
 
   isStrictEqual(mat: Matrix33) {
-    if (this.v.length !== mat.v.length) {
-      false;
+    if (
+      mat.v[0] === this.v[0] && mat.v[1] === this.v[1] && mat.v[2] === this.v[2] &&
+      mat.v[3] === this.v[3] && mat.v[4] === this.v[4] && mat.v[5] === this.v[5] &&
+      mat.v[6] === this.v[6] && mat.v[7] === this.v[7] && mat.v[8] === this.v[8]
+    ) {
+      return true;
+    } else {
+      return false;
     }
-
-    for (let i = 0; i < this.v.length; i++) {
-      if (mat.v[i] !== this.v[i]) {
-        return false;
-      }
-    }
-    return true;
   }
 
   at(row_i: number, column_i: number) {

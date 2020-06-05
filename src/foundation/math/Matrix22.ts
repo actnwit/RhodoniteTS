@@ -276,16 +276,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   }
 
   isStrictEqual(mat: Matrix22) {
-    if (this.v.length !== mat.v.length) {
-      false;
+    if (
+      mat.v[0] === this.v[0] && mat.v[1] === this.v[1] &&
+      mat.v[2] === this.v[2] && mat.v[3] === this.v[3]
+    ) {
+      return true;
+    } else {
+      return false;
     }
-
-    for (let i = 0; i < this.v.length; i++) {
-      if (mat.v[i] !== this.v[i]) {
-        return false;
-      }
-    }
-    return true;
   }
 
   at(row_i: number, column_i: number) {
