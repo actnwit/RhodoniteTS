@@ -127,15 +127,15 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     m00: number, m01: number,
     m10: number, m11: number
   ): MutableMatrix22 {
-    this.m00 = m00; this.m01 = m01;
-    this.m10 = m10; this.m11 = m11;
+    this.v[0] = m00; this.v[2] = m01;
+    this.v[1] = m10; this.v[3] = m11;
 
     return this;
   }
 
   copyComponents(mat: Matrix22 | Matrix33 | Matrix44) {
-    this.m00 = mat.m00; this.m01 = mat.m01;
-    this.m10 = mat.m10; this.m11 = mat.m11;
+    this.v[0] = mat.m00; this.v[2] = mat.m01; // mat.m01 is mat.v[2 or 3 or 4]
+    this.v[1] = mat.m10; this.v[3] = mat.m11;
 
     return this;
   }
@@ -155,7 +155,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   }
 
   _swap(l: Index, r: Index) {
-    this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
+    this.v[r] = [this.v[l], this.v[l] = this.v[r]][0];
   }
 
   /**
@@ -173,10 +173,10 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
       console.error("the determinant is 0!");
     }
 
-    const m00 = this.m11 / det;
-    const m01 = this.m01 / det * (-1.0);
-    const m10 = this.m10 / det * (-1.0);
-    const m11 = this.m00 / det;
+    const m00 = this.v[3] / det;
+    const m01 = this.v[2] / det * (-1.0);
+    const m10 = this.v[1] / det * (-1.0);
+    const m11 = this.v[0] / det;
 
     return this.setComponents(
       m00, m01,
@@ -198,17 +198,17 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
 
   scale(vec: Vector2) {
     return this.setComponents(
-      vec.x, 0,
-      0, vec.y
+      vec.v[0], 0,
+      0, vec.v[1]
     );
   }
 
   putScale(vec: Vector2) {
-    this.m00 *= vec.x;
-    this.m01 *= vec.x;
+    this.v[0] *= vec.v[0];
+    this.v[2] *= vec.v[0];
 
-    this.m10 *= vec.y;
-    this.m11 *= vec.y;
+    this.v[1] *= vec.v[1];
+    this.v[3] *= vec.v[1];
 
     return this;
   }
@@ -217,11 +217,11 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     * multiply the input matrix from right side
     */
   multiply(mat: Matrix22) {
-    const m00 = this.m00 * mat.m00 + this.m01 * mat.m10;
-    const m01 = this.m00 * mat.m01 + this.m01 * mat.m11;
+    const m00 = this.v[0] * mat.v[0] + this.v[2] * mat.v[1];
+    const m01 = this.v[0] * mat.v[2] + this.v[2] * mat.v[3];
 
-    const m10 = this.m10 * mat.m00 + this.m11 * mat.m10;
-    const m11 = this.m10 * mat.m01 + this.m11 * mat.m11;
+    const m10 = this.v[1] * mat.v[0] + this.v[3] * mat.v[1];
+    const m11 = this.v[1] * mat.v[2] + this.v[3] * mat.v[3];
 
     return this.setComponents(
       m00, m01,
@@ -230,11 +230,11 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   }
 
   multiplyByLeft(mat: Matrix22) {
-    const m00 = mat.m00 * this.m00 + mat.m01 * this.m10;
-    const m01 = mat.m00 * this.m01 + mat.m01 * this.m11;
+    const m00 = mat.v[0] * this.v[0] + mat.v[2] * this.v[1];
+    const m01 = mat.v[0] * this.v[2] + mat.v[2] * this.v[3];
 
-    const m10 = mat.m10 * this.m00 + mat.m11 * this.m10;
-    const m11 = mat.m10 * this.m01 + mat.m11 * this.m11;
+    const m10 = mat.v[1] * this.v[0] + mat.v[3] * this.v[1];
+    const m11 = mat.v[1] * this.v[2] + mat.v[3] * this.v[3];
 
     return this.setComponents(
       m00, m01,
