@@ -234,56 +234,56 @@ export default class AABB {
       return aabb.clone();
     }
 
-   AABB.__tmpVector3.x = aabb.__min.x;
-   AABB.__tmpVector3.y = aabb.__min.y;
-   AABB.__tmpVector3.z = aabb.__min.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   AABB.__tmpVector3.x = aabb.__max.x;
-   AABB.__tmpVector3.y = aabb.__min.y;
-   AABB.__tmpVector3.z = aabb.__min.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   AABB.__tmpVector3.x = aabb.__min.x;
-   AABB.__tmpVector3.y = aabb.__max.y;
-   AABB.__tmpVector3.z = aabb.__min.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   AABB.__tmpVector3.x = aabb.__min.x;
-   AABB.__tmpVector3.y = aabb.__min.y;
-   AABB.__tmpVector3.z = aabb.__max.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   AABB.__tmpVector3.x = aabb.__min.x;
-   AABB.__tmpVector3.y = aabb.__max.y;
-   AABB.__tmpVector3.z = aabb.__max.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   AABB.__tmpVector3.x = aabb.__max.x;
-   AABB.__tmpVector3.y = aabb.__min.y;
-   AABB.__tmpVector3.z = aabb.__max.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   AABB.__tmpVector3.x = aabb.__max.x;
-   AABB.__tmpVector3.y = aabb.__max.y;
-   AABB.__tmpVector3.z = aabb.__min.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   AABB.__tmpVector3.x = aabb.__max.x;
-   AABB.__tmpVector3.y = aabb.__max.y;
-   AABB.__tmpVector3.z = aabb.__max.z;
-   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
-   outAabb.addPosition(AABB.__tmpVector3);
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    matrix.multiplyVector3To(AABB.__tmpVector3, AABB.__tmpVector3);
+    outAabb.addPosition(AABB.__tmpVector3);
 
-   return outAabb;
- }
+    return outAabb;
+  }
 
   toString() {
     return 'AABB_min: ' + this.__min + '\n' + 'AABB_max: ' + this.__max + '\n'
