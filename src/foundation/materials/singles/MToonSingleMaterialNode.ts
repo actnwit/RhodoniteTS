@@ -260,7 +260,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Vector3(this.__vectorProperties._EmissionColor), min: 0, max: 1,
       },
-      {
+      { // number 7 of texture is the data Texture
         semantic: MToonSingleMaterialNode._EmissionMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [8, textures[this.__textureProperties._EmissionMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
@@ -300,8 +300,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       case 2: this.__definitions += '#define RN_MTOON_DEBUG_LITSHADERATE\n'; break;
     }
 
-    if (this.__textureProperties._BlendMode !== textures.length - 2) {
-      this.__definitions += '#define RN_MTOON_HAS_NORMALMAP\n';
+    if (this.__textureProperties._BumpMap !== textures.length - 2) { //textures.length - 2 is dummyTexture
+      this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
     }
 
     if (isOutline) {

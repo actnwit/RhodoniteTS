@@ -248,7 +248,7 @@ void main (){
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  #ifdef RN_MTOON_HAS_NORMALMAP
+  #ifdef RN_MTOON_HAS_BUMPMAP
     if (abs(length(v_tangent_inWorld)) > 0.01) {
       vec3 tangent_inWorld = normalize(v_tangent_inWorld);
       vec3 binormal_inWorld = normalize(v_binormal_inWorld);
