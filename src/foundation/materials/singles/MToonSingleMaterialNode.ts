@@ -300,7 +300,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       case 2: this.__definitions += '#define RN_MTOON_DEBUG_LITSHADERATE\n'; break;
     }
 
-    if (this.__textureProperties._BlendMode !== textures.length - 2) { //textures.length - 2 is dummyTexture
+    if (this.__textureProperties._BumpMap !== textures.length - 2) { //textures.length - 2 is dummyTexture
       this.__definitions += '#define RN_MTOON_HAS_NORMALMAP\n';
     }
 
