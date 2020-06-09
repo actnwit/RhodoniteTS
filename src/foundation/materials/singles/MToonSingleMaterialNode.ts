@@ -301,7 +301,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     }
 
     if (this.__textureProperties._BumpMap !== textures.length - 2) { //textures.length - 2 is dummyTexture
-      this.__definitions += '#define RN_MTOON_HAS_NORMALMAP\n';
+      this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
     }
 
     if (isOutline) {
