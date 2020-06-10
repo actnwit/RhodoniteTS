@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# If you get line feed code errors like '$'\r': command not found',
+# you need to change line feed code to LF.
+
+
 # This shell script from https://code.i-harness.com/en/q/7d88c
 
 # Tag revisions like this:
