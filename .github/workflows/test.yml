@@ -12,6 +12,5 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: 12.4.0
-    - run: npm install --ignore-scripts
-    - run: npm run build-ci
+    - run: npm install
     - run: npm run test

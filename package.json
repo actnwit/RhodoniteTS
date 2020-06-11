@@ -14,7 +14,7 @@
   "license": "MIT",
   "scripts": {
     "setup": "npx shx cp ./pre-commit ./.git/hooks",
-    "prepare": "npm run build",
+    "prepare": "npm run build-ci",
     "build": "npx shx rm -rf dist && npm run build-dev && npm run build-prod && npm run build-type && npm run versioning",
     "build-ci": "npx shx rm -rf dist && npm run build-dev && npm run build-prod && npm run build-type",
     "build-dev": "webpack --config webpack.config.development.js",
