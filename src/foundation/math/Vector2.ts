@@ -34,11 +34,11 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   get glslStrAsFloat() {
-    return `vec2(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)})`;
+    return `vec2(${MathUtil.convertToStringAsGLSLFloat(this.v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[1])})`;
   }
 
   get glslStrAsInt() {
-    return `ivec2(${Math.floor(this.x)}, ${Math.floor(this.y)})`;
+    return `ivec2(${Math.floor(this.v[0])}, ${Math.floor(this.v[1])})`;
   }
 
   static get compositionType() {
@@ -230,18 +230,18 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   /**
- * change to string
- */
+  * change to string
+  */
   toString() {
-    return '(' + this.x + ', ' + this.y + ')';
+    return '(' + this.v[0] + ', ' + this.v[1] + ')';
   }
 
   toStringApproximately() {
-    return MathUtil.nearZeroToZero(this.x) + ' ' + MathUtil.nearZeroToZero(this.y) + '\n';
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[1]) + '\n';
   }
 
   flattenAsArray() {
-    return [this.x, this.y];
+    return [this.v[0], this.v[1]];
   }
 
   isDummy() {
@@ -253,8 +253,10 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   isEqual(vec: IVector2, delta: number = Number.EPSILON) {
-    if (Math.abs(vec.x - this.x) < delta &&
-      Math.abs(vec.y - this.y) < delta) {
+    if (
+      Math.abs(vec.v[0] - this.v[0]) < delta &&
+      Math.abs(vec.v[1] - this.v[1]) < delta
+    ) {
       return true;
     } else {
       return false;
@@ -262,7 +264,10 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   isStrictEqual(vec: IVector2) {
-    if (this.x === vec.x && this.y === vec.y) {
+    if (
+      this.v[0] === vec.v[0] &&
+      this.v[1] === vec.v[1]
+    ) {
       return true;
     } else {
       return false;
@@ -274,16 +279,16 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   length() {
-    return Math.hypot(this.x, this.y);
+    return Math.hypot(this.v[0], this.v[1]);
   }
 
   lengthSquared(): number {
-    return this.x * this.x + this.y * this.y;
+    return this.v[0] * this.v[0] + this.v[1] * this.v[1];
   }
 
   lengthTo(vec: IVector2) {
-    const deltaX = this.x - vec.x;
-    const deltaY = this.y - vec.y;
+    const deltaX = this.v[0] - vec.v[0];
+    const deltaY = this.v[1] - vec.v[1];
     return Math.hypot(deltaX, deltaY);
   }
 
@@ -291,11 +296,11 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
    * dot product
    */
   dot(vec: IVector2) {
-    return this.x * vec.x + this.y * vec.y;
+    return this.v[0] * vec.v[0] + this.v[1] * vec.v[1];
   }
 
   clone() {
-    return new (this.constructor as any)(this.x, this.y);
+    return new (this.constructor as any)(this.v[0], this.v[1]);
   }
 }
 
