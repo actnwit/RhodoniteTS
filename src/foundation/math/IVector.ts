@@ -19,6 +19,21 @@ export interface IVector {
 
 export interface IMutableVector {
   v: TypedArray;
+
+  // clone(): IMutableVector;
+  // raw(): TypedArray;
+  // setAt(row_i: number, column_i: number, val: number): IMutableVector;
+  // setComponents(...num: number[]): IMutableVector;
+  // copyComponents(vec: any): IMutableVector;
+  // zero(): IMutableVector;
+  // one(): IMutableVector;
+  // normalize(): IMutableVector;
+  // add(vec: any): IMutableVector;
+  // subtract(vec: any): IMutableVector;
+  // multiply(val: number): IMutableVector;
+  // multiplyVector(vec: any): IMutableVector;
+  // divide(val: number): IMutableVector;
+  // divideVector(vec: any): IMutableVector;
 }
 
 export interface IScalar {
