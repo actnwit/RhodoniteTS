@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# If you get line feed code errors like '$'\r': command not found',
+# you need to change line feed code to LF.
+
+
 # This shell script from https://code.i-harness.com/en/q/7d88c
 
 # Tag revisions like this:
@@ -14,7 +18,8 @@ LF='
 # First see if there is a version file (included in release tarballs),
 # then try git-describe, then default.
 if test -d .git -o -f .git &&
-    VN=$(git describe --abbrev=4 HEAD 2>/dev/null) &&
+    VN=$(git describe --abbrev=4 HEAD 2>/dev/null)
+then
     case "$VN" in
     *$LF*) (exit 1) ;;
     v[0-9]*)
@@ -22,8 +27,7 @@ if test -d .git -o -f .git &&
         test -z "$(git diff-index --name-only HEAD --)" ||
         VN="$VN-mod" ;;
     esac
-then
-        continue
+        # continue
     #VN=$(echo "$VN" | sed -e 's/-/./g');
 else
     VN="$DEFAULT_VERSION"
