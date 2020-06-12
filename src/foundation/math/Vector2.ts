@@ -8,7 +8,7 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
 
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, { type }: { type: T }) {
     if (ArrayBuffer.isView(x)) {
-      this.v = ((x as any) as TypedArray);
+      this.v = (x as TypedArray);
       return;
     } else if (x == null) {
       this.v = new type(0);
@@ -17,8 +17,16 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
       this.v = new type(2)
     }
 
-    this.v[0] = ((x as any) as number);
-    this.v[1] = ((y as any) as number);
+    if (Array.isArray(x)) {
+      this.v[0] = x[0];
+      this.v[1] = x[1];
+    } else if (typeof x === 'number') {
+      this.v[0] = x;
+      this.v[1] = y;
+    } else {
+      this.v[0] = x.v[0];
+      this.v[1] = x.v[1];
+    }
   }
 
   get x() {
