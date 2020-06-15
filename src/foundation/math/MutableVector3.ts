@@ -41,6 +41,13 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this;
   }
 
+  setComponents(x: number, y: number, z: number) {
+    this.v[0] = x;
+    this.v[1] = y;
+    this.v[2] = z;
+    return this;
+  }
+
   copyComponents(vec: Vector3_<T>) {
     this.v[0] = vec.v[0];
     this.v[1] = vec.v[1];
