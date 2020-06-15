@@ -163,6 +163,10 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
   static divideVector(l_vec: IVector2, r_vec: IVector2) {
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableVector2;
   }
+
+  clone() {
+    return super.clone() as MutableVector2;
+  }
 }
 
 export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
