@@ -5,12 +5,12 @@ import { CompositionType } from '../definitions/CompositionType';
 import MutableQuaternion from './MutableQuaternion';
 import LogQuaternion from './LogQuaternion';
 import { TypedArray } from '../../commontypes/CommonTypes';
-import { IQuaternion } from './IQuaternion';
+import { IQuaternion, ILogQuaternion } from './IQuaternion';
 
 export default class Quaternion implements IQuaternion {
   v: TypedArray;
 
-  constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | Array<number> | null, y?: number, z?: number, w?: number) {
+  constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
