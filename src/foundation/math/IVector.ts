@@ -19,6 +19,7 @@ export interface IVector {
 
 export interface IMutableVector {
   v: TypedArray;
+  readonly className: string;
 
   // clone(): IMutableVector;
   // raw(): TypedArray;
@@ -42,6 +43,7 @@ export interface IScalar {
 
 export interface IVector2 {
   readonly v: TypedArray;
+  readonly className: string;
 
   readonly x: number;
   readonly y: number;
@@ -62,6 +64,7 @@ export interface IVector2 {
 
 export interface IMutableVector2 {
   v: TypedArray;
+  readonly className: string;
 
   x: number;
   y: number;
@@ -98,6 +101,7 @@ export interface IMutableVector2 {
 
 export interface IVector3 {
   readonly v: TypedArray;
+  readonly className: string;
 
   readonly x: number;
   readonly y: number;
@@ -107,6 +111,7 @@ export interface IVector3 {
 
 export interface IMutableVector3 {
   v: TypedArray;
+  readonly className: string;
 
   x: number;
   y: number;
@@ -115,6 +120,7 @@ export interface IMutableVector3 {
 
 export interface IVector4 {
   readonly v: TypedArray;
+  readonly className: string;
 
   readonly x: number;
   readonly y: number;
@@ -125,6 +131,7 @@ export interface IVector4 {
 
 export interface IMutableVector4 {
   v: TypedArray;
+  readonly className: string;
 
   x: number;
   y: number;
