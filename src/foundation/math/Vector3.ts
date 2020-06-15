@@ -1,10 +1,8 @@
-//import GLBoost from './../../globals';
-import is from '../misc/IsUtil';
 import { IVector2, IVector3, IVector4, IVector } from './IVector';
-import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
 import { MutableVector3_ } from './MutableVector3';
 import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
 
 
 export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVector3 {
@@ -13,7 +11,7 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
 
     if (ArrayBuffer.isView(x)) {
-      this.v = ((x as any) as TypedArray);
+      this.v = (x as TypedArray);
       return;
     } else if (x == null) {
       this.v = new type(0);
@@ -22,30 +20,26 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
       this.v = new type(3);
     }
 
-    if (is.not.exist(x)) {
-      this.v[0] = 0;
-      this.v[1] = 0;
-      this.v[2] = 0;
-    } else if (Array.isArray(x)) {
+    if (Array.isArray(x)) {
       this.v[0] = x[0];
       this.v[1] = x[1];
       this.v[2] = x[2];
-    } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-    } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-    } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = 0;
+    } else if (typeof x === 'number') {
+      this.v[0] = x;
+      this.v[1] = y;
+      this.v[2] = z;
     } else {
-      this.v[0] = ((x as any) as number);
-      this.v[1] = ((y as any) as number);
-      this.v[2] = ((z as any) as number);
+      if (typeof x.v[2] === 'undefined') {
+        // IVector2
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = 0;
+      } else {
+        // IVector3 or IVector4
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+      }
     }
   }
 
