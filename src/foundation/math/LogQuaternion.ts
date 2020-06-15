@@ -1,8 +1,8 @@
 //import GLBoost from './../../globals';
 import Vector2 from './Vector2';
 import Vector4 from './Vector4';
-import {IVector3} from './IVector';
 import {IColorRgb} from './IColor';
+import { IVector3, IVector4 } from './IVector';
 import Quaternion from './Quaternion';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import { ILogQuaternion, IQuaternion } from './IQuaternion';
@@ -10,7 +10,7 @@ import { ILogQuaternion, IQuaternion } from './IQuaternion';
 export default class LogQuaternion implements ILogQuaternion {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|IVector3|Vector4|Array<number>|null, y?:number, z?:number) {
+  constructor(x: number | TypedArray | IVector3 | IVector4 | IQuaternion | Array<number> | null, y?: number, z?: number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
