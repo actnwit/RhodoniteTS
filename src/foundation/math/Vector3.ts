@@ -223,6 +223,15 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
     return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ')';
   }
 
+  toStringApproximately() {
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[1]) +
+      ' ' + MathUtil.nearZeroToZero(this.v[2]) + '\n';
+  }
+
+  flattenAsArray() {
+    return [this.v[0], this.v[1], this.v[2]];
+  }
+
   isDummy() {
     if (this.v.length === 0) {
       return true;
@@ -257,6 +266,10 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
     return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2]);
   }
 
+  lengthSquared(): number {
+    return this.v[0] ** 2 + this.v[1] ** 2 + this.v[2] ** 2;
+  }
+
   lengthTo(vec3: Vector3_<T>) {
     var deltaX = vec3.v[0] - this.v[0];
     var deltaY = vec3.v[1] - this.v[1];
@@ -269,6 +282,10 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
    */
   dot(vec3: Vector3_<T>) {
     return this.v[0] * vec3.v[0] + this.v[1] * vec3.v[1] + this.v[2] * vec3.v[2];
+  }
+
+  clone() {
+    return new (this.constructor as any)(this.v[0], this.v[1], this.v[2]);
   }
 }
 
