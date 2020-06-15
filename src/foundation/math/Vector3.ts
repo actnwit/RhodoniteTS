@@ -313,7 +313,7 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
   }
 
   clone() {
-    return new Vector3(this.v[0], this.v[1], this.v[2]);
+    return super.clone() as Vector3;
   }
 }
 
@@ -334,7 +334,7 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
   }
 
   clone() {
-    return new Vector3d(this.v[0], this.v[1], this.v[2]);
+    return super.clone() as Vector3d;
   }
 }
 
