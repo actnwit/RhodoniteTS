@@ -240,18 +240,24 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
     }
   }
 
-  isEqual(vec: Vector3_<T>, delta: number = Number.EPSILON) {
-    if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+  isEqual(vec: IVector3, delta: number = Number.EPSILON) {
+    if (
+      Math.abs(vec.v[0] - this.v[0]) < delta &&
       Math.abs(vec.v[1] - this.v[1]) < delta &&
-      Math.abs(vec.v[2] - this.v[2]) < delta) {
+      Math.abs(vec.v[2] - this.v[2]) < delta
+    ) {
       return true;
     } else {
       return false;
     }
   }
 
-  isStrictEqual(vec: Vector3_<T>) {
-    if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2]) {
+  isStrictEqual(vec: IVector3) {
+    if (
+      this.v[0] === vec.v[0] &&
+      this.v[1] === vec.v[1] &&
+      this.v[2] === vec.v[2]
+    ) {
       return true;
     } else {
       return false;
@@ -263,25 +269,25 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   length() {
-    return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2]);
+    return Math.hypot(this.v[0], this.v[1], this.v[2]);
   }
 
   lengthSquared(): number {
     return this.v[0] ** 2 + this.v[1] ** 2 + this.v[2] ** 2;
   }
 
-  lengthTo(vec3: Vector3_<T>) {
-    var deltaX = vec3.v[0] - this.v[0];
-    var deltaY = vec3.v[1] - this.v[1];
-    var deltaZ = vec3.v[2] - this.v[2];
-    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+  lengthTo(vec: IVector3) {
+    const deltaX = this.v[0] - vec.v[0];
+    const deltaY = this.v[1] - vec.v[1];
+    const deltaZ = this.v[2] - vec.v[2];
+    return Math.hypot(deltaX, deltaY, deltaZ);
   }
 
   /**
    * dot product
    */
-  dot(vec3: Vector3_<T>) {
-    return this.v[0] * vec3.v[0] + this.v[1] * vec3.v[1] + this.v[2] * vec3.v[2];
+  dot(vec: IVector3) {
+    return this.v[0] * vec.v[0] + this.v[1] * vec.v[1] + this.v[2] * vec.v[2];
   }
 
   clone() {
