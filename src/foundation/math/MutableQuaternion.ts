@@ -5,8 +5,9 @@ import { IVector4 } from "./IVector";
 import Matrix44 from "./Matrix44";
 import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray } from "../../commontypes/CommonTypes";
+import { IMutableQuaternion } from "./IQuaternion";
 
-export default class MutableQuaternion extends Quaternion implements IVector4 {
+export default class MutableQuaternion extends Quaternion implements IMutableQuaternion {
 
   constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y, z, w);

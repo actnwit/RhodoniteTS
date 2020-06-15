@@ -5,8 +5,9 @@ import {IVector3} from './IVector';
 import {IColorRgb} from './IColor';
 import Quaternion from './Quaternion';
 import { TypedArray } from '../../commontypes/CommonTypes';
+import { ILogQuaternion, IQuaternion } from './IQuaternion';
 
-export default class LogQuaternion implements IVector3 {
+export default class LogQuaternion implements ILogQuaternion {
   v: TypedArray;
 
   constructor(x?:number|TypedArray|IVector3|Vector4|Array<number>|null, y?:number, z?:number) {
@@ -60,5 +61,9 @@ export default class LogQuaternion implements IVector3 {
 
   get w() {
     return 1;
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 }
