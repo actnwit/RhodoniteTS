@@ -1,8 +1,6 @@
 //import GLBoost from './../../globals';
-import Vector2 from './Vector2';
-import Vector4 from './Vector4';
 import is from '../misc/IsUtil';
-import { IVector3, IVector } from './IVector';
+import { IVector2, IVector3, IVector4, IVector } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
 import { MutableVector3_ } from './MutableVector3';
@@ -11,7 +9,8 @@ import { MathUtil } from './MathUtil';
 
 export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVector3 {
   v: TypedArray;
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
+
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
 
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
@@ -280,7 +279,7 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
 }
 
 export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float32Array })
   }
 
@@ -302,7 +301,7 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
 }
 
 export class Vector3d extends Vector3_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float64Array })
   }
   static zero() {

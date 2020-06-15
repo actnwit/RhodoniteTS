@@ -1,7 +1,4 @@
-//import GLBoost from '../../globals';
-import Vector2 from './Vector2';
-import Vector3 from './Vector3';
-import { IVector3, IVector } from './IVector';
+import { IVector2, IVector3, IVector4, IVector } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
 import { MathUtil } from './MathUtil';
@@ -9,7 +6,7 @@ import { MathUtil } from './MathUtil';
 export class Vector4_<T extends TypedArrayConstructor> implements IVector, Vector4 {
   v: TypedArray;
 
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -189,7 +186,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, Vecto
 }
 
 export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number, w?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y!, z!, w!, { type: Float32Array })
   }
 
@@ -215,7 +212,7 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
 }
 
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number, w?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y!, z!, w!, { type: Float64Array })
   }
 

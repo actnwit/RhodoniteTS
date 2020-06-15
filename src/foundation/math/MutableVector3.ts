@@ -1,11 +1,10 @@
-import Vector2 from "./Vector2";
 import Vector3, { Vector3_ } from "./Vector3";
-import { IVector3, IVector4, IMutableVector } from "./IVector";
+import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector3 } from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 
-export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IVector3 {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
+export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
     super(x as any, y, z, { type });
   }
 
@@ -177,7 +176,7 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
 
 
 export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float32Array })
   }
 
@@ -199,7 +198,7 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
 }
 
 export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float64Array })
   }
 
