@@ -1,6 +1,5 @@
 import Vector3, { Vector3_ } from "./Vector3";
 import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector3 } from "./IVector";
-import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 
 export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
@@ -36,9 +35,6 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this.v;
   }
 
-  static get compositionType() {
-    return CompositionType.Vec3;
-  }
 
   setAt(i: number, value: number) {
     this.v[i] = value;
@@ -65,13 +61,6 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     this.z = 1;
 
     return this;
-  }
-
-  /**
-   * to square length
-   */
-  lengthSquared() {
-    return this.x * this.x + this.y * this.y + this.z * this.z;
   }
 
   /**
