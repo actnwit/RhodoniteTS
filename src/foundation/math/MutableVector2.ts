@@ -1,8 +1,8 @@
 import { Vector2_ } from "./Vector2";
-import { IVector2, IVector3, IVector4, IMutableVector } from "./IVector";
+import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector2 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 
-export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T> implements IMutableVector, IVector2 {
+export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T> implements IMutableVector, IMutableVector2 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, { type }: { type: T }) {
     super(x as any, y, { type });
   }
