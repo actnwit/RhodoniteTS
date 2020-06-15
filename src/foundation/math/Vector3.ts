@@ -78,10 +78,6 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
     return `ivec3(${Math.floor(this.x)}, ${Math.floor(this.y)}, ${Math.floor(this.z)})`;
   }
 
-  get raw() {
-    return this.v;
-  }
-
   static get compositionType() {
     return CompositionType.Vec3;
   }
