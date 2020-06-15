@@ -5,7 +5,7 @@ import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes
 
 export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
-    super(x as any, y, z, { type });
+    super(x, y, z, { type });
   }
 
   set x(x: number) {
