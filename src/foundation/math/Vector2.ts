@@ -291,7 +291,7 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   lengthSquared(): number {
-    return this.v[0] * this.v[0] + this.v[1] * this.v[1];
+    return this.v[0] ** 2 + this.v[1] ** 2;
   }
 
   lengthTo(vec: IVector2) {
