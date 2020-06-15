@@ -1,14 +1,12 @@
-import Vector2 from './Vector2';
-import Vector4 from './Vector4';
-import {IVector3} from './IVector';
-import {IMutableColorRgb} from './IColor';
-import ColorRgb from './ColorRgb';
+import MutableVector3 from './MutableVector3';
+import { IVector3, IVector4 } from './IVector';
+import { IMutableColorRgb } from './IColor';
 import { TypedArray } from '../../commontypes/CommonTypes';
 
-export default class MutableColorRgb extends ColorRgb implements IVector3, IMutableColorRgb {
+export default class MutableColorRgb extends MutableVector3 implements IVector3, IMutableColorRgb {
 
-  constructor(r?:number|TypedArray|IVector3|Vector4|Array<number>|ColorRgb|null, g?:number, b?:number) {
-    super(r as any, g, b);
+  constructor(r: number | TypedArray | IVector3 | IVector4 | Array<number> | null, g?: number, b?: number) {
+    super(r, g, b);
   }
 
   get x() {
@@ -35,6 +33,10 @@ export default class MutableColorRgb extends ColorRgb implements IVector3, IMuta
     this.v[2] = val;
   }
 
+  get w() {
+    return 1;
+  }
+
   get r() {
     return this.v[0];
   }
@@ -59,4 +61,7 @@ export default class MutableColorRgb extends ColorRgb implements IVector3, IMuta
     this.v[2] = val;
   }
 
+  get a() {
+    return 1;
+  }
 }
