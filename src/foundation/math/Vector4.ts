@@ -7,8 +7,9 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
   v: TypedArray;
 
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
+
     if (ArrayBuffer.isView(x)) {
-      this.v = ((x as any) as TypedArray);
+      this.v = (x as TypedArray);
       return;
     } else if (x == null) {
       this.v = new type(0);
@@ -22,26 +23,31 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
       this.v[1] = x[1];
       this.v[2] = x[2];
       this.v[3] = x[3];
-    } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-      this.v[3] = (x as any).w;
-    } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z
-      this.v[3] = 1;
-    } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = 0;
-      this.v[3] = 1;
+    } else if (typeof x === 'number') {
+      this.v[0] = x;
+      this.v[1] = y;
+      this.v[2] = z;
+      this.v[3] = w;
     } else {
-      this.v[0] = ((x as any) as number);
-      this.v[1] = ((y as any) as number);
-      this.v[2] = ((z as any) as number);
-      this.v[3] = ((w as any) as number);
+      if (typeof x.v[2] === 'undefined') {
+        // IVector2
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = 0;
+        this.v[3] = 1;
+      } else if (typeof x.v[3] === 'undefined') {
+        // IVector3
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+        this.v[3] = 1;
+      } else {
+        // IVector4
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+        this.v[3] = x.v[3];
+      }
     }
   }
 
