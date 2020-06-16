@@ -332,7 +332,7 @@ export default class WalkThroughCameraController implements ICameraController {
       const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(MathUtil.degreeToRadian(this._deltaX));
       this._currentDir = rotateMatrix.multiplyVector(this._currentDir);
 
-      const newEyeToCenter = rotateMatrix.multiplyVector(Vector3.subtract(this._currentCenter, this._currentPos));
+      const newEyeToCenter = rotateMatrix.multiplyVector(MutableVector3.subtract(this._currentCenter, this._currentPos));
       newEyeToCenter.x = newEyeToCenter.x * (1 - t);
       newEyeToCenter.y = t;
       newEyeToCenter.z = newEyeToCenter.z * (1 - t);

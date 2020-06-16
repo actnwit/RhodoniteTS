@@ -1,6 +1,6 @@
-import { Vector3_ } from "./Vector3";
 import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector3 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
+import { Vector3_ } from "./Vector3";
 
 export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
@@ -154,22 +154,53 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   }
 }
 
-
 export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float32Array })
   }
 
   static zero() {
-    return new MutableVector3(0, 0, 0);
+    return super._zero(Float32Array) as MutableVector3;
   }
 
   static one() {
-    return new MutableVector3(1, 1, 1);
+    return super._one(Float32Array) as MutableVector3;
   }
 
   static dummy() {
-    return new MutableVector3(null, 0, 0);
+    return super._dummy(Float32Array) as MutableVector3;
+  }
+
+  static normalize(vec: IVector3) {
+    return super._normalize(vec, Float32Array) as MutableVector3;
+  }
+
+  static add(l_vec: IVector3, r_vec: IVector3) {
+    return super._add(l_vec, r_vec, Float32Array) as MutableVector3;
+  }
+
+  static subtract(l_vec: IVector3, r_vec: IVector3) {
+    return super._subtract(l_vec, r_vec, Float32Array) as MutableVector3;
+  }
+
+  static multiply(vec: IVector3, value: number) {
+    return super._multiply(vec, value, Float32Array) as MutableVector3;
+  }
+
+  static multiplyVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._multiplyVector(l_vec, r_vec, Float32Array) as MutableVector3;
+  }
+
+  static divide(vec: IVector3, value: number) {
+    return super._divide(vec, value, Float32Array) as MutableVector3;
+  }
+
+  static divideVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._divideVector(l_vec, r_vec, Float32Array) as MutableVector3;
+  }
+
+  static cross(l_vec: IVector3, r_vec: IVector3) {
+    return super._cross(l_vec, r_vec, Float32Array) as MutableVector3;
   }
 
   clone() {
@@ -183,15 +214,47 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
   }
 
   static zero() {
-    return new MutableVector3d(0, 0, 0);
+    return super._zero(Float64Array) as MutableVector3d;
   }
 
   static one() {
-    return new MutableVector3d(1, 1, 1);
+    return super._one(Float64Array) as MutableVector3d;
   }
 
   static dummy() {
-    return new MutableVector3d(null, 0, 0);
+    return super._dummy(Float64Array) as MutableVector3d;
+  }
+
+  static normalize(vec: IVector3) {
+    return super._normalize(vec, Float64Array) as MutableVector3d;
+  }
+
+  static add(l_vec: IVector3, r_vec: IVector3) {
+    return super._add(l_vec, r_vec, Float64Array) as MutableVector3d;
+  }
+
+  static subtract(l_vec: IVector3, r_vec: IVector3) {
+    return super._subtract(l_vec, r_vec, Float64Array) as MutableVector3d;
+  }
+
+  static multiply(vec: IVector3, value: number) {
+    return super._multiply(vec, value, Float64Array) as MutableVector3d;
+  }
+
+  static multiplyVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._multiplyVector(l_vec, r_vec, Float64Array) as MutableVector3d;
+  }
+
+  static divide(vec: IVector3, value: number) {
+    return super._divide(vec, value, Float64Array) as MutableVector3d;
+  }
+
+  static divideVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._divideVector(l_vec, r_vec, Float64Array) as MutableVector3d;
+  }
+
+  static cross(l_vec: IVector3, r_vec: IVector3) {
+    return super._cross(l_vec, r_vec, Float64Array) as MutableVector3d;
   }
 
   clone() {

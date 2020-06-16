@@ -88,12 +88,12 @@ export default class AABB {
   }
 
   addPositionWithArray(array: number[], index: Index) {
-    this.__min.x = (array[index+0] < this.__min.x) ? array[index+0] : this.__min.x;
-    this.__min.y = (array[index+1] < this.__min.y) ? array[index+1] : this.__min.y;
-    this.__min.z = (array[index+2] < this.__min.z) ? array[index+2] : this.__min.z;
-    this.__max.x = (this.__max.x < array[index+0]) ? array[index+0] : this.__max.x;
-    this.__max.y = (this.__max.y < array[index+1]) ? array[index+1] : this.__max.y;
-    this.__max.z = (this.__max.z < array[index+2]) ? array[index+2] : this.__max.z;
+    this.__min.x = (array[index + 0] < this.__min.x) ? array[index + 0] : this.__min.x;
+    this.__min.y = (array[index + 1] < this.__min.y) ? array[index + 1] : this.__min.y;
+    this.__min.z = (array[index + 2] < this.__min.z) ? array[index + 2] : this.__min.z;
+    this.__max.x = (this.__max.x < array[index + 0]) ? array[index + 0] : this.__max.x;
+    this.__max.y = (this.__max.y < array[index + 1]) ? array[index + 1] : this.__max.y;
+    this.__max.z = (this.__max.z < array[index + 2]) ? array[index + 2] : this.__max.z;
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
@@ -153,7 +153,7 @@ export default class AABB {
 
   get centerPoint() {
     if (this.__isCenterPointDirty) {
-      this.__centerPoint = Vector3.add(this.__min, this.__max).divide(2);
+      this.__centerPoint = MutableVector3.add(this.__min, this.__max).divide(2);
       this.__isCenterPointDirty = false;
     }
     return this.__centerPoint;
@@ -181,9 +181,9 @@ export default class AABB {
   }
 
   static multiplyMatrix(matrix: Matrix44, aabb: AABB) {
-     if (aabb.isVanilla()) {
-       return aabb.clone();
-     }
+    if (aabb.isVanilla()) {
+      return aabb.clone();
+    }
     var newAabb = new AABB();
 
     AABB.__tmpVector3.x = aabb.__min.x;
