@@ -23,7 +23,7 @@ export interface IMutableVector {
 
   // clone(): IMutableVector;
   // raw(): TypedArray;
-  // setAt(row_i: number, column_i: number, val: number): IMutableVector;
+  // setAt(i: number, val: number): IMutableVector;
   // setComponents(...num: number[]): IMutableVector;
   // copyComponents(vec: any): IMutableVector;
   // zero(): IMutableVector;
@@ -85,7 +85,7 @@ export interface IMutableVector2 {
 
   // only for mutable vector2
   raw(): TypedArray;
-  setAt(row_i: number, column_i: number, val: number): IMutableVector2;
+  setAt(i: number, val: number): IMutableVector2;
   setComponents(x: number, y: number): IMutableVector2;
   copyComponents(vec: IVector2): IMutableVector2;
   zero(): IMutableVector2;

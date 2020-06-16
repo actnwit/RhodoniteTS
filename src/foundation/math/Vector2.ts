@@ -291,7 +291,7 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   lengthSquared(): number {
-    return this.v[0] * this.v[0] + this.v[1] * this.v[1];
+    return this.v[0] ** 2 + this.v[1] ** 2;
   }
 
   lengthTo(vec: IVector2) {
@@ -327,6 +327,10 @@ export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
 
   static dummy() {
     return super._dummy(Float32Array) as Vector2;
+  }
+
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float32Array) as Vector2;
   }
 
   static add(l_vec: IVector2, r_vec: IVector2) {
@@ -373,6 +377,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
 
   static dummy() {
     return super._dummy(Float64Array) as Vector2d;
+  }
+
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float64Array) as Vector2d;
   }
 
   static add(l_vec: IVector2, r_vec: IVector2) {

@@ -1,8 +1,8 @@
 import { Vector2_ } from "./Vector2";
-import { IVector2, IVector3, IVector4, IMutableVector } from "./IVector";
+import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector2 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 
-export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T> implements IMutableVector, IVector2 {
+export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T> implements IMutableVector, IMutableVector2 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, { type }: { type: T }) {
     super(x, y, { type });
   }
@@ -140,6 +140,10 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
     return super._dummy(Float32Array) as MutableVector2;
   }
 
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float32Array) as MutableVector2;
+  }
+
   static add(l_vec: IVector2, r_vec: IVector2) {
     return super._add(l_vec, r_vec, Float32Array) as MutableVector2;
   }
@@ -163,6 +167,10 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
   static divideVector(l_vec: IVector2, r_vec: IVector2) {
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableVector2;
   }
+
+  clone() {
+    return super.clone() as MutableVector2;
+  }
 }
 
 export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
@@ -180,6 +188,10 @@ export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
 
   static dummy() {
     return super._dummy(Float64Array) as MutableVector2d;
+  }
+
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float64Array) as MutableVector2d;
   }
 
   static add(l_vec: IVector2, r_vec: IVector2) {
