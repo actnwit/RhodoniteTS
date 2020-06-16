@@ -62,11 +62,11 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   get glslStrAsFloat() {
-    return `vec3(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)}, ${MathUtil.convertToStringAsGLSLFloat(this.z)})`;
+    return `vec3(${MathUtil.convertToStringAsGLSLFloat(this.v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[2])})`;
   }
 
   get glslStrAsInt() {
-    return `ivec3(${Math.floor(this.x)}, ${Math.floor(this.y)}, ${Math.floor(this.z)})`;
+    return `ivec3(${Math.floor(this.v[0])}, ${Math.floor(this.v[1])}, ${Math.floor(this.v[2])})`;
   }
 
   static get compositionType() {
