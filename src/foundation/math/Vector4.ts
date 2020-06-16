@@ -1,9 +1,9 @@
-import { IVector2, IVector3, IVector4, IVector } from './IVector';
-import { CompositionType } from '../definitions/CompositionType';
-import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
-import { MathUtil } from './MathUtil';
+import { IVector2, IVector3, IVector4, IVector } from "./IVector";
+import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
+import { MathUtil } from "./MathUtil";
+import { CompositionType } from "../definitions/CompositionType";
 
-export class Vector4_<T extends TypedArrayConstructor> implements IVector, Vector4 {
+export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVector4 {
   v: TypedArray;
 
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
