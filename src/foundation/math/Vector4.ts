@@ -180,7 +180,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   length() {
-    return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2] + this.v[3] * this.v[3]);
+    return Math.hypot(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 
   /**
