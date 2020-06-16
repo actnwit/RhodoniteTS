@@ -140,6 +140,10 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
     return super._dummy(Float32Array) as MutableVector2;
   }
 
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float32Array) as MutableVector2;
+  }
+
   static add(l_vec: IVector2, r_vec: IVector2) {
     return super._add(l_vec, r_vec, Float32Array) as MutableVector2;
   }
@@ -184,6 +188,10 @@ export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
 
   static dummy() {
     return super._dummy(Float64Array) as MutableVector2d;
+  }
+
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float64Array) as MutableVector2d;
   }
 
   static add(l_vec: IVector2, r_vec: IVector2) {

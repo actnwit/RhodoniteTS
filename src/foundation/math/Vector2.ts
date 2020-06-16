@@ -329,6 +329,10 @@ export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
     return super._dummy(Float32Array) as Vector2;
   }
 
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float32Array) as Vector2;
+  }
+
   static add(l_vec: IVector2, r_vec: IVector2) {
     return super._add(l_vec, r_vec, Float32Array) as Vector2;
   }
@@ -373,6 +377,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
 
   static dummy() {
     return super._dummy(Float64Array) as Vector2d;
+  }
+
+  static normalize(vec: IVector2) {
+    return super._normalize(vec, Float64Array) as Vector2d;
   }
 
   static add(l_vec: IVector2, r_vec: IVector2) {
