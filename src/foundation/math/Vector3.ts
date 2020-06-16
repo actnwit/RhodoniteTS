@@ -1,20 +1,15 @@
-//import GLBoost from './../../globals';
-import Vector2 from './Vector2';
-import Vector4 from './Vector4';
-import is from '../misc/IsUtil';
-import { IVector3, IVector } from './IVector';
-import { CompositionType } from '../definitions/CompositionType';
-import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
-import { MutableVector3_ } from './MutableVector3';
-import { MathUtil } from './MathUtil';
-
+import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from "./IVector";
+import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
+import { MathUtil } from "./MathUtil";
+import { CompositionType } from "../definitions/CompositionType";
 
 export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVector3 {
   v: TypedArray;
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
+
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
 
     if (ArrayBuffer.isView(x)) {
-      this.v = ((x as any) as TypedArray);
+      this.v = (x as TypedArray);
       return;
     } else if (x == null) {
       this.v = new type(0);
@@ -23,30 +18,26 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
       this.v = new type(3);
     }
 
-    if (is.not.exist(x)) {
-      this.v[0] = 0;
-      this.v[1] = 0;
-      this.v[2] = 0;
-    } else if (Array.isArray(x)) {
+    if (Array.isArray(x)) {
       this.v[0] = x[0];
       this.v[1] = x[1];
       this.v[2] = x[2];
-    } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-    } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-    } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = 0;
+    } else if (typeof x === 'number') {
+      this.v[0] = x;
+      this.v[1] = y;
+      this.v[2] = z;
     } else {
-      this.v[0] = ((x as any) as number);
-      this.v[1] = ((y as any) as number);
-      this.v[2] = ((z as any) as number);
+      if (typeof x.v[2] === 'undefined') {
+        // IVector2
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = 0;
+      } else {
+        // IVector3 or IVector4
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+      }
     }
   }
 
@@ -71,15 +62,11 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   get glslStrAsFloat() {
-    return `vec3(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)}, ${MathUtil.convertToStringAsGLSLFloat(this.z)})`;
+    return `vec3(${MathUtil.convertToStringAsGLSLFloat(this.v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[2])})`;
   }
 
   get glslStrAsInt() {
-    return `ivec3(${Math.floor(this.x)}, ${Math.floor(this.y)}, ${Math.floor(this.z)})`;
-  }
-
-  get raw() {
-    return this.v;
+    return `ivec3(${Math.floor(this.v[0])}, ${Math.floor(this.v[1])}, ${Math.floor(this.v[2])})`;
   }
 
   static get compositionType() {
@@ -89,142 +76,224 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
   /**
  * to square length(static version)
  */
-  static lengthSquared<T extends TypedArrayConstructor>(vec3: Vector3_<T>) {
-    return vec3.v[0] * vec3.v[0] + vec3.v[1] * vec3.v[1] + vec3.v[2] * vec3.v[2];
+  static lengthSquared(vec: IVector3) {
+    return vec.lengthSquared();
   }
 
-  static lengthBtw<T extends TypedArrayConstructor>(lhv: Vector3_<T>, rhv: Vector3_<T>) {
-    var deltaX = rhv.v[0] - lhv.v[0];
-    var deltaY = rhv.v[1] - lhv.v[1];
-    var deltaZ = rhv.v[2] - lhv.v[2];
-    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+  static lengthBtw(l_vec: IVector3, r_vec: IVector3) {
+    return l_vec.lengthTo(r_vec);
   }
 
-  static angleOfVectors<T extends TypedArrayConstructor>(lhv: Vector3_<T>, rhv: Vector3_<T>) {
-    let cos_sita = Vector3_.dot(lhv, rhv) / (lhv.length() * rhv.length());
-
-    let sita = Math.acos(cos_sita);
-
+  static angleOfVectors(l_vec: IVector3, r_vec: IVector3) {
+    const multipliedLength = l_vec.length() * r_vec.length();
+    if (multipliedLength === 0) {
+      console.error('length of a vector is 0!');
+    }
+    const cos_sita = l_vec.dot(r_vec) / multipliedLength;
+    const sita = Math.acos(cos_sita);
     return sita;
+  }
+
+
+  static _zero(type: TypedArrayConstructor) {
+    return new this(0, 0, 0, { type });
+  }
+
+  static _one(type: TypedArrayConstructor) {
+    return new this(1, 1, 1, { type });
+  }
+
+  static _dummy(type: TypedArrayConstructor) {
+    return new this(null, 0, 0, { type });
   }
 
   /**
    * normalize(static version)
    */
-  static normalize<T extends TypedArrayConstructor>(vec3: Vector3_<T>) {
-    var length = vec3.length();
-    var newVec = new (vec3.constructor as any)(vec3.v[0], vec3.v[1], vec3.v[2]);
-    newVec = Vector3_.divide(newVec, length);
-
-    return newVec;
+  static _normalize(vec: IVector3, type: TypedArrayConstructor) {
+    const length = vec.length();
+    return this._divide(vec, length, type);
   }
 
   /**
    * add value（static version）
    */
-  static add<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>) {
-    return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2]);
+  static _add(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor) {
+    const x = l_vec.v[0] + r_vec.v[0];
+    const y = l_vec.v[1] + r_vec.v[1];
+    const z = l_vec.v[2] + r_vec.v[2];
+    return new this(x, y, z, { type });
   }
 
   /**
    * add value（static version）
    */
-  static addTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>) {
-    out.v[0] = lv.v[0] + rv.v[0];
-    out.v[1] = lv.v[1] + rv.v[1];
-    out.v[2] = lv.v[2] + rv.v[2];
-
+  static addTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
+    out.v[0] = l_vec.v[0] + r_vec.v[0];
+    out.v[1] = l_vec.v[1] + r_vec.v[1];
+    out.v[2] = l_vec.v[2] + r_vec.v[2];
     return out;
   }
 
   /**
    * subtract(subtract)
    */
-  static subtract<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>) {
-    return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2]);
+  static _subtract(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor) {
+    const x = l_vec.v[0] - r_vec.v[0];
+    const y = l_vec.v[1] - r_vec.v[1];
+    const z = l_vec.v[2] - r_vec.v[2];
+    return new this(x, y, z, { type });
   }
 
   /**
    * subtract(subtract)
    */
-  static subtractTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>) {
-    out.v[0] = lv.v[0] - rv.v[0];
-    out.v[1] = lv.v[1] - rv.v[1];
-    out.v[2] = lv.v[2] - rv.v[2];
+  static subtractTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
+    out.v[0] = l_vec.v[0] - r_vec.v[0];
+    out.v[1] = l_vec.v[1] - r_vec.v[1];
+    out.v[2] = l_vec.v[2] - r_vec.v[2];
     return out;
   }
 
   /**
    * multiply(static version)
    */
-  static multiply<T extends TypedArrayConstructor>(vec3: Vector3_<T>, val: number) {
-    return new (vec3.constructor as any)(vec3.v[0] * val, vec3.v[1] * val, vec3.v[2] * val);
+  static _multiply(vec: IVector3, value: number, type: TypedArrayConstructor) {
+    const x = vec.v[0] * value;
+    const y = vec.v[1] * value;
+    const z = vec.v[2] * value;
+    return new this(x, y, z, { type });
   }
 
   /**
    * multiplyTo(static version)
    */
-  static multiplyTo<T extends TypedArrayConstructor>(vec3: Vector3_<T>, val: number, out3: MutableVector3_<T>) {
-    out3.x = vec3.v[0] * val;
-    out3.y = vec3.v[1] * val;
-    out3.z = vec3.v[2] * val;
-
-    return out3;
+  static multiplyTo(vec: IVector3, value: number, out: IMutableVector3) {
+    out.v[0] = vec.v[0] * value;
+    out.v[1] = vec.v[1] * value;
+    out.v[2] = vec.v[2] * value;
+    return out;
   }
 
   /**
    * multiply vector(static version)
    */
-  static multiplyVector<T extends TypedArrayConstructor>(vec3: Vector3_<T>, vec: Vector3_<T>) {
-    return new (vec3.constructor as any)(vec3.v[0] * vec.v[0], vec3.v[1] * vec.v[1], vec3.v[2] * vec.v[2]);
+  static _multiplyVector(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor) {
+    const x = l_vec.v[0] * r_vec.v[0];
+    const y = l_vec.v[1] * r_vec.v[1];
+    const z = l_vec.v[2] * r_vec.v[2];
+    return new this(x, y, z, { type });
+  }
+
+  /**
+    * multiply vector(static version)
+    */
+  static multiplyVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
+    out.v[0] = l_vec.v[0] * r_vec.v[0];
+    out.v[1] = l_vec.v[1] * r_vec.v[1];
+    out.v[2] = l_vec.v[2] * r_vec.v[2];
+    return out;
   }
 
   /**
  * divide(static version)
  */
-  static divide<T extends TypedArrayConstructor>(vec3: Vector3_<T>, val: number) {
-    if (val !== 0) {
-      return new (vec3.constructor as any)(vec3.v[0] / val, vec3.v[1] / val, vec3.v[2] / val);
+  static _divide(vec: IVector3, value: number, type: TypedArrayConstructor) {
+    let x;
+    let y;
+    let z;
+    if (value !== 0) {
+      x = vec.v[0] / value;
+      y = vec.v[1] / value;
+      z = vec.v[2] / value;
     } else {
       console.error("0 division occurred!");
-      return new (vec3.constructor as any)(Infinity, Infinity, Infinity);
+      x = Infinity;
+      y = Infinity;
+      z = Infinity;
     }
+    return new this(x, y, z, { type });
+  }
+
+  /**
+   * divide by value(static version)
+   */
+  static divideTo(vec: IVector3, value: number, out: IMutableVector3) {
+    if (value !== 0) {
+      out.v[0] = vec.v[0] / value;
+      out.v[1] = vec.v[1] / value;
+      out.v[2] = vec.v[2] / value;
+    } else {
+      console.error("0 division occurred!");
+      out.v[0] = Infinity;
+      out.v[1] = Infinity;
+      out.v[2] = Infinity;
+    }
+    return out;
   }
 
   /**
    * divide vector(static version)
    */
-  static divideVector<T extends TypedArrayConstructor>(lvec3: Vector3_<T>, rvec3: Vector3_<T>) {
-    return new (lvec3.constructor as any)(lvec3.v[0] / rvec3.v[0], lvec3.v[1] / rvec3.v[1], lvec3.v[2] / rvec3.v[2]);
+  static _divideVector(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor) {
+    let x;
+    let y;
+    let z;
+    if (r_vec.v[0] !== 0 && r_vec.v[1] !== 0 && r_vec.v[2] !== 0) {
+      x = l_vec.v[0] / r_vec.v[0];
+      y = l_vec.v[1] / r_vec.v[1];
+      z = l_vec.v[2] / r_vec.v[2];
+    } else {
+      console.error("0 division occurred!");
+      x = r_vec.v[0] === 0 ? Infinity : l_vec.v[0] / r_vec.v[0];
+      y = r_vec.v[1] === 0 ? Infinity : l_vec.v[1] / r_vec.v[1];
+      z = r_vec.v[2] === 0 ? Infinity : l_vec.v[2] / r_vec.v[2];
+    }
+    return new this(x, y, z, { type });
+  }
+
+  /**
+   * divide by vector(static version)
+   */
+  static divideVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
+    if (r_vec.v[0] !== 0 && r_vec.v[1] !== 0) {
+      out.v[0] = l_vec.v[0] / r_vec.v[0];
+      out.v[1] = l_vec.v[1] / r_vec.v[1];
+      out.v[2] = l_vec.v[2] / r_vec.v[2];
+    } else {
+      console.error("0 division occurred!");
+      out.v[0] = r_vec.v[0] === 0 ? Infinity : l_vec.v[0] / r_vec.v[0];
+      out.v[1] = r_vec.v[1] === 0 ? Infinity : l_vec.v[1] / r_vec.v[1];
+      out.v[2] = r_vec.v[2] === 0 ? Infinity : l_vec.v[2] / r_vec.v[2];
+    }
+    return out;
   }
 
   /**
    * dot product(static version)
    */
-  static dot<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>) {
-    return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2];
+  static dot(l_vec: IVector3, r_vec: IVector3) {
+    return l_vec.dot(r_vec);
   }
 
   /**
   * cross product(static version)
   */
-  static cross<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>) {
-    var x = lv.v[1] * rv.v[2] - lv.v[2] * rv.v[1];
-    var y = lv.v[2] * rv.v[0] - lv.v[0] * rv.v[2];
-    var z = lv.v[0] * rv.v[1] - lv.v[1] * rv.v[0];
-
-    return new (lv.constructor as any)(x, y, z);
+  static _cross(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor) {
+    const x = l_vec.v[1] * r_vec.v[2] - l_vec.v[2] * r_vec.v[1];
+    const y = l_vec.v[2] * r_vec.v[0] - l_vec.v[0] * r_vec.v[2];
+    const z = l_vec.v[0] * r_vec.v[1] - l_vec.v[1] * r_vec.v[0];
+    return new this(x, y, z, { type });
   }
 
   /**
   * cross product(static version)
   */
-  static crossTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>) {
-    out.x = lv.v[1] * rv.v[2] - lv.v[2] * rv.v[1];
-    out.y = lv.v[2] * rv.v[0] - lv.v[0] * rv.v[2];
-    out.z = lv.v[0] * rv.v[1] - lv.v[1] * rv.v[0];
-
-    return out;
+  static crossTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
+    const x = l_vec.v[1] * r_vec.v[2] - l_vec.v[2] * r_vec.v[1];
+    const y = l_vec.v[2] * r_vec.v[0] - l_vec.v[0] * r_vec.v[2];
+    const z = l_vec.v[0] * r_vec.v[1] - l_vec.v[1] * r_vec.v[0];
+    return out.setComponents(x, y, z);
   }
 
   /**
@@ -232,6 +301,15 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
    */
   toString() {
     return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ')';
+  }
+
+  toStringApproximately() {
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[1]) +
+      ' ' + MathUtil.nearZeroToZero(this.v[2]) + '\n';
+  }
+
+  flattenAsArray() {
+    return [this.v[0], this.v[1], this.v[2]];
   }
 
   isDummy() {
@@ -242,18 +320,24 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
     }
   }
 
-  isEqual(vec: Vector3_<T>, delta: number = Number.EPSILON) {
-    if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+  isEqual(vec: IVector3, delta: number = Number.EPSILON) {
+    if (
+      Math.abs(vec.v[0] - this.v[0]) < delta &&
       Math.abs(vec.v[1] - this.v[1]) < delta &&
-      Math.abs(vec.v[2] - this.v[2]) < delta) {
+      Math.abs(vec.v[2] - this.v[2]) < delta
+    ) {
       return true;
     } else {
       return false;
     }
   }
 
-  isStrictEqual(vec: Vector3_<T>) {
-    if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2]) {
+  isStrictEqual(vec: IVector3) {
+    if (
+      this.v[0] === vec.v[0] &&
+      this.v[1] === vec.v[1] &&
+      this.v[2] === vec.v[2]
+    ) {
       return true;
     } else {
       return false;
@@ -265,64 +349,137 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   length() {
-    return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2]);
+    return Math.hypot(this.v[0], this.v[1], this.v[2]);
   }
 
-  lengthTo(vec3: Vector3_<T>) {
-    var deltaX = vec3.v[0] - this.v[0];
-    var deltaY = vec3.v[1] - this.v[1];
-    var deltaZ = vec3.v[2] - this.v[2];
-    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+  lengthSquared(): number {
+    return this.v[0] ** 2 + this.v[1] ** 2 + this.v[2] ** 2;
+  }
+
+  lengthTo(vec: IVector3) {
+    const deltaX = this.v[0] - vec.v[0];
+    const deltaY = this.v[1] - vec.v[1];
+    const deltaZ = this.v[2] - vec.v[2];
+    return Math.hypot(deltaX, deltaY, deltaZ);
   }
 
   /**
    * dot product
    */
-  dot(vec3: Vector3_<T>) {
-    return this.v[0] * vec3.v[0] + this.v[1] * vec3.v[1] + this.v[2] * vec3.v[2];
+  dot(vec: IVector3) {
+    return this.v[0] * vec.v[0] + this.v[1] * vec.v[1] + this.v[2] * vec.v[2];
+  }
+
+  clone() {
+    return new (this.constructor as any)(this.v[0], this.v[1], this.v[2]);
   }
 }
 
 export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float32Array })
   }
 
   static zero() {
-    return new Vector3(0, 0, 0);
+    return super._zero(Float32Array) as Vector3;
   }
 
   static one() {
-    return new Vector3(1, 1, 1);
+    return super._one(Float32Array) as Vector3;
   }
 
   static dummy() {
-    return new Vector3(null, 0, 0);
+    return super._dummy(Float32Array) as Vector3;
+  }
+
+  static normalize(vec: IVector3) {
+    return super._normalize(vec, Float32Array) as Vector3;
+  }
+
+  static add(l_vec: IVector3, r_vec: IVector3) {
+    return super._add(l_vec, r_vec, Float32Array) as Vector3;
+  }
+
+  static subtract(l_vec: IVector3, r_vec: IVector3) {
+    return super._subtract(l_vec, r_vec, Float32Array) as Vector3;
+  }
+
+  static multiply(vec: IVector3, value: number) {
+    return super._multiply(vec, value, Float32Array) as Vector3;
+  }
+
+  static multiplyVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._multiplyVector(l_vec, r_vec, Float32Array) as Vector3;
+  }
+
+  static divide(vec: IVector3, value: number) {
+    return super._divide(vec, value, Float32Array) as Vector3;
+  }
+
+  static divideVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._divideVector(l_vec, r_vec, Float32Array) as Vector3;
+  }
+
+  static cross(l_vec: IVector3, r_vec: IVector3) {
+    return super._cross(l_vec, r_vec, Float32Array) as Vector3;
   }
 
   clone() {
-    return new Vector3(this.v[0], this.v[1], this.v[2]);
+    return super.clone() as Vector3;
   }
 }
 
 export class Vector3d extends Vector3_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number) {
+  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number) {
     super(x, y!, z!, { type: Float64Array })
   }
+
   static zero() {
-    return new Vector3d(0, 0, 0);
+    return super._zero(Float64Array) as Vector3d;
   }
 
   static one() {
-    return new Vector3d(1, 1, 1);
+    return super._one(Float64Array) as Vector3d;
   }
 
   static dummy() {
-    return new Vector3d(null, 0, 0);
+    return super._dummy(Float64Array) as Vector3d;
+  }
+
+  static normalize(vec: IVector3) {
+    return super._normalize(vec, Float64Array) as Vector3d;
+  }
+
+  static add(l_vec: IVector3, r_vec: IVector3) {
+    return super._add(l_vec, r_vec, Float64Array) as Vector3d;
+  }
+
+  static subtract(l_vec: IVector3, r_vec: IVector3) {
+    return super._subtract(l_vec, r_vec, Float64Array) as Vector3d;
+  }
+
+  static multiply(vec: IVector3, value: number) {
+    return super._multiply(vec, value, Float64Array) as Vector3d;
+  }
+
+  static multiplyVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._multiplyVector(l_vec, r_vec, Float64Array) as Vector3d;
+  }
+
+  static divide(vec: IVector3, value: number) {
+    return super._divide(vec, value, Float64Array) as Vector3d;
+  }
+
+  static divideVector(l_vec: IVector3, r_vec: IVector3) {
+    return super._divideVector(l_vec, r_vec, Float64Array) as Vector3d;
+  }
+
+  static cross(l_vec: IVector3, r_vec: IVector3) {
+    return super._cross(l_vec, r_vec, Float64Array) as Vector3d;
   }
 
   clone() {
-    return new Vector3d(this.v[0], this.v[1], this.v[2]);
+    return super.clone() as Vector3d;
   }
 }
 

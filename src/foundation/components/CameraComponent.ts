@@ -166,7 +166,7 @@ export default class CameraComponent extends Component {
       newUpNonNormalize = Vector3.subtract(oldUp, newDirectionComponentInOldUp);
     }
 
-    this._up = Vector3.normalize(newUpNonNormalize);
+    this._up = MutableVector3.normalize(newUpNonNormalize);
     this._direction.copyComponents(newDirection);
   }
 
