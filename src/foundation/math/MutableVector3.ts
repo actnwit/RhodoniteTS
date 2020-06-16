@@ -72,9 +72,9 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
  * add value
  */
   add(vec: IVector3) {
-    this.x += vec.x;
-    this.y += vec.y;
-    this.z += vec.z;
+    this.v[0] += vec.v[0];
+    this.v[1] += vec.v[1];
+    this.v[2] += vec.v[2];
     return this;
   }
 
@@ -82,9 +82,9 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
  * subtract
  */
   subtract(vec: IVector3) {
-    this.x -= vec.x;
-    this.y -= vec.y;
-    this.z -= vec.z;
+    this.v[0] -= vec.v[0];
+    this.v[1] -= vec.v[1];
+    this.v[2] -= vec.v[2];
     return this;
   }
 
@@ -92,9 +92,9 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
    * multiply
    */
   multiply(val: number) {
-    this.x *= val;
-    this.y *= val;
-    this.z *= val;
+    this.v[0] *= val;
+    this.v[1] *= val;
+    this.v[2] *= val;
     return this;
   }
 
@@ -102,9 +102,9 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
    * multiply vector
    */
   multiplyVector(vec: IVector3) {
-    this.x *= vec.x;
-    this.y *= vec.y;
-    this.z *= vec.z;
+    this.v[0] *= vec.v[0];
+    this.v[1] *= vec.v[1];
+    this.v[2] *= vec.v[2];
     return this;
   }
 
@@ -113,14 +113,14 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
    */
   divide(val: number) {
     if (val !== 0) {
-      this.x /= val;
-      this.y /= val;
-      this.z /= val;
+      this.v[0] /= val;
+      this.v[1] /= val;
+      this.v[2] /= val;
     } else {
       console.error("0 division occurred!");
-      this.x = Infinity;
-      this.y = Infinity;
-      this.z = Infinity;
+      this.v[0] = Infinity;
+      this.v[1] = Infinity;
+      this.v[2] = Infinity;
     }
 
     return this;
@@ -146,9 +146,9 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
    * cross product
    */
   cross(vec: IVector3) {
-    const x = this.y * vec.z - this.z * vec.y;
-    const y = this.z * vec.x - this.x * vec.z;
-    const z = this.x * vec.y - this.y * vec.x;
+    const x = this.v[1] * vec.v[2] - this.v[2] * vec.v[1];
+    const y = this.v[2] * vec.v[0] - this.v[0] * vec.v[2];
+    const z = this.v[0] * vec.v[1] - this.v[1] * vec.v[0];
 
     return this.setComponents(x, y, z);
   }
