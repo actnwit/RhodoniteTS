@@ -388,7 +388,7 @@ export default class Material extends RnObject {
     const info = this.__fieldsInfo.get(shaderSemantic.index);
     if (info != null) {
       if (info.soloDatum) {
-        return Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index);
+        return Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index)?.value;
       } else {
         return this.__fields.get(shaderSemantic.index)?.value;
       }
