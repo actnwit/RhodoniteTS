@@ -148,6 +148,15 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ', ' + this.v[3] + ')';
   }
 
+  toStringApproximately() {
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[1]) +
+      ' ' + MathUtil.nearZeroToZero(this.v[2]) + ' ' + MathUtil.nearZeroToZero(this.v[3]) + '\n';
+  }
+
+  flattenAsArray() {
+    return [this.v[0], this.v[1], this.v[2], this.v[3]];
+  }
+
   isDummy() {
     if (this.v.length === 0) {
       return true;
@@ -156,38 +165,61 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     }
   }
 
-  isEqual(vec: Vector4_<T>, delta: number = Number.EPSILON) {
-    if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+  isEqual(vec: IVector4, delta: number = Number.EPSILON) {
+    if (
+      Math.abs(vec.v[0] - this.v[0]) < delta &&
       Math.abs(vec.v[1] - this.v[1]) < delta &&
       Math.abs(vec.v[2] - this.v[2]) < delta &&
-      Math.abs(vec.v[3] - this.v[3]) < delta) {
+      Math.abs(vec.v[3] - this.v[3]) < delta
+    ) {
       return true;
     } else {
       return false;
     }
   }
 
-  isStrictEqual(vec: Vector4_<T>): boolean {
-    if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
+  isStrictEqual(vec: IVector4): boolean {
+    if (
+      this.v[0] === vec.v[0] &&
+      this.v[1] === vec.v[1] &&
+      this.v[2] === vec.v[2] &&
+      this.v[3] === vec.v[3]
+    ) {
       return true;
     } else {
       return false;
     }
   }
 
-  clone() {
-    return new (this.constructor as any)(this.v[0], this.v[1], this.v[2], this.v[3]);
+  at(i: number) {
+    return this.v[i];
   }
 
   length() {
     return Math.hypot(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 
+  lengthSquared(): number {
+    return this.v[0] ** 2 + this.v[1] ** 2 + this.v[2] ** 2 + this.v[3] ** 2;
+  }
+
+  lengthTo(vec: IVector4) {
+    const deltaX = this.v[0] - vec.v[0];
+    const deltaY = this.v[1] - vec.v[1];
+    const deltaZ = this.v[2] - vec.v[2];
+    const deltaW = this.v[3] - vec.v[3];
+    return Math.hypot(deltaX, deltaY, deltaZ, deltaW);
+  }
+
   /**
    * dot product
    */
-  dot(vec4: Vector4_<T>) {
-    return this.v[0] * vec4.v[0] + this.v[1] * vec4.v[1] + this.v[2] * vec4.v[2] + this.v[3] * vec4.v[3];
+  dot(vec: IVector4) {
+    return this.v[0] * vec.v[0] + this.v[1] * vec.v[1] + this.v[2] * vec.v[2] + this.v[3] * vec.v[3];
+  }
+
+  clone() {
+    return new (this.constructor as any)(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 }
 
