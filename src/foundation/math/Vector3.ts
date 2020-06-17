@@ -256,7 +256,7 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
    * divide by vector(static version)
    */
   static divideVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
-    if (r_vec.v[0] !== 0 && r_vec.v[1] !== 0) {
+    if (r_vec.v[0] !== 0 && r_vec.v[1] !== 0 && r_vec.v[2] !== 0) {
       out.v[0] = l_vec.v[0] / r_vec.v[0];
       out.v[1] = l_vec.v[1] / r_vec.v[1];
       out.v[2] = l_vec.v[2] / r_vec.v[2];
