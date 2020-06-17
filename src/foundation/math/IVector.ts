@@ -170,7 +170,19 @@ export interface IVector4 {
   readonly y: number;
   readonly z: number;
   readonly w: number;
+
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(vec: IVector4, delta: number): boolean;
+  isStrictEqual(vec: IVector4): boolean;
+  at(i: number): number;
   length(): number;
+  lengthSquared(): number;
+  lengthTo(vec: IVector4): number;
+  dot(vec: IVector4): number;
+  clone(): IVector4;
 }
 
 export interface IMutableVector4 {
@@ -181,4 +193,34 @@ export interface IMutableVector4 {
   y: number;
   z: number;
   w: number;
+
+  // common with immutable vector3
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(vec: IVector4, delta: number): boolean;
+  isStrictEqual(vec: IVector4): boolean;
+  at(i: number): number;
+  length(): number;
+  lengthSquared(): number;
+  lengthTo(vec: IVector4): number;
+  dot(vec: IVector4): number;
+  clone(): IMutableVector4;
+
+  // only for mutable vector3
+  raw(): TypedArray;
+  setAt(i: number, val: number): IMutableVector4;
+  setComponents(x: number, y: number, z: number, w: number): IMutableVector4;
+  copyComponents(vec: IVector4): IMutableVector4;
+  zero(): IMutableVector4;
+  one(): IMutableVector4;
+  normalize(): IMutableVector4;
+  normalize3(): IMutableVector4;
+  add(vec: IVector4): IMutableVector4;
+  subtract(vec: IVector4): IMutableVector4;
+  multiply(val: number): IMutableVector4;
+  multiplyVector(vec: IVector4): IMutableVector4;
+  divide(val: number): IMutableVector4;
+  divideVector(vec: IVector4): IMutableVector4;
 }
