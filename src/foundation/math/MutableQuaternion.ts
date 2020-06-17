@@ -3,9 +3,8 @@ import Vector4 from "./Vector4";
 import Quaternion from "./Quaternion";
 import { IVector4 } from "./IVector";
 import Matrix44 from "./Matrix44";
-import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray } from "../../commontypes/CommonTypes";
-import { IMutableQuaternion, ILogQuaternion } from "./IQuaternion";
+import { IMutableQuaternion, ILogQuaternion, IQuaternion } from "./IQuaternion";
 
 export default class MutableQuaternion extends Quaternion implements IMutableQuaternion {
 
@@ -130,6 +129,18 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this;
   }
 
+  setComponents(x: number, y: number, z: number, w: number) {
+    this.v[0] = x;
+    this.v[1] = y;
+    this.v[2] = z;
+    this.v[3] = w;
+    return this;
+  }
+
+  copyComponents(vec: IQuaternion) {
+    return this.setComponents(vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
+  }
+
   identity() {
     this.x = 0;
     this.y = 0;
@@ -202,6 +213,15 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this;
   }
 
+  subtract(q: IQuaternion) {
+    this.x -= q.x;
+    this.y -= q.y;
+    this.z -= q.z;
+    this.w -= q.w;
+
+    return this;
+  }
+
   multiply(q: Quaternion) {
     let result = new Quaternion(0, 0, 0, 1);
     result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
@@ -213,6 +233,30 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     this.z = result.z;
     this.w = result.w;
 
+    return this;
+  }
+
+  multiplyNumber(val: number) {
+    this.v[0] *= val;
+    this.v[1] *= val;
+    this.v[2] *= val;
+    this.v[3] *= val;
+    return this;
+  }
+
+  divideNumber(val: number) {
+    if (val !== 0) {
+      this.v[0] /= val;
+      this.v[1] /= val;
+      this.v[2] /= val;
+      this.v[3] /= val;
+    } else {
+      console.error("0 division occurred!");
+      this.v[0] = Infinity;
+      this.v[1] = Infinity;
+      this.v[2] = Infinity;
+      this.v[3] = Infinity;
+    }
     return this;
   }
 
