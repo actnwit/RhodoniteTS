@@ -199,7 +199,7 @@ export interface IMatrix44 {
   getTranslate(): IVector3;
   getTranslateTo(outVec: IMutableVector3): IMutableVector3;
   getScale(): IVector4;
-  getScaleTo(outVec: IMutableVector4): IMutableVector4;
+  getScaleTo(outVec: IMutableVector3): IMutableVector3;
   toEulerAngles(): IVector3;
   toEulerAnglesTo(outVec3: IMutableVector3): IMutableVector3;
   clone(): IMatrix44;
@@ -241,7 +241,7 @@ export interface IMutableMatrix44 {
   getTranslate(): IVector3;
   getTranslateTo(outVec: IMutableVector3): IMutableVector3;
   getScale(): IVector4;
-  getScaleTo(outVec: IMutableVector4): IMutableVector4;
+  getScaleTo(outVec: IMutableVector3): IMutableVector3;
   toEulerAngles(): IVector3;
   toEulerAnglesTo(outVec3: IMutableVector3): IMutableVector3;
 
