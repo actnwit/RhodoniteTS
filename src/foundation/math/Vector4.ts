@@ -1,4 +1,4 @@
-import { IVector2, IVector3, IVector4, IVector } from "./IVector";
+import { IVector2, IVector3, IVector4, IVector, IMutableVector4 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { MathUtil } from "./MathUtil";
 import { CompositionType } from "../definitions/CompositionType";
@@ -84,10 +84,29 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   /**
+   * to square length(static version)
+   */
+  static lengthSquared(vec: IVector4) {
+    return vec.lengthSquared();
+  }
+
+  static lengthBtw(l_vec: IVector4, r_vec: IVector4) {
+    return l_vec.lengthTo(r_vec);
+  }
+
+  /**
    * Zero Vector
    */
   static zero() {
     return new (this as any)(0, 0, 0, 1);
+  }
+
+  static _one(type: TypedArrayConstructor) {
+    return new this(1, 1, 1, 1, { type });
+  }
+
+  static _dummy(type: TypedArrayConstructor) {
+    return new this(null, 0, 0, 0, { type });
   }
 
   static normalize(vec4: Vector4) {
@@ -105,16 +124,60 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2] + rv.v[2]);
   }
 
+  /**
+   * add value（static version）
+   */
+  static addTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
+    out.v[0] = l_vec.v[0] + r_vec.v[0];
+    out.v[1] = l_vec.v[1] + r_vec.v[1];
+    out.v[2] = l_vec.v[2] + r_vec.v[2];
+    out.v[3] = l_vec.v[3] + r_vec.v[3];
+    return out;
+  }
+
   static subtract(lv: Vector4, rv: Vector4) {
     return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2], lv.v[3] - rv.v[3]);
+  }
+
+  /**
+   * subtract(static version)
+   */
+  static subtractTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
+    out.v[0] = l_vec.v[0] - r_vec.v[0];
+    out.v[1] = l_vec.v[1] - r_vec.v[1];
+    out.v[2] = l_vec.v[2] - r_vec.v[2];
+    out.v[3] = l_vec.v[3] - r_vec.v[3];
+    return out;
   }
 
   static multiply(vec4: Vector4, val: number) {
     return new (vec4.constructor as any)(vec4.v[0] * val, vec4.v[1] * val, vec4.v[2] * val, vec4.v[3] * val);
   }
 
+  /**
+   * multiplyTo(static version)
+   */
+  static multiplyTo(vec: IVector4, value: number, out: IMutableVector4) {
+    out.v[0] = vec.v[0] * value;
+    out.v[1] = vec.v[1] * value;
+    out.v[2] = vec.v[2] * value;
+    out.v[3] = vec.v[3] * value;
+    return out;
+  }
+
   static multiplyVector(vec4: Vector4, vec: Vector4) {
     return new (vec4.constructor as any)(vec4.v[0] * vec.v[0], vec4.v[1] * vec.v[1], vec4.v[2] * vec.v[2], vec4.v[3] * vec.v[3]);
+  }
+
+  /**
+   * multiply vector(static version)
+   */
+  static multiplyVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
+    out.v[0] = l_vec.v[0] * r_vec.v[0];
+    out.v[1] = l_vec.v[1] * r_vec.v[1];
+    out.v[2] = l_vec.v[2] * r_vec.v[2];
+    out.v[3] = l_vec.v[3] * r_vec.v[3];
+    return out;
   }
 
   static divide(vec4: Vector4, val: number) {
@@ -126,8 +189,46 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     }
   }
 
+  /**
+   * divide by value(static version)
+   */
+  static divideTo(vec: IVector4, value: number, out: IMutableVector4) {
+    if (value !== 0) {
+      out.v[0] = vec.v[0] / value;
+      out.v[1] = vec.v[1] / value;
+      out.v[2] = vec.v[2] / value;
+      out.v[3] = vec.v[3] / value;
+    } else {
+      console.error("0 division occurred!");
+      out.v[0] = Infinity;
+      out.v[1] = Infinity;
+      out.v[2] = Infinity;
+      out.v[3] = Infinity;
+    }
+    return out;
+  }
+
   static divideVector(lvec4: Vector4, rvec4: Vector4) {
     return new (lvec4.constructor as any)(lvec4.v[0] / rvec4.v[0], lvec4.v[1] / rvec4.v[1], lvec4.v[2] / rvec4.v[2], lvec4.v[3] / rvec4.v[3]);
+  }
+
+  /**
+   * divide by vector(static version)
+   */
+  static divideVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
+    if (r_vec.v[0] !== 0 && r_vec.v[1] !== 0 && r_vec.v[2] !== 0 && r_vec.v[3] !== 0) {
+      out.v[0] = l_vec.v[0] / r_vec.v[0];
+      out.v[1] = l_vec.v[1] / r_vec.v[1];
+      out.v[2] = l_vec.v[2] / r_vec.v[2];
+      out.v[3] = l_vec.v[3] / r_vec.v[3];
+    } else {
+      console.error("0 division occurred!");
+      out.v[0] = r_vec.v[0] === 0 ? Infinity : l_vec.v[0] / r_vec.v[0];
+      out.v[1] = r_vec.v[1] === 0 ? Infinity : l_vec.v[1] / r_vec.v[1];
+      out.v[2] = r_vec.v[2] === 0 ? Infinity : l_vec.v[2] / r_vec.v[2];
+      out.v[3] = r_vec.v[3] === 0 ? Infinity : l_vec.v[3] / r_vec.v[3];
+    }
+    return out;
   }
 
   /**
