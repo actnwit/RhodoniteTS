@@ -41,7 +41,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this.v[3];
   }
 
-  get raw() {
+  raw() {
     return this.v;
   }
 
