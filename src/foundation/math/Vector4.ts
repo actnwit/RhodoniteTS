@@ -105,13 +105,6 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2] + rv.v[2]);
   }
 
-  /**
-   * add value except w component（static version）
-   */
-  static addWithOutW(lv: Vector4, rv: Vector4) {
-    return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2]);
-  }
-
   static subtract(lv: Vector4, rv: Vector4) {
     return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2], lv.v[3] - rv.v[3]);
   }
@@ -228,10 +221,6 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
     super(x, y!, z!, w!, { type: Float32Array })
   }
 
-  static zeroWithWOne() {
-    return new Vector4(0, 0, 0, 1);
-  }
-
   static zero() {
     return new Vector4(0, 0, 0, 0);
   }
@@ -252,10 +241,6 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y!, z!, w!, { type: Float64Array })
-  }
-
-  static zeroWithWOne() {
-    return new Vector4d(0, 0, 0, 1);
   }
 
   static zero() {

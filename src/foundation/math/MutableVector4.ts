@@ -85,17 +85,6 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-  /**
- * add value except w component
- */
-  addWithOutW(v: IVector4 | Vector3) {
-    this.x += v.x;
-    this.y += v.y;
-    this.z += v.z;
-
-    return this;
-  }
-
   subtract(v: IVector4) {
     this.x -= v.x;
     this.y -= v.y;
@@ -176,10 +165,6 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     return new MutableVector4(0, 0, 0, 0);
   }
 
-  static zeroWithWOne() {
-    return new MutableVector4(0, 0, 0, 1);
-  }
-
   static one() {
     return new MutableVector4(1, 1, 1, 1);
   }
@@ -200,10 +185,6 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
 
   static zero() {
     return new MutableVector4d(0, 0, 0, 0);
-  }
-
-  static zeroWithWOne() {
-    return new MutableVector4d(0, 0, 0, 1);
   }
 
   static one() {
