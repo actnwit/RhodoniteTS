@@ -1,9 +1,9 @@
 import MutableVector3 from './MutableVector3';
-import { IVector3, IVector4 } from './IVector';
+import { IVector3, IVector4, IMutableVector3 } from './IVector';
 import { IMutableColorRgb } from './IColor';
 import { TypedArray } from '../../commontypes/CommonTypes';
 
-export default class MutableColorRgb extends MutableVector3 implements IVector3, IMutableColorRgb {
+export default class MutableColorRgb extends MutableVector3 implements IMutableVector3, IMutableColorRgb {
 
   constructor(r: number | TypedArray | IVector3 | IVector4 | Array<number> | null, g?: number, b?: number) {
     super(r, g, b);
