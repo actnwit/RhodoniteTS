@@ -1,8 +1,7 @@
-import Vector3 from "./Vector3";
-import { Vector4_ } from "./Vector4";
-import { IVector2, IVector3, IVector4, IMutableVector4, IMutableVector } from "./IVector";
-import { CompositionType } from "../definitions/CompositionType";
+import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector4 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
+import { Vector4_ } from "./Vector4";
+import Vector3 from "./Vector3";
 
 export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
@@ -133,22 +132,6 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-  // set w(w:number) {
-  //   this.__Error();
-  // }
-  // get w(): number {
-  //   return this.v[3];
-  // }
-
-  // get raw(): TypedArray {
-  //   this.__Error();
-  //   return new Float32Array(0);
-  // }
-
-  private __Error() {
-    //console.error('Not available because this Vector class is immutable.');
-    throw new Error('Not available because this Vector class is immutable.');
-  }
 }
 
 
