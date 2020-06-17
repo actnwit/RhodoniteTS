@@ -113,7 +113,7 @@ export default class MutableColorRgba extends MutableVector4 implements IMutable
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableColorRgba;
   }
 
-  clone() {
-    return super._clone() as MutableColorRgba;
+  clone(): MutableColorRgba {
+    return super.clone() as MutableColorRgba;
   }
 }

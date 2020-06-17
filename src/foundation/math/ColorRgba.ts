@@ -81,7 +81,7 @@ export default class ColorRgba extends Vector4 implements IVector4, IColorRgba {
     return super._divideVector(l_vec, r_vec, Float32Array) as ColorRgba;
   }
 
-  clone() {
-    return super._clone() as ColorRgba;
+  clone(): ColorRgba {
+    return super.clone() as ColorRgba;
   }
 }

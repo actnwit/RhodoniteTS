@@ -2,7 +2,7 @@ import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector4 } from ".
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { Vector4_ } from "./Vector4";
 
-export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector {
+export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
     super(x, y, z, w, { type });
   }
@@ -167,7 +167,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
 }
 
 
-export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> implements IMutableVector4 {
+export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y!, z!, w!, { type: Float32Array })
   }
@@ -213,11 +213,11 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
   }
 
   clone() {
-    return super._clone() as MutableVector4;
+    return super.clone() as MutableVector4;
   }
 }
 
-export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> implements IMutableVector4 {
+export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y!, z!, w!, { type: Float64Array })
   }
@@ -263,7 +263,7 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> im
   }
 
   clone() {
-    return super._clone() as MutableVector4d;
+    return super.clone() as MutableVector4d;
   }
 }
 
