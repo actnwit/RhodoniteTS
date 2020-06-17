@@ -72,11 +72,11 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector {
   }
 
   get glslStrAsFloat() {
-    return `vec4(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)}, ${MathUtil.convertToStringAsGLSLFloat(this.z)}, ${MathUtil.convertToStringAsGLSLFloat(this.w)})`;
+    return `vec4(${MathUtil.convertToStringAsGLSLFloat(this.v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[2])}, ${MathUtil.convertToStringAsGLSLFloat(this.v[3])})`;
   }
 
   get glslStrAsInt() {
-    return `ivec4(${Math.floor(this.x)}, ${Math.floor(this.y)}, ${Math.floor(this.z)}, ${Math.floor(this.w)})`;
+    return `ivec4(${Math.floor(this.v[0])}, ${Math.floor(this.v[1])}, ${Math.floor(this.v[2])}, ${Math.floor(this.v[3])})`;
   }
 
   static get compositionType() {
