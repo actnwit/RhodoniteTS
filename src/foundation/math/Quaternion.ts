@@ -6,6 +6,7 @@ import LogQuaternion from './LogQuaternion';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import { IQuaternion, ILogQuaternion } from './IQuaternion';
 import { IVector3, IVector4, IVector2 } from './IVector';
+import { MathUtil } from './MathUtil';
 
 export default class Quaternion implements IQuaternion {
   v: TypedArray;
@@ -327,6 +328,15 @@ export default class Quaternion implements IQuaternion {
     return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
   }
 
+  toStringApproximately() {
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[1]) +
+      ' ' + MathUtil.nearZeroToZero(this.v[2]) + ' ' + MathUtil.nearZeroToZero(this.v[3]) + '\n';
+  }
+
+  flattenAsArray() {
+    return [this.v[0], this.v[1], this.v[2], this.v[3]];
+  }
+
   isDummy() {
     if (this.v.length === 0) {
       return true;
@@ -337,6 +347,19 @@ export default class Quaternion implements IQuaternion {
 
   isEqual(quat: Quaternion) {
     if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isStrictEqual(quat: IQuaternion): boolean {
+    if (
+      this.v[0] === quat.v[0] &&
+      this.v[1] === quat.v[1] &&
+      this.v[2] === quat.v[2] &&
+      this.v[3] === quat.v[3]
+    ) {
       return true;
     } else {
       return false;
@@ -355,6 +378,17 @@ export default class Quaternion implements IQuaternion {
 
   length() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+  }
+
+  lengthSquared(): number {
+    return this.v[0] ** 2 + this.v[1] ** 2 + this.v[2] ** 2 + this.v[3] ** 2;
+  }
+
+  /**
+   * dot product
+   */
+  dot(quat: IQuaternion) {
+    return this.v[0] * quat.v[0] + this.v[1] * quat.v[1] + this.v[2] * quat.v[2] + this.v[3] * quat.v[3];
   }
 
   multiplyVector3(point: Vector3) {
