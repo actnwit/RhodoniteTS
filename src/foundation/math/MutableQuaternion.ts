@@ -45,10 +45,6 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this.v[3];
   }
 
-  static get compositionType() {
-    return CompositionType.Vec4;
-  }
-
   static dummy() {
     return new MutableQuaternion(null);
   }
