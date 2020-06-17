@@ -1,7 +1,6 @@
 import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector4 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { Vector4_ } from "./Vector4";
-import Vector3 from "./Vector3";
 
 export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
@@ -57,11 +56,8 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-  copyComponents(vec: Vector4_<T>) {
-    this.v[0] = vec.v[0];
-    this.v[1] = vec.v[1];
-    this.v[2] = vec.v[2];
-    this.v[3] = vec.v[3];
+  copyComponents(vec: IVector4) {
+    return this.setComponents(vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
   }
 
   zero() {
@@ -72,62 +68,68 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this.setComponents(1, 1, 1, 1);
   }
 
+  /**
+   * normalize
+   */
   normalize() {
-    var length = this.length();
+    const length = this.length();
     this.divide(length);
-
     return this;
   }
 
   normalize3() {
-    var length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-    this.x /= length;
-    this.y /= length;
-    this.z /= length;
-    this.w /= length;
-
+    const length = Math.hypot(this.v[0], this.v[1], this.v[2]);
+    this.divide(length);
     return this;
   }
 
   /**
    * add value
    */
-  add(v: IVector4) {
-    this.x += v.x;
-    this.y += v.y;
-    this.z += v.z;
-    this.w += v.w;
-
+  add(vec: IVector4) {
+    this.x += vec.x;
+    this.y += vec.y;
+    this.z += vec.z;
+    this.w += vec.w;
     return this;
   }
 
-  subtract(v: IVector4) {
-    this.x -= v.x;
-    this.y -= v.y;
-    this.z -= v.z;
-    this.w -= v.w;
-
+  /**
+   * subtract
+   */
+  subtract(vec: IVector4) {
+    this.x -= vec.x;
+    this.y -= vec.y;
+    this.z -= vec.z;
+    this.w -= vec.w;
     return this;
   }
 
+  /**
+   * multiply
+   */
   multiply(val: number) {
     this.x *= val;
     this.y *= val;
     this.z *= val;
     this.w *= val;
-
     return this;
   }
 
+  /**
+   * multiply vector
+   */
   multiplyVector(vec: IVector4) {
     this.x *= vec.x;
     this.y *= vec.y;
     this.z *= vec.z;
     this.w *= vec.w;
-
     return this;
   }
 
+  /**
+   * divide
+   */
   divide(val: number) {
     if (val !== 0) {
       this.x /= val;
@@ -144,15 +146,24 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-  divideVector(vec4: IVector4) {
-    this.x /= vec4.x;
-    this.y /= vec4.y;
-    this.z /= vec4.z;
-    this.w /= vec4.w;
-
+  /**
+   * divide vector
+   */
+  divideVector(vec: IVector4) {
+    if (vec.v[0] !== 0 && vec.v[1] !== 0 && vec.v[2] !== 0 && vec.v[3] !== 0) {
+      this.v[0] /= vec.v[0];
+      this.v[1] /= vec.v[1];
+      this.v[2] /= vec.v[2];
+      this.v[3] /= vec.v[3];
+    } else {
+      console.error("0 division occurred!");
+      this.v[0] = vec.v[0] === 0 ? Infinity : this.v[0] / vec.v[0];
+      this.v[1] = vec.v[1] === 0 ? Infinity : this.v[1] / vec.v[1];
+      this.v[2] = vec.v[2] === 0 ? Infinity : this.v[2] / vec.v[2];
+      this.v[3] = vec.v[3] === 0 ? Infinity : this.v[3] / vec.v[3];
+    }
     return this;
   }
-
 }
 
 
