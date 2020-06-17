@@ -116,7 +116,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return q;
   }
 
-  get raw() {
+  raw() {
     return this.v;
   }
 
