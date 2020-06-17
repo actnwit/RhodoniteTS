@@ -3,7 +3,7 @@ import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes
 import { MathUtil } from "./MathUtil";
 import { CompositionType } from "../definitions/CompositionType";
 
-export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVector4 {
+export class Vector4_<T extends TypedArrayConstructor> implements IVector {
   v: TypedArray;
 
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
@@ -375,7 +375,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 }
 
-export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
+export default class Vector4 extends Vector4_<Float32ArrayConstructor> implements IVector4 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y!, z!, w!, { type: Float32Array })
   }
@@ -425,7 +425,7 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
   }
 }
 
-export class Vector4d extends Vector4_<Float64ArrayConstructor> {
+export class Vector4d extends Vector4_<Float64ArrayConstructor> implements IVector4 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y!, z!, w!, { type: Float64Array })
   }
