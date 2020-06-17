@@ -44,11 +44,32 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this.v;
   }
 
+  setAt(i: number, val: number) {
+    this.v[i] = val;
+    return this;
+  }
+
+  setComponents(x: number, y: number, z: number, w: number) {
+    this.v[0] = x;
+    this.v[1] = y;
+    this.v[2] = z;
+    this.v[3] = w;
+    return this;
+  }
+
   copyComponents(vec: Vector4_<T>) {
     this.v[0] = vec.v[0];
     this.v[1] = vec.v[1];
     this.v[2] = vec.v[2];
     this.v[3] = vec.v[3];
+  }
+
+  zero() {
+    return this.setComponents(0, 0, 0, 0);
+  }
+
+  one() {
+    return this.setComponents(1, 1, 1, 1);
   }
 
   normalize() {
