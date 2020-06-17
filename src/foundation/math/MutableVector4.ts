@@ -173,15 +173,43 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
   }
 
   static zero() {
-    return new MutableVector4(0, 0, 0, 0);
+    return super._zero(Float32Array) as MutableVector4;
   }
 
   static one() {
-    return new MutableVector4(1, 1, 1, 1);
+    return super._one(Float32Array) as MutableVector4;
   }
 
   static dummy() {
-    return new MutableVector4(null, 0, 0, 0);
+    return super._dummy(Float32Array) as MutableVector4;
+  }
+
+  static normalize(vec: IVector4) {
+    return super._normalize(vec, Float32Array) as MutableVector4;
+  }
+
+  static add(l_vec: IVector4, r_vec: IVector4) {
+    return super._add(l_vec, r_vec, Float32Array) as MutableVector4;
+  }
+
+  static subtract(l_vec: IVector4, r_vec: IVector4) {
+    return super._subtract(l_vec, r_vec, Float32Array) as MutableVector4;
+  }
+
+  static multiply(vec: IVector4, value: number) {
+    return super._multiply(vec, value, Float32Array) as MutableVector4;
+  }
+
+  static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._multiplyVector(l_vec, r_vec, Float32Array) as MutableVector4;
+  }
+
+  static divide(vec: IVector4, value: number) {
+    return super._divide(vec, value, Float32Array) as MutableVector4;
+  }
+
+  static divideVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._divideVector(l_vec, r_vec, Float32Array) as MutableVector4;
   }
 
   clone() {
@@ -195,15 +223,43 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
   }
 
   static zero() {
-    return new MutableVector4d(0, 0, 0, 0);
+    return super._zero(Float64Array) as MutableVector4d;
   }
 
   static one() {
-    return new MutableVector4d(1, 1, 1, 1);
+    return super._one(Float64Array) as MutableVector4d;
   }
 
   static dummy() {
-    return new MutableVector4d(null, 0, 0, 0);
+    return super._dummy(Float64Array) as MutableVector4d;
+  }
+
+  static normalize(vec: IVector4) {
+    return super._normalize(vec, Float64Array) as MutableVector4d;
+  }
+
+  static add(l_vec: IVector4, r_vec: IVector4) {
+    return super._add(l_vec, r_vec, Float64Array) as MutableVector4d;
+  }
+
+  static subtract(l_vec: IVector4, r_vec: IVector4) {
+    return super._subtract(l_vec, r_vec, Float64Array) as MutableVector4d;
+  }
+
+  static multiply(vec: IVector4, value: number) {
+    return super._multiply(vec, value, Float64Array) as MutableVector4d;
+  }
+
+  static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._multiplyVector(l_vec, r_vec, Float64Array) as MutableVector4d;
+  }
+
+  static divide(vec: IVector4, value: number) {
+    return super._divide(vec, value, Float64Array) as MutableVector4d;
+  }
+
+  static divideVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._divideVector(l_vec, r_vec, Float64Array) as MutableVector4d;
   }
 
   clone() {

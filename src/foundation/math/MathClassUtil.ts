@@ -224,6 +224,7 @@ export default class MathClassUtil {
       return arr;
     } else {
       console.error('Non supported type!');
+      return;
     }
   }
 
@@ -246,6 +247,7 @@ export default class MathClassUtil {
       return arr;
     } else {
       console.error('Non supported type!');
+      return;
     }
   }
 
@@ -268,6 +270,7 @@ export default class MathClassUtil {
       return arr;
     } else {
       console.error('Non supported type!');
+      return;
     }
   }
   static divideNumber(lhs: any, rhs: number) {
@@ -289,6 +292,7 @@ export default class MathClassUtil {
       return arr;
     } else {
       console.error('Non supported type!');
+      return;
     }
   }
 

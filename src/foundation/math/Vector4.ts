@@ -97,31 +97,35 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
   /**
    * Zero Vector
    */
-  static zero() {
-    return new (this as any)(0, 0, 0, 1);
+  protected static _zero(type: TypedArrayConstructor) {
+    return new this(0, 0, 0, 0, { type });
   }
 
-  static _one(type: TypedArrayConstructor) {
+  protected static _one(type: TypedArrayConstructor) {
     return new this(1, 1, 1, 1, { type });
   }
 
-  static _dummy(type: TypedArrayConstructor) {
+  protected static _dummy(type: TypedArrayConstructor) {
     return new this(null, 0, 0, 0, { type });
   }
 
-  static normalize(vec4: Vector4) {
-    const length = vec4.length();
-    let newVec = new (vec4.constructor as any)(vec4.v[0], vec4.v[1], vec4.v[2], vec4.v[3]);
-    newVec = Vector4_.divide(newVec, length);
-
-    return newVec;
+  /**
+   * normalize(static version)
+   */
+  protected static _normalize(vec: IVector4, type: TypedArrayConstructor) {
+    const length = vec.length();
+    return this._divide(vec, length, type);
   }
 
   /**
    * add value（static version）
    */
-  static add(lv: Vector4, rv: Vector4) {
-    return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2] + rv.v[2]);
+  protected static _add(l_vec: IVector4, r_vec: IVector4, type: TypedArrayConstructor) {
+    const x = l_vec.v[0] + r_vec.v[0];
+    const y = l_vec.v[1] + r_vec.v[1];
+    const z = l_vec.v[2] + r_vec.v[2];
+    const w = l_vec.v[3] + r_vec.v[3];
+    return new this(x, y, z, w, { type });
   }
 
   /**
@@ -135,8 +139,15 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return out;
   }
 
-  static subtract(lv: Vector4, rv: Vector4) {
-    return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2], lv.v[3] - rv.v[3]);
+  /**
+   * subtract(static version)
+   */
+  protected static _subtract(l_vec: IVector4, r_vec: IVector4, type: TypedArrayConstructor) {
+    const x = l_vec.v[0] - r_vec.v[0];
+    const y = l_vec.v[1] - r_vec.v[1];
+    const z = l_vec.v[2] - r_vec.v[2];
+    const w = l_vec.v[3] - r_vec.v[3];
+    return new this(x, y, z, w, { type });
   }
 
   /**
@@ -150,8 +161,15 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return out;
   }
 
-  static multiply(vec4: Vector4, val: number) {
-    return new (vec4.constructor as any)(vec4.v[0] * val, vec4.v[1] * val, vec4.v[2] * val, vec4.v[3] * val);
+  /**
+   * multiply(static version)
+   */
+  protected static _multiply(vec: IVector4, value: number, type: TypedArrayConstructor) {
+    const x = vec.v[0] * value;
+    const y = vec.v[1] * value;
+    const z = vec.v[2] * value;
+    const w = vec.v[3] * value;
+    return new this(x, y, z, w, { type });
   }
 
   /**
@@ -165,8 +183,15 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return out;
   }
 
-  static multiplyVector(vec4: Vector4, vec: Vector4) {
-    return new (vec4.constructor as any)(vec4.v[0] * vec.v[0], vec4.v[1] * vec.v[1], vec4.v[2] * vec.v[2], vec4.v[3] * vec.v[3]);
+  /**
+   * multiply vector(static version)
+   */
+  protected static _multiplyVector(l_vec: IVector4, r_vec: IVector4, type: TypedArrayConstructor) {
+    const x = l_vec.v[0] * r_vec.v[0];
+    const y = l_vec.v[1] * r_vec.v[1];
+    const z = l_vec.v[2] * r_vec.v[2];
+    const w = l_vec.v[3] * r_vec.v[3];
+    return new this(x, y, z, w, { type });
   }
 
   /**
@@ -180,13 +205,27 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return out;
   }
 
-  static divide(vec4: Vector4, val: number) {
-    if (val !== 0) {
-      return new (vec4.constructor as any)(vec4.v[0] / val, vec4.v[1] / val, vec4.v[2] / val, vec4.v[3] / val);
+  /**
+   * divide(static version)
+   */
+  protected static _divide(vec: IVector4, value: number, type: TypedArrayConstructor) {
+    let x;
+    let y;
+    let z;
+    let w;
+    if (value !== 0) {
+      x = vec.v[0] / value;
+      y = vec.v[1] / value;
+      z = vec.v[2] / value;
+      w = vec.v[3] / value;
     } else {
-      console.warn("0 division occurred!");
-      return new (vec4.constructor as any)(Infinity, Infinity, Infinity, Infinity);
+      console.error("0 division occurred!");
+      x = Infinity;
+      y = Infinity;
+      z = Infinity;
+      w = Infinity;
     }
+    return new this(x, y, z, w, { type });
   }
 
   /**
@@ -208,8 +247,27 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
     return out;
   }
 
-  static divideVector(lvec4: Vector4, rvec4: Vector4) {
-    return new (lvec4.constructor as any)(lvec4.v[0] / rvec4.v[0], lvec4.v[1] / rvec4.v[1], lvec4.v[2] / rvec4.v[2], lvec4.v[3] / rvec4.v[3]);
+  /**
+   * divide vector(static version)
+   */
+  protected static _divideVector(l_vec: IVector4, r_vec: IVector4, type: TypedArrayConstructor) {
+    let x;
+    let y;
+    let z;
+    let w;
+    if (r_vec.v[0] !== 0 && r_vec.v[1] !== 0 && r_vec.v[2] !== 0 && r_vec.v[3] !== 0) {
+      x = l_vec.v[0] / r_vec.v[0];
+      y = l_vec.v[1] / r_vec.v[1];
+      z = l_vec.v[2] / r_vec.v[2];
+      w = l_vec.v[3] / r_vec.v[3];
+    } else {
+      console.error("0 division occurred!");
+      x = r_vec.v[0] === 0 ? Infinity : l_vec.v[0] / r_vec.v[0];
+      y = r_vec.v[1] === 0 ? Infinity : l_vec.v[1] / r_vec.v[1];
+      z = r_vec.v[2] === 0 ? Infinity : l_vec.v[2] / r_vec.v[2];
+      w = r_vec.v[3] === 0 ? Infinity : l_vec.v[3] / r_vec.v[3];
+    }
+    return new this(x, y, z, w, { type });
   }
 
   /**
@@ -234,8 +292,8 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVect
   /**
    * dot product(static version)
    */
-  static dot<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
-    return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2] + lv.v[3] * rv.v[3];
+  static dot(l_vec: IVector4, r_vec: IVector4) {
+    return l_vec.dot(r_vec);
   }
 
   toString() {
@@ -323,15 +381,43 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
   }
 
   static zero() {
-    return new Vector4(0, 0, 0, 0);
+    return super._zero(Float32Array) as Vector4;
   }
 
   static one() {
-    return new Vector4(1, 1, 1, 1);
+    return super._one(Float32Array) as Vector4;
   }
 
   static dummy() {
-    return new Vector4(null, 0, 0, 0);
+    return super._dummy(Float32Array) as Vector4;
+  }
+
+  static normalize(vec: IVector4) {
+    return super._normalize(vec, Float32Array) as Vector4;
+  }
+
+  static add(l_vec: IVector4, r_vec: IVector4) {
+    return super._add(l_vec, r_vec, Float32Array) as Vector4;
+  }
+
+  static subtract(l_vec: IVector4, r_vec: IVector4) {
+    return super._subtract(l_vec, r_vec, Float32Array) as Vector4;
+  }
+
+  static multiply(vec: IVector4, value: number) {
+    return super._multiply(vec, value, Float32Array) as Vector4;
+  }
+
+  static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._multiplyVector(l_vec, r_vec, Float32Array) as Vector4;
+  }
+
+  static divide(vec: IVector4, value: number) {
+    return super._divide(vec, value, Float32Array) as Vector4;
+  }
+
+  static divideVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._divideVector(l_vec, r_vec, Float32Array) as Vector4;
   }
 
   clone() {
@@ -345,15 +431,43 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   }
 
   static zero() {
-    return new Vector4d(0, 0, 0, 0);
+    return super._zero(Float64Array) as Vector4d;
   }
 
   static one() {
-    return new Vector4d(1, 1, 1, 1);
+    return super._one(Float64Array) as Vector4d;
   }
 
   static dummy() {
-    return new Vector4d(null, 0, 0, 0);
+    return super._dummy(Float64Array) as Vector4d;
+  }
+
+  static normalize(vec: IVector4) {
+    return super._normalize(vec, Float64Array) as Vector4d;
+  }
+
+  static add(l_vec: IVector4, r_vec: IVector4) {
+    return super._add(l_vec, r_vec, Float64Array) as Vector4d;
+  }
+
+  static subtract(l_vec: IVector4, r_vec: IVector4) {
+    return super._subtract(l_vec, r_vec, Float64Array) as Vector4d;
+  }
+
+  static multiply(vec: IVector4, value: number) {
+    return super._multiply(vec, value, Float64Array) as Vector4d;
+  }
+
+  static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._multiplyVector(l_vec, r_vec, Float64Array) as Vector4d;
+  }
+
+  static divide(vec: IVector4, value: number) {
+    return super._divide(vec, value, Float64Array) as Vector4d;
+  }
+
+  static divideVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._divideVector(l_vec, r_vec, Float64Array) as Vector4d;
   }
 
   clone() {

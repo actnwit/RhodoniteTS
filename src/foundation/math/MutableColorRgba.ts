@@ -72,4 +72,44 @@ export default class MutableColorRgba extends MutableVector4 implements IVector4
   set a(val) {
     this.v[3] = val;
   }
+
+  static zero() {
+    return super._zero(Float32Array) as MutableColorRgba;
+  }
+
+  static one() {
+    return super._one(Float32Array) as MutableColorRgba;
+  }
+
+  static dummy() {
+    return super._dummy(Float32Array) as MutableColorRgba;
+  }
+
+  static normalize(vec: IVector4) {
+    return super._normalize(vec, Float32Array) as MutableColorRgba;
+  }
+
+  static add(l_vec: IVector4, r_vec: IVector4) {
+    return super._add(l_vec, r_vec, Float32Array) as MutableColorRgba;
+  }
+
+  static subtract(l_vec: IVector4, r_vec: IVector4) {
+    return super._subtract(l_vec, r_vec, Float32Array) as MutableColorRgba;
+  }
+
+  static multiply(vec: IVector4, value: number) {
+    return super._multiply(vec, value, Float32Array) as MutableColorRgba;
+  }
+
+  static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._multiplyVector(l_vec, r_vec, Float32Array) as MutableColorRgba;
+  }
+
+  static divide(vec: IVector4, value: number) {
+    return super._divide(vec, value, Float32Array) as MutableColorRgba;
+  }
+
+  static divideVector(l_vec: IVector4, r_vec: IVector4) {
+    return super._divideVector(l_vec, r_vec, Float32Array) as MutableColorRgba;
+  }
 }
