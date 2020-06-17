@@ -3,38 +3,36 @@ import { TypedArray } from "../../commontypes/CommonTypes";
 export interface IVector {
   readonly v: TypedArray;
   readonly className: string;
-  // toString(): string;
-  // toStringApproximately(): string;
-  // flattenAsArray(): Array<number>;
-  // isDummy(): boolean;
-  // isEqual(vec: IVector, delta: number): boolean;
-  // isStrictEqual(vec: IVector): boolean;
-  // at(i: number): number;
-  // length(): number;
-  // lengthSquared(): number;
-  // lengthTo(vec: IVector): number;
-  // dot(vec: IVector): number;
-  // clone(): IVector;
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(vec: IVector, delta: number): boolean;
+  isStrictEqual(vec: IVector): boolean;
+  at(i: number): number;
+  length(): number;
+  lengthSquared(): number;
+  lengthTo(vec: IVector): number;
+  dot(vec: IVector): number;
 }
 
 export interface IMutableVector {
   v: TypedArray;
   readonly className: string;
 
-  // clone(): IMutableVector;
-  // raw(): TypedArray;
-  // setAt(i: number, val: number): IMutableVector;
-  // setComponents(...num: number[]): IMutableVector;
-  // copyComponents(vec: any): IMutableVector;
-  // zero(): IMutableVector;
-  // one(): IMutableVector;
-  // normalize(): IMutableVector;
-  // add(vec: any): IMutableVector;
-  // subtract(vec: any): IMutableVector;
-  // multiply(val: number): IMutableVector;
-  // multiplyVector(vec: any): IMutableVector;
-  // divide(val: number): IMutableVector;
-  // divideVector(vec: any): IMutableVector;
+  raw(): TypedArray;
+  setAt(i: number, val: number): IMutableVector;
+  setComponents(...num: number[]): IMutableVector;
+  copyComponents(vec: any): IMutableVector;
+  zero(): IMutableVector;
+  one(): IMutableVector;
+  normalize(): IMutableVector;
+  add(vec: any): IMutableVector;
+  subtract(vec: any): IMutableVector;
+  multiply(val: number): IMutableVector;
+  multiplyVector(vec: any): IMutableVector;
+  divide(val: number): IMutableVector;
+  divideVector(vec: any): IMutableVector;
 }
 
 export interface IScalar {
