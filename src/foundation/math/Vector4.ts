@@ -370,7 +370,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector {
     return this.v[0] * vec.v[0] + this.v[1] * vec.v[1] + this.v[2] * vec.v[2] + this.v[3] * vec.v[3];
   }
 
-  clone() {
+  protected _clone() {
     return new (this.constructor as any)(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 }
@@ -421,7 +421,7 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> implement
   }
 
   clone() {
-    return new Vector4(this.v[0], this.v[1], this.v[2], this.v[3]);
+    return super._clone() as Vector4;
   }
 }
 
@@ -471,7 +471,7 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> implements IVect
   }
 
   clone() {
-    return new Vector4d(this.v[0], this.v[1], this.v[2], this.v[3]);
+    return super._clone() as Vector4d;
   }
 }
 

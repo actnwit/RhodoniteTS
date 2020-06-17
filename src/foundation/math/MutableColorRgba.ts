@@ -112,4 +112,8 @@ export default class MutableColorRgba extends MutableVector4 implements IMutable
   static divideVector(l_vec: IVector4, r_vec: IVector4) {
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableColorRgba;
   }
+
+  clone() {
+    return super._clone() as MutableColorRgba;
+  }
 }

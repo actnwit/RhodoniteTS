@@ -213,7 +213,7 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
   }
 
   clone() {
-    return new MutableVector4(this.x, this.y, this.z, this.w);
+    return super._clone() as MutableVector4;
   }
 }
 
@@ -263,7 +263,7 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> im
   }
 
   clone() {
-    return new MutableVector4d(this.x, this.y, this.z, this.w);
+    return super._clone() as MutableVector4d;
   }
 }
 
