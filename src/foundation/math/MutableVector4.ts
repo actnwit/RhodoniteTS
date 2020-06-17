@@ -87,10 +87,10 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
    * add value
    */
   add(vec: IVector4) {
-    this.x += vec.x;
-    this.y += vec.y;
-    this.z += vec.z;
-    this.w += vec.w;
+    this.v[0] += vec.v[0];
+    this.v[1] += vec.v[1];
+    this.v[2] += vec.v[2];
+    this.v[3] += vec.v[3];
     return this;
   }
 
@@ -98,10 +98,10 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
    * subtract
    */
   subtract(vec: IVector4) {
-    this.x -= vec.x;
-    this.y -= vec.y;
-    this.z -= vec.z;
-    this.w -= vec.w;
+    this.v[0] -= vec.v[0];
+    this.v[1] -= vec.v[1];
+    this.v[2] -= vec.v[2];
+    this.v[3] -= vec.v[3];
     return this;
   }
 
@@ -109,10 +109,10 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
    * multiply
    */
   multiply(val: number) {
-    this.x *= val;
-    this.y *= val;
-    this.z *= val;
-    this.w *= val;
+    this.v[0] *= val;
+    this.v[1] *= val;
+    this.v[2] *= val;
+    this.v[3] *= val;
     return this;
   }
 
@@ -120,10 +120,10 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
    * multiply vector
    */
   multiplyVector(vec: IVector4) {
-    this.x *= vec.x;
-    this.y *= vec.y;
-    this.z *= vec.z;
-    this.w *= vec.w;
+    this.v[0] *= vec.v[0];
+    this.v[1] *= vec.v[1];
+    this.v[2] *= vec.v[2];
+    this.v[3] *= vec.v[3];
     return this;
   }
 
@@ -132,16 +132,16 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
    */
   divide(val: number) {
     if (val !== 0) {
-      this.x /= val;
-      this.y /= val;
-      this.z /= val;
-      this.w /= val;
+      this.v[0] /= val;
+      this.v[1] /= val;
+      this.v[2] /= val;
+      this.v[3] /= val;
     } else {
       console.error("0 division occurred!");
-      this.x = Infinity;
-      this.y = Infinity;
-      this.z = Infinity;
-      this.w = Infinity;
+      this.v[0] = Infinity;
+      this.v[1] = Infinity;
+      this.v[2] = Infinity;
+      this.v[3] = Infinity;
     }
     return this;
   }
