@@ -380,13 +380,7 @@ export default class Quaternion implements IQuaternion {
   }
 
   at(i: number) {
-    switch (i % 4) {
-      case 0: return this.x;
-      case 1: return this.y;
-      case 2: return this.z;
-      case 3: return this.w;
-      default: return void 0;
-    }
+    return this.v[i];
   }
 
   length() {
