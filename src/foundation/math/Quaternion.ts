@@ -4,7 +4,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import MutableQuaternion from './MutableQuaternion';
 import LogQuaternion from './LogQuaternion';
 import { TypedArray } from '../../commontypes/CommonTypes';
-import { IQuaternion, ILogQuaternion } from './IQuaternion';
+import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
 import { IVector3, IVector4, IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
 import { IMutableVector3 } from './IVector';
@@ -323,6 +323,14 @@ export default class Quaternion implements IQuaternion {
     result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
     result.v[3] = - q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
     return result;
+  }
+
+  static multiplyTo(quat1: IQuaternion, quat2: IQuaternion, out: IMutableQuaternion) {
+    const x = quat2.w * quat1.x + quat2.z * quat1.y - quat2.y * quat1.z + quat2.x * quat1.w;
+    const y = - quat2.z * quat1.x + quat2.w * quat1.y + quat2.x * quat1.z + quat2.y * quat1.w;
+    const z = quat2.y * quat1.x - quat2.x * quat1.y + quat2.w * quat1.z + quat2.z * quat1.w;
+    const w = - quat2.x * quat1.x - quat2.y * quat1.y - quat2.z * quat1.z + quat2.w * quat1.w;
+    return out.setComponents(x, y, z, w);
   }
 
   static multiplyNumber(q1: Quaternion, val: number) {

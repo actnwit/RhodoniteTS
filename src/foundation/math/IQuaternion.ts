@@ -18,6 +18,8 @@ export interface IMutableQuaternion {
   y: number;
   z: number;
   w: number;
+
+  setComponents(x: number, y: number, z: number, w: number): IMutableQuaternion;
 }
 
 export interface ILogQuaternion {
