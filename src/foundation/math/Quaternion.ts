@@ -358,7 +358,7 @@ export default class Quaternion implements IQuaternion {
     }
   }
 
-  isEqual(quat: Quaternion, delta: number = Number.EPSILON) {
+  isEqual(quat: IQuaternion, delta: number = Number.EPSILON) {
     if (
       Math.abs(quat.v[0] - this.v[0]) < delta &&
       Math.abs(quat.v[1] - this.v[1]) < delta &&
