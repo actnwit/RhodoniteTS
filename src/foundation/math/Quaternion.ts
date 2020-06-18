@@ -1,30 +1,36 @@
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
-import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableQuaternion from './MutableQuaternion';
 import LogQuaternion from './LogQuaternion';
 import { TypedArray } from '../../commontypes/CommonTypes';
 import { IQuaternion, ILogQuaternion } from './IQuaternion';
+import { IVector3, IVector4, IVector2 } from './IVector';
 
 export default class Quaternion implements IQuaternion {
   v: TypedArray;
 
-  constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
+  constructor(x?: number | TypedArray | IVector2 | IVector3 | IVector4 | IQuaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
     if (ArrayBuffer.isView(x)) {
-      this.v = ((x as any) as TypedArray);
+      this.v = (x as TypedArray);
       return;
     } else if (x == null) {
       this.v = new Float32Array(0);
+      return;
     } else {
       this.v = new Float32Array(4);
     }
 
-    if (!(x != null)) {
-      this.v[0] = 0;
-      this.v[1] = 0;
-      this.v[2] = 0;
-      this.v[3] = 1;
+    if (Array.isArray(x)) {
+      this.v[0] = x[0];
+      this.v[1] = x[1];
+      this.v[2] = x[2];
+      this.v[3] = x[3];
+    } else if (typeof x === 'number') {
+      this.v[0] = x;
+      this.v[1] = y as number;
+      this.v[2] = z as number;
+      this.v[3] = w as number;
     } else if (x instanceof LogQuaternion) {
       const theta = x.x * x.x + x.y * x.y + x.z * x.z;
       const sin = Math.sin(theta);
@@ -32,31 +38,26 @@ export default class Quaternion implements IQuaternion {
       this.v[1] = x.y * (sin / theta);
       this.v[2] = x.z * (sin / theta);
       this.v[3] = Math.cos(theta);
-    } else if (Array.isArray(x)) {
-      this.v[0] = x[0];
-      this.v[1] = x[1];
-      this.v[2] = x[2];
-      this.v[3] = x[3];
-    } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-      this.v[3] = (x as any).w;
-    } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-      this.v[3] = 1;
-    } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = 0;
-      this.v[3] = 1;
     } else {
-      this.v[0] = ((x as any) as number);
-      this.v[1] = ((y as any) as number);
-      this.v[2] = ((z as any) as number);
-      this.v[3] = ((w as any) as number);
+      if (typeof x.v[2] === 'undefined') {
+        // IVector2
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = 0;
+        this.v[3] = 1;
+      } else if (typeof x.v[3] === 'undefined') {
+        // IVector3
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+        this.v[3] = 1;
+      } else {
+        // IVector4 and IQuaternion
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+        this.v[3] = x.v[3];
+      }
     }
   }
 
