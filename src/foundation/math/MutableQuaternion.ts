@@ -137,8 +137,8 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this;
   }
 
-  copyComponents(vec: IQuaternion) {
-    return this.setComponents(vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
+  copyComponents(quat: IQuaternion) {
+    return this.setComponents(quat.v[0], quat.v[1], quat.v[2], quat.v[3]);
   }
 
   identity() {
@@ -150,19 +150,19 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this.divideNumber(norm);
   }
 
-  axisAngle(axisVec3: IVector3, radian: number) {
+  axisAngle(vec: IVector3, radian: number) {
     const halfAngle = 0.5 * radian;
     const sin = Math.sin(halfAngle);
 
-    const length = axisVec3.length();
+    const length = vec.length();
     if (length === 0) {
       console.error("0 division occurred!");
     }
 
     this.w = Math.cos(halfAngle);
-    this.x = sin * axisVec3.v[0] / length;
-    this.y = sin * axisVec3.v[1] / length;
-    this.z = sin * axisVec3.v[2] / length;
+    this.x = sin * vec.v[0] / length;
+    this.y = sin * vec.v[1] / length;
+    this.z = sin * vec.v[2] / length;
 
     return this;
   }
