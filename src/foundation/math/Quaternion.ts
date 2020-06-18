@@ -206,7 +206,7 @@ export default class Quaternion implements IQuaternion {
       Math.cos(halfAngle));
   }
 
-  static fromMatrix(mat: Matrix44) {
+  static fromMatrix(mat: IMatrix44) {
 
     const quat = new Quaternion(0, 0, 0, 1);
     const tr = mat.m00 + mat.m11 + mat.m22;

@@ -1,5 +1,4 @@
 import Quaternion from "./Quaternion";
-import Matrix44 from "./Matrix44";
 import { IVector3, IVector4 } from "./IVector";
 import { TypedArray } from "../../commontypes/CommonTypes";
 import { IMutableQuaternion, ILogQuaternion, IQuaternion } from "./IQuaternion";
@@ -51,7 +50,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return new MutableQuaternion(null);
   }
 
-  static fromMatrix(mat: Matrix44) {
+  static fromMatrix(mat: IMatrix44) {
     return super.fromMatrix(mat) as MutableQuaternion;
   }
 
