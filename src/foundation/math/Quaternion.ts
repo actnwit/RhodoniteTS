@@ -107,6 +107,19 @@ export default class Quaternion implements IQuaternion {
     return quat;
   }
 
+  static invertTo(quat: IQuaternion, out: IMutableQuaternion) {
+    const norm = quat.length();
+    if (norm === 0.0) {
+      return out.setComponents(0, 0, 0, 0);
+    }
+
+    out.v[0] = - quat.v[0] / norm;
+    out.v[1] = - quat.v[1] / norm;
+    out.v[2] = - quat.v[2] / norm;
+    out.v[3] = quat.v[3] / norm;
+    return out;
+  }
+
   static qlerp(lhq: Quaternion, rhq: Quaternion, ratio: number) {
 
     let q = new Quaternion(0, 0, 0, 1);
@@ -185,6 +198,14 @@ export default class Quaternion implements IQuaternion {
       outQ.v[3] = lhq.w * s1 + rhq.w * s2;
 
     }
+  }
+
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+    const x = l_quat.x * (1 - ratio) + r_quat.x * ratio;
+    const y = l_quat.y * (1 - ratio) + r_quat.y * ratio;
+    const z = l_quat.z * (1 - ratio) + r_quat.z * ratio;
+    const w = l_quat.w * (1 - ratio) + r_quat.w * ratio;
+    return new this(x, y, z, w)
   }
 
   static lerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
@@ -345,8 +366,24 @@ export default class Quaternion implements IQuaternion {
     return new Quaternion(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
   }
 
+  static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
+    out.v[0] = l_quat.v[0] + r_quat.v[0];
+    out.v[1] = l_quat.v[1] + r_quat.v[1];
+    out.v[2] = l_quat.v[2] + r_quat.v[2];
+    out.v[3] = l_quat.v[3] + r_quat.v[3];
+    return out;
+  }
+
   static subtract(lhs: Quaternion, rhs: Quaternion) {
     return new Quaternion(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w)
+  }
+
+  static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
+    out.v[0] = l_quat.v[0] - r_quat.v[0];
+    out.v[1] = l_quat.v[1] - r_quat.v[1];
+    out.v[2] = l_quat.v[2] - r_quat.v[2];
+    out.v[3] = l_quat.v[3] - r_quat.v[3];
+    return out;
   }
 
   static multiply(q1: Quaternion, q2: Quaternion) {
@@ -368,6 +405,36 @@ export default class Quaternion implements IQuaternion {
 
   static multiplyNumber(q1: Quaternion, val: number) {
     return new Quaternion(q1.x * val, q1.y * val, q1.z * val, q1.w * val);
+  }
+
+  static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
+    out.v[0] = quat.v[0] * value;
+    out.v[1] = quat.v[1] * value;
+    out.v[2] = quat.v[2] * value;
+    out.v[3] = quat.v[3] * value;
+    return out;
+  }
+
+  static divideNumber(quat: IQuaternion, value: number) {
+    if (value === 0) {
+      console.error("0 division occurred!");
+    }
+    const x = quat.v[0] / value;
+    const y = quat.v[1] / value;
+    const z = quat.v[2] / value;
+    const w = quat.v[3] / value;
+    return new this(x, y, z, w);
+  }
+
+  static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
+    if (value === 0) {
+      console.error("0 division occurred!");
+    }
+    out.v[0] = quat.v[0] / value;
+    out.v[1] = quat.v[1] / value;
+    out.v[2] = quat.v[2] / value;
+    out.v[3] = quat.v[3] / value;
+    return out;
   }
 
   toString() {
