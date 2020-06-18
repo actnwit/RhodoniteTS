@@ -168,28 +168,28 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
 
   fromMatrix(m: Matrix44) {
 
-    let tr = m.m00 + m.m11 + m.m22;
+    const tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr + 1.0);
+      const S = 0.5 / Math.sqrt(tr + 1.0);
       this.v[0] = (m.m21 - m.m12) * S;
       this.v[1] = (m.m02 - m.m20) * S;
       this.v[2] = (m.m10 - m.m01) * S;
       this.v[3] = 0.25 / S;
     } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-      let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+      const S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
       this.v[0] = 0.25 * S;
       this.v[1] = (m.m01 + m.m10) / S;
       this.v[2] = (m.m02 + m.m20) / S;
       this.v[3] = (m.m21 - m.m12) / S;
     } else if (m.m11 > m.m22) {
-      let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+      const S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
       this.v[0] = (m.m01 + m.m10) / S;
       this.v[1] = 0.25 * S;
       this.v[2] = (m.m12 + m.m21) / S;
       this.v[3] = (m.m02 - m.m20) / S;
     } else {
-      let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+      const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
       this.v[0] = (m.m02 + m.m20) / S;
       this.v[1] = (m.m12 + m.m21) / S;
       this.v[2] = 0.25 * S;
