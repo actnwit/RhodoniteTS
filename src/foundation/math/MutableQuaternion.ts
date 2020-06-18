@@ -264,7 +264,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this;
   }
 
-  clone() {
-    return new MutableQuaternion(this.x, this.y, this.z, this.w);
+  clone(): MutableQuaternion {
+    return super.clone() as MutableQuaternion;
   }
 }

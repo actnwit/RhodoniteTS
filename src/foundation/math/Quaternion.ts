@@ -424,7 +424,7 @@ export default class Quaternion implements IQuaternion {
   }
 
   clone() {
-    return new Quaternion(this.x, this.y, this.z, this.w);
+    return new (this.constructor as any)(this.x, this.y, this.z, this.w) as Quaternion;
   }
 }
 
