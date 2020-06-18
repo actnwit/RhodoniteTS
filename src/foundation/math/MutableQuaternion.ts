@@ -124,12 +124,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
   }
 
   setAt(i: number, val: number) {
-    switch (i % 4) {
-      case 0: this.x = val; break;
-      case 1: this.y = val; break;
-      case 2: this.z = val; break;
-      case 3: this.w = val; break;
-    }
+    this.v[i] = val;
     return this;
   }
 
@@ -146,20 +141,12 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
   }
 
   identity() {
-    this.x = 0;
-    this.y = 0;
-    this.x = 0;
-    this.w = 1;
-    return this;
+    return this.setComponents(0, 0, 0, 1);
   }
 
   normalize() {
-    let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-    this.x /= norm;
-    this.y /= norm;
-    this.z /= norm;
-    this.w /= norm;
-    return this;
+    const norm = this.length();
+    return this.divideNumber(norm);
   }
 
   axisAngle(axisVec3: Vector3, radian: number) {
