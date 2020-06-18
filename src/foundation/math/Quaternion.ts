@@ -8,6 +8,7 @@ import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
 import { IVector3, IVector4, IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
 import { IMutableVector3 } from './IVector';
+import { IMatrix44 } from './IMatrix';
 
 export default class Quaternion implements IQuaternion {
   v: TypedArray;
@@ -237,6 +238,38 @@ export default class Quaternion implements IQuaternion {
     }
 
     return q;
+  }
+
+  static fromMatrixTo(mat: IMatrix44, quat: IMutableQuaternion) {
+
+    const tr = mat.m00 + mat.m11 + mat.m22;
+    if (tr > 0) {
+      const S = 0.5 / Math.sqrt(tr + 1.0);
+      quat.v[3] = 0.25 / S;
+      quat.v[0] = (mat.m21 - mat.m12) * S;
+      quat.v[1] = (mat.m02 - mat.m20) * S;
+      quat.v[2] = (mat.m10 - mat.m01) * S;
+    } else if ((mat.m00 > mat.m11) && (mat.m00 > mat.m22)) {
+      const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
+      quat.v[3] = (mat.m21 - mat.m12) / S;
+      quat.v[0] = 0.25 * S;
+      quat.v[1] = (mat.m01 + mat.m10) / S;
+      quat.v[2] = (mat.m02 + mat.m20) / S;
+    } else if (mat.m11 > mat.m22) {
+      const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
+      quat.v[3] = (mat.m02 - mat.m20) / S;
+      quat.v[0] = (mat.m01 + mat.m10) / S;
+      quat.v[1] = 0.25 * S;
+      quat.v[2] = (mat.m12 + mat.m21) / S;
+    } else {
+      const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
+      quat.v[3] = (mat.m10 - mat.m01) / S;
+      quat.v[0] = (mat.m02 + mat.m20) / S;
+      quat.v[1] = (mat.m12 + mat.m21) / S;
+      quat.v[2] = 0.25 * S;
+    }
+
+    return quat;
   }
 
   static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
