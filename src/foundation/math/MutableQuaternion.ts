@@ -226,18 +226,12 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this;
   }
 
-  multiply(q: Quaternion) {
-    let result = new Quaternion(0, 0, 0, 1);
-    result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
-    result.v[1] = - q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
-    result.v[2] = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
-    result.v[3] = - q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
-    this.x = result.x;
-    this.y = result.y;
-    this.z = result.z;
-    this.w = result.w;
-
-    return this;
+  multiply(quat: Quaternion) {
+    const x = quat.w * this.x + quat.z * this.y + quat.y * this.z - quat.x * this.w;
+    const y = - quat.z * this.x + quat.w * this.y + quat.x * this.z - quat.y * this.w;
+    const z = quat.y * this.x + quat.x * this.y + quat.w * this.z - quat.z * this.w;
+    const w = - quat.x * this.x - quat.y * this.y - quat.z * this.z - quat.w * this.w;
+    return this.setComponents(x, y, z, w);
   }
 
   multiplyNumber(val: number) {
