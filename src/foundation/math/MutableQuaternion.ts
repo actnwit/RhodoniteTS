@@ -1,15 +1,13 @@
-import Vector3 from "./Vector3";
-import Vector4 from "./Vector4";
 import Quaternion from "./Quaternion";
-import { IVector3 } from "./IVector";
 import Matrix44 from "./Matrix44";
+import { IVector3, IVector4 } from "./IVector";
 import { TypedArray } from "../../commontypes/CommonTypes";
 import { IMutableQuaternion, ILogQuaternion, IQuaternion } from "./IQuaternion";
 import { IMatrix44 } from "./IMatrix";
 
 export default class MutableQuaternion extends Quaternion implements IMutableQuaternion {
 
-  constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
+  constructor(x?: number | TypedArray | IVector3 | IVector4 | IQuaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
     super(x, y, z, w);
   }
 
