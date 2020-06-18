@@ -1,7 +1,7 @@
 import Vector3 from "./Vector3";
 import Vector4 from "./Vector4";
 import Quaternion from "./Quaternion";
-import { IVector4 } from "./IVector";
+import { IVector3 } from "./IVector";
 import Matrix44 from "./Matrix44";
 import { TypedArray } from "../../commontypes/CommonTypes";
 import { IMutableQuaternion, ILogQuaternion, IQuaternion } from "./IQuaternion";
@@ -149,15 +149,19 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this.divideNumber(norm);
   }
 
-  axisAngle(axisVec3: Vector3, radian: number) {
-    var halfAngle = 0.5 * radian;
-    var sin = Math.sin(halfAngle);
+  axisAngle(axisVec3: IVector3, radian: number) {
+    const halfAngle = 0.5 * radian;
+    const sin = Math.sin(halfAngle);
 
-    var axis = Vector3.normalize(axisVec3);
+    const length = axisVec3.length();
+    if (length === 0) {
+      console.error("0 division occurred!");
+    }
+
     this.w = Math.cos(halfAngle);
-    this.x = sin * axis.x;
-    this.y = sin * axis.y;
-    this.z = sin * axis.z;
+    this.x = sin * axisVec3.v[0] / length;
+    this.y = sin * axisVec3.v[1] / length;
+    this.z = sin * axisVec3.v[2] / length;
 
     return this;
   }
