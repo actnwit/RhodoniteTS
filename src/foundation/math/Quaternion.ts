@@ -413,7 +413,7 @@ export default class Quaternion implements IQuaternion {
     return result;
   }
 
-  toEulerAngleTo(out: IMutableVector3) {
+  toEulerAnglesTo(out: IMutableVector3) {
     // this is from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
     const sinr_cosp = 2.0 * (this.w * this.x + this.y * this.z);
     const cosr_cosp = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);

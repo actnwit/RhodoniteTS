@@ -157,7 +157,7 @@ export default class TransformComponent extends Component {
     } else if (this._is_trs_matrix_updated) {
       this._matrix.toEulerAnglesTo(this._rotate);
     } else if (this._is_quaternion_updated) {
-      this._quaternion.toEulerAngleTo(this._rotate);
+      this._quaternion.toEulerAnglesTo(this._rotate);
     }
 
     this._is_euler_angles_updated = true;
@@ -456,7 +456,7 @@ export default class TransformComponent extends Component {
       this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
       this._is_quaternion_updated = true;
     } else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-      this._quaternion.toEulerAngleTo(this._rotate);
+      this._quaternion.toEulerAnglesTo(this._rotate);
       this._is_euler_angles_updated = true;
     } else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
       this._quaternion.fromMatrix(this._matrix);
