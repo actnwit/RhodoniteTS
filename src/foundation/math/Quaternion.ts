@@ -87,6 +87,10 @@ export default class Quaternion implements IQuaternion {
     return CompositionType.Vec4;
   }
 
+  static identity() {
+    return new this(0, 0, 0, 1);
+  }
+
   static dummy() {
     return new Quaternion(null);
   }

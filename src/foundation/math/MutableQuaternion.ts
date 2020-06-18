@@ -44,6 +44,10 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this.v[3];
   }
 
+  static identity() {
+    return super.identity() as MutableQuaternion;
+  }
+
   static dummy() {
     return new MutableQuaternion(null);
   }
