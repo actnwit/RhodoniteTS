@@ -1,22 +1,19 @@
 import Vector3 from "../math/Vector3";
-import TransformComponent from "../components/TransformComponent";
 import MutableVector3 from "../math/MutableVector3";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import Quaternion from "../math/Quaternion";
-import { thisExpression } from "@babel/types";
-import SphereCollider from "./SphereCollider";
 import Matrix44 from "../math/Matrix44";
-import PhysicsComponent from "../components/PhysicsComponent";
 import Time from "../misc/Time";
-import Entity from "../core/Entity";
 import VRMSpringBoneGroup from "./VRMSpringBoneGroup";
 import VRMColliderGroup from "./VRMColliderGroup";
 import { Index } from "../../commontypes/CommonTypes";
 import PhysicsStrategy from "./PhysicsStrategy";
+import MutableQuaternion from "../math/MutableQuaternion";
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
+  private static __tmp_quat = MutableQuaternion.identity();
   private static __boneGroups: VRMSpringBoneGroup[] = [];
   private static __colliderGroups: Map<Index, VRMColliderGroup> = new Map();
 
@@ -67,7 +64,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   get parentRotation() {
     // return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
-    return (this.__transform!.parent != null) ? Quaternion.fromMatrix(this.__transform!.parent!.worldMatrixInner): new Quaternion(0, 0, 0, 1);
+    return (this.__transform!.parent != null) ? Quaternion.fromMatrix(this.__transform!.parent!.worldMatrixInner) : new Quaternion(0, 0, 0, 1);
   }
 
 
@@ -81,7 +78,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const dragForce = boneGroup.dragForce;
     const stiffnessForce = boneGroup.stiffnessForce * Time.lastTickTimeInterval * 1;
     const external = Vector3.multiply(boneGroup.gravityDir, boneGroup.gravityPower * Time.lastTickTimeInterval * 1);
-    let center: SceneGraphComponent|undefined = void 0;
+    let center: SceneGraphComponent | undefined = void 0;
 
     const collisionGroups = VRMSpringBonePhysicsStrategy.getColliderGroups(boneGroup.colliderGroupIndices);
 
@@ -136,9 +133,15 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const prevTail = (center != null) ? center!.getWorldPositionOf(this.__prevTail) : this.__prevTail;
 
     const delta = MutableVector3.multiply(Vector3.subtract(currentTail, prevTail), 1.0 - dragForce);
-    const dist = Vector3.multiply((Quaternion.multiply(this.parentRotation, this.__localRotation)).multiplyVector3(this.__boneAxis), stiffnessForce);
+
+    const tmpRotationQuat = VRMSpringBonePhysicsStrategy.__tmp_quat;
+    Quaternion.multiplyTo(this.parentRotation, this.__localRotation, tmpRotationQuat);
+
+    const dist = VRMSpringBonePhysicsStrategy.__tmp_vec3;
+    dist.copyComponents(this.__boneAxis).multiplyQuaternion(tmpRotationQuat).multiply(stiffnessForce);
     // const dist = Vector3.multiply((this.__localRotation).multiplyVector3(this.__boneAxis), stiffnessForce);
     // const dist = Vector3.zero();
+
     let nextTail = Vector3.add(Vector3.add(Vector3.add(currentTail, delta), (dist as any as Vector3)), external);
 
     const tmp = Vector3.subtract(nextTail, this.__transform!.worldPosition);
@@ -156,7 +159,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       // this.head.children[0].entity.getTransform().matrix = Matrix44.identity();
       this.head.children[0].entity.getTransform().translate = this.__transform!.getLocalPositionOf(nextTail);
       // this.head.children[0].entity.getTransform().translate = new Vector3(1, 0, 0);
-    // this.head.children[0].entity.getTransform().quaternion = resultRotation;
+      // this.head.children[0].entity.getTransform().quaternion = resultRotation;
     }
 
     // VRMSpringBonePhysicsStrategy.initialize(this.__transform!);

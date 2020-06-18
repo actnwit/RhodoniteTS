@@ -404,27 +404,6 @@ export default class Quaternion implements IQuaternion {
     return this.v[0] * quat.v[0] + this.v[1] * quat.v[1] + this.v[2] * quat.v[2] + this.v[3] * quat.v[3];
   }
 
-  multiplyVector3(point: Vector3) {
-    const num = this.x * 2;
-    const num2 = this.y * 2;
-    const num3 = this.z * 2;
-    const num4 = this.x * num;
-    const num5 = this.y * num2;
-    const num6 = this.z * num3;
-    const num7 = this.x * num2;
-    const num8 = this.x * num3;
-    const num9 = this.y * num3;
-    const num10 = this.w * num;
-    const num11 = this.w * num2;
-    const num12 = this.w * num3;
-    const result = new Vector3(
-      (1 - (num5 + num6)) * point.x + (num7 - num12) * point.y + (num8 + num11) * point.z,
-      (num7 + num12) * point.x + (1 - (num4 + num6)) * point.y + (num9 - num10) * point.z,
-      (num8 - num11) * point.x + (num9 + num10) * point.y + (1 - (num4 + num5)) * point.z);
-
-    return result;
-  }
-
   toEulerAnglesTo(out: IMutableVector3) {
     // this is from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
     const sinr_cosp = 2.0 * (this.w * this.x + this.y * this.z);

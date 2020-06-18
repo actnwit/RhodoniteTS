@@ -1,6 +1,7 @@
 import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector3 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { Vector3_ } from "./Vector3";
+import { IQuaternion } from "./IQuaternion";
 
 export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: { type: T }) {
@@ -152,6 +153,30 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
 
     return this.setComponents(x, y, z);
   }
+
+  /**
+   * quaternion * vector3
+   */
+  multiplyQuaternion(quat: IQuaternion) {
+    const num = quat.v[0] * 2;
+    const num2 = quat.v[1] * 2;
+    const num3 = quat.v[2] * 2;
+    const num4 = quat.v[0] * num;
+    const num5 = quat.v[1] * num2;
+    const num6 = quat.v[2] * num3;
+    const num7 = quat.v[0] * num2;
+    const num8 = quat.v[0] * num3;
+    const num9 = quat.v[1] * num3;
+    const num10 = quat.v[3] * num;
+    const num11 = quat.v[3] * num2;
+    const num12 = quat.v[3] * num3;
+
+    const x = (1 - (num5 + num6)) * this.v[0] + (num7 - num12) * this.v[1] + (num8 + num11) * this.v[2];
+    const y = (num7 + num12) * this.v[0] + (1 - (num4 + num6)) * this.v[1] + (num9 - num10) * this.v[2];
+    const z = (num8 - num11) * this.v[0] + (num9 + num10) * this.v[1] + (1 - (num4 + num5)) * this.v[2];
+
+    return this.setComponents(x, y, z);
+  }
 }
 
 export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
@@ -201,6 +226,10 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
 
   static cross(l_vec: IVector3, r_vec: IVector3) {
     return super._cross(l_vec, r_vec, Float32Array) as MutableVector3;
+  }
+
+  static multiplyQuaternion(quat: IQuaternion, vec: IVector3) {
+    return super._multiplyQuaternion(quat, vec, Float32Array) as MutableVector3;
   }
 
   clone() {
@@ -255,6 +284,10 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
 
   static cross(l_vec: IVector3, r_vec: IVector3) {
     return super._cross(l_vec, r_vec, Float64Array) as MutableVector3d;
+  }
+
+  static multiplyQuaternion(quat: IQuaternion, vec: IVector3) {
+    return super._multiplyQuaternion(quat, vec, Float64Array) as MutableVector3d;
   }
 
   clone() {
