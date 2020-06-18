@@ -206,38 +206,38 @@ export default class Quaternion implements IQuaternion {
       Math.cos(halfAngle));
   }
 
-  static fromMatrix(m: Matrix44) {
+  static fromMatrix(mat: Matrix44) {
 
-    let q = new Quaternion(0, 0, 0, 1);
-    let tr = m.m00 + m.m11 + m.m22;
+    const quat = new Quaternion(0, 0, 0, 1);
+    const tr = mat.m00 + mat.m11 + mat.m22;
 
     if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr + 1.0);
-      q.v[3] = 0.25 / S;
-      q.v[0] = (m.m21 - m.m12) * S;
-      q.v[1] = (m.m02 - m.m20) * S;
-      q.v[2] = (m.m10 - m.m01) * S;
-    } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-      let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-      q.v[3] = (m.m21 - m.m12) / S;
-      q.v[0] = 0.25 * S;
-      q.v[1] = (m.m01 + m.m10) / S;
-      q.v[2] = (m.m02 + m.m20) / S;
-    } else if (m.m11 > m.m22) {
-      let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      q.v[3] = (m.m02 - m.m20) / S;
-      q.v[0] = (m.m01 + m.m10) / S;
-      q.v[1] = 0.25 * S;
-      q.v[2] = (m.m12 + m.m21) / S;
+      const S = 0.5 / Math.sqrt(tr + 1.0);
+      quat.v[3] = 0.25 / S;
+      quat.v[0] = (mat.m21 - mat.m12) * S;
+      quat.v[1] = (mat.m02 - mat.m20) * S;
+      quat.v[2] = (mat.m10 - mat.m01) * S;
+    } else if ((mat.m00 > mat.m11) && (mat.m00 > mat.m22)) {
+      const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
+      quat.v[3] = (mat.m21 - mat.m12) / S;
+      quat.v[0] = 0.25 * S;
+      quat.v[1] = (mat.m01 + mat.m10) / S;
+      quat.v[2] = (mat.m02 + mat.m20) / S;
+    } else if (mat.m11 > mat.m22) {
+      const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
+      quat.v[3] = (mat.m02 - mat.m20) / S;
+      quat.v[0] = (mat.m01 + mat.m10) / S;
+      quat.v[1] = 0.25 * S;
+      quat.v[2] = (mat.m12 + mat.m21) / S;
     } else {
-      let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      q.v[3] = (m.m10 - m.m01) / S;
-      q.v[0] = (m.m02 + m.m20) / S;
-      q.v[1] = (m.m12 + m.m21) / S;
-      q.v[2] = 0.25 * S;
+      const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
+      quat.v[3] = (mat.m10 - mat.m01) / S;
+      quat.v[0] = (mat.m02 + mat.m20) / S;
+      quat.v[1] = (mat.m12 + mat.m21) / S;
+      quat.v[2] = 0.25 * S;
     }
 
-    return q;
+    return quat;
   }
 
   static fromMatrixTo(mat: IMatrix44, quat: IMutableQuaternion) {
