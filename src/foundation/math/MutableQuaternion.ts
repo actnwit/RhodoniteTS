@@ -5,6 +5,7 @@ import { IVector3 } from "./IVector";
 import Matrix44 from "./Matrix44";
 import { TypedArray } from "../../commontypes/CommonTypes";
 import { IMutableQuaternion, ILogQuaternion, IQuaternion } from "./IQuaternion";
+import { IMatrix44 } from "./IMatrix";
 
 export default class MutableQuaternion extends Quaternion implements IMutableQuaternion {
 
@@ -166,34 +167,34 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this;
   }
 
-  fromMatrix(m: Matrix44) {
+  fromMatrix(mat: IMatrix44) {
 
-    const tr = m.m00 + m.m11 + m.m22;
+    const tr = mat.m00 + mat.m11 + mat.m22;
 
     if (tr > 0) {
       const S = 0.5 / Math.sqrt(tr + 1.0);
-      this.v[0] = (m.m21 - m.m12) * S;
-      this.v[1] = (m.m02 - m.m20) * S;
-      this.v[2] = (m.m10 - m.m01) * S;
+      this.v[0] = (mat.m21 - mat.m12) * S;
+      this.v[1] = (mat.m02 - mat.m20) * S;
+      this.v[2] = (mat.m10 - mat.m01) * S;
       this.v[3] = 0.25 / S;
-    } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-      const S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+    } else if ((mat.m00 > mat.m11) && (mat.m00 > mat.m22)) {
+      const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
       this.v[0] = 0.25 * S;
-      this.v[1] = (m.m01 + m.m10) / S;
-      this.v[2] = (m.m02 + m.m20) / S;
-      this.v[3] = (m.m21 - m.m12) / S;
-    } else if (m.m11 > m.m22) {
-      const S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      this.v[0] = (m.m01 + m.m10) / S;
+      this.v[1] = (mat.m01 + mat.m10) / S;
+      this.v[2] = (mat.m02 + mat.m20) / S;
+      this.v[3] = (mat.m21 - mat.m12) / S;
+    } else if (mat.m11 > mat.m22) {
+      const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
+      this.v[0] = (mat.m01 + mat.m10) / S;
       this.v[1] = 0.25 * S;
-      this.v[2] = (m.m12 + m.m21) / S;
-      this.v[3] = (m.m02 - m.m20) / S;
+      this.v[2] = (mat.m12 + mat.m21) / S;
+      this.v[3] = (mat.m02 - mat.m20) / S;
     } else {
-      const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      this.v[0] = (m.m02 + m.m20) / S;
-      this.v[1] = (m.m12 + m.m21) / S;
+      const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
+      this.v[0] = (mat.m02 + mat.m20) / S;
+      this.v[1] = (mat.m12 + mat.m21) / S;
       this.v[2] = 0.25 * S;
-      this.v[3] = (m.m10 - m.m01) / S;
+      this.v[3] = (mat.m10 - mat.m01) / S;
     }
 
     return this;
