@@ -79,7 +79,7 @@ export interface IMutableVector2 {
   lengthSquared(): number;
   lengthTo(vec: IVector2): number;
   dot(vec: IVector2): number;
-  clone(): IVector2;
+  clone(): IMutableVector2;
 
   // only for mutable vector2
   raw(): TypedArray;
