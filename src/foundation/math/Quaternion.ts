@@ -7,6 +7,7 @@ import { TypedArray } from '../../commontypes/CommonTypes';
 import { IQuaternion, ILogQuaternion } from './IQuaternion';
 import { IVector3, IVector4, IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
+import { IMutableVector3 } from './IVector';
 
 export default class Quaternion implements IQuaternion {
   v: TypedArray;
@@ -412,20 +413,21 @@ export default class Quaternion implements IQuaternion {
     return result;
   }
 
-  toEulerAngleTo(out: Vector3) {
+  toEulerAngleTo(out: IMutableVector3) {
     // this is from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
-    const sinr_cosp = +2.0 * (this.w * this.x + this.y * this.z);
-    const cosr_cosp = +1.0 - 2.0 * (this.x * this.x + this.y * this.y);
+    const sinr_cosp = 2.0 * (this.w * this.x + this.y * this.z);
+    const cosr_cosp = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
     out.v[0] = Math.atan2(sinr_cosp, cosr_cosp);
 
-    const sinp = +2.0 * (this.w * this.y - this.z * this.x);
-    if (Math.abs(sinp) >= 1)
+    const sinp = 2.0 * (this.w * this.y - this.z * this.x);
+    if (Math.abs(sinp) >= 1) {
       out.v[1] = Math.PI / 2 * Math.sign(sinp); // use 90 degrees if out of range
-    else
+    } else {
       out.v[1] = Math.asin(sinp);
+    }
 
-    const siny_cosp = +2.0 * (this.w * this.z + this.x * this.y);
-    const cosy_cosp = +1.0 - 2.0 * (this.y * this.y + this.z * this.z);
+    const siny_cosp = 2.0 * (this.w * this.z + this.x * this.y);
+    const cosy_cosp = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);
     out.v[2] = Math.atan2(siny_cosp, cosy_cosp);
 
     return out;
