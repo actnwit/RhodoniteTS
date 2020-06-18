@@ -390,7 +390,7 @@ export default class Quaternion implements IQuaternion {
   }
 
   length() {
-    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    return Math.hypot(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 
   lengthSquared(): number {
