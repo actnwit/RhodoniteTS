@@ -15,7 +15,7 @@ export interface IQuaternion {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IQuaternion, delta: number): boolean;
+  isEqual(vec: IQuaternion, delta?: number): boolean;
   isStrictEqual(vec: IQuaternion): boolean;
   at(i: number): number;
   length(): number;
@@ -39,7 +39,7 @@ export interface IMutableQuaternion {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IQuaternion, delta: number): boolean;
+  isEqual(vec: IQuaternion, delta?: number): boolean;
   isStrictEqual(vec: IQuaternion): boolean;
   at(i: number): number;
   length(): number;
