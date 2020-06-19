@@ -1,14 +1,12 @@
-import Vector3 from './Vector3';
-import Matrix44 from './Matrix44';
-import { CompositionType } from '../definitions/CompositionType';
-import MutableQuaternion from './MutableQuaternion';
-import LogQuaternion from './LogQuaternion';
+import { IVector2, IVector3, IVector4 } from './IVector';
 import { TypedArray } from '../../commontypes/CommonTypes';
-import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
-import { IVector3, IVector4, IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
+import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
 import { IMutableVector3 } from './IVector';
 import { IMatrix44 } from './IMatrix';
+import LogQuaternion from './LogQuaternion';
+import Vector3 from './Vector3';
 
 export default class Quaternion implements IQuaternion {
   v: TypedArray;
@@ -96,7 +94,7 @@ export default class Quaternion implements IQuaternion {
     return new Quaternion(null);
   }
 
-  static invert(quat: Quaternion) {
+  static invert(quat: IQuaternion) {
     quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
     const norm = quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w;
     const inorm2 = norm ? 1.0 / norm : 0;
@@ -120,7 +118,7 @@ export default class Quaternion implements IQuaternion {
     return out;
   }
 
-  static qlerp(lhq: Quaternion, rhq: Quaternion, ratio: number) {
+  static qlerp(lhq: IQuaternion, rhq: IQuaternion, ratio: number) {
 
     let q = new Quaternion(0, 0, 0, 1);
     let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
@@ -161,7 +159,7 @@ export default class Quaternion implements IQuaternion {
     }
   }
 
-  static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
+  static qlerpTo(lhq: IQuaternion, rhq: IQuaternion, ratio: number, outQ: IMutableQuaternion) {
 
     //    let q = new Quaternion(0, 0, 0, 1);
     let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
@@ -208,14 +206,14 @@ export default class Quaternion implements IQuaternion {
     return new this(x, y, z, w)
   }
 
-  static lerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
+  static lerpTo(lhq: IQuaternion, rhq: IQuaternion, ratio: number, outQ: IMutableQuaternion) {
     outQ.x = lhq.x * (1 - ratio) + rhq.x * ratio;
     outQ.y = lhq.y * (1 - ratio) + rhq.y * ratio;
     outQ.z = lhq.z * (1 - ratio) + rhq.z * ratio;
     outQ.w = lhq.w * (1 - ratio) + rhq.w * ratio;
   }
 
-  static axisAngle(axisVec3: Vector3, radian: number) {
+  static axisAngle(axisVec3: IVector3, radian: number) {
     let halfAngle = 0.5 * radian;
     let sin = Math.sin(halfAngle);
 
@@ -293,7 +291,7 @@ export default class Quaternion implements IQuaternion {
     return quat;
   }
 
-  static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
+  static lookFromTo(fromDirection: IVector3, toDirection: IVector3) {
 
     if (fromDirection.isEqual(toDirection)) {
       return new Quaternion(0, 0, 0, 1);
@@ -301,12 +299,12 @@ export default class Quaternion implements IQuaternion {
     return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
   }
 
-  static lookForward(forward: Vector3) {
+  static lookForward(forward: IVector3) {
     const up = new Vector3(0, 1, 0);
     return this.lookForwardAccordingToThisUp(forward, up);
   }
 
-  static lookForwardAccordingToThisUp(forward: Vector3, up: Vector3) {
+  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3) {
     forward = Vector3.normalize(forward);
     const right = Vector3.normalize(Vector3.cross(up, forward));
     up = Vector3.cross(forward, right);
@@ -357,12 +355,12 @@ export default class Quaternion implements IQuaternion {
     }
   }
 
-  static fromPosition(vec3: Vector3) {
+  static fromPosition(vec3: IVector3) {
     let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
     return q;
   }
 
-  static add(lhs: Quaternion, rhs: Quaternion) {
+  static add(lhs: IQuaternion, rhs: IQuaternion) {
     return new Quaternion(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
   }
 
@@ -374,7 +372,7 @@ export default class Quaternion implements IQuaternion {
     return out;
   }
 
-  static subtract(lhs: Quaternion, rhs: Quaternion) {
+  static subtract(lhs: IQuaternion, rhs: IQuaternion) {
     return new Quaternion(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w)
   }
 
@@ -386,7 +384,7 @@ export default class Quaternion implements IQuaternion {
     return out;
   }
 
-  static multiply(q1: Quaternion, q2: Quaternion) {
+  static multiply(q1: IQuaternion, q2: IQuaternion) {
     let result = new Quaternion(0, 0, 0, 1);
     result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
     result.v[1] = - q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
@@ -403,7 +401,7 @@ export default class Quaternion implements IQuaternion {
     return out.setComponents(x, y, z, w);
   }
 
-  static multiplyNumber(q1: Quaternion, val: number) {
+  static multiplyNumber(q1: IQuaternion, val: number) {
     return new Quaternion(q1.x * val, q1.y * val, q1.z * val, q1.w * val);
   }
 
