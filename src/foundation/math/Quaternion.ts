@@ -95,14 +95,16 @@ export default class Quaternion implements IQuaternion {
   }
 
   static invert(quat: IQuaternion) {
-    quat = new this(-quat.x, -quat.y, -quat.z, quat.w);
-    const norm = quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w;
-    const inorm2 = norm ? 1.0 / norm : 0;
-    quat.v[0] *= inorm2;
-    quat.v[1] *= inorm2;
-    quat.v[2] *= inorm2;
-    quat.v[3] *= inorm2;
-    return quat;
+    const norm = quat.length();
+    if (norm === 0.0) {
+      return new this(0, 0, 0, 0);
+    }
+
+    const x = - quat.v[0] / norm;
+    const y = - quat.v[1] / norm;
+    const z = - quat.v[2] / norm;
+    const w = quat.v[3] / norm;
+    return new this(x, y, z, w);
   }
 
   static invertTo(quat: IQuaternion, out: IMutableQuaternion) {
