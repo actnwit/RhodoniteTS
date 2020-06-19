@@ -17,7 +17,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     m0: number, m1: number, m2: number,
     m3: number, m4: number, m5: number,
     m6: number, m7: number, m8: number,
-    isColumnMajor?: boolean, );
+    isColumnMajor?: boolean,);
   constructor(
     m0: any, m1?: any, m2?: any,
     m3?: number, m4?: number, m5?: number,
@@ -182,8 +182,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     return this.v;
   }
 
-  setAt(row_i: number, column_i: number, val: number) {
-    this.v[row_i + column_i * 3] = val;
+  setAt(row_i: number, column_i: number, value: number) {
+    this.v[row_i + column_i * 3] = value;
     return this;
   }
 

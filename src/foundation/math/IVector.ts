@@ -21,7 +21,7 @@ export interface IMutableVector {
   readonly className: string;
 
   raw(): TypedArray;
-  setAt(i: number, val: number): IMutableVector;
+  setAt(i: number, value: number): IMutableVector;
   setComponents(...num: number[]): IMutableVector;
   copyComponents(vec: any): IMutableVector;
   zero(): IMutableVector;
@@ -29,9 +29,9 @@ export interface IMutableVector {
   normalize(): IMutableVector;
   add(vec: any): IMutableVector;
   subtract(vec: any): IMutableVector;
-  multiply(val: number): IMutableVector;
+  multiply(value: number): IMutableVector;
   multiplyVector(vec: any): IMutableVector;
-  divide(val: number): IMutableVector;
+  divide(value: number): IMutableVector;
   divideVector(vec: any): IMutableVector;
 }
 
@@ -83,7 +83,7 @@ export interface IMutableVector2 {
 
   // only for mutable vector2
   raw(): TypedArray;
-  setAt(i: number, val: number): IMutableVector2;
+  setAt(i: number, value: number): IMutableVector2;
   setComponents(x: number, y: number): IMutableVector2;
   copyComponents(vec: IVector2): IMutableVector2;
   zero(): IMutableVector2;
@@ -91,9 +91,9 @@ export interface IMutableVector2 {
   normalize(): IMutableVector2;
   add(vec: IVector2): IMutableVector2;
   subtract(vec: IVector2): IMutableVector2;
-  multiply(val: number): IMutableVector2;
+  multiply(value: number): IMutableVector2;
   multiplyVector(vec: IVector2): IMutableVector2;
-  divide(val: number): IMutableVector2;
+  divide(value: number): IMutableVector2;
   divideVector(vec: IVector2): IMutableVector2;
 }
 
@@ -145,7 +145,7 @@ export interface IMutableVector3 {
 
   // only for mutable vector3
   raw(): TypedArray;
-  setAt(i: number, val: number): IMutableVector3;
+  setAt(i: number, value: number): IMutableVector3;
   setComponents(x: number, y: number, z: number): IMutableVector3;
   copyComponents(vec: IVector3): IMutableVector3;
   zero(): IMutableVector3;
@@ -153,9 +153,9 @@ export interface IMutableVector3 {
   normalize(): IMutableVector3;
   add(vec: IVector3): IMutableVector3;
   subtract(vec: IVector3): IMutableVector3;
-  multiply(val: number): IMutableVector3;
+  multiply(value: number): IMutableVector3;
   multiplyVector(vec: IVector3): IMutableVector3;
-  divide(val: number): IMutableVector3;
+  divide(value: number): IMutableVector3;
   divideVector(vec: IVector3): IMutableVector3;
   cross(vec: IVector3): IMutableVector3;
 }
@@ -208,7 +208,7 @@ export interface IMutableVector4 {
 
   // only for mutable vector3
   raw(): TypedArray;
-  setAt(i: number, val: number): IMutableVector4;
+  setAt(i: number, value: number): IMutableVector4;
   setComponents(x: number, y: number, z: number, w: number): IMutableVector4;
   copyComponents(vec: IVector4): IMutableVector4;
   zero(): IMutableVector4;
@@ -217,8 +217,8 @@ export interface IMutableVector4 {
   normalize3(): IMutableVector4;
   add(vec: IVector4): IMutableVector4;
   subtract(vec: IVector4): IMutableVector4;
-  multiply(val: number): IMutableVector4;
+  multiply(value: number): IMutableVector4;
   multiplyVector(vec: IVector4): IMutableVector4;
-  divide(val: number): IMutableVector4;
+  divide(value: number): IMutableVector4;
   divideVector(vec: IVector4): IMutableVector4;
 }
