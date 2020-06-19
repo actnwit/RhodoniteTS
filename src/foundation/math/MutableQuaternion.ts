@@ -58,8 +58,8 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this.v;
   }
 
-  setAt(i: number, val: number) {
-    this.v[i] = val;
+  setAt(i: number, value: number) {
+    this.v[i] = value;
     return this;
   }
 
@@ -132,11 +132,11 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this;
   }
 
-  lerp(lhq: IQuaternion, rhq: IQuaternion, ratio: number) {
-    this.v[0] = lhq.v[0] * (1 - ratio) + rhq.v[0] * ratio;
-    this.v[1] = lhq.v[1] * (1 - ratio) + rhq.v[1] * ratio;
-    this.v[2] = lhq.v[2] * (1 - ratio) + rhq.v[2] * ratio;
-    this.v[3] = lhq.v[3] * (1 - ratio) + rhq.v[3] * ratio;
+  lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+    this.v[0] = l_quat.v[0] * (1 - ratio) + r_quat.v[0] * ratio;
+    this.v[1] = l_quat.v[1] * (1 - ratio) + r_quat.v[1] * ratio;
+    this.v[2] = l_quat.v[2] * (1 - ratio) + r_quat.v[2] * ratio;
+    this.v[3] = l_quat.v[3] * (1 - ratio) + r_quat.v[3] * ratio;
 
     return this;
   }
@@ -219,20 +219,20 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this.setComponents(x, y, z, w);
   }
 
-  multiplyNumber(val: number) {
-    this.v[0] *= val;
-    this.v[1] *= val;
-    this.v[2] *= val;
-    this.v[3] *= val;
+  multiplyNumber(value: number) {
+    this.v[0] *= value;
+    this.v[1] *= value;
+    this.v[2] *= value;
+    this.v[3] *= value;
     return this;
   }
 
-  divideNumber(val: number) {
-    if (val !== 0) {
-      this.v[0] /= val;
-      this.v[1] /= val;
-      this.v[2] /= val;
-      this.v[3] /= val;
+  divideNumber(value: number) {
+    if (value !== 0) {
+      this.v[0] /= value;
+      this.v[1] /= value;
+      this.v[2] /= value;
+      this.v[3] /= value;
     } else {
       console.error("0 division occurred!");
       this.v[0] = Infinity;

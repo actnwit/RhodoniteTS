@@ -118,17 +118,17 @@ export default class Quaternion implements IQuaternion {
     return out;
   }
 
-  static qlerp(lhq: IQuaternion, rhq: IQuaternion, ratio: number) {
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
 
     let q = new Quaternion(0, 0, 0, 1);
-    let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
+    let qr = l_quat.w * r_quat.w + l_quat.x * r_quat.x + l_quat.y * r_quat.y + l_quat.z * r_quat.z;
     let ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
-      q.v[3] = lhq.w;
-      q.v[0] = lhq.x;
-      q.v[1] = lhq.y;
-      q.v[2] = lhq.z;
+      q.v[3] = l_quat.w;
+      q.v[0] = l_quat.x;
+      q.v[1] = l_quat.y;
+      q.v[2] = l_quat.z;
 
       return q;
     } else {
@@ -142,7 +142,7 @@ export default class Quaternion implements IQuaternion {
       let ph = Math.acos(qr);
       let s2;
       if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr = - lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
+        qr = - l_quat.w * r_quat.w - l_quat.x * r_quat.x - l_quat.y * r_quat.y - l_quat.z * r_quat.z;
         ph = Math.acos(qr);
         s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
       } else {
@@ -150,26 +150,26 @@ export default class Quaternion implements IQuaternion {
       }
       let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
 
-      q.v[0] = lhq.x * s1 + rhq.x * s2;
-      q.v[1] = lhq.y * s1 + rhq.y * s2;
-      q.v[2] = lhq.z * s1 + rhq.z * s2;
-      q.v[3] = lhq.w * s1 + rhq.w * s2;
+      q.v[0] = l_quat.x * s1 + r_quat.x * s2;
+      q.v[1] = l_quat.y * s1 + r_quat.y * s2;
+      q.v[2] = l_quat.z * s1 + r_quat.z * s2;
+      q.v[3] = l_quat.w * s1 + r_quat.w * s2;
 
       return q;
     }
   }
 
-  static qlerpTo(lhq: IQuaternion, rhq: IQuaternion, ratio: number, outQ: IMutableQuaternion) {
+  static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion) {
 
     //    let q = new Quaternion(0, 0, 0, 1);
-    let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
+    let qr = l_quat.w * r_quat.w + l_quat.x * r_quat.x + l_quat.y * r_quat.y + l_quat.z * r_quat.z;
     let ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
-      outQ.v[3] = lhq.w;
-      outQ.v[0] = lhq.x;
-      outQ.v[1] = lhq.y;
-      outQ.v[2] = lhq.z;
+      out.v[3] = l_quat.w;
+      out.v[0] = l_quat.x;
+      out.v[1] = l_quat.y;
+      out.v[2] = l_quat.z;
 
     } else {
 
@@ -182,7 +182,7 @@ export default class Quaternion implements IQuaternion {
       let ph = Math.acos(qr);
       let s2;
       if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr = - lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
+        qr = - l_quat.w * r_quat.w - l_quat.x * r_quat.x - l_quat.y * r_quat.y - l_quat.z * r_quat.z;
         ph = Math.acos(qr);
         s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
       } else {
@@ -190,10 +190,10 @@ export default class Quaternion implements IQuaternion {
       }
       let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
 
-      outQ.v[0] = lhq.x * s1 + rhq.x * s2;
-      outQ.v[1] = lhq.y * s1 + rhq.y * s2;
-      outQ.v[2] = lhq.z * s1 + rhq.z * s2;
-      outQ.v[3] = lhq.w * s1 + rhq.w * s2;
+      out.v[0] = l_quat.x * s1 + r_quat.x * s2;
+      out.v[1] = l_quat.y * s1 + r_quat.y * s2;
+      out.v[2] = l_quat.z * s1 + r_quat.z * s2;
+      out.v[3] = l_quat.w * s1 + r_quat.w * s2;
 
     }
   }
@@ -206,18 +206,18 @@ export default class Quaternion implements IQuaternion {
     return new this(x, y, z, w)
   }
 
-  static lerpTo(lhq: IQuaternion, rhq: IQuaternion, ratio: number, outQ: IMutableQuaternion) {
-    outQ.x = lhq.x * (1 - ratio) + rhq.x * ratio;
-    outQ.y = lhq.y * (1 - ratio) + rhq.y * ratio;
-    outQ.z = lhq.z * (1 - ratio) + rhq.z * ratio;
-    outQ.w = lhq.w * (1 - ratio) + rhq.w * ratio;
+  static lerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion) {
+    out.x = l_quat.x * (1 - ratio) + r_quat.x * ratio;
+    out.y = l_quat.y * (1 - ratio) + r_quat.y * ratio;
+    out.z = l_quat.z * (1 - ratio) + r_quat.z * ratio;
+    out.w = l_quat.w * (1 - ratio) + r_quat.w * ratio;
   }
 
-  static axisAngle(axisVec3: IVector3, radian: number) {
+  static axisAngle(vec: IVector3, radian: number) {
     let halfAngle = 0.5 * radian;
     let sin = Math.sin(halfAngle);
 
-    let axis = Vector3.normalize(axisVec3);
+    let axis = Vector3.normalize(vec);
     return new Quaternion(
       sin * axis.x,
       sin * axis.y,
@@ -259,36 +259,36 @@ export default class Quaternion implements IQuaternion {
     return quat;
   }
 
-  static fromMatrixTo(mat: IMatrix44, quat: IMutableQuaternion) {
+  static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion) {
 
     const tr = mat.m00 + mat.m11 + mat.m22;
     if (tr > 0) {
       const S = 0.5 / Math.sqrt(tr + 1.0);
-      quat.v[3] = 0.25 / S;
-      quat.v[0] = (mat.m21 - mat.m12) * S;
-      quat.v[1] = (mat.m02 - mat.m20) * S;
-      quat.v[2] = (mat.m10 - mat.m01) * S;
+      out.v[3] = 0.25 / S;
+      out.v[0] = (mat.m21 - mat.m12) * S;
+      out.v[1] = (mat.m02 - mat.m20) * S;
+      out.v[2] = (mat.m10 - mat.m01) * S;
     } else if ((mat.m00 > mat.m11) && (mat.m00 > mat.m22)) {
       const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
-      quat.v[3] = (mat.m21 - mat.m12) / S;
-      quat.v[0] = 0.25 * S;
-      quat.v[1] = (mat.m01 + mat.m10) / S;
-      quat.v[2] = (mat.m02 + mat.m20) / S;
+      out.v[3] = (mat.m21 - mat.m12) / S;
+      out.v[0] = 0.25 * S;
+      out.v[1] = (mat.m01 + mat.m10) / S;
+      out.v[2] = (mat.m02 + mat.m20) / S;
     } else if (mat.m11 > mat.m22) {
       const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
-      quat.v[3] = (mat.m02 - mat.m20) / S;
-      quat.v[0] = (mat.m01 + mat.m10) / S;
-      quat.v[1] = 0.25 * S;
-      quat.v[2] = (mat.m12 + mat.m21) / S;
+      out.v[3] = (mat.m02 - mat.m20) / S;
+      out.v[0] = (mat.m01 + mat.m10) / S;
+      out.v[1] = 0.25 * S;
+      out.v[2] = (mat.m12 + mat.m21) / S;
     } else {
       const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
-      quat.v[3] = (mat.m10 - mat.m01) / S;
-      quat.v[0] = (mat.m02 + mat.m20) / S;
-      quat.v[1] = (mat.m12 + mat.m21) / S;
-      quat.v[2] = 0.25 * S;
+      out.v[3] = (mat.m10 - mat.m01) / S;
+      out.v[0] = (mat.m02 + mat.m20) / S;
+      out.v[1] = (mat.m12 + mat.m21) / S;
+      out.v[2] = 0.25 * S;
     }
 
-    return quat;
+    return out;
   }
 
   static lookFromTo(fromDirection: IVector3, toDirection: IVector3) {
@@ -355,13 +355,13 @@ export default class Quaternion implements IQuaternion {
     }
   }
 
-  static fromPosition(vec3: IVector3) {
-    let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
+  static fromPosition(vec: IVector3) {
+    let q = new Quaternion(vec.x, vec.y, vec.z, 0);
     return q;
   }
 
-  static add(lhs: IQuaternion, rhs: IQuaternion) {
-    return new Quaternion(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
+  static add(l_quat: IQuaternion, r_quat: IQuaternion) {
+    return new Quaternion(l_quat.x + r_quat.x, l_quat.y + r_quat.y, l_quat.z + r_quat.z, l_quat.w + r_quat.w)
   }
 
   static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
@@ -372,8 +372,8 @@ export default class Quaternion implements IQuaternion {
     return out;
   }
 
-  static subtract(lhs: IQuaternion, rhs: IQuaternion) {
-    return new Quaternion(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w)
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion) {
+    return new Quaternion(l_quat.x - r_quat.x, l_quat.y - r_quat.y, l_quat.z - r_quat.z, l_quat.w - r_quat.w)
   }
 
   static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
@@ -384,25 +384,25 @@ export default class Quaternion implements IQuaternion {
     return out;
   }
 
-  static multiply(q1: IQuaternion, q2: IQuaternion) {
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion) {
     let result = new Quaternion(0, 0, 0, 1);
-    result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
-    result.v[1] = - q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
-    result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
-    result.v[3] = - q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
+    result.v[0] = r_quat.w * l_quat.x + r_quat.z * l_quat.y - r_quat.y * l_quat.z + r_quat.x * l_quat.w;
+    result.v[1] = - r_quat.z * l_quat.x + r_quat.w * l_quat.y + r_quat.x * l_quat.z + r_quat.y * l_quat.w;
+    result.v[2] = r_quat.y * l_quat.x - r_quat.x * l_quat.y + r_quat.w * l_quat.z + r_quat.z * l_quat.w;
+    result.v[3] = - r_quat.x * l_quat.x - r_quat.y * l_quat.y - r_quat.z * l_quat.z + r_quat.w * l_quat.w;
     return result;
   }
 
-  static multiplyTo(quat1: IQuaternion, quat2: IQuaternion, out: IMutableQuaternion) {
-    const x = quat2.w * quat1.x + quat2.z * quat1.y - quat2.y * quat1.z + quat2.x * quat1.w;
-    const y = - quat2.z * quat1.x + quat2.w * quat1.y + quat2.x * quat1.z + quat2.y * quat1.w;
-    const z = quat2.y * quat1.x - quat2.x * quat1.y + quat2.w * quat1.z + quat2.z * quat1.w;
-    const w = - quat2.x * quat1.x - quat2.y * quat1.y - quat2.z * quat1.z + quat2.w * quat1.w;
+  static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
+    const x = r_quat.w * l_quat.x + r_quat.z * l_quat.y - r_quat.y * l_quat.z + r_quat.x * l_quat.w;
+    const y = - r_quat.z * l_quat.x + r_quat.w * l_quat.y + r_quat.x * l_quat.z + r_quat.y * l_quat.w;
+    const z = r_quat.y * l_quat.x - r_quat.x * l_quat.y + r_quat.w * l_quat.z + r_quat.z * l_quat.w;
+    const w = - r_quat.x * l_quat.x - r_quat.y * l_quat.y - r_quat.z * l_quat.z + r_quat.w * l_quat.w;
     return out.setComponents(x, y, z, w);
   }
 
-  static multiplyNumber(q1: IQuaternion, val: number) {
-    return new Quaternion(q1.x * val, q1.y * val, q1.z * val, q1.w * val);
+  static multiplyNumber(quat: IQuaternion, value: number) {
+    return new Quaternion(quat.x * value, quat.y * value, quat.z * value, quat.w * value);
   }
 
   static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
