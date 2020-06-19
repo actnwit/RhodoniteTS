@@ -47,11 +47,51 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
   }
 
   static dummy() {
-    return new MutableQuaternion(null);
+    return super.dummy() as MutableQuaternion;
+  }
+
+  static invert(quat: IQuaternion) {
+    return super.invert(quat) as MutableQuaternion;
+  }
+
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+    return super.qlerp(l_quat, r_quat, ratio) as MutableQuaternion;
+  }
+
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+    return super.lerp(l_quat, r_quat, ratio) as MutableQuaternion;
+  }
+
+  static axisAngle(vec: IVector3, radian: number) {
+    return super.axisAngle(vec, radian) as MutableQuaternion;
   }
 
   static fromMatrix(mat: IMatrix44) {
     return super.fromMatrix(mat) as MutableQuaternion;
+  }
+
+  static fromPosition(vec: IVector3) {
+    return super.fromPosition(vec) as MutableQuaternion;
+  }
+
+  static add(l_quat: IQuaternion, r_quat: IQuaternion) {
+    return super.add(l_quat, r_quat) as MutableQuaternion;
+  }
+
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion) {
+    return super.subtract(l_quat, r_quat) as MutableQuaternion;
+  }
+
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion) {
+    return super.multiply(l_quat, r_quat) as MutableQuaternion;
+  }
+
+  static multiplyNumber(quat: IQuaternion, value: number) {
+    return super.multiplyNumber(quat, value) as MutableQuaternion;
+  }
+
+  static divideNumber(quat: IQuaternion, value: number) {
+    return super.divideNumber(quat, value) as MutableQuaternion;
   }
 
   raw() {
