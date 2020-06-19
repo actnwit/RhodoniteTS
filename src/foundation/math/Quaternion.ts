@@ -214,14 +214,18 @@ export default class Quaternion implements IQuaternion {
   }
 
   static axisAngle(vec: IVector3, radian: number) {
-    let halfAngle = 0.5 * radian;
-    let sin = Math.sin(halfAngle);
+    const halfAngle = 0.5 * radian;
+    const sin = Math.sin(halfAngle);
 
-    let axis = Vector3.normalize(vec);
-    return new Quaternion(
-      sin * axis.x,
-      sin * axis.y,
-      sin * axis.z,
+    const length = vec.length();
+    if (length === 0) {
+      console.error("0 division occurred!");
+    }
+
+    return new this(
+      sin * vec.v[0] / length,
+      sin * vec.v[1] / length,
+      sin * vec.v[2] / length,
       Math.cos(halfAngle));
   }
 
@@ -305,19 +309,46 @@ export default class Quaternion implements IQuaternion {
   }
 
   static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3) {
-    forward = Vector3.normalize(forward);
-    const right = Vector3.normalize(Vector3.cross(up, forward));
-    up = Vector3.cross(forward, right);
+    const forwardLength = forward.length();
+    if (forwardLength === 0) {
+      console.error("0 division occurred!");
+    }
 
-    const m00 = right.x;
-    const m01 = right.y;
-    const m02 = right.z;
-    const m10 = up.x;
-    const m11 = up.y;
-    const m12 = up.z;
-    const m20 = forward.x;
-    const m21 = forward.y;
-    const m22 = forward.z;
+    const forwardX = forward.v[0] / forwardLength;
+    const forwardY = forward.v[1] / forwardLength;
+    const forwardZ = forward.v[2] / forwardLength;
+
+    const upLength = up.length();
+    if (upLength === 0) {
+      console.error("0 division occurred!");
+    }
+
+    const upX = up.v[0] / upLength;
+    const upY = up.v[1] / upLength;
+    const upZ = up.v[2] / upLength;
+
+    // Vector3.cross(up, forward)
+    let rightX = up.v[1] * forward.v[2] - up.v[2] * forward.v[1];
+    let rightY = up.v[2] * forward.v[0] - up.v[0] * forward.v[2];
+    let rightZ = up.v[0] * forward.v[1] - up.v[1] * forward.v[0];
+
+    const rightLength = Math.hypot(rightX, rightY, rightZ);
+    if (rightLength === 0) {
+      console.error("0 division occurred!");
+    }
+    rightX /= rightLength;
+    rightY /= rightLength;
+    rightZ /= rightLength;
+
+    const m00 = rightX;
+    const m01 = rightY;
+    const m02 = rightZ;
+    const m10 = upX;
+    const m11 = upY;
+    const m12 = upZ;
+    const m20 = forwardX;
+    const m21 = forwardY;
+    const m22 = forwardZ;
 
     const num8 = (m00 + m11) + m22;
     if (num8 > 0) {
