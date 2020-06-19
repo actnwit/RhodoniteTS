@@ -157,14 +157,10 @@ export default class Quaternion implements IQuaternion {
   static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion) {
 
     let qr = l_quat.w * r_quat.w + l_quat.x * r_quat.x + l_quat.y * r_quat.y + l_quat.z * r_quat.z;
-    let ss = 1.0 - qr * qr;
+    const ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
-      out.v[3] = l_quat.w;
-      out.v[0] = l_quat.x;
-      out.v[1] = l_quat.y;
-      out.v[2] = l_quat.z;
-
+      return out.copyComponents(l_quat);
     } else {
 
       if (qr > 1) {
@@ -182,14 +178,15 @@ export default class Quaternion implements IQuaternion {
       } else {
         s2 = Math.sin(ph * ratio) / Math.sin(ph);
       }
-      let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
 
       out.v[0] = l_quat.x * s1 + r_quat.x * s2;
       out.v[1] = l_quat.y * s1 + r_quat.y * s2;
       out.v[2] = l_quat.z * s1 + r_quat.z * s2;
       out.v[3] = l_quat.w * s1 + r_quat.w * s2;
-
     }
+
+    return out;
   }
 
   static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
