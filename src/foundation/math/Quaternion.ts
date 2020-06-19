@@ -412,12 +412,11 @@ export default class Quaternion implements IQuaternion {
   }
 
   static multiply(l_quat: IQuaternion, r_quat: IQuaternion) {
-    let result = new this(0, 0, 0, 1);
-    result.v[0] = r_quat.w * l_quat.x + r_quat.z * l_quat.y - r_quat.y * l_quat.z + r_quat.x * l_quat.w;
-    result.v[1] = - r_quat.z * l_quat.x + r_quat.w * l_quat.y + r_quat.x * l_quat.z + r_quat.y * l_quat.w;
-    result.v[2] = r_quat.y * l_quat.x - r_quat.x * l_quat.y + r_quat.w * l_quat.z + r_quat.z * l_quat.w;
-    result.v[3] = - r_quat.x * l_quat.x - r_quat.y * l_quat.y - r_quat.z * l_quat.z + r_quat.w * l_quat.w;
-    return result;
+    const x = r_quat.w * l_quat.x + r_quat.z * l_quat.y - r_quat.y * l_quat.z + r_quat.x * l_quat.w;
+    const y = - r_quat.z * l_quat.x + r_quat.w * l_quat.y + r_quat.x * l_quat.z + r_quat.y * l_quat.w;
+    const z = r_quat.y * l_quat.x - r_quat.x * l_quat.y + r_quat.w * l_quat.z + r_quat.z * l_quat.w;
+    const w = - r_quat.x * l_quat.x - r_quat.y * l_quat.y - r_quat.z * l_quat.z + r_quat.w * l_quat.w;
+    return new this(x, y, z, w);
   }
 
   static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
