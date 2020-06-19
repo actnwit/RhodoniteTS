@@ -348,32 +348,32 @@ export default class Quaternion implements IQuaternion {
 
     const num8 = (m00 + m11) + m22;
     if (num8 > 0) {
-      let num = Math.sqrt(num8 + 1);
-      let num2 = 0.5 / num;
+      const num = Math.sqrt(num8 + 1);
+      const num2 = 0.5 / num;
       return new this(
         (m12 - m21) * num2,
         (m20 - m02) * num2,
         (m01 - m10) * num2,
         num * 0.5);
     } else if ((m00 >= m11) && (m00 >= m22)) {
-      let num7 = Math.sqrt(((1 + m00) - m11) - m22);
-      let num4 = 0.5 / num7;
+      const num7 = Math.sqrt(((1 + m00) - m11) - m22);
+      const num4 = 0.5 / num7;
       return new this(
         0.5 * num7,
         (m01 + m10) * num4,
         (m02 + m20) * num4,
         (m12 - m21) * num4);
     } else if (m11 > m22) {
-      let num6 = Math.sqrt(((1 + m11) - m00) - m22);
-      let num3 = 0.5 / num6;
+      const num6 = Math.sqrt(((1 + m11) - m00) - m22);
+      const num3 = 0.5 / num6;
       return new this(
         (m10 + m01) * num3,
         0.5 * num6,
         (m21 + m12) * num3,
         (m20 - m02) * num3);
     } else {
-      let num5 = Math.sqrt(((1 + m22) - m00) - m11);
-      let num2 = 0.5 / num5;
+      const num5 = Math.sqrt(((1 + m22) - m00) - m11);
+      const num2 = 0.5 / num5;
       return new this(
         (m20 + m02) * num2,
         (m21 + m12) * num2,
