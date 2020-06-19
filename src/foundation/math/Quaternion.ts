@@ -121,18 +121,11 @@ export default class Quaternion implements IQuaternion {
   }
 
   static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
-
-    let q = new this(0, 0, 0, 1);
     let qr = l_quat.w * r_quat.w + l_quat.x * r_quat.x + l_quat.y * r_quat.y + l_quat.z * r_quat.z;
-    let ss = 1.0 - qr * qr;
+    const ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
-      q.v[3] = l_quat.w;
-      q.v[0] = l_quat.x;
-      q.v[1] = l_quat.y;
-      q.v[2] = l_quat.z;
-
-      return q;
+      return l_quat.clone();
     } else {
 
       if (qr > 1) {
@@ -150,14 +143,14 @@ export default class Quaternion implements IQuaternion {
       } else {
         s2 = Math.sin(ph * ratio) / Math.sin(ph);
       }
-      let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
 
-      q.v[0] = l_quat.x * s1 + r_quat.x * s2;
-      q.v[1] = l_quat.y * s1 + r_quat.y * s2;
-      q.v[2] = l_quat.z * s1 + r_quat.z * s2;
-      q.v[3] = l_quat.w * s1 + r_quat.w * s2;
-
-      return q;
+      return new this(
+        l_quat.x * s1 + r_quat.x * s2,
+        l_quat.y * s1 + r_quat.y * s2,
+        l_quat.z * s1 + r_quat.z * s2,
+        l_quat.w * s1 + r_quat.w * s2
+      );
     }
   }
 
