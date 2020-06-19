@@ -6,9 +6,9 @@ import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
 import { IMutableVector3 } from './IVector';
 import { IMatrix44 } from './IMatrix';
 import LogQuaternion from './LogQuaternion';
-import Vector3 from './Vector3';
 
 export default class Quaternion implements IQuaternion {
+  private static __tmp_upVec: any = undefined;
   v: TypedArray;
 
   constructor(x?: number | TypedArray | IVector2 | IVector3 | IVector4 | IQuaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
@@ -304,8 +304,11 @@ export default class Quaternion implements IQuaternion {
   }
 
   static lookForward(forward: IVector3) {
-    const up = new Vector3(0, 1, 0);
-    return this.lookForwardAccordingToThisUp(forward, up);
+    if (Quaternion.__tmp_upVec == null) {
+      Quaternion.__tmp_upVec = new (forward.constructor as any)(0, 1, 0);
+    }
+
+    return this.lookForwardAccordingToThisUp(forward, Quaternion.__tmp_upVec);
   }
 
   static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3) {
