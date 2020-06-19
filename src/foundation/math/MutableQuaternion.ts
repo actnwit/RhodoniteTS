@@ -148,6 +148,63 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     return this.divideNumber(norm);
   }
 
+  invert() {
+    const norm = this.length();
+    if (norm === 0.0) {
+      return this; // [0, 0, 0, 0]
+    }
+
+    this.v[0] = - this.v[0] / norm;
+    this.v[1] = - this.v[1] / norm;
+    this.v[2] = - this.v[2] / norm;
+    this.v[3] = this.v[3] / norm;
+    return this;
+  }
+
+  qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+
+    let qr = l_quat.w * r_quat.w + l_quat.x * r_quat.x + l_quat.y * r_quat.y + l_quat.z * r_quat.z;
+    const ss = 1.0 - qr * qr;
+
+    if (ss === 0.0) {
+      return this.copyComponents(l_quat);
+    } else {
+
+      if (qr > 1) {
+        qr = 0.999;
+      } else if (qr < -1) {
+        qr = -0.999;
+      }
+
+      let ph = Math.acos(qr);
+      let s2;
+      if (qr < 0.0 && ph > Math.PI / 2.0) {
+        qr = - l_quat.w * r_quat.w - l_quat.x * r_quat.x - l_quat.y * r_quat.y - l_quat.z * r_quat.z;
+        ph = Math.acos(qr);
+        s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+      } else {
+        s2 = Math.sin(ph * ratio) / Math.sin(ph);
+      }
+      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+
+      this.v[0] = l_quat.x * s1 + r_quat.x * s2;
+      this.v[1] = l_quat.y * s1 + r_quat.y * s2;
+      this.v[2] = l_quat.z * s1 + r_quat.z * s2;
+      this.v[3] = l_quat.w * s1 + r_quat.w * s2;
+    }
+
+    return this;
+  }
+
+  lerp(lhq: IQuaternion, rhq: IQuaternion, ratio: number) {
+    this.v[0] = lhq.v[0] * (1 - ratio) + rhq.v[0] * ratio;
+    this.v[1] = lhq.v[1] * (1 - ratio) + rhq.v[1] * ratio;
+    this.v[2] = lhq.v[2] * (1 - ratio) + rhq.v[2] * ratio;
+    this.v[3] = lhq.v[3] * (1 - ratio) + rhq.v[3] * ratio;
+
+    return this;
+  }
+
   axisAngle(vec: IVector3, radian: number) {
     const halfAngle = 0.5 * radian;
     const sin = Math.sin(halfAngle);
@@ -196,6 +253,10 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
     }
 
     return this;
+  }
+
+  fromPosition(vec: IVector3) {
+    return this.setComponents(vec.v[0], vec.v[1], vec.v[2], 0);
   }
 
   add(quat: IQuaternion) {
