@@ -36,8 +36,8 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
     return this.v;
   }
 
-  setAt(i: number, val: number) {
-    this.v[i] = val;
+  setAt(i: number, value: number) {
+    this.v[i] = value;
     return this;
   }
 
@@ -92,10 +92,10 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   /**
    * multiply
    */
-  multiply(val: number) {
-    this.v[0] *= val;
-    this.v[1] *= val;
-    this.v[2] *= val;
+  multiply(value: number) {
+    this.v[0] *= value;
+    this.v[1] *= value;
+    this.v[2] *= value;
     return this;
   }
 
@@ -112,11 +112,11 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   /**
    * divide
    */
-  divide(val: number) {
-    if (val !== 0) {
-      this.v[0] /= val;
-      this.v[1] /= val;
-      this.v[2] /= val;
+  divide(value: number) {
+    if (value !== 0) {
+      this.v[0] /= value;
+      this.v[1] /= value;
+      this.v[2] /= value;
     } else {
       console.error("0 division occurred!");
       this.v[0] = Infinity;

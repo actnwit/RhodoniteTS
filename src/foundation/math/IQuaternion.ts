@@ -50,7 +50,7 @@ export interface IMutableQuaternion {
 
   // only for mutable quaternion
   raw(): TypedArray;
-  setAt(i: number, val: number): IMutableQuaternion;
+  setAt(i: number, value: number): IMutableQuaternion;
   setComponents(x: number, y: number, z: number, w: number): IMutableQuaternion;
   copyComponents(quat: IQuaternion): IMutableQuaternion;
   identity(): IMutableQuaternion;
@@ -60,8 +60,8 @@ export interface IMutableQuaternion {
   add(quat: IQuaternion): IMutableQuaternion;
   subtract(quat: IQuaternion): IMutableQuaternion;
   multiply(quat: IQuaternion): IMutableQuaternion;
-  multiplyNumber(val: number): IMutableQuaternion;
-  divideNumber(val: number): IMutableQuaternion;
+  multiplyNumber(value: number): IMutableQuaternion;
+  divideNumber(value: number): IMutableQuaternion;
   clone(): IMutableQuaternion;
 }
 

@@ -16,7 +16,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   constructor(
     m0: number, m1: number,
     m2: number, m3: number,
-    isColumnMajor?: boolean, );
+    isColumnMajor?: boolean,);
   constructor(
     m0: any, m1?: any,
     m2?: any, m3?: number,
@@ -118,8 +118,8 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     return this.v;
   }
 
-  setAt(row_i: number, column_i: number, val: number) {
-    this.v[row_i + column_i * 2] = val;
+  setAt(row_i: number, column_i: number, value: number) {
+    this.v[row_i + column_i * 2] = value;
     return this;
   }
 

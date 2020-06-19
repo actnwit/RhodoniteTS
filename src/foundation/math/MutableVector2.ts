@@ -27,8 +27,8 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
     return this.v;
   }
 
-  setAt(i: number, val: number) {
-    this.v[i] = val;
+  setAt(i: number, value: number) {
+    this.v[i] = value;
     return this;
   }
 

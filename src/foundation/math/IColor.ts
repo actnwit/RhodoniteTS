@@ -43,7 +43,7 @@ export interface IMutableColorRgb {
 
   // only for mutable colorRgb
   raw(): TypedArray;
-  setAt(i: number, val: number): IMutableColorRgb;
+  setAt(i: number, value: number): IMutableColorRgb;
   setComponents(x: number, y: number, z: number): IMutableColorRgb;
   copyComponents(vec: IVector3): IMutableColorRgb;
   zero(): IMutableColorRgb;
@@ -51,9 +51,9 @@ export interface IMutableColorRgb {
   normalize(): IMutableColorRgb;
   add(vec: IVector3): IMutableColorRgb;
   subtract(vec: IVector3): IMutableColorRgb;
-  multiply(val: number): IMutableColorRgb;
+  multiply(value: number): IMutableColorRgb;
   multiplyVector(vec: IVector3): IMutableColorRgb;
-  divide(val: number): IMutableColorRgb;
+  divide(value: number): IMutableColorRgb;
   divideVector(vec: IVector3): IMutableColorRgb;
   cross(vec: IVector3): IMutableColorRgb;
 }
