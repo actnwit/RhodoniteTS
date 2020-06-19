@@ -7,7 +7,7 @@ export interface IVector {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IVector, delta: number): boolean;
+  isEqual(vec: IVector, delta?: number): boolean;
   isStrictEqual(vec: IVector): boolean;
   at(i: number): number;
   length(): number;
@@ -50,7 +50,7 @@ export interface IVector2 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IVector2, delta: number): boolean;
+  isEqual(vec: IVector2, delta?: number): boolean;
   isStrictEqual(vec: IVector2): boolean;
   at(i: number): number;
   length(): number;
@@ -72,7 +72,7 @@ export interface IMutableVector2 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IVector2, delta: number): boolean;
+  isEqual(vec: IVector2, delta?: number): boolean;
   isStrictEqual(vec: IVector2): boolean;
   at(i: number): number;
   length(): number;
@@ -110,7 +110,7 @@ export interface IVector3 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IVector3, delta: number): boolean;
+  isEqual(vec: IVector3, delta?: number): boolean;
   isStrictEqual(vec: IVector3): boolean;
   at(i: number): number;
   length(): number;
@@ -134,7 +134,7 @@ export interface IMutableVector3 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IVector3, delta: number): boolean;
+  isEqual(vec: IVector3, delta?: number): boolean;
   isStrictEqual(vec: IVector3): boolean;
   at(i: number): number;
   length(): number;
@@ -173,7 +173,7 @@ export interface IVector4 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IVector4, delta: number): boolean;
+  isEqual(vec: IVector4, delta?: number): boolean;
   isStrictEqual(vec: IVector4): boolean;
   at(i: number): number;
   length(): number;
@@ -197,7 +197,7 @@ export interface IMutableVector4 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(vec: IVector4, delta: number): boolean;
+  isEqual(vec: IVector4, delta?: number): boolean;
   isStrictEqual(vec: IVector4): boolean;
   at(i: number): number;
   length(): number;

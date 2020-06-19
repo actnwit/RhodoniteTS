@@ -7,7 +7,7 @@ export interface IMatrix {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix, delta: number): boolean;
+  isEqual(mat: IMatrix, delta?: number): boolean;
   isStrictEqual(mat: IMatrix): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;
@@ -45,7 +45,7 @@ export interface IMatrix22 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix22, delta: number): boolean;
+  isEqual(mat: IMatrix22, delta?: number): boolean;
   isStrictEqual(mat: IMatrix22): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;
@@ -67,7 +67,7 @@ export interface IMutableMatrix22 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix22, delta: number): boolean;
+  isEqual(mat: IMatrix22, delta?: number): boolean;
   isStrictEqual(mat: IMatrix22): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;
@@ -108,7 +108,7 @@ export interface IMatrix33 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix33, delta: number): boolean;
+  isEqual(mat: IMatrix33, delta?: number): boolean;
   isStrictEqual(mat: IMatrix33): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;
@@ -135,7 +135,7 @@ export interface IMutableMatrix33 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix33, delta: number): boolean;
+  isEqual(mat: IMatrix33, delta?: number): boolean;
   isStrictEqual(mat: IMatrix33): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;
@@ -187,7 +187,7 @@ export interface IMatrix44 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix44, delta: number): boolean;
+  isEqual(mat: IMatrix44, delta?: number): boolean;
   isStrictEqual(mat: IMatrix44): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;
@@ -229,7 +229,7 @@ export interface IMutableMatrix44 {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix44, delta: number): boolean;
+  isEqual(mat: IMatrix44, delta?: number): boolean;
   isStrictEqual(mat: IMatrix44): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;

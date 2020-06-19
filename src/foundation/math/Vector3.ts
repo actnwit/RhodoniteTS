@@ -2,6 +2,7 @@ import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from "./IVecto
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 import { MathUtil } from "./MathUtil";
 import { CompositionType } from "../definitions/CompositionType";
+import { IQuaternion } from "./IQuaternion";
 
 export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVector3 {
   v: TypedArray;
@@ -297,6 +298,54 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector, IVect
   }
 
   /**
+   * quaternion * vector3
+   */
+  static _multiplyQuaternion(quat: IQuaternion, vec: IVector3, type: TypedArrayConstructor) {
+    const num = quat.v[0] * 2;
+    const num2 = quat.v[1] * 2;
+    const num3 = quat.v[2] * 2;
+    const num4 = quat.v[0] * num;
+    const num5 = quat.v[1] * num2;
+    const num6 = quat.v[2] * num3;
+    const num7 = quat.v[0] * num2;
+    const num8 = quat.v[0] * num3;
+    const num9 = quat.v[1] * num3;
+    const num10 = quat.v[3] * num;
+    const num11 = quat.v[3] * num2;
+    const num12 = quat.v[3] * num3;
+
+    const x = (1 - (num5 + num6)) * vec.v[0] + (num7 - num12) * vec.v[1] + (num8 + num11) * vec.v[2];
+    const y = (num7 + num12) * vec.v[0] + (1 - (num4 + num6)) * vec.v[1] + (num9 - num10) * vec.v[2];
+    const z = (num8 - num11) * vec.v[0] + (num9 + num10) * vec.v[1] + (1 - (num4 + num5)) * vec.v[2];
+
+    return new this(x, y, z, { type });
+  }
+
+  /**
+   * quaternion * vector3
+   */
+  static multiplyQuaternionTo(quat: IQuaternion, vec: IVector3, out: IMutableVector3) {
+    const num = quat.v[0] * 2;
+    const num2 = quat.v[1] * 2;
+    const num3 = quat.v[2] * 2;
+    const num4 = quat.v[0] * num;
+    const num5 = quat.v[1] * num2;
+    const num6 = quat.v[2] * num3;
+    const num7 = quat.v[0] * num2;
+    const num8 = quat.v[0] * num3;
+    const num9 = quat.v[1] * num3;
+    const num10 = quat.v[3] * num;
+    const num11 = quat.v[3] * num2;
+    const num12 = quat.v[3] * num3;
+
+    const x = (1 - (num5 + num6)) * vec.v[0] + (num7 - num12) * vec.v[1] + (num8 + num11) * vec.v[2];
+    const y = (num7 + num12) * vec.v[0] + (1 - (num4 + num6)) * vec.v[1] + (num9 - num10) * vec.v[2];
+    const z = (num8 - num11) * vec.v[0] + (num9 + num10) * vec.v[1] + (1 - (num4 + num5)) * vec.v[2];
+
+    return out.setComponents(x, y, z);
+  }
+
+  /**
    * change to string
    */
   toString() {
@@ -424,6 +473,10 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
     return super._cross(l_vec, r_vec, Float32Array) as Vector3;
   }
 
+  static multiplyQuaternion(quat: IQuaternion, vec: IVector3) {
+    return super._multiplyQuaternion(quat, vec, Float32Array) as Vector3;
+  }
+
   clone() {
     return super.clone() as Vector3;
   }
@@ -476,6 +529,10 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
 
   static cross(l_vec: IVector3, r_vec: IVector3) {
     return super._cross(l_vec, r_vec, Float64Array) as Vector3d;
+  }
+
+  static multiplyQuaternion(quat: IQuaternion, vec: IVector3) {
+    return super._multiplyQuaternion(quat, vec, Float64Array) as Vector3d;
   }
 
   clone() {

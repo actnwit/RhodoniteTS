@@ -1,388 +1,65 @@
-import Vector3 from './Vector3';
-import Matrix44 from './Matrix44';
-import Vector4 from './Vector4';
-import { CompositionType } from '../definitions/CompositionType';
-import MutableQuaternion from './MutableQuaternion';
-import LogQuaternion from './LogQuaternion';
+import { IVector2, IVector3, IVector4 } from './IVector';
 import { TypedArray } from '../../commontypes/CommonTypes';
-import { IQuaternion, ILogQuaternion } from './IQuaternion';
+import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
+import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
+import { IMutableVector3 } from './IVector';
+import { IMatrix44 } from './IMatrix';
+import LogQuaternion from './LogQuaternion';
 
 export default class Quaternion implements IQuaternion {
+  private static __tmp_upVec: any = undefined;
   v: TypedArray;
 
-  constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
+  constructor(x?: number | TypedArray | IVector2 | IVector3 | IVector4 | IQuaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
     if (ArrayBuffer.isView(x)) {
-      this.v = ((x as any) as TypedArray);
+      this.v = (x as TypedArray);
       return;
     } else if (x == null) {
       this.v = new Float32Array(0);
+      return;
     } else {
       this.v = new Float32Array(4);
     }
 
-    if (!(x != null)) {
-      this.v[0] = 0;
-      this.v[1] = 0;
-      this.v[2] = 0;
-      this.v[3] = 1;
-    } else if (x instanceof LogQuaternion) {
-      const theta = x.x * x.x + x.y * x.y + x.z * x.z;
-      const sin = Math.sin(theta);
-      this.v[0] = x.x * (sin / theta);
-      this.v[1] = x.y * (sin / theta);
-      this.v[2] = x.z * (sin / theta);
-      this.v[3] = Math.cos(theta);
-    } else if (Array.isArray(x)) {
+    if (Array.isArray(x)) {
       this.v[0] = x[0];
       this.v[1] = x[1];
       this.v[2] = x[2];
       this.v[3] = x[3];
-    } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-      this.v[3] = (x as any).w;
-    } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-      this.v[3] = 1;
-    } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = 0;
-      this.v[3] = 1;
+    } else if (typeof x === 'number') {
+      this.v[0] = x;
+      this.v[1] = y as number;
+      this.v[2] = z as number;
+      this.v[3] = w as number;
+    } else if (x instanceof LogQuaternion) {
+      const theta = x.v[0] * x.v[0] + x.v[1] * x.v[1] + x.v[2] * x.v[2];
+      const sin = Math.sin(theta);
+      this.v[0] = x.v[0] * (sin / theta);
+      this.v[1] = x.v[1] * (sin / theta);
+      this.v[2] = x.v[2] * (sin / theta);
+      this.v[3] = Math.cos(theta);
     } else {
-      this.v[0] = ((x as any) as number);
-      this.v[1] = ((y as any) as number);
-      this.v[2] = ((z as any) as number);
-      this.v[3] = ((w as any) as number);
-    }
-  }
-
-
-  isEqual(quat: Quaternion) {
-    if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static get compositionType() {
-    return CompositionType.Vec4;
-  }
-
-  static dummy() {
-    return new Quaternion(null);
-  }
-
-  isDummy() {
-    if (this.v.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  get className() {
-    return this.constructor.name;
-  }
-
-  clone() {
-    return new Quaternion(this.x, this.y, this.z, this.w);
-  }
-
-  static invert(quat: Quaternion) {
-    quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
-    const norm = quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w;
-    const inorm2 = norm ? 1.0 / norm : 0;
-    quat.v[0] *= inorm2;
-    quat.v[1] *= inorm2;
-    quat.v[2] *= inorm2;
-    quat.v[3] *= inorm2;
-    return quat;
-  }
-
-  static qlerp(lhq: Quaternion, rhq: Quaternion, ratio: number) {
-
-    let q = new Quaternion(0, 0, 0, 1);
-    let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
-    let ss = 1.0 - qr * qr;
-
-    if (ss === 0.0) {
-      q.v[3] = lhq.w;
-      q.v[0] = lhq.x;
-      q.v[1] = lhq.y;
-      q.v[2] = lhq.z;
-
-      return q;
-    } else {
-
-      if (qr > 1) {
-        qr = 0.999;
-      } else if (qr < -1) {
-        qr = -0.999;
-      }
-
-      let ph = Math.acos(qr);
-      let s2;
-      if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr = - lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
-        ph = Math.acos(qr);
-        s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+      if (typeof x.v[2] === 'undefined') {
+        // IVector2
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = 0;
+        this.v[3] = 1;
+      } else if (typeof x.v[3] === 'undefined') {
+        // IVector3
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+        this.v[3] = 1;
       } else {
-        s2 = Math.sin(ph * ratio) / Math.sin(ph);
+        // IVector4 and IQuaternion
+        this.v[0] = x.v[0];
+        this.v[1] = x.v[1];
+        this.v[2] = x.v[2];
+        this.v[3] = x.v[3];
       }
-      let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
-
-      q.v[0] = lhq.x * s1 + rhq.x * s2;
-      q.v[1] = lhq.y * s1 + rhq.y * s2;
-      q.v[2] = lhq.z * s1 + rhq.z * s2;
-      q.v[3] = lhq.w * s1 + rhq.w * s2;
-
-      return q;
     }
-  }
-
-  static lerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
-    outQ.x = lhq.x * (1 - ratio) + rhq.x * ratio;
-    outQ.y = lhq.y * (1 - ratio) + rhq.y * ratio;
-    outQ.z = lhq.z * (1 - ratio) + rhq.z * ratio;
-    outQ.w = lhq.w * (1 - ratio) + rhq.w * ratio;
-  }
-
-  static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
-
-    //    let q = new Quaternion(0, 0, 0, 1);
-    let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
-    let ss = 1.0 - qr * qr;
-
-    if (ss === 0.0) {
-      outQ.v[3] = lhq.w;
-      outQ.v[0] = lhq.x;
-      outQ.v[1] = lhq.y;
-      outQ.v[2] = lhq.z;
-
-    } else {
-
-      if (qr > 1) {
-        qr = 0.999;
-      } else if (qr < -1) {
-        qr = -0.999;
-      }
-
-      let ph = Math.acos(qr);
-      let s2;
-      if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr = - lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
-        ph = Math.acos(qr);
-        s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
-      } else {
-        s2 = Math.sin(ph * ratio) / Math.sin(ph);
-      }
-      let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
-
-      outQ.v[0] = lhq.x * s1 + rhq.x * s2;
-      outQ.v[1] = lhq.y * s1 + rhq.y * s2;
-      outQ.v[2] = lhq.z * s1 + rhq.z * s2;
-      outQ.v[3] = lhq.w * s1 + rhq.w * s2;
-
-    }
-  }
-
-  static axisAngle(axisVec3: Vector3, radian: number) {
-    let halfAngle = 0.5 * radian;
-    let sin = Math.sin(halfAngle);
-
-    let axis = Vector3.normalize(axisVec3);
-    return new Quaternion(
-      sin * axis.x,
-      sin * axis.y,
-      sin * axis.z,
-      Math.cos(halfAngle));
-  }
-
-  static multiply(q1: Quaternion, q2: Quaternion) {
-    let result = new Quaternion(0, 0, 0, 1);
-    result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
-    result.v[1] = - q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
-    result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
-    result.v[3] = - q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
-    return result;
-  }
-
-  static multiplyNumber(q1: Quaternion, val: number) {
-    return new Quaternion(q1.x * val, q1.y * val, q1.z * val, q1.w * val);
-  }
-
-  static fromMatrix(m: Matrix44) {
-
-    let q = new Quaternion(0, 0, 0, 1);
-    let tr = m.m00 + m.m11 + m.m22;
-
-    if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr + 1.0);
-      q.v[3] = 0.25 / S;
-      q.v[0] = (m.m21 - m.m12) * S;
-      q.v[1] = (m.m02 - m.m20) * S;
-      q.v[2] = (m.m10 - m.m01) * S;
-    } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-      let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-      q.v[3] = (m.m21 - m.m12) / S;
-      q.v[0] = 0.25 * S;
-      q.v[1] = (m.m01 + m.m10) / S;
-      q.v[2] = (m.m02 + m.m20) / S;
-    } else if (m.m11 > m.m22) {
-      let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      q.v[3] = (m.m02 - m.m20) / S;
-      q.v[0] = (m.m01 + m.m10) / S;
-      q.v[1] = 0.25 * S;
-      q.v[2] = (m.m12 + m.m21) / S;
-    } else {
-      let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      q.v[3] = (m.m10 - m.m01) / S;
-      q.v[0] = (m.m02 + m.m20) / S;
-      q.v[1] = (m.m12 + m.m21) / S;
-      q.v[2] = 0.25 * S;
-    }
-
-    return q;
-  }
-
-  toEulerAngleTo(out: Vector3) {
-    // this is from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
-    const sinr_cosp = +2.0 * (this.w * this.x + this.y * this.z);
-    const cosr_cosp = +1.0 - 2.0 * (this.x * this.x + this.y * this.y);
-    out.v[0] = Math.atan2(sinr_cosp, cosr_cosp);
-
-    const sinp = +2.0 * (this.w * this.y - this.z * this.x);
-    if (Math.abs(sinp) >= 1)
-      out.v[1] = Math.PI / 2 * Math.sign(sinp); // use 90 degrees if out of range
-    else
-      out.v[1] = Math.asin(sinp);
-
-    const siny_cosp = +2.0 * (this.w * this.z + this.x * this.y);
-    const cosy_cosp = +1.0 - 2.0 * (this.y * this.y + this.z * this.z);
-    out.v[2] = Math.atan2(siny_cosp, cosy_cosp);
-
-    return out;
-  }
-
-  static fromPosition(vec3: Vector3) {
-    let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
-    return q;
-  }
-
-  length() {
-    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-  }
-
-  at(i: number) {
-    switch (i % 4) {
-      case 0: return this.x;
-      case 1: return this.y;
-      case 2: return this.z;
-      case 3: return this.w;
-      default: return void 0;
-    }
-  }
-
-  static add(lhs: Quaternion, rhs: Quaternion) {
-    return new Quaternion(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
-  }
-
-  static subtract(lhs: Quaternion, rhs: Quaternion) {
-    return new Quaternion(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w)
-  }
-
-  static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
-
-    if (fromDirection.isEqual(toDirection)) {
-      return new Quaternion(0, 0, 0, 1);
-    }
-    return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
-  }
-
-  static lookForward(forward: Vector3) {
-    const up = new Vector3(0, 1, 0);
-    return this.lookForwardAccordingToThisUp(forward, up);
-  }
-
-  static lookForwardAccordingToThisUp(forward: Vector3, up: Vector3) {
-    forward = Vector3.normalize(forward);
-    const right = Vector3.normalize(Vector3.cross(up, forward));
-    up = Vector3.cross(forward, right);
-
-    const m00 = right.x;
-    const m01 = right.y;
-    const m02 = right.z;
-    const m10 = up.x;
-    const m11 = up.y;
-    const m12 = up.z;
-    const m20 = forward.x;
-    const m21 = forward.y;
-    const m22 = forward.z;
-
-    const num8 = (m00 + m11) + m22;
-    if (num8 > 0) {
-      let num = Math.sqrt(num8 + 1);
-      let num2 = 0.5 / num;
-      return new Quaternion(
-        (m12 - m21) * num2,
-        (m20 - m02) * num2,
-        (m01 - m10) * num2,
-        num * 0.5);
-    } else if ((m00 >= m11) && (m00 >= m22)) {
-      let num7 = Math.sqrt(((1 + m00) - m11) - m22);
-      let num4 = 0.5 / num7;
-      return new Quaternion(
-        0.5 * num7,
-        (m01 + m10) * num4,
-        (m02 + m20) * num4,
-        (m12 - m21) * num4);
-    } else if (m11 > m22) {
-      let num6 = Math.sqrt(((1 + m11) - m00) - m22);
-      let num3 = 0.5 / num6;
-      return new Quaternion(
-        (m10 + m01) * num3,
-        0.5 * num6,
-        (m21 + m12) * num3,
-        (m20 - m02) * num3);
-    } else {
-      let num5 = Math.sqrt(((1 + m22) - m00) - m11);
-      let num2 = 0.5 / num5;
-      return new Quaternion(
-        (m20 + m02) * num2,
-        (m21 + m12) * num2,
-        0.5 * num5,
-        (m01 - m10) * num2);
-    }
-  }
-
-  multiplyVector3(point: Vector3) {
-    const num = this.x * 2;
-    const num2 = this.y * 2;
-    const num3 = this.z * 2;
-    const num4 = this.x * num;
-    const num5 = this.y * num2;
-    const num6 = this.z * num3;
-    const num7 = this.x * num2;
-    const num8 = this.x * num3;
-    const num9 = this.y * num3;
-    const num10 = this.w * num;
-    const num11 = this.w * num2;
-    const num12 = this.w * num3;
-    const result = new Vector3(
-      (1 - (num5 + num6)) * point.x + (num7 - num12) * point.y + (num8 + num11) * point.z,
-      (num7 + num12) * point.x + (1 - (num4 + num6)) * point.y + (num9 - num10) * point.z,
-      (num8 - num11) * point.x + (num9 + num10) * point.y + (1 - (num4 + num5)) * point.z);
-
-    return result;
-  }
-
-  toString() {
-    return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
   }
 
   get x(): number {
@@ -401,5 +78,488 @@ export default class Quaternion implements IQuaternion {
     return this.v[3];
   }
 
+  get className() {
+    return this.constructor.name;
+  }
+
+  static get compositionType() {
+    return CompositionType.Vec4;
+  }
+
+  static identity() {
+    return new this(0, 0, 0, 1);
+  }
+
+  static dummy() {
+    return new this(null);
+  }
+
+  static invert(quat: IQuaternion) {
+    const norm = quat.length();
+    if (norm === 0.0) {
+      return new this(0, 0, 0, 0);
+    }
+
+    const x = - quat.v[0] / norm;
+    const y = - quat.v[1] / norm;
+    const z = - quat.v[2] / norm;
+    const w = quat.v[3] / norm;
+    return new this(x, y, z, w);
+  }
+
+  static invertTo(quat: IQuaternion, out: IMutableQuaternion) {
+    const norm = quat.length();
+    if (norm === 0.0) {
+      return out.setComponents(0, 0, 0, 0);
+    }
+
+    out.v[0] = - quat.v[0] / norm;
+    out.v[1] = - quat.v[1] / norm;
+    out.v[2] = - quat.v[2] / norm;
+    out.v[3] = quat.v[3] / norm;
+    return out;
+  }
+
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+    let qr = l_quat.v[3] * r_quat.v[3] + l_quat.v[0] * r_quat.v[0] + l_quat.v[1] * r_quat.v[1] + l_quat.v[2] * r_quat.v[2];
+    const ss = 1.0 - qr * qr;
+
+    if (ss === 0.0) {
+      return l_quat.clone();
+    } else {
+
+      if (qr > 1) {
+        qr = 0.999;
+      } else if (qr < -1) {
+        qr = -0.999;
+      }
+
+      let ph = Math.acos(qr);
+      let s2;
+      if (qr < 0.0 && ph > Math.PI / 2.0) {
+        qr = - l_quat.v[3] * r_quat.v[3] - l_quat.v[0] * r_quat.v[0] - l_quat.v[1] * r_quat.v[1] - l_quat.v[2] * r_quat.v[2];
+        ph = Math.acos(qr);
+        s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+      } else {
+        s2 = Math.sin(ph * ratio) / Math.sin(ph);
+      }
+      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+
+      return new this(
+        l_quat.v[0] * s1 + r_quat.v[0] * s2,
+        l_quat.v[1] * s1 + r_quat.v[1] * s2,
+        l_quat.v[2] * s1 + r_quat.v[2] * s2,
+        l_quat.v[3] * s1 + r_quat.v[3] * s2
+      );
+    }
+  }
+
+  static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion) {
+
+    let qr = l_quat.v[3] * r_quat.v[3] + l_quat.v[0] * r_quat.v[0] + l_quat.v[1] * r_quat.v[1] + l_quat.v[2] * r_quat.v[2];
+    const ss = 1.0 - qr * qr;
+
+    if (ss === 0.0) {
+      return out.copyComponents(l_quat);
+    } else {
+
+      if (qr > 1) {
+        qr = 0.999;
+      } else if (qr < -1) {
+        qr = -0.999;
+      }
+
+      let ph = Math.acos(qr);
+      let s2;
+      if (qr < 0.0 && ph > Math.PI / 2.0) {
+        qr = - l_quat.v[3] * r_quat.v[3] - l_quat.v[0] * r_quat.v[0] - l_quat.v[1] * r_quat.v[1] - l_quat.v[2] * r_quat.v[2];
+        ph = Math.acos(qr);
+        s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+      } else {
+        s2 = Math.sin(ph * ratio) / Math.sin(ph);
+      }
+      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+
+      out.v[0] = l_quat.v[0] * s1 + r_quat.v[0] * s2;
+      out.v[1] = l_quat.v[1] * s1 + r_quat.v[1] * s2;
+      out.v[2] = l_quat.v[2] * s1 + r_quat.v[2] * s2;
+      out.v[3] = l_quat.v[3] * s1 + r_quat.v[3] * s2;
+    }
+
+    return out;
+  }
+
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+    const x = l_quat.v[0] * (1 - ratio) + r_quat.v[0] * ratio;
+    const y = l_quat.v[1] * (1 - ratio) + r_quat.v[1] * ratio;
+    const z = l_quat.v[2] * (1 - ratio) + r_quat.v[2] * ratio;
+    const w = l_quat.v[3] * (1 - ratio) + r_quat.v[3] * ratio;
+    return new this(x, y, z, w)
+  }
+
+  static lerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion) {
+    out.v[0] = l_quat.v[0] * (1 - ratio) + r_quat.v[0] * ratio;
+    out.v[1] = l_quat.v[1] * (1 - ratio) + r_quat.v[1] * ratio;
+    out.v[2] = l_quat.v[2] * (1 - ratio) + r_quat.v[2] * ratio;
+    out.v[3] = l_quat.v[3] * (1 - ratio) + r_quat.v[3] * ratio;
+    return out;
+  }
+
+  static axisAngle(vec: IVector3, radian: number) {
+    const halfAngle = 0.5 * radian;
+    const sin = Math.sin(halfAngle);
+
+    const length = vec.length();
+    if (length === 0) {
+      console.error("0 division occurred!");
+    }
+
+    return new this(
+      sin * vec.v[0] / length,
+      sin * vec.v[1] / length,
+      sin * vec.v[2] / length,
+      Math.cos(halfAngle)
+    );
+  }
+
+  static fromMatrix(mat: IMatrix44) {
+
+    const quat = new this(0, 0, 0, 1);
+    const tr = mat.m00 + mat.m11 + mat.m22;
+
+    if (tr > 0) {
+      const S = 0.5 / Math.sqrt(tr + 1.0);
+      quat.v[3] = 0.25 / S;
+      quat.v[0] = (mat.m21 - mat.m12) * S;
+      quat.v[1] = (mat.m02 - mat.m20) * S;
+      quat.v[2] = (mat.m10 - mat.m01) * S;
+    } else if ((mat.m00 > mat.m11) && (mat.m00 > mat.m22)) {
+      const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
+      quat.v[3] = (mat.m21 - mat.m12) / S;
+      quat.v[0] = 0.25 * S;
+      quat.v[1] = (mat.m01 + mat.m10) / S;
+      quat.v[2] = (mat.m02 + mat.m20) / S;
+    } else if (mat.m11 > mat.m22) {
+      const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
+      quat.v[3] = (mat.m02 - mat.m20) / S;
+      quat.v[0] = (mat.m01 + mat.m10) / S;
+      quat.v[1] = 0.25 * S;
+      quat.v[2] = (mat.m12 + mat.m21) / S;
+    } else {
+      const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
+      quat.v[3] = (mat.m10 - mat.m01) / S;
+      quat.v[0] = (mat.m02 + mat.m20) / S;
+      quat.v[1] = (mat.m12 + mat.m21) / S;
+      quat.v[2] = 0.25 * S;
+    }
+
+    return quat;
+  }
+
+  static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion) {
+
+    const tr = mat.m00 + mat.m11 + mat.m22;
+    if (tr > 0) {
+      const S = 0.5 / Math.sqrt(tr + 1.0);
+      out.v[3] = 0.25 / S;
+      out.v[0] = (mat.m21 - mat.m12) * S;
+      out.v[1] = (mat.m02 - mat.m20) * S;
+      out.v[2] = (mat.m10 - mat.m01) * S;
+    } else if ((mat.m00 > mat.m11) && (mat.m00 > mat.m22)) {
+      const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
+      out.v[3] = (mat.m21 - mat.m12) / S;
+      out.v[0] = 0.25 * S;
+      out.v[1] = (mat.m01 + mat.m10) / S;
+      out.v[2] = (mat.m02 + mat.m20) / S;
+    } else if (mat.m11 > mat.m22) {
+      const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
+      out.v[3] = (mat.m02 - mat.m20) / S;
+      out.v[0] = (mat.m01 + mat.m10) / S;
+      out.v[1] = 0.25 * S;
+      out.v[2] = (mat.m12 + mat.m21) / S;
+    } else {
+      const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
+      out.v[3] = (mat.m10 - mat.m01) / S;
+      out.v[0] = (mat.m02 + mat.m20) / S;
+      out.v[1] = (mat.m12 + mat.m21) / S;
+      out.v[2] = 0.25 * S;
+    }
+
+    return out;
+  }
+
+  static lookFromTo(fromDirection: IVector3, toDirection: IVector3) {
+
+    if (fromDirection.isEqual(toDirection)) {
+      return new this(0, 0, 0, 1);
+    }
+    return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
+  }
+
+  static lookForward(forward: IVector3) {
+    if (Quaternion.__tmp_upVec == null) {
+      Quaternion.__tmp_upVec = new (forward.constructor as any)(0, 1, 0);
+    }
+
+    return this.lookForwardAccordingToThisUp(forward, Quaternion.__tmp_upVec);
+  }
+
+  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3) {
+    const forwardLength = forward.length();
+    if (forwardLength === 0) {
+      console.error("0 division occurred!");
+    }
+
+    const forwardX = forward.v[0] / forwardLength;
+    const forwardY = forward.v[1] / forwardLength;
+    const forwardZ = forward.v[2] / forwardLength;
+
+    const upLength = up.length();
+    if (upLength === 0) {
+      console.error("0 division occurred!");
+    }
+
+    const upX = up.v[0] / upLength;
+    const upY = up.v[1] / upLength;
+    const upZ = up.v[2] / upLength;
+
+    // Vector3.cross(up, forward)
+    let rightX = up.v[1] * forward.v[2] - up.v[2] * forward.v[1];
+    let rightY = up.v[2] * forward.v[0] - up.v[0] * forward.v[2];
+    let rightZ = up.v[0] * forward.v[1] - up.v[1] * forward.v[0];
+
+    const rightLength = Math.hypot(rightX, rightY, rightZ);
+    if (rightLength === 0) {
+      console.error("0 division occurred!");
+    }
+    rightX /= rightLength;
+    rightY /= rightLength;
+    rightZ /= rightLength;
+
+    const m00 = rightX;
+    const m01 = rightY;
+    const m02 = rightZ;
+    const m10 = upX;
+    const m11 = upY;
+    const m12 = upZ;
+    const m20 = forwardX;
+    const m21 = forwardY;
+    const m22 = forwardZ;
+
+    const num8 = (m00 + m11) + m22;
+    if (num8 > 0) {
+      const num = Math.sqrt(num8 + 1);
+      const num2 = 0.5 / num;
+      return new this(
+        (m12 - m21) * num2,
+        (m20 - m02) * num2,
+        (m01 - m10) * num2,
+        num * 0.5);
+    } else if ((m00 >= m11) && (m00 >= m22)) {
+      const num7 = Math.sqrt(((1 + m00) - m11) - m22);
+      const num4 = 0.5 / num7;
+      return new this(
+        0.5 * num7,
+        (m01 + m10) * num4,
+        (m02 + m20) * num4,
+        (m12 - m21) * num4);
+    } else if (m11 > m22) {
+      const num6 = Math.sqrt(((1 + m11) - m00) - m22);
+      const num3 = 0.5 / num6;
+      return new this(
+        (m10 + m01) * num3,
+        0.5 * num6,
+        (m21 + m12) * num3,
+        (m20 - m02) * num3);
+    } else {
+      const num5 = Math.sqrt(((1 + m22) - m00) - m11);
+      const num2 = 0.5 / num5;
+      return new this(
+        (m20 + m02) * num2,
+        (m21 + m12) * num2,
+        0.5 * num5,
+        (m01 - m10) * num2);
+    }
+  }
+
+  static fromPosition(vec: IVector3) {
+    return new this(vec.v[0], vec.v[1], vec.v[2], 0);
+  }
+
+  static add(l_quat: IQuaternion, r_quat: IQuaternion) {
+    const x = l_quat.v[0] + r_quat.v[0];
+    const y = l_quat.v[1] + r_quat.v[1];
+    const z = l_quat.v[2] + r_quat.v[2];
+    const w = l_quat.v[3] + r_quat.v[3];
+    return new this(x, y, z, w);
+  }
+
+  static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
+    out.v[0] = l_quat.v[0] + r_quat.v[0];
+    out.v[1] = l_quat.v[1] + r_quat.v[1];
+    out.v[2] = l_quat.v[2] + r_quat.v[2];
+    out.v[3] = l_quat.v[3] + r_quat.v[3];
+    return out;
+  }
+
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion) {
+    const x = l_quat.v[0] - r_quat.v[0];
+    const y = l_quat.v[1] - r_quat.v[1];
+    const z = l_quat.v[2] - r_quat.v[2];
+    const w = l_quat.v[3] - r_quat.v[3];
+    return new this(x, y, z, w);
+  }
+
+  static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
+    out.v[0] = l_quat.v[0] - r_quat.v[0];
+    out.v[1] = l_quat.v[1] - r_quat.v[1];
+    out.v[2] = l_quat.v[2] - r_quat.v[2];
+    out.v[3] = l_quat.v[3] - r_quat.v[3];
+    return out;
+  }
+
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion) {
+    const x = r_quat.v[3] * l_quat.v[0] + r_quat.v[2] * l_quat.v[1] - r_quat.v[1] * l_quat.v[2] + r_quat.v[0] * l_quat.v[3];
+    const y = - r_quat.v[2] * l_quat.v[0] + r_quat.v[3] * l_quat.v[1] + r_quat.v[0] * l_quat.v[2] + r_quat.v[1] * l_quat.v[3];
+    const z = r_quat.v[1] * l_quat.v[0] - r_quat.v[0] * l_quat.v[1] + r_quat.v[3] * l_quat.v[2] + r_quat.v[2] * l_quat.v[3];
+    const w = - r_quat.v[0] * l_quat.v[0] - r_quat.v[1] * l_quat.v[1] - r_quat.v[2] * l_quat.v[2] + r_quat.v[3] * l_quat.v[3];
+    return new this(x, y, z, w);
+  }
+
+  static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
+    const x = r_quat.v[3] * l_quat.v[0] + r_quat.v[2] * l_quat.v[1] - r_quat.v[1] * l_quat.v[2] + r_quat.v[0] * l_quat.v[3];
+    const y = - r_quat.v[2] * l_quat.v[0] + r_quat.v[3] * l_quat.v[1] + r_quat.v[0] * l_quat.v[2] + r_quat.v[1] * l_quat.v[3];
+    const z = r_quat.v[1] * l_quat.v[0] - r_quat.v[0] * l_quat.v[1] + r_quat.v[3] * l_quat.v[2] + r_quat.v[2] * l_quat.v[3];
+    const w = - r_quat.v[0] * l_quat.v[0] - r_quat.v[1] * l_quat.v[1] - r_quat.v[2] * l_quat.v[2] + r_quat.v[3] * l_quat.v[3];
+    return out.setComponents(x, y, z, w);
+  }
+
+  static multiplyNumber(quat: IQuaternion, value: number) {
+    const x = quat.v[0] * value;
+    const y = quat.v[1] * value;
+    const z = quat.v[2] * value;
+    const w = quat.v[3] * value;
+    return new this(x, y, z, w);
+  }
+
+  static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
+    out.v[0] = quat.v[0] * value;
+    out.v[1] = quat.v[1] * value;
+    out.v[2] = quat.v[2] * value;
+    out.v[3] = quat.v[3] * value;
+    return out;
+  }
+
+  static divideNumber(quat: IQuaternion, value: number) {
+    if (value === 0) {
+      console.error("0 division occurred!");
+    }
+    const x = quat.v[0] / value;
+    const y = quat.v[1] / value;
+    const z = quat.v[2] / value;
+    const w = quat.v[3] / value;
+    return new this(x, y, z, w);
+  }
+
+  static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
+    if (value === 0) {
+      console.error("0 division occurred!");
+    }
+    out.v[0] = quat.v[0] / value;
+    out.v[1] = quat.v[1] / value;
+    out.v[2] = quat.v[2] / value;
+    out.v[3] = quat.v[3] / value;
+    return out;
+  }
+
+  toString() {
+    return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ', ' + this.v[3] + ')';
+  }
+
+  toStringApproximately() {
+    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[1]) +
+      ' ' + MathUtil.nearZeroToZero(this.v[2]) + ' ' + MathUtil.nearZeroToZero(this.v[3]) + '\n';
+  }
+
+  flattenAsArray() {
+    return [this.v[0], this.v[1], this.v[2], this.v[3]];
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(quat: IQuaternion, delta: number = Number.EPSILON) {
+    if (
+      Math.abs(quat.v[0] - this.v[0]) < delta &&
+      Math.abs(quat.v[1] - this.v[1]) < delta &&
+      Math.abs(quat.v[2] - this.v[2]) < delta &&
+      Math.abs(quat.v[3] - this.v[3]) < delta
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isStrictEqual(quat: IQuaternion): boolean {
+    if (
+      this.v[0] === quat.v[0] &&
+      this.v[1] === quat.v[1] &&
+      this.v[2] === quat.v[2] &&
+      this.v[3] === quat.v[3]
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  at(i: number) {
+    return this.v[i];
+  }
+
+  length() {
+    return Math.hypot(this.v[0], this.v[1], this.v[2], this.v[3]);
+  }
+
+  lengthSquared(): number {
+    return this.v[0] ** 2 + this.v[1] ** 2 + this.v[2] ** 2 + this.v[3] ** 2;
+  }
+
+  /**
+   * dot product
+   */
+  dot(quat: IQuaternion) {
+    return this.v[0] * quat.v[0] + this.v[1] * quat.v[1] + this.v[2] * quat.v[2] + this.v[3] * quat.v[3];
+  }
+
+  toEulerAnglesTo(out: IMutableVector3) {
+    // this is from https://en.v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
+    const sinr_cosp = 2.0 * (this.v[3] * this.v[0] + this.v[1] * this.v[2]);
+    const cosr_cosp = 1.0 - 2.0 * (this.v[0] * this.v[0] + this.v[1] * this.v[1]);
+    out.v[0] = Math.atan2(sinr_cosp, cosr_cosp);
+
+    const sinp = 2.0 * (this.v[3] * this.v[1] - this.v[2] * this.v[0]);
+    if (Math.abs(sinp) >= 1) {
+      out.v[1] = Math.PI / 2 * Math.sign(sinp); // use 90 degrees if out of range
+    } else {
+      out.v[1] = Math.asin(sinp);
+    }
+
+    const siny_cosp = 2.0 * (this.v[3] * this.v[2] + this.v[0] * this.v[1]);
+    const cosy_cosp = 1.0 - 2.0 * (this.v[1] * this.v[1] + this.v[2] * this.v[2]);
+    out.v[2] = Math.atan2(siny_cosp, cosy_cosp);
+
+    return out;
+  }
+
+  clone() {
+    return new (this.constructor as any)(this.v[0], this.v[1], this.v[2], this.v[3]) as Quaternion;
+  }
 }
 
