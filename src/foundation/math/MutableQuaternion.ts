@@ -139,7 +139,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
 
   qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
 
-    let qr = l_quat.w * r_quat.w + l_quat.x * r_quat.x + l_quat.y * r_quat.y + l_quat.z * r_quat.z;
+    let qr = l_quat.v[3] * r_quat.v[3] + l_quat.v[0] * r_quat.v[0] + l_quat.v[1] * r_quat.v[1] + l_quat.v[2] * r_quat.v[2];
     const ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
@@ -155,7 +155,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
       let ph = Math.acos(qr);
       let s2;
       if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr = - l_quat.w * r_quat.w - l_quat.x * r_quat.x - l_quat.y * r_quat.y - l_quat.z * r_quat.z;
+        qr = - l_quat.v[3] * r_quat.v[3] - l_quat.v[0] * r_quat.v[0] - l_quat.v[1] * r_quat.v[1] - l_quat.v[2] * r_quat.v[2];
         ph = Math.acos(qr);
         s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
       } else {
@@ -163,10 +163,10 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
       }
       const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
 
-      this.v[0] = l_quat.x * s1 + r_quat.x * s2;
-      this.v[1] = l_quat.y * s1 + r_quat.y * s2;
-      this.v[2] = l_quat.z * s1 + r_quat.z * s2;
-      this.v[3] = l_quat.w * s1 + r_quat.w * s2;
+      this.v[0] = l_quat.v[0] * s1 + r_quat.v[0] * s2;
+      this.v[1] = l_quat.v[1] * s1 + r_quat.v[1] * s2;
+      this.v[2] = l_quat.v[2] * s1 + r_quat.v[2] * s2;
+      this.v[3] = l_quat.v[3] * s1 + r_quat.v[3] * s2;
     }
 
     return this;
@@ -190,10 +190,10 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
       console.error("0 division occurred!");
     }
 
-    this.w = Math.cos(halfAngle);
-    this.x = sin * vec.v[0] / length;
-    this.y = sin * vec.v[1] / length;
-    this.z = sin * vec.v[2] / length;
+    this.v[3] = Math.cos(halfAngle);
+    this.v[0] = sin * vec.v[0] / length;
+    this.v[1] = sin * vec.v[1] / length;
+    this.v[2] = sin * vec.v[2] / length;
 
     return this;
   }
@@ -236,26 +236,26 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
   }
 
   add(quat: IQuaternion) {
-    this.x += quat.x;
-    this.y += quat.y;
-    this.z += quat.z;
-    this.w += quat.w;
+    this.v[0] += quat.v[0];
+    this.v[1] += quat.v[1];
+    this.v[2] += quat.v[2];
+    this.v[3] += quat.v[3];
     return this;
   }
 
   subtract(quat: IQuaternion) {
-    this.x -= quat.x;
-    this.y -= quat.y;
-    this.z -= quat.z;
-    this.w -= quat.w;
+    this.v[0] -= quat.v[0];
+    this.v[1] -= quat.v[1];
+    this.v[2] -= quat.v[2];
+    this.v[3] -= quat.v[3];
     return this;
   }
 
   multiply(quat: IQuaternion) {
-    const x = quat.w * this.x + quat.z * this.y + quat.y * this.z - quat.x * this.w;
-    const y = - quat.z * this.x + quat.w * this.y + quat.x * this.z - quat.y * this.w;
-    const z = quat.y * this.x + quat.x * this.y + quat.w * this.z - quat.z * this.w;
-    const w = - quat.x * this.x - quat.y * this.y - quat.z * this.z - quat.w * this.w;
+    const x = quat.v[3] * this.v[0] + quat.v[2] * this.v[1] + quat.v[1] * this.v[2] - quat.v[0] * this.v[3];
+    const y = - quat.v[2] * this.v[0] + quat.v[3] * this.v[1] + quat.v[0] * this.v[2] - quat.v[1] * this.v[3];
+    const z = quat.v[1] * this.v[0] + quat.v[0] * this.v[1] + quat.v[3] * this.v[2] - quat.v[2] * this.v[3];
+    const w = - quat.v[0] * this.v[0] - quat.v[1] * this.v[1] - quat.v[2] * this.v[2] - quat.v[3] * this.v[3];
     return this.setComponents(x, y, z, w);
   }
 
