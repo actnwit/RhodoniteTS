@@ -202,6 +202,7 @@ export default class Quaternion implements IQuaternion {
     out.y = l_quat.y * (1 - ratio) + r_quat.y * ratio;
     out.z = l_quat.z * (1 - ratio) + r_quat.z * ratio;
     out.w = l_quat.w * (1 - ratio) + r_quat.w * ratio;
+    return out;
   }
 
   static axisAngle(vec: IVector3, radian: number) {
