@@ -676,7 +676,7 @@ export default class ModelConverter {
     }
     const isMorphing = this.__isMorphing(node);
     const isSkinning = this.__isSkinning(node);
-    const isLighting = this.__isLighting(materialJson);
+    const isLighting = this.__isLighting(gltfModel, materialJson);
     const isAlphaMasking = this.__isAlphaMasking(materialJson);
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
@@ -692,11 +692,12 @@ export default class ModelConverter {
     }
   }
 
-  private __isLighting(materialJson?: Gltf2Material) {
-    if (materialJson?.extensions?.KHR_materials_unlit != null) {
-      return false;
+  private __isLighting(gltfModel: glTF2, materialJson?: Gltf2Material) {
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    if (argument?.isLighting != null) {
+      return argument.isLighting as boolean;
     } else {
-      return true;
+      return (materialJson?.extensions?.KHR_materials_unlit != null) ? false : true;
     }
   }
 
