@@ -45,7 +45,6 @@ function createEmptyMaterial() {
   return material;
 }
 
-
 function createPbrUberMaterial({
   additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, isAlphaMasking = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
@@ -134,13 +133,13 @@ function createDepthEncodeMaterial({ additionalName = '', isSkinning = false, ma
   return material;
 }
 
-function createShadowMapDecodeClassicSingleMaterial(depthEncodeRenderPass: RenderPass, { additionalName = '', isMorphing = false, isSkinning = false, isLighting = true, colorAttachmentsNumber = 0, maxInstancesNumber = 20 } = {}) {
+function createShadowMapDecodeClassicSingleMaterial({ additionalName = '', isMorphing = false, isSkinning = false, isLighting = true, colorAttachmentsNumber = 0, maxInstancesNumber = 20 } = {}, depthEncodeRenderPass: RenderPass) {
   const materialName = 'ShadowMapDecodeClassic'
     + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new ShadowMapDecodeClassicSingleMaterialNode(depthEncodeRenderPass, { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, colorAttachmentsNumber: colorAttachmentsNumber });
+  const materialNode = new ShadowMapDecodeClassicSingleMaterialNode({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, colorAttachmentsNumber: colorAttachmentsNumber }, depthEncodeRenderPass);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
 
