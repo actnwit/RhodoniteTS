@@ -29,7 +29,10 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
 
   private encodedDepthRenderPass: RenderPass;
 
-  constructor(encodedDepthRenderPass: RenderPass, { isMorphing, isSkinning, isLighting, colorAttachmentsNumber }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, colorAttachmentsNumber: Count }) {
+  constructor(
+    { isMorphing, isSkinning, isLighting, colorAttachmentsNumber }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, colorAttachmentsNumber: Count },
+    encodedDepthRenderPass: RenderPass
+  ) {
     super(ShadowMapDecodeClassicShader.getInstance(), "ShadowMapDecodeClassicShading"
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting'),

@@ -368,7 +368,7 @@ export default class ModelConverter {
       rnEntities.push(entity);
       rnEntitiesByNames.set(node.name!, entity);
 
-      if (this.__isMorphing(node)) {
+      if (this.__isMorphing(node, gltfModel)) {
         let weights: number[];
         if (node.weights) {
           weights = node.weights;
@@ -394,8 +394,13 @@ export default class ModelConverter {
     return { rnEntities, rnEntitiesByNames };
   }
 
-  private __isMorphing(node: any) {
-    return node.mesh != null && node.mesh.primitives[0].targets != null;
+  private __isMorphing(node: any, gltfModel: glTF2) {
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    if (argument?.isMorphing === false) {
+      return false;
+    } else {
+      return node.mesh != null && node.mesh.primitives[0].targets != null;
+    }
   }
 
   private __setupLight(light: any, gltfModel: glTF2) {
@@ -582,9 +587,9 @@ export default class ModelConverter {
     }
   }
 
-  private __setMorphingAndSkinningArgument(node: any, argumentOfMaterialHelper: any, isMorphingOriginal: boolean, isSkinningOriginal: boolean): void {
+  private __setMorphingAndSkinningArgument(node: any, argumentOfMaterialHelper: any, isMorphingOriginal: boolean, isSkinningOriginal: boolean, gltfModel: glTF2): void {
     if (isMorphingOriginal) {
-      argumentOfMaterialHelper.isMorphing = this.__isMorphing(node);
+      argumentOfMaterialHelper.isMorphing = this.__isMorphing(node, gltfModel);
     }
 
     if (isSkinningOriginal) {
@@ -606,7 +611,7 @@ export default class ModelConverter {
       const isMorphingOriginal = argumentOfMaterialHelper.isMorphing;
       const isSkinningOriginal = argumentOfMaterialHelper.isSkinning;
 
-      this.__setMorphingAndSkinningArgument(node, argumentOfMaterialHelper, isMorphingOriginal, isSkinningOriginal);
+      this.__setMorphingAndSkinningArgument(node, argumentOfMaterialHelper, isMorphingOriginal, isSkinningOriginal, gltfModel);
 
       const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
       argumentOfMaterialHelper.materialProperties = materialProperties;
@@ -674,9 +679,10 @@ export default class ModelConverter {
     if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
       maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType / 2;
     }
-    const isMorphing = this.__isMorphing(node);
-    const isSkinning = this.__isSkinning(node);
-    const isLighting = this.__isLighting(materialJson);
+
+    const isMorphing = this.__isMorphing(node, gltfModel);
+    const isSkinning = this.__isSkinning(node, gltfModel);
+    const isLighting = this.__isLighting(gltfModel, materialJson);
     const isAlphaMasking = this.__isAlphaMasking(materialJson);
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
@@ -692,11 +698,12 @@ export default class ModelConverter {
     }
   }
 
-  private __isLighting(materialJson?: Gltf2Material) {
-    if (materialJson?.extensions?.KHR_materials_unlit != null) {
-      return false;
+  private __isLighting(gltfModel: glTF2, materialJson?: Gltf2Material) {
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    if (argument?.isLighting != null) {
+      return argument.isLighting as boolean;
     } else {
-      return true;
+      return (materialJson?.extensions?.KHR_materials_unlit != null) ? false : true;
     }
   }
 
@@ -708,13 +715,18 @@ export default class ModelConverter {
     }
   }
 
-  private __isSkinning(node: Gltf2Node) {
-    return (node.skin != null) ? true : false;
+  private __isSkinning(node: Gltf2Node, gltfModel: glTF2) {
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    if (argument?.isSkinning === false) {
+      return false;
+    } else {
+      return (node.skin != null) ? true : false;
+    }
   }
 
   private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {
     let material = gltfModel.asset.extras?.rnMaterials![primitive.materialIndex!];
-    if (material != null && material.isSkinning === this.__isSkinning(node) && material.isMorphing === this.__isMorphing(node)) {
+    if (material != null && material.isSkinning === this.__isSkinning(node, gltfModel) && material.isMorphing === this.__isMorphing(node, gltfModel)) {
       return material;
     } else {
       const newMaterial: Material = this.__generateAppropriateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
