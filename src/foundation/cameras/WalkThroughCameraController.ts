@@ -386,6 +386,14 @@ export default class WalkThroughCameraController implements ICameraController {
     return this._verticalSpeed;
   }
 
+  set mouseWheelSpeed(value) {
+    this._mouseWheelSpeedScale = value;
+  }
+
+  get mouseWheelSpeed() {
+    return this._mouseWheelSpeedScale;
+  }
+
   setTarget(targetEntity: Entity) {
     const speed = targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
