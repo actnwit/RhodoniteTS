@@ -188,7 +188,12 @@ export default class WalkThroughCameraController implements ICameraController {
     this._isMouseDown = false;
     this._isMouseDrag = false;
 
-    let rect = (evt.target! as any).getBoundingClientRect();
+    const target = evt.target as any;
+    if (target?.getBoundingClientRect == null) {
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
     this._clickedMouseXOnCanvas = evt.clientX - rect.left;
     this._clickedMouseYOnCanvas = evt.clientY - rect.top;
   }
