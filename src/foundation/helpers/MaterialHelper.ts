@@ -133,7 +133,10 @@ function createDepthEncodeMaterial({ additionalName = '', isSkinning = false, ma
   return material;
 }
 
-function createShadowMapDecodeClassicSingleMaterial({ additionalName = '', isMorphing = false, isSkinning = false, isLighting = true, colorAttachmentsNumber = 0, maxInstancesNumber = 20 } = {}, depthEncodeRenderPass: RenderPass) {
+function createShadowMapDecodeClassicSingleMaterial({
+  additionalName = '', isMorphing = false, isSkinning = false, isLighting = true, colorAttachmentsNumber = 0, maxInstancesNumber = 20 } = {},
+  depthEncodeRenderPass: RenderPass
+) {
   const materialName = 'ShadowMapDecodeClassic'
     + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
