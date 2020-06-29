@@ -118,15 +118,6 @@ void main(){
     const _texture = this.glsl_texture;
     const _textureProj = this.glsl_textureProj;
 
-    const mainCameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-
-    let zNear: number | string = mainCameraComponent.zNearInner;
-    let zFar: number | string = mainCameraComponent.zFarInner;
-    let ZNearToFar: number | string = zFar - zNear;
-
-    if (Number.isInteger(ZNearToFar)) {
-      ZNearToFar = ZNearToFar + '.0';
-    }
     return `${_version}
 ${this.glslPrecision}
 
@@ -184,9 +175,11 @@ void main (){
   }
 
   // shadow mapping
-  float nonShadowAlpha = get_nonShadowAlpha(materialSID, 0);
   if(v_projPosition_from_light.w > 0.0){
-    float normalizationCoefficient = 1.0 / ${ZNearToFar};
+    float zNear = get_zNearInner(materialSID, 0);
+    float zFar = get_zFarInner(materialSID, 0);
+    float normalizationCoefficient = 1.0 / (zFar - zNear);
+
     float measureDepth = normalizationCoefficient * length(v_projPosition_from_light);
     float textureDepth = decodeRGBAToDepth(${_textureProj}(u_depthTexture, v_texcoord_1));
     float allowableDepthError = get_allowableDepthError(materialSID, 0);
