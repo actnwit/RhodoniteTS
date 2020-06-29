@@ -143,17 +143,16 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
 
 
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+    let cameraComponent = args.renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
-    /// Matrices
-    let cameraComponent = args.renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    }
     this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
     this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
