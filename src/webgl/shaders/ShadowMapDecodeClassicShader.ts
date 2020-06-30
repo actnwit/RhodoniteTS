@@ -191,16 +191,10 @@ void main (){
     float textureDepth = decodeRGBAToDepth(${_textureProj}(u_depthTexture, v_texcoord_1));
     float allowableDepthError = get_allowableDepthError(materialSID, 0);
     if(measureDepth > textureDepth + allowableDepthError){
-      vec3 shadowColor = get_shadowColor(materialSID, 0);
-      diffuseColor *= shadowColor;
-
-      float shadowAlpha = get_shadowAlpha(materialSID, 0);
-      alpha *= shadowAlpha;
-    }else{
-      alpha *= nonShadowAlpha;
+      vec4 shadowColorCoefficient = get_shadowColorCoefficient(materialSID, 0);
+      diffuseColor *= shadowColorCoefficient.rgb;
+      alpha *= shadowColorCoefficient.a;
     }
-  }else{
-    alpha *= nonShadowAlpha;
   }
 
   // Lighting

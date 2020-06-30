@@ -22,7 +22,7 @@ import { Count } from "../../../commontypes/CommonTypes";
 import MutableMatrix44 from "../../math/MutableMatrix44";
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
-  static ShadowColor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shadowColor' });
+  static ShadowColorCoefficient: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shadowColorCoefficient' });
   static ShadowAlpha: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shadowAlpha' });
   static NonShadowAlpha: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'nonShadowAlpha' });
   static AllowableDepthError: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'allowableDepthError' });
@@ -69,24 +69,14 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         initialValue: 5, min: 0, max: Number.MAX_VALUE,
       },
       {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.ShadowAlpha, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
-        initialValue: new Scalar(0.5), min: 0, max: 1,
-      },
-      {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.NonShadowAlpha, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
-        initialValue: new Scalar(0.0), min: 0, max: 1,
-      },
-      {
         semantic: ShadowMapDecodeClassicSingleMaterialNode.AllowableDepthError, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(0.0001), min: 0, max: 1,
       },
       {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.ShadowColor, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+        semantic: ShadowMapDecodeClassicSingleMaterialNode.ShadowColorCoefficient, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
-        initialValue: new Vector3(0, 0, 0), min: 0, max: 1,
+        initialValue: new Vector4(0.5, 0.5, 0.5, 1), min: 0, max: 1,
       },
       {
         semantic: ShaderSemantics.DiffuseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
