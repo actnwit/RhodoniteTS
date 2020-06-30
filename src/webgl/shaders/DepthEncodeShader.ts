@@ -95,16 +95,6 @@ ${this.processGeometryWithSkinningOptionally}
     const _def_rt0 = this.glsl_rt0;
     const _def_fragColor = this.glsl_fragColor;
 
-    const mainCameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-
-    const zNear: number | string = mainCameraComponent.zNearInner;
-    const zFar: number | string = mainCameraComponent.zFarInner;
-    let ZNearToFar: number | string = zFar - zNear;
-
-    if (Number.isInteger(ZNearToFar)) {
-      ZNearToFar = ZNearToFar + '.0';
-    }
-
     return `${_version}
 ${this.glslPrecision}
 
@@ -129,9 +119,12 @@ vec4 encodeDepthToRGBA(float depth){
   return vec4(r, g, b, a);
 }
 
-void main ()
-{
-  float normalizationCoefficient = 1.0 / ${ZNearToFar};
+void main (){
+  ${this.mainPrerequisites}
+
+  float zNear = get_zNearInner(materialSID, 0);
+  float zFar = get_zFarInner(materialSID, 0);
+  float normalizationCoefficient = 1.0 / (zFar - zNear);
   float linerDepth = normalizationCoefficient * length(v_position_inLocal);
   vec4 encodedLinearDepth = encodeDepthToRGBA(linerDepth);
 
