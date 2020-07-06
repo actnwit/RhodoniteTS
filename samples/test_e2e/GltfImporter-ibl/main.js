@@ -1,5 +1,5 @@
-
-let p = null;
+const p = document.createElement('p');
+document.body.appendChild(p);
 
 const load = async function (time) {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
@@ -41,23 +41,11 @@ const load = async function (time) {
   setIBL('./../../../assets/ibl/papermill');
 
   let count = 0;
-  let startTime = Date.now();
 
   const draw = function () {
-    if (p == null && count > 100) {
-      p = document.createElement('p');
-      p.setAttribute('id', 'rendered');
+    if (count > 100) {
+      p.id = 'rendered';
       p.innerText = 'Rendered.';
-      document.body.appendChild(p);
-    }
-
-    if (window.isAnimating) {
-      const date = new Date();
-      const time = (date.getTime() - startTime) / 1000;
-      Rn.AnimationComponent.globalTime = time;
-      if (time > Rn.AnimationComponent.endInputValue) {
-        startTime = date.getTime();
-      }
     }
 
     system.process(expressions);
