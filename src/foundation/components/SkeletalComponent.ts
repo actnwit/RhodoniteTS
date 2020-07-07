@@ -28,7 +28,6 @@ export default class SkeletalComponent extends Component {
   public isOptimizingMode = true;
   private static __scaleVec3 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
-  private static __tmp2_mat4 = MutableMatrix44.identity();
   private __qArray = new Float32Array(0);
   private __tArray = new Float32Array(0);
   private __qtArray = new Float32Array(0);
@@ -107,20 +106,16 @@ export default class SkeletalComponent extends Component {
       const joint = this.__joints[i];
       let m;
       if (joint.isVisible) {
-        let globalJointTransform = null;
-        let inverseBindMatrix = this._inverseBindMatrices[i]!;
-        globalJointTransform = joint.worldMatrixInner;
-        SkeletalComponent.__tmp_mat4.identity();
+        const globalJointTransform = joint.worldMatrixInner;
+        const inverseBindMatrix = this._inverseBindMatrices[i];
 
-        MutableMatrix44.multiplyTo(SkeletalComponent.__tmp_mat4, globalJointTransform as any as Matrix44, SkeletalComponent.__tmp2_mat4);
-        MutableMatrix44.multiplyTo(SkeletalComponent.__tmp2_mat4, inverseBindMatrix, SkeletalComponent.__tmp_mat4);
+        MutableMatrix44.multiplyTo(globalJointTransform, inverseBindMatrix, SkeletalComponent.__tmp_mat4);
         if (this._bindShapeMatrix) {
-          MutableMatrix44.multiplyTo(SkeletalComponent.__tmp_mat4, this._bindShapeMatrix, SkeletalComponent.__tmp2_mat4); // only for glTF1
-          SkeletalComponent.__tmp_mat4.copyComponents(SkeletalComponent.__tmp2_mat4);
+          SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
         }
         m = SkeletalComponent.__tmp_mat4;
       } else {
-        m = SkeletalComponent.__identityMat!;
+        m = SkeletalComponent.__identityMat;
       }
 
       if (Config.boneDataType === BoneDataType.Mat4x4 || Config.boneDataType === BoneDataType.Vec4x1) {
@@ -142,9 +137,9 @@ export default class SkeletalComponent extends Component {
         this.__matArray[i * 16 + 15] = m.v[15];
       }
       if (Config.boneDataType !== BoneDataType.Mat4x4) {
-        SkeletalComponent.__scaleVec3.x = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
-        SkeletalComponent.__scaleVec3.y = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
-        SkeletalComponent.__scaleVec3.z = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
+        SkeletalComponent.__scaleVec3.x = Math.hypot(m.m00, m.m01, m.m02);
+        SkeletalComponent.__scaleVec3.y = Math.hypot(m.m10, m.m11, m.m12);
+        SkeletalComponent.__scaleVec3.z = Math.hypot(m.m20, m.m21, m.m22);
         m.m00 /= SkeletalComponent.__scaleVec3.x;
         m.m01 /= SkeletalComponent.__scaleVec3.x;
         m.m02 /= SkeletalComponent.__scaleVec3.x;
