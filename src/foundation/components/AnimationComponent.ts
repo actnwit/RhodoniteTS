@@ -3,20 +3,15 @@ import ComponentRepository from "../core/ComponentRepository";
 import EntityRepository from "../core/EntityRepository";
 import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
 import { AnimationInterpolationEnum, AnimationInterpolation } from "../definitions/AnimationInterpolation";
-import { AnimationAttributeEnum, AnimationAttribute } from "../definitions/AnimationAttribute";
+import { AnimationAttribute } from "../definitions/AnimationAttribute";
 import { CompositionTypeEnum, CompositionType } from "../definitions/CompositionType";
 import Quaternion from "../math/Quaternion";
 import TransformComponent from "./TransformComponent";
 import { ProcessStage } from "../definitions/ProcessStage";
-import Vector3 from "../math/Vector3";
 import MutableVector3 from "../math/MutableVector3";
 import MutableQuaternion from "../math/MutableQuaternion";
 import MeshComponent from "./MeshComponent";
-import Vector4 from "../math/Vector4";
-import MutableVector4 from "../math/MutableVector4";
-import MathClassUtil from "../math/MathClassUtil";
 import { ComponentTID, ComponentSID, EntityUID, Index } from "../../commontypes/CommonTypes";
-
 
 type AnimationLine = {
   input: number[]

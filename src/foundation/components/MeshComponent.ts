@@ -1,19 +1,9 @@
 import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
-import Primitive from '../geometry/Primitive';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
-import { VertexAttribute } from '../definitions/VertexAttribute';
 import { ProcessStage } from '../definitions/ProcessStage';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import Vector3 from '../math/Vector3';
-import Vector2 from '../math/Vector2';
-import MemoryManager from '../core/MemoryManager';
-import { BufferUse } from '../definitions/BufferUse';
-import { CompositionType } from '../definitions/CompositionType';
-import { ComponentType } from '../definitions/ComponentType';
-import Accessor from '../memory/Accessor';
-import AABB from '../math/AABB';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
@@ -24,7 +14,6 @@ import SceneGraphComponent from './SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';
-import MutableVector3 from '../math/MutableVector3';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;

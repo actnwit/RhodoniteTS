@@ -1,25 +1,18 @@
 import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
-import Primitive from '../geometry/Primitive';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
-import Vector3 from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
-import Quaternion from '../math/Quaternion';
 import MutableQuaternion from '../math/MutableQuaternion';
 import { MathUtil } from '../math/MathUtil';
-import Vector4 from '../math/Vector4';
-import Scalar from '../math/Scalar';
 import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
-import MeshComponent from './MeshComponent';
-import { VertexAttribute } from '../definitions/VertexAttribute';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
+import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
 import { BoneDataType } from '../definitions/BoneDataType';
@@ -183,9 +176,9 @@ export default class SkeletalComponent extends Component {
           let maxX = Math.max.apply(null, tXArray);
           let maxY = Math.max.apply(null, tYArray);
           let maxZ = Math.max.apply(null, tZArray);
-          this.__qtInfo.x = maxX*1.1;
-          this.__qtInfo.y = maxY*1.1;
-          this.__qtInfo.z = maxZ*1.1;
+          this.__qtInfo.x = maxX * 1.1;
+          this.__qtInfo.y = maxY * 1.1;
+          this.__qtInfo.z = maxZ * 1.1;
           this.__qtInfo.w = maxScale;
         }
       }
@@ -214,13 +207,13 @@ export default class SkeletalComponent extends Component {
         q.normalize();
         let vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 4096);
         let t = m.getTranslate();
-        this.__qtArray[i*4+0] = vec2QPacked[0];
-        this.__qtArray[i*4+1] = vec2QPacked[1];
+        this.__qtArray[i * 4 + 0] = vec2QPacked[0];
+        this.__qtArray[i * 4 + 1] = vec2QPacked[1];
         let vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
-          t.x/this.__qtInfo.x, t.y/this.__qtInfo.y,
-          t.z/this.__qtInfo.z, scales[i]/this.__qtInfo.w, 4096);
-        this.__qtArray[i*4+2] = vec2TPacked[0];
-        this.__qtArray[i*4+3] = vec2TPacked[1];
+          t.x / this.__qtInfo.x, t.y / this.__qtInfo.y,
+          t.z / this.__qtInfo.z, scales[i] / this.__qtInfo.w, 4096);
+        this.__qtArray[i * 4 + 2] = vec2TPacked[0];
+        this.__qtArray[i * 4 + 3] = vec2TPacked[1];
       }
     }
   }
