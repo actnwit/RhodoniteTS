@@ -170,10 +170,10 @@ export default class SkeletalComponent extends Component {
           tXArray.push(Math.abs(t.x));
           tYArray.push(Math.abs(t.y));
           tZArray.push(Math.abs(t.z));
-          const maxScale = Math.max.apply(null, scales);
-          let maxX = Math.max.apply(null, tXArray);
-          let maxY = Math.max.apply(null, tYArray);
-          let maxZ = Math.max.apply(null, tZArray);
+          const maxScale = Math.max(...scales);
+          const maxX = Math.max(...tXArray);
+          const maxY = Math.max(...tYArray);
+          const maxZ = Math.max(...tZArray);
           this.__qtInfo.x = maxX * 1.1;
           this.__qtInfo.y = maxY * 1.1;
           this.__qtInfo.z = maxZ * 1.1;
