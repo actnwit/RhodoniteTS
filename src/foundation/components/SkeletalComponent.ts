@@ -26,8 +26,11 @@ export default class SkeletalComponent extends Component {
   public jointsHierarchy?: SceneGraphComponent;
   public isSkinning = true;
   public isOptimizingMode = true;
-  private static __scaleVec3 = MutableVector3.zero();
+  private static __tmpVec3_0 = MutableVector3.zero();
+  private static __tmpVec3_1 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
+  private static __tmp_q: MutableQuaternion = new MutableQuaternion(0, 0, 0, 1);
+  private static __identityMat = MutableMatrix44.identity();
   private __qArray = new Float32Array(0);
   private __tArray = new Float32Array(0);
   private __qtArray = new Float32Array(0);
@@ -35,8 +38,6 @@ export default class SkeletalComponent extends Component {
   private __matArray = new Float32Array(0);
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
-  private static __tmp_q: MutableQuaternion = new MutableQuaternion(0, 0, 0, 1);
-  private static __identityMat = MutableMatrix44.identity();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -137,22 +138,23 @@ export default class SkeletalComponent extends Component {
         this.__matArray[i * 16 + 15] = m.v[15];
       }
       if (Config.boneDataType !== BoneDataType.Mat4x4) {
-        SkeletalComponent.__scaleVec3.x = Math.hypot(m.m00, m.m01, m.m02);
-        SkeletalComponent.__scaleVec3.y = Math.hypot(m.m10, m.m11, m.m12);
-        SkeletalComponent.__scaleVec3.z = Math.hypot(m.m20, m.m21, m.m22);
-        m.m00 /= SkeletalComponent.__scaleVec3.x;
-        m.m01 /= SkeletalComponent.__scaleVec3.x;
-        m.m02 /= SkeletalComponent.__scaleVec3.x;
-        m.m10 /= SkeletalComponent.__scaleVec3.y;
-        m.m11 /= SkeletalComponent.__scaleVec3.y;
-        m.m12 /= SkeletalComponent.__scaleVec3.y;
-        m.m20 /= SkeletalComponent.__scaleVec3.z;
-        m.m21 /= SkeletalComponent.__scaleVec3.z;
-        m.m22 /= SkeletalComponent.__scaleVec3.z;
+        const scaleVec = SkeletalComponent.__tmpVec3_0.setComponents(
+          Math.hypot(m.m00, m.m01, m.m02),
+          Math.hypot(m.m10, m.m11, m.m12),
+          Math.hypot(m.m20, m.m21, m.m22)
+        );
+        m.m00 /= scaleVec.x;
+        m.m01 /= scaleVec.x;
+        m.m02 /= scaleVec.x;
+        m.m10 /= scaleVec.y;
+        m.m11 /= scaleVec.y;
+        m.m12 /= scaleVec.y;
+        m.m20 /= scaleVec.z;
+        m.m21 /= scaleVec.z;
+        m.m22 /= scaleVec.z;
 
         if (Config.boneDataType === BoneDataType.Vec4x2) {
-          let q = MutableQuaternion.fromMatrixTo(m, SkeletalComponent.__tmp_q);
-
+          const q = SkeletalComponent.__tmp_q.fromMatrix(m);
           this.__qArray[i * 4 + 0] = q.x;
           this.__qArray[i * 4 + 1] = q.y;
           this.__qArray[i * 4 + 2] = q.z;
@@ -160,10 +162,11 @@ export default class SkeletalComponent extends Component {
           this.__tArray[i * 4 + 0] = m.m03; // m.getTranslate().x
           this.__tArray[i * 4 + 1] = m.m13; // m.getTranslate().y
           this.__tArray[i * 4 + 2] = m.m23; // m.getTranslate().z
-          this.__tArray[i * 4 + 3] = Math.max(SkeletalComponent.__scaleVec3.x, SkeletalComponent.__scaleVec3.y, SkeletalComponent.__scaleVec3.z);
+          this.__tArray[i * 4 + 3] = Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
         } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-          scales.push(Math.max(SkeletalComponent.__scaleVec3.x, SkeletalComponent.__scaleVec3.y, SkeletalComponent.__scaleVec3.z));
-          let t = m.getTranslate();
+          scales.push(Math.max(scaleVec.x, scaleVec.y, scaleVec.z));
+
+          const t = m.getTranslateTo(SkeletalComponent.__tmpVec3_1);
           tXArray.push(Math.abs(t.x));
           tYArray.push(Math.abs(t.y));
           tZArray.push(Math.abs(t.z));
@@ -181,7 +184,7 @@ export default class SkeletalComponent extends Component {
 
     if (Config.boneDataType === BoneDataType.Vec4x1) {
       for (let i = 0; i < this.__joints.length; i++) {
-        const m = Matrix44.identity();
+        const m = SkeletalComponent.__tmp_mat4;
         m.v[0] = this.__matArray[i * 16 + 0];
         m.v[1] = this.__matArray[i * 16 + 1];
         m.v[2] = this.__matArray[i * 16 + 2];
@@ -198,13 +201,15 @@ export default class SkeletalComponent extends Component {
         m.v[13] = this.__matArray[i * 16 + 13];
         m.v[14] = this.__matArray[i * 16 + 14];
         m.v[15] = this.__matArray[i * 16 + 15];
-        let q = (MutableQuaternion.fromMatrix(m));
+
+        const q = SkeletalComponent.__tmp_q.fromMatrix(m);
         q.normalize();
-        let vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 4096);
-        let t = m.getTranslate();
+        const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 4096);
         this.__qtArray[i * 4 + 0] = vec2QPacked[0];
         this.__qtArray[i * 4 + 1] = vec2QPacked[1];
-        let vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
+
+        const t = m.getTranslateTo(SkeletalComponent.__tmpVec3_0);
+        const vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
           t.x / this.__qtInfo.x, t.y / this.__qtInfo.y,
           t.z / this.__qtInfo.z, scales[i] / this.__qtInfo.w, 4096);
         this.__qtArray[i * 4 + 2] = vec2TPacked[0];
