@@ -991,14 +991,14 @@ export default class ModelConverter {
   }
 
   _accessBinaryWithAccessor(accessor: any) {
-    var bufferView = accessor.bufferView;
+    const bufferView = accessor.bufferView;
     const byteOffset: number = (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
-    var buffer = bufferView.buffer;
-    var uint8Array: Uint8Array = buffer.buffer;
+    const buffer = bufferView.buffer;
+    const uint8Array: Uint8Array = buffer.buffer;
 
-    let componentN = this._checkComponentNumber(accessor);
-    let componentBytes = this._checkBytesPerComponent(accessor);
-    let dataViewMethod = this._checkDataViewMethod(accessor);
+    const componentN = this._checkComponentNumber(accessor);
+    const componentBytes = this._checkBytesPerComponent(accessor);
+    const dataViewMethod = this._checkDataViewMethod(accessor);
     if (accessor.extras === void 0) {
       accessor.extras = {};
     }
@@ -1007,9 +1007,9 @@ export default class ModelConverter {
     accessor.extras.componentBytes = componentBytes;
     accessor.extras.dataViewMethod = dataViewMethod;
 
-    var byteLength = componentBytes * componentN * accessor.count;
+    const byteLength = componentBytes * componentN * accessor.count;
 
-    var typedDataArray: any = [];
+    let typedDataArray: any = [];
 
     if (accessor.extras && accessor.extras.toGetAsTypedArray) {
       if (ModelConverter._isSystemLittleEndian()) {
@@ -1030,9 +1030,9 @@ export default class ModelConverter {
         }
 
       } else {
-        let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
-        let byteDelta = componentBytes * componentN;
-        let littleEndian = true;
+        const dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
+        const byteDelta = componentBytes * componentN;
+        const littleEndian = true;
         for (let pos = 0; pos < byteLength; pos += byteDelta) {
           switch (accessor.type) {
             case 'SCALAR':
@@ -1072,12 +1072,12 @@ export default class ModelConverter {
         }
       }
     } else {
-      let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
+      const dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
       let byteDelta = componentBytes * componentN;
       if (accessor.extras && accessor.extras.weightCount) {
         byteDelta = componentBytes * componentN * accessor.extras.weightCount;
       }
-      let littleEndian = true;
+      const littleEndian = true;
       for (let pos = 0; pos < byteLength; pos += byteDelta) {
 
         switch (accessor.type) {
@@ -1123,7 +1123,7 @@ export default class ModelConverter {
             }
             break;
           case 'MAT4':
-            let matrixComponents = [];
+            const matrixComponents = [];
             for (let i = 0; i < 16; i++) {
               matrixComponents[i] = dataView[dataViewMethod](pos + componentBytes * i, littleEndian);
             }
