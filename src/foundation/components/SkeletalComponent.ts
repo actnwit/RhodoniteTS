@@ -209,9 +209,14 @@ export default class SkeletalComponent extends Component {
         this.__qtArray[i * 4 + 1] = vec2QPacked[1];
 
         const t = m.getTranslateTo(SkeletalComponent.__tmpVec3_0);
+        const normalizedX = this.__qtInfo.x === 0.0 ? 0.0 : t.x / this.__qtInfo.x;
+        const normalizedY = this.__qtInfo.y === 0.0 ? 0.0 : t.y / this.__qtInfo.y;
+        const normalizedZ = this.__qtInfo.z === 0.0 ? 0.0 : t.z / this.__qtInfo.z;
+        const normalizedW = this.__qtInfo.w === 0.0 ? 0.0 : scales[i] / this.__qtInfo.w;
+
         const vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
-          t.x / this.__qtInfo.x, t.y / this.__qtInfo.y,
-          t.z / this.__qtInfo.z, scales[i] / this.__qtInfo.w, 4096);
+          normalizedX, normalizedY, normalizedZ, normalizedW, 4096
+        );
         this.__qtArray[i * 4 + 2] = vec2TPacked[0];
         this.__qtArray[i * 4 + 3] = vec2TPacked[1];
       }
