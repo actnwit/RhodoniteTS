@@ -143,17 +143,18 @@ export default class SkeletalComponent extends Component {
           Math.hypot(m.m10, m.m11, m.m12),
           Math.hypot(m.m20, m.m21, m.m22)
         );
-        m.m00 /= scaleVec.x;
-        m.m01 /= scaleVec.x;
-        m.m02 /= scaleVec.x;
-        m.m10 /= scaleVec.y;
-        m.m11 /= scaleVec.y;
-        m.m12 /= scaleVec.y;
-        m.m20 /= scaleVec.z;
-        m.m21 /= scaleVec.z;
-        m.m22 /= scaleVec.z;
 
         if (Config.boneDataType === BoneDataType.Vec4x2) {
+          m.m00 /= scaleVec.x;
+          m.m01 /= scaleVec.x;
+          m.m02 /= scaleVec.x;
+          m.m10 /= scaleVec.y;
+          m.m11 /= scaleVec.y;
+          m.m12 /= scaleVec.y;
+          m.m20 /= scaleVec.z;
+          m.m21 /= scaleVec.z;
+          m.m22 /= scaleVec.z;
+
           const q = SkeletalComponent.__tmp_q.fromMatrix(m);
           this.__qArray[i * 4 + 0] = q.x;
           this.__qArray[i * 4 + 1] = q.y;
@@ -170,19 +171,20 @@ export default class SkeletalComponent extends Component {
           tXArray.push(Math.abs(t.x));
           tYArray.push(Math.abs(t.y));
           tZArray.push(Math.abs(t.z));
-          const maxScale = Math.max(...scales);
-          const maxX = Math.max(...tXArray);
-          const maxY = Math.max(...tYArray);
-          const maxZ = Math.max(...tZArray);
-          this.__qtInfo.x = maxX * 1.1;
-          this.__qtInfo.y = maxY * 1.1;
-          this.__qtInfo.z = maxZ * 1.1;
-          this.__qtInfo.w = maxScale;
         }
       }
     }
 
     if (Config.boneDataType === BoneDataType.Vec4x1) {
+      const maxScale = Math.max(...scales);
+      const maxX = Math.max(...tXArray);
+      const maxY = Math.max(...tYArray);
+      const maxZ = Math.max(...tZArray);
+      this.__qtInfo.x = maxX * 1.1;
+      this.__qtInfo.y = maxY * 1.1;
+      this.__qtInfo.z = maxZ * 1.1;
+      this.__qtInfo.w = maxScale;
+
       for (let i = 0; i < this.__joints.length; i++) {
         const m = SkeletalComponent.__tmp_mat4;
         m.v[0] = this.__matArray[i * 16 + 0];
@@ -209,9 +211,14 @@ export default class SkeletalComponent extends Component {
         this.__qtArray[i * 4 + 1] = vec2QPacked[1];
 
         const t = m.getTranslateTo(SkeletalComponent.__tmpVec3_0);
+        const normalizedX = this.__qtInfo.x === 0.0 ? 0.0 : t.x / this.__qtInfo.x;
+        const normalizedY = this.__qtInfo.y === 0.0 ? 0.0 : t.y / this.__qtInfo.y;
+        const normalizedZ = this.__qtInfo.z === 0.0 ? 0.0 : t.z / this.__qtInfo.z;
+        const normalizedW = this.__qtInfo.w === 0.0 ? 0.0 : scales[i] / this.__qtInfo.w;
+
         const vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
-          t.x / this.__qtInfo.x, t.y / this.__qtInfo.y,
-          t.z / this.__qtInfo.z, scales[i] / this.__qtInfo.w, 4096);
+          normalizedX, normalizedY, normalizedZ, normalizedW, 4096
+        );
         this.__qtArray[i * 4 + 2] = vec2TPacked[0];
         this.__qtArray[i * 4 + 3] = vec2TPacked[1];
       }
