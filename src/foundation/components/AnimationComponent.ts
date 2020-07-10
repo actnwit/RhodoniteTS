@@ -221,19 +221,19 @@ export default class AnimationComponent extends Component {
 
     if (method === AnimationInterpolation.CubicSpline) {
       if (input <= inputArray[0]) {
-        return outputArray[0][1]; // out of range!
+        return outputArray[0]; // out of range!
       }
       if (inputArray[inputArray.length - 1] <= input) {
-        return outputArray[outputArray.length - 1][1]; // out of range!
+        return outputArray[outputArray.length - 1]; // out of range!
       }
       // for (let i = 0; i < inputArray.length - 1; i++) {
       //   if (inputArray[i] <= input && input < inputArray[i + 1]) {
       const i = this.interpolationSearch(inputArray, input);
       const t_ip_minus_i = inputArray[i + 1] - inputArray[i];
-      const p_0 = outputArray[i][1];
-      const p_1 = outputArray[i+1][1];
-      const a_k_plus_1 = outputArray[i+1][0];
-      const b_k = outputArray[i][2];
+      const p_0 = outputArray[i];
+      const p_1 = outputArray[i + 1];
+      const a_k_plus_1 = outputArray[i + 1];
+      const b_k = outputArray[i];
       const m_0 = t_ip_minus_i * b_k;
       const m_1 = t_ip_minus_i * a_k_plus_1;
 
