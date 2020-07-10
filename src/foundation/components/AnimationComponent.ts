@@ -34,11 +34,20 @@ export default class AnimationComponent extends Component {
   private __meshComponent?: MeshComponent;
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
   private static __endInputValueOfAllComponent: number = - Number.MAX_VALUE;
-  private static __returnVector3 = MutableVector3.zero();
-  private static __returnQuaternion = new MutableQuaternion([0, 0, 0, 1]);
   private static __startInputValueDirty = false;
   private static __endInputValueDirty = false;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
+
+  private static __returnVector3 = MutableVector3.zero();
+  private static __tmpVector3_0 = MutableVector3.zero();
+  private static __tmpVector3_1 = MutableVector3.zero();
+  private static __tmpVector3_2 = MutableVector3.zero();
+  private static __tmpVector3_3 = MutableVector3.zero();
+  private static __returnQuaternion = MutableQuaternion.identity();
+  private static __tmpQuaternion_0 = MutableQuaternion.identity();
+  private static __tmpQuaternion_1 = MutableQuaternion.identity();
+  private static __tmpQuaternion_2 = MutableQuaternion.identity();
+  private static __tmpQuaternion_3 = MutableQuaternion.identity();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -93,57 +102,49 @@ export default class AnimationComponent extends Component {
     }
   }
 
-  static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, animationAttributeIndex: Index) {
-    const ratio2 = ratio * ratio;
-    const ratio3 = ratio2 * ratio;
-    if (!isNaN(start)) {
-      return (2 * ratio3 - 3 * ratio2 + 1) * start +
-        (ratio3 - 2 * ratio2 + ratio) * inTangent +
-        (-2 * ratio3 + 3 * ratio2) * end +
-        (ratio3 - ratio2) * outTangent;
+  /**
+   * Compute cubic spline interpolation.
+   * @param p_0 starting point
+   * @param p_1 ending point
+   * @param m_0 inTangent
+   * @param m_1 outTangent
+   * @param t ratio
+   * @param animationAttributeIndex index of attribution
+   */
+
+  static cubicSpline(p_0: any, p_1: any, m_0: any, m_1: any, t: number, animationAttributeIndex: Index) {
+    const ratio2 = t * t;
+    const ratio3 = ratio2 * t;
+
+    // coefficients
+    const c_0 = 2 * ratio3 - 3 * ratio2 + 1;
+    const c_1 = ratio3 - 2 * ratio2 + t;
+    const c_2 = -2 * ratio3 + 3 * ratio2;
+    const c_3 = ratio3 - ratio2;
+
+    if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
+      const cp_0 = MutableQuaternion.multiplyNumberTo(p_0, c_0, this.__tmpQuaternion_0);
+      const cm_0 = MutableQuaternion.multiplyNumberTo(m_0, c_1, this.__tmpQuaternion_1);
+      const cp_1 = MutableQuaternion.multiplyNumberTo(p_1, c_2, this.__tmpQuaternion_2);
+      const cm_1 = MutableQuaternion.multiplyNumberTo(m_1, c_3, this.__tmpQuaternion_3);
+      return this.__returnQuaternion.copyComponents(cp_0).add(cm_0).add(cp_1).add(cm_1);
+
+    } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+      //   const returnArray = [];
+      //   for (let j = 0; j < start.length; j++) {
+      //     returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+      //       (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
+      //       (-2 * ratio3 + 3 * ratio2) * end.x +
+      //       (ratio3 - ratio2) * outTangent[j];
+      //   }
+      //   return returnArray;
+
     } else {
-      if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-        this.__returnQuaternion.x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
-          (-2 * ratio3 + 3 * ratio2) * end.x +
-          (ratio3 - ratio2) * outTangent.x;
-        this.__returnQuaternion.y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
-          (-2 * ratio3 + 3 * ratio2) * end.y +
-          (ratio3 - ratio2) * outTangent.y;
-        this.__returnQuaternion.z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
-          (-2 * ratio3 + 3 * ratio2) * end.z +
-          (ratio3 - ratio2) * outTangent.z;
-        this.__returnQuaternion.w = (2 * ratio3 - 3 * ratio2 + 1) * start.w +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.w +
-          (-2 * ratio3 + 3 * ratio2) * end.w +
-          (ratio3 - ratio2) * outTangent.w;
-        return this.__returnQuaternion;
-      } else {
-        (this.__returnVector3 as MutableVector3).x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
-          (-2 * ratio3 + 3 * ratio2) * end.x +
-          (ratio3 - ratio2) * outTangent.x;
-        (this.__returnVector3 as MutableVector3).y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
-          (-2 * ratio3 + 3 * ratio2) * end.y +
-          (ratio3 - ratio2) * outTangent.y;
-        (this.__returnVector3 as MutableVector3).z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
-          (-2 * ratio3 + 3 * ratio2) * end.z +
-          (ratio3 - ratio2) * outTangent.z;
-        return this.__returnVector3;
-        // } else {
-        //   const returnArray = [];
-        //   for (let j = 0; j < start.length; j++) {
-        //     returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
-        //       (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
-        //       (-2 * ratio3 + 3 * ratio2) * end.x +
-        //       (ratio3 - ratio2) * outTangent[j];
-        //   }
-        //   return returnArray;
-      }
+      const cp_0 = MutableVector3.multiplyTo(p_0, c_0, this.__tmpVector3_0);
+      const cm_0 = MutableVector3.multiplyTo(m_0, c_1, this.__tmpVector3_1);
+      const cp_1 = MutableVector3.multiplyTo(p_1, c_2, this.__tmpVector3_2);
+      const cm_1 = MutableVector3.multiplyTo(m_1, c_3, this.__tmpVector3_3);
+      return this.__returnVector3.copyComponents(cp_0).add(cm_0).add(cp_1).add(cm_1);
     }
   }
 
@@ -220,28 +221,19 @@ export default class AnimationComponent extends Component {
     const method = (line.interpolationMethod != null) ? line.interpolationMethod : AnimationInterpolation.Linear;
 
     if (method === AnimationInterpolation.CubicSpline) {
-      if (currentTime <= inputArray[0]) {
-        return outputArray[0]; // out of range!
-      }
-      if (inputArray[inputArray.length - 1] <= currentTime) {
-        return outputArray[outputArray.length - 1]; // out of range!
-      }
-      // for (let i = 0; i < inputArray.length - 1; i++) {
-      //   if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
-      const i = this.interpolationSearch(inputArray, currentTime);
-      const t_ip_minus_i = inputArray[i + 1] - inputArray[i];
-      const p_0 = outputArray[i];
-      const p_1 = outputArray[i + 1];
-      const a_k_plus_1 = outputArray[i + 1];
-      const b_k = outputArray[i];
-      const m_0 = t_ip_minus_i * b_k;
-      const m_1 = t_ip_minus_i * a_k_plus_1;
+      // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-
 
-      let ratio = (currentTime - inputArray[i]) / t_ip_minus_i;
-      let resultValue = this.cubicSpline(p_0, p_1, m_0, m_1, ratio, animationAttributeIndex);
-      return resultValue;
-      //   }
-      // }
+      const k = this.interpolationSearch(inputArray, currentTime);
+
+      const t_diff = (inputArray[k + 1] - inputArray[k]); // t_(k+1) - t_k
+      let t = (currentTime - inputArray[k]) / t_diff;
+      if (t < 0 || 1 < t) {
+        t = 0; // out of range
+      }
+
+      const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
+      return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
+
     } else if (method === AnimationInterpolation.Linear) {
       if (currentTime <= inputArray[0]) {
         return outputArray[0]; // out of range!
@@ -272,6 +264,50 @@ export default class AnimationComponent extends Component {
     }
 
     return outputArray[0]; // out of range!
+  }
+
+  private static __prepareVariablesForCubicSpline(outputArray: any[], k: number, t_diff: number, animationAttributeIndex: number) {
+    let p_0, p_1, m_0, m_1;
+
+    if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
+      p_0 = outputArray[3 * k + 1]; //v_k
+      p_1 = outputArray[3 * k + 4]; //v_(k+1)
+
+      // the num of__tmpQuaternion is specified by this.cubicSpline
+      const b_k = this.__tmpQuaternion_2.copyComponents(outputArray[3 * k + 2]);
+      m_0 = b_k.multiplyNumber(t_diff);
+
+      const a_k_plus_one = this.__tmpQuaternion_3.copyComponents(outputArray[3 * k + 3]); // a_(k+1)
+      m_1 = a_k_plus_one.multiplyNumber(t_diff);
+
+    } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+      p_0 = outputArray[3 * k + 1]; //v_k
+      p_1 = outputArray[3 * k + 4]; //v_(k+1)
+
+      const b_k = outputArray[3 * k + 2] as Array<number>;
+      m_0 = Array(b_k.length);
+      for (let i = 0; i < b_k.length; i++) {
+        m_0[i] = t_diff * b_k[i];
+      }
+
+      const a_k_plus_one = outputArray[3 * k + 3] as Array<number>;
+      m_1 = Array(a_k_plus_one.length);
+      for (let i = 0; i < a_k_plus_one.length; i++) {
+        m_1[i] = t_diff * a_k_plus_one[i];
+      }
+
+    } else {
+      p_0 = outputArray[3 * k + 1];
+      p_1 = outputArray[3 * k + 4];
+
+      const b_k = this.__tmpVector3_2.copyComponents(outputArray[3 * k + 2]);
+      m_0 = b_k.multiply(t_diff);
+
+      const a_k_plus_one = this.__tmpVector3_3.copyComponents(outputArray[3 * k + 3]);
+      m_1 = a_k_plus_one.multiply(t_diff);
+    }
+
+    return [p_0, p_1, m_0, m_1];
   }
 
   getStartInputValueOfAnimation() {
