@@ -16,8 +16,6 @@ import { ComponentTID, ComponentSID, EntityUID, Index } from "../../commontypes/
 type AnimationLine = {
   input: number[]
   output: any[],
-  inTangent: number[],
-  outTangent: number[],
   outputAttributeName: string,
   outputCompositionType: CompositionTypeEnum
   interpolationMethod: AnimationInterpolationEnum,
@@ -64,8 +62,6 @@ export default class AnimationComponent extends Component {
     const line: AnimationLine = {
       input: animationInputArray,
       output: animationOutputArray,
-      inTangent: [],
-      outTangent: [],
       outputAttributeName: attributeName,
       outputCompositionType: animationOutputArray[0].compositionType,
       interpolationMethod: interpolation
