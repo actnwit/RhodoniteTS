@@ -157,7 +157,7 @@ export default class AnimationComponent extends Component {
     return false;
   }
 
-  static binarySearch(inputArray: number[], input: number) {
+  static binarySearch(inputArray: number[], currentTime: number) {
     let low = 0;
     let high = inputArray.length - 1;
     let mid = 0;
@@ -165,10 +165,10 @@ export default class AnimationComponent extends Component {
     while (low <= high) {
       mid = low + ((high - low) >> 1);
 
-      if (inputArray[mid] < input) {
+      if (inputArray[mid] < currentTime) {
         low = mid + 1;
         retVal = mid;
-      } else if (input < inputArray[mid]) {
+      } else if (currentTime < inputArray[mid]) {
         high = mid - 1;
         retVal = high;
       } else { // if (inputArray[mid] === input) {
@@ -179,20 +179,20 @@ export default class AnimationComponent extends Component {
     return retVal;
   }
 
-  static interpolationSearch(inputArray: number[], input: number) {
+  static interpolationSearch(inputArray: number[], currentTime: number) {
 
     let mid = 0;
     let lower = 0;
     let upper = inputArray.length - 1;
     let retVal = 0;
 
-    while (lower <= upper && input >= inputArray[lower] && input <= inputArray[upper]) {
-      mid = Math.floor(lower + (input - inputArray[lower]) * ((upper - lower)) / (inputArray[upper] - inputArray[lower]));
+    while (lower <= upper && currentTime >= inputArray[lower] && currentTime <= inputArray[upper]) {
+      mid = Math.floor(lower + (currentTime - inputArray[lower]) * ((upper - lower)) / (inputArray[upper] - inputArray[lower]));
 
-      if (inputArray[mid] < input) {
+      if (inputArray[mid] < currentTime) {
         lower = mid + 1;
         retVal = mid;
-      } else if (input < inputArray[mid]) {
+      } else if (currentTime < inputArray[mid]) {
         upper = mid - 1;
         retVal = upper;
       } else { // if (inputArray[mid] === input) {
@@ -203,16 +203,16 @@ export default class AnimationComponent extends Component {
     return retVal;
   }
 
-  static bruteForceSearch(inputArray: number[], input: number) {
+  static bruteForceSearch(inputArray: number[], currentTime: number) {
     for (let i = 0; i < inputArray.length; i++) {
-      if (inputArray[i] <= input && input < inputArray[i + 1]) {
+      if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
         return i;
       }
     }
     return inputArray.length - 1;
   }
 
-  static interpolate(line: AnimationLine, input: number, animationAttributeIndex: Index) {
+  static interpolate(line: AnimationLine, currentTime: number, animationAttributeIndex: Index) {
 
     const inputArray = line.input;
     const outputArray = line.output;
@@ -220,15 +220,15 @@ export default class AnimationComponent extends Component {
     const method = (line.interpolationMethod != null) ? line.interpolationMethod : AnimationInterpolation.Linear;
 
     if (method === AnimationInterpolation.CubicSpline) {
-      if (input <= inputArray[0]) {
+      if (currentTime <= inputArray[0]) {
         return outputArray[0]; // out of range!
       }
-      if (inputArray[inputArray.length - 1] <= input) {
+      if (inputArray[inputArray.length - 1] <= currentTime) {
         return outputArray[outputArray.length - 1]; // out of range!
       }
       // for (let i = 0; i < inputArray.length - 1; i++) {
-      //   if (inputArray[i] <= input && input < inputArray[i + 1]) {
-      const i = this.interpolationSearch(inputArray, input);
+      //   if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
+      const i = this.interpolationSearch(inputArray, currentTime);
       const t_ip_minus_i = inputArray[i + 1] - inputArray[i];
       const p_0 = outputArray[i];
       const p_1 = outputArray[i + 1];
@@ -237,35 +237,35 @@ export default class AnimationComponent extends Component {
       const m_0 = t_ip_minus_i * b_k;
       const m_1 = t_ip_minus_i * a_k_plus_1;
 
-      let ratio = (input - inputArray[i]) / t_ip_minus_i;
+      let ratio = (currentTime - inputArray[i]) / t_ip_minus_i;
       let resultValue = this.cubicSpline(p_0, p_1, m_0, m_1, ratio, animationAttributeIndex);
       return resultValue;
       //   }
       // }
     } else if (method === AnimationInterpolation.Linear) {
-      if (input <= inputArray[0]) {
+      if (currentTime <= inputArray[0]) {
         return outputArray[0]; // out of range!
-      } else if (inputArray[inputArray.length - 1] <= input) {
+      } else if (inputArray[inputArray.length - 1] <= currentTime) {
         return outputArray[outputArray.length - 1]; // out of range!
       }
       // const j = this.bruteForceSearch(inputArray, input);
       // const j = this.binarySearch(inputArray, input);
-      const j = this.interpolationSearch(inputArray, input);
+      const j = this.interpolationSearch(inputArray, currentTime);
 
-      let ratio = (input - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
+      let ratio = (currentTime - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
       let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
       return resultValue;
     } else if (method === AnimationInterpolation.Step) {
-      if (input <= inputArray[0]) {
+      if (currentTime <= inputArray[0]) {
         return outputArray[0]; // out of range!
-      } else if (inputArray[inputArray.length - 1] <= input) {
+      } else if (inputArray[inputArray.length - 1] <= currentTime) {
         return outputArray[outputArray.length - 1]; // out of range!
       }
       for (let i = 0; i < inputArray.length; i++) {
         if (typeof inputArray[i + 1] === "undefined") {
           break;
         }
-        if (inputArray[i] <= input && input < inputArray[i + 1]) {
+        if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
           return outputArray[i];
         }
       }
