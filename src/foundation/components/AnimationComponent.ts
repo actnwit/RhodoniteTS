@@ -211,7 +211,7 @@ export default class AnimationComponent extends Component {
     const inputArray = line.input;
     const outputArray = line.output;
     const compositionType = line.outputCompositionType;
-    const method = (line.interpolationMethod != null) ? line.interpolationMethod : AnimationInterpolation.Linear;
+    const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
 
     if (method === AnimationInterpolation.CubicSpline) {
       // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-
