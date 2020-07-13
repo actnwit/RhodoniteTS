@@ -235,14 +235,12 @@ export default class AnimationComponent extends Component {
       let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, animationAttributeIndex);
       return resultValue;
     } else if (method === AnimationInterpolation.Step) {
-      for (let i = 0; i < inputArray.length; i++) {
-        if (typeof inputArray[i + 1] === "undefined") {
-          break;
-        }
+      for (let i = 0; i < inputArray.length - 1; i++) {
         if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
           return outputArray[i];
         }
       }
+      return outputArray[inputArray.length - 1];
     }
 
     return outputArray[0]; // out of range!
