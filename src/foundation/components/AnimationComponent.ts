@@ -4,8 +4,6 @@ import EntityRepository from "../core/EntityRepository";
 import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
 import { AnimationInterpolationEnum, AnimationInterpolation } from "../definitions/AnimationInterpolation";
 import { AnimationAttribute } from "../definitions/AnimationAttribute";
-import { CompositionTypeEnum, CompositionType } from "../definitions/CompositionType";
-import Quaternion from "../math/Quaternion";
 import TransformComponent from "./TransformComponent";
 import { ProcessStage } from "../definitions/ProcessStage";
 import MutableVector3 from "../math/MutableVector3";
@@ -76,9 +74,8 @@ export default class AnimationComponent extends Component {
   static lerp(start: any, end: any, ratio: number, animationAttributeIndex: Index) {
 
     if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-      Quaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
-      // Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
-      return AnimationComponent.__returnQuaternion as Quaternion;
+      return MutableQuaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
+
     } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
       const returnArray = Array(start.length);
       for (let i = 0; i < start.length; i++) {
@@ -227,13 +224,10 @@ export default class AnimationComponent extends Component {
     }
 
     if (method === AnimationInterpolation.Linear) {
-      // const j = this.bruteForceSearch(inputArray, input);
-      // const j = this.binarySearch(inputArray, input);
-      const j = this.interpolationSearch(inputArray, currentTime);
+      const i = this.interpolationSearch(inputArray, currentTime);
+      const ratio = (currentTime - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
+      return this.lerp(outputArray[i], outputArray[i + 1], ratio, animationAttributeIndex);
 
-      let ratio = (currentTime - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
-      let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, animationAttributeIndex);
-      return resultValue;
     } else if (method === AnimationInterpolation.Step) {
       for (let i = 0; i < inputArray.length - 1; i++) {
         if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
