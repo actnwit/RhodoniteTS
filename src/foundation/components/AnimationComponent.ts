@@ -126,11 +126,7 @@ export default class AnimationComponent extends Component {
       return this.__returnQuaternion.copyComponents(cp_0).add(cm_0).add(cp_1).add(cm_1);
 
     } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-      const returnArray: number[] = Array(p_0.length);
-      for (let i = 0; i < p_0.length; i++) {
-        returnArray[i] = c_0 * p_0[i] + c_1 * m_0[i] + c_2 * p_1[i] + c_3 * m_1[i];
-      }
-      return returnArray;
+      return [c_0 * p_0 + c_1 * m_0 + c_2 * p_1 + c_3 * m_1];
 
     } else {
       const cp_0 = MutableVector3.multiplyTo(p_0, c_0, this.__tmpVector3_0);
@@ -274,20 +270,14 @@ export default class AnimationComponent extends Component {
       m_1 = a_k_plus_one.multiplyNumber(t_diff);
 
     } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-      p_0 = outputArray[3 * k + 1]; //v_k
-      p_1 = outputArray[3 * k + 4]; //v_(k+1)
+      p_0 = outputArray[k][1]; //v_k
+      p_1 = outputArray[k + 1][1]; //v_(k+1)
 
-      const b_k = outputArray[3 * k + 2] as Array<number>;
-      m_0 = Array(b_k.length);
-      for (let i = 0; i < b_k.length; i++) {
-        m_0[i] = t_diff * b_k[i];
-      }
+      const b_k = outputArray[k][2];
+      m_0 = t_diff * b_k;
 
-      const a_k_plus_one = outputArray[3 * k + 3] as Array<number>;
-      m_1 = Array(a_k_plus_one.length);
-      for (let i = 0; i < a_k_plus_one.length; i++) {
-        m_1[i] = t_diff * a_k_plus_one[i];
-      }
+      const a_k_plus_one = outputArray[k + 1][0];
+      m_1 = t_diff * a_k_plus_one;
 
     } else {
       p_0 = outputArray[3 * k + 1];
