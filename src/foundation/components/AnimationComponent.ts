@@ -76,25 +76,28 @@ export default class AnimationComponent extends Component {
   }
 
   static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum, animationAttributeIndex: Index) {
-    if (compositionType === CompositionType.Scalar) {
-      return start * (1 - ratio) + end * ratio;
-    } else {
-      if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-        Quaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
-        // Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
-        return AnimationComponent.__returnQuaternion as Quaternion;
-      } else {
-        (this.__returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
-        (this.__returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
-        (this.__returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
-        return this.__returnVector3;
-        // } else {
-        //   const returnArray = [];
-        //   for (let i = 0; i < start.length; i++) {
-        //     returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
-        //   }
-        //   return returnArray;
+    if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
+      Quaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
+      // Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
+      return AnimationComponent.__returnQuaternion as Quaternion;
+    } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+      const returnArray = Array(start.length);
+      for (let i = 0; i < start.length; i++) {
+        returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
       }
+      return returnArray;
+
+    } else {
+      (this.__returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
+      (this.__returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
+      (this.__returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
+      return this.__returnVector3;
+      // } else {
+      //   const returnArray = [];
+      //   for (let i = 0; i < start.length; i++) {
+      //     returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
+      //   }
+      //   return returnArray;
     }
   }
 
