@@ -130,14 +130,11 @@ export default class AnimationComponent extends Component {
       return this.__returnQuaternion.copyComponents(cp_0).add(cm_0).add(cp_1).add(cm_1);
 
     } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-      //   const returnArray = [];
-      //   for (let j = 0; j < start.length; j++) {
-      //     returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
-      //       (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
-      //       (-2 * ratio3 + 3 * ratio2) * end.x +
-      //       (ratio3 - ratio2) * outTangent[j];
-      //   }
-      //   return returnArray;
+      const returnArray: number[] = Array(p_0.length);
+      for (let i = 0; i < p_0.length; i++) {
+        returnArray[i] = c_0 * p_0[i] + c_1 * m_0[i] + c_2 * p_1[i] + c_3 * m_1[i];
+      }
+      return returnArray;
 
     } else {
       const cp_0 = MutableVector3.multiplyTo(p_0, c_0, this.__tmpVector3_0);
@@ -380,7 +377,7 @@ export default class AnimationComponent extends Component {
         } else if (i === AnimationAttribute.Scale.index) {
           this.__transformComponent!.scale = value;
         } else if (i === AnimationAttribute.Weights.index) {
-          this.__meshComponent!.weights = [value];
+          this.__meshComponent!.weights = value;
         }
       }
     }
