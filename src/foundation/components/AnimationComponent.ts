@@ -34,8 +34,8 @@ export default class AnimationComponent extends Component {
   private __meshComponent?: MeshComponent;
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
   private static __endInputValueOfAllComponent: number = - Number.MAX_VALUE;
-  private static returnVector3 = MutableVector3.zero();
-  private static returnQuaternion = new MutableQuaternion([0, 0, 0, 1]);
+  private static __returnVector3 = MutableVector3.zero();
+  private static __returnQuaternion = new MutableQuaternion([0, 0, 0, 1]);
   private static __startInputValueDirty = false;
   private static __endInputValueDirty = false;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
@@ -75,20 +75,20 @@ export default class AnimationComponent extends Component {
       return start * (1 - ratio) + end * ratio;
     } else {
       if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-        Quaternion.qlerpTo(start, end, ratio, AnimationComponent.returnQuaternion);
+        Quaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
         // Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
-        return AnimationComponent.returnQuaternion as Quaternion;
+        return AnimationComponent.__returnQuaternion as Quaternion;
       } else {
-        (this.returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
-        (this.returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
-        (this.returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
-        return this.returnVector3;
-      // } else {
-      //   const returnArray = [];
-      //   for (let i = 0; i < start.length; i++) {
-      //     returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
-      //   }
-    //   return returnArray;
+        (this.__returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
+        (this.__returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
+        (this.__returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
+        return this.__returnVector3;
+        // } else {
+        //   const returnArray = [];
+        //   for (let i = 0; i < start.length; i++) {
+        //     returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
+        //   }
+        //   return returnArray;
       }
     }
   }
@@ -103,46 +103,46 @@ export default class AnimationComponent extends Component {
         (ratio3 - ratio2) * outTangent;
     } else {
       if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-        this.returnQuaternion.x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+        this.__returnQuaternion.x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
           (-2 * ratio3 + 3 * ratio2) * end.x +
           (ratio3 - ratio2) * outTangent.x;
-        this.returnQuaternion.y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
+        this.__returnQuaternion.y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
           (-2 * ratio3 + 3 * ratio2) * end.y +
           (ratio3 - ratio2) * outTangent.y;
-        this.returnQuaternion.z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
+        this.__returnQuaternion.z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
           (-2 * ratio3 + 3 * ratio2) * end.z +
           (ratio3 - ratio2) * outTangent.z;
-        this.returnQuaternion.w = (2 * ratio3 - 3 * ratio2 + 1) * start.w +
+        this.__returnQuaternion.w = (2 * ratio3 - 3 * ratio2 + 1) * start.w +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.w +
           (-2 * ratio3 + 3 * ratio2) * end.w +
           (ratio3 - ratio2) * outTangent.w;
-        return this.returnQuaternion;
+        return this.__returnQuaternion;
       } else {
-        (this.returnVector3 as MutableVector3).x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+        (this.__returnVector3 as MutableVector3).x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
           (-2 * ratio3 + 3 * ratio2) * end.x +
           (ratio3 - ratio2) * outTangent.x;
-        (this.returnVector3 as MutableVector3).y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
+        (this.__returnVector3 as MutableVector3).y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
           (-2 * ratio3 + 3 * ratio2) * end.y +
           (ratio3 - ratio2) * outTangent.y;
-        (this.returnVector3 as MutableVector3).z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
+        (this.__returnVector3 as MutableVector3).z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
           (-2 * ratio3 + 3 * ratio2) * end.z +
           (ratio3 - ratio2) * outTangent.z;
-        return this.returnVector3;
-      // } else {
-      //   const returnArray = [];
-      //   for (let j = 0; j < start.length; j++) {
-      //     returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
-      //       (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
-      //       (-2 * ratio3 + 3 * ratio2) * end.x +
-      //       (ratio3 - ratio2) * outTangent[j];
-      //   }
-      //   return returnArray;
+        return this.__returnVector3;
+        // } else {
+        //   const returnArray = [];
+        //   for (let j = 0; j < start.length; j++) {
+        //     returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+        //       (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
+        //       (-2 * ratio3 + 3 * ratio2) * end.x +
+        //       (ratio3 - ratio2) * outTangent[j];
+        //   }
+        //   return returnArray;
       }
     }
   }
@@ -335,7 +335,7 @@ export default class AnimationComponent extends Component {
 
   $logic() {
     if (AnimationComponent.isAnimating) {
-        for (var [i, line] of this.__animationLine) {
+      for (var [i, line] of this.__animationLine) {
         let value = AnimationComponent.interpolate(line, AnimationComponent.globalTime, i);
         if (i === AnimationAttribute.Quaternion.index) {
           this.__transformComponent!.quaternion = value;
