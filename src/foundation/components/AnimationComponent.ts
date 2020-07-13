@@ -243,7 +243,8 @@ export default class AnimationComponent extends Component {
       return outputArray[inputArray.length - 1];
     }
 
-    return outputArray[0]; // out of range!
+    // non supported type
+    return outputArray[0];
   }
 
   private static __prepareVariablesForCubicSpline(outputArray: any[], k: number, t_diff: number, animationAttributeIndex: number) {
