@@ -17,7 +17,6 @@ type AnimationLine = {
   input: number[]
   output: any[],
   outputAttributeName: string,
-  outputCompositionType: CompositionTypeEnum
   interpolationMethod: AnimationInterpolationEnum,
   targetEntityUid?: EntityUID
 }
@@ -63,7 +62,6 @@ export default class AnimationComponent extends Component {
       input: animationInputArray,
       output: animationOutputArray,
       outputAttributeName: attributeName,
-      outputCompositionType: animationOutputArray[0].compositionType,
       interpolationMethod: interpolation
     };
 
@@ -75,7 +73,8 @@ export default class AnimationComponent extends Component {
     AnimationComponent.__endInputValueDirty = true;
   }
 
-  static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum, animationAttributeIndex: Index) {
+  static lerp(start: any, end: any, ratio: number, animationAttributeIndex: Index) {
+
     if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
       Quaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
       // Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
@@ -209,7 +208,6 @@ export default class AnimationComponent extends Component {
 
     const inputArray = line.input;
     const outputArray = line.output;
-    const compositionType = line.outputCompositionType;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
 
     if (method === AnimationInterpolation.CubicSpline) {
@@ -237,7 +235,7 @@ export default class AnimationComponent extends Component {
       const j = this.interpolationSearch(inputArray, currentTime);
 
       let ratio = (currentTime - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
-      let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
+      let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, animationAttributeIndex);
       return resultValue;
     } else if (method === AnimationInterpolation.Step) {
       if (currentTime <= inputArray[0]) {
