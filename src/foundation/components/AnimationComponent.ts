@@ -87,16 +87,9 @@ export default class AnimationComponent extends Component {
       return returnArray;
 
     } else {
-      (this.__returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
-      (this.__returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
-      (this.__returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
-      return this.__returnVector3;
-      // } else {
-      //   const returnArray = [];
-      //   for (let i = 0; i < start.length; i++) {
-      //     returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
-      //   }
-      //   return returnArray;
+      const l_vec = MutableVector3.multiplyTo(start, (1 - ratio), this.__tmpVector3_0);
+      const r_vec = MutableVector3.multiplyTo(end, ratio, this.__tmpVector3_1);
+      return this.__returnVector3.copyComponents(l_vec).add(r_vec);
     }
   }
 
