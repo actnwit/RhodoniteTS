@@ -217,12 +217,16 @@ export default class AnimationComponent extends Component {
       const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
       return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
 
-    } else if (method === AnimationInterpolation.Linear) {
-      if (currentTime <= inputArray[0]) {
-        return outputArray[0]; // out of range!
-      } else if (inputArray[inputArray.length - 1] <= currentTime) {
-        return outputArray[outputArray.length - 1]; // out of range!
-      }
+    }
+
+    // out of range
+    if (currentTime <= inputArray[0]) {
+      return outputArray[0];
+    } else if (inputArray[inputArray.length - 1] <= currentTime) {
+      return outputArray[inputArray.length - 1];
+    }
+
+    if (method === AnimationInterpolation.Linear) {
       // const j = this.bruteForceSearch(inputArray, input);
       // const j = this.binarySearch(inputArray, input);
       const j = this.interpolationSearch(inputArray, currentTime);
@@ -231,11 +235,6 @@ export default class AnimationComponent extends Component {
       let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, animationAttributeIndex);
       return resultValue;
     } else if (method === AnimationInterpolation.Step) {
-      if (currentTime <= inputArray[0]) {
-        return outputArray[0]; // out of range!
-      } else if (inputArray[inputArray.length - 1] <= currentTime) {
-        return outputArray[outputArray.length - 1]; // out of range!
-      }
       for (let i = 0; i < inputArray.length; i++) {
         if (typeof inputArray[i + 1] === "undefined") {
           break;
