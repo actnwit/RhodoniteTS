@@ -805,6 +805,11 @@ export default class ModelConverter {
       }
     }
 
+    const doubleSided = materialJson.doubleSided;
+    if (doubleSided != null) {
+      material.cullFace = !doubleSided;
+    }
+
     // For glTF1.0
     const diffuseColorTexture = materialJson.diffuseColorTexture;
     if (diffuseColorTexture != null) {

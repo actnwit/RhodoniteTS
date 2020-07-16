@@ -23,9 +23,9 @@ export default class Plane extends Primitive {
 
     for(let i=0; i<=vSpan; i++) {
       for(let j=0; j<=uSpan; j++) {
-        positions.push((j/uSpan - 1/2)*width);
-        positions.push(0);
         positions.push((i/vSpan - 1/2)*height);
+        positions.push(0);
+        positions.push((j/uSpan - 1/2)*width);
       }
     }
 
@@ -59,11 +59,11 @@ export default class Plane extends Primitive {
     for(let i=0; i<=vSpan; i++) {
       for(let j=0; j<=uSpan; j++) {
         if (isUVRepeat) {
-          texcoords.push(j);
           texcoords.push(i);
+          texcoords.push(j);
         } else {
-          texcoords.push(j/uSpan);
           texcoords.push(i/vSpan);
+          texcoords.push(j/uSpan);
         }
       }
     }

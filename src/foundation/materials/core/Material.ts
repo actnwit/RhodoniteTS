@@ -63,7 +63,7 @@ export default class Material extends RnObject {
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
   private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsIndex, Accessor>> = new Map();
 
-  public cullFace: boolean | null = null;
+  public cullFace: boolean = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW: boolean = true;
 
   private __blendEquationMode: number = 32774;            // gl.FUNC_ADD

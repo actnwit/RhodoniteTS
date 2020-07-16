@@ -17,14 +17,8 @@ let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
 
 function setCullAndBlendSettings(material: Material, renderPass: RenderPass, gl: WebGLRenderingContext) {
-  let cullFace, cullFrontFaceCCW;
-  if (material.cullFace != null) {
-    cullFace = material.cullFace;
-    cullFrontFaceCCW = material.cullFrontFaceCCW;
-  } else {
-    cullFace = renderPass.cullFace;
-    cullFrontFaceCCW = renderPass.cullFrontFaceCCW;
-  }
+  const cullFace = material.cullFace;
+  const cullFrontFaceCCW = material.cullFrontFaceCCW;
 
   setCull(cullFace, cullFrontFaceCCW, gl);
   setBlendSettings(material, gl);
@@ -32,10 +26,10 @@ function setCullAndBlendSettings(material: Material, renderPass: RenderPass, gl:
 
 function setCull(cullFace: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
   if (lastCullFace !== cullFace) {
-    if (!cullFace) {
-      gl.disable(gl.CULL_FACE);
-    } else {
+    if (cullFace) {
       gl.enable(gl.CULL_FACE);
+    } else {
+      gl.disable(gl.CULL_FACE);
     }
     lastCullFace = cullFace;
   }

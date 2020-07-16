@@ -130,11 +130,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         planeMesh = new Rn.Mesh();
                         planeMesh.addPrimitive(planePrimitive);
                         planeMeshComponent.setMesh(planeMesh);
-                        planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, Math.PI / 3);
+                        planeEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, Math.PI / 3);
                         sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
                         spherePrimitive = new Rn.Sphere();
                         sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-                        spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+                        spherePrimitive.generate({ radius: -100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
                         environmentCubeTexture = new Rn.CubeTexture();
                         return [4 /*yield*/, fetch('../../../assets/images/cubemap_test.basis')];
                     case 1:
