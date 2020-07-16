@@ -526,8 +526,8 @@ export default class ModelConverter {
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName] as Gltf2Accessor;
               const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
-              const attributeRnAccessorInGPUInstanceData = this.__copyRnAccessorAndBufferView(attributeRnAccessor, primitive);
-              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUInstanceData);
+              const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferView(attributeRnAccessor, primitive);
+              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUVertexData);
             }
             targets.push(targetMap);
           }
