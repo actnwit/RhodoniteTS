@@ -21,18 +21,12 @@ import MeshComponent from './MeshComponent';
 
 export default class BlendShapeComponent extends Component {
   private __weights: number[] = [];
-  private _dummy: Vector3 = Vector3.dummy();
-  private __meshComponent?: MeshComponent;
   private __targetNames: string[] = [];
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
 
-    this.registerMember(BufferUse.CPUGeneric, 'dummy', Vector3, ComponentType.Float, [0, 0, 0]);
-    this.submitToAllocation(this.maxNumberOfComponent);
-
     this.moveStageTo(ProcessStage.Create);
-
   }
 
 
@@ -41,7 +35,6 @@ export default class BlendShapeComponent extends Component {
   }
 
   $create() {
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -51,9 +44,6 @@ export default class BlendShapeComponent extends Component {
 
   set weights(weights: number[]) {
     this.__weights = weights;
-    if (this.__meshComponent) {
-      this.__meshComponent.weights = weights;
-    }
   }
 
   get weights() {
