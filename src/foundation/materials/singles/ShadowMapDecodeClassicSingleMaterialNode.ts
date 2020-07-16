@@ -20,6 +20,8 @@ import RenderPass from "../../renderer/RenderPass";
 import { Count } from "../../../commontypes/CommonTypes";
 import MutableMatrix44 from "../../math/MutableMatrix44";
 import MutableScalar from "../../math/MutableScalar";
+import MeshComponent from "../../components/MeshComponent";
+import BlendShapeComponent from "../../components/BlendShapeComponent";
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static ShadowColorCoefficient: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shadowColorCoefficient' });
@@ -190,5 +192,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
 
+    // Morph
+    this.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
   }
 }
