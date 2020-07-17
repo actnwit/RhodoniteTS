@@ -131,7 +131,7 @@ type UpdateFunc = (
   => void;
 
 export type ShaderSemanticsInfo = {
-  semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count, setEach?: boolean
+  semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count,
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
   isSystem: boolean, initialValue?: any, updateInterval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
   xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean, isComponentData?: boolean, noControlUi?: boolean,

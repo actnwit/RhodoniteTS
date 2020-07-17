@@ -155,20 +155,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
     const infoArray: ShaderSemanticsInfo[] = [];
     for (let info of shaderSemanticsInfoArray) {
-      if (info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType == CompositionType.Vec2Array) {
-        if (info.setEach === true) {
-          for (let i = 0; i < info.maxIndex!; i++) {
-            const anotherInfo = Object.assign({}, info);
-            anotherInfo.index = i;
-            anotherInfo.maxIndex = info.maxIndex;
-            infoArray.push(anotherInfo);
-          }
-        } else {
-          infoArray.push(info);
-        }
-      } else {
-        infoArray.push(info);
-      }
+      infoArray.push(info);
     }
     this.__semantics = infoArray;
 

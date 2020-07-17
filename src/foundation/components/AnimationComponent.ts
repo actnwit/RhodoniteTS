@@ -4,8 +4,6 @@ import EntityRepository from "../core/EntityRepository";
 import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
 import { AnimationInterpolationEnum, AnimationInterpolation } from "../definitions/AnimationInterpolation";
 import { AnimationAttribute } from "../definitions/AnimationAttribute";
-import { CompositionTypeEnum, CompositionType } from "../definitions/CompositionType";
-import Quaternion from "../math/Quaternion";
 import TransformComponent from "./TransformComponent";
 import { ProcessStage } from "../definitions/ProcessStage";
 import MutableVector3 from "../math/MutableVector3";
@@ -17,7 +15,6 @@ type AnimationLine = {
   input: number[]
   output: any[],
   outputAttributeName: string,
-  outputCompositionType: CompositionTypeEnum
   interpolationMethod: AnimationInterpolationEnum,
   targetEntityUid?: EntityUID
 }
@@ -63,7 +60,6 @@ export default class AnimationComponent extends Component {
       input: animationInputArray,
       output: animationOutputArray,
       outputAttributeName: attributeName,
-      outputCompositionType: animationOutputArray[0].compositionType,
       interpolationMethod: interpolation
     };
 
@@ -75,26 +71,22 @@ export default class AnimationComponent extends Component {
     AnimationComponent.__endInputValueDirty = true;
   }
 
-  static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum, animationAttributeIndex: Index) {
-    if (compositionType === CompositionType.Scalar) {
-      return start * (1 - ratio) + end * ratio;
-    } else {
-      if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-        Quaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
-        // Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
-        return AnimationComponent.__returnQuaternion as Quaternion;
-      } else {
-        (this.__returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
-        (this.__returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
-        (this.__returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
-        return this.__returnVector3;
-        // } else {
-        //   const returnArray = [];
-        //   for (let i = 0; i < start.length; i++) {
-        //     returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
-        //   }
-        //   return returnArray;
+  static lerp(start: any, end: any, ratio: number, animationAttributeIndex: Index) {
+
+    if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
+      return MutableQuaternion.qlerpTo(start, end, ratio, AnimationComponent.__returnQuaternion);
+
+    } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+      const returnArray = Array(start.length);
+      for (let i = 0; i < start.length; i++) {
+        returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
       }
+      return returnArray;
+
+    } else {
+      const l_vec = MutableVector3.multiplyTo(start, (1 - ratio), this.__tmpVector3_0);
+      const r_vec = MutableVector3.multiplyTo(end, ratio, this.__tmpVector3_1);
+      return this.__returnVector3.copyComponents(l_vec).add(r_vec);
     }
   }
 
@@ -206,7 +198,6 @@ export default class AnimationComponent extends Component {
 
     const inputArray = line.input;
     const outputArray = line.output;
-    const compositionType = line.outputCompositionType;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
 
     if (method === AnimationInterpolation.CubicSpline) {
@@ -223,36 +214,31 @@ export default class AnimationComponent extends Component {
       const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
       return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
 
-    } else if (method === AnimationInterpolation.Linear) {
-      if (currentTime <= inputArray[0]) {
-        return outputArray[0]; // out of range!
-      } else if (inputArray[inputArray.length - 1] <= currentTime) {
-        return outputArray[outputArray.length - 1]; // out of range!
-      }
-      // const j = this.bruteForceSearch(inputArray, input);
-      // const j = this.binarySearch(inputArray, input);
-      const j = this.interpolationSearch(inputArray, currentTime);
+    }
 
-      let ratio = (currentTime - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
-      let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
-      return resultValue;
+    // out of range
+    if (currentTime <= inputArray[0]) {
+      return outputArray[0];
+    } else if (inputArray[inputArray.length - 1] <= currentTime) {
+      return outputArray[inputArray.length - 1];
+    }
+
+    if (method === AnimationInterpolation.Linear) {
+      const i = this.interpolationSearch(inputArray, currentTime);
+      const ratio = (currentTime - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
+      return this.lerp(outputArray[i], outputArray[i + 1], ratio, animationAttributeIndex);
+
     } else if (method === AnimationInterpolation.Step) {
-      if (currentTime <= inputArray[0]) {
-        return outputArray[0]; // out of range!
-      } else if (inputArray[inputArray.length - 1] <= currentTime) {
-        return outputArray[outputArray.length - 1]; // out of range!
-      }
-      for (let i = 0; i < inputArray.length; i++) {
-        if (typeof inputArray[i + 1] === "undefined") {
-          break;
-        }
+      for (let i = 0; i < inputArray.length - 1; i++) {
         if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
           return outputArray[i];
         }
       }
+      return outputArray[inputArray.length - 1];
     }
 
-    return outputArray[0]; // out of range!
+    // non supported type
+    return outputArray[0];
   }
 
   private static __prepareVariablesForCubicSpline(outputArray: any[], k: number, t_diff: number, animationAttributeIndex: number) {
