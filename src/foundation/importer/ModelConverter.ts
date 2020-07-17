@@ -228,7 +228,7 @@ export default class ModelConverter {
         for (let channel of animation.channels) {
           const animInputArray = channel.sampler.input.extras.typedDataArray;
           const animOutputArray = channel.sampler.output.extras.typedDataArray;
-          const interpolation = (channel.sampler.interpolation != null) ? channel.sampler.interpolation : 'LINEAR';
+          const interpolation = channel.sampler.interpolation ?? 'LINEAR';
 
           let animationAttributeName = '';
           if (channel.target.path === 'translation') {
@@ -595,7 +595,7 @@ export default class ModelConverter {
     if (isSkinningOriginal) {
       const existSkin = node.skin != null;
       argumentOfMaterialHelper.isSkinning = existSkin;
-      argumentOfMaterialHelper.additionalName = existSkin ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : "";
+      argumentOfMaterialHelper.additionalName = existSkin ? `skin${(node.skinIndex ?? node.skinName)}` : "";
     }
   }
 
@@ -683,7 +683,7 @@ export default class ModelConverter {
     const isSkinning = this.__isSkinning(node, gltfModel);
     const isLighting = this.__isLighting(gltfModel, materialJson);
     const isAlphaMasking = this.__isAlphaMasking(materialJson);
-    const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
+    const additionalName = (node.skin != null) ? `skin${(node.skinIndex ?? node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
       return MaterialHelper.createPbrUberMaterial({
         isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting,
@@ -758,9 +758,9 @@ export default class ModelConverter {
       }
 
       let metallicFactor = pbrMetallicRoughness.metallicFactor;
-      metallicFactor = (metallicFactor != null) ? metallicFactor : 1;
+      metallicFactor = metallicFactor ?? 1;
       let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
-      roughnessFactor = (roughnessFactor != null) ? roughnessFactor : 1;
+      roughnessFactor = roughnessFactor ?? 1;
       material.setParameter(ShaderSemantics.MetallicRoughnessFactor, new Vector2(metallicFactor, roughnessFactor));
 
       const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
