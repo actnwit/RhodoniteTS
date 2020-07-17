@@ -1,7 +1,7 @@
 import RnObject from "../../core/RnObject";
 import { AlphaMode, AlphaModeEnum } from "../../definitions/AlphaMode";
-import AbstractMaterialNode, { ShaderSocket } from "./AbstractMaterialNode";
-import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemantics, ShaderSemanticsIndex } from "../../definitions/ShaderSemantics";
+import AbstractMaterialNode from "./AbstractMaterialNode";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsIndex } from "../../definitions/ShaderSemantics";
 import { CompositionType } from "../../definitions/CompositionType";
 import MathClassUtil from "../../math/MathClassUtil";
 import { ComponentType } from "../../definitions/ComponentType";
@@ -13,8 +13,8 @@ import Config from "../../core/Config";
 import BufferView from "../../memory/BufferView";
 import Accessor from "../../memory/Accessor";
 import ISingleShader from "../../../webgl/shaders/ISingleShader";
-import { ShaderType, ShaderTypeEnum } from "../../definitions/ShaderType";
-import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../commontypes/CommonTypes";
+import { ShaderType } from "../../definitions/ShaderType";
+import { Index, CGAPIResourceHandle, Count } from "../../../commontypes/CommonTypes";
 import DataUtil from "../../misc/DataUtil";
 import GlobalDataRepository from "../../core/GlobalDataRepository";
 import System from "../../system/System";
@@ -24,7 +24,6 @@ import { BoneDataType } from "../../definitions/BoneDataType";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 
 type MaterialTypeName = string;
-type PropertyName = string;
 type ShaderVariable = {
   value: any,
   info: ShaderSemanticsInfo
@@ -208,14 +207,14 @@ export default class Material extends RnObject {
 
         map.set(
           this._getPropertyIndex(semanticInfo), {
-            info: semanticInfo,
-            value: MathClassUtil.initWithFloat32Array(
-              semanticInfo.initialValue,
-              semanticInfo.initialValue,
-              typedArray,
-              semanticInfo.compositionType
-            )
-          }
+          info: semanticInfo,
+          value: MathClassUtil.initWithFloat32Array(
+            semanticInfo.initialValue,
+            semanticInfo.initialValue,
+            typedArray,
+            semanticInfo.compositionType
+          )
+        }
         );
       } else {
         const properties = this.__accessors.get(materialTypeName)!;
@@ -251,16 +250,16 @@ export default class Material extends RnObject {
   }
 
   static forceRegisterMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstanceNumber: number = Config.maxMaterialInstanceForEachType) {
-      Material.__materialTypes.set(materialTypeName, materialNodes);
+    Material.__materialTypes.set(materialTypeName, materialNodes);
 
-      const materialTid = ++Material.__materialTidCount;
-      Material.__materialTids.set(materialTypeName, materialTid);
-      Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
+    const materialTid = ++Material.__materialTidCount;
+    Material.__materialTids.set(materialTypeName, materialTid);
+    Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
 
-      Material.__allocateBufferView(materialTypeName, materialNodes);
-      Material.__materialInstanceCountOfType.set(materialTypeName, 0);
+    Material.__allocateBufferView(materialTypeName, materialNodes);
+    Material.__materialInstanceCountOfType.set(materialTypeName, 0);
 
-      return true;
+    return true;
 
   }
 
@@ -325,14 +324,14 @@ export default class Material extends RnObject {
           const accessor = accessorMap!.get(propertyIndex) as Accessor;
           const typedArray = accessor.takeOne() as Float32Array;
           const shaderVariable = {
-              info: semanticsInfo,
-              value: MathClassUtil.initWithFloat32Array(
-                semanticsInfo.initialValue,
-                semanticsInfo.initialValue,
-                typedArray,
-                semanticsInfo.compositionType
-              )
-            };
+            info: semanticsInfo,
+            value: MathClassUtil.initWithFloat32Array(
+              semanticsInfo.initialValue,
+              semanticsInfo.initialValue,
+              typedArray,
+              semanticsInfo.compositionType
+            )
+          };
           this.__fields.set(
             propertyIndex,
             shaderVariable
@@ -352,7 +351,7 @@ export default class Material extends RnObject {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
     const info = this.__fieldsInfo.get(propertyIndex);
     if (info != null) {
-      let valueObj: ShaderVariable|undefined;
+      let valueObj: ShaderVariable | undefined;
       if (info.soloDatum) {
         valueObj = Material.__soloDatumFields.get(this.__materialTypeName)!.get(propertyIndex);
       } else {
