@@ -29,7 +29,6 @@ export default class RenderPass extends RnObject {
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
-  public cullFace: boolean = false;
   public cullFrontFaceCCW: boolean = true;
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();

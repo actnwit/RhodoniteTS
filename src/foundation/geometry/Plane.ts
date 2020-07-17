@@ -2,44 +2,41 @@ import Primitive from "./Primitive";
 import { CompositionType } from "../definitions/CompositionType";
 import { VertexAttribute, VertexAttributeEnum } from "../definitions/VertexAttribute";
 import { PrimitiveMode } from "../definitions/PrimitiveMode";
-import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
 import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/core/Material";
 import { Size } from "../../commontypes/CommonTypes";
-import RnObject from "../core/RnObject";
 
 export default class Plane extends Primitive {
   constructor() {
     super();
   }
 
-  generate({width, height, uSpan, vSpan, isUVRepeat = false, material}:
-    {width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, material?: Material})
-  {
+  generate({ width, height, uSpan, vSpan, isUVRepeat = false, material }:
+    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, material?: Material }) {
     var positions = [];
 
-    for(let i=0; i<=vSpan; i++) {
-      for(let j=0; j<=uSpan; j++) {
-        positions.push((j/uSpan - 1/2)*width);
+    for (let i = 0; i <= vSpan; i++) {
+      for (let j = 0; j <= uSpan; j++) {
+        positions.push((i / vSpan - 1 / 2) * height);
         positions.push(0);
-        positions.push((i/vSpan - 1/2)*height);
+        positions.push((j / uSpan - 1 / 2) * width);
       }
     }
 
     var indices = [];
-    for(let i=0; i<vSpan; i++) {
+    for (let i = 0; i < vSpan; i++) {
       let degenerate_left_index = 0;
       let degenerate_right_index = 0;
-      for(let j=0; j<=uSpan; j++) {
-        indices.push(i*(uSpan+1)+j);
-        indices.push((i+1)*(uSpan+1)+j);
+      for (let j = 0; j <= uSpan; j++) {
+        indices.push(i * (uSpan + 1) + j);
+        indices.push((i + 1) * (uSpan + 1) + j);
         if (j === 0) {
-          degenerate_left_index = (i + 1) * (uSpan+1) + j;
+          degenerate_left_index = (i + 1) * (uSpan + 1) + j;
         } else if (j === uSpan) {
-          degenerate_right_index = (i + 1) * (uSpan+1) + j;
+          degenerate_right_index = (i + 1) * (uSpan + 1) + j;
         }
       }
       indices.push(degenerate_right_index);
@@ -47,8 +44,8 @@ export default class Plane extends Primitive {
     }
 
     var normals = [];
-    for(let i=0; i<=vSpan; i++) {
-      for(let j=0; j<=uSpan; j++) {
+    for (let i = 0; i <= vSpan; i++) {
+      for (let j = 0; j <= uSpan; j++) {
         normals.push(0);
         normals.push(1);
         normals.push(0);
@@ -56,14 +53,14 @@ export default class Plane extends Primitive {
     }
 
     var texcoords = [];
-    for(let i=0; i<=vSpan; i++) {
-      for(let j=0; j<=uSpan; j++) {
+    for (let i = 0; i <= vSpan; i++) {
+      for (let j = 0; j <= uSpan; j++) {
         if (isUVRepeat) {
-          texcoords.push(j);
           texcoords.push(i);
+          texcoords.push(j);
         } else {
-          texcoords.push(j/uSpan);
-          texcoords.push(i/vSpan);
+          texcoords.push(i / vSpan);
+          texcoords.push(j / uSpan);
         }
       }
     }
@@ -74,7 +71,7 @@ export default class Plane extends Primitive {
     const primitiveMode = PrimitiveMode.TriangleStrip;
     const attributes = [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)];
     let sumOfAttributesByteSize = 0;
-    attributes.forEach(attribute=>{
+    attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
     });
     const indexSizeInByte = indices.length * 2;
@@ -84,25 +81,25 @@ export default class Plane extends Primitive {
 
 
     // Index Buffer
-    const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indexSizeInByte /*byte*/, byteStride: 0, isAoS: false});
+    const indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indexSizeInByte /*byte*/, byteStride: 0, isAoS: false });
     const indicesAccessor = indicesBufferView.takeAccessor({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.UnsignedShort,
       count: indices.length
     });
-    for (let i=0; i<indices.length; i++) {
+    for (let i = 0; i < indices.length; i++) {
       indicesAccessor!.setScalar(i, indices![i], {});
     }
 
     // VertexBuffer
-    const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false});
+    const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
 
-    attributes.forEach((attribute, i)=>{
+    attributes.forEach((attribute, i) => {
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor:AccessorBase = attributesBufferView.takeAccessor({
+      const accessor: AccessorBase = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
@@ -112,7 +109,7 @@ export default class Plane extends Primitive {
     });
 
     const attributeMap: Map<VertexAttributeEnum, Accessor> = new Map();
-    for (let i=0; i<attributeSemantics.length; i++) {
+    for (let i = 0; i < attributeSemantics.length; i++) {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
@@ -123,6 +120,4 @@ export default class Plane extends Primitive {
       indicesAccessor
     );
   }
-
-
 }

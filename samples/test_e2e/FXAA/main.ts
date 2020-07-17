@@ -99,11 +99,11 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, Math.PI / 3);
+  planeEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, Math.PI / 3)  ;
   const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+  spherePrimitive.generate({ radius: -100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
   const environmentCubeTexture = new Rn.CubeTexture();
   {
     const response = await fetch('../../../assets/images/cubemap_test.basis');
