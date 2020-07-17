@@ -20,6 +20,8 @@ import RenderPass from "../../renderer/RenderPass";
 import { Count } from "../../../commontypes/CommonTypes";
 import MutableMatrix44 from "../../math/MutableMatrix44";
 import MutableScalar from "../../math/MutableScalar";
+import MeshComponent from "../../components/MeshComponent";
+import BlendShapeComponent from "../../components/BlendShapeComponent";
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static ShadowColorCoefficient: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shadowColorCoefficient' });
@@ -174,9 +176,12 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
 
       (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).zNearInner, this.__zNearInner.v);
       (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).zFarInner, this.__zFarInner.v);
+      const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      __webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightViewProjectionMatrix.str, true, this.__encodedDepthRenderPass.cameraComponent!.viewProjectionMatrix);
     } else {
       material.setParameter(ShadowMapDecodeClassicSingleMaterialNode.zNearInner, this.__zNearInner);
       material.setParameter(ShadowMapDecodeClassicSingleMaterialNode.zFarInner, this.__zFarInner);
+      material.setParameter(ShaderSemantics.LightViewProjectionMatrix, this.__encodedDepthRenderPass.cameraComponent!.viewProjectionMatrix)
     }
 
     /// Skinning
@@ -186,8 +191,8 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     // Lights
     this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
-    const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    __webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightViewProjectionMatrix.str, true, this.__encodedDepthRenderPass.cameraComponent!.viewProjectionMatrix);
 
+    // Morph
+    this.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
   }
 }
