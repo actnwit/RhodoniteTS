@@ -670,7 +670,7 @@ export default class ModelConverter {
 
       const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       if (materialHelperName != null) {
-        return (MaterialHelper as any)[materialHelperName].apply(this, argumentArray);
+        return (MaterialHelper as any)[materialHelperName](...argumentArray);
       }
     }
 
