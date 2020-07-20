@@ -14,8 +14,8 @@ export default class Plane extends Primitive {
     super();
   }
 
-  generate({ width, height, uSpan, vSpan, isUVRepeat = false, material }:
-    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, material?: Material }) {
+  generate({ width, height, uSpan, vSpan, isUVRepeat = false, flipTextureCoordinateY = false, material }:
+    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, flipTextureCoordinateY: boolean, material?: Material }) {
     var positions = [];
 
     for (let i = 0; i <= vSpan; i++) {
@@ -54,13 +54,15 @@ export default class Plane extends Primitive {
 
     var texcoords = [];
     for (let i = 0; i <= vSpan; i++) {
+      const i_ = flipTextureCoordinateY ? i : vSpan - i;
+
       for (let j = 0; j <= uSpan; j++) {
         if (isUVRepeat) {
           texcoords.push(j);
-          texcoords.push(i);
+          texcoords.push(i_);
         } else {
           texcoords.push(j / uSpan);
-          texcoords.push(i / vSpan);
+          texcoords.push(i_ / vSpan);
         }
       }
     }
