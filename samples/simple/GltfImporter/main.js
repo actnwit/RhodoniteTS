@@ -26,12 +26,12 @@ const load = async function (time) {
   const expressions = [];
 
   // env
-  const envExpression = createEnvCubeExpression('./environment');
+  const envExpression = createEnvCubeExpression('./../../../assets/ibl/shanghai_bund/environment');
   expressions.push(envExpression);
 
 
   // vrm
-  const vrmExpression = await gltfImporter.import('./vrm.vrm', {
+  const vrmExpression = await gltfImporter.import('./../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{
       isSkinning: false,
       isMorphing: false,

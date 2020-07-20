@@ -41,7 +41,7 @@ const load = async function (time) {
   expression.addRenderPasses([renderPassMain, renderPassGamma, renderPassFxaa]);
 
   // rootGroups[0]: main entity, rootGroups[1]: outline entity(if exist)
-  const rootGroups = await VRMImporter.import('./vrm.vrm', {
+  const rootGroups = await VRMImporter.import('./../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{
       isSkinning: false,
       isMorphing: false
@@ -62,7 +62,7 @@ const load = async function (time) {
   window.sphereEntity = sphereEntity;
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const environmentCubeTexture = new Rn.CubeTexture();
-  environmentCubeTexture.baseUriToLoad = './environment';
+  environmentCubeTexture.baseUriToLoad = './../../../assets/ibl/shanghai_bund/environment/environment';
   environmentCubeTexture.isNamePosNeg = true;
   environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   environmentCubeTexture.mipmapLevelNumber = 1;
