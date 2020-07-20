@@ -68,12 +68,11 @@ const load = async function (time) {
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-  spherePrimitive.generate({ radius: 50, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+  spherePrimitive.generate({ radius: -50, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
   const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
-  sphereEntity.getTransform().scale = new Rn.Vector3(-1, 1, 1);
   sphereEntity.getTransform().translate = new Rn.Vector3(0, 20, -20);
 
 
@@ -230,7 +229,7 @@ function createRenderPassForPostEffect(materialHelperFunctionStr, arrayOfHelperF
   });
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0.0, 0.0);
+  boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
   boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
 
   const boardMesh = new Rn.Mesh();
