@@ -76,7 +76,7 @@
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
-    entity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0);
+    entity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     const meshComponent2 = entity2.getComponent(Rn.MeshComponent);
 
     const primitive2 = new Rn.Plane();
@@ -87,7 +87,7 @@
     const mesh2 = new Rn.Mesh();
     mesh2.addPrimitive(primitive2);
     meshComponent2.setMesh(mesh2);
-    entity2.getTransform().rotate = new Rn.Vector3(-Math.PI * 2 / 3, 0, 0);
+    entity2.getTransform().rotate = new Rn.Vector3(Math.PI / 3, 0, 0);
     entity2.getTransform().translate = new Rn.Vector3(0, 0, 0);
 
     const primitive_fxaa = new Rn.Plane();
@@ -99,7 +99,7 @@
     const mesh_fxaa = new Rn.Mesh();
     mesh_fxaa.addPrimitive(primitive_fxaa);
     meshComponent_fxaa.setMesh(mesh_fxaa);
-    entity_fxaa.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0);
+    entity_fxaa.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     entity_fxaa.getTransform().translate = new Rn.Vector3(0, 0, 0);
 
 

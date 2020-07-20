@@ -130,7 +130,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         planeMesh = new Rn.Mesh();
                         planeMesh.addPrimitive(planePrimitive);
                         planeMeshComponent.setMesh(planeMesh);
-                        planeEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, Math.PI / 3);
+                        planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, Math.PI / 3);
                         sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
                         spherePrimitive = new Rn.Sphere();
                         sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
@@ -181,7 +181,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var meshFxaa = new Rn.Mesh();
         meshFxaa.addPrimitive(primitiveFxaa);
         meshComponentFxaa.setMesh(meshFxaa);
-        entityFxaa.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0);
+        entityFxaa.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
         renderPassFxaa.addEntities([entityFxaa]);
         var cameraEntityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
         var cameraComponentFxaa = cameraEntityFxaa.getComponent(Rn.CameraComponent);
