@@ -14,15 +14,25 @@ export default class Plane extends Primitive {
     super();
   }
 
-  generate({ width, height, uSpan, vSpan, isUVRepeat = false, material }:
-    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, material?: Material }) {
+  /**
+   * Generates a plane object
+   * @param width the length of U(X)-axis direction
+   * @param height the length of V(Y)-axis direction
+   * @param uSpan number of spans in U(X)-axis direction
+   * @param vSpan number of spans in V(Y)-axis direction
+   * @param isUVRepeat draw uSpan times vSpan number of textures
+   * @param flipTextureCoordinateY draw textures by flipping on the V(Y)-axis
+   * @param material attach a rhodonite material to this plane(the default material is the classicUberMaterial)
+   */
+  generate({ width, height, uSpan, vSpan, isUVRepeat = false, flipTextureCoordinateY = false, material }:
+    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, flipTextureCoordinateY: boolean, material?: Material }) {
     var positions = [];
 
     for (let i = 0; i <= vSpan; i++) {
       for (let j = 0; j <= uSpan; j++) {
-        positions.push((i / vSpan - 1 / 2) * height);
-        positions.push(0);
         positions.push((j / uSpan - 1 / 2) * width);
+        positions.push(0);
+        positions.push((i / vSpan - 1 / 2) * height);
       }
     }
 
@@ -54,13 +64,15 @@ export default class Plane extends Primitive {
 
     var texcoords = [];
     for (let i = 0; i <= vSpan; i++) {
+      const i_ = flipTextureCoordinateY ? i : vSpan - i;
+
       for (let j = 0; j <= uSpan; j++) {
         if (isUVRepeat) {
-          texcoords.push(i);
           texcoords.push(j);
+          texcoords.push(i_);
         } else {
-          texcoords.push(i / vSpan);
           texcoords.push(j / uSpan);
+          texcoords.push(i_ / vSpan);
         }
       }
     }

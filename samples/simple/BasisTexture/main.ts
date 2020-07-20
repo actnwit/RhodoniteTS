@@ -1,10 +1,5 @@
 
 import { RnType } from '../../../dist/rhodonite'
-import CameraComponent from '../../../dist/foundation/components/CameraComponent';
-import CameraControllerComponent from '../../../dist/foundation/components/CameraControllerComponent';
-import Entity from '../../../dist/foundation/core/Entity';
-import LightComponent from '../../../dist/foundation/components/LightComponent';
-import Vector4 from '../../../dist/foundation/math/Vector4';
 import { RnWebGL } from '../../../dist/webgl/main';
 import OrbitCameraController from '../../../dist/foundation/cameras/OrbitCameraController';
 
@@ -17,7 +12,6 @@ declare const RnWebGL: RnWebGL
 const load = async function () {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.FastestWebGL1, document.getElementById('world') as HTMLCanvasElement);
 
@@ -25,7 +19,7 @@ const load = async function () {
 
 
   // Plane
-    const texture = new Rn.Texture();
+  const texture = new Rn.Texture();
   {
     const response = await fetch('../../../assets/images/Rn.basis');
     const buffer = await response.arrayBuffer();
@@ -37,7 +31,7 @@ const load = async function () {
 
   const planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const planePrimitive = new Rn.Plane();
-  planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, material: modelMaterial });
+  planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, flipTextureCoordinateY: true, material: modelMaterial });
   const planeMeshComponent = planeEntity.getMesh();
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
@@ -47,7 +41,7 @@ const load = async function () {
   const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+  spherePrimitive.generate({ radius: -100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
   const environmentCubeTexture = new Rn.CubeTexture();
   {
     const response = await fetch('../../../assets/images/cubemap_test.basis');

@@ -41,7 +41,7 @@ const load = async function (time) {
   expression.addRenderPasses([renderPassMain, renderPassGamma, renderPassFxaa]);
 
   // rootGroups[0]: main entity, rootGroups[1]: outline entity(if exist)
-  const rootGroups = await VRMImporter.import('./vrm.vrm', {
+  const rootGroups = await VRMImporter.import('./../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{
       isSkinning: false,
       isMorphing: false
@@ -62,18 +62,17 @@ const load = async function (time) {
   window.sphereEntity = sphereEntity;
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const environmentCubeTexture = new Rn.CubeTexture();
-  environmentCubeTexture.baseUriToLoad = './environment';
+  environmentCubeTexture.baseUriToLoad = './../../../assets/ibl/shanghai_bund/environment/environment';
   environmentCubeTexture.isNamePosNeg = true;
   environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-  spherePrimitive.generate({ radius: 50, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+  spherePrimitive.generate({ radius: -50, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
   const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
-  sphereEntity.getTransform().scale = new Rn.Vector3(-1, 1, 1);
   sphereEntity.getTransform().translate = new Rn.Vector3(0, 20, -20);
 
 
@@ -230,7 +229,7 @@ function createRenderPassForPostEffect(materialHelperFunctionStr, arrayOfHelperF
   });
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0.0, 0.0);
+  boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
   boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
 
   const boardMesh = new Rn.Mesh();

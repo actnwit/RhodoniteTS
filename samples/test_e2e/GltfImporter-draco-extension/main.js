@@ -81,7 +81,7 @@ const load = async function () {
     });
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0.0, 0.0);
+    boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
     boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
 
     const boardMesh = new Rn.Mesh();

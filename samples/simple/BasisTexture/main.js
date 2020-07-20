@@ -74,7 +74,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
                         planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
                         planePrimitive = new Rn.Plane();
-                        planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, material: modelMaterial });
+                        planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, flipTextureCoordinateY: true, material: modelMaterial });
                         planeMeshComponent = planeEntity.getMesh();
                         planeMesh = new Rn.Mesh();
                         planeMesh.addPrimitive(planePrimitive);
@@ -83,7 +83,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
                         spherePrimitive = new Rn.Sphere();
                         sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-                        spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+                        spherePrimitive.generate({ radius: -100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
                         environmentCubeTexture = new Rn.CubeTexture();
                         return [4 /*yield*/, fetch('../../../assets/images/cubemap_test.basis')];
                     case 5:

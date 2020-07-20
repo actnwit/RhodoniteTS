@@ -48,7 +48,7 @@ const load = function (time) {
     const meshFxaa = new Rn.Mesh();
     meshFxaa.addPrimitive(primitiveFxaa);
     meshComponentFxaa.setMesh(meshFxaa);
-    entityFxaa.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0);
+    entityFxaa.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     renderPassFxaa.addEntities([entityFxaa]);
     const cameraEntityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
     const cameraComponentFxaa = cameraEntityFxaa.getComponent(Rn.CameraComponent);
@@ -67,7 +67,7 @@ const load = function (time) {
     const meshGamma = new Rn.Mesh();
     meshGamma.addPrimitive(primitiveGamma);
     meshComponentGamma.setMesh(meshGamma);
-    entityGamma.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0);
+    entityGamma.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     renderPassGamma.cameraComponent = cameraComponentFxaa;
     renderPassGamma.addEntities([entityGamma]);
 
@@ -130,7 +130,7 @@ const load = function (time) {
       environmentCubeTexture.mipmapLevelNumber = 1;
       environmentCubeTexture.loadTextureImagesAsync();
       sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-      spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+      spherePrimitive.generate({ radius: -100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
       const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
       const sphereMesh = new Rn.Mesh();
       sphereMesh.addPrimitive(spherePrimitive);

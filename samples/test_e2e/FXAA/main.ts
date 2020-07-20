@@ -99,7 +99,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, Math.PI / 3)  ;
+  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, Math.PI / 3)  ;
   const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
@@ -149,7 +149,7 @@ function setupRenderPassFxaa(entityRepository: EntityRepository, renderable: Abs
   const meshFxaa = new Rn.Mesh()
   meshFxaa.addPrimitive(primitiveFxaa)
   meshComponentFxaa.setMesh(meshFxaa)
-  entityFxaa.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0)
+  entityFxaa.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0)
   renderPassFxaa.addEntities([entityFxaa])
   const cameraEntityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
   const cameraComponentFxaa = cameraEntityFxaa.getComponent(Rn.CameraComponent) as CameraComponent

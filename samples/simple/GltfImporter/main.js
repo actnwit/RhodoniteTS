@@ -26,12 +26,12 @@ const load = async function (time) {
   const expressions = [];
 
   // env
-  const envExpression = createEnvCubeExpression('./environment');
+  const envExpression = createEnvCubeExpression('./../../../assets/ibl/shanghai_bund/environment');
   expressions.push(envExpression);
 
 
   // vrm
-  const vrmExpression = await gltfImporter.import('./vrm.vrm', {
+  const vrmExpression = await gltfImporter.import('./../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{
       isSkinning: false,
       isMorphing: false,
@@ -136,12 +136,11 @@ function createEnvCubeExpression(uri) {
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-  spherePrimitive.generate({ radius: 50, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+  spherePrimitive.generate({ radius: -50, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
   const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
-  sphereEntity.getTransform().scale = new Rn.Vector3(-1, 1, 1);
   sphereEntity.getTransform().translate = new Rn.Vector3(0, 20, -20);
 
   const sphereRenderPass = new Rn.RenderPass();
@@ -161,7 +160,7 @@ function createPostEffectRenderPass(materialHelperFunctionStr, arrayOfHelperFunc
   });
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0.0, 0.0);
+  boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
   boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
 
   const boardMesh = new Rn.Mesh();
