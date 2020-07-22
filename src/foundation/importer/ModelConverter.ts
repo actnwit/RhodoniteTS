@@ -43,6 +43,7 @@ import BlendShapeComponent from "../components/BlendShapeComponent";
 import GlobalDataRepository from "../core/GlobalDataRepository";
 import PbrShadingSingleMaterialNode from "../materials/singles/PbrShadingSingleMaterialNode";
 import Scalar from "../math/Scalar";
+import { TextureParameter } from "../definitions/TextureParameter";
 
 declare var DracoDecoderModule: any;
 
@@ -574,7 +575,15 @@ export default class ModelConverter {
 
       const image = textureInfo.image;
       if (image?.image) {
-        rnTexture.generateTextureFromImage(image.image);
+        let textureOption;
+        if (!this.__sizeIsPowerOfTwo(image.image)) {
+          textureOption = {
+            wrapS: TextureParameter.ClampToEdge,
+            wrapT: TextureParameter.ClampToEdge
+          }
+        }
+
+        rnTexture.generateTextureFromImage(image.image, textureOption);
       } else if (image?.basis) {
         rnTexture.generateTextureFromBasis(image.basis);
       } else {
@@ -847,14 +856,24 @@ export default class ModelConverter {
   }
 
   static _createTexture(textureType: any, gltfModel: glTF2) {
-    const options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
+    const options = gltfModel.asset.extras?.rnLoaderOptions;
+
     const rnTexture = new Texture();
     rnTexture.autoDetectTransparency = (options?.autoDetectTextureTransparency === true) ? true : false;
     rnTexture.autoResize = (options?.autoResizeTexture === true) ? true : false;
     const texture = textureType.texture;
     if (texture.image.image) {
-      const image = texture.image.image;
-      rnTexture.generateTextureFromImage(image);
+      const image = texture.image.image as HTMLImageElement;
+
+      let textureOption;
+      if (!this.__sizeIsPowerOfTwo(image)) {
+        textureOption = {
+          wrapS: TextureParameter.ClampToEdge,
+          wrapT: TextureParameter.ClampToEdge
+        }
+      }
+
+      rnTexture.generateTextureFromImage(image, textureOption);
       if (texture.image.uri) {
         rnTexture.name = texture.image.url;
       } else {
@@ -872,6 +891,17 @@ export default class ModelConverter {
     }
 
     return rnTexture;
+  }
+
+  private static __sizeIsPowerOfTwo(image: HTMLImageElement) {
+    const width = image.width;
+    const height = image.height;
+
+    if ((width & width - 1) == 0 && (height & height - 1) == 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
 
