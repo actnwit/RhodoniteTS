@@ -21,10 +21,12 @@ const ShaderTextureLod: WebGLExtensionEnum = new WebGLExtensionClass({ index: 9,
 const ShaderDerivatives: WebGLExtensionEnum = new WebGLExtensionClass({ index: 10, str: 'OES_standard_derivatives' });
 const DrawBuffers: WebGLExtensionEnum = new WebGLExtensionClass({ index: 11, str: 'WEBGL_draw_buffers' });
 const BlendMinmax: WebGLExtensionEnum = new WebGLExtensionClass({ index: 12, str: 'EXT_blend_minmax' });
+const ColorBufferFloat: WebGLExtensionEnum = new WebGLExtensionClass({ index: 13, str: 'WEBGL_color_buffer_float' });
+
 
 const typeList = [VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear,
   TextureHalfFloatLinear, InstancedArrays, TextureFilterAnisotropic, ElementIndexUint,
-  ShaderTextureLod, ShaderDerivatives, DrawBuffers, BlendMinmax];
+  ShaderTextureLod, ShaderDerivatives, DrawBuffers, BlendMinmax, ColorBufferFloat];
 
 function from({ index }: { index: number }): WebGLExtensionEnum {
   return _from({ typeList, index }) as WebGLExtensionEnum;
@@ -33,5 +35,5 @@ function from({ index }: { index: number }): WebGLExtensionEnum {
 export const WebGLExtension = Object.freeze({
   VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear,
   InstancedArrays, TextureFilterAnisotropic, ElementIndexUint, ShaderTextureLod,
-  ShaderDerivatives, DrawBuffers, BlendMinmax
+  ShaderDerivatives, DrawBuffers, BlendMinmax, ColorBufferFloat
 });
