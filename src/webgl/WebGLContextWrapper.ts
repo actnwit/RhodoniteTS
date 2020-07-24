@@ -22,7 +22,9 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtDRV?: OES_standard_derivatives;
   public readonly webgl1ExtDB?: WEBGL_draw_buffers;
   public readonly webgl1ExtBM?: EXT_blend_minmax;
+  public readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
+
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
   private __activeTexturesCube: WebGLTexture[] = [];
@@ -60,6 +62,7 @@ export default class WebGLContextWrapper {
       this.webgl1ExtDRV = this.__getExtension(WebGLExtension.ShaderDerivatives);
       this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
       this.webgl1ExtBM = this.__getExtension(WebGLExtension.BlendMinmax);
+      this.webgl1ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloat);
     }
   }
 
