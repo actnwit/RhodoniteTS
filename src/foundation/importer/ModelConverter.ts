@@ -44,6 +44,7 @@ import GlobalDataRepository from "../core/GlobalDataRepository";
 import PbrShadingSingleMaterialNode from "../materials/singles/PbrShadingSingleMaterialNode";
 import Scalar from "../math/Scalar";
 import { TextureParameter } from "../definitions/TextureParameter";
+import FlexibleAccessor from "../memory/FlexibleAccessor";
 
 declare var DracoDecoderModule: any;
 
@@ -498,9 +499,15 @@ export default class ModelConverter {
           if (primitive.indices) {
             indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffers[((primitive.indices as Gltf2Accessor).bufferView as Gltf2BufferView).bufferIndex!]);
           }
+
           for (let attributeName in primitive.attributes) {
-            let attributeAccessor = primitive.attributes[attributeName] as Gltf2Accessor;
+            const attributeAccessor = primitive.attributes[attributeName] as Gltf2Accessor;
             const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
+
+            if (attributeAccessor.sparse) {
+              this.setSparseAccessor(attributeAccessor, attributeRnAccessor);
+            }
+
             map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
           }
         }
@@ -549,6 +556,44 @@ export default class ModelConverter {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = originalRnMesh;
 
     return meshEntity;
+  }
+
+  setSparseAccessor(accessor: any, rnAccessor: Accessor | FlexibleAccessor) {
+    const uint8Array: Uint8Array = accessor.bufferView.buffer.buffer;
+    const count = accessor.sparse.count;
+
+    // indices
+    const accessorIndices = accessor.sparse.indices;
+    const bufferViewIndices = accessorIndices.bufferView;
+    const byteOffsetIndices: number = (bufferViewIndices.byteOffset ?? 0) + (accessorIndices.byteOffset ?? 0);
+
+    const componentBytesIndices = this._checkBytesPerComponent(accessorIndices);
+    const byteLengthIndices = componentBytesIndices * count; // index is scalar
+    const dataViewIndices: any = new DataView(uint8Array.buffer, byteOffsetIndices + uint8Array.byteOffset, byteLengthIndices);
+
+    const dataViewMethodIndices = this._checkDataViewMethod(accessorIndices);
+
+    // sparse values
+    const accessorValues = accessor.sparse.values;
+    const bufferViewValues = accessorValues.bufferView;
+    const byteOffsetValues: number = (bufferViewValues.byteOffset ?? 0) + (accessorValues.byteOffset ?? 0);
+
+    const componentBytesValues = this._checkBytesPerComponent(accessor);
+    const componentNValues = this._checkComponentNumber(accessor);
+    const byteLengthValues = componentBytesValues * componentNValues * count;
+    const dataViewValues: any = new DataView(uint8Array.buffer, byteOffsetValues + uint8Array.byteOffset, byteLengthValues);
+    const dataViewMethodValues = this._checkDataViewMethod(accessor);
+
+    // set sparse values
+    const typedArray = rnAccessor.getTypedArray();
+    const littleEndian = true;
+    for (let i = 0; i < count; i++) {
+      const index = dataViewIndices[dataViewMethodIndices](componentBytesIndices * i, littleEndian);
+      for (let j = 0; j < componentNValues; j++) {
+        const value = dataViewValues[dataViewMethodValues](componentBytesValues * componentNValues * i + componentBytesValues * j, littleEndian);
+        typedArray[index * componentNValues + j] = value;
+      }
+    }
   }
 
   static setDefaultTextures(material: Material, gltfModel: glTF2): void {
@@ -1422,6 +1467,10 @@ export default class ModelConverter {
         }
 
         draco.destroy(decompressedAttributeData);
+      }
+
+      if (attributeGltf2Accessor.sparse) {
+        this.setSparseAccessor(attributeGltf2Accessor, attributeRnAccessor);
       }
 
       map.set(VertexAttribute.fromString(attributeGltf2Accessor.extras.attributeName), attributeRnAccessor);
