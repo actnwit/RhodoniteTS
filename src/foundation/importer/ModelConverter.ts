@@ -34,7 +34,7 @@ import MutableVector4 from "../math/MutableVector4";
 import LightComponent from "../components/LightComponent";
 import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../commontypes/CommonTypes";
-import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer, Gltf2Accessor, Gltf2BufferView, Gltf2Primitive, Gltf2Material } from "../../commontypes/glTF";
+import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Accessor, Gltf2BufferView, Gltf2Primitive, Gltf2Material } from "../../commontypes/glTF";
 import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
@@ -534,7 +534,7 @@ export default class ModelConverter {
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName] as Gltf2Accessor;
               const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
-              const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferView(attributeRnAccessor, primitive);
+              const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferView(attributeRnAccessor);
               targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUVertexData);
             }
             targets.push(targetMap);
@@ -1269,7 +1269,7 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor, primitive: Primitive) {
+  private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
     const byteSize = srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */;
     const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
     const dstRnBufferView = dstRnBuffer.takeBufferView({
