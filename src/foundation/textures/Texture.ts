@@ -70,8 +70,7 @@ export default class Texture extends AbstractTexture {
     wrapS: TextureParameterEnum,
     wrapT: TextureParameterEnum,
     generateMipmap: boolean,
-    anisotropy: boolean,
-    isPremultipliedAlpha: boolean
+    anisotropy: boolean
   } = {
       level: 0,
       internalFormat: PixelFormat.RGBA,
@@ -82,8 +81,7 @@ export default class Texture extends AbstractTexture {
       wrapS: TextureParameter.Repeat,
       wrapT: TextureParameter.Repeat,
       generateMipmap: true,
-      anisotropy: true,
-      isPremultipliedAlpha: true
+      anisotropy: true
     }) {
     this.__startedToLoad = true;
 
@@ -130,7 +128,7 @@ export default class Texture extends AbstractTexture {
     wrapT = TextureParameter.Repeat,
     generateMipmap = true,
     anisotropy = true,
-    isPremultipliedAlpha = true
+    isPremultipliedAlpha = false
   } = {}): void {
     this.__startedToLoad = true;
 
@@ -171,7 +169,7 @@ export default class Texture extends AbstractTexture {
     wrapT = TextureParameter.Repeat,
     generateMipmap = true,
     anisotropy = true,
-    isPremultipliedAlpha = true
+    isPremultipliedAlpha = false
   } = {}) {
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
@@ -213,7 +211,7 @@ export default class Texture extends AbstractTexture {
     wrapT = TextureParameter.Repeat,
     generateMipmap = true,
     anisotropy = true,
-    isPremultipliedAlpha = true
+    isPremultipliedAlpha = false
   } = {}) {
     this.__uri = imageUri;
     this.__startedToLoad = true;
@@ -286,7 +284,7 @@ export default class Texture extends AbstractTexture {
       wrapT = TextureParameter.Repeat,
       generateMipmap = true,
       anisotropy = true,
-      isPremultipliedAlpha = true
+      isPremultipliedAlpha = false
     }: {
       level: number,
       internalFormat: PixelFormatEnum,
