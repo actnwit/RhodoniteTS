@@ -4,6 +4,7 @@ import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
 import Vector3 from "./Vector3";
 import { Index } from "../../commontypes/CommonTypes";
+import { IQuaternion } from "./IQuaternion";
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -588,6 +589,42 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     const m31 = mat.v[3] * this.v[4] + mat.v[7] * this.v[5] + mat.v[11] * this.v[6] + mat.v[15] * this.v[7];
     const m32 = mat.v[3] * this.v[8] + mat.v[7] * this.v[9] + mat.v[11] * this.v[10] + mat.v[15] * this.v[11];
     const m33 = mat.v[3] * this.v[12] + mat.v[7] * this.v[13] + mat.v[11] * this.v[14] + mat.v[15] * this.v[15];
+
+    return this.setComponents(
+      m00, m01, m02, m03,
+      m10, m11, m12, m13,
+      m20, m21, m22, m23,
+      m30, m31, m32, m33
+    );
+  }
+
+  fromQuaternion(quat: IQuaternion) {
+    const sx = quat.v[0] * quat.v[0];
+    const sy = quat.v[1] * quat.v[1];
+    const sz = quat.v[2] * quat.v[2];
+    const cx = quat.v[1] * quat.v[2];
+    const cy = quat.v[0] * quat.v[2];
+    const cz = quat.v[0] * quat.v[1];
+    const wx = quat.v[3] * quat.v[0];
+    const wy = quat.v[3] * quat.v[1];
+    const wz = quat.v[3] * quat.v[2];
+
+    const m00 = 1.0 - 2.0 * (sy + sz);
+    const m01 = 2.0 * (cz - wz);
+    const m02 = 2.0 * (cy + wy);
+    const m03 = 0;
+    const m10 = 2.0 * (cz + wz);
+    const m11 = 1.0 - 2.0 * (sx + sz);
+    const m12 = 2.0 * (cx - wx);
+    const m13 = 0;
+    const m20 = 2.0 * (cy - wy);
+    const m21 = 2.0 * (cx + wx);
+    const m22 = 1.0 - 2.0 * (sx + sy);
+    const m23 = 0;
+    const m30 = 0;
+    const m31 = 0;
+    const m32 = 0;
+    const m33 = 1;
 
     return this.setComponents(
       m00, m01, m02, m03,

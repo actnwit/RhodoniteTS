@@ -26,7 +26,7 @@ import RenderPass from '../renderer/RenderPass';
 
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
-  private _eyeInner: Vector3 = Vector3.dummy();
+  private _eyeInner: MutableVector3 = MutableVector3.dummy();
   private _direction: MutableVector3 = MutableVector3.dummy();
   private _directionInner: MutableVector3 = MutableVector3.dummy();
   private _up: MutableVector3 = MutableVector3.dummy();
@@ -131,7 +131,7 @@ export default class CameraComponent extends Component {
   }
 
   set eyeInner(vec: Vector3) {
-    this._eyeInner = vec;
+    this._eyeInner.copyComponents(vec);
   }
 
   set upInner(vec: Vector3) {
@@ -237,7 +237,7 @@ export default class CameraComponent extends Component {
   }
 
   set cornerInner(vec: Vector4) {
-    this._corner = new MutableVector4(vec);
+    this._corner.copyComponents(vec);
   }
 
   get cornerInner() {
@@ -427,11 +427,11 @@ export default class CameraComponent extends Component {
   }
 
   set viewMatrix(viewMatrix: Matrix44) {
-    this._viewMatrix = new MutableMatrix44(viewMatrix, true);
+    this._viewMatrix.copyComponents(viewMatrix);
   }
 
   set projectionMatrix(projectionMatrix: Matrix44) {
-    this._projectionMatrix = new MutableMatrix44(projectionMatrix, true);
+    this._projectionMatrix.copyComponents(projectionMatrix);
   }
 
   get viewProjectionMatrix() {
