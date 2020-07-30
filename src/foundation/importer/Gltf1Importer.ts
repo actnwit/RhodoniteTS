@@ -182,15 +182,10 @@ export default class Gltf1Importer {
 
   private _convertToGltf2LikeStructure(gltfJson: glTF1) {
     gltfJson.bufferDic = gltfJson.buffers;
-    gltfJson.buffers = [];
-    for (let bufferName in gltfJson.bufferDic) {
-      gltfJson.buffers.push((gltfJson.bufferDic as any)[bufferName]);
-    }
+    this.__createProperty(gltfJson, gltfJson.bufferDic, "buffers");
+
     gltfJson.sceneDic = gltfJson.scenes;
-    gltfJson.scenes = [];
-    for (let sceneName in gltfJson.sceneDic) {
-      gltfJson.scenes.push((gltfJson.sceneDic as any)[sceneName]);
-    }
+    this.__createProperty(gltfJson, gltfJson.sceneDic, "scenes");
 
     gltfJson.meshDic = gltfJson.meshes;
 
@@ -208,30 +203,37 @@ export default class Gltf1Importer {
     }
 
     gltfJson.skinDic = gltfJson.skins;
-    gltfJson.skins = [];
-    for (let skinName in gltfJson.skinDic) {
-      gltfJson.skins.push((gltfJson.skinDic as any)[skinName]);
-    }
+    this.__createProperty(gltfJson, gltfJson.skinDic, "skins");
 
     gltfJson.materialDic = gltfJson.materials;
-    gltfJson.materials = [];
-    for (let materialName in gltfJson.materialDic) {
-      gltfJson.materials.push((gltfJson.materialDic as any)[materialName]);
-    }
-    gltfJson.cameraDic = gltfJson.cameras;
-    gltfJson.shaderDic = gltfJson.shaders;
-    gltfJson.imageDic = gltfJson.images;
-    gltfJson.animationDic = gltfJson.animations as any;
-    gltfJson.animations = [];
-    for (let animationName in gltfJson.animationDic) {
-      gltfJson.animations.push((gltfJson.animationDic as any)[animationName]);
-    }
+    this.__createProperty(gltfJson, gltfJson.materialDic, "materials");
 
-    gltfJson.textureDic = gltfJson.textures;
-    gltfJson.samplerDic = gltfJson.samplers;
+    gltfJson.animationDic = gltfJson.animations as any;
+    this.__createProperty(gltfJson, gltfJson.animationDic, "animations");
+
     gltfJson.accessorDic = gltfJson.accessors;
     gltfJson.bufferViewDic = gltfJson.bufferViews;
+    gltfJson.cameraDic = gltfJson.cameras;
+    gltfJson.imageDic = gltfJson.images;
+    gltfJson.samplerDic = gltfJson.samplers;
+    gltfJson.shaderDic = gltfJson.shaders;
+    gltfJson.textureDic = gltfJson.textures;
 
+  }
+
+  private __createProperty(gltfJson: glTF1, gltfPropertyDic: any, gltfPropertyName: string) {
+    if ((gltfJson as any)[gltfPropertyName] == null) {
+      return;
+    }
+
+    const propertyNumber = Object.keys(gltfPropertyDic).length;
+    const propertyArray = (gltfJson as any)[gltfPropertyName] = new Array(propertyNumber);
+
+    let i = 0;
+    for (let propertyName in gltfPropertyDic) {
+      propertyArray[i] = gltfPropertyDic[propertyName];
+      i++;
+    }
   }
 
   _loadDependenciesOfScenes(gltfJson: glTF1) {
