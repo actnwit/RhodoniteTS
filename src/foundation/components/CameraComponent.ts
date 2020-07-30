@@ -456,23 +456,11 @@ export default class CameraComponent extends Component {
   $logic({ renderPass }: { renderPass: RenderPass }) {
     const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
-      this.eyeInner.v[0] = CameraComponent._eye.x;
-      this.eyeInner.v[1] = CameraComponent._eye.y;
-      this.eyeInner.v[2] = CameraComponent._eye.z;
-      this.directionInner.v[0] = this._direction.x;
-      this.directionInner.v[1] = this._direction.y;
-      this.directionInner.v[2] = this._direction.z;
-      this.upInner.v[0] = this._up.x;
-      this.upInner.v[1] = this._up.y;
-      this.upInner.v[2] = this._up.z;
-      this.cornerInner.v[0] = this._corner.x;
-      this.cornerInner.v[1] = this._corner.y;
-      this.cornerInner.v[2] = this._corner.z;
-      this.cornerInner.v[3] = this._corner.w;
-      this.parametersInner.v[0] = this._parameters.x;
-      this.parametersInner.v[1] = this._parameters.y;
-      this.parametersInner.v[2] = this._parameters.z;
-      this.parametersInner.v[3] = this._parameters.w;
+      this._eyeInner.copyComponents(CameraComponent._eye);
+      this._directionInner.copyComponents(this._direction);
+      this._upInner.copyComponents(this._up);
+      this._cornerInner.copyComponents(this._corner);
+      this._parametersInner.copyComponents(this._parameters);
     } else {
       this._parametersInner.w = this._parameters.w;
     }
