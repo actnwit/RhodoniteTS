@@ -34,9 +34,11 @@ export default class TransformComponent extends Component {
   private _is_inverse_trs_matrix_updated: boolean;
   private _is_normal_trs_matrix_updated: boolean;
 
-  private static __tmpMat_updateRotation: MutableMatrix44 = MutableMatrix44.identity();
-  private static __tmpMat_quaternionInner: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
+  private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
+  private static __tmpQuaternion_0: MutableQuaternion = MutableQuaternion.identity();
 
   private __toUpdateAllTransform = true;
   private _updateCount = 0;
@@ -206,9 +208,9 @@ export default class TransformComponent extends Component {
         this._quaternion.fromMatrix(this._matrix);
         return this._quaternion;
       } else if (this._is_euler_angles_updated) {
-        TransformComponent.__tmpMat_quaternionInner.rotate(this._rotate);
+        const rotationMat = TransformComponent.__tmpMatrix44_0.rotate(this._rotate);
+        this._quaternion.fromMatrix(rotationMat);
         this._is_quaternion_updated = true;
-        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
         return this._quaternion;
       }
     }
@@ -428,8 +430,8 @@ export default class TransformComponent extends Component {
 
   __updateRotation() {
     if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-      TransformComponent.__tmpMat_updateRotation.rotate(this._rotate);
-      this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
+      const rotationMat = TransformComponent.__tmpMatrix44_0.rotate(this._rotate);
+      this._quaternion.fromMatrix(rotationMat);
       this._is_quaternion_updated = true;
     } else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
       this._quaternion.toEulerAnglesTo(this._rotate);
@@ -493,38 +495,32 @@ export default class TransformComponent extends Component {
   }
 
   setRotationFromNewUpAndFront(UpVec: Vector3, FrontVec: Vector3) {
-    let yDir = UpVec;
-    let xDir = Vector3.cross(yDir, FrontVec);
-    let zDir = Vector3.cross(xDir, yDir);
+    const yDir = UpVec;
+    const xDir = MutableVector3.crossTo(yDir, FrontVec, TransformComponent.__tmpVector3_0);
+    const zDir = MutableVector3.crossTo(xDir, yDir, TransformComponent.__tmpVector3_1);
 
-    let rotateMatrix = MutableMatrix44.identity();
-
-    rotateMatrix.m00 = xDir.x;
-    rotateMatrix.m10 = xDir.y;
-    rotateMatrix.m20 = xDir.z;
-
-    rotateMatrix.m01 = yDir.x;
-    rotateMatrix.m11 = yDir.y;
-    rotateMatrix.m21 = yDir.z;
-
-    rotateMatrix.m02 = zDir.x;
-    rotateMatrix.m12 = zDir.y;
-    rotateMatrix.m22 = zDir.z;
+    const rotateMatrix = TransformComponent.__tmpMatrix44_0.setComponents(
+      xDir.x, yDir.x, zDir.x, 0,
+      xDir.y, yDir.y, zDir.y, 0,
+      xDir.z, yDir.z, zDir.z, 0,
+      0, 0, 0, 1
+    );
 
     this.rotateMatrix44 = rotateMatrix;
   }
 
   headToDirection(fromVec: Vector3, toVec: Vector3) {
-    const fromDir = Vector3.normalize(fromVec);
-    const toDir = Vector3.normalize(toVec);
-    const rotationDir = Vector3.cross(fromDir, toDir);
+    const fromDir = TransformComponent.__tmpVector3_0.copyComponents(fromVec).normalize();
+    const toDir = TransformComponent.__tmpVector3_1.copyComponents(toVec).normalize();
+    const rotationDir = MutableVector3.crossTo(fromDir, toDir, TransformComponent.__tmpVector3_2);
     const cosTheta = Vector3.dot(fromDir, toDir);
-    let theta = Math.acos(cosTheta);
-    this.quaternion = MutableQuaternion.axisAngle(rotationDir, theta);
+    const theta = Math.acos(cosTheta);
+
+    this.quaternion = TransformComponent.__tmpQuaternion_0.axisAngle(rotationDir, theta);
   }
 
   set rotateMatrix44(rotateMatrix: Matrix44) {
-    this.quaternion = MutableQuaternion.fromMatrix(rotateMatrix);
+    this.quaternion = TransformComponent.__tmpQuaternion_0.fromMatrix(rotateMatrix);
   }
 
   get rotateMatrix44() {

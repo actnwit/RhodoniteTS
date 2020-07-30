@@ -53,12 +53,12 @@ export default class CameraComponent extends Component {
   private __isViewMatrixUpToDate = false;
 
   private static __main: ComponentSID = -1;
-  private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
-  private static __tmp_f: MutableVector3 = MutableVector3.zero();
-  private static __tmp_s: MutableVector3 = MutableVector3.zero();
-  private static __tmp_u: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
+  private static __tmpMatrix44_0 = MutableMatrix44.zero();
 
   private __frustum = new Frustum();
 
@@ -155,16 +155,19 @@ export default class CameraComponent extends Component {
     const newDirection = vec;
     const oldUp = this._up;
 
+    const orthogonalVectorNewDirectionAndOldUp = MutableVector3.crossTo(newDirection, oldUp, CameraComponent.__tmpVector3_0);
+    const isOrthogonalNewDirectionAndOldUp = orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
+
     let newUpNonNormalize;
-    if (Vector3.cross(newDirection, oldUp).isEqual(Vector3.zero())) {
-      const relativeXaxis = Vector3.cross(oldDirection, oldUp);
-      newUpNonNormalize = Vector3.cross(relativeXaxis, newDirection);
+    if (isOrthogonalNewDirectionAndOldUp) {
+      const relativeXaxis = MutableVector3.crossTo(oldDirection, oldUp, CameraComponent.__tmpVector3_1);
+      newUpNonNormalize = MutableVector3.crossTo(relativeXaxis, newDirection, CameraComponent.__tmpVector3_2);
     } else {
-      const newDirectionComponentInOldUp = Vector3.multiply(newDirection, newDirection.dot(oldUp));
-      newUpNonNormalize = Vector3.subtract(oldUp, newDirectionComponentInOldUp);
+      const newDirectionComponentInOldUp = MutableVector3.multiplyTo(newDirection, newDirection.dot(oldUp), CameraComponent.__tmpVector3_1);
+      newUpNonNormalize = MutableVector3.subtractTo(oldUp, newDirectionComponentInOldUp, CameraComponent.__tmpVector3_2);
     }
 
-    this._up = MutableVector3.normalize(newUpNonNormalize);
+    this._up.copyComponents(newUpNonNormalize).normalize();
     this._direction.copyComponents(newDirection);
   }
 
@@ -393,30 +396,18 @@ export default class CameraComponent extends Component {
 
   calcViewMatrix() {
     const eye = this.eyeInner;
-    const f = Vector3.subtractTo(this._directionInner, eye, CameraComponent.__tmp_f).normalize();
-    const s = Vector3.crossTo(f, this._upInner, CameraComponent.__tmp_s).normalize();
-    const u = Vector3.crossTo(s, f, CameraComponent.__tmp_u);
+    const f = MutableVector3.subtractTo(this._directionInner, eye, CameraComponent.__tmpVector3_0).normalize();
+    const s = MutableVector3.crossTo(f, this._upInner, CameraComponent.__tmpVector3_1).normalize();
+    const u = MutableVector3.crossTo(s, f, CameraComponent.__tmpVector3_2);
 
     this._viewMatrix.setComponents(
-      s.x,
-      s.y,
-      s.z,
-      -Vector3.dot(s, eye),
-      u.x,
-      u.y,
-      u.z,
-      -Vector3.dot(u, eye),
-      -f.x,
-      -f.y,
-      -f.z,
-      Vector3.dot(f, eye),
-      0,
-      0,
-      0,
-      1);
+      s.x, s.y, s.z, -Vector3.dot(s, eye),
+      u.x, u.y, u.z, -Vector3.dot(u, eye),
+      -f.x, -f.y, -f.z, Vector3.dot(f, eye),
+      0, 0, 0, 1
+    );
 
-    Matrix44.invertTo(this.__sceneGraphComponent!.worldMatrixInner, CameraComponent.invertedMatrix44);
-    const invertWorldMatrix = CameraComponent.invertedMatrix44;
+    const invertWorldMatrix = MutableMatrix44.invertTo(this.__sceneGraphComponent!.worldMatrixInner, CameraComponent.__tmpMatrix44_0);
     this._viewMatrix.multiply(invertWorldMatrix);
 
     return this._viewMatrix;
@@ -435,7 +426,7 @@ export default class CameraComponent extends Component {
   }
 
   get viewProjectionMatrix() {
-    return Matrix44.multiply(this._projectionMatrix, this._viewMatrix);
+    return MutableMatrix44.multiplyTo(this._projectionMatrix, this._viewMatrix, CameraComponent.__tmpMatrix44_0);
   }
 
   setValuesToGlobalDataRepository() {

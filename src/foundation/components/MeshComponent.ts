@@ -14,6 +14,7 @@ import SceneGraphComponent from './SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';
+import MutableVector3 from '../math/MutableVector3';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -21,6 +22,9 @@ export default class MeshComponent extends Component {
   private __blendShapeComponent?: BlendShapeComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
   public isPickable = true;
+
+  private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -60,14 +64,17 @@ export default class MeshComponent extends Component {
   }
 
   calcViewDepth(cameraComponent: CameraComponent) {
-    const viewMatrix = cameraComponent.viewMatrix;
     let centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
     const skeletal = this.entity.getSkeletal();
     if (skeletal?._bindShapeMatrix) {
       centerPosition_inLocal = skeletal._bindShapeMatrix.multiplyVector3(this.__mesh!.AABB.centerPoint);
     }
-    const centerPosition_inWorld = this.entity.getSceneGraph().worldMatrixInner.multiplyVector3(centerPosition_inLocal);
-    const centerPosition_inView = viewMatrix.multiplyVector3(centerPosition_inWorld);
+
+    const worldMatrixInner = this.entity.getSceneGraph().worldMatrixInner;
+    const centerPosition_inWorld = worldMatrixInner.multiplyVector3To(centerPosition_inLocal, MeshComponent.__tmpVector3_0);
+
+    const viewMatrix = cameraComponent.viewMatrix;
+    const centerPosition_inView = viewMatrix.multiplyVector3To(centerPosition_inWorld, MeshComponent.__tmpVector3_1);
     this.__viewDepth = centerPosition_inView.z;
 
     return this.__viewDepth;
