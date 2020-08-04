@@ -167,28 +167,6 @@ export default class SceneGraphComponent extends Component {
     return this.normalMatrixInner.clone();
   }
 
-  $create() {
-    this.moveStageTo(ProcessStage.Load);
-  }
-
-  $load() {
-    this.__animationComponent = this.entity.getComponent(AnimationComponent) as AnimationComponent;
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $logic() {
-
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-    const normal = this.normalMatrixInner;
-
-    if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
-      this.__AABBGizmo.update();
-    }
-    // if (this.parent == null) {
-      // this.calcWorldAABB();
-    // }
-  }
-
   isWorldMatrixUpToDateRecursively() : boolean {
     if (this.__isWorldMatrixUpToDate) {
       if (this.__parent) {
@@ -392,6 +370,28 @@ export default class SceneGraphComponent extends Component {
     }
 
     return {intersectedPosition, rayDistance, selectedMeshComponent};
+  }
+
+  $create() {
+    this.moveStageTo(ProcessStage.Load);
+  }
+
+  $load() {
+    this.__animationComponent = this.entity.getComponent(AnimationComponent) as AnimationComponent;
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
+
+    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
+    const normal = this.normalMatrixInner;
+
+    if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
+      this.__AABBGizmo.update();
+    }
+    // if (this.parent == null) {
+      // this.calcWorldAABB();
+    // }
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);

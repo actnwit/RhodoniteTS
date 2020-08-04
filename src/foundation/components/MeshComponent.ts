@@ -51,35 +51,6 @@ export default class MeshComponent extends Component {
     return this.__mesh;
   }
 
-  $create() {
-    this.__blendShapeComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, BlendShapeComponent) as BlendShapeComponent;
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-
-    this.moveStageTo(ProcessStage.Load);
-  }
-
-  $load() {
-    if (this.__mesh == null) {
-      return;
-    }
-    //    this.__mesh!.makeVerticesSeparated();
-    this.__mesh.__calcTangents();
-    this.__mesh._calcArenbergInverseMatrices();
-    // this.__mesh.__initMorphPrimitives();
-    this.__mesh!.__calcFaceNormalsIfNonNormal();
-    if (this.__blendShapeComponent && this.__blendShapeComponent.weights.length > 0) {
-      this.__mesh!.__calcBaryCentricCoord();
-    }
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $logic() {
-    if (this.__mesh == null) {
-      return;
-    }
-    // this.__mesh.__calcMorphPrimitives();
-  }
-
   set weights(value: number[]) {
     if (this.__mesh == null) {
       return;
@@ -174,6 +145,35 @@ export default class MeshComponent extends Component {
     }
 
     return { t: -1, intersectedPositionInWorld: undefined };
+  }
+
+  $create() {
+    this.__blendShapeComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, BlendShapeComponent) as BlendShapeComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+
+    this.moveStageTo(ProcessStage.Load);
+  }
+
+  $load() {
+    if (this.__mesh == null) {
+      return;
+    }
+    //    this.__mesh!.makeVerticesSeparated();
+    this.__mesh.__calcTangents();
+    this.__mesh._calcArenbergInverseMatrices();
+    // this.__mesh.__initMorphPrimitives();
+    this.__mesh!.__calcFaceNormalsIfNonNormal();
+    if (this.__blendShapeComponent && this.__blendShapeComponent.weights.length > 0) {
+      this.__mesh!.__calcBaryCentricCoord();
+    }
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
+    if (this.__mesh == null) {
+      return;
+    }
+    // this.__mesh.__calcMorphPrimitives();
   }
 }
 

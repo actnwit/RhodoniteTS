@@ -84,6 +84,30 @@ export default class SkeletalComponent extends Component {
     return this.jointsHierarchy?.worldMatrixInner;
   }
 
+  get jointMatrices() {
+    return this.__jointMatrices;
+  }
+
+  get jointQuaternionArray() {
+    return this.__qArray;
+  }
+
+  get jointTranslateScaleArray() {
+    return this.__tArray;
+  }
+
+  get jointMatricesArray() {
+    return this.__matArray;
+  }
+
+  get jointCompressedChunk() {
+    return this.__qtArray;
+  }
+
+  get jointCompressedInfo() {
+    return this.__qtInfo;
+  }
+
   $create() {
     this.moveStageTo(ProcessStage.Load);
   }
@@ -223,30 +247,6 @@ export default class SkeletalComponent extends Component {
         this.__qtArray[i * 4 + 3] = vec2TPacked[1];
       }
     }
-  }
-
-  get jointMatrices() {
-    return this.__jointMatrices;
-  }
-
-  get jointQuaternionArray() {
-    return this.__qArray;
-  }
-
-  get jointTranslateScaleArray() {
-    return this.__tArray;
-  }
-
-  get jointMatricesArray() {
-    return this.__matArray;
-  }
-
-  get jointCompressedChunk() {
-    return this.__qtArray;
-  }
-
-  get jointCompressedInfo() {
-    return this.__qtInfo;
   }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);

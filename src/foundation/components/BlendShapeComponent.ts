@@ -20,14 +20,6 @@ export default class BlendShapeComponent extends Component {
     return WellKnownComponentTIDs.BlendShapeComponentTID;
   }
 
-  $create() {
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $logic() {
-
-  }
-
   set weights(weights: number[]) {
     this.__weights = weights;
   }
@@ -42,6 +34,13 @@ export default class BlendShapeComponent extends Component {
 
   get targetNames() {
     return this.__targetNames;
+  }
+
+  $create() {
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
   }
 }
 

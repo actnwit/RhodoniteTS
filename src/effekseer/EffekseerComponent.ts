@@ -34,43 +34,8 @@ export default class EffekseerComponent extends Component {
     Config.noWebGLTex2DStateCache = true;
   }
 
-  $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
-    this.moveStageTo(ProcessStage.Load);
-  }
-
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.EffekseerComponentTID;
-  }
-
-  static common_$load() {
-    if (EffekseerComponent.__isInitialized) {
-      return;
-    }
-
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-
-    if (glw) {
-      effekseer.init(glw.getRawContext());
-      EffekseerComponent.__isInitialized = true;
-    }
-  }
-
-  $load() {
-    if (this.__effect == null) {
-      this.__effect = effekseer.loadEffect(this.uri, () => {
-        if (this.playJustAfterLoaded) {
-          if (this.isLoop) {
-            this.__timer = setInterval(() => { this.play(); }, 500);
-          } else {
-            this.play();
-          }
-        }
-      });
-    }
-    this.moveStageTo(ProcessStage.PreRender);
   }
 
   cancelLoop() {
@@ -89,31 +54,6 @@ export default class EffekseerComponent extends Component {
       __play();
     }
 
-  }
-
-  static common_$logic() {
-    effekseer.update();
-  }
-
-  $prerender() {
-    if (this.__handle != null) {
-      const worldMatrix = new Matrix44(this.__sceneGraphComponent!.worldMatrixInner);
-      this.__handle.setMatrix(worldMatrix.v);
-      this.__handle.setSpeed(this.__speed);
-    }
-  }
-
-  static common_$render() {
-    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    let viewMatrix = EffekseerComponent.__tmp_identityMatrix;
-    let projectionMatrix = EffekseerComponent.__tmp_identityMatrix;
-    if (cameraComponent) {
-      viewMatrix = cameraComponent.viewMatrix;
-      projectionMatrix = cameraComponent.projectionMatrix;
-    }
-    effekseer.setProjectionMatrix(projectionMatrix.v);
-    effekseer.setCameraMatrix(viewMatrix.v);
-    effekseer.draw();
   }
 
   set playSpeed(val) {
@@ -158,6 +98,66 @@ export default class EffekseerComponent extends Component {
 
   get scale() {
     return this.__transformComponent!.scale;
+  }
+
+  $create() {
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
+    this.moveStageTo(ProcessStage.Load);
+  }
+
+  static common_$load() {
+    if (EffekseerComponent.__isInitialized) {
+      return;
+    }
+
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+
+    if (glw) {
+      effekseer.init(glw.getRawContext());
+      EffekseerComponent.__isInitialized = true;
+    }
+  }
+
+  $load() {
+    if (this.__effect == null) {
+      this.__effect = effekseer.loadEffect(this.uri, () => {
+        if (this.playJustAfterLoaded) {
+          if (this.isLoop) {
+            this.__timer = setInterval(() => { this.play(); }, 500);
+          } else {
+            this.play();
+          }
+        }
+      });
+    }
+    this.moveStageTo(ProcessStage.PreRender);
+  }
+
+  static common_$logic() {
+    effekseer.update();
+  }
+
+  $prerender() {
+    if (this.__handle != null) {
+      const worldMatrix = new Matrix44(this.__sceneGraphComponent!.worldMatrixInner);
+      this.__handle.setMatrix(worldMatrix.v);
+      this.__handle.setSpeed(this.__speed);
+    }
+  }
+
+  static common_$render() {
+    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    let viewMatrix = EffekseerComponent.__tmp_identityMatrix;
+    let projectionMatrix = EffekseerComponent.__tmp_identityMatrix;
+    if (cameraComponent) {
+      viewMatrix = cameraComponent.viewMatrix;
+      projectionMatrix = cameraComponent.projectionMatrix;
+    }
+    effekseer.setProjectionMatrix(projectionMatrix.v);
+    effekseer.setCameraMatrix(viewMatrix.v);
+    effekseer.draw();
   }
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);

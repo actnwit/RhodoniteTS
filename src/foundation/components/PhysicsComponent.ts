@@ -30,21 +30,20 @@ export default class PhysicsComponent extends Component {
     return WellKnownComponentTIDs.PhysicsComponentTID;
   }
 
-  $create() {
-    this.moveStageTo(ProcessStage.Logic);
+  get strategy() {
+    return this.__strategy;
   }
 
-  $logic() {
+  $create() {
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   static common_$logic() {
     VRMSpringBonePhysicsStrategy.update();
   }
 
-  get strategy() {
-    return this.__strategy;
+  $logic() {
   }
-
 }
 
 ComponentRepository.registerComponentClass(PhysicsComponent);

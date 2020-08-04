@@ -350,33 +350,6 @@ export default class CameraComponent extends Component {
     return WellKnownComponentTIDs.CameraComponentTID;
   }
 
-  $logic() {
-    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
-    if (cameraControllerComponent == null) {
-      this.eyeInner.v[0] = CameraComponent._eye.x;
-      this.eyeInner.v[1] = CameraComponent._eye.y;
-      this.eyeInner.v[2] = CameraComponent._eye.z;
-      this.directionInner.v[0] = this._direction.x;
-      this.directionInner.v[1] = this._direction.y;
-      this.directionInner.v[2] = this._direction.z;
-      this.upInner.v[0] = this._up.x;
-      this.upInner.v[1] = this._up.y;
-      this.upInner.v[2] = this._up.z;
-      this.cornerInner.v[0] = this._corner.x;
-      this.cornerInner.v[1] = this._corner.y;
-      this.cornerInner.v[2] = this._corner.z;
-      this.cornerInner.v[3] = this._corner.w;
-      this.parametersInner.v[0] = this._parameters.x;
-      this.parametersInner.v[1] = this._parameters.y;
-      this.parametersInner.v[2] = this._parameters.z;
-      this.parametersInner.v[3] = this._parameters.w;
-    } else {
-      this._parametersInner.w = this._parameters.w;
-    }
-
-    this.moveStageTo(ProcessStage.PreRender);
-  }
-
   calcProjectionMatrix() {
     const zNear = this._parametersInner.x;
     const zFar = this._parametersInner.y;
@@ -467,25 +440,6 @@ export default class CameraComponent extends Component {
     return Matrix44.multiply(this._projectionMatrix, this._viewMatrix);
   }
 
-  $create({ strategy }: {
-    strategy: WebGLStrategy
-  }) {
-    if (this.__sceneGraphComponent != null) {
-      return;
-    }
-
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $prerender() {
-    this.calcProjectionMatrix();
-    this.calcViewMatrix();
-
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
   setValuesToGlobalDataRepository() {
     CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewMatrix, this.componentSID, this.viewMatrix);
     CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ProjectionMatrix, this.componentSID, this.projectionMatrix);
@@ -503,6 +457,52 @@ export default class CameraComponent extends Component {
 
   get frustum() {
     return this.__frustum;
+  }
+
+  $create({ strategy }: {
+    strategy: WebGLStrategy
+  }) {
+    if (this.__sceneGraphComponent != null) {
+      return;
+    }
+
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
+    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
+    if (cameraControllerComponent == null) {
+      this.eyeInner.v[0] = CameraComponent._eye.x;
+      this.eyeInner.v[1] = CameraComponent._eye.y;
+      this.eyeInner.v[2] = CameraComponent._eye.z;
+      this.directionInner.v[0] = this._direction.x;
+      this.directionInner.v[1] = this._direction.y;
+      this.directionInner.v[2] = this._direction.z;
+      this.upInner.v[0] = this._up.x;
+      this.upInner.v[1] = this._up.y;
+      this.upInner.v[2] = this._up.z;
+      this.cornerInner.v[0] = this._corner.x;
+      this.cornerInner.v[1] = this._corner.y;
+      this.cornerInner.v[2] = this._corner.z;
+      this.cornerInner.v[3] = this._corner.w;
+      this.parametersInner.v[0] = this._parameters.x;
+      this.parametersInner.v[1] = this._parameters.y;
+      this.parametersInner.v[2] = this._parameters.z;
+      this.parametersInner.v[3] = this._parameters.w;
+    } else {
+      this._parametersInner.w = this._parameters.w;
+    }
+
+    this.moveStageTo(ProcessStage.PreRender);
+  }
+
+  $prerender() {
+    this.calcProjectionMatrix();
+    this.calcViewMatrix();
+
+    this.moveStageTo(ProcessStage.Logic);
   }
 }
 ComponentRepository.registerComponentClass(CameraComponent);

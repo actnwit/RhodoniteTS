@@ -81,20 +81,6 @@ export default class TransformComponent extends Component {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
-  $logic() {
-    const sceneGraphComponent = this.entity.getSceneGraph();
-    if (this.__updateCountAtLastLogic !== this._updateCount) {
-      sceneGraphComponent.setWorldMatrixDirty();
-      this.__updateCountAtLastLogic = this._updateCount;
-    } else {
-      const skeletalComponent = this.entity.getSkeletal();
-      if (skeletalComponent != null) {
-        sceneGraphComponent.setWorldMatrixDirty();
-      }
-    }
-
-  }
-
   set toUpdateAllTransform(flag: boolean) {
     this.__toUpdateAllTransform = flag;
   }
@@ -558,6 +544,20 @@ export default class TransformComponent extends Component {
 
   get rotateMatrix44() {
     return new Matrix44(this.quaternion);
+  }
+
+  $logic() {
+    const sceneGraphComponent = this.entity.getSceneGraph();
+    if (this.__updateCountAtLastLogic !== this._updateCount) {
+      sceneGraphComponent.setWorldMatrixDirty();
+      this.__updateCountAtLastLogic = this._updateCount;
+    } else {
+      const skeletalComponent = this.entity.getSkeletal();
+      if (skeletalComponent != null) {
+        sceneGraphComponent.setWorldMatrixDirty();
+      }
+    }
+
   }
 }
 

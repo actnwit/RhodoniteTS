@@ -40,6 +40,18 @@ export default class LightComponent extends Component {
     return WellKnownComponentTIDs.LightComponentTID;
   }
 
+  get direction() {
+    return this.__direction;
+  }
+
+  set intensity(value: Vector3) {
+    this.__intensity = value;
+  }
+
+  get intensity(): Vector3 {
+    return this.__intensity;
+  }
+
   $create() {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
     this.moveStageTo(ProcessStage.Load);
@@ -75,18 +87,6 @@ export default class LightComponent extends Component {
     LightComponent.__lightIntensities.v[4 * this.componentSID + 1] = this.__intensity.y;
     LightComponent.__lightIntensities.v[4 * this.componentSID + 2] = this.__intensity.z;
     LightComponent.__lightIntensities.v[4 * this.componentSID + 3] = 0;
-  }
-
-  get direction() {
-    return this.__direction;
-  }
-
-  set intensity(value: Vector3) {
-    this.__intensity = value;
-  }
-
-  get intensity(): Vector3 {
-    return this.__intensity;
   }
 
 }

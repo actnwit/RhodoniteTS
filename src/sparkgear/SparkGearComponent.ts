@@ -65,95 +65,6 @@ export default class SparkGearComponent extends Component {
     return WellKnownComponentTIDs.SparkGearComponentTID;
   }
 
-  static common_$load() {
-    if (SparkGearComponent.__isInitialized) {
-      return;
-    }
-
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
-
-    // Initialize SPARKGEAR
-    SparkGearComponent.SPFX_Initialize(webglModule.WebGLResourceRepository.getInstance());
-  }
-
-  $logic() {
-    // Keep Playing
-    if (!this.isPlaying()) {
-      this.play();
-    }
-
-    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    let viewMatrix = SparkGearComponent.__tmp_indentityMatrix;
-    let projectionMatrix = SparkGearComponent.__tmp_indentityMatrix;
-    if (cameraComponent) {
-      viewMatrix = cameraComponent.viewMatrix;
-      projectionMatrix = cameraComponent.projectionMatrix;
-    }
-    SparkGearComponent.SPARK_SetCameraMatrix(viewMatrix, projectionMatrix);
-
-    SparkGearComponent.SPFX_Update(1.0);
-
-    const m = this.__sceneGraphComponent!.worldMatrixInner;
-    _SPARK_Instance_SetTransformFor3D(this.__hSPFXInst,
-      m.v[0], m.v[4], m.v[8], m.v[12],
-      m.v[1], m.v[5], m.v[9], m.v[13],
-      m.v[2], m.v[6], m.v[10], m.v[14],
-      m.v[3], m.v[7], m.v[11], m.v[15]);
-
-    this.moveStageTo(ProcessStage.Render);
-  }
-
-  $render() {
-    this.onAfterRender();
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $load() {
-    if (this.url == null) {
-      return;
-    }
-    const loadBytes = function (path: string, type: XMLHttpRequestResponseType, callback: Function) {
-      var request = new XMLHttpRequest();
-      request.open('GET', path, true);
-      request.responseType = type;
-      request.onload = () => {
-          switch (request.status) {
-              case 200:
-                  callback(request.response);
-                  break;
-              default:
-                  console.error('Failed to load (' + request.status + ') : ' + path);
-                  break;
-          }
-      }
-      request.send(null);
-    }
-
-    const ThisClass = SparkGearComponent;
-
-    loadBytes(this.url, 'arraybuffer', (data: ArrayBuffer) => {
-      var buffer = new Uint8Array(data);
-      ThisClass.SPARK_BackupStatus();
-      var SPFXData = window.Module.ccall(
-              "SPARK_Data_Create",
-              'number',
-              ['string', 'number', 'array', 'number'],
-              [this.url, this.url!.length, buffer, buffer.length]);
-      this.__hSPFXInst = _SPARK_Instance_Create(SPFXData);
-      _SPARK_Data_Delete(SPFXData);
-      ThisClass.SPARK_RestoreStatus();
-
-      this.moveStageTo(ProcessStage.Logic);
-    });
-  }
-
-  $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-    this.moveStageTo(ProcessStage.Load);
-  }
-
   onBeforeRender() {
   }
   onAfterRender() {
@@ -316,5 +227,95 @@ export default class SparkGearComponent extends Component {
     _SPARK_DrawDebugInfo(InfoType);
     ThisClass.SPARK_RestoreStatus();
   }
+
+  $create() {
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.moveStageTo(ProcessStage.Load);
+  }
+
+  static common_$load() {
+    if (SparkGearComponent.__isInitialized) {
+      return;
+    }
+
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
+
+    // Initialize SPARKGEAR
+    SparkGearComponent.SPFX_Initialize(webglModule.WebGLResourceRepository.getInstance());
+  }
+
+  $load() {
+    if (this.url == null) {
+      return;
+    }
+    const loadBytes = function (path: string, type: XMLHttpRequestResponseType, callback: Function) {
+      var request = new XMLHttpRequest();
+      request.open('GET', path, true);
+      request.responseType = type;
+      request.onload = () => {
+        switch (request.status) {
+          case 200:
+            callback(request.response);
+            break;
+          default:
+            console.error('Failed to load (' + request.status + ') : ' + path);
+            break;
+        }
+      }
+      request.send(null);
+    }
+
+    const ThisClass = SparkGearComponent;
+
+    loadBytes(this.url, 'arraybuffer', (data: ArrayBuffer) => {
+      var buffer = new Uint8Array(data);
+      ThisClass.SPARK_BackupStatus();
+      var SPFXData = window.Module.ccall(
+        "SPARK_Data_Create",
+        'number',
+        ['string', 'number', 'array', 'number'],
+        [this.url, this.url!.length, buffer, buffer.length]);
+      this.__hSPFXInst = _SPARK_Instance_Create(SPFXData);
+      _SPARK_Data_Delete(SPFXData);
+      ThisClass.SPARK_RestoreStatus();
+
+      this.moveStageTo(ProcessStage.Logic);
+    });
+  }
+
+  $logic() {
+    // Keep Playing
+    if (!this.isPlaying()) {
+      this.play();
+    }
+
+    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    let viewMatrix = SparkGearComponent.__tmp_indentityMatrix;
+    let projectionMatrix = SparkGearComponent.__tmp_indentityMatrix;
+    if (cameraComponent) {
+      viewMatrix = cameraComponent.viewMatrix;
+      projectionMatrix = cameraComponent.projectionMatrix;
+    }
+    SparkGearComponent.SPARK_SetCameraMatrix(viewMatrix, projectionMatrix);
+
+    SparkGearComponent.SPFX_Update(1.0);
+
+    const m = this.__sceneGraphComponent!.worldMatrixInner;
+    _SPARK_Instance_SetTransformFor3D(this.__hSPFXInst,
+      m.v[0], m.v[4], m.v[8], m.v[12],
+      m.v[1], m.v[5], m.v[9], m.v[13],
+      m.v[2], m.v[6], m.v[10], m.v[14],
+      m.v[3], m.v[7], m.v[11], m.v[15]);
+
+    this.moveStageTo(ProcessStage.Render);
+  }
+
+  $render() {
+    this.onAfterRender();
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
 }
 ComponentRepository.registerComponentClass(SparkGearComponent);

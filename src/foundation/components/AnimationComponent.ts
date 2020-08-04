@@ -332,29 +332,6 @@ export default class AnimationComponent extends Component {
     return AnimationComponent.__endInputValueOfAllComponent;
   }
 
-  $create() {
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $logic() {
-    if (AnimationComponent.isAnimating) {
-      for (var [i, line] of this.__animationLine) {
-        let value = AnimationComponent.interpolate(line, AnimationComponent.globalTime, i);
-        if (i === AnimationAttribute.Quaternion.index) {
-          this.__transformComponent!.quaternion = value;
-        } else if (i === AnimationAttribute.Translate.index) {
-          this.__transformComponent!.translate = value;
-        } else if (i === AnimationAttribute.Scale.index) {
-          this.__transformComponent!.scale = value;
-        } else if (i === AnimationAttribute.Weights.index) {
-          this.__meshComponent!.weights = value;
-        }
-      }
-    }
-  }
-
   static get isAnimating() {
     return this.__isAnimating;
   }
@@ -407,6 +384,29 @@ export default class AnimationComponent extends Component {
         this.__backupDefaultValues.set(i, this.__transformComponent!.scale);
       } else if (i === AnimationAttribute.Weights.index) {
         this.__backupDefaultValues.set(i, this.__meshComponent!.weights);
+      }
+    }
+  }
+
+  $create() {
+    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
+    if (AnimationComponent.isAnimating) {
+      for (var [i, line] of this.__animationLine) {
+        let value = AnimationComponent.interpolate(line, AnimationComponent.globalTime, i);
+        if (i === AnimationAttribute.Quaternion.index) {
+          this.__transformComponent!.quaternion = value;
+        } else if (i === AnimationAttribute.Translate.index) {
+          this.__transformComponent!.translate = value;
+        } else if (i === AnimationAttribute.Scale.index) {
+          this.__transformComponent!.scale = value;
+        } else if (i === AnimationAttribute.Weights.index) {
+          this.__meshComponent!.weights = value;
+        }
       }
     }
   }
