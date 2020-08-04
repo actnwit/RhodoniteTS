@@ -132,14 +132,14 @@ export default class EffekseerComponent extends Component {
         }
       });
     }
-    this.moveStageTo(ProcessStage.PreRender);
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   static common_$logic() {
     effekseer.update();
   }
 
-  $prerender() {
+  $logic() {
     if (this.__handle != null) {
       const worldMatrix = new Matrix44(this.__sceneGraphComponent!.worldMatrixInner);
       this.__handle.setMatrix(worldMatrix.v);
