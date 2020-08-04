@@ -2,7 +2,6 @@ import Component from "../foundation/core/Component";
 import EntityRepository from "../foundation/core/EntityRepository";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import { ProcessStage } from "../foundation/definitions/ProcessStage";
-import Matrix44 from "../foundation/math/Matrix44";
 import TransformComponent from "../foundation/components/TransformComponent";
 import Vector3 from "../foundation/math/Vector3";
 import CameraComponent from "../foundation/components/CameraComponent";
@@ -13,6 +12,7 @@ import { WellKnownComponentTIDs } from "../foundation/components/WellKnownCompon
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import { ComponentTID, EntityUID, ComponentSID } from "../commontypes/CommonTypes";
 import Config from "../foundation/core/Config";
+import MutableMatrix44 from "../foundation/math/MutableMatrix44";
 
 declare var effekseer: any;
 
@@ -27,7 +27,8 @@ export default class EffekseerComponent extends Component {
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
-  private static __tmp_identityMatrix: Matrix44 = Matrix44.identity();
+  private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
+  private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -141,7 +142,7 @@ export default class EffekseerComponent extends Component {
 
   $logic() {
     if (this.__handle != null) {
-      const worldMatrix = new Matrix44(this.__sceneGraphComponent!.worldMatrixInner);
+      const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(this.__sceneGraphComponent!.worldMatrixInner);
       this.__handle.setMatrix(worldMatrix.v);
       this.__handle.setSpeed(this.__speed);
     }
@@ -149,12 +150,17 @@ export default class EffekseerComponent extends Component {
 
   static common_$render() {
     const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    let viewMatrix = EffekseerComponent.__tmp_identityMatrix;
-    let projectionMatrix = EffekseerComponent.__tmp_identityMatrix;
+    const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
+    const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;
+
     if (cameraComponent) {
-      viewMatrix = cameraComponent.viewMatrix;
-      projectionMatrix = cameraComponent.projectionMatrix;
+      viewMatrix.copyComponents(cameraComponent.viewMatrix);
+      projectionMatrix.copyComponents(cameraComponent.projectionMatrix);
+    } else {
+      viewMatrix.identity();
+      projectionMatrix.identity();
     }
+
     effekseer.setProjectionMatrix(projectionMatrix.v);
     effekseer.setCameraMatrix(viewMatrix.v);
     effekseer.draw();
