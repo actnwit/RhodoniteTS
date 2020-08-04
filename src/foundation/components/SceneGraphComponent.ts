@@ -63,6 +63,7 @@ export default class SceneGraphComponent extends Component {
 
     this.submitToAllocation(this.maxNumberOfComponent);
 
+    this.moveStageTo(ProcessStage.Load);
   }
 
   set isGizmoVisible(flg: boolean) {
@@ -370,10 +371,6 @@ export default class SceneGraphComponent extends Component {
     }
 
     return {intersectedPosition, rayDistance, selectedMeshComponent};
-  }
-
-  $create() {
-    this.moveStageTo(ProcessStage.Load);
   }
 
   $load() {

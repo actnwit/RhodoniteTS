@@ -12,7 +12,7 @@ export default class BlendShapeComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
 
-    this.moveStageTo(ProcessStage.Create);
+    this.moveStageTo(ProcessStage.Logic);
   }
 
 
@@ -34,10 +34,6 @@ export default class BlendShapeComponent extends Component {
 
   get targetNames() {
     return this.__targetNames;
-  }
-
-  $create() {
-    this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {

@@ -56,6 +56,7 @@ export default class SkeletalComponent extends Component {
       console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
     }
 
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   static get componentTID(): ComponentTID {
@@ -108,15 +109,7 @@ export default class SkeletalComponent extends Component {
     return this.__qtInfo;
   }
 
-  $create() {
-    this.moveStageTo(ProcessStage.Load);
-  }
-
-  $load() {
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $logic({ processApproach }: { processApproach: ProcessApproachEnum }) {
+  $logic() {
 
     if (!this.isSkinning) {
       return;

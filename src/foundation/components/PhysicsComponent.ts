@@ -4,7 +4,7 @@ import ComponentRepository from '../core/ComponentRepository';
 import { ComponentType } from '../definitions/ComponentType';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
-import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
+import { BufferUse } from '../definitions/BufferUse';
 import { ProcessStage } from '../definitions/ProcessStage';
 import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrategy';
@@ -21,10 +21,9 @@ export default class PhysicsComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'dummy', Vector3, ComponentType.Float, [0, 0, 0]);
     this.submitToAllocation(this.maxNumberOfComponent);
 
-    this.moveStageTo(ProcessStage.Create);
+    this.moveStageTo(ProcessStage.Logic);
 
   }
-
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.PhysicsComponentTID;
@@ -32,10 +31,6 @@ export default class PhysicsComponent extends Component {
 
   get strategy() {
     return this.__strategy;
-  }
-
-  $create() {
-    this.moveStageTo(ProcessStage.Logic);
   }
 
   static common_$logic() {
