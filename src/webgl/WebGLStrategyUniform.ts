@@ -401,16 +401,5 @@ mat3 get_normalMatrix(float instanceId) {
     WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);
     this.__lastRenderPassTickCount = renderPassTickCount;
   }
-
-  setCamera(renderPass: RenderPass) {
-    let cameraComponent = renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    }
-    if (cameraComponent) {
-      cameraComponent.setValuesToGlobalDataRepository();
-    }
-  }
-
 }
 

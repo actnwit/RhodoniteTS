@@ -20,6 +20,9 @@ import GlobalDataRepository from '../core/GlobalDataRepository';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { MathUtil } from '../math/MathUtil';
 import CameraControllerComponent from './CameraControllerComponent';
+import ModuleManager from '../system/ModuleManager';
+import { RnXR } from '../../rhodonite-xr';
+import RenderPass from '../renderer/RenderPass';
 
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
@@ -459,7 +462,7 @@ export default class CameraComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $logic() {
+  $logic({ renderPass }: { renderPass: RenderPass }) {
     const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
       this.eyeInner.v[0] = CameraComponent._eye.x;
@@ -482,15 +485,18 @@ export default class CameraComponent extends Component {
     } else {
       this._parametersInner.w = this._parameters.w;
     }
-
-    this.moveStageTo(ProcessStage.PreRender);
-  }
-
-  $prerender() {
-    this.calcProjectionMatrix();
     this.calcViewMatrix();
+    this.calcProjectionMatrix();
 
-    this.moveStageTo(ProcessStage.Logic);
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
+      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+      webvrSystem.setValuesToGlobalDataRepository();
+    } else {
+      this.setValuesToGlobalDataRepository();
+    }
+
   }
+
 }
 ComponentRepository.registerComponentClass(CameraComponent);

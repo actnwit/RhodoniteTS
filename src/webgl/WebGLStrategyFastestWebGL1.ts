@@ -565,27 +565,15 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     return viewport!;
   }
 
-  private __setCamera(renderPass: RenderPass, displayIdx: Index) {
-
+  private __setVRViewport(renderPass: RenderPass, displayIdx: Index) {
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
-      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-      this.__webglResourceRepository.setViewport(webvrSystem.getViewportAt(this.__getViewport(renderPass), displayIdx));
-      webvrSystem.setValuesToGlobalDataRepository();
-    } else {
-      let cameraComponent = renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-      }
-      if (cameraComponent) {
-        cameraComponent.setValuesToGlobalDataRepository();
-      }
-    }
+    const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+    this.__webglResourceRepository.setViewport(webvrSystem.getViewportAt(this.__getViewport(renderPass), displayIdx));
   }
 
-  private __setCurrentComponentSIDsForEachRenderPass(renderPass: RenderPass, displayIdx: Index) {
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
+  private __setCurrentComponentSIDsForEachRenderPass(renderPass: RenderPass, displayIdx: Index, isVRMainPass: boolean) {
+    if (isVRMainPass) {
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
       WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = webvrSystem.getCameraComponentSIDAt(displayIdx);
     } else {
@@ -620,24 +608,28 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
   }
 
-  private __getDisplayNumber(renderPass: RenderPass) {
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    let displayNumber = 1;
-    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
-      displayNumber = 2;
+  private __getDisplayNumber(isVRMainPass: boolean) {
+    if (isVRMainPass) {
+      return 2;
+    } else {
+      return 1;
     }
-    return displayNumber;
   }
 
   common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass, renderPassTickCount: Count) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    const displayNumber = this.__getDisplayNumber(renderPass);
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const isVRMainPass = rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass;
+
+    const displayNumber = this.__getDisplayNumber(isVRMainPass);
 
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
-      this.__setCamera(renderPass, displayIdx);
-      this.__setCurrentComponentSIDsForEachRenderPass(renderPass, displayIdx);
+      if (isVRMainPass) {
+        this.__setVRViewport(renderPass, displayIdx);
+      }
+      this.__setCurrentComponentSIDsForEachRenderPass(renderPass, displayIdx, isVRMainPass); // update u_currentComponentSIDs(uniform)
 
       for (let idx = 0; idx < meshComponentSids.length; idx++) {
         const sid = meshComponentSids[idx];
