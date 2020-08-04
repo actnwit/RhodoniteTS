@@ -147,7 +147,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       try {
         this.setupDefaultShaderSemantics(material, isPointSprite);
         primitive._backupMaterial();
-      } catch(e) {
+      } catch (e) {
         console.log(e)
         primitive._restoreMaterial();
         this.setupDefaultShaderSemantics(primitive._prevMaterial, isPointSprite);

@@ -1,4 +1,4 @@
-import { ProcessStageEnum, ProcessStage } from "../definitions/ProcessStage";
+import { ProcessStage } from "../definitions/ProcessStage";
 import ComponentRepository from "../core/ComponentRepository";
 import { ProcessApproachEnum, ProcessApproach } from "../definitions/ProcessApproach";
 import ModuleManager from "./ModuleManager";
@@ -6,10 +6,8 @@ import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import WebGLStrategy from "../../webgl/WebGLStrategy";
 import Component from "../core/Component";
 import Expression from "../renderer/Expression";
-import RenderPass from "../renderer/RenderPass";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import EntityRepository from "../core/EntityRepository";
-import { ComponentType } from "../definitions/ComponentType";
 import CameraComponent from "../components/CameraComponent";
 import MemoryManager from "../core/MemoryManager";
 import GlobalDataRepository from "../core/GlobalDataRepository";
@@ -17,7 +15,6 @@ import TransformComponent from "../components/TransformComponent";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import Vector3 from "../math/Vector3";
 import { CameraType } from "../definitions/CameraType";
-import Vector4 from "../math/Vector4";
 import Time from "../misc/Time";
 import SystemState from "./SystemState"
 import { RnXR } from "../../rhodonite-xr";
@@ -62,7 +59,7 @@ export default class System {
   }
 
   private __getAnimationFrameObject() {
-    let animationFrameObject: Window|VRDisplay = window;
+    let animationFrameObject: Window | VRDisplay = window;
     const webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
     if (webVRSystem?.isWebVRMode) {
       animationFrameObject = webVRSystem.vrDisplay!;

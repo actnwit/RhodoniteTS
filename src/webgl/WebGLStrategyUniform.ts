@@ -75,7 +75,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       try {
         this.setupDefaultShaderSemantics(material, isPointSprite);
         primitive._backupMaterial();
-      } catch(e) {
+      } catch (e) {
         console.log(e)
         primitive._restoreMaterial();
         this.setupDefaultShaderSemantics(primitive.material, isPointSprite);
@@ -246,7 +246,7 @@ mat3 get_normalMatrix(float instanceId) {
     // Setup Data Texture
     if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const memoryManager: MemoryManager = MemoryManager.getInstance();
-      const buffer: Buffer|undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+      const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
       if (buffer == null) {
         return;
       }

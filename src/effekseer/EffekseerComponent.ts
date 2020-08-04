@@ -6,8 +6,6 @@ import TransformComponent from "../foundation/components/TransformComponent";
 import Vector3 from "../foundation/math/Vector3";
 import CameraComponent from "../foundation/components/CameraComponent";
 import ComponentRepository from "../foundation/core/ComponentRepository";
-import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
-import ModuleManager from "../foundation/system/ModuleManager";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import { ComponentTID, EntityUID, ComponentSID } from "../commontypes/CommonTypes";

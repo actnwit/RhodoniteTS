@@ -1,6 +1,5 @@
 import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
-import Primitive from '../geometry/Primitive';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { LightType } from '../definitions/LightType';
