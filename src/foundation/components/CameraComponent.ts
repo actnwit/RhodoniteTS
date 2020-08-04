@@ -6,7 +6,6 @@ import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
 import { CameraTypeEnum, CameraType } from '../definitions/CameraType';
 import Matrix44 from '../math/Matrix44';
-import { WebGLStrategy } from '../../webgl/main';
 import SceneGraphComponent from './SceneGraphComponent';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
@@ -79,10 +78,6 @@ export default class CameraComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
     this.submitToAllocation(Config.maxCameraNumber);
-
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-
-    this.moveStageTo(ProcessStage.PreRender);
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
@@ -459,15 +454,8 @@ export default class CameraComponent extends Component {
     return this.__frustum;
   }
 
-  $create({ strategy }: {
-    strategy: WebGLStrategy
-  }) {
-    if (this.__sceneGraphComponent != null) {
-      return;
-    }
-
+  $create() {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-
     this.moveStageTo(ProcessStage.Logic);
   }
 

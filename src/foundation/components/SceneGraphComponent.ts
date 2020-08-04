@@ -62,8 +62,6 @@ export default class SceneGraphComponent extends Component {
     this.registerMember(BufferUse.GPUInstanceData, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
     this.submitToAllocation(this.maxNumberOfComponent);
-
-    this.moveStageTo(ProcessStage.Load);
   }
 
   set isGizmoVisible(flg: boolean) {
@@ -373,7 +371,7 @@ export default class SceneGraphComponent extends Component {
     return {intersectedPosition, rayDistance, selectedMeshComponent};
   }
 
-  $load() {
+  $create() {
     this.__animationComponent = this.entity.getComponent(AnimationComponent) as AnimationComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
