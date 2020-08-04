@@ -212,7 +212,7 @@ export const ShaderSemantics = Object.freeze({
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
-  VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChunk: BoneCompressedChunk, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
+  VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChunk, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
   fullSemanticStr, getShaderProperty, EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights, CurrentComponentSIDs, AlphaCutoff
 });

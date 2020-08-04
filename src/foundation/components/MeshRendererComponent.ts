@@ -30,8 +30,6 @@ export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map()
   private __sceneGraphComponent?: SceneGraphComponent;
-  private __webglModule?: any;
-  private static __staticWebglModule?: any;
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
   public diffuseCubeMapContribution = 1.0;

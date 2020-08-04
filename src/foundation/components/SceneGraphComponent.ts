@@ -2,7 +2,6 @@ import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 import Matrix44 from '../math/Matrix44';
 import EntityRepository from '../core/EntityRepository';
-import BufferView from '../memory/BufferView';
 import { ComponentType } from '../definitions/ComponentType';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { BufferUse } from '../definitions/BufferUse';
@@ -14,12 +13,9 @@ import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
 import AnimationComponent from './AnimationComponent';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
-import GlobalDataRepository from '../core/GlobalDataRepository';
+import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
-import Entity from '../core/Entity';
-import Mesh from '../geometry/Mesh';
 import AABBGizmo from '../gizmos/AABBGizmo';
 
 export default class SceneGraphComponent extends Component {
@@ -378,8 +374,7 @@ export default class SceneGraphComponent extends Component {
 
   $logic() {
 
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-    const normal = this.normalMatrixInner;
+    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));
 
     if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
       this.__AABBGizmo.update();

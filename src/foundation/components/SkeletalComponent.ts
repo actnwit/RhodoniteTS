@@ -12,7 +12,6 @@ import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
 import { BoneDataType } from '../definitions/BoneDataType';
