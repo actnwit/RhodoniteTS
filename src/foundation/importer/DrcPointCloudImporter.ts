@@ -431,6 +431,14 @@ export default class DrcPointCloudImporter {
       }
       accessor.bufferViewIndex = accessor.bufferView;
       accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex!];
+
+      if (accessor.sparse != null) {
+        const sparse = accessor.sparse;
+        sparse.indices.indicesIndex = sparse.indices.bufferView;
+        sparse.indices.bufferView = gltfJson.bufferViews[sparse.indices.indicesIndex];
+        sparse.values.valuesIndex = sparse.values.bufferView;
+        sparse.values.bufferView = gltfJson.bufferViews[sparse.values.valuesIndex];
+      }
     }
   }
 
