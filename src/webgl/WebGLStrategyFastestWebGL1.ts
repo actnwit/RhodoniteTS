@@ -1,4 +1,4 @@
-import WebGLResourceRepository, { VertexHandles } from "./WebGLResourceRepository";
+import WebGLResourceRepository from "./WebGLResourceRepository";
 import MemoryManager from "../foundation/core/MemoryManager";
 import Buffer from "../foundation/memory/Buffer";
 import { PixelFormat } from "../foundation/definitions/PixelFormat";
@@ -22,10 +22,9 @@ import ComponentRepository from "../foundation/core/ComponentRepository";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import LightComponent from "../foundation/components/LightComponent";
 import Config from "../foundation/core/Config";
-import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
-import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, Byte } from "../commontypes/CommonTypes";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count } from "../commontypes/CommonTypes";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
@@ -539,24 +538,6 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     return this.__instance;
   }
 
-  private __setupMaterial(material: Material, renderPass: RenderPass) {
-    material.setParameter(ShaderSemantics.LightNumber, this.__lightComponents!.length);
-
-    for (let i = 0; i < this.__lightComponents!.length; i++) {
-      if (i >= Config.maxLightNumberInShader) {
-        break;
-      }
-      const lightComponent = this.__lightComponents![i];
-      const sceneGraphComponent = lightComponent.entity.getSceneGraph();
-      const worldLightPosition = sceneGraphComponent.worldPosition;
-      const worldLightDirection = lightComponent.direction;
-      const worldLightIntensity = lightComponent.intensity;
-      material.setParameter(ShaderSemantics.LightPosition, new Vector4(worldLightPosition.x, worldLightPosition.y, worldLightPosition.z, lightComponent.type.index), i);
-      material.setParameter(ShaderSemantics.LightDirection, new Vector4(worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0), i);
-      material.setParameter(ShaderSemantics.LightIntensity, new Vector4(worldLightIntensity.x, worldLightIntensity.y, worldLightIntensity.z, 0), i);
-    }
-  }
-
   private __getViewport(renderPass: RenderPass) {
     let viewport = renderPass.getViewport();
     if (viewport == null) {
@@ -677,8 +658,6 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
             gl.useProgram(shaderProgram);
 
             gl.uniform1i((shaderProgram as any).dataTexture, 7);
-
-            this.__setupMaterial(material, renderPass);
 
             this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 

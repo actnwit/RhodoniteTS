@@ -1,6 +1,5 @@
 import Vector3 from '../math/Vector3';
 import Quaternion from '../math/Quaternion';
-import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
 import Component from '../core/Component';
 import ComponentRepository from '../core/ComponentRepository';
@@ -18,13 +17,13 @@ import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonT
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
-  private _translate: Vector3 = Vector3.dummy();
+  private _translate: MutableVector3 = MutableVector3.dummy();
   private _rotate: MutableVector3 = MutableVector3.dummy();
-  private _scale: Vector3 = Vector3.dummy();
+  private _scale: MutableVector3 = MutableVector3.dummy();
   private _quaternion: MutableQuaternion = MutableQuaternion.dummy();
   private _matrix: MutableMatrix44 = MutableMatrix44.dummy();
-  private _invMatrix: Matrix44 = Matrix44.dummy();
-  private _normalMatrix: Matrix33 = Matrix33.dummy();
+  private _invMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
 
   private _is_translate_updated: boolean;
   private _is_euler_angles_updated: boolean;
@@ -34,14 +33,15 @@ export default class TransformComponent extends Component {
   private _is_inverse_trs_matrix_updated: boolean;
   private _is_normal_trs_matrix_updated: boolean;
 
-  private static __tmpMat_updateRotation: MutableMatrix44 = MutableMatrix44.identity();
-  private static __tmpMat_quaternionInner: MutableMatrix44 = MutableMatrix44.identity();
+  private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
+  private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
+  private static __tmpQuaternion_0: MutableQuaternion = MutableQuaternion.identity();
 
   private __toUpdateAllTransform = true;
   private _updateCount = 0;
   private __updateCountAtLastLogic = 0;
-  private static returnMatrix33 = new MutableMatrix33([0, 0, 0, 0, 0, 0, 0, 0, 0]);
-  private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
   // dependencies
   private _dependentAnimationComponentId: number = 0;
@@ -51,13 +51,13 @@ export default class TransformComponent extends Component {
 
     const thisClass = TransformComponent;
 
-    this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'translate', MutableVector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'rotate', MutableVector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'scale', Vector3, ComponentType.Float, [1, 1, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'scale', MutableVector3, ComponentType.Float, [1, 1, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
     this.submitToAllocation(this.maxNumberOfComponent);
 
@@ -94,9 +94,7 @@ export default class TransformComponent extends Component {
   }
 
   set translate(vec: Vector3) {
-    this._translate.v[0] = vec.v[0];
-    this._translate.v[1] = vec.v[1];
-    this._translate.v[2] = vec.v[2];
+    this._translate.copyComponents(vec);
     this._is_translate_updated = true;
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
@@ -113,9 +111,7 @@ export default class TransformComponent extends Component {
     if (this._is_translate_updated) {
       return this._translate;
     } else if (this._is_trs_matrix_updated) {
-      this._translate.v[0] = this._matrix.m03;
-      this._translate.v[1] = this._matrix.m13;
-      this._translate.v[2] = this._matrix.m23;
+      this._matrix.getTranslateTo(this._translate);
       this._is_translate_updated = true;
     }
     return this._translate;
@@ -151,9 +147,7 @@ export default class TransformComponent extends Component {
   }
 
   set scale(vec: Vector3) {
-    this._scale.v[0] = vec.v[0];
-    this._scale.v[1] = vec.v[1];
-    this._scale.v[2] = vec.v[2];
+    this._scale.copyComponents(vec);
     this._is_scale_updated = true;
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
@@ -170,10 +164,7 @@ export default class TransformComponent extends Component {
     if (this._is_scale_updated) {
       return this._scale;
     } else if (this._is_trs_matrix_updated) {
-      let m = this._matrix;
-      this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
-      this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
-      this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
+      this._matrix.getScaleTo(this._scale);
       this._is_scale_updated = true;
     }
 
@@ -181,10 +172,7 @@ export default class TransformComponent extends Component {
   }
 
   set quaternion(quat: Quaternion) {
-    this._quaternion.v[0] = quat.v[0];
-    this._quaternion.v[1] = quat.v[1];
-    this._quaternion.v[2] = quat.v[2];
-    this._quaternion.v[3] = quat.v[3];
+    this._quaternion.copyComponents(quat);
     this._is_quaternion_updated = true;
     this._is_euler_angles_updated = false;
     this._is_trs_matrix_updated = false;
@@ -207,9 +195,9 @@ export default class TransformComponent extends Component {
         this._quaternion.fromMatrix(this._matrix);
         return this._quaternion;
       } else if (this._is_euler_angles_updated) {
-        TransformComponent.__tmpMat_quaternionInner.rotate(this._rotate);
+        const rotationMat = TransformComponent.__tmpMatrix44_0.rotate(this._rotate);
+        this._quaternion.fromMatrix(rotationMat);
         this._is_quaternion_updated = true;
-        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
         return this._quaternion;
       }
     }
@@ -217,7 +205,7 @@ export default class TransformComponent extends Component {
   }
 
   set matrix(mat: Matrix44) {
-    this._matrix = new MutableMatrix44(mat, true);
+    this._matrix.copyComponents(mat);
     this._is_trs_matrix_updated = true;
     this._is_translate_updated = false;
     this._is_euler_angles_updated = false;
@@ -331,7 +319,7 @@ export default class TransformComponent extends Component {
 
   get inverseMatrixInner() {
     if (!this._is_inverse_trs_matrix_updated) {
-      this._invMatrix = MutableMatrix44.invert(this.matrixInner);
+      MutableMatrix44.invertTo(this.matrixInner, this._invMatrix);
       this._is_inverse_trs_matrix_updated = true;
     }
     return this._invMatrix;
@@ -343,18 +331,9 @@ export default class TransformComponent extends Component {
 
   get normalMatrixInner() {
     if (!this._is_normal_trs_matrix_updated) {
-      Matrix44.invertTo(this.matrixInner, TransformComponent.invertedMatrix44);
-      const mat = TransformComponent.invertedMatrix44.transpose();
-      TransformComponent.returnMatrix33.m00 = mat.m00;
-      TransformComponent.returnMatrix33.m01 = mat.m01;
-      TransformComponent.returnMatrix33.m02 = mat.m02;
-      TransformComponent.returnMatrix33.m10 = mat.m10;
-      TransformComponent.returnMatrix33.m11 = mat.m11;
-      TransformComponent.returnMatrix33.m12 = mat.m12;
-      TransformComponent.returnMatrix33.m20 = mat.m20;
-      TransformComponent.returnMatrix33.m21 = mat.m21;
-      TransformComponent.returnMatrix33.m22 = mat.m22;
-      this._normalMatrix = TransformComponent.returnMatrix33 as Matrix33;
+      const invertedMatrix44 = MutableMatrix44.invertTo(this.matrixInner, TransformComponent.__tmpMatrix44_0);
+      const newNormalMatrix = invertedMatrix44.transpose();
+      this._normalMatrix.copyComponents(newNormalMatrix);
       this._is_normal_trs_matrix_updated = true;
     }
     return this._normalMatrix;
@@ -386,7 +365,7 @@ export default class TransformComponent extends Component {
 
     // Matrix
     if (matrix != null) {
-      this._matrix = new MutableMatrix44(matrix);
+      this._matrix.copyComponents(matrix);
       this._is_trs_matrix_updated = true;
       this._is_translate_updated = false;
       this._is_euler_angles_updated = false;
@@ -396,7 +375,7 @@ export default class TransformComponent extends Component {
 
     // Translate
     if (translate != null) {
-      this._translate = translate.clone();
+      this._translate.copyComponents(translate);
       this._is_translate_updated = true;
     }
 
@@ -411,14 +390,14 @@ export default class TransformComponent extends Component {
       this._is_euler_angles_updated = true;
       this._is_quaternion_updated = false;
     } else if (quaternion != null) {
-      this._quaternion = new MutableQuaternion(quaternion);
+      this._quaternion.copyComponents(quaternion);
       this._is_euler_angles_updated = false;
       this._is_quaternion_updated = true;
     }
 
     // Scale
     if (scale != null) {
-      this._scale = scale.clone();
+      this._scale.copyComponents(scale);
       this._is_scale_updated = true;
     }
 
@@ -438,8 +417,8 @@ export default class TransformComponent extends Component {
 
   __updateRotation() {
     if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-      TransformComponent.__tmpMat_updateRotation.rotate(this._rotate);
-      this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
+      const rotationMat = TransformComponent.__tmpMatrix44_0.rotate(this._rotate);
+      this._quaternion.fromMatrix(rotationMat);
       this._is_quaternion_updated = true;
     } else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
       this._quaternion.toEulerAnglesTo(this._rotate);
@@ -454,35 +433,24 @@ export default class TransformComponent extends Component {
 
   __updateTranslate() {
     if (!this._is_translate_updated && this._is_trs_matrix_updated) {
-      const m = this._matrix;
-      this._translate.v[0] = m.m03;
-      this._translate.v[1] = m.m13;
-      this._translate.v[2] = m.m23;
+      this._matrix.getTranslateTo(this._translate);
       this._is_translate_updated = true;
     }
   }
 
   __updateScale() {
     if (!this._is_scale_updated && this._is_trs_matrix_updated) {
-      const m = this._matrix;
-      this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
-      this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
-      this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
+      this._matrix.getScaleTo(this._scale);
       this._is_scale_updated = true;
     }
   }
 
   __updateMatrix() {
     if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
-      const rotationMatrix = new Matrix44(this._quaternion);
-
-      let scale = this._scale;
-
-      this._matrix = MutableMatrix44.multiply(rotationMatrix, Matrix44.scale(scale));
-      let translateVec = this._translate;
-      this._matrix.m03 = translateVec.x;
-      this._matrix.m13 = translateVec.y;
-      this._matrix.m23 = translateVec.z;
+      const rotationMatrix = this._matrix.fromQuaternion(this._quaternion);
+      const scaleMat = TransformComponent.__tmpMatrix44_0.scale(this._scale);
+      const rsMatrix = rotationMatrix.multiply(scaleMat); // rsMatrix references to this._matrix
+      rsMatrix.putTranslate(this._translate);
 
       this._is_trs_matrix_updated = true;
     }
@@ -508,38 +476,32 @@ export default class TransformComponent extends Component {
   }
 
   setRotationFromNewUpAndFront(UpVec: Vector3, FrontVec: Vector3) {
-    let yDir = UpVec;
-    let xDir = Vector3.cross(yDir, FrontVec);
-    let zDir = Vector3.cross(xDir, yDir);
+    const yDir = UpVec;
+    const xDir = MutableVector3.crossTo(yDir, FrontVec, TransformComponent.__tmpVector3_0);
+    const zDir = MutableVector3.crossTo(xDir, yDir, TransformComponent.__tmpVector3_1);
 
-    let rotateMatrix = MutableMatrix44.identity();
-
-    rotateMatrix.m00 = xDir.x;
-    rotateMatrix.m10 = xDir.y;
-    rotateMatrix.m20 = xDir.z;
-
-    rotateMatrix.m01 = yDir.x;
-    rotateMatrix.m11 = yDir.y;
-    rotateMatrix.m21 = yDir.z;
-
-    rotateMatrix.m02 = zDir.x;
-    rotateMatrix.m12 = zDir.y;
-    rotateMatrix.m22 = zDir.z;
+    const rotateMatrix = TransformComponent.__tmpMatrix44_0.setComponents(
+      xDir.x, yDir.x, zDir.x, 0,
+      xDir.y, yDir.y, zDir.y, 0,
+      xDir.z, yDir.z, zDir.z, 0,
+      0, 0, 0, 1
+    );
 
     this.rotateMatrix44 = rotateMatrix;
   }
 
   headToDirection(fromVec: Vector3, toVec: Vector3) {
-    const fromDir = Vector3.normalize(fromVec);
-    const toDir = Vector3.normalize(toVec);
-    const rotationDir = Vector3.cross(fromDir, toDir);
+    const fromDir = TransformComponent.__tmpVector3_0.copyComponents(fromVec).normalize();
+    const toDir = TransformComponent.__tmpVector3_1.copyComponents(toVec).normalize();
+    const rotationDir = MutableVector3.crossTo(fromDir, toDir, TransformComponent.__tmpVector3_2);
     const cosTheta = Vector3.dot(fromDir, toDir);
-    let theta = Math.acos(cosTheta);
-    this.quaternion = MutableQuaternion.axisAngle(rotationDir, theta);
+    const theta = Math.acos(cosTheta);
+
+    this.quaternion = TransformComponent.__tmpQuaternion_0.axisAngle(rotationDir, theta);
   }
 
   set rotateMatrix44(rotateMatrix: Matrix44) {
-    this.quaternion = MutableQuaternion.fromMatrix(rotateMatrix);
+    this.quaternion = TransformComponent.__tmpQuaternion_0.fromMatrix(rotateMatrix);
   }
 
   get rotateMatrix44() {
