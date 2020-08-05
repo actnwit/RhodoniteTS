@@ -12,7 +12,6 @@ import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
 import { BoneDataType } from '../definitions/BoneDataType';
@@ -56,6 +55,7 @@ export default class SkeletalComponent extends Component {
       console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
     }
 
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   static get componentTID(): ComponentTID {
@@ -84,15 +84,31 @@ export default class SkeletalComponent extends Component {
     return this.jointsHierarchy?.worldMatrixInner;
   }
 
-  $create() {
-    this.moveStageTo(ProcessStage.Load);
+  get jointMatrices() {
+    return this.__jointMatrices;
   }
 
-  $load() {
-    this.moveStageTo(ProcessStage.Logic);
+  get jointQuaternionArray() {
+    return this.__qArray;
   }
 
-  $logic({ processApproach }: { processApproach: ProcessApproachEnum }) {
+  get jointTranslateScaleArray() {
+    return this.__tArray;
+  }
+
+  get jointMatricesArray() {
+    return this.__matArray;
+  }
+
+  get jointCompressedChunk() {
+    return this.__qtArray;
+  }
+
+  get jointCompressedInfo() {
+    return this.__qtInfo;
+  }
+
+  $logic() {
 
     if (!this.isSkinning) {
       return;
@@ -223,30 +239,6 @@ export default class SkeletalComponent extends Component {
         this.__qtArray[i * 4 + 3] = vec2TPacked[1];
       }
     }
-  }
-
-  get jointMatrices() {
-    return this.__jointMatrices;
-  }
-
-  get jointQuaternionArray() {
-    return this.__qArray;
-  }
-
-  get jointTranslateScaleArray() {
-    return this.__tArray;
-  }
-
-  get jointMatricesArray() {
-    return this.__matArray;
-  }
-
-  get jointCompressedChunk() {
-    return this.__qtArray;
-  }
-
-  get jointCompressedInfo() {
-    return this.__qtInfo;
   }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);

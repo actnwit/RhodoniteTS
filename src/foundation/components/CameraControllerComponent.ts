@@ -38,6 +38,14 @@ export default class CameraControllerComponent extends Component {
     }
   }
 
+  get controller() {
+    return this.__cameraController;
+  }
+
+  static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.CameraControllerComponentTID;
+  }
+
   $create() {
     this.__cameraComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraComponent) as CameraComponent;
 
@@ -48,14 +56,6 @@ export default class CameraControllerComponent extends Component {
     if (this.__cameraController) {
       this.__cameraController.logic(this.__cameraComponent!);
     }
-  }
-
-  get controller() {
-    return this.__cameraController;
-  }
-
-  static get componentTID(): ComponentTID {
-    return WellKnownComponentTIDs.CameraControllerComponentTID;
   }
 }
 ComponentRepository.registerComponentClass(CameraControllerComponent);

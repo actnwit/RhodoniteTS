@@ -75,7 +75,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       try {
         this.setupDefaultShaderSemantics(material, isPointSprite);
         primitive._backupMaterial();
-      } catch(e) {
+      } catch (e) {
         console.log(e)
         primitive._restoreMaterial();
         this.setupDefaultShaderSemantics(primitive.material, isPointSprite);
@@ -246,7 +246,7 @@ mat3 get_normalMatrix(float instanceId) {
     // Setup Data Texture
     if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const memoryManager: MemoryManager = MemoryManager.getInstance();
-      const buffer: Buffer|undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+      const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
       if (buffer == null) {
         return;
       }
@@ -401,16 +401,5 @@ mat3 get_normalMatrix(float instanceId) {
     WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);
     this.__lastRenderPassTickCount = renderPassTickCount;
   }
-
-  setCamera(renderPass: RenderPass) {
-    let cameraComponent = renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    }
-    if (cameraComponent) {
-      cameraComponent.setValuesToGlobalDataRepository();
-    }
-  }
-
 }
 

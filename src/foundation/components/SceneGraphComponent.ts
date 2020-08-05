@@ -2,7 +2,6 @@ import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 import Matrix44 from '../math/Matrix44';
 import EntityRepository from '../core/EntityRepository';
-import BufferView from '../memory/BufferView';
 import { ComponentType } from '../definitions/ComponentType';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { BufferUse } from '../definitions/BufferUse';
@@ -14,12 +13,9 @@ import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
 import AnimationComponent from './AnimationComponent';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
-import GlobalDataRepository from '../core/GlobalDataRepository';
+import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
-import Entity from '../core/Entity';
-import Mesh from '../geometry/Mesh';
 import AABBGizmo from '../gizmos/AABBGizmo';
 
 export default class SceneGraphComponent extends Component {
@@ -46,7 +42,7 @@ export default class SceneGraphComponent extends Component {
   public isRootJoint = false;
   public jointIndex = -1;
 
-  private static invertedMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
+  private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -62,7 +58,6 @@ export default class SceneGraphComponent extends Component {
     this.registerMember(BufferUse.GPUInstanceData, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
     this.submitToAllocation(this.maxNumberOfComponent);
-
   }
 
   set isGizmoVisible(flg: boolean) {
@@ -77,7 +72,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   static getTopLevelComponents(): SceneGraphComponent[] {
-    return SceneGraphComponent.__sceneGraphs.filter((sg: SceneGraphComponent)=>{
+    return SceneGraphComponent.__sceneGraphs.filter((sg: SceneGraphComponent) => {
       return sg.isTopLevel;
     });
   }
@@ -108,7 +103,7 @@ export default class SceneGraphComponent extends Component {
     this.__isNormalMatrixUpToDate = false;
     this.__isWorldAABBDirty = true;
 
-    this.children.forEach((child)=> {
+    this.children.forEach((child) => {
       child.setWorldMatrixDirtyRecursively();
     });
   }
@@ -140,11 +135,11 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldMatrixInner() {
-   if (!this.__isWorldMatrixUpToDate) {
+    if (!this.__isWorldMatrixUpToDate) {
       // this._worldMatrix.identity();
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-    this.__isWorldMatrixUpToDate = true;
-   }
+      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
+      this.__isWorldMatrixUpToDate = true;
+    }
 
     return this._worldMatrix;
   }
@@ -156,7 +151,7 @@ export default class SceneGraphComponent extends Component {
   get normalMatrixInner() {
     if (!this.__isNormalMatrixUpToDate) {
       Matrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
-      this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any ) as Matrix44);
+      this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any) as Matrix44);
       this.__isNormalMatrixUpToDate = true;
     }
     return this._normalMatrix;
@@ -167,29 +162,7 @@ export default class SceneGraphComponent extends Component {
     return this.normalMatrixInner.clone();
   }
 
-  $create() {
-    this.moveStageTo(ProcessStage.Load);
-  }
-
-  $load() {
-    this.__animationComponent = this.entity.getComponent(AnimationComponent) as AnimationComponent;
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $logic() {
-
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-    const normal = this.normalMatrixInner;
-
-    if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
-      this.__AABBGizmo.update();
-    }
-    // if (this.parent == null) {
-      // this.calcWorldAABB();
-    // }
-  }
-
-  isWorldMatrixUpToDateRecursively() : boolean {
+  isWorldMatrixUpToDateRecursively(): boolean {
     if (this.__isWorldMatrixUpToDate) {
       if (this.__parent) {
         let result = this.__parent.isWorldMatrixUpToDateRecursively();
@@ -233,7 +206,7 @@ export default class SceneGraphComponent extends Component {
     }
     if (sceneGraphComponent.isAbleToBeParent) {
       const children = sceneGraphComponent.children!;
-      for (let i=0; i<children.length; i++) {
+      for (let i = 0; i < children.length; i++) {
         const hitChildren = this.flattenHierarchy(children[i], isJointMode);
         Array.prototype.push.apply(results, hitChildren);
       }
@@ -316,7 +289,7 @@ export default class SceneGraphComponent extends Component {
     directionInWorld: Vector3,
     dotThreshold: number = 0,
     ignoreMeshComponents: MeshComponent[] = []
-    ) {
+  ) {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
     const meshComponents: MeshComponent[] = [];
     collectedSgComponents.filter((sg: SceneGraphComponent) => {
@@ -338,7 +311,7 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      let {t, intersectedPositionInWorld} = meshComponent.castRay(srcPointInWorld, directionInWorld, dotThreshold);
+      let { t, intersectedPositionInWorld } = meshComponent.castRay(srcPointInWorld, directionInWorld, dotThreshold);
       if (t < rayDistance) {
         rayDistance = t;
         intersectedPositionInWorld = intersectedPositionInWorld;
@@ -350,14 +323,14 @@ export default class SceneGraphComponent extends Component {
       rayDistance = -1;
     }
 
-    return {intersectedPosition, rayDistance, selectedMeshComponent};
+    return { intersectedPosition, rayDistance, selectedMeshComponent };
   }
 
   castRayFromScreen(
-      x: number, y: number, camera: CameraComponent, viewport: Vector4,
-      dotThreshold: number = 0,
-      ignoreMeshComponents: MeshComponent[] = []
-    ) {
+    x: number, y: number, camera: CameraComponent, viewport: Vector4,
+    dotThreshold: number = 0,
+    ignoreMeshComponents: MeshComponent[] = []
+  ) {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
     const meshComponents: MeshComponent[] = [];
     collectedSgComponents.filter((sg: SceneGraphComponent) => {
@@ -379,7 +352,7 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      let {t, intersectedPositionInWorld} = meshComponent.castRayFromScreen(x, y, camera, viewport, dotThreshold);
+      let { t, intersectedPositionInWorld } = meshComponent.castRayFromScreen(x, y, camera, viewport, dotThreshold);
       if (t < rayDistance) {
         rayDistance = t;
         intersectedPosition = intersectedPositionInWorld;
@@ -391,7 +364,24 @@ export default class SceneGraphComponent extends Component {
       rayDistance = -1;
     }
 
-    return {intersectedPosition, rayDistance, selectedMeshComponent};
+    return { intersectedPosition, rayDistance, selectedMeshComponent };
+  }
+
+  $create() {
+    this.__animationComponent = this.entity.getComponent(AnimationComponent) as AnimationComponent;
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
+
+    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));
+
+    if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
+      this.__AABBGizmo.update();
+    }
+    // if (this.parent == null) {
+    // this.calcWorldAABB();
+    // }
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);

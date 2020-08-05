@@ -6,7 +6,6 @@ import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
 import { CameraTypeEnum, CameraType } from '../definitions/CameraType';
 import Matrix44 from '../math/Matrix44';
-import { WebGLStrategy } from '../../webgl/main';
 import SceneGraphComponent from './SceneGraphComponent';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
@@ -21,6 +20,9 @@ import GlobalDataRepository from '../core/GlobalDataRepository';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { MathUtil } from '../math/MathUtil';
 import CameraControllerComponent from './CameraControllerComponent';
+import ModuleManager from '../system/ModuleManager';
+import { RnXR } from '../../rhodonite-xr';
+import RenderPass from '../renderer/RenderPass';
 
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
@@ -79,10 +81,6 @@ export default class CameraComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
     this.submitToAllocation(Config.maxCameraNumber);
-
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-
-    this.moveStageTo(ProcessStage.PreRender);
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
@@ -350,33 +348,6 @@ export default class CameraComponent extends Component {
     return WellKnownComponentTIDs.CameraComponentTID;
   }
 
-  $logic() {
-    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
-    if (cameraControllerComponent == null) {
-      this.eyeInner.v[0] = CameraComponent._eye.x;
-      this.eyeInner.v[1] = CameraComponent._eye.y;
-      this.eyeInner.v[2] = CameraComponent._eye.z;
-      this.directionInner.v[0] = this._direction.x;
-      this.directionInner.v[1] = this._direction.y;
-      this.directionInner.v[2] = this._direction.z;
-      this.upInner.v[0] = this._up.x;
-      this.upInner.v[1] = this._up.y;
-      this.upInner.v[2] = this._up.z;
-      this.cornerInner.v[0] = this._corner.x;
-      this.cornerInner.v[1] = this._corner.y;
-      this.cornerInner.v[2] = this._corner.z;
-      this.cornerInner.v[3] = this._corner.w;
-      this.parametersInner.v[0] = this._parameters.x;
-      this.parametersInner.v[1] = this._parameters.y;
-      this.parametersInner.v[2] = this._parameters.z;
-      this.parametersInner.v[3] = this._parameters.w;
-    } else {
-      this._parametersInner.w = this._parameters.w;
-    }
-
-    this.moveStageTo(ProcessStage.PreRender);
-  }
-
   calcProjectionMatrix() {
     const zNear = this._parametersInner.x;
     const zFar = this._parametersInner.y;
@@ -467,25 +438,6 @@ export default class CameraComponent extends Component {
     return Matrix44.multiply(this._projectionMatrix, this._viewMatrix);
   }
 
-  $create({ strategy }: {
-    strategy: WebGLStrategy
-  }) {
-    if (this.__sceneGraphComponent != null) {
-      return;
-    }
-
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $prerender() {
-    this.calcProjectionMatrix();
-    this.calcViewMatrix();
-
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
   setValuesToGlobalDataRepository() {
     CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewMatrix, this.componentSID, this.viewMatrix);
     CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ProjectionMatrix, this.componentSID, this.projectionMatrix);
@@ -504,5 +456,47 @@ export default class CameraComponent extends Component {
   get frustum() {
     return this.__frustum;
   }
+
+  $create() {
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic({ renderPass }: { renderPass: RenderPass }) {
+    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
+    if (cameraControllerComponent == null) {
+      this.eyeInner.v[0] = CameraComponent._eye.x;
+      this.eyeInner.v[1] = CameraComponent._eye.y;
+      this.eyeInner.v[2] = CameraComponent._eye.z;
+      this.directionInner.v[0] = this._direction.x;
+      this.directionInner.v[1] = this._direction.y;
+      this.directionInner.v[2] = this._direction.z;
+      this.upInner.v[0] = this._up.x;
+      this.upInner.v[1] = this._up.y;
+      this.upInner.v[2] = this._up.z;
+      this.cornerInner.v[0] = this._corner.x;
+      this.cornerInner.v[1] = this._corner.y;
+      this.cornerInner.v[2] = this._corner.z;
+      this.cornerInner.v[3] = this._corner.w;
+      this.parametersInner.v[0] = this._parameters.x;
+      this.parametersInner.v[1] = this._parameters.y;
+      this.parametersInner.v[2] = this._parameters.z;
+      this.parametersInner.v[3] = this._parameters.w;
+    } else {
+      this._parametersInner.w = this._parameters.w;
+    }
+    this.calcViewMatrix();
+    this.calcProjectionMatrix();
+
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
+      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+      webvrSystem.setValuesToGlobalDataRepository();
+    } else {
+      this.setValuesToGlobalDataRepository();
+    }
+
+  }
+
 }
 ComponentRepository.registerComponentClass(CameraComponent);

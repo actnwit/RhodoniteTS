@@ -12,20 +12,12 @@ export default class BlendShapeComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
 
-    this.moveStageTo(ProcessStage.Create);
+    this.moveStageTo(ProcessStage.Logic);
   }
 
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.BlendShapeComponentTID;
-  }
-
-  $create() {
-    this.moveStageTo(ProcessStage.Logic);
-  }
-
-  $logic() {
-
   }
 
   set weights(weights: number[]) {
@@ -42,6 +34,9 @@ export default class BlendShapeComponent extends Component {
 
   get targetNames() {
     return this.__targetNames;
+  }
+
+  $logic() {
   }
 }
 
