@@ -174,23 +174,20 @@ export default class SceneGraphComponent extends Component {
     return false;
   }
 
-  calcWorldMatrixRecursively(isJointMode: boolean): Matrix44 | MutableMatrix44 {
+  calcWorldMatrixRecursively(isJointMode: boolean): MutableMatrix44 {
+    if (this.__isWorldMatrixUpToDate) {
+      return this._worldMatrix;
+    }
+
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.__isWorldMatrixUpToDate) {
-      return this._worldMatrix;
-    } else {
-      const matrix = transform.matrixInner;
-      if (this.__parent == null || (isJointMode && this.__parent != null && !this.__parent.isJoint())) {
-        return matrix;
-      }
-      this.__tmpMatrix.copyComponents(matrix);
-      const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(isJointMode);
-      this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
+    if (this.__parent == null || (isJointMode && this.__parent != null && !this.__parent.isJoint())) {
+      return transform.matrixInner;
     }
 
-    return this.__tmpMatrix;
+    const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(isJointMode);
+    return MutableMatrix44.multiplyTo(matrixFromAncestorToParent, transform.matrixInner, this.__tmpMatrix);
   }
 
   /**
