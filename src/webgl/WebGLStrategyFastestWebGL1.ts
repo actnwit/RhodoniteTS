@@ -1,4 +1,4 @@
-import WebGLResourceRepository, { VertexHandles } from "./WebGLResourceRepository";
+import WebGLResourceRepository from "./WebGLResourceRepository";
 import MemoryManager from "../foundation/core/MemoryManager";
 import Buffer from "../foundation/memory/Buffer";
 import { PixelFormat } from "../foundation/definitions/PixelFormat";
@@ -22,10 +22,9 @@ import ComponentRepository from "../foundation/core/ComponentRepository";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import LightComponent from "../foundation/components/LightComponent";
 import Config from "../foundation/core/Config";
-import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
-import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, Byte } from "../commontypes/CommonTypes";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count } from "../commontypes/CommonTypes";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";

@@ -435,9 +435,9 @@ export default class CameraComponent extends Component {
     CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewPosition, this.componentSID, this.worldPosition);
   }
 
-  get worldPosition(): Vector3 {
-    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3 as MutableVector3);
-    return CameraComponent.returnVector3 as Vector3;
+  get worldPosition() {
+    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3);
+    return CameraComponent.returnVector3;
   }
 
   updateFrustum() {

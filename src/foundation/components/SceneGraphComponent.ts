@@ -151,7 +151,7 @@ export default class SceneGraphComponent extends Component {
   get normalMatrixInner() {
     if (!this.__isNormalMatrixUpToDate) {
       Matrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
-      this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any) as Matrix44);
+      this._normalMatrix.copyComponents(SceneGraphComponent.invertedMatrix44.transpose());
       this.__isNormalMatrixUpToDate = true;
     }
     return this._normalMatrix;

@@ -1,8 +1,7 @@
-import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
 import { Count, Index, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
-import BufferView from "../memory/BufferView";
 import { CompositionType } from "../definitions/CompositionType";
 import Material, { getShaderPropertyFunc } from "../materials/core/Material";
 import { ComponentType } from "../definitions/ComponentType";
@@ -16,7 +15,6 @@ import Config from "./Config";
 import Scalar from "../math/Scalar";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
-import Matrix44 from "../math/Matrix44";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import { BoneDataType } from "../definitions/BoneDataType";
