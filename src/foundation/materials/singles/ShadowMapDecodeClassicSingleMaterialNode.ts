@@ -36,7 +36,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
   private __encodedDepthRenderPass: RenderPass;
 
   constructor(
-    { isMorphing, isSkinning, isLighting, colorAttachmentsNumber }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, colorAttachmentsNumber: Count },
+    { isMorphing, isSkinning, isLighting, isDebugging, colorAttachmentsNumber }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, isDebugging: boolean, colorAttachmentsNumber: Count },
     encodedDepthRenderPass: RenderPass
   ) {
     super(ShadowMapDecodeClassicShader.getInstance(), "ShadowMapDecodeClassicShading"
@@ -152,6 +152,10 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
           initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
         }
       );
+    }
+
+    if (isDebugging) {
+      this.__definitions += '#define RN_IS_DEBUGGING\n';
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
