@@ -64,6 +64,7 @@ import Mesh from './foundation/geometry/Mesh';
 import { MathUtil } from './foundation/math/MathUtil';
 import Component from './foundation/core/Component';
 import EnvConstantSingleMaterialNode from './foundation/materials/singles/EnvConstantSingleMaterialNode';
+import ShadowMapDecodeClassicSingleMaterialNode from './foundation/materials/singles/ShadowMapDecodeClassicSingleMaterialNode';
 import RnObject from './foundation/core/RnObject';
 import VRMImporter from './foundation/importer/VRMImporter';
 import BlendShapeComponent from './foundation/components/BlendShapeComponent';
@@ -166,6 +167,7 @@ let Rn = {
   MathUtil,
   Component,
   EnvConstantSingleMaterialNode,
+  ShadowMapDecodeClassicSingleMaterialNode,
   RnObject,
   VRMImporter,
   BlendShapeComponent,
@@ -211,7 +213,7 @@ if (typeof exports !== 'undefined') {
 export default Rn;
 
 export type RnType = typeof Rn;
-(0,eval)('this').Rn = Rn;
+(0, eval)('this').Rn = Rn;
 
 export type CompositionTypeEnum = compositionTypeEnum;
 export type ComponentTypeEnum = componentTypeEnum;

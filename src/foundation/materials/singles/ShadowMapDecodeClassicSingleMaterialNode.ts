@@ -30,6 +30,8 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
   static AllowableDepthError: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'allowableDepthError' });
   static zNearInner = new ShaderSemanticsClass({ str: 'zNearInner' });
   static zFarInner = new ShaderSemanticsClass({ str: 'zFarInner' });
+  static DebugColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'debugColorFactor' });
+
   private __zNearInner = new MutableScalar(0);
   private __zFarInner = new MutableScalar(0);
 
@@ -156,6 +158,14 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
 
     if (isDebugging) {
       this.__definitions += '#define RN_IS_DEBUGGING\n';
+      shaderSemanticsInfoArray.push(
+        {
+          semantic: ShadowMapDecodeClassicSingleMaterialNode.DebugColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+          initialValue: new Vector4(1, 0, 0, 1), min: 0, max: 2,
+        }
+      );
+
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
