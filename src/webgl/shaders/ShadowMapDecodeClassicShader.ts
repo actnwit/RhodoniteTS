@@ -178,8 +178,18 @@ void main (){
     float zFar = get_zFarInner(materialSID, 0);
     float normalizationCoefficient = 1.0 / (zFar - zNear);
 
+    vec2 shadowMapUV = v_texcoord_1.xy / v_texcoord_1.w;
+    bool inShadowMap = ((shadowMapUV.x >= 0.0 && shadowMapUV.x <= 1.0) && (shadowMapUV.y >= 0.0 && shadowMapUV.y <= 1.0));
+
+    #ifdef RN_IS_DEBUGGING
+      if(inShadowMap == false){
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        return;
+      }
+    #endif
+
     float measureDepth = normalizationCoefficient * length(v_projPosition_from_light);
-    float textureDepth = decodeRGBAToDepth(${_textureProj}(u_depthTexture, v_texcoord_1));
+    float textureDepth = decodeRGBAToDepth(${_texture}(u_depthTexture, shadowMapUV));
     float allowableDepthError = get_allowableDepthError(materialSID, 0);
     if(measureDepth > textureDepth + allowableDepthError){
       vec4 shadowColorCoefficient = get_shadowColorCoefficient(materialSID, 0);
