@@ -191,7 +191,9 @@ void main (){
     float measureDepth = normalizationCoefficient * length(v_projPosition_from_light);
     float textureDepth = decodeRGBAToDepth(${_texture}(u_depthTexture, shadowMapUV));
     float allowableDepthError = get_allowableDepthError(materialSID, 0);
-    if(measureDepth > textureDepth + allowableDepthError){
+
+    if(inShadowMap && measureDepth > textureDepth + allowableDepthError){
+      // case of shadow
       vec4 shadowColorCoefficient = get_shadowColorCoefficient(materialSID, 0);
       diffuseColor *= shadowColorCoefficient.rgb;
       alpha *= shadowColorCoefficient.a;
