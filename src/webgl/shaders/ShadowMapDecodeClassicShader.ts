@@ -183,7 +183,8 @@ void main (){
 
     #ifdef RN_IS_DEBUGGING
       if(inShadowMap == false){
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        rt0 = vec4(1.0, 0.0, 0.0, 1.0);
+        ${_def_fragColor}
         return;
       }
     #endif
