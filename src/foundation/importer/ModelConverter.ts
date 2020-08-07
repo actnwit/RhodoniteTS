@@ -1484,7 +1484,7 @@ export default class ModelConverter {
 
   static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum) {
     if (textureJson?.extensions?.KHR_texture_transform) {
-      let transform = MutableVector4.zero();
+      const transform = new MutableVector4(1.0, 1.0, 0.0, 0.0);
       let rotation = 0;
 
       const transformJson = textureJson.extensions.KHR_texture_transform;
