@@ -16,7 +16,7 @@ IE11 is not supported.
 
 ### Prerequisites
 
-* Node.js 12.4.0 or later
+* Node.js 12.18.1 or later
 
 ### Setup Project
 
