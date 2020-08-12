@@ -13,7 +13,6 @@ export default class PhysicsComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
 
-    this.submitToAllocation(this.maxNumberOfComponent);
     this.moveStageTo(ProcessStage.Logic);
   }
 
