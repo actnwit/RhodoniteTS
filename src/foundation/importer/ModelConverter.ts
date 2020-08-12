@@ -45,6 +45,7 @@ import PbrShadingSingleMaterialNode from "../materials/singles/PbrShadingSingleM
 import Scalar from "../math/Scalar";
 import { TextureParameter } from "../definitions/TextureParameter";
 import FlexibleAccessor from "../memory/FlexibleAccessor";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 declare var DracoDecoderModule: any;
 
@@ -917,7 +918,10 @@ export default class ModelConverter {
 
     if (texture.image.image) {
       const image = texture.image.image as HTMLImageElement;
-      if (!this.__sizeIsPowerOfTwo(image)) {
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
+
+      if (isWebGL1 && !this.__sizeIsPowerOfTwo(image)) {
         textureOption.wrapS = TextureParameter.ClampToEdge;
         textureOption.wrapT = TextureParameter.ClampToEdge;
       }
