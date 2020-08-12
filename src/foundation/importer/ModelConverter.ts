@@ -907,15 +907,19 @@ export default class ModelConverter {
     rnTexture.autoDetectTransparency = (options?.autoDetectTextureTransparency === true) ? true : false;
     rnTexture.autoResize = (options?.autoResizeTexture === true) ? true : false;
     const texture = textureType.texture;
+
+    const textureOption = {
+      magFilter: TextureParameter.from(texture.sampler?.magFilter) ?? TextureParameter.Linear,
+      minFilter: TextureParameter.from(texture.sampler?.minFilter) ?? TextureParameter.Linear,
+      wrapS: TextureParameter.from(texture.sampler?.wrapS) ?? TextureParameter.Repeat,
+      wrapT: TextureParameter.from(texture.sampler?.wrapT) ?? TextureParameter.Repeat
+    };
+
     if (texture.image.image) {
       const image = texture.image.image as HTMLImageElement;
-
-      let textureOption;
       if (!this.__sizeIsPowerOfTwo(image)) {
-        textureOption = {
-          wrapS: TextureParameter.ClampToEdge,
-          wrapT: TextureParameter.ClampToEdge
-        }
+        textureOption.wrapS = TextureParameter.ClampToEdge;
+        textureOption.wrapT = TextureParameter.ClampToEdge;
       }
 
       rnTexture.generateTextureFromImage(image, textureOption);
@@ -926,7 +930,7 @@ export default class ModelConverter {
         rnTexture.name = texture.image.name + `.${ext}`;
       }
     } else if (texture.image.basis) {
-      rnTexture.generateTextureFromBasis(texture.image.basis);
+      rnTexture.generateTextureFromBasis(texture.image.basis, textureOption);
       if (texture.image.uri) {
         rnTexture.name = texture.image.url;
       } else {

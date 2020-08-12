@@ -47,4 +47,4 @@ function from( index : number ): TextureParameterEnum {
 }
 
 export const TextureParameter = Object.freeze({ Nearest, Linear, LinearMipmapLinear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
-  Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F, Depth16, Depth24, Depth32F, Depth24Stencil8, Depth32FStencil8 });
+  Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F, Depth16, Depth24, Depth32F, Depth24Stencil8, Depth32FStencil8,from });
