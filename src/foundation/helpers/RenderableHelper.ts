@@ -5,7 +5,7 @@ import { ComponentType } from "../definitions/ComponentType";
 import { PixelFormat } from "../definitions/PixelFormat";
 import RenderBuffer from "../textures/RenderBuffer";
 
-function createTexturesForRenderTarget(width: number, height:number, textureNum:number,
+function createTexturesForRenderTarget(width: number, height: number, textureNum: number,
   {
     level = 0,
     internalFormat = PixelFormat.RGBA,
@@ -19,9 +19,9 @@ function createTexturesForRenderTarget(width: number, height:number, textureNum:
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
 
-  for (let i=0; i<textureNum; i++) {
+  for (let i = 0; i < textureNum; i++) {
     const renderTargetTexture = new RenderTargetTexture();
-    renderTargetTexture.create({width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT});
+    renderTargetTexture.create({ width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
 
@@ -78,4 +78,4 @@ function createTexturesForRenderTarget(width: number, height:number, textureNum:
 }
 */
 
-export default Object.freeze({createTexturesForRenderTarget});
+export default Object.freeze({ createTexturesForRenderTarget });

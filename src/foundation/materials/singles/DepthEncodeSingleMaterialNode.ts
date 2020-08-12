@@ -55,7 +55,7 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
   }
 
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
-    let cameraComponent = args.renderPass.cameraComponent as CameraComponent;;
+    let cameraComponent = args.renderPass.cameraComponent as CameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }

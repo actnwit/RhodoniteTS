@@ -24,7 +24,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       + (isLighting ? '' : '-lighting'), { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning },
       classicSingleShaderVertex, classicSingleShaderFragment);
 
-    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     shaderSemanticsInfoArray.push(
       {

@@ -9,7 +9,7 @@ import Material from "../core/Material";
 import { HdriFormat } from "../../definitions/HdriFormat";
 import MeshComponent from "../../components/MeshComponent";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
-import Shaderity, { ShaderityObject } from "shaderity";
+import { ShaderityObject } from "shaderity";
 import ShaderityUtility from "../core/ShaderityUtility";
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {

@@ -1,27 +1,10 @@
-import RnObject from "../../core/RnObject";
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-  ShaderSemanticsClass
-} from "../../definitions/ShaderSemantics";
-import { ShaderNodeEnum } from "../../definitions/ShaderNode";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
-import MutableColorRgb from "../../math/MutableColorRgb";
-import Vector2 from "../../math/Vector2";
 import { ComponentType } from "../../definitions/ComponentType";
-import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import ModuleManager from "../../system/ModuleManager";
-import { PixelFormat } from "../../definitions/PixelFormat";
-import { TextureParameter } from "../../definitions/TextureParameter";
 import Vector4 from "../../math/Vector4";
-import Vector3 from "../../math/Vector3";
-import { ShadingModel } from "../../definitions/ShadingModel";
 import EnvConstantShader from "../../../webgl/shaders/EnvConstantShader";
-import AbstractTexture from "../../textures/AbstractTexture";
 import { ShaderType } from "../../definitions/ShaderType";
-import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
 import Scalar from "../../math/Scalar";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";
