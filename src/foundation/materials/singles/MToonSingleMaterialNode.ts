@@ -9,8 +9,7 @@ import { CompositionType } from "../../definitions/CompositionType";
 import Config from "../../core/Config";
 import Material from "../core/Material";
 import MeshComponent from "../../components/MeshComponent";
-import MToonShader from "../../../webgl/shaders/MToonShader";
-import MutableVector3 from "../../math/MutableVector3";
+import MToonShader from "../../../webgl/shaders/MToonShader"
 import Scalar from "../../math/Scalar";
 import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
 import { ShaderType } from "../../definitions/ShaderType";

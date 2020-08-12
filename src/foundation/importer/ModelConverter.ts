@@ -45,6 +45,7 @@ import PbrShadingSingleMaterialNode from "../materials/singles/PbrShadingSingleM
 import Scalar from "../math/Scalar";
 import { TextureParameter } from "../definitions/TextureParameter";
 import FlexibleAccessor from "../memory/FlexibleAccessor";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 declare var DracoDecoderModule: any;
 
@@ -614,23 +615,30 @@ export default class ModelConverter {
       rnTexture.autoDetectTransparency = options.autoDetectTextureTransparency === true;
       rnTexture.autoResize = options.autoResizeTexture === true;
 
+      const textureOption = {
+        magFilter: TextureParameter.from(textureInfo.sampler?.magFilter) ?? TextureParameter.Linear,
+        minFilter: TextureParameter.from(textureInfo.sampler?.minFilter) ?? TextureParameter.Linear,
+        wrapS: TextureParameter.from(textureInfo.sampler?.wrapS) ?? TextureParameter.Repeat,
+        wrapT: TextureParameter.from(textureInfo.sampler?.wrapT) ?? TextureParameter.Repeat
+      };
+
       const fileName = textureInfo.fileName;
       const uri = basePath + fileName;
       rnTexture.name = uri;
 
       const image = textureInfo.image;
       if (image?.image) {
-        let textureOption;
-        if (!this.__sizeIsPowerOfTwo(image.image)) {
-          textureOption = {
-            wrapS: TextureParameter.ClampToEdge,
-            wrapT: TextureParameter.ClampToEdge
-          }
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
+
+        if (isWebGL1 && !this.__sizeIsPowerOfTwo(image.image)) {
+          textureOption.wrapS = TextureParameter.ClampToEdge;
+          textureOption.wrapT = TextureParameter.ClampToEdge;
         }
 
         rnTexture.generateTextureFromImage(image.image, textureOption);
       } else if (image?.basis) {
-        rnTexture.generateTextureFromBasis(image.basis);
+        rnTexture.generateTextureFromBasis(image.basis, textureOption);
       } else {
         console.warn("default image not found");
         continue;
@@ -907,15 +915,22 @@ export default class ModelConverter {
     rnTexture.autoDetectTransparency = (options?.autoDetectTextureTransparency === true) ? true : false;
     rnTexture.autoResize = (options?.autoResizeTexture === true) ? true : false;
     const texture = textureType.texture;
+
+    const textureOption = {
+      magFilter: TextureParameter.from(texture.sampler?.magFilter) ?? TextureParameter.Linear,
+      minFilter: TextureParameter.from(texture.sampler?.minFilter) ?? TextureParameter.Linear,
+      wrapS: TextureParameter.from(texture.sampler?.wrapS) ?? TextureParameter.Repeat,
+      wrapT: TextureParameter.from(texture.sampler?.wrapT) ?? TextureParameter.Repeat
+    };
+
     if (texture.image.image) {
       const image = texture.image.image as HTMLImageElement;
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
 
-      let textureOption;
-      if (!this.__sizeIsPowerOfTwo(image)) {
-        textureOption = {
-          wrapS: TextureParameter.ClampToEdge,
-          wrapT: TextureParameter.ClampToEdge
-        }
+      if (isWebGL1 && !this.__sizeIsPowerOfTwo(image)) {
+        textureOption.wrapS = TextureParameter.ClampToEdge;
+        textureOption.wrapT = TextureParameter.ClampToEdge;
       }
 
       rnTexture.generateTextureFromImage(image, textureOption);
@@ -926,7 +941,7 @@ export default class ModelConverter {
         rnTexture.name = texture.image.name + `.${ext}`;
       }
     } else if (texture.image.basis) {
-      rnTexture.generateTextureFromBasis(texture.image.basis);
+      rnTexture.generateTextureFromBasis(texture.image.basis, textureOption);
       if (texture.image.uri) {
         rnTexture.name = texture.image.url;
       } else {
@@ -1484,7 +1499,7 @@ export default class ModelConverter {
 
   static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum) {
     if (textureJson?.extensions?.KHR_texture_transform) {
-      let transform = MutableVector4.zero();
+      const transform = new MutableVector4(1.0, 1.0, 0.0, 0.0);
       let rotation = 0;
 
       const transformJson = textureJson.extensions.KHR_texture_transform;

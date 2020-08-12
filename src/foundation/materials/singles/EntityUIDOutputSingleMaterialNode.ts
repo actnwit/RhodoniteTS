@@ -1,37 +1,15 @@
-import RnObject from "../../core/RnObject";
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-  ShaderSemanticsEnum
-} from "../../definitions/ShaderSemantics";
-import { ShaderNodeEnum } from "../../definitions/ShaderNode";
+import { ShaderSemanticsInfo, ShaderSemantics, } from "../../definitions/ShaderSemantics";
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
-import MutableColorRgb from "../../math/MutableColorRgb";
-import Vector2 from "../../math/Vector2";
 import { ComponentType } from "../../definitions/ComponentType";
-import WebGLResourceRepository from "../../../webgl/WebGLResourceRepository";
-import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import ModuleManager from "../../system/ModuleManager";
-import { PixelFormat } from "../../definitions/PixelFormat";
-import { TextureParameter } from "../../definitions/TextureParameter";
-import Vector4 from "../../math/Vector4";
-import MutableVector4 from "../../math/MutableVector4";
 import Vector3 from "../../math/Vector3";
-import { ShadingModel } from "../../definitions/ShadingModel";
-import AbstractTexture from "../../textures/AbstractTexture";
 import { ShaderType } from "../../definitions/ShaderType";
 import Scalar from "../../math/Scalar";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
-import Config from "../../core/Config";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";
-import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
 import Material from "../core/Material";
 import SkeletalComponent from "../../components/SkeletalComponent";
-import MeshRendererComponent from "../../components/MeshRendererComponent";
-import { HdriFormat } from "../../definitions/HdriFormat";
-import VectorN from "../../math/VectorN";
 import MutableMatrix44 from "../../math/MutableMatrix44";
 import MutableMatrix33 from "../../math/MutableMatrix33";
 import entityUIDOutputSingleShaderVertex from "../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert";
@@ -46,9 +24,8 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
       { isMorphing: false, isSkinning: true, isLighting: false },
       entityUIDOutputSingleShaderVertex, entityUIDOutputSingleShaderFragment
     );
-    EntityUIDOutputSingleMaterialNode.initDefaultTextures();
 
-    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.WorldMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix44.zero()

@@ -16,8 +16,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
   constructor() {
     super(null, "FXAA3QualityShading",
       { isMorphing: false, isSkinning: false, isLighting: false },
-      shaderVertex, shaderFragment, );
-    FXAA3QualitySingleMaterialNode.initDefaultTextures();
+      shaderVertex, shaderFragment);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {

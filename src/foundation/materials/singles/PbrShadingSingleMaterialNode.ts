@@ -1,27 +1,20 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import Vector2 from "../../math/Vector2";
 import { ComponentType } from "../../definitions/ComponentType";
 import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import ModuleManager from "../../system/ModuleManager";
-import { PixelFormat } from "../../definitions/PixelFormat";
-import { TextureParameter } from "../../definitions/TextureParameter";
 import Vector4 from "../../math/Vector4";
 import Vector3 from "../../math/Vector3";
-import AbstractTexture from "../../textures/AbstractTexture";
 import { ShaderType } from "../../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";
 import Material from "../core/Material";
-import MeshRendererComponent from "../../components/MeshRendererComponent";
 import { HdriFormat } from "../../definitions/HdriFormat";
 import Scalar from "../../math/Scalar";
 import Config from "../../core/Config";
-import SkeletalComponent from "../../components/SkeletalComponent";
-import MutableVector4 from "../../math/MutableVector4";
 import VectorN from "../../math/VectorN";
 import MeshComponent from "../../components/MeshComponent";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
@@ -48,10 +41,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
       { isMorphing, isSkinning, isLighting }, pbrSingleShaderVertex, pbrSingleShaderFragment
     );
 
-
-    PbrShadingSingleMaterialNode.initDefaultTextures();
-
-    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
       [
         //  {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
         //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()},

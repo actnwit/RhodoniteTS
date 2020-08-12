@@ -3,7 +3,7 @@ import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size, TypedArray } from "../../commontypes/CommonTypes";
+import { Size, TypedArray, Count } from "../../commontypes/CommonTypes";
 import Config from "../core/Config";
 import { BasisFile, BasisTranscoder, BASIS } from "../../commontypes/BasisTexture";
 import { ComponentTypeEnum } from "../../rhodonite";
@@ -60,29 +60,19 @@ export default class Texture extends AbstractTexture {
     return canvas;
   }
 
-  generateTextureFromBasis(uint8Array: Uint8Array, options: {
-    level: number,
-    internalFormat: PixelFormatEnum,
-    format: PixelFormatEnum,
-    type: ComponentTypeEnum,
-    magFilter: TextureParameterEnum,
-    minFilter: TextureParameterEnum,
-    wrapS: TextureParameterEnum,
-    wrapT: TextureParameterEnum,
-    generateMipmap: boolean,
-    anisotropy: boolean
-  } = {
-      level: 0,
-      internalFormat: PixelFormat.RGBA,
-      format: PixelFormat.RGBA,
-      type: ComponentType.Float,
-      magFilter: TextureParameter.Linear,
-      minFilter: TextureParameter.LinearMipmapLinear,
-      wrapS: TextureParameter.Repeat,
-      wrapT: TextureParameter.Repeat,
-      generateMipmap: true,
-      anisotropy: true
-    }) {
+  generateTextureFromBasis(uint8Array: Uint8Array, options?: {
+    level?: Count,
+    internalFormat?: PixelFormatEnum,
+    format?: PixelFormatEnum,
+    type?: ComponentTypeEnum,
+    magFilter?: TextureParameterEnum,
+    minFilter?: TextureParameterEnum,
+    wrapS?: TextureParameterEnum,
+    wrapT?: TextureParameterEnum,
+    generateMipmap?: boolean,
+    anisotropy?: boolean,
+    isPremultipliedAlpha?: boolean,
+  }) {
     this.__startedToLoad = true;
 
     if (typeof BASIS === 'undefined') {
@@ -273,30 +263,18 @@ export default class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
-  generateTextureFromTypedArray(typedArray: TypedArray,
-    {
-      level = 0,
-      internalFormat = PixelFormat.RGBA,
-      format = PixelFormat.RGBA,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.LinearMipmapLinear,
-      wrapS = TextureParameter.Repeat,
-      wrapT = TextureParameter.Repeat,
-      generateMipmap = true,
-      anisotropy = true,
-      isPremultipliedAlpha = false
-    }: {
-      level: number,
-      internalFormat: PixelFormatEnum,
-      format: PixelFormatEnum,
-      magFilter: TextureParameterEnum,
-      minFilter: TextureParameterEnum,
-      wrapS: TextureParameterEnum,
-      wrapT: TextureParameterEnum,
-      generateMipmap: boolean,
-      anisotropy: boolean
-      isPremultipliedAlpha: boolean
-    }) {
+  generateTextureFromTypedArray(typedArray: TypedArray, {
+    level = 0,
+    internalFormat = PixelFormat.RGBA,
+    format = PixelFormat.RGBA,
+    magFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.LinearMipmapLinear,
+    wrapS = TextureParameter.Repeat,
+    wrapT = TextureParameter.Repeat,
+    generateMipmap = true,
+    anisotropy = true,
+    isPremultipliedAlpha = false
+  } = {}) {
 
     const type = ComponentType.fromTypedArray(typedArray);
 

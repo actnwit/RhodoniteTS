@@ -14,7 +14,6 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
 
   constructor() {
     super(null, "GammaCorrection", {}, GammaCorrectionShaderVertex, GammaCorrectionShaderFragment);
-    GammaCorrectionSingleMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {

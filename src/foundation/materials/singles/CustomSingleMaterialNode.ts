@@ -9,7 +9,7 @@ import Material from "../core/Material";
 import { HdriFormat } from "../../definitions/HdriFormat";
 import MeshComponent from "../../components/MeshComponent";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
-import Shaderity, { ShaderityObject } from "shaderity";
+import { ShaderityObject } from "shaderity";
 import ShaderityUtility from "../core/ShaderityUtility";
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
@@ -32,9 +32,6 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       + (isAlphaMasking ? '+isAlphaMasking' : ''),
       { isMorphing, isSkinning, isLighting }
     );
-
-
-    CustomSingleMaterialNode.initDefaultTextures();
 
     const vertexShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(vertexShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
     const pixelShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(pixelShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
