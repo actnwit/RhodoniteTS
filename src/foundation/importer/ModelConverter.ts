@@ -615,23 +615,30 @@ export default class ModelConverter {
       rnTexture.autoDetectTransparency = options.autoDetectTextureTransparency === true;
       rnTexture.autoResize = options.autoResizeTexture === true;
 
+      const textureOption = {
+        magFilter: TextureParameter.from(textureInfo.sampler?.magFilter) ?? TextureParameter.Linear,
+        minFilter: TextureParameter.from(textureInfo.sampler?.minFilter) ?? TextureParameter.Linear,
+        wrapS: TextureParameter.from(textureInfo.sampler?.wrapS) ?? TextureParameter.Repeat,
+        wrapT: TextureParameter.from(textureInfo.sampler?.wrapT) ?? TextureParameter.Repeat
+      };
+
       const fileName = textureInfo.fileName;
       const uri = basePath + fileName;
       rnTexture.name = uri;
 
       const image = textureInfo.image;
       if (image?.image) {
-        let textureOption;
-        if (!this.__sizeIsPowerOfTwo(image.image)) {
-          textureOption = {
-            wrapS: TextureParameter.ClampToEdge,
-            wrapT: TextureParameter.ClampToEdge
-          }
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
+
+        if (isWebGL1 && !this.__sizeIsPowerOfTwo(image.image)) {
+          textureOption.wrapS = TextureParameter.ClampToEdge;
+          textureOption.wrapT = TextureParameter.ClampToEdge;
         }
 
         rnTexture.generateTextureFromImage(image.image, textureOption);
       } else if (image?.basis) {
-        rnTexture.generateTextureFromBasis(image.basis);
+        rnTexture.generateTextureFromBasis(image.basis, textureOption);
       } else {
         console.warn("default image not found");
         continue;

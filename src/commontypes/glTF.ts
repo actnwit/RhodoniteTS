@@ -424,6 +424,7 @@ export type GltfLoadOption = {
       shaderSemantics: ShaderSemanticsEnum,
       fileName: string
       image?: Gltf2Image,
+      sampler?: any
     }[]
   },
   cameraComponent?: CameraComponent,
