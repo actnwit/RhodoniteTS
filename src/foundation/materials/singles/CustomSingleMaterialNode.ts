@@ -33,9 +33,6 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       { isMorphing, isSkinning, isLighting }
     );
 
-
-    CustomSingleMaterialNode.initDefaultTextures();
-
     const vertexShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(vertexShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
     const pixelShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(pixelShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
     this.__vertexShaderityObject = vertexShaderData.shaderityObject;

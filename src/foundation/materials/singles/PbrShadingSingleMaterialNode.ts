@@ -48,9 +48,6 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
       { isMorphing, isSkinning, isLighting }, pbrSingleShaderVertex, pbrSingleShaderFragment
     );
 
-
-    PbrShadingSingleMaterialNode.initDefaultTextures();
-
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
       [
         //  {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,

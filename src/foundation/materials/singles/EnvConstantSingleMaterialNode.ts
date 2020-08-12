@@ -32,7 +32,6 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
 
   constructor() {
     super(EnvConstantShader.getInstance(), "envConstantShading");
-    EnvConstantSingleMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {

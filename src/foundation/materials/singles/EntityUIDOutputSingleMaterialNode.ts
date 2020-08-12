@@ -46,7 +46,6 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
       { isMorphing: false, isSkinning: true, isLighting: false },
       entityUIDOutputSingleShaderVertex, entityUIDOutputSingleShaderFragment
     );
-    EntityUIDOutputSingleMaterialNode.initDefaultTextures();
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
