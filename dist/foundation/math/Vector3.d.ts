@@ -1,108 +1,149 @@
-import Vector2 from './Vector2';
-import Vector4 from './Vector4';
-import { IVector3 } from './IVector';
-import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
-import { MutableVector3_ } from './MutableVector3';
-export declare class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
+import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from "./IVector";
+import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
+import { IQuaternion } from "./IQuaternion";
+export declare class Vector3_<T extends TypedArrayConstructor> implements IVector, IVector3 {
     v: TypedArray;
-    constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, { type }: {
+    constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, { type }: {
         type: T;
     });
-    get className(): string;
-    static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
-    isStrictEqual(vec: Vector3_<T>): boolean;
-    isEqual(vec: Vector3_<T>, delta?: number): boolean;
-    isDummy(): boolean;
-    length(): number;
-    copyComponents(vec: Vector3_<T>): void;
-    /**
-     * to square length(static version)
-     */
-    static lengthSquared<T extends TypedArrayConstructor>(vec3: Vector3_<T>): number;
-    lengthTo(vec3: Vector3_<T>): number;
-    static lengthBtw<T extends TypedArrayConstructor>(lhv: Vector3_<T>, rhv: Vector3_<T>): number;
-    /**
-     * dot product
-     */
-    dotProduct(vec3: Vector3_<T>): number;
-    /**
-     * dot product(static version)
-     */
-    static dotProduct<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>): number;
-    /**
-    * cross product(static version)
-    */
-    static cross<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>): any;
-    /**
-    * cross product(static version)
-    */
-    static crossTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>): MutableVector3_<T>;
-    /**
-     * normalize(static version)
-     */
-    static normalize<T extends TypedArrayConstructor>(vec3: Vector3_<T>): any;
-    /**
-     * add value（static version）
-     */
-    static add<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>): any;
-    /**
-     * add value（static version）
-     */
-    static addTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>): MutableVector3_<T>;
-    /**
-     * subtract(subtract)
-     */
-    static subtract<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>): any;
-    /**
-     * subtract(subtract)
-     */
-    static subtractTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>): MutableVector3_<T>;
-    /**
-     * divide(static version)
-     */
-    static divide<T extends TypedArrayConstructor>(vec3: Vector3_<T>, val: number): any;
-    /**
-     * multiply(static version)
-     */
-    static multiply<T extends TypedArrayConstructor>(vec3: Vector3_<T>, val: number): any;
-    /**
-     * multiplyTo(static version)
-     */
-    static multiplyTo<T extends TypedArrayConstructor>(vec3: Vector3_<T>, val: number, out3: MutableVector3_<T>): MutableVector3_<T>;
-    /**
-     * multiply vector(static version)
-     */
-    static multiplyVector<T extends TypedArrayConstructor>(vec3: Vector3_<T>, vec: Vector3_<T>): any;
-    static angleOfVectors<T extends TypedArrayConstructor>(lhv: Vector3_<T>, rhv: Vector3_<T>): number;
-    /**
-     * divide vector(static version)
-     */
-    static divideVector<T extends TypedArrayConstructor>(lvec3: Vector3_<T>, rvec3: Vector3_<T>): any;
-    /**
-     * change to string
-     */
-    toString(): string;
     get x(): number;
     get y(): number;
     get z(): number;
     get w(): number;
-    at(i: number): number;
-    get raw(): TypedArray;
+    get className(): string;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
+    static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
+    /**
+   * to square length(static version)
+   */
+    static lengthSquared(vec: IVector3): number;
+    static lengthBtw(l_vec: IVector3, r_vec: IVector3): number;
+    static angleOfVectors(l_vec: IVector3, r_vec: IVector3): number;
+    static _zero(type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    static _one(type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    static _dummy(type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * normalize(static version)
+     */
+    static _normalize(vec: IVector3, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * add value（static version）
+     */
+    static _add(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * add value（static version）
+     */
+    static addTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3): IMutableVector3;
+    /**
+     * subtract(subtract)
+     */
+    static _subtract(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * subtract(subtract)
+     */
+    static subtractTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3): IMutableVector3;
+    /**
+     * multiply(static version)
+     */
+    static _multiply(vec: IVector3, value: number, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * multiplyTo(static version)
+     */
+    static multiplyTo(vec: IVector3, value: number, out: IMutableVector3): IMutableVector3;
+    /**
+     * multiply vector(static version)
+     */
+    static _multiplyVector(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+      * multiply vector(static version)
+      */
+    static multiplyVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3): IMutableVector3;
+    /**
+   * divide(static version)
+   */
+    static _divide(vec: IVector3, value: number, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * divide by value(static version)
+     */
+    static divideTo(vec: IVector3, value: number, out: IMutableVector3): IMutableVector3;
+    /**
+     * divide vector(static version)
+     */
+    static _divideVector(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * divide by vector(static version)
+     */
+    static divideVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3): IMutableVector3;
+    /**
+     * dot product(static version)
+     */
+    static dot(l_vec: IVector3, r_vec: IVector3): number;
+    /**
+    * cross product(static version)
+    */
+    static _cross(l_vec: IVector3, r_vec: IVector3, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+    * cross product(static version)
+    */
+    static crossTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3): IMutableVector3;
+    /**
+     * quaternion * vector3
+     */
+    static _multiplyQuaternion(quat: IQuaternion, vec: IVector3, type: TypedArrayConstructor): Vector3_<TypedArrayConstructor>;
+    /**
+     * quaternion * vector3
+     */
+    static multiplyQuaternionTo(quat: IQuaternion, vec: IVector3, out: IMutableVector3): IMutableVector3;
+    /**
+     * change to string
+     */
+    toString(): string;
+    toStringApproximately(): string;
+    flattenAsArray(): number[];
+    isDummy(): boolean;
+    isEqual(vec: IVector3, delta?: number): boolean;
+    isStrictEqual(vec: IVector3): boolean;
+    at(i: number): number;
+    length(): number;
+    lengthSquared(): number;
+    lengthTo(vec: IVector3): number;
+    /**
+     * dot product
+     */
+    dot(vec: IVector3): number;
+    clone(): any;
 }
 export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
-    constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number);
+    constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number);
     static zero(): Vector3;
     static one(): Vector3;
     static dummy(): Vector3;
+    static normalize(vec: IVector3): Vector3;
+    static add(l_vec: IVector3, r_vec: IVector3): Vector3;
+    static subtract(l_vec: IVector3, r_vec: IVector3): Vector3;
+    static multiply(vec: IVector3, value: number): Vector3;
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): Vector3;
+    static divide(vec: IVector3, value: number): Vector3;
+    static divideVector(l_vec: IVector3, r_vec: IVector3): Vector3;
+    static cross(l_vec: IVector3, r_vec: IVector3): Vector3;
+    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): Vector3;
     clone(): Vector3;
 }
 export declare class Vector3d extends Vector3_<Float64ArrayConstructor> {
-    constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number);
+    constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number);
     static zero(): Vector3d;
     static one(): Vector3d;
     static dummy(): Vector3d;
+    static normalize(vec: IVector3): Vector3d;
+    static add(l_vec: IVector3, r_vec: IVector3): Vector3d;
+    static subtract(l_vec: IVector3, r_vec: IVector3): Vector3d;
+    static multiply(vec: IVector3, value: number): Vector3d;
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): Vector3d;
+    static divide(vec: IVector3, value: number): Vector3d;
+    static divideVector(l_vec: IVector3, r_vec: IVector3): Vector3d;
+    static cross(l_vec: IVector3, r_vec: IVector3): Vector3d;
+    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): Vector3d;
     clone(): Vector3d;
 }
 export declare type Vector3f = Vector3;

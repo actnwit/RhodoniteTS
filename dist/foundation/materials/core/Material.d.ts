@@ -32,7 +32,7 @@ export default class Material extends RnObject {
     private __materialTypeName;
     private static __bufferViews;
     private static __accessors;
-    cullFace: boolean | null;
+    cullFace: boolean;
     cullFrontFaceCCW: boolean;
     private __blendEquationMode;
     private __blendEquationModeAlpha;

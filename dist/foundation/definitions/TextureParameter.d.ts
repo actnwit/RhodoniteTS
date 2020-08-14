@@ -1,6 +1,7 @@
 import { EnumIO } from "../misc/EnumIO";
 export interface TextureParameterEnum extends EnumIO {
 }
+declare function from(index: number): TextureParameterEnum;
 export declare const TextureParameter: Readonly<{
     Nearest: TextureParameterEnum;
     Linear: TextureParameterEnum;
@@ -28,4 +29,6 @@ export declare const TextureParameter: Readonly<{
     Depth32F: TextureParameterEnum;
     Depth24Stencil8: TextureParameterEnum;
     Depth32FStencil8: TextureParameterEnum;
+    from: typeof from;
 }>;
+export {};

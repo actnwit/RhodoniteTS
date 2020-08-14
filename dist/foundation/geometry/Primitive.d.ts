@@ -71,5 +71,5 @@ export default class Primitive extends RnObject {
     };
     private __castRayInner;
     _calcArenbergInverseMatrices(): void;
-    _calcArenbergMatrixFor3Vertices(i: Index, pos0IndexBase: Index, pos1IndexBase: Index, pos2IndexBase: Index, incrementNum: number): void;
+    _calcArenbergMatrixFor3Vertices(i: Index, pos0IndexBase: Index, pos1IndexBase: Index, pos2IndexBase: Index): void;
 }

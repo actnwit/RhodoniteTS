@@ -13,17 +13,12 @@ export default class EffekseerComponent extends Component {
     private __sceneGraphComponent?;
     private __transformComponent?;
     private static __isInitialized;
-    private static __tmp_identityMatrix;
+    private static __tmp_identityMatrix_0;
+    private static __tmp_identityMatrix_1;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
-    $create(): void;
     static get componentTID(): ComponentTID;
-    static common_$load(): void;
-    $load(): void;
     cancelLoop(): void;
     play(): void;
-    static common_$logic(): void;
-    $prerender(): void;
-    static common_$render(): void;
     set playSpeed(val: number);
     get playSpeed(): number;
     set translate(vec: Vector3);
@@ -32,4 +27,10 @@ export default class EffekseerComponent extends Component {
     get rotate(): Vector3;
     set scale(vec: Vector3);
     get scale(): Vector3;
+    $create(): void;
+    static common_$load(): void;
+    $load(): void;
+    static common_$logic(): void;
+    $logic(): void;
+    static common_$render(): void;
 }

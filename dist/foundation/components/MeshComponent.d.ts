@@ -11,14 +11,13 @@ export default class MeshComponent extends Component {
     private __blendShapeComponent?;
     private __sceneGraphComponent?;
     isPickable: boolean;
+    private static __tmpVector3_0;
+    private static __tmpVector3_1;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static get componentTID(): ComponentTID;
     setMesh(mesh: Mesh): void;
     unsetMesh(): boolean;
     get mesh(): Mesh | undefined;
-    $create(): void;
-    $load(): void;
-    $logic(): void;
     set weights(value: number[]);
     calcViewDepth(cameraComponent: CameraComponent): number;
     get viewDepth(): number;
@@ -37,4 +36,7 @@ export default class MeshComponent extends Component {
         t: number;
         intersectedPositionInWorld: undefined;
     };
+    $create(): void;
+    $load(): void;
+    $logic(): void;
 }

@@ -3,6 +3,7 @@ import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import Material from "../core/Material";
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
     static envRotation: ShaderSemanticsClass;
+    static EnvHdriFormat: ShaderSemanticsClass;
     constructor();
     setParametersForGPU({ material, shaderProgram, firstTime, args }: {
         material: Material;

@@ -12,11 +12,12 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     static metallicRoughnessTextureTransform: ShaderSemanticsClass;
     static metallicRoughnessTextureRotation: ShaderSemanticsClass;
     private static __shaderityUtility;
-    constructor({ name, isMorphing, isSkinning, isLighting, vertexShader, pixelShader }: {
+    constructor({ name, isMorphing, isSkinning, isLighting, isAlphaMasking, vertexShader, pixelShader }: {
         name: string;
         isMorphing: boolean;
         isSkinning: boolean;
         isLighting: boolean;
+        isAlphaMasking: boolean;
         vertexShader: ShaderityObject;
         pixelShader: ShaderityObject;
     });

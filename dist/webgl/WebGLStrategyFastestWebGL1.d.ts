@@ -38,9 +38,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     static getInstance(): WebGLStrategyFastestWebGL1;
-    private __setupMaterial;
     private __getViewport;
-    private __setCamera;
+    private __setVRViewport;
     private __setCurrentComponentSIDsForEachRenderPass;
     private __setCurrentComponentSIDsForEachEntity;
     private __setCurrentComponentSIDsForEachPrimitive;

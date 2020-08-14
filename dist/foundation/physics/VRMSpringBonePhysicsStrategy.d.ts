@@ -8,6 +8,7 @@ import PhysicsStrategy from "./PhysicsStrategy";
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     private static __tmp_vec3;
     private static __tmp_vec3_2;
+    private static __tmp_quat;
     private static __boneGroups;
     private static __colliderGroups;
     private __transform?;

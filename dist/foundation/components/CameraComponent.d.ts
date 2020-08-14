@@ -4,10 +4,11 @@ import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
 import { CameraTypeEnum } from '../definitions/CameraType';
 import Matrix44 from '../math/Matrix44';
-import { WebGLStrategy } from '../../webgl/main';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import MutableVector3 from '../math/MutableVector3';
 import Frustum from '../geometry/Frustum';
 import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
+import RenderPass from '../renderer/RenderPass';
 export default class CameraComponent extends Component {
     private static readonly _eye;
     private _eyeInner;
@@ -28,16 +29,13 @@ export default class CameraComponent extends Component {
     private __isProjectionMatrixUpToDate;
     private _viewMatrix;
     private __isViewMatrixUpToDate;
-    private _tmp_f;
-    private _tmp_s;
-    private _tmp_u;
     private static __main;
-    private static invertedMatrix44;
     private static returnVector3;
     private static __globalDataRepository;
-    private static __tmp_f;
-    private static __tmp_s;
-    private static __tmp_u;
+    private static __tmpVector3_0;
+    private static __tmpVector3_1;
+    private static __tmpVector3_2;
+    private static __tmpMatrix44_0;
     private __frustum;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static set main(componentSID: ComponentSID);
@@ -95,20 +93,19 @@ export default class CameraComponent extends Component {
     set yMag(val: number);
     get yMag(): number;
     static get componentTID(): ComponentTID;
-    $logic(): void;
     calcProjectionMatrix(): MutableMatrix44;
     get projectionMatrix(): Matrix44;
     calcViewMatrix(): MutableMatrix44;
     get viewMatrix(): Matrix44;
     set viewMatrix(viewMatrix: Matrix44);
     set projectionMatrix(projectionMatrix: Matrix44);
-    get viewProjectionMatrix(): Matrix44;
-    $create({ strategy }: {
-        strategy: WebGLStrategy;
-    }): void;
-    $prerender(): void;
+    get viewProjectionMatrix(): MutableMatrix44;
     setValuesToGlobalDataRepository(): void;
-    get worldPosition(): Vector3;
+    get worldPosition(): MutableVector3;
     updateFrustum(): void;
     get frustum(): Frustum;
+    $create(): void;
+    $logic({ renderPass }: {
+        renderPass: RenderPass;
+    }): void;
 }

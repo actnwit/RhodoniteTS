@@ -145,7 +145,7 @@ export default class OrbitCameraController implements ICameraController {
         newCenterVec: Vector3;
         newUpVec: Vector3;
     } | {
-        newEyeVec: import("../math/MutableVector3").MutableVector3_<Float32ArrayConstructor>;
+        newEyeVec: import("../math/IVector").IMutableVector3;
         newCenterVec: Vector3;
         newUpVec: Vector3;
     };

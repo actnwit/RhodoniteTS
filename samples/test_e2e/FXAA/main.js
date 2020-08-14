@@ -125,7 +125,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
                         planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
                         planePrimitive = new Rn.Plane();
-                        planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, material: modelMaterial });
+                        planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, flipTextureCoordinateY: false, material: modelMaterial });
                         planeMeshComponent = planeEntity.getMesh();
                         planeMesh = new Rn.Mesh();
                         planeMesh.addPrimitive(planePrimitive);
@@ -144,7 +144,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         buffer = _a.sent();
                         uint8Array = new Uint8Array(buffer);
                         environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
+                        environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_LINEAR;
                         sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+                        sphereMaterial.setParameter(Rn.EnvConstantSingleMaterialNode.EnvHdriFormat, Rn.HdriFormat.LDR_LINEAR.index);
                         sphereMeshComponent = sphereEntity.getMesh();
                         sphereMesh = new Rn.Mesh();
                         sphereMesh.addPrimitive(spherePrimitive);
@@ -173,7 +175,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var renderPassFxaa = new Rn.RenderPass();
         var entityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
         var primitiveFxaa = new Rn.Plane();
-        primitiveFxaa.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false });
+        primitiveFxaa.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, flipTextureCoordinateY: false });
         primitiveFxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
         primitiveFxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, renderable);
         primitiveFxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(width, height));

@@ -1,4 +1,4 @@
-version: 0.2.3-188-ga521-mod
-branch: fix/build-version
-1552cbe9557709b7f9645e1def3bb5ce68e38ba5e54d5b95377096beeeedea92 ./dist/rhodonite.js
-30ec9fc2fe6030a15c34c21bca82b3bd228f23d718218d7b18bf5368b02e9de5 ./dist/rhodonite.min.js
+version: 0.2.4-456-g0d045-mod
+branch: fix/ibl-format
+318431f1a980b093bb63110c42a73f965537926e99de320b58e18593e56acbfd ./dist/rhodonite.js
+02b99e03c8f6f1c01eb970048cf0aec8d28375dbf764637bdc668d10ee54a7b9 ./dist/rhodonite.min.js

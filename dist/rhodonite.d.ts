@@ -242,26 +242,29 @@ declare let Rn: {
     MaterialHelper: Readonly<{
         createMaterial: (materialName: string, materialNodes?: AbstractMaterialNode[] | undefined, maxInstancesNumber?: number | undefined) => Material;
         recreateMaterial: (materialName: string, materialNodes?: AbstractMaterialNode[] | undefined, maxInstancesNumber?: number | undefined) => Material;
-        recreateCustomMaterial: (vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber }?: {
+        recreateCustomMaterial: (vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, isAlphaMasking, maxInstancesNumber }?: {
             additionalName?: string | undefined;
             isSkinning?: boolean | undefined;
             isLighting?: boolean | undefined;
             isMorphing?: boolean | undefined;
+            isAlphaMasking?: boolean | undefined;
             maxInstancesNumber?: number | undefined;
         }) => Material;
         createEmptyMaterial: () => Material;
-        createClassicUberMaterial: ({ additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber }?: {
+        createClassicUberMaterial: ({ additionalName, isSkinning, isLighting, isMorphing, isAlphaMasking, maxInstancesNumber }?: {
             additionalName?: string | undefined;
             isSkinning?: boolean | undefined;
             isLighting?: boolean | undefined;
             isMorphing?: boolean | undefined;
+            isAlphaMasking?: boolean | undefined;
             maxInstancesNumber?: number | undefined;
         }) => Material;
-        createPbrUberMaterial: ({ additionalName, isMorphing, isSkinning, isLighting, maxInstancesNumber }?: {
+        createPbrUberMaterial: ({ additionalName, isMorphing, isSkinning, isLighting, isAlphaMasking, maxInstancesNumber }?: {
             additionalName?: string | undefined;
             isMorphing?: boolean | undefined;
             isSkinning?: boolean | undefined;
             isLighting?: boolean | undefined;
+            isAlphaMasking?: boolean | undefined;
             maxInstancesNumber?: number | undefined;
         }) => Material;
         createEnvConstantMaterial: ({ additionalName, maxInstancesNumber }?: {
@@ -277,14 +280,14 @@ declare let Rn: {
             isSkinning?: boolean | undefined;
             maxInstancesNumber?: number | undefined;
         }) => Material;
-        createShadowMapDecodeClassicSingleMaterial: (depthEncodeRenderPass: RenderPass, { additionalName, isMorphing, isSkinning, isLighting, colorAttachmentsNumber, maxInstancesNumber }?: {
+        createShadowMapDecodeClassicSingleMaterial: ({ additionalName, isMorphing, isSkinning, isLighting, colorAttachmentsNumber, maxInstancesNumber }: {
             additionalName?: string | undefined;
             isMorphing?: boolean | undefined;
             isSkinning?: boolean | undefined;
             isLighting?: boolean | undefined;
             colorAttachmentsNumber?: number | undefined;
             maxInstancesNumber?: number | undefined;
-        }) => Material;
+        } | undefined, depthEncodeRenderPass: RenderPass) => Material;
         createGammaCorrectionMaterial: ({ additionalName, maxInstancesNumber }?: {
             additionalName?: string | undefined;
             maxInstancesNumber?: number | undefined;
@@ -364,6 +367,7 @@ declare let Rn: {
         DataTextureMorphOffsetPosition: import("./foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
         MorphWeights: import("./foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
         CurrentComponentSIDs: import("./foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
+        AlphaCutoff: import("./foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
     }>;
     RenderPass: typeof RenderPass;
     FrameBuffer: typeof FrameBuffer;
@@ -413,6 +417,7 @@ declare let Rn: {
         Depth32F: import("./foundation/definitions/TextureParameter").TextureParameterEnum;
         Depth24Stencil8: import("./foundation/definitions/TextureParameter").TextureParameterEnum;
         Depth32FStencil8: import("./foundation/definitions/TextureParameter").TextureParameterEnum;
+        from: (index: number) => import("./foundation/definitions/TextureParameter").TextureParameterEnum;
     }>;
     RenderableHelper: Readonly<{
         createTexturesForRenderTarget: (width: number, height: number, textureNum: number, { level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT }: {
@@ -443,6 +448,7 @@ declare let Rn: {
         isPowerOfTwoTexture: (width: number, height: number) => boolean;
         packNormalizedVec4ToVec2: (x: number, y: number, z: number, w: number, criteria: number) => number[];
         convertToStringAsGLSLFloat: (value: number) => string;
+        nearZeroToZero: (value: number) => number;
     }>;
     Component: typeof Component;
     EnvConstantSingleMaterialNode: typeof EnvConstantSingleMaterialNode;
@@ -456,7 +462,7 @@ declare let Rn: {
         isObject: (o: any) => boolean;
         fillTemplate: (templateString: string, templateVars: string) => any;
         isNode: () => boolean;
-        concatArrayBuffers: (segments: ArrayBuffer[], sizes: number[], paddingSize: number) => ArrayBuffer | SharedArrayBuffer;
+        concatArrayBuffers: (segments: ArrayBuffer[], sizes: number[], paddingSize: number) => ArrayBufferLike;
     }>;
     OrbitCameraController: typeof OrbitCameraController;
     WalkThroughCameraController: typeof WalkThroughCameraController;

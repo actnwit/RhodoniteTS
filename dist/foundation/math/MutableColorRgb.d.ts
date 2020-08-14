@@ -1,20 +1,33 @@
-import Vector4 from './Vector4';
-import { IVector3 } from './IVector';
+import MutableVector3 from './MutableVector3';
+import { IVector3, IVector4, IMutableVector3 } from './IVector';
 import { IMutableColorRgb } from './IColor';
-import ColorRgb from './ColorRgb';
 import { TypedArray } from '../../commontypes/CommonTypes';
-export default class MutableColorRgb extends ColorRgb implements IVector3, IMutableColorRgb {
-    constructor(r?: number | TypedArray | IVector3 | Vector4 | Array<number> | ColorRgb | null, g?: number, b?: number);
+export default class MutableColorRgb extends MutableVector3 implements IMutableVector3, IMutableColorRgb {
+    constructor(r: number | TypedArray | IVector3 | IVector4 | Array<number> | null, g?: number, b?: number);
     get x(): number;
     set x(val: number);
     get y(): number;
     set y(val: number);
     get z(): number;
     set z(val: number);
+    get w(): number;
     get r(): number;
     set r(val: number);
     get g(): number;
     set g(val: number);
     get b(): number;
     set b(val: number);
+    get a(): number;
+    static zero(): MutableColorRgb;
+    static one(): MutableColorRgb;
+    static dummy(): MutableColorRgb;
+    static normalize(vec: IVector3): MutableColorRgb;
+    static add(l_vec: IVector3, r_vec: IVector3): MutableColorRgb;
+    static subtract(l_vec: IVector3, r_vec: IVector3): MutableColorRgb;
+    static multiply(vec: IVector3, value: number): MutableColorRgb;
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableColorRgb;
+    static divide(vec: IVector3, value: number): MutableColorRgb;
+    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableColorRgb;
+    static cross(l_vec: IVector3, r_vec: IVector3): MutableColorRgb;
+    clone(): MutableColorRgb;
 }

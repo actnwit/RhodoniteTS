@@ -11,11 +11,12 @@ export default class Gltf1Importer {
     import(uri: string, options?: GltfLoadOption): Promise<any>;
     private __loadFromArrayBuffer;
     _getOptions(defaultOptions: any, json: glTF1, options: any): GltfLoadOption;
-    _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string): Promise<any>;
-    _loadAsTextJson(gltfJson: glTF1, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string): Promise<any>;
+    _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string): Promise<any>;
+    _loadAsTextJson(gltfJson: glTF1, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string): Promise<any>;
     _loadInner(uint8array: Uint8Array | undefined, basePath: string, gltfJson: glTF1, options: GltfLoadOption): Promise<unknown[]>;
     _loadJsonContent(gltfJson: glTF1, options: GltfLoadOption): void;
     private _convertToGltf2LikeStructure;
+    private __createProperty;
     _loadDependenciesOfScenes(gltfJson: glTF1): void;
     _loadDependenciesOfNodes(gltfJson: glTF1): void;
     _loadDependenciesOfMeshes(gltfJson: glTF1): void;
@@ -32,5 +33,7 @@ export default class Gltf1Importer {
         buffers: any[];
         images: any[];
     }): Promise<any[]>;
+    private __containsFileName;
+    private __getFullPathOfFileName;
     static getInstance(): Gltf1Importer;
 }

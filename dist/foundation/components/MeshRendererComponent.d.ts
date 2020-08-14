@@ -8,10 +8,7 @@ import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTI
 export default class MeshRendererComponent extends Component {
     private __meshComponent?;
     static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;
-    private __webglRenderingStrategy?;
     private __sceneGraphComponent?;
-    private __webglModule?;
-    private static __staticWebglModule?;
     diffuseCubeMap?: CubeTexture;
     specularCubeMap?: CubeTexture;
     diffuseCubeMapContribution: number;
@@ -20,7 +17,7 @@ export default class MeshRendererComponent extends Component {
     private static __webglResourceRepository?;
     private static __componentRepository;
     private static __instanceIDBufferUid;
-    private static __webGLStrategy?;
+    private static __webglRenderingStrategy?;
     private static __instanceIdAccessor?;
     private static __tmp_identityMatrix;
     private static __cameraComponent?;
@@ -29,33 +26,32 @@ export default class MeshRendererComponent extends Component {
     private static __manualTransparentSids?;
     _readyForRendering: boolean;
     static isViewFrustumCullingEnabled: boolean;
+    static isDepthMaskTrueForTransparencies: boolean;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static get componentTID(): ComponentTID;
     static get firstTransparentIndex(): number;
     static get lastTransparentIndex(): number;
-    $create({ processApproach }: {
-        processApproach: ProcessApproachEnum;
-    }): void;
-    $load(): void;
-    $prerender(): void;
-    $render({ i, renderPass, renderPassTickCount }: {
-        i: Index;
-        renderPass: RenderPass;
-        renderPassTickCount: Count;
-    }): void;
+    private static __isReady;
+    private static __setupInstanceIDBuffer;
+    static set manualTransparentSids(sids: ComponentSID[]);
+    static set manualTransparentEntityNames(names: string[]);
+    $create(): void;
     static common_$load({ processApproach }: {
         processApproach: ProcessApproachEnum;
     }): void;
+    $load(): void;
     static common_$prerender(): CGAPIResourceHandle;
-    private static __isReady;
-    private static __setupInstanceIDBuffer;
+    $prerender(): void;
+    static sort_$render(renderPass: RenderPass): ComponentSID[];
+    private static sort_$render_inner;
     static common_$render({ renderPass, processStage, renderPassTickCount }: {
         renderPass: RenderPass;
         processStage: ProcessStageEnum;
         renderPassTickCount: Count;
     }): void;
-    static sort_$render(renderPass: RenderPass): ComponentSID[];
-    private static sort_$render_inner;
-    static set manualTransparentSids(sids: ComponentSID[]);
-    static set manualTransparentEntityNames(names: string[]);
+    $render({ i, renderPass, renderPassTickCount }: {
+        i: Index;
+        renderPass: RenderPass;
+        renderPassTickCount: Count;
+    }): void;
 }

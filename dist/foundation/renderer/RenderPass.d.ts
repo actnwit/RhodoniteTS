@@ -24,7 +24,6 @@ export default class RenderPass extends RnObject {
     clearDepth: number;
     clearStencil: number;
     cameraComponent?: CameraComponent;
-    cullFace: boolean;
     cullFrontFaceCCW: boolean;
     private __material?;
     private __primitiveMaterial;

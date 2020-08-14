@@ -70,7 +70,7 @@ export default class Mesh {
     __calcFaceNormalFor3Vertices(i: Index, pos0: Vector3, pos1: Vector3, pos2: Vector3, normalAccessor: Accessor, indicesAccessor?: Accessor): void;
     __calcTangents(): void;
     __calcTangentFor3Vertices(i: Index, pos0: Vector3, pos1: Vector3, pos2: Vector3, uv0: Vector2, uv1: Vector2, uv2: Vector2, norm0: Vector3, norm1: Vector3, norm2: Vector3, tangentAccessor: Accessor, indicesAccessor?: Accessor): void;
-    __calcTangentPerVertex(pos0Vec3: Vector3, pos1Vec3: Vector3, pos2Vec3: Vector3, uv0Vec2: Vector2, uv1Vec2: Vector2, uv2Vec2: Vector2, norm0Vec3: Vector3, norm1Vec3: Vector3, norm2Vec3: Vector3): any;
+    __calcTangentPerVertex(pos0Vec3: Vector3, pos1Vec3: Vector3, pos2Vec3: Vector3, uv0Vec2: Vector2, uv1Vec2: Vector2, uv2Vec2: Vector2, norm0Vec3: Vector3, norm1Vec3: Vector3, norm2Vec3: Vector3): Vector3;
     private __calcArenbergInverseMatrices;
     getPrimitiveAt(i: number): Primitive;
     getPrimitiveNumber(): number;

@@ -119,8 +119,17 @@ void main(){
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
   envNormal.x *= -1.0;
 
-  vec4 textureColor = ${_textureCube}(u_colorEnvTexture, envNormal);
-  diffuseColor *= textureColor.rgb;
+  vec4 diffuseTexel = ${_textureCube}(u_colorEnvTexture, envNormal);
+  vec3 textureColor;
+  int EnvHdriFormat = get_EnvHdriFormat(materialSID, 0);
+  if (EnvHdriFormat == 0) { // LDR_SRGB
+    textureColor = srgbToLinear(diffuseTexel.rgb);
+  } else if (EnvHdriFormat == 3) { // RGBE
+    textureColor = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
+  } else {
+    textureColor = diffuseTexel.rgb;
+  }
+  diffuseColor *= textureColor;
 
   rt0 = vec4(diffuseColor, alpha);
 

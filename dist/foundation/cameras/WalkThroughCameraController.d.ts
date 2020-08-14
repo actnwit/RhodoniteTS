@@ -17,6 +17,7 @@ export default class WalkThroughCameraController implements ICameraController {
     private _currentDir;
     private _currentPos;
     private _currentCenter;
+    private _currentHorizontalDir;
     private _newDir;
     private _isMouseDown;
     private _clickedMouseXOnCanvas;
@@ -34,6 +35,12 @@ export default class WalkThroughCameraController implements ICameraController {
     private _mouseMoveBind;
     private _mouseWheelBind;
     private _eventTargetDom?;
+    private _needInitialize;
+    private _targetEntity?;
+    private _zFarAdjustingFactorBasedOnAABB;
+    private __scaleOfZNearAndZFar;
+    private static __tmpRotateMat;
+    private static __tmpMoveVec;
     constructor(options?: {
         eventTargetDom: Document;
         verticalSpeed: number;
@@ -58,7 +65,14 @@ export default class WalkThroughCameraController implements ICameraController {
     get horizontalSpeed(): number;
     set verticalSpeed(value: number);
     get verticalSpeed(): number;
+    set mouseWheelSpeed(value: number);
+    get mouseWheelSpeed(): number;
     setTarget(targetEntity: Entity): void;
+    getTarget(): Entity | undefined;
+    set zFarAdjustingFactorBasedOnAABB(value: number);
+    get zFarAdjustingFactorBasedOnAABB(): number;
+    set scaleOfZNearAndZFar(value: number);
+    get scaleOfZNearAndZFar(): number;
     get allInfo(): any;
     set allInfo(arg: any);
 }

@@ -38,5 +38,4 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     static getInstance(): WebGLStrategyUniform;
     common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass): boolean;
     $render(idx: Index, meshComponent: MeshComponent, worldMatrix: Matrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture): void;
-    setCamera(renderPass: RenderPass): void;
 }

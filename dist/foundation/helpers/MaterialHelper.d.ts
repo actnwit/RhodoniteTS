@@ -6,18 +6,20 @@ import Entity from "../core/Entity";
 declare function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material;
 declare function recreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material;
 declare function createEmptyMaterial(): Material;
-declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, maxInstancesNumber }?: {
+declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isAlphaMasking, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
+    isAlphaMasking?: boolean | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createClassicUberMaterial({ additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber }?: {
+declare function createClassicUberMaterial({ additionalName, isSkinning, isLighting, isMorphing, isAlphaMasking, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
     isMorphing?: boolean | undefined;
+    isAlphaMasking?: boolean | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
 declare function createEnvConstantMaterial({ additionalName, maxInstancesNumber }?: {
@@ -33,14 +35,14 @@ declare function createDepthEncodeMaterial({ additionalName, isSkinning, maxInst
     isSkinning?: boolean | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createShadowMapDecodeClassicSingleMaterial(depthEncodeRenderPass: RenderPass, { additionalName, isMorphing, isSkinning, isLighting, colorAttachmentsNumber, maxInstancesNumber }?: {
+declare function createShadowMapDecodeClassicSingleMaterial({ additionalName, isMorphing, isSkinning, isLighting, colorAttachmentsNumber, maxInstancesNumber }: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
     colorAttachmentsNumber?: number | undefined;
     maxInstancesNumber?: number | undefined;
-}): Material;
+} | undefined, depthEncodeRenderPass: RenderPass): Material;
 declare function createGammaCorrectionMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
@@ -60,11 +62,12 @@ declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, i
     debugMode?: undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber }?: {
+declare function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, isAlphaMasking, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
     isMorphing?: boolean | undefined;
+    isAlphaMasking?: boolean | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
 declare function changeMaterial(entity: Entity, primitive: Primitive, material: Material): void;

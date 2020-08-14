@@ -15,8 +15,8 @@ export default class DrcPointCloudImporter {
     importPointCloud(uri: string, options?: GltfLoadOption): Promise<void | glTF2>;
     private __loadFromArrayBuffer;
     _getOptions(defaultOptions: any, json: glTF2, options: any): GltfLoadOption;
-    _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string): Promise<any>;
-    _loadAsTextJson(gltfJson: glTF2, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string): Promise<glTF2>;
+    _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string): Promise<any>;
+    _loadAsTextJson(gltfJson: glTF2, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string): Promise<glTF2>;
     _loadInner(uint8array: Uint8Array | undefined, basePath: string, gltfJson: glTF2, options: GltfLoadOption): Promise<unknown[]>;
     _loadJsonContent(gltfJson: glTF2, options: GltfLoadOption): void;
     _loadDependenciesOfScenes(gltfJson: glTF2): void;
@@ -39,7 +39,10 @@ export default class DrcPointCloudImporter {
     private __decodeDraco;
     private __decodeBuffer;
     private __decodedBufferToJSON;
+    private __setBuffersToJSON;
     private __convertBufferToURI;
+    private __setAccessorsAndBufferViewsToJSON;
+    private __setMeshesToJSON;
     /**
      * Import Draco file of point cloud type.
      * WEIGHTS_0 and JOINTS_0 attribute and all the mesh type and is not support yet.
