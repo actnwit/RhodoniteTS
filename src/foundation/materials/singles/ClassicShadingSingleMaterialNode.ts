@@ -24,9 +24,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       + (isLighting ? '' : '-lighting'), { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning },
       classicSingleShaderVertex, classicSingleShaderFragment);
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
-
-    shaderSemanticsInfoArray.push(
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.ShadingModel, componentType: ComponentType.Int, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
@@ -51,19 +49,18 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.NormalTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, AbstractMaterialNode.__dummyBlueTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-    );
-
+      }
+    ];
 
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.PointSize, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Scalar(30.0), min: 0, max: 100,
       },
       {
         semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
-        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
       },
     );

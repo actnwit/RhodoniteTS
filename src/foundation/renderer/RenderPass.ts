@@ -11,6 +11,7 @@ import { WebGLStrategy } from "../../webgl/main";
 import System from "../system/System";
 import ModuleManager from '../system/ModuleManager';
 import Primitive from "../geometry/Primitive";
+import MutableVector4 from "../math/MutableVector4";
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -21,7 +22,7 @@ export default class RenderPass extends RnObject {
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
   private __meshComponents?: MeshComponent[];
   private __frameBuffer?: FrameBuffer;
-  private __viewport?: Vector4;
+  private __viewport?: MutableVector4;
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
@@ -36,6 +37,7 @@ export default class RenderPass extends RnObject {
   public isMainPass = false;
 
   private __preRenderFunc?: Function;
+  private static __tmp_Vector4_0 = MutableVector4.zero();
 
   constructor() {
     super();
@@ -172,7 +174,11 @@ export default class RenderPass extends RnObject {
    * @param vec A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
    */
   setViewport(vec: Vector4) {
-    this.__viewport = vec;
+    if (this.__viewport != null) {
+      this.__viewport.copyComponents(vec);
+    } else {
+      this.__viewport = new MutableVector4(vec);
+    }
   }
 
   /**
@@ -180,7 +186,12 @@ export default class RenderPass extends RnObject {
    * @return A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
    */
   getViewport() {
-    return this.__viewport;
+    let viewport = this.__viewport;
+    if (viewport != null) {
+      viewport = RenderPass.__tmp_Vector4_0.copyComponents(viewport);
+    }
+
+    return viewport;
   }
 
   private __setupMaterial(material: Material, isPointSprite: boolean = false) {

@@ -36,6 +36,7 @@ import CubeTexture from "../foundation/textures/CubeTexture";
 import { ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
 import ModuleManager from "../foundation/system/ModuleManager";
 import { RnXR } from "../rhodonite-xr";
+import Vector4 from "../foundation/math/Vector4";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -539,7 +540,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
   }
 
   private __getViewport(renderPass: RenderPass) {
-    let viewport = renderPass.getViewport();
+    let viewport = renderPass.getViewport() as Vector4;
     if (viewport == null) {
       viewport = this.__webglResourceRepository.currentWebGLContextWrapper!.viewport;
     }
