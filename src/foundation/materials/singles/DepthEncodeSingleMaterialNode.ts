@@ -22,9 +22,7 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
   constructor({ isSkinning }: { isSkinning: boolean }) {
     super(DepthEncodeShader.getInstance(), 'depthEncodeShading' + (isSkinning ? '+skinning' : ''), { isMorphing: false, isSkinning, isLighting: false });
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
-
-    shaderSemanticsInfoArray.push(
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: DepthEncodeSingleMaterialNode.zNearInner, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
@@ -44,8 +42,8 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
         semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
-      },
-    );
+      }
+    ];
 
     if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING';

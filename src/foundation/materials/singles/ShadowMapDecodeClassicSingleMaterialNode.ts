@@ -68,17 +68,12 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     viewport.setComponents(1, 1, viewport.z - 1, viewport.w - 1);
     encodedDepthRenderPass.setViewport(viewport);
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
-
-    shaderSemanticsInfoArray.push(
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.LightViewProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: MutableMatrix44.zero(), min: -Number.MAX_VALUE, max: Number.MAX_VALUE,
       },
-    );
-
-    shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.ShadingModel, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
@@ -123,8 +118,8 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         semantic: ShadowMapDecodeClassicSingleMaterialNode.zFarInner, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(10000.0), min: 0.0001, max: Number.MAX_SAFE_INTEGER
-      },
-    );
+      }
+    ];
 
     shaderSemanticsInfoArray.push(
       {
