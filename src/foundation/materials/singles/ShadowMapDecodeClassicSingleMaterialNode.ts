@@ -54,6 +54,11 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     }
     const encodedDepthTexture = encodedDepthFramebuffer.colorAttachments[colorAttachmentsNumber];
 
+    const viewport = encodedDepthRenderPass.getViewport();
+    if (viewport != null) {
+      encodedDepthRenderPass.setViewport(new Vector4(1, 1, viewport.z - 1, viewport.w - 1));
+    }
+
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     shaderSemanticsInfoArray.push(

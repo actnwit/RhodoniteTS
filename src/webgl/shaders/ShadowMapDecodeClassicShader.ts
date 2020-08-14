@@ -179,9 +179,9 @@ void main (){
     float normalizationCoefficient = 1.0 / (zFar - zNear);
 
     vec2 shadowMapUV = v_texcoord_1.xy / v_texcoord_1.w;
-    bool inShadowMap = ((shadowMapUV.x >= 0.0 && shadowMapUV.x <= 1.0) && (shadowMapUV.y >= 0.0 && shadowMapUV.y <= 1.0));
 
     #ifdef RN_IS_DEBUGGING
+      bool inShadowMap = (shadowMapUV.x >= 0.0 && shadowMapUV.x <= 1.0) && (shadowMapUV.y >= 0.0 && shadowMapUV.y <= 1.0);
       if(inShadowMap == false){
         rt0 = get_debugColorFactor(materialSID, 0);
         ${_def_fragColor}
@@ -193,7 +193,7 @@ void main (){
     float textureDepth = decodeRGBAToDepth(${_texture}(u_depthTexture, shadowMapUV));
     float allowableDepthError = get_allowableDepthError(materialSID, 0);
 
-    if(inShadowMap && measureDepth > textureDepth + allowableDepthError){
+    if(measureDepth > textureDepth + allowableDepthError){
       // case of shadow
       vec4 shadowColorCoefficient = get_shadowColorCoefficient(materialSID, 0);
       diffuseColor *= shadowColorCoefficient.rgb;
