@@ -19,7 +19,6 @@ import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
 import RenderPass from "../../renderer/RenderPass";
 import { Count } from "../../../commontypes/CommonTypes";
 import MutableMatrix44 from "../../math/MutableMatrix44";
-import MutableScalar from "../../math/MutableScalar";
 import MeshComponent from "../../components/MeshComponent";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
 
@@ -32,8 +31,8 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
   static zFarInner = new ShaderSemanticsClass({ str: 'zFarInner' });
   static DebugColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'debugColorFactor' });
 
-  private __zNearInner = new MutableScalar(0);
-  private __zFarInner = new MutableScalar(0);
+  private static __lastZNear = 0.0;
+  private static __lastZFar = 0.0;
 
   private __encodedDepthRenderPass: RenderPass;
 
@@ -179,8 +178,6 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     }
 
     const encodedDepthCameraComponent = this.__encodedDepthRenderPass.cameraComponent as CameraComponent;
-    this.__zNearInner.v[0] = encodedDepthCameraComponent.zNearInner;
-    this.__zFarInner.v[0] = encodedDepthCameraComponent.zFarInner;
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -188,13 +185,20 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
       this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
       this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
-      (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).zNearInner, this.__zNearInner.v);
-      (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).zFarInner, this.__zFarInner.v);
+      if (ShadowMapDecodeClassicSingleMaterialNode.__lastZNear !== encodedDepthCameraComponent.zNearInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, encodedDepthCameraComponent.zNearInner);
+        ShadowMapDecodeClassicSingleMaterialNode.__lastZNear = encodedDepthCameraComponent.zNearInner;
+      }
+
+      if (ShadowMapDecodeClassicSingleMaterialNode.__lastZFar !== encodedDepthCameraComponent.zFarInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
+        ShadowMapDecodeClassicSingleMaterialNode.__lastZFar = encodedDepthCameraComponent.zFarInner;
+      }
       const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       __webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightViewProjectionMatrix.str, true, this.__encodedDepthRenderPass.cameraComponent!.viewProjectionMatrix);
     } else {
-      material.setParameter(ShadowMapDecodeClassicSingleMaterialNode.zNearInner, this.__zNearInner);
-      material.setParameter(ShadowMapDecodeClassicSingleMaterialNode.zFarInner, this.__zFarInner);
+      material.setParameter(ShadowMapDecodeClassicSingleMaterialNode.zNearInner, encodedDepthCameraComponent.zNearInner);
+      material.setParameter(ShadowMapDecodeClassicSingleMaterialNode.zFarInner, encodedDepthCameraComponent.zFarInner);
       material.setParameter(ShaderSemantics.LightViewProjectionMatrix, this.__encodedDepthRenderPass.cameraComponent!.viewProjectionMatrix)
     }
 
