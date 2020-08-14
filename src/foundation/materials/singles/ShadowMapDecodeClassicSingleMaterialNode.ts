@@ -87,7 +87,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
       {
         semantic: ShaderSemantics.Shininess, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
-        initialValue: 5, min: 0, max: Number.MAX_VALUE,
+        initialValue: new Scalar(5), min: 0, max: Number.MAX_VALUE,
       },
       {
         semantic: ShadowMapDecodeClassicSingleMaterialNode.AllowableDepthError, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
