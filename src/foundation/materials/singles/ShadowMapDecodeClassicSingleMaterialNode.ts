@@ -21,6 +21,7 @@ import { Count } from "../../../commontypes/CommonTypes";
 import MutableMatrix44 from "../../math/MutableMatrix44";
 import MeshComponent from "../../components/MeshComponent";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
+import MutableVector4 from "../../math/MutableVector4";
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static ShadowColorCoefficient: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shadowColorCoefficient' });
@@ -54,10 +55,9 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     }
     const encodedDepthTexture = encodedDepthFramebuffer.colorAttachments[colorAttachmentsNumber];
 
-    const viewport = encodedDepthRenderPass.getViewport();
-    if (viewport != null) {
-      encodedDepthRenderPass.setViewport(new Vector4(1, 1, viewport.z - 1, viewport.w - 1));
-    }
+    const viewport = encodedDepthRenderPass.getViewport() as MutableVector4;
+    viewport.setComponents(1, 1, viewport.z - 1, viewport.w - 1);
+    encodedDepthRenderPass.setViewport(viewport);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
