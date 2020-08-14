@@ -27,23 +27,23 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
     shaderSemanticsInfoArray.push(
       {
         semantic: DepthEncodeSingleMaterialNode.zNearInner, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(0.1), min: 0.0001, max: Number.MAX_SAFE_INTEGER
       },
       {
         semantic: DepthEncodeSingleMaterialNode.zFarInner, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(10000.0), min: 0.0001, max: Number.MAX_SAFE_INTEGER
       },
       {
         semantic: ShaderSemantics.PointSize, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
-        initialValue: new Scalar(30.0), min: 0, max: 100
+        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        initialValue: new Scalar(30.0), min: 0, max: 100,
       },
       {
         semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
-        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
-        initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1
+        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
       },
     );
 

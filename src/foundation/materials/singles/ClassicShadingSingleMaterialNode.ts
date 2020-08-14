@@ -58,12 +58,12 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.PointSize, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Scalar(30.0), min: 0, max: 100,
       },
       {
         semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
-        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
       },
     );
