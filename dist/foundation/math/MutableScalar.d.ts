@@ -5,9 +5,10 @@ export declare class MutableScalar_<T extends TypedArrayConstructor> extends Sca
     constructor(x: number | TypedArray | null, { type }: {
         type: T;
     });
+    copyComponents(vec: Scalar_<T>): void;
     get x(): number;
     set x(x: number);
-    setValue(value: number): void;
+    setValue(value: number): this;
 }
 export default class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
     constructor(x: number | TypedArray | null);

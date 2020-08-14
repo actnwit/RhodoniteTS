@@ -29,12 +29,33 @@ vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 
 
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
-  diffuseLight = srgbToLinear(diffuseTexel.rgb);
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+  if (hdriFormat.x == 0) {
+    // LDR_SRGB
+    diffuseLight = srgbToLinear(diffuseTexel.rgb);
+  }
+  else if (hdriFormat.x == 3) {
+    // RGBE
+    diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
+  }
+  else {
+    diffuseLight = diffuseTexel.rgb;
+  }
 
 #pragma shaderity: require(./fetchCubeTexture.glsl)
 
   vec3 specularLight;
-  specularLight = srgbToLinear(specularTexel.rgb);
+  if (hdriFormat.y == 0) {
+    // LDR_SRGB
+    specularLight = srgbToLinear(specularTexel.rgb);
+  }
+  else if (hdriFormat.y == 3) {
+    // RGBE
+    specularLight = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
+  }
+  else {
+    specularLight = specularTexel.rgb;
+  }
 
   vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
   vec3 kD = 1.0 - kS;
@@ -232,6 +253,13 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
   vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, v_texcoord).xyz);
 
   rt0.xyz += emissive;
+
+  bool isOutputHDR = get_isOutputHDR(materialSID, 0);
+  if(isOutputHDR){
+#pragma shaderity: require(../common/glFragColor.glsl)
+    return;
+  }
+
 
 
   // Wireframe

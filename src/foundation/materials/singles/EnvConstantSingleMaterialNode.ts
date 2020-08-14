@@ -9,46 +9,35 @@ import Scalar from "../../math/Scalar";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";
 import Material from "../core/Material";
+import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
   static envRotation = new ShaderSemanticsClass({ str: 'envRotation' });
+  static EnvHdriFormat = new ShaderSemanticsClass({ str: 'EnvHdriFormat' });
 
   constructor() {
     super(EnvConstantShader.getInstance(), "envConstantShading");
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.DiffuseColorFactor,
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 2,
-        isSystem: false,
-        initialValue: new Vector4(1, 1, 1, 1)
+        semantic: EnvConstantSingleMaterialNode.EnvHdriFormat, componentType: ComponentType.Int, compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        initialValue: new Scalar(0), min: 0, max: 5,
       },
       {
-        semantic: ShaderSemantics.ColorEnvTexture,
-        compositionType: CompositionType.TextureCube,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
-        initialValue: [
-          0,
-          AbstractMaterialNode.__dummyBlackCubeTexture
-        ]
+        semantic: EnvConstantSingleMaterialNode.envRotation, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        initialValue: new Scalar(0), min: -Math.PI, max: Math.PI,
       },
       {
-        semantic: EnvConstantSingleMaterialNode.envRotation,
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: -Math.PI,
-        max: Math.PI,
-        isSystem: false,
-        initialValue: new Scalar(0)
+        semantic: ShaderSemantics.DiffuseColorFactor, componentType: ComponentType.Float, compositionType: CompositionType.Vec4,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        initialValue: new Vector4(1, 1, 1, 1), min: 0, max: 2,
+      },
+      {
+        semantic: ShaderSemantics.ColorEnvTexture, componentType: ComponentType.Int, compositionType: CompositionType.TextureCube,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [0, AbstractMaterialNode.__dummyBlackCubeTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

@@ -11,6 +11,7 @@ declare function isPowerOfTwo(x: number): boolean;
 declare function isPowerOfTwoTexture(width: Size, height: Size): boolean;
 declare function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[];
 declare function convertToStringAsGLSLFloat(value: number): string;
+declare function nearZeroToZero(value: number): number;
 export declare const MathUtil: Readonly<{
     radianToDegree: typeof radianToDegree;
     degreeToRadian: typeof degreeToRadian;
@@ -19,5 +20,6 @@ export declare const MathUtil: Readonly<{
     isPowerOfTwoTexture: typeof isPowerOfTwoTexture;
     packNormalizedVec4ToVec2: typeof packNormalizedVec4ToVec2;
     convertToStringAsGLSLFloat: typeof convertToStringAsGLSLFloat;
+    nearZeroToZero: typeof nearZeroToZero;
 }>;
 export {};

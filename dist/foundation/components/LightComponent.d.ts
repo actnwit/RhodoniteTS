@@ -19,10 +19,10 @@ export default class LightComponent extends Component {
     private static __lightIntensities;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static get componentTID(): ComponentTID;
-    $create(): void;
-    $load(): void;
-    $logic(): void;
     get direction(): Vector3;
     set intensity(value: Vector3);
     get intensity(): Vector3;
+    $create(): void;
+    $load(): void;
+    $logic(): void;
 }

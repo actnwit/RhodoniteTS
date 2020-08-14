@@ -9,8 +9,8 @@ export default class CameraControllerComponent extends Component {
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     set type(type: CameraControllerTypeEnum);
     get type(): CameraControllerTypeEnum;
-    $create(): void;
-    $logic(): void;
     get controller(): ICameraController;
     static get componentTID(): ComponentTID;
+    $create(): void;
+    $logic(): void;
 }

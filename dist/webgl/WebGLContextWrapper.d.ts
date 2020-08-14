@@ -20,6 +20,7 @@ export default class WebGLContextWrapper {
     readonly webgl1ExtDRV?: OES_standard_derivatives;
     readonly webgl1ExtDB?: WEBGL_draw_buffers;
     readonly webgl1ExtBM?: EXT_blend_minmax;
+    readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
     readonly webgl2ExtTFL?: OES_texture_float_linear;
     private __activeTextureBackup;
     private __activeTextures2D;

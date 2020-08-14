@@ -14,4 +14,5 @@ export declare const WebGLExtension: Readonly<{
     ShaderDerivatives: WebGLExtensionEnum;
     DrawBuffers: WebGLExtensionEnum;
     BlendMinmax: WebGLExtensionEnum;
+    ColorBufferFloat: WebGLExtensionEnum;
 }>;

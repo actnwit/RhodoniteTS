@@ -31,11 +31,6 @@ export default class SparkGearComponent extends Component {
     private static __tmp_indentityMatrix;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static get componentTID(): ComponentTID;
-    static common_$load(): void;
-    $logic(): void;
-    $render(): void;
-    $load(): void;
-    $create(): void;
     onBeforeRender(): void;
     onAfterRender(): void;
     play(): void;
@@ -51,4 +46,9 @@ export default class SparkGearComponent extends Component {
     static SPFX_Update: (DeltaTime: number) => void;
     static SPARK_Draw(): void;
     static SPARK_DrawDebugInfo(InfoType: any): void;
+    $create(): void;
+    static common_$load(): void;
+    $load(): void;
+    $logic(): void;
+    $render(): void;
 }

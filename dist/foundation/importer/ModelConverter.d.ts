@@ -3,8 +3,10 @@ import Buffer from "../memory/Buffer";
 import Texture from "../textures/Texture";
 import { ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import Material from "../materials/core/Material";
+import Accessor from "../memory/Accessor";
 import { Byte, Size } from "../../commontypes/CommonTypes";
 import { GltfLoadOption, glTF2 } from "../../commontypes/glTF";
+import FlexibleAccessor from "../memory/FlexibleAccessor";
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */
@@ -40,14 +42,17 @@ export default class ModelConverter {
     private __setupLight;
     private __setupCamera;
     private __setupMesh;
+    setSparseAccessor(accessor: any, rnAccessor: Accessor | FlexibleAccessor): void;
     static setDefaultTextures(material: Material, gltfModel: glTF2): void;
     private __setMorphingAndSkinningArgument;
     private __setVRMMaterial;
     private __generateAppropriateMaterial;
     private __isLighting;
+    private __isAlphaMasking;
     private __isSkinning;
     private __setupMaterial;
     static _createTexture(textureType: any, gltfModel: glTF2): Texture;
+    private static __sizeIsPowerOfTwo;
     private __needParameterInitialization;
     private _checkRnGltfLoaderOptionsExist;
     _adjustByteAlign(typedArrayClass: any, uint8Array: Uint8Array, alignSize: Size, byteOffset: Byte, length: Size): any;
@@ -65,4 +70,5 @@ export default class ModelConverter {
     __getIndicesFromDraco(draco: any, decoder: any, dracoGeometry: any, triangleStripDrawMode: boolean): Uint32Array | undefined;
     private __decodeDraco;
     static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum): void;
+    private __createBufferForDecompressedData;
 }

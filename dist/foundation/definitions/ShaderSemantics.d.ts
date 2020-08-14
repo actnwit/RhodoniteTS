@@ -30,7 +30,6 @@ export declare type ShaderSemanticsInfo = {
     prefix?: string;
     index?: Count;
     maxIndex?: Count;
-    setEach?: boolean;
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     min: number;
@@ -103,11 +102,12 @@ export declare const ShaderSemantics: Readonly<{
     SpecularGlossinessFactor: ShaderSemanticsEnum;
     SpecularGlossinessTexture: ShaderSemanticsEnum;
     fullSemanticStr: typeof fullSemanticStr;
-    getShaderProperty: (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: number, isGlobalData: boolean) => string;
+    getShaderProperty: (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
     EntityUID: ShaderSemanticsEnum;
     MorphTargetNumber: ShaderSemanticsEnum;
     DataTextureMorphOffsetPosition: ShaderSemanticsEnum;
     MorphWeights: ShaderSemanticsEnum;
     CurrentComponentSIDs: ShaderSemanticsEnum;
+    AlphaCutoff: ShaderSemanticsEnum;
 }>;
 export {};

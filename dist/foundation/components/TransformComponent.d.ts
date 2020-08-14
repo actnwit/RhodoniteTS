@@ -1,10 +1,11 @@
 import Vector3 from '../math/Vector3';
 import Quaternion from '../math/Quaternion';
-import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
 import Component from '../core/Component';
 import EntityRepository from '../core/EntityRepository';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import MutableMatrix33 from '../math/MutableMatrix33';
+import MutableVector3 from '../math/MutableVector3';
 import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 export default class TransformComponent extends Component {
     private _translate;
@@ -21,32 +22,30 @@ export default class TransformComponent extends Component {
     private _is_trs_matrix_updated;
     private _is_inverse_trs_matrix_updated;
     private _is_normal_trs_matrix_updated;
-    private static __tmpMat_updateRotation;
-    private static __tmpMat_quaternionInner;
+    private static __tmpMatrix44_0;
+    private static __tmpVector3_0;
+    private static __tmpVector3_1;
+    private static __tmpVector3_2;
+    private static __tmpQuaternion_0;
     private __toUpdateAllTransform;
     private _updateCount;
     private __updateCountAtLastLogic;
-    private static returnMatrix33;
-    private static invertedMatrix44;
-    private static updateRotationMatrix44;
-    private static updateRotationVector3;
     private _dependentAnimationComponentId;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository);
     static get renderedPropertyCount(): null;
     static get componentTID(): ComponentTID;
-    $logic(): void;
     set toUpdateAllTransform(flag: boolean);
     get toUpdateAllTransform(): boolean;
     _needUpdate(): void;
     set translate(vec: Vector3);
     get translate(): Vector3;
-    get translateInner(): Vector3;
+    get translateInner(): MutableVector3;
     set rotate(vec: Vector3);
     get rotate(): Vector3;
-    get rotateInner(): Vector3;
+    get rotateInner(): MutableVector3;
     set scale(vec: Vector3);
     get scale(): Vector3;
-    get scaleInner(): Vector3;
+    get scaleInner(): MutableVector3;
     set quaternion(quat: Quaternion);
     get quaternion(): Quaternion;
     get quaternionInner(): Quaternion;
@@ -54,9 +53,9 @@ export default class TransformComponent extends Component {
     get matrix(): Matrix44;
     get matrixInner(): MutableMatrix44;
     get inverseMatrix(): Matrix44;
-    get inverseMatrixInner(): Matrix44;
-    get normalMatrix(): Matrix33;
-    get normalMatrixInner(): Matrix33;
+    get inverseMatrixInner(): MutableMatrix44;
+    get normalMatrix(): MutableMatrix33;
+    get normalMatrixInner(): MutableMatrix33;
     /**
      * Set multiple transform information at once. By using this method,
      * we reduce the cost of automatically updating other transform components inside this class.
@@ -85,4 +84,5 @@ export default class TransformComponent extends Component {
     headToDirection(fromVec: Vector3, toVec: Vector3): void;
     set rotateMatrix44(rotateMatrix: Matrix44);
     get rotateMatrix44(): Matrix44;
+    $logic(): void;
 }

@@ -1,53 +1,80 @@
-import Vector2 from "./Vector2";
-import Vector3 from "./Vector3";
-import { Vector4_ } from "./Vector4";
-import { IVector4, IMutableVector4, IVector3 } from "./IVector";
+import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector4 } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
-export declare class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector4 {
-    constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: {
+import { Vector4_ } from "./Vector4";
+export declare class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
+    constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: {
         type: T;
     });
-    static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
+    set x(x: number);
+    get x(): number;
+    set y(y: number);
+    get y(): number;
+    set z(z: number);
+    get z(): number;
+    set w(w: number);
+    get w(): number;
+    raw(): TypedArray;
+    setAt(i: number, value: number): this;
+    setComponents(x: number, y: number, z: number, w: number): this;
+    copyComponents(vec: IVector4): this;
+    zero(): this;
+    one(): this;
+    /**
+     * normalize
+     */
     normalize(): this;
-    normalize3(): void;
+    normalize3(): this;
     /**
      * add value
      */
-    add(v: IVector4): this;
+    add(vec: IVector4): this;
     /**
-   * add value except w component
-   */
-    addWithOutW(v: IVector4 | Vector3): this;
-    subtract(v: IVector4): this;
-    multiply(val: number): this;
+     * subtract
+     */
+    subtract(vec: IVector4): this;
+    /**
+     * multiply
+     */
+    multiply(value: number): this;
+    /**
+     * multiply vector
+     */
     multiplyVector(vec: IVector4): this;
-    divide(val: number): this;
-    divideVector(vec4: IVector4): this;
-    get x(): number;
-    get y(): number;
-    get z(): number;
-    get w(): number;
-    set x(x: number);
-    set y(y: number);
-    set z(z: number);
-    set w(w: number);
-    get raw(): TypedArray;
-    private __Error;
+    /**
+     * divide
+     */
+    divide(value: number): this;
+    /**
+     * divide vector
+     */
+    divideVector(vec: IVector4): this;
 }
 export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
-    constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number);
-    clone(): MutableVector4;
+    constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number);
+    static zero(): MutableVector4;
     static one(): MutableVector4;
     static dummy(): MutableVector4;
-    static zero(): MutableVector4;
-    static zeroWithWOne(): MutableVector4;
+    static normalize(vec: IVector4): MutableVector4;
+    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    static multiply(vec: IVector4, value: number): MutableVector4;
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    static divide(vec: IVector4, value: number): MutableVector4;
+    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    clone(): MutableVector4;
 }
 export declare class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
-    constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number);
-    clone(): MutableVector4d;
+    constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number);
+    static zero(): MutableVector4d;
     static one(): MutableVector4d;
     static dummy(): MutableVector4d;
-    static zero(): MutableVector4d;
-    static zeroWithWOne(): MutableVector4d;
+    static normalize(vec: IVector4): MutableVector4d;
+    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    static multiply(vec: IVector4, value: number): MutableVector4d;
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    static divide(vec: IVector4, value: number): MutableVector4d;
+    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    clone(): MutableVector4d;
 }
 export declare type MutableVector4f = MutableVector4;

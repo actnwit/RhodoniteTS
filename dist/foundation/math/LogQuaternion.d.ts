@@ -1,11 +1,12 @@
-import Vector4 from './Vector4';
-import { IVector3 } from './IVector';
+import { IVector3, IVector4 } from './IVector';
 import { TypedArray } from '../../commontypes/CommonTypes';
-export default class LogQuaternion implements IVector3 {
+import { ILogQuaternion, IQuaternion } from './IQuaternion';
+export default class LogQuaternion implements ILogQuaternion {
     v: TypedArray;
-    constructor(x?: number | TypedArray | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number);
+    constructor(x: number | TypedArray | IVector3 | IVector4 | IQuaternion | Array<number> | null, y?: number, z?: number);
     get x(): number;
     get y(): number;
     get z(): number;
     get w(): number;
+    get className(): string;
 }

@@ -94,7 +94,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
   const planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const planePrimitive = new Rn.Plane();
-  planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, material: modelMaterial });
+  planePrimitive.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, flipTextureCoordinateY: false, material: modelMaterial });
   const planeMeshComponent = planeEntity.getMesh();
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
@@ -110,8 +110,10 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
     const buffer = await response.arrayBuffer();
     const uint8Array = new Uint8Array(buffer);
     environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
+    environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_LINEAR;
   }
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  sphereMaterial.setParameter(Rn.EnvConstantSingleMaterialNode.EnvHdriFormat, Rn.HdriFormat.LDR_LINEAR.index);
   const sphereMeshComponent = sphereEntity.getMesh();
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
@@ -141,7 +143,7 @@ function setupRenderPassFxaa(entityRepository: EntityRepository, renderable: Abs
   const renderPassFxaa = new Rn.RenderPass();
   const entityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent])
   const primitiveFxaa = new Rn.Plane()
-  primitiveFxaa.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false })
+  primitiveFxaa.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, flipTextureCoordinateY: false })
   primitiveFxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial()
   primitiveFxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, renderable)
   primitiveFxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(width, height))

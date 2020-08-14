@@ -1,12 +1,13 @@
 import Matrix44 from "./Matrix44";
-import { IMutableMatrix44 } from "./IMatrix";
+import { IMutableMatrix44, IMutableMatrix } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
 import Vector3 from "./Vector3";
 import { Index } from "../../commontypes/CommonTypes";
+import { IQuaternion } from "./IQuaternion";
 declare const FloatArray: Float32ArrayConstructor;
 declare type FloatArray = Float32Array;
-export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix44 {
+export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
     constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: Array<number>, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
@@ -14,55 +15,6 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     constructor(m: Quaternion, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: null);
     constructor(m0: number, m1: number, m2: number, m3: number, m4: number, m5: number, m6: number, m7: number, m8: number, m9: number, m10: number, m11: number, m12: number, m13: number, m14: number, m15: number, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-    setComponents(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): this;
-    copyComponents(mat4: Matrix44): void;
-    static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
-    static dummy(): MutableMatrix44;
-    /**
-     * to the identity matrix（static version）
-     */
-    static identity(): MutableMatrix44;
-    translate(vec: Vector3): this;
-    putTranslate(vec: Vector3): void;
-    scale(vec: Vector3): this;
-    putScale(vec: Vector3): this;
-    /**
-     * Create X oriented Rotation Matrix
-     */
-    rotateX(radian: number): this;
-    /**
-     * Create Y oriented Rotation Matrix
-     */
-    rotateY(radian: number): this;
-    /**
-   * Create Z oriented Rotation Matrix
-   */
-    rotateZ(radian: number): this;
-    rotateXYZ(x: number, y: number, z: number): this;
-    /**
-     * to the identity matrix
-     */
-    identity(): this;
-    _swap(l: Index, r: Index): void;
-    /**
-     * transpose
-     */
-    transpose(): this;
-    /**
-   * multiply zero matrix and zero matrix
-   */
-    multiply(mat: Matrix44): this;
-    multiplyByLeft(mat: Matrix44): this;
-    invert(): this;
-    /**
-     * multiply zero matrix and zero matrix(static version)
-     */
-    static multiply(l_m: Matrix44, r_m: Matrix44): MutableMatrix44;
-    /**
-     * zero matrix
-     */
-    zero(): this;
-    static zero(): MutableMatrix44;
     set m00(val: number);
     get m00(): number;
     set m10(val: number);
@@ -95,5 +47,92 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     get m23(): number;
     set m33(val: number);
     get m33(): number;
+    /**
+     * zero matrix(static version)
+     */
+    static zero(): MutableMatrix44;
+    /**
+     * Create identity matrix
+     */
+    static identity(): MutableMatrix44;
+    static dummy(): MutableMatrix44;
+    /**
+     * Create transpose matrix
+     */
+    static transpose(mat: Matrix44): MutableMatrix44;
+    /**
+     * Create invert matrix
+     */
+    static invert(mat: Matrix44): MutableMatrix44;
+    /**
+     * Create translation Matrix
+     */
+    static translate(vec: Vector3): MutableMatrix44;
+    /**
+     * Create X oriented Rotation Matrix
+     */
+    static rotateX(radian: number): MutableMatrix44;
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    static rotateY(radian: number): MutableMatrix44;
+    /**
+     * Create Z oriented Rotation Matrix
+     */
+    static rotateZ(radian: number): MutableMatrix44;
+    static rotateXYZ(x: number, y: number, z: number): MutableMatrix44;
+    static rotate(vec: Vector3): MutableMatrix44;
+    /**
+     * Create Scale Matrix
+     */
+    static scale(vec: Vector3): MutableMatrix44;
+    /**
+     * multiply matrixes
+     */
+    static multiply(l_mat: Matrix44, r_mat: Matrix44): MutableMatrix44;
+    clone(): MutableMatrix44;
+    getRotate(): MutableMatrix44;
+    raw(): import("../../commontypes/CommonTypes").TypedArray;
+    setAt(row_i: number, column_i: number, value: number): this;
+    setComponents(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): this;
+    copyComponents(mat: Matrix44): this;
+    /**
+     * zero matrix
+     */
+    zero(): this;
+    /**
+     * to the identity matrix
+     */
+    identity(): this;
+    _swap(l: Index, r: Index): void;
+    /**
+     * transpose
+     */
+    transpose(): this;
+    invert(): this;
+    translate(vec: Vector3): this;
+    putTranslate(vec: Vector3): this;
+    /**
+     * Create X oriented Rotation Matrix
+     */
+    rotateX(radian: number): this;
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    rotateY(radian: number): this;
+    /**
+   * Create Z oriented Rotation Matrix
+   */
+    rotateZ(radian: number): this;
+    rotateXYZ(x: number, y: number, z: number): this;
+    rotate(vec: Vector3): this;
+    scale(vec: Vector3): this;
+    putScale(vec: Vector3): this;
+    /**
+     * multiply the input matrix from right side
+     */
+    multiply(mat: Matrix44): this;
+    multiplyByLeft(mat: Matrix44): this;
+    fromQuaternion(quat: IQuaternion): this;
 }
 export {};

@@ -10,10 +10,11 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     static normalTextureRotation: ShaderSemanticsClass;
     static metallicRoughnessTextureTransform: ShaderSemanticsClass;
     static metallicRoughnessTextureRotation: ShaderSemanticsClass;
-    constructor({ isMorphing, isSkinning, isLighting }: {
+    constructor({ isMorphing, isSkinning, isLighting, isAlphaMasking }: {
         isMorphing: boolean;
         isSkinning: boolean;
         isLighting: boolean;
+        isAlphaMasking: boolean;
     });
     setParametersForGPU({ material, shaderProgram, firstTime, args }: {
         material: Material;

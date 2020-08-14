@@ -72,7 +72,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         iboHandle?: WebGLResourceHandle;
         vboHandles: Array<WebGLResourceHandle>;
     }, primitive: Primitive, instanceIDBufferUid?: WebGLResourceHandle): void;
-    createTexture(data: DirectTextureData, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }: {
+    createTexture(data: DirectTextureData, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha }: {
         level: Index;
         internalFormat: TextureParameterEnum | PixelFormatEnum;
         width: Size;
@@ -86,8 +86,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         wrapT: TextureParameterEnum;
         generateMipmap: boolean;
         anisotropy: boolean;
+        isPremultipliedAlpha: boolean;
     }): WebGLResourceHandle;
-    createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy }: {
+    createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy, isPremultipliedAlpha }: {
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
@@ -96,6 +97,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         wrapS: TextureParameterEnum;
         wrapT: TextureParameterEnum;
         anisotropy: boolean;
+        isPremultipliedAlpha: boolean;
     }): WebGLResourceHandle;
     private decodeBasisImage;
     createFrameBufferObject(): number;
@@ -144,7 +146,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }): number;
     createDummyBlackCubeTexture(): number;
     createDummyCubeTexture(rgbaStr?: string): number;
-    createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }: {
+    createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha }: {
         level: Index;
         internalFormat: TextureParameterEnum | PixelFormatEnum;
         border: Size;
@@ -156,6 +158,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         wrapT: TextureParameterEnum;
         generateMipmap: boolean;
         anisotropy: boolean;
+        isPremultipliedAlpha: boolean;
     }): Promise<WebGLResourceHandle>;
     updateTexture(textureUid: WebGLResourceHandle, typedArray: TypedArray, { level, xoffset, yoffset, width, height, format, type }: {
         level: Index;

@@ -1,5 +1,4 @@
 import Component from '../core/Component';
-import Matrix44 from '../math/Matrix44';
 import EntityRepository from '../core/EntityRepository';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableMatrix33 from '../math/MutableMatrix33';
@@ -46,14 +45,11 @@ export default class SceneGraphComponent extends Component {
     get children(): SceneGraphComponent[];
     get parent(): SceneGraphComponent | undefined;
     get worldMatrixInner(): MutableMatrix44;
-    get worldMatrix(): Matrix44;
+    get worldMatrix(): MutableMatrix44;
     get normalMatrixInner(): MutableMatrix33;
-    get normalMatrix(): import("../math/Matrix33").default;
-    $create(): void;
-    $load(): void;
-    $logic(): void;
+    get normalMatrix(): MutableMatrix33;
     isWorldMatrixUpToDateRecursively(): boolean;
-    calcWorldMatrixRecursively(isJointMode: boolean): Matrix44 | MutableMatrix44;
+    calcWorldMatrixRecursively(isJointMode: boolean): MutableMatrix44;
     /**
      * Collects children and itself from specified sceneGraphComponent.
      * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
@@ -72,8 +68,10 @@ export default class SceneGraphComponent extends Component {
         selectedMeshComponent: MeshComponent | null;
     };
     castRayFromScreen(x: number, y: number, camera: CameraComponent, viewport: Vector4, dotThreshold?: number, ignoreMeshComponents?: MeshComponent[]): {
-        intersectedPosition: null;
+        intersectedPosition: Vector3 | null | undefined;
         rayDistance: number;
         selectedMeshComponent: MeshComponent | null;
     };
+    $create(): void;
+    $logic(): void;
 }
