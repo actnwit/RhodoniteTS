@@ -213,11 +213,7 @@ export default class AnimationComponent extends Component {
       const k = this.interpolationSearch(inputArray, currentTime);
 
       const t_diff = (inputArray[k + 1] - inputArray[k]); // t_(k+1) - t_k
-      let t = (currentTime - inputArray[k]) / t_diff;
-      if (t < 0 || 1 < t) {
-        t = 0; // out of range
-      }
-
+      const t = (currentTime - inputArray[k]) / t_diff;
       const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
       return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
 
