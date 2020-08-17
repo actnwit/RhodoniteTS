@@ -200,6 +200,13 @@ export default class AnimationComponent extends Component {
     const outputArray = line.output;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
 
+    // out of range
+    if (currentTime <= inputArray[0]) {
+      return outputArray[0];
+    } else if (inputArray[inputArray.length - 1] <= currentTime) {
+      return outputArray[inputArray.length - 1];
+    }
+
     if (method === AnimationInterpolation.CubicSpline) {
       // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation
 
@@ -214,13 +221,6 @@ export default class AnimationComponent extends Component {
       const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
       return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
 
-    }
-
-    // out of range
-    if (currentTime <= inputArray[0]) {
-      return outputArray[0];
-    } else if (inputArray[inputArray.length - 1] <= currentTime) {
-      return outputArray[inputArray.length - 1];
     }
 
     if (method === AnimationInterpolation.Linear) {
