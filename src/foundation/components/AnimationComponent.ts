@@ -195,26 +195,9 @@ export default class AnimationComponent extends Component {
   }
 
   static interpolate(line: AnimationLine, currentTime: number, animationAttributeIndex: Index) {
-
     const inputArray = line.input;
     const outputArray = line.output;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
-
-    if (method === AnimationInterpolation.CubicSpline) {
-      // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-
-
-      const k = this.interpolationSearch(inputArray, currentTime);
-
-      const t_diff = (inputArray[k + 1] - inputArray[k]); // t_(k+1) - t_k
-      let t = (currentTime - inputArray[k]) / t_diff;
-      if (t < 0 || 1 < t) {
-        t = 0; // out of range
-      }
-
-      const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
-      return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
-
-    }
 
     // out of range
     if (currentTime <= inputArray[0]) {
@@ -223,7 +206,16 @@ export default class AnimationComponent extends Component {
       return outputArray[inputArray.length - 1];
     }
 
-    if (method === AnimationInterpolation.Linear) {
+    if (method === AnimationInterpolation.CubicSpline) {
+      // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation
+
+      const k = this.interpolationSearch(inputArray, currentTime);
+      const t_diff = (inputArray[k + 1] - inputArray[k]); // t_(k+1) - t_k
+      const t = (currentTime - inputArray[k]) / t_diff;
+      const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
+      return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
+
+    } else if (method === AnimationInterpolation.Linear) {
       const i = this.interpolationSearch(inputArray, currentTime);
       const ratio = (currentTime - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
       return this.lerp(outputArray[i], outputArray[i + 1], ratio, animationAttributeIndex);
