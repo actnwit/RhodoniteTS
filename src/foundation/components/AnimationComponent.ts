@@ -195,7 +195,6 @@ export default class AnimationComponent extends Component {
   }
 
   static interpolate(line: AnimationLine, currentTime: number, animationAttributeIndex: Index) {
-
     const inputArray = line.input;
     const outputArray = line.output;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
@@ -211,15 +210,12 @@ export default class AnimationComponent extends Component {
       // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation
 
       const k = this.interpolationSearch(inputArray, currentTime);
-
       const t_diff = (inputArray[k + 1] - inputArray[k]); // t_(k+1) - t_k
       const t = (currentTime - inputArray[k]) / t_diff;
       const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(outputArray, k, t_diff, animationAttributeIndex);
       return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
 
-    }
-
-    if (method === AnimationInterpolation.Linear) {
+    } else if (method === AnimationInterpolation.Linear) {
       const i = this.interpolationSearch(inputArray, currentTime);
       const ratio = (currentTime - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
       return this.lerp(outputArray[i], outputArray[i + 1], ratio, animationAttributeIndex);
