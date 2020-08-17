@@ -203,10 +203,10 @@ export default class WalkThroughCameraController implements ICameraController {
   reset() {
     this._isKeyDown = false;
     this._lastKeyCode = -1;
-    this._currentPos = new MutableVector3(0, 0, 0);
-    this._currentCenter = new MutableVector3(0, 0, -1);
-    this._currentDir = new MutableVector3(0, 0, -1);
-    this._currentHorizontalDir = new MutableVector3(0, 0, -1);
+    this._currentPos.zero();
+    this._currentCenter.setComponents(0, 0, -1);
+    this._currentDir.setComponents(0, 0, -1);
+    this._currentHorizontalDir.setComponents(0, 0, -1);
     this._isMouseDown = false;
     this._isMouseDrag = false;
     this._draggedMouseXOnCanvas = -1;
@@ -217,7 +217,7 @@ export default class WalkThroughCameraController implements ICameraController {
     this._mouseYAdjustScale = this._turnSpeed;
     this._deltaY = 0;
     this._deltaX = 0;
-    this._newDir = new MutableVector3(0, 0, -1);
+    this._newDir.setComponents(0, 0, -1);
 
   }
 
@@ -255,7 +255,7 @@ export default class WalkThroughCameraController implements ICameraController {
       this._currentPos.z += lengthCameraToObject;
 
       this._currentCenter.copyComponents(targetAABB.centerPoint);
-      this._currentDir = new MutableVector3(0, 0, -1);
+      this._currentDir.setComponents(0, 0, -1);
 
       if (camera.entity.getSceneGraph()) {
         const sg = camera.entity.getSceneGraph();
@@ -335,7 +335,7 @@ export default class WalkThroughCameraController implements ICameraController {
       this._deltaY = Math.max(-120, Math.min(50, this._deltaY));
 
       const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(MathUtil.degreeToRadian(this._deltaX));
-      this._currentDir = rotateMatrix.multiplyVector(this._currentDir);
+      rotateMatrix.multiplyVectorTo(this._currentDir, this._currentDir);
 
       const newEyeToCenter = rotateMatrix.multiplyVector(MutableVector3.subtract(this._currentCenter, this._currentPos));
       newEyeToCenter.x = newEyeToCenter.x * (1 - t);

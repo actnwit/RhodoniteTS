@@ -7,7 +7,7 @@ import { Index } from '../../commontypes/CommonTypes';
 export default class AABB {
   private __min: MutableVector3 = new MutableVector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
   private __max: MutableVector3 = new MutableVector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-  private __centerPoint = Vector3.zero();
+  private __centerPoint = MutableVector3.zero();
   private __lengthCenterToCorner = 0;
   private __isCenterPointDirty = false;
   private __isLengthCenterToCornerDirty = false;
@@ -29,15 +29,9 @@ export default class AABB {
   }
 
   initialize() {
-    this.__min.x = Number.MAX_VALUE;
-    this.__min.y = Number.MAX_VALUE;
-    this.__min.z = Number.MAX_VALUE;
-    this.__max.x = -Number.MAX_VALUE;
-    this.__max.y = -Number.MAX_VALUE;
-    this.__max.z = -Number.MAX_VALUE;
-    this.__centerPoint.v[0] = 0;
-    this.__centerPoint.v[1] = 0;
-    this.__centerPoint.v[2] = 0;
+    this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+    this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+    this.__centerPoint.zero();
     this.__lengthCenterToCorner = 0;
     this.__isCenterPointDirty = false;
     this.__isLengthCenterToCornerDirty = false;
@@ -153,7 +147,7 @@ export default class AABB {
 
   get centerPoint() {
     if (this.__isCenterPointDirty) {
-      this.__centerPoint = MutableVector3.add(this.__min, this.__max).divide(2);
+      MutableVector3.addTo(this.__min, this.__max, this.__centerPoint).divide(2);
       this.__isCenterPointDirty = false;
     }
     return this.__centerPoint;

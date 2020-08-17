@@ -388,7 +388,7 @@ export default class OrbitCameraController implements ICameraController {
 
   __mouseDblClick(evt: MouseEvent) {
     if (evt.shiftKey) {
-      this.__mouseTranslateVec = new MutableVector3(0, 0, 0);
+      this.__mouseTranslateVec.zero();
     } else if (evt.ctrlKey) {
       this.__rot_y = 0;
       this.__rot_x = 0;
@@ -403,7 +403,7 @@ export default class OrbitCameraController implements ICameraController {
     const currentTime = new Date().getTime();
     if (currentTime - this.__resetDollyTouchTime < 300) {
       this.dolly = Math.pow(0.5, 1.0 / 2.2);
-      this.__mouseTranslateVec = new MutableVector3(0, 0, 0);
+      this.__mouseTranslateVec.zero();
       this.__rot_x = 0;
       this.__rot_y = 0;
     } else {
@@ -546,9 +546,7 @@ export default class OrbitCameraController implements ICameraController {
     if (this.__isKeyUp || !this.__isForceGrab) {
       Vector3.addTo(eye, this.__shiftCameraTo, this.__eyeVec);
       Vector3.addTo(center, this.__shiftCameraTo, this.__centerVec);
-      this.__upVec.x = up!.x;
-      this.__upVec.y = up!.y;
-      this.__upVec.z = up!.z;
+      this.__upVec.copyComponents(up);
     }
 
     let fovy = this.__getFovyFromCamera(camera);
