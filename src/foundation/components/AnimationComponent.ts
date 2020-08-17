@@ -201,7 +201,7 @@ export default class AnimationComponent extends Component {
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
 
     if (method === AnimationInterpolation.CubicSpline) {
-      // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-
+      // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation
 
       const k = this.interpolationSearch(inputArray, currentTime);
 
