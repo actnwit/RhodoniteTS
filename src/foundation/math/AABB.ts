@@ -1,5 +1,4 @@
 import Vector3 from './Vector3';
-import Vector4 from './Vector4';
 import Matrix44 from './Matrix44';
 import MutableVector3 from './MutableVector3';
 import { Index } from '../../commontypes/CommonTypes';
@@ -155,8 +154,7 @@ export default class AABB {
 
   get lengthCenterToCorner() {
     if (this.__isLengthCenterToCornerDirty) {
-      const lengthCenterToCorner = Vector3.lengthBtw(this.centerPoint, this.maxPoint);
-      this.__lengthCenterToCorner = (lengthCenterToCorner !== lengthCenterToCorner) ? 0 : lengthCenterToCorner;
+      this.__lengthCenterToCorner = Vector3.lengthBtw(this.centerPoint, this.maxPoint);
       this.__isLengthCenterToCornerDirty = false;
     }
     return this.__lengthCenterToCorner;
