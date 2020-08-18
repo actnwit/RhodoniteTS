@@ -8,6 +8,7 @@ import CameraComponent from "../components/CameraComponent";
 import { MathUtil } from "../math/MathUtil";
 import Entity from "../core/Entity";
 import MutableMatrix33 from "../math/MutableMatrix33";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 type MouseEventListener = (evt: MouseEvent) => any;
@@ -50,6 +51,7 @@ export default class WalkThroughCameraController implements ICameraController {
   private _zFarAdjustingFactorBasedOnAABB = 150.0;
   private __scaleOfZNearAndZFar = 5000;
 
+  private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_Vec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmp_Vec3_1: MutableVector3 = MutableVector3.zero();
@@ -259,9 +261,9 @@ export default class WalkThroughCameraController implements ICameraController {
 
       if (camera.entity.getSceneGraph()) {
         const sg = camera.entity.getSceneGraph();
-        const mat = Matrix44.invert(sg.worldMatrixInner);
-        mat.multiplyVector3To(this._currentPos, this._currentPos);
-        mat.multiplyVector3To(this._currentCenter, this._currentCenter);
+        const invMat = Matrix44.invertTo(sg.worldMatrixInner, WalkThroughCameraController.__tmpInvMat);
+        invMat.multiplyVector3To(this._currentPos, this._currentPos);
+        invMat.multiplyVector3To(this._currentCenter, this._currentCenter);
       }
 
       this._needInitialize = false;

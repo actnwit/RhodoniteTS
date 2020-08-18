@@ -1,7 +1,6 @@
 import Vector3 from "../math/Vector3";
 import MutableVector3 from "../math/MutableVector3";
 import { MathUtil } from "../math/MathUtil";
-import Matrix33 from "../math/Matrix33";
 import CameraComponent from "../components/CameraComponent";
 import MutableMatrix33 from "../math/MutableMatrix33";
 import Entity from "../core/Entity";
@@ -87,19 +86,19 @@ export default class OrbitCameraController implements ICameraController {
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
 
-  private static __tmp_mat: MutableMatrix44 = MutableMatrix44.identity();
-  private static __tmp_mat3: MutableMatrix33 = MutableMatrix33.identity();
-  private static __tmp_mat3_2: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_newEyeVec: MutableVector3 = MutableVector3.zero();
   private static readonly __tmp_up: Vector3 = new Vector3(0, 0, 1);
-  private static __tmp_rotateM_Reset: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVec3_1: MutableVector3 = MutableVector3.zero();
 
   private static __tmp_rotateM_X: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM_Y: MutableMatrix33 = MutableMatrix33.identity();
-  private static __tmp_rotateM_Revert: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM_Reset: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM_Revert: MutableMatrix33 = MutableMatrix33.identity();
+
+  private static __tmpMat44_0: MutableMatrix44 = MutableMatrix44.identity();
+
   private __firstTargetAABB?: AABB;
 
   constructor() {
@@ -576,9 +575,10 @@ export default class OrbitCameraController implements ICameraController {
       rotateM_Reset.rotateY(MathUtil.degreeToRadian(horizontalAngleOfVectors));
       rotateM_Revert.rotateY(MathUtil.degreeToRadian(-horizontalAngleOfVectors));
 
-      MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, OrbitCameraController.__tmp_mat3);
-      MutableMatrix33.multiplyTo(rotateM_Y, OrbitCameraController.__tmp_mat3, OrbitCameraController.__tmp_mat3_2);
-      let rotateM = MutableMatrix33.multiplyTo(rotateM_Revert, OrbitCameraController.__tmp_mat3_2, OrbitCameraController.__tmp_rotateM);
+      const rotateM = OrbitCameraController.__tmp_rotateM;
+      MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, rotateM);
+      rotateM.multiplyByLeft(rotateM_Y);
+      rotateM.multiplyByLeft(rotateM_Revert);
 
       newUpVec = rotateM.multiplyVector(this.__upVec);
       this.__newUpVec = newUpVec;
@@ -612,7 +612,7 @@ export default class OrbitCameraController implements ICameraController {
       rotateM_X.rotateX(MathUtil.degreeToRadian(this.__rot_y));
       rotateM_Y.rotateY(MathUtil.degreeToRadian(this.__rot_x));
 
-      const rotateM = Matrix33.multiply(rotateM_Y, rotateM_X);
+      const rotateM = MutableMatrix33.multiplyTo(rotateM_Y, rotateM_X, OrbitCameraController.__tmp_rotateM);
 
       newUpVec = rotateM.multiplyVector(this.__upVec);
       this.__newUpVec = newUpVec;
@@ -711,11 +711,11 @@ export default class OrbitCameraController implements ICameraController {
 
     const sg = camera.entity.getSceneGraph();
     if (sg != null) {
-      const mat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmp_mat);
+      const invMat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmpMat44_0);
 
-      newEyeVec = mat.multiplyVector3To(newEyeVec, OrbitCameraController.returnVector3Eye);
-      newCenterVec = mat.multiplyVector3To(newCenterVec, OrbitCameraController.returnVector3Center);
-      newUpVec = mat.multiplyVector3To(upVec, OrbitCameraController.returnVector3Up);
+      newEyeVec = invMat.multiplyVector3To(newEyeVec, OrbitCameraController.returnVector3Eye);
+      newCenterVec = invMat.multiplyVector3To(newCenterVec, OrbitCameraController.returnVector3Center);
+      newUpVec = invMat.multiplyVector3To(upVec, OrbitCameraController.returnVector3Up);
     }
 
     return { newEyeVec, newCenterVec, newUpVec };
