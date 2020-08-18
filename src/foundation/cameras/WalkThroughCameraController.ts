@@ -51,7 +51,8 @@ export default class WalkThroughCameraController implements ICameraController {
   private __scaleOfZNearAndZFar = 5000;
 
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
-  private static __tmpMoveVec: MutableVector3 = MutableVector3.zero();
+  private static __tmp_Vec3_0: MutableVector3 = MutableVector3.zero();
+  private static __tmp_Vec3_1: MutableVector3 = MutableVector3.zero();
 
   constructor(
     options = {
@@ -144,13 +145,12 @@ export default class WalkThroughCameraController implements ICameraController {
       return;
     }
     const delta = -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
-    const horizontalDir = new MutableVector3(
-      this._currentDir.x,
-      0,
-      this._currentDir.z
-    ).normalize();
-    this._currentPos.add(Vector3.multiply(horizontalDir, delta));
-    this._currentCenter.add(Vector3.multiply(horizontalDir, delta));
+    const horizontalDir = WalkThroughCameraController.__tmp_Vec3_0;
+    horizontalDir.setComponents(this._currentDir.x, 0, this._currentDir.z).normalize();
+
+    const deltaVec = MutableVector3.multiplyTo(horizontalDir, delta, WalkThroughCameraController.__tmp_Vec3_1);
+    this._currentPos.add(deltaVec);
+    this._currentCenter.add(deltaVec);
   }
 
   _mouseDown(evt: MouseEvent) {
@@ -260,8 +260,8 @@ export default class WalkThroughCameraController implements ICameraController {
       if (camera.entity.getSceneGraph()) {
         const sg = camera.entity.getSceneGraph();
         const mat = Matrix44.invert(sg.worldMatrixInner);
-        this._currentPos.copyComponents(mat.multiplyVector3(this._currentPos));
-        this._currentCenter.copyComponents(mat.multiplyVector3(this._currentCenter));
+        mat.multiplyVector3To(this._currentPos, this._currentPos);
+        mat.multiplyVector3To(this._currentCenter, this._currentCenter);
       }
 
       this._needInitialize = false;
@@ -278,7 +278,7 @@ export default class WalkThroughCameraController implements ICameraController {
     this._currentHorizontalDir.z = this._currentDir.z;
     this._currentHorizontalDir.normalize();
 
-    const moveVector = WalkThroughCameraController.__tmpMoveVec.zero();
+    const moveVector = WalkThroughCameraController.__tmp_Vec3_0.zero();
     switch (this._lastKeyCode) {
       case 87: // w key
       case 38: // arrow upper key
@@ -337,7 +337,9 @@ export default class WalkThroughCameraController implements ICameraController {
       const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(MathUtil.degreeToRadian(this._deltaX));
       rotateMatrix.multiplyVectorTo(this._currentDir, this._currentDir);
 
-      const newEyeToCenter = rotateMatrix.multiplyVector(MutableVector3.subtract(this._currentCenter, this._currentPos));
+      const newEyeToCenter = MutableVector3.subtractTo(this._currentCenter, this._currentPos,
+        WalkThroughCameraController.__tmp_Vec3_1) as MutableVector3;
+      rotateMatrix.multiplyVectorTo(newEyeToCenter, newEyeToCenter);
       newEyeToCenter.x = newEyeToCenter.x * (1 - t);
       newEyeToCenter.y = t;
       newEyeToCenter.z = newEyeToCenter.z * (1 - t);
