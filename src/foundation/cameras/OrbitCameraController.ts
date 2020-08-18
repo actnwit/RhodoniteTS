@@ -24,7 +24,8 @@ export default class OrbitCameraController implements ICameraController {
   private __fovyBias = 1.0;
   private __scaleOfTranslation = 2.8;
   private __mouseTranslateVec = MutableVector3.zero();
-  private __newEyeToCenterVec = MutableVector3.zero();
+  private __newEyeVec = MutableVector3.zero();
+  private __newCenterVec = MutableVector3.zero();
   private __newUpVec = MutableVector3.zero();
   private __newTangentVec = MutableVector3.zero();
   // private __verticalAngleThreshold = 0;
@@ -86,7 +87,6 @@ export default class OrbitCameraController implements ICameraController {
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
 
-  private static __tmp_newEyeVec: MutableVector3 = MutableVector3.zero();
   private static readonly __tmp_up: Vector3 = new Vector3(0, 0, 1);
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVec3_1: MutableVector3 = MutableVector3.zero();
@@ -537,8 +537,8 @@ export default class OrbitCameraController implements ICameraController {
 
   __convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
     if (this.__isKeyUp || !this.__isForceGrab) {
-      Vector3.addTo(eye, this.__shiftCameraTo, this.__eyeVec);
-      Vector3.addTo(center, this.__shiftCameraTo, this.__centerVec);
+      MutableVector3.addTo(eye, this.__shiftCameraTo, this.__eyeVec);
+      MutableVector3.addTo(center, this.__shiftCameraTo, this.__centerVec);
       this.__upVec.copyComponents(up);
     }
 
@@ -549,9 +549,11 @@ export default class OrbitCameraController implements ICameraController {
 
     this.__lengthOfCenterToEye = centerToEyeVec.length();
 
-    let newEyeVec;
-    let newCenterVec;
-    let newUpVec;
+    const newUpVec = this.__newUpVec;
+    const newEyeVec = this.__newEyeVec;
+    const newCenterVec = this.__newCenterVec;
+    const newTangentVec = this.__newTangentVec;
+
     if (this.__isSymmetryMode) {
       const projectedCenterToEyeVec = OrbitCameraController.__tmpVec3_0;
       projectedCenterToEyeVec.setComponents(centerToEyeVec.x, 0, centerToEyeVec.z);
@@ -580,20 +582,19 @@ export default class OrbitCameraController implements ICameraController {
       rotateM.multiplyByLeft(rotateM_Y);
       rotateM.multiplyByLeft(rotateM_Revert);
 
-      newUpVec = rotateM.multiplyVector(this.__upVec);
-      this.__newUpVec = newUpVec;
-      newEyeVec = rotateM.multiplyVector(centerToEyeVec).add(this.__centerVec);
-      newCenterVec = this.__centerVec;
-      this.__newEyeToCenterVec = MutableVector3.subtract(newCenterVec, newEyeVec);
-      this.__newTangentVec = MutableVector3.cross(
-        this.__newUpVec,
-        this.__newEyeToCenterVec
-      );
 
-      newEyeVec.add(this.__mouseTranslateVec);
-      newCenterVec.add(this.__mouseTranslateVec);
+      rotateM.multiplyVectorTo(this.__upVec, newUpVec);
+      rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);
+      this.__newCenterVec.copyComponents(this.__centerVec);
 
-      // const horizonResetVec = OrbitCameraController.__tmpVec3_1;
+      const newEyeToCenterVec = OrbitCameraController.__tmpVec3_1;
+      MutableVector3.subtractTo(newCenterVec, newEyeVec, newEyeToCenterVec);
+      MutableVector3.crossTo(newUpVec, newEyeToCenterVec, newTangentVec);
+
+      this.__newEyeVec.add(this.__mouseTranslateVec);
+      this.__newCenterVec.add(this.__mouseTranslateVec);
+
+      // const horizonResetVec = OrbitCameraController.__tmpVec3_2;
       // rotateM_Reset.multiplyVectorTo(centerToEyeVec, horizonResetVec);
 
       // this.__verticalAngleOfVectors = Vector3.angleOfVectors(horizonResetVec, OrbitCameraController.__tmp_up);
@@ -614,21 +615,18 @@ export default class OrbitCameraController implements ICameraController {
 
       const rotateM = MutableMatrix33.multiplyTo(rotateM_Y, rotateM_X, OrbitCameraController.__tmp_rotateM);
 
-      newUpVec = rotateM.multiplyVector(this.__upVec);
-      this.__newUpVec = newUpVec;
-      newEyeVec = Vector3.addTo(rotateM.multiplyVector(centerToEyeVec), this.__centerVec, OrbitCameraController.__tmp_newEyeVec);
-      newCenterVec = this.__centerVec;
-      Vector3.subtractTo(newCenterVec, newEyeVec, this.__newEyeToCenterVec);
-      Vector3.crossTo(
-        this.__newUpVec,
-        this.__newEyeToCenterVec,
-        this.__newTangentVec
-      );
 
-      newEyeVec.add(this.__mouseTranslateVec);
-      newCenterVec.add(this.__mouseTranslateVec);
+      rotateM.multiplyVectorTo(this.__upVec, newUpVec);
+      rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);
+      this.__newCenterVec.copyComponents(this.__centerVec);
+
+      const newEyeToCenterVec = OrbitCameraController.__tmpVec3_1;
+      MutableVector3.subtractTo(newCenterVec, newEyeVec, newEyeToCenterVec);
+      MutableVector3.crossTo(newUpVec, newEyeToCenterVec, newTangentVec);
+
+      this.__newEyeVec.add(this.__mouseTranslateVec);
+      this.__newCenterVec.add(this.__mouseTranslateVec);
     }
-    const newCenterToEyeLength = Vector3.lengthBtw(newEyeVec, newCenterVec);
 
     let newLeft = camera.left;
     let newRight = camera.right;
