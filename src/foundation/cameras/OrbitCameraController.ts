@@ -28,12 +28,12 @@ export default class OrbitCameraController implements ICameraController {
   private __newEyeToCenterVec = MutableVector3.zero();
   private __newUpVec = MutableVector3.zero();
   private __newTangentVec = MutableVector3.zero();
-  private __verticalAngleThreshold = 0;
-  private __verticalAngleOfVectors = 0;
+  // private __verticalAngleThreshold = 0;
+  // private __verticalAngleOfVectors = 0;
   private __isForceGrab = false;
   private __isSymmetryMode = true;
   public eventTargetDom?: HTMLElement;
-  private __doResetWhenCameraSettingChanged = false;
+  // private __doResetWhenCameraSettingChanged = false;
   private __rot_bgn_x = 0;
   private __rot_bgn_y = 0;
   private __rot_x = 0;
@@ -46,8 +46,8 @@ export default class OrbitCameraController implements ICameraController {
   private __shiftCameraTo = MutableVector3.zero();
   private __lengthCenterToCorner = 0.5;
   private __targetEntity?: Entity;
-  private __lengthCameraToObject = 1;
-  private __scaleOfLengthCameraToCenter = 1;
+  private __lengthCenterToCamera = 1;
+  private __scaleOfLengthCenterToCamera = 1;
   private __zFarAdjustingFactorBasedOnAABB = 150;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
@@ -67,7 +67,7 @@ export default class OrbitCameraController implements ICameraController {
 
   private __resetDollyTouchTime: Count = 0;
 
-  private __controllerTranslate = MutableVector3.zero();
+  // private __controllerTranslate = MutableVector3.zero();
   private __mouseDownFunc = this.__mouseDown.bind(this);
   private __mouseUpFunc = this.__mouseUp.bind(this);
   private __mouseMoveFunc = this.__mouseMove.bind(this);
@@ -596,17 +596,18 @@ export default class OrbitCameraController implements ICameraController {
       newEyeVec.add(this.__mouseTranslateVec);
       newCenterVec.add(this.__mouseTranslateVec);
 
-      let horizonResetVec = rotateM_Reset.multiplyVector(centerToEyeVec);
-      this.__verticalAngleOfVectors = Vector3.angleOfVectors(
-        horizonResetVec,
-        OrbitCameraController.__tmp_up
-      );
-      let verticalSign = Vector3.crossTo(horizonResetVec, OrbitCameraController.__tmp_up, OrbitCameraController.__tmp_verticalSign).x;
-      if (verticalSign >= 0) {
-        verticalSign = 1;
-      } else {
-        verticalSign = -1;
-      }
+      // let horizonResetVec = rotateM_Reset.multiplyVector(centerToEyeVec);
+      // this.__verticalAngleOfVectors = Vector3.angleOfVectors(
+      //   horizonResetVec,
+      //   OrbitCameraController.__tmp_up
+      // );
+      // let verticalSign = Vector3.crossTo(horizonResetVec, OrbitCameraController.__tmp_up, OrbitCameraController.__tmp_verticalSign).x;
+      // if (verticalSign >= 0) {
+      //   verticalSign = 1;
+      // } else {
+      //   verticalSign = -1;
+      // }
+
       //this._verticalAngleOfVectors *= verticalSign;
     } else {
       const rotateM_X = OrbitCameraController.__tmp_rotateM_X;
@@ -689,7 +690,7 @@ export default class OrbitCameraController implements ICameraController {
   __updateTargeting(camera: CameraComponent) {
 
     const eyeVec = camera.eye;
-    const centerVec = camera.direction;
+    const centerVec = (camera as any)._direction as Vector3;
     const upVec = (camera as any)._up as Vector3;
     const fovy = camera.fovy;
 
@@ -700,36 +701,25 @@ export default class OrbitCameraController implements ICameraController {
     const targetAABB = this.__getTargetAABB();
 
     this.__lengthCenterToCorner = targetAABB.lengthCenterToCorner;
-    this.__lengthCameraToObject =
-      (this.__lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) * this.__scaleOfLengthCameraToCenter;
+    this.__lengthCenterToCamera =
+      (this.__lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) * this.__scaleOfLengthCenterToCamera;
 
-    let newCenterVec = targetAABB.centerPoint;
+    let newCenterVec = targetAABB.centerPoint as Vector3;
 
     const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, OrbitCameraController.returnVector3Eye) as MutableVector3;
     const centerToCameraVecNormalized = centerToCameraVec.normalize();
 
-    let newEyeVec = centerToCameraVecNormalized.multiply(this.__lengthCameraToObject).add(newCenterVec);
+    let newEyeVec = centerToCameraVecNormalized.multiply(this.__lengthCenterToCamera).add(newCenterVec);
 
     let newUpVec = upVec;
-    if (camera.entity.getSceneGraph()) {
-      const sg = camera.entity.getSceneGraph();
-      let mat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmp_mat);
 
-      mat.multiplyVector3To(
-        newEyeVec, OrbitCameraController.returnVector3Eye
-      );
-      newEyeVec = OrbitCameraController.returnVector3Eye;
+    const sg = camera.entity.getSceneGraph();
+    if (sg != null) {
+      const mat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmp_mat);
 
-      mat.multiplyVector3To(
-        newCenterVec, OrbitCameraController.returnVector3Center
-      );
-      newCenterVec = OrbitCameraController.returnVector3Center as Vector3;
-
-      mat.multiplyVector3To(
-        upVec, OrbitCameraController.returnVector3Up
-      );
-      newUpVec = OrbitCameraController.returnVector3Up;
-
+      newEyeVec = mat.multiplyVector3To(newEyeVec, OrbitCameraController.returnVector3Eye);
+      newCenterVec = mat.multiplyVector3To(newCenterVec, OrbitCameraController.returnVector3Center);
+      newUpVec = mat.multiplyVector3To(upVec, OrbitCameraController.returnVector3Up);
     }
 
     return { newEyeVec, newCenterVec, newUpVec };

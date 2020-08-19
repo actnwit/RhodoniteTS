@@ -143,7 +143,7 @@ export default class WalkThroughCameraController implements ICameraController {
     if (this._currentDir === null) {
       return;
     }
-    let delta = -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
+    const delta = -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
     const horizontalDir = new MutableVector3(
       this._currentDir.x,
       0,
@@ -250,9 +250,9 @@ export default class WalkThroughCameraController implements ICameraController {
       scale /= this.__scaleOfZNearAndZFar;
       newZNear = camera.zNear * scale;
 
-      const lengthCameraToObject = targetAABB.lengthCenterToCorner / Math.sin((camera.fovy * Math.PI) / 180 / 2);
+      const lengthCenterToCamera = targetAABB.lengthCenterToCorner / Math.sin((camera.fovy * Math.PI) / 180 / 2);
       this._currentPos.copyComponents(targetAABB.centerPoint);
-      this._currentPos.z += lengthCameraToObject;
+      this._currentPos.z += lengthCenterToCamera;
 
       this._currentCenter.copyComponents(targetAABB.centerPoint);
       this._currentDir.setComponents(0, 0, -1);
