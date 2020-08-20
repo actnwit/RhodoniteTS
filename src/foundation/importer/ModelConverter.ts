@@ -862,7 +862,7 @@ export default class ModelConverter {
       // set alpha threshold except for VRM
       if (material.alphaMode === AlphaMode.Mask
         && !gltfModel.asset.extras?.rnLoaderOptions?.isImportVRM) {
-        material.setParameter(ShaderSemantics.AlphaCutoff, new Scalar(materialJson.alphaCutoff));
+        material.setParameter(ShaderSemantics.AlphaCutoff, new Scalar(materialJson.alphaCutoff ?? 0.5));
       }
     }
 
