@@ -317,12 +317,10 @@ export default class OrbitCameraController implements ICameraController {
   __getTouchesDistance(e: TouchEvent) {
     const touches = e.touches;
 
-    const x1 = touches[0].clientX;
-    const y1 = touches[0].clientY;
-    const x2 = touches[1].clientX;
-    const y2 = touches[1].clientY;
+    const diffX = touches[1].clientX - touches[0].clientX;
+    const diffY = touches[1].clientY - touches[0].clientY;
 
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    return Math.hypot(diffX, diffY);
   }
 
   __pinchInOut(e: TouchEvent) {
@@ -559,12 +557,7 @@ export default class OrbitCameraController implements ICameraController {
       projectedCenterToEyeVec.setComponents(centerToEyeVec.x, 0, centerToEyeVec.z);
 
       let horizontalAngleOfVectors = Vector3.angleOfVectors(projectedCenterToEyeVec, OrbitCameraController.__tmp_up);
-      let horizontalSign = projectedCenterToEyeVec.cross(OrbitCameraController.__tmp_up).y;
-      if (horizontalSign >= 0) {
-        horizontalSign = 1;
-      } else {
-        horizontalSign = -1;
-      }
+      const horizontalSign = Math.sign(projectedCenterToEyeVec.cross(OrbitCameraController.__tmp_up).y);
       horizontalAngleOfVectors *= horizontalSign;
 
       const rotateM_X = OrbitCameraController.__tmp_rotateM_X;
@@ -598,12 +591,7 @@ export default class OrbitCameraController implements ICameraController {
       // rotateM_Reset.multiplyVectorTo(centerToEyeVec, horizonResetVec);
 
       // this.__verticalAngleOfVectors = Vector3.angleOfVectors(horizonResetVec, OrbitCameraController.__tmp_up);
-      // let verticalSign = Vector3.crossTo(horizonResetVec, OrbitCameraController.__tmp_up, OrbitCameraController.__tmp_verticalSign).x;
-      // if (verticalSign >= 0) {
-      //   verticalSign = 1;
-      // } else {
-      //   verticalSign = -1;
-      // }
+      // const verticalSign = Math.sign(Vector3.crossTo(horizonResetVec, OrbitCameraController.__tmp_up, OrbitCameraController.__tmp_verticalSign).x);
 
       //this._verticalAngleOfVectors *= verticalSign;
     } else {
