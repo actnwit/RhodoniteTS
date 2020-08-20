@@ -44,9 +44,7 @@ export default class OrbitCameraController implements ICameraController {
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
   private __shiftCameraTo = MutableVector3.zero();
-  private __lengthCenterToCorner = 0.5;
   private __targetEntity?: Entity;
-  private __lengthCenterToCamera = 1;
   public scaleOfLengthCenterToCamera = 1.0;
   private __zFarAdjustingFactorBasedOnAABB = 150;
   private __scaleOfZNearAndZFar = 5000;
@@ -622,13 +620,15 @@ export default class OrbitCameraController implements ICameraController {
     let newZFar = camera.zFar;
     let ratio = 1;
 
+    const targetAABB = this.__getTargetAABB();
+
     if (this.__targetEntity) {
       newZFar = newZNear + Vector3.lengthBtw(newCenterVec, newEyeVec);
-      newZFar += this.__lengthCenterToCorner * this.__zFarAdjustingFactorBasedOnAABB;
+      newZFar += targetAABB.lengthCenterToCorner * this.__zFarAdjustingFactorBasedOnAABB;
     }
 
     if (typeof newLeft !== "undefined") {
-      if (typeof this.__lengthCenterToCorner !== "undefined") {
+      if (typeof targetAABB.lengthCenterToCorner !== "undefined") {
         //let aabb = this.__getTargetAABB();
         ratio = newZFar / camera.zNear;
 
@@ -679,16 +679,14 @@ export default class OrbitCameraController implements ICameraController {
     }
 
     const targetAABB = this.__getTargetAABB();
-
-    this.__lengthCenterToCorner = targetAABB.lengthCenterToCorner;
-    this.__lengthCenterToCamera =
-      this.__lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) * this.scaleOfLengthCenterToCamera;
     let newCenterVec = targetAABB.centerPoint as Vector3;
 
     const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, OrbitCameraController.returnVector3Eye) as MutableVector3;
     const centerToCameraVecNormalized = centerToCameraVec.normalize();
 
-    let newEyeVec = centerToCameraVecNormalized.multiply(this.__lengthCenterToCamera).add(newCenterVec);
+    const lengthCenterToCamera =
+      targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) * this.scaleOfLengthCenterToCamera;
+    let newEyeVec = centerToCameraVecNormalized.multiply(lengthCenterToCamera).add(newCenterVec);
 
     let newUpVec = upVec;
 
