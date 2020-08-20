@@ -22,7 +22,7 @@ const load = async function (time) {
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
-  cameraComponent.setFovyAndChangeFocalLength(30.0);
+  cameraComponent.setFovyAndChangeFocalLength(50.0);
   cameraComponent.aspect = 1.0;
 
   // expresions
@@ -90,7 +90,7 @@ const load = async function (time) {
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
   const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
   const controller = vrmMainCameraControllerComponent.controller;
-  controller.dolly = 0.65;
+  controller.dolly = 0.78;
   controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 

@@ -39,7 +39,7 @@ export default class OrbitCameraController implements ICameraController {
   private __rot_x = 0;
   private __rot_y = 0;
   private __dolly = 0.5;
-  private __dollyScale = 2.0;
+  public dollyScale = 2.0;
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
@@ -47,7 +47,7 @@ export default class OrbitCameraController implements ICameraController {
   private __lengthCenterToCorner = 0.5;
   private __targetEntity?: Entity;
   private __lengthCenterToCamera = 1;
-  private __scaleOfLengthCenterToCamera = 1;
+  public scaleOfLengthCenterToCamera = 1.0;
   private __zFarAdjustingFactorBasedOnAABB = 150;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
@@ -540,10 +540,8 @@ export default class OrbitCameraController implements ICameraController {
       this.__upVec.copyComponents(up);
     }
 
-    const fovy = this.__getFovyFromCamera(camera);
-
     const centerToEyeVec = this.__eyeVec.subtract(this.__centerVec);
-    centerToEyeVec.multiply((this.__dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0)))
+    centerToEyeVec.multiply(this.__dolly * this.dollyScale);
 
     this.__lengthOfCenterToEye = centerToEyeVec.length();
 
@@ -647,6 +645,7 @@ export default class OrbitCameraController implements ICameraController {
       }
     }
 
+    const fovy = this.__getFovyFromCamera(camera);
     this.__fovyBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
     return {
       newEyeVec,
@@ -674,7 +673,6 @@ export default class OrbitCameraController implements ICameraController {
     const eyeVec = camera.eye;
     const centerVec = (camera as any)._direction as Vector3;
     const upVec = (camera as any)._up as Vector3;
-    const fovy = camera.fovy;
 
     if (this.__targetEntity == null) {
       return { newEyeVec: eyeVec, newCenterVec: centerVec, newUpVec: upVec };
@@ -684,8 +682,7 @@ export default class OrbitCameraController implements ICameraController {
 
     this.__lengthCenterToCorner = targetAABB.lengthCenterToCorner;
     this.__lengthCenterToCamera =
-      (this.__lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) * this.__scaleOfLengthCenterToCamera;
-
+      this.__lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) * this.scaleOfLengthCenterToCamera;
     let newCenterVec = targetAABB.centerPoint as Vector3;
 
     const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, OrbitCameraController.returnVector3Eye) as MutableVector3;

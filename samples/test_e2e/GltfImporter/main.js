@@ -79,7 +79,7 @@ const load = async function (time) {
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
   const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
   const controller = vrmMainCameraControllerComponent.controller;
-  controller.dolly = 0.65;
+  controller.dolly = 0.8;
   controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 

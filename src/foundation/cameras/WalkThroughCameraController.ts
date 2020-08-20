@@ -252,7 +252,8 @@ export default class WalkThroughCameraController implements ICameraController {
       scale /= this.__scaleOfZNearAndZFar;
       newZNear = camera.zNear * scale;
 
-      const lengthCenterToCamera = targetAABB.lengthCenterToCorner / Math.sin((camera.fovy * Math.PI) / 180 / 2);
+      const lengthCenterToCamera =
+        targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0)));
       this._currentPos.copyComponents(targetAABB.centerPoint);
       this._currentPos.z += lengthCenterToCamera;
 

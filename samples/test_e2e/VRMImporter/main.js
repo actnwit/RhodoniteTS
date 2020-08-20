@@ -48,8 +48,9 @@ const load = async function (time) {
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-  cameraControllerComponent.controller.setTarget(rootGroups[0]);
-
+  const controller = cameraControllerComponent.controller;
+  controller.setTarget(rootGroups[0]);
+  controller.dolly = 0.75;
 
   // renderPass
   const renderPass = new Rn.RenderPass();
