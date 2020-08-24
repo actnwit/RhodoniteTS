@@ -17,6 +17,7 @@ import CustomSingleMaterialNode from "../materials/singles/CustomSingleMaterialN
 import Primitive from "../geometry/Primitive";
 import Entity from "../core/Entity";
 import { ProcessStage } from "../definitions/ProcessStage";
+import { AlphaMode } from "../definitions/AlphaMode";
 
 function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
   const isRegistMaterialType = Material.isRegisteredMaterialType(materialName);
@@ -45,7 +46,7 @@ function createEmptyMaterial() {
 }
 
 function createPbrUberMaterial({
-  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, isAlphaMasking = false,
+  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'PbrUber'
@@ -53,9 +54,9 @@ function createPbrUberMaterial({
     + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting')
-    + (isAlphaMasking ? '+isAlphaMasking' : '');
+    + ' alpha_' + alphaMode.str.toLowerCase();
 
-  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, isAlphaMasking: isAlphaMasking });
+  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, alphaMode });
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
@@ -64,7 +65,7 @@ function createPbrUberMaterial({
 }
 
 function createClassicUberMaterialOld({
-  additionalName = '', isSkinning = false, isLighting = false,
+  additionalName = '', isSkinning = false, isLighting = false, alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'ClassicUberOld'
@@ -72,7 +73,7 @@ function createClassicUberMaterialOld({
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new ClassicShadingSingleMaterialNode({ isSkinning: isSkinning, isLighting: isLighting });
+  const materialNode = new ClassicShadingSingleMaterialNode({ isSkinning: isSkinning, isLighting: isLighting, alphaMode });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
 
@@ -80,17 +81,17 @@ function createClassicUberMaterialOld({
 }
 
 function createClassicUberMaterial({
-  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false, isAlphaMasking = false,
+  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false, alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'ClassicUber'
     + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting')
-    + (isAlphaMasking ? '+isAlphaMasking' : '');
+    + ' alpha_' + alphaMode.str.toLowerCase();
 
   const materialNode = new CustomSingleMaterialNode({
-    name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing, isAlphaMasking,
+    name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing, alphaMode,
     vertexShader: classicSingleShaderVertex,
     pixelShader: classicSingleShaderFragment
   });
@@ -193,7 +194,7 @@ function createMToonMaterial({
 }
 
 function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, {
-  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false, isAlphaMasking = false,
+  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false, alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'Custom'
@@ -201,10 +202,10 @@ function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string,
     + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting')
-    + (isAlphaMasking ? '+isAlphaMasking' : '');
+    + ' alpha_' + alphaMode.str.toLowerCase();
 
   const materialNode = new CustomSingleMaterialNode({
-    name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing, isAlphaMasking: isAlphaMasking,
+    name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing, alphaMode,
     vertexShader: { code: vertexShaderStr, shaderStage: 'vertex' },
     pixelShader: { code: pixelShaderStr, shaderStage: 'fragment' }
   }

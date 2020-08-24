@@ -11,6 +11,7 @@ import MeshComponent from "../../components/MeshComponent";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
 import { ShaderityObject } from "shaderity";
 import ShaderityUtility from "../core/ShaderityUtility";
+import { AlphaModeEnum, AlphaMode } from "../../definitions/AlphaMode";
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -23,13 +24,13 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
   private static __shaderityUtility: ShaderityUtility = ShaderityUtility.getInstance();
 
-  constructor({ name, isMorphing, isSkinning, isLighting, isAlphaMasking, vertexShader, pixelShader }:
-    { name: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, isAlphaMasking: boolean, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
+  constructor({ name, isMorphing, isSkinning, isLighting, alphaMode, vertexShader, pixelShader }:
+    { name: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, alphaMode: AlphaModeEnum, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
     super(null, name
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting')
-      + (isAlphaMasking ? '+isAlphaMasking' : ''),
+      + ' alpha_' + alphaMode.str.toLowerCase(),
       { isMorphing, isSkinning, isLighting }
     );
 
@@ -72,9 +73,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       this.__definitions += '#define RN_IS_MORPHING\n';
     }
 
-    if (isAlphaMasking) {
-      this.__definitions += '#define RN_IS_ALPHAMASKING\n';
-    }
+    this.__definitions += '#define RN_ALPHAMODE_' + alphaMode.str + '\n';
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }

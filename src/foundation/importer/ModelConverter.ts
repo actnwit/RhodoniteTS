@@ -744,17 +744,17 @@ export default class ModelConverter {
     const isMorphing = this.__isMorphing(node, gltfModel);
     const isSkinning = this.__isSkinning(node, gltfModel);
     const isLighting = this.__isLighting(gltfModel, materialJson);
-    const isAlphaMasking = this.__isAlphaMasking(materialJson);
+    const alphaMode = AlphaMode.fromString(materialJson?.alphaMode || 'OPAQUE');
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex ?? node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
       return MaterialHelper.createPbrUberMaterial({
-        isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting,
-        isAlphaMasking: isAlphaMasking, additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
+        isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, alphaMode,
+        additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
       });
     } else {
       return MaterialHelper.createClassicUberMaterial({
-        isSkinning: isSkinning, isLighting: isLighting,
-        isAlphaMasking: isAlphaMasking, additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
+        isSkinning: isSkinning, isLighting: isLighting, alphaMode,
+        additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
       });
     }
   }
@@ -765,14 +765,6 @@ export default class ModelConverter {
       return argument.isLighting as boolean;
     } else {
       return (materialJson?.extensions?.KHR_materials_unlit != null) ? false : true;
-    }
-  }
-
-  private __isAlphaMasking(materialJson?: Gltf2Material) {
-    if (materialJson?.alphaMode === AlphaMode.Mask.str) {
-      return true;
-    } else {
-      return false;
     }
   }
 
