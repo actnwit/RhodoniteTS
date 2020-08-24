@@ -129,6 +129,8 @@ void main ()
   // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
   // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
 
+#pragma shaderity: require(../common/setAlphaIfNotInAlphaBlendMode.glsl)
+
 #pragma shaderity: require(../common/glFragColor.glsl)
 
 }

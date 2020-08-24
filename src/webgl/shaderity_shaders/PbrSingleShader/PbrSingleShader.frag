@@ -260,7 +260,7 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
     return;
   }
 
-
+#pragma shaderity: require(../common/setAlphaIfNotInAlphaBlendMode.glsl)
 
   // Wireframe
   float threshold = 0.001;
