@@ -748,12 +748,12 @@ export default class ModelConverter {
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex ?? node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
       return MaterialHelper.createPbrUberMaterial({
-        isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, alphaMode,
+        isMorphing, isSkinning, isLighting, alphaMode,
         additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
       });
     } else {
       return MaterialHelper.createClassicUberMaterial({
-        isSkinning: isSkinning, isLighting: isLighting, alphaMode,
+        isSkinning, isLighting, alphaMode,
         additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
       });
     }
