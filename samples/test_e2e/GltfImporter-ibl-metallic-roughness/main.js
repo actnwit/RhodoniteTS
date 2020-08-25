@@ -49,7 +49,7 @@ const load = async function (time) {
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   const controller = mainCameraControllerComponent.controller;
-  controller.dolly = 0.63;
+  controller.dolly = 0.79;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // lighting

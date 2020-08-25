@@ -123,7 +123,7 @@ export default class CameraComponent extends Component {
   }
 
   get eye() {
-    return Vector3.zero();
+    return CameraComponent._eye;
   }
 
   get eyeInner() {

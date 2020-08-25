@@ -16,7 +16,7 @@ const load = async function () {
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
-  cameraComponent.setFovyAndChangeFocalLength(30.0);
+  cameraComponent.setFovyAndChangeFocalLength(90.0);
   cameraComponent.aspect = 1.0;
 
   // gltf
@@ -54,7 +54,7 @@ const load = async function () {
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   const controller = mainCameraControllerComponent.controller;
-  controller.dolly = 0.65;
+  controller.dolly = 0.78;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // lighting

@@ -67,7 +67,7 @@ export default class MeshComponent extends Component {
     let centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
     const skeletal = this.entity.getSkeletal();
     if (skeletal?._bindShapeMatrix) {
-      centerPosition_inLocal = skeletal._bindShapeMatrix.multiplyVector3(this.__mesh!.AABB.centerPoint);
+      skeletal._bindShapeMatrix.multiplyVector3To(this.__mesh!.AABB.centerPoint, centerPosition_inLocal);
     }
 
     const worldMatrixInner = this.entity.getSceneGraph().worldMatrixInner;

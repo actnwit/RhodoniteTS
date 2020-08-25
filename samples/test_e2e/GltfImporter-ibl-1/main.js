@@ -45,8 +45,8 @@ const load = async function () {
   // cameraController
   const mainCameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   const controller = mainCameraControllerComponent.controller;
-  controller.dolly = 0.65;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+  controller.dolly = 0.83;
 
   // lighting
   setIBL('./../../../assets/ibl/papermill');

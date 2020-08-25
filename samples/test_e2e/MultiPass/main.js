@@ -69,8 +69,9 @@
     entities.push(entity_fxaa);
 
     const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-    cameraControllerComponent.controller.setTarget(entity);
-
+    const controller = cameraControllerComponent.controller;
+    controller.setTarget(entity);
+    controller.dolly = 0.8;
 
     const meshComponent = entity.getComponent(Rn.MeshComponent);
     const mesh = new Rn.Mesh();
