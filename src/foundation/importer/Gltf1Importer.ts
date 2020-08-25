@@ -1,6 +1,5 @@
 import DataUtil from "../misc/DataUtil";
 import { glTF1, GltfLoadOption } from "../../commontypes/glTF";
-import { resolve } from "dns";
 
 declare var Rn: any;
 

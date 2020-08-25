@@ -5,7 +5,6 @@ import BufferView from "./BufferView";
 import Vector2 from "../math/Vector2";
 import Vector3 from "../math/Vector3";
 import Vector4 from "../math/Vector4";
-import Matrix44 from "../math/Matrix44";
 import Matrix33 from "../math/Matrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import Accessor from "./Accessor";
@@ -31,7 +30,10 @@ export default class AccessorBase extends RnObject {
   protected __normalized: boolean = false;
 
   constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min, arrayLength, normalized }:
-    { bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: ArrayBuffer, max?: number, min?: number, arrayLength: Size, normalized: boolean }) {
+    {
+      bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum,
+      byteStride: Byte, count: Count, raw: ArrayBuffer, max?: number, min?: number, arrayLength: Size, normalized: boolean
+    }) {
     super();
 
     this.__bufferView = bufferView;

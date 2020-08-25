@@ -6,9 +6,6 @@ import AnimationComponent from "../components/AnimationComponent";
 import { AnimationInterpolation } from "../definitions/AnimationInterpolation";
 import { Index } from "../../commontypes/CommonTypes";
 import { VRM } from "../../commontypes/VRM";
-import Quaternion from "../math/Quaternion";
-import Matrix44 from "../math/Matrix44";
-import Vector3 from "../math/Vector3";
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -34,7 +31,7 @@ export default class AnimationAssigner {
     return this.__instance;
   }
 
-  private __getCorrespondingEntity(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, nodeIndex: Index, nodeName: string|undefined, isSameSkeleton: boolean) {
+  private __getCorrespondingEntity(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, nodeIndex: Index, nodeName: string | undefined, isSameSkeleton: boolean) {
     if (isSameSkeleton) {
       const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<string, Entity>;
       const node = gltfModel.nodes[nodeIndex];
@@ -42,13 +39,13 @@ export default class AnimationAssigner {
       return rnEntity;
     } else {
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
-      let humanoidBoneName: string|undefined;
-        const srcMapNodeIdName: Map<number, string> = new Map();
-        const srcMapNodeNameName: Map<string, string> = new Map();
-        for (let bone of humanBones) {
-          srcMapNodeIdName.set(bone.node, bone.bone);
-          srcMapNodeNameName.set(bone.name!, bone.bone);
-        }
+      let humanoidBoneName: string | undefined;
+      const srcMapNodeIdName: Map<number, string> = new Map();
+      const srcMapNodeNameName: Map<string, string> = new Map();
+      for (let bone of humanBones) {
+        srcMapNodeIdName.set(bone.node, bone.bone);
+        srcMapNodeNameName.set(bone.name!, bone.bone);
+      }
       if (nodeName != null) {
         humanoidBoneName = srcMapNodeNameName.get(nodeName);
         if (humanoidBoneName == null) {

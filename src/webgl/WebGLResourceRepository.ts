@@ -1,7 +1,7 @@
 import Accessor from "../foundation/memory/Accessor";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Primitive from "../foundation/geometry/Primitive";
-import GLSLShader, { AttributeNames } from "./shaders/GLSLShader";
+import { AttributeNames } from "./shaders/GLSLShader";
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
 import { TextureParameterEnum, TextureParameter } from "../foundation/definitions/TextureParameter";
 import { PixelFormatEnum, PixelFormat } from "../foundation/definitions/PixelFormat";
@@ -10,7 +10,7 @@ import { CompositionType } from "../foundation/definitions/CompositionType";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
-import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import AbstractTexture from "../foundation/textures/AbstractTexture";
 import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 import IRenderable from "../foundation/textures/IRenderable";
@@ -20,7 +20,6 @@ import Vector4 from "../foundation/math/Vector4";
 import { RenderBufferTarget } from "../foundation/definitions/RenderBufferTarget";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
-import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
 import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../commontypes/CommonTypes";
 import DataUtil from "../foundation/misc/DataUtil";
 import RenderBuffer from "../foundation/textures/RenderBuffer";
@@ -650,7 +649,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     } else {
       gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     }
-  
+
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
       if (this.__glw!.isWebGL2) {
         gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, border,
@@ -738,14 +737,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       compressionType = astc.COMPRESSED_RGBA_ASTC_4x4_KHR;
     }
     const mipmapDepth = basisFile.getNumLevels(0);
-    
+
     if (isPremultipliedAlpha) {
       gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     } else {
       gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     }
 
-    for (let i=0; i<mipmapDepth; i++) {
+    for (let i = 0; i < mipmapDepth; i++) {
       const width = basisFile.getImageWidth(0, i);
       const height = basisFile.getImageHeight(0, i);
       const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, i);
@@ -1166,8 +1165,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, magFilter.index);
     }
 
-    for (let i=0; i<mipmapDepth; i++) {
-      for (let j=0; j<numImages; j++) {
+    for (let i = 0; i < mipmapDepth; i++) {
+      for (let j = 0; j < numImages; j++) {
         const width = basisFile.getImageWidth(j, i);
         const height = basisFile.getImageHeight(j, i);
         const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, j, i);
