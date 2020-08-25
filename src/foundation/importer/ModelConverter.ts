@@ -1260,7 +1260,8 @@ export default class ModelConverter {
         byteStride: accessor.byteStride,
         byteOffset: accessor.byteOffset ?? 0,
         max: accessor.max,
-        min: accessor.min
+        min: accessor.min,
+        normalized: accessor.normalized
       });
     } else {
       rnAccessor = rnBufferView.takeAccessorWithByteOffset({
@@ -1269,7 +1270,8 @@ export default class ModelConverter {
         count: accessor.count,
         byteOffset: accessor.byteOffset ?? 0,
         max: accessor.max,
-        min: accessor.min
+        min: accessor.min,
+        normalized: accessor.normalized
       });
     }
 
@@ -1290,7 +1292,8 @@ export default class ModelConverter {
       componentType: ComponentType.Float,
       count: srcRnAccessor.elementCount,
       max: srcRnAccessor.max,
-      min: srcRnAccessor.min
+      min: srcRnAccessor.min,
+      normalized: srcRnAccessor.normalized
     });
     for (let i = 0; i < srcRnAccessor.elementCount; i++) {
       dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
@@ -1315,7 +1318,8 @@ export default class ModelConverter {
         byteStride: accessor.byteStride,
         byteOffset: accessor.byteOffset ?? 0,
         max: accessor.max,
-        min: accessor.min
+        min: accessor.min,
+        normalized: accessor.normalized
       });
     } else {
       rnAccessor = rnBufferView.takeAccessorWithByteOffset({
@@ -1324,7 +1328,8 @@ export default class ModelConverter {
         count: numOfAttributes,
         byteOffset: accessor.byteOffset ?? 0,
         max: accessor.max,
-        min: accessor.min
+        min: accessor.min,
+        normalized: accessor.normalized
       });
     }
 

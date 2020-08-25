@@ -599,7 +599,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         primitive.attributeSemantics[i].getAttributeSlot(),
         primitive.attributeCompositionTypes[i].getNumberOfComponents(),
         primitive.attributeComponentTypes[i].index,
-        false,
+        primitive.attributeAccessors[i].normalized,
         primitive.attributeAccessors[i].byteStride,
         primitive.attributeAccessors[i].byteOffsetInBufferView
       );
