@@ -6,9 +6,9 @@ import { Count, Byte, Size } from "../../commontypes/CommonTypes";
 
 
 export default class FlexibleAccessor extends AccessorBase {
-  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, arrayLength} :
-    {bufferView: BufferView, byteOffset: Byte, byteOffsetFromBuffer:Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride:Byte, count: Count, raw: ArrayBuffer, arrayLength: Size}) {
-      super({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, arrayLength});
+  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, arrayLength, normalized }:
+    {bufferView: BufferView, byteOffset: Byte, byteOffsetFromBuffer:Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride:Byte, count: Count, raw: ArrayBuffer, arrayLength: Size, normalized: boolean }) {
+      super({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, arrayLength, normalized });
   }
 }
 
