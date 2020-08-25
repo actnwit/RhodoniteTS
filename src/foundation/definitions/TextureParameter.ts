@@ -43,14 +43,19 @@ const Depth32F: TextureParameterEnum = new TextureParameterClass({ index: 0x8CAC
 const Depth24Stencil8: TextureParameterEnum = new TextureParameterClass({ index: 0x88F0, str: 'DEPTH24_STENCIL8' });
 const Depth32FStencil8: TextureParameterEnum = new TextureParameterClass({ index: 0x8CAD, str: 'DEPTH32F_STENCIL8' });
 
-const typeList = [Nearest, Linear, NearestMipmapNearest, LinearMipmapNearest, NearestMipmapLinear, LinearMipmapLinear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture,
-  Repeat, ClampToEdge, MirroredRepeat, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F, Depth16, Depth24, Depth32F, Depth24Stencil8, Depth32FStencil8];
+const typeList = [
+  Nearest, Linear, NearestMipmapNearest, LinearMipmapNearest, NearestMipmapLinear, LinearMipmapLinear,
+  TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, MirroredRepeat,
+  RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F, Depth16, Depth24, Depth32F, Depth24Stencil8, Depth32FStencil8
+];
 
 function from(index: number): TextureParameterEnum {
   return _from({ typeList, index }) as TextureParameterEnum;
 }
 
 export const TextureParameter = Object.freeze({
-  Nearest, Linear, NearestMipmapNearest, LinearMipmapNearest, NearestMipmapLinear, LinearMipmapLinear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
-  Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, MirroredRepeat, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F, Depth16, Depth24, Depth32F, Depth24Stencil8, Depth32FStencil8, from
+  Nearest, Linear, NearestMipmapNearest, LinearMipmapNearest, NearestMipmapLinear, LinearMipmapLinear,
+  TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, MirroredRepeat,
+  RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F, Depth16, Depth24, Depth32F, Depth24Stencil8, Depth32FStencil8,
+  from
 });
