@@ -135,8 +135,7 @@ export default class Texture extends AbstractTexture {
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
-      border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-      wrapS: wrapS, wrapT: wrapT, anisotropy: anisotropy, isPremultipliedAlpha
+      border: 0, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy, isPremultipliedAlpha
     });
 
     this.cgApiResourceUid = texture;
@@ -178,9 +177,9 @@ export default class Texture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let texture = webGLResourceRepository.createTexture(
       img, {
-      level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
-      border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-      wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy, isPremultipliedAlpha
+      level, internalFormat,
+      width: this.__width, height: this.__height, border: 0,
+      format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha
     });
 
     this.cgApiResourceUid = texture;
@@ -227,9 +226,9 @@ export default class Texture extends AbstractTexture {
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
         let texture = webGLResourceRepository.createTexture(
           img, {
-          level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
-          border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-          wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy, isPremultipliedAlpha
+          level, internalFormat,
+          width: this.__width, height: this.__height, border: 0,
+          format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha
         });
 
         this.cgApiResourceUid = texture;
@@ -281,9 +280,9 @@ export default class Texture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let texture = webGLResourceRepository.createTexture(
       typedArray, {
-      level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
-      border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-      wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy, isPremultipliedAlpha
+      level, internalFormat,
+      width: this.__width, height: this.__height, border: 0,
+      format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha
     });
 
     this.cgApiResourceUid = texture;

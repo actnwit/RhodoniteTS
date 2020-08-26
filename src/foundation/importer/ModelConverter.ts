@@ -904,8 +904,8 @@ export default class ModelConverter {
     const options = gltfModel.asset.extras?.rnLoaderOptions;
 
     const rnTexture = new Texture();
-    rnTexture.autoDetectTransparency = (options?.autoDetectTextureTransparency === true) ? true : false;
-    rnTexture.autoResize = (options?.autoResizeTexture === true) ? true : false;
+    rnTexture.autoDetectTransparency = options?.autoDetectTextureTransparency === true;
+    rnTexture.autoResize = options?.autoResizeTexture === true;
     const texture = textureType.texture;
 
     const textureOption = {
