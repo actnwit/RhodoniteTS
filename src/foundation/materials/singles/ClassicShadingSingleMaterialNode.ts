@@ -15,13 +15,16 @@ import Vector4 from "../../math/Vector4";
 
 import classicSingleShaderVertex from "../../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.vert";
 import classicSingleShaderFragment from "../../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag";
+import { AlphaModeEnum } from "../../definitions/AlphaMode";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
 
-  constructor({ isSkinning, isLighting }: { isSkinning: boolean, isLighting: boolean }) {
+  constructor({ isSkinning, isLighting, alphaMode }: { isSkinning: boolean, isLighting: boolean, alphaMode: AlphaModeEnum }) {
     super(null, "classicShading"
       + (isSkinning ? '+skinning' : '')
-      + (isLighting ? '' : '-lighting'), { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning },
+      + (isLighting ? '' : '-lighting')
+      + ' alpha_' + alphaMode.str.toLowerCase(),
+      { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning },
       classicSingleShaderVertex, classicSingleShaderFragment);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -72,6 +75,14 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING\n';
     }
+
+    this.__definitions += '#define RN_ALPHAMODE_' + alphaMode.str + '\n';
+    shaderSemanticsInfoArray.push(
+      {
+        semantic: ShaderSemantics.AlphaCutoff, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader, min: 0, max: 1.0, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0.01)
+      }
+    );
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }

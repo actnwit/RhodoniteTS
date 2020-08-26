@@ -21,6 +21,7 @@ import BlendShapeComponent from "../../components/BlendShapeComponent";
 
 import pbrSingleShaderVertex from "../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert";
 import pbrSingleShaderFragment from "../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag";
+import { AlphaModeEnum, AlphaMode } from "../../definitions/AlphaMode";
 
 export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -32,12 +33,12 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   static metallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
   static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
 
-  constructor({ isMorphing, isSkinning, isLighting, isAlphaMasking }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, isAlphaMasking: boolean }) {
+  constructor({ isMorphing, isSkinning, isLighting, alphaMode }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, alphaMode: AlphaModeEnum }) {
     super(null, 'pbrShading'
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting')
-      + (isAlphaMasking ? '+isAlphaMasking' : ''),
+      + ' alpha_' + alphaMode.str.toLowerCase(),
       { isMorphing, isSkinning, isLighting }, pbrSingleShaderVertex, pbrSingleShaderFragment
     );
 
@@ -282,8 +283,8 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
       );
     }
 
-    if (isAlphaMasking) {
-      this.__definitions += '#define RN_IS_ALPHAMASKING\n';
+    this.__definitions += '#define RN_ALPHAMODE_' + alphaMode.str + '\n';
+    if (alphaMode === AlphaMode.Mask) {
       shaderSemanticsInfoArray.push(
         {
           semantic: ShaderSemantics.AlphaCutoff, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
