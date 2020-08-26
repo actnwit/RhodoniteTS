@@ -39,6 +39,7 @@ export default class Mesh {
   private static __originalMeshes: Mesh[] = [];
   public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
   public isPreComputeForRayCastPickingEnable: boolean = false;
+  private __hasFaceNormal = false;
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -380,6 +381,9 @@ export default class Mesh {
       if (normalIdx !== -1) {
         return;
       }
+
+      this.__hasFaceNormal = true;
+
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
@@ -403,7 +407,7 @@ export default class Mesh {
 
         this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
       }
-      primitive.setVertexAttribute(normalAccessor, VertexAttribute.FaceNormal);
+      primitive.setVertexAttribute(normalAccessor, VertexAttribute.Normal);
     }
   }
 
@@ -621,7 +625,7 @@ export default class Mesh {
     let finalShortestT = Number.MAX_VALUE;
     for (let primitive of this.__primitives) {
       const { currentShortestIntersectedPosVec3, currentShortestT } =
-        primitive.castRay(srcPointInLocal, directionInLocal, true, true, dotThreshold);
+        primitive.castRay(srcPointInLocal, directionInLocal, true, true, dotThreshold, this.__hasFaceNormal);
       if (currentShortestT != null && currentShortestT < finalShortestT) {
         finalShortestT = currentShortestT;
         finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;

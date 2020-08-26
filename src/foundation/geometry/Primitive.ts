@@ -366,7 +366,8 @@ export default class Primitive extends RnObject {
     dirVec3: Vector3,
     isFrontFacePickable: boolean,
     isBackFacePickable: boolean,
-    dotThreshold: number
+    dotThreshold: number,
+    hasFaceNormal: boolean
   ) {
     let currentShortestT = Number.MAX_VALUE;
     let currentShortestIntersectedPosVec3 = null;
@@ -401,7 +402,8 @@ export default class Primitive extends RnObject {
           pos2IndexBase,
           isFrontFacePickable,
           isBackFacePickable,
-          dotThreshold
+          dotThreshold,
+          hasFaceNormal
         );
         if (result === null) {
           continue;
@@ -427,7 +429,8 @@ export default class Primitive extends RnObject {
           pos2IndexBase,
           isFrontFacePickable,
           isBackFacePickable,
-          dotThreshold
+          dotThreshold,
+          hasFaceNormal
         );
         if (result === null) {
           continue;
@@ -452,21 +455,24 @@ export default class Primitive extends RnObject {
     pos2IndexBase: Index,
     isFrontFacePickable: boolean,
     isBackFacePickable: boolean,
-    dotThreshold: number
+    dotThreshold: number,
+    hasFaceNormal: boolean
   ): any[] | null {
 
     if (!this.__arenberg3rdPosition[i]) {
       return null;
     }
 
-    const faceNormalAccessor = this.__attributes.get(VertexAttribute.FaceNormal)!;
-    if (faceNormalAccessor) {
-      const faceNormal = faceNormalAccessor.getVec3(i, {});
-      if (faceNormal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
-        return null;
-      }
-      if (faceNormal.dot(dirVec3) > -dotThreshold && !isBackFacePickable) {
-        return null;
+    if (hasFaceNormal) {
+      const normalAccessor = this.__attributes.get(VertexAttribute.Normal);
+      if (normalAccessor) {
+        const normal = normalAccessor.getVec3(i, {});
+        if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
+          return null;
+        }
+        if (normal.dot(dirVec3) > -dotThreshold && !isBackFacePickable) {
+          return null;
+        }
       }
     }
 
