@@ -382,11 +382,10 @@ export default class Primitive extends RnObject {
     }
 
     if (!this.hasIndices()) {
-      for (let i = 0; i < positionAccessor.elementCount; i++) {
-        const j = i * incrementNum;
-        let pos0IndexBase = j;
-        let pos1IndexBase = (j + 1);
-        let pos2IndexBase = (j + 2);
+      for (let i = 0; i < positionAccessor.elementCount; i += incrementNum) {
+        const pos0IndexBase = i;
+        const pos1IndexBase = i + 1;
+        const pos2IndexBase = i + 2;
 
         const result = this.__castRayInner(
           origVec3,
@@ -520,11 +519,10 @@ export default class Primitive extends RnObject {
     this.__inverseArenbergMatrix = [];
     this.__arenberg3rdPosition = [];
     if (!this.hasIndices()) {
-      for (let i = 0; i < positionAccessor.elementCount - 2; i++) {
-        const j = i * incrementNum;
-        let pos0IndexBase = j;
-        let pos1IndexBase = (j + 1);
-        let pos2IndexBase = (j + 2);
+      for (let i = 0; i < positionAccessor.elementCount - 2; i += incrementNum) {
+        const pos0IndexBase = i;
+        const pos1IndexBase = i + 1;
+        const pos2IndexBase = i + 2;
 
         this._calcArenbergMatrixFor3Vertices(i, pos0IndexBase, pos1IndexBase, pos2IndexBase);
       }
