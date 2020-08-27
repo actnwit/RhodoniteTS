@@ -12,7 +12,6 @@ import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import Entity from "../core/Entity";
 import { Index, CGAPIResourceHandle, MeshUID } from "../../commontypes/CommonTypes";
-import { thisExpression } from "@babel/types";
 
 /**
  * The Mesh class.
