@@ -25,7 +25,6 @@ export default class ShaderityUtility {
   private constructor() {
     const attributeSemanticsMap = new Map();
     attributeSemanticsMap.set('instanceid', 'INSTANCE');
-    attributeSemanticsMap.set('facenormal', 'FACE_NORMAL');
     attributeSemanticsMap.set('barycentriccoord', 'BARY_CENTRIC_COORD');
     this.__shaderity.addAttributeSemanticsMap(attributeSemanticsMap);
   }

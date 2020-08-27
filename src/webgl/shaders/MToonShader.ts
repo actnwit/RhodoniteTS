@@ -40,7 +40,6 @@ ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec3 a_position;
 ${_in} vec3 a_normal;
-${_in} vec3 a_faceNormal;
 ${_in} vec3 a_tangent;
 ${_in} vec4 a_baryCentricCoord;
 ${_in} vec4 a_joint;
@@ -49,7 +48,6 @@ ${_in} vec4 a_weight;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
 ${_out} vec3 v_binormal_inWorld; // bitangent_inWorld
-${_out} vec3 v_faceNormal_inWorld;
 ${_out} vec3 v_normal_inView;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec3 v_tangent_inWorld;
@@ -139,7 +137,6 @@ void main(){
   v_texcoord = a_texcoord;
 
   v_baryCentricCoord = a_baryCentricCoord.xyz;
-  v_faceNormal_inWorld = normalMatrix * a_faceNormal;
 }`
   }
 
@@ -174,7 +171,6 @@ const float EPS_COL = 0.00001;
 ${_in} vec2 v_texcoord;
 ${_in} vec3 v_baryCentricCoord;
 ${_in} vec3 v_binormal_inWorld; // bitangent_inWorld
-${_in} vec3 v_faceNormal_inWorld;
 ${_in} vec3 v_normal_inView;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec3 v_tangent_inWorld;
@@ -488,13 +484,13 @@ void main (){
   attributeNames: AttributeNames = [
     'a_instanceID',
     'a_texcoord',
-    'a_position', 'a_normal', 'a_faceNormal', 'a_tangent',
+    'a_position', 'a_normal', 'a_tangent',
     'a_baryCentricCoord', 'a_joint', 'a_weight',
   ];
   attributeSemantics: Array<VertexAttributeEnum> = [
     VertexAttribute.Instance,
     VertexAttribute.Texcoord0,
-    VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Tangent,
+    VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Tangent,
     VertexAttribute.BaryCentricCoord, VertexAttribute.Joints0, VertexAttribute.Weights0,
   ];
 

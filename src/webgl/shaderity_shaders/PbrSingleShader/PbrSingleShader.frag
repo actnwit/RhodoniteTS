@@ -8,7 +8,6 @@
 
 in vec3 v_color;
 in vec3 v_normal_inWorld;
-in vec3 v_faceNormal_inWorld;
 in vec3 v_tangent_inWorld;
 in vec3 v_binormal_inWorld;
 in vec4 v_position_inWorld;

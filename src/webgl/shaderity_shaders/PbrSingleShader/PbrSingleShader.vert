@@ -6,7 +6,6 @@
 in vec3 a_position;
 in vec3 a_color;
 in vec3 a_normal;
-in vec3 a_faceNormal;
 in vec4 a_tangent;
 in float a_instanceID;
 in vec2 a_texcoord;
@@ -15,7 +14,6 @@ in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 out vec3 v_color;
 out vec3 v_normal_inWorld;
-out vec3 v_faceNormal_inWorld;
 out vec3 v_tangent_inWorld;
 out vec3 v_binormal_inWorld;
 out vec4 v_position_inWorld;
@@ -62,9 +60,6 @@ void main()
 
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
-
-
-  v_faceNormal_inWorld = normalMatrix * a_faceNormal;
   v_texcoord = a_texcoord;
 
   if (abs(length(a_normal)) > 0.01) {
