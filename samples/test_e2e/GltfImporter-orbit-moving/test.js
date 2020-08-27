@@ -7,8 +7,8 @@ test('regression test GltfImporter-orbit-moving', async () => {
 
   await page.mouse.down();
   await page.mouse.move(0, 0);
-  await page.mouse.move(0, 100);
-  await page.mouse.move(200, 100);
+  await page.mouse.move(300, 0);
+  await page.mouse.move(300, 10);
   await page.mouse.up();
 
   await page.waitForSelector('p#moved', { timeout: 600000 });
@@ -16,7 +16,7 @@ test('regression test GltfImporter-orbit-moving', async () => {
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot({
-    failureThreshold: 0.01,
+    failureThreshold: 0.005,
     failureThresholdType: 'percent'
   });
 });
