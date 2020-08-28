@@ -213,10 +213,10 @@ export default class Mesh {
     nx *= da;
     ny *= da;
     nz *= da;
-    const faceNormal = new Vector3(nx, ny, nz);
-    normalAccessor.setVec3(i, faceNormal.x, faceNormal.y, faceNormal.z, { indicesAccessor });
-    normalAccessor.setVec3(i + 1, faceNormal.x, faceNormal.y, faceNormal.z, { indicesAccessor });
-    normalAccessor.setVec3(i + 2, faceNormal.x, faceNormal.y, faceNormal.z, { indicesAccessor });
+
+    normalAccessor.setVec3(i, nx, ny, nz, { indicesAccessor });
+    normalAccessor.setVec3(i + 1, nx, ny, nz, { indicesAccessor });
+    normalAccessor.setVec3(i + 2, nx, ny, nz, { indicesAccessor });
 
   }
 
