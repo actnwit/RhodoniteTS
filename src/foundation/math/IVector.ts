@@ -3,6 +3,8 @@ import { TypedArray } from "../../commontypes/CommonTypes";
 export interface IVector {
   readonly v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
   toString(): string;
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
@@ -19,6 +21,8 @@ export interface IVector {
 export interface IMutableVector {
   v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
 
   raw(): TypedArray;
   setAt(i: number, value: number): IMutableVector;
@@ -42,6 +46,8 @@ export interface IScalar {
 export interface IVector2 {
   readonly v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
 
   readonly x: number;
   readonly y: number;
@@ -63,6 +69,8 @@ export interface IVector2 {
 export interface IMutableVector2 {
   v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
 
   x: number;
   y: number;
@@ -100,6 +108,8 @@ export interface IMutableVector2 {
 export interface IVector3 {
   readonly v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
 
   readonly x: number;
   readonly y: number;
@@ -123,6 +133,8 @@ export interface IVector3 {
 export interface IMutableVector3 {
   v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
 
   x: number;
   y: number;
@@ -163,6 +175,8 @@ export interface IMutableVector3 {
 export interface IVector4 {
   readonly v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
 
   readonly x: number;
   readonly y: number;
@@ -186,6 +200,8 @@ export interface IVector4 {
 export interface IMutableVector4 {
   v: TypedArray;
   readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
 
   x: number;
   y: number;
