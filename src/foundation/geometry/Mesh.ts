@@ -202,10 +202,11 @@ export default class Mesh {
     const by = pos2.y - pos0.y;
     const bz = pos2.z - pos0.z;
 
-    let nx = ay * bz - az * by;
+    let nx = ay * bz - az * by; // cross product
     let ny = az * bx - ax * bz;
     let nz = ax * by - ay * bx;
-    let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
+
+    let da = Math.hypot(nx, ny, nz); // normalize
     if (da <= 1e-6) {
       da = 0.0001;
     }
