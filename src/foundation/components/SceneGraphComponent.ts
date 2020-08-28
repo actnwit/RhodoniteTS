@@ -288,12 +288,13 @@ export default class SceneGraphComponent extends Component {
   ) {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
     const meshComponents: MeshComponent[] = [];
-    collectedSgComponents.filter((sg: SceneGraphComponent) => {
+    for (let sg of collectedSgComponents) {
       const mesh = sg.entity.getMesh();
       if (mesh) {
         meshComponents.push(mesh);
       }
-    });
+    }
+
     let rayDistance = Number.MAX_VALUE;
     let intersectedPosition = null;
     let selectedMeshComponent = null;
@@ -329,12 +330,13 @@ export default class SceneGraphComponent extends Component {
   ) {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
     const meshComponents: MeshComponent[] = [];
-    collectedSgComponents.filter((sg: SceneGraphComponent) => {
+    for (let sg of collectedSgComponents) {
       const mesh = sg.entity.getMesh();
       if (mesh) {
         meshComponents.push(mesh);
       }
-    });
+    }
+
     let rayDistance = Number.MAX_VALUE;
     let intersectedPosition = null;
     let selectedMeshComponent = null;
