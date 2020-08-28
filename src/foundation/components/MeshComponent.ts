@@ -25,6 +25,8 @@ export default class MeshComponent extends Component {
 
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
+  private static __returnVector3: MutableVector3 = MutableVector3.zero();
 
   private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
 
@@ -127,20 +129,11 @@ export default class MeshComponent extends Component {
         const invPVW =
           MutableMatrix44.multiplyTo(camera.projectionMatrix, camera.viewMatrix,
             MeshComponent.__tmpMatrix44_0).multiply(this.__sceneGraphComponent.worldMatrixInner).invert();
-        const srcPointInLocal = MathClassUtil.unProject(
-          new Vector3(x, y, 0),
-          invPVW,
-          viewport
-        );
-        const distVecInLocal = MathClassUtil.unProject(
-          new Vector3(x, y, 1),
-          invPVW,
-          viewport
-        );
-        const directionInLocal = Vector3.normalize(Vector3.subtract(
-          distVecInLocal,
-          srcPointInLocal
-        ));
+
+        const srcPointInLocal = MathClassUtil.unProjectTo(x, y, 0, invPVW, viewport, MeshComponent.__tmpVector3_0);
+        const distVecInLocal = MathClassUtil.unProjectTo(x, y, 1, invPVW, viewport, MeshComponent.__tmpVector3_1);
+
+        const directionInLocal = MutableVector3.subtractTo(distVecInLocal, srcPointInLocal, MeshComponent.__tmpVector3_2).normalize();
 
         const { t, intersectedPosition } = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         let intersectPositionInWorld = null;
