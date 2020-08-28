@@ -25,6 +25,10 @@ export default class MeshComponent extends Component {
 
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
+  private static __returnVector3: MutableVector3 = MutableVector3.zero();
+
+  private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -122,32 +126,22 @@ export default class MeshComponent extends Component {
   castRayFromScreen(x: number, y: number, camera: CameraComponent, viewport: Vector4, dotThreshold: number = 0) {
     if (this.__mesh) {
       if (this.__sceneGraphComponent) {
-        const invPVW = MutableMatrix44.multiply(
-          camera.projectionMatrix,
-          Matrix44.multiply(camera.viewMatrix, this.__sceneGraphComponent.worldMatrixInner)
-        ).invert();
-        const srcPointInLocal = MathClassUtil.unProject(
-          new Vector3(x, y, 0),
-          invPVW,
-          viewport
-        );
-        const distVecInLocal = MathClassUtil.unProject(
-          new Vector3(x, y, 1),
-          invPVW,
-          viewport
-        );
-        const directionInLocal = Vector3.normalize(Vector3.subtract(
-          distVecInLocal,
-          srcPointInLocal
-        ));
+        const invPVW =
+          MutableMatrix44.multiplyTo(camera.projectionMatrix, camera.viewMatrix,
+            MeshComponent.__tmpMatrix44_0).multiply(this.__sceneGraphComponent.worldMatrixInner).invert();
+
+        const srcPointInLocal = MathClassUtil.unProjectTo(x, y, 0, invPVW, viewport, MeshComponent.__tmpVector3_0);
+        const distVecInLocal = MathClassUtil.unProjectTo(x, y, 1, invPVW, viewport, MeshComponent.__tmpVector3_1);
+
+        const directionInLocal = MutableVector3.subtractTo(distVecInLocal, srcPointInLocal, MeshComponent.__tmpVector3_2).normalize();
 
         const { t, intersectedPosition } = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
-        let intersectPositionInWorld = null;
-        if (t >= 0) {
-          intersectPositionInWorld = new Vector3(this.__sceneGraphComponent.worldMatrixInner.multiplyVector(new Vector4(intersectedPosition!)));
+        let intersectedPositionInWorld = null;
+        if (intersectedPosition != null && t >= 0) {
+          intersectedPositionInWorld = this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(intersectedPosition, MeshComponent.__returnVector3);
         }
 
-        return { t, intersectedPositionInWorld: intersectPositionInWorld };
+        return { t, intersectedPositionInWorld };
       }
     }
 

@@ -17,10 +17,12 @@ import MutableScalar from './MutableScalar';
 import VectorN from './VectorN';
 
 export default class MathClassUtil {
+  private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();
+  private static __tmpVector4_1: MutableVector4 = MutableVector4.zero();
+
   constructor() {
 
   }
-
 
   static arrayToVector(element: Array<number>) {
     if (Array.isArray(element)) {
@@ -181,28 +183,22 @@ export default class MathClassUtil {
     return [v0, v1];
   }
 
-  static unProject(windowPosVec3: Vector3, inversePVMat44: Matrix44, viewportVec4: Vector4) {
-    const input = new Vector4(
-      (windowPosVec3.x - viewportVec4.x) / viewportVec4.z * 2 - 1.0,
-      (windowPosVec3.y - viewportVec4.y) / viewportVec4.w * 2 - 1.0,
-      //      (windowPosVec3.z - zNear) / (zFar - zNear),
-      2 * windowPosVec3.z - 1.0,
+  static unProjectTo(windowPosX: number, windowPosY: number, windowPosZ: number,
+    inversePVMat44: Matrix44, viewportVec4: Vector4, out: MutableVector3) {
+
+    const input = this.__tmpVector4_0.setComponents(
+      (windowPosX - viewportVec4.x) / viewportVec4.z * 2 - 1.0,
+      (windowPosY - viewportVec4.y) / viewportVec4.w * 2 - 1.0,
+      2 * windowPosZ - 1.0,
       1.0
     );
 
-    const PVMat44 = inversePVMat44;//Matrix44.transpose(inversePVMat44);
-
-    const out = PVMat44.multiplyVector(input);
-    //    const a = input.x * PVMat44.m03 + input.y * PVMat44.m13 + input.z * PVMat44.m23 + PVMat44.m33;
-    //    const a = input.x * PVMat44.m30 + input.y * PVMat44.m31 + input.z * PVMat44.m32 + PVMat44.m33;
-
-    if (out.w === 0) {
-      console.warn("Zero division!");
+    const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.__tmpVector4_1);
+    if (outNonNormalized.w === 0) {
+      console.error("0 division occurred!");
     }
 
-    const output = new Vector3(Vector4.multiply(out, 1 / out.w));
-
-    return output;
+    return MutableVector3.multiplyTo(outNonNormalized, 1.0 / outNonNormalized.w, out);
   }
 
   static add(lhs: any, rhs: any) {
