@@ -136,12 +136,12 @@ export default class MeshComponent extends Component {
         const directionInLocal = MutableVector3.subtractTo(distVecInLocal, srcPointInLocal, MeshComponent.__tmpVector3_2).normalize();
 
         const { t, intersectedPosition } = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
-        let intersectPositionInWorld = null;
-        if (t >= 0) {
-          intersectPositionInWorld = new Vector3(this.__sceneGraphComponent.worldMatrixInner.multiplyVector(new Vector4(intersectedPosition!)));
+        let intersectedPositionInWorld = null;
+        if (intersectedPosition != null && t >= 0) {
+          intersectedPositionInWorld = this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(intersectedPosition, MeshComponent.__returnVector3);
         }
 
-        return { t, intersectedPositionInWorld: intersectPositionInWorld };
+        return { t, intersectedPositionInWorld };
       }
     }
 

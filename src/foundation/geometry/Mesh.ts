@@ -350,12 +350,6 @@ export default class Mesh {
     return Vector3.normalize(new Vector3(u[0], u[1], u[2]));
   }
 
-  private __calcArenbergInverseMatrices() {
-    for (let primitive of this.__primitives) {
-      primitive._calcArenbergInverseMatrices();
-    }
-  }
-
   getPrimitiveAt(i: number): Primitive {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.getPrimitiveAt(i);

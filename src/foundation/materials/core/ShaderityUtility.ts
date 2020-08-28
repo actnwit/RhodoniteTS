@@ -87,9 +87,7 @@ export default class ShaderityUtility {
     return copiedObj;
   }
 
-  getShaderDataRefection(shaderityObject: ShaderityObject, existingShaderInfoMap?: Map<ShaderSemanticsStr, ShaderSemanticsInfo>):
-    { shaderSemanticsInfoArray: ShaderSemanticsInfo[], shaderityObject: ShaderityObject}
-  {
+  getShaderDataRefection(shaderityObject: ShaderityObject, existingShaderInfoMap?: Map<ShaderSemanticsStr, ShaderSemanticsInfo>): { shaderSemanticsInfoArray: ShaderSemanticsInfo[], shaderityObject: ShaderityObject } {
     const copiedShaderityObject = this.copyShaderityObject(shaderityObject);
 
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
@@ -115,7 +113,7 @@ export default class ShaderityUtility {
 
         const skipProcess = info.match(/skipProcess[\t ]*=[\t ]*(\w+)[,\t ]*/);
         if (skipProcess) {
-          if(skipProcess[1] == 'true') {
+          if (skipProcess[1] == 'true') {
             uniformOmittedShaderRows.push(row);
             continue;
           }
@@ -129,11 +127,11 @@ export default class ShaderityUtility {
             if (semanticInfo != null) {
               shaderSemanticsInfo.semantic = semanticInfo.semantic;
             } else {
-              const semantic = new ShaderSemanticsClass({str: variableName})
+              const semantic = new ShaderSemanticsClass({ str: variableName })
               shaderSemanticsInfo.semantic = semantic;
             }
           } else {
-            const semantic = new ShaderSemanticsClass({str: variableName})
+            const semantic = new ShaderSemanticsClass({ str: variableName })
             shaderSemanticsInfo.semantic = semantic;
           }
         }
@@ -174,7 +172,7 @@ export default class ShaderityUtility {
         if (initialValue) {
           const initialValueText = initialValue[1];
           const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
-          const checkCompositionNumber = (expected: CompositionTypeEnum)=>{
+          const checkCompositionNumber = (expected: CompositionTypeEnum) => {
             if (shaderSemanticsInfo.compositionType !== expected) {
               console.error('component number of initialValue is invalid!');
             }
@@ -219,7 +217,7 @@ export default class ShaderityUtility {
                   parseFloat(split[12]), parseFloat(split[13]), parseFloat(split[14]), parseFloat(split[15]));
                 break;
               default:
-              console.error('Invalid format');
+                console.error('Invalid format');
             }
           } else {
             checkCompositionNumber(CompositionType.Scalar);
