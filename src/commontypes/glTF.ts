@@ -4,6 +4,7 @@ import { Index } from "./CommonTypes";
 import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
 import CameraComponent from "../foundation/components/CameraComponent";
 import Material from "../foundation/materials/core/Material";
+import Expression from "../foundation/renderer/Expression";
 
 export type Gltf2Scene = {
   nodes?: any[],
@@ -428,5 +429,7 @@ export type GltfLoadOption = {
     }[]
   },
   cameraComponent?: CameraComponent,
-  fileType?: string
+  fileType?: string,
+  expression?: Expression
+
 }
