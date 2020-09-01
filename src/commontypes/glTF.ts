@@ -28,14 +28,14 @@ export type Gltf2Attribute = {
 
 export type Gltf2Primitive = {
   attributes: Gltf2Attribute,
-  attributesIndex?: any
+  attributesIndex?: any,
   indices?: any,
   indicesIndex?: number,
   material?: any,
   materialIndex?: number,
   mode?: number,
   targets?: any[],
-  targetIndices?: any
+  targetIndices?: any,
   extensions?: any,
   extras?: any
 }
@@ -52,7 +52,7 @@ export type Gltf2Node = {
   camera?: any,
   cameraIndex?: number,
   children?: any[],
-  childrenIndices?: number[]
+  childrenIndices?: number[],
   skin?: any,
   skinIndex?: any,
   matrix?: number[],
@@ -208,7 +208,7 @@ export type Gltf2Texture = {
   sampler?: any,
   samplerIndex?: number,
   source?: any,
-  sourceIndex?: number
+  sourceIndex?: number,
   texture?: Gltf2Texture,
   image?: Gltf2Image,
   name?: string,
@@ -327,7 +327,7 @@ export type glTF1 = {
       rnLoaderOptions?: { [s: string]: any },
       basePath?: string,
       version?: string,
-      fileType?: string,
+      fileType?: string
     }
   },
   buffers: any[],
@@ -407,7 +407,7 @@ export type GltfLoadOption = {
       },
       isTransparent: boolean,
       opacity: number,
-      isTextureImageToLoadPreMultipliedAlpha: boolean,
+      isTextureImageToLoadPreMultipliedAlpha: boolean
     }
   ],
   alphaMode?: string,
