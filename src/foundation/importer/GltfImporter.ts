@@ -49,6 +49,9 @@ export default class GltfImporter {
 
   /**
    * Import GLTF or VRM file.
+   * @returns gltf expression where:
+   *            renderPasses[0]: model entities
+   *            renderPasses[1]: model outlines
    */
   async import(uri: string, options?: GltfLoadOption): Promise<Expression> {
 
