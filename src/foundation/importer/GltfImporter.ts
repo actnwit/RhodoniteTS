@@ -49,6 +49,9 @@ export default class GltfImporter {
 
   /**
    * Import GLTF or VRM file.
+   * @returns gltf expression where:
+   *            renderPasses[0]: model entities
+   *            renderPasses[1]: model outlines
    */
   async import(uri: string, options?: GltfLoadOption): Promise<Expression> {
 
@@ -60,10 +63,18 @@ export default class GltfImporter {
       }
     }
 
-    const expression = new Expression();
-    expression.addRenderPasses(renderPasses);
-    return expression;
+    return this.__setRenderPassesToExpression(renderPasses, options);
+  }
 
+  private __setRenderPassesToExpression(renderPasses: RenderPass[], options?: GltfLoadOption) {
+    const expression = options?.expression ?? new Expression();
+
+    if (expression.renderPasses !== renderPasses) {
+      expression.clearRenderPasses();
+      expression.addRenderPasses(renderPasses);
+    }
+
+    return expression;
   }
 
   private async __importModel(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
@@ -95,17 +106,17 @@ export default class GltfImporter {
       case 'glTF1':
         importer = Gltf1Importer.getInstance();
         gltfModel = await importer.import(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel);
+        renderPasses = this.__setupRenderPasses(gltfModel, options);
         break;
       case 'glTF2':
         importer = Gltf2Importer.getInstance();
         gltfModel = await importer.import(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel);
+        renderPasses = this.__setupRenderPasses(gltfModel, options);
         break;
       case 'Draco':
         importer = DrcPointCloudImporter.getInstance();
         gltfModel = await importer.importPointCloud(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel);
+        renderPasses = this.__setupRenderPasses(gltfModel, options);
         break;
       case 'VRM':
         renderPasses = await this.__importVRM(uri, options);
@@ -118,14 +129,17 @@ export default class GltfImporter {
     return renderPasses;
   }
 
-  private __setupRenderPasses(gltfModel: any): RenderPass[] {
+  private __setupRenderPasses(gltfModel: any, options?: GltfLoadOption): RenderPass[] {
     const modelConverter = ModelConverter.getInstance();
     const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
 
-    const renderPass = new RenderPass();
+    const renderPasses = options?.expression?.renderPasses ?? [];
+
+    renderPasses[0] = renderPasses[0] ?? new RenderPass();
+    const renderPass = renderPasses[0];
     renderPass.addEntities([rootGroup]);
 
-    return [renderPass];
+    return renderPasses;
   }
 
   private async __importVRM(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
@@ -139,28 +153,27 @@ export default class GltfImporter {
 
     this._initializeMaterialProperties(gltfModel, textures.length);
 
-    const renderPassMain = new RenderPass();
-
     // setup renderPasses and rootGroup
-    let renderPasses;
+    const renderPasses = options?.expression?.renderPasses ?? [] as RenderPass[];
+
     let rootGroup;
     const modelConverter = ModelConverter.getInstance();
     const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (!existOutline) {
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-      renderPasses = [renderPassMain];
     } else {
-      const renderPassOutline = new RenderPass();
+      renderPasses[1] = renderPasses[1] ?? new RenderPass();
+      const renderPassOutline = renderPasses[1];
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;
       gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
 
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
       renderPassOutline.addEntities([rootGroup]);
-
-      renderPasses = [renderPassMain, renderPassOutline];
     }
 
+    renderPasses[0] = renderPasses[0] ?? new RenderPass();
+    const renderPassMain = renderPasses[0];
     renderPassMain.addEntities([rootGroup]);
 
     this._readSpringBone(rootGroup, gltfModel);
