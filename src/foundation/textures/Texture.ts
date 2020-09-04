@@ -289,4 +289,14 @@ export default class Texture extends AbstractTexture {
     this.__isTextureReady = true;
   }
 
+  importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
+    this.__width = width;
+    this.__height = height;
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
+    this.cgApiResourceUid = texture;
+    this.__startedToLoad = true;
+    this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(texture, this);
+  }
 }

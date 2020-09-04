@@ -1198,6 +1198,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.createCubeTexture(1, [{ posX: canvas, negX: canvas, posY: canvas, negY: canvas, posZ: canvas, negZ: canvas }], 1, 1);
   }
 
+  setWebGLTextureDirectly(webGLTexture: WebGLTexture) {
+    const texture = webGLTexture;
+    const resourceHandle = this.getResourceNumber();
+    (texture as any)._resourceUid = resourceHandle;
+    this.__webglResources.set(resourceHandle, texture);
+    return resourceHandle;
+  }
+
   async createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha }:
     {
       level: Index, internalFormat: TextureParameterEnum | PixelFormatEnum, border: Size, format: PixelFormatEnum,
