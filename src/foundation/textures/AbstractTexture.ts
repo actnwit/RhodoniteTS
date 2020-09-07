@@ -2,7 +2,6 @@ import RnObject from "../core/RnObject";
 import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import ModuleManager from "../system/ModuleManager";
 import { CGAPIResourceHandle, TextureUID, Size, Index } from "../../commontypes/CommonTypes";
 import TextureDataFloat from "./TextureDataFloat";
 
@@ -66,7 +65,7 @@ export default abstract class AbstractTexture extends RnObject {
    * @returns a value nearest power of two.
    */
   protected __getNearestPowerOfTwo(x: number): number {
-    return Math.pow( 2, Math.round( Math.log( x ) / Math.LN2 ) );
+    return Math.pow(2, Math.round(Math.log(x) / Math.LN2));
   }
 
   get htmlImageElement() {
@@ -99,7 +98,7 @@ export default abstract class AbstractTexture extends RnObject {
     return this.__name;
   }
 
-  getImageData(x: Index, y:Index, width: Size, height: Size) {
+  getImageData(x: Index, y: Index, width: Size, height: Size) {
     return this.__canvasContext!.getImageData(x, y, width, height);
   }
 
@@ -124,10 +123,10 @@ export default abstract class AbstractTexture extends RnObject {
     const pixel = this.getImageData(0, 0, this.width, this.height);
     const textureDataFloat = new TextureDataFloat(this.width, this.height, channels);
     const data = pixel.data;
-    for(let i=0; i<this.height; i++) {
-      for(let j=0; j<this.width; j++) {
-        for(let k=0; k<channels; k++) {
-          textureDataFloat.setPixelAtChannel(j, i, k, data[(i*this.width * 4) + (j*4) + k]/255);
+    for (let i = 0; i < this.height; i++) {
+      for (let j = 0; j < this.width; j++) {
+        for (let k = 0; k < channels; k++) {
+          textureDataFloat.setPixelAtChannel(j, i, k, data[(i * this.width * 4) + (j * 4) + k] / 255);
         }
       }
     }
