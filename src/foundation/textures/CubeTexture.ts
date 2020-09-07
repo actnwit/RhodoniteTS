@@ -1,10 +1,7 @@
-import RnObject from "../core/RnObject";
 import AbstractTexture from "./AbstractTexture";
 import { HdriFormat } from "../definitions/HdriFormat";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import {BasisFile, BasisTranscoder, BASIS} from "../../commontypes/BasisTexture";
-import { PixelFormat } from "../definitions/PixelFormat";
-import { ComponentType } from "../definitions/ComponentType";
+import { BasisTranscoder, BASIS } from "../../commontypes/BasisTexture";
 import { TextureParameter } from "../definitions/TextureParameter";
 
 declare const BASIS: BASIS;
@@ -28,9 +25,9 @@ export default class CubeTexture extends AbstractTexture {
   loadTextureImagesAsync() {
     this.__startedToLoad = true;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.createCubeTextureFromFiles(this.baseUriToLoad!, this.mipmapLevelNumber!, this.isNamePosNeg, this.hdriFormat).then((cubeTextureUid)=>{
+    webGLResourceRepository.createCubeTextureFromFiles(this.baseUriToLoad!, this.mipmapLevelNumber!, this.isNamePosNeg, this.hdriFormat).then((cubeTextureUid) => {
       this.cgApiResourceUid = cubeTextureUid;
-    }).then(()=>{
+    }).then(() => {
       this.__isTextureReady = true;
     });
   }
@@ -49,7 +46,7 @@ export default class CubeTexture extends AbstractTexture {
     }
 
     BASIS().then((basisTransCoder: BasisTranscoder) => {
-      const {initializeBasis} = basisTransCoder;
+      const { initializeBasis } = basisTransCoder;
       initializeBasis();
 
       const BasisFile = basisTransCoder.BasisFile;

@@ -1,11 +1,10 @@
-import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size, CGAPIResourceHandle, Index } from "../../commontypes/CommonTypes";
+import { Size, Index } from "../../commontypes/CommonTypes";
 import FrameBuffer from "../renderer/FrameBuffer";
 import Vector4 from "../math/Vector4";
 
@@ -63,7 +62,8 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
   private __createRenderTargetTexture() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createRenderTargetTexture(
-      { width: this.__width,
+      {
+        width: this.__width,
         height: this.__height,
         level: this.__level,
         internalFormat: this.__internalFormat,
