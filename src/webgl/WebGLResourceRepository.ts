@@ -667,7 +667,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
     }
 
-    const isGenerateMipmap = generateMipmap && (width === height && width !== 1 && !(this.__glw!.isWebGL2 && MiscUtil.isMobile()));
+    const isGenerateMipmap = generateMipmap && (height !== 1 && width !== 1 && !(this.__glw!.isWebGL2 && MiscUtil.isMobile()));
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
