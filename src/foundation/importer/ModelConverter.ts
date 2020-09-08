@@ -631,9 +631,8 @@ export default class ModelConverter {
         const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
         const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
 
-        if (isWebGL1 && !this.__sizeIsPowerOfTwo(image.image)) {
-          textureOption.wrapS = TextureParameter.ClampToEdge;
-          textureOption.wrapT = TextureParameter.ClampToEdge;
+        if (isWebGL1 && !this.__sizeIsPowerOfTwo(image.image) && this.__needResizeToPowerOfTwoOnWebGl1(textureOption)) {
+          rnTexture.autoResize = true;
         }
 
         rnTexture.generateTextureFromImage(image.image, textureOption);
@@ -920,9 +919,8 @@ export default class ModelConverter {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
 
-      if (isWebGL1 && !this.__sizeIsPowerOfTwo(image)) {
-        textureOption.wrapS = TextureParameter.ClampToEdge;
-        textureOption.wrapT = TextureParameter.ClampToEdge;
+      if (isWebGL1 && !this.__sizeIsPowerOfTwo(image) && this.__needResizeToPowerOfTwoOnWebGl1(textureOption)) {
+        rnTexture.autoResize = true;
       }
 
       rnTexture.generateTextureFromImage(image, textureOption);
@@ -943,6 +941,19 @@ export default class ModelConverter {
     }
 
     return rnTexture;
+  }
+
+  private static __needResizeToPowerOfTwoOnWebGl1(textureOption: any) {
+    if (
+      textureOption.wrapS !== TextureParameter.ClampToEdge ||
+      textureOption.wrapT !== TextureParameter.ClampToEdge ||
+      (textureOption.minFilter !== TextureParameter.Linear &&
+        textureOption.minFilter !== TextureParameter.Nearest)
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   private static __sizeIsPowerOfTwo(image: HTMLImageElement) {
