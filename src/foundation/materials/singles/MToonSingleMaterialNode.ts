@@ -69,7 +69,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting }
     );
 
-    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     if (materialProperties != null) {
       this.__floatProperties = materialProperties.floatProperties;
