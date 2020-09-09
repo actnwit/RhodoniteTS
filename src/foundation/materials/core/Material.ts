@@ -581,7 +581,10 @@ export default class Material extends RnObject {
   }
 
   isBlend() {
-    if (this.alphaMode === AlphaMode.Translucent) {
+    if (
+      this.alphaMode === AlphaMode.Translucent ||
+      this.alphaMode === AlphaMode.Additive
+    ) {
       return true;
     } else {
       return false;
