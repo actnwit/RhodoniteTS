@@ -53,7 +53,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly Aspect = new ShaderSemanticsClass({ str: 'aspect' });
   static readonly CameraUp = new ShaderSemanticsClass({ str: 'cameraUp' });
 
-  static blendEquationModeAlpha?: number;
+  static usableBlendEquationModeAlpha?: number;
   private __OutlineWidthModeIsScreen = false;
 
   private __floatProperties: any = {};
@@ -391,8 +391,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
   setMaterialParameters(material: Material, isOutline: boolean) {
 
-    if (MToonSingleMaterialNode.blendEquationModeAlpha == null) {
-      MToonSingleMaterialNode.__initializeBlendEquationModeAlpha();
+    if (MToonSingleMaterialNode.usableBlendEquationModeAlpha == null) {
+      MToonSingleMaterialNode.__initializeUsableBlendEquationModeAlpha();
     }
 
     if (this.__floatProperties._BlendMode !== 0) {
@@ -403,7 +403,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       }
 
       const blendEquationMode = 32774; // gl.FUNC_ADD
-      const blendEquationModeAlpha = MToonSingleMaterialNode.blendEquationModeAlpha;
+      const blendEquationModeAlpha = MToonSingleMaterialNode.usableBlendEquationModeAlpha;
       const blendFuncSrcFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(this.__floatProperties._SrcBlend);
       const blendFuncDstFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(this.__floatProperties._DstBlend);
 
@@ -427,16 +427,16 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
   }
 
-  private static __initializeBlendEquationModeAlpha() {
+  private static __initializeUsableBlendEquationModeAlpha() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext();
     if (glw!.isWebGL2) {
-      MToonSingleMaterialNode.blendEquationModeAlpha = gl.MAX;
+      MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.MAX;
     } else if (glw!.webgl1ExtBM) {
-      MToonSingleMaterialNode.blendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
+      MToonSingleMaterialNode.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
     } else {
-      MToonSingleMaterialNode.blendEquationModeAlpha = gl.FUNC_ADD;
+      MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.FUNC_ADD;
     }
   }
 
