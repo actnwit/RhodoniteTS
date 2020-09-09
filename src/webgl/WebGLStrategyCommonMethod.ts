@@ -45,19 +45,22 @@ function setCull(cullFace: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderin
 }
 
 function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
-  const isTransparentMode = material.alphaMode === AlphaMode.Blend;
-  if (lastIsTransparentMode !== isTransparentMode) {
-    if (isTransparentMode) {
+  const isBlendMode = material.isBlend();
+  if (lastIsTransparentMode !== isBlendMode) {
+    if (isBlendMode) {
       gl.enable(gl.BLEND);
     } else {
       gl.disable(gl.BLEND);
     }
-    lastIsTransparentMode = isTransparentMode;
+    lastIsTransparentMode = isBlendMode;
   }
 
-  if (isTransparentMode) {
+  if (material.alphaMode === AlphaMode.Translucent) {
     setBlendEquationMode(material.blendEquationMode, material.blendEquationModeAlpha, gl);
     setBlendFuncSrcFactor(material.blendFuncSrcFactor, material.blendFuncDstFactor, material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor, gl);
+  } else if (material.alphaMode === AlphaMode.Additive) {
+    setBlendEquationMode(32774, null, gl);       // gl.FUNC_ADD
+    setBlendFuncSrcFactor(1, 1, null, null, gl); // gl.ONE
   }
 }
 

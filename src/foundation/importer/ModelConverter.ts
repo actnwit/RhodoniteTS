@@ -743,7 +743,7 @@ export default class ModelConverter {
     const isMorphing = this.__isMorphing(node, gltfModel);
     const isSkinning = this.__isSkinning(node, gltfModel);
     const isLighting = this.__isLighting(gltfModel, materialJson);
-    const alphaMode = AlphaMode.fromString(materialJson?.alphaMode || 'OPAQUE');
+    const alphaMode = AlphaMode.fromGlTFString(materialJson?.alphaMode || 'OPAQUE');
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex ?? node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
       return MaterialHelper.createPbrUberMaterial({
@@ -848,7 +848,7 @@ export default class ModelConverter {
       alphaMode = options.alphaMode;
     }
     if (alphaMode != null) {
-      material.alphaMode = AlphaMode.fromString(alphaMode)!;
+      material.alphaMode = AlphaMode.fromGlTFString(alphaMode)!;
 
       // set alpha threshold except for VRM
       if (material.alphaMode === AlphaMode.Mask

@@ -25,7 +25,7 @@ export default class Plane extends Primitive {
    * @param material attach a rhodonite material to this plane(the default material is the classicUberMaterial)
    */
   generate({ width, height, uSpan, vSpan, isUVRepeat = false, flipTextureCoordinateY = false, material }:
-    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, flipTextureCoordinateY: boolean, material?: Material }) {
+    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, flipTextureCoordinateY?: boolean, material?: Material }) {
     var positions = [];
 
     for (let i = 0; i <= vSpan; i++) {
