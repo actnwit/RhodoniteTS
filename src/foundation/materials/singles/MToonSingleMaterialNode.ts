@@ -18,6 +18,7 @@ import Vector3 from "../../math/Vector3";
 import Vector4 from "../../math/Vector4";
 import VectorN from "../../math/VectorN";
 import { Count } from "../../../commontypes/CommonTypes";
+import { MiscUtil } from "../../misc/MiscUtil";
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -285,27 +286,32 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         semantic: MToonSingleMaterialNode._EmissionMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [6, textures[this.__textureProperties._EmissionMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      { // number 7 of texture is the data Texture
-        semantic: MToonSingleMaterialNode._BumpMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [8, textures[this.__textureProperties._BumpMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      // {
-      //   semantic: MToonSingleMaterialNode._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-      //   stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      //   initialValue: [9, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
-      // }
+      }
     );
+
+    if (!MiscUtil.isIOS()) {
+      shaderSemanticsInfoArray.push(
+        {  // number 7 of texture is the data Texture
+          semantic: MToonSingleMaterialNode._BumpMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+          stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+          initialValue: [8, textures[this.__textureProperties._BumpMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        },
+        // {
+        //   semantic: MToonSingleMaterialNode._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        //   stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        //   initialValue: [10, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
+        // }
+      );
+
+      if (this.__textureProperties._BumpMap !== textures.length - 2) {//textures.length - 2 is dummyTexture
+        this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
+      }
+    }
 
     // _DebugMode
     switch (this.__floatProperties._DebugMode) {
       case 1: this.__definitions += '#define RN_MTOON_DEBUG_NORMAL\n'; break;
       case 2: this.__definitions += '#define RN_MTOON_DEBUG_LITSHADERATE\n'; break;
-    }
-
-    if (this.__textureProperties._BumpMap !== textures.length - 2) { //textures.length - 2 is dummyTexture
-      this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
     }
 
     if (isOutline) {
@@ -355,13 +361,19 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         },
       );
 
-      shaderSemanticsInfoArray.push(
-        {
-          semantic: MToonSingleMaterialNode._OutlineWidthTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-          stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [9, textures[this.__textureProperties._OutlineWidthTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
-        },
-      );
+      if (!MiscUtil.isIOS()) {
+        shaderSemanticsInfoArray.push(
+          {
+            semantic: MToonSingleMaterialNode._OutlineWidthTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+            stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+            initialValue: [9, textures[this.__textureProperties._OutlineWidthTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
+          },
+        );
+
+        if (this.__textureProperties._OutlineWidthTexture !== textures.length - 2) { //textures.length - 2 is dummyTexture
+          this.__definitions += '#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n';
+        }
+      }
     }
 
     if (isLighting) {
