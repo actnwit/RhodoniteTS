@@ -17,7 +17,23 @@ const isMobile = function() {
   return false;
 }
 
-const preventDefaultForDesktopOnly = function(e: Event) {
+const isIOS = function () {
+  const ua = [
+    'iPod',
+    'iPad',
+    'iPhone'
+  ];
+
+  for (var i = 0; i < ua.length; i++) {
+    if (navigator.userAgent.indexOf(ua[i]) > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+const preventDefaultForDesktopOnly = function (e: Event) {
   if (!isMobile()) {
     e.preventDefault();
   }
@@ -50,4 +66,4 @@ const concatArrayBuffers = function(segments: ArrayBuffer[], sizes: Byte[], padd
   return whole.buffer;
 }
 
-export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode, concatArrayBuffers });
+export const MiscUtil = Object.freeze({ isMobile, isIOS, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode, concatArrayBuffers });
