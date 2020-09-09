@@ -624,9 +624,9 @@ export default class Material extends RnObject {
     this.__alphaMode = mode;
   }
 
-  setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number | null) {
+  setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha?: number) {
     this.__blendEquationMode = blendEquationMode;
-    this.__blendEquationModeAlpha = blendEquationModeAlpha;
+    this.__blendEquationModeAlpha = blendEquationModeAlpha ?? null;
   }
 
   setBlendFuncSeparateFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number, blendFuncAlphaDstFactor: number) {

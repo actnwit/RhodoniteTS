@@ -53,7 +53,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly Aspect = new ShaderSemanticsClass({ str: 'aspect' });
   static readonly CameraUp = new ShaderSemanticsClass({ str: 'cameraUp' });
 
-  static blendEquationModeAlpha: number | null = null;
+  static blendEquationModeAlpha?: number;
   private __OutlineWidthModeIsScreen = false;
 
   private __floatProperties: any = {};
@@ -391,7 +391,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
   setMaterialParameters(material: Material, isOutline: boolean) {
 
-    if (MToonSingleMaterialNode.blendEquationModeAlpha === undefined) {
+    if (MToonSingleMaterialNode.blendEquationModeAlpha == null) {
       MToonSingleMaterialNode.__initializeBlendEquationModeAlpha();
     }
 
