@@ -624,11 +624,21 @@ export default class Material extends RnObject {
     this.__alphaMode = mode;
   }
 
+  /**
+   * Change the blendEquations
+   * This method works only if this alphaMode is the translucent
+   * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
+   * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
+   */
   setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha?: number) {
     this.__blendEquationMode = blendEquationMode;
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? null;
   }
 
+  /**
+   * Change the blendFuncSeparateFactors
+   * This method works only if this alphaMode is the translucent
+   */
   setBlendFuncSeparateFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number, blendFuncAlphaDstFactor: number) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
@@ -636,6 +646,10 @@ export default class Material extends RnObject {
     this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
   }
 
+  /**
+   * Change the blendFuncFactors
+   * This method works only if this alphaMode is the translucent
+   */
   setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
