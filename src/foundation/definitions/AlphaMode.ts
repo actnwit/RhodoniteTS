@@ -12,9 +12,9 @@ class AlphaModeClass extends EnumClass implements AlphaModeEnum {
 
 const Opaque: AlphaModeEnum = new AlphaModeClass({ index: 0, str: 'OPAQUE' });
 const Mask: AlphaModeEnum = new AlphaModeClass({ index: 1, str: 'MASK' });
-const Blend: AlphaModeEnum = new AlphaModeClass({ index: 2, str: 'BLEND' });
+const Translucent: AlphaModeEnum = new AlphaModeClass({ index: 2, str: 'TRANSLUCENT' });
 
-const typeList = [Opaque, Mask, Blend];
+const typeList = [Opaque, Mask, Translucent];
 
 function from(index: number): AlphaModeEnum | undefined {
   return _from({ typeList, index });
@@ -24,4 +24,12 @@ function fromString(str: string): AlphaModeEnum | undefined {
   return _fromString({ typeList, str }) as AlphaModeEnum;
 }
 
-export const AlphaMode = Object.freeze({ Opaque, Mask, Blend, from, fromString });
+function fromGlTFString(str: string): AlphaModeEnum | undefined {
+  if (str === 'BLEND') {
+    return Translucent;
+  }
+
+  return _fromString({ typeList, str }) as AlphaModeEnum;
+}
+
+export const AlphaMode = Object.freeze({ Opaque, Mask, Translucent, from, fromString, fromGlTFString });

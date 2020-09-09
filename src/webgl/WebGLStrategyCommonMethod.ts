@@ -45,7 +45,7 @@ function setCull(cullFace: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderin
 }
 
 function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
-  const isTransparentMode = material.alphaMode === AlphaMode.Blend;
+  const isTransparentMode = material.alphaMode === AlphaMode.Translucent;
   if (lastIsTransparentMode !== isTransparentMode) {
     if (isTransparentMode) {
       gl.enable(gl.BLEND);

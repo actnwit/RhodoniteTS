@@ -398,8 +398,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     if (this.__floatProperties._BlendMode !== 0) {
       switch (this.__floatProperties._BlendMode) {
         case 1: this.__definitions += '#define RN_ALPHATEST_ON\n'; material.alphaMode = AlphaMode.Mask; break;
-        case 2: this.__definitions += '#define RN_ALPHABLEND_ON\n'; material.alphaMode = AlphaMode.Blend; break;
-        case 3: this.__definitions += '#define RN_ALPHABLEND_ON\n'; material.alphaMode = AlphaMode.Blend; break;
+        case 2: this.__definitions += '#define RN_ALPHABLEND_ON\n'; material.alphaMode = AlphaMode.Translucent; break;
+        case 3: this.__definitions += '#define RN_ALPHABLEND_ON\n'; material.alphaMode = AlphaMode.Translucent; break;
       }
 
       const blendEquationMode = 32774; // gl.FUNC_ADD

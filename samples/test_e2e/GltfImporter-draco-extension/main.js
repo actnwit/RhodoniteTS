@@ -74,7 +74,7 @@ const load = async function () {
   function createPostEffectRenderPass(materialHelperFunctionStr, arrayOfHelperFunctionArgument = []) {
     const boardPrimitive = new Rn.Plane();
     const material = Rn.MaterialHelper[materialHelperFunctionStr].apply(this, arrayOfHelperFunctionArgument);
-    material.alphaMode = Rn.AlphaMode.Blend;
+    material.alphaMode = Rn.AlphaMode.Translucent;
     boardPrimitive.generate({
       width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false,
       material: material

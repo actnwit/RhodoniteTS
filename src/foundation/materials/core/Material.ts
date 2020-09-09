@@ -377,7 +377,7 @@ export default class Material extends RnObject {
       }
       if (shaderSemantic === ShaderSemantics.DiffuseColorTexture || shaderSemantic === ShaderSemantics.BaseColorTexture) {
         if (value.isTransparent) {
-          this.alphaMode = AlphaMode.Blend;
+          this.alphaMode = AlphaMode.Translucent;
         }
       }
     }
@@ -581,7 +581,7 @@ export default class Material extends RnObject {
   }
 
   isBlend() {
-    if (this.alphaMode === AlphaMode.Blend) {
+    if (this.alphaMode === AlphaMode.Translucent) {
       return true;
     } else {
       return false;
