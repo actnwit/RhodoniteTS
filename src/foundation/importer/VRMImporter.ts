@@ -36,18 +36,19 @@ export default class VRMImporter {
     gltfImporter._initializeMaterialProperties(gltfModel, textures.length);
 
     // setup rootGroup
-    const rootGroups = [];
+    let rootGroups;
     const modelConverter = ModelConverter.getInstance();
     const rootGroupMain = modelConverter.convertToRhodoniteObject(gltfModel);
-    rootGroups.push(rootGroupMain);
 
     const existOutline = gltfImporter._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
       defaultMaterialHelperArgumentArray[0].isOutline = true;
       const rootGroupOutline = modelConverter.convertToRhodoniteObject(gltfModel);
-      rootGroups.push(rootGroupOutline);
-    }
 
+      rootGroups = [rootGroupMain, rootGroupOutline];
+    } else {
+      rootGroups = [rootGroupMain];
+    }
     gltfImporter._readSpringBone(rootGroupMain, gltfModel);
     gltfImporter._readVRMHumanoidInfo(gltfModel, rootGroupMain);
 

@@ -159,9 +159,7 @@ export default class GltfImporter {
     let rootGroup;
     const modelConverter = ModelConverter.getInstance();
     const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
-    if (!existOutline) {
-      rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-    } else {
+    if (existOutline) {
       renderPasses[1] = renderPasses[1] ?? new RenderPass();
       const renderPassOutline = renderPasses[1];
       renderPassOutline.toClearColorBuffer = false;
@@ -170,6 +168,8 @@ export default class GltfImporter {
 
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
       renderPassOutline.addEntities([rootGroup]);
+    } else {
+      rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
     }
 
     renderPasses[0] = renderPasses[0] ?? new RenderPass();
