@@ -96,7 +96,12 @@ void main(){
   #ifndef RN_MTOON_IS_OUTLINE //ndef
     gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   #else
-    float outlineTex = ${_texture}(u_outlineWidthTexture, a_texcoord).r;
+    #if defined(RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE)
+      float outlineTex = ${_texture}(u_outlineWidthTexture, a_texcoord).r;
+    #else
+      float outlineTex = 1.0;
+    #endif
+
     #if defined(RN_MTOON_OUTLINE_WIDTH_WORLD)
       float outlineWidth = get_outlineWidth(materialSID, 0);
       vec3 outlineOffset = 0.01 * outlineWidth * outlineTex * a_normal;

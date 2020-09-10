@@ -18,6 +18,7 @@ import Vector3 from "../../math/Vector3";
 import Vector4 from "../../math/Vector4";
 import VectorN from "../../math/VectorN";
 import { Count } from "../../../commontypes/CommonTypes";
+import { MiscUtil } from "../../misc/MiscUtil";
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -68,7 +69,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting }
     );
 
-    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     if (materialProperties != null) {
       this.__floatProperties = materialProperties.floatProperties;
@@ -138,6 +139,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     }
 
 
+    // non-Texture
     shaderSemanticsInfoArray.push(
       {
         semantic: MToonSingleMaterialNode._Cutoff, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
@@ -155,24 +157,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         initialValue: new Vector3(this.__vectorProperties._ShadeColor), min: 0, max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._MainTex, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, textures[this.__textureProperties._MainTex]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      {
-        semantic: MToonSingleMaterialNode._ShadeTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, textures[this.__textureProperties._ShadeTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      {
         semantic: MToonSingleMaterialNode._BumpScale, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(this.__floatProperties._BumpScale), min: 0, max: 1
-      },
-      {
-        semantic: MToonSingleMaterialNode._BumpMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [2, textures[this.__textureProperties._BumpMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._ReceiveShadowRate, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
@@ -180,19 +167,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         initialValue: new Scalar(this.__floatProperties._ReceiveShadowRate), min: 0, max: 1
       },
       {
-        semantic: MToonSingleMaterialNode._ReceiveShadowTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [3, textures[this.__textureProperties._ReceiveShadowTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      {
         semantic: MToonSingleMaterialNode._ShadingGradeRate, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(this.__floatProperties._ShadingGradeRate), min: 0, max: 1
-      },
-      {
-        semantic: MToonSingleMaterialNode._ShadingGradeTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [4, textures[this.__textureProperties._ShadingGradeTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._ShadeShift, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
@@ -225,11 +202,6 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         initialValue: new Vector3(this.__vectorProperties._RimColor), min: 0, max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._RimTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [5, textures[this.__textureProperties._RimTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      {
         semantic: MToonSingleMaterialNode._RimLightingMix, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(this.__floatProperties._RimLightingMix), min: 0, max: 1
@@ -250,25 +222,10 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         initialValue: new Vector3(0, 1, 0), min: 0, max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._SphereAdd, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [6, textures[this.__textureProperties._SphereAdd]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      {
         semantic: MToonSingleMaterialNode._EmissionColor, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Vector3(this.__vectorProperties._EmissionColor), min: 0, max: 1,
       },
-      { // number 7 of texture is the data Texture
-        semantic: MToonSingleMaterialNode._EmissionMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [8, textures[this.__textureProperties._EmissionMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
-      },
-      // {
-      //   semantic: MToonSingleMaterialNode._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-      //   stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      //   initialValue: [9, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
-      // },
       // {
       //   semantic: MToonSingleMaterialNode._UvAnimScrollX, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
@@ -290,17 +247,71 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Vector3(0, 0, 1), min: 0, max: 10,
       },
-
     );
+
+
+    // Texture
+    shaderSemanticsInfoArray.push(
+      {
+        semantic: MToonSingleMaterialNode._MainTex, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [0, textures[this.__textureProperties._MainTex]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: MToonSingleMaterialNode._ShadeTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [1, textures[this.__textureProperties._ShadeTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: MToonSingleMaterialNode._ReceiveShadowTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [2, textures[this.__textureProperties._ReceiveShadowTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: MToonSingleMaterialNode._ShadingGradeTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [3, textures[this.__textureProperties._ShadingGradeTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: MToonSingleMaterialNode._RimTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [4, textures[this.__textureProperties._RimTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: MToonSingleMaterialNode._SphereAdd, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [5, textures[this.__textureProperties._SphereAdd]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: MToonSingleMaterialNode._EmissionMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [6, textures[this.__textureProperties._EmissionMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      }
+    );
+
+    if (!MiscUtil.isIOS()) {
+      shaderSemanticsInfoArray.push(
+        {  // number 7 of texture is the data Texture
+          semantic: MToonSingleMaterialNode._BumpMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+          stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+          initialValue: [8, textures[this.__textureProperties._BumpMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        },
+        // {
+        //   semantic: MToonSingleMaterialNode._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        //   stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        //   initialValue: [10, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
+        // }
+      );
+
+      if (this.__textureProperties._BumpMap !== textures.length - 2) {//textures.length - 2 is dummyTexture
+        this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
+      }
+    }
 
     // _DebugMode
     switch (this.__floatProperties._DebugMode) {
       case 1: this.__definitions += '#define RN_MTOON_DEBUG_NORMAL\n'; break;
       case 2: this.__definitions += '#define RN_MTOON_DEBUG_LITSHADERATE\n'; break;
-    }
-
-    if (this.__textureProperties._BumpMap !== textures.length - 2) { //textures.length - 2 is dummyTexture
-      this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
     }
 
     if (isOutline) {
@@ -323,11 +334,6 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       }
 
       shaderSemanticsInfoArray.push(
-        {
-          semantic: MToonSingleMaterialNode._OutlineWidthTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-          stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [9, textures[this.__textureProperties._OutlineWidthTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
-        },
         {
           semantic: MToonSingleMaterialNode._OutlineWidth, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
@@ -354,6 +360,20 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
           initialValue: new Scalar(1.0), min: 0, max: 1,
         },
       );
+
+      if (!MiscUtil.isIOS()) {
+        shaderSemanticsInfoArray.push(
+          {
+            semantic: MToonSingleMaterialNode._OutlineWidthTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+            stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+            initialValue: [9, textures[this.__textureProperties._OutlineWidthTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
+          },
+        );
+
+        if (this.__textureProperties._OutlineWidthTexture !== textures.length - 2) { //textures.length - 2 is dummyTexture
+          this.__definitions += '#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n';
+        }
+      }
     }
 
     if (isLighting) {
