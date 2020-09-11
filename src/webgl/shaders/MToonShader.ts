@@ -360,8 +360,8 @@ void main (){
       lighting *= 0.5; // darken if additional light.
       lighting *= min(0.0, dotNL) + 1.0; // darken dotNL < 0 area by using half lambert
       // lighting *= shadowAttenuation; // darken if receiving shadow
-      #ifdef _ALPHABLEND_ON
-        lighting *= step(0, dotNL); // darken if transparent. Because Unity's transparent material can't receive shadowAttenuation.
+      #ifdef RN_ALPHABLEND_ON
+        lighting *= step(0.0, dotNL); // darken if transparent. Because Unity's transparent material can't receive shadowAttenuation.
       #endif
     }
 
