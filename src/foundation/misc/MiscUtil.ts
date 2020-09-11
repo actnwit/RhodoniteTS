@@ -3,7 +3,7 @@ import { Byte } from "../../commontypes/CommonTypes";
 const isMobile = function () {
   const ua = [
     'iPod',
-    'iPad',
+    'iPad', // for old version
     'iPhone',
     'Android'
   ];
@@ -14,13 +14,13 @@ const isMobile = function () {
     }
   }
 
-  return false;
+  return isIPad();
 }
 
 const isIOS = function () {
   const ua = [
     'iPod',
-    'iPad',
+    'iPad', // for old version
     'iPhone'
   ];
 
@@ -30,7 +30,11 @@ const isIOS = function () {
     }
   }
 
-  return false;
+  return isIPad();
+}
+
+const isIPad = function(){
+  return navigator.userAgent.indexOf('Macintosh') > -1 && 'ontouchend' in document;
 }
 
 const preventDefaultForDesktopOnly = function (e: Event) {
