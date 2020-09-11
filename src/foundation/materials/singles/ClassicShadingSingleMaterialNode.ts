@@ -76,7 +76,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       this.__definitions += '#define RN_IS_SKINNING\n';
     }
 
-    this.__definitions += '#define RN_ALPHAMODE_' + alphaMode.str + '\n';
+    this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.AlphaCutoff, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,

@@ -73,7 +73,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       this.__definitions += '#define RN_IS_MORPHING\n';
     }
 
-    this.__definitions += '#define RN_ALPHAMODE_' + alphaMode.str + '\n';
+    this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
