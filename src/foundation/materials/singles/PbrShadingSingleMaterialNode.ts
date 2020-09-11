@@ -283,7 +283,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
       );
     }
 
-    this.__definitions += '#define RN_ALPHAMODE_' + alphaMode.str + '\n';
+    this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
     if (alphaMode === AlphaMode.Mask) {
       shaderSemanticsInfoArray.push(
         {
