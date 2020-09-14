@@ -21,9 +21,9 @@ export default class DrcPointCloudImporter {
   }
 
   /**
-   * Import Draco file of point cloud type.
+   * Import draco file of point cloud type
    * WEIGHTS_0 and JOINTS_0 attribute and all the mesh type and is not support yet.
-   * @param uri - uri of glTF file
+   * @param uri - uri of drc file
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
@@ -48,6 +48,22 @@ export default class DrcPointCloudImporter {
       console.log('this.__decodeDraco error', err);
     });
 
+  }
+
+  /**
+   * Import the specified array buffer of draco file where the type must be point cloud.
+   * WEIGHTS_0 and JOINTS_0 attribute and all the mesh type and is not support yet.
+   * @param uri - uri of drc file
+   * @param arrayBuffer - fetched array buffer of drc file
+   * @param options - options for loading process
+   * @returns a glTF2 based JSON pre-processed
+   */
+  importArrayBuffer(uri: string, arrayBuffer: ArrayBuffer, options?: GltfLoadOption) {
+    const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
+    const defaultOptions = DataUtil.createDefaultGltfOptions();
+    return this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+      console.log('__loadFromArrayBuffer error', err);
+    });
   }
 
   private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, basePath: string, options?: {}) {
