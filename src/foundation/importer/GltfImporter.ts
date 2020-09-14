@@ -53,9 +53,12 @@ export default class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  async import(uri: string, options?: GltfLoadOption): Promise<Expression> {
+  async import(uris: string | string[], options?: GltfLoadOption): Promise<Expression> {
+    if (!Array.isArray(uris)) {
+      uris = [uris];
+    }
 
-    const renderPasses: RenderPass[] = await this.__importModel(uri, options);
+    const renderPasses: RenderPass[] = await this.__importMultipleModels(uris, options);
 
     if (options && options.cameraComponent) {
       for (let renderPass of renderPasses) {
@@ -75,71 +78,6 @@ export default class GltfImporter {
     }
 
     return expression;
-  }
-
-  private async __importModel(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
-
-    let fileType = options?.fileType;
-    if (fileType == null) {
-      if (options == null) {
-        options = DataUtil.createDefaultGltfOptions();
-      } else if (options.files == null) {
-        options.files = {}
-      }
-
-      // download arrayBuffer
-      if (Object.keys(options.files).length === 0) {
-        try {
-          const response = await fetch(uri);
-          const arrayBuffer = await response.arrayBuffer();
-          options.files[response.url] = arrayBuffer;
-        } catch (err) {
-          throw new Error('import' + err);
-        };
-      }
-
-      fileType = await detectFormat(uri, options.files) as string;
-    }
-
-    let importer: any, gltfModel: any, renderPasses: RenderPass[];
-    switch (fileType) {
-      case 'glTF1':
-        importer = Gltf1Importer.getInstance();
-        gltfModel = await importer.import(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel, options);
-        break;
-      case 'glTF2':
-        importer = Gltf2Importer.getInstance();
-        gltfModel = await importer.import(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel, options);
-        break;
-      case 'Draco':
-        importer = DrcPointCloudImporter.getInstance();
-        gltfModel = await importer.importPointCloud(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel, options);
-        break;
-      case 'VRM':
-        renderPasses = await this.__importVRM(uri, options);
-        break;
-      default:
-        renderPasses = [];
-        console.error('detect invalid format');
-    }
-
-    return renderPasses;
-  }
-
-  private __setupRenderPasses(gltfModel: any, options?: GltfLoadOption): RenderPass[] {
-    const modelConverter = ModelConverter.getInstance();
-    const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-
-    const renderPasses = options?.expression?.renderPasses ?? [];
-
-    renderPasses[0] = renderPasses[0] ?? new RenderPass();
-    const renderPass = renderPasses[0];
-    renderPass.addEntities([rootGroup]);
-
-    return renderPasses;
   }
 
   private __importMultipleModels(uris: string[], options?: GltfLoadOption): Promise<RenderPass[]> {
@@ -230,7 +168,7 @@ export default class GltfImporter {
             });
             break;
           case 'VRM':
-            this.__importVRM(uri, options, renderPasses).then(() => {
+            this.__importVRM(uri, renderPasses, options).then(() => {
               resolve();
             });
             break;
@@ -254,7 +192,7 @@ export default class GltfImporter {
     });
   }
 
-  private async __importVRM(uri: string, options?: GltfLoadOption, renderPasses?: RenderPass[]): Promise<RenderPass[]> {
+  private async __importVRM(uri: string, renderPasses: RenderPass[], options?: GltfLoadOption): Promise<RenderPass[]> {
     options = this._getOptions(options)
     const gltf2Importer = Gltf2Importer.getInstance();
     const gltfModel = await gltf2Importer.import(uri, options);
@@ -264,9 +202,6 @@ export default class GltfImporter {
     defaultMaterialHelperArgumentArray[0].textures = textures;
 
     this._initializeMaterialProperties(gltfModel, textures.length);
-
-    // setup renderPasses and rootGroup
-    renderPasses = renderPasses ?? options?.expression?.renderPasses ?? [] as RenderPass[];
 
     let rootGroup;
     const modelConverter = ModelConverter.getInstance();
@@ -284,7 +219,6 @@ export default class GltfImporter {
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
     }
 
-    renderPasses[0] = renderPasses[0] ?? new RenderPass();
     const renderPassMain = renderPasses[0];
     renderPassMain.addEntities([rootGroup]);
 
