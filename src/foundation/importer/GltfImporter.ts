@@ -57,6 +57,7 @@ export default class GltfImporter {
     if (!Array.isArray(uris)) {
       uris = [uris];
     }
+    options = this.__initOptions(options);
 
     const renderPasses: RenderPass[] = await this.__importMultipleModels(uris, options);
 
@@ -69,8 +70,44 @@ export default class GltfImporter {
     return this.__setRenderPassesToExpression(renderPasses, options);
   }
 
-  private __setRenderPassesToExpression(renderPasses: RenderPass[], options?: GltfLoadOption) {
-    const expression = options?.expression ?? new Expression();
+  private __initOptions(options?: GltfLoadOption): GltfLoadOption {
+    if (options == null) {
+      options = DataUtil.createDefaultGltfOptions();
+    } else {
+      if (options.files == null) {
+        options.files = {}
+      }
+
+      for (let file in options.files) {
+        if (file.match(/.*\.vrm$/) == null) {
+          continue;
+        }
+
+        const fileName = file.split('.vrm')[0];
+        if (fileName) {
+          const arraybuffer = options.files[file];
+          options.files[fileName + '.glb'] = arraybuffer;
+          delete options.files[file];
+        }
+      }
+
+      if (Array.isArray(options.defaultMaterialHelperArgumentArray) === false) {
+        options.defaultMaterialHelperArgumentArray = [{}];
+      } else {
+        // avoid needless processing
+        if (options.defaultMaterialHelperArgumentArray[0]?.isMorphing === false) {
+          options.maxMorphTargetNumber = 0;
+        }
+      }
+
+    }
+
+
+    return options
+  }
+
+  private __setRenderPassesToExpression(renderPasses: RenderPass[], options: GltfLoadOption) {
+    const expression = options.expression ?? new Expression();
 
     if (expression.renderPasses !== renderPasses) {
       expression.clearRenderPasses();
@@ -80,13 +117,7 @@ export default class GltfImporter {
     return expression;
   }
 
-  private __importMultipleModels(uris: string[], options?: GltfLoadOption): Promise<RenderPass[]> {
-    if (options == null) {
-      options = DataUtil.createDefaultGltfOptions();
-    } else if (options.files == null) {
-      options.files = {}
-    }
-
+  private __importMultipleModels(uris: string[], options: GltfLoadOption): Promise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
     if (renderPasses.length === 0) {
@@ -142,6 +173,7 @@ export default class GltfImporter {
         const modelConverter = ModelConverter.getInstance();
 
         const file = options.files[fileName];
+        options.isImportVRM = false;
         switch (fileType) {
           case 'glTF1':
             importer = Gltf1Importer.getInstance() as Gltf1Importer;
@@ -168,6 +200,7 @@ export default class GltfImporter {
             });
             break;
           case 'VRM':
+            options.isImportVRM = true;
             this.__importVRM(uri, file, renderPasses, options).then(() => {
               resolve();
             });
@@ -193,7 +226,6 @@ export default class GltfImporter {
   }
 
   private __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options: GltfLoadOption): Promise<void> {
-    options = this._getOptions(options)
     const gltf2Importer = Gltf2Importer.getInstance();
     return gltf2Importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
 
@@ -228,7 +260,7 @@ export default class GltfImporter {
     });
   }
 
-  _getOptions(options: GltfLoadOption | undefined): GltfLoadOption {
+  _getOptions(options?: GltfLoadOption): GltfLoadOption {
     if (options != null) {
       for (let file in options.files) {
         const fileName = file.split('.vrm')[0];
