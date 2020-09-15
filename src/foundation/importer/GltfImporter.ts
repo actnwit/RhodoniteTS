@@ -49,13 +49,19 @@ export default class GltfImporter {
 
   /**
    * Import GLTF or VRM file.
+   * @param uris uri or array of uri of glTF file
+   * @param options options for loading process where if you use files option, key name of files must be uri of the value array buffer
    * @returns gltf expression where:
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  async import(uri: string, options?: GltfLoadOption): Promise<Expression> {
+  async import(uris: string | string[], options?: GltfLoadOption): Promise<Expression> {
+    if (!Array.isArray(uris)) {
+      uris = [uris];
+    }
+    options = this.__initOptions(options);
 
-    const renderPasses: RenderPass[] = await this.__importModel(uri, options);
+    const renderPasses: RenderPass[] = await this.__importMultipleModels(uris, options);
 
     if (options && options.cameraComponent) {
       for (let renderPass of renderPasses) {
@@ -66,8 +72,44 @@ export default class GltfImporter {
     return this.__setRenderPassesToExpression(renderPasses, options);
   }
 
-  private __setRenderPassesToExpression(renderPasses: RenderPass[], options?: GltfLoadOption) {
-    const expression = options?.expression ?? new Expression();
+  private __initOptions(options?: GltfLoadOption): GltfLoadOption {
+    if (options == null) {
+      options = DataUtil.createDefaultGltfOptions();
+    } else {
+      if (options.files == null) {
+        options.files = {}
+      }
+
+      for (let file in options.files) {
+        if (file.match(/.*\.vrm$/) == null) {
+          continue;
+        }
+
+        const fileName = file.split('.vrm')[0];
+        if (fileName) {
+          const arraybuffer = options.files[file];
+          options.files[fileName + '.glb'] = arraybuffer;
+          delete options.files[file];
+        }
+      }
+
+      if (Array.isArray(options.defaultMaterialHelperArgumentArray) === false) {
+        options.defaultMaterialHelperArgumentArray = [{}];
+      } else {
+        // avoid needless processing
+        if (options.defaultMaterialHelperArgumentArray[0]?.isMorphing === false) {
+          options.maxMorphTargetNumber = 0;
+        }
+      }
+
+    }
+
+
+    return options
+  }
+
+  private __setRenderPassesToExpression(renderPasses: RenderPass[], options: GltfLoadOption) {
+    const expression = options.expression ?? new Expression();
 
     if (expression.renderPasses !== renderPasses) {
       expression.clearRenderPasses();
@@ -77,112 +119,150 @@ export default class GltfImporter {
     return expression;
   }
 
-  private async __importModel(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
-
-    let fileType = options?.fileType;
-    if (fileType == null) {
-      if (options == null) {
-        options = DataUtil.createDefaultGltfOptions();
-      } else if (options.files == null) {
-        options.files = {}
-      }
-
-      // download arrayBuffer
-      if (Object.keys(options.files).length === 0) {
-        try {
-          const response = await fetch(uri);
-          const arrayBuffer = await response.arrayBuffer();
-          options.files[response.url] = arrayBuffer;
-        } catch (err) {
-          throw new Error('import' + err);
-        };
-      }
-
-      fileType = await detectFormat(uri, options.files) as string;
+  private __importMultipleModels(uris: string[], options: GltfLoadOption): Promise<RenderPass[]> {
+    const importPromises = [];
+    const renderPasses = options.expression?.renderPasses || [];
+    if (renderPasses.length === 0) {
+      renderPasses.push(new RenderPass());
     }
 
-    let importer: any, gltfModel: any, renderPasses: RenderPass[];
-    switch (fileType) {
-      case 'glTF1':
-        importer = Gltf1Importer.getInstance();
-        gltfModel = await importer.import(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel, options);
-        break;
-      case 'glTF2':
-        importer = Gltf2Importer.getInstance();
-        gltfModel = await importer.import(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel, options);
-        break;
-      case 'Draco':
-        importer = DrcPointCloudImporter.getInstance();
-        gltfModel = await importer.importPointCloud(uri, options);
-        renderPasses = this.__setupRenderPasses(gltfModel, options);
-        break;
-      case 'VRM':
-        renderPasses = await this.__importVRM(uri, options);
-        break;
-      default:
-        renderPasses = [];
-        console.error('detect invalid format');
+    for (let fileName in options.files) { // filename is uri
+      const fileExtension = DataUtil.getExtension(fileName);
+      if (this.__isValidExtension(fileExtension)) {
+        importPromises.push(this.__importToRenderPassesFromArrayBufferPromise(fileName, renderPasses, options, fileName));
+      }
     }
 
-    return renderPasses;
+    for (let uri of uris) {
+      if (uri.length === 0 || options.files[uri] != null) {
+        // import from uri where the file is not fetched yet
+        continue;
+      }
+
+      importPromises.push(this.__importToRenderPassesFromUriPromise(uri, renderPasses, options));
+    }
+
+    return Promise.all(importPromises).then(() => {
+      return renderPasses;
+    });
   }
 
-  private __setupRenderPasses(gltfModel: any, options?: GltfLoadOption): RenderPass[] {
-    const modelConverter = ModelConverter.getInstance();
-    const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-
-    const renderPasses = options?.expression?.renderPasses ?? [];
-
-    renderPasses[0] = renderPasses[0] ?? new RenderPass();
-    const renderPass = renderPasses[0];
-    renderPass.addEntities([rootGroup]);
-
-    return renderPasses;
-  }
-
-  private async __importVRM(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
-    options = this._getOptions(options)
-    const gltf2Importer = Gltf2Importer.getInstance();
-    const gltfModel = await gltf2Importer.import(uri, options);
-
-    const textures = this._createTextures(gltfModel);
-    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
-    defaultMaterialHelperArgumentArray[0].textures = textures;
-
-    this._initializeMaterialProperties(gltfModel, textures.length);
-
-    // setup renderPasses and rootGroup
-    const renderPasses = options?.expression?.renderPasses ?? [] as RenderPass[];
-
-    let rootGroup;
-    const modelConverter = ModelConverter.getInstance();
-    const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
-    if (existOutline) {
-      renderPasses[1] = renderPasses[1] ?? new RenderPass();
-      const renderPassOutline = renderPasses[1];
-      renderPassOutline.toClearColorBuffer = false;
-      renderPassOutline.toClearDepthBuffer = false;
-      gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
-
-      rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-      renderPassOutline.addEntities([rootGroup]);
+  private __isValidExtension(fileExtension: string) {
+    if (
+      fileExtension === 'gltf' || fileExtension === 'glb' ||
+      fileExtension === 'vrm' || fileExtension === 'drc'
+    ) {
+      return true;
     } else {
-      rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+      return false;
     }
-
-    renderPasses[0] = renderPasses[0] ?? new RenderPass();
-    const renderPassMain = renderPasses[0];
-    renderPassMain.addEntities([rootGroup]);
-
-    this._readSpringBone(rootGroup, gltfModel);
-    this._readVRMHumanoidInfo(gltfModel, rootGroup);
-
-    return renderPasses;
   }
 
-  _getOptions(options: GltfLoadOption | undefined): GltfLoadOption {
+  private __importToRenderPassesFromUriPromise(uri: string, renderPasses: RenderPass[], options: GltfLoadOption) {
+    return DataUtil.fetchArrayBuffer(uri).then((arrayBuffer) => {
+      options.files[uri] = arrayBuffer;
+      return this.__importToRenderPassesFromArrayBufferPromise(uri, renderPasses, options, uri)
+    })
+  }
+
+  private __importToRenderPassesFromArrayBufferPromise(fileName: string, renderPasses: RenderPass[], options: GltfLoadOption, uri: string) {
+    const optionalFileType = options.fileType;
+
+    return this.__getFileTypeFromFilePromise(fileName, options, optionalFileType).then((fileType) => {
+
+      return new Promise((resolve, reject) => {
+        let importer;
+        const modelConverter = ModelConverter.getInstance();
+
+        const file = options.files[fileName];
+        options.isImportVRM = false;
+        switch (fileType) {
+          case 'glTF1':
+            importer = Gltf1Importer.getInstance() as Gltf1Importer;
+            importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+              const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+              renderPasses[0].addEntities([rootGroup]);
+              resolve();
+            });
+            break;
+          case 'glTF2':
+            importer = Gltf2Importer.getInstance() as Gltf2Importer;
+            importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+              const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+              renderPasses[0].addEntities([rootGroup]);
+              resolve();
+            });
+            break;
+          case 'Draco':
+            importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
+            importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+              const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+              renderPasses[0].addEntities([rootGroup]);
+              resolve();
+            });
+            break;
+          case 'VRM':
+            options.isImportVRM = true;
+            this.__importVRM(uri, file, renderPasses, options).then(() => {
+              resolve();
+            });
+            break;
+          default:
+            console.error('detect invalid format');
+            reject();
+        }
+      });
+    })
+  }
+
+  private __getFileTypeFromFilePromise(fileName: string, options: GltfLoadOption, optionalFileType?: string) {
+    return new Promise((resolve) => {
+      if (optionalFileType != null) {
+        resolve(optionalFileType);
+      } else {
+        detectFormat('', { [fileName]: options.files[fileName] }).then((fileType: string) => {
+          resolve(fileType);
+        });
+      }
+    });
+  }
+
+  private __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options: GltfLoadOption): Promise<void> {
+    const gltf2Importer = Gltf2Importer.getInstance();
+    return gltf2Importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+
+      const textures = this._createTextures(gltfModel);
+      const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
+      defaultMaterialHelperArgumentArray[0].textures = textures;
+
+      this._initializeMaterialProperties(gltfModel, textures.length);
+
+      let rootGroup;
+      const modelConverter = ModelConverter.getInstance();
+      const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
+      if (existOutline) {
+        renderPasses[1] = renderPasses[1] ?? new RenderPass();
+        const renderPassOutline = renderPasses[1];
+        renderPassOutline.toClearColorBuffer = false;
+        renderPassOutline.toClearDepthBuffer = false;
+        gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
+
+        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+        renderPassOutline.addEntities([rootGroup]);
+      } else {
+        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+      }
+
+      const renderPassMain = renderPasses[0];
+      renderPassMain.addEntities([rootGroup]);
+
+      this._readSpringBone(rootGroup, gltfModel);
+      this._readVRMHumanoidInfo(gltfModel, rootGroup);
+
+    });
+  }
+
+  _getOptions(options?: GltfLoadOption): GltfLoadOption {
     if (options != null) {
       for (let file in options.files) {
         const fileName = file.split('.vrm')[0];

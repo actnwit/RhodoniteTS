@@ -14,7 +14,7 @@ export default class Gltf2Importer {
   }
 
   /**
-   * Import glTF2 file or arraybuffers.
+   * Import glTF2 file
    * @param uri - uri of glTF file
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
@@ -39,7 +39,21 @@ export default class Gltf2Importer {
     return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       console.log('this.__loadFromArrayBuffer error', err);
     });;
+  }
 
+  /**
+   * Import glTF2 array buffer.
+   * @param uri - uri of glTF file
+   * @param arrayBuffer - fetched glTF file
+   * @param options - options for loading process
+   * @returns a glTF2 based JSON pre-processed
+   */
+  importArrayBuffer(uri: string, arrayBuffer: ArrayBuffer, options?: GltfLoadOption) {
+    const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
+    const defaultOptions = DataUtil.createDefaultGltfOptions();
+    return this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+      console.log('__loadFromArrayBuffer error', err);
+    });
   }
 
   private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, basePath: string, options?: {}) {
