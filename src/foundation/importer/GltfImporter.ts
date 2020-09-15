@@ -192,40 +192,40 @@ export default class GltfImporter {
     });
   }
 
-  private async __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options?: GltfLoadOption): Promise<RenderPass[]> {
+  private __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options: GltfLoadOption): Promise<void> {
     options = this._getOptions(options)
     const gltf2Importer = Gltf2Importer.getInstance();
-    const gltfModel = await gltf2Importer.importArrayBuffer(uri, file, options)
+    return gltf2Importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
 
-    const textures = this._createTextures(gltfModel);
-    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
-    defaultMaterialHelperArgumentArray[0].textures = textures;
+      const textures = this._createTextures(gltfModel);
+      const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
+      defaultMaterialHelperArgumentArray[0].textures = textures;
 
-    this._initializeMaterialProperties(gltfModel, textures.length);
+      this._initializeMaterialProperties(gltfModel, textures.length);
 
-    let rootGroup;
-    const modelConverter = ModelConverter.getInstance();
-    const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
-    if (existOutline) {
-      renderPasses[1] = renderPasses[1] ?? new RenderPass();
-      const renderPassOutline = renderPasses[1];
-      renderPassOutline.toClearColorBuffer = false;
-      renderPassOutline.toClearDepthBuffer = false;
-      gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
+      let rootGroup;
+      const modelConverter = ModelConverter.getInstance();
+      const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
+      if (existOutline) {
+        renderPasses[1] = renderPasses[1] ?? new RenderPass();
+        const renderPassOutline = renderPasses[1];
+        renderPassOutline.toClearColorBuffer = false;
+        renderPassOutline.toClearDepthBuffer = false;
+        gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
 
-      rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-      renderPassOutline.addEntities([rootGroup]);
-    } else {
-      rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-    }
+        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+        renderPassOutline.addEntities([rootGroup]);
+      } else {
+        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+      }
 
-    const renderPassMain = renderPasses[0];
-    renderPassMain.addEntities([rootGroup]);
+      const renderPassMain = renderPasses[0];
+      renderPassMain.addEntities([rootGroup]);
 
-    this._readSpringBone(rootGroup, gltfModel);
-    this._readVRMHumanoidInfo(gltfModel, rootGroup);
+      this._readSpringBone(rootGroup, gltfModel);
+      this._readVRMHumanoidInfo(gltfModel, rootGroup);
 
-    return renderPasses;
+    });
   }
 
   _getOptions(options: GltfLoadOption | undefined): GltfLoadOption {
