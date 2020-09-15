@@ -168,7 +168,7 @@ export default class GltfImporter {
             });
             break;
           case 'VRM':
-            this.__importVRM(uri, renderPasses, options).then(() => {
+            this.__importVRM(uri, file, renderPasses, options).then(() => {
               resolve();
             });
             break;
@@ -192,10 +192,10 @@ export default class GltfImporter {
     });
   }
 
-  private async __importVRM(uri: string, renderPasses: RenderPass[], options?: GltfLoadOption): Promise<RenderPass[]> {
+  private async __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options?: GltfLoadOption): Promise<RenderPass[]> {
     options = this._getOptions(options)
     const gltf2Importer = Gltf2Importer.getInstance();
-    const gltfModel = await gltf2Importer.import(uri, options);
+    const gltfModel = await gltf2Importer.importArrayBuffer(uri, file, options)
 
     const textures = this._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
