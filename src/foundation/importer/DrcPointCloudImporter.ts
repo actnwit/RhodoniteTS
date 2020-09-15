@@ -61,7 +61,7 @@ export default class DrcPointCloudImporter {
   importArrayBuffer(uri: string, arrayBuffer: ArrayBuffer, options?: GltfLoadOption) {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
-    return this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+    return this.__decodeDraco(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       console.log('__loadFromArrayBuffer error', err);
     });
   }
@@ -665,17 +665,13 @@ export default class DrcPointCloudImporter {
     return this.__instance;
   }
 
-
-
-  private async __decodeDraco(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, basePath: string, options?: {}) {
-    let gotText: any;
-    let gltfJson: any;
-    await this.__decodeBuffer(arrayBuffer).then(async (json: any) => {
-      gotText = JSON.stringify(json);
-      gltfJson = JSON.parse(gotText);
-    });
-    return await this._loadAsTextJson(gltfJson, options as GltfLoadOption, defaultOptions, basePath).catch((err) => {
-      console.log('this.__loadAsTextJson error', err);
+  private __decodeDraco(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, basePath: string, options?: {}) {
+    return this.__decodeBuffer(arrayBuffer).then((json: any) => {
+      const gotText = JSON.stringify(json);
+      const gltfJson = JSON.parse(gotText);
+      return this._loadAsTextJson(gltfJson, options as GltfLoadOption, defaultOptions, basePath).catch((err) => {
+        console.log('this.__loadAsTextJson error', err);
+      });
     });
   }
 
