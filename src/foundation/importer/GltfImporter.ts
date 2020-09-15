@@ -196,9 +196,14 @@ export default class GltfImporter {
           case 'Draco':
             importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
             importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
-              const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-              renderPasses[0].addEntities([rootGroup]);
-              resolve();
+              if (gltfModel == null) {
+                console.error('importArrayBuffer error is occurred');
+                reject();
+              } else {
+                const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+                renderPasses[0].addEntities([rootGroup]);
+                resolve();
+              }
             });
             break;
           case 'VRM':

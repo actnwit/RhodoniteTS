@@ -61,7 +61,7 @@ export default class DrcPointCloudImporter {
   importArrayBuffer(uri: string, arrayBuffer: ArrayBuffer, options?: GltfLoadOption) {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
-    return this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+    return this.__decodeDraco(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       console.log('__loadFromArrayBuffer error', err);
     });
   }
