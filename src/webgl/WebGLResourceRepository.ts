@@ -645,9 +645,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     this.__glw!.bindTexture2D(0, texture);
     if (isPremultipliedAlpha) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     } else {
-      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     }
 
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
@@ -739,9 +739,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const mipmapDepth = basisFile.getNumLevels(0);
 
     if (isPremultipliedAlpha) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     } else {
-      gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     }
 
     for (let i = 0; i < mipmapDepth; i++) {
