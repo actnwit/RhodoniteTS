@@ -111,7 +111,7 @@ export default class Texture extends AbstractTexture {
     level = 0,
     internalFormat = PixelFormat.RGBA,
     format = PixelFormat.RGBA,
-    type = ComponentType.Float,
+    type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
     minFilter = TextureParameter.LinearMipmapLinear,
     wrapS = TextureParameter.Repeat,
@@ -151,7 +151,7 @@ export default class Texture extends AbstractTexture {
     level = 0,
     internalFormat = PixelFormat.RGBA,
     format = PixelFormat.RGBA,
-    type = ComponentType.Float,
+    type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
     minFilter = TextureParameter.Linear,
     wrapS = TextureParameter.Repeat,
@@ -193,7 +193,7 @@ export default class Texture extends AbstractTexture {
     level = 0,
     internalFormat = PixelFormat.RGBA,
     format = PixelFormat.RGBA,
-    type = ComponentType.Float,
+    type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
     minFilter = TextureParameter.Linear,
     wrapS = TextureParameter.Repeat,
@@ -253,7 +253,7 @@ export default class Texture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createTexture(canvas, {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
-      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+      border: 0, format: PixelFormat.RGBA, type: ComponentType.UnsignedByte, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
       wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: true
     });
 
