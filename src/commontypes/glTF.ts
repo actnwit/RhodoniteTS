@@ -189,9 +189,9 @@ export type Gltf2AnimationChannel = {
 }
 
 export type Gltf2AnimationSampler = {
-  input: number,
+  input: Gltf2Accessor,
   interpolation?: string,
-  output: number,
+  output: Gltf2Accessor,
   extensions?: any,
   extras?: any
 }
