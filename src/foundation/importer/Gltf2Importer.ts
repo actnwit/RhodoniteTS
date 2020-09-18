@@ -36,9 +36,10 @@ export default class Gltf2Importer {
     }
 
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+    const glTFJson = await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       console.log('this.__loadFromArrayBuffer error', err);
-    });;
+    });
+    return glTFJson;
   }
 
   /**
