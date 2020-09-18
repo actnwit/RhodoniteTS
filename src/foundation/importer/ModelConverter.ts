@@ -1087,7 +1087,7 @@ export default class ModelConverter {
     return !!(new Uint8Array((new Uint16Array([0x00ff])).buffer))[0];
   }
 
-  _accessBinaryWithAccessor(accessor: any) {
+  _accessBinaryWithAccessor(accessor: Gltf2Accessor) {
     const bufferView = accessor.bufferView;
     const byteOffset: number = (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.buffer;
