@@ -82,6 +82,10 @@ export default class WebGLContextWrapper {
     }
   }
 
+  isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
+    return !this.isSupportWebGL1Extension(webGLExtension)
+  }
+
   get isDebugMode() {
     return this.__isDebugMode;
   }
