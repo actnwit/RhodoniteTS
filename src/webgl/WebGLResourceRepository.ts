@@ -1283,7 +1283,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     return this.createTexture(canvas, {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
-      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+      border: 0, format: PixelFormat.RGBA, type: ComponentType.UnsignedByte, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
       wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: false
     });
   }
@@ -1308,7 +1308,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
     return this.createTexture(new Uint8Array(arrayBuffer), {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
-      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+      border: 0, format: PixelFormat.RGBA, type: ComponentType.UnsignedByte, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
       wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: false
     });
   }
