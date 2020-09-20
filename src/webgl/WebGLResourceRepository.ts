@@ -25,6 +25,7 @@ import DataUtil from "../foundation/misc/DataUtil";
 import RenderBuffer from "../foundation/textures/RenderBuffer";
 import { BasisFile } from "../commontypes/BasisTexture";
 import { BasisCompressionTypeEnum, BasisCompressionType } from "../foundation/definitions/BasisCompressionType";
+import { WebGLExtension } from "./WebGLExtension";
 
 
 declare var HDRImage: any;
@@ -943,11 +944,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__glw!.bindTextureCube(0, texture);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    if (mipLevelCount >= 2) {
-      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    if ((images[0].posX as any).hdriFormat === HdriFormat.HDR &&
+      this.__glw!.isNotSupportWebGL1Extension(WebGLExtension.TextureFloatLinear))
+    { 
+      if (mipLevelCount >= 2) {
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+      } else {
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      }
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     } else {
-      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      if (mipLevelCount >= 2) {
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      } else {
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      }
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     }
 
@@ -1277,7 +1288,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     return this.createTexture(canvas, {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
-      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+      border: 0, format: PixelFormat.RGBA, type: ComponentType.UnsignedByte, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
       wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: false
     });
   }
@@ -1302,7 +1313,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
     return this.createTexture(new Uint8Array(arrayBuffer), {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
-      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+      border: 0, format: PixelFormat.RGBA, type: ComponentType.UnsignedByte, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
       wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: false
     });
   }
