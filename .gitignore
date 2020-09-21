@@ -78,3 +78,5 @@ tests/baselines/reference/dt
 TEST-results.xml
 package-lock.json
 .rpt2_cache
+dist/
+*.tgz
