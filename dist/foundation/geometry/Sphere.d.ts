@@ -1,0 +1,12 @@
+import Primitive from "./Primitive";
+import Material from "../materials/core/Material";
+import { Size } from "../../commontypes/CommonTypes";
+export default class Sphere extends Primitive {
+    constructor();
+    generate({ radius, widthSegments, heightSegments, material }: {
+        radius: number;
+        widthSegments: Size;
+        heightSegments: Size;
+        material?: Material;
+    }): void;
+}
