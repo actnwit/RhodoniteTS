@@ -1,6 +1,6 @@
 # Rhodonite
 
-![Rhodonite](./assets/images/rhodonite_logo_2.png)
+![Rhodonite](./assets/images/Rhodonite_Logo_2.png)
 
 Rhodonite is a WebGL library written in TypeScript.
 
