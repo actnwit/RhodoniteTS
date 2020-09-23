@@ -1,0 +1,20 @@
+export declare type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
+export declare type TypedArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor | Uint8ClampedArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor;
+export declare type Index = number;
+export declare type Size = number;
+export declare type Count = number;
+export declare type Byte = number;
+export declare type ObjectUID = number;
+export declare type PrimitiveUID = number;
+export declare type EntityUID = number;
+export declare type ComponentTID = number;
+export declare type ComponentSID = number;
+export declare type MaterialUID = number;
+export declare type MaterialNodeUID = number;
+export declare type TextureUID = number;
+export declare type MeshUID = number;
+export declare type WebGLResourceHandle = number;
+export declare type CGAPIResourceHandle = WebGLResourceHandle;
+export declare type RnTags = {
+    [s: string]: string;
+};

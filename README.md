@@ -1,15 +1,26 @@
 # Rhodonite
 
+![Rhodonite](./assets/images/rhodonite_logo_2.png)
+
 Rhodonite is a WebGL library written in TypeScript.
 
 ## Feature
 
 * Entity Component System
-* Original high speed drawing system with data texture
+* Blittable Memory Architecture (Original GPU data storage system with floating point texture)
+* Physically based Rendering with Image Based Lighting
+* Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
+* Support [Basis Universal](https://github.com/BinomialLLC/basis_universal) Compressed Texture
+
+## Viewer
+
+You can try our library via https://editor.librn.com/ .
+
+![poly](./assets/images/screenshot_poly.webp)
 
 ## Support Browsers
 
-Google Chrome, Firefox, Safari, Microsoft Edge(chronium based) and other modern browsers.
+Google Chrome, Firefox, Safari, Microsoft Edge (chromium based) and other modern browsers.
 IE11 is not supported.
 
 ## Building Rhodonite
