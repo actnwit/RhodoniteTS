@@ -123,13 +123,21 @@ export default class CameraComponent extends Component {
   }
 
   get eye() {
+    // In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning
     return CameraComponent._eye;
+  }
+
+  set eye(noUseVec: Vector3) {
+    throw Error('In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning.')
   }
 
   get eyeInner() {
     return this._eyeInner;
   }
 
+  /**
+   * @private
+   */ 
   set eyeInner(vec: Vector3) {
     this._eyeInner.copyComponents(vec);
   }
