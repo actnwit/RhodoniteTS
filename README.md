@@ -15,6 +15,8 @@ Rhodonite is a WebGL library written in TypeScript.
 ## Viewer
 
 You can try our library via https://editor.librn.com/ .
+This Viewer supports glTF/VRM files Drag & Drop to display.
+(Drag & Drop all files if glTF data is consist of multiple files.)
 
 ![poly](./assets/images/screenshot_poly.webp)
 
