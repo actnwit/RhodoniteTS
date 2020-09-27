@@ -75,6 +75,7 @@ import _AttributeNormalShaderNode from './foundation/materials/nodes/AttributeNo
 import _WorldMatrixShaderNode from './foundation/materials/nodes/WorldMatrixShaderNode';
 import _ViewMatrixShaderNode from './foundation/materials/nodes/ViewMatrixShaderNode';
 import _NormalMatrixShaderNode from './foundation/materials/nodes/NormalMatrixShaderNode';
+import _AABB from './foundation/math/AABB';
 import _ProjectionMatrixShaderNode from './foundation/materials/nodes/ProjectionMatrixShaderNode';
 import _VaryingInVariableShaderNode from './foundation/materials/nodes/VaryingInVariableShaderNode';
 import _VaryingOutVariableShaderNode from './foundation/materials/nodes/VaryingOutVariableShaderNode';
@@ -111,6 +112,7 @@ export default {
   SceneGraphComponent: _SceneGraphComponent,
   MeshComponent: _MeshComponent,
   MeshRendererComponent: _MeshRendererComponent,
+  AABB: _AABB,
   Primitive: _Primitive,
   System: _System,
   Scalar: _Scalar,
@@ -163,6 +165,7 @@ export default {
   BlendShapeComponent: _BlendShapeComponent,
   AnimationAssigner: _AnimationAssigner,
   MiscUtil: _MiscUtil,
+  MathUtil: _MathUtil,
   OrbitCameraController: _OrbitCameraController,
   WalkThroughCameraController: _WalkThroughCameraController,
   ShaderityUtility: _ShaderityUtility,
@@ -215,6 +218,7 @@ export type TransformComponent = _TransformComponent
 export type SceneGraphComponent = _SceneGraphComponent
 export type MeshComponent = _MeshComponent
 export type MeshRendererComponent = _MeshRendererComponent
+export type AABB = _AABB
 export type Primitive = _Primitive
 export type System = _System
 export type Scalar = _Scalar

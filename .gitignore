@@ -81,3 +81,4 @@ package-lock.json
 dist/
 *.d.ts
 *.tgz
+VERSION-FILE

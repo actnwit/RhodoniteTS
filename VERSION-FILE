@@ -1,4 +1,0 @@
-version: 0.2.6-9-gd03a-mod
-branch: feat/project-module-config
-27c7cd27d82653c000e2b4fab26bcebdc9053b8593d7979238120c214aec0329 ./dist/rhodonite.js
-27c7cd27d82653c000e2b4fab26bcebdc9053b8593d7979238120c214aec0329 ./dist/rhodonite.min.js
