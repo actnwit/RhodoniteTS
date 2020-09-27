@@ -79,4 +79,5 @@ TEST-results.xml
 package-lock.json
 .rpt2_cache
 dist/
+*.d.ts
 *.tgz
