@@ -1,4 +1,4 @@
-import RnObj, { RnType } from "../../../rhodonite";
+import Rn from "../../..";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import Material from "../core/Material";
@@ -7,8 +7,6 @@ import OutPositionNode from "./OutPositionShaderNode";
 import Scalar from "../../math/Scalar";
 import AttributePositionShaderNode from "./AttributePositionShaderNode";
 import ShaderGraphResolver from "../core/ShaderGraphResolver";
-
-const Rn: RnType = RnObj as any;
 
 test('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');

@@ -142,9 +142,9 @@ export default class RenderPass extends RnObject {
    * Get all the highest level SceneGraphComponents list of the entities on this render pass.
    * @return An array of SceneGraphComponents
    */
-  get sceneTopLevelGraphComponents() {
+  get sceneTopLevelGraphComponents(): SceneGraphComponent[]  {
     this.__collectTopLevelSceneGraphComponents();
-    return this.__topLevelSceneGraphComponents;
+    return this.__topLevelSceneGraphComponents != null ? this.__topLevelSceneGraphComponents : []
   }
 
   /**

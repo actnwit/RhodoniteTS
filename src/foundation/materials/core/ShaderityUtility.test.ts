@@ -1,8 +1,7 @@
-import RnObj, { RnType } from "../../../rhodonite";
+import Rn from "../../..";
 import { ShaderityObject } from "shaderity";
 import MutableScalar from "../../math/MutableScalar";
 import MutableVector2 from "../../math/MutableVector2";
-const Rn: RnType = RnObj as any;
 
 test('ShaderityUtility parse rn_data correctly', async () => {
 

@@ -1,4 +1,4 @@
-import RnObj, { RnType } from "../../../rhodonite";
+import Rn from "../../..";
 import ModuleManager from "../../system/ModuleManager";
 import MemoryManager from "../../core/MemoryManager";
 import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
@@ -9,7 +9,6 @@ import OutPositionShaderNode from "./OutPositionShaderNode";
 import Vector4 from "../../math/Vector4";
 import ShaderGraphResolver from "../core/ShaderGraphResolver";
 
-const Rn: RnType = RnObj as any;
 
 test('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');

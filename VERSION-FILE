@@ -1,4 +1,4 @@
-version: 0.2.6-mod
-branch: chore/gitignore
-f1dca277f2220847b08370fcf14e723759517edeaa145a097b56f41a4c1ad0b1 ./dist/rhodonite.js
-d5e6b3c0b7c9b27c345f7dcf66213055c23cb75226a27dab6fc7ec0ace01811c ./dist/rhodonite.min.js
+version: 0.2.6-9-gd03a-mod
+branch: feat/project-module-config
+27c7cd27d82653c000e2b4fab26bcebdc9053b8593d7979238120c214aec0329 ./dist/rhodonite.js
+27c7cd27d82653c000e2b4fab26bcebdc9053b8593d7979238120c214aec0329 ./dist/rhodonite.min.js

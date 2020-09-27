@@ -1,7 +1,5 @@
-import RnObj, { RnType } from "../rhodonite";
+import Rn from "..";
 import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
-
-const Rn: RnType = RnObj as any;
 
 const puppeteer = require('puppeteer')
 

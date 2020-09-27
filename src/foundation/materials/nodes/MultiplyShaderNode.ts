@@ -1,6 +1,7 @@
 import { CompositionType } from "../../definitions/CompositionType";
 import MultiplyShaderityObject from "../../../webgl/shaderity_shaders/nodes/Multiply.glsl"
-import { CompositionTypeEnum, ComponentTypeEnum } from "../../../rhodonite";
+import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import AbstractShaderNode from "../core/AbstractShaderNode";
 
 export default class MultiplyShaderNode extends AbstractShaderNode {

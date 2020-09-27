@@ -1,6 +1,5 @@
-import RnObj, { RnType } from "../../rhodonite";
+import Rn from "../../";
 
-const Rn: RnType = RnObj as any;
 
 function generateEntity() {
   const repo = Rn.EntityRepository.getInstance();

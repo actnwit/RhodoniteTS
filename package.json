@@ -1,24 +1,25 @@
 {
   "name": "rhodonite",
   "version": "0.2.6",
-  "main": "dist/rhodonite.js",
-  "types": "dist/rhodonite.d.ts",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "files": [
-    "dist"
+    "dist/esm"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/emadurandal/RhodoniteTS.git"
+    "url": "git+https://github.com/actnwit/RhodoniteTS.git"
   },
   "author": "Yuki Shimada <emadurandal@gmail.com>",
   "license": "MIT",
   "scripts": {
     "setup": "npx shx cp ./pre-commit ./.git/hooks",
     "prepare": "npm run build-ci",
-    "build": "npx shx rm -rf dist && npm run build-dev && npm run build-prod && npm run build-type && npm run versioning",
-    "build-ci": "npx shx rm -rf dist && npm run build-dev && npm run build-prod && npm run build-type",
-    "build-dev": "webpack --config webpack.config.development.js",
-    "build-prod": "webpack --config webpack.config.production.js",
+    "build": "npx shx rm -rf dist && npm run build-esm && npm run versioning",
+    "build-ci": "npx shx rm -rf dist && npm run build-esm",
+    "build-dev": "npx webpack --config webpack.config.development.js",
+    "build-prod": "npx webpack --config webpack.config.production.js",
+    "build-esm": "npx webpack --config webpack.config.common_module.js",
     "build-type": "tsc --emitDeclarationOnly",
     "versioning": "bash versioning.sh",
     "prepublishOnly": "npm run build && npm run versioning && npm run test",
@@ -52,7 +53,7 @@
     "typedoc": "^0.14.2",
     "typescript": "^3.7.2",
     "webpack": "^4.33.0",
-    "webpack-cli": "^3.3.4",
+    "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
@@ -61,9 +62,9 @@
   },
   "description": "Rhodonite is a WebGL library written in TypeScript.",
   "bugs": {
-    "url": "https://github.com/emadurandal/RhodoniteTS/issues"
+    "url": "https://github.com/actnwit/RhodoniteTS/issues"
   },
-  "homepage": "https://github.com/emadurandal/RhodoniteTS#readme",
+  "homepage": "https://github.com/actnwit/RhodoniteTS#readme",
   "directories": {
     "doc": "docs"
   }
