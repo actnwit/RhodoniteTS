@@ -19,6 +19,8 @@ import Vector4 from "../../math/Vector4";
 import VectorN from "../../math/VectorN";
 import { Count } from "../../../commontypes/CommonTypes";
 import { MiscUtil } from "../../misc/MiscUtil";
+import WebGLResourceRepository from "../../../webgl/WebGLResourceRepository";
+import WebGLContextWrapper from "../../../webgl/WebGLContextWrapper";
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -251,6 +253,12 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
 
     // Texture
+    const glw = WebGLResourceRepository.getInstance().currentWebGLContextWrapper as WebGLContextWrapper;
+    const gl = glw.getRawContext();
+    const maxUsableTextureNumber = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+    const support10UnitsOfTextures = maxUsableTextureNumber > 9;
+
+
     shaderSemanticsInfoArray.push(
       {
         semantic: MToonSingleMaterialNode._MainTex, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
@@ -289,7 +297,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       }
     );
 
-    if (!MiscUtil.isIOS()) {
+    if (support10UnitsOfTextures) {
       shaderSemanticsInfoArray.push(
         {  // number 7 of texture is the data Texture
           semantic: MToonSingleMaterialNode._BumpMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
@@ -361,7 +369,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         },
       );
 
-      if (!MiscUtil.isIOS()) {
+      if (support10UnitsOfTextures) {
         shaderSemanticsInfoArray.push(
           {
             semantic: MToonSingleMaterialNode._OutlineWidthTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
