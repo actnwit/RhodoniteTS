@@ -86,6 +86,8 @@ import _BlockBeginShaderNode from './foundation/materials/nodes/BlockBeginShader
 import _BlockEndShaderNode from './foundation/materials/nodes/BlockEndShaderNode';
 import _GreaterShaderNode from './foundation/materials/nodes/GreaterShaderNode';
 import _ShaderGraphResolver from './foundation/materials/core/ShaderGraphResolver';
+import _Quaternion from './foundation/math/Quaternion';
+import _MutableQuaternion from './foundation/math/MutableQuaternion';
 
 // definitions
 import  { ShaderSemantics as _ShaderSemantics, ShaderSemanticsEnum as _ShaderSemanticsEnum } from './foundation/definitions/ShaderSemantics';
@@ -103,6 +105,9 @@ import  { CompositionType as _CompositionType, CompositionTypeEnum as _Compositi
 import  { ComponentType as _ComponentType, ComponentTypeEnum as _ComponentTypeEnum } from './foundation/definitions/ComponentType';
 import  { CameraControllerType as _CameraControllerType, CameraControllerTypeEnum as _CameraControllerTypeEnum } from './foundation/definitions/CameraControllerType';
 import  { HdriFormat as _HdriFormat, HdriFormatEnum as _HdriFormatEnum } from './foundation/definitions/HdriFormat';
+import  { ShadingModel as _ShadingModel, ShadingModelEnum as _ShadingModelEnum } from './foundation/definitions/ShadingModel';
+import  { AnimationAttribute as _AnimationAttribute, AnimationAttributeEnum as _AnimationAttributeEnum } from './foundation/definitions/AnimationAttribute';
+import  { AnimationInterpolation as _AnimationInterpolation, AnimationInterpolationEnum as _AnimationInterpolationEnum } from './foundation/definitions/AnimationInterpolation';
 
 export default {
   Entity: _Entity,
@@ -193,6 +198,9 @@ export default {
   BlockEndShaderNode: _BlockEndShaderNode,
   GreaterShaderNode: _GreaterShaderNode,
   ShaderGraphResolver: _ShaderGraphResolver,
+  Quaternion: _Quaternion,
+  MutableQuaternion: _MutableQuaternion,
+
   // Definition Objects
   CompositionType: _CompositionType,
   ShaderType: _ShaderType,
@@ -209,6 +217,9 @@ export default {
   TextureParameter: _TextureParameter,
   PrimitiveMode: _PrimitiveMode,
   HdriFormat: _HdriFormat,
+  ShadingModel: _ShadingModel,
+  AnimationAttribute: _AnimationAttribute,
+  AnimationInterpolation: _AnimationInterpolation
 };
 
 export type Entity = _Entity
@@ -306,6 +317,7 @@ export type BlockBeginShaderNode = _BlockBeginShaderNode
 export type BlockEndShaderNode = _BlockEndShaderNode
 export type GreaterShaderNode = _GreaterShaderNode
 export type ShaderGraphResolver = _ShaderGraphResolver
+
 // Definition Enums
 export type CompositionTypeEnum = _CompositionTypeEnum
 export type ComponentTypeEnum = _ComponentTypeEnum
@@ -316,3 +328,6 @@ export type BoneDataTypeEnum = _BoneDataTypeEnum
 export type TextureParameterEnum = _TextureParameterEnum
 export type ProcessApproachEnum = _ProcessApproachEnum
 export type HdriFormatEnum = _HdriFormatEnum
+export type ShadingModelEnum = _ShadingModelEnum
+export type AnimationAttributeEnum = _AnimationAttributeEnum
+export type AnimationInterpolationEnum = _AnimationInterpolationEnum
