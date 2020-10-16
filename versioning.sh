@@ -6,13 +6,15 @@ BRANCH="branch: $(git symbolic-ref --short HEAD)"
 echo "" >> ./dist/esm/index.js
 echo ${SET_RN_VERSION}" "${BRANCH}"';" >> ./dist/esm/index.js
 
+mkdir -p ./dist/umd
+
 echo "" >> ./dist/umd/rhodonite.js
 echo ${SET_RN_VERSION}" "${BRANCH}"';" >> ./dist/umd/rhodonite.js
 
 echo "" >> ./dist/umd/rhodonite.min.js
 echo ${SET_RN_VERSION}" "${BRANCH}"';" >> ./dist/umd/rhodonite.min.js
 
-echo "built $(BRANCH)"
+echo "built ${BRANCH}"
 
 echo ${BRANCH} >> VERSION-FILE
 echo $(shasum -a 256 ./dist/esm/index.js) >> VERSION-FILE
