@@ -17,6 +17,6 @@ echo ${SET_RN_VERSION}" "${BRANCH}"';" >> ./dist/umd/rhodonite.min.js
 echo "built ${BRANCH}"
 
 echo ${BRANCH} >> VERSION-FILE
-echo $(shasum -a 256 ./dist/esm/index.js) >> VERSION-FILE
-echo $(shasum -a 256 ./dist/umd/rhodonite.js) >> VERSION-FILE
-echo $(shasum -a 256 ./dist/umd/rhodonite.min.js) >> VERSION-FILE
+echo "Get-FileHash -Algorithm SHA256 ./dist/esm/index.js" >> VERSION-FILE
+echo "Get-FileHash -Algorithm SHA256 ./dist/umd/rhodonite.js" >> VERSION-FILE
+echo "Get-FileHash -Algorithm SHA256 ./dist/umd/rhodonite.min.js" >> VERSION-FILE
