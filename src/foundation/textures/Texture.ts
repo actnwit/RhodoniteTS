@@ -6,7 +6,7 @@ import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { Size, TypedArray, Count } from "../../commontypes/CommonTypes";
 import Config from "../core/Config";
 import { BasisFile, BasisTranscoder, BASIS } from "../../commontypes/BasisTexture";
-import { ComponentTypeEnum } from "../../rhodonite";
+import { ComponentTypeEnum } from "../../foundation/definitions/ComponentType";
 
 declare const BASIS: BASIS;
 

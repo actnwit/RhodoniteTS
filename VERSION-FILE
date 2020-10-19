@@ -1,4 +1,0 @@
-version: 0.2.6-mod
-branch: chore/gitignore
-f1dca277f2220847b08370fcf14e723759517edeaa145a097b56f41a4c1ad0b1 ./dist/rhodonite.js
-d5e6b3c0b7c9b27c345f7dcf66213055c23cb75226a27dab6fc7ec0ace01811c ./dist/rhodonite.min.js

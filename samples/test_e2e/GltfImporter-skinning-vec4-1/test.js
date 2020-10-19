@@ -10,4 +10,6 @@ test('regression test GltfImporter-skinning-vec4-1', async () => {
     failureThreshold: 0.03,
     failureThresholdType: 'percent'
   });
+  await page.goto('about:blank');
+  await page.close();
 });

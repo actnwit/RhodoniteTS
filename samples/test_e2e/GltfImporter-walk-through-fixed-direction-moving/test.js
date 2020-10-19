@@ -11,4 +11,6 @@ test('regression test GltfImporter-walk-through-fixed-direction-moving', async (
     failureThreshold: 0.01,
     failureThresholdType: 'percent'
   });
+  await page.goto('about:blank');
+  await page.close();
 });

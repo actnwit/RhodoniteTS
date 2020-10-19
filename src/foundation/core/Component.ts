@@ -3,7 +3,8 @@ import EntityRepository from './EntityRepository';
 import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { BufferUseEnum } from '../definitions/BufferUse';
-import { CompositionTypeEnum, ComponentTypeEnum } from '../../rhodonite';
+import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import Matrix44 from '../math/Matrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
@@ -14,6 +15,7 @@ import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
 import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../commontypes/CommonTypes';
+import Entity from './Entity';
 
 type MemberInfo = { memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[] };
 
@@ -441,7 +443,7 @@ export default class Component extends RnObject {
    * get the entity which has this component.
    * @returns the entity which has this component
    */
-  get entity() {
+  get entity(): Entity {
     return this.__entityRepository.getEntity(this.__entityUid);
   }
 

@@ -1,6 +1,5 @@
-import RnObj, { RnType } from "../../../rhodonite";
+import Rn from "../../..";
 
-const Rn: RnType = RnObj as any;
 import { ComponentType } from "../../definitions/ComponentType";
 import { CompositionType } from "../../definitions/CompositionType";
 import Material from "./Material";

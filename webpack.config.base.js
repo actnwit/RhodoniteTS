@@ -1,5 +1,5 @@
 module.exports = {
-  entry: './src/rhodonite.ts',
+  entry: './src/index.ts',
 
   module: {
     rules: [
@@ -17,7 +17,6 @@ module.exports = {
       },
     ]
   },
-  target: 'node',
   resolve: {
     extensions: [
       '.ts',
