@@ -10,4 +10,6 @@ test('regression test FXAA', async () => {
     failureThreshold: 0.05,
     failureThresholdType: 'percent'
   });
+  await page.goto('about:blank');
+  await page.close();
 });

@@ -7,4 +7,6 @@ test('regression test DataTextureInstancedDrawingWebGL1', async () => {
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot();
+  await page.goto('about:blank');
+  await page.close();
 });

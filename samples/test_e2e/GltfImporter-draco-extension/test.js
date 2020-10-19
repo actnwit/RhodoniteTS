@@ -10,4 +10,6 @@ test('regression test GltfImporter-draco-extension', async () => {
     failureThreshold: 2.0,
     failureThresholdType: 'percent'
   });
+  await page.goto('about:blank');
+  await page.close();
 });

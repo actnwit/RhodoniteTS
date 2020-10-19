@@ -10,4 +10,6 @@ test('regression test GltfImporter-ibl-metallic-roughness', async () => {
     failureThreshold: 0.001,
     failureThresholdType: 'percent'
   });
+  await page.goto('about:blank');
+  await page.close();
 });

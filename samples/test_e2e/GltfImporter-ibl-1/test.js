@@ -19,4 +19,6 @@ test('regression test GltfImporter-ibl-1', async () => {
     failureThreshold: 0.03,
     failureThresholdType: 'percent'
   });
+  await page.goto('about:blank');
+  await page.close();
 });
