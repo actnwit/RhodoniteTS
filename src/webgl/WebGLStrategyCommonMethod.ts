@@ -8,11 +8,11 @@ import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceReposit
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
-let lastBlendEquationModeAlpha: number | null;
+let lastBlendEquationModeAlpha: number;
 let lastBlendFuncSrcFactor: number;
 let lastBlendFuncDstFactor: number;
-let lastBlendFuncAlphaSrcFactor: number | null;
-let lastBlendFuncAlphaDstFactor: number | null;
+let lastBlendFuncAlphaSrcFactor: number;
+let lastBlendFuncAlphaDstFactor: number;
 let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
 
@@ -59,25 +59,21 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
     setBlendEquationMode(material.blendEquationMode, material.blendEquationModeAlpha, gl);
     setBlendFuncSrcFactor(material.blendFuncSrcFactor, material.blendFuncDstFactor, material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor, gl);
   } else if (material.alphaMode === AlphaMode.Additive) {
-    setBlendEquationMode(32774, null, gl);       // gl.FUNC_ADD
-    setBlendFuncSrcFactor(1, 1, null, null, gl); // gl.ONE
+    setBlendEquationMode(32774, 32774, gl);       // gl.FUNC_ADD
+    setBlendFuncSrcFactor(1, 1, 1, 1, gl);        // gl.ONE
   }
 }
 
-function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number | null, gl: WebGLRenderingContext) {
+function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number, gl: WebGLRenderingContext) {
   const needUpdateBlendEquation = differentWithLastBlendEquation(blendEquationMode, blendEquationModeAlpha);
   if (needUpdateBlendEquation) {
-    if (blendEquationModeAlpha != null) {
-      gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
-    } else {
-      gl.blendEquation(blendEquationMode);
-    }
+    gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
     lastBlendEquationMode = blendEquationMode;
     lastBlendEquationModeAlpha = blendEquationModeAlpha;
   }
 }
 
-function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number | null) {
+function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number) {
   const result = (
     lastBlendEquationMode != equationMode ||
     lastBlendEquationModeAlpha != equationModeAlpha
@@ -85,14 +81,10 @@ function differentWithLastBlendEquation(equationMode: number, equationModeAlpha:
   return result;
 }
 
-function setBlendFuncSrcFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number | null, blendFuncAlphaDstFactor: number | null, gl: WebGLRenderingContext) {
+function setBlendFuncSrcFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number, blendFuncAlphaDstFactor: number, gl: WebGLRenderingContext) {
   const needUpdateBlendFunc = differentWithLastBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
   if (needUpdateBlendFunc) {
-    if (blendFuncAlphaSrcFactor != null) {
-      gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
-    } else {
-      gl.blendFunc(blendFuncSrcFactor, blendFuncDstFactor);
-    }
+    gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
     lastBlendFuncSrcFactor = blendFuncSrcFactor;
     lastBlendFuncDstFactor = blendFuncDstFactor;
     lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
@@ -100,7 +92,7 @@ function setBlendFuncSrcFactor(blendFuncSrcFactor: number, blendFuncDstFactor: n
   }
 }
 
-function differentWithLastBlendFuncFactor(srcFactor: number, dstFactor: number, alphaSrcFactor: number | null, alphaDstFactor: number | null): boolean {
+function differentWithLastBlendFuncFactor(srcFactor: number, dstFactor: number, alphaSrcFactor: number, alphaDstFactor: number): boolean {
   const result = (
     lastBlendFuncSrcFactor != srcFactor ||
     lastBlendFuncDstFactor != dstFactor ||
@@ -155,7 +147,7 @@ function isMaterialsSetup(meshComponent: MeshComponent) {
     let count = 0;
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh!.getPrimitiveAt(i);
-      if (primitive.material != null && primitive.material._shaderProgramUid !== -1) {
+      if (primitive.material._shaderProgramUid !== -1) {
         count++;
       }
     }
