@@ -126,12 +126,12 @@ const load = function (time) {
       // environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
       environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/environment/environment';
       environmentCubeTexture.isNamePosNeg = true;
-      environmentCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
+      environmentCubeTexture.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
       environmentCubeTexture.mipmapLevelNumber = 1;
       environmentCubeTexture.loadTextureImagesAsync();
 
       sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-      sphereMaterial.setParameter(Rn.EnvConstantSingleMaterialNode.EnvHdriFormat, Rn.HdriFormat.HDR.index);
+      sphereMaterial.setParameter(Rn.EnvConstantSingleMaterialNode.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
       spherePrimitive.generate({ radius: -100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
       const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
       const sphereMesh = new Rn.Mesh();

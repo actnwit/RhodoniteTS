@@ -944,9 +944,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__glw!.bindTextureCube(0, texture);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    if ((images[0].posX as any).hdriFormat === HdriFormat.HDR &&
-      this.__glw!.isNotSupportWebGL1Extension(WebGLExtension.TextureFloatLinear))
-    { 
+    if ((images[0].posX as any).hdriFormat === HdriFormat.HDR_LINEAR &&
+      this.__glw!.isNotSupportWebGL1Extension(WebGLExtension.TextureFloatLinear)) {
       if (mipLevelCount >= 2) {
         gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
       } else {
@@ -963,7 +962,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const loadImageToGPU = (image: DirectTextureData, cubeMapSide: number, i: Index) => {
-      if ((image as any).hdriFormat === HdriFormat.HDR) {
+      if ((image as any).hdriFormat === HdriFormat.HDR_LINEAR) {
         if (this.__glw!.isWebGL2) {
           gl.texImage2D(cubeMapSide, i, gl.RGB32F, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
         } else {
@@ -1014,7 +1013,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           let loadedCount = 0;
           const images: HTMLImageElement[] = [];
           let extension = '.jpg';
-          if (hdriFormat === HdriFormat.HDR) {
+          if (hdriFormat === HdriFormat.HDR_LINEAR) {
             extension = '.hdr';
           } else if (hdriFormat === HdriFormat.RGBE_PNG) {
             extension = '.RGBE.PNG';
@@ -1046,7 +1045,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           for (var j = 0; j < faces.length; j++) {
             const face = faces[j][1];
             let image: any;
-            if (hdriFormat === HdriFormat.HDR || hdriFormat === HdriFormat.RGB9_E5_PNG) {
+            if (hdriFormat === HdriFormat.HDR_LINEAR || hdriFormat === HdriFormat.RGB9_E5_PNG) {
               image = new HDRImage();
             } else {
               image = new Image();
