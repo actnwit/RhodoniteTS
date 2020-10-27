@@ -15,14 +15,13 @@
   "scripts": {
     "setup": "npx shx cp ./pre-commit ./.git/hooks",
     "prepare": "npm run build-ci",
-    "build": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod && npm run versioning",
-    "build-ci": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod && npm run versioning",
-    "build-umd-dev": "npx webpack --config webpack.config.development.js",
-    "build-umd-prod": "npx webpack --config webpack.config.production.js",
-    "build-esm": "npx webpack --config webpack.config.common_module.js",
+    "build": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod",
+    "build-ci": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod",
+    "build-umd-dev": "npm run create-VERSION-FILE && npx webpack --config webpack.config.development.js",
+    "build-umd-prod": "npm run create-VERSION-FILE && npx webpack --config webpack.config.production.js",
+    "build-esm": "npm run create-VERSION-FILE && npx webpack --config webpack.config.common_module.js",
     "build-type": "tsc --emitDeclarationOnly",
-    "versioning": "bash versioning.sh",
-    "prepublishOnly": "npm run build && npm run versioning && npm run test",
+    "prepublishOnly": "npm run build && npm run test",
     "test": "npm run test-unit && npm run test-e2e",
     "test-unit": "jest --config jest.config.js ./src",
     "test-e2e": "jest ./samples/test_e2e --runInBand --config jest.config.e2e.js",
@@ -30,7 +29,8 @@
     "test-coverage": "jest --coverage",
     "doc": "typedoc --includeDeclarations --ignoreCompilerErrors --exclude '**/*+(test|d).ts' --out ./docs/ ./src/",
     "yarn-pack": "yarn pack -f rhodonite-tmp.tgz",
-    "start": "node server.js"
+    "start": "node server.js",
+    "create-VERSION-FILE": "echo $null >> VERSION-FILE"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
@@ -59,7 +59,8 @@
   },
   "dependencies": {
     "requirejs": "^2.3.6",
-    "shaderity": "0.1.24"
+    "shaderity": "0.1.24",
+    "version-loader": "^0.1.0"
   },
   "description": "Rhodonite is a WebGL library written in TypeScript.",
   "bugs": {

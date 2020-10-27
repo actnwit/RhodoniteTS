@@ -1,7 +1,8 @@
 module.exports = {
   "transform": {
     "^.+\\.tsx?$": "ts-jest",
-    "\\.(vert|frag|glsl)$": "<rootDir>/jest-webpack-shaderity.js"
+    "\\.(vert|frag|glsl)$": "<rootDir>/jest-webpack-shaderity.js",
+    "\\VERSION-FILE$": "<rootDir>/jest-webpack-shaderity.js"
   },
   "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
   "moduleFileExtensions": [
