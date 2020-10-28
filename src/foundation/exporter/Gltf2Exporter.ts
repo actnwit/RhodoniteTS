@@ -4,6 +4,7 @@ import MeshComponent from "../components/MeshComponent";
 import { ShaderSemantics } from "../definitions/ShaderSemantics";
 import AbstractTexture from "../textures/AbstractTexture";
 import Vector4 from "../math/Vector4";
+const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare var window: any;
 
@@ -32,8 +33,8 @@ export default class Gltf2Exporter {
     const entities = Gltf2Exporter.__entityRepository._getEntities();
     const json: any = {
       "asset": {
-          "version": "2.0",
-          "generator": `Rhodonite (${window['Rn'].VERSION})`
+        "version": "2.0",
+        "generator": `Rhodonite (${_VERSION.version})`
       }
     };
 
