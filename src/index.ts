@@ -89,6 +89,8 @@ import _ShaderGraphResolver from './foundation/materials/core/ShaderGraphResolve
 import _Quaternion from './foundation/math/Quaternion';
 import _MutableQuaternion from './foundation/math/MutableQuaternion';
 
+const _VERSION = require('./../VERSION-FILE').default;
+
 // definitions
 import  { ShaderSemantics as _ShaderSemantics, ShaderSemanticsEnum as _ShaderSemanticsEnum } from './foundation/definitions/ShaderSemantics';
 import  { LightType as _LightType } from './foundation/definitions/LightType';
@@ -200,6 +202,7 @@ export default {
   ShaderGraphResolver: _ShaderGraphResolver,
   Quaternion: _Quaternion,
   MutableQuaternion: _MutableQuaternion,
+  VERSION: _VERSION,
 
   // Definition Objects
   CompositionType: _CompositionType,
@@ -317,6 +320,7 @@ export type BlockBeginShaderNode = _BlockBeginShaderNode
 export type BlockEndShaderNode = _BlockEndShaderNode
 export type GreaterShaderNode = _GreaterShaderNode
 export type ShaderGraphResolver = _ShaderGraphResolver
+export type VERSION = typeof _VERSION
 
 // Definition Enums
 export type CompositionTypeEnum = _CompositionTypeEnum

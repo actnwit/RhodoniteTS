@@ -11,6 +11,13 @@ module.exports = {
         ]
       },
       {
+        test: /VERSION-FILE$/,
+        exclude: /node_modules/,
+        use: [
+          'version-loader'
+        ]
+      },
+      {
         test: /\.ts$/,
         exclude: [/node_modules/],
         loader: 'ts-loader'

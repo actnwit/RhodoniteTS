@@ -4,6 +4,7 @@ const baseConfig = require('./webpack.config.base.js')
 const webpack = require('webpack')
 
 const config = merge(baseConfig, {
+  target: 'node',
   mode: 'development',
   output: {
     filename: 'index.js',
