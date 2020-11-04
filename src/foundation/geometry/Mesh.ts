@@ -12,6 +12,7 @@ import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import Entity from "../core/Entity";
 import { Index, CGAPIResourceHandle, MeshUID } from "../../commontypes/CommonTypes";
+import MutableVector3 from "../math/MutableVector3";
 
 /**
  * The Mesh class.
@@ -40,6 +41,23 @@ export default class Mesh {
   public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
   public isPreComputeForRayCastPickingEnable: boolean = false;
   private __hasFaceNormal = false;
+
+  private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_2: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_3: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_4: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_5: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_6: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_7: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_8: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_9: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_10: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_11: MutableVector3 = MutableVector3.zero();
+
+  private static __tmpReturnVec3_0: MutableVector3 = MutableVector3.zero();
+  private static __tmpReturnVec3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpReturnVec3_2: MutableVector3 = MutableVector3.zero();
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -265,9 +283,9 @@ export default class Mesh {
     tangentAccessor: Accessor,
     indicesAccessor?: Accessor,
   ) {
-    const tan0Vec3 = this.__calcTangentPerVertex(pos0, pos1, pos2, uv0, uv1, uv2, norm0);
-    const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0);
-    const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0);
+    const tan0Vec3 = this.__calcTangentPerVertex(pos0, pos1, pos2, uv0, uv1, uv2, norm0, Mesh.__tmpReturnVec3_0);
+    const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0, Mesh.__tmpReturnVec3_1);
+    const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0, Mesh.__tmpReturnVec3_2);
 
     tangentAccessor.setVec4(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, 1, { indicesAccessor });
     tangentAccessor.setVec4(i + 1, tan1Vec3.x, tan1Vec3.y, tan1Vec3.z, 1, { indicesAccessor });
@@ -281,35 +299,36 @@ export default class Mesh {
     uv0Vec2: Vector2,
     uv1Vec2: Vector2,
     uv2Vec2: Vector2,
-    norm0Vec3: Vector3
+    norm0Vec3: Vector3,
+    returnVec3: MutableVector3
   ) {
     let cp0 = [
-      new Vector3(pos0Vec3.x, uv0Vec2.x, uv0Vec2.y),
-      new Vector3(pos0Vec3.y, uv0Vec2.x, uv0Vec2.y),
-      new Vector3(pos0Vec3.z, uv0Vec2.x, uv0Vec2.y)
+      Mesh.__tmpVec3_0.setComponents(pos0Vec3.x, uv0Vec2.x, uv0Vec2.y),
+      Mesh.__tmpVec3_1.setComponents(pos0Vec3.y, uv0Vec2.x, uv0Vec2.y),
+      Mesh.__tmpVec3_2.setComponents(pos0Vec3.z, uv0Vec2.x, uv0Vec2.y)
     ];
 
     let cp1 = [
-      new Vector3(pos1Vec3.x, uv1Vec2.x, uv1Vec2.y),
-      new Vector3(pos1Vec3.y, uv1Vec2.x, uv1Vec2.y),
-      new Vector3(pos1Vec3.z, uv1Vec2.x, uv1Vec2.y)
+      Mesh.__tmpVec3_3.setComponents(pos1Vec3.x, uv1Vec2.x, uv1Vec2.y),
+      Mesh.__tmpVec3_4.setComponents(pos1Vec3.y, uv1Vec2.x, uv1Vec2.y),
+      Mesh.__tmpVec3_5.setComponents(pos1Vec3.z, uv1Vec2.x, uv1Vec2.y)
     ];
 
     let cp2 = [
-      new Vector3(pos2Vec3.x, uv2Vec2.x, uv2Vec2.y),
-      new Vector3(pos2Vec3.y, uv2Vec2.x, uv2Vec2.y),
-      new Vector3(pos2Vec3.z, uv2Vec2.x, uv2Vec2.y)
+      Mesh.__tmpVec3_6.setComponents(pos2Vec3.x, uv2Vec2.x, uv2Vec2.y),
+      Mesh.__tmpVec3_7.setComponents(pos2Vec3.y, uv2Vec2.x, uv2Vec2.y),
+      Mesh.__tmpVec3_8.setComponents(pos2Vec3.z, uv2Vec2.x, uv2Vec2.y)
     ];
 
     let u = [];
     let v = [];
 
     for (let i = 0; i < 3; i++) {
-      let v1 = Vector3.subtract(cp1[i], cp0[i]);
-      let v2 = Vector3.subtract(cp2[i], cp1[i]);
-      let abc = Vector3.cross(v1, v2);
+      const v1 = MutableVector3.subtractTo(cp1[i], cp0[i], Mesh.__tmpVec3_9);
+      const v2 = MutableVector3.subtractTo(cp2[i], cp1[i], Mesh.__tmpVec3_10);
+      const abc = MutableVector3.crossTo(v1, v2, Mesh.__tmpVec3_11);
 
-      let validate = Math.abs(abc.x) < Number.EPSILON;
+      const validate = Math.abs(abc.x) < Number.EPSILON;
       if (validate) {
         console.assert(validate, "Polygons or polygons on UV are degenerate!");
         return new Vector3(0, 0, 0);
@@ -321,11 +340,11 @@ export default class Mesh {
     }
 
     if (u[0] * u[0] + u[1] * u[1] + u[2] * u[2] < Number.EPSILON) {
-      const tangent = MutableVector3.cross(norm0Vec3, pos1Vec3);
-      return tangent.normalize() as Vector3;
+      MutableVector3.crossTo(norm0Vec3, pos1Vec3, returnVec3);
+      return returnVec3.normalize() as Vector3;
     }
 
-    return new MutableVector3(u[0], u[1], u[2]).normalize() as Vector3;
+    return returnVec3.setComponents(u[0], u[1], u[2]).normalize() as Vector3;
   }
 
   getPrimitiveAt(i: number): Primitive {
