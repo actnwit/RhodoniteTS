@@ -615,9 +615,9 @@ export default class Mesh {
 
   }
 
-  deleteVariationVBO() {
+  deleteVariationVBO(): boolean {
     if (this.isInstanceMesh()) {
-      return this.__instanceOf!.updateVariationVBO()
+      return this.__instanceOf!.deleteVariationVBO()
     } else {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
