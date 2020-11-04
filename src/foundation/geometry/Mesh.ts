@@ -207,7 +207,7 @@ export default class Mesh {
   }
 
   __calcTangents() {
-    if (this.tangentCalculationMode === 0) {
+    if (this.tangentCalculationMode === 0 || this.isInstanceMesh()) {
       return;
     }
     for (let primitive of this.__primitives) {
@@ -348,6 +348,10 @@ export default class Mesh {
   }
 
   __calcFaceNormalsIfNonNormal() {
+    if (this.isInstanceMesh()) {
+      return;
+    }
+
     for (let primitive of this.__primitives) {
       const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal);
       if (normalIdx !== -1) {
@@ -449,6 +453,10 @@ export default class Mesh {
   // }
 
   __calcBaryCentricCoord() {
+    if (this.isInstanceMesh()) {
+      return;
+    }
+
     for (let primitive_i in this.__primitives) {
       let primitive = this.__primitives[primitive_i];
 
@@ -504,7 +512,7 @@ export default class Mesh {
   // }
 
   __calcMorphPrimitives() {
-    if (this.weights.length === 0) {
+    if (this.weights.length === 0 || this.isInstanceMesh()) {
       return;
     }
 
@@ -640,6 +648,10 @@ export default class Mesh {
   }
 
   _calcArenbergInverseMatrices() {
+    if (this.isInstanceMesh()) {
+      return;
+    }
+
     if (this.isPreComputeForRayCastPickingEnable) {
       for (let primitive of this.__primitives) {
         primitive._calcArenbergInverseMatrices();
