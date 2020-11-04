@@ -245,10 +245,8 @@ export default class Mesh {
           const uv1 = texcoordAccessor.getVec2(i + 1, { indicesAccessor });
           const uv2 = texcoordAccessor.getVec2(i + 2, { indicesAccessor });
           const norm0 = normalAccessor.getVec3(i, { indicesAccessor });
-          const norm1 = normalAccessor.getVec3(i + 1, { indicesAccessor });
-          const norm2 = normalAccessor.getVec3(i + 2, { indicesAccessor });
 
-          this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, norm1, norm2, tangentAccessor, indicesAccessor);
+          this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, tangentAccessor, indicesAccessor);
         }
         primitive.setVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
       }
@@ -264,14 +262,12 @@ export default class Mesh {
     uv1: Vector2,
     uv2: Vector2,
     norm0: Vector3,
-    norm1: Vector3,
-    norm2: Vector3,
     tangentAccessor: Accessor,
     indicesAccessor?: Accessor,
   ) {
-    const tan0Vec3 = this.__calcTangentPerVertex(pos0, pos1, pos2, uv0, uv1, uv2, norm0, norm1, norm2);
-    const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0, norm1, norm2);
-    const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0, norm1, norm2);
+    const tan0Vec3 = this.__calcTangentPerVertex(pos0, pos1, pos2, uv0, uv1, uv2, norm0);
+    const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0);
+    const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0);
 
     tangentAccessor.setVec4(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, 1, { indicesAccessor });
     tangentAccessor.setVec4(i + 1, tan1Vec3.x, tan1Vec3.y, tan1Vec3.z, 1, { indicesAccessor });
@@ -285,9 +281,7 @@ export default class Mesh {
     uv0Vec2: Vector2,
     uv1Vec2: Vector2,
     uv2Vec2: Vector2,
-    norm0Vec3: Vector3,
-    norm1Vec3: Vector3,
-    norm2Vec3: Vector3
+    norm0Vec3: Vector3
   ) {
     let cp0 = [
       new Vector3(pos0Vec3.x, uv0Vec2.x, uv0Vec2.y),
