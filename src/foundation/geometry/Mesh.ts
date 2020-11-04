@@ -406,42 +406,42 @@ export default class Mesh {
 
   }
 
-  makeVerticesSeparated() {
-    for (let primitive of this.__primitives) {
-      if (primitive.hasIndices()) {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
-        const vertexCount = primitive.getVertexCountAsIndicesBased();
+  // makeVerticesSeparated() {
+  //   for (let primitive of this.__primitives) {
+  //     if (primitive.hasIndices()) {
+  //       const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
+  //       const vertexCount = primitive.getVertexCountAsIndicesBased();
 
-        const indexAccessor = primitive.indicesAccessor;
-        for (let i in primitive.attributeAccessors) {
-          const attributeAccessor = primitive.attributeAccessors[i];
-          const elementSizeInBytes = attributeAccessor.elementSizeInBytes;
-          const bufferView = buffer.takeBufferView({ byteLengthToNeed: elementSizeInBytes * vertexCount, byteStride: 0, isAoS: false });
-          const newAccessor = bufferView.takeAccessor({ compositionType: attributeAccessor.compositionType, componentType: attributeAccessor.componentType, count: vertexCount });
+  //       const indexAccessor = primitive.indicesAccessor;
+  //       for (let i in primitive.attributeAccessors) {
+  //         const attributeAccessor = primitive.attributeAccessors[i];
+  //         const elementSizeInBytes = attributeAccessor.elementSizeInBytes;
+  //         const bufferView = buffer.takeBufferView({ byteLengthToNeed: elementSizeInBytes * vertexCount, byteStride: 0, isAoS: false });
+  //         const newAccessor = bufferView.takeAccessor({ compositionType: attributeAccessor.compositionType, componentType: attributeAccessor.componentType, count: vertexCount });
 
-          for (let j = 0; j < vertexCount; j++) {
-            const idx = indexAccessor!.getScalar(j, {});
-            newAccessor.setElementFromSameCompositionAccessor(j, attributeAccessor, idx);
-          }
+  //         for (let j = 0; j < vertexCount; j++) {
+  //           const idx = indexAccessor!.getScalar(j, {});
+  //           newAccessor.setElementFromSameCompositionAccessor(j, attributeAccessor, idx);
+  //         }
 
-          primitive.setVertexAttribute(newAccessor, primitive.attributeSemantics[i]);
-        }
+  //         primitive.setVertexAttribute(newAccessor, primitive.attributeSemantics[i]);
+  //       }
 
 
-        const indicesAccessor = primitive.indicesAccessor!;
-        const elementSizeInBytes = indicesAccessor.elementSizeInBytes;
-        const bufferView = buffer.takeBufferView({ byteLengthToNeed: elementSizeInBytes * vertexCount, byteStride: 0, isAoS: false });
-        const newAccessor = bufferView.takeAccessor({ compositionType: indicesAccessor.compositionType, componentType: indicesAccessor.componentType, count: vertexCount });
+  //       const indicesAccessor = primitive.indicesAccessor!;
+  //       const elementSizeInBytes = indicesAccessor.elementSizeInBytes;
+  //       const bufferView = buffer.takeBufferView({ byteLengthToNeed: elementSizeInBytes * vertexCount, byteStride: 0, isAoS: false });
+  //       const newAccessor = bufferView.takeAccessor({ compositionType: indicesAccessor.compositionType, componentType: indicesAccessor.componentType, count: vertexCount });
 
-        for (let j = 0; j < vertexCount; j++) {
-          //const idx = indexAccessor!.getScalar(j, {});
-          newAccessor.setScalar(j, j, {});
-        }
+  //       for (let j = 0; j < vertexCount; j++) {
+  //         //const idx = indexAccessor!.getScalar(j, {});
+  //         newAccessor.setScalar(j, j, {});
+  //       }
 
-        primitive.setIndices(newAccessor);
-      }
-    }
-  }
+  //       primitive.setIndices(newAccessor);
+  //     }
+  //   }
+  // }
 
   __calcBaryCentricCoord() {
     for (let primitive_i in this.__primitives) {
@@ -474,29 +474,29 @@ export default class Mesh {
     }
   }
 
-  __initMorphPrimitives() {
-    if (this.weights.length === 0) {
-      return;
-    }
+  // __initMorphPrimitives() {
+  //   if (this.weights.length === 0) {
+  //     return;
+  //   }
 
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
-    for (let i = 0; i < this.__primitives.length; i++) {
-      const primitive = this.__primitives[i];
-      if (this.__morphPrimitives[i] == null) {
-        const target = primitive.targets[0];
-        const map = new Map();
-        target.forEach((accessor, semantic) => {
-          const bufferView = buffer.takeBufferView({ byteLengthToNeed: accessor.byteLength, byteStride: 0, isAoS: false });
-          const morphAccessor = bufferView.takeAccessor({ compositionType: accessor.compositionType, componentType: accessor.componentType, count: accessor.elementCount });
-          map.set(semantic, morphAccessor);
-        });
-        const morphPrimitive = new Primitive();
-        morphPrimitive.setData(map, primitive.primitiveMode, primitive.material, primitive.indicesAccessor);
-        morphPrimitive.setTargets(primitive.targets);
-        this.__morphPrimitives[i] = morphPrimitive;
-      }
-    }
-  }
+  //   const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
+  //   for (let i = 0; i < this.__primitives.length; i++) {
+  //     const primitive = this.__primitives[i];
+  //     if (this.__morphPrimitives[i] == null) {
+  //       const target = primitive.targets[0];
+  //       const map = new Map();
+  //       target.forEach((accessor, semantic) => {
+  //         const bufferView = buffer.takeBufferView({ byteLengthToNeed: accessor.byteLength, byteStride: 0, isAoS: false });
+  //         const morphAccessor = bufferView.takeAccessor({ compositionType: accessor.compositionType, componentType: accessor.componentType, count: accessor.elementCount });
+  //         map.set(semantic, morphAccessor);
+  //       });
+  //       const morphPrimitive = new Primitive();
+  //       morphPrimitive.setData(map, primitive.primitiveMode, primitive.material, primitive.indicesAccessor);
+  //       morphPrimitive.setTargets(primitive.targets);
+  //       this.__morphPrimitives[i] = morphPrimitive;
+  //     }
+  //   }
+  // }
 
   __calcMorphPrimitives() {
     if (this.weights.length === 0) {
