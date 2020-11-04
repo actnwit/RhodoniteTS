@@ -145,14 +145,10 @@ export default class Mesh {
    * Gets true if these primitives are all 'Blend' type
    */
   isAllBlend(): boolean {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.isAllBlend();
+    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length === 0) {
+      return true;
     } else {
-      if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length === 0) {
-        return true;
-      } else {
-        return false;
-      }
+      return false;
     }
   }
 
@@ -160,14 +156,10 @@ export default class Mesh {
    * Gets true if some primitives are 'Blend' type
    */
   isBlendPartially(): boolean {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.isBlendPartially();
+    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length > 0) {
+      return true;
     } else {
-      if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length > 0) {
-        return true;
-      } else {
-        return false;
-      }
+      return false;
     }
   }
 
@@ -175,14 +167,10 @@ export default class Mesh {
    * Gets true if these primitives are all 'Opaque' type
    */
   isOpaque(): boolean {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.isOpaque();
+    if (this.__transparentPrimitives.length === 0 && this.__opaquePrimitives.length > 0) {
+      return true;
     } else {
-      if (this.__transparentPrimitives.length === 0 && this.__opaquePrimitives.length > 0) {
-        return true;
-      } else {
-        return false;
-      }
+      return false;
     }
   }
 
@@ -348,23 +336,15 @@ export default class Mesh {
   }
 
   getPrimitiveAt(i: number): Primitive {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.getPrimitiveAt(i);
-    } else {
-      // if (this.weights.length > 0) {
-      // return this.__morphPrimitives[i];
-      // } else {
-      return this.__primitives[i];
-      // }
-    }
+    // if (this.weights.length > 0) {
+    // return this.__morphPrimitives[i];
+    // } else {
+    return this.__primitives[i];
+    // }
   }
 
   getPrimitiveNumber(): number {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.getPrimitiveNumber();
-    } else {
-      return this.__primitives.length;
-    }
+    return this.__primitives.length;
   }
 
   __calcFaceNormalsIfNonNormal() {
