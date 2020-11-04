@@ -319,14 +319,13 @@ export default class Mesh {
       v[i] = -abc.z / abc.x;
 
     }
+
     if (u[0] * u[0] + u[1] * u[1] + u[2] * u[2] < Number.EPSILON) {
-      const tangent = Vector3.cross(norm0Vec3, new Vector3(pos1Vec3));
-      u[0] = tangent.x;
-      u[1] = tangent.y;
-      u[2] = tangent.z;
+      const tangent = MutableVector3.cross(norm0Vec3, pos1Vec3);
+      return tangent.normalize() as Vector3;
     }
 
-    return Vector3.normalize(new Vector3(u[0], u[1], u[2]));
+    return new MutableVector3(u[0], u[1], u[2]).normalize() as Vector3;
   }
 
   getPrimitiveAt(i: number): Primitive {
