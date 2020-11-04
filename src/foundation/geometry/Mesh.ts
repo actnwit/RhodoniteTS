@@ -27,9 +27,9 @@ export default class Mesh {
   private __primitives: Primitive[] = [];
   private __opaquePrimitives: Array<Primitive> = [];
   private __transparentPrimitives: Array<Primitive> = [];
+  private __morphPrimitives: Array<Primitive> = [];
   private __instanceOf?: Mesh;
   public weights: number[] = [];
-  private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -83,17 +83,38 @@ export default class Mesh {
    * @param primitive The primitive object.
    */
   addPrimitive(primitive: Primitive) {
-    this.__instanceOf = void 0;
-    this.__instanceIdx = 0;
+    if (this.isInstanceMesh()) {
+      // De-instancing
+      this.__instanceOf!.__instances = this.__instanceOf!.__instances.filter(mesh => mesh !== this);
+      this.__instanceOf = void 0;
+      this.__instanceIdx = 0;
+
+      // this.__primitives will initialize in this.__setPrimitives
+      this.__opaquePrimitives = this.__opaquePrimitives.slice();
+      this.__transparentPrimitives = this.__transparentPrimitives.slice();
+      this.__morphPrimitives = this.__morphPrimitives.slice();
+    }
+
 
     if (primitive.material == null || !primitive.material.isBlend()) {
       this.__opaquePrimitives.push(primitive);
     } else {
       this.__transparentPrimitives.push(primitive);
     }
-    this.__primitives = this.__opaquePrimitives.concat(this.__transparentPrimitives);
+    this.__setPrimitives(this.__opaquePrimitives.concat(this.__transparentPrimitives));
 
     Mesh.__originalMeshes.push(this);
+  }
+
+  private __setPrimitives(primitives: Primitive[]) {
+    this.__primitives = primitives;
+
+    for (const instanceMesh of this.__instances) {
+      instanceMesh.__primitives = this.__primitives;
+      instanceMesh.__opaquePrimitives = this.__opaquePrimitives;
+      instanceMesh.__transparentPrimitives = this.__transparentPrimitives;
+      instanceMesh.__morphPrimitives = this.__morphPrimitives;
+    }
   }
 
   /**
@@ -105,7 +126,11 @@ export default class Mesh {
       console.error(`Don't set InstanceMesh.`);
       return false;
     }
-    this.__primitives.length = 0;
+    this.__primitives = mesh.__primitives;
+    this.__opaquePrimitives = mesh.__opaquePrimitives;
+    this.__transparentPrimitives = mesh.__transparentPrimitives;
+    this.__morphPrimitives = mesh.__morphPrimitives;
+
     this.__instanceOf = mesh;
     mesh._addMeshToInstanceArray(this);
     this.__instanceIdx = mesh.instanceIndex + 1;
