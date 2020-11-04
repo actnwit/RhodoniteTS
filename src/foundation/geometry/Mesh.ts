@@ -193,34 +193,6 @@ export default class Mesh {
     }
   }
 
-  __calcFaceNormalFor3Vertices(i: Index, pos0: Vector3, pos1: Vector3, pos2: Vector3, normalAccessor: Accessor, indicesAccessor?: Accessor) {
-    // Calc normal
-    const ax = pos1.x - pos0.x;
-    const ay = pos1.y - pos0.y;
-    const az = pos1.z - pos0.z;
-    const bx = pos2.x - pos0.x;
-    const by = pos2.y - pos0.y;
-    const bz = pos2.z - pos0.z;
-
-    let nx = ay * bz - az * by; // cross product
-    let ny = az * bx - ax * bz;
-    let nz = ax * by - ay * bx;
-
-    let da = Math.hypot(nx, ny, nz); // normalize
-    if (da <= 1e-6) {
-      da = 0.0001;
-    }
-    da = 1.0 / da;
-    nx *= da;
-    ny *= da;
-    nz *= da;
-
-    normalAccessor.setVec3(i, nx, ny, nz, { indicesAccessor });
-    normalAccessor.setVec3(i + 1, nx, ny, nz, { indicesAccessor });
-    normalAccessor.setVec3(i + 2, nx, ny, nz, { indicesAccessor });
-
-  }
-
   __calcTangents() {
     if (this.tangentCalculationMode === 0) {
       return;
@@ -404,6 +376,34 @@ export default class Mesh {
       }
       primitive.setVertexAttribute(normalAccessor, VertexAttribute.Normal);
     }
+  }
+
+  __calcFaceNormalFor3Vertices(i: Index, pos0: Vector3, pos1: Vector3, pos2: Vector3, normalAccessor: Accessor, indicesAccessor?: Accessor) {
+    // Calc normal
+    const ax = pos1.x - pos0.x;
+    const ay = pos1.y - pos0.y;
+    const az = pos1.z - pos0.z;
+    const bx = pos2.x - pos0.x;
+    const by = pos2.y - pos0.y;
+    const bz = pos2.z - pos0.z;
+
+    let nx = ay * bz - az * by; // cross product
+    let ny = az * bx - ax * bz;
+    let nz = ax * by - ay * bx;
+
+    let da = Math.hypot(nx, ny, nz); // normalize
+    if (da <= 1e-6) {
+      da = 0.0001;
+    }
+    da = 1.0 / da;
+    nx *= da;
+    ny *= da;
+    nz *= da;
+
+    normalAccessor.setVec3(i, nx, ny, nz, { indicesAccessor });
+    normalAccessor.setVec3(i + 1, nx, ny, nz, { indicesAccessor });
+    normalAccessor.setVec3(i + 2, nx, ny, nz, { indicesAccessor });
+
   }
 
   makeVerticesSeparated() {
