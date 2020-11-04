@@ -457,8 +457,11 @@ export default class Mesh {
       return;
     }
 
-    for (let primitive_i in this.__primitives) {
-      let primitive = this.__primitives[primitive_i];
+    for (let primitive of this.__primitives) {
+      const BaryCentricCoordId = primitive.attributeSemantics.indexOf(VertexAttribute.BaryCentricCoord);
+      if (BaryCentricCoordId !== -1) {
+        return;
+      }
 
       const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
@@ -543,7 +546,11 @@ export default class Mesh {
   /**
    * Gets AABB in local space.
    */
-  get AABB() {
+  get AABB(): AABB {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.AABB;
+    }
+
     if (this.__localAABB.isVanilla()) {
       for (let primitive of this.__primitives) {
         this.__localAABB.mergeAABB(primitive.AABB);

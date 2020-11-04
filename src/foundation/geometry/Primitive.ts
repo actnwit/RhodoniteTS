@@ -512,6 +512,10 @@ export default class Primitive extends RnObject {
   }
 
   _calcArenbergInverseMatrices() {
+    if (this.__inverseArenbergMatrix.length != 0) {
+      return;
+    }
+
     const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
 
     let incrementNum = 3; // gl.TRIANGLES
@@ -522,8 +526,6 @@ export default class Primitive extends RnObject {
       return;
     }
 
-    this.__inverseArenbergMatrix = [];
-    this.__arenberg3rdPosition = [];
     if (this.hasIndices()) {
       for (let i = 0; i < this.__indices!.elementCount - 2; i++) {
         const j = i * incrementNum;
