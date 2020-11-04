@@ -466,19 +466,14 @@ export default class Mesh {
       const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
-      const indicesAccessor = primitive.indicesAccessor;
       const vertexNum = positionAccessor.elementCount;
-      let num = vertexNum;
+      const num = vertexNum;
 
       const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4 /* bytes */;
       const baryCentricCoordBufferView = buffer.takeBufferView({ byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false });
       const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: num });
 
       for (let ver_i = 0; ver_i < num; ver_i++) {
-        let idx = ver_i;
-        // if (indicesAccessor) {
-        //   idx = indicesAccessor!.getScalar(ver_i, {});
-        // }
         baryCentricCoordAccessor.setVec4(ver_i,
           ver_i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
           ver_i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
