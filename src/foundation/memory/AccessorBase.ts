@@ -32,7 +32,7 @@ export default class AccessorBase extends RnObject {
   constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min, arrayLength, normalized }:
     {
       bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum,
-      byteStride: Byte, count: Count, raw: ArrayBuffer, max?: number, min?: number, arrayLength: Size, normalized: boolean
+      byteStride: Byte, count: Count, raw: ArrayBuffer, max?: number[], min?: number[], arrayLength: Size, normalized: boolean
     }) {
     super();
 
