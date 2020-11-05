@@ -24,8 +24,8 @@ export default class AccessorBase extends RnObject {
   protected __typedArrayClass?: TypedArrayConstructor;
   protected __dataViewGetter: any;
   protected __dataViewSetter: any;
-  protected __max?: any;
-  protected __min?: any;
+  protected __max?: number[];
+  protected __min?: number[];
   protected __arrayLength = 1;
   protected __normalized: boolean = false;
 
@@ -42,15 +42,10 @@ export default class AccessorBase extends RnObject {
     this.__componentType = componentType;
     this.__count = count;
     this.__arrayLength = arrayLength;
+    this.__max = max;
+    this.__min = min;
     this.__raw = raw;
     this.__normalized = normalized;
-
-    if (max != null) {
-      this.__max = max;
-    }
-    if (min != null) {
-      this.__min = min;
-    }
 
     this.__byteStride = byteStride;
 
@@ -608,8 +603,8 @@ export default class AccessorBase extends RnObject {
           max = scalar;
         }
       }
-      this.__min = min;
-      this.__max = max;
+      this.__min = [min];
+      this.__max = [max];
     }
   }
 }
