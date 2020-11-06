@@ -76,7 +76,7 @@ export default class AccessorBase extends RnObject {
       if (this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer < this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count) {
         console.error(`Requesting a data size that exceeds the remaining capacity of the buffer: ${this.bufferView.buffer.name}.`);
       }
-      this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+      this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteStride * this.__count);
     } else {
       this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer);
     }
