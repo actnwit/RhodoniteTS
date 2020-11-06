@@ -167,7 +167,7 @@ export default class AccessorBase extends RnObject {
   }
 
   get elementCount(): Count {
-    return this.__dataView!.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
+    return this.__count;
   }
 
   get byteLength(): Byte {
