@@ -7,14 +7,14 @@ in vec3 a_position;
 in vec3 a_color;
 in vec3 a_normal;
 in float a_instanceID;
-in vec2 a_texcoord;
+in vec2 a_texcoord_0;
 in vec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 out vec3 v_color;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
-out vec2 v_texcoord;
+out vec2 v_texcoord_0;
 out vec3 v_baryCentricCoord;
 
 uniform float u_pointSize; // initialValue=30
@@ -60,7 +60,7 @@ void main()
 
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
-  v_texcoord = a_texcoord;
+  v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
 #pragma shaderity: require(../common/pointSprite.glsl)

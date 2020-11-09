@@ -5,7 +5,7 @@
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
-in vec2 v_texcoord;
+in vec2 v_texcoord_0;
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -19,7 +19,7 @@ void main ()
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-vec4 baseColor = texture2D(u_baseColorTexture, v_texcoord);
+vec4 baseColor = texture2D(u_baseColorTexture, v_texcoord_0);
 baseColor.rgb = linearToSrgb(baseColor.rgb);
 
 rt0 = baseColor;

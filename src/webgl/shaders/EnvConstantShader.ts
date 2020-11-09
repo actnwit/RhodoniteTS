@@ -32,12 +32,12 @@ ${this.glslPrecision}
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 ${_in} float a_instanceID;
-${_in} vec2 a_texcoord;
+${_in} vec2 a_texcoord_0;
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
 
-${_out} vec2 v_texcoord;
+${_out} vec2 v_texcoord_0;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec3 v_position_inWorld;
@@ -58,7 +58,7 @@ ${this.simpleMVPPosition}
 
   v_color = a_color;
   v_position_inWorld = (worldMatrix * vec4(a_position, 1.0)).xyz;
-  v_texcoord = a_texcoord;
+  v_texcoord_0 = a_texcoord_0;
 }`;
   }
 
@@ -86,7 +86,7 @@ vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
 
-${_in} vec2 v_texcoord;
+${_in} vec2 v_texcoord_0;
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec3 v_position_inWorld;
@@ -140,7 +140,7 @@ void main(){
 
   attributeNames: AttributeNames = [
     'a_position', 'a_color', 'a_normal',
-    'a_texcoord',
+    'a_texcoord_0',
     'a_instanceID'
   ];
 

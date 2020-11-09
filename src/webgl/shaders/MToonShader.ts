@@ -37,7 +37,7 @@ ${this.glslPrecision}
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 ${_in} float a_instanceID;
-${_in} vec2 a_texcoord;
+${_in} vec2 a_texcoord_0;
 ${_in} vec3 a_position;
 ${_in} vec3 a_normal;
 ${_in} vec3 a_tangent;
@@ -45,7 +45,7 @@ ${_in} vec4 a_baryCentricCoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
 
-${_out} vec2 v_texcoord;
+${_out} vec2 v_texcoord_0;
 ${_out} vec3 v_baryCentricCoord;
 ${_out} vec3 v_binormal_inWorld; // bitangent_inWorld
 ${_out} vec3 v_normal_inView;
@@ -97,7 +97,7 @@ void main(){
     gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   #else
     #if defined(RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE)
-      float outlineTex = ${_texture}(u_outlineWidthTexture, a_texcoord).r;
+      float outlineTex = ${_texture}(u_outlineWidthTexture, a_texcoord_0).r;
     #else
       float outlineTex = 1.0;
     #endif
@@ -139,7 +139,7 @@ void main(){
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
   }
 
-  v_texcoord = a_texcoord;
+  v_texcoord_0 = a_texcoord_0;
 
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 }`
@@ -173,7 +173,7 @@ ${this.prerequisites}
 
 const float EPS_COL = 0.00001;
 
-${_in} vec2 v_texcoord;
+${_in} vec2 v_texcoord_0;
 ${_in} vec3 v_baryCentricCoord;
 ${_in} vec3 v_binormal_inWorld; // bitangent_inWorld
 ${_in} vec3 v_normal_inView;
@@ -213,7 +213,7 @@ void main (){
   // uv animation
 
   // main color
-  vec4 litTextureColor = ${_texture}(u_litColorTexture, v_texcoord);
+  vec4 litTextureColor = ${_texture}(u_litColorTexture, v_texcoord_0);
   vec4 litColorFactor = get_litColor(materialSID, 0);
 
   // alpha
@@ -260,7 +260,7 @@ void main (){
         normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
       );
 
-      vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz * 2.0 - 1.0;
+      vec3 normal = ${_texture}(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
       float normalScale = get_normalScale(materialSID, 0);
       normal.xy *= normalScale;
       normal_inWorld = normalize(tbnMat_tangent_to_world * normal);
@@ -278,14 +278,14 @@ void main (){
   // TODO: shadowmap computation
 
   float receiveShadowRate = get_receiveShadowRate(materialSID, 0);
-  float lightAttenuation = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * ${_texture}(u_receiveShadowTexture, v_texcoord).r);
+  float lightAttenuation = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * ${_texture}(u_receiveShadowTexture, v_texcoord_0).r);
 
   float shadingGradeRate = get_shadingGradeRate(materialSID, 0);
-  float shadingGrade = 1.0 - shadingGradeRate * (1.0 - ${_texture}(u_shadingGradeTexture, v_texcoord).r);
+  float shadingGrade = 1.0 - shadingGradeRate * (1.0 - ${_texture}(u_shadingGradeTexture, v_texcoord_0).r);
   float lightColorAttenuation = get_lightColorAttenuation(materialSID, 0);
 
   vec3 shadeColorFactor = get_shadeColor(materialSID, 0);
-  vec3 shadeColor = shadeColorFactor * ${_texture}(u_shadeColorTexture, v_texcoord).xyz;
+  vec3 shadeColor = shadeColorFactor * ${_texture}(u_shadeColorTexture, v_texcoord_0).xyz;
   shadeColor.xyz = srgbToLinear(shadeColor.xyz);
 
   vec3 litColor = litColorFactor.xyz * litTextureColor.xyz;
@@ -399,7 +399,7 @@ void main (){
     float rimFresnelPower = get_rimFresnelPower(materialSID, 0);
     float rimLift = get_rimLift(materialSID, 0);
     vec3 rimColorFactor = get_rimColor(materialSID, 0);
-    vec3 rimTextureColor = ${_texture}(u_rimTexture, v_texcoord).xyz;
+    vec3 rimTextureColor = ${_texture}(u_rimTexture, v_texcoord_0).xyz;
     vec3 rimColor = srgbToLinear(rimColorFactor * rimTextureColor);
     vec3 rim = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
@@ -425,7 +425,7 @@ void main (){
 
     // Emission
     vec3 emissionColor = get_emissionColor(materialSID, 0);
-    vec3 emission = srgbToLinear(${_texture}(u_emissionTexture, v_texcoord).xyz) * emissionColor;
+    vec3 emission = srgbToLinear(${_texture}(u_emissionTexture, v_texcoord_0).xyz) * emissionColor;
     rt0.xyz += emission;
   #endif
 
@@ -488,7 +488,7 @@ void main (){
 
   attributeNames: AttributeNames = [
     'a_instanceID',
-    'a_texcoord',
+    'a_texcoord_0',
     'a_position', 'a_normal', 'a_tangent',
     'a_baryCentricCoord', 'a_joint', 'a_weight',
   ];

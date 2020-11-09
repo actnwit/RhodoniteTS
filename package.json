@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "requirejs": "^2.3.6",
-    "shaderity": "0.1.24",
+    "shaderity": "0.1.25",
     "version-loader": "^0.1.0"
   },
   "description": "Rhodonite is a WebGL library written in TypeScript.",

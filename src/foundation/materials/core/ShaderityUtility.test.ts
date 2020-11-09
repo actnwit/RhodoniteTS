@@ -10,7 +10,7 @@ in vec3 a_position;
 in vec3 a_color;
 in vec3 a_normal;
 in float a_instanceID;
-in vec2 a_texcoord;
+in vec2 a_texcoord_0;
 in vec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;

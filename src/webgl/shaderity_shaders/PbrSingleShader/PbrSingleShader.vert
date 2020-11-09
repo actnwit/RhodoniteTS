@@ -8,7 +8,7 @@ in vec3 a_color;
 in vec3 a_normal;
 in vec4 a_tangent;
 in float a_instanceID;
-in vec2 a_texcoord;
+in vec2 a_texcoord_0;
 in vec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
@@ -17,7 +17,7 @@ out vec3 v_normal_inWorld;
 out vec3 v_tangent_inWorld;
 out vec3 v_binormal_inWorld;
 out vec4 v_position_inWorld;
-out vec2 v_texcoord;
+out vec2 v_texcoord_0;
 out vec3 v_baryCentricCoord;
 
 #pragma shaderity: require(../common/prerequisites.glsl)
@@ -60,7 +60,7 @@ void main()
 
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
-  v_texcoord = a_texcoord;
+  v_texcoord_0 = a_texcoord_0;
 
   if (abs(length(a_normal)) > 0.01) {
     // if normal exist

@@ -51,7 +51,7 @@
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
-in vec2 v_texcoord;
+in vec2 v_texcoord_0;
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -1131,7 +1131,7 @@ void main(){
 
   vec2 screenInfo = get_screenInfo(materialSID, 0);
   rt0 = FxaaPixelShader(
-      v_texcoord,
+      v_texcoord_0,
       vec4(0.0),
       u_baseColorTexture,
       u_baseColorTexture,
