@@ -802,7 +802,7 @@ export default class ModelConverter {
         const rnTexture = ModelConverter._createTexture(baseColorTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
       }
-      ModelConverter._setupTextureTransform(baseColorTexture, material, PbrShadingSingleMaterialNode.baseColorTextureTransform, PbrShadingSingleMaterialNode.baseColorTextureRotation);
+      ModelConverter._setupTextureTransform(baseColorTexture, material, PbrShadingSingleMaterialNode.BaseColorTextureTransform, PbrShadingSingleMaterialNode.BaseColorTextureRotation);
 
       const occlusionTexture = materialJson.occlusionTexture;
       if (occlusionTexture != null) {
@@ -821,7 +821,7 @@ export default class ModelConverter {
         const rnTexture = ModelConverter._createTexture(metallicRoughnessTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
       }
-      ModelConverter._setupTextureTransform(metallicRoughnessTexture, material, PbrShadingSingleMaterialNode.metallicRoughnessTextureTransform, PbrShadingSingleMaterialNode.metallicRoughnessTextureRotation);
+      ModelConverter._setupTextureTransform(metallicRoughnessTexture, material, PbrShadingSingleMaterialNode.MetallicRoughnessTextureTransform, PbrShadingSingleMaterialNode.MetallicRoughnessTextureRotation);
 
     } else {
       let param: Index = ShadingModel.Phong.index;
@@ -885,7 +885,7 @@ export default class ModelConverter {
       const rnTexture = ModelConverter._createTexture(normalTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
     }
-    ModelConverter._setupTextureTransform(normalTexture, material, PbrShadingSingleMaterialNode.normalTextureTransform, PbrShadingSingleMaterialNode.normalTextureRotation);
+    ModelConverter._setupTextureTransform(normalTexture, material, PbrShadingSingleMaterialNode.NormalTextureTransform, PbrShadingSingleMaterialNode.NormalTextureRotation);
 
 
     // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')

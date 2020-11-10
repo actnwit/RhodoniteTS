@@ -26,12 +26,12 @@ import { AlphaModeEnum, AlphaMode } from "../../definitions/AlphaMode";
 export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static readonly IsOutputHDR = new ShaderSemanticsClass({ str: 'isOutputHDR' })
-  static baseColorTextureTransform = new ShaderSemanticsClass({ str: 'baseColorTextureTransform' });
-  static baseColorTextureRotation = new ShaderSemanticsClass({ str: 'baseColorTextureRotation' });
-  static normalTextureTransform = new ShaderSemanticsClass({ str: 'normalTextureTransform' });
-  static normalTextureRotation = new ShaderSemanticsClass({ str: 'normalTextureRotation' });
-  static metallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
-  static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
+  static readonly BaseColorTextureTransform = new ShaderSemanticsClass({ str: 'baseColorTextureTransform' });
+  static readonly BaseColorTextureRotation = new ShaderSemanticsClass({ str: 'baseColorTextureRotation' });
+  static readonly NormalTextureTransform = new ShaderSemanticsClass({ str: 'normalTextureTransform' });
+  static readonly NormalTextureRotation = new ShaderSemanticsClass({ str: 'normalTextureRotation' });
+  static readonly MetallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
+  static readonly MetallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
 
   constructor({ isMorphing, isSkinning, isLighting, alphaMode }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, alphaMode: AlphaModeEnum }) {
     super(null, 'pbrShading'
@@ -44,12 +44,6 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
       [
-        //  {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()},
-        //   {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()},
-        //   {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        //   stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: tirue, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1), soloDatum: true},
         {
           semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 2, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector4(1, 1, 1, 1)
@@ -86,95 +80,44 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           semantic: PbrShadingSingleMaterialNode.IsOutputHDR, compositionType: CompositionType.Scalar, componentType: ComponentType.Bool,
           stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
         },
-        // {
-        //   semantic: ShaderSemantics.ViewPosition,
-        //   compositionType: CompositionType.Vec3,
-        //   componentType: ComponentType.Float,
-        //   stage: ShaderType.VertexAndPixelShader,
-        //   min: -Number.MAX_VALUE,
-        //   max: Number.MAX_VALUE,
-        //   isSystem: true,
-        //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        //   initialValue: new Vector3(0, 0, 0),
-        //   soloDatum: true
-        // },
         {
-          semantic: ShaderSemantics.IBLParameter,
-          compositionType: CompositionType.Vec4,
-          componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader,
-          min: -Number.MAX_VALUE,
-          max: Number.MAX_VALUE,
-          isSystem: true,
-          initialValue: new Vector4(1, 1, 1, 1),
-          updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly
+          semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector4(1, 1, 1, 1),
         },
         {
-          semantic: ShaderSemantics.HDRIFormat,
-          compositionType: CompositionType.Vec2,
-          componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader,
-          min: 0,
-          max: 5,
-          isSystem: true,
-          updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Vector2(0, 0)
-        },
-        // {
-        //   semantic: ShaderSemantics.LightNumber,
-        //   compositionType: CompositionType.Scalar,
-        //   componentType: ComponentType.Int,
-        //   stage: ShaderType.VertexAndPixelShader,
-        //   min: 0,
-        //   max: Number.MAX_SAFE_INTEGER,
-        //   isSystem: true,
-        //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        //   initialValue: new Scalar(0),
-        //   soloDatum: true
-        // },
-        {
-          semantic: ShaderSemantics.DiffuseEnvTexture,
-          compositionType: CompositionType.TextureCube,
-          componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader, min: 0,
-          max: Number.MAX_SAFE_INTEGER,
-          isSystem: true,
-          updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture]
+          semantic: ShaderSemantics.HDRIFormat, compositionType: CompositionType.Vec2, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: 5, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector2(0, 0)
         },
         {
-          semantic: ShaderSemantics.SpecularEnvTexture,
-          compositionType: CompositionType.TextureCube,
-          componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader,
-          min: 0,
-          max: Number.MAX_SAFE_INTEGER,
-          isSystem: true,
-          updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture]
+          semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture]
         },
         {
-          semantic: PbrShadingSingleMaterialNode.baseColorTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture]
+        },
+        {
+          semantic: PbrShadingSingleMaterialNode.BaseColorTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: -10, max: 10, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector4(1, 1, 0, 0)
         },
         {
-          semantic: PbrShadingSingleMaterialNode.baseColorTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          semantic: PbrShadingSingleMaterialNode.BaseColorTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: -Math.PI, max: Math.PI, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
         },
         {
-          semantic: PbrShadingSingleMaterialNode.normalTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          semantic: PbrShadingSingleMaterialNode.NormalTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: -10, max: 10, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector4(1, 1, 0, 0)
         },
         {
-          semantic: PbrShadingSingleMaterialNode.normalTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          semantic: PbrShadingSingleMaterialNode.NormalTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: -Math.PI, max: Math.PI, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
         },
         {
-          semantic: PbrShadingSingleMaterialNode.metallicRoughnessTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          semantic: PbrShadingSingleMaterialNode.MetallicRoughnessTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: -10, max: 10, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector4(1, 1, 0, 0)
         },
         {
-          semantic: PbrShadingSingleMaterialNode.metallicRoughnessTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          semantic: PbrShadingSingleMaterialNode.MetallicRoughnessTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: -Math.PI, max: Math.PI, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
         },
 
@@ -195,70 +138,10 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
 
     if (isLighting) {
       this.__definitions += '#define RN_IS_LIGHTING\n';
-      /*
-      const lights: ShaderSemanticsInfo[] = [];
-      for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-        (function(idx){
-        lights.push(
-          {
-            semantic: ShaderSemantics.LightPosition,
-            compositionType: CompositionType.Vec4,
-            componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader,
-            min: -Number.MAX_VALUE,
-            max: Number.MAX_VALUE,
-            index: idx,
-            maxIndex: 4,
-            isSystem: true,
-            updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-            initialValue: new Vector4(0, 0, 0, 1),
-            soloDatum: true
-          });
-        lights.push(
-          {
-          semantic: ShaderSemantics.LightDirection,
-          compositionType: CompositionType.Vec4,
-          componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader,
-          min: -1,
-          max: 1,
-          index: idx,
-          maxIndex: 4,
-          isSystem: true,
-          initialValue: new Vector4(0, 1, 0, 1),
-          updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          soloDatum: true
-        });
-        lights.push(
-          {
-            semantic: ShaderSemantics.LightIntensity,
-            compositionType: CompositionType.Vec4,
-            componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader,
-            min: 0,
-            max: 10,
-            index: idx,
-            maxIndex: 4,
-            isSystem: true,
-            initialValue: new Vector4(1, 1, 1, 1),
-            updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-            soloDatum: true
-          });
-        })(i);
-      }
-      shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
-      */
     }
 
     if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING\n';
-
-      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
-      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))});
-      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(-1) });
     }
 
     if (isMorphing) {
