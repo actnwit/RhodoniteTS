@@ -32,6 +32,11 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   static readonly NormalTextureRotation = new ShaderSemanticsClass({ str: 'normalTextureRotation' });
   static readonly MetallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
   static readonly MetallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
+  static readonly NormalTexcoordIndex = new ShaderSemanticsClass({ str: 'normalTexcoordIndex' });
+  static readonly BaseColorTexcoordIndex = new ShaderSemanticsClass({ str: 'baseColorTexcoordIndex' });
+  static readonly MetallicRoughnessTexcoordIndex = new ShaderSemanticsClass({ str: 'metallicRoughnessTexcoordIndex' });
+  static readonly OcclusionTexcoordIndex = new ShaderSemanticsClass({ str: 'occlusionTexcoordIndex' });
+  static readonly EmissiveTexcoordIndex = new ShaderSemanticsClass({ str: 'emissiveTexcoordIndex' });
 
   constructor({ isMorphing, isSkinning, isLighting, alphaMode }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, alphaMode: AlphaModeEnum }) {
     super(null, 'pbrShading'
@@ -121,6 +126,26 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader, min: -Math.PI, max: Math.PI, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
         },
 
+        {
+          semantic: PbrShadingSingleMaterialNode.NormalTexcoordIndex, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
+        },
+        {
+          semantic: PbrShadingSingleMaterialNode.BaseColorTexcoordIndex, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
+        },
+        {
+          semantic: PbrShadingSingleMaterialNode.MetallicRoughnessTexcoordIndex, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
+        },
+        {
+          semantic: PbrShadingSingleMaterialNode.OcclusionTexcoordIndex, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
+        },
+        {
+          semantic: PbrShadingSingleMaterialNode.EmissiveTexcoordIndex, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
+        }
       ];
 
     shaderSemanticsInfoArray.push(
