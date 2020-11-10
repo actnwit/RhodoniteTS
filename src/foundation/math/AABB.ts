@@ -37,7 +37,7 @@ export default class AABB {
   }
 
   set minPoint(val: Vector3) {
-    this.__min = new MutableVector3(val);
+    this.__min.copyComponents(val);
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
   }
@@ -47,7 +47,7 @@ export default class AABB {
   }
 
   set maxPoint(val: Vector3) {
-    this.__max = new MutableVector3(val);
+    this.__max.copyComponents(val);
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
   }

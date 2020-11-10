@@ -24,15 +24,15 @@ export default class AccessorBase extends RnObject {
   protected __typedArrayClass?: TypedArrayConstructor;
   protected __dataViewGetter: any;
   protected __dataViewSetter: any;
-  protected __max?: any;
-  protected __min?: any;
+  protected __max?: number[];
+  protected __min?: number[];
   protected __arrayLength = 1;
   protected __normalized: boolean = false;
 
   constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min, arrayLength, normalized }:
     {
       bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum,
-      byteStride: Byte, count: Count, raw: ArrayBuffer, max?: number, min?: number, arrayLength: Size, normalized: boolean
+      byteStride: Byte, count: Count, raw: ArrayBuffer, max?: number[], min?: number[], arrayLength: Size, normalized: boolean
     }) {
     super();
 
@@ -42,15 +42,10 @@ export default class AccessorBase extends RnObject {
     this.__componentType = componentType;
     this.__count = count;
     this.__arrayLength = arrayLength;
+    this.__max = max;
+    this.__min = min;
     this.__raw = raw;
     this.__normalized = normalized;
-
-    if (max != null) {
-      this.__max = max;
-    }
-    if (min != null) {
-      this.__min = min;
-    }
 
     this.__byteStride = byteStride;
 
@@ -81,7 +76,7 @@ export default class AccessorBase extends RnObject {
       if (this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer < this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count) {
         console.error(`Requesting a data size that exceeds the remaining capacity of the buffer: ${this.bufferView.buffer.name}.`);
       }
-      this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+      this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteStride * this.__count);
     } else {
       this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer);
     }
@@ -172,7 +167,7 @@ export default class AccessorBase extends RnObject {
   }
 
   get elementCount(): Count {
-    return this.__dataView!.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
+    return this.__count;
   }
 
   get byteLength(): Byte {
@@ -608,8 +603,8 @@ export default class AccessorBase extends RnObject {
           max = scalar;
         }
       }
-      this.__min = min;
-      this.__max = max;
+      this.__min = [min];
+      this.__max = [max];
     }
   }
 }

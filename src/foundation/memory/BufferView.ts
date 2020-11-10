@@ -91,7 +91,7 @@ export default class BufferView extends RnObject {
   takeAccessor({ compositionType, componentType, count, max, min, byteAlign = 4, arrayLength, normalized = false }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count,
-      max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size, normalized?: boolean
+      max?: number[], min?: number[], byteAlign?: Byte, arrayLength?: Size, normalized?: boolean
     }): Accessor {
 
     const byteStride = this.byteStride;
@@ -108,7 +108,7 @@ export default class BufferView extends RnObject {
   takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min, byteAlign = 4, arrayLength, normalized = false }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count,
-      byteStride: Byte, max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size, normalized?: boolean
+      byteStride: Byte, max?: number[], min?: number[], byteAlign?: Byte, arrayLength?: Size, normalized?: boolean
     }): FlexibleAccessor {
 
     const _arrayLength = (arrayLength != null) ? arrayLength : 1;
@@ -124,7 +124,7 @@ export default class BufferView extends RnObject {
   takeAccessorWithByteOffset({ compositionType, componentType, count, byteOffset, max, min, normalized = false }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count,
-      byteOffset: Byte, max?: number, min?: number, normalized?: boolean
+      byteOffset: Byte, max?: number[], min?: number[], normalized?: boolean
     }): Accessor {
     const byteStride = this.byteStride;
 
@@ -138,7 +138,7 @@ export default class BufferView extends RnObject {
   takeFlexibleAccessorWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, max, min, normalized = false }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte,
-      byteOffset: Byte, max?: number, min?: number, normalized?: boolean
+      byteOffset: Byte, max?: number[], min?: number[], normalized?: boolean
     }): FlexibleAccessor {
 
     const accessor = this.__takeAccessorInnerWithByteOffset({
@@ -151,7 +151,7 @@ export default class BufferView extends RnObject {
   private __takeAccessorInner({ compositionType, componentType, count, byteStride, accessorClass, max, min, byteAlign, arrayLength, normalized }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte,
-      accessorClass: any, max?: number, min?: number, byteAlign: Byte, arrayLength: Size, normalized: boolean
+      accessorClass: any, max?: number[], min?: number[], byteAlign: Byte, arrayLength: Size, normalized: boolean
     }): AccessorBase {
 
     let byteOffset = 0;
@@ -199,7 +199,7 @@ export default class BufferView extends RnObject {
   private __takeAccessorInnerWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, accessorClass, max, min, normalized }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte,
-      byteOffset: Byte, accessorClass: any, max?: number, min?: number, normalized: boolean
+      byteOffset: Byte, accessorClass: any, max?: number[], min?: number[], normalized: boolean
     }): AccessorBase {
 
     // if (byteOffset % 4 !== 0) {
