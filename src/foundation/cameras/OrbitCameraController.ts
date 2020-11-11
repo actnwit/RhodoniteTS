@@ -545,14 +545,14 @@ export default class OrbitCameraController implements ICameraController {
 
       rotateM.multiplyVectorTo(this.__upVec, newUpVec);
       rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);
-      this.__newCenterVec.copyComponents(this.__centerVec);
+      newCenterVec.copyComponents(this.__centerVec);
 
       const newEyeToCenterVec = OrbitCameraController.__tmpVec3_1;
       MutableVector3.subtractTo(newCenterVec, newEyeVec, newEyeToCenterVec);
       MutableVector3.crossTo(newUpVec, newEyeToCenterVec, newTangentVec);
 
-      this.__newEyeVec.add(this.__mouseTranslateVec);
-      this.__newCenterVec.add(this.__mouseTranslateVec);
+      newEyeVec.add(this.__mouseTranslateVec);
+      newCenterVec.add(this.__mouseTranslateVec);
 
       // const horizonResetVec = OrbitCameraController.__tmpVec3_2;
       // rotateM_Reset.multiplyVectorTo(centerToEyeVec, horizonResetVec);
@@ -573,14 +573,14 @@ export default class OrbitCameraController implements ICameraController {
 
       rotateM.multiplyVectorTo(this.__upVec, newUpVec);
       rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);
-      this.__newCenterVec.copyComponents(this.__centerVec);
+      newCenterVec.copyComponents(this.__centerVec);
 
       const newEyeToCenterVec = OrbitCameraController.__tmpVec3_1;
       MutableVector3.subtractTo(newCenterVec, newEyeVec, newEyeToCenterVec);
       MutableVector3.crossTo(newUpVec, newEyeToCenterVec, newTangentVec);
 
-      this.__newEyeVec.add(this.__mouseTranslateVec);
-      this.__newCenterVec.add(this.__mouseTranslateVec);
+      newEyeVec.add(this.__mouseTranslateVec);
+      newCenterVec.add(this.__mouseTranslateVec);
     }
 
     let newLeft = camera.left;
