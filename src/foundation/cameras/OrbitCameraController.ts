@@ -30,7 +30,6 @@ export default class OrbitCameraController implements ICameraController {
   private __newTangentVec = MutableVector3.zero();
   // private __verticalAngleThreshold = 0;
   // private __verticalAngleOfVectors = 0;
-  private __isForceGrab = false;
   private __isSymmetryMode = true;
   public eventTargetDom?: HTMLElement;
   // private __doResetWhenCameraSettingChanged = false;
@@ -532,11 +531,9 @@ export default class OrbitCameraController implements ICameraController {
   }
 
   __convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
-    if (this.__isKeyUp || !this.__isForceGrab) {
-      MutableVector3.addTo(eye, this.__shiftCameraTo, this.__eyeVec);
-      MutableVector3.addTo(center, this.__shiftCameraTo, this.__centerVec);
-      this.__upVec.copyComponents(up);
-    }
+    MutableVector3.addTo(eye, this.__shiftCameraTo, this.__eyeVec);
+    MutableVector3.addTo(center, this.__shiftCameraTo, this.__centerVec);
+    this.__upVec.copyComponents(up);
 
     const centerToEyeVec = this.__eyeVec.subtract(this.__centerVec);
     centerToEyeVec.multiply(this.__dolly * this.dollyScale);
