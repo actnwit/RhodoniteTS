@@ -224,11 +224,11 @@ export default class WalkThroughCameraController implements ICameraController {
   }
 
   logic(cameraComponent: CameraComponent) {
-    this.__convert(cameraComponent);
+    this.__updateCameraComponent(cameraComponent);
   }
 
 
-  private __convert(camera: CameraComponent) {
+  private __updateCameraComponent(camera: CameraComponent) {
     let newZNear = camera.zNearInner;
     let newZFar = camera.zFarInner;
 

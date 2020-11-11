@@ -504,11 +504,11 @@ export default class OrbitCameraController implements ICameraController {
   }
 
   logic(cameraComponent: CameraComponent) {
-    this.__updateTargeting(cameraComponent!);
-    this.__convert(cameraComponent);
+    this.__updateTargeting(cameraComponent);
+    this.__updateCameraComponent(cameraComponent);
   }
 
-  __convert(camera: CameraComponent) {
+  __updateCameraComponent(camera: CameraComponent) {
     const centerToEyeVec = this.__eyeVec.subtract(this.__centerVec);
     centerToEyeVec.multiply(this.__dolly * this.dollyScale);
 
