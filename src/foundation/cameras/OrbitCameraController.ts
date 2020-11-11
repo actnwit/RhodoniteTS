@@ -505,10 +505,14 @@ export default class OrbitCameraController implements ICameraController {
 
   logic(cameraComponent: CameraComponent) {
     this.__updateTargeting(cameraComponent);
+    this.__calculateInfluenceOfController();
     this.__updateCameraComponent(cameraComponent);
   }
 
-  __updateCameraComponent(camera: CameraComponent) {
+  /**
+   * @private calculate up, eye, center and tangent vector with controller influence
+   */
+  __calculateInfluenceOfController() {
     const centerToEyeVec = this.__eyeVec.subtract(this.__centerVec);
     centerToEyeVec.multiply(this.__dolly * this.dollyScale);
 
@@ -582,7 +586,9 @@ export default class OrbitCameraController implements ICameraController {
       newEyeVec.add(this.__mouseTranslateVec);
       newCenterVec.add(this.__mouseTranslateVec);
     }
+  }
 
+  __updateCameraComponent(camera: CameraComponent) {
     let newLeft = camera.left;
     let newRight = camera.right;
     let newTop = camera.top;
@@ -594,7 +600,7 @@ export default class OrbitCameraController implements ICameraController {
     const targetAABB = this.__getTargetAABB();
 
     if (this.__targetEntity) {
-      newZFar = newZNear + Vector3.lengthBtw(newCenterVec, newEyeVec);
+      newZFar = newZNear + Vector3.lengthBtw(this.__newCenterVec, this.__newEyeVec);
       newZFar += targetAABB.lengthCenterToCorner * this.__zFarAdjustingFactorBasedOnAABB;
     }
 
@@ -619,9 +625,9 @@ export default class OrbitCameraController implements ICameraController {
     const fovy = this.__getFovyFromCamera(camera);
     this.__fovyBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
 
-    camera.eyeInner = newEyeVec;
-    camera.directionInner = newCenterVec;
-    camera.upInner = newUpVec;
+    camera.eyeInner = this.__newEyeVec;
+    camera.directionInner = this.__newCenterVec;
+    camera.upInner = this.__newUpVec;
     camera.zNearInner = newZNear;
     camera.zFarInner = newZFar;
     camera.leftInner = newLeft;
