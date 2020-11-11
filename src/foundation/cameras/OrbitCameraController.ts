@@ -9,10 +9,11 @@ import { Count, Size } from "../../commontypes/CommonTypes";
 import ICameraController from "./ICameraController";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import AABB from "../math/AABB";
+import AbstractCameraController from "./AbstractCameraController";
 
 declare var window: any;
 
-export default class OrbitCameraController implements ICameraController {
+export default class OrbitCameraController extends AbstractCameraController implements ICameraController {
   private __isKeyUp = true;
   private __originalY = -1;
   private __originalX = -1;
@@ -94,6 +95,7 @@ export default class OrbitCameraController implements ICameraController {
   private __firstTargetAABB?: AABB;
 
   constructor() {
+    super();
     this.registerEventListeners();
   }
 
@@ -593,33 +595,29 @@ export default class OrbitCameraController implements ICameraController {
     let newRight = camera.right;
     let newTop = camera.top;
     let newBottom = camera.bottom;
-    let newZNear = camera.zNear;
-    let newZFar = camera.zFar;
     let ratio = 1;
 
-    const targetAABB = this.__getTargetAABB();
-
     if (this.__targetEntity) {
-      newZFar = newZNear + Vector3.lengthBtw(this.__newCenterVec, this.__newEyeVec);
-      newZFar += targetAABB.lengthCenterToCorner * this.__zFarAdjustingFactorBasedOnAABB;
+      const targetAABB = this.__getTargetAABB();
+      const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(this.__newCenterVec)
+      eyeDirection.subtract(this.__newEyeVec).normalize();
+      this._calcZNearInner(camera, this.__newEyeVec, eyeDirection, targetAABB);
+      this._calcZFarInner(camera);
     }
 
     if (typeof newLeft !== "undefined") {
-      if (typeof targetAABB.lengthCenterToCorner !== "undefined") {
-        //let aabb = this.__getTargetAABB();
-        ratio = newZFar / camera.zNear;
+      //let aabb = this.__getTargetAABB();
+      ratio = camera.zFar / camera.zNear;
 
-        const minRatio = this.__scaleOfZNearAndZFar;
-        ratio /= minRatio;
+      const minRatio = this.__scaleOfZNearAndZFar;
+      ratio /= minRatio;
 
-        let scale = ratio;
-        newLeft *= scale;
-        newRight *= scale;
-        newTop *= scale;
-        newBottom *= scale;
-        //        newZFar *= scale;
-        newZNear *= scale;
-      }
+      let scale = ratio;
+      newLeft *= scale;
+      newRight *= scale;
+      newTop *= scale;
+      newBottom *= scale;
+
     }
 
     const fovy = this.__getFovyFromCamera(camera);
@@ -628,8 +626,6 @@ export default class OrbitCameraController implements ICameraController {
     camera.eyeInner = this.__newEyeVec;
     camera.directionInner = this.__newCenterVec;
     camera.upInner = this.__newUpVec;
-    camera.zNearInner = newZNear;
-    camera.zFarInner = newZFar;
     camera.leftInner = newLeft;
     camera.rightInner = newRight;
     camera.topInner = newTop;
