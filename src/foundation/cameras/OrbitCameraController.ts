@@ -55,10 +55,6 @@ export default class OrbitCameraController implements ICameraController {
   private __pinchInOutControl = false;
   private __pinchInOutOriginalDistance?: number | null = null;
 
-  private static returnVector3Eye = MutableVector3.zero();
-  private static returnVector3Center = MutableVector3.zero();
-  private static returnVector3Up = MutableVector3.zero();
-
   private __maximum_y?: number;
   private __minimum_y?: number;
 
@@ -648,33 +644,29 @@ export default class OrbitCameraController implements ICameraController {
    * @private update center, eye and up vectors of OrbitCameraController
    */
   __updateTargeting(camera: CameraComponent) {
-
     const eyeVec = camera.eye;
     const centerVec = (camera as any)._direction as Vector3;
     const upVec = (camera as any)._up as Vector3;
 
-    const newEyeVec = OrbitCameraController.returnVector3Eye;
-    const newCenterVec = OrbitCameraController.returnVector3Center;
-    const newUpVec = OrbitCameraController.returnVector3Up;
-
+    const newEyeVec = this.__eyeVec;
+    const newCenterVec = this.__centerVec;
+    const newUpVec = this.__upVec.copyComponents(upVec);
 
     if (this.__targetEntity == null) {
       newEyeVec.copyComponents(eyeVec);
       newCenterVec.copyComponents(centerVec);
-      newUpVec.copyComponents(upVec);
     } else {
       const targetAABB = this.__getTargetAABB();
 
+      // calc newCenterVec
       newCenterVec.copyComponents(targetAABB.centerPoint);
 
+      // calc newEyeVec
       const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, newEyeVec) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
-
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) * this.scaleOfLengthCenterToCamera;
       centerToCameraVecNormalized.multiply(lengthCenterToCamera).add(newCenterVec);
-
-      newUpVec.copyComponents(upVec);
 
       const sg = camera.entity.getSceneGraph();
       if (sg != null) {
@@ -686,9 +678,8 @@ export default class OrbitCameraController implements ICameraController {
       }
     }
 
-    MutableVector3.addTo(newEyeVec, this.__shiftCameraTo, this.__eyeVec);
-    MutableVector3.addTo(newCenterVec, this.__shiftCameraTo, this.__centerVec);
-    this.__upVec.copyComponents(newUpVec);
+    newEyeVec.add(this.__shiftCameraTo);
+    newCenterVec.add(this.__shiftCameraTo);
   }
 
   set scaleOfZNearAndZFar(value: number) {
