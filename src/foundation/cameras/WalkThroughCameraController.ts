@@ -224,18 +224,7 @@ export default class WalkThroughCameraController implements ICameraController {
   }
 
   logic(cameraComponent: CameraComponent) {
-    const data = this.__convert(cameraComponent);
-    const cc = cameraComponent;
-    cc.eyeInner = data.newEyeVec;
-    cc.directionInner = data.newCenterVec;
-    cc.upInner = data.newUpVec;
-    cc.zNearInner = data.newZNear;
-    cc.zFarInner = data.newZFar;
-    cc.leftInner = data.newLeft;
-    cc.rightInner = data.newRight;
-    cc.topInner = data.newTop;
-    cc.bottomInner = data.newBottom;
-    cc.fovyInner = data.fovy;
+    this.__convert(cameraComponent);
   }
 
 
@@ -269,6 +258,17 @@ export default class WalkThroughCameraController implements ICameraController {
 
       this._needInitialize = false;
     }
+
+    camera.eyeInner = this._currentPos;
+    camera.directionInner = this._currentCenter;
+    camera.upInner = (camera as any)._up;
+    camera.zNearInner = newZNear;
+    camera.zFarInner = newZFar;
+    camera.leftInner = camera.left;
+    camera.rightInner = camera.right;
+    camera.topInner = camera.top;
+    camera.bottomInner = camera.bottom;
+    camera.fovyInner = camera.fovy;
 
     const t = this._deltaY / 90;
     this._newDir.x = this._currentDir.x * (1 - t);
@@ -357,23 +357,6 @@ export default class WalkThroughCameraController implements ICameraController {
       this._deltaMouseYOnCanvas = 0;
     }
 
-    const newLeft = camera.left;
-    const newRight = camera.right;
-    const newTop = camera.top;
-    const newBottom = camera.bottom;
-
-    return {
-      newEyeVec: this._currentPos,
-      newCenterVec: this._currentCenter,
-      newUpVec: camera.up.clone(),
-      newZNear: newZNear,
-      newZFar: newZFar,
-      newLeft,
-      newRight,
-      newTop,
-      newBottom,
-      fovy: camera.fovy
-    };
   }
 
   getDirection() {

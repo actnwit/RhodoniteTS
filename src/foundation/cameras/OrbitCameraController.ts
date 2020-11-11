@@ -509,32 +509,11 @@ export default class OrbitCameraController implements ICameraController {
   }
 
   logic(cameraComponent: CameraComponent) {
-    const data0 = this.__updateTargeting(cameraComponent!);
-    const eye = data0.newEyeVec;
-    const center = data0.newCenterVec;
-    const up = data0.newUpVec;
-
-
-    const data = this.__convert(cameraComponent!, eye, center, up);
-    const cc = cameraComponent!;
-    cc.eyeInner = data.newEyeVec;
-    cc.directionInner = data.newCenterVec;
-    cc.upInner = data.newUpVec;
-    cc.zNearInner = data.newZNear;
-    cc.zFarInner = data.newZFar;
-    cc.leftInner = data.newLeft;
-    cc.rightInner = data.newRight;
-    cc.topInner = data.newTop;
-    cc.bottomInner = data.newBottom;
-
-    cc.fovyInner = data.fovy;
+    this.__updateTargeting(cameraComponent!);
+    this.__convert(cameraComponent);
   }
 
-  __convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
-    MutableVector3.addTo(eye, this.__shiftCameraTo, this.__eyeVec);
-    MutableVector3.addTo(center, this.__shiftCameraTo, this.__centerVec);
-    this.__upVec.copyComponents(up);
-
+  __convert(camera: CameraComponent) {
     const centerToEyeVec = this.__eyeVec.subtract(this.__centerVec);
     centerToEyeVec.multiply(this.__dolly * this.dollyScale);
 
@@ -644,19 +623,19 @@ export default class OrbitCameraController implements ICameraController {
 
     const fovy = this.__getFovyFromCamera(camera);
     this.__fovyBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
-    return {
-      newEyeVec,
-      newCenterVec,
-      newUpVec,
-      newZNear,
-      newZFar,
-      newLeft,
-      newRight,
-      newTop,
-      newBottom,
-      fovy
-    };
+
+    camera.eyeInner = newEyeVec;
+    camera.directionInner = newCenterVec;
+    camera.upInner = newUpVec;
+    camera.zNearInner = newZNear;
+    camera.zFarInner = newZFar;
+    camera.leftInner = newLeft;
+    camera.rightInner = newRight;
+    camera.topInner = newTop;
+    camera.bottomInner = newBottom;
+    camera.fovyInner = fovy;
   }
+
 
   __getTargetAABB() {
     if (this.__firstTargetAABB == null) {
@@ -665,38 +644,51 @@ export default class OrbitCameraController implements ICameraController {
     return this.__firstTargetAABB;
   }
 
+  /**
+   * @private update center, eye and up vectors of OrbitCameraController
+   */
   __updateTargeting(camera: CameraComponent) {
 
     const eyeVec = camera.eye;
     const centerVec = (camera as any)._direction as Vector3;
     const upVec = (camera as any)._up as Vector3;
 
+    const newEyeVec = OrbitCameraController.returnVector3Eye;
+    const newCenterVec = OrbitCameraController.returnVector3Center;
+    const newUpVec = OrbitCameraController.returnVector3Up;
+
+
     if (this.__targetEntity == null) {
-      return { newEyeVec: eyeVec, newCenterVec: centerVec, newUpVec: upVec };
+      newEyeVec.copyComponents(eyeVec);
+      newCenterVec.copyComponents(centerVec);
+      newUpVec.copyComponents(upVec);
+    } else {
+      const targetAABB = this.__getTargetAABB();
+
+      newCenterVec.copyComponents(targetAABB.centerPoint);
+
+      const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, newEyeVec) as MutableVector3;
+      const centerToCameraVecNormalized = centerToCameraVec.normalize();
+
+      const lengthCenterToCamera =
+        targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) * this.scaleOfLengthCenterToCamera;
+      centerToCameraVecNormalized.multiply(lengthCenterToCamera).add(newCenterVec);
+
+      newUpVec.copyComponents(upVec);
+
+      const sg = camera.entity.getSceneGraph();
+      if (sg != null) {
+        const invMat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmpMat44_0);
+
+        invMat.multiplyVector3To(newCenterVec, newCenterVec);
+        invMat.multiplyVector3To(newEyeVec, newEyeVec);
+        invMat.multiplyVector3To(newUpVec, newUpVec);
+      }
     }
 
-    const targetAABB = this.__getTargetAABB();
-    let newCenterVec = targetAABB.centerPoint as Vector3;
-
-    const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, OrbitCameraController.returnVector3Eye) as MutableVector3;
-    const centerToCameraVecNormalized = centerToCameraVec.normalize();
-
-    const lengthCenterToCamera =
-      targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) * this.scaleOfLengthCenterToCamera;
-    let newEyeVec = centerToCameraVecNormalized.multiply(lengthCenterToCamera).add(newCenterVec);
-
-    let newUpVec = upVec;
-
-    const sg = camera.entity.getSceneGraph();
-    if (sg != null) {
-      const invMat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmpMat44_0);
-
-      newEyeVec = invMat.multiplyVector3To(newEyeVec, OrbitCameraController.returnVector3Eye);
-      newCenterVec = invMat.multiplyVector3To(newCenterVec, OrbitCameraController.returnVector3Center);
-      newUpVec = invMat.multiplyVector3To(upVec, OrbitCameraController.returnVector3Up);
-    }
-
-    return { newEyeVec, newCenterVec, newUpVec };
+    MutableVector3.addTo(newEyeVec, this.__shiftCameraTo, this.__eyeVec);
+    MutableVector3.addTo(newCenterVec, this.__shiftCameraTo, this.__centerVec);
+    this.__upVec.copyComponents(newUpVec);
   }
 
   set scaleOfZNearAndZFar(value: number) {
