@@ -42,7 +42,6 @@ export default class OrbitCameraController implements ICameraController {
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
-  private __shiftCameraTo = MutableVector3.zero();
   private __targetEntity?: Entity;
   public scaleOfLengthCenterToCamera = 1.0;
   private __zFarAdjustingFactorBasedOnAABB = 150;
@@ -677,9 +676,6 @@ export default class OrbitCameraController implements ICameraController {
         invMat.multiplyVector3To(newUpVec, newUpVec);
       }
     }
-
-    newEyeVec.add(this.__shiftCameraTo);
-    newCenterVec.add(this.__shiftCameraTo);
   }
 
   set scaleOfZNearAndZFar(value: number) {
