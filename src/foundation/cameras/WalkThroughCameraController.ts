@@ -142,7 +142,7 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     }
   }
 
-  _mouseWheel(e: MouseWheelEvent) {
+  _mouseWheel(e: WheelEvent) {
     if (this._currentDir === null) {
       return;
     }

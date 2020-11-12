@@ -391,25 +391,25 @@ export default class OrbitCameraController extends AbstractCameraController impl
   }
 
   __pressShift(e: KeyboardEvent) {
-    if (e.keyCode === 16) {
+    if (e.shiftKey === true) {
       this.__isPressingShift = true;
     }
   }
 
   __releaseShift(e: KeyboardEvent) {
-    if (e.keyCode === 16) {
+    if (e.shiftKey === false) {
       this.__isPressingShift = false;
     }
   }
 
   __pressCtrl(e: KeyboardEvent) {
-    if (e.keyCode === 17) {
+    if (e.ctrlKey === true) {
       this.__isPressingCtrl = true;
     }
   }
 
   __releaseCtrl(e: KeyboardEvent) {
-    if (e.keyCode === 17) {
+    if (e.ctrlKey === false) {
       this.__isPressingCtrl = false;
     }
   }
