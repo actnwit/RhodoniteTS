@@ -47,7 +47,7 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
   private _eventTargetDom?: any;
   private _needInitialize = true;
-  private _targetEntity?: Entity;
+  protected __targetEntity?: Entity;
   private _zFarAdjustingFactorBasedOnAABB = 150.0;
 
   private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
@@ -228,7 +228,7 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
   }
 
   private __updateCameraComponent(camera: CameraComponent) {
-    const targetAABB = this._targetEntity?.getSceneGraph().worldAABB;
+    const targetAABB = this.__targetEntity?.getSceneGraph().worldAABB;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0)));
@@ -344,10 +344,8 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     camera.bottomInner = camera.bottom;
     camera.fovyInner = camera.fovy;
 
-    if (targetAABB != null) {
-      this._calcZNearInner(camera, this._currentPos, this._newDir, targetAABB);
-      this._calcZFarInner(camera);
-    }
+    this._calcZNearInner(camera, this._currentPos, this._newDir);
+    this._calcZFarInner(camera);
   }
   getDirection() {
     return this._currentCenter !== null ? this._newDir.clone() : null;
@@ -382,12 +380,12 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 
-    this._targetEntity = targetEntity;
+    this.__targetEntity = targetEntity;
     this._needInitialize = true;
   }
 
   getTarget(): Entity | undefined {
-    return this._targetEntity;
+    return this.__targetEntity;
   }
 
   set zFarAdjustingFactorBasedOnAABB(value: number) {

@@ -1,17 +1,19 @@
 import CameraComponent from "../components/CameraComponent";
-import AABB from "../math/AABB";
+import Entity from "../core/Entity";
 import Vector3 from "../math/Vector3";
 
 export default abstract class AbstractCameraController {
   public zNearLimitFactor = 10; // must be more than 0
   public zFarScalingFactor = 10000;
   public autoCalculateZNearAndZFar = true;
+  protected abstract __targetEntity?: Entity;
 
   constructor() {
   }
 
-  protected _calcZNearInner(camera: CameraComponent, eyePosition: Vector3, eyeDirection: Vector3, targetAABB: AABB) {
-    if (this.autoCalculateZNearAndZFar) {
+  protected _calcZNearInner(camera: CameraComponent, eyePosition: Vector3, eyeDirection: Vector3) {
+    if (this.autoCalculateZNearAndZFar && this.__targetEntity != null) {
+      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
       const lengthOfCenterToEye = Vector3.lengthBtw(eyePosition, targetAABB.centerPoint);
       const sizeMin = Math.min(targetAABB.sizeX, targetAABB.sizeY, targetAABB.sizeZ);
 
@@ -50,4 +52,7 @@ export default abstract class AbstractCameraController {
       camera.zNearInner = camera.zFar;
     }
   }
+
+  abstract setTarget(targetEntity: Entity): void;
+  abstract getTarget(): Entity | undefined;
 }

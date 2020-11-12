@@ -43,7 +43,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
-  private __targetEntity?: Entity;
+  protected __targetEntity?: Entity;
   public scaleOfLengthCenterToCamera = 1.0;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
@@ -620,13 +620,10 @@ export default class OrbitCameraController extends AbstractCameraController impl
   }
 
   __updateCameraComponent(camera: CameraComponent) {
-    if (this.__targetEntity) {
-      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;;
-      const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(this.__newCenterVec)
-      eyeDirection.subtract(this.__newEyeVec).normalize();
-      this._calcZNearInner(camera, this.__newEyeVec, eyeDirection, targetAABB);
-      this._calcZFarInner(camera);
-    }
+    const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(this.__newCenterVec)
+    eyeDirection.subtract(this.__newEyeVec).normalize();
+    this._calcZNearInner(camera, this.__newEyeVec, eyeDirection);
+    this._calcZFarInner(camera);
 
     const ratio = camera.zFar / camera.zNear;
     const minRatio = this.__scaleOfZNearAndZFar;
