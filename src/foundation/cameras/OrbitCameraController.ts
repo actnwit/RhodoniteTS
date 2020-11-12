@@ -45,7 +45,6 @@ export default class OrbitCameraController extends AbstractCameraController impl
   private __upVec = MutableVector3.zero();
   private __targetEntity?: Entity;
   public scaleOfLengthCenterToCamera = 1.0;
-  private __zFarAdjustingFactorBasedOnAABB = 150;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
   public moveSpeed = 1;
@@ -98,14 +97,6 @@ export default class OrbitCameraController extends AbstractCameraController impl
   constructor() {
     super();
     this.registerEventListeners();
-  }
-
-  set zFarAdjustingFactorBasedOnAABB(value: number) {
-    this.__zFarAdjustingFactorBasedOnAABB = value;
-  }
-
-  get zFarAdjustingFactorBasedOnAABB() {
-    return this.__zFarAdjustingFactorBasedOnAABB;
   }
 
   setTarget(targetEntity: Entity) {

@@ -49,7 +49,6 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
   private _needInitialize = true;
   private _targetEntity?: Entity;
   private _zFarAdjustingFactorBasedOnAABB = 150.0;
-  private __scaleOfZNearAndZFar = 5000;
 
   private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
@@ -397,14 +396,6 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
 
   get zFarAdjustingFactorBasedOnAABB() {
     return this._zFarAdjustingFactorBasedOnAABB;
-  }
-
-  set scaleOfZNearAndZFar(value: number) {
-    this.__scaleOfZNearAndZFar = value;
-  }
-
-  get scaleOfZNearAndZFar() {
-    return this.__scaleOfZNearAndZFar;
   }
 
   get allInfo() {
