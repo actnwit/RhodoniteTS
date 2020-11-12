@@ -34,6 +34,8 @@ export default class Primitive extends RnObject {
   private __inverseArenbergMatrix: Matrix33[] = [];
   private __arenberg3rdPosition: Vector3[] = [];
 
+  private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
+
   constructor() {
     super();
   }
@@ -299,8 +301,11 @@ export default class Primitive extends RnObject {
       if (positionAccessor.min == null || positionAccessor.max == null) {
         positionAccessor.calcMinMax();
       }
-      this.__aabb.minPoint = positionAccessor.min;
-      this.__aabb.maxPoint = positionAccessor.max;
+
+      const min = positionAccessor.min as number[];
+      this.__aabb.minPoint = Primitive.__tmpVec3_0.setComponents(min[0], min[1], min[2]);
+      const max = positionAccessor.max as number[];
+      this.__aabb.maxPoint = Primitive.__tmpVec3_0.setComponents(max[0], max[1], max[2]);
     }
 
     return this.__aabb;
@@ -512,6 +517,10 @@ export default class Primitive extends RnObject {
   }
 
   _calcArenbergInverseMatrices() {
+    if (this.__inverseArenbergMatrix.length != 0) {
+      return;
+    }
+
     const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
 
     let incrementNum = 3; // gl.TRIANGLES
@@ -522,8 +531,6 @@ export default class Primitive extends RnObject {
       return;
     }
 
-    this.__inverseArenbergMatrix = [];
-    this.__arenberg3rdPosition = [];
     if (this.hasIndices()) {
       for (let i = 0; i < this.__indices!.elementCount - 2; i++) {
         const j = i * incrementNum;

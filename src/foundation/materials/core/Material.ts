@@ -66,11 +66,11 @@ export default class Material extends RnObject {
   public cullFrontFaceCCW: boolean = true;
 
   private __blendEquationMode: number = 32774;            // gl.FUNC_ADD
-  private __blendEquationModeAlpha: number | null = null; // use blendEquation instead of blendEquationSeparate
+  private __blendEquationModeAlpha: number = 32774;       // gl.FUNC_ADD
   private __blendFuncSrcFactor: number = 770;             // gl.SRC_ALPHA
   private __blendFuncDstFactor: number = 771;             // gl.ONE_MINUS_SRC_ALPHA
-  private __blendFuncAlphaSrcFactor: number | null = 1;   // gl.ONE
-  private __blendFuncAlphaDstFactor: number | null = 1;   // gl.ONE
+  private __blendFuncAlphaSrcFactor: number = 1;          // gl.ONE
+  private __blendFuncAlphaDstFactor: number = 1;          // gl.ONE
 
   private constructor(materialTid: Index, materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     super();
@@ -632,7 +632,7 @@ export default class Material extends RnObject {
    */
   setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha?: number) {
     this.__blendEquationMode = blendEquationMode;
-    this.__blendEquationModeAlpha = blendEquationModeAlpha ?? null;
+    this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
   }
 
   /**
@@ -653,8 +653,8 @@ export default class Material extends RnObject {
   setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
-    this.__blendFuncAlphaSrcFactor = null;
-    this.__blendFuncAlphaDstFactor = null;
+    this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;
+    this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
   }
 
   get blendEquationMode() {
