@@ -92,8 +92,6 @@ export default class OrbitCameraController extends AbstractCameraController impl
 
   private static __tmpMat44_0: MutableMatrix44 = MutableMatrix44.identity();
 
-  private __firstTargetAABB?: AABB;
-
   constructor() {
     super();
     this.registerEventListeners();
@@ -519,7 +517,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
       newEyeVec.copyComponents(eyeVec);
       newCenterVec.copyComponents(centerVec);
     } else {
-      const targetAABB = this.__getTargetAABB();
+      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
 
       // calc newCenterVec
       newCenterVec.copyComponents(targetAABB.centerPoint);
@@ -623,7 +621,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
 
   __updateCameraComponent(camera: CameraComponent) {
     if (this.__targetEntity) {
-      const targetAABB = this.__getTargetAABB();
+      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;;
       const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(this.__newCenterVec)
       eyeDirection.subtract(this.__newEyeVec).normalize();
       this._calcZNearInner(camera, this.__newEyeVec, eyeDirection, targetAABB);
@@ -650,14 +648,6 @@ export default class OrbitCameraController extends AbstractCameraController impl
     camera.topInner = newTop;
     camera.bottomInner = newBottom;
     camera.fovyInner = fovy;
-  }
-
-
-  __getTargetAABB() {
-    if (this.__firstTargetAABB == null) {
-      this.__firstTargetAABB = this.__targetEntity!.getSceneGraph().worldAABB.clone();
-    }
-    return this.__firstTargetAABB;
   }
 
   set scaleOfZNearAndZFar(value: number) {
