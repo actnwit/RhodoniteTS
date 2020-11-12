@@ -83,6 +83,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
   private static readonly __tmp_up: Vector3 = new Vector3(0, 0, 1);
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVec3_1: MutableVector3 = MutableVector3.zero();
+  private static __tmpVec3_2: MutableVector3 = MutableVector3.zero();
 
   private static __tmp_rotateM_X: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM_Y: MutableMatrix33 = MutableMatrix33.identity();
@@ -515,7 +516,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
    * @private calculate up, eye, center and tangent vector with controller influence
    */
   __calculateInfluenceOfController() {
-    const centerToEyeVec = this.__eyeVec.subtract(this.__centerVec);
+    const centerToEyeVec = MutableVector3.subtractTo(this.__eyeVec, this.__centerVec, OrbitCameraController.__tmpVec3_0);
     centerToEyeVec.multiply(this.__dolly * this.dollyScale);
 
     this.__lengthOfCenterToEye = centerToEyeVec.length();
@@ -526,7 +527,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
     const newTangentVec = this.__newTangentVec;
 
     if (this.__isSymmetryMode) {
-      const projectedCenterToEyeVec = OrbitCameraController.__tmpVec3_0;
+      const projectedCenterToEyeVec = OrbitCameraController.__tmpVec3_1;
       projectedCenterToEyeVec.setComponents(centerToEyeVec.x, 0, centerToEyeVec.z);
 
       let horizontalAngleOfVectors = Vector3.angleOfVectors(projectedCenterToEyeVec, OrbitCameraController.__tmp_up);
@@ -553,7 +554,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
       rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);
       newCenterVec.copyComponents(this.__centerVec);
 
-      const newEyeToCenterVec = OrbitCameraController.__tmpVec3_1;
+      const newEyeToCenterVec = OrbitCameraController.__tmpVec3_2;
       MutableVector3.subtractTo(newCenterVec, newEyeVec, newEyeToCenterVec);
       MutableVector3.crossTo(newUpVec, newEyeToCenterVec, newTangentVec);
 
