@@ -59,5 +59,5 @@ function fromString(str: string): VertexAttributeEnum {
 }
 
 export const VertexAttribute = Object.freeze({
-  Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, FaceNormal, BaryCentricCoord, AttributeTypeNumber: AttributeTypeNumber, from, fromString
+  Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, FaceNormal, BaryCentricCoord, AttributeTypeNumber, from, fromString
 });

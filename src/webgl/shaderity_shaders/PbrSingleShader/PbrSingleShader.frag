@@ -11,7 +11,8 @@ in vec3 v_normal_inWorld;
 in vec3 v_tangent_inWorld;
 in vec3 v_binormal_inWorld;
 in vec4 v_position_inWorld;
-in vec2 v_texcoord;
+in vec2 v_texcoord_0;
+in vec2 v_texcoord_1;
 in vec3 v_baryCentricCoord;
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -79,9 +80,15 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
-
-
-
+vec2 getTexcoord(int texcoordIndex) {
+  vec2 texcoord;
+  if(texcoordIndex == 1){
+    texcoord = v_texcoord_1;
+  }else{
+    texcoord = v_texcoord_0;
+  }
+  return texcoord;
+}
 
 
 void main ()
@@ -99,7 +106,9 @@ void main ()
   if (abs(length(v_tangent_inWorld)) > 0.01) {
     vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
     float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
-    vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, v_texcoord);
+    int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+    vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+    vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
     vec3 normal = texture2D(u_normalTexture, normalTexUv).xyz*2.0 - 1.0;
     vec3 tangent_inWorld = normalize(v_tangent_inWorld);
     vec3 binormal_inWorld = normalize(v_binormal_inWorld);
@@ -137,8 +146,10 @@ void main ()
   // BaseColor (take account for BaseColorTexture)
   vec4 baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
   float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
-  vec2 baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, v_texcoord);
-vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
+  int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
+  vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
+  vec2 baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
+  vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
   baseColor *= srgbToLinear(textureColor.rgb);
   alpha *= textureColor.a;
 
@@ -153,7 +164,9 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
 
   vec4 metallicRoughnessTextureTransform = get_metallicRoughnessTextureTransform(materialSID, 0);
   float metallicRoughnessTextureRotation = get_metallicRoughnessTextureRotation(materialSID, 0);
-  vec2 metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransform.xy, metallicRoughnessTextureTransform.zw, metallicRoughnessTextureRotation, v_texcoord);
+  int metallicRoughnessTexcoordIndex = get_metallicRoughnessTexcoordIndex(materialSID, 0);
+  vec2 metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex);
+  vec2 metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransform.xy, metallicRoughnessTextureTransform.zw, metallicRoughnessTextureRotation, metallicRoughnessTexcoord);
   vec4 ormTexel = texture2D(u_metallicRoughnessTexture, metallicRoughnessTexUv);
   userRoughness = ormTexel.g * userRoughness;
   metallic = ormTexel.b * metallic;
@@ -240,7 +253,10 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
 
   vec3 F = fresnel(F0, NV);
   vec3 ibl = IBLContribution(materialSID, normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
-  float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
+
+  int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
+  vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
+  float occlusion = texture2D(u_occlusionTexture, occlusionTexcoord).r;
 
   // Occlution to Indirect Lights
   rt0.xyz += ibl * occlusion;
@@ -249,7 +265,9 @@ vec4 textureColor = texture2D(u_baseColorTexture, baseColorTexUv);
 #endif
 
   // Emissive
-  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, v_texcoord).xyz);
+  int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+  vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
+  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
 
   rt0.xyz += emissive;
 

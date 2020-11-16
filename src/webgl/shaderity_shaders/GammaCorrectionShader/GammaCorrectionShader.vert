@@ -4,9 +4,9 @@
 /* shaderity: @{definitions} */
 
 in float a_instanceID;
-in vec2 a_texcoord;
+in vec2 a_texcoord_0;
 in vec3 a_position;
-out vec2 v_texcoord;
+out vec2 v_texcoord_0;
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -21,6 +21,6 @@ void main()
 
 #pragma shaderity: require(../common/simpleMVPPosition.glsl)
 
-v_texcoord = a_texcoord;
+v_texcoord_0 = a_texcoord_0;
 
 }

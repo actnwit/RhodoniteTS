@@ -16,12 +16,12 @@ import { AlphaModeEnum, AlphaMode } from "../../definitions/AlphaMode";
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static readonly IsOutputHDR = new ShaderSemanticsClass({ str: 'isOutputHDR' })
-  static baseColorTextureTransform = new ShaderSemanticsClass({ str: 'baseColorTextureTransform' });
-  static baseColorTextureRotation = new ShaderSemanticsClass({ str: 'baseColorTextureRotation' });
-  static normalTextureTransform = new ShaderSemanticsClass({ str: 'normalTextureTransform' });
-  static normalTextureRotation = new ShaderSemanticsClass({ str: 'normalTextureRotation' });
-  static metallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
-  static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
+  static BaseColorTextureTransform = new ShaderSemanticsClass({ str: 'baseColorTextureTransform' });
+  static BaseColorTextureRotation = new ShaderSemanticsClass({ str: 'baseColorTextureRotation' });
+  static NormalTextureTransform = new ShaderSemanticsClass({ str: 'normalTextureTransform' });
+  static NormalTextureRotation = new ShaderSemanticsClass({ str: 'normalTextureRotation' });
+  static MetallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
+  static MetallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
   private static __shaderityUtility: ShaderityUtility = ShaderityUtility.getInstance();
 
   constructor({ name, isMorphing, isSkinning, isLighting, alphaMode, vertexShader, pixelShader }:
