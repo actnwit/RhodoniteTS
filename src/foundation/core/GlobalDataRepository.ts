@@ -1,9 +1,9 @@
-import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, getShaderPropertyFunc } from "../definitions/ShaderSemantics";
 import { Count, Index, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
 import { CompositionType } from "../definitions/CompositionType";
-import Material, { getShaderPropertyFunc } from "../materials/core/Material";
+import Material from "../materials/core/Material";
 import { ComponentType } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import MathClassUtil from "../math/MathClassUtil";
