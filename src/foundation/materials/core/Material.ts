@@ -1,7 +1,7 @@
 import RnObject from "../../core/RnObject";
 import { AlphaMode, AlphaModeEnum } from "../../definitions/AlphaMode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsIndex } from "../../definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsIndex, getShaderPropertyFunc } from "../../definitions/ShaderSemantics";
 import { CompositionType } from "../../definitions/CompositionType";
 import MathClassUtil from "../../math/MathClassUtil";
 import { ComponentType } from "../../definitions/ComponentType";
@@ -29,7 +29,6 @@ type ShaderVariable = {
   info: ShaderSemanticsInfo
 };
 
-export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
 
 
 /**
