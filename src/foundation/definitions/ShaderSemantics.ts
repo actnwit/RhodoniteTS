@@ -147,9 +147,9 @@ function fullSemanticStr(info: ShaderSemanticsInfo) {
   return prefix + info.semantic.str;
 }
 
-export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
+export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) => string;
 
-const getShaderProperty: getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => {
+const getShaderProperty: getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) => {
   if (info.isComponentData) {
     return '';
   }
