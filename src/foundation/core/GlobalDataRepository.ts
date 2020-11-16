@@ -275,14 +275,14 @@ export default class GlobalDataRepository {
     return 0;
   }
 
-  addPropertiesStr(vertexPropertiesStr: string, pixelPropertiesStr: string, propertySetter: getShaderPropertyFunc) {
+  addPropertiesStr(vertexPropertiesStr: string, pixelPropertiesStr: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, propertyIndex: Index) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter('', info!, propertyIndex, true);
+        vertexPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter('', info!, propertyIndex, true);
+        pixelPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
       }
     });
 

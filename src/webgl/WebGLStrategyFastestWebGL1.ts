@@ -122,7 +122,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   `;
   }
 
-  setupShaderProgram(meshComponent: MeshComponent): void {
+  setupShaderProgram(meshComponent: MeshComponent, isWebGL2: boolean): void {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
@@ -145,18 +145,18 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
       try {
-        this.setupDefaultShaderSemantics(material, isPointSprite);
+        this.setupDefaultShaderSemantics(material, isPointSprite, isWebGL2);
         primitive._backupMaterial();
       } catch (e) {
         console.log(e)
         primitive._restoreMaterial();
-        this.setupDefaultShaderSemantics(primitive._prevMaterial, isPointSprite);
+        this.setupDefaultShaderSemantics(primitive._prevMaterial, isPointSprite, isWebGL2);
       }
     }
   }
 
-  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
-    material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, this.__getShaderProperty);
+  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean, isWebGL2: boolean) {
+    material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, this.__getShaderProperty, isWebGL2);
 
     if (isPointSprite) {
       this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
@@ -202,7 +202,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     return offset;
   }
 
-  private __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) {
+  private __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     const indexArray = [];
@@ -367,7 +367,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     WebGLStrategyFastestWebGL1.__currentComponentSIDs = WebGLStrategyFastestWebGL1.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgram(meshComponent);
+      this.setupShaderProgram(meshComponent, false);
     }
 
     if (!WebGLStrategyCommonMethod.isMeshSetup(meshComponent)) {
