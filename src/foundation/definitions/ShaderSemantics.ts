@@ -177,16 +177,24 @@ const getShaderProperty: getShaderPropertyFunc = (materialTypeName: string, info
     } else {
       variableName += '[i]';
     }
-    str += `
-    ${returnType} val;
-    for (int i=0; i<${info.maxIndex}; i++) {
-      if (i == index) {
-        val = u_${variableName};
-        break;
-      }
+    if (isWebGL2) {
+      str += `
+        ${returnType} val;
+          int i = index;
+          return u_${variableName};
+        `;
+    } else {
+      str += `
+        ${returnType} val;
+        for (int i=0; i<${info.maxIndex}; i++) {
+          if (i == index) {
+            val = u_${variableName};
+            break;
+          }
+        }
+        return val;
+        `;
     }
-    return val;
-    `;
   } else {
     str += `return u_${variableName};`;
   }
