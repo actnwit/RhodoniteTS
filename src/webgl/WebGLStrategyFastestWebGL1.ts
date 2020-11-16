@@ -241,16 +241,23 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       indexArray.forEach((idx, i) => {
         arrayStr += `\nindices[${i}] = ${idx}.0;`
       });
-
-      indexStr = `
-        ${arrayStr}
-        highp float idx = 0.0;
-        for (int i=0; i<${maxIndex}; i++) {
-          idx = indices[i] + ${offset}.0 * instanceId;
-          if (i == index) {
-            break;
-          }
-        }`;
+      if (isWebGL2) {
+        indexStr = `
+          ${arrayStr}
+          highp float idx = 0.0;
+          idx = indices[index] + ${offset}.0 * instanceId;
+          `;
+      } else {
+        indexStr = `
+          ${arrayStr}
+          highp float idx = 0.0;
+          for (int i=0; i<${maxIndex}; i++) {
+            idx = indices[i] + ${offset}.0 * instanceId;
+            if (i == index) {
+              break;
+            }
+          }`;
+      }
     } else {
       const typeSize = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
       let dataBeginPos = -1;
