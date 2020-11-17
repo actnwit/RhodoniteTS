@@ -653,14 +653,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
       if (this.__glw!.isWebGL2) {
-        gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, border,
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
           format.index, ComponentType.UnsignedByte.index, data);
       } else {
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, format.index, type.index, data);
       }
     } else {
       if (this.__glw!.isWebGL2) {
-        gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGB32F.index, width, height, border,
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
           format.index, ComponentType.Float.index, data);
       } else {
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
@@ -918,7 +918,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
     }
     if (this.__glw!.isWebGL2) {
-      gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, 0,
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0,
         format.index, ComponentType.UnsignedByte.index, null);
     } else {
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0, format.index, type.index, null);
