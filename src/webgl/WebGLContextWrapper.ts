@@ -24,6 +24,7 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtBM?: EXT_blend_minmax;
   public readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
+  public readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
@@ -49,6 +50,7 @@ export default class WebGLContextWrapper {
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
       this.webgl2ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
+      this.webgl2ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic);
     } else {
       this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
       this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
