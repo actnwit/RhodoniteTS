@@ -1,4 +1,3 @@
-import Vector3 from "../math/Vector3";
 import Matrix44 from "../math/Matrix44";
 import MathClassUtil from "../math/MathClassUtil";
 import { MiscUtil } from "../misc/MiscUtil";
@@ -9,11 +8,12 @@ import { MathUtil } from "../math/MathUtil";
 import Entity from "../core/Entity";
 import MutableMatrix33 from "../math/MutableMatrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import AbstractCameraController from "./AbstractCameraController";
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 type MouseEventListener = (evt: MouseEvent) => any;
 
-export default class WalkThroughCameraController implements ICameraController {
+export default class WalkThroughCameraController extends AbstractCameraController implements ICameraController {
   private _horizontalSpeed: number;
   private _verticalSpeed: number;
   private _turnSpeed: number;
@@ -47,9 +47,8 @@ export default class WalkThroughCameraController implements ICameraController {
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
   private _eventTargetDom?: any;
   private _needInitialize = true;
-  private _targetEntity?: Entity;
+  protected __targetEntity?: Entity;
   private _zFarAdjustingFactorBasedOnAABB = 150.0;
-  private __scaleOfZNearAndZFar = 5000;
 
   private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
@@ -67,6 +66,7 @@ export default class WalkThroughCameraController implements ICameraController {
       inverseHorizontalRotating: false
     }
   ) {
+    super();
 
     this._horizontalSpeed = options.horizontalSpeed;
     this._verticalSpeed = options.verticalSpeed;
@@ -142,7 +142,7 @@ export default class WalkThroughCameraController implements ICameraController {
     }
   }
 
-  _mouseWheel(e: MouseWheelEvent) {
+  _mouseWheel(e: WheelEvent) {
     if (this._currentDir === null) {
       return;
     }
@@ -224,34 +224,12 @@ export default class WalkThroughCameraController implements ICameraController {
   }
 
   logic(cameraComponent: CameraComponent) {
-    const data = this.__convert(cameraComponent);
-    const cc = cameraComponent;
-    cc.eyeInner = data.newEyeVec;
-    cc.directionInner = data.newCenterVec;
-    cc.upInner = data.newUpVec;
-    cc.zNearInner = data.newZNear;
-    cc.zFarInner = data.newZFar;
-    cc.leftInner = data.newLeft;
-    cc.rightInner = data.newRight;
-    cc.topInner = data.newTop;
-    cc.bottomInner = data.newBottom;
-    cc.fovyInner = data.fovy;
+    this.__updateCameraComponent(cameraComponent);
   }
 
-
-  private __convert(camera: CameraComponent) {
-    let newZNear = camera.zNearInner;
-    let newZFar = camera.zFarInner;
-
-    if (this._needInitialize && this._targetEntity) {
-      const targetAABB = this._targetEntity.getSceneGraph().worldAABB;
-      newZFar = camera.zNear + Vector3.lengthBtw(this._currentCenter, this._currentPos);
-      newZFar += targetAABB.lengthCenterToCorner * this._zFarAdjustingFactorBasedOnAABB;
-
-      let scale = newZFar / camera.zNear;
-      scale /= this.__scaleOfZNearAndZFar;
-      newZNear = camera.zNear * scale;
-
+  private __updateCameraComponent(camera: CameraComponent) {
+    const targetAABB = this.__targetEntity?.getSceneGraph().worldAABB;
+    if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0)));
       this._currentPos.copyComponents(targetAABB.centerPoint);
@@ -357,25 +335,18 @@ export default class WalkThroughCameraController implements ICameraController {
       this._deltaMouseYOnCanvas = 0;
     }
 
-    const newLeft = camera.left;
-    const newRight = camera.right;
-    const newTop = camera.top;
-    const newBottom = camera.bottom;
+    camera.eyeInner = this._currentPos;
+    camera.directionInner = this._currentCenter;
+    camera.upInner = (camera as any)._up;
+    camera.leftInner = camera.left;
+    camera.rightInner = camera.right;
+    camera.topInner = camera.top;
+    camera.bottomInner = camera.bottom;
+    camera.fovyInner = camera.fovy;
 
-    return {
-      newEyeVec: this._currentPos,
-      newCenterVec: this._currentCenter,
-      newUpVec: camera.up.clone(),
-      newZNear: newZNear,
-      newZFar: newZFar,
-      newLeft,
-      newRight,
-      newTop,
-      newBottom,
-      fovy: camera.fovy
-    };
+    this._calcZNearInner(camera, this._currentPos, this._newDir);
+    this._calcZFarInner(camera);
   }
-
   getDirection() {
     return this._currentCenter !== null ? this._newDir.clone() : null;
   }
@@ -409,12 +380,12 @@ export default class WalkThroughCameraController implements ICameraController {
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 
-    this._targetEntity = targetEntity;
+    this.__targetEntity = targetEntity;
     this._needInitialize = true;
   }
 
   getTarget(): Entity | undefined {
-    return this._targetEntity;
+    return this.__targetEntity;
   }
 
   set zFarAdjustingFactorBasedOnAABB(value: number) {
@@ -423,14 +394,6 @@ export default class WalkThroughCameraController implements ICameraController {
 
   get zFarAdjustingFactorBasedOnAABB() {
     return this._zFarAdjustingFactorBasedOnAABB;
-  }
-
-  set scaleOfZNearAndZFar(value: number) {
-    this.__scaleOfZNearAndZFar = value;
-  }
-
-  get scaleOfZNearAndZFar() {
-    return this.__scaleOfZNearAndZFar;
   }
 
   get allInfo() {
