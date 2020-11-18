@@ -162,7 +162,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         cameraControllerComponent = cameraEntity.getCameraController();
                         controller = cameraControllerComponent.controller;
                         controller.setTarget(planeEntity);
-                        controller.zFarAdjustingFactorBasedOnAABB = 1000;
                         renderPass = new Rn.RenderPass();
                         renderPass.toClearColorBuffer = true;
                         renderPass.addEntities([planeEntity, sphereEntity]);

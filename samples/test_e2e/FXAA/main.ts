@@ -131,7 +131,6 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller = cameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(planeEntity);
-  controller.zFarAdjustingFactorBasedOnAABB = 1000;
   // renderPass
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
