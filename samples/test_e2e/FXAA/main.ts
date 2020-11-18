@@ -1,10 +1,6 @@
 
-import { RnType } from '../../../dist/rhodonite'
+import { RnType } from '../../../dist/rhodonite';
 import CameraComponent from '../../../dist/foundation/components/CameraComponent';
-import CameraControllerComponent from '../../../dist/foundation/components/CameraControllerComponent';
-import Entity from '../../../dist/foundation/core/Entity';
-import LightComponent from '../../../dist/foundation/components/LightComponent';
-import Vector4 from '../../../dist/foundation/math/Vector4';
 import { RnWebGL } from '../../../dist/webgl/main';
 import OrbitCameraController from '../../../dist/foundation/cameras/OrbitCameraController';
 import EntityRepository from '../../../dist/foundation/core/EntityRepository';
@@ -14,7 +10,7 @@ import MeshComponent from '../../../dist/foundation/components/MeshComponent';
 import Expression from '../../../dist/foundation/renderer/Expression';
 import FrameBuffer from '../../../dist/foundation/renderer/FrameBuffer';
 
-let p = null;
+let p: any;
 
 declare const window: any;
 declare const Rn: RnType;
@@ -22,9 +18,9 @@ declare const RnWebGL: RnWebGL
 
 const expressionWithFXAA = new Rn.Expression();
 const expressionWithOutFXAA = new Rn.Expression();
-let expression: Expression|undefined;
-let framebuffer: FrameBuffer|undefined;
-let renderPassMain: RenderPass|undefined;
+let expression: Expression;
+let framebuffer: FrameBuffer;
+let renderPassMain: RenderPass;
 const load = async function () {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
@@ -99,7 +95,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, Math.PI / 3)  ;
+  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, Math.PI / 3);
   const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
@@ -161,15 +157,15 @@ function setupRenderPassFxaa(entityRepository: EntityRepository, renderable: Abs
   return renderPassFxaa
 }
 
-window.toggleFXAA = function() {
-  const toggleButton = document.getElementById('toggleFXAAButton');
+window.toggleFXAA = function () {
+  const toggleButton = document.getElementById('toggleFXAAButton') as HTMLElement;
   if (expression === expressionWithFXAA) {
     expression = expressionWithOutFXAA;
-    renderPassMain.setFramebuffer(undefined);
-    toggleButton.firstChild.textContent = 'Now FXAA Off';
+    renderPassMain.setFramebuffer(undefined as any);
+    (toggleButton.firstChild as ChildNode).textContent = 'Now FXAA Off';
   } else {
     expression = expressionWithFXAA;
     renderPassMain.setFramebuffer(framebuffer);
-    toggleButton.firstChild.textContent = 'Now FXAA On';
+    (toggleButton.firstChild as ChildNode).textContent = 'Now FXAA On';
   }
 }

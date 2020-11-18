@@ -45,10 +45,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var p = null;
+    var p;
     var load = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var importer, system, gl, entityRepository, texture, response, buffer, uint8Array, modelMaterial, planeEntity, planePrimitive, planeMeshComponent, planeMesh, sphereEntity, spherePrimitive, sphereMaterial, environmentCubeTexture, response, buffer, uint8Array, sphereMeshComponent, sphereMesh, cameraEntity, cameraComponent, cameraControllerComponent, controller, renderPass, expression, startTime, rotationVec3, count, draw;
+            var system, gl, entityRepository, texture, response, buffer, uint8Array, modelMaterial, planeEntity, planePrimitive, planeMeshComponent, planeMesh, sphereEntity, spherePrimitive, sphereMaterial, environmentCubeTexture, response, buffer, uint8Array, sphereMeshComponent, sphereMesh, cameraEntity, cameraComponent, cameraControllerComponent, controller, renderPass, expression, startTime, rotationVec3, count, draw;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Rn.ModuleManager.getInstance().loadModule('webgl')];
@@ -57,7 +57,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, Rn.ModuleManager.getInstance().loadModule('pbr')];
                     case 2:
                         _a.sent();
-                        importer = Rn.Gltf1Importer.getInstance();
                         system = Rn.System.getInstance();
                         gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.FastestWebGL1, document.getElementById('world'));
                         entityRepository = Rn.EntityRepository.getInstance();
@@ -109,7 +108,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         cameraControllerComponent = cameraEntity.getCameraController();
                         controller = cameraControllerComponent.controller;
                         controller.setTarget(planeEntity);
-                        controller.zFarAdjustingFactorBasedOnAABB = 1000;
                         renderPass = new Rn.RenderPass();
                         renderPass.toClearColorBuffer = true;
                         renderPass.addEntities([planeEntity, sphereEntity]);

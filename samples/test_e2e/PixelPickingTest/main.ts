@@ -1,11 +1,10 @@
-import { RnType } from '../../../dist/types/foundation/main'
-import CameraComponent from '../../../dist/types/foundation/components/CameraComponent';
-import CameraControllerComponent from '../../../dist/types/foundation/components/CameraControllerComponent';
-import Entity from '../../../dist/types/foundation/core/Entity';
-import LightComponent from '../../../dist/types/foundation/components/LightComponent';
-import Vector4 from '../../../dist/types/foundation/math/Vector4';
-import { RnWebGL } from '../../../dist/types/webgl/main';
-import OrbitCameraController from '../../../dist/types/foundation/cameras/OrbitCameraController';
+import { RnType } from '../../../dist/rhodonite';
+import CameraComponent from '../../../dist/foundation/components/CameraComponent';
+import CameraControllerComponent from '../../../dist/foundation/components/CameraControllerComponent';
+import Entity from '../../../dist/foundation/core/Entity';
+import LightComponent from '../../../dist/foundation/components/LightComponent';
+import { RnWebGL } from '../../../dist/webgl/main';
+import OrbitCameraController from '../../../dist/foundation/cameras/OrbitCameraController';
 
 declare const window: any;
 declare const Rn: RnType;
@@ -33,7 +32,7 @@ const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraCompon
   return renderPass;
 }
 
-const setupRenderPassRendering = function (rootGroup, cameraComponent) {
+const setupRenderPassRendering = function (rootGroup: Entity, cameraComponent: CameraComponent) {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
@@ -56,7 +55,7 @@ const pick = function (e: any) {
   return pickedEntityUID;
 }
 
-let p = null;
+let p: any;
 
 const load = async function () {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
@@ -132,7 +131,7 @@ const load = async function () {
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = function (time) {
+  const draw = function () {
 
     if (p == null && count > 0) {
       if (response != null) {
@@ -176,7 +175,7 @@ const load = async function () {
 
   canvas.addEventListener('mousedown', pick);
 
-  draw(0);
+  draw();
 }
 
 load();
