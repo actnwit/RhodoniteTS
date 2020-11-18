@@ -108,7 +108,7 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
     // Read the contents of the framebuffer (data stores the pixel data)
     let data = new Uint8Array(this.width * this.height * 4);
     if ((gl as WebGL2RenderingContext).readBuffer != null) {
-      (gl as WebGL2RenderingContext).readBuffer(this.__fbo!.whichColorAttachment(this));
+      (gl as WebGL2RenderingContext).readBuffer(36064 + this.__fbo!.whichColorAttachment(this)); // 36064 means gl.COLOR_ATTACHMENT0
     }
     gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
