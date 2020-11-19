@@ -638,6 +638,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       generateMipmap: boolean, anisotropy: boolean, isPremultipliedAlpha: boolean
     }): WebGLResourceHandle {
     const gl = this.__glw!.getRawContext();
+    const isWebGL2 = this.__glw!.isWebGL2;
 
     const texture = gl.createTexture();
     const resourceHandle = this.getResourceNumber();
@@ -652,15 +653,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
-      if (this.__glw!.isWebGL2) {
-        gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, border,
+      if (isWebGL2) {
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
           format.index, ComponentType.UnsignedByte.index, data);
       } else {
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, format.index, type.index, data);
       }
     } else {
-      if (this.__glw!.isWebGL2) {
-        gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGB32F.index, width, height, border,
+      if (isWebGL2) {
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
           format.index, ComponentType.Float.index, data);
       } else {
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
@@ -673,8 +674,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
     if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy && this.__glw!.webgl1ExtTFA) {
-        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      if (anisotropy) {
+        if (this.__glw!.webgl2ExtTFA) {
+          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+        } else if (this.__glw!.webgl1ExtTFA) {
+          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+        }
       } else if (this.__glw!.webgl1ExtTFA) {
         gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 1);
       }
@@ -918,7 +923,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
     }
     if (this.__glw!.isWebGL2) {
-      gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, 0,
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0,
         format.index, ComponentType.UnsignedByte.index, null);
     } else {
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0, format.index, type.index, null);

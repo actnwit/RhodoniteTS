@@ -1,9 +1,8 @@
-
-import { RnType } from '../../../dist/rhodonite'
+import { RnType } from '../../../dist/rhodonite';
 import { RnWebGL } from '../../../dist/webgl/main';
 import OrbitCameraController from '../../../dist/foundation/cameras/OrbitCameraController';
 
-let p = null;
+let p: any;
 
 declare const window: any;
 declare const Rn: RnType;
@@ -71,7 +70,6 @@ const load = async function () {
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller = cameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(planeEntity);
-  controller.zFarAdjustingFactorBasedOnAABB = 1000;
 
   // renderPass
   const renderPass = new Rn.RenderPass();

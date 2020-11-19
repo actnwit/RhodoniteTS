@@ -1,19 +1,20 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator['throw'](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
     var _ = { label: 0, sent: function () { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), 'throw': verb(1), 'return': verb(2) }, typeof Symbol === 'function' && (g[Symbol.iterator] = function () { return this; }), g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
-        if (f) throw new TypeError('Generator is already executing.');
+        if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y['return'] : op[0] ? y['throw'] || ((t = y['return']) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
@@ -34,16 +35,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 (function (factory) {
-    if (typeof module === 'object' && typeof module.exports === 'object') {
+    if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
         if (v !== undefined) module.exports = v;
     }
-    else if (typeof define === 'function' && define.amd) {
-        define(['require', 'exports'], factory);
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports"], factory);
     }
 })(function (require, exports) {
-    'use strict';
-    Object.defineProperty(exports, '__esModule', { value: true });
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     var setupRenderPassEntityUidOutput = function (rootGroup, cameraComponent, canvas) {
         var renderPass = new Rn.RenderPass();
         var entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
@@ -77,7 +78,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         console.log(pickedEntityUID);
         return pickedEntityUID;
     };
-    var p = null;
+    var p;
     var load = function () {
         return __awaiter(this, void 0, void 0, function () {
             var importer, system, canvas, gl, expression, entityRepository, cameraEntity, cameraComponent, lightEntity2, response, modelConverter, rootGroup, renderPassEntityUidOutput, renderPassRendering, cameraControllerComponent, startTime, rotationVec3, count, draw;
@@ -124,7 +125,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         startTime = Date.now();
                         rotationVec3 = Rn.MutableVector3.one();
                         count = 0;
-                        draw = function (time) {
+                        draw = function () {
                             if (p == null && count > 0) {
                                 if (response != null) {
                                     gl.enable(gl.DEPTH_TEST);
@@ -134,7 +135,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                                 }
                                 window._pickedEntityUID = pick({ offsetX: 300, offsetY: 300 });
                                 p = document.createElement('p');
-                                p.setAttribute('id', 'rendered');
+                                p.setAttribute("id", "rendered");
                                 p.innerText = 'Rendered.';
                                 document.body.appendChild(p);
                             }
@@ -144,9 +145,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                                 //rotationVec3.v[0] = 0.1;
                                 //rotationVec3.v[1] = rotation;
                                 //rotationVec3.v[2] = 0.1;
-                                var time_1 = (date.getTime() - startTime) / 1000;
-                                Rn.AnimationComponent.globalTime = time_1;
-                                if (time_1 > Rn.AnimationComponent.endInputValue) {
+                                var time = (date.getTime() - startTime) / 1000;
+                                Rn.AnimationComponent.globalTime = time;
+                                if (time > Rn.AnimationComponent.endInputValue) {
                                     startTime = date.getTime();
                                 }
                                 //console.log(time);
@@ -158,7 +159,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                             requestAnimationFrame(draw);
                         };
                         canvas.addEventListener('mousedown', pick);
-                        draw(0);
+                        draw();
                         return [2 /*return*/];
                 }
             });

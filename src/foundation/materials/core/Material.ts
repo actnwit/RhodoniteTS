@@ -1,7 +1,7 @@
 import RnObject from "../../core/RnObject";
 import { AlphaMode, AlphaModeEnum } from "../../definitions/AlphaMode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsIndex } from "../../definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsIndex, getShaderPropertyFunc } from "../../definitions/ShaderSemantics";
 import { CompositionType } from "../../definitions/CompositionType";
 import MathClassUtil from "../../math/MathClassUtil";
 import { ComponentType } from "../../definitions/ComponentType";
@@ -29,7 +29,6 @@ type ShaderVariable = {
   info: ShaderSemanticsInfo
 };
 
-export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
 
 
 /**
@@ -489,12 +488,12 @@ export default class Material extends RnObject {
     return definitions;
   }
 
-  createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
+  createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
-    let { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(propertySetter);
+    let { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(propertySetter, isWebGL2);
 
     let definitions = materialNode.definitions;
 
@@ -558,26 +557,26 @@ export default class Material extends RnObject {
    * @private
    * @param propertySetter 
    */
-  _getProperties(propertySetter: getShaderPropertyFunc) {
+  _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
     this.__fieldsInfo.forEach((value, propertyIndex: Index) => {
       const info = this.__fieldsInfo.get(propertyIndex);
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false, isWebGL2);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false, isWebGL2);
       }
     });
     const globalDataRepository = GlobalDataRepository.getInstance();
-    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
+    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter, isWebGL2);
     return { vertexPropertiesStr, pixelPropertiesStr };
   }
 
 
-  createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
-    return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
+  createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
+    return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter, isWebGL2);
   }
 
   isBlend() {

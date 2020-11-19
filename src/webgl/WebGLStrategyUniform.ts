@@ -158,13 +158,14 @@ mat3 get_normalMatrix(float instanceId) {
 
   `;
 
-    material.createProgram(WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty);
     const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const glw = webglResourceRepository.currentWebGLContextWrapper!
+    const gl = glw.getRawContext();
+    material.createProgram(WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty, glw.isWebGL2);
     webglResourceRepository.setupUniformLocations(material._shaderProgramUid, infoArray);
     material.setUniformLocations(material._shaderProgramUid);
     WebGLStrategyUniform.__globalDataRepository.setUniformLocations(material._shaderProgramUid);
 
-    const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
     const shaderProgram = webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
     (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');

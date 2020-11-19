@@ -1,9 +1,9 @@
-import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, getShaderPropertyFunc } from "../definitions/ShaderSemantics";
 import { Count, Index, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
 import { CompositionType } from "../definitions/CompositionType";
-import Material, { getShaderPropertyFunc } from "../materials/core/Material";
+import Material from "../materials/core/Material";
 import { ComponentType } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import MathClassUtil from "../math/MathClassUtil";
@@ -275,14 +275,14 @@ export default class GlobalDataRepository {
     return 0;
   }
 
-  addPropertiesStr(vertexPropertiesStr: string, pixelPropertiesStr: string, propertySetter: getShaderPropertyFunc) {
+  addPropertiesStr(vertexPropertiesStr: string, pixelPropertiesStr: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, propertyIndex: Index) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter('', info!, propertyIndex, true);
+        vertexPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter('', info!, propertyIndex, true);
+        pixelPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
       }
     });
 
