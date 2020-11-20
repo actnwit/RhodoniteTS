@@ -197,6 +197,8 @@ vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
 
+${this.perturbedNormal}
+
 void main (){
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_NONE

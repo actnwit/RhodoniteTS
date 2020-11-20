@@ -479,6 +479,10 @@ export default class Material extends RnObject {
     if (glw.webgl1ExtDRV) {
       definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
     }
+
+    if (glw.isWebGL2 || glw.webgl1ExtDRV) {
+      definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
+    }
     if (Config.boneDataType === BoneDataType.Mat4x4) {
       definitions += '#define RN_BONE_DATA_TYPE_MAT4X4\n';
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
