@@ -150,7 +150,7 @@ export default class ModelConverter {
     }
 
     if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
-    let options = gltfModel.asset.extras!.rnLoaderOptions;
+      let options = gltfModel.asset.extras!.rnLoaderOptions;
       if (options && options.loaderExtension && options?.loaderExtension?.loadExtensionInfoAndSetToRootGroup) {
         options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel);
       }

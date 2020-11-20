@@ -22,6 +22,7 @@ import { ProcessApproach } from "../../definitions/ProcessApproach";
 import ShaderityUtility from "./ShaderityUtility";
 import { BoneDataType } from "../../definitions/BoneDataType";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
+import WebGLContextWrapper from "../../../webgl/WebGLContextWrapper";
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -464,17 +465,18 @@ export default class Material extends RnObject {
   private __setupGlobalShaderDefinition() {
     let definitions = '';
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
+    const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
+    if (glw.isWebGL2) {
       definitions += '#version 300 es\n#define GLSL_ES3\n';
     }
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
     if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
       definitions += '#define RN_IS_FASTEST_MODE\n';
     }
-    if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtSTL) {
+    if (glw.webgl1ExtSTL) {
       definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
     }
-    if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtDRV) {
+    if (glw.webgl1ExtDRV) {
       definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
     }
     if (Config.boneDataType === BoneDataType.Mat4x4) {
