@@ -30,7 +30,7 @@
     "doc": "typedoc --includeDeclarations --ignoreCompilerErrors --exclude '**/*+(test|d).ts' --out ./docs/ ./src/",
     "yarn-pack": "yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
-    "create-VERSION-FILE": "echo $null >> VERSION-FILE"
+    "create-VERSION-FILE": "npx shx touch VERSION-FILE"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
