@@ -5,14 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            // You need the "Debugger for Chrome" VSCode Extension
             "name": "Launch Chrome to debug Rhodonite samples",
             "request": "launch",
-            "type": "pwa-chrome",
+            "type": "chrome",
             "webRoot": "${workspaceFolder}",
             "url": "http://localhost:8082/samples/",
             "skipFiles": ["<node_internals>/**"],
             // "preLaunchTask": "npm: build-umd-dev",
-            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+            // "outFiles": ["${workspaceFolder}/dist/**/*.js"],
             "sourceMaps": true,
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",

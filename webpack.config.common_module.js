@@ -12,6 +12,7 @@ const config = merge(baseConfig, {
     path: path.resolve(__dirname, "dist/esm"),
     libraryTarget: "commonjs-module"
   },
+  devtool : "inline-source-map",
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
