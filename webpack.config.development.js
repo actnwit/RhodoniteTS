@@ -13,6 +13,7 @@ const config = merge(baseConfig, {
     libraryExport: 'default',
     libraryTarget: "umd"
   },
+  devtool : "inline-source-map",
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
