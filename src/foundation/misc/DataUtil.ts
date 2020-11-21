@@ -338,8 +338,8 @@ export default class DataUtil {
         //        "foo.bin": content of file as ArrayBuffer,
         //        "boo.png": content of file as ArrayBuffer
       },
-      loaderExtension: null,
-      defaultMaterialHelperName: null,
+      loaderExtension: undefined,
+      defaultMaterialHelperName: undefined,
       defaultMaterialHelperArgumentArray: [],
       statesOfElements: [
         {

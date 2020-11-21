@@ -149,6 +149,14 @@ export default class ModelConverter {
       }
     }
 
+    if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
+    let options = gltfModel.asset.extras!.rnLoaderOptions;
+      if (options && options.loaderExtension && options?.loaderExtension?.loadExtensionInfoAndSetToRootGroup) {
+        options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel);
+      }
+    }
+
+    // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);
     rootGroup.tryToSetTag({ tag: 'rnEntities', value: rnEntities })
     rootGroup.tryToSetTag({ tag: 'rnEntitiesByNames', value: rnEntitiesByNames })
     rootGroup.tryToSetTag({ tag: 'gltfModel', value: gltfModel })
@@ -717,9 +725,11 @@ export default class ModelConverter {
     if (gltfModel.asset.extras?.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
 
-      if (rnLoaderOptions.loaderExtension?.isNeededToUseThisMaterial(gltfModel)) {
-        const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension;
-        return loaderExtension.generateMaterial();
+      if (rnLoaderOptions?.loaderExtension?.isNeededToUseThisMaterial != null && rnLoaderOptions.loaderExtension.isNeededToUseThisMaterial(gltfModel)) {
+        const loaderExtension = gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension;
+        if (loaderExtension?.generateMaterial != null) {
+          return loaderExtension.generateMaterial(materialJson);
+        }
       }
 
       const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
@@ -906,9 +916,11 @@ export default class ModelConverter {
     // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
 
     // For Extension
-    if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension) {
-      const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension;
-      loaderExtension.setupMaterial(gltfModel, materialJson, material);
+    if (this._checkRnGltfLoaderOptionsExist(gltfModel)) {
+      const loaderExtension = gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension;
+      if (loaderExtension?.setupMaterial != null) {
+        loaderExtension.setupMaterial(gltfModel, materialJson, material);
+      }
     }
 
     return material;

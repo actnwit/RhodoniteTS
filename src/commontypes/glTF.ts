@@ -5,6 +5,7 @@ import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
 import CameraComponent from "../foundation/components/CameraComponent";
 import Material from "../foundation/materials/core/Material";
 import Expression from "../foundation/renderer/Expression";
+import ILoaderExtension from "../foundation/importer/ILoaderExtension";
 
 export type Gltf2Scene = {
   nodes?: any[],
@@ -393,8 +394,8 @@ export type GltfLoadOption = {
     //        "foo.bin": content of file as ArrayBuffer,
     //        "boo.png": content of file as ArrayBuffer
   },
-  loaderExtension: any,
-  defaultMaterialHelperName: string | null,
+  loaderExtension?: ILoaderExtension,
+  defaultMaterialHelperName?: string,
   defaultMaterialHelperArgumentArray: any[],
   statesOfElements: [
     {

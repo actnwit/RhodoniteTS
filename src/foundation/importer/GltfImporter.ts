@@ -291,8 +291,8 @@ export default class GltfImporter {
     } else {
       options = {
         files: {},
-        loaderExtension: null,
-        defaultMaterialHelperName: null,
+        loaderExtension: undefined,
+        defaultMaterialHelperName: undefined,
         defaultMaterialHelperArgumentArray: [{ isLighting: true, isMorphing: true, isSkinning: true }],
         statesOfElements: [
           {
