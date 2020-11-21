@@ -1,6 +1,6 @@
 {
   "name": "rhodonite",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
