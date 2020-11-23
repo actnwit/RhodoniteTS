@@ -776,11 +776,10 @@ export default class ModelConverter {
     }
   }
   private __getMaterialHash(node: Gltf2Node, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
     return primitive.materialIndex! + "_" +
-      argument?.isSkinning + "_" + this.__isSkinning(node, gltfModel) + "_" +
-      argument?.isMorphing + "_" + this.__isMorphing(node, gltfModel) + "_" +
-      argument?.isLighting + "_" + this.__isLighting(gltfModel, materialJson);
+      this.__isSkinning(node, gltfModel) + "_" +
+      this.__isMorphing(node, gltfModel) + "_" +
+      this.__isLighting(gltfModel, materialJson);
   }
 
   private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {
