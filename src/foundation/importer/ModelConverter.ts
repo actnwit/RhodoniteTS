@@ -656,37 +656,26 @@ export default class ModelConverter {
     }
   }
 
-  private __setMorphingAndSkinningArgument(node: any, argumentOfMaterialHelper: any, isMorphingOriginal: boolean, isSkinningOriginal: boolean, gltfModel: glTF2): void {
-    if (isMorphingOriginal) {
-      argumentOfMaterialHelper.isMorphing = this.__isMorphing(node, gltfModel);
-    }
-
-    if (isSkinningOriginal) {
-      const existSkin = node.skin != null;
-      argumentOfMaterialHelper.isSkinning = existSkin;
-      argumentOfMaterialHelper.additionalName = existSkin ? `skin${(node.skinIndex ?? node.skinName)}` : "";
-    }
-  }
-
-  private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
+  private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: Gltf2Material, rnLoaderOptions: GltfLoadOption): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
 
-    const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
+    const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
+    const shaderName = materialProperties.shader;
     if (shaderName === "VRM/MToon") {
       // argument
-      const argumentOfMaterialHelper = argumentArray[0];
-      const rnExtension = VRMProperties.rnExtension;
+      const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray[0];
 
-      const isMorphingOriginal = argumentOfMaterialHelper.isMorphing;
-      const isSkinningOriginal = argumentOfMaterialHelper.isSkinning;
-
-      this.__setMorphingAndSkinningArgument(node, argumentOfMaterialHelper, isMorphingOriginal, isSkinningOriginal, gltfModel);
-
-      const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
-      argumentOfMaterialHelper.materialProperties = materialProperties;
+      const additionalName = defaultMaterialHelperArgument.additionalName;
+      const isMorphing = this.__isMorphing(node, gltfModel);
+      const isSkinning = this.__isSkinning(node, gltfModel);
+      const isLighting = this.__isLighting(gltfModel, materialJson);
+      const textures = defaultMaterialHelperArgument.textures;
+      const debugMode = defaultMaterialHelperArgument.debugMode;
+      const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
 
       // outline
       let renderPassOutline;
+      const rnExtension = VRMProperties.rnExtension;
       if (rnExtension) {
         renderPassOutline = rnExtension.renderPassOutline;
       }
@@ -695,9 +684,10 @@ export default class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          argumentOfMaterialHelper.isOutline = true;
-          outlineMaterial = MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
-          argumentOfMaterialHelper.isOutline = false;
+          outlineMaterial = MaterialHelper.createMToonMaterial({
+            additionalName, isMorphing, isSkinning, isLighting, isOutline: true,
+            materialProperties, textures, debugMode, maxInstancesNumber
+          });
         } else {
           outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
@@ -705,14 +695,15 @@ export default class ModelConverter {
         renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
       }
 
-      const material = MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+      const material = MaterialHelper.createMToonMaterial({
+        additionalName, isMorphing, isSkinning, isLighting, isOutline: false,
+        materialProperties, textures, debugMode, maxInstancesNumber
+      });
 
-      argumentOfMaterialHelper.isMorphing = isMorphingOriginal;
-      argumentOfMaterialHelper.isSkinning = isSkinningOriginal;
 
       return material;
 
-    } else if (argumentArray[0].isOutline) {
+    } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray[0].isOutline) {
       return MaterialHelper.createEmptyMaterial();;
     }
 
@@ -732,16 +723,14 @@ export default class ModelConverter {
         }
       }
 
-      const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
-
       if (rnLoaderOptions.isImportVRM) {
-        const material = this.__setVRMMaterial(rnPrimitive, node, gltfModel, primitive, argumentArray);
+        const material = this.__setVRMMaterial(rnPrimitive, node, gltfModel, primitive, materialJson, rnLoaderOptions);
         if (material != null) return material;
       }
 
       const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       if (materialHelperName != null) {
-        return (MaterialHelper as any)[materialHelperName](...argumentArray);
+        return (MaterialHelper as any)[materialHelperName](...rnLoaderOptions.defaultMaterialHelperArgumentArray);
       }
     }
 

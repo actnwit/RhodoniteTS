@@ -236,11 +236,11 @@ export default class GltfImporter {
     const gltf2Importer = Gltf2Importer.getInstance();
     return gltf2Importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
 
-      const textures = this._createTextures(gltfModel);
       const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
-      defaultMaterialHelperArgumentArray[0].textures = textures;
+      defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? this._createTextures(gltfModel);
+      defaultMaterialHelperArgumentArray[0].isLighting = defaultMaterialHelperArgumentArray[0].isLighting ?? true;
 
-      this._initializeMaterialProperties(gltfModel, textures.length);
+      this._initializeMaterialProperties(gltfModel, defaultMaterialHelperArgumentArray[0].length);
 
       let rootGroup;
       const modelConverter = ModelConverter.getInstance();
