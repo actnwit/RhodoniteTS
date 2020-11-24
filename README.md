@@ -15,14 +15,14 @@ Rhodonite is a WebGL library written in TypeScript.
 ## Viewer
 
 You can try our library via https://editor.librn.com/ .
-This Viewer supports glTF/VRM files Drag & Drop to display.
-(Drag & Drop all files if glTF data is consist of multiple files.)
+This viewer supports glTF/VRM files Drag & Drop to display.
+(Drag & Drop all files if glTF data is consists of multiple files.)
 
 ![poly](./assets/images/screenshot_poly.webp)
 
 ## Support Browsers
 
-Google Chrome, Firefox, Safari, Microsoft Edge (chromium based) and other modern browsers.
+Google Chrome, Firefox, Safari, Microsoft Edge (chromium-based), and other modern browsers are supported.
 IE11 is not supported.
 
 ## Building Rhodonite
@@ -114,7 +114,7 @@ async function load() {
 }
 ```
 
-For build main.ts, Use the following command.
+To build main.ts, Use the following command.
 
 ```
 $ npx tsc ./main.ts --lib es2015,dom --target es5 --module umd --moduleResolution node
@@ -132,10 +132,20 @@ $ npm run doc
 $ npm run test
 ```
 
-## Watching Test Samples
+Some of the E2E (visual) tests might fail due to GPU environment differences.
+The official test environment is our Github Action CI Runner instance.
+
+## Trying Samples
 
 ```bash
 $ npm run start
 ```
 
 Then, access http://localhost:8082/ with your web browser.
+
+# Debugging inside VSCode
+
+1. Install the "Debugger for Chrome" VSCode Extension.
+2. Start the local server with `$ npm run start`.
+3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
+
