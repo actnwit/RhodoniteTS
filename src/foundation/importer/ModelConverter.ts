@@ -669,6 +669,7 @@ export default class ModelConverter {
       const isMorphing = this.__isMorphing(node, gltfModel);
       const isSkinning = this.__isSkinning(node, gltfModel);
       const isLighting = this.__isLighting(gltfModel, materialJson);
+      const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
       const textures = defaultMaterialHelperArgument.textures;
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
@@ -685,7 +686,7 @@ export default class ModelConverter {
         let outlineMaterial: Material;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
           outlineMaterial = MaterialHelper.createMToonMaterial({
-            additionalName, isMorphing, isSkinning, isLighting, isOutline: true,
+            additionalName, isMorphing, isSkinning, isLighting, useTangentAttribute, isOutline: true,
             materialProperties, textures, debugMode, maxInstancesNumber
           });
         } else {
@@ -696,7 +697,7 @@ export default class ModelConverter {
       }
 
       const material = MaterialHelper.createMToonMaterial({
-        additionalName, isMorphing, isSkinning, isLighting, isOutline: false,
+        additionalName, isMorphing, isSkinning, isLighting, useTangentAttribute, isOutline: false,
         materialProperties, textures, debugMode, maxInstancesNumber
       });
 
@@ -745,8 +746,9 @@ export default class ModelConverter {
     const alphaMode = AlphaMode.fromGlTFString(materialJson?.alphaMode || 'OPAQUE');
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex ?? node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
+      const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
       return MaterialHelper.createPbrUberMaterial({
-        isMorphing, isSkinning, isLighting, alphaMode,
+        isMorphing, isSkinning, isLighting, alphaMode, useTangentAttribute,
         additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
       });
     } else {
@@ -775,11 +777,26 @@ export default class ModelConverter {
     }
   }
 
+  private __useTangentAttribute(gltfModel: glTF2, primitive: Gltf2Primitive) {
+    const tangentCalculationMode = gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode;
+    if (tangentCalculationMode === 2) {
+      true;
+    }
+
+    for (const attribute in primitive.attributes) {
+      if (attribute === 'TANGENT') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private __getMaterialHash(node: Gltf2Node, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any) {
     return primitive.materialIndex! +
       "_isSkinning_" + this.__isSkinning(node, gltfModel) +
       "_isMorphing_" + this.__isMorphing(node, gltfModel) +
-      "_isLighting_" + this.__isLighting(gltfModel, materialJson);
+      "_isLighting_" + this.__isLighting(gltfModel, materialJson) +
+      "_useTangentAttribute_" + this.__useTangentAttribute(gltfModel, primitive);
   }
 
   private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {

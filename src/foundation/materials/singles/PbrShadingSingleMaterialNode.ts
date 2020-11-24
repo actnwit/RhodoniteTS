@@ -38,11 +38,12 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   static readonly OcclusionTexcoordIndex = new ShaderSemanticsClass({ str: 'occlusionTexcoordIndex' });
   static readonly EmissiveTexcoordIndex = new ShaderSemanticsClass({ str: 'emissiveTexcoordIndex' });
 
-  constructor({ isMorphing, isSkinning, isLighting, alphaMode }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, alphaMode: AlphaModeEnum }) {
+  constructor({ isMorphing, isSkinning, isLighting, useTangentAttribute, alphaMode }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, useTangentAttribute: boolean, alphaMode: AlphaModeEnum }) {
     super(null, 'pbrShading'
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting')
+      + (useTangentAttribute ? '+tangentAttribute' : '')
       + ' alpha_' + alphaMode.str.toLowerCase(),
       { isMorphing, isSkinning, isLighting }, pbrSingleShaderVertex, pbrSingleShaderFragment
     );
@@ -189,6 +190,10 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
         }
       );
+    }
+
+    if (useTangentAttribute) {
+      this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
     }
 
     this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
