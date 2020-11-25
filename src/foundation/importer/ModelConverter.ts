@@ -1413,7 +1413,7 @@ export default class ModelConverter {
 
       rnTexture.generateTextureFromImage(image, textureOption);
       if (texture.image.uri) {
-        rnTexture.name = texture.image.url;
+        rnTexture.name = texture.image.uri;
       } else {
         const ext = texture.image.mimeType.split('/')[1];
         rnTexture.name = texture.image.name + `.${ext}`;
@@ -1421,7 +1421,7 @@ export default class ModelConverter {
     } else if (texture.image.basis) {
       rnTexture.generateTextureFromBasis(texture.image.basis, textureOption);
       if (texture.image.uri) {
-        rnTexture.name = texture.image.url;
+        rnTexture.name = texture.image.uri;
       } else {
         const ext = texture.image.mimeType.split('/')[1];
         rnTexture.name = texture.image.name + `.${ext}`;
