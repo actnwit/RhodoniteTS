@@ -68,7 +68,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         },
         {
           semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: [2, AbstractMaterialNode.__dummyBlueTexture]
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: [2, AbstractMaterialNode.__dummyBlackTexture]
         },
         {
           semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
