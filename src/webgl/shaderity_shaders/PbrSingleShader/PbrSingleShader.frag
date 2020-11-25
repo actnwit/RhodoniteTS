@@ -122,7 +122,9 @@ void main ()
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence
       vec3 normalTex = normalTexValue * 2.0 - 1.0;
-      normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, normalTex);
+      float normalScale = get_normalScale(materialSID, 0);
+      vec3 scaledNormal = normalize(normalTex * vec3(normalScale, normalScale, 1.0));
+      normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, scaledNormal);
     }
   #endif
 

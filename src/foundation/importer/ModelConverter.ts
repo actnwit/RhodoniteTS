@@ -940,8 +940,14 @@ export default class ModelConverter {
     if (normalTexture != null) {
       const rnTexture = ModelConverter._createTexture(normalTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
-      if (parseFloat(gltfModel.asset?.version!) >= 2 && normalTexture.texCoord != null) {
-        material.setParameter(PbrShadingSingleMaterialNode.NormalTexcoordIndex, normalTexture.texCoord);
+      if (parseFloat(gltfModel.asset?.version!) >= 2) {
+        if (normalTexture.texCoord != null) {
+          material.setParameter(PbrShadingSingleMaterialNode.NormalTexcoordIndex, normalTexture.texCoord);
+        }
+
+        if (normalTexture.scale != null) {
+          material.setParameter(PbrShadingSingleMaterialNode.NormalScale, normalTexture.scale);
+        }
       }
     }
     ModelConverter._setupTextureTransform(normalTexture, material, PbrShadingSingleMaterialNode.NormalTextureTransform, PbrShadingSingleMaterialNode.NormalTextureRotation);
