@@ -858,6 +858,9 @@ export default class ModelConverter {
         if (occlusionTexture.texCoord != null) {
           material.setParameter(PbrShadingSingleMaterialNode.OcclusionTexcoordIndex, occlusionTexture.texCoord);
         }
+        if (occlusionTexture.strength != null) {
+          material.setParameter(PbrShadingSingleMaterialNode.OcclusionStrength, occlusionTexture.strength);
+        }
       }
 
       let metallicFactor = pbrMetallicRoughness.metallicFactor;

@@ -257,9 +257,10 @@ void main ()
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
   float occlusion = texture2D(u_occlusionTexture, occlusionTexcoord).r;
+  float occlusionStrength = get_occlusionStrength(materialSID, 0);
 
   // Occlution to Indirect Lights
-  rt0.xyz += ibl * occlusion;
+  rt0.xyz += mix(ibl, ibl * occlusion, occlusionStrength);
 #else
   rt0 = vec4(baseColor, alpha);
 #endif

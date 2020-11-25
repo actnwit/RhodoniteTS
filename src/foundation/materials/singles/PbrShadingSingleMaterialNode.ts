@@ -38,6 +38,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   static readonly OcclusionTexcoordIndex = new ShaderSemanticsClass({ str: 'occlusionTexcoordIndex' });
   static readonly EmissiveTexcoordIndex = new ShaderSemanticsClass({ str: 'emissiveTexcoordIndex' });
   static readonly NormalScale = new ShaderSemanticsClass({ str: 'normalScale' });
+  static readonly OcclusionStrength = new ShaderSemanticsClass({ str: 'occlusionStrength' });
 
   constructor({ isMorphing, isSkinning, isLighting, useTangentAttribute, useNormalTexture, alphaMode }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, useTangentAttribute: boolean, useNormalTexture: boolean, alphaMode: AlphaModeEnum }) {
     super(null, 'pbrShading'
@@ -131,6 +132,11 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         {
           semantic: PbrShadingSingleMaterialNode.EmissiveTexcoordIndex, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
           stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0)
+        },
+
+        {
+          semantic: PbrShadingSingleMaterialNode.OcclusionStrength, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(1)
         }
       ];
 
