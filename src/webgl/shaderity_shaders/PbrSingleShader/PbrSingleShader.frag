@@ -112,17 +112,19 @@ void main ()
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
-  vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
-  float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
-  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
-  vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
-  vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
-  vec3 normalTexValue = texture2D(u_normalTexture, normalTexUv).xyz;
-  if(normalTexValue.b >= 128.0 / 255.0) {
-    // normal texture is existence
-    vec3 normalTex = normalTexValue * 2.0 - 1.0;
-    normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, normalTex);
-  }
+  #ifdef RN_USE_NORMAL_TEXTURE
+    vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
+    float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+    int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+    vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+    vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+    vec3 normalTexValue = texture2D(u_normalTexture, normalTexUv).xyz;
+    if(normalTexValue.b >= 128.0 / 255.0) {
+      // normal texture is existence
+      vec3 normalTex = normalTexValue * 2.0 - 1.0;
+      normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, normalTex);
+    }
+  #endif
 
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);

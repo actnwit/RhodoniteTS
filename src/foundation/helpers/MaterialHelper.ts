@@ -46,7 +46,7 @@ function createEmptyMaterial() {
 }
 
 function createPbrUberMaterial({
-  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, useTangentAttribute = false, alphaMode = AlphaMode.Opaque,
+  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, useTangentAttribute = false, useNormalTexture = true, alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'PbrUber'
@@ -57,7 +57,7 @@ function createPbrUberMaterial({
     + (useTangentAttribute ? '+tangentAttribute' : '')
     + ' alpha_' + alphaMode.str.toLowerCase();
 
-  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing, isSkinning, isLighting, useTangentAttribute, alphaMode });
+  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing, isSkinning, isLighting, useTangentAttribute, useNormalTexture, alphaMode });
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);

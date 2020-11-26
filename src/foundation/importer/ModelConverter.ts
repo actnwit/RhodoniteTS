@@ -747,8 +747,9 @@ export default class ModelConverter {
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex ?? node.skinName)}` : void 0;
     if (parseFloat(gltfModel.asset?.version!) >= 2) {
       const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
+      const useNormalTexture = this.__useNormalTexture(gltfModel);
       return MaterialHelper.createPbrUberMaterial({
-        isMorphing, isSkinning, isLighting, alphaMode, useTangentAttribute,
+        isMorphing, isSkinning, isLighting, alphaMode, useTangentAttribute, useNormalTexture,
         additionalName: additionalName, maxInstancesNumber: maxMaterialInstanceNumber
       });
     } else {
@@ -800,6 +801,14 @@ export default class ModelConverter {
       }
     }
     return false;
+  }
+  private __useNormalTexture(gltfModel: glTF2) {
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    if (argument?.useNormalTexture === false) {
+      return false;
+    } else {
+      return gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode !== 0;
+    }
   }
 
   private __getMaterialHash(node: Gltf2Node, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any) {
