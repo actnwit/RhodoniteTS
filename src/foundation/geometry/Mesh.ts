@@ -38,7 +38,18 @@ export default class Mesh {
   public _attachedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
-  public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
+
+  /**
+   * TODO: implementation of the following modes.
+   * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
+   * 0: Not calculate tangent (not apply normal texture)
+   * 1: (default) Use original tangent in a vertex, if a vertex has tangent attribute. If a vertex does not have it, calculate a tangent in a shader.
+   * 2: Use original tangent in a vertex, if a vertex has tangent attribute. If a vertex does not have it, precalculate a tangent in the javascript.
+   * 3: Calculate all tangent in a shader.
+   * 4: Precalculate all tangent in the javascript
+   */
+  public tangentCalculationMode: Index = 1;
+
   public isPreComputeForRayCastPickingEnable: boolean = false;
   private __hasFaceNormal = false;
 
