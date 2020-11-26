@@ -779,8 +779,19 @@ export default class ModelConverter {
 
   private __useTangentAttribute(gltfModel: glTF2, primitive: Gltf2Primitive) {
     const tangentCalculationMode = gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode;
-    if (tangentCalculationMode === 2) {
-      true;
+
+    switch (tangentCalculationMode) {
+      case 0: // do not use normal map
+        return false;
+      case 1: // tangent attribute + calculated tangent in shader
+        break;
+      case 2: // tangent attribute + pre-calculated tangent
+        return true;
+      case 3: // force calc in shader
+        return false;
+      case 4: // force pre-calc
+        return true;
+      default:
     }
 
     for (const attribute in primitive.attributes) {
