@@ -324,45 +324,39 @@ mat3 get_normalMatrix(float instanceId) {
   }
 
   $render(idx: Index, meshComponent: MeshComponent, worldMatrix: Matrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-
-    WebGLStrategyCommonMethod.startDepthMasking(idx, gl, renderPass);
-
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
 
-    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
 
+    WebGLStrategyCommonMethod.startDepthMasking(idx, gl, renderPass);
+
+    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
-
-      this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
-
       const material: Material = renderPass.getAppropriateMaterial(primitive, primitive.material!);
       if (WebGLStrategyCommonMethod.isSkipDrawing(material, idx)) {
         continue;
       }
 
+      this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
+
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
       const shaderProgramUid = material._shaderProgramUid;
 
-      let firstTime = false;
-      if (renderPassTickCount !== this.__lastRenderPassTickCount) {
-        firstTime = true;
-      }
-      if (shaderProgramUid !== this.__lastShader) {
-        gl.useProgram(shaderProgram);
+      let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
 
+      if (shaderProgramUid !== this.__lastShader) {
+        firstTime = true;
+
+        gl.useProgram(shaderProgram);
         gl.uniform1i((shaderProgram as any).dataTexture, 7);
+        this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
         this.__lastShader = shaderProgramUid;
-
-        firstTime = true;
-
-        this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
       }
 
       if (this.__lastMaterial !== material) {
@@ -370,9 +364,7 @@ mat3 get_normalMatrix(float instanceId) {
         this.__lastMaterial = material;
       }
 
-
       WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
-
       material.setParametersForGPU({
         material, shaderProgram, firstTime, args: {
           setUniform: true,
@@ -394,8 +386,6 @@ mat3 get_normalMatrix(float instanceId) {
         glw.drawArraysInstanced(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased(), 1);
       }
       // this.dettachVertexData(glw);
-
-
     }
 
     WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);

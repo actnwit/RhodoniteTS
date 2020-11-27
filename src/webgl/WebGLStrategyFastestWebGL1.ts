@@ -630,8 +630,8 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
         if (meshComponent == null) {
           break;
         }
-        const mesh = meshComponent.mesh!;
-        if (!(mesh && mesh.isOriginalMesh())) {
+        const mesh = meshComponent.mesh;
+        if (!(mesh?.isOriginalMesh())) {
           continue;
         }
 
