@@ -342,7 +342,7 @@ mat3 get_normalMatrix(float instanceId) {
       this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
       const material: Material = renderPass.getAppropriateMaterial(primitive, primitive.material!);
-      if (material.isEmptyMaterial() || material._shaderProgramUid === -1) {
+      if (WebGLStrategyCommonMethod.isSkipDrawing(material, idx)) {
         continue;
       }
 

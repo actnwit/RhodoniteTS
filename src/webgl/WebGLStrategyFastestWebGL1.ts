@@ -647,18 +647,12 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
         for (let i = 0; i < primitiveNum; i++) {
           const primitive = mesh.getPrimitiveAt(i);
-
           const material: Material = renderPass.getAppropriateMaterial(primitive, primitive.material);
-          if (material.isEmptyMaterial()) {
+          if (WebGLStrategyCommonMethod.isSkipDrawing(material, idx)) {
             continue;
           }
 
           const shaderProgramUid = material._shaderProgramUid;
-          if (shaderProgramUid === -1) {
-            continue;
-          }
-
-
 
           this.attachVertexDataInner(mesh, primitive, i, glw, mesh.variationVBOUid);
           if (shaderProgramUid !== this.__lastShader) {
