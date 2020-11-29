@@ -5,6 +5,7 @@ import { AlphaMode } from "../foundation/definitions/AlphaMode";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import MeshComponent from "../foundation/components/MeshComponent";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
+import { Index } from "../commontypes/CommonTypes";
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -163,4 +164,18 @@ function isMaterialsSetup(meshComponent: MeshComponent) {
 
 }
 
-export default Object.freeze({ setCullAndBlendSettings, startDepthMasking, endDepthMasking, isMeshSetup, isMaterialsSetup });
+function isSkipDrawing(material: Material, idx: Index) {
+  if (
+    material.isEmptyMaterial() ||
+    material._shaderProgramUid === -1 ||
+    (idx < MeshRendererComponent.firstTransparentIndex && material.isBlend()) ||
+    (idx >= MeshRendererComponent.firstTransparentIndex && !material.isBlend())
+  ) {
+    return true;
+  } else {
+    return false
+  }
+
+}
+
+export default Object.freeze({ setCullAndBlendSettings, startDepthMasking, endDepthMasking, isMeshSetup, isMaterialsSetup, isSkipDrawing });
