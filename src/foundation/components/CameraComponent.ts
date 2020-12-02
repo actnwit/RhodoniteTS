@@ -248,11 +248,11 @@ export default class CameraComponent extends Component {
   }
 
   set cornerInner(vec: Vector4) {
-    this._corner.copyComponents(vec);
+    this._cornerInner.copyComponents(vec);
   }
 
   get cornerInner() {
-    return this._corner;
+    return this._cornerInner;
   }
 
   // set parameters(vec: Vector4) {
