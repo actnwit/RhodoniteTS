@@ -3,6 +3,7 @@ document.body.appendChild(p);
 
 const load = async function () {
   Rn.Config.boneDataType = Rn.BoneDataType.Vec4x1;
+  Rn.Config.maxSkeletalBoneNumber = 2;
 
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
