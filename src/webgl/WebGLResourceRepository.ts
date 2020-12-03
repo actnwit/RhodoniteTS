@@ -38,7 +38,7 @@ export type VertexHandles = {
   setComplete: boolean;
 };
 
-type DirectTextureData = TypedArray | HTMLImageElement | HTMLCanvasElement;
+type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance: WebGLResourceRepository;
@@ -1244,13 +1244,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
   }
 
-  updateTexture(textureUid: WebGLResourceHandle, typedArray: TypedArray, { level, xoffset, yoffset, width, height, format, type }:
+  updateTexture(textureUid: WebGLResourceHandle, textureData: DirectTextureData, { level, xoffset, yoffset, width, height, format, type }:
     { level: Index, xoffset: Size, yoffset: Size, width: Size, height: Size, format: PixelFormatEnum, type: ComponentTypeEnum }) {
     const gl = this.__glw!.getRawContext();;
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
 
     this.__glw!.bindTexture2D(0, texture);
-    gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
+    gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, textureData);
     this.__glw!.unbindTexture2D(0);
 
   }
