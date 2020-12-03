@@ -3,10 +3,7 @@ import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size, TypedArray } from "../../commontypes/CommonTypes";
-import Config from "../core/Config";
-import { BasisFile, BasisTranscoder, BASIS } from "../../commontypes/BasisTexture";
-
+import { Size } from "../../commontypes/CommonTypes";
 
 export type VideoTextureArguments = {
   level: number,
@@ -74,23 +71,27 @@ export default class VideoTexture extends AbstractTexture {
     return canvas;
   }
 
-  generateTextureFromVideo(image: HTMLVideoElement, {
+  generateTextureFromVideo(video: HTMLVideoElement, {
     level = 0,
     internalFormat = PixelFormat.RGBA,
     format = PixelFormat.RGBA,
-    type = ComponentType.Float,
+    type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
     minFilter = TextureParameter.Linear,
-    wrapS = TextureParameter.Repeat,
-    wrapT = TextureParameter.Repeat,
-    generateMipmap = true,
-    anisotropy = true,
-    isPremultipliedAlpha = false
+    wrapS = TextureParameter.ClampToEdge,
+    wrapT = TextureParameter.ClampToEdge,
+    generateMipmap = false,
+    anisotropy = false,
+    isPremultipliedAlpha = false,
+    mutedAutoPlay = true,
   } = {}) {
     this.__startedToLoad = true;
-    this.#htmlVideoElement = image;
-
-    let img = image;
+    this.#htmlVideoElement = video;
+    if (mutedAutoPlay) {
+      video.autoplay = true;
+      video.muted = true;
+    }
+    let img = video;
 
     this.__width = img.width;
     this.__height = img.height;
@@ -105,7 +106,7 @@ export default class VideoTexture extends AbstractTexture {
 
     this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
-    this.__uri = image.src;
+    this.__uri = video.src;
 
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -114,15 +115,15 @@ export default class VideoTexture extends AbstractTexture {
     level = 0,
     internalFormat = PixelFormat.RGBA,
     format = PixelFormat.RGBA,
-    type = ComponentType.Float,
+    type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.LinearMipmapLinear,
-    wrapS = TextureParameter.Repeat,
-    wrapT = TextureParameter.Repeat,
-    generateMipmap = true,
-    anisotropy = true,
+    minFilter = TextureParameter.Linear,
+    wrapS = TextureParameter.ClampToEdge,
+    wrapT = TextureParameter.ClampToEdge,
+    generateMipmap = false,
+    anisotropy = false,
     isPremultipliedAlpha = false,
-    mutedAutoPlay = false,
+    mutedAutoPlay = true,
     playButtonDomElement = undefined
   } = {}) {
     this.__uri = videoUri;
@@ -130,8 +131,7 @@ export default class VideoTexture extends AbstractTexture {
     return new Promise((resolve, reject) => {
       const button = playButtonDomElement as HTMLButtonElement | undefined;
 
-      const playAndSetupTexture = () => {
-        video.play();
+      const setupTexture = () => {
 
         this.__width = video.width;
         this.__height = video.height;
@@ -153,7 +153,8 @@ export default class VideoTexture extends AbstractTexture {
       button?.addEventListener(
         "click",
         () => {
-          playAndSetupTexture();
+          setupTexture();
+          video.play();
         },
         true
       );
@@ -171,11 +172,8 @@ export default class VideoTexture extends AbstractTexture {
       video.addEventListener(
         "canplaythrough",
         () => {
-          if (button?.value !== "running") {
-            //          button.value = 'can play video';
-            button!.disabled = false;
-            playAndSetupTexture();
-          }
+          setupTexture();
+          video.play();
         },
         true
       );
@@ -195,10 +193,10 @@ export default class VideoTexture extends AbstractTexture {
 
   updateTexture() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    if (this.#htmlVideoElement) {
+    if (this.__isTextureReady && this.#htmlVideoElement) {
       webGLResourceRepository.updateTexture(this.cgApiResourceUid, this.#htmlVideoElement, {
         level: 0, xoffset: 0, yoffset: 0, width: this.__width, height: this.__height,
-        format: PixelFormat.RGBA, type: ComponentType.Float
+        format: PixelFormat.RGBA, type: ComponentType.UnsignedByte
       });
     }
   }
@@ -212,5 +210,13 @@ export default class VideoTexture extends AbstractTexture {
   get playbackRate() {
     const playbackRate = this.#htmlVideoElement?.playbackRate;
     return playbackRate != null ? playbackRate : 1;
+  }
+
+  play() {
+    this.#htmlVideoElement?.play()
+  }
+
+  pause() {
+    this.#htmlVideoElement!.pause()
   }
 }
