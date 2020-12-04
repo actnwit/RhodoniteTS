@@ -77,7 +77,8 @@ test('Promise all callback', async () => {
     }
 
     RnPromise.allWithProgressCallback([p1, p2, p3], callback).then((results: any) => {
-      p1.then((resolve: any)=> {
+      expect(results).toEqual([1, 2, 3]);
+      p1.then(() => {
         resolve();
       })
     });
