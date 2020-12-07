@@ -5,7 +5,7 @@ const load = async function () {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world'));
+  system.setProcessApproachAndCanvas(Rn.ProcessApproach.FastestWebGL2, document.getElementById('world'));
 
   // expressions
   const expressions = [];

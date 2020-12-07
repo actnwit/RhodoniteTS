@@ -17,6 +17,12 @@ highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSi
   return texture2D( tex, vec2(x, y) );
 }
 
+#ifdef GLSL_ES3
+highp vec4 fetchElement(highp sampler2D tex, highp int index, highp int width) {
+  highp ivec2 uv = ivec2(index % width, index / width);
+  return texelFetch( tex, uv, 0);
+}
+#endif
 
 float rand(const vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
