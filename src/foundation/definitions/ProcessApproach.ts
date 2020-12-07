@@ -18,11 +18,12 @@ const DataTextureWebGL2: ProcessApproachEnum = new ProcessApproachClass({ index:
 const UBOWebGL2: ProcessApproachEnum = new ProcessApproachClass({ index: 5, str: 'UBO_WEBGL2' });
 const TransformFeedbackWebGL2: ProcessApproachEnum = new ProcessApproachClass({ index: 6, str: 'TRANSFORM_FEEDBACK_WEBGL2' });
 const FastestWebGL1: ProcessApproachEnum = new ProcessApproachClass({ index: 7, str: 'FASTEST_WEBGL1' });
+const FastestWebGL2: ProcessApproachEnum = new ProcessApproachClass({ index: 8, str: 'FASTEST_WEBGL2' });
 
-const typeList = [None, UniformWebGL1, UniformWebGL2, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2, FastestWebGL1];
+const typeList = [None, UniformWebGL1, UniformWebGL2, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2, FastestWebGL1, FastestWebGL2];
 
 function from(index: number): ProcessApproachEnum|undefined {
   return _from({ typeList, index });
 }
 
-export const ProcessApproach = Object.freeze({ None, UniformWebGL1, UniformWebGL2, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2, FastestWebGL1 });
+export const ProcessApproach = Object.freeze({ None, UniformWebGL1, UniformWebGL2, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2, FastestWebGL1, FastestWebGL2 });

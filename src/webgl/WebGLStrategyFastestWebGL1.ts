@@ -122,7 +122,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   `;
   }
 
-  setupShaderProgram(meshComponent: MeshComponent, isWebGL2: boolean): void {
+  setupShaderProgram(meshComponent: MeshComponent): void {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
@@ -145,18 +145,21 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
       try {
-        this.setupDefaultShaderSemantics(material, isPointSprite, isWebGL2);
+        this.setupDefaultShaderSemantics(material, isPointSprite);
         primitive._backupMaterial();
       } catch (e) {
         console.log(e)
         primitive._restoreMaterial();
-        this.setupDefaultShaderSemantics(primitive._prevMaterial, isPointSprite, isWebGL2);
+        this.setupDefaultShaderSemantics(primitive._prevMaterial, isPointSprite);
       }
     }
   }
 
-  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean, isWebGL2: boolean) {
-    material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, this.__getShaderProperty, isWebGL2);
+  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
+    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const glw = webglResourceRepository.currentWebGLContextWrapper!
+
+    material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, this.__getShaderProperty, glw.isWebGL2);
 
     if (isPointSprite) {
       this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
@@ -298,9 +301,12 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
   ${indexStr}
   highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
   highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-  highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-  highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
-`
+  highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);\n`;
+      if (isWebGL2) {
+        firstPartOfInnerFunc += `highp vec4 col0 = fetchElement(u_dataTexture, int(idx), ${MemoryManager.bufferWidthLength});\n`;
+      } else {
+        firstPartOfInnerFunc += `highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);\n`
+      }
     }
 
     let str = `${varDef}${firstPartOfInnerFunc}`;
@@ -374,7 +380,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     WebGLStrategyFastestWebGL1.__currentComponentSIDs = WebGLStrategyFastestWebGL1.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgram(meshComponent, false);
+      this.setupShaderProgram(meshComponent);
     }
 
     if (!WebGLStrategyCommonMethod.isMeshSetup(meshComponent)) {
