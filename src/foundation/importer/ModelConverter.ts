@@ -118,7 +118,7 @@ export default class ModelConverter {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.createRnBuffer(gltfModel);
-    gltfModel.asset.extras!.rnMaterials = [];
+    gltfModel.asset.extras!.rnMaterials = {};
 
     // Mesh, Camera, Group, ...
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
@@ -786,13 +786,21 @@ export default class ModelConverter {
     }
   }
 
+  private __getMaterialHash(node: Gltf2Node, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any) {
+    return primitive.materialIndex! +
+      "_isSkinning_" + this.__isSkinning(node, gltfModel) +
+      "_isMorphing_" + this.__isMorphing(node, gltfModel) +
+      "_isLighting_" + this.__isLighting(gltfModel, materialJson);
+  }
+
   private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {
-    let material = gltfModel.asset.extras?.rnMaterials![primitive.materialIndex!];
-    if (material?.isSkinning === this.__isSkinning(node, gltfModel) && material.isMorphing === this.__isMorphing(node, gltfModel)) {
+    const materialHash = this.__getMaterialHash(node, gltfModel, primitive, materialJson);
+    let material = gltfModel.asset.extras?.rnMaterials![materialHash];
+    if (material != null) {
       return material;
     } else {
       const newMaterial: Material = this.__generateAppropriateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
-      gltfModel.asset.extras!.rnMaterials![primitive.materialIndex!] = newMaterial;
+      gltfModel.asset.extras!.rnMaterials![materialHash] = newMaterial;
       material = newMaterial;
     }
 
