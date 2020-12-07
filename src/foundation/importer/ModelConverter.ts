@@ -775,11 +775,12 @@ export default class ModelConverter {
       return (node.skin != null) ? true : false;
     }
   }
+
   private __getMaterialHash(node: Gltf2Node, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any) {
-    return primitive.materialIndex! + "_" +
-      this.__isSkinning(node, gltfModel) + "_" +
-      this.__isMorphing(node, gltfModel) + "_" +
-      this.__isLighting(gltfModel, materialJson);
+    return primitive.materialIndex! +
+      "_isSkinning_" + this.__isSkinning(node, gltfModel) +
+      "_isMorphing_" + this.__isMorphing(node, gltfModel) +
+      "_isLighting_" + this.__isLighting(gltfModel, materialJson);
   }
 
   private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {
