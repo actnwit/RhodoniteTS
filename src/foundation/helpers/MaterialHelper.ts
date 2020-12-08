@@ -46,7 +46,7 @@ function createEmptyMaterial() {
 }
 
 function createPbrUberMaterial({
-  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, alphaMode = AlphaMode.Opaque,
+  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false, useTangentAttribute = false, useNormalTexture = true, alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'PbrUber'
@@ -54,9 +54,10 @@ function createPbrUberMaterial({
     + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting')
+    + (useTangentAttribute ? '+tangentAttribute' : '')
     + ' alpha_' + alphaMode.str.toLowerCase();
 
-  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing, isSkinning, isLighting, alphaMode });
+  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing, isSkinning, isLighting, useTangentAttribute, useNormalTexture, alphaMode });
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
@@ -173,7 +174,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
 }
 
 function createMToonMaterial({
-  additionalName = '', isMorphing = false, isSkinning = false, isLighting = true,
+  additionalName = '', isMorphing = false, isSkinning = false, isLighting = true, useTangentAttribute = false,
   isOutline = false, materialProperties = undefined, textures = undefined, debugMode = undefined,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
@@ -182,9 +183,10 @@ function createMToonMaterial({
     + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '-lighting' : '')
+    + (useTangentAttribute ? '+tangentAttribute' : '')
     + (isOutline ? '-outline' : '');
 
-  const materialNode = new MToonSingleMaterialNode(isOutline, materialProperties, textures, isMorphing, isSkinning, isLighting, debugMode);
+  const materialNode = new MToonSingleMaterialNode(isOutline, materialProperties, textures, isMorphing, isSkinning, isLighting, useTangentAttribute, debugMode);
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);

@@ -40,18 +40,21 @@ ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord_0;
 ${_in} vec3 a_position;
 ${_in} vec3 a_normal;
-${_in} vec3 a_tangent;
 ${_in} vec4 a_baryCentricCoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
 
 ${_out} vec2 v_texcoord_0;
 ${_out} vec3 v_baryCentricCoord;
-${_out} vec3 v_binormal_inWorld; // bitangent_inWorld
 ${_out} vec3 v_normal_inView;
 ${_out} vec3 v_normal_inWorld;
-${_out} vec3 v_tangent_inWorld;
 ${_out} vec4 v_position_inWorld;
+
+#ifdef RN_USE_TANGENT_ATTRIBUTE
+${_in} vec4 a_tangent;
+${_out} vec3 v_tangent_inWorld;
+${_out} vec3 v_binormal_inWorld; // bitangent_inWorld
+#endif
 
 ${this.prerequisites}
 
@@ -127,20 +130,14 @@ void main(){
     #endif
   #endif
 
-  if (abs(length(a_normal)) > 0.01) {
-    // if normal exist
-    vec3 tangent_inWorld;
-    if (!isSkinning) {
-      tangent_inWorld = normalMatrix * a_tangent;
-      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-    }
+  #ifdef RN_USE_TANGENT_ATTRIBUTE
+    vec3 tangent_inWorld = normalMatrix * a_tangent.xyz;
 
-    v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);
+    v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld) * a_tangent.w;
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
-  }
+  #endif
 
   v_texcoord_0 = a_texcoord_0;
-
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 }`
   }
@@ -175,11 +172,14 @@ const float EPS_COL = 0.00001;
 
 ${_in} vec2 v_texcoord_0;
 ${_in} vec3 v_baryCentricCoord;
-${_in} vec3 v_binormal_inWorld; // bitangent_inWorld
 ${_in} vec3 v_normal_inView;
 ${_in} vec3 v_normal_inWorld;
-${_in} vec3 v_tangent_inWorld;
 ${_in} vec4 v_position_inWorld;
+#ifdef RN_USE_TANGENT_ATTRIBUTE
+  ${_in} vec3 v_tangent_inWorld;
+  ${_in} vec3 v_binormal_inWorld; // bitangent_inWorld
+#endif
+
 ${_def_rt0}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
@@ -196,6 +196,8 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
+
+${this.perturbedNormal}
 
 void main (){
   #ifdef RN_MTOON_IS_OUTLINE
@@ -245,26 +247,15 @@ void main (){
     #endif
   #endif
 
+  // view vector
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+  vec3 viewPosition = get_viewPosition(cameraSID, 0);
+  vec3 viewVector = viewPosition - v_position_inWorld.xyz;
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-
   #ifdef RN_MTOON_HAS_BUMPMAP
-    if (abs(length(v_tangent_inWorld)) > 0.01) {
-      vec3 tangent_inWorld = normalize(v_tangent_inWorld);
-      vec3 binormal_inWorld = normalize(v_binormal_inWorld);
-
-      mat3 tbnMat_tangent_to_world = mat3(
-        tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
-        binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
-        normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
-      );
-
-      vec3 normal = ${_texture}(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
-      float normalScale = get_normalScale(materialSID, 0);
-      normal.xy *= normalScale;
-      normal_inWorld = normalize(tbnMat_tangent_to_world * normal);
-    }
+    normal_inWorld = perturb_normal(normal_inWorld, viewVector, v_texcoord_0);
   #endif
 
   #ifdef RN_MTOON_IS_OUTLINE
@@ -392,9 +383,7 @@ void main (){
       rt0.xyz = outlineColor * mix(vec3(1.0), rt0.xyz, outlineLightingMix);
     #endif
   #else
-    float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
-    vec3 viewPosition = get_viewPosition(cameraSID, 0);
-    vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
+    vec3 viewDirection = normalize(viewVector);
 
     float rimFresnelPower = get_rimFresnelPower(materialSID, 0);
     float rimLift = get_rimLift(materialSID, 0);

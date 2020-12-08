@@ -8,12 +8,15 @@
 
 in vec3 v_color;
 in vec3 v_normal_inWorld;
-in vec3 v_tangent_inWorld;
-in vec3 v_binormal_inWorld;
 in vec4 v_position_inWorld;
 in vec2 v_texcoord_0;
 in vec2 v_texcoord_1;
 in vec3 v_baryCentricCoord;
+
+#ifdef RN_USE_TANGENT_ATTRIBUTE
+  in vec3 v_tangent_inWorld;
+  in vec3 v_binormal_inWorld;
+#endif
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -90,11 +93,17 @@ vec2 getTexcoord(int texcoordIndex) {
   return texcoord;
 }
 
+#pragma shaderity: require(../common/perturbedNormal.glsl)
 
 void main ()
 {
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
+
+  // View vector
+  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
+  vec3 viewPosition = get_viewPosition(cameraSID, 0);
+  vec3 viewVector = viewPosition - v_position_inWorld.xyz;
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -103,28 +112,19 @@ void main ()
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
-  if (abs(length(v_tangent_inWorld)) > 0.01) {
+  #ifdef RN_USE_NORMAL_TEXTURE
     vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
     float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
     int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
     vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
     vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
-    vec3 normal = texture2D(u_normalTexture, normalTexUv).xyz*2.0 - 1.0;
-    vec3 tangent_inWorld = normalize(v_tangent_inWorld);
-    vec3 binormal_inWorld = normalize(v_binormal_inWorld);
-    normal_inWorld = normalize(normal_inWorld);
-
-    mat3 tbnMat_tangent_to_world = mat3(
-      tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
-      binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
-      normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
-    );
-
-    normal = normalize(tbnMat_tangent_to_world * normal);
-    normal_inWorld = normal;
-  }
-
-
+    vec3 normalTexValue = texture2D(u_normalTexture, normalTexUv).xyz;
+    if(normalTexValue.b >= 128.0 / 255.0) {
+      // normal texture is existence
+      vec3 normalTex = normalTexValue * 2.0 - 1.0;
+      normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, normalTex);
+    }
+  #endif
 
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);
@@ -183,10 +183,8 @@ void main ()
   vec3 albedo = baseColor.rgb * (vec3(1.0) - diffuseMatAverageF0);
   albedo.rgb *= (1.0 - metallic);
 
-  // ViewDirection
-  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
-  vec3 viewPosition = get_viewPosition(cameraSID, 0);
-  vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
+  // View direction
+  vec3 viewDirection = normalize(viewVector);
 
   // NV
   float NV = clamp(abs(dot(normal_inWorld, viewDirection)), 0.0, 1.0);

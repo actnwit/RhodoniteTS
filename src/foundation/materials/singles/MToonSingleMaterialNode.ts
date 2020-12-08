@@ -64,11 +64,13 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   private __vectorProperties: any = {};
   private __textureProperties: any = {};
 
-  constructor(isOutline: boolean, materialProperties: any, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, debugMode: Count | undefined) {
+  constructor(isOutline: boolean, materialProperties: any, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean,
+    useTangentAttribute: boolean, debugMode: Count | undefined) {
     super(MToonShader.getInstance(), 'MToonShading'
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
-      + (isLighting ? '' : '-lighting'),
+      + (isLighting ? '' : '-lighting')
+      + (useTangentAttribute ? '+tangentAttribute' : ''),
       { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting }
     );
 
@@ -334,6 +336,10 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
           initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
         }
       );
+    }
+
+    if (useTangentAttribute) {
+      this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
     }
 
     // Texture

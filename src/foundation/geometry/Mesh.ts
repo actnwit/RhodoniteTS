@@ -38,7 +38,17 @@ export default class Mesh {
   public _attachedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
-  public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
+
+  /**
+   * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
+   * 0: Not calculate tangent (not apply normal texture)
+   * 1: (default) Use original tangent in a vertex, if a vertex has tangent attribute. If a vertex does not have it, calculate a tangent in a shader.
+   * 2: Use original tangent in a vertex, if a vertex has tangent attribute. If a vertex does not have it, precalculate a tangent in the javascript.
+   * 3: Calculate all tangent in a shader.
+   * 4: Precalculate all tangent in the javascript
+   */
+  public tangentCalculationMode: Index = 1;
+
   public isPreComputeForRayCastPickingEnable: boolean = false;
   private __hasFaceNormal = false;
 
@@ -225,12 +235,12 @@ export default class Mesh {
   }
 
   __calcTangents() {
-    if (this.tangentCalculationMode === 0 || this.isInstanceMesh()) {
+    if (!this.__usePreCalculatedTangent()) {
       return;
     }
     for (let primitive of this.__primitives) {
       const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent);
-      if (tangentIdx !== -1 && this.tangentCalculationMode === 1) {
+      if (tangentIdx !== -1 && this.tangentCalculationMode === 2) {
         continue;
       }
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
@@ -271,7 +281,7 @@ export default class Mesh {
     }
   }
 
-  __calcTangentFor3Vertices(
+  private __calcTangentFor3Vertices(
     i: Index,
     pos0: Vector3,
     pos1: Vector3,
@@ -292,7 +302,7 @@ export default class Mesh {
     tangentAccessor.setVec4(i + 2, tan2Vec3.x, tan2Vec3.y, tan2Vec3.z, 1, { indicesAccessor });
   }
 
-  __calcTangentPerVertex(
+  private __calcTangentPerVertex(
     pos0Vec3: Vector3,
     pos1Vec3: Vector3,
     pos2Vec3: Vector3,
@@ -345,6 +355,19 @@ export default class Mesh {
     }
 
     return returnVec3.setComponents(u[0], u[1], u[2]).normalize() as Vector3;
+  }
+
+  private __usePreCalculatedTangent() {
+    if (
+      this.tangentCalculationMode === 0 ||
+      this.tangentCalculationMode === 1 ||
+      this.tangentCalculationMode === 3 ||
+      this.isInstanceMesh()
+    ) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   getPrimitiveAt(i: number): Primitive {
