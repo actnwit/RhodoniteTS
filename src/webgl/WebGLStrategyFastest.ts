@@ -38,8 +38,8 @@ import ModuleManager from "../foundation/system/ModuleManager";
 import { RnXR } from "../rhodonite-xr";
 import Vector4 from "../foundation/math/Vector4";
 
-export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
-  private static __instance: WebGLStrategyFastestWebGL1;
+export default class WebGLStrategyFastest implements WebGLStrategy {
+  private static __instance: WebGLStrategyFastest;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -233,7 +233,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
         return '';
       }
-      const offset = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
+      const offset = WebGLStrategyFastest.__getOffsetOfShaderSemanticsInfo(info);
       for (let i = 0; i < info.maxIndex!; i++) {
         const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
         indexArray.push(index)
@@ -262,7 +262,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           }`;
       }
     } else {
-      const typeSize = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
+      const typeSize = WebGLStrategyFastest.__getOffsetOfShaderSemanticsInfo(info);
       let dataBeginPos = -1;
       if (isGlobalData) {
         const globalDataRepository = GlobalDataRepository.getInstance();
@@ -377,7 +377,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       return;
     }
 
-    WebGLStrategyFastestWebGL1.__currentComponentSIDs = WebGLStrategyFastestWebGL1.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
+    WebGLStrategyFastest.__currentComponentSIDs = WebGLStrategyFastest.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
       this.setupShaderProgram(meshComponent);
@@ -546,7 +546,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
   static getInstance() {
     if (!this.__instance) {
-      this.__instance = new (WebGLStrategyFastestWebGL1)();
+      this.__instance = new (WebGLStrategyFastest)();
     }
 
     return this.__instance;
@@ -570,16 +570,16 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = webvrSystem.getCameraComponentSIDAt(displayIdx);
+      WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = webvrSystem.getCameraComponentSIDAt(displayIdx);
     } else {
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
         cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
       }
       if (cameraComponent) {
-        WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
+        WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
       } else {
-        WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
+        WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
       }
     }
   }
@@ -592,15 +592,15 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {
         index = skeletalComponent.componentSID;
       }
-      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = index;
+      WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = index;
     } else {
-      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = -1;
+      WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = -1;
     }
   }
 
   private __setCurrentComponentSIDsForEachPrimitive(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material, entity: Entity) {
-    WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[0] = material.materialSID;
-    gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
+    WebGLStrategyFastest.__currentComponentSIDs!.v[0] = material.materialSID;
+    gl.uniform1fv((WebGLStrategyFastest.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastest.__currentComponentSIDs!.v);
   }
 
   private __getDisplayNumber(isVRMainPass: boolean) {
@@ -669,7 +669,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
             this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
-            WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
+            WebGLStrategyFastest.__shaderProgram = shaderProgram;
             firstTime = true;
           }
           if (this.__lastMaterial !== material) {
@@ -682,7 +682,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
           WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
           material.setParametersForGPU({
-            material: material, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
+            material: material, shaderProgram: WebGLStrategyFastest.__shaderProgram, firstTime: firstTime,
             args: {
               glw: glw,
               entity: entity,
