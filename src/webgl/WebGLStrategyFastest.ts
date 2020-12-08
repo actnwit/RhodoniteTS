@@ -217,9 +217,8 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
 
     const methodName = info.semantic.str.replace('.', '_');
 
-    // definition of uniform variable
+    // definition of uniform variable for texture sampler or what must be explicitly uniform variabl)
     let varDef = '';
-    //      if (isTexture) {
     const varType = info.compositionType.getGlslStr(info.componentType);
     let varIndexStr = '';
     if (info.maxIndex) {
@@ -228,7 +227,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     if (info.needUniformInFastest || isTexture) {
       varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
     }
-    //    }
+
     // inner contents of 'get_' shader function
     if (propertyIndex < 0) {
       if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
