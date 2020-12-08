@@ -42,6 +42,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastMaterial?: Material;
   private static __shaderProgram: WebGLProgram;
@@ -491,10 +492,17 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
     // Setup Data Texture
     this.__createAndUpdateDataTexture();
+    this.__createAndUpdateUBO();
 
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
+  }
+
+  private __createAndUpdateUBO() {
+    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea();
+    }
   }
 
   attachGPUData(primitive: Primitive): void {

@@ -1394,6 +1394,31 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.deleteBuffer(ubo);
   }
 
+  setupUniformBufferDataArea(typedArray?: TypedArray) {
+    const gl = this.__glw!.getRawContext();
+
+    if (gl == null) {
+      new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const ubo = gl.createBuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, ubo!);
+
+    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    const array = typedArray ? typedArray : new Float32Array(alignedMaxUniformBlockSize / 4);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
+    gl.bufferData(gl.UNIFORM_BUFFER, array, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+
+    const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();
+    for (let i=0; i<maxConventionblocks; i++) {
+      gl.bindBufferRange(gl.UNIFORM_BUFFER, i, ubo, alignedMaxUniformBlockSize * i, alignedMaxUniformBlockSize);
+    }
+    
+    return resourceHandle;
+  }
+
   createTransformFeedback() {
     const gl = this.__glw!.getRawContext();
     var transformFeedback = gl.createTransformFeedback();
