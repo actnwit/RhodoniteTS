@@ -511,8 +511,17 @@ export default class Material extends RnObject {
     let vertexShaderBody = '';
     let pixelShaderBody = '';
     if (materialNode.vertexShaderityObject != null) {
-      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
-      pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
+      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { 
+          getters: vertexPropertiesStr,
+          definitions: definitions,
+          dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+          matricesGetters: vertexShaderMethodDefinitions_uniform
+        })
+      pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, {
+        getters: pixelPropertiesStr,
+        definitions: definitions,
+        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString()
+      });
     } else {
       vertexShaderBody = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
       pixelShaderBody = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions, materialNode: materialNode });
