@@ -1,5 +1,9 @@
 uniform float u_materialSID; // skipProcess=true
 uniform sampler2D u_dataTexture; // skipProcess=true
+#ifdef GLSL_ES3
+// /* shaderity: @{dataUBODefinition} */
+#endif
+
 
   /*
   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885

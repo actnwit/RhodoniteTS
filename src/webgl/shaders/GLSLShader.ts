@@ -366,8 +366,13 @@ bool processGeometryWithMorphingAndSkinning(
   }
 
   get prerequisites() {
+    const webGLResourceRepository = WebGLResourceRepository.getInstance();
+    const dataUboDefinition = webGLResourceRepository.getGlslDataUBODefinitionString();
     return `uniform float u_materialSID;
 uniform sampler2D u_dataTexture;
+#ifdef GLSL_ES3
+  ${dataUboDefinition}
+#endif
 
   /*
   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
