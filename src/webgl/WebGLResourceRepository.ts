@@ -1419,6 +1419,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  getGlslDataUBODefinitionString() {
+    let text = '';
+    const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();
+    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    for (let i=0; i<maxConventionblocks; i++) {
+      text += `
+layout (std140) uniform Vec4Block${i} {
+  vec4 vec4Data${i}[${alignedMaxUniformBlockSize/4/4}];
+};
+`    
+    }
+    return text;
+  }
+
   createTransformFeedback() {
     const gl = this.__glw!.getRawContext();
     var transformFeedback = gl.createTransformFeedback();
