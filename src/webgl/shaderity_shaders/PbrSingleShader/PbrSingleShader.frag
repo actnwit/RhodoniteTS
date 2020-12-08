@@ -122,7 +122,9 @@ void main ()
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence
       vec3 normalTex = normalTexValue * 2.0 - 1.0;
-      normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, normalTex);
+      float normalScale = get_normalScale(materialSID, 0);
+      vec3 scaledNormal = normalize(normalTex * vec3(normalScale, normalScale, 1.0));
+      normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, scaledNormal);
     }
   #endif
 
@@ -255,9 +257,10 @@ void main ()
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
   float occlusion = texture2D(u_occlusionTexture, occlusionTexcoord).r;
+  float occlusionStrength = get_occlusionStrength(materialSID, 0);
 
   // Occlution to Indirect Lights
-  rt0.xyz += ibl * occlusion;
+  rt0.xyz += mix(ibl, ibl * occlusion, occlusionStrength);
 #else
   rt0 = vec4(baseColor, alpha);
 #endif
