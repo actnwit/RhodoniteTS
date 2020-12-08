@@ -470,7 +470,9 @@ export default class Material extends RnObject {
       definitions += '#version 300 es\n#define GLSL_ES3\n';
     }
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
-    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
+    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1 ||
+      System.getInstance().processApproach === ProcessApproach.FastestWebGL2
+    ) {
       definitions += '#define RN_IS_FASTEST_MODE\n';
     }
     if (glw.webgl1ExtSTL) {

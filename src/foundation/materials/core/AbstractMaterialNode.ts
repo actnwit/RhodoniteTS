@@ -405,7 +405,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
     const array: number[] = primitive.targets.map((target: Attributes) => {
       const accessor = target.get(VertexAttribute.Position) as Accessor;
       let offset = 0;
-      if (SystemState.currentProcessApproach === ProcessApproach.FastestWebGL1) {
+      if (SystemState.currentProcessApproach === ProcessApproach.FastestWebGL1 ||
+        SystemState.currentProcessApproach === ProcessApproach.FastestWebGL2
+        ) {
         offset = memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData).takenSizeInByte;
       }
       return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
