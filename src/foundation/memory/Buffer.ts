@@ -3,17 +3,18 @@ import BufferView from "./BufferView";
 import { Byte, Size } from "../../commontypes/CommonTypes";
 
 export default class Buffer extends RnObject {
-  private __byteLength: Size = 0;
-  private __byteOffset: Size = 0;
+  private __byteLength: Byte = 0;
+  private __byteOffset: Byte = 0;
   private __raw: ArrayBuffer;
   private __name: string = '';
   private __takenBytesIndex: Byte = 0;
   private __bufferViews: Array<BufferView> = [];
 
-  constructor({byteLength, buffer, name} : {byteLength: Size, buffer: ArrayBuffer | Uint8Array, name: string}) {
+  constructor({byteLength, buffer, name} : {byteLength: Byte, buffer: ArrayBuffer, name: string}) {
     super();
     this.__name = name;
     this.__byteLength = byteLength;
+
     if (buffer instanceof Uint8Array) {
       this.__raw = buffer.buffer
       this.__byteOffset = buffer.byteOffset;
