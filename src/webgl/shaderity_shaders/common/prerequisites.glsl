@@ -1,6 +1,6 @@
 uniform float u_materialSID; // skipProcess=true
 uniform sampler2D u_dataTexture; // skipProcess=true
-#ifdef GLSL_ES3
+#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
 /* shaderity: @{dataUBODefinition} */
 #endif
 
@@ -14,19 +14,65 @@ uniform sampler2D u_dataTexture; // skipProcess=true
   //   return ${this.glsl_texture}( tex, arg * (index + 0.5) );
   // }
 
-highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize){
-  highp float t = (index + 0.5) * invSize.x;
+highp vec4 fetchElement(highp sampler2D tex, int index, int texWidth, int texHeight) {
+#ifdef GLSL_ES3
+  highp ivec2 uv = ivec2(index % texWidth, index / texWidth);
+  return texelFetch( tex, uv, 0 );
+#else
+  highp vec2 invSize = vec2(1.0/float(texWidth), 1.0/float(texHeight));
+  highp float t = (float(index) + 0.5) * invSize.x;
   highp float x = fract(t);
   highp float y = (floor(t) + 0.5) * invSize.y;
   return texture2D( tex, vec2(x, y) );
+#endif
 }
 
-#ifdef GLSL_ES3
-highp vec4 fetchElement(highp sampler2D tex, highp int index, highp int width) {
-  highp ivec2 uv = ivec2(index % width, index / width);
-  return texelFetch( tex, uv, 0);
+vec4 fetchVec4(highp sampler2D tex, int idx, int texWidth, int texHeight) {
+  vec4 val = fetchElement(u_dataTexture, idx, texWidth, texHeight);
+
+  return val;
 }
-#endif
+
+mat2 fetchMat2(highp sampler2D tex, int idx, int texWidth, int texHeight) {
+  vec4 col0 = fetchElement(u_dataTexture, idx, texWidth, texHeight);
+
+  mat2 val = mat2(
+    col0.x, col0.y,
+    col0.z, col0.w
+    );
+  
+  return val;
+}
+
+mat3 fetchMat3(highp sampler2D tex, int idx, int texWidth, int texHeight) {
+  vec4 col0 = fetchElement(u_dataTexture, idx, texWidth, texHeight);
+  vec4 col1 = fetchElement(u_dataTexture, idx + 1, texWidth, texHeight);
+  vec4 col2 = fetchElement(u_dataTexture, idx + 2, texWidth, texHeight);
+
+  mat3 val = mat3(
+    col0.x, col0.y, col0.z,
+    col0.w, col1.x, col1.y,
+    col1.z, col1.w, col2.x
+    );
+
+  return val;
+}
+
+mat4 fetchMat4(highp sampler2D tex, int idx, int texWidth, int texHeight) {
+  vec4 col0 = fetchElement(u_dataTexture, idx, texWidth, texHeight);
+  vec4 col1 = fetchElement(u_dataTexture, idx + 1, texWidth, texHeight);
+  vec4 col2 = fetchElement(u_dataTexture, idx + 2, texWidth, texHeight);
+  vec4 col3 = fetchElement(u_dataTexture, idx + 3, texWidth, texHeight);
+
+  mat4 val = mat4(
+    col0.x, col0.y, col0.z, col0.w,
+    col1.x, col1.y, col1.z, col1.w,
+    col2.x, col2.y, col2.z, col2.w,
+    col3.x, col3.y, col3.z, col3.w
+    );
+
+  return val;
+}
 
 float rand(const vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
