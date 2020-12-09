@@ -398,6 +398,9 @@ highp vec4 fetchElement(highp sampler2D tex, int index, int texWidth, int texHei
     highp ivec2 uv = ivec2(idxOnDataTex % texWidth, idxOnDataTex / texWidth);
     return texelFetch( tex, uv, 0 );
   }
+#elif defined(GLSL_ES3)
+  highp ivec2 uv = ivec2(index % texWidth, index / texWidth);
+  return texelFetch( tex, uv, 0 );
 #else
   highp vec2 invSize = vec2(1.0/float(texWidth), 1.0/float(texHeight));
   highp float t = (float(index) + 0.5) * invSize.x;
