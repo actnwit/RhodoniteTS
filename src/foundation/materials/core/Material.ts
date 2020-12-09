@@ -470,7 +470,9 @@ export default class Material extends RnObject {
       definitions += '#version 300 es\n#define GLSL_ES3\n';
     }
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
-    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
+    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1 ||
+      System.getInstance().processApproach === ProcessApproach.FastestWebGL2
+    ) {
       definitions += '#define RN_IS_FASTEST_MODE\n';
     }
     if (glw.webgl1ExtSTL) {
@@ -509,8 +511,19 @@ export default class Material extends RnObject {
     let vertexShaderBody = '';
     let pixelShaderBody = '';
     if (materialNode.vertexShaderityObject != null) {
-      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
-      pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
+      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { 
+          getters: vertexPropertiesStr,
+          definitions: definitions,
+          dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+          dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+          matricesGetters: vertexShaderMethodDefinitions_uniform
+        })
+      pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, {
+        getters: pixelPropertiesStr,
+        definitions: definitions,
+        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+        dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString()
+      });
     } else {
       vertexShaderBody = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
       pixelShaderBody = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions, materialNode: materialNode });

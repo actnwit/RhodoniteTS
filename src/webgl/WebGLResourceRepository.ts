@@ -20,7 +20,7 @@ import Vector4 from "../foundation/math/Vector4";
 import { RenderBufferTarget } from "../foundation/definitions/RenderBufferTarget";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
-import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../commontypes/CommonTypes";
+import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle, Byte } from "../commontypes/CommonTypes";
 import DataUtil from "../foundation/misc/DataUtil";
 import RenderBuffer from "../foundation/textures/RenderBuffer";
 import { BasisFile } from "../commontypes/BasisTexture";
@@ -1346,12 +1346,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  updateUniformBuffer(uboUid: WebGLResourceHandle, bufferView: TypedArray | DataView) {
+  updateUniformBuffer(uboUid: WebGLResourceHandle, typedArray: TypedArray, offsetByte: Byte, byteLength: Byte) {
     const gl = this.__glw!.getRawContext();
     const ubo = this.getWebGLResource(uboUid);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);
+    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, typedArray, offsetByte, byteLength);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
 
@@ -1392,6 +1392,65 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.delete(uboUid);
 
     gl.deleteBuffer(ubo);
+  }
+
+  setupUniformBufferDataArea(typedArray?: TypedArray) {
+    const gl = this.__glw!.getRawContext();
+
+    if (gl == null) {
+      new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const ubo = gl.createBuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, ubo!);
+
+    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    const array = typedArray ? typedArray : new Float32Array(alignedMaxUniformBlockSize / 4);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
+    gl.bufferData(gl.UNIFORM_BUFFER, array, gl.DYNAMIC_DRAW, 0, alignedMaxUniformBlockSize);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+
+    const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();
+    for (let i=0; i<maxConventionblocks; i++) {
+      gl.bindBufferRange(gl.UNIFORM_BUFFER, i, ubo, alignedMaxUniformBlockSize * i, alignedMaxUniformBlockSize);
+    }
+    
+    return resourceHandle;
+  }
+
+  getGlslDataUBODefinitionString() {
+    let text = '';
+    const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();
+    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    for (let i=0; i<maxConventionblocks; i++) {
+      text += `
+layout (std140) uniform Vec4Block${i} {
+  vec4 vec4Block${i}[${alignedMaxUniformBlockSize/4/4}];
+};
+`    
+    }
+
+    text += `
+vec4 fetchVec4FromVec4Block(int vec4Idx) {
+  int vec4IdxForEachBlock = vec4Idx % dataUBOVec4Size;
+  if (vec4Idx < dataUBOVec4Size) {
+    return vec4Block0[vec4IdxForEachBlock];
+  }`;
+    for (let i=1; i<maxConventionblocks; i++) {
+      text += `
+ else if (vec4Idx < dataUBOVec4Size * ${i+1}) {
+    return vec4Block${i}[vec4IdxForEachBlock];
+}`;
+    }
+    text += '}\n';
+    
+    return text;
+  }
+
+  getGlslDataUBOVec4SizeString() {
+    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    return `const int dataUBOVec4Size = ${alignedMaxUniformBlockSize / 4 / 4};`;
   }
 
   createTransformFeedback() {

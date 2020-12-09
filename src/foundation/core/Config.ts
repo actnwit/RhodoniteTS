@@ -1,5 +1,6 @@
 import { BoneDataType } from "../definitions/BoneDataType";
 
+let byteAlignOfBuffer = 16;
 let maxEntityNumber = 5000;
 let maxLightNumberInShader = 4;
 let maxVertexMorphNumberInShader = 41;

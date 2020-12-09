@@ -16,6 +16,13 @@ import MutableMatrix33 from "../../math/MutableMatrix33";
 import MutableMatrix44 from "../../math/MutableMatrix44";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
+import MemoryManager from "../../core/MemoryManager";
+
+export type FillArgsObject = {
+  [s:string]: string,
+  WellKnownComponentTIDs?: any,
+  Config?: any
+};
 
 export default class ShaderityUtility {
   static __instance: ShaderityUtility;
@@ -36,27 +43,35 @@ export default class ShaderityUtility {
     return this.__instance;
   }
 
-  getVertexShaderBody(shaderityObject: ShaderityObject, args: any) {
-    const obj = this.__shaderity.fillTemplate(shaderityObject, {
-      definitions: (typeof args.definitions !== 'undefined') ? args.definitions : '',
-      matricesGetters: (typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '',
-      getters: (typeof args.getters !== 'undefined') ? args.getters : '',
-      WellKnownComponentTIDs: WellKnownComponentTIDs
+  private __removeNonStringProperties(args: FillArgsObject): FillArgsObject{
+    Object.keys(args).forEach(function(key) {
+      if (typeof args[key] !== 'string') {
+        args[key] = '';
+      }
     });
 
+    return args;
+  }
+
+  getVertexShaderBody(shaderityObject: ShaderityObject, args: FillArgsObject) {
+    let _args = this.__removeNonStringProperties(args);
+    _args.WellKnownComponentTIDs = WellKnownComponentTIDs;
+    _args.widthOfDataTexture = `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`;
+    _args.heightOfDataTexture = `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`;
+    const obj = this.__shaderity.fillTemplate(shaderityObject, _args);
     const isWebGL2 = this.__webglResourceRepository?.currentWebGLContextWrapper?.isWebGL2;
     const code = this.__shaderity.transformTo(isWebGL2 ? 'WebGL2' : 'WebGL1', obj).code;
 
     return code;
   }
 
-  getPixelShaderBody(shaderityObject: ShaderityObject, args: any) {
-    const obj = this.__shaderity.fillTemplate(shaderityObject, {
-      definitions: (typeof args.definitions !== 'undefined') ? args.definitions : '',
-      getters: (typeof args.getters !== 'undefined') ? args.getters : '',
-      Config: Config,
-      WellKnownComponentTIDs: WellKnownComponentTIDs
-    });
+  getPixelShaderBody(shaderityObject: ShaderityObject, args: FillArgsObject) {
+    let _args = this.__removeNonStringProperties(args);
+    _args.WellKnownComponentTIDs = WellKnownComponentTIDs;
+    _args.widthOfDataTexture = `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`;
+    _args.heightOfDataTexture = `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`;
+    _args.Config = Config;
+    const obj = this.__shaderity.fillTemplate(shaderityObject, _args);
     const isWebGL2 = this.__webglResourceRepository?.currentWebGLContextWrapper?.isWebGL2;
     const code = this.__shaderity.transformTo(isWebGL2 ? 'WebGL2' : 'WebGL1', obj).code;
 

@@ -4,6 +4,8 @@ import { Index, Size } from "../commontypes/CommonTypes";
 import Vector4 from "../foundation/math/Vector4";
 import Config from "../foundation/core/Config";
 
+const INVALID_SIZE = -1;
+
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext | any;
   __webglVersion: number = 1;
@@ -34,6 +36,12 @@ export default class WebGLContextWrapper {
   private __viewport_top = 0;
   private __viewport_width = 0;
   private __viewport_height = 0;
+  #alignedMaxUniformBlockSize = INVALID_SIZE;
+  #maxUniformBlockSize = INVALID_SIZE;
+  #uniformBufferOffsetAlignment = INVALID_SIZE;
+  #maxVertexUniformBlocks = INVALID_SIZE;
+  #maxFragmentUniformBlocks = INVALID_SIZE;
+  #maxConventionUniformBlocks = INVALID_SIZE;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -66,6 +74,7 @@ export default class WebGLContextWrapper {
       this.webgl1ExtBM = this.__getExtension(WebGLExtension.BlendMinmax);
       this.webgl1ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloat);
     }
+    this.getUniformBufferInfo();
   }
 
   getRawContext(): WebGLRenderingContext | any {
@@ -357,5 +366,29 @@ export default class WebGLContextWrapper {
       this.__viewport_width = viewport.z;
       this.__viewport_height = viewport.w;
     }
+  }
+
+  private getUniformBufferInfo() {
+    if (!this.isWebGL2) {
+      return;
+    }
+
+    const gl: any = this.__gl;
+    const offsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT) as number;
+    const maxBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE) as number;
+    this.#maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS) as number;
+    this.#maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS) as number;
+    this.#maxConventionUniformBlocks = Math.min(this.#maxVertexUniformBlocks, this.#maxFragmentUniformBlocks);
+    this.#alignedMaxUniformBlockSize = maxBlockSize - (maxBlockSize % offsetAlignment);
+    this.#uniformBufferOffsetAlignment = offsetAlignment;
+    this.#maxUniformBlockSize = maxBlockSize;
+  }
+
+  getMaxConventionUniformBlocks() {
+    return this.#maxConventionUniformBlocks;
+  }
+
+  getAlignedMaxUniformBlockSize() {
+    return this.#alignedMaxUniformBlockSize;
   }
 }

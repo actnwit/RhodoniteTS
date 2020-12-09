@@ -56,7 +56,7 @@ const isNode = function () {
   return (typeof process !== "undefined" && typeof require !== "undefined");
 }
 
-const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], paddingSize: Byte) {
+const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], paddingSize: Byte) {
   var sumLength = 0;
   for (var i = 0; i < sizes.length; ++i) {
     sumLength += sizes[i];
@@ -64,7 +64,7 @@ const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], pad
   var whole = new Uint8Array(sumLength + paddingSize);
   var pos = 0;
   for (var i = 0; i < segments.length; ++i) {
-    whole.set(new Uint8Array(segments[i], 0, sizes[i]), pos);
+    whole.set(new Uint8Array(segments[i+offsets[i]], 0, sizes[i]), pos);
     pos += sizes[i];
   }
   return whole.buffer;

@@ -38,10 +38,11 @@ import ModuleManager from "../foundation/system/ModuleManager";
 import { RnXR } from "../rhodonite-xr";
 import Vector4 from "../foundation/math/Vector4";
 
-export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
-  private static __instance: WebGLStrategyFastestWebGL1;
+export default class WebGLStrategyFastest implements WebGLStrategy {
+  private static __instance: WebGLStrategyFastest;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastMaterial?: Material;
   private static __shaderProgram: WebGLProgram;
@@ -58,45 +59,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   mat4 get_worldMatrix(float instanceId)
   {
-    highp float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'worldMatrix')}.0 + 4.0 * instanceId;
-    highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-    highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-    // highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
-
-    vec4 col0 = fetchElement(u_dataTexture, index + 0.0, arg);
-    vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
-    vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
-    vec4 col3 = fetchElement(u_dataTexture, index + 3.0, arg);
-
-    mat4 matrix = mat4(
-      col0.x, col0.y, col0.z, col0.w,
-      col1.x, col1.y, col1.z, col1.w,
-      col2.x, col2.y, col2.z, col2.w,
-      col3.x, col3.y, col3.z, col3.w
-      );
+    int index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'worldMatrix')} + 4 * int(instanceId);
+    mat4 matrix = fetchMat4(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture);
 
     return matrix;
   }
 
 
   mat3 get_normalMatrix(float instanceId) {
-    float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'normalMatrix')}.0 + 3.0 * instanceId;
-    float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-    float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
-
-    vec4 col0 = fetchElement(u_dataTexture, index + 0.0, arg);
-    vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
-    vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
-
-    mat3 matrix = mat3(
-      col0.x, col0.y, col0.z,
-      col0.w, col1.x, col1.y,
-      col1.z, col1.w, col2.x
-      );
-
+    int index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'normalMatrix')} + 3 * int(instanceId);
+    mat3 matrix = fetchMat3(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture);
     return matrix;
   }
 
@@ -104,12 +76,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
-      float index = u_dataTextureMorphOffsetPosition[i] + 1.0 * vertexId;
-      float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-      float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-      vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-    //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
-      vec3 addPos = fetchElement(u_dataTexture, index + 0.0, arg).xyz;
+      int index = int(u_dataTextureMorphOffsetPosition[i]) + 1 * int(vertexId);
+      vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
         break;
@@ -216,9 +184,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     const methodName = info.semantic.str.replace('.', '_');
 
-    // definition of uniform variable
+    // definition of uniform variable for texture sampler or what must be explicitly uniform variabl)
     let varDef = '';
-    //      if (isTexture) {
     const varType = info.compositionType.getGlslStr(info.componentType);
     let varIndexStr = '';
     if (info.maxIndex) {
@@ -227,42 +194,42 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     if (info.needUniformInFastest || isTexture) {
       varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
     }
-    //    }
+
     // inner contents of 'get_' shader function
     if (propertyIndex < 0) {
       if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
         return '';
       }
-      const offset = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
+      const offset = WebGLStrategyFastest.__getOffsetOfShaderSemanticsInfo(info);
       for (let i = 0; i < info.maxIndex!; i++) {
         const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
         indexArray.push(index)
       }
       maxIndex = info.maxIndex!;
 
-      let arrayStr = `highp float indices[${maxIndex}];`
+      let arrayStr = `int indices[${maxIndex}];`
       indexArray.forEach((idx, i) => {
-        arrayStr += `\nindices[${i}] = ${idx}.0;`
+        arrayStr += `\nindices[${i}] = ${idx};`
       });
       if (isWebGL2) {
         indexStr = `
           ${arrayStr}
-          highp float idx = 0.0;
-          idx = indices[index] + ${offset}.0 * instanceId;
+          int idx = 0.0;
+          idx = indices[index] + ${offset} * instanceId;
           `;
       } else {
         indexStr = `
           ${arrayStr}
-          highp float idx = 0.0;
+          int idx = 0.0;
           for (int i=0; i<${maxIndex}; i++) {
-            idx = indices[i] + ${offset}.0 * instanceId;
+            idx = indices[i] + ${offset} * instanceId;
             if (i == index) {
               break;
             }
           }`;
       }
     } else {
-      const typeSize = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
+      const typeSize = WebGLStrategyFastest.__getOffsetOfShaderSemanticsInfo(info);
       let dataBeginPos = -1;
       if (isGlobalData) {
         const globalDataRepository = GlobalDataRepository.getInstance();
@@ -280,11 +247,11 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
 
       if (CompositionType.isArray(info.compositionType)) {
-        indexStr = `highp float idx = ${dataBeginPos}.0 + ${instanceSize}.0 * instanceId + ${typeSize}.0 * float(index);`;
+        indexStr = `int idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${typeSize} * index;`;
       } else if (info.compositionType === CompositionType.Mat4 || info.compositionType === CompositionType.Mat3 || info.compositionType === CompositionType.Mat2) {
-        indexStr = `highp float idx = ${dataBeginPos}.0 + ${instanceSize}.0 * instanceId;`;
+        indexStr = `int idx = ${dataBeginPos} + ${instanceSize} * instanceId;`;
       } else {
-        indexStr = `highp float idx = ${dataBeginPos}.0 + instanceId;`;
+        indexStr = `int idx = ${dataBeginPos} + instanceId;`;
       }
     }
 
@@ -297,16 +264,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     let firstPartOfInnerFunc = '';
     if (!isTexture) {
       firstPartOfInnerFunc += `
-${returnType} get_${methodName}(highp float instanceId, const int index) {
+${returnType} get_${methodName}(highp float _instanceId, const int index) {
+  int instanceId = int(_instanceId);
   ${indexStr}
-  highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-  highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-  highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);\n`;
-      if (isWebGL2) {
-        firstPartOfInnerFunc += `highp vec4 col0 = fetchElement(u_dataTexture, int(idx), ${MemoryManager.bufferWidthLength});\n`;
-      } else {
-        firstPartOfInnerFunc += `highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);\n`
-      }
+  `;
     }
 
     let str = `${varDef}${firstPartOfInnerFunc}`;
@@ -314,15 +275,19 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     switch (info.compositionType) {
       case CompositionType.Vec4:
       case CompositionType.Vec4Array:
+        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
         str += `        highp ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
       case CompositionType.Vec3:
       case CompositionType.Vec3Array:
+        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
         str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`; break;
       case CompositionType.Vec2:
       case CompositionType.Vec2Array:
+        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
         str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
       case CompositionType.Scalar:
       case CompositionType.ScalarArray:
+        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
         if (info.componentType === ComponentType.Int) {
           str += `        int val = int(col0.x);`;
         } else if (info.componentType === ComponentType.Bool) {
@@ -333,28 +298,11 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
         break;
       case CompositionType.Mat4:
       case CompositionType.Mat4Array:
-        str += `
-        vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
-        vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
-        vec4 col3 = fetchElement(u_dataTexture, idx + 3.0, arg);
-
-        mat4 val = mat4(
-          col0.x, col0.y, col0.z, col0.w,
-          col1.x, col1.y, col1.z, col1.w,
-          col2.x, col2.y, col2.z, col2.w,
-          col3.x, col3.y, col3.z, col3.w
-          );
-        `; break;
+        str += `        mat4 val = fetchMat4(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`;
+        break;
       case CompositionType.Mat3:
-        str += `
-        vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
-        vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
-        mat3 val = mat3(
-          col0.x, col0.y, col0.z,
-          col0.w, col1.x, col1.y,
-          col1.z, col1.w, col2.x
-          );
-        `; break;
+        str += `        mat3 val = fetchMat3(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`;
+        break;
       default:
         // console.error('unknown composition type', info.compositionType.str, memberName);
         str += '';
@@ -377,7 +325,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       return;
     }
 
-    WebGLStrategyFastestWebGL1.__currentComponentSIDs = WebGLStrategyFastestWebGL1.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
+    WebGLStrategyFastest.__currentComponentSIDs = WebGLStrategyFastest.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
       this.setupShaderProgram(meshComponent);
@@ -423,20 +371,24 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
   private __createAndUpdateDataTexture() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+
+    
+    const startOffsetOfDataTextureOnGPUInstanceData = (glw!.isWebGL2) ? glw!.getAlignedMaxUniformBlockSize() : 0;
 
     if (buffer == null) {
       return;
     }
 
+    const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const bufferSizeInByte = buffer.takenSizeInByte;
-      const height = Math.min(Math.ceil(bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4), MemoryManager.bufferHeightLength);
+      const bufferSizeForDataTextureInByte = buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+      const height = Math.min(Math.ceil(bufferSizeForDataTextureInByte / MemoryManager.bufferWidthLength / 4 / 4), MemoryManager.bufferHeightLength);
       const updateByteSize = MemoryManager.bufferWidthLength * height * 4 * 4;
-      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
-      if (bufferSizeInByte > dataTextureByteSize) {
+      if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
-      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, updateByteSize / 4);
+      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), startOffsetOfDataTextureOnGPUInstanceData, updateByteSize / 4);
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
           level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: height,
@@ -455,16 +407,20 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
         morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
       }
       let paddingArrayBufferSize = 0;
-      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
-      if ((buffer.takenSizeInByte + morphBufferTakenSizeInByte) < dataTextureByteSize) {
-        paddingArrayBufferSize = dataTextureByteSize - (buffer.takenSizeInByte + morphBufferTakenSizeInByte);
+      const sizeForCreatingDataTextureInByte = buffer.takenSizeInByte + morphBufferTakenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+      if (sizeForCreatingDataTextureInByte < dataTextureByteSize) {
+        paddingArrayBufferSize = dataTextureByteSize - sizeForCreatingDataTextureInByte;
       }
 
       let morphBufferArrayBuffer = new ArrayBuffer(0);
       if (morphBuffer != null) {
         morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
-      const finalArrayBuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer(), morphBufferArrayBuffer], [buffer.takenSizeInByte, morphBufferTakenSizeInByte], paddingArrayBufferSize);
+      const finalArrayBuffer = MiscUtil.concatArrayBuffers(
+        [buffer.getArrayBuffer(), morphBufferArrayBuffer],
+        [buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData, morphBufferTakenSizeInByte],
+        [startOffsetOfDataTextureOnGPUInstanceData, 0],
+        paddingArrayBufferSize);
       if (finalArrayBuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
@@ -491,10 +447,25 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
     // Setup Data Texture
     this.__createAndUpdateDataTexture();
+    this.__createAndUpdateUBO();
 
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
+  }
+
+  private __createAndUpdateUBO() {
+    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+      const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
+      const memoryManager: MemoryManager = MemoryManager.getInstance();
+      const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+      if (this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea(new Float32Array(buffer!.getArrayBuffer()));
+      } else {
+        this.__webglResourceRepository.updateUniformBuffer(this.__dataUBOUid, new Float32Array(buffer!.getArrayBuffer()), 0, alignedMaxUniformBlockSize);
+      }
+    }
   }
 
   attachGPUData(primitive: Primitive): void {
@@ -546,7 +517,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
   static getInstance() {
     if (!this.__instance) {
-      this.__instance = new (WebGLStrategyFastestWebGL1)();
+      this.__instance = new (WebGLStrategyFastest)();
     }
 
     return this.__instance;
@@ -570,16 +541,16 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = webvrSystem.getCameraComponentSIDAt(displayIdx);
+      WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = webvrSystem.getCameraComponentSIDAt(displayIdx);
     } else {
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
         cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
       }
       if (cameraComponent) {
-        WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
+        WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
       } else {
-        WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
+        WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
       }
     }
   }
@@ -592,15 +563,15 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {
         index = skeletalComponent.componentSID;
       }
-      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = index;
+      WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = index;
     } else {
-      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = -1;
+      WebGLStrategyFastest.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = -1;
     }
   }
 
   private __setCurrentComponentSIDsForEachPrimitive(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material, entity: Entity) {
-    WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[0] = material.materialSID;
-    gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
+    WebGLStrategyFastest.__currentComponentSIDs!.v[0] = material.materialSID;
+    gl.uniform1fv((WebGLStrategyFastest.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastest.__currentComponentSIDs!.v);
   }
 
   private __getDisplayNumber(isVRMainPass: boolean) {
@@ -669,7 +640,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
             this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
-            WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
+            WebGLStrategyFastest.__shaderProgram = shaderProgram;
             firstTime = true;
           }
           if (this.__lastMaterial !== material) {
@@ -682,7 +653,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
           WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
           material.setParametersForGPU({
-            material: material, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
+            material: material, shaderProgram: WebGLStrategyFastest.__shaderProgram, firstTime: firstTime,
             args: {
               glw: glw,
               entity: entity,
