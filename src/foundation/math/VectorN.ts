@@ -1,6 +1,8 @@
+import { TypedArray } from "../../commontypes/CommonTypes";
+
 export default class VectorN {
-  public v: Float32Array;
-  constructor(float32Array: Float32Array) {
-    this.v = float32Array;
+  public v: TypedArray;
+  constructor(typedArray: TypedArray) {
+    this.v = typedArray;
   }
 }
