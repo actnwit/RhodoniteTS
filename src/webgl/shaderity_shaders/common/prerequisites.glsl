@@ -1,5 +1,8 @@
 uniform float u_materialSID; // skipProcess=true
 uniform sampler2D u_dataTexture; // skipProcess=true
+/* shaderity: @{widthOfDataTexture} */
+/* shaderity: @{heightOfDataTexture} */
+
 #if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
 /* shaderity: @{dataUBODefinition} */
 #endif

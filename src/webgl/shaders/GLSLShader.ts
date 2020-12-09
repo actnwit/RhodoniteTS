@@ -6,6 +6,7 @@ import { VertexAttributeEnum, VertexAttributeClass } from "../../foundation/defi
 import WebGLResourceRepository from "../WebGLResourceRepository";
 import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 import SystemState from "../../foundation/system/SystemState";
+import MemoryManager from "../../foundation/core/MemoryManager";
 
 export type AttributeNames = Array<string>;
 
@@ -370,6 +371,9 @@ bool processGeometryWithMorphingAndSkinning(
     const dataUboDefinition = webGLResourceRepository.getGlslDataUBODefinitionString();
     return `uniform float u_materialSID;
 uniform sampler2D u_dataTexture;
+const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};
+const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
+
 #if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
   ${dataUboDefinition}
 #endif

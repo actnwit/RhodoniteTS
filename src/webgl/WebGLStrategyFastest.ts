@@ -60,8 +60,6 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   mat4 get_worldMatrix(float instanceId)
   {
     int index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'worldMatrix')} + 4 * int(instanceId);
-    int widthOfDataTexture = ${MemoryManager.bufferWidthLength};
-    int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
     mat4 matrix = fetchMat4(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture);
 
     return matrix;
@@ -70,8 +68,6 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
 
   mat3 get_normalMatrix(float instanceId) {
     int index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'normalMatrix')} + 3 * int(instanceId);
-    int widthOfDataTexture = ${MemoryManager.bufferWidthLength};
-    int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
     mat3 matrix = fetchMat3(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture);
     return matrix;
   }
@@ -81,8 +77,6 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     vec3 position = basePosition;
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
       int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
-      int widthOfDataTexture = ${MemoryManager.bufferWidthLength};
-      int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
       vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
@@ -273,8 +267,6 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
 ${returnType} get_${methodName}(highp float _instanceId, const int index) {
   int instanceId = int(_instanceId);
   ${indexStr}
-  int widthOfDataTexture = ${MemoryManager.bufferWidthLength};
-  int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
   `;
     }
 
