@@ -140,7 +140,7 @@ mat3 get_normalMatrix(float instanceId) {
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
-      int index = int(u_dataTextureMorphOffsetPosition[i]) + 1 * int(vertexId);
+      int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
       vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
@@ -250,15 +250,12 @@ mat3 get_normalMatrix(float instanceId) {
       if (buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
-      let paddingArrayBufferSize = 0;
-      if ((buffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
-        paddingArrayBufferSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte;
-      }
+      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
       const concatArrayBuffer = MiscUtil.concatArrayBuffers(
         [buffer.getArrayBuffer()],
         [buffer.takenSizeInByte],
         [0],
-        paddingArrayBufferSize);
+        dataTextureByteSize);
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {

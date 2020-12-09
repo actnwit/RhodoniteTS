@@ -15,6 +15,7 @@ import Scalar from './Scalar';
 import MutableQuaternion from './MutableQuaternion';
 import MutableScalar from './MutableScalar';
 import VectorN from './VectorN';
+import { TypedArray } from '../../commontypes/CommonTypes';
 
 export default class MathClassUtil {
   private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();
@@ -452,7 +453,7 @@ export default class MathClassUtil {
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
     } else if (objForDetectType instanceof VectorN) {
-      let valArray: Float32Array;
+      let valArray: TypedArray;
       if (val instanceof VectorN) {
         valArray = val.v;
       } else {

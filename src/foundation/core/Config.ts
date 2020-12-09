@@ -13,9 +13,10 @@ let dataTextureWidth = Math.pow(2, 12);
 let dataTextureHeight = Math.pow(2, 12);
 let boneDataType = BoneDataType.Vec4x2;
 let noWebGLTex2DStateCache = false;
+let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 
 export default {
   maxEntityNumber, maxLightNumberInShader, maxVertexMorphNumberInShader, maxMaterialInstanceForEachType, boneDataType,
   maxSkeletonNumber, maxCameraNumber, maxSizeLimitOfNonCompressedTexture, maxSkeletalBoneNumber, dataTextureWidth, dataTextureHeight,
-  noWebGLTex2DStateCache
+  noWebGLTex2DStateCache, totalSizeOfGPUShaderDataStorageExceptMorphData
 };

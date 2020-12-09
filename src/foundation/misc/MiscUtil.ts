@@ -1,4 +1,5 @@
-import { Byte } from "../../commontypes/CommonTypes";
+import { off } from "process";
+import { Byte, Size } from "../../commontypes/CommonTypes";
 
 const isMobile = function () {
   const ua = [
@@ -56,18 +57,83 @@ const isNode = function () {
   return (typeof process !== "undefined" && typeof require !== "undefined");
 }
 
-const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], paddingSize: Byte) {
-  var sumLength = 0;
-  for (var i = 0; i < sizes.length; ++i) {
+const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], finalSize?: Byte) {
+  let sumLength = 0;
+  for (let i = 0; i < sizes.length; ++i) {
     sumLength += sizes[i];
   }
-  var whole = new Uint8Array(sumLength + paddingSize);
-  var pos = 0;
-  for (var i = 0; i < segments.length; ++i) {
-    whole.set(new Uint8Array(segments[i+offsets[i]], 0, sizes[i]), pos);
-    pos += sizes[i];
+  let whole: Uint8Array;
+  if (finalSize != null) {
+    whole = new Uint8Array(finalSize);
+  } else {
+    whole = new Uint8Array(sumLength);
+  }
+
+  const getExceededSize = (sizeToAdd: Size) => {
+    if (finalSize != null && offsetOfBase + sizeToAdd > finalSize) {
+      return offsetOfBase + sizeToAdd - finalSize;
+    } else {
+      return 0;
+    }
+  };
+  let offsetOfBase = 0;
+  const addData = (sizeToAdd: Size, i: number) => {
+    const exceededSize = getExceededSize(sizeToAdd);
+    if (exceededSize) {
+      whole.set(new Uint8Array(segments[i], offsets[i], exceededSize), offsetOfBase);
+      offsetOfBase += exceededSize;
+      return true;
+    } else {
+      whole.set(new Uint8Array(segments[i], offsets[i], sizeToAdd), offsetOfBase);
+      offsetOfBase += sizeToAdd;
+      return false;
+    }
+  }
+  const addOverSizeData = (overSize: Size) => {
+    const exceededSize = getExceededSize(overSize);
+    if (exceededSize) {
+      whole.set(new Uint8Array(exceededSize), offsetOfBase);
+      offsetOfBase += exceededSize;
+      return true;
+    } else {
+      whole.set(new Uint8Array(overSize), offsetOfBase);
+      offsetOfBase += overSize;
+      return false;
+    }
+  }
+
+  for (let i = 0; i < segments.length; ++i) {
+    const delta = sizes[i] + offsets[i] - segments[i].byteLength;
+    const overSize = delta > 0 ? delta : 0;
+    const sizeToAdd = sizes[i] - overSize;
+    if (addData(sizeToAdd, i)) {
+      return whole.buffer;
+    }
+    if (overSize > 0) {
+      if (addOverSizeData(overSize)) {
+        return whole.buffer;
+      }
+    }
+  }
+  if (finalSize != null && offsetOfBase < finalSize) {
+    whole.set(new Uint8Array(finalSize - offsetOfBase), offsetOfBase);
   }
   return whole.buffer;
 }
+
+
+// const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], paddingSize: Byte) {
+//   var sumLength = 0;
+//   for (var i = 0; i < sizes.length; ++i) {
+//     sumLength += sizes[i];
+//   }
+//   var whole = new Uint8Array(sumLength + paddingSize);
+//   var pos = 0;
+//   for (var i = 0; i < segments.length; ++i) {
+//     whole.set(new Uint8Array(segments[i+offsets[i]], 0, sizes[i]), pos);
+//     pos += sizes[i];
+//   }
+//   return whole.buffer;
+// }
 
 export const MiscUtil = Object.freeze({ isMobile, isIOS, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode, concatArrayBuffers });

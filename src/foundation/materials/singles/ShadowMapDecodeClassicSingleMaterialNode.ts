@@ -152,9 +152,9 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
           initialValue: new Scalar(0), min: 0, max: Config.maxVertexMorphNumberInShader, needUniformInFastest: true
         },
         {
-          semantic: ShaderSemantics.DataTextureMorphOffsetPosition, componentType: ComponentType.Float, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader,
+          semantic: ShaderSemantics.DataTextureMorphOffsetPosition, componentType: ComponentType.Int, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader, isSystem: true, soloDatum: true,
-          initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
+          initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
         },
         {
           semantic: ShaderSemantics.MorphWeights, componentType: ComponentType.Float, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader,

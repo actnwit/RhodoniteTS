@@ -50,6 +50,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
+  public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 
   private constructor() { }
 
@@ -76,7 +77,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
-      int index = int(u_dataTextureMorphOffsetPosition[i]) + 1 * int(vertexId);
+      int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
       vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
@@ -401,41 +402,76 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
         });
       }
     } else {
+      
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
       let morphBufferTakenSizeInByte = 0;
-      if (morphBuffer != null) {
-        morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
-      }
-      let paddingArrayBufferSize = 0;
-      const sizeForCreatingDataTextureInByte = buffer.takenSizeInByte + morphBufferTakenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
-      if (sizeForCreatingDataTextureInByte < dataTextureByteSize) {
-        paddingArrayBufferSize = dataTextureByteSize - sizeForCreatingDataTextureInByte;
-      }
-
       let morphBufferArrayBuffer = new ArrayBuffer(0);
       if (morphBuffer != null) {
+        morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
         morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
-      const finalArrayBuffer = MiscUtil.concatArrayBuffers(
-        [buffer.getArrayBuffer(), morphBufferArrayBuffer],
-        [buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData, morphBufferTakenSizeInByte],
-        [startOffsetOfDataTextureOnGPUInstanceData, 0],
-        paddingArrayBufferSize);
-      if (finalArrayBuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
-        console.warn('The buffer size exceeds the size of the data texture.');
-      }
-      const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
 
-      const height = MemoryManager.bufferHeightLength;
+      const restSizeOfDataTexture = dataTextureByteSize - morphBufferTakenSizeInByte;
+      let floatDataTextureBuffer: Float32Array;
+      // if (restSizeOfDataTexture > buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData) {
+      //   let totalSizeOfDataTextureExceptMorphData = dataTextureByteSize - morphBufferTakenSizeInByte;
+      //   const threshold = 5000000; // Due to limitation of SAFE_MAX_INTEGER is limited around 16000000 in fp32
+      //   if (totalSizeOfDataTextureExceptMorphData / 4 / 4 > threshold) {
+      //     totalSizeOfDataTextureExceptMorphData = threshold * 4 * 4;
+      //   }
+
+      //   totalSizeOfDataTextureExceptMorphData -= totalSizeOfDataTextureExceptMorphData % 16; // taking account for vec4 unit memory aligne
+      //   const extraSpaceTexel = (totalSizeOfDataTextureExceptMorphData / 4 / 4) % MemoryManager.bufferWidthLength;
+      //   const totalSizeOfDataTexture = totalSizeOfDataTextureExceptMorphData - extraSpaceTexel * 4 * 4;
+
+
+      //   const finalArrayBuffer = MiscUtil.concatArrayBuffers(
+      //     [buffer.getArrayBuffer(), morphBufferArrayBuffer],
+      //     [totalSizeOfDataTexture, morphBufferTakenSizeInByte],
+      //     [startOffsetOfDataTextureOnGPUInstanceData, 0],
+      //     dataTextureByteSize);
+      //   floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
+      //   Config.totalSizeOfGPUShaderDataStorageExceptMorphData = totalSizeOfDataTexture;
+      // } else {
+      {
+        const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
+        let morphBufferTakenSizeInByte = 0;
+        if (morphBuffer != null) {
+          morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
+        }
+
+        let morphBufferArrayBuffer = new ArrayBuffer(0);
+        if (morphBuffer != null) {
+          morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
+        }
+        const actualSpaceForDataTextureInByte = buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+        const spareSpaceTexel = MemoryManager.bufferWidthLength - (actualSpaceForDataTextureInByte / 4 / 4) % MemoryManager.bufferWidthLength;
+        const spareSpaceBytes = spareSpaceTexel * 4 * 4;
+        const finalArrayBuffer = MiscUtil.concatArrayBuffers(
+          [buffer.getArrayBuffer(), morphBufferArrayBuffer],
+          [actualSpaceForDataTextureInByte + spareSpaceBytes, morphBufferTakenSizeInByte],
+          [startOffsetOfDataTextureOnGPUInstanceData, 0],
+          dataTextureByteSize);
+        // if (finalArrayBuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
+        if (actualSpaceForDataTextureInByte + spareSpaceBytes + morphBufferTakenSizeInByte > dataTextureByteSize) {
+          console.warn('The buffer size exceeds the size of the data texture.');
+        }
+        floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
+        Config.totalSizeOfGPUShaderDataStorageExceptMorphData = buffer.takenSizeInByte + spareSpaceBytes;
+
+      }
+      
+
+      // write data
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: height,
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer!, {
+          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
           border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
           wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: true
         });
       } else {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: height,
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer!, {
+          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
           border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
           wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false, isPremultipliedAlpha: true
         });
@@ -571,7 +607,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
 
   private __setCurrentComponentSIDsForEachPrimitive(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material, entity: Entity) {
     WebGLStrategyFastest.__currentComponentSIDs!.v[0] = material.materialSID;
-    gl.uniform1fv((WebGLStrategyFastest.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastest.__currentComponentSIDs!.v);
+    gl.uniform1fv((WebGLStrategyFastest.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastest.__currentComponentSIDs!.v as Float32Array);
   }
 
   private __getDisplayNumber(isVRMainPass: boolean) {
