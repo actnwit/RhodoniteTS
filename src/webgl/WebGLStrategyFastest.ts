@@ -76,7 +76,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
-      int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
+      int index = int(u_dataTextureMorphOffsetPosition[i]) + 1 * int(vertexId);
       vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
