@@ -20,7 +20,7 @@ import Vector4 from "../foundation/math/Vector4";
 import { RenderBufferTarget } from "../foundation/definitions/RenderBufferTarget";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
-import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../commontypes/CommonTypes";
+import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle, Byte } from "../commontypes/CommonTypes";
 import DataUtil from "../foundation/misc/DataUtil";
 import RenderBuffer from "../foundation/textures/RenderBuffer";
 import { BasisFile } from "../commontypes/BasisTexture";
@@ -1346,12 +1346,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  updateUniformBuffer(uboUid: WebGLResourceHandle, bufferView: TypedArray | DataView) {
+  updateUniformBuffer(uboUid: WebGLResourceHandle, arrayBuffer: ArrayBuffer, offsetByte: Byte, byteLength: Byte) {
     const gl = this.__glw!.getRawContext();
     const ubo = this.getWebGLResource(uboUid);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);
+    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, arrayBuffer, offsetByte, byteLength);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
 
@@ -1394,7 +1394,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.deleteBuffer(ubo);
   }
 
-  setupUniformBufferDataArea(typedArray?: TypedArray) {
+  setupUniformBufferDataArea(arrayBuffer?: ArrayBuffer) {
     const gl = this.__glw!.getRawContext();
 
     if (gl == null) {
@@ -1406,9 +1406,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, ubo!);
 
     const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
-    const array = typedArray ? typedArray : new Float32Array(alignedMaxUniformBlockSize / 4);
+    const array = arrayBuffer ? arrayBuffer : new Float32Array(alignedMaxUniformBlockSize / 4);
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    gl.bufferData(gl.UNIFORM_BUFFER, array, gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.UNIFORM_BUFFER, array, gl.DYNAMIC_DRAW, 0, alignedMaxUniformBlockSize);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
 
     const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();

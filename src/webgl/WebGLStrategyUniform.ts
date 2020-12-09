@@ -258,7 +258,11 @@ mat3 get_normalMatrix(float instanceId) {
       if ((buffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
         paddingArrayBufferSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte;
       }
-      const concatArrayBuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer()], [buffer.takenSizeInByte], paddingArrayBufferSize);
+      const concatArrayBuffer = MiscUtil.concatArrayBuffers(
+        [buffer.getArrayBuffer()],
+        [buffer.takenSizeInByte],
+        [0],
+        paddingArrayBufferSize);
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
