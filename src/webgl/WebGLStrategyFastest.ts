@@ -461,9 +461,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
       const memoryManager: MemoryManager = MemoryManager.getInstance();
       const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
       if (this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea(buffer!.getArrayBuffer());
+        this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea(new Float32Array(buffer!.getArrayBuffer()));
       } else {
-        this.__webglResourceRepository.updateUniformBuffer(this.__dataUBOUid, buffer!.getArrayBuffer(), 0, alignedMaxUniformBlockSize);
+        this.__webglResourceRepository.updateUniformBuffer(this.__dataUBOUid, new Float32Array(buffer!.getArrayBuffer()), 0, alignedMaxUniformBlockSize);
       }
     }
   }

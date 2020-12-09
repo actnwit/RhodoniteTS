@@ -1346,12 +1346,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  updateUniformBuffer(uboUid: WebGLResourceHandle, arrayBuffer: ArrayBuffer, offsetByte: Byte, byteLength: Byte) {
+  updateUniformBuffer(uboUid: WebGLResourceHandle, typedArray: TypedArray, offsetByte: Byte, byteLength: Byte) {
     const gl = this.__glw!.getRawContext();
     const ubo = this.getWebGLResource(uboUid);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, arrayBuffer, offsetByte, byteLength);
+    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, typedArray, offsetByte, byteLength);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
 
@@ -1394,7 +1394,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.deleteBuffer(ubo);
   }
 
-  setupUniformBufferDataArea(arrayBuffer?: ArrayBuffer) {
+  setupUniformBufferDataArea(typedArray?: TypedArray) {
     const gl = this.__glw!.getRawContext();
 
     if (gl == null) {
@@ -1406,7 +1406,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, ubo!);
 
     const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
-    const array = arrayBuffer ? arrayBuffer : new Float32Array(alignedMaxUniformBlockSize / 4);
+    const array = typedArray ? typedArray : new Float32Array(alignedMaxUniformBlockSize / 4);
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
     gl.bufferData(gl.UNIFORM_BUFFER, array, gl.DYNAMIC_DRAW, 0, alignedMaxUniformBlockSize);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
@@ -1426,11 +1426,31 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     for (let i=0; i<maxConventionblocks; i++) {
       text += `
 layout (std140) uniform Vec4Block${i} {
-  vec4 vec4Data${i}[${alignedMaxUniformBlockSize/4/4}];
+  vec4 vec4Block${i}[${alignedMaxUniformBlockSize/4/4}];
 };
 `    
     }
+
+    text += `
+vec4 fetchVec4FromVec4Block(int vec4Idx) {
+  int vec4IdxForEachBlock = vec4Idx % dataUBOVec4Size;
+  if (vec4Idx < dataUBOVec4Size) {
+    return vec4Block0[vec4IdxForEachBlock];
+  }`;
+    for (let i=1; i<maxConventionblocks; i++) {
+      text += `
+ else if (vec4Idx < dataUBOVec4Size * ${i+1}) {
+    return vec4Block${i}[vec4IdxForEachBlock];
+}`;
+    }
+    text += '}\n';
+    
     return text;
+  }
+
+  getGlslDataUBOVec4SizeString() {
+    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    return `const int dataUBOVec4Size = ${alignedMaxUniformBlockSize / 4 / 4};`;
   }
 
   createTransformFeedback() {

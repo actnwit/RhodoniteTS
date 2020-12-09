@@ -4,6 +4,7 @@ uniform sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{heightOfDataTexture} */
 
 #if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
+/* shaderity: @{dataUBOVec4Size} */
 /* shaderity: @{dataUBODefinition} */
 #endif
 
@@ -18,15 +19,25 @@ uniform sampler2D u_dataTexture; // skipProcess=true
   // }
 
 highp vec4 fetchElement(highp sampler2D tex, int index, int texWidth, int texHeight) {
-#ifdef GLSL_ES3
-  highp ivec2 uv = ivec2(index % texWidth, index / texWidth);
-  return texelFetch( tex, uv, 0 );
+#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
+  if (index < dataUBOVec4Size) {
+    return fetchVec4FromVec4Block(index);
+  } else {
+    int idxOnDataTex = index - dataUBOVec4Size;
+    highp ivec2 uv = ivec2(idxOnDataTex % texWidth, idxOnDataTex / texWidth);
+    return texelFetch( tex, uv, 0 );
+  }
+
 #else
   highp vec2 invSize = vec2(1.0/float(texWidth), 1.0/float(texHeight));
   highp float t = (float(index) + 0.5) * invSize.x;
   highp float x = fract(t);
   highp float y = (floor(t) + 0.5) * invSize.y;
-  return texture2D( tex, vec2(x, y) );
+#ifdef GLSL_ES3  
+  return texture( tex, vec2(x, y));
+#else
+  return texture2D( tex, vec2(x, y));
+#endif
 #endif
 }
 

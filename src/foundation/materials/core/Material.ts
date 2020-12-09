@@ -515,12 +515,14 @@ export default class Material extends RnObject {
           getters: vertexPropertiesStr,
           definitions: definitions,
           dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+          dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
           matricesGetters: vertexShaderMethodDefinitions_uniform
         })
       pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, {
         getters: pixelPropertiesStr,
         definitions: definitions,
-        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString()
+        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+        dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString()
       });
     } else {
       vertexShaderBody = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });

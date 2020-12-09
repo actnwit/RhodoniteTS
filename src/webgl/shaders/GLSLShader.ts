@@ -369,12 +369,14 @@ bool processGeometryWithMorphingAndSkinning(
   get prerequisites() {
     const webGLResourceRepository = WebGLResourceRepository.getInstance();
     const dataUboDefinition = webGLResourceRepository.getGlslDataUBODefinitionString();
+    const dataUBOVec4SizeStr = webGLResourceRepository.getGlslDataUBOVec4SizeString();
     return `uniform float u_materialSID;
 uniform sampler2D u_dataTexture;
 const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};
 const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
 
 #if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
+  ${dataUBOVec4SizeStr}
   ${dataUboDefinition}
 #endif
 
@@ -387,30 +389,25 @@ const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
   //   return ${this.glsl_texture}( tex, arg * (index + 0.5) );
   // }
 
-// highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize){
-//   highp float t = (index + 0.5) * invSize.x;
-//   highp float x = fract(t);
-//   highp float y = (floor(t) + 0.5) * invSize.y;
-//   return ${this.glsl_texture}( tex, vec2(x, y) );
-// }
-
-// #ifdef GLSL_ES3
-// highp vec4 fetchElement(highp sampler2D tex, highp int index, highp int width){
-//   highp ivec2 uv = ivec2(index % width, index / width);
-//   return texelFetch( tex, uv, 0 );
-// }
-// #endif
-
 highp vec4 fetchElement(highp sampler2D tex, int index, int texWidth, int texHeight) {
-#ifdef GLSL_ES3
-  highp ivec2 uv = ivec2(index % texWidth, index / texWidth);
-  return texelFetch( tex, uv, 0 );
+#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
+  if (index < dataUBOVec4Size) {
+    return fetchVec4FromVec4Block(index);
+  } else {
+    int idxOnDataTex = index - dataUBOVec4Size;
+    highp ivec2 uv = ivec2(idxOnDataTex % texWidth, idxOnDataTex / texWidth);
+    return texelFetch( tex, uv, 0 );
+  }
 #else
   highp vec2 invSize = vec2(1.0/float(texWidth), 1.0/float(texHeight));
   highp float t = (float(index) + 0.5) * invSize.x;
   highp float x = fract(t);
   highp float y = (floor(t) + 0.5) * invSize.y;
-  return ${this.glsl_texture}( tex, vec2(x, y) );
+#ifdef GLSL_ES3  
+  return texture( tex, vec2(x, y));
+#else
+  return texture2D( tex, vec2(x, y));
+#endif
 #endif
 }
 
