@@ -730,7 +730,7 @@ vec3 descramble(vec3 v) {
     vec3 binormal_inWorld = normalize(v_binormal_inWorld);
     mat3 tbnMat_tangent_to_world = mat3(tangent_inWorld, binormal_inWorld, normal_inWorld);
 
-    vec3 normal = texture2D(u_normalTexture, texcoord).xyz * 2.0 - 1.0;
+    vec3 normal = ${this.glsl_texture}(u_normalTexture, texcoord).xyz * 2.0 - 1.0;
     return normalize(tbnMat_tangent_to_world * normal);
   }
 #else
@@ -757,7 +757,7 @@ vec3 descramble(vec3 v) {
     }
 
     vec3 perturb_normal(vec3 normal, vec3 viewVector, vec2 texcoord) {
-      vec3 normalTex = texture2D(u_normalTexture, texcoord).xyz * 2.0 - 1.0;
+      vec3 normalTex = ${this.glsl_texture}(u_normalTexture, texcoord).xyz * 2.0 - 1.0;
 
       mat3 tbnMat_tangent_to_world = cotangent_frame(normal, -viewVector, texcoord);
       return normalize(tbnMat_tangent_to_world * normalTex);
