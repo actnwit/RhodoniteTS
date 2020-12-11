@@ -107,11 +107,6 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float rot = iblParameter.w + 3.1415;
-  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-
   #ifdef RN_USE_NORMAL_TEXTURE
     vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
     float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
@@ -248,6 +243,11 @@ void main ()
 //    rt0.xyz += diffuseContrib * vec3(NL) * incidentLight.rgb;
 //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
   }
+
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  float rot = iblParameter.w + 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
   vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 
