@@ -24,13 +24,15 @@ in vec3 v_baryCentricCoord;
 
 /* shaderity: @{getters} */
 
-vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
+vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float userRoughness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float mipCount = iblParameter.x;
-  float lod = (userRoughness * (mipCount - 1.0));
+  float rot = iblParameter.w + 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  normal_forEnv.x *= -1.0;
+  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, normal_forEnv);
 
-  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
   if (hdriFormat.x == 0) {
@@ -45,6 +47,10 @@ vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 
     diffuseLight = diffuseTexel.rgb;
   }
 
+  float mipCount = iblParameter.x;
+  float lod = (userRoughness * (mipCount - 1.0));
+
+  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 #pragma shaderity: require(./fetchCubeTexture.glsl)
 
   vec3 specularLight;
@@ -244,15 +250,7 @@ void main ()
 //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
   }
 
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float rot = iblParameter.w + 3.1415;
-  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-
-  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-
-  vec3 F = fresnel(F0, NV);
-  vec3 ibl = IBLContribution(materialSID, normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NV, viewDirection, albedo, F0, userRoughness);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
