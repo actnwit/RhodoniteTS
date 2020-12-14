@@ -70,7 +70,7 @@ void main()
 
   #ifdef RN_USE_TANGENT_ATTRIBUTE
     v_tangent_inWorld = normalMatrix * a_tangent.xyz;
-    v_binormal_inWorld = cross(v_normal_inWorld, v_tangent_inWorld) * a_tangent.w;
+    v_binormal_inWorld = cross(v_tangent_inWorld, v_normal_inWorld) * a_tangent.w;
   #endif
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
