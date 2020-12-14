@@ -69,10 +69,8 @@ void main()
 
 
   #ifdef RN_USE_TANGENT_ATTRIBUTE
-    vec3 tangent_inWorld = normalMatrix * a_tangent.xyz;
-
-    v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld) * a_tangent.w;
-    v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
+    v_tangent_inWorld = normalMatrix * a_tangent.xyz;
+    v_binormal_inWorld = cross(v_normal_inWorld, v_tangent_inWorld) * a_tangent.w;
   #endif
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
