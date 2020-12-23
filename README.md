@@ -25,27 +25,15 @@ This viewer supports glTF/VRM files Drag & Drop to display.
 Google Chrome, Firefox, Safari, Microsoft Edge (chromium-based), and other modern browsers are supported.
 IE11 is not supported.
 
-## Building Rhodonite
+## Install
 
-### Prerequisites
+You can install the esm version of Rhodonite easily.
 
-* Node.js 12.18.1 or later
-
-### Setup Project
-
-```bash
-$ npm install
+```
+$ npm install rhodonite
 ```
 
-You can use yarn instead.
-
-### Library build command
-
-```bash
-$ npm run build
-```
-
-## How to write the code with Rhodonite
+## Coding with Rhodonite
 
 ### In Javascipt
 
@@ -141,6 +129,34 @@ $ npx tsc ./main.ts --lib es2015,dom --target es2015 --module umd --moduleResolu
 
 For detail, See the typescript-based samples like ./samples/simple/VideoTexture/main.ts .
 
+## Try Samples
+
+```bash
+$ npm run start
+```
+
+Then, access http://localhost:8082/ with your web browser.
+
+## Building Rhodonite
+
+### Prerequisites
+
+* Node.js 12.18.1 or later
+
+### Setup Project
+
+```bash
+$ npm install
+```
+
+You can use yarn instead.
+
+### Library build command
+
+```bash
+$ npm run build
+```
+
 ## Building API Documents
 
 ```bash
@@ -156,20 +172,12 @@ $ npm run test
 Some of the E2E (visual) tests might fail due to GPU environment differences.
 The official test environment is our Github Action CI Runner instance.
 
-## Trying Samples
-
-```bash
-$ npm run start
-```
-
-Then, access http://localhost:8082/ with your web browser.
-
-# Debugging inside VSCode
+## Debugging inside VSCode
 
 1. Install the "Debugger for Chrome" VSCode Extension.
 2. Start the local server with `$ npm run start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
-# License
+## License
 
 MIT License
