@@ -72,25 +72,15 @@ $ npm run build
 
 ### In TypeScript
 
-#### HTML
+There are two package version of Rhodonite: esm (ESModule wrapped in CommonJS) and umd.
 
-```html
-<body>
-  <canvas id="world"></canvas>
-  <script src="../../../dist/rhodonite.min.js"></script>
+#### Using esm package
 
-  <!-- Use require.js when you write your application code in typescript -->
-  <script src="../../../node_modules/requirejs/require.js" data-main="./main.js"></script>
-</body>
-```
-
-#### main.ts (will be compiled to main.js)
+You need a bundler like Webpack to import Rhodonite esm package directly.
 
 ```typescript
 import Rn from 'rhodonite'; // All Rhodonite Objects in this
 import { CameraComponent, RenderPass } from 'rhodonite'; // for type annotations
-
-declare const Rn: RnType;
 
 async function load() {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
@@ -111,11 +101,45 @@ async function load() {
 }
 ```
 
-To build main.ts, Use the following command.
+#### Using umd version for actual object and esm version for type only
+
+You also be able to use `dist/umd/rhodonite.js` or `dist/umd/rhodonite.min.js` for actual Rhodonite object by script tag in HTML file.
+Next, import types from `rhodonite` esm package.
+
+```typescript
+import _Rn from 'rhodonite'; // Use this for adding type annotations to window.Rn in this sample
+import { CameraComponent, RenderPass } from 'rhodonite'; // for type annotations
+
+declare const window: any;
+declare const Rn: typeof _Rn; // Use the window.Rn as Rn
+
+
+async function load() {
+  await Rn.ModuleManager.getInstance().loadModule('webgl');
+  await Rn.ModuleManager.getInstance().loadModule('pbr');
+  const importer = Rn.Gltf1Importer.getInstance();
+  const system = Rn.System.getInstance();
+  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+
+  const entityRepository = Rn.EntityRepository.getInstance();
+
+  // Camera
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
+
+  ...
+  (After that, please refer to the sample codes.)
+  ...
 
 ```
-$ npx tsc ./main.ts --lib es2015,dom --target es5 --module umd --moduleResolution node
+
+In this approach, you don't need any bundler. just compile it by:
+
 ```
+$ npx tsc ./main.ts --lib es2015,dom --target es2015 --module umd --moduleResolution node
+```
+
+For detail, See the typescript-based samples like ./samples/simple/VideoTexture/main.ts .
 
 ## Building API Documents
 
