@@ -87,15 +87,12 @@ $ npm run build
 #### main.ts (will be compiled to main.js)
 
 ```typescript
-import { RnType } from '../../../dist/types/foundation/main'
-import CameraComponent from '../../../dist/types/foundation/components/CameraComponent';
-// import CameraComponent from '../../../src/types/foundation/components/CameraComponent'; // Don't refer from 'src' directory
-import RenderPass from '../../../dist/types/foundation/renderer/RenderPass';
+import Rn from 'rhodonite'; // All Rhodonite Objects in this
+import { CameraComponent, RenderPass } from 'rhodonite'; // for type annotations
 
 declare const Rn: RnType;
 
 async function load() {
-  // All Rhodonite classes you need are in window.Rn object.
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
@@ -106,7 +103,7 @@ async function load() {
 
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
-  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent; // You don't need "Rn." for type annotation
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
 
   ...
   (After that, please refer to the sample codes.)
@@ -149,3 +146,6 @@ Then, access http://localhost:8082/ with your web browser.
 2. Start the local server with `$ npm run start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
+# License
+
+MIT License
