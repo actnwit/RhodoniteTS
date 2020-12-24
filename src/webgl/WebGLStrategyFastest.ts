@@ -24,7 +24,7 @@ import LightComponent from "../foundation/components/LightComponent";
 import Config from "../foundation/core/Config";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
-import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, IndexOf16Bytes } from "../commontypes/CommonTypes";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, IndexOf16Bytes, IndexOf4Bytes } from "../commontypes/CommonTypes";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
@@ -154,18 +154,24 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
   }
 
-  private static __getOffsetOfShaderSemanticsInfo(info: ShaderSemanticsInfo) {
+  private static __getOffsetOfShaderSemanticsInfo(info: ShaderSemanticsInfo): IndexOf4Bytes {
     let offset = 1;
     switch (info.compositionType) {
       case CompositionType.Mat4:
       case CompositionType.Mat4Array:
-        offset = 4;
+        offset = 16;
         break;
       case CompositionType.Mat3:
-        offset = 3;
+      case CompositionType.Mat3Array:
+        offset = 9;
         break;
       case CompositionType.Mat2:
-        offset = 2;
+      case CompositionType.Mat2Array:
+        offset = 4;
+        break;
+      case CompositionType.Scalar:
+      case CompositionType.ScalarArray:
+        offset = 1;
         break;
       default:
       // console.error('unknown composition type', info.compositionType.str, memberName);
