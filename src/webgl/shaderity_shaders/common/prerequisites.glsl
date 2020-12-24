@@ -35,9 +35,29 @@ highp vec4 fetchElement(highp sampler2D tex, int vec4_idx, int texWidth, int tex
 #endif
 }
 
+vec3 fetchVec3No16BytesAligned(highp sampler2D tex, int scalar_idx, int texWidth, int texHeight) {
+
+  vec4 val = fetchElement(u_dataTexture, scalar_idx, texWidth, texHeight);
+
+  return val.xyz;
+}
 
 vec4 fetchVec4(highp sampler2D tex, int vec4_idx, int texWidth, int texHeight) {
-  vec4 val = fetchElement(u_dataTexture, vec4_idx, texWidth, texHeight);
+  return fetchElement(u_dataTexture, vec4_idx, texWidth, texHeight);
+}
+
+float fetchScalarNo16BytesAligned(highp sampler2D tex, int scalar_idx, int texWidth, int texHeight) {
+  vec4 val = fetchElement(u_dataTexture, scalar_idx, texWidth, texHeight);
+  return val.x;
+}
+
+mat2 fetchMat2No16BytesAligned(highp sampler2D tex, int scalar_idx, int texWidth, int texHeight) {
+  vec4 col0 = fetchElement(u_dataTexture, scalar_idx, texWidth, texHeight);
+
+  mat2 val = mat2(
+    col0.x, col0.y,
+    col0.z, col0.w
+    );
 
   return val;
 }
@@ -48,6 +68,20 @@ mat2 fetchMat2(highp sampler2D tex, int vec4_idx, int texWidth, int texHeight) {
   mat2 val = mat2(
     col0.x, col0.y,
     col0.z, col0.w
+    );
+
+  return val;
+}
+
+mat3 fetchMat3No16BytesAligned(highp sampler2D tex, int scalar_idx, int texWidth, int texHeight) {
+  vec4 col0 = fetchElement(u_dataTexture, scalar_idx, texWidth, texHeight);
+  vec4 col1 = fetchElement(u_dataTexture, scalar_idx + 1, texWidth, texHeight);
+  vec4 col2 = fetchElement(u_dataTexture, scalar_idx + 2, texWidth, texHeight);
+
+  mat3 val = mat3(
+    col0.x, col0.y, col0.z,
+    col0.w, col1.x, col1.y,
+    col1.z, col1.w, col2.x
     );
 
   return val;
