@@ -154,7 +154,28 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
   }
 
-  private static __getOffsetOfShaderSemanticsInfo(info: ShaderSemanticsInfo): IndexOf4Bytes {
+
+  private static __getIndexOf16BytesOffsetOfShaderSemanticsInfo(info: ShaderSemanticsInfo): IndexOf16Bytes {
+    let offset = 1;
+    switch (info.compositionType) {
+      case CompositionType.Mat4:
+      case CompositionType.Mat4Array:
+        offset = 4;
+        break;
+      case CompositionType.Mat3:
+        offset = 3;
+        break;
+      case CompositionType.Mat2:
+        offset = 2;
+        break;
+      default:
+      // console.error('unknown composition type', info.compositionType.str, memberName);
+      // return '';
+    }
+    return offset;
+  }
+
+  private static __getIndexOf4BytesOffsetOfShaderSemanticsInfo(info: ShaderSemanticsInfo): IndexOf4Bytes {
     let offset = 1;
     switch (info.compositionType) {
       case CompositionType.Mat4:
@@ -207,23 +228,21 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
         return '';
       }
-      const offset = WebGLStrategyFastest.__getOffsetOfShaderSemanticsInfo(info);
-      for (let i = 0; i < info.maxIndex!; i++) {
-        const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
-        indexArray.push(index)
-      }
-      maxIndex = info.maxIndex!;
-
-      let arrayStr = `int indices[${maxIndex}];`
-      indexArray.forEach((idx, i) => {
-        arrayStr += `\nindices[${i}] = ${idx};`
-      });
+      const offset = WebGLStrategyFastest.__getIndexOf16BytesOffsetOfShaderSemanticsInfo(info);
+      const index: IndexOf16Bytes = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
       if (isWebGL2) {
         indexStr = `
-          ${arrayStr}
-          int vec4_idx = indices[index] + ${offset} * instanceId;
+          int vec4_idx = ${index} + ${offset} * instanceId;
           `;
       } else {
+        for (let i = 0; i < info.maxIndex!; i++) {
+          indexArray.push(index)
+        }
+        maxIndex = info.maxIndex!;
+        let arrayStr = `int indices[${maxIndex}];`
+        indexArray.forEach((idx, i) => {
+          arrayStr += `\nindices[${i}] = ${idx};`
+        });
         indexStr = `
           ${arrayStr}
           int vec4_idx = 0;
@@ -234,8 +253,8 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
             }
           }`;
       }
-    } else { // for non-`index` property (this is general case)
-      const typeSize = WebGLStrategyFastest.__getOffsetOfShaderSemanticsInfo(info);
+    } else { // fzor non-`index` property (this is general case)
+      const typeSize = WebGLStrategyFastest.__getIndexOf16BytesOffsetOfShaderSemanticsInfo(info);
       let dataBeginPos: IndexOf16Bytes = -1;
       if (isGlobalData) {
         const globalDataRepository = GlobalDataRepository.getInstance();
