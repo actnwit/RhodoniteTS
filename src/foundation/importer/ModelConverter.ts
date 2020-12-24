@@ -308,7 +308,7 @@ export default class ModelConverter {
         //   //   }
         //   // }
         //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
-        // } else 
+        // } else
         if (node.mesh) {
           const joints = [];
           for (let i of node.skin.jointsIndices) {
@@ -543,8 +543,7 @@ export default class ModelConverter {
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName] as Gltf2Accessor;
               const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
-              const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferView(attributeRnAccessor);
-              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUVertexData);
+              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
             }
             targets.push(targetMap);
           }
