@@ -132,11 +132,28 @@ type UpdateFunc = (
   => void;
 
 export type ShaderSemanticsInfo = {
-  semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count,
-  compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
-  isSystem: boolean, initialValue?: any, updateInterval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
-  xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean, isComponentData?: boolean, noControlUi?: boolean,
-  needUniformInFastest?: boolean, none_u_prefix?: boolean
+  semantic: ShaderSemanticsEnum,
+  prefix?: string,
+  index?: Count,
+  maxIndex?: Count,
+  compositionType: CompositionTypeEnum,
+  componentType: ComponentTypeEnum,
+  min: number,
+  max: number,
+  valueStep?: number,
+  isSystem: boolean,
+  initialValue?: any,
+  updateInterval?: ShaderVariableUpdateIntervalEnum,
+  stage: ShaderTypeEnum,
+  xName?: string,
+  yName?: string,
+  zName?: string,
+  wName?: string,
+  soloDatum?: boolean,
+  isComponentData?: boolean,
+  noControlUi?: boolean,
+  needUniformInFastest?: boolean,
+  none_u_prefix?: boolean
 };
 
 
@@ -225,6 +242,6 @@ export const ShaderSemantics = Object.freeze({
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChunk, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  fullSemanticStr, getShaderProperty, 
+  fullSemanticStr, getShaderProperty,
   EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights, CurrentComponentSIDs, AlphaCutoff, AlphaTexture
 });

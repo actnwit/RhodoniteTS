@@ -24,7 +24,7 @@ import LightComponent from "../foundation/components/LightComponent";
 import Config from "../foundation/core/Config";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
-import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count } from "../commontypes/CommonTypes";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, IndexOf16Bytes } from "../commontypes/CommonTypes";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
@@ -177,7 +177,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   private __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
-    const indexArray = [];
+    const indexArray: IndexOf16Bytes[] = [];
     let maxIndex = 1;
     let indexStr;
 
@@ -197,7 +197,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     }
 
     // inner contents of 'get_' shader function
-    if (propertyIndex < 0) {
+    if (propertyIndex < 0) { // if the ShaderSemanticsInfo of the property has `index` property
       if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
         return '';
       }
@@ -215,29 +215,30 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       if (isWebGL2) {
         indexStr = `
           ${arrayStr}
-          int idx = 0.0;
-          idx = indices[index] + ${offset} * instanceId;
+          int vec4_idx = indices[index] + ${offset} * instanceId;
           `;
       } else {
         indexStr = `
           ${arrayStr}
-          int idx = 0.0;
+          int vec4_idx = 0;
           for (int i=0; i<${maxIndex}; i++) {
-            idx = indices[i] + ${offset} * instanceId;
+            vec4_idx = indices[i] + ${offset} * instanceId;
             if (i == index) {
               break;
             }
           }`;
       }
-    } else {
+    } else { // for non-`index` property (this is general case)
       const typeSize = WebGLStrategyFastest.__getOffsetOfShaderSemanticsInfo(info);
-      let dataBeginPos = -1;
+      let dataBeginPos: IndexOf16Bytes = -1;
       if (isGlobalData) {
         const globalDataRepository = GlobalDataRepository.getInstance();
-        dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
-        //        let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
+        dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
       } else {
-        dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
+        dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex);
+      }
+      if (dataBeginPos === -1) {
+        console.error('Could not get the location offset of the property.');
       }
 
       let instanceSize = typeSize;
@@ -248,11 +249,11 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       }
 
       if (CompositionType.isArray(info.compositionType)) {
-        indexStr = `int idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${typeSize} * index;`;
+        indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${typeSize} * idxOfArray;`;
       } else if (info.compositionType === CompositionType.Mat4 || info.compositionType === CompositionType.Mat3 || info.compositionType === CompositionType.Mat2) {
-        indexStr = `int idx = ${dataBeginPos} + ${instanceSize} * instanceId;`;
+        indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId;`;
       } else {
-        indexStr = `int idx = ${dataBeginPos} + instanceId;`;
+        indexStr = `int vec4_idx = ${dataBeginPos} + instanceId;`;
       }
     }
 
@@ -265,7 +266,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     let firstPartOfInnerFunc = '';
     if (!isTexture) {
       firstPartOfInnerFunc += `
-${returnType} get_${methodName}(highp float _instanceId, const int index) {
+${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   int instanceId = int(_instanceId);
   ${indexStr}
   `;
@@ -276,19 +277,19 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
     switch (info.compositionType) {
       case CompositionType.Vec4:
       case CompositionType.Vec4Array:
-        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
+        str += `        vec4 col0 = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`
         str += `        highp ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
       case CompositionType.Vec3:
       case CompositionType.Vec3Array:
-        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
+        str += `        vec4 col0 = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`
         str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`; break;
       case CompositionType.Vec2:
       case CompositionType.Vec2Array:
-        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
+        str += `        vec4 col0 = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`
         str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
       case CompositionType.Scalar:
       case CompositionType.ScalarArray:
-        str += `        vec4 col0 = fetchElement(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`
+        str += `        vec4 col0 = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`
         if (info.componentType === ComponentType.Int) {
           str += `        int val = int(col0.x);`;
         } else if (info.componentType === ComponentType.Bool) {
@@ -299,10 +300,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
         break;
       case CompositionType.Mat4:
       case CompositionType.Mat4Array:
-        str += `        mat4 val = fetchMat4(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`;
+        str += `        mat4 val = fetchMat4(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`;
         break;
       case CompositionType.Mat3:
-        str += `        mat3 val = fetchMat3(u_dataTexture, idx, widthOfDataTexture, heightOfDataTexture);\n`;
+        str += `        mat3 val = fetchMat3(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`;
         break;
       default:
         // console.error('unknown composition type', info.compositionType.str, memberName);
@@ -374,7 +375,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
     const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
 
-    
+
     const startOffsetOfDataTextureOnGPUInstanceData = (glw!.isWebGL2) ? glw!.getAlignedMaxUniformBlockSize() : 0;
 
     if (buffer == null) {
@@ -402,7 +403,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
         });
       }
     } else {
-      
+
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
       let morphBufferTakenSizeInByte = 0;
       let morphBufferArrayBuffer = new ArrayBuffer(0);
@@ -460,7 +461,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int index) {
         Config.totalSizeOfGPUShaderDataStorageExceptMorphData = buffer.takenSizeInByte + spareSpaceBytes;
 
       }
-      
+
 
       // write data
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
