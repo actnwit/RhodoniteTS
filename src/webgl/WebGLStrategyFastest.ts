@@ -363,6 +363,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         str += `        mat3 val = fetchMat3(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`; break;
       case CompositionType.Mat3Array:
         str += `        mat3 val = fetchMat3No16BytesAligned(u_dataTexture, scalar_idx, widthOfDataTexture, heightOfDataTexture);\n`; break;
+      case CompositionType.Mat2:
+        str += `        mat2 val = fetchMat2(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n`; break;
+      case CompositionType.Mat2Array:
+        str += `        mat2 val = fetchMat2No16BytesAligned(u_dataTexture, scalar_idx, widthOfDataTexture, heightOfDataTexture);\n`; break;
       default:
         // console.error('unknown composition type', info.compositionType.str, memberName);
         str += '';
