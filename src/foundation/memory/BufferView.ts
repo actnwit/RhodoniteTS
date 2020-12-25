@@ -17,15 +17,17 @@ export default class BufferView extends RnObject {
   private __raw: ArrayBuffer;
   private __isAoS: boolean;
   private __accessors: Array<Accessor> = [];
+  private __byteAlign: Byte;
 
-  constructor({ buffer, byteOffset, byteLength, raw, isAoS }:
-    { buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: ArrayBuffer, isAoS: boolean }) {
+  constructor({ buffer, byteOffset, byteLength, raw, isAoS, byteAlign }:
+    { buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: ArrayBuffer, isAoS: boolean, byteAlign: Byte }) {
     super();
     this.__buffer = buffer;
     this.__byteOffsetInRawArrayBufferOfBuffer = byteOffset;
     this.__byteLength = byteLength;
     this.__raw = raw;
     this.__isAoS = isAoS;
+    this.__byteAlign = byteAlign;
   }
 
   set byteStride(stride: Byte) {
@@ -88,15 +90,15 @@ export default class BufferView extends RnObject {
     return new Uint8Array(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteLength);
   }
 
-  takeAccessor({ compositionType, componentType, count, max, min, byteAlign = 4, arrayLength, normalized = false }:
+  takeAccessor({ compositionType, componentType, count, max, min, arrayLength, normalized = false }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count,
-      max?: number[], min?: number[], byteAlign?: Byte, arrayLength?: Size, normalized?: boolean
+      max?: number[], min?: number[], arrayLength?: Size, normalized?: boolean
     }): Accessor {
 
     const byteStride = this.byteStride;
     const _arrayLength = (arrayLength != null) ? arrayLength : 1;
-
+    const byteAlign = this.__byteAlign;
     const accessor = this.__takeAccessorInner({
       compositionType, componentType, count, byteStride, accessorClass: Accessor,
       max, min, byteAlign, arrayLength: _arrayLength, normalized
@@ -105,7 +107,7 @@ export default class BufferView extends RnObject {
     return accessor;
   }
 
-  takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min, byteAlign = 4, arrayLength, normalized = false }:
+  takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min, byteAlign = 16, arrayLength, normalized = false }:
     {
       compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count,
       byteStride: Byte, max?: number[], min?: number[], byteAlign?: Byte, arrayLength?: Size, normalized?: boolean

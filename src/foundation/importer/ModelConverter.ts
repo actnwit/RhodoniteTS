@@ -174,7 +174,8 @@ export default class ModelConverter {
       const rnBuffer = new Buffer({
         byteLength: buffer.byteLength,
         buffer: buffer.buffer!,
-        name: `gltf2Buffer_0_(${buffer.uri})`
+        name: `gltf2Buffer_0_(${buffer.uri})`,
+        byteAlign: 4
       });
       rnBuffers.push(rnBuffer);
     }
@@ -308,7 +309,7 @@ export default class ModelConverter {
         //   //   }
         //   // }
         //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
-        // } else 
+        // } else
         if (node.mesh) {
           const joints = [];
           for (let i of node.skin.jointsIndices) {
@@ -527,7 +528,7 @@ export default class ModelConverter {
         if (primitive.targets != null) {
 
           // set default number
-          let maxMorphTargetNumber = 4;
+          let maxMorphTargetNumber = Config.maxMorphTargetNumber;
           if (rnLoaderOptions?.maxMorphTargetNumber != null) {
             maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
           }
@@ -543,6 +544,7 @@ export default class ModelConverter {
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName] as Gltf2Accessor;
               const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
+              // targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
               const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferView(attributeRnAccessor);
               targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUVertexData);
             }
@@ -1360,25 +1362,24 @@ export default class ModelConverter {
   }
 
   private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
-    const byteSize = srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */;
+    const byteSize = srcRnAccessor.elementCount * 3 /* vec4 */ * 4 /* bytes */;
     const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
     const dstRnBufferView = dstRnBuffer.takeBufferView({
       byteLengthToNeed: byteSize,
-      byteStride: 4 /* vec4 */ * 4 /* bytes */,
+      byteStride: 3 /* vec4 */ * 4 /* bytes */,
       isAoS: false
     });
 
     const dstRnAccessor = dstRnBufferView.takeAccessor({
-      compositionType: CompositionType.Vec4,
+      compositionType: CompositionType.Vec3,
       componentType: ComponentType.Float,
       count: srcRnAccessor.elementCount,
       max: srcRnAccessor.max,
       min: srcRnAccessor.min,
       normalized: srcRnAccessor.normalized
     });
-    for (let i = 0; i < srcRnAccessor.elementCount; i++) {
-      dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
-    }
+
+    dstRnAccessor.copyBuffer(srcRnAccessor);
 
     return dstRnAccessor;
   }
@@ -1624,7 +1625,8 @@ export default class ModelConverter {
     return new Buffer({
       byteLength: byteLengthOfBufferForDraco,
       buffer: new ArrayBuffer(byteLengthOfBufferForDraco),
-      name: 'Draco'
+      name: 'Draco',
+      byteAlign: 4
     });
   }
 }

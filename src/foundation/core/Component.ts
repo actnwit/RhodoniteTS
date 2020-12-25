@@ -254,7 +254,7 @@ export default class Component extends RnObject {
 
     const bufferViews = this.__bufferViews.get(componentClass)!;
     if (!bufferViews.has(bufferUse)) {
-      const bufferView = buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false, byteAlign: 16 });
+      const bufferView = buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false });
       bufferViews.set(bufferUse, bufferView);
       return bufferView;
     }

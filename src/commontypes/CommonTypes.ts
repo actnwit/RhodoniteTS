@@ -5,6 +5,8 @@ export type TypedArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor
 Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor;
 
 export type Index = number;
+export type IndexOf16Bytes = number;
+export type IndexOf4Bytes = number;
 export type Size = number;
 export type Count = number;
 export type Byte = number;

@@ -45,10 +45,17 @@ export default class MemoryManager {
   private __createBuffer(bufferUse: BufferUseEnum) {
     let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 4/*byte*/ * this.__memorySizeRatios[bufferUse.str];
     const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
+
+    let byteAlign = 4;
+    if (bufferUse == BufferUse.GPUInstanceData || bufferUse == BufferUse.GPUVertexData) {
+      byteAlign = 16;
+    }
+
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
-      name: bufferUse.str
+      name: bufferUse.str,
+      byteAlign: byteAlign
     });
     this.__buffers[buffer.name] = buffer;
 
@@ -69,12 +76,13 @@ export default class MemoryManager {
     return buffer;
   }
 
-  createBufferOnDemand(size: Byte, object: RnObject) {
+  createBufferOnDemand(size: Byte, object: RnObject, byteAlign: Byte) {
     const arrayBuffer = new ArrayBuffer(size);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
-      name: BufferUse.UBOGeneric.toString()
+      name: BufferUse.UBOGeneric.toString(),
+      byteAlign: byteAlign
     });
     this.__buffersOnDemand.set(object.objectUID, buffer);
     return buffer;

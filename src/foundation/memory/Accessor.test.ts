@@ -8,7 +8,9 @@ function createBuffer(byteSize: Byte) {
   const buffer = new Buffer({
     byteLength:arrayBuffer.byteLength,
     buffer: arrayBuffer,
-    name: 'TestBuffer'});
+    name: 'TestBuffer',
+    byteAlign: 4
+  });
 
   return buffer;
 }

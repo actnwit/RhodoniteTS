@@ -1,5 +1,5 @@
 import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, getShaderPropertyFunc } from "../definitions/ShaderSemantics";
-import { Count, Index, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
+import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from "../../commontypes/CommonTypes";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
 import { CompositionType } from "../definitions/CompositionType";
@@ -157,7 +157,6 @@ export default class GlobalDataRepository {
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: alignedByteLength * maxCount,
       byteStride: 0,
-      byteAlign: 16,
       isAoS: false
     });
 
@@ -258,12 +257,12 @@ export default class GlobalDataRepository {
   //   return void 0;
   // }
 
-  getLocationOffsetOfProperty(propertyIndex: Index) {
+  getLocationOffsetOfProperty(propertyIndex: Index): IndexOf16Bytes {
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       return globalPropertyStruct.accessor.byteOffsetInBuffer / 4 / 4;
     }
-    return void 0;
+    return -1;
   }
 
 

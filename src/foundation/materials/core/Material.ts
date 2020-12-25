@@ -14,7 +14,7 @@ import BufferView from "../../memory/BufferView";
 import Accessor from "../../memory/Accessor";
 import ISingleShader from "../../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../../definitions/ShaderType";
-import { Index, CGAPIResourceHandle, Count } from "../../../commontypes/CommonTypes";
+import { Index, CGAPIResourceHandle, Count, IndexOf16Bytes } from "../../../commontypes/CommonTypes";
 import DataUtil from "../../misc/DataUtil";
 import GlobalDataRepository from "../../core/GlobalDataRepository";
 import System from "../../system/System";
@@ -169,7 +169,6 @@ export default class Material extends RnObject {
       bufferView = buffer.takeBufferView({
         byteLengthToNeed: totalByteLength,
         byteStride: 0,
-        byteAlign: 16,
         isAoS: false
       });
       this.__bufferViews.set(materialTypeName, bufferView);
@@ -511,7 +510,7 @@ export default class Material extends RnObject {
     let vertexShaderBody = '';
     let pixelShaderBody = '';
     if (materialNode.vertexShaderityObject != null) {
-      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { 
+      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, {
           getters: vertexPropertiesStr,
           definitions: definitions,
           dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
@@ -574,7 +573,7 @@ export default class Material extends RnObject {
 
   /**
    * @private
-   * @param propertySetter 
+   * @param propertySetter
    */
   _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
     let vertexPropertiesStr = '';
@@ -609,7 +608,7 @@ export default class Material extends RnObject {
     }
   }
 
-  static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index) {
+  static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): IndexOf16Bytes {
     const material = Material.__instancesByTypes.get(materialTypeName)!;
     const info = material.__fieldsInfo.get(propertyIndex)!;
     if (info.soloDatum) {
