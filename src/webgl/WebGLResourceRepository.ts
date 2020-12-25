@@ -303,9 +303,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   private __checkShaderCompileStatus(materialTypeName: string, shader: WebGLShader, shaderText: string) {
-    const gl = this.__glw!.getRawContext();
+    const glw = this.__glw!;
+    const gl = glw!.getRawContext();
 
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    if (glw.isDebugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       console.log('MaterialTypeName: ' + materialTypeName);
       console.log(this.__addLineNumber(shaderText));
       throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
@@ -313,10 +314,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   private __checkShaderProgramLinkStatus(materialTypeName: string, shaderProgram: WebGLProgram, vertexShaderText: string, fragmentShaderText: string) {
-    const gl = this.__glw!.getRawContext();
+    const glw = this.__glw!;
+    const gl = glw!.getRawContext();
 
     // If creating the shader program failed, alert
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+    if (glw.isDebugMode && !gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
       console.log('MaterialTypeName: ' + materialTypeName);
       console.log(this.__addLineNumber('Vertex Shader:'));
       console.log(this.__addLineNumber(vertexShaderText));
