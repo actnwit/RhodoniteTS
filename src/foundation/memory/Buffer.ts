@@ -9,11 +9,13 @@ export default class Buffer extends RnObject {
   private __name: string = '';
   private __takenBytesIndex: Byte = 0;
   private __bufferViews: Array<BufferView> = [];
+  private __byteAlign: Byte;
 
-  constructor({byteLength, buffer, name} : {byteLength: Byte, buffer: ArrayBuffer, name: string}) {
+  constructor({byteLength, buffer, name, byteAlign} : {byteLength: Byte, buffer: ArrayBuffer, name: string, byteAlign: Byte}) {
     super();
     this.__name = name;
     this.__byteLength = byteLength;
+    this.__byteAlign = byteAlign;
 
     if (buffer instanceof Uint8Array) {
       this.__raw = buffer.buffer
@@ -36,7 +38,8 @@ export default class Buffer extends RnObject {
     return this.__raw;
   }
 
-  takeBufferView({byteLengthToNeed, byteStride, isAoS, byteAlign = 4} : {byteLengthToNeed: Byte, byteStride: Byte, isAoS: boolean, byteAlign?: Byte}) {
+  takeBufferView({byteLengthToNeed, byteStride, isAoS} : {byteLengthToNeed: Byte, byteStride: Byte, isAoS: boolean}) {
+    const byteAlign = this.__byteAlign;
     if (byteLengthToNeed % byteAlign !== 0) {
       console.info(`Padding bytes added because byteLengthToNeed must be a multiple of ${byteAlign}.`);
       byteLengthToNeed += byteAlign - (byteLengthToNeed % byteAlign);
@@ -46,7 +49,7 @@ export default class Buffer extends RnObject {
     //   byteStride += 4 - (byteStride % 4);
     // }
 
-    const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: this.__raw, isAoS: isAoS});
+    const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: this.__raw, isAoS: isAoS, byteAlign});
     bufferView.byteStride = byteStride;
     this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
 
@@ -66,7 +69,8 @@ export default class Buffer extends RnObject {
     //   byteStride += 4 - (byteStride % 4);
     // }
 
-    const bufferView = new BufferView({buffer: this, byteOffset: byteOffset + this.__byteOffset, byteLength: byteLengthToNeed, raw: this.__raw, isAoS: isAoS});
+    const byteAlign = this.__byteAlign;
+    const bufferView = new BufferView({buffer: this, byteOffset: byteOffset + this.__byteOffset, byteLength: byteLengthToNeed, raw: this.__raw, isAoS: isAoS, byteAlign});
 
     const takenBytesIndex = Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed + byteOffset + this.__byteOffset;
     if (this.__takenBytesIndex < takenBytesIndex) {

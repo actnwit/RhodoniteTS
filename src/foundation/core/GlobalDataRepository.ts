@@ -157,7 +157,6 @@ export default class GlobalDataRepository {
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: alignedByteLength * maxCount,
       byteStride: 0,
-      byteAlign: 16,
       isAoS: false
     });
 

@@ -89,7 +89,7 @@ export default class Plane extends Primitive {
     const indexSizeInByte = indices.length * 2;
 
     // Create Buffer
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(indexSizeInByte + sumOfAttributesByteSize, this);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(indexSizeInByte + sumOfAttributesByteSize, this, 4);
 
 
     // Index Buffer
@@ -114,7 +114,7 @@ export default class Plane extends Primitive {
       const accessor: AccessorBase = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
-        count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+        count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes(),
       });
       accessor.copyFromTypedArray(attribute);
       attributeAccessors.push(accessor);

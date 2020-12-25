@@ -86,7 +86,7 @@ export default class Sphere extends Primitive {
     });
     const indexSizeInByte = indices.length * 2;
 
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(indexSizeInByte + sumOfAttributesByteSize, this);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(indexSizeInByte + sumOfAttributesByteSize, this, 4);
 
     const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indexSizeInByte /*byte*/, byteStride: 0, isAoS: false});
     const indicesAccessor = indicesBufferView.takeAccessor({

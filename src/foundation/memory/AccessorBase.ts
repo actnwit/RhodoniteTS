@@ -436,6 +436,10 @@ export default class AccessorBase extends RnObject {
     }
   }
 
+  copyBuffer(accessor: Accessor) {
+    (new Uint8Array(this.__raw)).set(new Uint8Array(accessor.__raw), this.__byteOffsetInRawArrayBufferOfBuffer);
+  }
+
   setElementFromAccessor(i: Index, accessor: Accessor, secondIdx?: Index) {
     const j = (secondIdx != null) ? secondIdx : i
     if (this.compositionType.getNumberOfComponents() === 1) {

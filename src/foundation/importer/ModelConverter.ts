@@ -174,7 +174,8 @@ export default class ModelConverter {
       const rnBuffer = new Buffer({
         byteLength: buffer.byteLength,
         buffer: buffer.buffer!,
-        name: `gltf2Buffer_0_(${buffer.uri})`
+        name: `gltf2Buffer_0_(${buffer.uri})`,
+        byteAlign: 4
       });
       rnBuffers.push(rnBuffer);
     }
@@ -1623,7 +1624,8 @@ export default class ModelConverter {
     return new Buffer({
       byteLength: byteLengthOfBufferForDraco,
       buffer: new ArrayBuffer(byteLengthOfBufferForDraco),
-      name: 'Draco'
+      name: 'Draco',
+      byteAlign: 4
     });
   }
 }

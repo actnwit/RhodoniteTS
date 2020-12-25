@@ -169,7 +169,6 @@ export default class Material extends RnObject {
       bufferView = buffer.takeBufferView({
         byteLengthToNeed: totalByteLength,
         byteStride: 0,
-        byteAlign: 16,
         isAoS: false
       });
       this.__bufferViews.set(materialTypeName, bufferView);

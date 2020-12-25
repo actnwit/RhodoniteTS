@@ -142,7 +142,7 @@ export default class Primitive extends RnObject {
     }
 
     const primitive = new Primitive();
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, primitive);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, primitive, 4);
 
     let indicesComponentType;
     let indicesBufferView;
