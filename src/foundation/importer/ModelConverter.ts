@@ -1362,26 +1362,6 @@ export default class ModelConverter {
   }
 
   private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
-    // const byteSize = srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */;
-    // const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
-    // const dstRnBufferView = dstRnBuffer.takeBufferView({
-    //   byteLengthToNeed: byteSize,
-    //   byteStride: 4 /* vec4 */ * 4 /* bytes */,
-    //   isAoS: false
-    // });
-
-    // const dstRnAccessor = dstRnBufferView.takeAccessor({
-    //   compositionType: CompositionType.Vec4,
-    //   componentType: ComponentType.Float,
-    //   count: srcRnAccessor.elementCount,
-    //   max: srcRnAccessor.max,
-    //   min: srcRnAccessor.min,
-    //   normalized: srcRnAccessor.normalized
-    // });
-    // for (let i = 0; i < srcRnAccessor.elementCount; i++) {
-    //   dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
-    // }
-
     const byteSize = srcRnAccessor.elementCount * 3 /* vec4 */ * 4 /* bytes */;
     const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
     const dstRnBufferView = dstRnBuffer.takeBufferView({
@@ -1398,10 +1378,8 @@ export default class ModelConverter {
       min: srcRnAccessor.min,
       normalized: srcRnAccessor.normalized
     });
-    for (let i = 0; i < srcRnAccessor.elementCount; i++) {
-      dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
-    }
-    // dstRnAccessor.copyBuffer(srcRnAccessor);
+
+    dstRnAccessor.copyBuffer(srcRnAccessor);
 
     return dstRnAccessor;
   }
