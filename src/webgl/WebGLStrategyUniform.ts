@@ -139,35 +139,35 @@ mat3 get_normalMatrix(float instanceId) {
 #ifdef RN_IS_MORPHING
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
+    int scalar_idx = 3 * int(vertexId);
+    #ifdef GLSL_ES3
+      int posIn4bytes = scalar_idx % 4;
+    #else
+      int posIn4bytes = int(mod(float(scalar_idx), 4.0));
+    #endif
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
-      // int scalar_idx = u_dataTextureMorphOffsetPosition[i]*4 + (3 * int(vertexId));
-      // #ifdef GLSL_ES3
-      //   int posIn4bytes = scalar_idx % 4;
-      // #else
-      //   int posIn4bytes = int(mod(float(scalar_idx), 4.0));
-      // #endif
 
-      // int basePosIn16bytes = scalar_idx*4 - posIn4bytes;
+      int basePosIn16bytes = u_dataTextureMorphOffsetPosition[i] + (scalar_idx - posIn4bytes)/4;
 
-      // vec3 addPos = vec3(0.0);
-      // if (posIn4bytes == 0) {
-      //   vec4 val = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-      //   addPos = val.xyz;
-      // } else if (posIn4bytes == 1) {
-      //   vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-      //   addPos = vec3(val0.yzw);
-      // } else if (posIn4bytes == 2) {
-      //   vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-      //   vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
-      //   addPos = vec3(val0.zw, val1.x);
-      // } else if (posIn4bytes == 3) {
-      //   vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-      //   vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
-      //   addPos = vec3(val0.w, val1.xy);
-      // }
+      vec3 addPos = vec3(0.0);
+      if (posIn4bytes == 0) {
+        vec4 val = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        addPos = val.xyz;
+      } else if (posIn4bytes == 1) {
+        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        addPos = vec3(val0.yzw);
+      } else if (posIn4bytes == 2) {
+        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
+        addPos = vec3(val0.zw, val1.x);
+      } else if (posIn4bytes == 3) {
+        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
+        addPos = vec3(val0.w, val1.xy);
+      }
 
-      int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
-      vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
+      // int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
+      // vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
 
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
