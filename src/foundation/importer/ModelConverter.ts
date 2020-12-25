@@ -527,7 +527,7 @@ export default class ModelConverter {
         if (primitive.targets != null) {
 
           // set default number
-          let maxMorphTargetNumber = 4;
+          let maxMorphTargetNumber = Config.maxMorphTargetNumber;
           if (rnLoaderOptions?.maxMorphTargetNumber != null) {
             maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
           }
