@@ -190,7 +190,8 @@ void main ()
   vec3 viewDirection = normalize(viewVector);
 
   // NV
-  float NV = clamp(abs(dot(normal_inWorld, viewDirection)), 0.0, 1.0);
+  float NV = dot(normal_inWorld, viewDirection);
+  float satNV = saturateEpsilonToOne(NV);
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
@@ -232,16 +233,19 @@ void main ()
 
     // Fresnel
     vec3 halfVector = normalize(lightDirection + viewDirection);
-    float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
+    float VH = dot(viewDirection, halfVector);
     vec3 F = fresnel(F0, VH);
 
     // Diffuse
     vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
 
     // Specular
-    float NL = clamp(dot(normal_inWorld, lightDirection), 0.0, 1.0);
-    float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
-    vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
+    float NH = dot(normal_inWorld, halfVector);
+    float satNH = saturateEpsilonToOne(NH);
+    float NL = dot(normal_inWorld, lightDirection);
+    float satNL = saturateEpsilonToOne(NL);
+
+    vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, satNV, F, alphaRoughness);
     vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
 
     rt0.xyz += diffuseAndSpecular;
@@ -250,7 +254,7 @@ void main ()
 //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
   }
 
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NV, viewDirection, albedo, F0, userRoughness);
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, userRoughness);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
