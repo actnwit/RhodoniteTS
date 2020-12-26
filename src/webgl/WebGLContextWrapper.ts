@@ -288,19 +288,16 @@ export default class WebGLContextWrapper {
   }
 
   unbindTexture2D(activeTextureIndex: Index) {
-    if (this.__isDebugMode) {
-      delete this.__activeTextures2D[activeTextureIndex];
-    }
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, null);
+    delete this.__activeTextures2D[activeTextureIndex];
   }
 
   unbindTextureCube(activeTextureIndex: Index) {
-    if (this.__isDebugMode) {
-      delete this.__activeTexturesCube[activeTextureIndex];
-    }
+
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, null);
+    delete this.__activeTexturesCube[activeTextureIndex];
   }
 
   unbindTextures() {
