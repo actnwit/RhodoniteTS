@@ -26,4 +26,45 @@ function from(index: number): ProcessApproachEnum|undefined {
   return _from({ typeList, index });
 }
 
-export const ProcessApproach = Object.freeze({ None, UniformWebGL1, UniformWebGL2, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2, FastestWebGL1, FastestWebGL2 });
+const isFastestApproach = (processApproach: ProcessApproachEnum) => {
+  switch (processApproach) {
+    case FastestWebGL1:
+    case FastestWebGL2:
+      return true;
+    default: return false;
+  }
+}
+
+const isUniformApproach = (processApproach: ProcessApproachEnum) => {
+  switch (processApproach) {
+    case UniformWebGL1:
+    case UniformWebGL2:
+      return true;
+    default: return false;
+  }
+}
+
+
+const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
+  switch (processApproach) {
+    case UniformWebGL2:
+    case FastestWebGL2:
+      return true;
+    default: return false;
+  }
+}
+
+
+export const ProcessApproach = Object.freeze({
+  isFastestApproach,
+  isUniformApproach,
+  None,
+  UniformWebGL1,
+  UniformWebGL2,
+  DataTextureWebGL1,
+  DataTextureWebGL2,
+  UBOWebGL2,
+  TransformFeedbackWebGL2,
+  FastestWebGL1,
+  FastestWebGL2,
+});

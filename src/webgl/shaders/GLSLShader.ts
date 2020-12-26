@@ -586,8 +586,7 @@ vec3 descramble(vec3 v) {
 
   get mainPrerequisites() {
     const processApproach = SystemState.currentProcessApproach;
-    if (processApproach === ProcessApproach.FastestWebGL1 ||
-      processApproach === ProcessApproach.FastestWebGL2) {
+    if (ProcessApproach.isFastestApproach(processApproach)) {
       return `
   float materialSID = u_currentComponentSIDs[0];
 
