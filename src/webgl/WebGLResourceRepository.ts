@@ -26,6 +26,8 @@ import RenderBuffer from "../foundation/textures/RenderBuffer";
 import { BasisFile } from "../commontypes/BasisTexture";
 import { BasisCompressionTypeEnum, BasisCompressionType } from "../foundation/definitions/BasisCompressionType";
 import { WebGLExtension } from "./WebGLExtension";
+import { ProcessApproach } from "../foundation/definitions/ProcessApproach";
+import System from "../foundation/system/System";
 
 
 declare var HDRImage: any;
@@ -329,44 +331,51 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  setupUniformLocations(shaderProgramUid: WebGLResourceHandle, dataArray: ShaderSemanticsInfo[]): WebGLProgram {
-    const gl = this.__glw!.getRawContext();
+  setupUniformLocations(shaderProgramUid: WebGLResourceHandle, infoArray: ShaderSemanticsInfo[]): WebGLProgram {
+    const glw = this.__glw!;
+    const gl = glw.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
 
     const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
-    for (let arg of dataArray) {
-      shaderSemanticsInfoMap.set(arg.semantic.str, arg);
+    for (let info of infoArray) {
+      shaderSemanticsInfoMap.set(info.semantic.str, info);
     }
 
-    for (let data of dataArray) {
-      let semanticSingular = data.semantic.str;
+    for (let info of infoArray) {
+      let semanticSingular = info.semantic.str;
 
       let identifier = semanticSingular;
 
-      let shaderVarName = ShaderSemantics.fullSemanticStr(data);
-      if (data.index != null) {
+      let shaderVarName = ShaderSemantics.fullSemanticStr(info);
+      if (info.index != null) {
         if (shaderVarName.match(/\[.+?\]/)) {
-          shaderVarName = shaderVarName.replace(/\[.+?\]/g, `[${data.index}]`);
+          shaderVarName = shaderVarName.replace(/\[.+?\]/g, `[${info.index}]`);
         } else {
-          shaderVarName += `[${data.index}]`;
+          shaderVarName += `[${info.index}]`;
         }
       }
 
-      if (data.none_u_prefix !== true) {
+      if (info.none_u_prefix !== true) {
         shaderVarName = 'u_' + shaderVarName;
       }
-      const location = gl.getUniformLocation(shaderProgram, shaderVarName);
 
+      const isUniformExist = CompositionType.isTexture(info.compositionType) || info.needUniformInFastest || ProcessApproach.isUniformApproach(System.getInstance().processApproach);
 
-      if (data.index != null) {
-        if (shaderProgram[identifier] == null) {
-          shaderProgram[identifier] = [];
+      if (isUniformExist) {
+        const location = gl.getUniformLocation(shaderProgram, shaderVarName);
+
+        if (info.index != null) {
+          if (shaderProgram[identifier] == null) {
+            shaderProgram[identifier] = [];
+          }
+          shaderProgram[identifier][info.index] = location;
+        } else {
+          shaderProgram[identifier] = location;
         }
-        shaderProgram[identifier][data.index] = location;
-      } else {
-        shaderProgram[identifier] = location;
+        if (location == null && glw.isDebugMode) {
+          console.warn(`Rn: Can not get the uniform location: ${shaderVarName}}`);
+        }
       }
-
     }
 
     if (shaderProgram._shaderSemanticsInfoMap != null) {
@@ -495,73 +504,77 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     isVector: boolean, { x, y, z, w }: { x: number | TypedArray | Array<number> | Array<boolean> | boolean, y?: number | boolean, z?: number | boolean, w?: number | boolean }, { firstTime = true, delta }: { firstTime?: boolean, delta?: number }, index?: Count) {
 
     let identifier = semanticStr;
-    let program;
+    let loc: WebGLUniformLocation;
     if (index != null) {
-      program = (shaderProgram as any)[identifier][index];
+      loc = (shaderProgram as any)[identifier][index];
     } else {
-      program = (shaderProgram as any)[identifier];
+      loc = (shaderProgram as any)[identifier];
     }
+    if (loc == null) {
+      return false;
+    }
+    const uLocation: WebGLUniformLocation = loc;
 
     const gl = this.__glw!.getRawContext();
 
     if (isMatrix) {
       if (componentNumber === 4) {
-        gl.uniformMatrix4fv(program, false, x);
+        gl.uniformMatrix4fv(uLocation, false, x);
       } else {
-        gl.uniformMatrix3fv(program, false, x);
+        gl.uniformMatrix3fv(uLocation, false, x);
       }
     } else if (isVector) {
       const componentType = info.componentType === ComponentType.Int || info.componentType === ComponentType.Short || info.componentType === ComponentType.Byte;
       if (componentNumber === 1) {
         if (componentType) {
-          gl.uniform1iv(program, x);
+          gl.uniform1iv(uLocation, x);
         } else {
-          gl.uniform1fv(program, x);
+          gl.uniform1fv(uLocation, x);
         }
       } else if (componentNumber === 2) {
         if (componentType) {
-          gl.uniform2iv(program, x);
+          gl.uniform2iv(uLocation, x);
         } else {
-          gl.uniform2fv(program, x);
+          gl.uniform2fv(uLocation, x);
         }
       } else if (componentNumber === 3) {
         if (componentType) {
-          gl.uniform3iv(program, x);
+          gl.uniform3iv(uLocation, x);
         } else {
-          gl.uniform3fv(program, x);
+          gl.uniform3fv(uLocation, x);
         }
       } else if (componentNumber === 4) {
         if (componentType) {
-          gl.uniform4iv(program, x);
+          gl.uniform4iv(uLocation, x);
         } else {
-          gl.uniform4fv(program, x);
+          gl.uniform4fv(uLocation, x);
         }
       }
     } else {
       const componentType = info.componentType === ComponentType.Int || info.componentType === ComponentType.Short || info.componentType === ComponentType.Byte;
       if (componentNumber === 1) {
         if (componentType) {
-          gl.uniform1i(program, x);
+          gl.uniform1i(uLocation, x);
         } else {
-          gl.uniform1f(program, x);
+          gl.uniform1f(uLocation, x);
         }
       } else if (componentNumber === 2) {
         if (componentType) {
-          gl.uniform2i(program, x, y);
+          gl.uniform2i(uLocation, x, y);
         } else {
-          gl.uniform2f(program, x, y);
+          gl.uniform2f(uLocation, x, y);
         }
       } else if (componentNumber === 3) {
         if (componentType) {
-          gl.uniform3i(program, x, y, z);
+          gl.uniform3i(uLocation, x, y, z);
         } else {
-          gl.uniform3f(program, x, y, z);
+          gl.uniform3f(uLocation, x, y, z);
         }
       } else if (componentNumber === 4) {
         if (componentType) {
-          gl.uniform4i(program, x, y, z, w);
+          gl.uniform4i(uLocation, x, y, z, w);
         } else {
-          gl.uniform4f(program, x, y, z, w);
+          gl.uniform4f(uLocation, x, y, z, w);
         }
       }
     }
