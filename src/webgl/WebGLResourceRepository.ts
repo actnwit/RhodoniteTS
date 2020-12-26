@@ -244,18 +244,19 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
+    const isDebugMode = this.__glw!.isDebugMode;
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
     gl.shaderSource(vertexShader, vertexShaderStr);
     gl.compileShader(vertexShader);
-    if (this.__glw!.isDebugMode) {
+    if (isDebugMode) {
       this.__checkShaderCompileStatus(materialTypeName, vertexShader, vertexShaderStr);
     }
 
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
     gl.shaderSource(fragmentShader, fragmentShaderStr);
     gl.compileShader(fragmentShader);
-    if (this.__glw!.isDebugMode) {
+    if (isDebugMode) {
       this.__checkShaderCompileStatus(materialTypeName, fragmentShader, fragmentShaderStr);
     }
 
@@ -272,7 +273,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
 
     gl.linkProgram(shaderProgram);
-    if (this.__glw!.isDebugMode) {
+    if (isDebugMode) {
       this.__checkShaderProgramLinkStatus(materialTypeName, shaderProgram, vertexShaderStr, fragmentShaderStr);
     }
 
@@ -306,7 +307,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
 
-    if (glw.isDebugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       console.log('MaterialTypeName: ' + materialTypeName);
       console.log(this.__addLineNumber(shaderText));
       throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
@@ -318,7 +319,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = glw!.getRawContext();
 
     // If creating the shader program failed, alert
-    if (glw.isDebugMode && !gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
       console.log('MaterialTypeName: ' + materialTypeName);
       console.log(this.__addLineNumber('Vertex Shader:'));
       console.log(this.__addLineNumber(vertexShaderText));
@@ -1253,7 +1254,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const isWebGL2 = this.__glw!.isWebGL2;
 
     this.__glw!.bindTexture2D(0, texture);
-    
+
     if (isWebGL2 || ArrayBuffer.isView(textureData)) {
       gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, textureData);
     } else {
@@ -1417,7 +1418,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     for (let i=0; i<maxConventionblocks; i++) {
       gl.bindBufferRange(gl.UNIFORM_BUFFER, i, ubo, alignedMaxUniformBlockSize * i, alignedMaxUniformBlockSize);
     }
-    
+
     return resourceHandle;
   }
 
@@ -1430,7 +1431,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 layout (std140) uniform Vec4Block${i} {
   vec4 vec4Block${i}[${alignedMaxUniformBlockSize/4/4}];
 };
-`    
+`
     }
 
     text += `
@@ -1446,7 +1447,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 }`;
     }
     text += '}\n';
-    
+
     return text;
   }
 
