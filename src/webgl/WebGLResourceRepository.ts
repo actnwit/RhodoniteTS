@@ -26,8 +26,7 @@ import RenderBuffer from "../foundation/textures/RenderBuffer";
 import { BasisFile } from "../commontypes/BasisTexture";
 import { BasisCompressionTypeEnum, BasisCompressionType } from "../foundation/definitions/BasisCompressionType";
 import { WebGLExtension } from "./WebGLExtension";
-import { ProcessApproach } from "../foundation/definitions/ProcessApproach";
-import System from "../foundation/system/System";
+import { ProcessApproach, ProcessApproachEnum } from "../foundation/definitions/ProcessApproach";
 
 
 declare var HDRImage: any;
@@ -331,7 +330,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  setupUniformLocations(shaderProgramUid: WebGLResourceHandle, infoArray: ShaderSemanticsInfo[]): WebGLProgram {
+  setupUniformLocations(shaderProgramUid: WebGLResourceHandle, infoArray: ShaderSemanticsInfo[], isUniformOnlyMode: boolean): WebGLProgram {
     const glw = this.__glw!;
     const gl = glw.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
@@ -359,7 +358,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         shaderVarName = 'u_' + shaderVarName;
       }
 
-      const isUniformExist = CompositionType.isTexture(info.compositionType) || info.needUniformInFastest || ProcessApproach.isUniformApproach(System.getInstance().processApproach);
+      const isUniformExist = CompositionType.isTexture(info.compositionType) || info.needUniformInFastest || isUniformOnlyMode;
 
       if (isUniformExist) {
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);

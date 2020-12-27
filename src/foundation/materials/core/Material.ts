@@ -395,7 +395,7 @@ export default class Material extends RnObject {
     return void 0;
   }
 
-  setUniformLocations(shaderProgramUid: CGAPIResourceHandle) {
+  setUniformLocations(shaderProgramUid: CGAPIResourceHandle, isUniformOnlyMode: boolean) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const map: Map<string, ShaderSemanticsInfo> = new Map();
     let array: ShaderSemanticsInfo[] = [];
@@ -404,7 +404,7 @@ export default class Material extends RnObject {
       array = array.concat(semanticsInfoArray);
     });
 
-    webglResourceRepository.setupUniformLocations(shaderProgramUid, array);
+    webglResourceRepository.setupUniformLocations(shaderProgramUid, array, isUniformOnlyMode);
   }
 
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {

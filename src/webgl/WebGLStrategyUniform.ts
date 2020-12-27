@@ -185,9 +185,9 @@ mat3 get_normalMatrix(float instanceId) {
     const glw = webglResourceRepository.currentWebGLContextWrapper!
     const gl = glw.getRawContext();
     material.createProgram(WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty, glw.isWebGL2);
-    webglResourceRepository.setupUniformLocations(material._shaderProgramUid, infoArray);
-    material.setUniformLocations(material._shaderProgramUid);
-    WebGLStrategyUniform.__globalDataRepository.setUniformLocations(material._shaderProgramUid);
+    webglResourceRepository.setupUniformLocations(material._shaderProgramUid, infoArray, true);
+    material.setUniformLocations(material._shaderProgramUid, true);
+    WebGLStrategyUniform.__globalDataRepository.setUniformLocations(material._shaderProgramUid, true);
 
     const shaderProgram = webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
     (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
