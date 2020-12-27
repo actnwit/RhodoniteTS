@@ -12,6 +12,14 @@ Rhodonite is a WebGL library written in TypeScript.
 * Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
 * Support [Basis Universal](https://github.com/BinomialLLC/basis_universal) Compressed Texture
 
+## What's the "Blittable Memory Architecture"
+
+With the Blittable Memory Architecture, Rhodonite stores almost all of its data in a large pre-allocated ArrayBuffer.
+Most of data are on that memory pool, which is transferred to the GPU every frame as a floating point texture.
+This allows all shaders to always access to a huge amount of data.
+
+For example, Rhodonite can handle and blend the all morph targets of VRM characters (38 targets) at the same time in the shader.
+
 ## Viewer
 
 You can try our library via https://editor.librn.com/ .
@@ -20,7 +28,7 @@ This viewer supports glTF/VRM files Drag & Drop to display.
 
 ![poly](./assets/images/screenshot_poly.webp)
 
-## Support Browsers
+## Supported Browsers
 
 Google Chrome, Firefox, Safari, Microsoft Edge (chromium-based), and other modern browsers are supported.
 IE11 is not supported.
