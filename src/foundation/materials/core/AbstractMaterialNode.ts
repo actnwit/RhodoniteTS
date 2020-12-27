@@ -406,9 +406,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const accessor = target.get(VertexAttribute.Position) as Accessor;
       let offset = 0;
       let offset2 = 0;
-      if (SystemState.currentProcessApproach === ProcessApproach.FastestWebGL1 ||
-        SystemState.currentProcessApproach === ProcessApproach.FastestWebGL2
-        ) {
+
+      if (ProcessApproach.isFastestApproach(SystemState.currentProcessApproach)) {
         offset = Config.totalSizeOfGPUShaderDataStorageExceptMorphData;
         offset2 = memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData).takenSizeInByte;
       }

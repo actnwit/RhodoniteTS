@@ -148,11 +148,19 @@ function isArray(compositionType: CompositionTypeEnum) {
   }
 }
 
+function isTexture(compositionType: CompositionTypeEnum) {
+  if (compositionType === Texture2D || compositionType === TextureCube) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export const CompositionType = Object.freeze({
   Unknown, Scalar, Vec2, Vec3, Vec4,
   Mat2, Mat3, Mat4,
   ScalarArray, Vec2Array, Vec3Array, Vec4Array,
   Mat2Array, Mat3Array, Mat4Array,
   Texture2D, TextureCube,
-  from, fromString, fromGlslString, isArray
+  from, fromString, fromGlslString, isArray, isTexture
 });

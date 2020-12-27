@@ -5,12 +5,9 @@ import WebGLStrategyFastest from "./WebGLStrategyFastest";
 
 const getRenderingStrategy = function (processApproach: ProcessApproachEnum): WebGLStrategy {
   // Strategy
-  if (processApproach.index === ProcessApproach.FastestWebGL1.index || 
-      processApproach.index === ProcessApproach.FastestWebGL2.index
-    ) {
+  if (ProcessApproach.isFastestApproach(processApproach)) {
     return WebGLStrategyFastest.getInstance();
-  } else if (processApproach.index === ProcessApproach.UniformWebGL1.index ||
-    processApproach.index === ProcessApproach.UniformWebGL2.index) {
+  } else if (ProcessApproach.isUniformApproach(processApproach)) {
     return WebGLStrategyUniform.getInstance();
   }
   return WebGLStrategyUniform.getInstance();

@@ -121,19 +121,18 @@ const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], off
   return whole.buffer;
 }
 
+const concatArrayBuffers2 = ({finalSize, srcs, srcsOffset, srcsCopySize}:
+  {finalSize: Byte, srcs: ArrayBuffer[], srcsOffset: Byte[], srcsCopySize: Byte[]}) =>
+{
+  const dstBuf = new Uint8Array(new ArrayBuffer(finalSize));
+  let copiedSize = 0;
+  for (let i in srcs) {
+    const src = srcs[i];
+    const srcBuf = new Uint8Array(src, srcsOffset[i], srcsCopySize[i]);
+    dstBuf.set(srcBuf, copiedSize);
+    copiedSize += srcsCopySize[i];
+  }
+  return dstBuf.buffer;
+}
 
-// const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], paddingSize: Byte) {
-//   var sumLength = 0;
-//   for (var i = 0; i < sizes.length; ++i) {
-//     sumLength += sizes[i];
-//   }
-//   var whole = new Uint8Array(sumLength + paddingSize);
-//   var pos = 0;
-//   for (var i = 0; i < segments.length; ++i) {
-//     whole.set(new Uint8Array(segments[i+offsets[i]], 0, sizes[i]), pos);
-//     pos += sizes[i];
-//   }
-//   return whole.buffer;
-// }
-
-export const MiscUtil = Object.freeze({ isMobile, isIOS, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode, concatArrayBuffers });
+export const MiscUtil = Object.freeze({ isMobile, isIOS, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode, concatArrayBuffers, concatArrayBuffers2 });

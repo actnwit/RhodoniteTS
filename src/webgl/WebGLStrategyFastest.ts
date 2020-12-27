@@ -515,11 +515,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const actualSpaceForDataTextureInByte = buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
         const spareSpaceTexel = MemoryManager.bufferWidthLength - (actualSpaceForDataTextureInByte / 4 / 4) % MemoryManager.bufferWidthLength;
         const spareSpaceBytes = spareSpaceTexel * 4 * 4;
-        const finalArrayBuffer = MiscUtil.concatArrayBuffers(
-          [buffer.getArrayBuffer(), morphBufferArrayBuffer],
-          [actualSpaceForDataTextureInByte + spareSpaceBytes, morphBufferTakenSizeInByte],
-          [startOffsetOfDataTextureOnGPUInstanceData, 0],
-          dataTextureByteSize);
+        const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
+          finalSize: dataTextureByteSize,
+          srcs: [buffer.getArrayBuffer(), morphBufferArrayBuffer],
+          srcsCopySize: [actualSpaceForDataTextureInByte + spareSpaceBytes, morphBufferTakenSizeInByte],
+          srcsOffset: [startOffsetOfDataTextureOnGPUInstanceData, 0]
+        });
         // if (finalArrayBuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         if (actualSpaceForDataTextureInByte + spareSpaceBytes + morphBufferTakenSizeInByte > dataTextureByteSize) {
           console.warn('The buffer size exceeds the size of the data texture.');

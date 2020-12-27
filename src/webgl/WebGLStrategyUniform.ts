@@ -278,11 +278,12 @@ mat3 get_normalMatrix(float instanceId) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
       const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
-      const concatArrayBuffer = MiscUtil.concatArrayBuffers(
-        [buffer.getArrayBuffer()],
-        [buffer.takenSizeInByte],
-        [0],
-        dataTextureByteSize);
+      const concatArrayBuffer = MiscUtil.concatArrayBuffers2({
+        finalSize: dataTextureByteSize,
+        srcs: [buffer.getArrayBuffer()],
+        srcsCopySize: [buffer.takenSizeInByte],
+        srcsOffset: [0]
+      });
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
