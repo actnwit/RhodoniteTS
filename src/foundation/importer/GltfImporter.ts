@@ -240,7 +240,7 @@ export default class GltfImporter {
       defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? this._createTextures(gltfModel);
       defaultMaterialHelperArgumentArray[0].isLighting = defaultMaterialHelperArgumentArray[0].isLighting ?? true;
 
-      this._initializeMaterialProperties(gltfModel, defaultMaterialHelperArgumentArray[0].length);
+      this._initializeMaterialProperties(gltfModel, defaultMaterialHelperArgumentArray[0].textures.length);
 
       let rootGroup;
       const modelConverter = ModelConverter.getInstance();
