@@ -1,0 +1,25 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [master]
+
+jobs:
+  gen_api_docs:
+    name: Generate API documentation
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.18.1
+    - run: npm install
+    - run: npm run doc
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Rhodonite-distribution-files
+        path: docs
