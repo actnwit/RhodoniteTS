@@ -168,11 +168,12 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
             semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
             stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime
           },
-        ]
+        ],
+        false
       );
     }
 
-    material.setUniformLocations(material._shaderProgramUid);
+    material.setUniformLocations(material._shaderProgramUid, false);
 
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
 
