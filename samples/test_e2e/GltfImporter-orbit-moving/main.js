@@ -120,12 +120,12 @@ const load = async function () {
     const specularCubeTexture = new Rn.CubeTexture();
     specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
     specularCubeTexture.isNamePosNeg = true;
-    specularCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
+    specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
     specularCubeTexture.mipmapLevelNumber = 10;
 
     const diffuseCubeTexture = new Rn.CubeTexture();
     diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
-    diffuseCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
+    diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
     diffuseCubeTexture.mipmapLevelNumber = 1;
     diffuseCubeTexture.isNamePosNeg = true;
 
