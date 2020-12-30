@@ -372,7 +372,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           shaderProgram[identifier] = location;
         }
         if (location == null && glw.isDebugMode) {
-          console.warn(`Rn: Can not get the uniform location: ${shaderVarName}}`);
+          console.warn(`Rn: Can not get the uniform location: ${shaderVarName}`);
         }
       }
     }
