@@ -469,7 +469,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   private static __initializeUsableBlendEquationModeAlpha() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContext();
+    const gl = glw!.getRawContextAsWebGL2();
     if (glw!.isWebGL2) {
       MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.MAX;
     } else if (glw!.webgl1ExtBM) {
@@ -523,7 +523,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext();
 
-    let result;
+    let result = gl.ZERO;
     switch (enumNumber) {
       case 0: result = gl.ZERO; break;
       case 1: result = gl.ONE; break;

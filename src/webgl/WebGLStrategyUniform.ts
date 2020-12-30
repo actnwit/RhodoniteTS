@@ -321,7 +321,7 @@ mat3 get_normalMatrix(float instanceId) {
     }
     else {
       this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
-      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
+      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!) as WebGLBuffer;
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
   }

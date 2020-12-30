@@ -580,7 +580,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const gl = glw.getRawContext();
     const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)! as WebGLTexture;
     glw.bindTexture2D(0, dataTexture);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid) as WebGLProgram;
     var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
     gl.uniform1i(uniform_dataTexture, 0);
   }
@@ -616,7 +616,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
     else {
       this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, mesh.variationVBOUid);
-      const ibo = this.__webglResourceRepository.getWebGLResource(vertexHandles.iboHandle!);
+      const ibo = this.__webglResourceRepository.getWebGLResource(vertexHandles.iboHandle!) as WebGLBuffer;
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
   }

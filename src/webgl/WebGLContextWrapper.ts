@@ -77,8 +77,16 @@ export default class WebGLContextWrapper {
     this.getUniformBufferInfo();
   }
 
-  getRawContext(): WebGLRenderingContext | any {
+  getRawContext(): WebGLRenderingContext | WebGL2RenderingContext {
     return this.__gl;
+  }
+
+  getRawContextAsWebGL1(): WebGLRenderingContext {
+    return this.__gl
+  }
+
+  getRawContextAsWebGL2(): WebGL2RenderingContext {
+    return this.__gl
   }
 
   get viewport() {
