@@ -145,7 +145,7 @@ export default class Gltf1Importer {
   }
 
   _loadInner(uint8array: Uint8Array | undefined, basePath: string, gltfJson: glTF1, options: GltfLoadOption) {
-    let promises = [];
+    let promises = [] as Promise<any>[];
 
     let resources = {
       shaders: [],
@@ -156,7 +156,7 @@ export default class Gltf1Importer {
     promises.push(new Promise((resolve, reject) => {
       this._loadJsonContent(gltfJson, options);
       resolve();
-    }));
+    }) as Promise<void>);
 
     return Promise.all(promises);
   }
@@ -734,14 +734,14 @@ export default class Gltf1Importer {
           const uint8Array = new Uint8Array(buffer);
           imageJson.basis = uint8Array;
           resolve();
-        });
+        }) as Promise<void>;
         promisesToLoadResources.push(promise);
 
       } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
         const promise = new Promise((resolve) => {
           imageJson.basis = new Uint8Array(options.files[imageJson.uri!])
           resolve();
-        });
+        }) as Promise<void>;
         promisesToLoadResources.push(promise);
       } else {
         const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(function (image) {

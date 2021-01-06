@@ -216,7 +216,7 @@ export default class GltfImporter {
             console.error('detect invalid format');
             reject();
         }
-      });
+      }) as Promise<void>;
     })
   }
 

@@ -239,7 +239,7 @@ export default class Texture extends AbstractTexture {
       };
 
       this.__img.src = imageUri;
-    });
+    }) as Promise<void>;
   }
 
   generate1x1TextureFrom(rgbaStr: string = "rgba(255,255,255,1)") {
