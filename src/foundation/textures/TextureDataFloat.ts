@@ -47,7 +47,7 @@ export default class TextureDataFloat {
         this.__data[y * this.__width * this.__channels + x * this.__channels + 1],
         this.__data[y * this.__width * this.__channels + x * this.__channels + 2],
         );
-    } else if (channels === 4) { 
+    } else if (channels === 4) {
       return new (typeClass as any)(
         this.__data[y * this.__width * this.__channels + x * this.__channels + 0],
         this.__data[y * this.__width * this.__channels + x * this.__channels + 1],

@@ -137,7 +137,7 @@ in vec2 v_texcoord_0;
   // Might want to lower the settings for both,
   //    fxaaConsoleEdgeThresholdMin
   //    fxaaQualityEdgeThresholdMin
-  // In order to insure AA does not get turned off on colors 
+  // In order to insure AA does not get turned off on colors
   // which contain a minor amount of green.
   //
   // 1 = On.
@@ -272,14 +272,14 @@ in vec2 v_texcoord_0;
   //
   // Choose the quality preset.
   // This needs to be compiled into the shader as it effects code.
-  // Best option to include multiple presets is to 
+  // Best option to include multiple presets is to
   // in each shader define the preset, then include this file.
-  // 
+  //
   // OPTIONS
   // -----------------------------------------------------------------------
   // 10 to 15 - default medium dither (10=fastest, 15=highest quality)
   // 20 to 29 - less dither, more expensive (20=fastest, 29=highest quality)
-  // 39       - no dither, very expensive 
+  // 39       - no dither, very expensive
   //
   // NOTES
   // -----------------------------------------------------------------------
@@ -288,7 +288,7 @@ in vec2 v_texcoord_0;
   // 23 = closest to FXAA 3.9 visually and performance wise
   //  _ = the lowest digit is directly related to performance
   // _  = the highest digit is directly related to style
-  // 
+  //
   #define FXAA_QUALITYPRESET 12
   #endif
 
@@ -675,7 +675,7 @@ in vec2 v_texcoord_0;
     //   0.333 - too little (faster)
     //   0.250 - low quality
     //   0.166 - default
-    //   0.125 - high quality 
+    //   0.125 - high quality
     //   0.063 - overkill (slower)
     FxaaFloat fxaaQualityEdgeThreshold,
     //
@@ -693,7 +693,7 @@ in vec2 v_texcoord_0;
     //   Tune by looking at mostly non-green content,
     //   then start at zero and increase until aliasing is a problem.
     FxaaFloat fxaaQualityEdgeThresholdMin,
-    // 
+    //
     // Only used on FXAA Console.
     // This used to be the FXAA_CONSOLEEDGE_SHARPNESS define.
     // It is here now to allow easier tuning.
@@ -728,7 +728,7 @@ in vec2 v_texcoord_0;
     // Trims the algorithm from processing darks.
     // The console setting has a different mapping than the quality setting.
     // This only applies when FXAA_EARLY_EXIT is 1.
-    // This does not apply to PS3, 
+    // This does not apply to PS3,
     // PS3 was simplified to avoid more shader instructions.
     //   0.06 - faster but more aliasing in darks
     //   0.05 - default
@@ -740,7 +740,7 @@ in vec2 v_texcoord_0;
     //   Tune by looking at mostly non-green content,
     //   then start at zero and increase until aliasing is a problem.
     FxaaFloat fxaaConsoleEdgeThresholdMin,
-    //    
+    //
     // Extra constants for 360 FXAA Console only.
     // Use zeros or anything else for other platforms.
     // These must be in physical constant registers and NOT immedates.
