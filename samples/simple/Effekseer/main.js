@@ -52,7 +52,6 @@ const load = async function (time) {
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   const controller = cameraControllerComponent.controller;
   controller.setTarget(rootGroup);
-  controller.zFarAdjustingFactorBasedOnAABB = 1000;
 
   // renderPass
   const renderPass = new Rn.RenderPass();

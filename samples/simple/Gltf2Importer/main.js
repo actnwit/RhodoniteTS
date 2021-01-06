@@ -114,7 +114,6 @@ const load = function (time) {
       const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
       const controller = cameraControllerComponent.controller;
       controller.setTarget(rootGroup);
-      controller.zFarAdjustingFactorBasedOnAABB = 1000;
 
       // Env Cube
       const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
@@ -169,7 +168,7 @@ const load = function (time) {
       const sphere2Primitive = new Rn.Sphere();
       const sphere2PbrMaterial = Rn.MaterialHelper.createPbrUberMaterial();
       sphere2PbrMaterial.setParameter(Rn.ShaderSemantics.MetallicRoughnessFactor, new Rn.Vector2(0, 0));
-  
+
       sphere2Primitive.generate({radius: 50, widthSegments: 40, heightSegments: 40, material: sphere2PbrMaterial});
       const sphere2MeshComponent = sphere2Entity.getComponent(Rn.MeshComponent);
       const sphere2Mesh = new Rn.Mesh();

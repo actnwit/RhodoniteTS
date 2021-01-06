@@ -93,8 +93,6 @@ const load = async function (time) {
   const mainCameraEntity = mainCameraComponent.entity;
   const cameraControllerComponent = mainCameraEntity.getComponent(Rn.CameraControllerComponent);
   cameraControllerComponent.controller.setTarget(rootGroups[0]);
-  cameraControllerComponent.controller.zFarAdjustingFactorBasedOnAABB = 2000;
-
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
