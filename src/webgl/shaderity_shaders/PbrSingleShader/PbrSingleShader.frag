@@ -24,13 +24,15 @@ in vec3 v_baryCentricCoord;
 
 /* shaderity: @{getters} */
 
-vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
+vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float userRoughness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float mipCount = iblParameter.x;
-  float lod = (userRoughness * (mipCount - 1.0));
+  float rot = iblParameter.w + 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  normal_forEnv.x *= -1.0;
+  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, normal_forEnv);
 
-  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
   if (hdriFormat.x == 0) {
@@ -45,6 +47,10 @@ vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 
     diffuseLight = diffuseTexel.rgb;
   }
 
+  float mipCount = iblParameter.x;
+  float lod = (userRoughness * (mipCount - 1.0));
+
+  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 #pragma shaderity: require(./fetchCubeTexture.glsl)
 
   vec3 specularLight;
@@ -107,11 +113,6 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float rot = iblParameter.w + 3.1415;
-  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-
   #ifdef RN_USE_NORMAL_TEXTURE
     vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
     float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
@@ -189,7 +190,8 @@ void main ()
   vec3 viewDirection = normalize(viewVector);
 
   // NV
-  float NV = clamp(abs(dot(normal_inWorld, viewDirection)), 0.0, 1.0);
+  float NV = dot(normal_inWorld, viewDirection);
+  float satNV = saturateEpsilonToOne(NV);
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
@@ -231,16 +233,19 @@ void main ()
 
     // Fresnel
     vec3 halfVector = normalize(lightDirection + viewDirection);
-    float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
+    float VH = dot(viewDirection, halfVector);
     vec3 F = fresnel(F0, VH);
 
     // Diffuse
     vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
 
     // Specular
-    float NL = clamp(dot(normal_inWorld, lightDirection), 0.0, 1.0);
-    float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
-    vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
+    float NH = dot(normal_inWorld, halfVector);
+    float satNH = saturateEpsilonToOne(NH);
+    float NL = dot(normal_inWorld, lightDirection);
+    float satNL = saturateEpsilonToOne(NL);
+
+    vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, satNV, F, alphaRoughness);
     vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
 
     rt0.xyz += diffuseAndSpecular;
@@ -249,10 +254,7 @@ void main ()
 //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
   }
 
-  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-
-  vec3 F = fresnel(F0, NV);
-  vec3 ibl = IBLContribution(materialSID, normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, userRoughness);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);

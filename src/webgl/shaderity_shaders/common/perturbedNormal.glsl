@@ -23,6 +23,7 @@
       vec3 dp1perp = cross(normal_inWorld, dp1);
       vec3 tangent = dp2perp * duv1.x + dp1perp * duv2.x;
       vec3 bitangent = dp2perp * duv1.y + dp1perp * duv2.y;
+      bitangent *= -1.0;
 
       // construct a scale-invariant frame
       float invMat = inversesqrt(max(dot(tangent, tangent), dot(bitangent, bitangent)));
