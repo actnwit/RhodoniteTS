@@ -27,7 +27,7 @@ export default class Gltf2Exporter {
 
   /**
    * Exports All scene data in the rhodonite system as glTF2 format.
-   * @param filename 
+   * @param filename
    */
   export(filename: string) {
     const entities = Gltf2Exporter.__entityRepository._getEntities();

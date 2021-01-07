@@ -11,7 +11,6 @@ import MutableMatrix44 from "../math/MutableMatrix44";
 import AbstractCameraController from "./AbstractCameraController";
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
-type MouseEventListener = (evt: MouseEvent) => any;
 
 export default class WalkThroughCameraController extends AbstractCameraController implements ICameraController {
   private _horizontalSpeed: number;
@@ -48,7 +47,6 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
   private _eventTargetDom?: any;
   private _needInitialize = true;
   protected __targetEntity?: Entity;
-  private _zFarAdjustingFactorBasedOnAABB = 150.0;
 
   private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
@@ -386,14 +384,6 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
 
   getTarget(): Entity | undefined {
     return this.__targetEntity;
-  }
-
-  set zFarAdjustingFactorBasedOnAABB(value: number) {
-    this._zFarAdjustingFactorBasedOnAABB = value;
-  }
-
-  get zFarAdjustingFactorBasedOnAABB() {
-    return this._zFarAdjustingFactorBasedOnAABB;
   }
 
   get allInfo() {

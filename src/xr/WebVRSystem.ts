@@ -117,7 +117,7 @@ export default class WebVRSystem {
       } else {
         reject("WebGL context or WebVRDisplay is not ready yet.")
       }
-    });
+    }) as Promise<void>;
   }
 
   async readyForWebVR(requestButtonDom: HTMLElement) {
@@ -187,7 +187,7 @@ export default class WebVRSystem {
         );
         reject();
       }
-    });
+    }) as Promise<void>;
   }
 
   async exitWebVR() {

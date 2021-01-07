@@ -85,8 +85,6 @@ const load = async function (time) {
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   const controller = cameraControllerComponent.controller;
   controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
-  controller.zFarAdjustingFactorBasedOnAABB = 2000;
-
 
   // Lights
   const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])

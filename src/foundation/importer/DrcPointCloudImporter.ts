@@ -171,7 +171,7 @@ export default class DrcPointCloudImporter {
     promises.push(new Promise((resolve, reject) => {
       this._loadJsonContent(gltfJson, options);
       resolve();
-    }));
+    }) as Promise<void>);
 
     return Promise.all(promises);
   }

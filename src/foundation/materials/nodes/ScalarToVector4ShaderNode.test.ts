@@ -46,7 +46,7 @@ test('ScalarToVector4 works correctly 1', async () => {
           out float outValue) {
           outValue = 3.0;
         }
-        
+
         void constantVariable_1(
           out float outValue) {
           outValue = 2.0;
@@ -67,11 +67,11 @@ test('ScalarToVector4 works correctly 1', async () => {
         void outPosition(in vec4 inPosition) {
           gl_Position = inPosition;
         }
-        
+
         void main() {
         #ifdef RN_IS_FASTEST_MODE
       float materialSID = u_currentComponentSIDs[0];
-    
+
       int lightNumber = 0;
       #ifdef RN_IS_LIGHTING
         lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);

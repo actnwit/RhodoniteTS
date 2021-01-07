@@ -15,6 +15,6 @@ export default class RhodoniteImportExtension {
     return this.__instance;
   }
 
-  
+
 }
 

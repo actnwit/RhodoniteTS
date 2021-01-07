@@ -11,7 +11,7 @@ test('Promise.', async () => {
       expect(results).toEqual([1, 2, 3]);
       resolve();
     });
-  });
+  }) as Promise<void>;
 });
 
 test('RnPromise.resolve of thenable', async () => {
@@ -26,7 +26,7 @@ test('RnPromise.resolve of thenable', async () => {
       expect(results).toEqual(['Resolving']);
       resolve();
     });
-  });
+  }) as Promise<void>;
 });
 
 test('RnPromise.resolve of resolving rnPromise', async () => {
@@ -44,7 +44,7 @@ test('RnPromise.resolve of resolving rnPromise', async () => {
     }).finally(()=>{
       resolve();
     });
-  });
+  }) as Promise<void>;
 });
 
 test('RnPromise.resolve of rejecting rnPromise', async () => {
@@ -62,7 +62,7 @@ test('RnPromise.resolve of rejecting rnPromise', async () => {
     }).finally(()=>{
       resolve();
     });
-  });
+  }) as Promise<void>;
 });
 
 test('Promise all callback', async () => {
@@ -82,5 +82,5 @@ test('Promise all callback', async () => {
         resolve();
       })
     });
-  });
+  }) as Promise<void>;
 });

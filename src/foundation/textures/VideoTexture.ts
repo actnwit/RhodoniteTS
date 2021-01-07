@@ -188,7 +188,7 @@ export default class VideoTexture extends AbstractTexture {
 
       video.src = videoUri;
 
-    });
+    }) as Promise<void>;
   }
 
   updateTexture() {
