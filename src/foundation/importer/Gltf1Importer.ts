@@ -60,10 +60,10 @@ export default class Gltf1Importer {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this._loadAsTextJson(json, options as GltfLoadOption, defaultOptions, basePath);
+      result = await this.__loadGltf(json, options as GltfLoadOption, defaultOptions, basePath);
     }
     else {
-      result = await this._loadAsBinaryJson(dataView, isLittleEndian, arrayBuffer, options as GltfLoadOption, defaultOptions, basePath);
+      result = await this.__loadGlb(dataView, isLittleEndian, arrayBuffer, options as GltfLoadOption, defaultOptions);
     }
     return result;
   }
@@ -91,7 +91,7 @@ export default class Gltf1Importer {
     return defaultOptions;
   }
 
-  async _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
+  private async __loadGlb(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption) {
     let gltfVer = dataView.getUint32(4, isLittleEndian);
     if (gltfVer !== 1) {
       throw new Error('invalid version field in this binary glTF file.');
@@ -116,15 +116,14 @@ export default class Gltf1Importer {
       gltfJson.asset.extras = { fileType: "glTF", version: "1" };
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
-    gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
-    const result = await this._loadInner(uint8array, basePath, gltfJson, options);
+    const result = await this._loadInner(gltfJson, options, uint8array);
 
     return (result[0] as any)[0];
   }
 
-  async _loadAsTextJson(gltfJson: glTF1, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
+  private async __loadGltf(gltfJson: glTF1, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
     if (gltfJson.asset === undefined) {
       gltfJson.asset = {};
     }
@@ -136,15 +135,14 @@ export default class Gltf1Importer {
     options = this._getOptions(defaultOptions, gltfJson, options);
 
     this._mergeExtendedJson(gltfJson, options.extendedJson);
-    gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
-    const result = await this._loadInner(undefined, basePath, gltfJson, options);
+    const result = await this._loadInner(gltfJson, options, undefined, basePath);
 
     return (result[0] as any)[0];
   }
 
-  _loadInner(uint8array: Uint8Array | undefined, basePath: string, gltfJson: glTF1, options: GltfLoadOption) {
+  _loadInner(gltfJson: glTF1, options: GltfLoadOption, uint8array?: Uint8Array, basePath?: string) {
     let promises = [] as Promise<any>[];
 
     let resources = {
@@ -152,7 +150,7 @@ export default class Gltf1Importer {
       buffers: [],
       images: []
     };
-    promises.push(this._loadResources(uint8array!, basePath, gltfJson, options, resources));
+    promises.push(this._loadResources(uint8array!, gltfJson, options, resources, basePath));
     promises.push(new Promise((resolve, reject) => {
       this._loadJsonContent(gltfJson, options);
       resolve();
@@ -575,65 +573,12 @@ export default class Gltf1Importer {
     Object.assign(gltfJson, extendedJson);
   }
 
-  _loadResources(uint8Array: Uint8Array, basePath: string, gltfJson: glTF1, options: GltfLoadOption, resources: {
+  _loadResources(uint8Array: Uint8Array, gltfJson: glTF1, options: GltfLoadOption, resources: {
     shaders: any[],
     buffers: any[],
     images: any[]
-  }) {
+  }, basePath?: string) {
     let promisesToLoadResources = [];
-
-    // Shaders Async load
-
-    // for (let _i in gltfJson.shaders) {
-    //   const i = _i as any as number;
-    //   resources.shaders[i] = {};
-
-    //   let shaderJson = gltfJson.shaders[i];
-    //   let shaderType = shaderJson.type;
-    //   if (typeof shaderJson.extensions !== 'undefined' && typeof shaderJson.extensions.KHR_binary_glTF !== 'undefined') {
-    //     resources.shaders[i].shaderText = this._accessBinaryAsShader(shaderJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary);
-    //     resources.shaders[i].shaderType = shaderType;
-    //     continue;
-    //   }
-
-    //   let shaderUri = shaderJson.uri;
-
-    //   if (options.files) {
-    //     const splitted = shaderUri.split('/');
-    //     const filename = splitted[splitted.length - 1];
-    //     if (options.files[filename]) {
-    //       const arrayBuffer = options.files[filename];
-    //       resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
-    //       resources.shaders[i].shaderType = shaderType;
-    //       continue;
-    //     }
-    //   }
-
-    //   if (shaderUri.match(/^data:/)) {
-    //     promisesToLoadResources.push(
-    //       new Promise((resolve, rejected) => {
-    //         let arrayBuffer = DataUtil.dataUriToArrayBuffer(shaderUri);
-    //         resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
-    //         resources.shaders[i].shaderType = shaderType;
-    //         resolve();
-    //       })
-    //     );
-    //   } else {
-    //     shaderUri = basePath + shaderUri;
-    //     promisesToLoadResources.push(
-    //       DataUtil.loadResourceAsync(shaderUri, false,
-    //         (resolve:Function, response:any)=>{
-    //           resources.shaders[i].shaderText = response;
-    //           resources.shaders[i].shaderType = shaderType;
-    //           resolve(gltfJson);
-    //         },
-    //         (reject:Function, error:any)=>{
-
-    //         }
-    //       )
-    //     );
-    //   }
-    // }
 
     // Buffers Async load
     for (let i in gltfJson.buffers) {
@@ -681,6 +626,7 @@ export default class Gltf1Importer {
           }
           ));
       } else {
+        // Need to async load other files
         promisesToLoadResources.push(
           DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true,
             (resolve: Function, response: any) => {

@@ -1,6 +1,6 @@
 import Entity from "../core/Entity";
 import EntityRepository from "../core/EntityRepository";
-import detectFormat from "./FormatDetector";
+import { detectFormatByArrayBuffers } from "./FormatDetector";
 import Gltf2Importer from "./Gltf2Importer";
 import { GltfLoadOption, glTF2 } from "../../commontypes/glTF";
 import ModelConverter from "./ModelConverter";
@@ -57,7 +57,7 @@ export default class GltfImporter {
    */
   async import(uris: string | string[], options?: GltfLoadOption): Promise<Expression> {
     if (!Array.isArray(uris)) {
-      uris = [uris];
+      uris = (typeof uris == 'string') ? [uris] : [];
     }
     options = this.__initOptions(options);
 
@@ -134,12 +134,10 @@ export default class GltfImporter {
     }
 
     for (let uri of uris) {
-      if (uri.length === 0 || options.files[uri] != null) {
-        // import from uri where the file is not fetched yet
-        continue;
+      // import the glTF file from uri of uris array
+      if (uri !== '' && options.files[uri] == null) {
+        importPromises.push(this.__importToRenderPassesFromUriPromise(uri, renderPasses, options));
       }
-
-      importPromises.push(this.__importToRenderPassesFromUriPromise(uri, renderPasses, options));
     }
 
     return Promise.all(importPromises).then(() => {
@@ -225,9 +223,8 @@ export default class GltfImporter {
       if (optionalFileType != null) {
         resolve(optionalFileType);
       } else {
-        detectFormat('', { [fileName]: options.files[fileName] }).then((fileType: string) => {
-          resolve(fileType);
-        });
+        const fileType = detectFormatByArrayBuffers( { [fileName]: options.files[fileName] });
+        resolve(fileType);
       }
     });
   }

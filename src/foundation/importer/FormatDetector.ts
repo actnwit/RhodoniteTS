@@ -1,58 +1,53 @@
 import DataUtil from "../misc/DataUtil";
 
-export default async function detectFormat(uri: string, files?: { [s: string]: ArrayBuffer }) {
 
-  if (files) {
-    for (let fileName in files) {
-      const fileExtension = DataUtil.getExtension(fileName);
+export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }) : string
+{
+  for (let fileName in files) {
+    const fileExtension = DataUtil.getExtension(fileName);
 
-      if (fileExtension === 'gltf' || fileExtension === 'glb') {
-        return new Promise((resolve, reject) => {
-          checkArrayBufferOfGltf(files[fileName], resolve);
-        });
-      } else if (fileExtension === 'drc') {
-        return new Promise((resolve, reject) => {
-          resolve('Draco');
-        });
-      } else if (fileExtension === 'vrm') {
-        return new Promise((resolve, reject) => {
-          resolve('VRM');
-        });
-      }
+    if (fileExtension === 'gltf' || fileExtension === 'glb') {
+      return 'glTF'
+    } else if (fileExtension === 'drc') {
+      return 'Draco';
+    } else if (fileExtension === 'vrm') {
+      return 'VRM';
     }
   }
+  return 'Unknown'
+}
 
-  const splitted = uri.split('.');
-  const fileExtension = splitted[splitted.length - 1];
+export function detectFormatByUri(uri: string) : string
+{
+  const split = uri.split('.');
+  const fileExtension = split[split.length - 1];
 
   if (fileExtension === 'efk') {
-    return new Promise((resolve, reject) => {
-      resolve('Effekseer');
-    });
+    return 'Effekseer';
   } else if (fileExtension === 'drc') {
-    return new Promise((resolve, reject) => {
-      resolve('Draco');
-    });
+    return 'Draco';
   } else if (fileExtension === 'vrm') {
-    return new Promise((resolve, reject) => {
-      resolve('VRM');
-    });
+    return 'VRM';
+  } else if (fileExtension === 'gltf') {
+    return 'glTF'
   }
 
-  // glTF
-  return DataUtil.loadResourceAsync(uri, true,
-    (resolve: Function, response: any) => {
-      const arrayBuffer = response;
-      checkArrayBufferOfGltf(arrayBuffer, resolve);
-      console.warn('discard downloaded arrayBuffer');
-    }, (rejects: any, status: any) => {
-      console.log(status);
-    }
-  );
+  return 'Unknown';
+
+  // // glTF
+  // return DataUtil.loadResourceAsync(uri, true,
+  //   (resolve: Function, response: any) => {
+  //     const arrayBuffer = response;
+  //     checkVersionOfGltf(arrayBuffer);
+  //     console.warn('discard downloaded arrayBuffer');
+  //   }, (rejects: any, status: any) => {
+  //     console.log(status);
+  //   }
+  // );
 
 }
 
-function checkArrayBufferOfGltf(arrayBuffer: ArrayBuffer, resolve: Function) {
+function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
   const isLittleEndian = true;
 
   const dataView = new DataView(arrayBuffer, 0, 20);
@@ -68,13 +63,12 @@ function checkArrayBufferOfGltf(arrayBuffer: ArrayBuffer, resolve: Function) {
 
     let glTFVer = checkGLTFVersion(gltfJson);
 
-    resolve("glTF" + glTFVer);
+    return "glTF" + glTFVer;
 
-    return;
+  } else {
+    let glTFVer = dataView.getUint32(4, isLittleEndian);
+    return "glTF" + glTFVer;
   }
-
-  let glTFVer = dataView.getUint32(4, isLittleEndian);
-  resolve("glTF" + glTFVer);
 }
 
 function checkGLTFVersion(gltfJson: any) {

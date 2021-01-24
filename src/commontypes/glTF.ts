@@ -298,7 +298,6 @@ export type glTF2 = {
       rnLoaderOptions?: GltfLoadOption,
       rnEntities?: Entity[],
       rnMaterials?: { [s: string]: Material; },
-      basePath?: string,
       version?: string,
       fileType?: string,
     }
@@ -326,7 +325,6 @@ export type glTF1 = {
   asset: {
     extras?: {
       rnLoaderOptions?: { [s: string]: any },
-      basePath?: string,
       version?: string,
       fileType?: string
     }

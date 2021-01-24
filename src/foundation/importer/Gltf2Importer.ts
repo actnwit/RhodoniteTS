@@ -124,7 +124,6 @@ export default class Gltf2Importer {
       gltfJson.asset.extras = { fileType: "glTF", version: "2" };
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
-    gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
     try {
@@ -143,7 +142,6 @@ export default class Gltf2Importer {
     options = this._getOptions(defaultOptions, gltfJson, options);
 
     this._mergeExtendedJson(gltfJson, options.extendedJson);
-    gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
     try {
@@ -164,14 +162,14 @@ export default class Gltf2Importer {
     };
     promises.push(this._loadResources(uint8array!, basePath, gltfJson, options, resources));
     promises.push(new Promise((resolve, reject) => {
-      this._loadJsonContent(gltfJson, options);
+      this._loadJsonContent(gltfJson);
       resolve();
     }) as Promise<void>);
 
     return Promise.all(promises);
   }
 
-  _loadJsonContent(gltfJson: glTF2, options: GltfLoadOption) {
+  _loadJsonContent(gltfJson: glTF2) {
 
     // Scene
     this._loadDependenciesOfScenes(gltfJson);

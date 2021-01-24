@@ -33,7 +33,8 @@ import _AnimationComponent from './foundation/components/AnimationComponent';
 import _LightComponent from './foundation/components/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
 import _CameraControllerComponent from './foundation/components/CameraControllerComponent';
-import _detectFormat from './foundation/importer/FormatDetector';
+import { detectFormatByArrayBuffers as _detectFormatByArrayBuffers } from './foundation/importer/FormatDetector';
+import { detectFormatByUri as _detectFormatByUri } from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';
 import _Plane from './foundation/geometry/Plane';
 import _Sphere from './foundation/geometry/Sphere';
@@ -149,7 +150,8 @@ export default {
   CubeTexture: _CubeTexture,
   CameraControllerComponent: _CameraControllerComponent,
   Gltf2Exporter: _Gltf2Exporter,
-  detectFormat: _detectFormat,
+  detectFormatByArrayBuffers: _detectFormatByArrayBuffers,
+  detectFormatByUri: _detectFormatByUri,
   Config: _Config,
   Plane: _Plane,
   Sphere: _Sphere,
@@ -267,7 +269,8 @@ export type CameraControllerComponent = _CameraControllerComponent
 export type CameraControllerType = typeof _CameraControllerType
 export type AlphaMode = typeof _AlphaMode
 export type Gltf2Exporter = _Gltf2Exporter
-export type detectFormat = typeof _detectFormat
+export type detectFormatByArrayBuffers = typeof _detectFormatByArrayBuffers
+export type detectFormatByUri = typeof _detectFormatByUri
 export type Config = typeof _Config
 export type Plane = _Plane
 export type Sphere = _Sphere

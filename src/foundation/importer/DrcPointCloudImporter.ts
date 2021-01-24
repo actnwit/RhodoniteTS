@@ -129,7 +129,6 @@ export default class DrcPointCloudImporter {
       gltfJson.asset.extras = { fileType: "glTF", version: "2" };
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
-    gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
     try {
@@ -148,7 +147,6 @@ export default class DrcPointCloudImporter {
     options = this._getOptions(defaultOptions, gltfJson, options);
 
     this._mergeExtendedJson(gltfJson, options.extendedJson);
-    gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
     try {
