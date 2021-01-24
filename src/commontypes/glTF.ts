@@ -431,6 +431,6 @@ export type GltfLoadOption = {
   },
   cameraComponent?: CameraComponent,
   fileType?: string,
-  expression?: Expression
+  expression?: Expression // If specified, GltfImporter set render passes including loaded model to this expression
 
 }
