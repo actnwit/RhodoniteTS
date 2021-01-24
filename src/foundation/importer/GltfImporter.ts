@@ -2,7 +2,7 @@ import Entity from "../core/Entity";
 import EntityRepository from "../core/EntityRepository";
 import { detectFormatByArrayBuffers } from "./FormatDetector";
 import Gltf2Importer from "./Gltf2Importer";
-import { GltfLoadOption, glTF2 } from "../../commontypes/glTF";
+import { GltfLoadOption, glTF2, GltfFileBuffers, glTF1 } from "../../commontypes/glTF";
 import ModelConverter from "./ModelConverter";
 import PhysicsComponent from "../components/PhysicsComponent";
 import SceneGraphComponent from "../components/SceneGraphComponent";
@@ -18,6 +18,8 @@ import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
 import { VRM } from "../../commontypes/VRM";
 import DataUtil from "../misc/DataUtil";
+import { FileType } from "../definitions/FileType";
+import VRMImporter from "./VRMImporter";
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -61,7 +63,7 @@ export default class GltfImporter {
     }
     options = this.__initOptions(options);
 
-    const renderPasses: RenderPass[] = await this.__importMultipleModels(uris, options);
+    const renderPasses: RenderPass[] = await this.__importMultipleModelsFromUri(uris, options);
 
     if (options && options.cameraComponent) {
       for (let renderPass of renderPasses) {
@@ -71,6 +73,30 @@ export default class GltfImporter {
 
     return this.__setRenderPassesToExpression(renderPasses, options);
   }
+
+  /**
+   * Import GLTF or VRM file.
+   * @param uris uri or array of uri of glTF file
+   * @param options options for loading process where if you use files option, key name of files must be uri of the value array buffer
+   * @returns gltf expression where:
+   *            renderPasses[0]: model entities
+   *            renderPasses[1]: model outlines
+   */
+  async importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption): Promise<Expression> {
+    options = this.__initOptions(options);
+
+    const renderPasses: RenderPass[] = await this.__importMultipleModelsFromArrayBuffers(files, options);
+
+    if (options && options.cameraComponent) {
+      for (let renderPass of renderPasses) {
+        renderPass.cameraComponent = options.cameraComponent;
+      }
+    }
+
+    return this.__setRenderPassesToExpression(renderPasses, options);
+  }
+
+
 
   private __initOptions(options?: GltfLoadOption): GltfLoadOption {
     if (options == null) {
@@ -119,24 +145,36 @@ export default class GltfImporter {
     return expression;
   }
 
-  private __importMultipleModels(uris: string[], options: GltfLoadOption): Promise<RenderPass[]> {
+  private __importMultipleModelsFromUri(uris: string[], options: GltfLoadOption): Promise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
     if (renderPasses.length === 0) {
       renderPasses.push(new RenderPass());
     }
 
-    for (let fileName in options.files) { // filename is uri
-      const fileExtension = DataUtil.getExtension(fileName);
-      if (this.__isValidExtension(fileExtension)) {
-        importPromises.push(this.__importToRenderPassesFromArrayBufferPromise(fileName, renderPasses, options, fileName));
-      }
-    }
-
     for (let uri of uris) {
       // import the glTF file from uri of uris array
       if (uri !== '' && options.files[uri] == null) {
         importPromises.push(this.__importToRenderPassesFromUriPromise(uri, renderPasses, options));
+      }
+    }
+
+    return Promise.all(importPromises).then(() => {
+      return renderPasses;
+    });
+  }
+
+  private __importMultipleModelsFromArrayBuffers(files: GltfFileBuffers, options: GltfLoadOption): Promise<RenderPass[]> {
+    const importPromises = [];
+    const renderPasses = options.expression?.renderPasses || [];
+    if (renderPasses.length === 0) {
+      renderPasses.push(new RenderPass());
+    }
+
+    for (let fileName in files) { // filename is uri
+      const fileExtension = DataUtil.getExtension(fileName);
+      if (this.__isValidExtension(fileExtension)) {
+        importPromises.push(this.__importToRenderPassesFromArrayBufferPromise(fileName, renderPasses, options, fileName));
       }
     }
 
@@ -163,37 +201,87 @@ export default class GltfImporter {
     })
   }
 
+
+  private __isGlb(arrayBuffer: ArrayBuffer) {
+    const dataView = new DataView(arrayBuffer, 0, 20);
+    const isLittleEndian = true;
+    // Magic field
+    const magic = dataView.getUint32(0, isLittleEndian);
+    let result;
+    // The 0x46546C67 means 'glTF' string in glb files.
+    if (magic === 0x46546C67) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private __getGlbVersion(glbArrayBuffer: ArrayBuffer) {
+    const dataView = new DataView(glbArrayBuffer, 0, 20);
+    const isLittleEndian = true;
+    const glbVer = dataView.getUint32(4, isLittleEndian);
+    return glbVer;
+  }
+
+  private __getGltfVersion(gltfJson: glTF1|glTF2) {
+    if ((gltfJson as glTF2).asset?.version?.charAt(0) === '2') {
+      return 2;
+    } else {
+      return 1;
+    }
+  }
+
+
   private __importToRenderPassesFromArrayBufferPromise(fileName: string, renderPasses: RenderPass[], options: GltfLoadOption, uri: string) {
     const optionalFileType = options.fileType;
 
-    return this.__getFileTypeFromFilePromise(fileName, options, optionalFileType).then((fileType) => {
+    const fileType = this.__getFileTypeFromFilePromise(fileName, options, optionalFileType);
 
-      return new Promise((resolve, reject) => {
-        let importer;
-        const modelConverter = ModelConverter.getInstance();
+    return new Promise((resolve, reject) => {
+      const modelConverter = ModelConverter.getInstance();
 
-        const file = options.files[fileName];
-        options.isImportVRM = false;
-        switch (fileType) {
-          case 'glTF1':
-            importer = Gltf1Importer.getInstance() as Gltf1Importer;
-            importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+      const fileArrayBuffer = options.files[fileName];
+      options.isImportVRM = false;
+      let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
+      switch (fileType) {
+        case FileType.glTF:
+          {
+            const gotText = DataUtil.arrayBufferToString(fileArrayBuffer);
+            const json = JSON.parse(gotText);
+            glTFVer = this.__getGltfVersion(json);
+            let importer;
+            if (glTFVer === 1) {
+              importer = Gltf1Importer.getInstance();
+            } else {
+              importer = Gltf2Importer.getInstance();
+            }
+            importer.importFromArrayBuffer(fileArrayBuffer, options.files, options, fileName).then((gltfModel) => {
               const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
               renderPasses[0].addEntities([rootGroup]);
               resolve();
             });
-            break;
-          case 'glTF2':
-            importer = Gltf2Importer.getInstance() as Gltf2Importer;
-            importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+          }
+          break;
+        case FileType.glB:
+          {
+            glTFVer = this.__getGlbVersion(fileArrayBuffer);
+            let importer;
+            if (glTFVer === 1) {
+              importer = Gltf1Importer.getInstance();
+            } else {
+              importer = Gltf2Importer.getInstance();
+            }
+            importer.importFromArrayBuffer(fileArrayBuffer, options.files, options, fileName).then((gltfModel) => {
               const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
               renderPasses[0].addEntities([rootGroup]);
               resolve();
             });
-            break;
-          case 'Draco':
-            importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
-            importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+          }
+          break;
+        case FileType.Draco:
+          {
+            const importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
+            importer.importArrayBuffer(uri, fileArrayBuffer, options).then((gltfModel) => {
               if (gltfModel == null) {
                 console.error('importArrayBuffer error is occurred');
                 reject();
@@ -203,30 +291,28 @@ export default class GltfImporter {
                 resolve();
               }
             });
-            break;
-          case 'VRM':
-            options.isImportVRM = true;
-            this.__importVRM(uri, file, renderPasses, options).then(() => {
-              resolve();
-            });
-            break;
-          default:
-            console.error('detect invalid format');
-            reject();
-        }
-      }) as Promise<void>;
-    })
+          }
+          break;
+        case FileType.VRM:
+          options.isImportVRM = true;
+          this.__importVRM(uri, fileArrayBuffer, renderPasses, options).then(() => {
+            resolve();
+          });
+          break;
+        default:
+          console.error('detect invalid format');
+          reject();
+      }
+    }) as Promise<void>;
   }
 
   private __getFileTypeFromFilePromise(fileName: string, options: GltfLoadOption, optionalFileType?: string) {
-    return new Promise((resolve) => {
-      if (optionalFileType != null) {
-        resolve(optionalFileType);
-      } else {
-        const fileType = detectFormatByArrayBuffers( { [fileName]: options.files[fileName] });
-        resolve(fileType);
-      }
-    });
+    if (optionalFileType != null) {
+      return FileType.fromString(optionalFileType);
+    } else {
+      const fileType = detectFormatByArrayBuffers( { [fileName]: options.files[fileName] });
+      return fileType;
+    }
   }
 
   private __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options: GltfLoadOption): Promise<void> {

@@ -1,20 +1,22 @@
 import DataUtil from "../misc/DataUtil";
+import { FileType, FileTypeEnum } from '../../foundation/definitions/FileType';
 
-
-export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }) : string
+export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }) : FileTypeEnum
 {
   for (let fileName in files) {
     const fileExtension = DataUtil.getExtension(fileName);
 
-    if (fileExtension === 'gltf' || fileExtension === 'glb') {
-      return 'glTF'
-    } else if (fileExtension === 'drc') {
-      return 'Draco';
+    if (fileExtension === 'gltf') {
+      return FileType.glTF
+    } else if (fileExtension === 'glb') {
+      return FileType.glB;
     } else if (fileExtension === 'vrm') {
-      return 'VRM';
+      return FileType.VRM;
+    } else if (fileExtension === 'drc') {
+      return FileType.Draco;
     }
   }
-  return 'Unknown'
+  return FileType.Unknown;
 }
 
 export function detectFormatByUri(uri: string) : string

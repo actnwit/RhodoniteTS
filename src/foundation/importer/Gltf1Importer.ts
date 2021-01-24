@@ -1,5 +1,5 @@
 import DataUtil from "../misc/DataUtil";
-import { glTF1, GltfLoadOption } from "../../commontypes/glTF";
+import { glTF1, GltfFileBuffers, GltfLoadOption } from "../../commontypes/glTF";
 
 declare var Rn: any;
 
@@ -24,13 +24,13 @@ export default class Gltf1Importer {
         const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.__loadFromArrayBuffer((options.files as any)[fileName], defaultOptions, basePath, options);
+          return await this.__loadFromArrayBuffer((options.files as any)[fileName], defaultOptions, options.files, basePath, options);
         }
       }
     }
 
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options);
+    return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, options?.files != null ? options.files : {}, basePath, options);
 
   }
 
@@ -44,12 +44,27 @@ export default class Gltf1Importer {
   importArrayBuffer(uri: string, arrayBuffer: ArrayBuffer, options?: GltfLoadOption) {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
-    return this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+    return this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, options!.files, basePath, options).catch((err) => {
       console.log('__loadFromArrayBuffer error', err);
     });
   }
 
-  private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, basePath: string, options?: {}) {
+  /**
+   * Import glTF1 file
+   * @param arrayBuffer - fetched glTF file
+   * @param options - options for loading process
+   * @returns a glTF2 based JSON pre-processed
+   */
+  importFromArrayBuffer(arrayBuffer: ArrayBuffer, otherFiles: GltfFileBuffers, options?: GltfLoadOption, uri?: string) {
+    const basePath = uri?.substring(0, uri?.lastIndexOf('/')) + '/'; // location of model file as basePath
+    const defaultOptions = DataUtil.createDefaultGltfOptions();
+    return this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, otherFiles, basePath, options).catch((err) => {
+      console.log('__loadFromArrayBuffer error', err);
+    });
+  }
+
+
+  private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, files: GltfFileBuffers, basePath?: string, options?: GltfLoadOption) {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const isLittleEndian = true;
     // Magic field
@@ -60,10 +75,10 @@ export default class Gltf1Importer {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this.__loadGltf(json, options as GltfLoadOption, defaultOptions, basePath);
+      result = await this.__loadGltf(json, files, options!, defaultOptions, basePath);
     }
     else {
-      result = await this.__loadGlb(dataView, isLittleEndian, arrayBuffer, options as GltfLoadOption, defaultOptions);
+      result = await this.__loadGlb(dataView, isLittleEndian, arrayBuffer, files, options!, defaultOptions);
     }
     return result;
   }
@@ -91,7 +106,7 @@ export default class Gltf1Importer {
     return defaultOptions;
   }
 
-  private async __loadGlb(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption) {
+  private async __loadGlb(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, files: GltfFileBuffers, options: GltfLoadOption, defaultOptions: GltfLoadOption) {
     let gltfVer = dataView.getUint32(4, isLittleEndian);
     if (gltfVer !== 1) {
       throw new Error('invalid version field in this binary glTF file.');
@@ -123,7 +138,7 @@ export default class Gltf1Importer {
     return (result[0] as any)[0];
   }
 
-  private async __loadGltf(gltfJson: glTF1, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
+  private async __loadGltf(gltfJson: glTF1, files: GltfFileBuffers, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath?: string) {
     if (gltfJson.asset === undefined) {
       gltfJson.asset = {};
     }
