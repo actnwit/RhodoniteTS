@@ -21,6 +21,7 @@
     "build-umd-prod": "npm run create-VERSION-FILE && npx webpack --config webpack.config.production.js",
     "build-esm": "npm run create-VERSION-FILE && npx webpack --config webpack.config.common_module.js",
     "build-type": "tsc --emitDeclarationOnly",
+    "build-samples": "node build-samples",
     "prepublishOnly": "npm run build && npm run test",
     "test": "npm run test-unit && npm run test-e2e",
     "test-unit": "npx jest --config jest.config.js ./src",

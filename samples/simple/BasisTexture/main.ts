@@ -1,12 +1,10 @@
-import { RnType } from '../../../dist/rhodonite';
-import { RnWebGL } from '../../../dist/webgl/main';
-import OrbitCameraController from '../../../dist/foundation/cameras/OrbitCameraController';
+import _Rn from '../../../dist/esm/index';
+import { OrbitCameraController } from '../../../dist/esm/index';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: RnType;
-declare const RnWebGL: RnWebGL
+declare const Rn: typeof _Rn;
 
 const load = async function () {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
