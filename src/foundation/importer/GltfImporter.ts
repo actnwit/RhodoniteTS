@@ -244,7 +244,7 @@ export default class GltfImporter {
       options.isImportVRM = false;
       let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
       switch (fileType) {
-        case FileType.glTF:
+        case FileType.Gltf:
           {
             const gotText = DataUtil.arrayBufferToString(fileArrayBuffer);
             const json = JSON.parse(gotText);
@@ -262,7 +262,7 @@ export default class GltfImporter {
             });
           }
           break;
-        case FileType.glB:
+        case FileType.GltfBinary:
           {
             glTFVer = this.__getGlbVersion(fileArrayBuffer);
             let importer;

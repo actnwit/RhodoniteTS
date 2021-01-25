@@ -10,13 +10,13 @@ class FileTypeClass extends EnumClass implements FileTypeEnum {
 }
 
 const Unknown: FileTypeEnum = new FileTypeClass({index:-1, str:'unknown'});
-const glTF: FileTypeEnum = new FileTypeClass({index:0, str:'gltf'});
-const glB: FileTypeEnum = new FileTypeClass({index:1, str:'glb'});
+const Gltf: FileTypeEnum = new FileTypeClass({index:0, str:'gltf'});
+const GltfBinary: FileTypeEnum = new FileTypeClass({index:1, str:'glb'});
 const VRM: FileTypeEnum = new FileTypeClass({index:2, str:'vrm'});
 const Draco: FileTypeEnum = new FileTypeClass({index:3, str:'drc'});
 const EffekseerEffect: FileTypeEnum = new FileTypeClass({index:4, str:'efk'});
 
-const typeList = [Unknown, glTF, glB, VRM, Draco, EffekseerEffect];
+const typeList = [Unknown, Gltf, GltfBinary, VRM, Draco, EffekseerEffect];
 
 function from( index : number ): FileTypeEnum {
   return _from({typeList, index}) as FileTypeEnum;
@@ -32,11 +32,11 @@ function fromString( str: string ): FileTypeEnum {
 }
 
 function isGltfOrGlb(file: FileTypeEnum) {
-  if (file === glTF || file === glB) {
+  if (file === Gltf || file === GltfBinary) {
     return true;
   } else {
     return false;
   }
 }
 
-export const FileType = Object.freeze({ Unknown, glTF, glB, VRM, Draco, EffekseerEffect, from, fromString, isGltfOrGlb });
+export const FileType = Object.freeze({ Unknown, Gltf, GltfBinary, VRM, Draco, EffekseerEffect, from, fromString, isGltfOrGlb });

@@ -7,9 +7,9 @@ export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }) 
     const fileExtension = DataUtil.getExtension(fileName);
 
     if (fileExtension === 'gltf') {
-      return FileType.glTF
+      return FileType.Gltf
     } else if (fileExtension === 'glb') {
-      return FileType.glB;
+      return FileType.GltfBinary;
     } else if (fileExtension === 'vrm') {
       return FileType.VRM;
     } else if (fileExtension === 'drc') {
