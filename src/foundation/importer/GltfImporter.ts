@@ -255,7 +255,7 @@ export default class GltfImporter {
             } else {
               importer = Gltf2Importer.getInstance();
             }
-            importer.importFromArrayBuffer(fileArrayBuffer, options.files, options, fileName).then((gltfModel) => {
+            importer.importGltf(json, options.files, options, fileName).then((gltfModel) => {
               const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
               renderPasses[0].addEntities([rootGroup]);
               resolve();
@@ -271,7 +271,7 @@ export default class GltfImporter {
             } else {
               importer = Gltf2Importer.getInstance();
             }
-            importer.importFromArrayBuffer(fileArrayBuffer, options.files, options, fileName).then((gltfModel) => {
+            importer.importGlb(fileArrayBuffer, options.files, options).then((gltfModel) => {
               const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
               renderPasses[0].addEntities([rootGroup]);
               resolve();
@@ -317,7 +317,7 @@ export default class GltfImporter {
 
   private __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options: GltfLoadOption): Promise<void> {
     const gltf2Importer = Gltf2Importer.getInstance();
-    return gltf2Importer.importArrayBuffer(uri, file, options).then((gltfModel) => {
+    return gltf2Importer.importGltfOrGlbFromArrayBuffers(file, options.files, options).then((gltfModel) => {
 
       const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
       defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? this._createTextures(gltfModel);
