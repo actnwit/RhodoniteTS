@@ -47,6 +47,7 @@ import _RenderTargetTexture from './foundation/textures/RenderTargetTexture';
 import _RenderBuffer from './foundation/textures/RenderBuffer';
 import _RenderableHelper from './foundation/helpers/RenderableHelper';
 import _VideoTexture from './foundation/textures/VideoTexture';
+import _AbstractTexture from './foundation/textures/AbstractTexture';
 import _Texture from './foundation/textures/Texture';
 import _EntityHelper from './foundation/helpers/EntityHelper';
 import _MathClassUtil from './foundation/math/MathClassUtil';
@@ -163,6 +164,7 @@ export default {
   RenderTargetTexture: _RenderTargetTexture,
   RenderBuffer: _RenderBuffer,
   RenderableHelper: _RenderableHelper,
+  AbstractTexture: _AbstractTexture,
   Texture: _Texture,
   VideoTexture: _VideoTexture,
   EntityHelper: _EntityHelper,
@@ -284,6 +286,7 @@ export type ShaderType = typeof _ShaderType
 export type RenderTargetTexture = _RenderTargetTexture
 export type RenderBuffer = _RenderBuffer
 export type RenderableHelper = typeof _RenderableHelper
+export type AbstractTexture = _AbstractTexture
 export type Texture = _Texture
 export type VideoTexture = _VideoTexture
 export type EntityHelper = typeof _EntityHelper
