@@ -298,7 +298,6 @@ export type glTF2 = {
       rnLoaderOptions?: GltfLoadOption,
       rnEntities?: Entity[],
       rnMaterials?: { [s: string]: Material; },
-      basePath?: string,
       version?: string,
       fileType?: string,
     }
@@ -326,7 +325,6 @@ export type glTF1 = {
   asset: {
     extras?: {
       rnLoaderOptions?: { [s: string]: any },
-      basePath?: string,
       version?: string,
       fileType?: string
     }
@@ -387,13 +385,15 @@ export type glTF1 = {
   techniques: any[]
 };
 
+export type GltfFileBuffers = {
+  [s: string]: ArrayBuffer
+  //        "foo.gltf": content of file as ArrayBuffer,
+  //        "foo.bin": content of file as ArrayBuffer,
+  //        "boo.png": content of file as ArrayBuffer
+}
+
 export type GltfLoadOption = {
-  files: {
-    [s: string]: ArrayBuffer
-    //        "foo.gltf": content of file as ArrayBuffer,
-    //        "foo.bin": content of file as ArrayBuffer,
-    //        "boo.png": content of file as ArrayBuffer
-  },
+  files: GltfFileBuffers,
   loaderExtension?: ILoaderExtension,
   defaultMaterialHelperName?: string,
   defaultMaterialHelperArgumentArray: any[],
@@ -431,6 +431,6 @@ export type GltfLoadOption = {
   },
   cameraComponent?: CameraComponent,
   fileType?: string,
-  expression?: Expression
+  expression?: Expression // If specified, GltfImporter set render passes including loaded model to this expression
 
 }

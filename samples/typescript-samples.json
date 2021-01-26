@@ -1,0 +1,8 @@
+{
+  "test_e2e": [
+  ],
+  "simple": [
+    "VideoTexture",
+    "BasisTexture"
+  ]
+}
