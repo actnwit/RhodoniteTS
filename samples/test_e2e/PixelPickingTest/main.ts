@@ -1,20 +1,15 @@
-import { RnType } from '../../../dist/rhodonite';
-import CameraComponent from '../../../dist/foundation/components/CameraComponent';
-import CameraControllerComponent from '../../../dist/foundation/components/CameraControllerComponent';
-import Entity from '../../../dist/foundation/core/Entity';
-import LightComponent from '../../../dist/foundation/components/LightComponent';
-import { RnWebGL } from '../../../dist/webgl/main';
-import OrbitCameraController from '../../../dist/foundation/cameras/OrbitCameraController';
+import _Rn, { CameraControllerComponent, Entity, LightComponent } from '../../../dist/esm/index';
+import { OrbitCameraController, CameraComponent } from '../../../dist/esm/index';
+
 
 declare const window: any;
-declare const Rn: RnType;
-declare const RnWebGL: RnWebGL
+declare const Rn: typeof _Rn;
 
 
 const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraComponent: CameraComponent, canvas: HTMLCanvasElement) {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-  RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
+  // RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
 
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;

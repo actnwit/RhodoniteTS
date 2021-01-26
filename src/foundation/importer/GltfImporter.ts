@@ -71,7 +71,8 @@ export default class GltfImporter {
       }
     }
 
-    return this.__setRenderPassesToExpression(renderPasses, options);
+    const expression = this.__setRenderPassesToExpression(renderPasses, options);
+    return expression;
   }
 
   /**

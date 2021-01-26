@@ -1,5 +1,6 @@
 {
   "test_e2e": [
+    "FXAA"
   ],
   "simple": [
     "VideoTexture",

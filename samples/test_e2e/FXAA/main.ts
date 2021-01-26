@@ -1,20 +1,13 @@
 
-import { RnType } from '../../../dist/rhodonite';
-import CameraComponent from '../../../dist/foundation/components/CameraComponent';
-import { RnWebGL } from '../../../dist/webgl/main';
-import OrbitCameraController from '../../../dist/foundation/cameras/OrbitCameraController';
-import EntityRepository from '../../../dist/foundation/core/EntityRepository';
-import AbstractTexture from '../../../dist/foundation/textures/AbstractTexture';
-import RenderPass from '../../../dist/foundation/renderer/RenderPass';
-import MeshComponent from '../../../dist/foundation/components/MeshComponent';
-import Expression from '../../../dist/foundation/renderer/Expression';
-import FrameBuffer from '../../../dist/foundation/renderer/FrameBuffer';
+import _Rn from '../../../dist/esm/index';
+import { OrbitCameraController, CameraComponent, MeshComponent, EntityRepository, AbstractTexture,
+  Expression, FrameBuffer, RenderPass} from '../../../dist/esm/index';
+
 
 let p: any;
 
 declare const window: any;
-declare const Rn: RnType;
-declare const RnWebGL: RnWebGL
+declare const Rn: typeof _Rn;
 
 const expressionWithFXAA = new Rn.Expression();
 const expressionWithOutFXAA = new Rn.Expression();
