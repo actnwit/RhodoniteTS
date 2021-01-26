@@ -52,7 +52,7 @@ export default class GltfImporter {
   /**
    * Import GLTF or VRM file.
    * @param uris uri or array of uri of glTF file
-   * @param options options for loading process where if you use files option, key name of files must be uri of the value array buffer
+   * @param options options for loading process where the files property is ignored
    * @returns gltf expression where:
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
