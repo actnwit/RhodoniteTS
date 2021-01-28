@@ -159,13 +159,19 @@ $ npm install
 
 You can use yarn instead.
 
-### Library build command
+### Build command for Rhodonite library
 
 ```bash
 $ npm run build
 ```
 
-## Building API Documents
+### Build command for samples
+
+```bash
+$ npm run build-samples
+```
+
+## Build command for API documents
 
 ```bash
 $ npm run doc
