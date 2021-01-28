@@ -1,4 +1,4 @@
-name: "CodeQL"
+name: "API Documents"
 
 on:
   push:
