@@ -15,7 +15,7 @@
     let expression;
     let framebuffer;
     let renderPassMain;
-    const load = async function () {
+    (async () => {
         await Rn.ModuleManager.getInstance().loadModule('webgl');
         await Rn.ModuleManager.getInstance().loadModule('pbr');
         const importer = Rn.Gltf1Importer.getInstance();
@@ -26,7 +26,7 @@
         renderPassMain = await setupRenderPassMain(entityRepository);
         framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
         renderPassMain.setFramebuffer(framebuffer);
-        const renderPassFxaa = await setupRenderPassFxaa(entityRepository, framebuffer.colorAttachments[0], canvas.clientWidth, canvas.clientHeight);
+        const renderPassFxaa = await setupRenderPassFxaa(entityRepository, framebuffer.getColorAttachedRenderTargetTexture(0), canvas.clientWidth, canvas.clientHeight);
         // expression
         expressionWithFXAA.addRenderPasses([renderPassMain, renderPassFxaa]);
         expressionWithOutFXAA.addRenderPasses([renderPassMain]);
@@ -62,8 +62,7 @@
             requestAnimationFrame(draw);
         };
         draw();
-    };
-    load();
+    })();
     async function setupRenderPassMain(entityRepository) {
         const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
         const planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
@@ -119,14 +118,14 @@
         primitiveFxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
         primitiveFxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, renderable);
         primitiveFxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(width, height));
-        const meshComponentFxaa = entityFxaa.getComponent(Rn.MeshComponent);
+        const meshComponentFxaa = entityFxaa.getMesh();
         const meshFxaa = new Rn.Mesh();
         meshFxaa.addPrimitive(primitiveFxaa);
         meshComponentFxaa.setMesh(meshFxaa);
         entityFxaa.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
         renderPassFxaa.addEntities([entityFxaa]);
         const cameraEntityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
-        const cameraComponentFxaa = cameraEntityFxaa.getComponent(Rn.CameraComponent);
+        const cameraComponentFxaa = cameraEntityFxaa.getCamera();
         cameraEntityFxaa.getTransform().translate = new Rn.Vector3(0.0, 0.0, 1.0);
         cameraComponentFxaa.type = Rn.CameraType.Orthographic;
         renderPassFxaa.cameraComponent = cameraComponentFxaa;

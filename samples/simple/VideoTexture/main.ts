@@ -6,7 +6,7 @@ let p: any;
 declare const window: any;
 declare const Rn: typeof _Rn;
 
-const load = async function () {
+(async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
@@ -94,7 +94,7 @@ const load = async function () {
   }
 
   draw();
-}
+})();
 
-load();
+
 

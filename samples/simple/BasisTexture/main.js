@@ -10,7 +10,7 @@
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     let p;
-    const load = async function () {
+    (async () => {
         await Rn.ModuleManager.getInstance().loadModule('webgl');
         await Rn.ModuleManager.getInstance().loadModule('pbr');
         const system = Rn.System.getInstance();
@@ -101,7 +101,6 @@
             requestAnimationFrame(draw);
         };
         draw();
-    };
-    load();
+    })();
 });
 //# sourceMappingURL=main.js.map

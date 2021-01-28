@@ -39,7 +39,7 @@ const pick = function (e: any) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
-  const renderTargetTexture = framebuffer.colorAttachments[0];
+  const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(0);
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
@@ -52,7 +52,7 @@ const pick = function (e: any) {
 
 let p: any;
 
-const load = async function () {
+(async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
@@ -66,7 +66,7 @@ const load = async function () {
 
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
-  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
+  const cameraComponent = cameraEntity.getCamera() as CameraComponent;
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
@@ -78,12 +78,12 @@ const load = async function () {
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   // lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
-  // lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
+  // lightEntity.getLight().intensity = new Rn.Vector3(1, 1, 1);
   const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   lightEntity2.getTransform().translate = new Rn.Vector3(0.0, 0.0, 10.0);
-  (lightEntity2.getComponent(Rn.LightComponent) as LightComponent).intensity = new Rn.Vector3(1, 1, 1);
+  (lightEntity2.getLight() as LightComponent).intensity = new Rn.Vector3(1, 1, 1);
   //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
-  //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
+  //lightEntity2.getLight().type = Rn.LightType.Directional;
 
 
   //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
@@ -118,7 +118,7 @@ const load = async function () {
 
 
   // CameraComponent
-  const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;
+  const cameraControllerComponent = cameraEntity.getCameraController() as CameraControllerComponent;
   (cameraControllerComponent.controller as OrbitCameraController).setTarget(rootGroup);
 
 
@@ -171,6 +171,6 @@ const load = async function () {
   canvas.addEventListener('mousedown', pick);
 
   draw();
-}
+})();
 
-load();
+
