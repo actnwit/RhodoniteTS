@@ -8,14 +8,17 @@ jobs:
     runs-on: windows-2019
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
+    - uses: actions/checkout@v2
+    - uses: Borales/actions-yarn@v2.3.0
       with:
-        node-version: 12.18.1
-    - run: npm install
+        cmd: install
     - uses: actions/upload-artifact@v2
       with:
         name: Rhodonite-distribution-files
         path: dist
-    - run: npm run build-samples
-    - run: npm run test
+    - uses: Borales/actions-yarn@v2.3.0
+      with:
+        cmd: build-samples
+    - uses: Borales/actions-yarn@v2.3.0
+      with:
+        cmd: test
