@@ -28,7 +28,7 @@
     "test-e2e": "npx jest ./samples/test_e2e --runInBand --config jest.config.e2e.js",
     "test-e2e-update": "npx jest ./samples/test_e2e --runInBand --config jest.config.e2e.js --updateSnapshot",
     "test-coverage": "npx jest --coverage",
-    "doc": "typedoc --includeDeclarations --ignoreCompilerErrors --exclude '**/*+(test|d).ts' --out ./docs/ ./src/",
+    "doc": "typedoc --exclude '**/*+(test|d).ts' --out ./docs/ ./src/",
     "yarn-pack": "yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE"
@@ -52,7 +52,7 @@
     "shelljs": "^0.8.3",
     "ts-jest": "^24.0.2",
     "ts-loader": "^6.0.2",
-    "typedoc": "^0.14.2",
+    "typedoc": "0.20.19",
     "typescript": "^3.7.2",
     "webpack": "^4.33.0",
     "webpack-cli": "^3.3.12",
