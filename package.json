@@ -28,7 +28,7 @@
     "test-e2e": "npx jest ./samples/test_e2e --runInBand --config jest.config.e2e.js",
     "test-e2e-update": "npx jest ./samples/test_e2e --runInBand --config jest.config.e2e.js --updateSnapshot",
     "test-coverage": "npx jest --coverage",
-    "doc": "typedoc --includeDeclarations --ignoreCompilerErrors --exclude '**/*+(test|d).ts' --out ./docs/ ./src/",
+    "doc": "typedoc --exclude '**/*+(test|d).ts' --out ./docs/ ./src/",
     "yarn-pack": "yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE"
