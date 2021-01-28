@@ -81,3 +81,5 @@ dist/
 *.d.ts
 *.tgz
 VERSION-FILE
+samples/**/main.js*
+docs/*
