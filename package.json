@@ -59,6 +59,7 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
+    "require": "^2.4.20",
     "requirejs": "^2.3.6",
     "shaderity": "0.1.25",
     "version-loader": "^0.1.0"

@@ -124,7 +124,7 @@ export default class GltfImporter {
         options.defaultMaterialHelperArgumentArray = [{}];
       } else {
         // avoid needless processing
-        if (options.defaultMaterialHelperArgumentArray[0]?.isMorphing === false) {
+        if (options.defaultMaterialHelperArgumentArray![0].isMorphing === false) {
           options.maxMorphTargetNumber = 0;
         }
       }
@@ -155,7 +155,7 @@ export default class GltfImporter {
 
     for (let uri of uris) {
       // import the glTF file from uri of uris array
-      if (uri !== '' && options.files[uri] == null) {
+      if (uri !== '' && options.files![uri] == null) {
         importPromises.push(this.__importToRenderPassesFromUriPromise(uri, renderPasses, options));
       }
     }
@@ -197,7 +197,7 @@ export default class GltfImporter {
 
   private __importToRenderPassesFromUriPromise(uri: string, renderPasses: RenderPass[], options: GltfLoadOption) {
     return DataUtil.fetchArrayBuffer(uri).then((arrayBuffer) => {
-      options.files[uri] = arrayBuffer;
+      options.files![uri] = arrayBuffer;
       return this.__importToRenderPassesFromArrayBufferPromise(uri, renderPasses, options, uri)
     })
   }
@@ -241,7 +241,7 @@ export default class GltfImporter {
     return new Promise((resolve, reject) => {
       const modelConverter = ModelConverter.getInstance();
 
-      const fileArrayBuffer = options.files[fileName];
+      const fileArrayBuffer = options.files![fileName];
       options.isImportVRM = false;
       let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
       switch (fileType) {
@@ -256,7 +256,7 @@ export default class GltfImporter {
             } else {
               importer = Gltf2Importer.getInstance();
             }
-            importer.importGltf(json, options.files, options, fileName).then((gltfModel) => {
+            importer.importGltf(json, options.files!, options, fileName).then((gltfModel) => {
               const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
               renderPasses[0].addEntities([rootGroup]);
               resolve();
@@ -272,7 +272,7 @@ export default class GltfImporter {
             } else {
               importer = Gltf2Importer.getInstance();
             }
-            importer.importGlb(fileArrayBuffer, options.files, options).then((gltfModel) => {
+            importer.importGlb(fileArrayBuffer, options.files!, options).then((gltfModel) => {
               const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
               renderPasses[0].addEntities([rootGroup]);
               resolve();
@@ -311,14 +311,14 @@ export default class GltfImporter {
     if (optionalFileType != null) {
       return FileType.fromString(optionalFileType);
     } else {
-      const fileType = detectFormatByArrayBuffers( { [fileName]: options.files[fileName] });
+      const fileType = detectFormatByArrayBuffers( { [fileName]: options.files![fileName] });
       return fileType;
     }
   }
 
   private __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options: GltfLoadOption): Promise<void> {
     const gltf2Importer = Gltf2Importer.getInstance();
-    return gltf2Importer.importGltfOrGlbFromArrayBuffers(file, options.files, options).then((gltfModel) => {
+    return gltf2Importer.importGltfOrGlbFromArrayBuffers(file, options.files!, options).then((gltfModel) => {
 
       const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
       defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? this._createTextures(gltfModel);

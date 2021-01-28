@@ -17,4 +17,5 @@ jobs:
       with:
         name: Rhodonite-distribution-files
         path: dist
+    - run: npm run build-samples
     - run: npm run test

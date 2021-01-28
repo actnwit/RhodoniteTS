@@ -41,6 +41,22 @@ export default class FrameBuffer extends RnObject {
     return this.__depthStencilAttachment;
   }
 
+  getColorAttachedRenderTargetTexture(index: Index): RenderTargetTexture | undefined {
+    if (this.__colorAttachments[index] == null || !(this.__colorAttachments[index] instanceof RenderTargetTexture)) {
+      return undefined;
+    } else {
+      return this.__colorAttachments[index] as RenderTargetTexture;
+    }
+  }
+
+  getDepthAttachedRenderTargetTexture(): RenderTargetTexture | undefined  {
+    if (this.__depthAttachment instanceof RenderTargetTexture) {
+      return this.__depthAttachment as RenderTargetTexture;
+    } else {
+      return undefined;
+    }
+  }
+
   create(width: Size, height: Size) {
     this.width = width;
     this.height = height;

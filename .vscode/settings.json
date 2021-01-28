@@ -4,10 +4,13 @@
         "data",
         "dettach",
         "effekseer",
+        "fovy",
         "fxaa",
         "gltf",
+        "m",
         "renderable",
         "shaderity",
+        "toon",
         "vertex"
     ]
 }

@@ -393,11 +393,11 @@ export type GltfFileBuffers = {
 }
 
 export type GltfLoadOption = {
-  files: GltfFileBuffers,
+  files?: GltfFileBuffers,
   loaderExtension?: ILoaderExtension,
   defaultMaterialHelperName?: string,
-  defaultMaterialHelperArgumentArray: any[],
-  statesOfElements: [
+  defaultMaterialHelperArgumentArray?: any[],
+  statesOfElements?: [
     {
       targets: any[], //["name_foo", "name_boo"],
       states: {

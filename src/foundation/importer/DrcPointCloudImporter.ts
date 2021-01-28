@@ -568,7 +568,7 @@ export default class DrcPointCloudImporter {
         });
       } else if (options.files && options.files[filename!]) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
-          const arrayBuffer = options.files[filename];
+          const arrayBuffer = options.files![filename];
           resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);

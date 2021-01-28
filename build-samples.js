@@ -1,5 +1,5 @@
 const exec = require('child_process').exec;
-const sampleList = require('./samples/typescript-samples.json');
+const sampleList = require('./samples/sample-list.json');
 
 
 function build(sampleDir){

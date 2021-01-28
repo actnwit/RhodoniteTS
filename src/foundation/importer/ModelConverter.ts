@@ -407,7 +407,7 @@ export default class ModelConverter {
   }
 
   private __isMorphing(node: any, gltfModel: glTF2) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isMorphing === false) {
       return false;
     } else {
@@ -665,7 +665,7 @@ export default class ModelConverter {
     const shaderName = materialProperties.shader;
     if (shaderName === "VRM/MToon") {
       // argument
-      const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray[0];
+      const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
       const additionalName = defaultMaterialHelperArgument.additionalName;
       const isMorphing = this.__isMorphing(node, gltfModel);
@@ -706,7 +706,7 @@ export default class ModelConverter {
 
       return material;
 
-    } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray[0].isOutline) {
+    } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray![0].isOutline) {
       return MaterialHelper.createEmptyMaterial();;
     }
 
@@ -733,7 +733,7 @@ export default class ModelConverter {
 
       const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       if (materialHelperName != null) {
-        return (MaterialHelper as any)[materialHelperName](...rnLoaderOptions.defaultMaterialHelperArgumentArray);
+        return (MaterialHelper as any)[materialHelperName](...rnLoaderOptions.defaultMaterialHelperArgumentArray!);
       }
     }
 
@@ -763,7 +763,7 @@ export default class ModelConverter {
   }
 
   private __isLighting(gltfModel: glTF2, materialJson?: Gltf2Material) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isLighting != null) {
       return argument.isLighting as boolean;
     } else {
@@ -772,7 +772,7 @@ export default class ModelConverter {
   }
 
   private __isSkinning(node: Gltf2Node, gltfModel: glTF2) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isSkinning === false) {
       return false;
     } else {
@@ -805,7 +805,7 @@ export default class ModelConverter {
     return false;
   }
   private __useNormalTexture(gltfModel: glTF2) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray[0];
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
     if (argument?.useNormalTexture === false) {
       return false;
     } else {
