@@ -707,7 +707,7 @@ export default class ModelConverter {
       return material;
 
     } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray![0].isOutline) {
-      return MaterialHelper.createEmptyMaterial();;
+      return MaterialHelper.createEmptyMaterial();
     }
 
     // use another material
