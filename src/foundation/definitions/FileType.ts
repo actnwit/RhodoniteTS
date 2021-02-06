@@ -4,17 +4,21 @@ export interface FileTypeEnum extends EnumIO {
 }
 
 class FileTypeClass extends EnumClass implements FileTypeEnum {
-  constructor({index, str} : {index: number, str: string}) {
+  readonly extension: string;
+  readonly brand: string;
+  constructor({index, str, ext, brand} : {index: number, str: string, ext: string, brand: string}) {
     super({index, str});
+    this.extension = ext;
+    this.brand = brand;
   }
 }
 
-const Unknown: FileTypeEnum = new FileTypeClass({index:-1, str:'unknown'});
-const Gltf: FileTypeEnum = new FileTypeClass({index:0, str:'gltf'});
-const GltfBinary: FileTypeEnum = new FileTypeClass({index:1, str:'glb'});
-const VRM: FileTypeEnum = new FileTypeClass({index:2, str:'vrm'});
-const Draco: FileTypeEnum = new FileTypeClass({index:3, str:'drc'});
-const EffekseerEffect: FileTypeEnum = new FileTypeClass({index:4, str:'efk'});
+const Unknown: FileTypeEnum = new FileTypeClass({index: -1, str: 'unknown', ext: 'unknown', brand: 'UnKnown'});
+const Gltf: FileTypeEnum = new FileTypeClass({index:0, str: 'gltf', ext: 'gltf', brand: 'glTF'});
+const GltfBinary: FileTypeEnum = new FileTypeClass({index:1, str:'glb', ext: 'glb', brand: 'glTF'});
+const VRM: FileTypeEnum = new FileTypeClass({index:2, str:'vrm', ext: 'vrm', brand: 'VRM'});
+const Draco: FileTypeEnum = new FileTypeClass({index:3, str:'draco', ext: 'drc', brand: 'Draco'});
+const EffekseerEffect: FileTypeEnum = new FileTypeClass({index:4, str:'efk', ext: 'efk', brand: 'EffekseerEffect'});
 
 const typeList = [Unknown, Gltf, GltfBinary, VRM, Draco, EffekseerEffect];
 
