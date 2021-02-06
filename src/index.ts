@@ -95,24 +95,25 @@ import _MutableQuaternion from './foundation/math/MutableQuaternion';
 const _VERSION = require('./../VERSION-FILE').default;
 
 // definitions
-import  { ShaderSemantics as _ShaderSemantics, ShaderSemanticsEnum as _ShaderSemanticsEnum } from './foundation/definitions/ShaderSemantics';
-import  { LightType as _LightType } from './foundation/definitions/LightType';
-import  { AlphaMode as _AlphaMode } from './foundation/definitions/AlphaMode';
-import  { CameraType as _CameraType } from './foundation/definitions/CameraType';
-import  { ShaderType as _ShaderType } from './foundation/definitions/ShaderType';
-import  { TextureParameter as _TextureParameter, TextureParameterEnum as _TextureParameterEnum } from './foundation/definitions/TextureParameter';
-import  { BoneDataType as _BoneDataType, BoneDataTypeEnum as _BoneDataTypeEnum } from './foundation/definitions/BoneDataType';
-import  { PixelFormat as _PixelFormat, PixelFormatEnum as _PixelFormatEnum } from './foundation/definitions/PixelFormat';
-import  { ProcessApproach as _ProcessApproach, ProcessApproachEnum as _ProcessApproachEnum } from './foundation/definitions/ProcessApproach';
-import  { PrimitiveMode as _PrimitiveMode, PrimitiveModeEnum as _PrimitiveModeEnum } from './foundation/definitions/PrimitiveMode';
-import  { VertexAttribute as _VertexAttribute, VertexAttributeEnum as _VertexAttributeEnum } from './foundation/definitions/VertexAttribute';
-import  { CompositionType as _CompositionType, CompositionTypeEnum as _CompositionTypeEnum } from './foundation/definitions/CompositionType';
-import  { ComponentType as _ComponentType, ComponentTypeEnum as _ComponentTypeEnum } from './foundation/definitions/ComponentType';
-import  { CameraControllerType as _CameraControllerType, CameraControllerTypeEnum as _CameraControllerTypeEnum } from './foundation/definitions/CameraControllerType';
-import  { HdriFormat as _HdriFormat, HdriFormatEnum as _HdriFormatEnum } from './foundation/definitions/HdriFormat';
-import  { ShadingModel as _ShadingModel, ShadingModelEnum as _ShadingModelEnum } from './foundation/definitions/ShadingModel';
-import  { AnimationAttribute as _AnimationAttribute, AnimationAttributeEnum as _AnimationAttributeEnum } from './foundation/definitions/AnimationAttribute';
-import  { AnimationInterpolation as _AnimationInterpolation, AnimationInterpolationEnum as _AnimationInterpolationEnum } from './foundation/definitions/AnimationInterpolation';
+import { ShaderSemantics as _ShaderSemantics, ShaderSemanticsEnum as _ShaderSemanticsEnum } from './foundation/definitions/ShaderSemantics';
+import { LightType as _LightType } from './foundation/definitions/LightType';
+import { AlphaMode as _AlphaMode } from './foundation/definitions/AlphaMode';
+import { CameraType as _CameraType } from './foundation/definitions/CameraType';
+import { ShaderType as _ShaderType } from './foundation/definitions/ShaderType';
+import { TextureParameter as _TextureParameter, TextureParameterEnum as _TextureParameterEnum } from './foundation/definitions/TextureParameter';
+import { BoneDataType as _BoneDataType, BoneDataTypeEnum as _BoneDataTypeEnum } from './foundation/definitions/BoneDataType';
+import { PixelFormat as _PixelFormat, PixelFormatEnum as _PixelFormatEnum } from './foundation/definitions/PixelFormat';
+import { ProcessApproach as _ProcessApproach, ProcessApproachEnum as _ProcessApproachEnum } from './foundation/definitions/ProcessApproach';
+import { PrimitiveMode as _PrimitiveMode, PrimitiveModeEnum as _PrimitiveModeEnum } from './foundation/definitions/PrimitiveMode';
+import { VertexAttribute as _VertexAttribute, VertexAttributeEnum as _VertexAttributeEnum } from './foundation/definitions/VertexAttribute';
+import { CompositionType as _CompositionType, CompositionTypeEnum as _CompositionTypeEnum } from './foundation/definitions/CompositionType';
+import { ComponentType as _ComponentType, ComponentTypeEnum as _ComponentTypeEnum } from './foundation/definitions/ComponentType';
+import { CameraControllerType as _CameraControllerType, CameraControllerTypeEnum as _CameraControllerTypeEnum } from './foundation/definitions/CameraControllerType';
+import { HdriFormat as _HdriFormat, HdriFormatEnum as _HdriFormatEnum } from './foundation/definitions/HdriFormat';
+import { ShadingModel as _ShadingModel, ShadingModelEnum as _ShadingModelEnum } from './foundation/definitions/ShadingModel';
+import { AnimationAttribute as _AnimationAttribute, AnimationAttributeEnum as _AnimationAttributeEnum } from './foundation/definitions/AnimationAttribute';
+import { AnimationInterpolation as _AnimationInterpolation, AnimationInterpolationEnum as _AnimationInterpolationEnum } from './foundation/definitions/AnimationInterpolation';
+import { GltfLoadOption as _GltfLoadOption} from './commontypes/glTF'
 
 export default {
   Entity: _Entity,
@@ -329,6 +330,7 @@ export type BlockBeginShaderNode = _BlockBeginShaderNode
 export type BlockEndShaderNode = _BlockEndShaderNode
 export type GreaterShaderNode = _GreaterShaderNode
 export type ShaderGraphResolver = _ShaderGraphResolver
+export type GltfLoadOption = _GltfLoadOption
 export type VERSION = typeof _VERSION
 
 // Definition Enums
