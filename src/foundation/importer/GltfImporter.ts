@@ -240,7 +240,6 @@ export default class GltfImporter {
 
     return new Promise((resolve, reject) => {
       const modelConverter = ModelConverter.getInstance();
-
       const fileArrayBuffer = options.files![fileName];
       options.isImportVRM = false;
       let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2

@@ -17,7 +17,7 @@ const Unknown: FileTypeEnum = new FileTypeClass({index: -1, str: 'unknown', ext:
 const Gltf: FileTypeEnum = new FileTypeClass({index:0, str: 'gltf', ext: 'gltf', brand: 'glTF'});
 const GltfBinary: FileTypeEnum = new FileTypeClass({index:1, str:'glb', ext: 'glb', brand: 'glTF'});
 const VRM: FileTypeEnum = new FileTypeClass({index:2, str:'vrm', ext: 'vrm', brand: 'VRM'});
-const Draco: FileTypeEnum = new FileTypeClass({index:3, str:'draco', ext: 'drc', brand: 'Draco'});
+const Draco: FileTypeEnum = new FileTypeClass({index:3, str:'drc', ext: 'drc', brand: 'Draco'});
 const EffekseerEffect: FileTypeEnum = new FileTypeClass({index:4, str:'efk', ext: 'efk', brand: 'EffekseerEffect'});
 
 const typeList = [Unknown, Gltf, GltfBinary, VRM, Draco, EffekseerEffect];
