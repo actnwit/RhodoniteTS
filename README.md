@@ -43,7 +43,7 @@ $ npm install rhodonite
 
 ## Coding with Rhodonite
 
-### In Javascipt
+### In JavaScript
 
 ```html
 <body>
