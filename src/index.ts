@@ -91,6 +91,7 @@ import _GreaterShaderNode from './foundation/materials/nodes/GreaterShaderNode';
 import _ShaderGraphResolver from './foundation/materials/core/ShaderGraphResolver';
 import _Quaternion from './foundation/math/Quaternion';
 import _MutableQuaternion from './foundation/math/MutableQuaternion';
+import { FileType as _FileType, FileTypeEnum as _FileTypeEnum } from './foundation/definitions/FileType';
 
 const _VERSION = require('./../VERSION-FILE').default;
 
@@ -209,6 +210,7 @@ export default {
   ShaderGraphResolver: _ShaderGraphResolver,
   Quaternion: _Quaternion,
   MutableQuaternion: _MutableQuaternion,
+  FileType: _FileType,
   VERSION: _VERSION,
 
   // Definition Objects
@@ -346,3 +348,4 @@ export type HdriFormatEnum = _HdriFormatEnum
 export type ShadingModelEnum = _ShadingModelEnum
 export type AnimationAttributeEnum = _AnimationAttributeEnum
 export type AnimationInterpolationEnum = _AnimationInterpolationEnum
+export type FileTypeEnum = _FileTypeEnum
