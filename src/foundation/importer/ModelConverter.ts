@@ -454,7 +454,7 @@ export default class ModelConverter {
       cameraComponent.zNear = camera.perspective.znear;
       cameraComponent.zFar = camera.perspective.zfar ? camera.perspective.zfar : 100000;
     } else if (cameraComponent.type === CameraType.Orthographic) {
-      cameraComponent.xMag = camera.orthographic.zmag;
+      cameraComponent.xMag = camera.orthographic.xmag;
       cameraComponent.yMag = camera.orthographic.ymag;
       cameraComponent.zNear = camera.orthographic.znear;
       cameraComponent.zFar = camera.orthographic.zfar;
