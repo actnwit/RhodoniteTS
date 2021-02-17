@@ -529,6 +529,23 @@ export default class Material extends RnObject {
     vertexShader += vertexShaderBody.replace(/#version\s+300\s+es/, '');
     pixelShader += pixelShaderBody.replace(/#version\s+300\s+es/, '');
 
+
+    let attributeNames;
+    let attributeSemantics;
+    if (materialNode.vertexShaderityObject != null) {
+      const reflection = ShaderityUtility.getInstance().getReflection(materialNode.vertexShaderityObject);
+      attributeNames = reflection.names;
+      attributeSemantics = reflection.semantics;
+    } else {
+      attributeNames = glslShader!.attributeNames
+      attributeSemantics = glslShader!.attributeSemantics;
+    }
+    let vertexAttributesBinding = '\n// Vertex Attributes Binding Info\n';
+    for (let i=0; i < attributeNames.length; i++) {
+      vertexAttributesBinding += `// ${attributeNames[i]}: ${attributeSemantics[i].str} \n`;
+    }
+    vertexShader += vertexAttributesBinding;
+
     const wholeShaderText = vertexShader + pixelShader;
 
     // Cache
@@ -543,17 +560,6 @@ export default class Material extends RnObject {
       this._shaderProgramUid = shaderProgramUid;
       return this._shaderProgramUid;
     } else {
-      let attributeNames;
-      let attributeSemantics;
-      if (materialNode.vertexShaderityObject != null) {
-        const reflection = ShaderityUtility.getInstance().getReflection(materialNode.vertexShaderityObject);
-        attributeNames = reflection.names;
-        attributeSemantics = reflection.semantics;
-      } else {
-        attributeNames = glslShader!.attributeNames
-        attributeSemantics = glslShader!.attributeSemantics;
-      }
-
       this._shaderProgramUid = webglResourceRepository.createShaderProgram(
         {
           materialTypeName: this.__materialTypeName,

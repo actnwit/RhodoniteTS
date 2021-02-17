@@ -17,11 +17,20 @@ import MutableMatrix44 from "../../math/MutableMatrix44";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 import MemoryManager from "../../core/MemoryManager";
+import Component from "../../core/Component";
+import { ComponentTypeEnum } from "../../..";
 
 export type FillArgsObject = {
   [s:string]: string,
   WellKnownComponentTIDs?: any,
   Config?: any
+};
+
+export type VertexAttributesLayout = {
+  names: string[],
+  semantics: VertexAttributeEnum[],
+  compositions: CompositionTypeEnum[],
+  components: ComponentTypeEnum[]
 };
 
 export default class ShaderityUtility {
@@ -78,17 +87,13 @@ export default class ShaderityUtility {
     return code;
   }
 
-  getReflection(shaderityObject: ShaderityObject): {
-    names: string[],
-    semantics: VertexAttributeEnum[],
-    compositions: CompositionTypeEnum[]
-  } {
+  getReflection(shaderityObject: ShaderityObject): VertexAttributesLayout {
     const reflection = this.__shaderity.reflect(shaderityObject);
     const reflectionSoA: any = {};
     reflectionSoA.names = reflection.attributesNames;
-    reflectionSoA.semantics = reflection.attributesSemantics.map((semantic) => { return VertexAttribute.fromString(semantic) });;
-    reflectionSoA.compositions = reflection.attributesTypes.map((type) => { return CompositionType.fromGlslString(type) });;
-    reflectionSoA.components = reflection.attributesTypes.map((type) => { return ComponentType.fromGlslString(type) });;
+    reflectionSoA.semantics = reflection.attributesSemantics.map((semantic) => { return VertexAttribute.fromString(semantic) });
+    reflectionSoA.compositions = reflection.attributesTypes.map((type) => { return CompositionType.fromGlslString(type) });
+    reflectionSoA.components = reflection.attributesTypes.map((type) => { return ComponentType.fromGlslString(type) });
 
     return reflectionSoA;
   }
