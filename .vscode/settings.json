@@ -1,16 +1,30 @@
 {
     "cSpell.words": [
+        "bary",
+        "barycentriccoord",
         "blittable",
+        "brdf",
+        "centric",
+        "cgapi",
+        "component",
+        "coord",
         "data",
         "dettach",
         "effekseer",
         "fovy",
         "fxaa",
+        "glsl",
         "gltf",
-        "m",
+        "hdri",
+        "instanceid",
+        "known",
         "renderable",
         "shaderity",
+        "texcoord",
+        "tids",
         "toon",
-        "vertex"
+        "vertex",
+        "vrize",
+        "well"
     ]
 }
