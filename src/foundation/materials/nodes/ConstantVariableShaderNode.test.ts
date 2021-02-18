@@ -1,22 +1,26 @@
-import Rn from '../../..';
 import ModuleManager from '../../system/ModuleManager';
 import MemoryManager from '../../core/MemoryManager';
 import ConstantVariableShaderNode from './ConstantVariableShaderNode';
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
+import {CompositionType} from '../../definitions/CompositionType';
+import {ComponentType} from '../../definitions/ComponentType';
 import AddShaderNode from './AddShaderNode';
 import OutPositionShaderNode from './OutPositionShaderNode';
 import Vector4 from '../../math/Vector4';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
-
 test('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
-  const constant1 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
+  const constant1 = new ConstantVariableShaderNode(
+    CompositionType.Vec4,
+    ComponentType.Float
+  );
   constant1.setDefaultInputValue('value', new Vector4(1, 2, 3, 4));
-  const constant2 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
+  const constant2 = new ConstantVariableShaderNode(
+    CompositionType.Vec4,
+    ComponentType.Float
+  );
   constant2.setDefaultInputValue('value', new Vector4(4, 3, 2, 1));
 
   const add = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
@@ -27,11 +31,17 @@ test('ConstantVariable works correctly 1', async () => {
   outPosition.addInputConnection(add, 'outValue', 'value');
 
   // nodes are intentionally made the order random
-  const ret = ShaderGraphResolver.createVertexShaderCode([constant1, constant2, add, outPosition])
+  const ret = ShaderGraphResolver.createVertexShaderCode([
+    constant1,
+    constant2,
+    add,
+    outPosition,
+  ]);
 
-  console.log(ret.shaderBody, ret.shader)
+  console.log(ret.shaderBody, ret.shader);
 
-  expect((ret.shaderBody).replace(/\s+/g, "")).toEqual(`
+  expect(ret.shaderBody.replace(/\s+/g, '')).toEqual(
+    `
         void constantVariable_1(
           out vec4 outValue) {
           outValue = vec4(4.0, 3.0, 2.0, 1.0);
@@ -100,5 +110,6 @@ test('ConstantVariable works correctly 1', async () => {
     outPosition(outValue_2_to_3);
 
         }
-    `.replace(/\s+/g, ""))
+    `.replace(/\s+/g, '')
+  );
 });

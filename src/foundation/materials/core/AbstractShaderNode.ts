@@ -1,10 +1,13 @@
 import RnObject from '../../core/RnObject';
-import { ShaderNode } from '../../definitions/ShaderNode';
-import { ShaderSocket } from './AbstractMaterialNode';
+import {ShaderSocket} from './AbstractMaterialNode';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';
 
 export type ShaderNodeUID = number;
-type ShaderNodeInputConnectionType = { shaderNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string };
+type ShaderNodeInputConnectionType = {
+  shaderNodeUid: number;
+  outputNameOfPrev: string;
+  inputNameOfThis: string;
+};
 
 export default abstract class AbstractShaderNode extends RnObject {
   static shaderNodes: AbstractShaderNode[] = [];
@@ -18,13 +21,19 @@ export default abstract class AbstractShaderNode extends RnObject {
   protected __shaderNodeUid: ShaderNodeUID;
   protected __shader?: GLSLShader;
 
-  constructor(shaderNodeName: string, shaderCode?: string, shader?: GLSLShader) {
+  constructor(
+    shaderNodeName: string,
+    shaderCode?: string,
+    shader?: GLSLShader
+  ) {
     super();
     this.__shaderFunctionName = shaderNodeName;
-    this.__shaderCode = shaderCode
+    this.__shaderCode = shaderCode;
     this.__shaderNodeUid = ++AbstractShaderNode.__invalidShaderNodeCount;
-    AbstractShaderNode.shaderNodes[AbstractShaderNode.__invalidShaderNodeCount] = this;
-    this.__shader = shader
+    AbstractShaderNode.shaderNodes[
+      AbstractShaderNode.__invalidShaderNodeCount
+    ] = this;
+    this.__shader = shader;
   }
 
   get shaderFunctionName() {
@@ -40,7 +49,7 @@ export default abstract class AbstractShaderNode extends RnObject {
   }
 
   getInput(name: string): ShaderSocket | undefined {
-    for (let input of this.__inputs) {
+    for (const input of this.__inputs) {
       if (input.name === name) {
         return input;
       }
@@ -53,7 +62,7 @@ export default abstract class AbstractShaderNode extends RnObject {
   }
 
   getOutput(name: string): ShaderSocket | undefined {
-    for (let output of this.__outputs) {
+    for (const output of this.__outputs) {
       if (output.name === name) {
         return output;
       }
@@ -65,8 +74,16 @@ export default abstract class AbstractShaderNode extends RnObject {
     return this.__outputs;
   }
 
-  addInputConnection(inputShaderNode: AbstractShaderNode, outputNameOfPrev: string, inputNameOfThis: string) {
-    this.__inputConnections.push({ shaderNodeUid: inputShaderNode.shaderNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
+  addInputConnection(
+    inputShaderNode: AbstractShaderNode,
+    outputNameOfPrev: string,
+    inputNameOfThis: string
+  ) {
+    this.__inputConnections.push({
+      shaderNodeUid: inputShaderNode.shaderNodeUid,
+      outputNameOfPrev: outputNameOfPrev,
+      inputNameOfThis: inputNameOfThis,
+    });
   }
 
   get inputConnections(): ShaderNodeInputConnectionType[] {

@@ -1,13 +1,14 @@
 import DataUtil from '../misc/DataUtil';
-import { FileType, FileTypeEnum } from '../../foundation/definitions/FileType';
+import {FileType, FileTypeEnum} from '../../foundation/definitions/FileType';
 
-export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }) : FileTypeEnum
-{
-  for (let fileName in files) {
+export function detectFormatByArrayBuffers(files: {
+  [s: string]: ArrayBuffer;
+}): FileTypeEnum {
+  for (const fileName in files) {
     const fileExtension = DataUtil.getExtension(fileName);
 
     if (fileExtension === 'gltf') {
-      return FileType.Gltf
+      return FileType.Gltf;
     } else if (fileExtension === 'glb') {
       return FileType.GltfBinary;
     } else if (fileExtension === 'vrm') {
@@ -19,8 +20,7 @@ export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }) 
   return FileType.Unknown;
 }
 
-export function detectFormatByUri(uri: string) : string
-{
+export function detectFormatByUri(uri: string): string {
   const split = uri.split('.');
   const fileExtension = split[split.length - 1];
 
@@ -31,7 +31,7 @@ export function detectFormatByUri(uri: string) : string
   } else if (fileExtension === 'vrm') {
     return 'VRM';
   } else if (fileExtension === 'gltf') {
-    return 'glTF'
+    return 'glTF';
   }
 
   return 'Unknown';
@@ -46,7 +46,6 @@ export function detectFormatByUri(uri: string) : string
   //     console.log(status);
   //   }
   // );
-
 }
 
 function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
@@ -57,19 +56,18 @@ function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
   const magic = dataView.getUint32(0, isLittleEndian);
 
   // 0x46546C67 is 'glTF' in ASCII codes.
-  if (magic !== 0x46546C67) {
+  if (magic !== 0x46546c67) {
     // It must be normal glTF (NOT binary) file...
-    let gotText = DataUtil.arrayBufferToString(arrayBuffer);
+    const gotText = DataUtil.arrayBufferToString(arrayBuffer);
 
-    let gltfJson = JSON.parse(gotText);
+    const gltfJson = JSON.parse(gotText);
 
-    let glTFVer = checkGLTFVersion(gltfJson);
+    const glTFVer = checkGLTFVersion(gltfJson);
 
-    return "glTF" + glTFVer;
-
+    return 'glTF' + glTFVer;
   } else {
-    let glTFVer = dataView.getUint32(4, isLittleEndian);
-    return "glTF" + glTFVer;
+    const glTFVer = dataView.getUint32(4, isLittleEndian);
+    return 'glTF' + glTFVer;
   }
 }
 

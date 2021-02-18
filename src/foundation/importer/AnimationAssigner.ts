@@ -1,24 +1,32 @@
 import Entity from '../core/Entity';
-import { glTF2 } from '../../commontypes/glTF';
+import {glTF2} from '../../commontypes/glTF';
 import ModelConverter from './ModelConverter';
 import EntityRepository from '../core/EntityRepository';
 import AnimationComponent from '../components/AnimationComponent';
-import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
-import { Index } from '../../commontypes/CommonTypes';
-import { VRM } from '../../commontypes/VRM';
+import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
+import {Index} from '../../commontypes/CommonTypes';
+import {VRM} from '../../commontypes/VRM';
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
 
-  assignAnimation(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, isSameSkeleton = false) {
-
-    this.__setupAnimationForSameSkeleton(rootEntity, gltfModel, vrmModel, isSameSkeleton);
+  assignAnimation(
+    rootEntity: Entity,
+    gltfModel: glTF2,
+    vrmModel: VRM,
+    isSameSkeleton = false
+  ) {
+    this.__setupAnimationForSameSkeleton(
+      rootEntity,
+      gltfModel,
+      vrmModel,
+      isSameSkeleton
+    );
 
     return rootEntity;
   }
 
-  private constructor() {
-  }
+  private constructor() {}
 
   /**
    * The static method to get singleton instance of this class.
@@ -31,18 +39,28 @@ export default class AnimationAssigner {
     return this.__instance;
   }
 
-  private __getCorrespondingEntity(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, nodeIndex: Index, nodeName: string | undefined, isSameSkeleton: boolean) {
+  private __getCorrespondingEntity(
+    rootEntity: Entity,
+    gltfModel: glTF2,
+    vrmModel: VRM,
+    nodeIndex: Index,
+    nodeName: string | undefined,
+    isSameSkeleton: boolean
+  ) {
     if (isSameSkeleton) {
-      const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<string, Entity>;
+      const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<
+        string,
+        Entity
+      >;
       const node = gltfModel.nodes[nodeIndex];
-      let rnEntity = rnEntities.get(node.name!);
+      const rnEntity = rnEntities.get(node.name!);
       return rnEntity;
     } else {
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
       let humanoidBoneName: string | undefined;
       const srcMapNodeIdName: Map<number, string> = new Map();
       const srcMapNodeNameName: Map<string, string> = new Map();
-      for (let bone of humanBones) {
+      for (const bone of humanBones) {
         srcMapNodeIdName.set(bone.node, bone.bone);
         srcMapNodeNameName.set(bone.name!, bone.bone);
       }
@@ -52,7 +70,9 @@ export default class AnimationAssigner {
           humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
         }
       }
-      const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
+      const dstMapNameNodeId = rootEntity.getTagValue(
+        'humanoid_map_name_nodeId'
+      )! as Map<string, number>;
       const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
       if (dstBoneNodeId != null) {
         const rnEntities = rootEntity.getTagValue('rnEntities')! as Entity[];
@@ -66,10 +86,12 @@ export default class AnimationAssigner {
   private __isHips(rootEntity: Entity, vrmModel: VRM, nodeIndex: Index) {
     const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
     const srcMapNodeIdName: Map<number, string> = new Map();
-    for (let bone of humanBones) {
+    for (const bone of humanBones) {
       srcMapNodeIdName.set(bone.node, bone.bone);
     }
-    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
+    const dstMapNameNodeId = rootEntity.getTagValue(
+      'humanoid_map_name_nodeId'
+    )! as Map<string, number>;
     const humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
     if (humanoidBoneName === 'hips') {
       return true;
@@ -78,12 +100,17 @@ export default class AnimationAssigner {
     }
   }
 
-  private __setupAnimationForSameSkeleton(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, isSameSkeleton: boolean) {
+  private __setupAnimationForSameSkeleton(
+    rootEntity: Entity,
+    gltfModel: glTF2,
+    vrmModel: VRM,
+    isSameSkeleton: boolean
+  ) {
     if (gltfModel.animations) {
       const modelConverter = ModelConverter.getInstance();
 
-      for (let animation of gltfModel.animations) {
-        for (let sampler of animation.samplers) {
+      for (const animation of gltfModel.animations) {
+        for (const sampler of animation.samplers) {
           modelConverter._accessBinaryWithAccessor(sampler.input);
           modelConverter._accessBinaryWithAccessor(sampler.output);
         }
@@ -93,12 +120,14 @@ export default class AnimationAssigner {
     const entityRepository = EntityRepository.getInstance();
 
     if (gltfModel.animations) {
-      for (let animation of gltfModel.animations) {
-
-        for (let channel of animation.channels) {
+      for (const animation of gltfModel.animations) {
+        for (const channel of animation.channels) {
           const animInputArray = channel.sampler.input.extras.typedDataArray;
           const animOutputArray = channel.sampler.output.extras.typedDataArray;
-          const interpolation = (channel.sampler.interpolation != null) ? channel.sampler.interpolation : 'LINEAR';
+          const interpolation =
+            channel.sampler.interpolation != null
+              ? channel.sampler.interpolation
+              : 'LINEAR';
 
           let animationAttributeName = '';
           if (channel.target.path === 'translation') {
@@ -109,15 +138,40 @@ export default class AnimationAssigner {
             animationAttributeName = channel.target.path;
           }
           const node = gltfModel.nodes[channel.target.nodeIndex!];
-          const rnEntity = this.__getCorrespondingEntity(rootEntity, gltfModel, vrmModel, channel.target.nodeIndex!, node.name, isSameSkeleton);
+          const rnEntity = this.__getCorrespondingEntity(
+            rootEntity,
+            gltfModel,
+            vrmModel,
+            channel.target.nodeIndex!,
+            node.name,
+            isSameSkeleton
+          );
           if (rnEntity) {
-            entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
-            const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
+            entityRepository.addComponentsToEntity(
+              [AnimationComponent],
+              rnEntity.entityUID
+            );
+            const animationComponent = rnEntity.getComponent(
+              AnimationComponent
+            ) as AnimationComponent;
             if (animationComponent) {
               if (animationAttributeName === 'quaternion') {
-                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, AnimationInterpolation.fromString(interpolation));
-              } else if (animationAttributeName === 'translate' && this.__isHips(rootEntity, vrmModel, channel.target.nodeIndex!)) {
-                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, AnimationInterpolation.fromString(interpolation));
+                animationComponent.setAnimation(
+                  animationAttributeName,
+                  animInputArray,
+                  animOutputArray,
+                  AnimationInterpolation.fromString(interpolation)
+                );
+              } else if (
+                animationAttributeName === 'translate' &&
+                this.__isHips(rootEntity, vrmModel, channel.target.nodeIndex!)
+              ) {
+                animationComponent.setAnimation(
+                  animationAttributeName,
+                  animInputArray,
+                  animOutputArray,
+                  AnimationInterpolation.fromString(interpolation)
+                );
               }
             }
           }
@@ -125,5 +179,4 @@ export default class AnimationAssigner {
       }
     }
   }
-
 }

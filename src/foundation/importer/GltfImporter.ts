@@ -1,8 +1,13 @@
 import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
-import { detectFormatByArrayBuffers } from './FormatDetector';
+import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
-import { GltfLoadOption, glTF2, GltfFileBuffers, glTF1 } from '../../commontypes/glTF';
+import {
+  GltfLoadOption,
+  glTF2,
+  GltfFileBuffers,
+  glTF1,
+} from '../../commontypes/glTF';
 import ModelConverter from './ModelConverter';
 import PhysicsComponent from '../components/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
@@ -16,10 +21,9 @@ import Gltf1Importer from './Gltf1Importer';
 import DrcPointCloudImporter from './DrcPointCloudImporter';
 import Expression from '../renderer/Expression';
 import RenderPass from '../renderer/RenderPass';
-import { VRM } from '../../commontypes/VRM';
+import {VRM} from '../../commontypes/VRM';
 import DataUtil from '../misc/DataUtil';
-import { FileType } from '../definitions/FileType';
-import VRMImporter from './VRMImporter';
+import {FileType} from '../definitions/FileType';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -27,7 +31,7 @@ import VRMImporter from './VRMImporter';
 export default class GltfImporter {
   private static __instance: GltfImporter;
 
-  private constructor() { }
+  private constructor() {}
 
   static getInstance() {
     if (!this.__instance) {
@@ -57,21 +61,30 @@ export default class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  async import(uris: string | string[], options?: GltfLoadOption): Promise<Expression> {
+  async import(
+    uris: string | string[],
+    options?: GltfLoadOption
+  ): Promise<Expression> {
     if (!Array.isArray(uris)) {
-      uris = (typeof uris == 'string') ? [uris] : [];
+      uris = typeof uris === 'string' ? [uris] : [];
     }
     options = this.__initOptions(options);
 
-    const renderPasses: RenderPass[] = await this.__importMultipleModelsFromUri(uris, options);
+    const renderPasses: RenderPass[] = await this.__importMultipleModelsFromUri(
+      uris,
+      options
+    );
 
     if (options && options.cameraComponent) {
-      for (let renderPass of renderPasses) {
+      for (const renderPass of renderPasses) {
         renderPass.cameraComponent = options.cameraComponent;
       }
     }
 
-    const expression = this.__setRenderPassesToExpression(renderPasses, options);
+    const expression = this.__setRenderPassesToExpression(
+      renderPasses,
+      options
+    );
     return expression;
   }
 
@@ -83,13 +96,19 @@ export default class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  async importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption): Promise<Expression> {
+  async importFromArrayBuffers(
+    files: GltfFileBuffers,
+    options?: GltfLoadOption
+  ): Promise<Expression> {
     options = this.__initOptions(options);
 
-    const renderPasses: RenderPass[] = await this.__importMultipleModelsFromArrayBuffers(files, options);
+    const renderPasses: RenderPass[] = await this.__importMultipleModelsFromArrayBuffers(
+      files,
+      options
+    );
 
     if (options && options.cameraComponent) {
-      for (let renderPass of renderPasses) {
+      for (const renderPass of renderPasses) {
         renderPass.cameraComponent = options.cameraComponent;
       }
     }
@@ -97,17 +116,15 @@ export default class GltfImporter {
     return this.__setRenderPassesToExpression(renderPasses, options);
   }
 
-
-
   private __initOptions(options?: GltfLoadOption): GltfLoadOption {
     if (options == null) {
       options = DataUtil.createDefaultGltfOptions();
     } else {
       if (options.files == null) {
-        options.files = {}
+        options.files = {};
       }
 
-      for (let file in options.files) {
+      for (const file in options.files) {
         if (file.match(/.*\.vrm$/) == null) {
           continue;
         }
@@ -124,18 +141,21 @@ export default class GltfImporter {
         options.defaultMaterialHelperArgumentArray = [{}];
       } else {
         // avoid needless processing
-        if (options.defaultMaterialHelperArgumentArray![0].isMorphing === false) {
+        if (
+          options.defaultMaterialHelperArgumentArray![0].isMorphing === false
+        ) {
           options.maxMorphTargetNumber = 0;
         }
       }
-
     }
 
-
-    return options
+    return options;
   }
 
-  private __setRenderPassesToExpression(renderPasses: RenderPass[], options: GltfLoadOption) {
+  private __setRenderPassesToExpression(
+    renderPasses: RenderPass[],
+    options: GltfLoadOption
+  ) {
     const expression = options.expression ?? new Expression();
 
     if (expression.renderPasses !== renderPasses) {
@@ -146,17 +166,22 @@ export default class GltfImporter {
     return expression;
   }
 
-  private __importMultipleModelsFromUri(uris: string[], options: GltfLoadOption): Promise<RenderPass[]> {
+  private __importMultipleModelsFromUri(
+    uris: string[],
+    options: GltfLoadOption
+  ): Promise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
     if (renderPasses.length === 0) {
       renderPasses.push(new RenderPass());
     }
 
-    for (let uri of uris) {
+    for (const uri of uris) {
       // import the glTF file from uri of uris array
       if (uri !== '' && options.files![uri] == null) {
-        importPromises.push(this.__importToRenderPassesFromUriPromise(uri, renderPasses, options));
+        importPromises.push(
+          this.__importToRenderPassesFromUriPromise(uri, renderPasses, options)
+        );
       }
     }
 
@@ -165,17 +190,28 @@ export default class GltfImporter {
     });
   }
 
-  private __importMultipleModelsFromArrayBuffers(files: GltfFileBuffers, options: GltfLoadOption): Promise<RenderPass[]> {
+  private __importMultipleModelsFromArrayBuffers(
+    files: GltfFileBuffers,
+    options: GltfLoadOption
+  ): Promise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
     if (renderPasses.length === 0) {
       renderPasses.push(new RenderPass());
     }
 
-    for (let fileName in files) { // filename is uri
+    for (const fileName in files) {
+      // filename is uri
       const fileExtension = DataUtil.getExtension(fileName);
       if (this.__isValidExtension(fileExtension)) {
-        importPromises.push(this.__importToRenderPassesFromArrayBufferPromise(fileName, renderPasses, options, fileName));
+        importPromises.push(
+          this.__importToRenderPassesFromArrayBufferPromise(
+            fileName,
+            renderPasses,
+            options,
+            fileName
+          )
+        );
       }
     }
 
@@ -186,8 +222,10 @@ export default class GltfImporter {
 
   private __isValidExtension(fileExtension: string) {
     if (
-      fileExtension === 'gltf' || fileExtension === 'glb' ||
-      fileExtension === 'vrm' || fileExtension === 'drc'
+      fileExtension === 'gltf' ||
+      fileExtension === 'glb' ||
+      fileExtension === 'vrm' ||
+      fileExtension === 'drc'
     ) {
       return true;
     } else {
@@ -195,13 +233,21 @@ export default class GltfImporter {
     }
   }
 
-  private __importToRenderPassesFromUriPromise(uri: string, renderPasses: RenderPass[], options: GltfLoadOption) {
-    return DataUtil.fetchArrayBuffer(uri).then((arrayBuffer) => {
+  private __importToRenderPassesFromUriPromise(
+    uri: string,
+    renderPasses: RenderPass[],
+    options: GltfLoadOption
+  ) {
+    return DataUtil.fetchArrayBuffer(uri).then(arrayBuffer => {
       options.files![uri] = arrayBuffer;
-      return this.__importToRenderPassesFromArrayBufferPromise(uri, renderPasses, options, uri)
-    })
+      return this.__importToRenderPassesFromArrayBufferPromise(
+        uri,
+        renderPasses,
+        options,
+        uri
+      );
+    });
   }
-
 
   private __isGlb(arrayBuffer: ArrayBuffer) {
     const dataView = new DataView(arrayBuffer, 0, 20);
@@ -210,7 +256,7 @@ export default class GltfImporter {
     const magic = dataView.getUint32(0, isLittleEndian);
     let result;
     // The 0x46546C67 means 'glTF' string in glb files.
-    if (magic === 0x46546C67) {
+    if (magic === 0x46546c67) {
       return true;
     } else {
       return false;
@@ -224,7 +270,7 @@ export default class GltfImporter {
     return glbVer;
   }
 
-  private __getGltfVersion(gltfJson: glTF1|glTF2) {
+  private __getGltfVersion(gltfJson: glTF1 | glTF2) {
     if ((gltfJson as glTF2).asset?.version?.charAt(0) === '2') {
       return 2;
     } else {
@@ -232,11 +278,19 @@ export default class GltfImporter {
     }
   }
 
-
-  private __importToRenderPassesFromArrayBufferPromise(fileName: string, renderPasses: RenderPass[], options: GltfLoadOption, uri: string) {
+  private __importToRenderPassesFromArrayBufferPromise(
+    fileName: string,
+    renderPasses: RenderPass[],
+    options: GltfLoadOption,
+    uri: string
+  ) {
     const optionalFileType = options.fileType;
 
-    const fileType = this.__getFileTypeFromFilePromise(fileName, options, optionalFileType);
+    const fileType = this.__getFileTypeFromFilePromise(
+      fileName,
+      options,
+      optionalFileType
+    );
 
     return new Promise((resolve, reject) => {
       const modelConverter = ModelConverter.getInstance();
@@ -255,11 +309,15 @@ export default class GltfImporter {
             } else {
               importer = Gltf2Importer.getInstance();
             }
-            importer.importGltf(json, options.files!, options, fileName).then((gltfModel) => {
-              const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-              renderPasses[0].addEntities([rootGroup]);
-              resolve();
-            });
+            importer
+              .importGltf(json, options.files!, options, fileName)
+              .then(gltfModel => {
+                const rootGroup = modelConverter.convertToRhodoniteObject(
+                  gltfModel
+                );
+                renderPasses[0].addEntities([rootGroup]);
+                resolve();
+              });
           }
           break;
         case FileType.GltfBinary:
@@ -271,33 +329,43 @@ export default class GltfImporter {
             } else {
               importer = Gltf2Importer.getInstance();
             }
-            importer.importGlb(fileArrayBuffer, options.files!, options).then((gltfModel) => {
-              const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-              renderPasses[0].addEntities([rootGroup]);
-              resolve();
-            });
+            importer
+              .importGlb(fileArrayBuffer, options.files!, options)
+              .then(gltfModel => {
+                const rootGroup = modelConverter.convertToRhodoniteObject(
+                  gltfModel
+                );
+                renderPasses[0].addEntities([rootGroup]);
+                resolve();
+              });
           }
           break;
         case FileType.Draco:
           {
             const importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
-            importer.importArrayBuffer(uri, fileArrayBuffer, options).then((gltfModel) => {
-              if (gltfModel == null) {
-                console.error('importArrayBuffer error is occurred');
-                reject();
-              } else {
-                const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-                renderPasses[0].addEntities([rootGroup]);
-                resolve();
-              }
-            });
+            importer
+              .importArrayBuffer(uri, fileArrayBuffer, options)
+              .then(gltfModel => {
+                if (gltfModel == null) {
+                  console.error('importArrayBuffer error is occurred');
+                  reject();
+                } else {
+                  const rootGroup = modelConverter.convertToRhodoniteObject(
+                    gltfModel
+                  );
+                  renderPasses[0].addEntities([rootGroup]);
+                  resolve();
+                }
+              });
           }
           break;
         case FileType.VRM:
           options.isImportVRM = true;
-          this.__importVRM(uri, fileArrayBuffer, renderPasses, options).then(() => {
-            resolve();
-          });
+          this.__importVRM(uri, fileArrayBuffer, renderPasses, options).then(
+            () => {
+              resolve();
+            }
+          );
           break;
         default:
           console.error('detect invalid format');
@@ -306,53 +374,76 @@ export default class GltfImporter {
     }) as Promise<void>;
   }
 
-  private __getFileTypeFromFilePromise(fileName: string, options: GltfLoadOption, optionalFileType?: string) {
+  private __getFileTypeFromFilePromise(
+    fileName: string,
+    options: GltfLoadOption,
+    optionalFileType?: string
+  ) {
     if (optionalFileType != null) {
       return FileType.fromString(optionalFileType);
     } else {
-      const fileType = detectFormatByArrayBuffers( { [fileName]: options.files![fileName] });
+      const fileType = detectFormatByArrayBuffers({
+        [fileName]: options.files![fileName],
+      });
       return fileType;
     }
   }
 
-  private __importVRM(uri: string, file: ArrayBuffer, renderPasses: RenderPass[], options: GltfLoadOption): Promise<void> {
+  private __importVRM(
+    uri: string,
+    file: ArrayBuffer,
+    renderPasses: RenderPass[],
+    options: GltfLoadOption
+  ): Promise<void> {
     const gltf2Importer = Gltf2Importer.getInstance();
-    return gltf2Importer.importGltfOrGlbFromArrayBuffers(file, options.files!, options).then((gltfModel) => {
+    return gltf2Importer
+      .importGltfOrGlbFromArrayBuffers(file, options.files!, options)
+      .then(gltfModel => {
+        const defaultMaterialHelperArgumentArray =
+          gltfModel.asset.extras.rnLoaderOptions
+            .defaultMaterialHelperArgumentArray;
+        defaultMaterialHelperArgumentArray[0].textures =
+          defaultMaterialHelperArgumentArray[0].textures ??
+          this._createTextures(gltfModel);
+        defaultMaterialHelperArgumentArray[0].isLighting =
+          defaultMaterialHelperArgumentArray[0].isLighting ?? true;
 
-      const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
-      defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? this._createTextures(gltfModel);
-      defaultMaterialHelperArgumentArray[0].isLighting = defaultMaterialHelperArgumentArray[0].isLighting ?? true;
+        this._initializeMaterialProperties(
+          gltfModel,
+          defaultMaterialHelperArgumentArray[0].textures.length
+        );
 
-      this._initializeMaterialProperties(gltfModel, defaultMaterialHelperArgumentArray[0].textures.length);
+        let rootGroup;
+        const modelConverter = ModelConverter.getInstance();
+        const existOutline = this._existOutlineMaterial(
+          gltfModel.extensions.VRM
+        );
+        if (existOutline) {
+          renderPasses[1] = renderPasses[1] ?? new RenderPass();
+          const renderPassOutline = renderPasses[1];
+          renderPassOutline.toClearColorBuffer = false;
+          renderPassOutline.toClearDepthBuffer = false;
+          gltfModel.extensions.VRM.rnExtension = {
+            renderPassOutline: renderPassOutline,
+          };
 
-      let rootGroup;
-      const modelConverter = ModelConverter.getInstance();
-      const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
-      if (existOutline) {
-        renderPasses[1] = renderPasses[1] ?? new RenderPass();
-        const renderPassOutline = renderPasses[1];
-        renderPassOutline.toClearColorBuffer = false;
-        renderPassOutline.toClearDepthBuffer = false;
-        gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
+          rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+          renderPassOutline.addEntities([rootGroup]);
+        } else {
+          rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+        }
 
-        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-        renderPassOutline.addEntities([rootGroup]);
-      } else {
-        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-      }
+        const renderPassMain = renderPasses[0];
+        renderPassMain.addEntities([rootGroup]);
 
-      const renderPassMain = renderPasses[0];
-      renderPassMain.addEntities([rootGroup]);
-
-      this._readSpringBone(rootGroup, gltfModel);
-      this._readVRMHumanoidInfo(gltfModel, rootGroup);
-
-    });
+        this._readSpringBone(rootGroup, gltfModel);
+        this._readVRMHumanoidInfo(gltfModel, rootGroup);
+      });
   }
 
   _getOptions(options?: GltfLoadOption): GltfLoadOption {
     if (options != null) {
-      for (let file in options.files) {
+      for (const file in options.files) {
         const fileName = file.split('.vrm')[0];
         if (fileName) {
           const arraybuffer = options.files[file];
@@ -370,24 +461,25 @@ export default class GltfImporter {
       if (!options.defaultMaterialHelperArgumentArray[0].isMorphing) {
         options.maxMorphTargetNumber = 0;
       }
-
     } else {
       options = {
         files: {},
         loaderExtension: undefined,
         defaultMaterialHelperName: undefined,
-        defaultMaterialHelperArgumentArray: [{ isLighting: true, isMorphing: true, isSkinning: true }],
+        defaultMaterialHelperArgumentArray: [
+          {isLighting: true, isMorphing: true, isSkinning: true},
+        ],
         statesOfElements: [
           {
             targets: [],
             states: {
               enable: [],
-              functions: {}
+              functions: {},
             },
             isTransparent: true,
             opacity: 1.0,
             isTextureImageToLoadPreMultipliedAlpha: false,
-          }
+          },
         ],
         isImportVRM: true,
       };
@@ -400,7 +492,7 @@ export default class GltfImporter {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
     // const mapNameNodeName: Map<string, string> = new Map();
-    for (let bone of humanBones) {
+    for (const bone of humanBones) {
       mapNameNodeId.set(bone.bone, bone.node);
       const boneNode = gltfModel.nodes[bone.node];
       bone.name = boneNode.name;
@@ -408,7 +500,7 @@ export default class GltfImporter {
     if (rootEntity != null) {
       rootEntity.tryToSetTag({
         tag: 'humanoid_map_name_nodeId',
-        value: mapNameNodeId
+        value: mapNameNodeId,
       });
     }
     // rootEntity.tryToSetTag({
@@ -420,16 +512,21 @@ export default class GltfImporter {
   _readSpringBone(rootEntity: Entity, gltfModel: VRM): void {
     const entityRepository = EntityRepository.getInstance();
     const boneGroups: VRMSpringBoneGroup[] = [];
-    for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
+    for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
+      .boneGroups) {
       const vrmSpringBoneGroup = new VRMSpringBoneGroup();
       vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
       vrmSpringBoneGroup.dragForce = boneGroup.dragForce;
       vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffiness;
       vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
-      vrmSpringBoneGroup.gravityDir = new Vector3(boneGroup.gravityDir.x, boneGroup.gravityDir.y, boneGroup.gravityDir.z);
+      vrmSpringBoneGroup.gravityDir = new Vector3(
+        boneGroup.gravityDir.x,
+        boneGroup.gravityDir.y,
+        boneGroup.gravityDir.z
+      );
       vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
       vrmSpringBoneGroup.hitRadius = boneGroup.hitRadius;
-      for (let idxOfArray in boneGroup.bones) {
+      for (const idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
         vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph());
@@ -440,39 +537,57 @@ export default class GltfImporter {
       boneGroups.push(vrmSpringBoneGroup);
     }
 
-    VRMSpringBonePhysicsStrategy.setBoneGroups(boneGroups)
-    for (let boneGroup of boneGroups) {
-      for (let sg of boneGroup.rootBones) {
+    VRMSpringBonePhysicsStrategy.setBoneGroups(boneGroups);
+    for (const boneGroup of boneGroups) {
+      for (const sg of boneGroup.rootBones) {
         this.addPhysicsComponentRecursively(entityRepository, sg);
       }
     }
 
     const colliderGroups: VRMColliderGroup[] = [];
-    for (let colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
-      const colliderGroup = gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx]
+    for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation
+      .colliderGroups) {
+      const colliderGroup =
+        gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[
+          colliderGroupIdx
+        ];
       const vrmColliderGroup = new VRMColliderGroup();
       colliderGroups.push(vrmColliderGroup);
       const colliders: SphereCollider[] = [];
-      for (let collider of colliderGroup.colliders) {
+      for (const collider of colliderGroup.colliders) {
         const sphereCollider = new SphereCollider();
-        sphereCollider.position = new Vector3(collider.offset.x, collider.offset.y, collider.offset.z);
+        sphereCollider.position = new Vector3(
+          collider.offset.x,
+          collider.offset.y,
+          collider.offset.z
+        );
         sphereCollider.radius = collider.radius;
         colliders.push(sphereCollider);
       }
       vrmColliderGroup.colliders = colliders;
-      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
+      const baseSg = gltfModel.asset.extras!.rnEntities![
+        colliderGroup.node
+      ].getSceneGraph();
       vrmColliderGroup.baseSceneGraph = baseSg;
-      VRMSpringBonePhysicsStrategy.addColliderGroup(parseInt(colliderGroupIdx), vrmColliderGroup);
+      VRMSpringBonePhysicsStrategy.addColliderGroup(
+        parseInt(colliderGroupIdx),
+        vrmColliderGroup
+      );
     }
-
   }
 
-  private addPhysicsComponentRecursively(entityRepository: EntityRepository, sg: SceneGraphComponent): void {
+  private addPhysicsComponentRecursively(
+    entityRepository: EntityRepository,
+    sg: SceneGraphComponent
+  ): void {
     const entity = sg.entity;
-    entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
+    entityRepository.addComponentsToEntity(
+      [PhysicsComponent],
+      entity.entityUID
+    );
     VRMSpringBonePhysicsStrategy.initialize(sg);
     if (sg.children.length > 0) {
-      for (let child of sg.children) {
+      for (const child of sg.children) {
         this.addPhysicsComponentRecursively(entityRepository, child);
       }
     }
@@ -484,7 +599,10 @@ export default class GltfImporter {
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createTexture({ texture: gltfTextures[i] }, gltfModel);
+      const rnTexture = ModelConverter._createTexture(
+        {texture: gltfTextures[i]},
+        gltfModel
+      );
       rnTextures[i] = rnTexture;
     }
 
@@ -492,7 +610,7 @@ export default class GltfImporter {
     dummyWhiteTexture.generate1x1TextureFrom();
     rnTextures.push(dummyWhiteTexture);
     const dummyBlackTexture = new Texture();
-    dummyBlackTexture.generate1x1TextureFrom("rgba(0, 0, 0, 1)");
+    dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
     rnTextures.push(dummyBlackTexture);
 
     return rnTextures;
@@ -501,7 +619,7 @@ export default class GltfImporter {
   _existOutlineMaterial(extensionsVRM: any): boolean {
     const materialProperties = extensionsVRM.materialProperties;
     if (materialProperties != null) {
-      for (let materialProperty of materialProperties) {
+      for (const materialProperty of materialProperties) {
         if (materialProperty.floatProperties._OutlineWidthMode !== 0) {
           return true;
         }
@@ -511,19 +629,24 @@ export default class GltfImporter {
     return false;
   }
 
-  _initializeMaterialProperties(gltfModel: glTF2, texturesLength: number): void {
+  _initializeMaterialProperties(
+    gltfModel: glTF2,
+    texturesLength: number
+  ): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
-    for (let materialProperty of materialProperties) {
-      if (materialProperty.shader === "VRM/MToon") {
+    for (const materialProperty of materialProperties) {
+      if (materialProperty.shader === 'VRM/MToon') {
         this.__initializeMToonMaterialProperties(gltfModel, texturesLength);
         break;
       }
     }
-
   }
 
-  private __initializeMToonMaterialProperties(gltfModel: glTF2, texturesLength: number): void {
+  private __initializeMToonMaterialProperties(
+    gltfModel: glTF2,
+    texturesLength: number
+  ): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     const dummyWhiteTextureNumber = texturesLength - 2;
@@ -531,39 +654,118 @@ export default class GltfImporter {
 
     for (let i = 0; i < materialProperties.length; i++) {
       const floatProperties = materialProperties[i].floatProperties;
-      this.__initializeForUndefinedProperty(floatProperties, "_BlendMode", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_BumpScale", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_CullMode", 2.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_Cutoff", 0.5);
-      this.__initializeForUndefinedProperty(floatProperties, "_DebugMode", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_DstBlend", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_IndirectLightIntensity", 0.1);
-      this.__initializeForUndefinedProperty(floatProperties, "_LightColorAttenuation", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_OutlineColorMode", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_OutlineCullMode", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_OutlineLightingMix", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_OutlineScaledMaxDistance", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_OutlineWidth", 0.5);
-      this.__initializeForUndefinedProperty(floatProperties, "_OutlineWidthMode", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_ReceiveShadowRate", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_RimFresnelPower", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_RimLift", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_RimLightingMix", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_ShadeShift", 0.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_ShadeToony", 0.9);
-      this.__initializeForUndefinedProperty(floatProperties, "_ShadingGradeRate", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_SrcBlend", 1.0);
-      this.__initializeForUndefinedProperty(floatProperties, "_ZWrite", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_BlendMode', 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_BumpScale', 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_CullMode', 2.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_Cutoff', 0.5);
+      this.__initializeForUndefinedProperty(floatProperties, '_DebugMode', 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_DstBlend', 0.0);
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_IndirectLightIntensity',
+        0.1
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_LightColorAttenuation',
+        0.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_OutlineColorMode',
+        0.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_OutlineCullMode',
+        1.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_OutlineLightingMix',
+        1.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_OutlineScaledMaxDistance',
+        1.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_OutlineWidth',
+        0.5
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_OutlineWidthMode',
+        0.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_ReceiveShadowRate',
+        1.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_RimFresnelPower',
+        1.0
+      );
+      this.__initializeForUndefinedProperty(floatProperties, '_RimLift', 0.0);
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_RimLightingMix',
+        0.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_ShadeShift',
+        0.0
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_ShadeToony',
+        0.9
+      );
+      this.__initializeForUndefinedProperty(
+        floatProperties,
+        '_ShadingGradeRate',
+        1.0
+      );
+      this.__initializeForUndefinedProperty(floatProperties, '_SrcBlend', 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_ZWrite', 1.0);
       // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimScrollX", 0.0);
       // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimScrollY", 0.0);
       // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimRotation", 0.0);
 
       const vectorProperties = materialProperties[i].vectorProperties;
-      this.__initializeForUndefinedProperty(vectorProperties, "_Color", [1, 1, 1, 1]);
-      this.__initializeForUndefinedProperty(vectorProperties, "_EmissionColor", [0, 0, 0]);
-      this.__initializeForUndefinedProperty(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
-      this.__initializeForUndefinedProperty(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
-      this.__initializeForUndefinedProperty(vectorProperties, "_RimColor", [0, 0, 0]);
+      this.__initializeForUndefinedProperty(vectorProperties, '_Color', [
+        1,
+        1,
+        1,
+        1,
+      ]);
+      this.__initializeForUndefinedProperty(
+        vectorProperties,
+        '_EmissionColor',
+        [0, 0, 0]
+      );
+      this.__initializeForUndefinedProperty(vectorProperties, '_OutlineColor', [
+        0,
+        0,
+        0,
+        1,
+      ]);
+      this.__initializeForUndefinedProperty(vectorProperties, '_ShadeColor', [
+        0.97,
+        0.81,
+        0.86,
+        1,
+      ]);
+      this.__initializeForUndefinedProperty(vectorProperties, '_RimColor', [
+        0,
+        0,
+        0,
+      ]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_BumpMap", [0, 0, 1, 1]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_EmissionMap", [0, 0, 1, 1]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_MainTex", [0, 0, 1, 1]);
@@ -575,21 +777,60 @@ export default class GltfImporter {
 
       // set num of texture array
       const textureProperties = materialProperties[i].textureProperties;
-      this.__initializeForUndefinedProperty(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_MainTex", dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_RimTexture", dummyBlackTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_BumpMap',
+        dummyWhiteTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_EmissionMap',
+        dummyBlackTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_MainTex',
+        dummyWhiteTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_OutlineWidthTexture',
+        dummyWhiteTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_ReceiveShadowTexture',
+        dummyWhiteTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_RimTexture',
+        dummyBlackTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_ShadeTexture',
+        dummyWhiteTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_ShadingGradeTexture',
+        dummyWhiteTextureNumber
+      );
+      this.__initializeForUndefinedProperty(
+        textureProperties,
+        '_SphereAdd',
+        dummyBlackTextureNumber
+      );
       // this.__initializeForUndefinedProperty(textureProperties, "_UvAnimMaskTexture", dummyWhiteTextureNumber);
     }
   }
 
-  private __initializeForUndefinedProperty(object: any, propertyName: string, initialValue: any): void {
+  private __initializeForUndefinedProperty(
+    object: any,
+    propertyName: string,
+    initialValue: any
+  ): void {
     if (object[propertyName] == null) object[propertyName] = initialValue;
   }
-
 }

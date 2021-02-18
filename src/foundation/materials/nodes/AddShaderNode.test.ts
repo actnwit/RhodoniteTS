@@ -1,10 +1,7 @@
-import Rn from '../../..';
 import ModuleManager from '../../system/ModuleManager';
 import MemoryManager from '../../core/MemoryManager';
 import Material from '../core/Material';
-import ScalarToVector4MaterialNode from './ScalarToVector4ShaderNode';
 import OutPositionNode from './OutPositionShaderNode';
-import Scalar from '../../math/Scalar';
 import AttributePositionShaderNode from './AttributePositionShaderNode';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
@@ -15,15 +12,19 @@ test('AttributePosition works correctly 1', async () => {
   Material.registerMaterial('MyMaterial', []);
   const material = Material.createMaterial('MyMaterial')!;
 
-  const a_position = new AttributePositionShaderNode()
+  const a_position = new AttributePositionShaderNode();
 
   const outPositionNode = new OutPositionNode();
   outPositionNode.addInputConnection(a_position, 'outValue', 'value');
 
   // nodes are intentionally made the order random
-  const retVal = ShaderGraphResolver.createVertexShaderCode([outPositionNode, a_position]);
+  const retVal = ShaderGraphResolver.createVertexShaderCode([
+    outPositionNode,
+    a_position,
+  ]);
 
-  expect((retVal.shaderBody).replace(/\s+/g, "")).toEqual(`
+  expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
+    `
 
     in vec4 a_position;
 
@@ -70,6 +71,6 @@ test('AttributePosition works correctly 1', async () => {
 
         }
 
-`.replace(/\s+/g, ""))
+`.replace(/\s+/g, '')
+  );
 });
-

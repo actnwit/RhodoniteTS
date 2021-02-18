@@ -1,6 +1,6 @@
 import GltfImporter from './GltfImporter';
 import Gltf2Importer from './Gltf2Importer';
-import { GltfLoadOption } from '../../commontypes/glTF';
+import {GltfLoadOption} from '../../commontypes/glTF';
 import ModelConverter from './ModelConverter';
 
 /**
@@ -10,7 +10,7 @@ import ModelConverter from './ModelConverter';
 export default class VRMImporter {
   private static __instance: VRMImporter;
 
-  private constructor() { }
+  private constructor() {}
 
   static getInstance() {
     if (!this.__instance) {
@@ -30,7 +30,8 @@ export default class VRMImporter {
     const gltfModel = await gltf2Importer.import(uri, options);
 
     const textures = gltfImporter._createTextures(gltfModel);
-    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
+    const defaultMaterialHelperArgumentArray =
+      gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
     defaultMaterialHelperArgumentArray[0].textures = textures;
 
     gltfImporter._initializeMaterialProperties(gltfModel, textures.length);
@@ -40,10 +41,14 @@ export default class VRMImporter {
     const modelConverter = ModelConverter.getInstance();
     const rootGroupMain = modelConverter.convertToRhodoniteObject(gltfModel);
 
-    const existOutline = gltfImporter._existOutlineMaterial(gltfModel.extensions.VRM);
+    const existOutline = gltfImporter._existOutlineMaterial(
+      gltfModel.extensions.VRM
+    );
     if (existOutline) {
       defaultMaterialHelperArgumentArray[0].isOutline = true;
-      const rootGroupOutline = modelConverter.convertToRhodoniteObject(gltfModel);
+      const rootGroupOutline = modelConverter.convertToRhodoniteObject(
+        gltfModel
+      );
 
       rootGroups = [rootGroupMain, rootGroupOutline];
     } else {

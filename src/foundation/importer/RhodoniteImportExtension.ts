@@ -1,8 +1,7 @@
 export default class RhodoniteImportExtension {
   private static __instance: RhodoniteImportExtension;
 
-  private constructor() {
-  }
+  private constructor() {}
 
   /**
    * The static method to get singleton instance of this class.
@@ -14,7 +13,4 @@ export default class RhodoniteImportExtension {
     }
     return this.__instance;
   }
-
-
 }
-
