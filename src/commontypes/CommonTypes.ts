@@ -1,9 +1,25 @@
-export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array |
-Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
+export type TypedArray =
+  | Int8Array
+  | Uint8Array
+  | Uint8ClampedArray
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array
+  | Float64Array;
 export type ArrayType = TypedArray | Array<number> | Array<boolean>;
 
-export type TypedArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor | Uint8ClampedArrayConstructor | Int16ArrayConstructor |
-Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor;
+export type TypedArrayConstructor =
+  | Int8ArrayConstructor
+  | Uint8ArrayConstructor
+  | Uint8ClampedArrayConstructor
+  | Int16ArrayConstructor
+  | Uint16ArrayConstructor
+  | Int32ArrayConstructor
+  | Uint32ArrayConstructor
+  | Float32ArrayConstructor
+  | Float64ArrayConstructor;
 
 export type Index = number;
 export type IndexOf16Bytes = number;
@@ -27,4 +43,4 @@ export type WebGLResourceHandle = number;
 
 export type CGAPIResourceHandle = WebGLResourceHandle;
 
-export type RnTags = {[s:string]: string};
+export type RnTags = {[s: string]: string};

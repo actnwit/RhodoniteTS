@@ -26,5 +26,6 @@
         "vertex",
         "vrize",
         "well"
-    ]
+    ],
+    "eslint.format.enable": true
 }
