@@ -3,10 +3,8 @@ import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableVector4 from '../math/MutableVector4';
 import Vector3 from '../math/Vector3';
-import Entity from '../core/Entity';
-import { Visibility } from '../definitions/visibility';
+import {Visibility} from '../definitions/visibility';
 import SceneGraphComponent from '../components/SceneGraphComponent';
-import AABB from '../math/AABB';
 
 /**
  * The view frustum class.
@@ -21,9 +19,7 @@ export default class Frustum {
   private __updated = false;
   private __vp = MutableMatrix44.zero();
 
-  constructor() {
-
-  }
+  constructor() {}
 
   /**
    * Updates this view frustum data from the view and projection matrices.
@@ -39,10 +35,10 @@ export default class Frustum {
     this.zNear.w = this.__vp.m23 + this.__vp.m33;
     this.zNear.normalize3();
 
-    this.zFar.x = - this.__vp.m20 + this.__vp.m30;
-    this.zFar.y = - this.__vp.m21 + this.__vp.m31;
-    this.zFar.z = - this.__vp.m22 + this.__vp.m32;
-    this.zFar.w = - this.__vp.m23 + this.__vp.m33;
+    this.zFar.x = -this.__vp.m20 + this.__vp.m30;
+    this.zFar.y = -this.__vp.m21 + this.__vp.m31;
+    this.zFar.z = -this.__vp.m22 + this.__vp.m32;
+    this.zFar.w = -this.__vp.m23 + this.__vp.m33;
     this.zFar.normalize3();
 
     this.bottom.x = this.__vp.m10 + this.__vp.m30;
@@ -51,10 +47,10 @@ export default class Frustum {
     this.bottom.w = this.__vp.m13 + this.__vp.m33;
     this.bottom.normalize3();
 
-    this.top.x = - this.__vp.m10 + this.__vp.m30;
-    this.top.y = - this.__vp.m11 + this.__vp.m31;
-    this.top.z = - this.__vp.m12 + this.__vp.m32;
-    this.top.w = - this.__vp.m13 + this.__vp.m33;
+    this.top.x = -this.__vp.m10 + this.__vp.m30;
+    this.top.y = -this.__vp.m11 + this.__vp.m31;
+    this.top.z = -this.__vp.m12 + this.__vp.m32;
+    this.top.w = -this.__vp.m13 + this.__vp.m33;
     this.top.normalize3();
 
     this.left.x = this.__vp.m00 + this.__vp.m30;
@@ -63,12 +59,11 @@ export default class Frustum {
     this.left.w = this.__vp.m03 + this.__vp.m33;
     this.left.normalize3();
 
-    this.right.x = - this.__vp.m00 + this.__vp.m30;
-    this.right.y = - this.__vp.m01 + this.__vp.m31;
-    this.right.z = - this.__vp.m02 + this.__vp.m32;
-    this.right.w = - this.__vp.m03 + this.__vp.m33;
+    this.right.x = -this.__vp.m00 + this.__vp.m30;
+    this.right.y = -this.__vp.m01 + this.__vp.m31;
+    this.right.z = -this.__vp.m02 + this.__vp.m32;
+    this.right.w = -this.__vp.m03 + this.__vp.m33;
     this.right.normalize3();
-
   }
 
   /**
@@ -78,7 +73,7 @@ export default class Frustum {
    * @param bias The bias value.
    */
   clipping(plane: Vector4, point: Vector3, bias: number) {
-    const dot = Vector3.dot(plane as any as Vector3, point);
+    const dot = Vector3.dot((plane as any) as Vector3, point);
     const d = dot + plane.w;
     if (d + bias < 0) {
       return Visibility.Invisible; // outside completely
@@ -98,24 +93,38 @@ export default class Frustum {
     const center = aabb.centerPoint;
     const centerToCorner = aabb.lengthCenterToCorner;
 
-
     const right = this.clipping(this.right, center, centerToCorner);
     const left = this.clipping(this.left, center, centerToCorner);
-    if (right === Visibility.Invisible && left === Visibility.Visible || right === Visibility.Visible && left === Visibility.Invisible) {
+    if (
+      (right === Visibility.Invisible && left === Visibility.Visible) ||
+      (right === Visibility.Visible && left === Visibility.Invisible)
+    ) {
       return Visibility.Invisible;
     }
     const zNear = this.clipping(this.zNear, center, centerToCorner);
     const zFar = this.clipping(this.zFar, center, centerToCorner);
-    if (zNear === Visibility.Invisible && zFar === Visibility.Visible || zNear === Visibility.Visible && zFar === Visibility.Invisible) {
+    if (
+      (zNear === Visibility.Invisible && zFar === Visibility.Visible) ||
+      (zNear === Visibility.Visible && zFar === Visibility.Invisible)
+    ) {
       return Visibility.Invisible;
     }
     const top = this.clipping(this.top, center, centerToCorner);
     const bottom = this.clipping(this.bottom, center, centerToCorner);
-    if (top === Visibility.Invisible && bottom === Visibility.Visible || top === Visibility.Visible && bottom === Visibility.Invisible) {
+    if (
+      (top === Visibility.Invisible && bottom === Visibility.Visible) ||
+      (top === Visibility.Visible && bottom === Visibility.Invisible)
+    ) {
       return Visibility.Invisible;
     }
 
-    const sum = top.index + bottom.index + right.index + left.index + zNear.index + zFar.index;
+    const sum =
+      top.index +
+      bottom.index +
+      right.index +
+      left.index +
+      zNear.index +
+      zFar.index;
     if (sum === 6) {
       return Visibility.Visible;
     }

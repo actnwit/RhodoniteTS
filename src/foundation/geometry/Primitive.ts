@@ -1,17 +1,28 @@
-import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
-import { VertexAttributeEnum, VertexAttribute } from '../definitions/VertexAttribute';
+import {PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
 import RnObject from '../core/RnObject';
-import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
+import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import {
+  CompositionType,
+  CompositionTypeEnum,
+} from '../definitions/CompositionType';
 import AccessorBase from '../memory/AccessorBase';
 import AABB from '../math/AABB';
 import Material from '../materials/core/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
-import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import { PrimitiveUID, TypedArray, Count, Index } from '../../commontypes/CommonTypes';
+import {
+  PrimitiveUID,
+  TypedArray,
+  Count,
+  Index,
+} from '../../commontypes/CommonTypes';
 import Vector3 from '../math/Vector3';
 import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';
@@ -60,16 +71,18 @@ export default class Primitive extends RnObject {
     attributes: Attributes,
     mode: PrimitiveModeEnum,
     material?: Material,
-    indicesAccessor?: Accessor,
+    indicesAccessor?: Accessor
   ) {
-
     this.__indices = indicesAccessor;
     this.__attributes = attributes;
 
     if (material != null) {
       this.material = material;
     } else {
-      this.material = MaterialHelper.createClassicUberMaterial({ isSkinning: true, isLighting: true });
+      this.material = MaterialHelper.createClassicUberMaterial({
+        isSkinning: true,
+        isLighting: true,
+      });
     }
     this.__mode = mode;
 
@@ -109,7 +122,6 @@ export default class Primitive extends RnObject {
     //     attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
 
     // });
-
   }
 
   static get maxPrimitiveCount() {
@@ -120,17 +132,21 @@ export default class Primitive extends RnObject {
     return this.__headerAccessor;
   }
 
-  static createPrimitive(
-    { indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }:
-      {
-        indices?: TypedArray,
-        attributeCompositionTypes: Array<CompositionTypeEnum>,
-        attributeSemantics: Array<VertexAttributeEnum>,
-        attributes: Array<TypedArray>,
-        primitiveMode: PrimitiveModeEnum,
-        material?: Material
-      }) {
-
+  static createPrimitive({
+    indices,
+    attributeCompositionTypes,
+    attributeSemantics,
+    attributes,
+    material,
+    primitiveMode,
+  }: {
+    indices?: TypedArray;
+    attributeCompositionTypes: Array<CompositionTypeEnum>;
+    attributeSemantics: Array<VertexAttributeEnum>;
+    attributes: Array<TypedArray>;
+    primitiveMode: PrimitiveModeEnum;
+    material?: Material;
+  }) {
     let sumOfAttributesByteSize = 0;
     attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
@@ -142,37 +158,55 @@ export default class Primitive extends RnObject {
     }
 
     const primitive = new Primitive();
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, primitive, 4);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(
+      bufferSize,
+      primitive,
+      4
+    );
 
     let indicesComponentType;
     let indicesBufferView;
     let indicesAccessor;
     if (indices != null) {
       indicesComponentType = ComponentType.fromTypedArray(indices);
-      indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
+      indicesBufferView = buffer.takeBufferView({
+        byteLengthToNeed: indices.byteLength,
+        byteStride: 0,
+        isAoS: false,
+      });
       indicesAccessor = indicesBufferView.takeAccessor({
         compositionType: CompositionType.Scalar,
         componentType: indicesComponentType,
-        count: indices.byteLength / indicesComponentType.getSizeInBytes()
+        count: indices.byteLength / indicesComponentType.getSizeInBytes(),
       });
       // copy indices
-      for (let i = 0; i < indices!.byteLength / indicesAccessor!.componentSizeInBytes; i++) {
+      for (
+        let i = 0;
+        i < indices!.byteLength / indicesAccessor!.componentSizeInBytes;
+        i++
+      ) {
         indicesAccessor!.setScalar(i, indices![i], {});
       }
     }
 
-    const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
+    const attributesBufferView = buffer.takeBufferView({
+      byteLengthToNeed: sumOfAttributesByteSize,
+      byteStride: 0,
+      isAoS: false,
+    });
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
-
 
     attributes.forEach((attribute, i) => {
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
       const accessor: AccessorBase = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
-        count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+        count:
+          attribute.byteLength /
+          attributeCompositionTypes[i].getNumberOfComponents() /
+          attributeComponentTypes[i].getSizeInBytes(),
       });
       accessor.copyFromTypedArray(attribute);
       attributeAccessors.push(accessor);
@@ -183,12 +217,7 @@ export default class Primitive extends RnObject {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
-    primitive.setData(
-      attributeMap,
-      primitiveMode,
-      material,
-      indicesAccessor
-    );
+    primitive.setData(attributeMap, primitiveMode, material, indicesAccessor);
     return primitive;
   }
 
@@ -303,9 +332,17 @@ export default class Primitive extends RnObject {
       }
 
       const min = positionAccessor.min as number[];
-      this.__aabb.minPoint = Primitive.__tmpVec3_0.setComponents(min[0], min[1], min[2]);
+      this.__aabb.minPoint = Primitive.__tmpVec3_0.setComponents(
+        min[0],
+        min[1],
+        min[2]
+      );
       const max = positionAccessor.max as number[];
-      this.__aabb.maxPoint = Primitive.__tmpVec3_0.setComponents(max[0], max[1], max[2]);
+      this.__aabb.maxPoint = Primitive.__tmpVec3_0.setComponents(
+        max[0],
+        max[1],
+        max[2]
+      );
     }
 
     return this.__aabb;
@@ -347,7 +384,9 @@ export default class Primitive extends RnObject {
       return false;
     }
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(this);
+    this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(
+      this
+    );
 
     return true;
   }
@@ -384,7 +423,7 @@ export default class Primitive extends RnObject {
       // gl.TRIANGLE_STRIP
       incrementNum = 1;
     } else if (this.__mode === PrimitiveMode.Points) {
-      return { currentShortestIntersectedPosVec3, currentShortestT };
+      return {currentShortestIntersectedPosVec3, currentShortestT};
     }
 
     if (this.hasIndices()) {
@@ -394,9 +433,9 @@ export default class Primitive extends RnObject {
           // gl.TRIANGLES
           break;
         }
-        let pos0IndexBase = this.__indices!.getScalar(j, {});
-        let pos1IndexBase = this.__indices!.getScalar(j + 1, {});
-        let pos2IndexBase = this.__indices!.getScalar(j + 2, {});
+        const pos0IndexBase = this.__indices!.getScalar(j, {});
+        const pos1IndexBase = this.__indices!.getScalar(j + 1, {});
+        const pos2IndexBase = this.__indices!.getScalar(j + 2, {});
 
         const result = this.__castRayInner(
           origVec3,
@@ -448,7 +487,7 @@ export default class Primitive extends RnObject {
       }
     }
 
-    return { currentShortestIntersectedPosVec3, currentShortestT };
+    return {currentShortestIntersectedPosVec3, currentShortestT};
   }
 
   private __castRayInner(
@@ -463,7 +502,6 @@ export default class Primitive extends RnObject {
     dotThreshold: number,
     hasFaceNormal: boolean
   ): any[] | null {
-
     if (!this.__arenberg3rdPosition[i]) {
       return null;
     }
@@ -482,8 +520,12 @@ export default class Primitive extends RnObject {
     }
 
     const vec3 = Vector3.subtract(origVec3, this.__arenberg3rdPosition[i]);
-    const convertedOrigVec3 = this.__inverseArenbergMatrix[i].multiplyVector(vec3);
-    const convertedDirVec3 = this.__inverseArenbergMatrix[i].multiplyVector(dirVec3);
+    const convertedOrigVec3 = this.__inverseArenbergMatrix[i].multiplyVector(
+      vec3
+    );
+    const convertedDirVec3 = this.__inverseArenbergMatrix[i].multiplyVector(
+      dirVec3
+    );
 
     if (convertedDirVec3.z >= -1e-6 && convertedDirVec3.z <= 1e-6) {
       return null;
@@ -511,7 +553,10 @@ export default class Primitive extends RnObject {
     const pos0 = Vector3.multiply(pos0Vec3, u);
     const pos1 = Vector3.multiply(pos1Vec3, v);
     const pos2 = Vector3.multiply(pos2Vec3, fDat);
-    const intersectedPosVec3 = MutableVector3.zero().add(pos0).add(pos1).add(pos2);
+    const intersectedPosVec3 = MutableVector3.zero()
+      .add(pos0)
+      .add(pos1)
+      .add(pos2);
 
     return [t, intersectedPosVec3];
   }
@@ -538,19 +583,33 @@ export default class Primitive extends RnObject {
           // gl.TRIANGLES
           break;
         }
-        let pos0IndexBase = this.__indices!.getScalar(j, {});
-        let pos1IndexBase = this.__indices!.getScalar(j + 1, {});
-        let pos2IndexBase = this.__indices!.getScalar(j + 2, {});
+        const pos0IndexBase = this.__indices!.getScalar(j, {});
+        const pos1IndexBase = this.__indices!.getScalar(j + 1, {});
+        const pos2IndexBase = this.__indices!.getScalar(j + 2, {});
 
-        this._calcArenbergMatrixFor3Vertices(i, pos0IndexBase, pos1IndexBase, pos2IndexBase);
+        this._calcArenbergMatrixFor3Vertices(
+          i,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase
+        );
       }
     } else {
-      for (let i = 0; i < positionAccessor.elementCount - 2; i += incrementNum) {
+      for (
+        let i = 0;
+        i < positionAccessor.elementCount - 2;
+        i += incrementNum
+      ) {
         const pos0IndexBase = i;
         const pos1IndexBase = i + 1;
         const pos2IndexBase = i + 2;
 
-        this._calcArenbergMatrixFor3Vertices(i, pos0IndexBase, pos1IndexBase, pos2IndexBase);
+        this._calcArenbergMatrixFor3Vertices(
+          i,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase
+        );
       }
     }
   }
@@ -561,7 +620,6 @@ export default class Primitive extends RnObject {
     pos1IndexBase: Index,
     pos2IndexBase: Index
   ) {
-
     const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});

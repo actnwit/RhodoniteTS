@@ -1,13 +1,16 @@
 import Primitive from './Primitive';
-import { CompositionType } from '../definitions/CompositionType';
-import { VertexAttribute, VertexAttributeEnum } from '../definitions/VertexAttribute';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import {CompositionType} from '../definitions/CompositionType';
+import {
+  VertexAttribute,
+  VertexAttributeEnum,
+} from '../definitions/VertexAttribute';
+import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import MemoryManager from '../core/MemoryManager';
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
+import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
 import AccessorBase from '../memory/AccessorBase';
 import Material from '../materials/core/Material';
-import { Size } from '../../commontypes/CommonTypes';
+import {Size} from '../../commontypes/CommonTypes';
 
 export default class Plane extends Primitive {
   constructor() {
@@ -24,9 +27,24 @@ export default class Plane extends Primitive {
    * @param flipTextureCoordinateY draw textures by flipping on the V(Y)-axis
    * @param material attach a rhodonite material to this plane(the default material is the classicUberMaterial)
    */
-  generate({ width, height, uSpan, vSpan, isUVRepeat = false, flipTextureCoordinateY = false, material }:
-    { width: Size, height: Size, uSpan: Size, vSpan: Size, isUVRepeat: boolean, flipTextureCoordinateY?: boolean, material?: Material }) {
-    var positions = [];
+  generate({
+    width,
+    height,
+    uSpan,
+    vSpan,
+    isUVRepeat = false,
+    flipTextureCoordinateY = false,
+    material,
+  }: {
+    width: Size;
+    height: Size;
+    uSpan: Size;
+    vSpan: Size;
+    isUVRepeat: boolean;
+    flipTextureCoordinateY?: boolean;
+    material?: Material;
+  }) {
+    const positions = [];
 
     for (let i = 0; i <= vSpan; i++) {
       for (let j = 0; j <= uSpan; j++) {
@@ -36,7 +54,7 @@ export default class Plane extends Primitive {
       }
     }
 
-    var indices = [];
+    const indices = [];
     for (let i = 0; i < vSpan; i++) {
       let degenerate_left_index = 0;
       let degenerate_right_index = 0;
@@ -53,7 +71,7 @@ export default class Plane extends Primitive {
       indices.push(degenerate_left_index);
     }
 
-    var normals = [];
+    const normals = [];
     for (let i = 0; i <= vSpan; i++) {
       for (let j = 0; j <= uSpan; j++) {
         normals.push(0);
@@ -62,7 +80,7 @@ export default class Plane extends Primitive {
       }
     }
 
-    var texcoords = [];
+    const texcoords = [];
     for (let i = 0; i <= vSpan; i++) {
       const i_ = flipTextureCoordinateY ? i : vSpan - i;
 
@@ -78,10 +96,22 @@ export default class Plane extends Primitive {
     }
 
     // Check Size
-    const attributeCompositionTypes = [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2];
-    const attributeSemantics = [VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Texcoord0];
+    const attributeCompositionTypes = [
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec2,
+    ];
+    const attributeSemantics = [
+      VertexAttribute.Position,
+      VertexAttribute.Normal,
+      VertexAttribute.Texcoord0,
+    ];
     const primitiveMode = PrimitiveMode.TriangleStrip;
-    const attributes = [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)];
+    const attributes = [
+      new Float32Array(positions),
+      new Float32Array(normals),
+      new Float32Array(texcoords),
+    ];
     let sumOfAttributesByteSize = 0;
     attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
@@ -89,22 +119,33 @@ export default class Plane extends Primitive {
     const indexSizeInByte = indices.length * 2;
 
     // Create Buffer
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(indexSizeInByte + sumOfAttributesByteSize, this, 4);
-
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(
+      indexSizeInByte + sumOfAttributesByteSize,
+      this,
+      4
+    );
 
     // Index Buffer
-    const indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indexSizeInByte /*byte*/, byteStride: 0, isAoS: false });
+    const indicesBufferView = buffer.takeBufferView({
+      byteLengthToNeed: indexSizeInByte /*byte*/,
+      byteStride: 0,
+      isAoS: false,
+    });
     const indicesAccessor = indicesBufferView.takeAccessor({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.UnsignedShort,
-      count: indices.length
+      count: indices.length,
     });
     for (let i = 0; i < indices.length; i++) {
       indicesAccessor!.setScalar(i, indices![i], {});
     }
 
     // VertexBuffer
-    const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
+    const attributesBufferView = buffer.takeBufferView({
+      byteLengthToNeed: sumOfAttributesByteSize,
+      byteStride: 0,
+      isAoS: false,
+    });
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
@@ -114,7 +155,10 @@ export default class Plane extends Primitive {
       const accessor: AccessorBase = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
-        count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes(),
+        count:
+          attribute.byteLength /
+          attributeCompositionTypes[i].getNumberOfComponents() /
+          attributeComponentTypes[i].getSizeInBytes(),
       });
       accessor.copyFromTypedArray(attribute);
       attributeAccessors.push(accessor);
@@ -125,11 +169,6 @@ export default class Plane extends Primitive {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
-    this.setData(
-      attributeMap,
-      primitiveMode,
-      material,
-      indicesAccessor
-    );
+    this.setData(attributeMap, primitiveMode, material, indicesAccessor);
   }
 }
