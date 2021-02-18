@@ -1,5 +1,5 @@
-import CameraComponent from "../components/CameraComponent";
-import Entity from "../core/Entity";
+import CameraComponent from '../components/CameraComponent';
+import Entity from '../core/Entity';
 
 export default interface ICameraController {
   logic(cameraComponent: CameraComponent): void;

@@ -4,8 +4,8 @@ import Vector4 from './Vector4';
 import Quaternion from './Quaternion';
 import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
-import { CompositionTypeEnum } from '../definitions/CompositionType';
-import { CompositionType } from '../definitions/CompositionType';
+import {CompositionTypeEnum} from '../definitions/CompositionType';
+import {CompositionType} from '../definitions/CompositionType';
 import MutableMatrix44 from './MutableMatrix44';
 import MutableMatrix33 from './MutableMatrix33';
 import MutableVector4 from './MutableVector4';
@@ -15,21 +15,19 @@ import Scalar from './Scalar';
 import MutableQuaternion from './MutableQuaternion';
 import MutableScalar from './MutableScalar';
 import VectorN from './VectorN';
-import { TypedArray } from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../commontypes/CommonTypes';
 
 export default class MathClassUtil {
   private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();
   private static __tmpVector4_1: MutableVector4 = MutableVector4.zero();
 
-  constructor() {
-
-  }
+  constructor() {}
 
   static arrayToVector(element: Array<number>) {
     if (Array.isArray(element)) {
-      if (typeof (element[3]) !== 'undefined') {
+      if (typeof element[3] !== 'undefined') {
         return new Vector4(element[0], element[1], element[2], element[3]);
-      } else if (typeof (element[2]) !== 'undefined') {
+      } else if (typeof element[2] !== 'undefined') {
         return new Vector3(element[0], element[1], element[2]);
       } else {
         return new Vector2(element[0], element[1]);
@@ -41,13 +39,13 @@ export default class MathClassUtil {
 
   static arrayToVectorOrMatrix(element: Array<number>) {
     if (Array.isArray(element)) {
-      if (typeof (element[15]) !== 'undefined') {
+      if (typeof element[15] !== 'undefined') {
         return new Matrix44(element);
-      } else if (typeof (element[8]) !== 'undefined') {
+      } else if (typeof element[8] !== 'undefined') {
         return new Matrix33(element);
-      } else if (typeof (element[3]) !== 'undefined') {
+      } else if (typeof element[3] !== 'undefined') {
         return new Vector4(element[0], element[1], element[2], element[3]);
-      } else if (typeof (element[2]) !== 'undefined') {
+      } else if (typeof element[2] !== 'undefined') {
         return new Vector3(element[0], element[1], element[2]);
       } else {
         return new Vector2(element[0], element[1]);
@@ -57,7 +55,9 @@ export default class MathClassUtil {
     }
   }
 
-  static getImmutableValueClass(compositionType: CompositionTypeEnum): Function | undefined {
+  static getImmutableValueClass(
+    compositionType: CompositionTypeEnum
+  ): Function | undefined {
     if (compositionType === CompositionType.Vec2) {
       return Vector2;
     } else if (compositionType === CompositionType.Vec3) {
@@ -72,7 +72,9 @@ export default class MathClassUtil {
     return void 0;
   }
 
-  static getMutableValueClass(compositionType: CompositionTypeEnum): Function | undefined {
+  static getMutableValueClass(
+    compositionType: CompositionTypeEnum
+  ): Function | undefined {
     if (compositionType === CompositionType.Vec2) {
       return MutableVector2;
     } else if (compositionType === CompositionType.Vec3) {
@@ -102,12 +104,11 @@ export default class MathClassUtil {
     } else {
       return element;
     }
-
   }
 
   static isAcceptableArrayForQuaternion(element: Array<number>) {
     if (Array.isArray(element)) {
-      if (typeof (element[3]) !== 'undefined') {
+      if (typeof element[3] !== 'undefined') {
         return true;
       }
     }
@@ -147,7 +148,9 @@ export default class MathClassUtil {
    * @param element any Vector instance
    * @return number of Vector instance
    */
-  static componentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number {
+  static componentNumberOfVector(
+    element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>
+  ): number {
     if (element instanceof Vector2) {
       return 2;
     } else if (element instanceof Vector3) {
@@ -162,7 +165,13 @@ export default class MathClassUtil {
   }
 
   // values range must be [-1, 1]
-  static packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number) {
+  static packNormalizedVec4ToVec2(
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    criteria: number
+  ) {
     let v0 = 0.0;
     let v1 = 0.0;
 
@@ -171,39 +180,52 @@ export default class MathClassUtil {
     z = (z + 1) / 2.0;
     w = (w + 1) / 2.0;
 
-    let ir = Math.floor(x * (criteria - 1.0));
-    let ig = Math.floor(y * (criteria - 1.0));
-    let irg = ir * criteria + ig;
+    const ir = Math.floor(x * (criteria - 1.0));
+    const ig = Math.floor(y * (criteria - 1.0));
+    const irg = ir * criteria + ig;
     v0 = irg / criteria;
 
-    let ib = Math.floor(z * (criteria - 1.0));
-    let ia = Math.floor(w * (criteria - 1.0));
-    let iba = ib * criteria + ia;
+    const ib = Math.floor(z * (criteria - 1.0));
+    const ia = Math.floor(w * (criteria - 1.0));
+    const iba = ib * criteria + ia;
     v1 = iba / criteria;
 
     return [v0, v1];
   }
 
-  static unProjectTo(windowPosX: number, windowPosY: number, windowPosZ: number,
-    inversePVMat44: Matrix44, viewportVec4: Vector4, out: MutableVector3) {
-
+  static unProjectTo(
+    windowPosX: number,
+    windowPosY: number,
+    windowPosZ: number,
+    inversePVMat44: Matrix44,
+    viewportVec4: Vector4,
+    out: MutableVector3
+  ) {
     const input = this.__tmpVector4_0.setComponents(
-      (windowPosX - viewportVec4.x) / viewportVec4.z * 2 - 1.0,
-      (windowPosY - viewportVec4.y) / viewportVec4.w * 2 - 1.0,
+      ((windowPosX - viewportVec4.x) / viewportVec4.z) * 2 - 1.0,
+      ((windowPosY - viewportVec4.y) / viewportVec4.w) * 2 - 1.0,
       2 * windowPosZ - 1.0,
       1.0
     );
 
-    const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.__tmpVector4_1);
+    const outNonNormalized = inversePVMat44.multiplyVectorTo(
+      input,
+      this.__tmpVector4_1
+    );
     if (outNonNormalized.w === 0) {
-      console.error("0 division occurred!");
+      console.error('0 division occurred!');
     }
 
-    return MutableVector3.multiplyTo(outNonNormalized, 1.0 / outNonNormalized.w, out);
+    return MutableVector3.multiplyTo(
+      outNonNormalized,
+      1.0 / outNonNormalized.w,
+      out
+    );
   }
 
   static add(lhs: any, rhs: any) {
-    if (isFinite(lhs)) { // number?
+    if (isFinite(lhs)) {
+      // number?
       return lhs + rhs;
     } else if (lhs instanceof Vector2) {
       return Vector2.add(lhs, rhs);
@@ -226,7 +248,8 @@ export default class MathClassUtil {
   }
 
   static subtract(lhs: any, rhs: any) {
-    if (isFinite(lhs)) { // number?
+    if (isFinite(lhs)) {
+      // number?
       return lhs - rhs;
     } else if (lhs instanceof Vector2) {
       return Vector2.subtract(lhs, rhs);
@@ -249,7 +272,8 @@ export default class MathClassUtil {
   }
 
   static multiplyNumber(lhs: any, rhs: number) {
-    if (isFinite(lhs)) { // number?
+    if (isFinite(lhs)) {
+      // number?
       return lhs * rhs;
     } else if (lhs instanceof Vector2) {
       return Vector2.multiply(lhs, rhs);
@@ -271,7 +295,8 @@ export default class MathClassUtil {
     }
   }
   static divideNumber(lhs: any, rhs: number) {
-    if (isFinite(lhs)) { // number?
+    if (isFinite(lhs)) {
+      // number?
       return lhs / rhs;
     } else if (lhs instanceof Vector2) {
       return Vector2.multiply(lhs, 1 / rhs);
@@ -294,7 +319,8 @@ export default class MathClassUtil {
   }
 
   static initWithScalar(objForDetectType: any, val: number) {
-    if (isFinite(objForDetectType)) { // number?
+    if (isFinite(objForDetectType)) {
+      // number?
       return val;
     } else if (objForDetectType instanceof Vector2) {
       return new Vector2(val, val);
@@ -316,39 +342,63 @@ export default class MathClassUtil {
     }
   }
 
-  static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum) {
+  static initWithFloat32Array(
+    objForDetectType: any,
+    val: any,
+    floatArray: Float32Array,
+    compositionType: CompositionTypeEnum
+  ) {
     let obj;
-    if (isFinite(objForDetectType)) { // number?
+    if (isFinite(objForDetectType)) {
+      // number?
       const array = new Float32Array(floatArray);
       (floatArray as any).v = void 0;
       array[0] = val;
       return new Scalar(array);
-    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
+    } else if (
+      objForDetectType instanceof Scalar ||
+      objForDetectType instanceof MutableScalar
+    ) {
       floatArray[0] = val.x;
       obj = new MutableScalar(floatArray);
-    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+    } else if (
+      objForDetectType instanceof Vector2 ||
+      objForDetectType instanceof MutableVector2
+    ) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       obj = new MutableVector2(floatArray);
-    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
+    } else if (
+      objForDetectType instanceof Vector3 ||
+      objForDetectType instanceof MutableVector3
+    ) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       floatArray[2] = val.z;
       obj = new MutableVector3(floatArray);
-    } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
+    } else if (
+      objForDetectType instanceof Vector4 ||
+      objForDetectType instanceof MutableVector4
+    ) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       floatArray[2] = val.z;
       floatArray[3] = val.w;
       obj = new MutableVector4(floatArray);
-    } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
+    } else if (
+      objForDetectType instanceof Quaternion ||
+      objForDetectType instanceof MutableQuaternion
+    ) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       floatArray[2] = val.z;
       floatArray[3] = val.w;
       obj = new MutableQuaternion(floatArray);
-    } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
-      obj = (obj == null) ? new MutableMatrix33(floatArray, false, true) : obj;
+    } else if (
+      objForDetectType instanceof Matrix33 ||
+      objForDetectType instanceof MutableMatrix33
+    ) {
+      obj = obj == null ? new MutableMatrix33(floatArray, false, true) : obj;
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -358,7 +408,10 @@ export default class MathClassUtil {
       obj.m20 = val.m20;
       obj.m21 = val.m21;
       obj.m22 = val.m22;
-    } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44) {
+    } else if (
+      objForDetectType instanceof Matrix44 ||
+      objForDetectType instanceof MutableMatrix44
+    ) {
       obj = new MutableMatrix44(floatArray, false, true);
       obj.m00 = val.m00;
       obj.m01 = val.m01;
@@ -381,14 +434,26 @@ export default class MathClassUtil {
     } else if (objForDetectType == null) {
       let vec;
       switch (floatArray.length) {
-        case 4: vec = new Vector4(floatArray); break;
-        case 3: vec = new Vector3(floatArray); break;
-        case 2: vec = new Vector2(floatArray); break;
-        case 1: vec = new Scalar(floatArray); break;
+        case 4:
+          vec = new Vector4(floatArray);
+          break;
+        case 3:
+          vec = new Vector3(floatArray);
+          break;
+        case 2:
+          vec = new Vector2(floatArray);
+          break;
+        case 1:
+          vec = new Scalar(floatArray);
+          break;
       }
       (floatArray as any).v = void 0;
       return vec;
-    } else if (Array.isArray(objForDetectType) || ArrayBuffer.isView(objForDetectType) || ArrayBuffer.isView(objForDetectType.v)) {
+    } else if (
+      Array.isArray(objForDetectType) ||
+      ArrayBuffer.isView(objForDetectType) ||
+      ArrayBuffer.isView(objForDetectType.v)
+    ) {
       return objForDetectType;
     } else {
       console.error('Non supported type!');
@@ -400,27 +465,42 @@ export default class MathClassUtil {
   }
 
   static _setForce(objForDetectType: any, val: any): void {
-    let obj = objForDetectType as any;
+    const obj = objForDetectType as any;
 
-    if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
+    if (
+      objForDetectType instanceof Vector4 ||
+      objForDetectType instanceof MutableVector4
+    ) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
-    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
+    } else if (
+      objForDetectType instanceof Vector3 ||
+      objForDetectType instanceof MutableVector3
+    ) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
-    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+    } else if (
+      objForDetectType instanceof Vector2 ||
+      objForDetectType instanceof MutableVector2
+    ) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
-    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
+    } else if (
+      objForDetectType instanceof Scalar ||
+      objForDetectType instanceof MutableScalar
+    ) {
       if (typeof val.v === 'undefined') {
         objForDetectType.v[0] = val;
       } else {
         objForDetectType.v[0] = val.v[0];
       }
-    } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
+    } else if (
+      objForDetectType instanceof Matrix33 ||
+      objForDetectType instanceof MutableMatrix33
+    ) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
@@ -430,7 +510,10 @@ export default class MathClassUtil {
       objForDetectType.v[6] = val.v[6];
       objForDetectType.v[7] = val.v[7];
       objForDetectType.v[8] = val.v[8];
-    } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44) {
+    } else if (
+      objForDetectType instanceof Matrix44 ||
+      objForDetectType instanceof MutableMatrix44
+    ) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
@@ -447,7 +530,10 @@ export default class MathClassUtil {
       objForDetectType.v[13] = val.v[13];
       objForDetectType.v[14] = val.v[14];
       objForDetectType.v[15] = val.v[15];
-    } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
+    } else if (
+      objForDetectType instanceof Quaternion ||
+      objForDetectType instanceof MutableQuaternion
+    ) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
@@ -481,4 +567,3 @@ export default class MathClassUtil {
     // maybe objForDetectType is number
   }
 }
-

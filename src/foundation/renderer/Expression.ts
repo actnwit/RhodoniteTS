@@ -1,11 +1,10 @@
-import RnObject from "../core/RnObject";
-import RenderPass from "./RenderPass";
+import RnObject from '../core/RnObject';
+import RenderPass from './RenderPass';
 
 /**
  * Expression specifies the order of render passes on rendering process.
  */
 export default class Expression extends RnObject {
-
   private __renderPasses: RenderPass[] = [];
 
   constructor() {
@@ -16,7 +15,7 @@ export default class Expression extends RnObject {
    * Add render passes to the end of this expression.
    */
   addRenderPasses(renderPasses: RenderPass[]) {
-    for (let renderPass of renderPasses) {
+    for (const renderPass of renderPasses) {
       this.__renderPasses.push(renderPass);
     }
   }
@@ -34,5 +33,4 @@ export default class Expression extends RnObject {
   get renderPasses(): RenderPass[] {
     return this.__renderPasses;
   }
-
 }

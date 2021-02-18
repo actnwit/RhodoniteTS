@@ -1,9 +1,17 @@
-import RnObject from "../core/RnObject";
-import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
-import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
-import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import { CGAPIResourceHandle, TextureUID, Size, Index } from "../../commontypes/CommonTypes";
-import TextureDataFloat from "./TextureDataFloat";
+import RnObject from '../core/RnObject';
+import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
+import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
+import {
+  TextureParameter,
+  TextureParameterEnum,
+} from '../definitions/TextureParameter';
+import {
+  CGAPIResourceHandle,
+  TextureUID,
+  Size,
+  Index,
+} from '../../commontypes/CommonTypes';
+import TextureDataFloat from './TextureDataFloat';
 
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -20,7 +28,8 @@ export default abstract class AbstractTexture extends RnObject {
   protected __hasTransparentPixels = false;
 
   private static readonly InvalidTextureUid: TextureUID = -1;
-  private static __textureUidCount: TextureUID = AbstractTexture.InvalidTextureUid;
+  private static __textureUidCount: TextureUID =
+    AbstractTexture.InvalidTextureUid;
   private __textureUid: TextureUID;
   protected __img?: HTMLImageElement;
   public cgApiResourceUid: CGAPIResourceHandle = -1;
@@ -30,8 +39,11 @@ export default abstract class AbstractTexture extends RnObject {
   protected __htmlCanvasElement?: HTMLCanvasElement;
   protected __canvasContext?: CanvasRenderingContext2D;
   protected __uri?: string;
-  protected __name: string = 'untitled';
-  protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
+  protected __name = 'untitled';
+  protected static __textureMap: Map<
+    CGAPIResourceHandle,
+    AbstractTexture
+  > = new Map();
 
   constructor() {
     super();
@@ -74,9 +86,15 @@ export default abstract class AbstractTexture extends RnObject {
 
   get htmlCanvasElement() {
     if (this.__htmlCanvasElement == null) {
-      var canvas = document.createElement("canvas");
-      var ctx = canvas.getContext("2d")!;
-      ctx.drawImage(this.__htmlImageElement!, 0, 0, this.__htmlImageElement!.width, this.__htmlImageElement!.height);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(
+        this.__htmlImageElement!,
+        0,
+        0,
+        this.__htmlImageElement!.width,
+        this.__htmlImageElement!.height
+      );
       this.__htmlCanvasElement = canvas;
     }
     return this.__htmlCanvasElement;
@@ -111,22 +129,31 @@ export default abstract class AbstractTexture extends RnObject {
     if (this.__htmlCanvasElement != null) {
       canvas = this.__htmlCanvasElement;
     } else {
-      canvas = document.createElement("canvas");
+      canvas = document.createElement('canvas');
       canvas.width = this.width;
       canvas.height = this.height;
     }
     this.__htmlCanvasElement = canvas;
-    this.__canvasContext = canvas.getContext("2d")!;
+    this.__canvasContext = canvas.getContext('2d')!;
   }
 
   getTextureDataFloat(channels: Size) {
     const pixel = this.getImageData(0, 0, this.width, this.height);
-    const textureDataFloat = new TextureDataFloat(this.width, this.height, channels);
+    const textureDataFloat = new TextureDataFloat(
+      this.width,
+      this.height,
+      channels
+    );
     const data = pixel.data;
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
         for (let k = 0; k < channels; k++) {
-          textureDataFloat.setPixelAtChannel(j, i, k, data[(i * this.width * 4) + (j * 4) + k] / 255);
+          textureDataFloat.setPixelAtChannel(
+            j,
+            i,
+            k,
+            data[i * this.width * 4 + j * 4 + k] / 255
+          );
         }
       }
     }

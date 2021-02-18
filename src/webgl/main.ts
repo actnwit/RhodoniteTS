@@ -1,7 +1,11 @@
 import getRenderingStrategy from './getRenderingStrategy';
-import GLSLShader, { AttributeNames as attributeNames } from "./shaders/GLSLShader";
+import GLSLShader, {
+  AttributeNames as attributeNames,
+} from './shaders/GLSLShader';
 import WebGLContextWrapper from './WebGLContextWrapper';
-import WebGLResourceRepository, { VertexHandles as vertexHandles } from './WebGLResourceRepository';
+import WebGLResourceRepository, {
+  VertexHandles as vertexHandles,
+} from './WebGLResourceRepository';
 import webGLStrategy from './WebGLStrategy';
 import WebGLStrategyUniform from './WebGLStrategyUniform';
 

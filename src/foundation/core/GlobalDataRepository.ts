@@ -1,30 +1,40 @@
-import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, getShaderPropertyFunc } from "../definitions/ShaderSemantics";
-import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from "../../commontypes/CommonTypes";
-import { BufferUse } from "../definitions/BufferUse";
-import MemoryManager from "./MemoryManager";
-import { CompositionType } from "../definitions/CompositionType";
-import Material from "../materials/core/Material";
-import { ComponentType } from "../definitions/ComponentType";
-import Accessor from "../memory/Accessor";
-import MathClassUtil from "../math/MathClassUtil";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { ShaderType } from "../definitions/ShaderType";
-import VectorN from "../math/VectorN";
-import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
-import Config from "./Config";
-import Scalar from "../math/Scalar";
-import Vector4 from "../math/Vector4";
-import Vector3 from "../math/Vector3";
-import MutableMatrix44 from "../math/MutableMatrix44";
-import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
-import { BoneDataType } from "../definitions/BoneDataType";
-
+import {
+  ShaderSemanticsIndex,
+  ShaderSemanticsInfo,
+  ShaderSemanticsEnum,
+  ShaderSemantics,
+  getShaderPropertyFunc,
+} from '../definitions/ShaderSemantics';
+import {
+  Count,
+  Index,
+  CGAPIResourceHandle,
+  IndexOf16Bytes,
+} from '../../commontypes/CommonTypes';
+import {BufferUse} from '../definitions/BufferUse';
+import MemoryManager from './MemoryManager';
+import {CompositionType} from '../definitions/CompositionType';
+import Material from '../materials/core/Material';
+import {ComponentType} from '../definitions/ComponentType';
+import Accessor from '../memory/Accessor';
+import MathClassUtil from '../math/MathClassUtil';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import {ShaderType} from '../definitions/ShaderType';
+import VectorN from '../math/VectorN';
+import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
+import Config from './Config';
+import Scalar from '../math/Scalar';
+import Vector4 from '../math/Vector4';
+import Vector3 from '../math/Vector3';
+import MutableMatrix44 from '../math/MutableMatrix44';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import {BoneDataType} from '../definitions/BoneDataType';
 
 type GlobalPropertyStruct = {
-  shaderSemanticsInfo: ShaderSemanticsInfo,
-  values: any[],
-  maxCount: Count,
-  accessor: Accessor
+  shaderSemanticsInfo: ShaderSemanticsInfo;
+  values: any[];
+  maxCount: Count;
+  accessor: Accessor;
 };
 
 /**
@@ -34,31 +44,58 @@ export default class GlobalDataRepository {
   private static __instance: GlobalDataRepository;
   private __fields: Map<ShaderSemanticsIndex, GlobalPropertyStruct> = new Map();
 
-  private constructor() {
-
-  }
+  private constructor() {}
 
   initialize() {
     // CurrentComponentSIDs
     const currentComponentSIDsInfo = {
-      semantic: ShaderSemantics.CurrentComponentSIDs, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Float, maxIndex: WellKnownComponentTIDs.maxWellKnownTidNumber,
-      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, needUniformInFastest: true, initialValue: new VectorN(new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber))
+      semantic: ShaderSemantics.CurrentComponentSIDs,
+      compositionType: CompositionType.ScalarArray,
+      componentType: ComponentType.Float,
+      maxIndex: WellKnownComponentTIDs.maxWellKnownTidNumber,
+      stage: ShaderType.VertexAndPixelShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      needUniformInFastest: true,
+      initialValue: new VectorN(
+        new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber)
+      ),
     };
     this.registerProperty(currentComponentSIDsInfo, 1);
     this.takeOne(ShaderSemantics.CurrentComponentSIDs);
 
     // Camera
     const viewMatrixInfo = {
-      semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()
+      semantic: ShaderSemantics.ViewMatrix,
+      compositionType: CompositionType.Mat4,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      initialValue: MutableMatrix44.identity(),
     };
     const projectionMatrixInfo = {
-      semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()
+      semantic: ShaderSemantics.ProjectionMatrix,
+      compositionType: CompositionType.Mat4,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      initialValue: MutableMatrix44.identity(),
     };
     const viewPositionInfo = {
-      semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1)
+      semantic: ShaderSemantics.ViewPosition,
+      compositionType: CompositionType.Vec3,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexAndPixelShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      initialValue: new Vector3(0, 0, 1),
     };
     this.registerProperty(viewMatrixInfo, Config.maxCameraNumber);
     this.registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
@@ -66,28 +103,79 @@ export default class GlobalDataRepository {
 
     // Skinning
     const boneMatrixInfo = {
-      semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))
+      semantic: ShaderSemantics.BoneMatrix,
+      compositionType: CompositionType.Mat4Array,
+      maxIndex: Config.maxSkeletalBoneNumber,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: true,
+      initialValue: new VectorN(new Float32Array(0)),
     };
     const boneQuaternionInfo = {
-      semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))
+      semantic: ShaderSemantics.BoneQuaternion,
+      compositionType: CompositionType.Vec4Array,
+      maxIndex: Config.maxSkeletalBoneNumber,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: true,
+      initialValue: new VectorN(new Float32Array(0)),
     };
     const boneTranslateScaleInfo = {
-      semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float, soloDatum: true,
-      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))
+      semantic: ShaderSemantics.BoneTranslateScale,
+      compositionType: CompositionType.Vec4Array,
+      maxIndex: Config.maxSkeletalBoneNumber,
+      componentType: ComponentType.Float,
+      soloDatum: true,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      initialValue: new VectorN(new Float32Array(0)),
     };
     const boneCompressedChunkInfo = {
-      semantic: ShaderSemantics.BoneCompressedChunk, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float, soloDatum: true,
-      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))
+      semantic: ShaderSemantics.BoneCompressedChunk,
+      compositionType: CompositionType.Vec4Array,
+      maxIndex: Config.maxSkeletalBoneNumber,
+      componentType: ComponentType.Float,
+      soloDatum: true,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      initialValue: new VectorN(new Float32Array(0)),
     };
     const boneCompressedInfoInfo = {
-      semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
-      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Vector4.zero()
+      semantic: ShaderSemantics.BoneCompressedInfo,
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      soloDatum: true,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      initialValue: Vector4.zero(),
     };
     const skeletalComponentSIDInfo = {
-      semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-      stage: ShaderType.VertexAndPixelShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1)
+      semantic: ShaderSemantics.SkinningMode,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Int,
+      stage: ShaderType.VertexAndPixelShader,
+      min: 0,
+      max: 1,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: new Scalar(-1),
     };
     if (Config.boneDataType === BoneDataType.Mat4x4) {
       this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
@@ -105,16 +193,46 @@ export default class GlobalDataRepository {
 
     // Lighting
     const lightPositionInfo = {
-      semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, stage: ShaderType.PixelShader, maxIndex: Config.maxLightNumberInShader,
-      min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader))
+      semantic: ShaderSemantics.LightPosition,
+      compositionType: CompositionType.Vec4Array,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      maxIndex: Config.maxLightNumberInShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: new VectorN(
+        new Float32Array(Config.maxLightNumberInShader)
+      ),
     };
     const lightDirectionInfo = {
-      semantic: ShaderSemantics.LightDirection, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, stage: ShaderType.PixelShader, maxIndex: Config.maxLightNumberInShader,
-      min: -1, max: 1, isSystem: true, initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)), updateInterval: ShaderVariableUpdateInterval.EveryTime
+      semantic: ShaderSemantics.LightDirection,
+      compositionType: CompositionType.Vec4Array,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      maxIndex: Config.maxLightNumberInShader,
+      min: -1,
+      max: 1,
+      isSystem: true,
+      initialValue: new VectorN(
+        new Float32Array(Config.maxLightNumberInShader)
+      ),
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
     const lightIntensityInfo = {
-      semantic: ShaderSemantics.LightIntensity, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, stage: ShaderType.PixelShader, maxIndex: Config.maxLightNumberInShader,
-      min: 0, max: 10, isSystem: true, initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)), updateInterval: ShaderVariableUpdateInterval.EveryTime
+      semantic: ShaderSemantics.LightIntensity,
+      compositionType: CompositionType.Vec4Array,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      maxIndex: Config.maxLightNumberInShader,
+      min: 0,
+      max: 10,
+      isSystem: true,
+      initialValue: new VectorN(
+        new Float32Array(Config.maxLightNumberInShader)
+      ),
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
     this.registerProperty(lightPositionInfo, 1);
     this.registerProperty(lightDirectionInfo, 1);
@@ -136,8 +254,6 @@ export default class GlobalDataRepository {
     };
     this.registerProperty(lightNumberInfo, 1);
     this.takeOne(ShaderSemantics.LightNumber);
-
-
   }
 
   static getInstance() {
@@ -150,18 +266,23 @@ export default class GlobalDataRepository {
   registerProperty(semanticInfo: ShaderSemanticsInfo, maxCount: Count) {
     const propertyIndex = Material._getPropertyIndex(semanticInfo);
 
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(
+      BufferUse.GPUInstanceData
+    );
 
     const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
 
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: alignedByteLength * maxCount,
       byteStride: 0,
-      isAoS: false
+      isAoS: false,
     });
 
     let maxArrayLength = semanticInfo.maxIndex;
-    if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
+    if (
+      CompositionType.isArray(semanticInfo.compositionType) &&
+      maxArrayLength == null
+    ) {
       maxArrayLength = 100;
     }
 
@@ -171,21 +292,24 @@ export default class GlobalDataRepository {
       count: maxCount,
       byteStride: alignedByteLength,
       arrayLength: maxArrayLength,
-      byteAlign: 16
+      byteAlign: 16,
     });
 
     const globalPropertyStruct: GlobalPropertyStruct = {
       shaderSemanticsInfo: semanticInfo,
       values: [],
       maxCount: maxCount,
-      accessor: accessor
-    }
+      accessor: accessor,
+    };
 
     this.__fields.set(propertyIndex, globalPropertyStruct);
   }
 
   takeOne(shaderSemantic: ShaderSemanticsEnum, arrayIndex?: Index) {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic, arrayIndex);
+    const propertyIndex = Material._getPropertyIndex2(
+      shaderSemantic,
+      arrayIndex
+    );
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
@@ -203,8 +327,16 @@ export default class GlobalDataRepository {
     return void 0;
   }
 
-  setValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index, value: any, arrayIndex?: Index) {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic, arrayIndex);
+  setValue(
+    shaderSemantic: ShaderSemanticsEnum,
+    countIndex: Index,
+    value: any,
+    arrayIndex?: Index
+  ) {
+    const propertyIndex = Material._getPropertyIndex2(
+      shaderSemantic,
+      arrayIndex
+    );
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
@@ -212,8 +344,15 @@ export default class GlobalDataRepository {
     }
   }
 
-  getValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index, arrayIndex?: Index) {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic, arrayIndex);
+  getValue(
+    shaderSemantic: ShaderSemanticsEnum,
+    countIndex: Index,
+    arrayIndex?: Index
+  ) {
+    const propertyIndex = Material._getPropertyIndex2(
+      shaderSemantic,
+      arrayIndex
+    );
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
@@ -226,7 +365,10 @@ export default class GlobalDataRepository {
     return this.__fields.get(propertyIndex);
   }
 
-  setUniformLocations(shaderProgramUid: CGAPIResourceHandle, isUniformOnlyMode: boolean) {
+  setUniformLocations(
+    shaderProgramUid: CGAPIResourceHandle,
+    isUniformOnlyMode: boolean
+  ) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
@@ -234,7 +376,11 @@ export default class GlobalDataRepository {
       semanticsInfoArray.push(semanticInfo);
     });
 
-    webglResourceRepository.setupUniformLocations(shaderProgramUid, semanticsInfoArray, isUniformOnlyMode);
+    webglResourceRepository.setupUniformLocations(
+      shaderProgramUid,
+      semanticsInfoArray,
+      isUniformOnlyMode
+    );
   }
 
   setUniformValues(shaderProgram: WebGLProgram) {
@@ -243,7 +389,13 @@ export default class GlobalDataRepository {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       const values = globalPropertyStruct.values;
       for (let i = 0; i < values.length; i++) {
-        webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, true, values[i], info.index);
+        webglResourceRepository.setUniformValue(
+          shaderProgram,
+          info.semantic.str,
+          true,
+          values[i],
+          info.index
+        );
       }
     });
   }
@@ -265,7 +417,6 @@ export default class GlobalDataRepository {
     return -1;
   }
 
-
   getCurrentDataNumberOfTheProperty(propertyIndex: Index) {
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
@@ -274,16 +425,41 @@ export default class GlobalDataRepository {
     return 0;
   }
 
-  addPropertiesStr(vertexPropertiesStr: string, pixelPropertiesStr: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
-    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, propertyIndex: Index) => {
-      const info = globalPropertyStruct.shaderSemanticsInfo;
-      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
+  addPropertiesStr(
+    vertexPropertiesStr: string,
+    pixelPropertiesStr: string,
+    propertySetter: getShaderPropertyFunc,
+    isWebGL2: boolean
+  ) {
+    this.__fields.forEach(
+      (globalPropertyStruct: GlobalPropertyStruct, propertyIndex: Index) => {
+        const info = globalPropertyStruct.shaderSemanticsInfo;
+        if (
+          info!.stage === ShaderType.VertexShader ||
+          info!.stage === ShaderType.VertexAndPixelShader
+        ) {
+          vertexPropertiesStr += propertySetter(
+            '',
+            info!,
+            propertyIndex,
+            true,
+            isWebGL2
+          );
+        }
+        if (
+          info!.stage === ShaderType.PixelShader ||
+          info!.stage === ShaderType.VertexAndPixelShader
+        ) {
+          pixelPropertiesStr += propertySetter(
+            '',
+            info!,
+            propertyIndex,
+            true,
+            isWebGL2
+          );
+        }
       }
-      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
-      }
-    });
+    );
 
     return [vertexPropertiesStr, pixelPropertiesStr];
   }

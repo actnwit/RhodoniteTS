@@ -1,32 +1,35 @@
-import Component from "../foundation/core/Component";
-import EntityRepository from "../foundation/core/EntityRepository";
-import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
-import { ProcessStage } from "../foundation/definitions/ProcessStage";
-import Matrix44 from "../foundation/math/Matrix44";
-import CameraComponent from "../foundation/components/CameraComponent";
-import ComponentRepository from "../foundation/core/ComponentRepository";
-import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
-import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
-import ModuleManager from "../foundation/system/ModuleManager";
-import { ComponentTID, EntityUID, ComponentSID } from "../commontypes/CommonTypes";
+import Component from '../foundation/core/Component';
+import EntityRepository from '../foundation/core/EntityRepository';
+import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
+import {ProcessStage} from '../foundation/definitions/ProcessStage';
+import Matrix44 from '../foundation/math/Matrix44';
+import CameraComponent from '../foundation/components/CameraComponent';
+import ComponentRepository from '../foundation/core/ComponentRepository';
+import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
+import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import ModuleManager from '../foundation/system/ModuleManager';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+} from '../commontypes/CommonTypes';
 
-declare var window: any;
-declare var Module: any;
-declare var _SPARK_Data_Delete: Function;
-declare var _SPARK_Instance_Create: Function;
-declare var _SPARK_Draw: Function;
-declare var _SPARK_Instance_Play: Function;
-declare var _SPARK_Instance_Stop: Function;
-declare var _SPARK_Instance_Pause: Function;
-declare var _SPARK_Instance_IsPlaying: Function;
-declare var _SPARK_Instance_KickTrigger: Function;
-declare var _SPARK_InitializeFor3D: Function;
-declare var _SPARK_Uninitialize: Function;
-declare var _SPARK_SetMatrix: Function;
-declare var _SPARK_Instance_SetTransformFor3D: Function;
-declare var _SPARK_Update: Function;
-declare var _SPARK_DrawAll: Function;
-declare var _SPARK_DrawDebugInfo: Function;
+declare let window: any;
+declare let _SPARK_Data_Delete: Function;
+declare let _SPARK_Instance_Create: Function;
+declare let _SPARK_Draw: Function;
+declare let _SPARK_Instance_Play: Function;
+declare let _SPARK_Instance_Stop: Function;
+declare let _SPARK_Instance_Pause: Function;
+declare let _SPARK_Instance_IsPlaying: Function;
+declare let _SPARK_Instance_KickTrigger: Function;
+declare let _SPARK_InitializeFor3D: Function;
+declare let _SPARK_Uninitialize: Function;
+declare let _SPARK_SetMatrix: Function;
+declare let _SPARK_Instance_SetTransformFor3D: Function;
+declare let _SPARK_Update: Function;
+declare let _SPARK_DrawAll: Function;
+declare let _SPARK_DrawDebugInfo: Function;
 
 export default class SparkGearComponent extends Component {
   public url?: string;
@@ -56,17 +59,19 @@ export default class SparkGearComponent extends Component {
   private static SPFX_Texture: any[] = [];
   private static __tmp_indentityMatrix: Matrix44 = Matrix44.identity();
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository
+  ) {
     super(entityUid, componentSid, entityRepository);
-
   }
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SparkGearComponentTID;
   }
 
-  onBeforeRender() {
-  }
+  onBeforeRender() {}
   onAfterRender() {
     const ThisClass = SparkGearComponent;
     ThisClass.SPARK_BackupStatus();
@@ -79,10 +84,10 @@ export default class SparkGearComponent extends Component {
   play() {
     _SPARK_Instance_Play(this.__hSPFXInst, 1.0, false, 0);
   }
-  stop () {
+  stop() {
     _SPARK_Instance_Stop(this.__hSPFXInst);
   }
-  pause () {
+  pause() {
     _SPARK_Instance_Pause(this.__hSPFXInst);
   }
   isPlaying() {
@@ -96,27 +101,28 @@ export default class SparkGearComponent extends Component {
     const ThisClass = SparkGearComponent;
     const gl = ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
 
-    ThisClass.SPFX_ArrayBuffer        = gl.getParameter(gl.ARRAY_BUFFER_BINDING);
-    ThisClass.SPFX_ElementArrayBuffer = gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING);
-    ThisClass.SPFX_CurrentProgram     = gl.getParameter(gl.CURRENT_PROGRAM);
+    ThisClass.SPFX_ArrayBuffer = gl.getParameter(gl.ARRAY_BUFFER_BINDING);
+    ThisClass.SPFX_ElementArrayBuffer = gl.getParameter(
+      gl.ELEMENT_ARRAY_BUFFER_BINDING
+    );
+    ThisClass.SPFX_CurrentProgram = gl.getParameter(gl.CURRENT_PROGRAM);
 
-    ThisClass.SPFX_FrontFace          = gl.getParameter(gl.FRONT_FACE);
-    ThisClass.SPFX_DepthFunc          = gl.getParameter(gl.DEPTH_FUNC);
-    ThisClass.SPFX_DepthWriteMask     = gl.getParameter(gl.DEPTH_WRITEMASK);
+    ThisClass.SPFX_FrontFace = gl.getParameter(gl.FRONT_FACE);
+    ThisClass.SPFX_DepthFunc = gl.getParameter(gl.DEPTH_FUNC);
+    ThisClass.SPFX_DepthWriteMask = gl.getParameter(gl.DEPTH_WRITEMASK);
     ThisClass.SPFX_StencilTestEnabled = gl.isEnabled(gl.STENCIL_TEST);
-    ThisClass.SPFX_DepthTestEnabled   = gl.isEnabled(gl.DEPTH_TEST);
-    ThisClass.SPFX_CullFaceEnabled    = gl.isEnabled(gl.CULL_FACE);
-    ThisClass.SPFX_BlendEnabled       = gl.isEnabled(gl.BLEND);
-    ThisClass.SPFX_BlendSrcRgb        = gl.getParameter(gl.BLEND_SRC_RGB);
-    ThisClass.SPFX_BlendDstRgb        = gl.getParameter(gl.BLEND_DST_RGB);
-    ThisClass.SPFX_BlendSrcAlpha        = gl.getParameter(gl.BLEND_SRC_ALPHA);
-    ThisClass.SPFX_BlendDstAlpha        = gl.getParameter(gl.BLEND_DST_ALPHA);
+    ThisClass.SPFX_DepthTestEnabled = gl.isEnabled(gl.DEPTH_TEST);
+    ThisClass.SPFX_CullFaceEnabled = gl.isEnabled(gl.CULL_FACE);
+    ThisClass.SPFX_BlendEnabled = gl.isEnabled(gl.BLEND);
+    ThisClass.SPFX_BlendSrcRgb = gl.getParameter(gl.BLEND_SRC_RGB);
+    ThisClass.SPFX_BlendDstRgb = gl.getParameter(gl.BLEND_DST_RGB);
+    ThisClass.SPFX_BlendSrcAlpha = gl.getParameter(gl.BLEND_SRC_ALPHA);
+    ThisClass.SPFX_BlendDstAlpha = gl.getParameter(gl.BLEND_DST_ALPHA);
 
     ThisClass.SPFX_ActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE);
-    for (let i = 0; i < 8; i++)
-    {
-        gl.activeTexture(gl.TEXTURE0 + i);
-        ThisClass.SPFX_Texture[i] = gl.getParameter(gl.TEXTURE_BINDING_2D);
+    for (let i = 0; i < 8; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      ThisClass.SPFX_Texture[i] = gl.getParameter(gl.TEXTURE_BINDING_2D);
     }
 
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -135,22 +141,32 @@ export default class SparkGearComponent extends Component {
     gl.frontFace(ThisClass.SPFX_FrontFace);
     gl.depthFunc(ThisClass.SPFX_DepthFunc);
     gl.depthMask(ThisClass.SPFX_DepthWriteMask);
-    gl.blendFuncSeparate(ThisClass.SPFX_BlendSrcRgb, ThisClass.SPFX_BlendDstRgb, ThisClass.SPFX_BlendSrcAlpha, ThisClass.SPFX_BlendDstAlpha);
+    gl.blendFuncSeparate(
+      ThisClass.SPFX_BlendSrcRgb,
+      ThisClass.SPFX_BlendDstRgb,
+      ThisClass.SPFX_BlendSrcAlpha,
+      ThisClass.SPFX_BlendDstAlpha
+    );
 
-    ThisClass.SPFX_StencilTestEnabled ? gl.enable(gl.STENCIL_TEST) : gl.disable(gl.STENCIL_TEST);
-    ThisClass.SPFX_DepthTestEnabled   ? gl.enable(gl.DEPTH_TEST)   : gl.disable(gl.DEPTH_TEST);
-    ThisClass.SPFX_CullFaceEnabled    ? gl.enable(gl.CULL_FACE)    : gl.disable(gl.CULL_FACE);
-    ThisClass.SPFX_BlendEnabled       ? gl.enable(gl.BLEND)        : gl.disable(gl.BLEND);
+    ThisClass.SPFX_StencilTestEnabled
+      ? gl.enable(gl.STENCIL_TEST)
+      : gl.disable(gl.STENCIL_TEST);
+    ThisClass.SPFX_DepthTestEnabled
+      ? gl.enable(gl.DEPTH_TEST)
+      : gl.disable(gl.DEPTH_TEST);
+    ThisClass.SPFX_CullFaceEnabled
+      ? gl.enable(gl.CULL_FACE)
+      : gl.disable(gl.CULL_FACE);
+    ThisClass.SPFX_BlendEnabled ? gl.enable(gl.BLEND) : gl.disable(gl.BLEND);
 
-    for (let i = 0; i < 8; i++)
-    {
-        gl.activeTexture(gl.TEXTURE0 + i);
-        gl.bindTexture(gl.TEXTURE_2D, ThisClass.SPFX_Texture[i]);
+    for (let i = 0; i < 8; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      gl.bindTexture(gl.TEXTURE_2D, ThisClass.SPFX_Texture[i]);
     }
     gl.activeTexture(ThisClass.SPFX_ActiveTexture);
-  }
+  };
 
-  static SPFX_Initialize = function(repository: WebGLResourceRepository) {
+  static SPFX_Initialize = function (repository: WebGLResourceRepository) {
     const ThisClass = SparkGearComponent;
 
     if (repository.currentWebGLContextWrapper == null) {
@@ -159,12 +175,13 @@ export default class SparkGearComponent extends Component {
     ThisClass.SPFX_WebGLResourceRepository = repository;
     window.GLctx = ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
     ThisClass.SPARK_BackupStatus();
-    const glw = ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!;
+    const glw = ThisClass.SPFX_WebGLResourceRepository
+      .currentWebGLContextWrapper!;
     _SPARK_InitializeFor3D(glw.width, glw.height);
     ThisClass.SPARK_RestoreStatus();
 
     ThisClass.__isInitialized = true;
-  }
+  };
 
   static SPFX_Uninitialize() {
     const ThisClass = SparkGearComponent;
@@ -173,46 +190,53 @@ export default class SparkGearComponent extends Component {
     ThisClass.SPARK_RestoreStatus();
   }
 
-  static SPARK_SetCameraMatrix(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
-    _SPARK_SetMatrix(0,
-        viewMatrix.v[ 0],
-        viewMatrix.v[ 1],
-        viewMatrix.v[ 2],
-        viewMatrix.v[ 3],
-        viewMatrix.v[ 4],
-        viewMatrix.v[ 5],
-        viewMatrix.v[ 6],
-        viewMatrix.v[ 7],
-        viewMatrix.v[ 8],
-        viewMatrix.v[ 9],
-        viewMatrix.v[10],
-        viewMatrix.v[11],
-        viewMatrix.v[12],
-        viewMatrix.v[13],
-        viewMatrix.v[14],
-        viewMatrix.v[15]);
-    _SPARK_SetMatrix(1,
-        projectionMatrix.v[ 0],
-        projectionMatrix.v[ 1],
-        projectionMatrix.v[ 2],
-        projectionMatrix.v[ 3],
-        projectionMatrix.v[ 4],
-        projectionMatrix.v[ 5],
-        projectionMatrix.v[ 6],
-        projectionMatrix.v[ 7],
-        projectionMatrix.v[ 8],
-        projectionMatrix.v[ 9],
-        projectionMatrix.v[10],
-        projectionMatrix.v[11],
-        projectionMatrix.v[12],
-        projectionMatrix.v[13],
-        projectionMatrix.v[14],
-        projectionMatrix.v[15]);
+  static SPARK_SetCameraMatrix(
+    viewMatrix: Matrix44,
+    projectionMatrix: Matrix44
+  ) {
+    _SPARK_SetMatrix(
+      0,
+      viewMatrix.v[0],
+      viewMatrix.v[1],
+      viewMatrix.v[2],
+      viewMatrix.v[3],
+      viewMatrix.v[4],
+      viewMatrix.v[5],
+      viewMatrix.v[6],
+      viewMatrix.v[7],
+      viewMatrix.v[8],
+      viewMatrix.v[9],
+      viewMatrix.v[10],
+      viewMatrix.v[11],
+      viewMatrix.v[12],
+      viewMatrix.v[13],
+      viewMatrix.v[14],
+      viewMatrix.v[15]
+    );
+    _SPARK_SetMatrix(
+      1,
+      projectionMatrix.v[0],
+      projectionMatrix.v[1],
+      projectionMatrix.v[2],
+      projectionMatrix.v[3],
+      projectionMatrix.v[4],
+      projectionMatrix.v[5],
+      projectionMatrix.v[6],
+      projectionMatrix.v[7],
+      projectionMatrix.v[8],
+      projectionMatrix.v[9],
+      projectionMatrix.v[10],
+      projectionMatrix.v[11],
+      projectionMatrix.v[12],
+      projectionMatrix.v[13],
+      projectionMatrix.v[14],
+      projectionMatrix.v[15]
+    );
   }
 
   static SPFX_Update = function (DeltaTime: number) {
     _SPARK_Update(DeltaTime);
-  }
+  };
 
   static SPARK_Draw() {
     const ThisClass = SparkGearComponent;
@@ -229,7 +253,10 @@ export default class SparkGearComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+      this.__entityUid,
+      SceneGraphComponent
+    ) as SceneGraphComponent;
     this.moveStageTo(ProcessStage.Load);
   }
 
@@ -240,18 +267,24 @@ export default class SparkGearComponent extends Component {
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
+    const webglModule = moduleManager.getModule(moduleName)! as any;
 
     // Initialize SPARKGEAR
-    SparkGearComponent.SPFX_Initialize(webglModule.WebGLResourceRepository.getInstance());
+    SparkGearComponent.SPFX_Initialize(
+      webglModule.WebGLResourceRepository.getInstance()
+    );
   }
 
   $load() {
     if (this.url == null) {
       return;
     }
-    const loadBytes = function (path: string, type: XMLHttpRequestResponseType, callback: Function) {
-      var request = new XMLHttpRequest();
+    const loadBytes = function (
+      path: string,
+      type: XMLHttpRequestResponseType,
+      callback: Function
+    ) {
+      const request = new XMLHttpRequest();
       request.open('GET', path, true);
       request.responseType = type;
       request.onload = () => {
@@ -263,20 +296,21 @@ export default class SparkGearComponent extends Component {
             console.error('Failed to load (' + request.status + ') : ' + path);
             break;
         }
-      }
+      };
       request.send(null);
-    }
+    };
 
     const ThisClass = SparkGearComponent;
 
     loadBytes(this.url, 'arraybuffer', (data: ArrayBuffer) => {
-      var buffer = new Uint8Array(data);
+      const buffer = new Uint8Array(data);
       ThisClass.SPARK_BackupStatus();
-      var SPFXData = window.Module.ccall(
-        "SPARK_Data_Create",
+      const SPFXData = window.Module.ccall(
+        'SPARK_Data_Create',
         'number',
         ['string', 'number', 'array', 'number'],
-        [this.url, this.url!.length, buffer, buffer.length]);
+        [this.url, this.url!.length, buffer, buffer.length]
+      );
       this.__hSPFXInst = _SPARK_Instance_Create(SPFXData);
       _SPARK_Data_Delete(SPFXData);
       ThisClass.SPARK_RestoreStatus();
@@ -291,7 +325,10 @@ export default class SparkGearComponent extends Component {
       this.play();
     }
 
-    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    const cameraComponent = ComponentRepository.getInstance().getComponent(
+      CameraComponent,
+      CameraComponent.main
+    ) as CameraComponent;
     let viewMatrix = SparkGearComponent.__tmp_indentityMatrix;
     let projectionMatrix = SparkGearComponent.__tmp_indentityMatrix;
     if (cameraComponent) {
@@ -303,11 +340,25 @@ export default class SparkGearComponent extends Component {
     SparkGearComponent.SPFX_Update(1.0);
 
     const m = this.__sceneGraphComponent!.worldMatrixInner;
-    _SPARK_Instance_SetTransformFor3D(this.__hSPFXInst,
-      m.v[0], m.v[4], m.v[8], m.v[12],
-      m.v[1], m.v[5], m.v[9], m.v[13],
-      m.v[2], m.v[6], m.v[10], m.v[14],
-      m.v[3], m.v[7], m.v[11], m.v[15]);
+    _SPARK_Instance_SetTransformFor3D(
+      this.__hSPFXInst,
+      m.v[0],
+      m.v[4],
+      m.v[8],
+      m.v[12],
+      m.v[1],
+      m.v[5],
+      m.v[9],
+      m.v[13],
+      m.v[2],
+      m.v[6],
+      m.v[10],
+      m.v[14],
+      m.v[3],
+      m.v[7],
+      m.v[11],
+      m.v[15]
+    );
 
     this.moveStageTo(ProcessStage.Render);
   }
@@ -316,6 +367,5 @@ export default class SparkGearComponent extends Component {
     this.onAfterRender();
     this.moveStageTo(ProcessStage.Logic);
   }
-
 }
 ComponentRepository.registerComponentClass(SparkGearComponent);

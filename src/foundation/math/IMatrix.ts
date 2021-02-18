@@ -1,6 +1,15 @@
-import { IVector, IMutableVector, IVector2, IMutableVector2, IVector3, IMutableVector3, IVector4, IMutableVector4 } from "./IVector";
-import { TypedArray, Index } from "../../commontypes/CommonTypes";
-import { IQuaternion } from "./IQuaternion";
+import {
+  IVector,
+  IMutableVector,
+  IVector2,
+  IMutableVector2,
+  IVector3,
+  IMutableVector3,
+  IVector4,
+  IMutableVector4,
+} from './IVector';
+import {TypedArray, Index} from '../../commontypes/CommonTypes';
+import {IQuaternion} from './IQuaternion';
 
 export interface IMatrix {
   readonly className: string;
@@ -53,7 +62,7 @@ export interface IMatrix22 {
   multiplyVector(vec: IVector2): IVector2;
   multiplyVectorTo(vec: IVector2, outVec: IMutableVector2): IMutableVector2;
   getScale(): IVector2;
-  getScaleTo(outVec: IMutableVector2): IMutableVector2
+  getScaleTo(outVec: IMutableVector2): IMutableVector2;
   clone(): IMatrix22;
 }
 
@@ -75,15 +84,17 @@ export interface IMutableMatrix22 {
   multiplyVector(vec: IVector2): IVector2;
   multiplyVectorTo(vec: IVector2, outVec: IMutableVector2): IMutableVector2;
   getScale(): IVector2;
-  getScaleTo(outVec: IMutableVector2): IMutableVector2
+  getScaleTo(outVec: IMutableVector2): IMutableVector2;
 
   // only for mutable matrix22
   clone(): IMutableMatrix22; // override
   raw(): TypedArray;
   setAt(row_i: number, column_i: number, value: number): IMutableMatrix22;
   setComponents(
-    m00: number, m01: number,
-    m10: number, m11: number
+    m00: number,
+    m01: number,
+    m10: number,
+    m11: number
   ): IMutableMatrix22;
   copyComponents(mat: IMatrix22 | IMatrix33 | IMatrix44): IMutableMatrix22;
   zero(): IMutableMatrix22;
@@ -119,7 +130,7 @@ export interface IMatrix33 {
   multiplyVector(vec: IVector3): IVector3;
   multiplyVectorTo(vec: IVector3, outVec: IMutableVector3): IMutableVector3;
   getScale(): IVector3;
-  getScaleTo(outVec: IMutableVector3): IMutableVector3
+  getScaleTo(outVec: IMutableVector3): IMutableVector3;
   clone(): IMatrix33;
 }
 
@@ -146,16 +157,22 @@ export interface IMutableMatrix33 {
   multiplyVector(vec: IVector3): IVector3;
   multiplyVectorTo(vec: IVector3, outVec: IMutableVector3): IMutableVector3;
   getScale(): IVector3;
-  getScaleTo(outVec: IMutableVector3): IMutableVector3
+  getScaleTo(outVec: IMutableVector3): IMutableVector3;
 
   // only for mutable matrix33
   clone(): IMutableMatrix33; // override
   raw(): TypedArray;
   setAt(row_i: number, column_i: number, value: number): IMutableMatrix33;
   setComponents(
-    m00: number, m01: number, m02: number,
-    m10: number, m11: number, m12: number,
-    m20: number, m21: number, m22: number
+    m00: number,
+    m01: number,
+    m02: number,
+    m10: number,
+    m11: number,
+    m12: number,
+    m20: number,
+    m21: number,
+    m22: number
   ): IMutableMatrix33;
   copyComponents(mat: IMatrix33 | IMatrix44): IMutableMatrix33;
   zero(): IMutableMatrix33;
@@ -259,10 +276,22 @@ export interface IMutableMatrix44 {
   raw(): TypedArray;
   setAt(row_i: number, column_i: number, value: number): IMutableMatrix44;
   setComponents(
-    m00: number, m01: number, m02: number, m03: number,
-    m10: number, m11: number, m12: number, m13: number,
-    m20: number, m21: number, m22: number, m23: number,
-    m30: number, m31: number, m32: number, m33: number
+    m00: number,
+    m01: number,
+    m02: number,
+    m03: number,
+    m10: number,
+    m11: number,
+    m12: number,
+    m13: number,
+    m20: number,
+    m21: number,
+    m22: number,
+    m23: number,
+    m30: number,
+    m31: number,
+    m32: number,
+    m33: number
   ): IMutableMatrix44;
   copyComponents(mat: IMatrix44): IMutableMatrix44;
   zero(): IMutableMatrix44;
@@ -283,4 +312,3 @@ export interface IMutableMatrix44 {
   multiplyByLeft(mat: IMatrix44): IMutableMatrix44;
   fromQuaternion(quat: IQuaternion): IMutableMatrix44;
 }
-

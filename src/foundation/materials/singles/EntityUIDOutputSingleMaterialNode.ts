@@ -1,38 +1,59 @@
-import { ShaderSemanticsInfo, ShaderSemantics, } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import Vector3 from "../../math/Vector3";
-import { ShaderType } from "../../definitions/ShaderType";
-import Scalar from "../../math/Scalar";
-import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
-import ComponentRepository from "../../core/ComponentRepository";
-import CameraComponent from "../../components/CameraComponent";
-import Material from "../core/Material";
-import SkeletalComponent from "../../components/SkeletalComponent";
-import MutableMatrix44 from "../../math/MutableMatrix44";
-import MutableMatrix33 from "../../math/MutableMatrix33";
-import entityUIDOutputSingleShaderVertex from "../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert";
-import entityUIDOutputSingleShaderFragment from "../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag";
+import {
+  ShaderSemanticsInfo,
+  ShaderSemantics,
+} from '../../definitions/ShaderSemantics';
+import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import {CompositionType} from '../../definitions/CompositionType';
+import {ComponentType} from '../../definitions/ComponentType';
+import Vector3 from '../../math/Vector3';
+import {ShaderType} from '../../definitions/ShaderType';
+import Scalar from '../../math/Scalar';
+import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
+import ComponentRepository from '../../core/ComponentRepository';
+import CameraComponent from '../../components/CameraComponent';
+import Material from '../core/Material';
+import SkeletalComponent from '../../components/SkeletalComponent';
+import MutableMatrix44 from '../../math/MutableMatrix44';
+import MutableMatrix33 from '../../math/MutableMatrix33';
+import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
+import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
 
 export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
-
   constructor() {
-    super(null, "entityUidOutputShading"
-      + (true ? '+skinning' : '')
-      + (false ? '' : '-lighting'),
-      { isMorphing: false, isSkinning: true, isLighting: false },
-      entityUIDOutputSingleShaderVertex, entityUIDOutputSingleShaderFragment
+    super(
+      null,
+      'entityUidOutputShading' +
+        (true ? '+skinning' : '') +
+        (false ? '' : '-lighting'),
+      {isMorphing: false, isSkinning: true, isLighting: false},
+      entityUIDOutputSingleShaderVertex,
+      entityUIDOutputSingleShaderFragment
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.WorldMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix44.zero()
+        semantic: ShaderSemantics.WorldMatrix,
+        isComponentData: true,
+        compositionType: CompositionType.Mat4,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isSystem: true,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: MutableMatrix44.zero(),
       },
       {
-        semantic: ShaderSemantics.NormalMatrix, isComponentData: true, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix33.zero()
+        semantic: ShaderSemantics.NormalMatrix,
+        isComponentData: true,
+        compositionType: CompositionType.Mat3,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isSystem: true,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: MutableMatrix33.zero(),
       },
       // {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
@@ -51,17 +72,30 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
       //   soloDatum: true
       // },
       {
-        semantic: ShaderSemantics.PointSize, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
-        initialValue: new Scalar(30.0), min: 0, max: 100,
+        semantic: ShaderSemantics.PointSize,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.VertexShader,
+        isSystem: true,
+        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        soloDatum: true,
+        initialValue: new Scalar(30.0),
+        min: 0,
+        max: 100,
       },
       {
-        semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
-        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
-        initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
+        semantic: ShaderSemantics.PointDistanceAttenuation,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Vec3,
+        stage: ShaderType.VertexShader,
+        isSystem: true,
+        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        soloDatum: true,
+        initialValue: new Vector3(0.0, 0.1, 0.01),
+        min: 0,
+        max: 1,
       },
     ];
-
 
     if (true) {
       this.__definitions += '#define RN_IS_SKINNING\n';
@@ -70,8 +104,17 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
-
+  setParametersForGPU({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args?: any;
+  }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
@@ -80,17 +123,31 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     /// Matrices
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+      cameraComponent = ComponentRepository.getInstance().getComponent(
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
     this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setProjection(
+      shaderProgram,
+      cameraComponent,
+      material,
+      args.setUniform
+    );
 
     /// Skinning
-    const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
+    const skeletalComponent = args.entity.getComponent(
+      SkeletalComponent
+    ) as SkeletalComponent;
     this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
     // Lights
-    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
-
+    this.setLightsInfo(
+      shaderProgram,
+      args.lightComponents,
+      material,
+      args.setUniform
+    );
   }
 }

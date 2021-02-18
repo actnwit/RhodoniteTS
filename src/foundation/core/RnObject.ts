@@ -1,9 +1,8 @@
-import { RnTags, ObjectUID } from "../../commontypes/CommonTypes";
-
+import {RnTags, ObjectUID} from '../../commontypes/CommonTypes';
 
 export type Tag = {
-  tag: string,
-  value: any,
+  tag: string;
+  value: any;
 };
 
 /**
@@ -20,7 +19,7 @@ export default class RnObject {
   private readonly __objectUid: ObjectUID = RnObject.InvalidObjectUID;
   private __uniqueName: string;
   private __tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
-  private __combinedTagString: string = ''; // Tag string allows alphabet, digit and underscore (_) only
+  private __combinedTagString = ''; // Tag string allows alphabet, digit and underscore (_) only
 
   constructor() {
     this.__objectUid = RnObject.currentMaxObjectCount++;
@@ -32,7 +31,7 @@ export default class RnObject {
   }
 
   searchByTag(tag: string, value: string) {
-    for (let obj of RnObject.__objects) {
+    for (const obj of RnObject.__objects) {
       if (obj.getTagValue(tag) === value) {
         return obj;
       }
@@ -94,7 +93,7 @@ export default class RnObject {
    * @param val The string to be validated
    */
   validateTagString(val: string) {
-    var reg = new RegExp(/[!"#$%&'()\*\+\-\s\.,\/:;<=>?@\[\\\]^`{|}~]/g);
+    const reg = new RegExp(/[!"#$%&'()\*\+\-\s\.,\/:;<=>?@\[\\\]^`{|}~]/g);
     if (reg.test(val)) {
       return false;
     }
@@ -134,8 +133,8 @@ export default class RnObject {
   getTag(tagName: string) {
     const tag: Tag = {
       tag: tagName,
-      value: this.__tags[tagName]
-    }
+      value: this.__tags[tagName],
+    };
     return tag;
   }
 
@@ -157,7 +156,7 @@ export default class RnObject {
    */
   removeTag(tagName: string) {
     const strToDelete = `${tagName}:${this.__tags[tagName]}` + ' ';
-    this.__combinedTagString.replace(this.__combinedTagString, "");
+    this.__combinedTagString.replace(this.__combinedTagString, '');
     delete this.__tags[tagName];
   }
 
@@ -184,7 +183,7 @@ export default class RnObject {
     for (let i = 0; i < stringArray.length; i++) {
       regExpStr += `(?=.*${stringArray[i]})`;
     }
-    var reg = new RegExp(regExpStr);
+    const reg = new RegExp(regExpStr);
     if (reg.test(this.__combinedTagString)) {
       return true;
     } else {
@@ -199,10 +198,10 @@ export default class RnObject {
   matchTags(tags: RnTags) {
     let regExpStr = '^';
 
-    for (let tagName in tags) {
+    for (const tagName in tags) {
       regExpStr += `(?=.*${[tagName]}:${tags[tagName]})`;
     }
-    var reg = new RegExp(regExpStr);
+    const reg = new RegExp(regExpStr);
     if (reg.test(this.__combinedTagString)) {
       return true;
     } else {

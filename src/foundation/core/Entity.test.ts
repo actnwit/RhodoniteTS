@@ -2,7 +2,6 @@ import Entity from './Entity';
 import EntityRepository from './EntityRepository';
 import is from '../misc/IsUtil';
 
-
 test('Entities cannot be instantiated by new operator.', () => {
   let entity = null;
   try {
@@ -19,7 +18,6 @@ test('The EntityRepository creates a entity whose uid is 1', () => {
 });
 
 test('A entity name is unique', () => {
-
   const repo = EntityRepository.getInstance();
   const firstEntity = repo.createEntity([]);
   const secondEntity = repo.createEntity([]);
@@ -32,7 +30,6 @@ test('A entity name is unique', () => {
 });
 
 test('The tryToSetUniqueName method can almost certainly set a new unique name by setting the 2nd argument to true.', () => {
-
   const repo = EntityRepository.getInstance();
   const firstEntity = repo.createEntity([]);
   const secondEntity = repo.createEntity([]);

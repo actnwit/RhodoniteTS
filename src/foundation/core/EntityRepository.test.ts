@@ -1,8 +1,11 @@
-import Rn from "../..";
+import Rn from '../..';
 
 function generateEntity() {
   const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent]);
+  const entity = repo.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+  ]);
   return entity;
 }
 
@@ -11,7 +14,10 @@ test('The entity repository can provide the component corresponding to the speci
 
   const firstEntity = generateEntity();
   const entityRepository = Rn.EntityRepository.getInstance();
-  const sceneGraphComponent = entityRepository.getComponentOfEntity(firstEntity.entityUID, Rn.SceneGraphComponent);
+  const sceneGraphComponent = entityRepository.getComponentOfEntity(
+    firstEntity.entityUID,
+    Rn.SceneGraphComponent
+  );
 
   expect(sceneGraphComponent instanceof Rn.SceneGraphComponent).toBe(true);
 });

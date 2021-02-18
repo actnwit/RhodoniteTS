@@ -1,26 +1,36 @@
-import Rn from "../../..";
-import ModuleManager from "../../system/ModuleManager";
-import MemoryManager from "../../core/MemoryManager";
-import Material from "../core/Material";
-import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import ScalarToVector4MaterialNode from "./ScalarToVector4ShaderNode";
-import OutPositionNode from "./OutPositionShaderNode";
-import Scalar from "../../math/Scalar";
-import ShaderGraphResolver from "../core/ShaderGraphResolver";
+import ModuleManager from '../../system/ModuleManager';
+import MemoryManager from '../../core/MemoryManager';
+import ConstantVariableShaderNode from './ConstantVariableShaderNode';
+import {CompositionType} from '../../definitions/CompositionType';
+import {ComponentType} from '../../definitions/ComponentType';
+import ScalarToVector4MaterialNode from './ScalarToVector4ShaderNode';
+import OutPositionNode from './OutPositionShaderNode';
+import Scalar from '../../math/Scalar';
+import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
-  const constant1 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
+  const constant1 = new ConstantVariableShaderNode(
+    CompositionType.Scalar,
+    ComponentType.Float
+  );
   constant1.setDefaultInputValue('value', new Scalar(1));
-  const constant2 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
+  const constant2 = new ConstantVariableShaderNode(
+    CompositionType.Scalar,
+    ComponentType.Float
+  );
   constant2.setDefaultInputValue('value', new Scalar(2));
-  const constant3 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
+  const constant3 = new ConstantVariableShaderNode(
+    CompositionType.Scalar,
+    ComponentType.Float
+  );
   constant3.setDefaultInputValue('value', new Scalar(3));
-  const constant4 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
+  const constant4 = new ConstantVariableShaderNode(
+    CompositionType.Scalar,
+    ComponentType.Float
+  );
   constant4.setDefaultInputValue('value', new Scalar(4));
 
   const scalarToVector4MaterialNode = new ScalarToVector4MaterialNode();
@@ -30,13 +40,25 @@ test('ScalarToVector4 works correctly 1', async () => {
   scalarToVector4MaterialNode.addInputConnection(constant4, 'outValue', 'w');
 
   const endMaterialNode = new OutPositionNode();
-  endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'value');
+  endMaterialNode.addInputConnection(
+    scalarToVector4MaterialNode,
+    'outValue',
+    'value'
+  );
 
   // nodes are intentionally made the order random
-  const retVal = ShaderGraphResolver.createVertexShaderCode([endMaterialNode, scalarToVector4MaterialNode, constant1, constant2, constant3, constant4]);
+  const retVal = ShaderGraphResolver.createVertexShaderCode([
+    endMaterialNode,
+    scalarToVector4MaterialNode,
+    constant1,
+    constant2,
+    constant3,
+    constant4,
+  ]);
 
-  console.log(retVal.shaderBody)
-  expect((retVal.shaderBody).replace(/\s+/g, "")).toEqual(`
+  console.log(retVal.shaderBody);
+  expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
+    `
         void constantVariable_3(
           out float outValue) {
           outValue = 4.0;
@@ -111,5 +133,6 @@ test('ScalarToVector4 works correctly 1', async () => {
 
         }
 
-    `.replace(/\s+/g, ""))
+    `.replace(/\s+/g, '')
+  );
 });

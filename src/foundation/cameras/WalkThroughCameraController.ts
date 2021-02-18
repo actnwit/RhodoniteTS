@@ -1,18 +1,20 @@
-import Matrix44 from "../math/Matrix44";
-import MathClassUtil from "../math/MathClassUtil";
-import { MiscUtil } from "../misc/MiscUtil";
-import ICameraController from "./ICameraController";
-import MutableVector3 from "../math/MutableVector3";
-import CameraComponent from "../components/CameraComponent";
-import { MathUtil } from "../math/MathUtil";
-import Entity from "../core/Entity";
-import MutableMatrix33 from "../math/MutableMatrix33";
-import MutableMatrix44 from "../math/MutableMatrix44";
-import AbstractCameraController from "./AbstractCameraController";
+import Matrix44 from '../math/Matrix44';
+import MathClassUtil from '../math/MathClassUtil';
+import {MiscUtil} from '../misc/MiscUtil';
+import ICameraController from './ICameraController';
+import MutableVector3 from '../math/MutableVector3';
+import CameraComponent from '../components/CameraComponent';
+import Entity from '../core/Entity';
+import MutableMatrix33 from '../math/MutableMatrix33';
+import MutableMatrix44 from '../math/MutableMatrix44';
+import AbstractCameraController from './AbstractCameraController';
+import {MathUtil} from '../math/MathUtil';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
-export default class WalkThroughCameraController extends AbstractCameraController implements ICameraController {
+export default class WalkThroughCameraController
+  extends AbstractCameraController
+  implements ICameraController {
   private _horizontalSpeed: number;
   private _verticalSpeed: number;
   private _turnSpeed: number;
@@ -20,16 +22,16 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
   private _inverseVerticalRotating: boolean;
   private _inverseHorizontalRotating: boolean;
   private _onKeydown: KeyboardEventListener;
-  private _isKeyDown: boolean = false;
-  private _isMouseDrag: boolean = false;
-  private _lastKeyCode: number = -1;
+  private _isKeyDown = false;
+  private _isMouseDrag = false;
+  private _lastKeyCode = -1;
   private _onKeyup: KeyboardEventListener;
   private _currentDir = new MutableVector3(0, 0, -1);
   private _currentPos = new MutableVector3(0, 0, 0);
   private _currentCenter = new MutableVector3(0, 0, -1);
   private _currentHorizontalDir = new MutableVector3(0, 0, -1);
   private _newDir = new MutableVector3(0, 0, -1);
-  private _isMouseDown: boolean = false;
+  private _isMouseDown = false;
   private _clickedMouseXOnCanvas = -1;
   private _clickedMouseYOnCanvas = -1;
   private _draggedMouseXOnCanvas = -1;
@@ -61,7 +63,7 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
       turnSpeed: 0.25,
       mouseWheelSpeedScale: 1,
       inverseVerticalRotating: false,
-      inverseHorizontalRotating: false
+      inverseHorizontalRotating: false,
     }
   ) {
     super();
@@ -96,22 +98,22 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     this._eventTargetDom = eventTargetDom;
 
     if (eventTargetDom) {
-      eventTargetDom.addEventListener("keydown", this._onKeydown);
-      eventTargetDom.addEventListener("keyup", this._onKeyup);
+      eventTargetDom.addEventListener('keydown', this._onKeydown);
+      eventTargetDom.addEventListener('keyup', this._onKeyup);
 
-      if ("ontouchend" in document) {
-        document.addEventListener("touchstart", this._mouseDownBind);
-        document.addEventListener("touchend", this._mouseUpBind);
-        document.addEventListener("touchmove", this._mouseMoveBind);
+      if ('ontouchend' in document) {
+        document.addEventListener('touchstart', this._mouseDownBind);
+        document.addEventListener('touchend', this._mouseUpBind);
+        document.addEventListener('touchmove', this._mouseMoveBind);
       }
-      if ("onmouseup" in document) {
-        eventTargetDom.addEventListener("mousedown", this._mouseDownBind);
-        eventTargetDom.addEventListener("mouseup", this._mouseUpBind);
-        eventTargetDom.addEventListener("mouseleave", this._mouseUpBind);
-        eventTargetDom.addEventListener("mousemove", this._mouseMoveBind);
+      if ('onmouseup' in document) {
+        eventTargetDom.addEventListener('mousedown', this._mouseDownBind);
+        eventTargetDom.addEventListener('mouseup', this._mouseUpBind);
+        eventTargetDom.addEventListener('mouseleave', this._mouseUpBind);
+        eventTargetDom.addEventListener('mousemove', this._mouseMoveBind);
       }
-      if ("onwheel" in document) {
-        eventTargetDom.addEventListener("wheel", this._mouseWheelBind);
+      if ('onwheel' in document) {
+        eventTargetDom.addEventListener('wheel', this._mouseWheelBind);
       }
     }
   }
@@ -120,22 +122,22 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     const eventTargetDom = this._eventTargetDom;
 
     if (eventTargetDom) {
-      eventTargetDom.removeEventListener("keydown", this._onKeydown);
-      eventTargetDom.removeEventListener("keyup", this._onKeyup);
+      eventTargetDom.removeEventListener('keydown', this._onKeydown);
+      eventTargetDom.removeEventListener('keyup', this._onKeyup);
 
-      if ("ontouchend" in document) {
-        document.removeEventListener("touchstart", this._mouseDownBind);
-        document.removeEventListener("touchend", this._mouseUpBind);
-        document.removeEventListener("touchmove", this._mouseMoveBind)
+      if ('ontouchend' in document) {
+        document.removeEventListener('touchstart', this._mouseDownBind);
+        document.removeEventListener('touchend', this._mouseUpBind);
+        document.removeEventListener('touchmove', this._mouseMoveBind);
       }
-      if ("onmouseup" in document) {
-        eventTargetDom.removeEventListener("mousedown", this._mouseDownBind);
-        eventTargetDom.removeEventListener("mouseup", this._mouseUpBind);
-        eventTargetDom.removeEventListener("mouseleave", this._mouseUpBind);
-        eventTargetDom.removeEventListener("mousemove", this._mouseMoveBind);
+      if ('onmouseup' in document) {
+        eventTargetDom.removeEventListener('mousedown', this._mouseDownBind);
+        eventTargetDom.removeEventListener('mouseup', this._mouseUpBind);
+        eventTargetDom.removeEventListener('mouseleave', this._mouseUpBind);
+        eventTargetDom.removeEventListener('mousemove', this._mouseMoveBind);
       }
-      if ("onwheel" in document) {
-        eventTargetDom.removeEventListener("wheel", this._mouseWheelBind);
+      if ('onwheel' in document) {
+        eventTargetDom.removeEventListener('wheel', this._mouseWheelBind);
       }
     }
   }
@@ -144,11 +146,21 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     if (this._currentDir === null) {
       return;
     }
-    const delta = -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
+    const delta =
+      -1 *
+      Math.sign((e as any).deltaY) *
+      this._mouseWheelSpeedScale *
+      this._horizontalSpeed;
     const horizontalDir = WalkThroughCameraController.__tmp_Vec3_0;
-    horizontalDir.setComponents(this._currentDir.x, 0, this._currentDir.z).normalize();
+    horizontalDir
+      .setComponents(this._currentDir.x, 0, this._currentDir.z)
+      .normalize();
 
-    const deltaVec = MutableVector3.multiplyTo(horizontalDir, delta, WalkThroughCameraController.__tmp_Vec3_1);
+    const deltaVec = MutableVector3.multiplyTo(
+      horizontalDir,
+      delta,
+      WalkThroughCameraController.__tmp_Vec3_1
+    );
     this._currentPos.add(deltaVec);
     this._currentCenter.add(deltaVec);
   }
@@ -158,7 +170,7 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     evt.stopPropagation();
     this._isMouseDown = true;
 
-    let rect = (evt.target! as any).getBoundingClientRect();
+    const rect = (evt.target! as any).getBoundingClientRect();
     this._clickedMouseXOnCanvas = evt.clientX - rect.left;
     this._clickedMouseYOnCanvas = evt.clientY - rect.top;
 
@@ -172,7 +184,7 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     }
     evt.stopPropagation();
 
-    let rect = (evt.target! as any).getBoundingClientRect();
+    const rect = (evt.target! as any).getBoundingClientRect();
     this._draggedMouseXOnCanvas = evt.clientX - rect.left;
     this._draggedMouseYOnCanvas = evt.clientY - rect.top;
 
@@ -198,7 +210,7 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     this._clickedMouseYOnCanvas = evt.clientY - rect.top;
   }
 
-  tryReset() { }
+  tryReset() {}
 
   reset() {
     this._isKeyDown = false;
@@ -218,7 +230,6 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     this._deltaY = 0;
     this._deltaX = 0;
     this._newDir.setComponents(0, 0, -1);
-
   }
 
   logic(cameraComponent: CameraComponent) {
@@ -229,7 +240,8 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     const targetAABB = this.__targetEntity?.getSceneGraph().worldAABB;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
-        targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0)));
+        targetAABB.lengthCenterToCorner *
+        (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0)));
       this._currentPos.copyComponents(targetAABB.centerPoint);
       this._currentPos.z += lengthCenterToCamera;
 
@@ -238,7 +250,10 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
 
       if (camera.entity.getSceneGraph()) {
         const sg = camera.entity.getSceneGraph();
-        const invMat = Matrix44.invertTo(sg.worldMatrixInner, WalkThroughCameraController.__tmpInvMat);
+        const invMat = Matrix44.invertTo(
+          sg.worldMatrixInner,
+          WalkThroughCameraController.__tmpInvMat
+        );
         invMat.multiplyVector3To(this._currentPos, this._currentPos);
         invMat.multiplyVector3To(this._currentCenter, this._currentCenter);
       }
@@ -299,7 +314,6 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     this._currentPos.add(moveVector);
     this._currentCenter.add(moveVector);
 
-
     if (this._isMouseDrag) {
       if (this._inverseHorizontalRotating) {
         this._deltaX = this._deltaMouseXOnCanvas * this._mouseXAdjustScale;
@@ -313,11 +327,16 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
       }
       this._deltaY = Math.max(-120, Math.min(50, this._deltaY));
 
-      const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(MathUtil.degreeToRadian(this._deltaX));
+      const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(
+        MathUtil.degreeToRadian(this._deltaX)
+      );
       rotateMatrix.multiplyVectorTo(this._currentDir, this._currentDir);
 
-      const newEyeToCenter = MutableVector3.subtractTo(this._currentCenter, this._currentPos,
-        WalkThroughCameraController.__tmp_Vec3_1) as MutableVector3;
+      const newEyeToCenter = MutableVector3.subtractTo(
+        this._currentCenter,
+        this._currentPos,
+        WalkThroughCameraController.__tmp_Vec3_1
+      ) as MutableVector3;
       rotateMatrix.multiplyVectorTo(newEyeToCenter, newEyeToCenter);
       newEyeToCenter.x = newEyeToCenter.x * (1 - t);
       newEyeToCenter.y = t;
@@ -374,7 +393,8 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
   }
 
   setTarget(targetEntity: Entity) {
-    const speed = targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 10;
+    const speed =
+      targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 
@@ -409,12 +429,12 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
 
   set allInfo(arg) {
     let json = arg;
-    if (typeof arg === "string") {
+    if (typeof arg === 'string') {
       json = JSON.parse(arg);
     }
-    for (let key in json) {
+    for (const key in json) {
       if (json.hasOwnProperty(key) && key in this) {
-        if (key === "quaternion") {
+        if (key === 'quaternion') {
           (this as any)[key] = MathClassUtil.cloneOfMathObjects(
             MathClassUtil.arrayToQuaternion(json[key])
           );
@@ -427,4 +447,3 @@ export default class WalkThroughCameraController extends AbstractCameraControlle
     }
   }
 }
-

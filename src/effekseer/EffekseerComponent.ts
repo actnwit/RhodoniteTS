@@ -1,18 +1,22 @@
-import Component from "../foundation/core/Component";
-import EntityRepository from "../foundation/core/EntityRepository";
-import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
-import { ProcessStage } from "../foundation/definitions/ProcessStage";
-import TransformComponent from "../foundation/components/TransformComponent";
-import Vector3 from "../foundation/math/Vector3";
-import CameraComponent from "../foundation/components/CameraComponent";
-import ComponentRepository from "../foundation/core/ComponentRepository";
-import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
-import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
-import { ComponentTID, EntityUID, ComponentSID } from "../commontypes/CommonTypes";
-import Config from "../foundation/core/Config";
-import MutableMatrix44 from "../foundation/math/MutableMatrix44";
+import Component from '../foundation/core/Component';
+import EntityRepository from '../foundation/core/EntityRepository';
+import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import {ProcessStage} from '../foundation/definitions/ProcessStage';
+import TransformComponent from '../foundation/components/TransformComponent';
+import Vector3 from '../foundation/math/Vector3';
+import CameraComponent from '../foundation/components/CameraComponent';
+import ComponentRepository from '../foundation/core/ComponentRepository';
+import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
+import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+} from '../commontypes/CommonTypes';
+import Config from '../foundation/core/Config';
+import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 
-declare var effekseer: any;
+declare let effekseer: any;
 
 export default class EffekseerComponent extends Component {
   private __effect?: any;
@@ -28,7 +32,11 @@ export default class EffekseerComponent extends Component {
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository
+  ) {
     super(entityUid, componentSid, entityRepository);
     Config.noWebGLTex2DStateCache = true;
   }
@@ -52,7 +60,6 @@ export default class EffekseerComponent extends Component {
     } else {
       __play();
     }
-
   }
 
   set playSpeed(val) {
@@ -100,8 +107,14 @@ export default class EffekseerComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+      this.__entityUid,
+      SceneGraphComponent
+    ) as SceneGraphComponent;
+    this.__transformComponent = this.__entityRepository.getComponentOfEntity(
+      this.__entityUid,
+      TransformComponent
+    ) as TransformComponent;
     this.moveStageTo(ProcessStage.Load);
   }
 
@@ -124,7 +137,9 @@ export default class EffekseerComponent extends Component {
       this.__effect = effekseer.loadEffect(this.uri, () => {
         if (this.playJustAfterLoaded) {
           if (this.isLoop) {
-            this.__timer = setInterval(() => { this.play(); }, 500);
+            this.__timer = setInterval(() => {
+              this.play();
+            }, 500);
           } else {
             this.play();
           }
@@ -140,14 +155,19 @@ export default class EffekseerComponent extends Component {
 
   $logic() {
     if (this.__handle != null) {
-      const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(this.__sceneGraphComponent!.worldMatrixInner);
+      const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
+        this.__sceneGraphComponent!.worldMatrixInner
+      );
       this.__handle.setMatrix(worldMatrix.v);
       this.__handle.setSpeed(this.__speed);
     }
   }
 
   static common_$render() {
-    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    const cameraComponent = ComponentRepository.getInstance().getComponent(
+      CameraComponent,
+      CameraComponent.main
+    ) as CameraComponent;
     const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
     const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;
 

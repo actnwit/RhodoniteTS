@@ -1,5 +1,5 @@
-import SphereCollider from "./SphereCollider";
-import SceneGraphComponent from "../components/SceneGraphComponent";
+import SphereCollider from './SphereCollider';
+import SceneGraphComponent from '../components/SceneGraphComponent';
 
 export default class VRMColliderGroup {
   colliders: SphereCollider[] = [];

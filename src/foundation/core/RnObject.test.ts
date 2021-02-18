@@ -1,6 +1,3 @@
-import Entity from './Entity';
-import EntityRepository from './EntityRepository';
-import is from '../misc/IsUtil';
 import RnObject from './RnObject';
 
 beforeEach(() => {

@@ -1,8 +1,8 @@
-import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
-import GLSLShader from "./GLSLShader";
-import { ShaderNode } from "../../foundation/definitions/ShaderNode";
-import { CompositionType, CompositionTypeEnum } from "../../foundation/definitions/CompositionType";
-import ISingleShader from "./ISingleShader";
+import { VertexAttributeEnum, VertexAttribute } from '../../foundation/definitions/VertexAttribute';
+import GLSLShader from './GLSLShader';
+import { ShaderNode } from '../../foundation/definitions/ShaderNode';
+import { CompositionType, CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import ISingleShader from './ISingleShader';
 
 export type AttributeNames = Array<string>;
 

@@ -1,19 +1,21 @@
-import Vector3 from "../math/Vector3";
-import MutableVector3 from "../math/MutableVector3";
-import { MathUtil } from "../math/MathUtil";
-import CameraComponent from "../components/CameraComponent";
-import MutableMatrix33 from "../math/MutableMatrix33";
-import Entity from "../core/Entity";
-import Matrix44 from "../math/Matrix44";
-import { Count, Size } from "../../commontypes/CommonTypes";
-import ICameraController from "./ICameraController";
-import MutableMatrix44 from "../math/MutableMatrix44";
-import AABB from "../math/AABB";
-import AbstractCameraController from "./AbstractCameraController";
+import Vector3 from '../math/Vector3';
+import MutableVector3 from '../math/MutableVector3';
+import {MathUtil} from '../math/MathUtil';
+import CameraComponent from '../components/CameraComponent';
+import MutableMatrix33 from '../math/MutableMatrix33';
+import Entity from '../core/Entity';
+import Matrix44 from '../math/Matrix44';
+import {Count, Size} from '../../commontypes/CommonTypes';
+import ICameraController from './ICameraController';
+import MutableMatrix44 from '../math/MutableMatrix44';
+import AABB from '../math/AABB';
+import AbstractCameraController from './AbstractCameraController';
 
-declare var window: any;
+declare let window: any;
 
-export default class OrbitCameraController extends AbstractCameraController implements ICameraController {
+export default class OrbitCameraController
+  extends AbstractCameraController
+  implements ICameraController {
   private __isKeyUp = true;
   private __originalY = -1;
   private __originalX = -1;
@@ -113,7 +115,6 @@ export default class OrbitCameraController extends AbstractCameraController impl
     return this.__doPreventDefault;
   }
 
-
   __mouseDown(e: MouseEvent) {
     this.__tryToPreventDefault(e);
     if (!this.__isKeyUp) return;
@@ -145,9 +146,19 @@ export default class OrbitCameraController extends AbstractCameraController impl
     switch (this.__buttonNumber) {
       case 1: // left
         if (this.__isPressingShift) {
-          this.__parallelTranslateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
+          this.__parallelTranslateControl(
+            this.__originalX,
+            this.__originalY,
+            currentMouseX,
+            currentMouseY
+          );
         } else {
-          this.__rotateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
+          this.__rotateControl(
+            this.__originalX,
+            this.__originalY,
+            currentMouseX,
+            currentMouseY
+          );
           this.__rot_bgn_x = this.__rot_x;
           this.__rot_bgn_y = this.__rot_y;
         }
@@ -156,14 +167,19 @@ export default class OrbitCameraController extends AbstractCameraController impl
         this.__zoomControl(this.__originalX, currentMouseX);
         break;
       case 4: // center
-        this.__parallelTranslateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
+        this.__parallelTranslateControl(
+          this.__originalX,
+          this.__originalY,
+          currentMouseX,
+          currentMouseY
+        );
         break;
       default:
         return;
     }
     this.__originalX = currentMouseX;
     this.__originalY = currentMouseY;
-  };
+  }
 
   __mouseUp(e: MouseEvent) {
     this.__buttonNumber = 0;
@@ -198,14 +214,24 @@ export default class OrbitCameraController extends AbstractCameraController impl
     if (e.touches.length === 1) {
       currentTouchX = e.touches[0].clientX;
       currentTouchY = e.touches[0].clientY;
-      this.__rotateControl(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
+      this.__rotateControl(
+        this.__originalX,
+        this.__originalY,
+        currentTouchX,
+        currentTouchY
+      );
       this.__rot_bgn_x = this.__rot_x;
       this.__rot_bgn_y = this.__rot_y;
     } else {
       currentTouchX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
       currentTouchY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
 
-      this.__parallelTranslateControl(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
+      this.__parallelTranslateControl(
+        this.__originalX,
+        this.__originalY,
+        currentTouchX,
+        currentTouchY
+      );
     }
     this.__originalX = currentTouchX;
     this.__originalY = currentTouchY;
@@ -232,12 +258,12 @@ export default class OrbitCameraController extends AbstractCameraController impl
     this.__rot_x = value;
   }
 
-  set rotY(value: number) {
-    this.__rot_y = value;
-  }
-
   get rotX() {
     return this.__rot_x;
+  }
+
+  set rotY(value: number) {
+    this.__rot_y = value;
   }
 
   get rotY() {
@@ -251,10 +277,15 @@ export default class OrbitCameraController extends AbstractCameraController impl
     this.__minimum_y = minimum_y;
   }
 
-  __rotateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
+  __rotateControl(
+    originalX: Size,
+    originalY: Size,
+    currentX: Size,
+    currentY: Size
+  ) {
     // calc rotation angle
-    let delta_x = (currentX - originalX) * this.__efficiency * 0.3;
-    let delta_y = (currentY - originalY) * this.__efficiency * 0.3;
+    const delta_x = (currentX - originalX) * this.__efficiency * 0.3;
+    const delta_y = (currentY - originalY) * this.__efficiency * 0.3;
     this.__rot_x = this.__rot_bgn_x - delta_x;
     this.__rot_y = this.__rot_bgn_y - delta_y;
 
@@ -272,10 +303,10 @@ export default class OrbitCameraController extends AbstractCameraController impl
     // }
 
     if (this.__maximum_y != null && this.__rot_y > this.__maximum_y) {
-      this.__rot_y = this.__maximum_y
+      this.__rot_y = this.__maximum_y;
     }
     if (this.__minimum_y != null && this.__rot_y < this.__minimum_y) {
-      this.__rot_y = this.__minimum_y
+      this.__rot_y = this.__minimum_y;
     }
   }
 
@@ -283,17 +314,33 @@ export default class OrbitCameraController extends AbstractCameraController impl
     this.dolly -= ((currentValue - originalValue) / 1000) * this.__efficiency;
   }
 
-  __parallelTranslateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
-    this.__mouse_translate_y = ((currentY - originalY) / 1000) * this.__efficiency;
-    this.__mouse_translate_x = ((currentX - originalX) / 1000) * this.__efficiency;
+  __parallelTranslateControl(
+    originalX: Size,
+    originalY: Size,
+    currentX: Size,
+    currentY: Size
+  ) {
+    this.__mouse_translate_y =
+      ((currentY - originalY) / 1000) * this.__efficiency;
+    this.__mouse_translate_x =
+      ((currentX - originalX) / 1000) * this.__efficiency;
 
-    const scale = this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
+    const scale =
+      this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
 
     const upDirTranslateVec = OrbitCameraController.__tmpVec3_0;
-    upDirTranslateVec.copyComponents(this.__newUpVec).normalize().multiply(this.__mouse_translate_y).multiply(scale);
+    upDirTranslateVec
+      .copyComponents(this.__newUpVec)
+      .normalize()
+      .multiply(this.__mouse_translate_y)
+      .multiply(scale);
 
     const tangentDirTranslateVec = OrbitCameraController.__tmpVec3_1;
-    tangentDirTranslateVec.copyComponents(this.__newTangentVec).normalize().multiply(this.__mouse_translate_x).multiply(scale);
+    tangentDirTranslateVec
+      .copyComponents(this.__newTangentVec)
+      .normalize()
+      .multiply(this.__mouse_translate_x)
+      .multiply(scale);
 
     this.__mouseTranslateVec.add(upDirTranslateVec).add(tangentDirTranslateVec);
   }
@@ -347,11 +394,11 @@ export default class OrbitCameraController extends AbstractCameraController impl
   __mouseWheel(evt: WheelEvent) {
     this.__tryToPreventDefault(evt);
     this.dolly += Math.sign(evt.deltaY) / 200;
-  };
+  }
 
   __contextMenu(evt: Event) {
     this.__tryToPreventDefault(evt);
-  };
+  }
 
   set dolly(value) {
     value = Math.min(value, 1);
@@ -374,7 +421,7 @@ export default class OrbitCameraController extends AbstractCameraController impl
       this.__rot_bgn_y = 0;
       this.__rot_bgn_x = 0;
     }
-  };
+  }
 
   __resetDollyAndPosition(e: TouchEvent) {
     if (e.touches.length > 1) return;
@@ -414,41 +461,77 @@ export default class OrbitCameraController extends AbstractCameraController impl
     }
   }
 
-
   registerEventListeners(eventTargetDom: any = document) {
     this._eventTargetDom = eventTargetDom;
 
     if (eventTargetDom) {
-      if ("ontouchend" in document) {
-        eventTargetDom.addEventListener("touchstart", this.__touchDownFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("touchmove", this.__touchMoveFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("touchend", this.__touchUpFunc, { passive: !this.__doPreventDefault });
+      if ('ontouchend' in document) {
+        eventTargetDom.addEventListener('touchstart', this.__touchDownFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('touchmove', this.__touchMoveFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('touchend', this.__touchUpFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener("touchmove", this.__pinchInOutFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("touchend", this.__pinchInOutEndFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('touchmove', this.__pinchInOutFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('touchend', this.__pinchInOutEndFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener("touchstart", this.__resetDollyAndPositionFunc, { passive: !this.__doPreventDefault });
-
+        eventTargetDom.addEventListener(
+          'touchstart',
+          this.__resetDollyAndPositionFunc,
+          {passive: !this.__doPreventDefault}
+        );
       } else {
-        eventTargetDom.addEventListener("mousedown", this.__mouseDownFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("mouseleave", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('mousedown', this.__mouseDownFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('mouseup', this.__mouseUpFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('mouseleave', this.__mouseUpFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('mousemove', this.__mouseMoveFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener("keydown", this.__pressShiftFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("keyup", this.__releaseShiftFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("keydown", this.__pressCtrlFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener("keyup", this.__releaseCtrlFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('keydown', this.__pressShiftFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('keyup', this.__releaseShiftFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('keydown', this.__pressCtrlFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('keyup', this.__releaseCtrlFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener("contextmenu", (e: any) => { e.preventDefault() });
+        eventTargetDom.addEventListener('contextmenu', (e: any) => {
+          e.preventDefault();
+        });
       }
 
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener("wheel", this.__mouseWheelFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('wheel', this.__mouseWheelFunc, {
+          passive: !this.__doPreventDefault,
+        });
       }
 
-      eventTargetDom.addEventListener("contextmenu", this.__contextMenuFunc, { passive: !this.__doPreventDefault });
-      eventTargetDom.addEventListener("dblclick", this.__mouseDblClickFunc, { passive: !this.__doPreventDefault });
+      eventTargetDom.addEventListener('contextmenu', this.__contextMenuFunc, {
+        passive: !this.__doPreventDefault,
+      });
+      eventTargetDom.addEventListener('dblclick', this.__mouseDblClickFunc, {
+        passive: !this.__doPreventDefault,
+      });
     }
   }
 
@@ -456,32 +539,39 @@ export default class OrbitCameraController extends AbstractCameraController impl
     const eventTargetDom = this._eventTargetDom;
 
     if (eventTargetDom) {
-      if ("ontouchend" in document) {
-        eventTargetDom.removeEventListener("touchstart", this.__touchDownFunc);
-        eventTargetDom.removeEventListener("touchmove", this.__touchMoveFunc);
-        eventTargetDom.removeEventListener("touchend", this.__touchUpFunc);
+      if ('ontouchend' in document) {
+        eventTargetDom.removeEventListener('touchstart', this.__touchDownFunc);
+        eventTargetDom.removeEventListener('touchmove', this.__touchMoveFunc);
+        eventTargetDom.removeEventListener('touchend', this.__touchUpFunc);
 
-        eventTargetDom.removeEventListener("touchmove", this.__pinchInOutFunc);
-        eventTargetDom.removeEventListener("touchend", this.__pinchInOutEndFunc);
+        eventTargetDom.removeEventListener('touchmove', this.__pinchInOutFunc);
+        eventTargetDom.removeEventListener(
+          'touchend',
+          this.__pinchInOutEndFunc
+        );
 
-        eventTargetDom.removeEventListener("touchstart", this.__resetDollyAndPositionFunc);
-      }
-      else {
-        eventTargetDom.removeEventListener("mousedown", this.__mouseDownFunc);
-        eventTargetDom.removeEventListener("mouseup", this.__mouseUpFunc);
-        eventTargetDom.removeEventListener("mouseleave", this.__mouseUpFunc);
-        eventTargetDom.removeEventListener("mousemove", this.__mouseMoveFunc);
+        eventTargetDom.removeEventListener(
+          'touchstart',
+          this.__resetDollyAndPositionFunc
+        );
+      } else {
+        eventTargetDom.removeEventListener('mousedown', this.__mouseDownFunc);
+        eventTargetDom.removeEventListener('mouseup', this.__mouseUpFunc);
+        eventTargetDom.removeEventListener('mouseleave', this.__mouseUpFunc);
+        eventTargetDom.removeEventListener('mousemove', this.__mouseMoveFunc);
 
-        eventTargetDom.removeEventListener("keydown", this.__pressShiftFunc);
-        eventTargetDom.removeEventListener("keyup", this.__releaseShiftFunc);
+        eventTargetDom.removeEventListener('keydown', this.__pressShiftFunc);
+        eventTargetDom.removeEventListener('keyup', this.__releaseShiftFunc);
 
-        eventTargetDom.removeEventListener("contextmenu", (e: any) => { e.preventDefault() });
+        eventTargetDom.removeEventListener('contextmenu', (e: any) => {
+          e.preventDefault();
+        });
       }
       if (window.WheelEvent) {
-        eventTargetDom.removeEventListener("wheel", this.__mouseWheelFunc);
+        eventTargetDom.removeEventListener('wheel', this.__mouseWheelFunc);
       }
-      eventTargetDom.removeEventListener("contextmenu", this.__contextMenuFunc);
-      eventTargetDom.removeEventListener("dblclick", this.__mouseDblClickFunc);
+      eventTargetDom.removeEventListener('contextmenu', this.__contextMenuFunc);
+      eventTargetDom.removeEventListener('dblclick', this.__mouseDblClickFunc);
     }
   }
 
@@ -523,15 +613,26 @@ export default class OrbitCameraController extends AbstractCameraController impl
       newCenterVec.copyComponents(targetAABB.centerPoint);
 
       // calc newEyeVec
-      const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, newEyeVec) as MutableVector3;
+      const centerToCameraVec = MutableVector3.subtractTo(
+        eyeVec,
+        centerVec,
+        newEyeVec
+      ) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
       const lengthCenterToCamera =
-        targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) * this.scaleOfLengthCenterToCamera;
-      centerToCameraVecNormalized.multiply(lengthCenterToCamera).add(newCenterVec);
+        targetAABB.lengthCenterToCorner *
+        (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
+        this.scaleOfLengthCenterToCamera;
+      centerToCameraVecNormalized
+        .multiply(lengthCenterToCamera)
+        .add(newCenterVec);
 
       const sg = camera.entity.getSceneGraph();
       if (sg != null) {
-        const invMat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmpMat44_0);
+        const invMat = Matrix44.invertTo(
+          sg.worldMatrixInner,
+          OrbitCameraController.__tmpMat44_0
+        );
 
         invMat.multiplyVector3To(newCenterVec, newCenterVec);
         invMat.multiplyVector3To(newEyeVec, newEyeVec);
@@ -544,7 +645,11 @@ export default class OrbitCameraController extends AbstractCameraController impl
    * @private calculate up, eye, center and tangent vector with controller influence
    */
   __calculateInfluenceOfController() {
-    const centerToEyeVec = MutableVector3.subtractTo(this.__eyeVec, this.__centerVec, OrbitCameraController.__tmpVec3_0);
+    const centerToEyeVec = MutableVector3.subtractTo(
+      this.__eyeVec,
+      this.__centerVec,
+      OrbitCameraController.__tmpVec3_0
+    );
     centerToEyeVec.multiply(this.__dolly * this.dollyScale);
 
     this.__lengthOfCenterToEye = centerToEyeVec.length();
@@ -556,10 +661,19 @@ export default class OrbitCameraController extends AbstractCameraController impl
 
     if (this.__isSymmetryMode) {
       const projectedCenterToEyeVec = OrbitCameraController.__tmpVec3_1;
-      projectedCenterToEyeVec.setComponents(centerToEyeVec.x, 0, centerToEyeVec.z);
+      projectedCenterToEyeVec.setComponents(
+        centerToEyeVec.x,
+        0,
+        centerToEyeVec.z
+      );
 
-      let horizontalAngleOfVectors = Vector3.angleOfVectors(projectedCenterToEyeVec, OrbitCameraController.__tmp_up);
-      const horizontalSign = Math.sign(projectedCenterToEyeVec.cross(OrbitCameraController.__tmp_up).y);
+      let horizontalAngleOfVectors = Vector3.angleOfVectors(
+        projectedCenterToEyeVec,
+        OrbitCameraController.__tmp_up
+      );
+      const horizontalSign = Math.sign(
+        projectedCenterToEyeVec.cross(OrbitCameraController.__tmp_up).y
+      );
       horizontalAngleOfVectors *= horizontalSign;
 
       const rotateM_X = OrbitCameraController.__tmp_rotateM_X;
@@ -570,13 +684,14 @@ export default class OrbitCameraController extends AbstractCameraController impl
       rotateM_X.rotateX(MathUtil.degreeToRadian(this.__rot_y));
       rotateM_Y.rotateY(MathUtil.degreeToRadian(this.__rot_x));
       rotateM_Reset.rotateY(MathUtil.degreeToRadian(horizontalAngleOfVectors));
-      rotateM_Revert.rotateY(MathUtil.degreeToRadian(-horizontalAngleOfVectors));
+      rotateM_Revert.rotateY(
+        MathUtil.degreeToRadian(-horizontalAngleOfVectors)
+      );
 
       const rotateM = OrbitCameraController.__tmp_rotateM;
       MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, rotateM);
       rotateM.multiplyByLeft(rotateM_Y);
       rotateM.multiplyByLeft(rotateM_Revert);
-
 
       rotateM.multiplyVectorTo(this.__upVec, newUpVec);
       rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);
@@ -603,8 +718,11 @@ export default class OrbitCameraController extends AbstractCameraController impl
       rotateM_X.rotateX(MathUtil.degreeToRadian(this.__rot_y));
       rotateM_Y.rotateY(MathUtil.degreeToRadian(this.__rot_x));
 
-      const rotateM = MutableMatrix33.multiplyTo(rotateM_Y, rotateM_X, OrbitCameraController.__tmp_rotateM);
-
+      const rotateM = MutableMatrix33.multiplyTo(
+        rotateM_Y,
+        rotateM_X,
+        OrbitCameraController.__tmp_rotateM
+      );
 
       rotateM.multiplyVectorTo(this.__upVec, newUpVec);
       rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);
@@ -620,7 +738,9 @@ export default class OrbitCameraController extends AbstractCameraController impl
   }
 
   __updateCameraComponent(camera: CameraComponent) {
-    const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(this.__newCenterVec)
+    const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(
+      this.__newCenterVec
+    );
     eyeDirection.subtract(this.__newEyeVec).normalize();
     this._calcZNearInner(camera, this.__newEyeVec, eyeDirection);
     this._calcZFarInner(camera);
@@ -654,5 +774,4 @@ export default class OrbitCameraController extends AbstractCameraController impl
   get scaleOfZNearAndZFar() {
     return this.__scaleOfZNearAndZFar;
   }
-
 }

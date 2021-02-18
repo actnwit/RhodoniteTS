@@ -1,15 +1,4 @@
-import Rn from "../../..";
-
-import { ComponentType } from "../../definitions/ComponentType";
-import { CompositionType } from "../../definitions/CompositionType";
-import Material from "./Material";
-import EndMaterialNode from "../nodes/OutPositionShaderNode";
-import { VertexAttribute } from "../../definitions/VertexAttribute";
-import AddShaderNode from "../nodes/AddShaderNode";
-import { ShaderSemantics } from "../../definitions/ShaderSemantics";
-import MemoryManager from "../../core/MemoryManager";
-import ModuleManager from "../../system/ModuleManager";
-
+import Rn from '../../..';
 
 test('MaterialTID are processed correctly', () => {
 

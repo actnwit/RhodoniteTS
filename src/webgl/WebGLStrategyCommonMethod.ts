@@ -1,11 +1,10 @@
-
-import Material from "../foundation/materials/core/Material";
-import RenderPass from "../foundation/renderer/RenderPass";
-import { AlphaMode } from "../foundation/definitions/AlphaMode";
-import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
-import MeshComponent from "../foundation/components/MeshComponent";
-import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
-import { Index } from "../commontypes/CommonTypes";
+import Material from '../foundation/materials/core/Material';
+import RenderPass from '../foundation/renderer/RenderPass';
+import {AlphaMode} from '../foundation/definitions/AlphaMode';
+import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
+import MeshComponent from '../foundation/components/MeshComponent';
+import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import {Index} from '../commontypes/CommonTypes';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -17,7 +16,11 @@ let lastBlendFuncAlphaDstFactor: number;
 let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
 
-function setCullAndBlendSettings(material: Material, renderPass: RenderPass, gl: WebGLRenderingContext) {
+function setCullAndBlendSettings(
+  material: Material,
+  renderPass: RenderPass,
+  gl: WebGLRenderingContext
+) {
   const cullFace = material.cullFace;
   const cullFrontFaceCCW = material.cullFrontFaceCCW;
 
@@ -25,7 +28,11 @@ function setCullAndBlendSettings(material: Material, renderPass: RenderPass, gl:
   setBlendSettings(material, gl);
 }
 
-function setCull(cullFace: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
+function setCull(
+  cullFace: boolean,
+  cullFrontFaceCCW: boolean,
+  gl: WebGLRenderingContext
+) {
   if (lastCullFace !== cullFace) {
     if (cullFace) {
       gl.enable(gl.CULL_FACE);
@@ -57,16 +64,33 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
   }
 
   if (material.alphaMode === AlphaMode.Translucent) {
-    setBlendEquationMode(material.blendEquationMode, material.blendEquationModeAlpha, gl);
-    setBlendFuncSrcFactor(material.blendFuncSrcFactor, material.blendFuncDstFactor, material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor, gl);
+    setBlendEquationMode(
+      material.blendEquationMode,
+      material.blendEquationModeAlpha,
+      gl
+    );
+    setBlendFuncSrcFactor(
+      material.blendFuncSrcFactor,
+      material.blendFuncDstFactor,
+      material.blendFuncAlphaSrcFactor,
+      material.blendFuncAlphaDstFactor,
+      gl
+    );
   } else if (material.alphaMode === AlphaMode.Additive) {
-    setBlendEquationMode(32774, 32774, gl);       // gl.FUNC_ADD
-    setBlendFuncSrcFactor(1, 1, 1, 1, gl);        // gl.ONE
+    setBlendEquationMode(32774, 32774, gl); // gl.FUNC_ADD
+    setBlendFuncSrcFactor(1, 1, 1, 1, gl); // gl.ONE
   }
 }
 
-function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number, gl: WebGLRenderingContext) {
-  const needUpdateBlendEquation = differentWithLastBlendEquation(blendEquationMode, blendEquationModeAlpha);
+function setBlendEquationMode(
+  blendEquationMode: number,
+  blendEquationModeAlpha: number,
+  gl: WebGLRenderingContext
+) {
+  const needUpdateBlendEquation = differentWithLastBlendEquation(
+    blendEquationMode,
+    blendEquationModeAlpha
+  );
   if (needUpdateBlendEquation) {
     gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
     lastBlendEquationMode = blendEquationMode;
@@ -74,18 +98,36 @@ function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha:
   }
 }
 
-function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number) {
-  const result = (
+function differentWithLastBlendEquation(
+  equationMode: number,
+  equationModeAlpha: number
+) {
+  const result =
     lastBlendEquationMode != equationMode ||
-    lastBlendEquationModeAlpha != equationModeAlpha
-  );
+    lastBlendEquationModeAlpha != equationModeAlpha;
   return result;
 }
 
-function setBlendFuncSrcFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number, blendFuncAlphaDstFactor: number, gl: WebGLRenderingContext) {
-  const needUpdateBlendFunc = differentWithLastBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
+function setBlendFuncSrcFactor(
+  blendFuncSrcFactor: number,
+  blendFuncDstFactor: number,
+  blendFuncAlphaSrcFactor: number,
+  blendFuncAlphaDstFactor: number,
+  gl: WebGLRenderingContext
+) {
+  const needUpdateBlendFunc = differentWithLastBlendFuncFactor(
+    blendFuncSrcFactor,
+    blendFuncDstFactor,
+    blendFuncAlphaSrcFactor,
+    blendFuncAlphaDstFactor
+  );
   if (needUpdateBlendFunc) {
-    gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
+    gl.blendFuncSeparate(
+      blendFuncSrcFactor,
+      blendFuncDstFactor,
+      blendFuncAlphaSrcFactor,
+      blendFuncAlphaDstFactor!
+    );
     lastBlendFuncSrcFactor = blendFuncSrcFactor;
     lastBlendFuncDstFactor = blendFuncDstFactor;
     lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
@@ -93,17 +135,25 @@ function setBlendFuncSrcFactor(blendFuncSrcFactor: number, blendFuncDstFactor: n
   }
 }
 
-function differentWithLastBlendFuncFactor(srcFactor: number, dstFactor: number, alphaSrcFactor: number, alphaDstFactor: number): boolean {
-  const result = (
+function differentWithLastBlendFuncFactor(
+  srcFactor: number,
+  dstFactor: number,
+  alphaSrcFactor: number,
+  alphaDstFactor: number
+): boolean {
+  const result =
     lastBlendFuncSrcFactor != srcFactor ||
     lastBlendFuncDstFactor != dstFactor ||
     lastBlendFuncAlphaSrcFactor != alphaSrcFactor ||
-    lastBlendFuncAlphaDstFactor != alphaDstFactor
-  );
+    lastBlendFuncAlphaDstFactor != alphaDstFactor;
   return result;
 }
 
-function startDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
+function startDepthMasking(
+  idx: number,
+  gl: WebGLRenderingContext,
+  renderPass: RenderPass
+) {
   if (MeshRendererComponent.isDepthMaskTrueForTransparencies) {
     return;
   }
@@ -112,15 +162,21 @@ function startDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: R
   }
 }
 
-function endDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
+function endDepthMasking(
+  idx: number,
+  gl: WebGLRenderingContext,
+  renderPass: RenderPass
+) {
   if (idx === MeshRendererComponent.lastTransparentIndex) {
     gl.depthMask(true);
   }
 }
 
 function isMeshSetup(meshComponent: MeshComponent) {
-
-  if (meshComponent.mesh!.variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+  if (
+    meshComponent.mesh!.variationVBOUid !==
+    CGAPIResourceRepository.InvalidCGAPIResourceUid
+  ) {
     const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
     let count = 0;
     for (let i = 0; i < primitiveNum; i++) {
@@ -138,12 +194,13 @@ function isMeshSetup(meshComponent: MeshComponent) {
   } else {
     return false;
   }
-
 }
 
 function isMaterialsSetup(meshComponent: MeshComponent) {
-
-  if (meshComponent.mesh!.variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+  if (
+    meshComponent.mesh!.variationVBOUid !==
+    CGAPIResourceRepository.InvalidCGAPIResourceUid
+  ) {
     const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
     let count = 0;
     for (let i = 0; i < primitiveNum; i++) {
@@ -161,7 +218,6 @@ function isMaterialsSetup(meshComponent: MeshComponent) {
   } else {
     return false;
   }
-
 }
 
 function isSkipDrawing(material: Material, idx: Index) {
@@ -173,9 +229,15 @@ function isSkipDrawing(material: Material, idx: Index) {
   ) {
     return true;
   } else {
-    return false
+    return false;
   }
-
 }
 
-export default Object.freeze({ setCullAndBlendSettings, startDepthMasking, endDepthMasking, isMeshSetup, isMaterialsSetup, isSkipDrawing });
+export default Object.freeze({
+  setCullAndBlendSettings,
+  startDepthMasking,
+  endDepthMasking,
+  isMeshSetup,
+  isMaterialsSetup,
+  isSkipDrawing,
+});

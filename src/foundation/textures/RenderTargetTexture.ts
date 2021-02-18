@@ -1,42 +1,48 @@
-import AbstractTexture from "./AbstractTexture";
-import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
-import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
-import IRenderable from "./IRenderable";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size, Index } from "../../commontypes/CommonTypes";
-import FrameBuffer from "../renderer/FrameBuffer";
-import Vector4 from "../math/Vector4";
+import AbstractTexture from './AbstractTexture';
+import {
+  TextureParameter,
+  TextureParameterEnum,
+} from '../definitions/TextureParameter';
+import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
+import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
+import IRenderable from './IRenderable';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import {Size, Index} from '../../commontypes/CommonTypes';
+import FrameBuffer from '../renderer/FrameBuffer';
+import Vector4 from '../math/Vector4';
 
-export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
-
+export default class RenderTargetTexture
+  extends AbstractTexture
+  implements IRenderable {
   private __fbo?: FrameBuffer;
 
   constructor() {
     super();
   }
 
-  create(
-    {
-      width, height, level = 0,
-      internalFormat = PixelFormat.RGBA,
-      format = PixelFormat.RGBA,
-      type = ComponentType.UnsignedByte,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.Linear,
-      wrapS = TextureParameter.ClampToEdge,
-      wrapT = TextureParameter.ClampToEdge
-    }:
-      {
-        width: Size, height: Size, level: number,
-        internalFormat: PixelFormatEnum,
-        format: PixelFormatEnum,
-        type: ComponentTypeEnum,
-        magFilter: TextureParameterEnum,
-        minFilter: TextureParameterEnum,
-        wrapS: TextureParameterEnum,
-        wrapT: TextureParameterEnum
-      }) {
+  create({
+    width,
+    height,
+    level = 0,
+    internalFormat = PixelFormat.RGBA,
+    format = PixelFormat.RGBA,
+    type = ComponentType.UnsignedByte,
+    magFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.Linear,
+    wrapS = TextureParameter.ClampToEdge,
+    wrapT = TextureParameter.ClampToEdge,
+  }: {
+    width: Size;
+    height: Size;
+    level: number;
+    internalFormat: PixelFormatEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    magFilter: TextureParameterEnum;
+    minFilter: TextureParameterEnum;
+    wrapS: TextureParameterEnum;
+    wrapT: TextureParameterEnum;
+  }) {
     this.__width = width;
     this.__height = height;
     this.__level = level;
@@ -61,19 +67,18 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
 
   private __createRenderTargetTexture() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createRenderTargetTexture(
-      {
-        width: this.__width,
-        height: this.__height,
-        level: this.__level,
-        internalFormat: this.__internalFormat,
-        format: this.__format,
-        type: this.__type,
-        magFilter: this.__magFilter,
-        minFilter: this.__minFilter,
-        wrapS: this.__wrapS,
-        wrapT: this.__wrapT
-      });
+    const texture = webGLResourceRepository.createRenderTargetTexture({
+      width: this.__width,
+      height: this.__height,
+      level: this.__level,
+      internalFormat: this.__internalFormat,
+      format: this.__format,
+      type: this.__type,
+      magFilter: this.__magFilter,
+      minFilter: this.__minFilter,
+      wrapS: this.__wrapS,
+      wrapT: this.__wrapT,
+    });
     this.cgApiResourceUid = texture;
 
     AbstractTexture.__textureMap.set(texture, this);
@@ -82,7 +87,7 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();
     this.__width = width;
-    this.__height = height
+    this.__height = height;
     this.__createRenderTargetTexture();
   }
 
@@ -100,17 +105,29 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
     const gl = glw!.getRawContext() as WebGLRenderingContext;
 
     // Create a framebuffer backed by the texture
-    const fbo = webGLResourceRepository.getWebGLResource(this.__fbo!.framebufferUID) as WebGLFramebuffer;
+    const fbo = webGLResourceRepository.getWebGLResource(
+      this.__fbo!.framebufferUID
+    ) as WebGLFramebuffer;
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     // const texture = webGLResourceRepository.getWebGLResource(this.cgApiResourceUid!) as WebGLTexture;
     // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
 
     // Read the contents of the framebuffer (data stores the pixel data)
-    let data = new Uint8Array(this.width * this.height * 4);
+    const data = new Uint8Array(this.width * this.height * 4);
     if ((gl as WebGL2RenderingContext).readBuffer != null) {
-      (gl as WebGL2RenderingContext).readBuffer(36064 + this.__fbo!.whichColorAttachment(this)); // 36064 means gl.COLOR_ATTACHMENT0
+      (gl as WebGL2RenderingContext).readBuffer(
+        36064 + this.__fbo!.whichColorAttachment(this)
+      ); // 36064 means gl.COLOR_ATTACHMENT0
     }
-    gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    gl.readPixels(
+      0,
+      0,
+      this.width,
+      this.height,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      data
+    );
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -131,7 +148,7 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
       byteArray = this.getTexturePixelData();
     }
 
-    let color = new Vector4(
+    const color = new Vector4(
       byteArray[(y * this.width + x) * 4 + 0],
       byteArray[(y * this.width + x) * 4 + 1],
       byteArray[(y * this.width + x) * 4 + 2],

@@ -1,22 +1,22 @@
-import { IScalar } from "./IVector";
-import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
-import { MathUtil } from "./MathUtil";
+import {IScalar} from './IVector';
+import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
+import {MathUtil} from './MathUtil';
 
 export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
   v: TypedArray;
 
-  constructor(x: number|TypedArray|null, {type}: {type: T}) {
+  constructor(x: number | TypedArray | null, {type}: {type: T}) {
     if (ArrayBuffer.isView(x)) {
-      this.v = ((x as any) as TypedArray);
+      this.v = (x as any) as TypedArray;
       return;
     } else if (x == null) {
       this.v = new type(0);
       return;
     } else {
-      this.v = new type(1)
+      this.v = new type(1);
     }
 
-    this.v[0] = ((x as any) as number);
+    this.v[0] = (x as any) as number;
   }
 
   getValue() {
@@ -61,8 +61,8 @@ export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
 }
 
 export default class Scalar extends Scalar_<Float32ArrayConstructor> {
-  constructor(x:number|TypedArray|null) {
-    super(x, {type: Float32Array})
+  constructor(x: number | TypedArray | null) {
+    super(x, {type: Float32Array});
   }
 
   static zero() {
@@ -83,8 +83,8 @@ export default class Scalar extends Scalar_<Float32ArrayConstructor> {
 }
 
 export class Scalard extends Scalar_<Float64ArrayConstructor> {
-  constructor(x:number|TypedArray|null) {
-    super(x, {type: Float64Array})
+  constructor(x: number | TypedArray | null) {
+    super(x, {type: Float64Array});
   }
 
   static zero() {

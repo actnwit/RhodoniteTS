@@ -1,8 +1,9 @@
 export default class ModuleManager {
   private static __instance: ModuleManager;
-  private __modules:Map<string, any> = new Map()
+  private __modules: Map<string, any> = new Map();
   private constructor() {}
 
+/* eslint-disable prettier/prettier */
   async loadModule(moduleName: string) {
     let module: any;
     if (moduleName.toLowerCase() === 'webgl') {
@@ -28,7 +29,7 @@ export default class ModuleManager {
 
   static getInstance() {
     if (!this.__instance) {
-     this.__instance = new ModuleManager();
+      this.__instance = new ModuleManager();
     }
 
     return this.__instance;

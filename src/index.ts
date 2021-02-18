@@ -33,8 +33,8 @@ import _AnimationComponent from './foundation/components/AnimationComponent';
 import _LightComponent from './foundation/components/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
 import _CameraControllerComponent from './foundation/components/CameraControllerComponent';
-import { detectFormatByArrayBuffers as _detectFormatByArrayBuffers } from './foundation/importer/FormatDetector';
-import { detectFormatByUri as _detectFormatByUri } from './foundation/importer/FormatDetector';
+import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';
+import {detectFormatByUri as _detectFormatByUri} from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';
 import _Plane from './foundation/geometry/Plane';
 import _Sphere from './foundation/geometry/Sphere';
@@ -59,8 +59,8 @@ import _RnObject from './foundation/core/RnObject';
 import _VRMImporter from './foundation/importer/VRMImporter';
 import _BlendShapeComponent from './foundation/components/BlendShapeComponent';
 import _AnimationAssigner from './foundation/importer/AnimationAssigner';
-import  { MiscUtil as _MiscUtil } from './foundation/misc/MiscUtil';
-import  { MathUtil as _MathUtil } from './foundation/math/MathUtil';
+import {MiscUtil as _MiscUtil} from './foundation/misc/MiscUtil';
+import {MathUtil as _MathUtil} from './foundation/math/MathUtil';
 import _OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import _WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
 import _ShaderityUtility from './foundation/materials/core/ShaderityUtility';
@@ -91,30 +91,75 @@ import _GreaterShaderNode from './foundation/materials/nodes/GreaterShaderNode';
 import _ShaderGraphResolver from './foundation/materials/core/ShaderGraphResolver';
 import _Quaternion from './foundation/math/Quaternion';
 import _MutableQuaternion from './foundation/math/MutableQuaternion';
-import { FileType as _FileType, FileTypeEnum as _FileTypeEnum } from './foundation/definitions/FileType';
+import {
+  FileType as _FileType,
+  FileTypeEnum as _FileTypeEnum,
+} from './foundation/definitions/FileType';
 
 const _VERSION = require('./../VERSION-FILE').default;
 
 // definitions
-import { ShaderSemantics as _ShaderSemantics, ShaderSemanticsEnum as _ShaderSemanticsEnum } from './foundation/definitions/ShaderSemantics';
-import { LightType as _LightType } from './foundation/definitions/LightType';
-import { AlphaMode as _AlphaMode } from './foundation/definitions/AlphaMode';
-import { CameraType as _CameraType } from './foundation/definitions/CameraType';
-import { ShaderType as _ShaderType } from './foundation/definitions/ShaderType';
-import { TextureParameter as _TextureParameter, TextureParameterEnum as _TextureParameterEnum } from './foundation/definitions/TextureParameter';
-import { BoneDataType as _BoneDataType, BoneDataTypeEnum as _BoneDataTypeEnum } from './foundation/definitions/BoneDataType';
-import { PixelFormat as _PixelFormat, PixelFormatEnum as _PixelFormatEnum } from './foundation/definitions/PixelFormat';
-import { ProcessApproach as _ProcessApproach, ProcessApproachEnum as _ProcessApproachEnum } from './foundation/definitions/ProcessApproach';
-import { PrimitiveMode as _PrimitiveMode, PrimitiveModeEnum as _PrimitiveModeEnum } from './foundation/definitions/PrimitiveMode';
-import { VertexAttribute as _VertexAttribute, VertexAttributeEnum as _VertexAttributeEnum } from './foundation/definitions/VertexAttribute';
-import { CompositionType as _CompositionType, CompositionTypeEnum as _CompositionTypeEnum } from './foundation/definitions/CompositionType';
-import { ComponentType as _ComponentType, ComponentTypeEnum as _ComponentTypeEnum } from './foundation/definitions/ComponentType';
-import { CameraControllerType as _CameraControllerType, CameraControllerTypeEnum as _CameraControllerTypeEnum } from './foundation/definitions/CameraControllerType';
-import { HdriFormat as _HdriFormat, HdriFormatEnum as _HdriFormatEnum } from './foundation/definitions/HdriFormat';
-import { ShadingModel as _ShadingModel, ShadingModelEnum as _ShadingModelEnum } from './foundation/definitions/ShadingModel';
-import { AnimationAttribute as _AnimationAttribute, AnimationAttributeEnum as _AnimationAttributeEnum } from './foundation/definitions/AnimationAttribute';
-import { AnimationInterpolation as _AnimationInterpolation, AnimationInterpolationEnum as _AnimationInterpolationEnum } from './foundation/definitions/AnimationInterpolation';
-import { GltfLoadOption as _GltfLoadOption} from './commontypes/glTF'
+import {
+  ShaderSemantics as _ShaderSemantics,
+  ShaderSemanticsEnum as _ShaderSemanticsEnum,
+} from './foundation/definitions/ShaderSemantics';
+import {LightType as _LightType} from './foundation/definitions/LightType';
+import {AlphaMode as _AlphaMode} from './foundation/definitions/AlphaMode';
+import {CameraType as _CameraType} from './foundation/definitions/CameraType';
+import {ShaderType as _ShaderType} from './foundation/definitions/ShaderType';
+import {
+  TextureParameter as _TextureParameter,
+  TextureParameterEnum as _TextureParameterEnum,
+} from './foundation/definitions/TextureParameter';
+import {
+  BoneDataType as _BoneDataType,
+  BoneDataTypeEnum as _BoneDataTypeEnum,
+} from './foundation/definitions/BoneDataType';
+import {
+  PixelFormat as _PixelFormat,
+  PixelFormatEnum as _PixelFormatEnum,
+} from './foundation/definitions/PixelFormat';
+import {
+  ProcessApproach as _ProcessApproach,
+  ProcessApproachEnum as _ProcessApproachEnum,
+} from './foundation/definitions/ProcessApproach';
+import {
+  PrimitiveMode as _PrimitiveMode,
+  PrimitiveModeEnum as _PrimitiveModeEnum,
+} from './foundation/definitions/PrimitiveMode';
+import {
+  VertexAttribute as _VertexAttribute,
+  VertexAttributeEnum as _VertexAttributeEnum,
+} from './foundation/definitions/VertexAttribute';
+import {
+  CompositionType as _CompositionType,
+  CompositionTypeEnum as _CompositionTypeEnum,
+} from './foundation/definitions/CompositionType';
+import {
+  ComponentType as _ComponentType,
+  ComponentTypeEnum as _ComponentTypeEnum,
+} from './foundation/definitions/ComponentType';
+import {
+  CameraControllerType as _CameraControllerType,
+  CameraControllerTypeEnum as _CameraControllerTypeEnum,
+} from './foundation/definitions/CameraControllerType';
+import {
+  HdriFormat as _HdriFormat,
+  HdriFormatEnum as _HdriFormatEnum,
+} from './foundation/definitions/HdriFormat';
+import {
+  ShadingModel as _ShadingModel,
+  ShadingModelEnum as _ShadingModelEnum,
+} from './foundation/definitions/ShadingModel';
+import {
+  AnimationAttribute as _AnimationAttribute,
+  AnimationAttributeEnum as _AnimationAttributeEnum,
+} from './foundation/definitions/AnimationAttribute';
+import {
+  AnimationInterpolation as _AnimationInterpolation,
+  AnimationInterpolationEnum as _AnimationInterpolationEnum,
+} from './foundation/definitions/AnimationInterpolation';
+import {GltfLoadOption as _GltfLoadOption} from './commontypes/glTF';
 
 export default {
   Entity: _Entity,
@@ -231,121 +276,121 @@ export default {
   HdriFormat: _HdriFormat,
   ShadingModel: _ShadingModel,
   AnimationAttribute: _AnimationAttribute,
-  AnimationInterpolation: _AnimationInterpolation
+  AnimationInterpolation: _AnimationInterpolation,
 };
 
-export type Entity = _Entity
-export type EntityRepository = _EntityRepository
-export type ComponentRepository = _ComponentRepository
-export type TransformComponent = _TransformComponent
-export type SceneGraphComponent = _SceneGraphComponent
-export type MeshComponent = _MeshComponent
-export type MeshRendererComponent = _MeshRendererComponent
-export type AABB = _AABB
-export type Primitive = _Primitive
-export type System = _System
-export type Scalar = _Scalar
-export type Vector2 = _Vector2
-export type Vector3 = _Vector3
-export type Vector4 = _Vector4
-export type MutableVector2 = _MutableVector2
-export type MutableVector3 = _MutableVector3
-export type MutableVector4 = _MutableVector4
-export type Matrix22 = _Matrix22
-export type Matrix33 = _Matrix33
-export type Matrix44 = _Matrix44
-export type MutableMatrix22 = _MutableMatrix22
-export type MutableMatrix33 = _MutableMatrix33
-export type MutableMatrix44 = _MutableMatrix44
-export type Gltf1Importer = _Gltf1Importer
-export type Gltf2Importer = _Gltf2Importer
-export type DrcPointCloudImporter = _DrcPointCloudImporter
-export type GltfImporter = _GltfImporter
-export type ModelConverter = _ModelConverter
-export type ModuleManager = _ModuleManager
-export type MemoryManager = _MemoryManager
-export type CameraComponent = _CameraComponent
-export type CameraType = typeof _CameraType
-export type AnimationComponent = _AnimationComponent
-export type LightComponent = _LightComponent
-export type LightType = typeof _LightType
-export type CubeTexture = _CubeTexture
-export type CameraControllerComponent = _CameraControllerComponent
-export type CameraControllerType = typeof _CameraControllerType
-export type AlphaMode = typeof _AlphaMode
-export type Gltf2Exporter = _Gltf2Exporter
-export type detectFormatByArrayBuffers = typeof _detectFormatByArrayBuffers
-export type detectFormatByUri = typeof _detectFormatByUri
-export type Config = typeof _Config
-export type Plane = _Plane
-export type Sphere = _Sphere
-export type Material = _Material
-export type MaterialHelper = typeof _MaterialHelper
-export type RenderPass = _RenderPass
-export type FrameBuffer = _FrameBuffer
-export type Expression = _Expression
-export type HdriFormat = typeof _HdriFormat
-export type ShaderType = typeof _ShaderType
-export type RenderTargetTexture = _RenderTargetTexture
-export type RenderBuffer = _RenderBuffer
-export type RenderableHelper = typeof _RenderableHelper
-export type AbstractTexture = _AbstractTexture
-export type Texture = _Texture
-export type VideoTexture = _VideoTexture
-export type EntityHelper = typeof _EntityHelper
-export type MathClassUtil = _MathClassUtil
-export type Mesh = _Mesh
-export type MathUtil = typeof _MathUtil
-export type Component = _Component
-export type EnvConstantSingleMaterialNode = _EnvConstantSingleMaterialNode
-export type ShadowMapDecodeClassicSingleMaterialNode = _ShadowMapDecodeClassicSingleMaterialNode
-export type RnObject = _RnObject
-export type VRMImporter = _VRMImporter
-export type BlendShapeComponent = _BlendShapeComponent
-export type AnimationAssigner = _AnimationAssigner
-export type MiscUtil = typeof _MiscUtil
-export type OrbitCameraController = _OrbitCameraController
-export type WalkThroughCameraController = _WalkThroughCameraController
-export type ShaderityUtility = _ShaderityUtility
-export type AbstractMaterialNode = _AbstractMaterialNode
-export type PixelFormatEnum = _PixelFormatEnum
-export type ConstantVariableShaderNode = _ConstantVariableShaderNode
-export type AddShaderNode = _AddShaderNode
-export type DotProductShaderNode = _DotProductShaderNode
-export type MultiplyShaderNode = _MultiplyShaderNode
-export type OutPositionShaderNode = _OutPositionShaderNode
-export type OutColorShaderNode = _OutColorShaderNode
-export type ScalarToVector4ShaderNode = _ScalarToVector4ShaderNode
-export type Vector3AndScalarToVector4ShaderNode = _Vector3AndScalarToVector4ShaderNode
-export type AttributePositionShaderNode = _AttributePositionShaderNode
-export type AttributeNormalShaderNode = _AttributeNormalShaderNode
-export type WorldMatrixShaderNode = _WorldMatrixShaderNode
-export type ViewMatrixShaderNode = _ViewMatrixShaderNode
-export type ProjectionMatrixShaderNode = _ProjectionMatrixShaderNode
-export type VaryingInVariableShaderNode = _VaryingInVariableShaderNode
-export type VaryingOutVariableShaderNode = _VaryingOutVariableShaderNode
-export type NormalMatrixShaderNode = _NormalMatrixShaderNode
-export type UniformDataShaderNode = _UniformDataShaderNode
-export type NormalizeShaderNode = _NormalizeShaderNode
-export type IfStatementShaderNode = _IfStatementShaderNode
-export type BlockBeginShaderNode = _BlockBeginShaderNode
-export type BlockEndShaderNode = _BlockEndShaderNode
-export type GreaterShaderNode = _GreaterShaderNode
-export type ShaderGraphResolver = _ShaderGraphResolver
-export type GltfLoadOption = _GltfLoadOption
-export type VERSION = typeof _VERSION
+export type Entity = _Entity;
+export type EntityRepository = _EntityRepository;
+export type ComponentRepository = _ComponentRepository;
+export type TransformComponent = _TransformComponent;
+export type SceneGraphComponent = _SceneGraphComponent;
+export type MeshComponent = _MeshComponent;
+export type MeshRendererComponent = _MeshRendererComponent;
+export type AABB = _AABB;
+export type Primitive = _Primitive;
+export type System = _System;
+export type Scalar = _Scalar;
+export type Vector2 = _Vector2;
+export type Vector3 = _Vector3;
+export type Vector4 = _Vector4;
+export type MutableVector2 = _MutableVector2;
+export type MutableVector3 = _MutableVector3;
+export type MutableVector4 = _MutableVector4;
+export type Matrix22 = _Matrix22;
+export type Matrix33 = _Matrix33;
+export type Matrix44 = _Matrix44;
+export type MutableMatrix22 = _MutableMatrix22;
+export type MutableMatrix33 = _MutableMatrix33;
+export type MutableMatrix44 = _MutableMatrix44;
+export type Gltf1Importer = _Gltf1Importer;
+export type Gltf2Importer = _Gltf2Importer;
+export type DrcPointCloudImporter = _DrcPointCloudImporter;
+export type GltfImporter = _GltfImporter;
+export type ModelConverter = _ModelConverter;
+export type ModuleManager = _ModuleManager;
+export type MemoryManager = _MemoryManager;
+export type CameraComponent = _CameraComponent;
+export type CameraType = typeof _CameraType;
+export type AnimationComponent = _AnimationComponent;
+export type LightComponent = _LightComponent;
+export type LightType = typeof _LightType;
+export type CubeTexture = _CubeTexture;
+export type CameraControllerComponent = _CameraControllerComponent;
+export type CameraControllerType = typeof _CameraControllerType;
+export type AlphaMode = typeof _AlphaMode;
+export type Gltf2Exporter = _Gltf2Exporter;
+export type detectFormatByArrayBuffers = typeof _detectFormatByArrayBuffers;
+export type detectFormatByUri = typeof _detectFormatByUri;
+export type Config = typeof _Config;
+export type Plane = _Plane;
+export type Sphere = _Sphere;
+export type Material = _Material;
+export type MaterialHelper = typeof _MaterialHelper;
+export type RenderPass = _RenderPass;
+export type FrameBuffer = _FrameBuffer;
+export type Expression = _Expression;
+export type HdriFormat = typeof _HdriFormat;
+export type ShaderType = typeof _ShaderType;
+export type RenderTargetTexture = _RenderTargetTexture;
+export type RenderBuffer = _RenderBuffer;
+export type RenderableHelper = typeof _RenderableHelper;
+export type AbstractTexture = _AbstractTexture;
+export type Texture = _Texture;
+export type VideoTexture = _VideoTexture;
+export type EntityHelper = typeof _EntityHelper;
+export type MathClassUtil = _MathClassUtil;
+export type Mesh = _Mesh;
+export type MathUtil = typeof _MathUtil;
+export type Component = _Component;
+export type EnvConstantSingleMaterialNode = _EnvConstantSingleMaterialNode;
+export type ShadowMapDecodeClassicSingleMaterialNode = _ShadowMapDecodeClassicSingleMaterialNode;
+export type RnObject = _RnObject;
+export type VRMImporter = _VRMImporter;
+export type BlendShapeComponent = _BlendShapeComponent;
+export type AnimationAssigner = _AnimationAssigner;
+export type MiscUtil = typeof _MiscUtil;
+export type OrbitCameraController = _OrbitCameraController;
+export type WalkThroughCameraController = _WalkThroughCameraController;
+export type ShaderityUtility = _ShaderityUtility;
+export type AbstractMaterialNode = _AbstractMaterialNode;
+export type PixelFormatEnum = _PixelFormatEnum;
+export type ConstantVariableShaderNode = _ConstantVariableShaderNode;
+export type AddShaderNode = _AddShaderNode;
+export type DotProductShaderNode = _DotProductShaderNode;
+export type MultiplyShaderNode = _MultiplyShaderNode;
+export type OutPositionShaderNode = _OutPositionShaderNode;
+export type OutColorShaderNode = _OutColorShaderNode;
+export type ScalarToVector4ShaderNode = _ScalarToVector4ShaderNode;
+export type Vector3AndScalarToVector4ShaderNode = _Vector3AndScalarToVector4ShaderNode;
+export type AttributePositionShaderNode = _AttributePositionShaderNode;
+export type AttributeNormalShaderNode = _AttributeNormalShaderNode;
+export type WorldMatrixShaderNode = _WorldMatrixShaderNode;
+export type ViewMatrixShaderNode = _ViewMatrixShaderNode;
+export type ProjectionMatrixShaderNode = _ProjectionMatrixShaderNode;
+export type VaryingInVariableShaderNode = _VaryingInVariableShaderNode;
+export type VaryingOutVariableShaderNode = _VaryingOutVariableShaderNode;
+export type NormalMatrixShaderNode = _NormalMatrixShaderNode;
+export type UniformDataShaderNode = _UniformDataShaderNode;
+export type NormalizeShaderNode = _NormalizeShaderNode;
+export type IfStatementShaderNode = _IfStatementShaderNode;
+export type BlockBeginShaderNode = _BlockBeginShaderNode;
+export type BlockEndShaderNode = _BlockEndShaderNode;
+export type GreaterShaderNode = _GreaterShaderNode;
+export type ShaderGraphResolver = _ShaderGraphResolver;
+export type GltfLoadOption = _GltfLoadOption;
+export type VERSION = typeof _VERSION;
 
 // Definition Enums
-export type CompositionTypeEnum = _CompositionTypeEnum
-export type ComponentTypeEnum = _ComponentTypeEnum
-export type VertexAttributeEnum = _VertexAttributeEnum
-export type PrimitiveModeEnum = _PrimitiveModeEnum
-export type ShaderSemanticsEnum = _ShaderSemanticsEnum
-export type BoneDataTypeEnum = _BoneDataTypeEnum
-export type TextureParameterEnum = _TextureParameterEnum
-export type ProcessApproachEnum = _ProcessApproachEnum
-export type HdriFormatEnum = _HdriFormatEnum
-export type ShadingModelEnum = _ShadingModelEnum
-export type AnimationAttributeEnum = _AnimationAttributeEnum
-export type AnimationInterpolationEnum = _AnimationInterpolationEnum
-export type FileTypeEnum = _FileTypeEnum
+export type CompositionTypeEnum = _CompositionTypeEnum;
+export type ComponentTypeEnum = _ComponentTypeEnum;
+export type VertexAttributeEnum = _VertexAttributeEnum;
+export type PrimitiveModeEnum = _PrimitiveModeEnum;
+export type ShaderSemanticsEnum = _ShaderSemanticsEnum;
+export type BoneDataTypeEnum = _BoneDataTypeEnum;
+export type TextureParameterEnum = _TextureParameterEnum;
+export type ProcessApproachEnum = _ProcessApproachEnum;
+export type HdriFormatEnum = _HdriFormatEnum;
+export type ShadingModelEnum = _ShadingModelEnum;
+export type AnimationAttributeEnum = _AnimationAttributeEnum;
+export type AnimationInterpolationEnum = _AnimationInterpolationEnum;
+export type FileTypeEnum = _FileTypeEnum;

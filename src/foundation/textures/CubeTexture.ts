@@ -1,14 +1,14 @@
-import AbstractTexture from "./AbstractTexture";
-import { HdriFormat } from "../definitions/HdriFormat";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { BasisTranscoder, BASIS } from "../../commontypes/BasisTexture";
-import { TextureParameter } from "../definitions/TextureParameter";
+import AbstractTexture from './AbstractTexture';
+import {HdriFormat} from '../definitions/HdriFormat';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import {BasisTranscoder, BASIS} from '../../commontypes/BasisTexture';
+import {TextureParameter} from '../definitions/TextureParameter';
 
 declare const BASIS: BASIS;
 
 export default class CubeTexture extends AbstractTexture {
   public baseUriToLoad?: string;
-  public mipmapLevelNumber: number = 1;
+  public mipmapLevelNumber = 1;
   public hdriFormat = HdriFormat.LDR_SRGB;
   public isNamePosNeg = false;
   constructor() {
@@ -18,52 +18,74 @@ export default class CubeTexture extends AbstractTexture {
   async loadTextureImages() {
     this.__startedToLoad = true;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.cgApiResourceUid = await webGLResourceRepository.createCubeTextureFromFiles(this.baseUriToLoad!, this.mipmapLevelNumber!, this.isNamePosNeg, this.hdriFormat);
+    this.cgApiResourceUid = await webGLResourceRepository.createCubeTextureFromFiles(
+      this.baseUriToLoad!,
+      this.mipmapLevelNumber!,
+      this.isNamePosNeg,
+      this.hdriFormat
+    );
     this.__isTextureReady = true;
   }
 
   loadTextureImagesAsync() {
     this.__startedToLoad = true;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.createCubeTextureFromFiles(this.baseUriToLoad!, this.mipmapLevelNumber!, this.isNamePosNeg, this.hdriFormat).then((cubeTextureUid) => {
-      this.cgApiResourceUid = cubeTextureUid;
-    }).then(() => {
-      this.__isTextureReady = true;
-    });
+    webGLResourceRepository
+      .createCubeTextureFromFiles(
+        this.baseUriToLoad!,
+        this.mipmapLevelNumber!,
+        this.isNamePosNeg,
+        this.hdriFormat
+      )
+      .then(cubeTextureUid => {
+        this.cgApiResourceUid = cubeTextureUid;
+      })
+      .then(() => {
+        this.__isTextureReady = true;
+      });
   }
 
-  loadTextureImagesFromBasis(uint8Array: Uint8Array, {
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.LinearMipmapLinear,
-    wrapS = TextureParameter.Repeat,
-    wrapT = TextureParameter.Repeat,
-  } = {}) {
+  loadTextureImagesFromBasis(
+    uint8Array: Uint8Array,
+    {
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.Repeat,
+      wrapT = TextureParameter.Repeat,
+    } = {}
+  ) {
     this.__startedToLoad = true;
 
-
     if (typeof BASIS === 'undefined') {
-      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
+      console.error(
+        'Failed to call BASIS() function. Please check to import basis_transcoder.js.'
+      );
     }
 
     BASIS().then((basisTransCoder: BasisTranscoder) => {
-      const { initializeBasis } = basisTransCoder;
+      const {initializeBasis} = basisTransCoder;
       initializeBasis();
 
       const BasisFile = basisTransCoder.BasisFile;
       const basisFile = new BasisFile(uint8Array);
 
       if (!basisFile.startTranscoding()) {
-        console.error("failed to start transcoding.");
+        console.error('failed to start transcoding.');
         basisFile.close();
         basisFile.delete();
         return;
       }
 
       const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const texture = webGLResourceRepository.createCubeTextureFromBasis(basisFile, {
-        magFilter: magFilter, minFilter: minFilter,
-        wrapS: wrapS, wrapT: wrapT
-      });
+      const texture = webGLResourceRepository.createCubeTextureFromBasis(
+        basisFile,
+        {
+          magFilter: magFilter,
+          minFilter: minFilter,
+          wrapS: wrapS,
+          wrapT: wrapT,
+        }
+      );
 
       this.cgApiResourceUid = texture;
       this.__isTextureReady = true;
@@ -71,11 +93,10 @@ export default class CubeTexture extends AbstractTexture {
       basisFile.close();
       basisFile.delete();
     });
-
   }
 
   load1x1Texture(rgbaStr = 'rgba(0,0,0,1)') {
-    var canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
     const ctx = canvas.getContext('2d')!;
@@ -83,15 +104,35 @@ export default class CubeTexture extends AbstractTexture {
     ctx.fillRect(0, 0, 1, 1);
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-    this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(1, [{ posX: canvas, negX: canvas, posY: canvas, negY: canvas, posZ: canvas, negZ: canvas }], 1, 1);
+    this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(
+      1,
+      [
+        {
+          posX: canvas,
+          negX: canvas,
+          posY: canvas,
+          negY: canvas,
+          posZ: canvas,
+          negZ: canvas,
+        },
+      ],
+      1,
+      1
+    );
     this.__isTextureReady = true;
   }
 
-  importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
+  importWebGLTextureDirectly(
+    webGLTexture: WebGLTexture,
+    width = 0,
+    height = 0
+  ) {
     this.__width = width;
     this.__height = height;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
+    const texture = webGLResourceRepository.setWebGLTextureDirectly(
+      webGLTexture
+    );
     this.cgApiResourceUid = texture;
     this.__startedToLoad = true;
     this.__isTextureReady = true;

@@ -1,6 +1,6 @@
-import { TypedArray } from "../../commontypes/CommonTypes";
-import { IVector3, IMutableVector3 } from "./IVector";
-import { IMatrix44 } from "./IMatrix";
+import {TypedArray} from '../../commontypes/CommonTypes';
+import {IVector3, IMutableVector3} from './IVector';
+import {IMatrix44} from './IMatrix';
 
 export interface IQuaternion {
   readonly v: TypedArray;
@@ -22,7 +22,7 @@ export interface IQuaternion {
   lengthSquared(): number;
   dot(vec: IQuaternion): number;
   toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
-  clone(): IQuaternion
+  clone(): IQuaternion;
 }
 
 export interface IMutableQuaternion {
@@ -46,7 +46,7 @@ export interface IMutableQuaternion {
   lengthSquared(): number;
   dot(vec: IQuaternion): number;
   toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
-  clone(): IMutableQuaternion
+  clone(): IMutableQuaternion;
 
   // only for mutable quaternion
   raw(): TypedArray;

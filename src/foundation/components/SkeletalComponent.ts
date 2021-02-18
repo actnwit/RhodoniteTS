@@ -1,20 +1,25 @@
 import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 import EntityRepository from '../core/EntityRepository';
-import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
-import { ProcessStage } from '../definitions/ProcessStage';
+import {ProcessStage} from '../definitions/ProcessStage';
 import MutableVector3 from '../math/MutableVector3';
 import MutableQuaternion from '../math/MutableQuaternion';
-import { MathUtil } from '../math/MathUtil';
+import {MathUtil} from '../math/MathUtil';
 import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import {
+  ComponentTID,
+  ComponentSID,
+  EntityUID,
+  Index,
+} from '../../commontypes/CommonTypes';
+import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
-import { BoneDataType } from '../definitions/BoneDataType';
+import {BoneDataType} from '../definitions/BoneDataType';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -38,21 +43,37 @@ export default class SkeletalComponent extends Component {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository
+  ) {
     super(entityUid, componentSid, entityRepository);
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
       if (Config.boneDataType === BoneDataType.Mat4x4) {
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneMatrix);
+        SkeletalComponent.__globalDataRepository.takeOne(
+          ShaderSemantics.BoneMatrix
+        );
       } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+        SkeletalComponent.__globalDataRepository.takeOne(
+          ShaderSemantics.BoneQuaternion
+        );
+        SkeletalComponent.__globalDataRepository.takeOne(
+          ShaderSemantics.BoneTranslateScale
+        );
       } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneMatrix);
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneCompressedChunk);
+        SkeletalComponent.__globalDataRepository.takeOne(
+          ShaderSemantics.BoneMatrix
+        );
+        SkeletalComponent.__globalDataRepository.takeOne(
+          ShaderSemantics.BoneCompressedChunk
+        );
       }
       SkeletalComponent.__tookGlobalDataNum++;
     } else {
-      console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
+      console.warn(
+        'The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.'
+      );
     }
 
     this.moveStageTo(ProcessStage.Logic);
@@ -69,14 +90,32 @@ export default class SkeletalComponent extends Component {
       index = this.componentSID;
     }
     if (Config.boneDataType === BoneDataType.Mat4x4) {
-      this.__matArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneMatrix, index).v;
+      this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
+        ShaderSemantics.BoneMatrix,
+        index
+      ).v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      this.__qArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneQuaternion, index).v;
-      this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, index).v;
+      this.__qArray = SkeletalComponent.__globalDataRepository.getValue(
+        ShaderSemantics.BoneQuaternion,
+        index
+      ).v;
+      this.__tArray = SkeletalComponent.__globalDataRepository.getValue(
+        ShaderSemantics.BoneTranslateScale,
+        index
+      ).v;
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.__matArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneMatrix, index).v;
-      this.__qtArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneCompressedChunk, index).v;
-      this.__qtInfo = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneCompressedInfo, 0);
+      this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
+        ShaderSemantics.BoneMatrix,
+        index
+      ).v;
+      this.__qtArray = SkeletalComponent.__globalDataRepository.getValue(
+        ShaderSemantics.BoneCompressedChunk,
+        index
+      ).v;
+      this.__qtInfo = SkeletalComponent.__globalDataRepository.getValue(
+        ShaderSemantics.BoneCompressedInfo,
+        0
+      );
     }
   }
 
@@ -109,7 +148,6 @@ export default class SkeletalComponent extends Component {
   }
 
   $logic() {
-
     if (!this.isSkinning) {
       return;
     }
@@ -126,7 +164,11 @@ export default class SkeletalComponent extends Component {
         const globalJointTransform = joint.worldMatrixInner;
         const inverseBindMatrix = this._inverseBindMatrices[i];
 
-        MutableMatrix44.multiplyTo(globalJointTransform, inverseBindMatrix, SkeletalComponent.__tmp_mat4);
+        MutableMatrix44.multiplyTo(
+          globalJointTransform,
+          inverseBindMatrix,
+          SkeletalComponent.__tmp_mat4
+        );
         if (this._bindShapeMatrix) {
           SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
         }
@@ -135,7 +177,10 @@ export default class SkeletalComponent extends Component {
         m = SkeletalComponent.__identityMat;
       }
 
-      if (Config.boneDataType === BoneDataType.Mat4x4 || Config.boneDataType === BoneDataType.Vec4x1) {
+      if (
+        Config.boneDataType === BoneDataType.Mat4x4 ||
+        Config.boneDataType === BoneDataType.Vec4x1
+      ) {
         this.__matArray[i * 16 + 0] = m.v[0];
         this.__matArray[i * 16 + 1] = m.v[1];
         this.__matArray[i * 16 + 2] = m.v[2];
@@ -179,7 +224,11 @@ export default class SkeletalComponent extends Component {
           this.__tArray[i * 4 + 0] = m.m03; // m.getTranslate().x
           this.__tArray[i * 4 + 1] = m.m13; // m.getTranslate().y
           this.__tArray[i * 4 + 2] = m.m23; // m.getTranslate().z
-          this.__tArray[i * 4 + 3] = Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
+          this.__tArray[i * 4 + 3] = Math.max(
+            scaleVec.x,
+            scaleVec.y,
+            scaleVec.z
+          );
         } else if (Config.boneDataType === BoneDataType.Vec4x1) {
           scales.push(Math.max(scaleVec.x, scaleVec.y, scaleVec.z));
 
@@ -222,18 +271,32 @@ export default class SkeletalComponent extends Component {
 
         const q = SkeletalComponent.__tmp_q.fromMatrix(m);
         q.normalize();
-        const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 4096);
+        const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(
+          q.x,
+          q.y,
+          q.z,
+          q.w,
+          4096
+        );
         this.__qtArray[i * 4 + 0] = vec2QPacked[0];
         this.__qtArray[i * 4 + 1] = vec2QPacked[1];
 
         const t = m.getTranslateTo(SkeletalComponent.__tmpVec3_0);
-        const normalizedX = this.__qtInfo.x === 0.0 ? 0.0 : t.x / this.__qtInfo.x;
-        const normalizedY = this.__qtInfo.y === 0.0 ? 0.0 : t.y / this.__qtInfo.y;
-        const normalizedZ = this.__qtInfo.z === 0.0 ? 0.0 : t.z / this.__qtInfo.z;
-        const normalizedW = this.__qtInfo.w === 0.0 ? 0.0 : scales[i] / this.__qtInfo.w;
+        const normalizedX =
+          this.__qtInfo.x === 0.0 ? 0.0 : t.x / this.__qtInfo.x;
+        const normalizedY =
+          this.__qtInfo.y === 0.0 ? 0.0 : t.y / this.__qtInfo.y;
+        const normalizedZ =
+          this.__qtInfo.z === 0.0 ? 0.0 : t.z / this.__qtInfo.z;
+        const normalizedW =
+          this.__qtInfo.w === 0.0 ? 0.0 : scales[i] / this.__qtInfo.w;
 
         const vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
-          normalizedX, normalizedY, normalizedZ, normalizedW, 4096
+          normalizedX,
+          normalizedY,
+          normalizedZ,
+          normalizedW,
+          4096
         );
         this.__qtArray[i * 4 + 2] = vec2TPacked[0];
         this.__qtArray[i * 4 + 3] = vec2TPacked[1];

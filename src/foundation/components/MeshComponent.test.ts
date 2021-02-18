@@ -1,9 +1,12 @@
-import Rn from "../../";
-
+import Rn from '../../';
 
 function generateEntity() {
   const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent]);
+  const entity = repo.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.MeshComponent,
+  ]);
   return entity;
 }
 

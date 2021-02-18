@@ -1,12 +1,13 @@
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import Quaternion from './Quaternion';
-import { IMatrix, IMatrix33 } from './IMatrix';
+import {IMatrix, IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
-import { CompositionType } from '../definitions/CompositionType';
-import { TypedArray } from '../../commontypes/CommonTypes';
-import { MathUtil } from './MathUtil';
+import {CompositionType} from '../definitions/CompositionType';
+import {TypedArray} from '../../commontypes/CommonTypes';
+import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
+/* eslint-disable prettier/prettier */
 
 export default class Matrix33 implements IMatrix, IMatrix33 {
   v: TypedArray;
@@ -26,7 +27,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     m0: any, m1?: any, m2?: any,
     m3?: number, m4?: number, m5?: number,
     m6?: number, m7?: number, m8?: number,
-    isColumnMajor: boolean = false, notCopyFloatArray: boolean = false) {
+    isColumnMajor = false, notCopyFloatArray = false) {
 
     const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
     const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : m2;
@@ -40,12 +41,12 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
     if (9 <= arguments.length && arguments.length <= 10 && m8 != null) {
       this.v = new Float32Array(9);
       if (_isColumnMajor === true) {
-        let m = arguments;
+        const m = arguments;
         this.v[0] = m[0]; this.v[3] = m[3]; this.v[6] = m[6];
         this.v[1] = m[1]; this.v[4] = m[4]; this.v[7] = m[7];
         this.v[2] = m[2]; this.v[5] = m[5]; this.v[8] = m[8];
       } else {
-        let m = arguments;
+        const m = arguments;
         // arguments[0-8] must be row major values if isColumnMajor is false
         this.v[0] = m[0]; this.v[3] = m[1]; this.v[6] = m[2];
         this.v[1] = m[3]; this.v[4] = m[4]; this.v[7] = m[5];
@@ -198,7 +199,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   static invert(mat: Matrix33) {
     const det = mat.determinant();
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = (mat.v[4] * mat.v[8] - mat.v[7] * mat.v[5]) / det;
@@ -221,7 +222,7 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   static invertTo(mat: Matrix33, outMat: MutableMatrix33) {
     const det = mat.determinant();
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = (mat.v[4] * mat.v[8] - mat.v[7] * mat.v[5]) / det;

@@ -1,10 +1,9 @@
-import Rn from "../../..";
-import { ShaderityObject } from "shaderity";
-import MutableScalar from "../../math/MutableScalar";
-import MutableVector2 from "../../math/MutableVector2";
+import Rn from '../../..';
+import {ShaderityObject} from 'shaderity';
+import MutableScalar from '../../math/MutableScalar';
+import MutableVector2 from '../../math/MutableVector2';
 
 test('ShaderityUtility parse rn_data correctly', async () => {
-
   const shaderText = `
 in vec3 a_position;
 in vec3 a_color;
@@ -33,7 +32,8 @@ void main() {
   const shaderityObject = {code: shaderText} as ShaderityObject;
   const shaderityUtility = Rn.ShaderityUtility.getInstance();
 
-  const array = shaderityUtility.getShaderDataRefection(shaderityObject).shaderSemanticsInfoArray;
+  const array = shaderityUtility.getShaderDataRefection(shaderityObject)
+    .shaderSemanticsInfoArray;
   expect(array[0].semantic.str).toBe('worldMatrix');
   expect(array[0].componentType).toBe(Rn.ComponentType.Float);
   expect(array[0].compositionType).toBe(Rn.CompositionType.Scalar);
@@ -45,11 +45,14 @@ void main() {
   expect(array[1].none_u_prefix).toBe(true);
   expect(array[2].semantic.str).toBe('screenInfo');
   expect(array[2].soloDatum).toBe(true);
-  expect(array[2].initialValue.isStrictEqual(new MutableVector2(100,100))).toBe(true);
+  expect(
+    array[2].initialValue.isStrictEqual(new MutableVector2(100, 100))
+  ).toBe(true);
   expect(array[2].none_u_prefix).toBe(false);
   expect(array[3].semantic.str).toBe('diffuseColorTexture');
   expect(array[3].compositionType).toBe(Rn.CompositionType.Texture2D);
   expect(array[3].initialValue[0]).toBe(7);
-  expect(array[3].initialValue[1]).toBe(Rn.AbstractMaterialNode.dummyWhiteTexture);
-
+  expect(array[3].initialValue[1]).toBe(
+    Rn.AbstractMaterialNode.dummyWhiteTexture
+  );
 });

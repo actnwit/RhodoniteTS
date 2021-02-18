@@ -1,13 +1,13 @@
-import RnObject from "../core/RnObject";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import EntityRepository from "../core/EntityRepository";
-import Entity from "../core/Entity";
+import RnObject from '../core/RnObject';
+import SceneGraphComponent from '../components/SceneGraphComponent';
+import EntityRepository from '../core/EntityRepository';
+import Entity from '../core/Entity';
 
 export default abstract class Gizmo extends RnObject {
   protected __entityRepository = EntityRepository.getInstance();
   protected __topEntity?: Entity;
   protected __substance: RnObject;
-  protected __isVisible: boolean = false;
+  protected __isVisible = false;
 
   constructor(substance: RnObject) {
     super();
@@ -23,8 +23,11 @@ export default abstract class Gizmo extends RnObject {
 
   protected setGizmoTag() {
     if (this.__topEntity) {
-      const sceneGraphs = SceneGraphComponent.flattenHierarchy(this.__topEntity.getSceneGraph(), false);
-      for (let sg of sceneGraphs) {
+      const sceneGraphs = SceneGraphComponent.flattenHierarchy(
+        this.__topEntity.getSceneGraph(),
+        false
+      );
+      for (const sg of sceneGraphs) {
         sg.entity.tryToSetTag({tag: 'Being', value: 'gizmo'});
       }
     }

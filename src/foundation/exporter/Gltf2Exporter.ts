@@ -1,12 +1,10 @@
-import EntityRepository from "../core/EntityRepository";
-import Entity from "../core/Entity";
-import MeshComponent from "../components/MeshComponent";
-import { ShaderSemantics } from "../definitions/ShaderSemantics";
-import AbstractTexture from "../textures/AbstractTexture";
-import Vector4 from "../math/Vector4";
+import EntityRepository from '../core/EntityRepository';
+import Entity from '../core/Entity';
+import {ShaderSemantics} from '../definitions/ShaderSemantics';
+import AbstractTexture from '../textures/AbstractTexture';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
-declare var window: any;
+declare let window: any;
 
 /**
  * The glTF2 format Exporter class.
@@ -15,8 +13,7 @@ export default class Gltf2Exporter {
   private static __instance: Gltf2Exporter;
   private static __entityRepository = EntityRepository.getInstance();
 
-  private constructor() {
-  }
+  private constructor() {}
 
   static getInstance() {
     if (!this.__instance) {
@@ -32,34 +29,31 @@ export default class Gltf2Exporter {
   export(filename: string) {
     const entities = Gltf2Exporter.__entityRepository._getEntities();
     const json: any = {
-      "asset": {
-        "version": "2.0",
-        "generator": `Rhodonite (${_VERSION.version})`
-      }
+      asset: {
+        version: '2.0',
+        generator: `Rhodonite (${_VERSION.version})`,
+      },
     };
 
-    const fileName = filename ? filename : 'Rhodonite_' + (new Date()).getTime();
+    const fileName = filename ? filename : 'Rhodonite_' + new Date().getTime();
 
-    json.buffers = [{
-      'uri': fileName + '.bin'
-    }];
+    json.buffers = [
+      {
+        uri: fileName + '.bin',
+      },
+    ];
     json.bufferViews = [];
     json.accessors = [];
 
-    json.materials = [{
-      "pbrMetallicRoughness": {
-        "baseColorFactor": [
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    }]
-
+    json.materials = [
+      {
+        pbrMetallicRoughness: {
+          baseColorFactor: [1.0, 1.0, 1.0, 1.0],
+        },
+      },
+    ];
 
     this.countMeshes(json, entities);
-
 
     this.createNodes(json, entities);
 
@@ -78,7 +72,7 @@ export default class Gltf2Exporter {
     const buffer = new ArrayBuffer(json.buffers[0].byteLength);
     const dataView = new DataView(buffer);
 
-    for(let i=0; i<json.accessors.length; i++) {
+    for (let i = 0; i < json.accessors.length; i++) {
       const accessor = json.accessors[i];
       const rnAccessor = accessor.accessor;
       const compositionType = rnAccessor.compositionType;
@@ -87,25 +81,44 @@ export default class Gltf2Exporter {
       const attributeCount = accessor.count;
       const bufferview = json.bufferViews[accessor.bufferView];
       const bufferViewByteOffset = bufferview.byteOffset;
-      for(let k=0; k<attributeCount; k++) {
+      for (let k = 0; k < attributeCount; k++) {
         if (compositionType.getNumberOfComponents() === 1) {
           const byteIndex = componentType.getSizeInBytes() * k;
           const value = rnAccessor.getScalar(k, {});
-          (dataView as any)[dataViewSetter](bufferViewByteOffset + byteIndex, value, true);
+          (dataView as any)[dataViewSetter](
+            bufferViewByteOffset + byteIndex,
+            value,
+            true
+          );
         } else if (compositionType.getNumberOfComponents() === 2) {
           const array = rnAccessor.getVec2AsArray(k, {});
-          for(let l=0; l<2; l++) {
-            (dataView as any)[dataViewSetter](bufferViewByteOffset + componentType.getSizeInBytes() * (k*2+l), array[l], true);
+          for (let l = 0; l < 2; l++) {
+            (dataView as any)[dataViewSetter](
+              bufferViewByteOffset +
+                componentType.getSizeInBytes() * (k * 2 + l),
+              array[l],
+              true
+            );
           }
         } else if (compositionType.getNumberOfComponents() === 3) {
           const array = rnAccessor.getVec3AsArray(k, {});
-          for(let l=0; l<3; l++) {
-            (dataView as any)[dataViewSetter](bufferViewByteOffset + componentType.getSizeInBytes() * (k*3+l), array[l], true);
+          for (let l = 0; l < 3; l++) {
+            (dataView as any)[dataViewSetter](
+              bufferViewByteOffset +
+                componentType.getSizeInBytes() * (k * 3 + l),
+              array[l],
+              true
+            );
           }
         } else if (compositionType.getNumberOfComponents() === 4) {
           const array = rnAccessor.getVec4AsArray(k, {});
-          for(let l=0; l<4; l++) {
-            (dataView as any)[dataViewSetter](bufferViewByteOffset + componentType.getSizeInBytes() * (k*4+l), array[l], true);
+          for (let l = 0; l < 4; l++) {
+            (dataView as any)[dataViewSetter](
+              bufferViewByteOffset +
+                componentType.getSizeInBytes() * (k * 4 + l),
+              array[l],
+              true
+            );
           }
         }
       }
@@ -118,7 +131,7 @@ export default class Gltf2Exporter {
   countMeshes(json: any, entities: Entity[]) {
     let count = 0;
     json.meshes = [];
-    for(let i=0; i<entities.length; i++) {
+    for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getMesh();
       if (meshComponent) {
@@ -130,7 +143,7 @@ export default class Gltf2Exporter {
   createMeshes(json: any, entities: Entity[]) {
     let count = 0;
     json.meshes = [];
-    for(let i=0; i<entities.length; i++) {
+    for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getMesh();
       if (meshComponent && meshComponent.mesh) {
@@ -138,7 +151,7 @@ export default class Gltf2Exporter {
         const mesh = json.meshes[count];
         mesh.primitives = [];
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-        for(let j=0; j<primitiveCount; j++) {
+        for (let j = 0; j < primitiveCount; j++) {
           mesh.primitives[j] = {};
           const primitive = mesh.primitives[j];
           const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
@@ -152,9 +165,11 @@ export default class Gltf2Exporter {
           const attributeAccessors = rnPrimitive.attributeAccessors;
           primitive.attributes = {};
           const attributes = primitive.attributes;
-          for(let k=0; k<attributeAccessors.length; k++) {
+          for (let k = 0; k < attributeAccessors.length; k++) {
             const attributeAccessor = attributeAccessors[k];
-            attributes[rnPrimitive.attributeSemantics[k].str] = (attributeAccessor as any).gltfAccessorIndex;
+            attributes[
+              rnPrimitive.attributeSemantics[k].str
+            ] = (attributeAccessor as any).gltfAccessorIndex;
           }
           primitive.material = 0;
         }
@@ -174,58 +189,64 @@ export default class Gltf2Exporter {
     json.samplers = [];
     json.images = [];
     json.samplers[0] = {
-      "magFilter": 9729,
-      "minFilter": 9987,
-      "wrapS": 10497,
-      "wrapT": 10497
-    }
+      magFilter: 9729,
+      minFilter: 9987,
+      wrapS: 10497,
+      wrapT: 10497,
+    };
 
-    for(let i=0; i<entities.length; i++) {
+    for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getMesh();
       if (meshComponent && meshComponent.mesh) {
         const mesh = json.meshes[countMesh++];
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-        for(let j=0; j<primitiveCount; j++) {
+        for (let j = 0; j < primitiveCount; j++) {
           const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
           const primitive = mesh.primitives[j];
           const rnMaterial = rnPrimitive.material!;
 
           const material: any = {
-            "pbrMetallicRoughness": {
-            }
+            pbrMetallicRoughness: {},
           };
 
           let colorParam;
           let metallic = 1.0;
           let roughness = 1.0;
           if (rnMaterial != null) {
-            colorParam = rnMaterial.getParameter(ShaderSemantics.BaseColorFactor);
+            colorParam = rnMaterial.getParameter(
+              ShaderSemantics.BaseColorFactor
+            );
             if (colorParam == null) {
-              colorParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorFactor);
+              colorParam = rnMaterial.getParameter(
+                ShaderSemantics.DiffuseColorFactor
+              );
             } else {
-              metallic = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).x;
-              roughness = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).y;
+              metallic = rnMaterial.getParameter(
+                ShaderSemantics.MetallicRoughnessFactor
+              ).x;
+              roughness = rnMaterial.getParameter(
+                ShaderSemantics.MetallicRoughnessFactor
+              ).y;
             }
           }
 
           if (colorParam) {
-            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(colorParam.v);
+            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(
+              colorParam.v
+            );
           }
           material.pbrMetallicRoughness.metallicFactor = metallic;
           material.pbrMetallicRoughness.roughnessFactor = roughness;
 
-
           if (rnMaterial) {
-
             material.alphaMode = rnMaterial.alphaMode.str;
 
-            const processTexture = (rnTexture: AbstractTexture)=>{
+            const processTexture = (rnTexture: AbstractTexture) => {
               if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
-
                 let imageIndex = countImage;
                 let match = false;
-                for (let k=0; k<json.images.length; k++) {
+                for (let k = 0; k < json.images.length; k++) {
                   const image = json.images[k];
                   if (image.uri === rnTexture.name) {
                     imageIndex = k;
@@ -234,15 +255,31 @@ export default class Gltf2Exporter {
                 }
                 if (!match) {
                   json.images[countImage++] = {
-                    uri: (rnTexture.name) ? rnTexture.name : rnTexture.uniqueName
-                  }
+                    uri: rnTexture.name ? rnTexture.name : rnTexture.uniqueName,
+                  };
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
-                    const blob = htmlCanvasElement.toBlob((blob)=>{
-                      setTimeout(function(){
-                        var a = document.createElement('a');
+                    const blob = htmlCanvasElement.toBlob(blob => {
+                      setTimeout(() => {
+                        const a = document.createElement('a');
                         const e = document.createEvent('MouseEvent');
-                        (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                        (e as any).initEvent(
+                          'click',
+                          true,
+                          true,
+                          window,
+                          1,
+                          0,
+                          0,
+                          0,
+                          0,
+                          false,
+                          false,
+                          false,
+                          false,
+                          0,
+                          null
+                        );
                         a.href = URL.createObjectURL(blob);
                         a.download = rnTexture.name;
                         a.dispatchEvent(e);
@@ -253,64 +290,82 @@ export default class Gltf2Exporter {
 
                 json.textures[countTexture] = {
                   sampler: 0,
-                  source: imageIndex
-                }
+                  source: imageIndex,
+                };
 
-                return countTexture++
+                return countTexture++;
               }
               return void 0;
-            }
+            };
 
-            let textureParam = rnMaterial.getParameter(ShaderSemantics.BaseColorTexture);
+            let textureParam = rnMaterial.getParameter(
+              ShaderSemantics.BaseColorTexture
+            );
             let rnTexture;
             let textureIndex;
             if (textureParam != null) {
-              rnTexture = (textureParam[1]);
+              rnTexture = textureParam[1];
               textureIndex = processTexture(rnTexture!);
               if (textureIndex != null) {
-                material.pbrMetallicRoughness.baseColorTexture = {index: textureIndex};
+                material.pbrMetallicRoughness.baseColorTexture = {
+                  index: textureIndex,
+                };
               }
             } else {
-              textureParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorTexture);
+              textureParam = rnMaterial.getParameter(
+                ShaderSemantics.DiffuseColorTexture
+              );
               if (textureParam != null) {
-                let rnTexture = (textureParam[1]);
-                let textureIndex = processTexture(rnTexture!);
+                const rnTexture = textureParam[1];
+                const textureIndex = processTexture(rnTexture!);
                 if (textureIndex != null) {
-                  material.pbrMetallicRoughness.diffuseColorTexture = {index: textureIndex};
+                  material.pbrMetallicRoughness.diffuseColorTexture = {
+                    index: textureIndex,
+                  };
                 }
               }
             }
 
-            textureParam = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessTexture) as AbstractTexture;
+            textureParam = rnMaterial.getParameter(
+              ShaderSemantics.MetallicRoughnessTexture
+            ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = (textureParam[1]);
+              rnTexture = textureParam[1];
               textureIndex = processTexture(rnTexture!);
               if (textureIndex != null) {
-                material.pbrMetallicRoughness.metallicRoughnessTexture = {index: textureIndex};
+                material.pbrMetallicRoughness.metallicRoughnessTexture = {
+                  index: textureIndex,
+                };
               }
             }
 
-            textureParam = rnMaterial.getParameter(ShaderSemantics.NormalTexture) as AbstractTexture;
+            textureParam = rnMaterial.getParameter(
+              ShaderSemantics.NormalTexture
+            ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = (textureParam[1]);
+              rnTexture = textureParam[1];
               textureIndex = processTexture(rnTexture!);
               if (textureIndex != null) {
                 material.normalTexture = {index: textureIndex};
               }
             }
 
-            textureParam = rnMaterial.getParameter(ShaderSemantics.OcclusionTexture) as AbstractTexture;
+            textureParam = rnMaterial.getParameter(
+              ShaderSemantics.OcclusionTexture
+            ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = (textureParam[1]);
+              rnTexture = textureParam[1];
               textureIndex = processTexture(rnTexture!);
               if (textureIndex != null) {
                 material.occlusionTexture = {index: textureIndex};
               }
             }
 
-            textureParam = rnMaterial.getParameter(ShaderSemantics.EmissiveTexture) as AbstractTexture;
+            textureParam = rnMaterial.getParameter(
+              ShaderSemantics.EmissiveTexture
+            ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = (textureParam[1]);
+              rnTexture = textureParam[1];
               textureIndex = processTexture(rnTexture!);
               if (textureIndex != null) {
                 material.emissiveTexture = {index: textureIndex};
@@ -327,15 +382,15 @@ export default class Gltf2Exporter {
 
   createNodes(json: any, entities: Entity[]) {
     json.nodes = [];
-    json.scenes = [{'nodes':[]}];
+    json.scenes = [{nodes: []}];
     const scene = json.scenes[0];
     const nodes = json.nodes;
-    for(let i=0; i<entities.length; i++) {
+    for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       (entity as any).gltfNodeIndex = i;
     }
 
-    for(let i=0; i<entities.length; i++) {
+    for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       nodes[i] = {};
       const node = nodes[i];
@@ -347,7 +402,7 @@ export default class Gltf2Exporter {
       node.children = [];
       const sceneGraphComponent = entity.getSceneGraph();
       const children = sceneGraphComponent.children;
-      for (let j=0; j<children.length; j++) {
+      for (let j = 0; j < children.length; j++) {
         const child = children[j];
         node.children.push((child.entity as any).gltfNodeIndex);
       }
@@ -368,19 +423,19 @@ export default class Gltf2Exporter {
     let count = 0;
     let bufferByteLength = 0;
 
-    for(let i=0; i<entities.length; i++) {
+    for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getMesh();
       if (meshComponent && meshComponent.mesh) {
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-        for(let j=0; j<primitiveCount; j++) {
+        for (let j = 0; j < primitiveCount; j++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(j);
           const indicesAccessor = primitive.indicesAccessor;
 
           if (indicesAccessor) {
             // BufferView
             let match = false;
-            for (let k=0; k<json.bufferViews.length; k++) {
+            for (let k = 0; k < json.bufferViews.length; k++) {
               const bufferview = json.bufferViews[k];
               if (bufferview.rnAccessor === indicesAccessor) {
                 match = true;
@@ -402,7 +457,7 @@ export default class Gltf2Exporter {
               json.accessors[count] = {};
               const accessor = json.accessors[count];
               accessor.bufferView = count;
-              accessor.byteOffset = 0;//indicesAccessor.byteOffsetInBufferView;
+              accessor.byteOffset = 0; //indicesAccessor.byteOffsetInBufferView;
               accessor.componentType = 5123;
               accessor.count = indicesAccessor.elementCount;
               indicesAccessor.calcMinMax();
@@ -418,11 +473,11 @@ export default class Gltf2Exporter {
           }
 
           const attributeAccessors = primitive.attributeAccessors;
-          for(let j=0; j<attributeAccessors.length; j++) {
+          for (let j = 0; j < attributeAccessors.length; j++) {
             const attributeAccessor = attributeAccessors[j];
 
             let match = false;
-            for (let k=0; k<json.bufferViews.length; k++) {
+            for (let k = 0; k < json.bufferViews.length; k++) {
               const bufferview = json.bufferViews[k];
               if (bufferview.rnAccessor === attributeAccessor) {
                 match = true;
@@ -443,7 +498,7 @@ export default class Gltf2Exporter {
               json.accessors[count] = {};
               const accessor = json.accessors[count];
               accessor.bufferView = count;
-              accessor.byteOffset = 0;//attributeAccessor.byteOffsetInBufferView;
+              accessor.byteOffset = 0; //attributeAccessor.byteOffsetInBufferView;
               accessor.componentType = 5126;
               accessor.count = attributeAccessor.elementCount;
               attributeAccessor.calcMinMax();
@@ -474,18 +529,51 @@ export default class Gltf2Exporter {
     let e = document.createEvent('MouseEvent');
 
     a.download = filename + '.gltf';
-    a.href = "data:application/octet-stream," + encodeURIComponent(JSON.stringify(json));
+    a.href =
+      'data:application/octet-stream,' +
+      encodeURIComponent(JSON.stringify(json));
 
-    (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    (e as any).initEvent(
+      'click',
+      true,
+      true,
+      window,
+      1,
+      0,
+      0,
+      0,
+      0,
+      false,
+      false,
+      false,
+      false,
+      0,
+      null
+    );
 
     a.dispatchEvent(e);
 
-
     a = document.createElement('a');
     e = document.createEvent('MouseEvent');
-    (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-    var blob = new Blob([arraybuffer], {type: "octet/stream"}),
-    url = window.URL.createObjectURL(blob);
+    (e as any).initEvent(
+      'click',
+      true,
+      true,
+      window,
+      1,
+      0,
+      0,
+      0,
+      0,
+      false,
+      false,
+      false,
+      false,
+      0,
+      null
+    );
+    const blob = new Blob([arraybuffer], {type: 'octet/stream'}),
+      url = window.URL.createObjectURL(blob);
     a.download = filename + '.bin';
     a.href = url;
     a.dispatchEvent(e);

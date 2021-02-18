@@ -1,27 +1,31 @@
 import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 import EntityRepository from '../core/EntityRepository';
-import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
-import { CameraTypeEnum, CameraType } from '../definitions/CameraType';
+import {CameraTypeEnum, CameraType} from '../definitions/CameraType';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
-import { BufferUse } from '../definitions/BufferUse';
-import { ComponentType } from '../definitions/ComponentType';
+import {BufferUse} from '../definitions/BufferUse';
+import {ComponentType} from '../definitions/ComponentType';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import { ProcessStage } from '../definitions/ProcessStage';
+import {ProcessStage} from '../definitions/ProcessStage';
 import MutableVector4 from '../math/MutableVector4';
 import MutableVector3 from '../math/MutableVector3';
 import Frustum from '../geometry/Frustum';
 import Config from '../core/Config';
-import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
+import {
+  ComponentTID,
+  ComponentSID,
+  EntityUID,
+} from '../../commontypes/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { MathUtil } from '../math/MathUtil';
+import {ShaderSemantics} from '../definitions/ShaderSemantics';
+import {MathUtil} from '../math/MathUtil';
 import CameraControllerComponent from './CameraControllerComponent';
 import ModuleManager from '../system/ModuleManager';
-import { RnXR } from '../../rhodonite-xr';
+import {RnXR} from '../../rhodonite-xr';
 import RenderPass from '../renderer/RenderPass';
 
 export default class CameraComponent extends Component {
@@ -62,23 +66,96 @@ export default class CameraComponent extends Component {
 
   private __frustum = new Frustum();
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository
+  ) {
     super(entityUid, componentSid, entityRepository);
 
-    this.maxNumberOfComponent = Math.max(10, Math.floor(Config.maxEntityNumber / 100));
+    this.maxNumberOfComponent = Math.max(
+      10,
+      Math.floor(Config.maxEntityNumber / 100)
+    );
 
-    this.registerMember(BufferUse.CPUGeneric, 'eyeInner', MutableVector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'direction', MutableVector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'up', MutableVector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'directionInner', MutableVector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'upInner', MutableVector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'corner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'cornerInner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'parameters', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'parametersInner', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'eyeInner',
+      MutableVector3,
+      ComponentType.Float,
+      [0, 0, 0]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'direction',
+      MutableVector3,
+      ComponentType.Float,
+      [0, 0, -1]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'up',
+      MutableVector3,
+      ComponentType.Float,
+      [0, 1, 0]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'directionInner',
+      MutableVector3,
+      ComponentType.Float,
+      [0, 0, -1]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'upInner',
+      MutableVector3,
+      ComponentType.Float,
+      [0, 1, 0]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'corner',
+      MutableVector4,
+      ComponentType.Float,
+      [-1, 1, 1, -1]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'cornerInner',
+      MutableVector4,
+      ComponentType.Float,
+      [-1, 1, 1, -1]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'parameters',
+      MutableVector4,
+      ComponentType.Float,
+      [0.1, 10000, 90, 1]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'parametersInner',
+      MutableVector4,
+      ComponentType.Float,
+      [0.1, 10000, 90, 1]
+    );
 
-    this.registerMember(BufferUse.CPUGeneric, 'projectionMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'projectionMatrix',
+      MutableMatrix44,
+      ComponentType.Float,
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    );
+    this.registerMember(
+      BufferUse.CPUGeneric,
+      'viewMatrix',
+      MutableMatrix44,
+      ComponentType.Float,
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    );
 
     this.submitToAllocation(Config.maxCameraNumber);
 
@@ -93,7 +170,6 @@ export default class CameraComponent extends Component {
       CameraComponent.main = componentSid;
     }
   }
-
 
   static set main(componentSID: ComponentSID) {
     this.__main = componentSID;
@@ -128,7 +204,9 @@ export default class CameraComponent extends Component {
   }
 
   set eye(noUseVec: Vector3) {
-    throw Error('In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning.')
+    throw Error(
+      'In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning.'
+    );
   }
 
   get eyeInner() {
@@ -163,16 +241,37 @@ export default class CameraComponent extends Component {
     const newDirection = vec;
     const oldUp = this._up;
 
-    const orthogonalVectorNewDirectionAndOldUp = MutableVector3.crossTo(newDirection, oldUp, CameraComponent.__tmpVector3_0);
-    const isOrthogonalNewDirectionAndOldUp = orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
+    const orthogonalVectorNewDirectionAndOldUp = MutableVector3.crossTo(
+      newDirection,
+      oldUp,
+      CameraComponent.__tmpVector3_0
+    );
+    const isOrthogonalNewDirectionAndOldUp =
+      orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
 
     let newUpNonNormalize;
     if (isOrthogonalNewDirectionAndOldUp) {
-      const relativeXaxis = MutableVector3.crossTo(oldDirection, oldUp, CameraComponent.__tmpVector3_1);
-      newUpNonNormalize = MutableVector3.crossTo(relativeXaxis, newDirection, CameraComponent.__tmpVector3_2);
+      const relativeXaxis = MutableVector3.crossTo(
+        oldDirection,
+        oldUp,
+        CameraComponent.__tmpVector3_1
+      );
+      newUpNonNormalize = MutableVector3.crossTo(
+        relativeXaxis,
+        newDirection,
+        CameraComponent.__tmpVector3_2
+      );
     } else {
-      const newDirectionComponentInOldUp = MutableVector3.multiplyTo(newDirection, newDirection.dot(oldUp), CameraComponent.__tmpVector3_1);
-      newUpNonNormalize = MutableVector3.subtractTo(oldUp, newDirectionComponentInOldUp, CameraComponent.__tmpVector3_2);
+      const newDirectionComponentInOldUp = MutableVector3.multiplyTo(
+        newDirection,
+        newDirection.dot(oldUp),
+        CameraComponent.__tmpVector3_1
+      );
+      newUpNonNormalize = MutableVector3.subtractTo(
+        oldUp,
+        newDirectionComponentInOldUp,
+        CameraComponent.__tmpVector3_2
+      );
     }
 
     this._up.copyComponents(newUpNonNormalize).normalize();
@@ -289,7 +388,8 @@ export default class CameraComponent extends Component {
 
   set focalLength(val: number) {
     this._focalLength = val;
-    this._parameters.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
+    this._parameters.z =
+      2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
   }
   get focalLength() {
     return this._focalLength;
@@ -313,13 +413,15 @@ export default class CameraComponent extends Component {
 
   setFovyAndChangeFilmSize(degree: number) {
     this._parameters.z = degree;
-    this._filmHeight = 2 * this.focalLength * Math.tan(MathUtil.degreeToRadian(degree) / 2);
+    this._filmHeight =
+      2 * this.focalLength * Math.tan(MathUtil.degreeToRadian(degree) / 2);
     this._filmWidth = this._filmHeight * this.aspect;
   }
 
   setFovyAndChangeFocalLength(degree: number) {
     this._parameters.z = degree;
-    this._focalLength = this._filmHeight / 2 / Math.tan(MathUtil.degreeToRadian(degree) / 2);
+    this._focalLength =
+      this._filmHeight / 2 / Math.tan(MathUtil.degreeToRadian(degree) / 2);
   }
 
   get fovy() {
@@ -366,21 +468,46 @@ export default class CameraComponent extends Component {
     if (this.type === CameraType.Perspective) {
       const fovy = this._parametersInner.z;
       const aspect = this._parametersInner.w;
-      var yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
-      var xscale = yscale / aspect;
+      const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
+      const xscale = yscale / aspect;
       this._projectionMatrix.setComponents(
-        xscale, 0, 0, 0,
-        0, yscale, 0, 0,
-        0, 0, -(zFar + zNear) / (zFar - zNear), -(2.0 * zFar * zNear) / (zFar - zNear),
-        0, 0, -1, 0);
+        xscale,
+        0,
+        0,
+        0,
+        0,
+        yscale,
+        0,
+        0,
+        0,
+        0,
+        -(zFar + zNear) / (zFar - zNear),
+        -(2.0 * zFar * zNear) / (zFar - zNear),
+        0,
+        0,
+        -1,
+        0
+      );
     } else if (this.type === CameraType.Orthographic) {
       const xmag = this._parametersInner.z;
       const ymag = this._parametersInner.w;
       this._projectionMatrix.setComponents(
-        1 / xmag, 0.0, 0.0, 0,
-        0.0, 1 / ymag, 0.0, 0,
-        0.0, 0.0, -2 / (zFar - zNear), -(zFar + zNear) / (zFar - zNear),
-        0.0, 0.0, 0.0, 1.0
+        1 / xmag,
+        0.0,
+        0.0,
+        0,
+        0.0,
+        1 / ymag,
+        0.0,
+        0,
+        0.0,
+        0.0,
+        -2 / (zFar - zNear),
+        -(zFar + zNear) / (zFar - zNear),
+        0.0,
+        0.0,
+        0.0,
+        1.0
       );
     } else {
       const left = this._cornerInner.x;
@@ -388,10 +515,22 @@ export default class CameraComponent extends Component {
       const top = this._cornerInner.z;
       const bottom = this._cornerInner.w;
       this._projectionMatrix.setComponents(
-        2 * zNear / (right - left), 0.0, (right + left) / (right - left), 0.0,
-        0.0, 2 * zNear / (top - bottom), (top + bottom) / (top - bottom), 0.0,
-        0.0, 0.0, - (zFar + zNear) / (zFar - zNear), -1 * 2 * zFar * zNear / (zFar - zNear),
-        0.0, 0.0, -1.0, 0.0
+        (2 * zNear) / (right - left),
+        0.0,
+        (right + left) / (right - left),
+        0.0,
+        0.0,
+        (2 * zNear) / (top - bottom),
+        (top + bottom) / (top - bottom),
+        0.0,
+        0.0,
+        0.0,
+        -(zFar + zNear) / (zFar - zNear),
+        (-1 * 2 * zFar * zNear) / (zFar - zNear),
+        0.0,
+        0.0,
+        -1.0,
+        0.0
       );
     }
 
@@ -404,18 +543,41 @@ export default class CameraComponent extends Component {
 
   calcViewMatrix() {
     const eye = this.eyeInner;
-    const f = MutableVector3.subtractTo(this._directionInner, eye, CameraComponent.__tmpVector3_0).normalize();
-    const s = MutableVector3.crossTo(f, this._upInner, CameraComponent.__tmpVector3_1).normalize();
+    const f = MutableVector3.subtractTo(
+      this._directionInner,
+      eye,
+      CameraComponent.__tmpVector3_0
+    ).normalize();
+    const s = MutableVector3.crossTo(
+      f,
+      this._upInner,
+      CameraComponent.__tmpVector3_1
+    ).normalize();
     const u = MutableVector3.crossTo(s, f, CameraComponent.__tmpVector3_2);
 
     this._viewMatrix.setComponents(
-      s.x, s.y, s.z, -Vector3.dot(s, eye),
-      u.x, u.y, u.z, -Vector3.dot(u, eye),
-      -f.x, -f.y, -f.z, Vector3.dot(f, eye),
-      0, 0, 0, 1
+      s.x,
+      s.y,
+      s.z,
+      -Vector3.dot(s, eye),
+      u.x,
+      u.y,
+      u.z,
+      -Vector3.dot(u, eye),
+      -f.x,
+      -f.y,
+      -f.z,
+      Vector3.dot(f, eye),
+      0,
+      0,
+      0,
+      1
     );
 
-    const invertWorldMatrix = MutableMatrix44.invertTo(this.__sceneGraphComponent!.worldMatrixInner, CameraComponent.__tmpMatrix44_0);
+    const invertWorldMatrix = MutableMatrix44.invertTo(
+      this.__sceneGraphComponent!.worldMatrixInner,
+      CameraComponent.__tmpMatrix44_0
+    );
     this._viewMatrix.multiply(invertWorldMatrix);
 
     return this._viewMatrix;
@@ -434,17 +596,36 @@ export default class CameraComponent extends Component {
   }
 
   get viewProjectionMatrix() {
-    return MutableMatrix44.multiplyTo(this._projectionMatrix, this._viewMatrix, CameraComponent.__tmpMatrix44_0);
+    return MutableMatrix44.multiplyTo(
+      this._projectionMatrix,
+      this._viewMatrix,
+      CameraComponent.__tmpMatrix44_0
+    );
   }
 
   setValuesToGlobalDataRepository() {
-    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewMatrix, this.componentSID, this.viewMatrix);
-    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ProjectionMatrix, this.componentSID, this.projectionMatrix);
-    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewPosition, this.componentSID, this.worldPosition);
+    CameraComponent.__globalDataRepository.setValue(
+      ShaderSemantics.ViewMatrix,
+      this.componentSID,
+      this.viewMatrix
+    );
+    CameraComponent.__globalDataRepository.setValue(
+      ShaderSemantics.ProjectionMatrix,
+      this.componentSID,
+      this.projectionMatrix
+    );
+    CameraComponent.__globalDataRepository.setValue(
+      ShaderSemantics.ViewPosition,
+      this.componentSID,
+      this.worldPosition
+    );
   }
 
   get worldPosition() {
-    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3);
+    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(
+      this.eyeInner,
+      CameraComponent.returnVector3
+    );
     return CameraComponent.returnVector3;
   }
 
@@ -457,12 +638,18 @@ export default class CameraComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+      this.__entityUid,
+      SceneGraphComponent
+    ) as SceneGraphComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $logic({ renderPass }: { renderPass: RenderPass }) {
-    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
+  $logic({renderPass}: {renderPass: RenderPass}) {
+    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(
+      this.__entityUid,
+      CameraControllerComponent
+    ) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
       this._eyeInner.copyComponents(CameraComponent._eye);
       this._directionInner.copyComponents(this._direction);
@@ -476,14 +663,15 @@ export default class CameraComponent extends Component {
     this.calcProjectionMatrix();
 
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
+    if (
+      rnXRModule?.WebVRSystem.getInstance().isWebVRMode &&
+      renderPass.isMainPass
+    ) {
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
       webvrSystem.setValuesToGlobalDataRepository();
     } else {
       this.setValuesToGlobalDataRepository();
     }
-
   }
-
 }
 ComponentRepository.registerComponentClass(CameraComponent);

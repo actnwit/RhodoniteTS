@@ -1,58 +1,105 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import { ShaderType } from "../../definitions/ShaderType";
-import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
-import ComponentRepository from "../../core/ComponentRepository";
-import CameraComponent from "../../components/CameraComponent";
-import Material from "../core/Material";
-import { HdriFormat } from "../../definitions/HdriFormat";
-import MeshComponent from "../../components/MeshComponent";
-import BlendShapeComponent from "../../components/BlendShapeComponent";
-import { ShaderityObject } from "shaderity";
-import ShaderityUtility from "../core/ShaderityUtility";
-import { AlphaModeEnum, AlphaMode } from "../../definitions/AlphaMode";
+import {
+  ShaderSemanticsInfo,
+  ShaderSemantics,
+  ShaderSemanticsClass,
+} from '../../definitions/ShaderSemantics';
+import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import {ShaderType} from '../../definitions/ShaderType';
+import {CGAPIResourceHandle} from '../../../commontypes/CommonTypes';
+import ComponentRepository from '../../core/ComponentRepository';
+import CameraComponent from '../../components/CameraComponent';
+import Material from '../core/Material';
+import {HdriFormat} from '../../definitions/HdriFormat';
+import MeshComponent from '../../components/MeshComponent';
+import BlendShapeComponent from '../../components/BlendShapeComponent';
+import {ShaderityObject} from 'shaderity';
+import ShaderityUtility from '../core/ShaderityUtility';
+import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static readonly IsOutputHDR = new ShaderSemanticsClass({ str: 'isOutputHDR' })
-  static BaseColorTextureTransform = new ShaderSemanticsClass({ str: 'baseColorTextureTransform' });
-  static BaseColorTextureRotation = new ShaderSemanticsClass({ str: 'baseColorTextureRotation' });
-  static NormalTextureTransform = new ShaderSemanticsClass({ str: 'normalTextureTransform' });
-  static NormalTextureRotation = new ShaderSemanticsClass({ str: 'normalTextureRotation' });
-  static MetallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
-  static MetallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
+  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static readonly IsOutputHDR = new ShaderSemanticsClass({
+    str: 'isOutputHDR',
+  });
+  static BaseColorTextureTransform = new ShaderSemanticsClass({
+    str: 'baseColorTextureTransform',
+  });
+  static BaseColorTextureRotation = new ShaderSemanticsClass({
+    str: 'baseColorTextureRotation',
+  });
+  static NormalTextureTransform = new ShaderSemanticsClass({
+    str: 'normalTextureTransform',
+  });
+  static NormalTextureRotation = new ShaderSemanticsClass({
+    str: 'normalTextureRotation',
+  });
+  static MetallicRoughnessTextureTransform = new ShaderSemanticsClass({
+    str: 'metallicRoughnessTextureTransform',
+  });
+  static MetallicRoughnessTextureRotation = new ShaderSemanticsClass({
+    str: 'metallicRoughnessTextureRotation',
+  });
   private static __shaderityUtility: ShaderityUtility = ShaderityUtility.getInstance();
 
-  constructor({ name, isMorphing, isSkinning, isLighting, alphaMode, vertexShader, pixelShader }:
-    { name: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, alphaMode: AlphaModeEnum, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
-    super(null, name
-      + (isMorphing ? '+morphing' : '')
-      + (isSkinning ? '+skinning' : '')
-      + (isLighting ? '' : '-lighting')
-      + ' alpha_' + alphaMode.str.toLowerCase(),
-      { isMorphing, isSkinning, isLighting }
+  constructor({
+    name,
+    isMorphing,
+    isSkinning,
+    isLighting,
+    alphaMode,
+    vertexShader,
+    pixelShader,
+  }: {
+    name: string;
+    isMorphing: boolean;
+    isSkinning: boolean;
+    isLighting: boolean;
+    alphaMode: AlphaModeEnum;
+    vertexShader: ShaderityObject;
+    pixelShader: ShaderityObject;
+  }) {
+    super(
+      null,
+      name +
+        (isMorphing ? '+morphing' : '') +
+        (isSkinning ? '+skinning' : '') +
+        (isLighting ? '' : '-lighting') +
+        ' alpha_' +
+        alphaMode.str.toLowerCase(),
+      {isMorphing, isSkinning, isLighting}
     );
 
-    const vertexShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(vertexShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
-    const pixelShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(pixelShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
+    const vertexShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(
+      vertexShader,
+      AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
+    );
+    const pixelShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(
+      pixelShader,
+      AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
+    );
     this.__vertexShaderityObject = vertexShaderData.shaderityObject;
     this.__pixelShaderityObject = pixelShaderData.shaderityObject;
 
     const shaderSemanticsInfoArray: any = [];
 
-    for (let vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
+    for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
       vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
       shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
     }
-    for (let pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
-      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find((vertexInfo: ShaderSemanticsInfo) => {
-        if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
-          return true;
-        } else {
-          return false;
+    for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
+      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
+        (vertexInfo: ShaderSemanticsInfo) => {
+          if (
+            vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str
+          ) {
+            return true;
+          } else {
+            return false;
+          }
         }
-      });
+      );
       if (foundShaderSemanticsInfo) {
         foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
       } else {
@@ -78,7 +125,17 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+  setParametersForGPU({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args?: any;
+  }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
@@ -87,47 +144,103 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
         /// Matrices
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+          cameraComponent = ComponentRepository.getInstance().getComponent(
+            CameraComponent,
+            CameraComponent.main
+          ) as CameraComponent;
         }
-        this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-        this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+        this.setViewInfo(
+          shaderProgram,
+          cameraComponent,
+          material,
+          args.setUniform
+        );
+        this.setProjection(
+          shaderProgram,
+          cameraComponent,
+          material,
+          args.setUniform
+        );
 
         // Lights
-        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+        this.setLightsInfo(
+          shaderProgram,
+          args.lightComponents,
+          material,
+          args.setUniform
+        );
       }
 
       /// Skinning
       const skeletalComponent = args.entity.getSkeletal();
       this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-
     }
 
     // Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, args.diffuseCube]);
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.DiffuseEnvTexture.str,
+        firstTime,
+        [5, args.diffuseCube]
+      );
     } else {
-      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, AbstractMaterialNode.__dummyBlackCubeTexture]);
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.DiffuseEnvTexture.str,
+        firstTime,
+        [5, AbstractMaterialNode.__dummyBlackCubeTexture]
+      );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, args.specularCube]);
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.SpecularEnvTexture.str,
+        firstTime,
+        [6, args.specularCube]
+      );
     } else {
-      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, AbstractMaterialNode.__dummyBlackCubeTexture]);
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.SpecularEnvTexture.str,
+        firstTime,
+        [6, AbstractMaterialNode.__dummyBlackCubeTexture]
+      );
     }
-
 
     if (args.setUniform) {
       if (firstTime) {
-        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } = this.setupHdriParameters(args);
-        this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime,
+        const {
+          mipmapLevelNumber,
+          meshRenderComponent,
+          diffuseHdriType,
+          specularHdriType,
+        } = this.setupHdriParameters(args);
+        this.__webglResourceRepository.setUniformValue(
+          shaderProgram,
+          ShaderSemantics.IBLParameter.str,
+          firstTime,
           {
-            x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
-            z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap
-          },
+            x: mipmapLevelNumber,
+            y: meshRenderComponent!.diffuseCubeMapContribution,
+            z: meshRenderComponent!.specularCubeMapContribution,
+            w: meshRenderComponent!.rotationOfCubeMap,
+          }
         );
-        this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, { x: diffuseHdriType, y: specularHdriType })
+        this.__webglResourceRepository.setUniformValue(
+          shaderProgram,
+          ShaderSemantics.HDRIFormat.str,
+          firstTime,
+          {x: diffuseHdriType, y: specularHdriType}
+        );
       }
     } else {
-      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } = this.setupHdriParameters(args);
+      const {
+        mipmapLevelNumber,
+        meshRenderComponent,
+        diffuseHdriType,
+        specularHdriType,
+      } = this.setupHdriParameters(args);
       const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
@@ -141,7 +254,12 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     }
 
     // Morph
-    this.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
+    this.setMorphInfo(
+      shaderProgram,
+      args.entity.getComponent(MeshComponent),
+      args.entity.getComponent(BlendShapeComponent),
+      args.primitive
+    );
   }
 
   private setupHdriParameters(args: any) {
@@ -158,6 +276,11 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     if (meshRenderComponent.specularCubeMap) {
       specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
     }
-    return { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType };
+    return {
+      mipmapLevelNumber,
+      meshRenderComponent,
+      diffuseHdriType,
+      specularHdriType,
+    };
   }
 }

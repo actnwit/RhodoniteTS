@@ -1,10 +1,11 @@
-import Matrix44 from "./Matrix44";
-import Quaternion from "./Quaternion";
-import { IMutableMatrix33, IMutableMatrix } from "./IMatrix";
-import Matrix33 from "./Matrix33";
-import Vector3 from "./Vector3";
-import { Index } from "../../commontypes/CommonTypes";
+import Matrix44 from './Matrix44';
+import Quaternion from './Quaternion';
+import {IMutableMatrix33, IMutableMatrix} from './IMatrix';
+import Matrix33 from './Matrix33';
+import Vector3 from './Vector3';
+import {Index} from '../../commontypes/CommonTypes';
 
+/* eslint-disable prettier/prettier */
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
 
   constructor(m: null);
@@ -22,7 +23,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     m0: any, m1?: any, m2?: any,
     m3?: number, m4?: number, m5?: number,
     m6?: number, m7?: number, m8?: number,
-    isColumnMajor: boolean = false, notCopyFloatArray: boolean = false) {
+    isColumnMajor = false, notCopyFloatArray = false) {
     super(m0, m1, m2, m3!, m4!, m5!, m6!, m7!, m8!, isColumnMajor);
   }
 
@@ -238,20 +239,20 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   invert() {
-    var det = this.determinant();
+    const det = this.determinant();
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
-    var m00 = (this.v[4] * this.v[8] - this.v[7] * this.v[5]) / det;
-    var m01 = (this.v[6] * this.v[5] - this.v[3] * this.v[8]) / det;
-    var m02 = (this.v[3] * this.v[7] - this.v[6] * this.v[4]) / det;
-    var m10 = (this.v[7] * this.v[2] - this.v[1] * this.v[8]) / det;
-    var m11 = (this.v[0] * this.v[8] - this.v[6] * this.v[2]) / det;
-    var m12 = (this.v[6] * this.v[1] - this.v[0] * this.v[7]) / det;
-    var m20 = (this.v[1] * this.v[5] - this.v[4] * this.v[2]) / det;
-    var m21 = (this.v[3] * this.v[2] - this.v[0] * this.v[5]) / det;
-    var m22 = (this.v[0] * this.v[4] - this.v[3] * this.v[1]) / det;
+    const m00 = (this.v[4] * this.v[8] - this.v[7] * this.v[5]) / det;
+    const m01 = (this.v[6] * this.v[5] - this.v[3] * this.v[8]) / det;
+    const m02 = (this.v[3] * this.v[7] - this.v[6] * this.v[4]) / det;
+    const m10 = (this.v[7] * this.v[2] - this.v[1] * this.v[8]) / det;
+    const m11 = (this.v[0] * this.v[8] - this.v[6] * this.v[2]) / det;
+    const m12 = (this.v[6] * this.v[1] - this.v[0] * this.v[7]) / det;
+    const m20 = (this.v[1] * this.v[5] - this.v[4] * this.v[2]) / det;
+    const m21 = (this.v[3] * this.v[2] - this.v[0] * this.v[5]) / det;
+    const m22 = (this.v[0] * this.v[4] - this.v[3] * this.v[1]) / det;
 
     return this.setComponents(
       m00, m01, m02,

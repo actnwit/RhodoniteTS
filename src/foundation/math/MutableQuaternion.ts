@@ -1,12 +1,26 @@
-import Quaternion from "./Quaternion";
-import { IVector3, IVector4 } from "./IVector";
-import { TypedArray } from "../../commontypes/CommonTypes";
-import { IMutableQuaternion, ILogQuaternion, IQuaternion } from "./IQuaternion";
-import { IMatrix44 } from "./IMatrix";
+import Quaternion from './Quaternion';
+import {IVector3, IVector4} from './IVector';
+import {TypedArray} from '../../commontypes/CommonTypes';
+import {IMutableQuaternion, ILogQuaternion, IQuaternion} from './IQuaternion';
+import {IMatrix44} from './IMatrix';
 
-export default class MutableQuaternion extends Quaternion implements IMutableQuaternion {
-
-  constructor(x?: number | TypedArray | IVector3 | IVector4 | IQuaternion | ILogQuaternion | Array<number> | null, y?: number, z?: number, w?: number) {
+export default class MutableQuaternion
+  extends Quaternion
+  implements IMutableQuaternion {
+  constructor(
+    x?:
+      | number
+      | TypedArray
+      | IVector3
+      | IVector4
+      | IQuaternion
+      | ILogQuaternion
+      | Array<number>
+      | null,
+    y?: number,
+    z?: number,
+    w?: number
+  ) {
     super(x, y, z, w);
   }
 
@@ -130,22 +144,24 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
       return this; // [0, 0, 0, 0]
     }
 
-    this.v[0] = - this.v[0] / norm;
-    this.v[1] = - this.v[1] / norm;
-    this.v[2] = - this.v[2] / norm;
+    this.v[0] = -this.v[0] / norm;
+    this.v[1] = -this.v[1] / norm;
+    this.v[2] = -this.v[2] / norm;
     this.v[3] = this.v[3] / norm;
     return this;
   }
 
   qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
-
-    let qr = l_quat.v[3] * r_quat.v[3] + l_quat.v[0] * r_quat.v[0] + l_quat.v[1] * r_quat.v[1] + l_quat.v[2] * r_quat.v[2];
+    let qr =
+      l_quat.v[3] * r_quat.v[3] +
+      l_quat.v[0] * r_quat.v[0] +
+      l_quat.v[1] * r_quat.v[1] +
+      l_quat.v[2] * r_quat.v[2];
     const ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
       return this.copyComponents(l_quat);
     } else {
-
       if (qr > 1) {
         qr = 0.999;
       } else if (qr < -1) {
@@ -155,9 +171,13 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
       let ph = Math.acos(qr);
       let s2;
       if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr = - l_quat.v[3] * r_quat.v[3] - l_quat.v[0] * r_quat.v[0] - l_quat.v[1] * r_quat.v[1] - l_quat.v[2] * r_quat.v[2];
+        qr =
+          -l_quat.v[3] * r_quat.v[3] -
+          l_quat.v[0] * r_quat.v[0] -
+          l_quat.v[1] * r_quat.v[1] -
+          l_quat.v[2] * r_quat.v[2];
         ph = Math.acos(qr);
-        s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+        s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
       } else {
         s2 = Math.sin(ph * ratio) / Math.sin(ph);
       }
@@ -187,19 +207,18 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
 
     const length = vec.length();
     if (length === 0) {
-      console.error("0 division occurred!");
+      console.error('0 division occurred!');
     }
 
     this.v[3] = Math.cos(halfAngle);
-    this.v[0] = sin * vec.v[0] / length;
-    this.v[1] = sin * vec.v[1] / length;
-    this.v[2] = sin * vec.v[2] / length;
+    this.v[0] = (sin * vec.v[0]) / length;
+    this.v[1] = (sin * vec.v[1]) / length;
+    this.v[2] = (sin * vec.v[2]) / length;
 
     return this;
   }
 
   fromMatrix(mat: IMatrix44) {
-
     const tr = mat.m00 + mat.m11 + mat.m22;
 
     if (tr > 0) {
@@ -208,7 +227,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
       this.v[1] = (mat.m02 - mat.m20) * S;
       this.v[2] = (mat.m10 - mat.m01) * S;
       this.v[3] = 0.25 / S;
-    } else if ((mat.m00 > mat.m11) && (mat.m00 > mat.m22)) {
+    } else if (mat.m00 > mat.m11 && mat.m00 > mat.m22) {
       const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
       this.v[0] = 0.25 * S;
       this.v[1] = (mat.m01 + mat.m10) / S;
@@ -252,10 +271,26 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
   }
 
   multiply(quat: IQuaternion) {
-    const x = quat.v[3] * this.v[0] + quat.v[2] * this.v[1] + quat.v[1] * this.v[2] - quat.v[0] * this.v[3];
-    const y = - quat.v[2] * this.v[0] + quat.v[3] * this.v[1] + quat.v[0] * this.v[2] - quat.v[1] * this.v[3];
-    const z = quat.v[1] * this.v[0] + quat.v[0] * this.v[1] + quat.v[3] * this.v[2] - quat.v[2] * this.v[3];
-    const w = - quat.v[0] * this.v[0] - quat.v[1] * this.v[1] - quat.v[2] * this.v[2] - quat.v[3] * this.v[3];
+    const x =
+      quat.v[3] * this.v[0] +
+      quat.v[2] * this.v[1] +
+      quat.v[1] * this.v[2] -
+      quat.v[0] * this.v[3];
+    const y =
+      -quat.v[2] * this.v[0] +
+      quat.v[3] * this.v[1] +
+      quat.v[0] * this.v[2] -
+      quat.v[1] * this.v[3];
+    const z =
+      quat.v[1] * this.v[0] +
+      quat.v[0] * this.v[1] +
+      quat.v[3] * this.v[2] -
+      quat.v[2] * this.v[3];
+    const w =
+      -quat.v[0] * this.v[0] -
+      quat.v[1] * this.v[1] -
+      quat.v[2] * this.v[2] -
+      quat.v[3] * this.v[3];
     return this.setComponents(x, y, z, w);
   }
 
@@ -274,7 +309,7 @@ export default class MutableQuaternion extends Quaternion implements IMutableQua
       this.v[2] /= value;
       this.v[3] /= value;
     } else {
-      console.error("0 division occurred!");
+      console.error('0 division occurred!');
       this.v[0] = Infinity;
       this.v[1] = Infinity;
       this.v[2] = Infinity;

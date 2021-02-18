@@ -1,11 +1,12 @@
-import Matrix44 from "./Matrix44";
-import { IMutableMatrix44, IMutableMatrix } from "./IMatrix";
-import Matrix33 from "./Matrix33";
-import Quaternion from "./Quaternion";
-import Vector3 from "./Vector3";
-import { Index } from "../../commontypes/CommonTypes";
-import { IQuaternion } from "./IQuaternion";
+import Matrix44 from './Matrix44';
+import {IMutableMatrix44, IMutableMatrix} from './IMatrix';
+import Matrix33 from './Matrix33';
+import Quaternion from './Quaternion';
+import Vector3 from './Vector3';
+import {Index} from '../../commontypes/CommonTypes';
+import {IQuaternion} from './IQuaternion';
 
+/* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
@@ -27,7 +28,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     m4?: number, m5?: number, m6?: number, m7?: number,
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor: boolean = false, notCopyFloatArray: boolean = false) {
+    isColumnMajor = false, notCopyFloatArray = false) {
     const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
     const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
 

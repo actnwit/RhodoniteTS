@@ -29,5 +29,5 @@ export const WellKnownComponentTIDs = Object.freeze({
   PhysicsComponentTID,
   SparkGearComponentTID,
   EffekseerComponentTID,
-  maxWellKnownTidNumber
+  maxWellKnownTidNumber,
 });
