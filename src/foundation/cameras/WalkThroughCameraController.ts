@@ -8,6 +8,7 @@ import Entity from '../core/Entity';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import AbstractCameraController from './AbstractCameraController';
+import {MathUtil} from '../math/MathUtil';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 

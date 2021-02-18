@@ -258,12 +258,12 @@ export default class OrbitCameraController
     this.__rot_x = value;
   }
 
-  set rotY(value: number) {
-    this.__rot_y = value;
-  }
-
   get rotX() {
     return this.__rot_x;
+  }
+
+  set rotY(value: number) {
+    this.__rot_y = value;
   }
 
   get rotY() {
@@ -466,35 +466,72 @@ export default class OrbitCameraController
 
     if (eventTargetDom) {
       if ('ontouchend' in document) {
-        eventTargetDom.addEventListener('touchstart', this.__touchDownFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('touchmove', this.__touchMoveFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('touchend', this.__touchUpFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('touchstart', this.__touchDownFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('touchmove', this.__touchMoveFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('touchend', this.__touchUpFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener('touchmove', this.__pinchInOutFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('touchend', this.__pinchInOutEndFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('touchmove', this.__pinchInOutFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('touchend', this.__pinchInOutEndFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener('touchstart', this.__resetDollyAndPositionFunc, { passive: !this.__doPreventDefault });
-
+        eventTargetDom.addEventListener(
+          'touchstart',
+          this.__resetDollyAndPositionFunc,
+          {passive: !this.__doPreventDefault}
+        );
       } else {
-        eventTargetDom.addEventListener('mousedown', this.__mouseDownFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('mouseup', this.__mouseUpFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('mouseleave', this.__mouseUpFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('mousemove', this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('mousedown', this.__mouseDownFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('mouseup', this.__mouseUpFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('mouseleave', this.__mouseUpFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('mousemove', this.__mouseMoveFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener('keydown', this.__pressShiftFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('keyup', this.__releaseShiftFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('keydown', this.__pressCtrlFunc, { passive: !this.__doPreventDefault });
-        eventTargetDom.addEventListener('keyup', this.__releaseCtrlFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('keydown', this.__pressShiftFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('keyup', this.__releaseShiftFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('keydown', this.__pressCtrlFunc, {
+          passive: !this.__doPreventDefault,
+        });
+        eventTargetDom.addEventListener('keyup', this.__releaseCtrlFunc, {
+          passive: !this.__doPreventDefault,
+        });
 
-        eventTargetDom.addEventListener('contextmenu', (e: any) => { e.preventDefault() });
+        eventTargetDom.addEventListener('contextmenu', (e: any) => {
+          e.preventDefault();
+        });
       }
 
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener('wheel', this.__mouseWheelFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener('wheel', this.__mouseWheelFunc, {
+          passive: !this.__doPreventDefault,
+        });
       }
 
-      eventTargetDom.addEventListener('contextmenu', this.__contextMenuFunc, { passive: !this.__doPreventDefault });
-      eventTargetDom.addEventListener('dblclick', this.__mouseDblClickFunc, { passive: !this.__doPreventDefault });
+      eventTargetDom.addEventListener('contextmenu', this.__contextMenuFunc, {
+        passive: !this.__doPreventDefault,
+      });
+      eventTargetDom.addEventListener('dblclick', this.__mouseDblClickFunc, {
+        passive: !this.__doPreventDefault,
+      });
     }
   }
 
@@ -508,9 +545,14 @@ export default class OrbitCameraController
         eventTargetDom.removeEventListener('touchend', this.__touchUpFunc);
 
         eventTargetDom.removeEventListener('touchmove', this.__pinchInOutFunc);
-        eventTargetDom.removeEventListener('touchend', this.__pinchInOutEndFunc);
+        eventTargetDom.removeEventListener(
+          'touchend',
+          this.__pinchInOutEndFunc
+        );
 
-        eventTargetDom.removeEventListener('touchstart', this.__resetDollyAndPositionFunc);
+        eventTargetDom.removeEventListener(
+          'touchstart',
+          this.__resetDollyAndPositionFunc
         );
       } else {
         eventTargetDom.removeEventListener('mousedown', this.__mouseDownFunc);
@@ -521,7 +563,9 @@ export default class OrbitCameraController
         eventTargetDom.removeEventListener('keydown', this.__pressShiftFunc);
         eventTargetDom.removeEventListener('keyup', this.__releaseShiftFunc);
 
-        eventTargetDom.removeEventListener('contextmenu', (e: any) => { e.preventDefault() });
+        eventTargetDom.removeEventListener('contextmenu', (e: any) => {
+          e.preventDefault();
+        });
       }
       if (window.WheelEvent) {
         eventTargetDom.removeEventListener('wheel', this.__mouseWheelFunc);
