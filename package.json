@@ -1,6 +1,7 @@
 {
   "name": "rhodonite",
   "version": "0.3.7",
+  "keywords": ["rhodonite", "webgl", "webgl2", "3d", "web3d", "typescript"],
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
