@@ -30,8 +30,8 @@ export default class Gltf2Exporter {
     const entities = Gltf2Exporter.__entityRepository._getEntities();
     const json: any = {
       asset: {
-        'version': '2.0',
-        'generator': `Rhodonite (${_VERSION.version})`
+        version: '2.0',
+        generator: `Rhodonite (${_VERSION.version})`,
       },
     };
 
@@ -48,11 +48,7 @@ export default class Gltf2Exporter {
     json.materials = [
       {
         pbrMetallicRoughness: {
-        'baseColorFactor': [
-          1.0,
-          1.0,
-          1.0,
-          1.0
+          baseColorFactor: [1.0, 1.0, 1.0, 1.0],
         },
       },
     ];
@@ -196,7 +192,7 @@ export default class Gltf2Exporter {
       magFilter: 9729,
       minFilter: 9987,
       wrapS: 10497,
-      'wrapT': 10497
+      wrapT: 10497,
     };
 
     for (let i = 0; i < entities.length; i++) {
@@ -211,8 +207,7 @@ export default class Gltf2Exporter {
           const rnMaterial = rnPrimitive.material!;
 
           const material: any = {
-            'pbrMetallicRoughness': {
-            }
+            pbrMetallicRoughness: {},
           };
 
           let colorParam;
@@ -265,10 +260,26 @@ export default class Gltf2Exporter {
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
                     const blob = htmlCanvasElement.toBlob(blob => {
-                      setTimeout(()=> {
-                        let a = document.createElement('a');
+                      setTimeout(() => {
+                        const a = document.createElement('a');
                         const e = document.createEvent('MouseEvent');
-                        (e as any).initEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                        (e as any).initEvent(
+                          'click',
+                          true,
+                          true,
+                          window,
+                          1,
+                          0,
+                          0,
+                          0,
+                          0,
+                          false,
+                          false,
+                          false,
+                          false,
+                          0,
+                          null
+                        );
                         a.href = URL.createObjectURL(blob);
                         a.download = rnTexture.name;
                         a.dispatchEvent(e);
@@ -305,7 +316,7 @@ export default class Gltf2Exporter {
                 ShaderSemantics.DiffuseColorTexture
               );
               if (textureParam != null) {
-                const rnTexture = (textureParam[1]);
+                const rnTexture = textureParam[1];
                 const textureIndex = processTexture(rnTexture!);
                 if (textureIndex != null) {
                   material.pbrMetallicRoughness.diffuseColorTexture = {
@@ -522,14 +533,46 @@ export default class Gltf2Exporter {
       'data:application/octet-stream,' +
       encodeURIComponent(JSON.stringify(json));
 
-    (e as any).initEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    (e as any).initEvent(
+      'click',
+      true,
+      true,
+      window,
+      1,
+      0,
+      0,
+      0,
+      0,
+      false,
+      false,
+      false,
+      false,
+      0,
+      null
+    );
 
     a.dispatchEvent(e);
 
     a = document.createElement('a');
     e = document.createEvent('MouseEvent');
-    (e as any).initEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-    let blob = new Blob([arraybuffer], {type: 'octet/stream'}),
+    (e as any).initEvent(
+      'click',
+      true,
+      true,
+      window,
+      1,
+      0,
+      0,
+      0,
+      0,
+      false,
+      false,
+      false,
+      false,
+      0,
+      null
+    );
+    const blob = new Blob([arraybuffer], {type: 'octet/stream'}),
       url = window.URL.createObjectURL(blob);
     a.download = filename + '.bin';
     a.href = url;
