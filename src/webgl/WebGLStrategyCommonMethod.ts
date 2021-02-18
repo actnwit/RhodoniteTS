@@ -1,11 +1,11 @@
 
-import Material from "../foundation/materials/core/Material";
-import RenderPass from "../foundation/renderer/RenderPass";
-import { AlphaMode } from "../foundation/definitions/AlphaMode";
-import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
-import MeshComponent from "../foundation/components/MeshComponent";
-import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
-import { Index } from "../commontypes/CommonTypes";
+import Material from '../foundation/materials/core/Material';
+import RenderPass from '../foundation/renderer/RenderPass';
+import { AlphaMode } from '../foundation/definitions/AlphaMode';
+import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
+import MeshComponent from '../foundation/components/MeshComponent';
+import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { Index } from '../commontypes/CommonTypes';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;

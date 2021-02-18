@@ -1,7 +1,7 @@
-import { IVector2, IVector3, IVector4, IVector, IMutableVector4 } from "./IVector";
-import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
-import { MathUtil } from "./MathUtil";
-import { CompositionType } from "../definitions/CompositionType";
+import { IVector2, IVector3, IVector4, IVector, IMutableVector4 } from './IVector';
+import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
+import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
 
 export class Vector4_<T extends TypedArrayConstructor> implements IVector, IVector4 {
   v: TypedArray;

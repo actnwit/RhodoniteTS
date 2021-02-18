@@ -1,14 +1,14 @@
-import Vector3 from "../math/Vector3";
-import MutableVector3 from "../math/MutableVector3";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import Quaternion from "../math/Quaternion";
-import Matrix44 from "../math/Matrix44";
-import Time from "../misc/Time";
-import VRMSpringBoneGroup from "./VRMSpringBoneGroup";
-import VRMColliderGroup from "./VRMColliderGroup";
-import { Index } from "../../commontypes/CommonTypes";
-import PhysicsStrategy from "./PhysicsStrategy";
-import MutableQuaternion from "../math/MutableQuaternion";
+import Vector3 from '../math/Vector3';
+import MutableVector3 from '../math/MutableVector3';
+import SceneGraphComponent from '../components/SceneGraphComponent';
+import Quaternion from '../math/Quaternion';
+import Matrix44 from '../math/Matrix44';
+import Time from '../misc/Time';
+import VRMSpringBoneGroup from './VRMSpringBoneGroup';
+import VRMColliderGroup from './VRMColliderGroup';
+import { Index } from '../../commontypes/CommonTypes';
+import PhysicsStrategy from './PhysicsStrategy';
+import MutableQuaternion from '../math/MutableQuaternion';
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();

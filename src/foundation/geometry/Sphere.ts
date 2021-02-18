@@ -1,15 +1,15 @@
-import Primitive from "./Primitive";
-import { CompositionType } from "../definitions/CompositionType";
-import { VertexAttribute, VertexAttributeEnum } from "../definitions/VertexAttribute";
-import { PrimitiveMode } from "../definitions/PrimitiveMode";
-import { BufferUse } from "../definitions/BufferUse";
-import MemoryManager from "../core/MemoryManager";
-import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
-import Accessor from "../memory/Accessor";
-import AccessorBase from "../memory/AccessorBase";
-import Material from "../materials/core/Material";
-import Vector3 from "../math/Vector3";
-import { Size } from "../../commontypes/CommonTypes";
+import Primitive from './Primitive';
+import { CompositionType } from '../definitions/CompositionType';
+import { VertexAttribute, VertexAttributeEnum } from '../definitions/VertexAttribute';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { BufferUse } from '../definitions/BufferUse';
+import MemoryManager from '../core/MemoryManager';
+import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
+import Accessor from '../memory/Accessor';
+import AccessorBase from '../memory/AccessorBase';
+import Material from '../materials/core/Material';
+import Vector3 from '../math/Vector3';
+import { Size } from '../../commontypes/CommonTypes';
 
 export default class Sphere extends Primitive {
   constructor() {

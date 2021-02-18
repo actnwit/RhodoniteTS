@@ -1,6 +1,6 @@
-import { IVector, IMutableVector, IVector2, IMutableVector2, IVector3, IMutableVector3, IVector4, IMutableVector4 } from "./IVector";
-import { TypedArray, Index } from "../../commontypes/CommonTypes";
-import { IQuaternion } from "./IQuaternion";
+import { IVector, IMutableVector, IVector2, IMutableVector2, IVector3, IMutableVector3, IVector4, IMutableVector4 } from './IVector';
+import { TypedArray, Index } from '../../commontypes/CommonTypes';
+import { IQuaternion } from './IQuaternion';
 
 export interface IMatrix {
   readonly className: string;

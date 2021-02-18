@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 
 export interface ProcessStageEnum extends EnumIO {
   methodName: string;

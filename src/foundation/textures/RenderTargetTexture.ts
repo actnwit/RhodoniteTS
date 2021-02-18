@@ -1,12 +1,12 @@
-import AbstractTexture from "./AbstractTexture";
-import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
-import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
-import IRenderable from "./IRenderable";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size, Index } from "../../commontypes/CommonTypes";
-import FrameBuffer from "../renderer/FrameBuffer";
-import Vector4 from "../math/Vector4";
+import AbstractTexture from './AbstractTexture';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
+import IRenderable from './IRenderable';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { Size, Index } from '../../commontypes/CommonTypes';
+import FrameBuffer from '../renderer/FrameBuffer';
+import Vector4 from '../math/Vector4';
 
 export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
 

@@ -1,7 +1,7 @@
-import RnObject from "../core/RnObject";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import EntityRepository from "../core/EntityRepository";
-import Entity from "../core/Entity";
+import RnObject from '../core/RnObject';
+import SceneGraphComponent from '../components/SceneGraphComponent';
+import EntityRepository from '../core/EntityRepository';
+import Entity from '../core/Entity';
 
 export default abstract class Gizmo extends RnObject {
   protected __entityRepository = EntityRepository.getInstance();

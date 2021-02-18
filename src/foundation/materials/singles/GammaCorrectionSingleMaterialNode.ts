@@ -1,14 +1,14 @@
-import { ShaderSemanticsInfo, ShaderSemantics } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import { ShaderType } from "../../definitions/ShaderType";
-import ComponentRepository from "../../core/ComponentRepository";
-import CameraComponent from "../../components/CameraComponent";
-import Material from "../core/Material";
-import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
-import GammaCorrectionShaderVertex from "../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert";
-import GammaCorrectionShaderFragment from "../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag";
+import { ShaderSemanticsInfo, ShaderSemantics } from '../../definitions/ShaderSemantics';
+import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { ShaderType } from '../../definitions/ShaderType';
+import ComponentRepository from '../../core/ComponentRepository';
+import CameraComponent from '../../components/CameraComponent';
+import Material from '../core/Material';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import GammaCorrectionShaderVertex from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
+import GammaCorrectionShaderFragment from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
 

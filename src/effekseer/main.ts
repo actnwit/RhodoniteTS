@@ -1,8 +1,8 @@
 
-import EffekseerComponent from "./EffekseerComponent";
-import EntityRepository from "../foundation/core/EntityRepository";
-import TransformComponent from "../foundation/components/TransformComponent";
-import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import EffekseerComponent from './EffekseerComponent';
+import EntityRepository from '../foundation/core/EntityRepository';
+import TransformComponent from '../foundation/components/TransformComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 
 const createEffekseerEntity = function() {
   const entityRepository = EntityRepository.getInstance();

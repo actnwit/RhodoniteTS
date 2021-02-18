@@ -1,14 +1,14 @@
-import AbstractShaderNode, { ShaderNodeUID } from "./AbstractShaderNode";
-import { Index } from "../../../commontypes/CommonTypes";
-import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import { VertexAttribute } from "../../definitions/VertexAttribute";
-import { ShaderType, ShaderTypeEnum } from "../../definitions/ShaderType";
-import { ShaderSocket } from "./AbstractMaterialNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import GLSLShader from "../../../webgl/shaders/GLSLShader";
-import mainPrerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl"
-import prerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/prerequisites.glsl"
+import AbstractShaderNode, { ShaderNodeUID } from './AbstractShaderNode';
+import { Index } from '../../../commontypes/CommonTypes';
+import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
+import { ShaderSocket } from './AbstractMaterialNode';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import GLSLShader from '../../../webgl/shaders/GLSLShader';
+import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl'
+import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl'
 
 export default class ShaderGraphResolver {
 

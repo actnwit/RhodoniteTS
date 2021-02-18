@@ -1,18 +1,18 @@
-import Primitive from "./Primitive";
-import { VertexAttribute } from "../definitions/VertexAttribute";
-import { PrimitiveMode } from "../definitions/PrimitiveMode";
-import MemoryManager from "../core/MemoryManager";
-import { BufferUse } from "../definitions/BufferUse";
-import { ComponentType } from "../definitions/ComponentType";
-import { CompositionType } from "../definitions/CompositionType";
-import Vector3 from "../math/Vector3";
-import Accessor from "../memory/Accessor";
-import Vector2 from "../math/Vector2";
-import AABB from "../math/AABB";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import Entity from "../core/Entity";
-import { Index, CGAPIResourceHandle, MeshUID } from "../../commontypes/CommonTypes";
-import MutableVector3 from "../math/MutableVector3";
+import Primitive from './Primitive';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import MemoryManager from '../core/MemoryManager';
+import { BufferUse } from '../definitions/BufferUse';
+import { ComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
+import Vector3 from '../math/Vector3';
+import Accessor from '../memory/Accessor';
+import Vector2 from '../math/Vector2';
+import AABB from '../math/AABB';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import Entity from '../core/Entity';
+import { Index, CGAPIResourceHandle, MeshUID } from '../../commontypes/CommonTypes';
+import MutableVector3 from '../math/MutableVector3';
 
 /**
  * The Mesh class.

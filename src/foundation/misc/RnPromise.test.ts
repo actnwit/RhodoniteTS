@@ -1,4 +1,4 @@
-import RnPromise, { CallbackObj } from "./RnPromise";
+import RnPromise, { CallbackObj } from './RnPromise';
 
 test('Promise.', async () => {
   new Promise((resolve)=> {

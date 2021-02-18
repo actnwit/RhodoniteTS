@@ -1,8 +1,8 @@
-import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
-import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
-import { Index, Size } from "../commontypes/CommonTypes";
-import Vector4 from "../foundation/math/Vector4";
-import Config from "../foundation/core/Config";
+import { WebGLExtensionEnum, WebGLExtension } from './WebGLExtension';
+import { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
+import { Index, Size } from '../commontypes/CommonTypes';
+import Vector4 from '../foundation/math/Vector4';
+import Config from '../foundation/core/Config';
 
 const INVALID_SIZE = -1;
 

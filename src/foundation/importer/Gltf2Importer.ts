@@ -1,6 +1,6 @@
-import DataUtil from "../misc/DataUtil";
-import { glTF2, GltfLoadOption, Gltf2Image, GltfFileBuffers } from "../../commontypes/glTF";
-import RnPromise from "../misc/RnPromise";
+import DataUtil from '../misc/DataUtil';
+import { glTF2, GltfLoadOption, Gltf2Image, GltfFileBuffers } from '../../commontypes/glTF';
+import RnPromise from '../misc/RnPromise';
 
 declare var Rn: any;
 

@@ -1,24 +1,24 @@
-import Shaderity, { ShaderityObject } from "shaderity";
-import { Reflection } from "shaderity";
-import { CompositionTypeEnum } from "../../definitions/CompositionType";
-import { VertexAttributeEnum, VertexAttribute } from "../../definitions/VertexAttribute";
-import { CompositionType } from "../../definitions/CompositionType";
-import { WellKnownComponentTIDs } from "../../components/WellKnownComponentTIDs";
-import WebGLResourceRepository from "../../../webgl/WebGLResourceRepository";
-import Config from "../../core/Config";
-import { ComponentType } from "../../definitions/ComponentType";
-import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo, ShaderSemanticsStr } from "../../definitions/ShaderSemantics";
-import MutableVector2 from "../../math/MutableVector2";
-import MutableVector3 from "../../math/MutableVector3";
-import MutableVector4 from "../../math/MutableVector4";
-import MutableScalar from "../../math/MutableScalar";
-import MutableMatrix33 from "../../math/MutableMatrix33";
-import MutableMatrix44 from "../../math/MutableMatrix44";
-import AbstractMaterialNode from "./AbstractMaterialNode";
-import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
-import MemoryManager from "../../core/MemoryManager";
-import Component from "../../core/Component";
-import { ComponentTypeEnum } from "../../..";
+import Shaderity, { ShaderityObject } from 'shaderity';
+import { Reflection } from 'shaderity';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { VertexAttributeEnum, VertexAttribute } from '../../definitions/VertexAttribute';
+import { CompositionType } from '../../definitions/CompositionType';
+import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
+import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
+import Config from '../../core/Config';
+import { ComponentType } from '../../definitions/ComponentType';
+import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo, ShaderSemanticsStr } from '../../definitions/ShaderSemantics';
+import MutableVector2 from '../../math/MutableVector2';
+import MutableVector3 from '../../math/MutableVector3';
+import MutableVector4 from '../../math/MutableVector4';
+import MutableScalar from '../../math/MutableScalar';
+import MutableMatrix33 from '../../math/MutableMatrix33';
+import MutableMatrix44 from '../../math/MutableMatrix44';
+import AbstractMaterialNode from './AbstractMaterialNode';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import MemoryManager from '../../core/MemoryManager';
+import Component from '../../core/Component';
+import { ComponentTypeEnum } from '../../..';
 
 export type FillArgsObject = {
   [s:string]: string,

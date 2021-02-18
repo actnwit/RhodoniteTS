@@ -1,12 +1,12 @@
-import { CompositionTypeEnum } from "../../foundation/definitions/CompositionType";
-import { ProcessApproach } from "../../foundation/definitions/ProcessApproach";
-import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/core/AbstractMaterialNode";
-import { ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
-import { VertexAttributeEnum, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
-import WebGLResourceRepository from "../WebGLResourceRepository";
-import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
-import SystemState from "../../foundation/system/SystemState";
-import MemoryManager from "../../foundation/core/MemoryManager";
+import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
+import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractMaterialNode';
+import { ShaderSemanticsClass } from '../../foundation/definitions/ShaderSemantics';
+import { VertexAttributeEnum, VertexAttributeClass } from '../../foundation/definitions/VertexAttribute';
+import WebGLResourceRepository from '../WebGLResourceRepository';
+import { WellKnownComponentTIDs } from '../../foundation/components/WellKnownComponentTIDs';
+import SystemState from '../../foundation/system/SystemState';
+import MemoryManager from '../../foundation/core/MemoryManager';
 
 export type AttributeNames = Array<string>;
 

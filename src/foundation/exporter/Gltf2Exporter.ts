@@ -1,9 +1,9 @@
-import EntityRepository from "../core/EntityRepository";
-import Entity from "../core/Entity";
-import MeshComponent from "../components/MeshComponent";
-import { ShaderSemantics } from "../definitions/ShaderSemantics";
-import AbstractTexture from "../textures/AbstractTexture";
-import Vector4 from "../math/Vector4";
+import EntityRepository from '../core/EntityRepository';
+import Entity from '../core/Entity';
+import MeshComponent from '../components/MeshComponent';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import AbstractTexture from '../textures/AbstractTexture';
+import Vector4 from '../math/Vector4';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare var window: any;

@@ -1,10 +1,10 @@
-import { EnumClass, EnumIO, _from, _fromString, _fromStringCaseSensitively } from "../misc/EnumIO";
-import { CompositionType, CompositionTypeEnum } from "./CompositionType";
-import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
-import { ShaderTypeEnum } from "./ShaderType";
-import Material from "../materials/core/Material";
-import { Count, Index } from "../../commontypes/CommonTypes";
-import { ComponentTypeEnum } from "./ComponentType";
+import { EnumClass, EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
+import { CompositionType, CompositionTypeEnum } from './CompositionType';
+import { ShaderVariableUpdateIntervalEnum } from './ShaderVariableUpdateInterval';
+import { ShaderTypeEnum } from './ShaderType';
+import Material from '../materials/core/Material';
+import { Count, Index } from '../../commontypes/CommonTypes';
+import { ComponentTypeEnum } from './ComponentType';
 
 export type ShaderSemanticsIndex = number;
 export type ShaderSemanticsStr = string;

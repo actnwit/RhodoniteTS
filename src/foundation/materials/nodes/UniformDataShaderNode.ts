@@ -1,9 +1,9 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { CompositionType, CompositionTypeEnum } from "../../definitions/CompositionType";
-import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
-import UniformDataShader from "../../../webgl/shaders/nodes/UniformDataShader";
-import AbstractShaderNode from "../core/AbstractShaderNode";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import UniformDataShader from '../../../webgl/shaders/nodes/UniformDataShader';
+import AbstractShaderNode from '../core/AbstractShaderNode';
 
 export default class UniformDataShaderNode extends AbstractShaderNode {
 

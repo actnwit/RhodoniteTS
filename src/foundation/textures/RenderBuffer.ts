@@ -1,9 +1,9 @@
-import RnObject from "../core/RnObject";
-import IRenderable from "./IRenderable";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import { Size, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
-import FrameBuffer from "../renderer/FrameBuffer";
+import RnObject from '../core/RnObject';
+import IRenderable from './IRenderable';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import { Size, CGAPIResourceHandle } from '../../commontypes/CommonTypes';
+import FrameBuffer from '../renderer/FrameBuffer';
 
 export default class RenderBuffer extends RnObject implements IRenderable {
   width: number = 0;

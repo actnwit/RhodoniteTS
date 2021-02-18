@@ -1,6 +1,6 @@
-import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector4 } from "./IVector";
-import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
-import { Vector4_ } from "./Vector4";
+import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector4 } from './IVector';
+import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
+import { Vector4_ } from './Vector4';
 
 export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
   constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {

@@ -1,17 +1,17 @@
-import RnObject from "../core/RnObject";
-import Entity from "../core/Entity";
-import FrameBuffer from "./FrameBuffer";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import MeshComponent from "../components/MeshComponent";
-import Vector4 from "../math/Vector4";
-import CameraComponent from "../components/CameraComponent";
-import { EntityUID } from "../../commontypes/CommonTypes";
-import Material from "../materials/core/Material";
-import { WebGLStrategy } from "../../webgl/main";
-import System from "../system/System";
+import RnObject from '../core/RnObject';
+import Entity from '../core/Entity';
+import FrameBuffer from './FrameBuffer';
+import SceneGraphComponent from '../components/SceneGraphComponent';
+import MeshComponent from '../components/MeshComponent';
+import Vector4 from '../math/Vector4';
+import CameraComponent from '../components/CameraComponent';
+import { EntityUID } from '../../commontypes/CommonTypes';
+import Material from '../materials/core/Material';
+import { WebGLStrategy } from '../../webgl/main';
+import System from '../system/System';
 import ModuleManager from '../system/ModuleManager';
-import Primitive from "../geometry/Primitive";
-import MutableVector4 from "../math/MutableVector4";
+import Primitive from '../geometry/Primitive';
+import MutableVector4 from '../math/MutableVector4';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.

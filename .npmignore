@@ -8,4 +8,4 @@ pre-commit
 jest-puppeteer-config.js
 jest.config.e2e.js
 jest.config.js
-.eslintrc.js
+.eslintrc.json

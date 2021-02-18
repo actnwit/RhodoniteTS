@@ -1,7 +1,7 @@
-import GltfImporter from "./GltfImporter";
-import Gltf2Importer from "./Gltf2Importer";
-import { GltfLoadOption } from "../../commontypes/glTF";
-import ModelConverter from "./ModelConverter";
+import GltfImporter from './GltfImporter';
+import Gltf2Importer from './Gltf2Importer';
+import { GltfLoadOption } from '../../commontypes/glTF';
+import ModelConverter from './ModelConverter';
 
 /**
  * The VRM Importer class.

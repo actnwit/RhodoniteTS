@@ -1,16 +1,16 @@
-import Gizmo from "./Gizmo";
-import TransformComponent from "../components/TransformComponent";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import MeshComponent from "../components/MeshComponent";
-import MeshRendererComponent from "../components/MeshRendererComponent";
-import { PrimitiveMode } from "../definitions/PrimitiveMode";
-import { VertexAttribute } from "../definitions/VertexAttribute";
-import { CompositionType } from "../definitions/CompositionType";
-import Primitive from "../geometry/Primitive";
-import AABB from "../math/AABB";
-import RnObject from "../core/RnObject";
-import Vector3 from "../math/Vector3";
-import Mesh from "../geometry/Mesh";
+import Gizmo from './Gizmo';
+import TransformComponent from '../components/TransformComponent';
+import SceneGraphComponent from '../components/SceneGraphComponent';
+import MeshComponent from '../components/MeshComponent';
+import MeshRendererComponent from '../components/MeshRendererComponent';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import { CompositionType } from '../definitions/CompositionType';
+import Primitive from '../geometry/Primitive';
+import AABB from '../math/AABB';
+import RnObject from '../core/RnObject';
+import Vector3 from '../math/Vector3';
+import Mesh from '../geometry/Mesh';
 
 export default class AABBGizmo extends Gizmo {
   private static __aabbMesh?: Mesh;

@@ -1,13 +1,13 @@
-import Rn from "../../..";
-import ModuleManager from "../../system/ModuleManager";
-import MemoryManager from "../../core/MemoryManager";
-import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import AddShaderNode from "./AddShaderNode";
-import OutPositionShaderNode from "./OutPositionShaderNode";
-import Vector4 from "../../math/Vector4";
-import ShaderGraphResolver from "../core/ShaderGraphResolver";
+import Rn from '../../..';
+import ModuleManager from '../../system/ModuleManager';
+import MemoryManager from '../../core/MemoryManager';
+import ConstantVariableShaderNode from './ConstantVariableShaderNode';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import AddShaderNode from './AddShaderNode';
+import OutPositionShaderNode from './OutPositionShaderNode';
+import Vector4 from '../../math/Vector4';
+import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 
 test('ConstantVariable works correctly 1', async () => {

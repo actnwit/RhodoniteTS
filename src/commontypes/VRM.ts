@@ -1,5 +1,5 @@
-import { GltfLoadOption } from "./glTF";
-import Entity from "../foundation/core/Entity";
+import { GltfLoadOption } from './glTF';
+import Entity from '../foundation/core/Entity';
 
 
 export type HumanBone = {

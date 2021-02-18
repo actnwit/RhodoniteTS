@@ -1,5 +1,5 @@
-import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
-import { TypedArray, Byte } from "../../commontypes/CommonTypes";
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { TypedArray, Byte } from '../../commontypes/CommonTypes';
 
 export interface ComponentTypeEnum extends EnumIO {
   getSizeInBytes(): Byte;

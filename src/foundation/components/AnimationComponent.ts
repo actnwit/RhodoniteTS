@@ -1,15 +1,15 @@
-import Component from "../core/Component";
-import ComponentRepository from "../core/ComponentRepository";
-import EntityRepository from "../core/EntityRepository";
-import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
-import { AnimationInterpolationEnum, AnimationInterpolation } from "../definitions/AnimationInterpolation";
-import { AnimationAttribute } from "../definitions/AnimationAttribute";
-import TransformComponent from "./TransformComponent";
-import { ProcessStage } from "../definitions/ProcessStage";
-import MutableVector3 from "../math/MutableVector3";
-import MutableQuaternion from "../math/MutableQuaternion";
-import MeshComponent from "./MeshComponent";
-import { ComponentTID, ComponentSID, EntityUID, Index } from "../../commontypes/CommonTypes";
+import Component from '../core/Component';
+import ComponentRepository from '../core/ComponentRepository';
+import EntityRepository from '../core/EntityRepository';
+import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import { AnimationInterpolationEnum, AnimationInterpolation } from '../definitions/AnimationInterpolation';
+import { AnimationAttribute } from '../definitions/AnimationAttribute';
+import TransformComponent from './TransformComponent';
+import { ProcessStage } from '../definitions/ProcessStage';
+import MutableVector3 from '../math/MutableVector3';
+import MutableQuaternion from '../math/MutableQuaternion';
+import MeshComponent from './MeshComponent';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
 
 type AnimationLine = {
   input: number[]

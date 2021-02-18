@@ -1,4 +1,4 @@
-import Rn from "../..";
+import Rn from '../..';
 
 function generatePrimitive() {
   const indices = new Uint32Array([

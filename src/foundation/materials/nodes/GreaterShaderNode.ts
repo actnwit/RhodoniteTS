@@ -1,7 +1,7 @@
-import AbstractShaderNode from "../core/AbstractShaderNode";
-import { CompositionType, CompositionTypeEnum } from "../../definitions/CompositionType";
-import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
-import GreaterShaderityObject from "../../../webgl/shaderity_shaders/nodes/Greater.glsl"
+import AbstractShaderNode from '../core/AbstractShaderNode';
+import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import GreaterShaderityObject from '../../../webgl/shaderity_shaders/nodes/Greater.glsl'
 
 export default class GreaterShaderNode extends AbstractShaderNode {
 

@@ -1,7 +1,7 @@
-import RnObject from "../../core/RnObject";
-import { ShaderNode } from "../../definitions/ShaderNode";
-import { ShaderSocket } from "./AbstractMaterialNode";
-import GLSLShader from "../../../webgl/shaders/GLSLShader";
+import RnObject from '../../core/RnObject';
+import { ShaderNode } from '../../definitions/ShaderNode';
+import { ShaderSocket } from './AbstractMaterialNode';
+import GLSLShader from '../../../webgl/shaders/GLSLShader';
 
 export type ShaderNodeUID = number;
 type ShaderNodeInputConnectionType = { shaderNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string };

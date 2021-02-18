@@ -1,8 +1,8 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import ScalarToVector4ShaderityObject from "../../../webgl/shaderity_shaders/nodes/ScalarToVector4.glsl"
-import AbstractShaderNode from "../core/AbstractShaderNode";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import ScalarToVector4ShaderityObject from '../../../webgl/shaderity_shaders/nodes/ScalarToVector4.glsl'
+import AbstractShaderNode from '../core/AbstractShaderNode';
 
 export default class ScalarToVector4ShaderNode extends AbstractShaderNode {
 

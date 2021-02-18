@@ -1,12 +1,12 @@
-import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
-import { ComponentType } from "../definitions/ComponentType";
-import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import AbstractTexture from "./AbstractTexture";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size, TypedArray, Count } from "../../commontypes/CommonTypes";
-import Config from "../core/Config";
-import { BasisFile, BasisTranscoder, BASIS } from "../../commontypes/BasisTexture";
-import { ComponentTypeEnum } from "../../foundation/definitions/ComponentType";
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentType } from '../definitions/ComponentType';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import AbstractTexture from './AbstractTexture';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { Size, TypedArray, Count } from '../../commontypes/CommonTypes';
+import Config from '../core/Config';
+import { BasisFile, BasisTranscoder, BASIS } from '../../commontypes/BasisTexture';
+import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 
 declare const BASIS: BASIS;
 

@@ -1,7 +1,7 @@
-import { CompositionType, CompositionTypeEnum } from "../../definitions/CompositionType";
-import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
-import ConstantVariableShader from "../../../webgl/shaders/nodes/ConstantVariableShader";
-import AbstractShaderNode from "../core/AbstractShaderNode";
+import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import ConstantVariableShader from '../../../webgl/shaders/nodes/ConstantVariableShader';
+import AbstractShaderNode from '../core/AbstractShaderNode';
 
 export default class ConstantVariableShaderNode extends AbstractShaderNode {
 

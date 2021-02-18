@@ -2,7 +2,7 @@ import EntityRepository from './EntityRepository';
 import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
-import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import RnObject from './RnObject';
 import { ComponentTID, EntityUID } from '../../commontypes/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';

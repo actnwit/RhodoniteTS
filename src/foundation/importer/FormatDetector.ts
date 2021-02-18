@@ -1,4 +1,4 @@
-import DataUtil from "../misc/DataUtil";
+import DataUtil from '../misc/DataUtil';
 import { FileType, FileTypeEnum } from '../../foundation/definitions/FileType';
 
 export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }) : FileTypeEnum

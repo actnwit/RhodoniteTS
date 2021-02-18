@@ -1,5 +1,5 @@
-import { off } from "process";
-import { Byte, Size } from "../../commontypes/CommonTypes";
+import { off } from 'process';
+import { Byte, Size } from '../../commontypes/CommonTypes';
 
 const isMobile = function () {
   const ua = [

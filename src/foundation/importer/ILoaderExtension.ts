@@ -1,6 +1,6 @@
-import Material from "../materials/core/Material";
-import { glTF2, Gltf2Material, Gltf2Sampler } from "../../commontypes/glTF";
-import Entity from "../core/Entity";
+import Material from '../materials/core/Material';
+import { glTF2, Gltf2Material, Gltf2Sampler } from '../../commontypes/glTF';
+import Entity from '../core/Entity';
 
 export default interface ILoaderExtension {
   generateMaterial?(materialJson: Gltf2Material): Material;

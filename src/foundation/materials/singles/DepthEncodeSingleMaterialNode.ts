@@ -1,16 +1,16 @@
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import CameraComponent from "../../components/CameraComponent";
-import ComponentRepository from "../../core/ComponentRepository";
-import { ComponentType } from "../../definitions/ComponentType";
-import { CompositionType } from "../../definitions/CompositionType";
-import DepthEncodeShader from "../../../webgl/shaders/DepthEncodeShader";
-import Material from "../core/Material";
-import Scalar from "../../math/Scalar";
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
-import { ShaderType } from "../../definitions/ShaderType";
-import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
-import SkeletalComponent from "../../components/SkeletalComponent";
-import Vector3 from "../../math/Vector3";
+import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import CameraComponent from '../../components/CameraComponent';
+import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import DepthEncodeShader from '../../../webgl/shaders/DepthEncodeShader';
+import Material from '../core/Material';
+import Scalar from '../../math/Scalar';
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import SkeletalComponent from '../../components/SkeletalComponent';
+import Vector3 from '../../math/Vector3';
 
 export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   static zNearInner = new ShaderSemanticsClass({ str: 'zNearInner' });

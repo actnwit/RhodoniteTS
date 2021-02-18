@@ -1,6 +1,6 @@
-import CameraComponent from "../components/CameraComponent";
-import Entity from "../core/Entity";
-import Vector3 from "../math/Vector3";
+import CameraComponent from '../components/CameraComponent';
+import Entity from '../core/Entity';
+import Vector3 from '../math/Vector3';
 
 export default abstract class AbstractCameraController {
   public zNearLimitFactor = 10; // must be more than 0

@@ -1,17 +1,17 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import { ShaderType } from "../../definitions/ShaderType";
-import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
-import ComponentRepository from "../../core/ComponentRepository";
-import CameraComponent from "../../components/CameraComponent";
-import Material from "../core/Material";
-import { HdriFormat } from "../../definitions/HdriFormat";
-import MeshComponent from "../../components/MeshComponent";
-import BlendShapeComponent from "../../components/BlendShapeComponent";
-import { ShaderityObject } from "shaderity";
-import ShaderityUtility from "../core/ShaderityUtility";
-import { AlphaModeEnum, AlphaMode } from "../../definitions/AlphaMode";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import { ShaderType } from '../../definitions/ShaderType';
+import { CGAPIResourceHandle } from '../../../commontypes/CommonTypes';
+import ComponentRepository from '../../core/ComponentRepository';
+import CameraComponent from '../../components/CameraComponent';
+import Material from '../core/Material';
+import { HdriFormat } from '../../definitions/HdriFormat';
+import MeshComponent from '../../components/MeshComponent';
+import BlendShapeComponent from '../../components/BlendShapeComponent';
+import { ShaderityObject } from 'shaderity';
+import ShaderityUtility from '../core/ShaderityUtility';
+import { AlphaModeEnum, AlphaMode } from '../../definitions/AlphaMode';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;

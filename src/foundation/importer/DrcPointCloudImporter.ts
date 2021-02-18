@@ -1,12 +1,12 @@
-import DataUtil from "../misc/DataUtil";
+import DataUtil from '../misc/DataUtil';
 import Primitive from '../geometry/Primitive';
-import MaterialHelper from "../helpers/MaterialHelper";
+import MaterialHelper from '../helpers/MaterialHelper';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute, VertexAttributeEnum } from '../definitions/VertexAttribute';
-import { TypedArray } from "../../commontypes/CommonTypes";
-import { glTF2, GltfLoadOption, Gltf2Image } from "../../commontypes/glTF";
-import RnPromise from "../misc/RnPromise";
+import { TypedArray } from '../../commontypes/CommonTypes';
+import { glTF2, GltfLoadOption, Gltf2Image } from '../../commontypes/glTF';
+import RnPromise from '../misc/RnPromise';
 
 declare var DracoDecoderModule: any;
 declare var Rn: any;

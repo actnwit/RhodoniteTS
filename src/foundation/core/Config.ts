@@ -1,4 +1,4 @@
-import { BoneDataType } from "../definitions/BoneDataType";
+import { BoneDataType } from '../definitions/BoneDataType';
 
 let byteAlignOfBuffer = 16;
 let maxEntityNumber = 5000;

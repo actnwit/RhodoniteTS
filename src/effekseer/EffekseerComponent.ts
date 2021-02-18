@@ -1,16 +1,16 @@
-import Component from "../foundation/core/Component";
-import EntityRepository from "../foundation/core/EntityRepository";
-import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
-import { ProcessStage } from "../foundation/definitions/ProcessStage";
-import TransformComponent from "../foundation/components/TransformComponent";
-import Vector3 from "../foundation/math/Vector3";
-import CameraComponent from "../foundation/components/CameraComponent";
-import ComponentRepository from "../foundation/core/ComponentRepository";
-import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
-import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
-import { ComponentTID, EntityUID, ComponentSID } from "../commontypes/CommonTypes";
-import Config from "../foundation/core/Config";
-import MutableMatrix44 from "../foundation/math/MutableMatrix44";
+import Component from '../foundation/core/Component';
+import EntityRepository from '../foundation/core/EntityRepository';
+import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import { ProcessStage } from '../foundation/definitions/ProcessStage';
+import TransformComponent from '../foundation/components/TransformComponent';
+import Vector3 from '../foundation/math/Vector3';
+import CameraComponent from '../foundation/components/CameraComponent';
+import ComponentRepository from '../foundation/core/ComponentRepository';
+import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
+import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { ComponentTID, EntityUID, ComponentSID } from '../commontypes/CommonTypes';
+import Config from '../foundation/core/Config';
+import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 
 declare var effekseer: any;
 

@@ -1,10 +1,10 @@
 
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
-import { CompositionType, CompositionTypeEnum } from "../../definitions/CompositionType";
-import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
-import BlockBeginShader from "../../../webgl/shaders/nodes/BlockBeginShader";
-import AbstractShaderNode from "../core/AbstractShaderNode";
-import { ShaderSocket } from "../core/AbstractMaterialNode";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import BlockBeginShader from '../../../webgl/shaders/nodes/BlockBeginShader';
+import AbstractShaderNode from '../core/AbstractShaderNode';
+import { ShaderSocket } from '../core/AbstractMaterialNode';
 
 export default class BlockBeginShaderNode extends AbstractShaderNode {
   private __valueInputs: ShaderSocket[] = []

@@ -1,25 +1,25 @@
-import Entity from "../core/Entity";
-import EntityRepository from "../core/EntityRepository";
-import { detectFormatByArrayBuffers } from "./FormatDetector";
-import Gltf2Importer from "./Gltf2Importer";
-import { GltfLoadOption, glTF2, GltfFileBuffers, glTF1 } from "../../commontypes/glTF";
-import ModelConverter from "./ModelConverter";
-import PhysicsComponent from "../components/PhysicsComponent";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import SphereCollider from "../physics/SphereCollider";
-import Texture from "../textures/Texture";
-import Vector3 from "../math/Vector3";
-import VRMColliderGroup from "../physics/VRMColliderGroup";
-import VRMSpringBoneGroup from "../physics/VRMSpringBoneGroup";
-import VRMSpringBonePhysicsStrategy from "../physics/VRMSpringBonePhysicsStrategy";
-import Gltf1Importer from "./Gltf1Importer";
-import DrcPointCloudImporter from "./DrcPointCloudImporter";
-import Expression from "../renderer/Expression";
-import RenderPass from "../renderer/RenderPass";
-import { VRM } from "../../commontypes/VRM";
-import DataUtil from "../misc/DataUtil";
-import { FileType } from "../definitions/FileType";
-import VRMImporter from "./VRMImporter";
+import Entity from '../core/Entity';
+import EntityRepository from '../core/EntityRepository';
+import { detectFormatByArrayBuffers } from './FormatDetector';
+import Gltf2Importer from './Gltf2Importer';
+import { GltfLoadOption, glTF2, GltfFileBuffers, glTF1 } from '../../commontypes/glTF';
+import ModelConverter from './ModelConverter';
+import PhysicsComponent from '../components/PhysicsComponent';
+import SceneGraphComponent from '../components/SceneGraphComponent';
+import SphereCollider from '../physics/SphereCollider';
+import Texture from '../textures/Texture';
+import Vector3 from '../math/Vector3';
+import VRMColliderGroup from '../physics/VRMColliderGroup';
+import VRMSpringBoneGroup from '../physics/VRMSpringBoneGroup';
+import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrategy';
+import Gltf1Importer from './Gltf1Importer';
+import DrcPointCloudImporter from './DrcPointCloudImporter';
+import Expression from '../renderer/Expression';
+import RenderPass from '../renderer/RenderPass';
+import { VRM } from '../../commontypes/VRM';
+import DataUtil from '../misc/DataUtil';
+import { FileType } from '../definitions/FileType';
+import VRMImporter from './VRMImporter';
 
 /**
  * Importer class which can import GLTF and VRM.

@@ -1,8 +1,8 @@
 
-import SparkGearComponent from "./SparkGearComponent";
-import EntityRepository from "../foundation/core/EntityRepository";
-import TransformComponent from "../foundation/components/TransformComponent";
-import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import SparkGearComponent from './SparkGearComponent';
+import EntityRepository from '../foundation/core/EntityRepository';
+import TransformComponent from '../foundation/components/TransformComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 
 const createSparkGearEntity = function() {
   const entityRepository = EntityRepository.getInstance();

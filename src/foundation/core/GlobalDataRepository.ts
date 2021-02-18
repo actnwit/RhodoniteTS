@@ -1,23 +1,23 @@
-import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, getShaderPropertyFunc } from "../definitions/ShaderSemantics";
-import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from "../../commontypes/CommonTypes";
-import { BufferUse } from "../definitions/BufferUse";
-import MemoryManager from "./MemoryManager";
-import { CompositionType } from "../definitions/CompositionType";
-import Material from "../materials/core/Material";
-import { ComponentType } from "../definitions/ComponentType";
-import Accessor from "../memory/Accessor";
-import MathClassUtil from "../math/MathClassUtil";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { ShaderType } from "../definitions/ShaderType";
-import VectorN from "../math/VectorN";
-import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
-import Config from "./Config";
-import Scalar from "../math/Scalar";
-import Vector4 from "../math/Vector4";
-import Vector3 from "../math/Vector3";
-import MutableMatrix44 from "../math/MutableMatrix44";
-import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
-import { BoneDataType } from "../definitions/BoneDataType";
+import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, getShaderPropertyFunc } from '../definitions/ShaderSemantics';
+import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from '../../commontypes/CommonTypes';
+import { BufferUse } from '../definitions/BufferUse';
+import MemoryManager from './MemoryManager';
+import { CompositionType } from '../definitions/CompositionType';
+import Material from '../materials/core/Material';
+import { ComponentType } from '../definitions/ComponentType';
+import Accessor from '../memory/Accessor';
+import MathClassUtil from '../math/MathClassUtil';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { ShaderType } from '../definitions/ShaderType';
+import VectorN from '../math/VectorN';
+import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
+import Config from './Config';
+import Scalar from '../math/Scalar';
+import Vector4 from '../math/Vector4';
+import Vector3 from '../math/Vector3';
+import MutableMatrix44 from '../math/MutableMatrix44';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { BoneDataType } from '../definitions/BoneDataType';
 
 
 type GlobalPropertyStruct = {

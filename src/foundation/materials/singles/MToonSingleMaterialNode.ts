@@ -1,27 +1,27 @@
-import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { AlphaMode } from "../../definitions/AlphaMode";
-import BlendShapeComponent from "../../components/BlendShapeComponent";
-import CameraComponent from "../../components/CameraComponent";
-import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import ComponentRepository from "../../core/ComponentRepository";
-import { ComponentType } from "../../definitions/ComponentType";
-import { CompositionType } from "../../definitions/CompositionType";
-import Config from "../../core/Config";
-import Material from "../core/Material";
-import MeshComponent from "../../components/MeshComponent";
-import MToonShader from "../../../webgl/shaders/MToonShader"
-import Scalar from "../../math/Scalar";
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
-import { ShaderType } from "../../definitions/ShaderType";
-import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
-import Vector3 from "../../math/Vector3";
-import Vector4 from "../../math/Vector4";
-import VectorN from "../../math/VectorN";
-import { Count } from "../../../commontypes/CommonTypes";
-import { MiscUtil } from "../../misc/MiscUtil";
-import WebGLResourceRepository from "../../../webgl/WebGLResourceRepository";
-import WebGLContextWrapper from "../../../webgl/WebGLContextWrapper";
-import Texture from "../../textures/Texture";
+import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AlphaMode } from '../../definitions/AlphaMode';
+import BlendShapeComponent from '../../components/BlendShapeComponent';
+import CameraComponent from '../../components/CameraComponent';
+import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import Config from '../../core/Config';
+import Material from '../core/Material';
+import MeshComponent from '../../components/MeshComponent';
+import MToonShader from '../../../webgl/shaders/MToonShader'
+import Scalar from '../../math/Scalar';
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import Vector3 from '../../math/Vector3';
+import Vector4 from '../../math/Vector4';
+import VectorN from '../../math/VectorN';
+import { Count } from '../../../commontypes/CommonTypes';
+import { MiscUtil } from '../../misc/MiscUtil';
+import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
+import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
+import Texture from '../../textures/Texture';
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });

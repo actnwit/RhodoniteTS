@@ -1,6 +1,6 @@
-import { TypedArray } from "../../commontypes/CommonTypes";
-import { IVector3, IMutableVector3 } from "./IVector";
-import { IMatrix44 } from "./IMatrix";
+import { TypedArray } from '../../commontypes/CommonTypes';
+import { IVector3, IMutableVector3 } from './IVector';
+import { IMatrix44 } from './IMatrix';
 
 export interface IQuaternion {
   readonly v: TypedArray;

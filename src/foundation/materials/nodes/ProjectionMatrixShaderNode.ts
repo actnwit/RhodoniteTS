@@ -1,7 +1,7 @@
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import ProjectionMatrixShaderityObject from "../../../webgl/shaderity_shaders/nodes/ProjectionMatrix.vert"
-import AbstractShaderNode from "../core/AbstractShaderNode";
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import ProjectionMatrixShaderityObject from '../../../webgl/shaderity_shaders/nodes/ProjectionMatrix.vert'
+import AbstractShaderNode from '../core/AbstractShaderNode';
 
 export default class ProjectionMatrixShaderNode extends AbstractShaderNode {
 

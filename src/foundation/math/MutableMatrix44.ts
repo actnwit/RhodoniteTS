@@ -1,10 +1,10 @@
-import Matrix44 from "./Matrix44";
-import { IMutableMatrix44, IMutableMatrix } from "./IMatrix";
-import Matrix33 from "./Matrix33";
-import Quaternion from "./Quaternion";
-import Vector3 from "./Vector3";
-import { Index } from "../../commontypes/CommonTypes";
-import { IQuaternion } from "./IQuaternion";
+import Matrix44 from './Matrix44';
+import { IMutableMatrix44, IMutableMatrix } from './IMatrix';
+import Matrix33 from './Matrix33';
+import Quaternion from './Quaternion';
+import Vector3 from './Vector3';
+import { Index } from '../../commontypes/CommonTypes';
+import { IQuaternion } from './IQuaternion';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;

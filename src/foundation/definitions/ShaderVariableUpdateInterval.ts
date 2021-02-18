@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export interface ShaderVariableUpdateIntervalEnum extends EnumIO {
 }

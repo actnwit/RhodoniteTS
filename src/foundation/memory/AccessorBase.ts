@@ -1,14 +1,14 @@
-import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
-import { CompositionType, CompositionTypeEnum } from "../definitions/CompositionType";
-import RnObject from "../core/RnObject";
-import BufferView from "./BufferView";
-import Vector2 from "../math/Vector2";
-import Vector3 from "../math/Vector3";
-import Vector4 from "../math/Vector4";
-import Matrix33 from "../math/Matrix33";
-import MutableMatrix44 from "../math/MutableMatrix44";
-import Accessor from "./Accessor";
-import { Byte, Index, Count, TypedArrayConstructor, TypedArray, Size } from "../../commontypes/CommonTypes";
+import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
+import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import RnObject from '../core/RnObject';
+import BufferView from './BufferView';
+import Vector2 from '../math/Vector2';
+import Vector3 from '../math/Vector3';
+import Vector4 from '../math/Vector4';
+import Matrix33 from '../math/Matrix33';
+import MutableMatrix44 from '../math/MutableMatrix44';
+import Accessor from './Accessor';
+import { Byte, Index, Count, TypedArrayConstructor, TypedArray, Size } from '../../commontypes/CommonTypes';
 
 export default class AccessorBase extends RnObject {
   protected __bufferView: BufferView;

@@ -1,7 +1,7 @@
-import Rn from "../../..";
-import { ShaderityObject } from "shaderity";
-import MutableScalar from "../../math/MutableScalar";
-import MutableVector2 from "../../math/MutableVector2";
+import Rn from '../../..';
+import { ShaderityObject } from 'shaderity';
+import MutableScalar from '../../math/MutableScalar';
+import MutableVector2 from '../../math/MutableVector2';
 
 test('ShaderityUtility parse rn_data correctly', async () => {
 

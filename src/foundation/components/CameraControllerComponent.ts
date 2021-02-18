@@ -1,14 +1,14 @@
-import Component from "../core/Component";
-import { EntityUID, ComponentSID, ComponentTID } from "../../commontypes/CommonTypes";
-import EntityRepository from "../core/EntityRepository";
-import CameraComponent from "./CameraComponent";
-import { ProcessStage } from "../definitions/ProcessStage";
-import ComponentRepository from "../core/ComponentRepository";
-import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
-import OrbitCameraController from "../cameras/OrbitCameraController";
-import ICameraController from "../cameras/ICameraController";
-import WalkThroughCameraController from "../cameras/WalkThroughCameraController";
-import { CameraControllerTypeEnum, CameraControllerType } from "../definitions/CameraControllerType";
+import Component from '../core/Component';
+import { EntityUID, ComponentSID, ComponentTID } from '../../commontypes/CommonTypes';
+import EntityRepository from '../core/EntityRepository';
+import CameraComponent from './CameraComponent';
+import { ProcessStage } from '../definitions/ProcessStage';
+import ComponentRepository from '../core/ComponentRepository';
+import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import OrbitCameraController from '../cameras/OrbitCameraController';
+import ICameraController from '../cameras/ICameraController';
+import WalkThroughCameraController from '../cameras/WalkThroughCameraController';
+import { CameraControllerTypeEnum, CameraControllerType } from '../definitions/CameraControllerType';
 
 export default class CameraControllerComponent extends Component {
   private __cameraComponent?: CameraComponent;

@@ -1,14 +1,14 @@
-import Rn from "../../..";
-import ModuleManager from "../../system/ModuleManager";
-import MemoryManager from "../../core/MemoryManager";
-import Material from "../core/Material";
-import ConstantVariableShaderNode from "./ConstantVariableShaderNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import ScalarToVector4MaterialNode from "./ScalarToVector4ShaderNode";
-import OutPositionNode from "./OutPositionShaderNode";
-import Scalar from "../../math/Scalar";
-import ShaderGraphResolver from "../core/ShaderGraphResolver";
+import Rn from '../../..';
+import ModuleManager from '../../system/ModuleManager';
+import MemoryManager from '../../core/MemoryManager';
+import Material from '../core/Material';
+import ConstantVariableShaderNode from './ConstantVariableShaderNode';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import ScalarToVector4MaterialNode from './ScalarToVector4ShaderNode';
+import OutPositionNode from './OutPositionShaderNode';
+import Scalar from '../../math/Scalar';
+import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');

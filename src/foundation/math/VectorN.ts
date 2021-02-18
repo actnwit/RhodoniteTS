@@ -1,4 +1,4 @@
-import { TypedArray } from "../../commontypes/CommonTypes";
+import { TypedArray } from '../../commontypes/CommonTypes';
 
 export default class VectorN {
   public v: TypedArray;

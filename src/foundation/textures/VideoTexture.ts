@@ -1,9 +1,9 @@
-import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
-import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
-import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
-import AbstractTexture from "./AbstractTexture";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size } from "../../commontypes/CommonTypes";
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import AbstractTexture from './AbstractTexture';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { Size } from '../../commontypes/CommonTypes';
 
 export type VideoTextureArguments = {
   level: number,

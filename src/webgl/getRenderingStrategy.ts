@@ -1,7 +1,7 @@
-import { ProcessApproach, ProcessApproachEnum } from "../foundation/definitions/ProcessApproach";
-import WebGLStrategy from "./WebGLStrategy";
-import WebGLStrategyUniform from "./WebGLStrategyUniform";
-import WebGLStrategyFastest from "./WebGLStrategyFastest";
+import { ProcessApproach, ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
+import WebGLStrategy from './WebGLStrategy';
+import WebGLStrategyUniform from './WebGLStrategyUniform';
+import WebGLStrategyFastest from './WebGLStrategyFastest';
 
 const getRenderingStrategy = function (processApproach: ProcessApproachEnum): WebGLStrategy {
   // Strategy

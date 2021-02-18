@@ -1,11 +1,11 @@
-import RnObject from "../core/RnObject";
-import Buffer from "../memory/Buffer";
-import Accessor from "./Accessor";
-import { CompositionTypeEnum } from "../definitions/CompositionType";
-import { ComponentTypeEnum } from "../definitions/ComponentType";
-import AccessorBase from "./AccessorBase";
-import FlexibleAccessor from "./FlexibleAccessor";
-import { Byte, Count, Size } from "../../commontypes/CommonTypes";
+import RnObject from '../core/RnObject';
+import Buffer from '../memory/Buffer';
+import Accessor from './Accessor';
+import { CompositionTypeEnum } from '../definitions/CompositionType';
+import { ComponentTypeEnum } from '../definitions/ComponentType';
+import AccessorBase from './AccessorBase';
+import FlexibleAccessor from './FlexibleAccessor';
+import { Byte, Count, Size } from '../../commontypes/CommonTypes';
 
 
 export default class BufferView extends RnObject {

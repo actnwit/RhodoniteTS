@@ -1,14 +1,14 @@
-import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
-import Vector3 from "../foundation/math/Vector3";
-import Matrix44 from "../foundation/math/Matrix44";
-import MutableMatrix44 from "../foundation/math/MutableMatrix44";
-import { Index } from "../commontypes/CommonTypes";
-import Vector4 from "../foundation/math/Vector4";
-import Entity from "../foundation/core/Entity";
-import EntityRepository from "../foundation/core/EntityRepository";
-import TransformComponent from "../foundation/components/TransformComponent";
-import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
-import CameraComponent from "../foundation/components/CameraComponent";
+import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import Vector3 from '../foundation/math/Vector3';
+import Matrix44 from '../foundation/math/Matrix44';
+import MutableMatrix44 from '../foundation/math/MutableMatrix44';
+import { Index } from '../commontypes/CommonTypes';
+import Vector4 from '../foundation/math/Vector4';
+import Entity from '../foundation/core/Entity';
+import EntityRepository from '../foundation/core/EntityRepository';
+import TransformComponent from '../foundation/components/TransformComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import CameraComponent from '../foundation/components/CameraComponent';
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;

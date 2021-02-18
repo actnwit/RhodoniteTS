@@ -1,5 +1,5 @@
-import DataUtil from "../misc/DataUtil";
-import { glTF1, GltfFileBuffers, GltfLoadOption } from "../../commontypes/glTF";
+import DataUtil from '../misc/DataUtil';
+import { glTF1, GltfFileBuffers, GltfLoadOption } from '../../commontypes/glTF';
 
 declare var Rn: any;
 

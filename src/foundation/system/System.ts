@@ -1,23 +1,23 @@
-import { ProcessStage } from "../definitions/ProcessStage";
-import ComponentRepository from "../core/ComponentRepository";
-import { ProcessApproachEnum, ProcessApproach } from "../definitions/ProcessApproach";
-import ModuleManager from "./ModuleManager";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import WebGLStrategy from "../../webgl/WebGLStrategy";
-import Component from "../core/Component";
-import Expression from "../renderer/Expression";
-import MeshRendererComponent from "../components/MeshRendererComponent";
-import EntityRepository from "../core/EntityRepository";
-import CameraComponent from "../components/CameraComponent";
-import MemoryManager from "../core/MemoryManager";
-import GlobalDataRepository from "../core/GlobalDataRepository";
-import TransformComponent from "../components/TransformComponent";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import Vector3 from "../math/Vector3";
-import { CameraType } from "../definitions/CameraType";
-import Time from "../misc/Time";
-import SystemState from "./SystemState"
-import { RnXR } from "../../rhodonite-xr";
+import { ProcessStage } from '../definitions/ProcessStage';
+import ComponentRepository from '../core/ComponentRepository';
+import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
+import ModuleManager from './ModuleManager';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import WebGLStrategy from '../../webgl/WebGLStrategy';
+import Component from '../core/Component';
+import Expression from '../renderer/Expression';
+import MeshRendererComponent from '../components/MeshRendererComponent';
+import EntityRepository from '../core/EntityRepository';
+import CameraComponent from '../components/CameraComponent';
+import MemoryManager from '../core/MemoryManager';
+import GlobalDataRepository from '../core/GlobalDataRepository';
+import TransformComponent from '../components/TransformComponent';
+import SceneGraphComponent from '../components/SceneGraphComponent';
+import Vector3 from '../math/Vector3';
+import { CameraType } from '../definitions/CameraType';
+import Time from '../misc/Time';
+import SystemState from './SystemState'
+import { RnXR } from '../../rhodonite-xr';
 
 export default class System {
   private static __instance: System;

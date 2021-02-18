@@ -1,9 +1,9 @@
-import DotProductShaderityObject from "../../../webgl/shaderity_shaders/nodes/DotProduct.glsl"
+import DotProductShaderityObject from '../../../webgl/shaderity_shaders/nodes/DotProduct.glsl'
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import AbstractShaderNode from "../core/AbstractShaderNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
+import AbstractShaderNode from '../core/AbstractShaderNode';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
 
 export default class DotProductShaderNode extends AbstractShaderNode {
 
