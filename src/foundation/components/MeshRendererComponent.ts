@@ -2,33 +2,44 @@ import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 import MeshComponent from './MeshComponent';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
-import { ProcessApproachEnum } from '../definitions/ProcessApproach';
-import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
+import {ProcessApproachEnum} from '../definitions/ProcessApproach';
+import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
 import SceneGraphComponent from './SceneGraphComponent';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
-import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
 import CameraComponent from './CameraComponent';
 import Matrix44 from '../math/Matrix44';
 import Accessor from '../memory/Accessor';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import MemoryManager from '../core/MemoryManager';
 import Config from '../core/Config';
-import { BufferUse } from '../definitions/BufferUse';
-import { CompositionType } from '../definitions/CompositionType';
-import { ComponentType } from '../definitions/ComponentType';
+import {BufferUse} from '../definitions/BufferUse';
+import {CompositionType} from '../definitions/CompositionType';
+import {ComponentType} from '../definitions/ComponentType';
 import ModuleManager from '../system/ModuleManager';
 import CubeTexture from '../textures/CubeTexture';
 import Entity from '../core/Entity';
 import RenderPass from '../renderer/RenderPass';
-import { Visibility } from '../definitions/visibility';
+import {Visibility} from '../definitions/visibility';
 import RnObject from '../core/RnObject';
-import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../commontypes/CommonTypes';
+import {
+  ComponentSID,
+  CGAPIResourceHandle,
+  Count,
+  Index,
+  ObjectUID,
+  ComponentTID,
+  EntityUID,
+} from '../../commontypes/CommonTypes';
 import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
-  static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map()
+  static __shaderProgramHandleOfPrimitiveObjectUids: Map<
+    ObjectUID,
+    CGAPIResourceHandle
+  > = new Map();
   private __sceneGraphComponent?: SceneGraphComponent;
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
@@ -38,7 +49,8 @@ export default class MeshRendererComponent extends Component {
 
   private static __webglResourceRepository?: WebGLResourceRepository;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
-  private static __instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __instanceIDBufferUid: CGAPIResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webglRenderingStrategy?: WebGLStrategy;
   private static __instanceIdAccessor?: Accessor;
   private static __tmp_identityMatrix: Matrix44 = Matrix44.identity();
@@ -50,12 +62,21 @@ export default class MeshRendererComponent extends Component {
   public static isViewFrustumCullingEnabled = true;
   public static isDepthMaskTrueForTransparencies = false;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository
+  ) {
     super(entityUid, componentSid, entityRepository);
 
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+      this.__entityUid,
+      SceneGraphComponent
+    ) as SceneGraphComponent;
     const componentRepository = ComponentRepository.getInstance();
-    const cameraComponents = componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
+    const cameraComponents = componentRepository.getComponentsWithType(
+      CameraComponent
+    ) as CameraComponent[];
 
     if (cameraComponents) {
       MeshRendererComponent.__cameraComponent = cameraComponents[0];
@@ -75,7 +96,10 @@ export default class MeshRendererComponent extends Component {
   }
 
   private static __isReady() {
-    if (MeshRendererComponent.__instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+    if (
+      MeshRendererComponent.__instanceIDBufferUid !==
+      CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
       return true;
     } else {
       return false;
@@ -84,22 +108,40 @@ export default class MeshRendererComponent extends Component {
 
   private static __setupInstanceIDBuffer() {
     if (MeshRendererComponent.__instanceIdAccessor == null) {
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(
+        BufferUse.CPUGeneric
+      );
       const count = Config.maxEntityNumber;
-      const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false });
-      MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
+      const bufferView = buffer.takeBufferView({
+        byteLengthToNeed: 4 /*byte*/ * count,
+        byteStride: 0,
+        isAoS: false,
+      });
+      MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Float,
+        count: count,
+      });
     }
 
-    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent);
+    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(
+      MeshComponent
+    );
     if (meshComponents == null) {
       return CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
 
-    for (var i = 0; i < meshComponents.length; i++) {
-      MeshRendererComponent.__instanceIdAccessor!.setScalar(i, meshComponents[i].entityUID, {});
+    for (let i = 0; i < meshComponents.length; i++) {
+      MeshRendererComponent.__instanceIdAccessor!.setScalar(
+        i,
+        meshComponents[i].entityUID,
+        {}
+      );
     }
 
-    return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
+    return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(
+      MeshRendererComponent.__instanceIdAccessor!
+    );
   }
 
   static set manualTransparentSids(sids: ComponentSID[]) {
@@ -108,7 +150,7 @@ export default class MeshRendererComponent extends Component {
 
   static set manualTransparentEntityNames(names: string[]) {
     MeshRendererComponent.__manualTransparentSids = [];
-    for (let name of names) {
+    for (const name of names) {
       const entity = RnObject.getRnObjectByName(name) as Entity;
       if (entity) {
         const meshComponent = entity.getMesh();
@@ -116,7 +158,9 @@ export default class MeshRendererComponent extends Component {
           const mesh = meshComponent.mesh;
           if (mesh) {
             if (!mesh.isOpaque()) {
-              MeshRendererComponent.__manualTransparentSids.push(meshComponent.componentSID);
+              MeshRendererComponent.__manualTransparentSids.push(
+                meshComponent.componentSID
+              );
             }
           }
         }
@@ -125,17 +169,26 @@ export default class MeshRendererComponent extends Component {
   }
 
   $create() {
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(
+      this.__entityUid,
+      MeshComponent
+    ) as MeshComponent;
     this.moveStageTo(ProcessStage.Load);
   }
 
-  static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
+  static common_$load({
+    processApproach,
+  }: {
+    processApproach: ProcessApproachEnum;
+  }) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
+    const webglModule = moduleManager.getModule(moduleName)! as any;
 
     // Strategy
-    MeshRendererComponent.__webglRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
+    MeshRendererComponent.__webglRenderingStrategy = webglModule.getRenderingStrategy(
+      processApproach
+    );
 
     // ResourceRepository
     MeshRendererComponent.__webglResourceRepository = webglModule.WebGLResourceRepository.getInstance();
@@ -144,8 +197,9 @@ export default class MeshRendererComponent extends Component {
   }
 
   $load() {
-
-    MeshRendererComponent.__webglRenderingStrategy!.$load(this.__meshComponent!);
+    MeshRendererComponent.__webglRenderingStrategy!.$load(
+      this.__meshComponent!
+    );
 
     if (this.diffuseCubeMap && !this.diffuseCubeMap.startedToLoad) {
       this.diffuseCubeMap.loadTextureImagesAsync();
@@ -155,11 +209,11 @@ export default class MeshRendererComponent extends Component {
     }
 
     this.moveStageTo(ProcessStage.PreRender);
-
   }
 
   static common_$prerender(): CGAPIResourceHandle {
-    const gl = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper;
+    const gl = MeshRendererComponent.__webglResourceRepository!
+      .currentWebGLContextWrapper;
 
     if (gl == null) {
       throw new Error('No WebGLRenderingContext!');
@@ -177,35 +231,49 @@ export default class MeshRendererComponent extends Component {
   }
 
   $prerender() {
-
-    MeshRendererComponent.__webglRenderingStrategy!.$prerender(this.__meshComponent!, this, MeshRendererComponent.__instanceIDBufferUid);
+    MeshRendererComponent.__webglRenderingStrategy!.$prerender(
+      this.__meshComponent!,
+      this,
+      MeshRendererComponent.__instanceIDBufferUid
+    );
 
     this.moveStageTo(ProcessStage.Render);
   }
 
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
     if (MeshRendererComponent.__manualTransparentSids == null) {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, renderPass);
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
+        void 0,
+        renderPass
+      );
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
       return sortedMeshComponentSids;
     } else {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, renderPass);
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
+        MeshRendererComponent.__manualTransparentSids,
+        renderPass
+      );
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
 
       return sortedMeshComponentSids;
     }
-
   }
 
-  private static sort_$render_inner(transparentMeshComponentSids_: ComponentSID[] = [], renderPass: RenderPass) {
+  private static sort_$render_inner(
+    transparentMeshComponentSids_: ComponentSID[] = [],
+    renderPass: RenderPass
+  ) {
     const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
 
     let meshComponents: MeshComponent[] = [];
     const componentRepository = ComponentRepository.getInstance();
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+      cameraComponent = componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
     if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
@@ -216,28 +284,35 @@ export default class MeshRendererComponent extends Component {
           return true;
         } else {
           const children = sg.children;
-          for (let child of children) {
+          for (const child of children) {
             return whetherContainsSkeletal(child);
           }
           return false;
         }
-      }
+      };
 
       const frustum = cameraComponent.frustum;
-      const doAsVisible = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
+      const doAsVisible = (
+        sg: SceneGraphComponent,
+        meshComponents: MeshComponent[]
+      ) => {
         const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
-        for (let sg of sgs) {
+        for (const sg of sgs) {
           const mesh = sg.entity.getMesh();
           if (mesh) {
             meshComponents!.push(mesh);
           }
         }
-      }
-      const frustumCullingRecursively = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
+      };
+      const frustumCullingRecursively = (
+        sg: SceneGraphComponent,
+        meshComponents: MeshComponent[]
+      ) => {
         const result = frustum.culling(sg);
         if (result === Visibility.Visible) {
           doAsVisible(sg, meshComponents);
-        } else if (result === Visibility.Neutral ||
+        } else if (
+          result === Visibility.Neutral ||
           whetherContainsSkeletal(sg)
         ) {
           const children = sg.children;
@@ -245,13 +320,13 @@ export default class MeshRendererComponent extends Component {
           if (mesh) {
             meshComponents!.push(mesh);
           }
-          for (let child of children) {
+          for (const child of children) {
             frustumCullingRecursively(child, meshComponents);
           }
         }
       };
 
-      for (let tlsg of sceneGraphComponents) {
+      for (const tlsg of sceneGraphComponents) {
         frustumCullingRecursively(tlsg, meshComponents);
       }
     } else {
@@ -272,15 +347,25 @@ export default class MeshRendererComponent extends Component {
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         if (meshComponent.mesh) {
-          if (transparentMeshComponentSids_.length === 0 && meshComponent.mesh.isBlendPartially()) {
+          if (
+            transparentMeshComponentSids_.length === 0 &&
+            meshComponent.mesh.isBlendPartially()
+          ) {
             transparentPartiallyMeshComponents.push(meshComponent);
-            opaqueAndTransparentPartiallyMeshComponentSids.push(meshComponent.componentSID);
-          } else if (transparentMeshComponentSids_.length === 0 && meshComponent.mesh.isAllBlend()) {
+            opaqueAndTransparentPartiallyMeshComponentSids.push(
+              meshComponent.componentSID
+            );
+          } else if (
+            transparentMeshComponentSids_.length === 0 &&
+            meshComponent.mesh.isAllBlend()
+          ) {
             transparentCompletelyMeshComponents.push(meshComponent);
           }
 
           if (meshComponent.mesh.isOpaque()) {
-            opaqueAndTransparentPartiallyMeshComponentSids.push(meshComponent.componentSID);
+            opaqueAndTransparentPartiallyMeshComponentSids.push(
+              meshComponent.componentSID
+            );
           } else {
             if (cameraComponent) {
               meshComponent.calcViewDepth(cameraComponent);
@@ -293,26 +378,34 @@ export default class MeshRendererComponent extends Component {
     }
 
     // Sort transparent meshes
-    const transparentPartiallyOrAllMeshComponents = transparentPartiallyMeshComponents.concat(transparentCompletelyMeshComponents);
-    transparentPartiallyOrAllMeshComponents.sort(function (a, b) {
+    const transparentPartiallyOrAllMeshComponents = transparentPartiallyMeshComponents.concat(
+      transparentCompletelyMeshComponents
+    );
+    transparentPartiallyOrAllMeshComponents.sort((a, b) => {
       return a.viewDepth - b.viewDepth;
     });
 
     let transparentMeshComponentSids;
     if (transparentMeshComponentSids_.length === 0) {
-      transparentMeshComponentSids = transparentPartiallyOrAllMeshComponents.map((meshComponent) => {
-        return meshComponent.componentSID;
-      });
+      transparentMeshComponentSids = transparentPartiallyOrAllMeshComponents.map(
+        meshComponent => {
+          return meshComponent.componentSID;
+        }
+      );
     } else {
       transparentMeshComponentSids = transparentMeshComponentSids_;
     }
 
-    MeshRendererComponent.__firstTransparentIndex = opaqueAndTransparentPartiallyMeshComponentSids.length;
+    MeshRendererComponent.__firstTransparentIndex =
+      opaqueAndTransparentPartiallyMeshComponentSids.length;
 
     // Concat opaque and transparent meshes
-    const sortedMeshComponentSids = opaqueAndTransparentPartiallyMeshComponentSids.concat(transparentMeshComponentSids);
+    const sortedMeshComponentSids = opaqueAndTransparentPartiallyMeshComponentSids.concat(
+      transparentMeshComponentSids
+    );
 
-    MeshRendererComponent.__lastTransparentIndex = sortedMeshComponentSids.length - 1;
+    MeshRendererComponent.__lastTransparentIndex =
+      sortedMeshComponentSids.length - 1;
 
     // Add terminator
     sortedMeshComponentSids.push(Component.invalidComponentSID);
@@ -320,34 +413,72 @@ export default class MeshRendererComponent extends Component {
     return sortedMeshComponentSids;
   }
 
-  static common_$render({ renderPass, processStage, renderPassTickCount }: { renderPass: RenderPass, processStage: ProcessStageEnum, renderPassTickCount: Count }) {
-
+  static common_$render({
+    renderPass,
+    processStage,
+    renderPassTickCount,
+  }: {
+    renderPass: RenderPass;
+    processStage: ProcessStageEnum;
+    renderPassTickCount: Count;
+  }) {
     MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
     if (MeshRendererComponent.__cameraComponent == null) {
-      MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+      MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
     let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;
     if (MeshRendererComponent.__cameraComponent) {
       viewMatrix = MeshRendererComponent.__cameraComponent.viewMatrix;
-      projectionMatrix = MeshRendererComponent.__cameraComponent.projectionMatrix;
+      projectionMatrix =
+        MeshRendererComponent.__cameraComponent.projectionMatrix;
     }
 
-    const meshComponentSids = Component.__componentsOfProcessStages.get(processStage)!;
-    const meshComponents = MeshRendererComponent.__componentRepository._getComponents(MeshComponent) as MeshComponent[];
-    MeshRendererComponent.__webglRenderingStrategy!.common_$render(meshComponentSids, meshComponents, viewMatrix, projectionMatrix, renderPass, renderPassTickCount);
-
+    const meshComponentSids = Component.__componentsOfProcessStages.get(
+      processStage
+    )!;
+    const meshComponents = MeshRendererComponent.__componentRepository._getComponents(
+      MeshComponent
+    ) as MeshComponent[];
+    MeshRendererComponent.__webglRenderingStrategy!.common_$render(
+      meshComponentSids,
+      meshComponents,
+      viewMatrix,
+      projectionMatrix,
+      renderPass,
+      renderPassTickCount
+    );
   }
 
-  $render({ i, renderPass, renderPassTickCount }: { i: Index, renderPass: RenderPass, renderPassTickCount: Count }) {
+  $render({
+    i,
+    renderPass,
+    renderPassTickCount,
+  }: {
+    i: Index;
+    renderPass: RenderPass;
+    renderPassTickCount: Count;
+  }) {
     if (MeshRendererComponent.__webglRenderingStrategy!.$render == null) {
       return;
     }
 
     const entity = this.__entityRepository.getEntity(this.__entityUid);
 
-    MeshRendererComponent.__webglRenderingStrategy!.$render!(i, this.__meshComponent!, this.__sceneGraphComponent!.worldMatrixInner, this.__sceneGraphComponent!.normalMatrixInner,
-      entity, renderPass, renderPassTickCount, this.diffuseCubeMap, this.specularCubeMap);
+    MeshRendererComponent.__webglRenderingStrategy!.$render!(
+      i,
+      this.__meshComponent!,
+      this.__sceneGraphComponent!.worldMatrixInner,
+      this.__sceneGraphComponent!.normalMatrixInner,
+      entity,
+      renderPass,
+      renderPassTickCount,
+      this.diffuseCubeMap,
+      this.specularCubeMap
+    );
 
     if (this.__meshComponent!.mesh) {
       if (this.__meshComponent!.mesh.weights.length > 0) {
@@ -357,6 +488,5 @@ export default class MeshRendererComponent extends Component {
       MeshComponent.alertNoMeshSet(this.__meshComponent!);
     }
   }
-
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent);
