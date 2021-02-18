@@ -3,9 +3,9 @@ import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { VertexAttribute } from '../definitions/VertexAttribute';
-import { CompositionType } from '../definitions/CompositionType';
+import {PrimitiveMode} from '../definitions/PrimitiveMode';
+import {VertexAttribute} from '../definitions/VertexAttribute';
+import {CompositionType} from '../definitions/CompositionType';
 import Primitive from '../geometry/Primitive';
 import AABB from '../math/AABB';
 import RnObject from '../core/RnObject';
@@ -31,13 +31,18 @@ export default class AABBGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = this.__entityRepository.createEntity([TransformComponent, SceneGraphComponent, MeshComponent, MeshRendererComponent]);
+    this.__topEntity = this.__entityRepository.createEntity([
+      TransformComponent,
+      SceneGraphComponent,
+      MeshComponent,
+      MeshRendererComponent,
+    ]);
     const meshComponent = this.__topEntity.getMesh();
 
     // if (AABBGizmo.__aabbMesh == null) {
-      AABBGizmo.__aabbMesh = new Mesh();
-      AABBGizmo.__aabbMesh.addPrimitive(AABBGizmo.generatePrimitive());
-      meshComponent.setMesh(AABBGizmo.__aabbMesh);
+    AABBGizmo.__aabbMesh = new Mesh();
+    AABBGizmo.__aabbMesh.addPrimitive(AABBGizmo.generatePrimitive());
+    meshComponent.setMesh(AABBGizmo.__aabbMesh);
     // } else {
     //   const mesh = new Mesh();
     //   mesh.setOriginalMesh(AABBGizmo.__aabbMesh);
@@ -49,26 +54,59 @@ export default class AABBGizmo extends Gizmo {
 
   private static generatePrimitive() {
     const indices = new Uint32Array([
-      0, 1, 2, 3,
-      4, 5, 6, 7,
-      3, 0, 4, 7,
-      2, 1, 5, 6,
-      3, 2, 6, 7,
-      0, 1, 5, 4
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      3,
+      0,
+      4,
+      7,
+      2,
+      1,
+      5,
+      6,
+      3,
+      2,
+      6,
+      7,
+      0,
+      1,
+      5,
+      4,
     ]);
-
 
     const length = 1;
     const positions = new Float32Array([
-      -length, -length, -length,
-      length, -length, -length,
-      length, length, -length,
-      -length, length, -length,
+      -length,
+      -length,
+      -length,
+      length,
+      -length,
+      -length,
+      length,
+      length,
+      -length,
+      -length,
+      length,
+      -length,
 
-      -length, -length, length,
-      length, -length, length,
-      length, length, length,
-      -length, length, length
+      -length,
+      -length,
+      length,
+      length,
+      -length,
+      length,
+      length,
+      length,
+      length,
+      -length,
+      length,
+      length,
     ]);
 
     const primitive = Primitive.createPrimitive({
@@ -76,7 +114,7 @@ export default class AABBGizmo extends Gizmo {
       attributeCompositionTypes: [CompositionType.Vec3],
       attributeSemantics: [VertexAttribute.Position],
       attributes: [positions],
-      primitiveMode: PrimitiveMode.LineLoop
+      primitiveMode: PrimitiveMode.LineLoop,
     });
 
     return primitive;
@@ -86,9 +124,13 @@ export default class AABBGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
-    const sg = this.__substance as any as SceneGraphComponent;
+    const sg = (this.__substance as any) as SceneGraphComponent;
     const aabb = sg.worldAABB;
     this.__topEntity.getTransform().translate = aabb.centerPoint;
-    this.__topEntity.getTransform().scale = new Vector3(aabb.sizeX/2, aabb.sizeY/2, aabb.sizeZ/2);
+    this.__topEntity.getTransform().scale = new Vector3(
+      aabb.sizeX / 2,
+      aabb.sizeY / 2,
+      aabb.sizeZ / 2
+    );
   }
 }

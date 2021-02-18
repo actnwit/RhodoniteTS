@@ -7,20 +7,41 @@ import CameraComponent from '../components/CameraComponent';
 import CameraControllerComponent from '../components/CameraControllerComponent';
 
 function createGroupEntity() {
-  return EntityRepository.getInstance().createEntity([TransformComponent, SceneGraphComponent]);
+  return EntityRepository.getInstance().createEntity([
+    TransformComponent,
+    SceneGraphComponent,
+  ]);
 }
 
 function createMeshEntity() {
-  return EntityRepository.getInstance().createEntity([TransformComponent, SceneGraphComponent, MeshComponent, MeshRendererComponent]);
+  return EntityRepository.getInstance().createEntity([
+    TransformComponent,
+    SceneGraphComponent,
+    MeshComponent,
+    MeshRendererComponent,
+  ]);
 }
 
 function createCameraEntity() {
-  return EntityRepository.getInstance().createEntity([TransformComponent, SceneGraphComponent, CameraComponent]);
+  return EntityRepository.getInstance().createEntity([
+    TransformComponent,
+    SceneGraphComponent,
+    CameraComponent,
+  ]);
 }
 
 function createCameraWithControllerEntity() {
-  return EntityRepository.getInstance().createEntity([TransformComponent, SceneGraphComponent, CameraComponent, CameraControllerComponent]);
+  return EntityRepository.getInstance().createEntity([
+    TransformComponent,
+    SceneGraphComponent,
+    CameraComponent,
+    CameraControllerComponent,
+  ]);
 }
 
-export default Object.freeze({createGroupEntity, createMeshEntity, createCameraEntity, createCameraWithControllerEntity });
-
+export default Object.freeze({
+  createGroupEntity,
+  createMeshEntity,
+  createCameraEntity,
+  createCameraWithControllerEntity,
+});

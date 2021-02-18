@@ -1,11 +1,14 @@
 import FrameBuffer from '../renderer/FrameBuffer';
 import RenderTargetTexture from '../textures/RenderTargetTexture';
-import { TextureParameter } from '../definitions/TextureParameter';
-import { ComponentType } from '../definitions/ComponentType';
-import { PixelFormat } from '../definitions/PixelFormat';
+import {TextureParameter} from '../definitions/TextureParameter';
+import {ComponentType} from '../definitions/ComponentType';
+import {PixelFormat} from '../definitions/PixelFormat';
 import RenderBuffer from '../textures/RenderBuffer';
 
-function createTexturesForRenderTarget(width: number, height: number, textureNum: number,
+function createTexturesForRenderTarget(
+  width: number,
+  height: number,
+  textureNum: number,
   {
     level = 0,
     internalFormat = PixelFormat.RGBA,
@@ -14,14 +17,26 @@ function createTexturesForRenderTarget(width: number, height: number, textureNum
     magFilter = TextureParameter.Linear,
     minFilter = TextureParameter.Linear,
     wrapS = TextureParameter.ClampToEdge,
-    wrapT = TextureParameter.ClampToEdge
-  }) {
+    wrapT = TextureParameter.ClampToEdge,
+  }
+) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
 
   for (let i = 0; i < textureNum; i++) {
     const renderTargetTexture = new RenderTargetTexture();
-    renderTargetTexture.create({ width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT });
+    renderTargetTexture.create({
+      width,
+      height,
+      level,
+      internalFormat,
+      format,
+      type,
+      magFilter,
+      minFilter,
+      wrapS,
+      wrapT,
+    });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
 
@@ -78,4 +93,4 @@ function createTexturesForRenderTarget(width: number, height:number, textureNum:
 }
 */
 
-export default Object.freeze({ createTexturesForRenderTarget });
+export default Object.freeze({createTexturesForRenderTarget});
