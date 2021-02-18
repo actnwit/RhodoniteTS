@@ -742,7 +742,6 @@ export default class AccessorBase extends RnObject {
 
   copyFromTypedArray(typedArray: TypedArray) {
     const componentN = this.numberOfComponents;
-    const setter = (this as any)['setVec' + componentN];
     for (
       let j = 0;
       j < typedArray.byteLength / this.componentSizeInBytes;
@@ -752,11 +751,10 @@ export default class AccessorBase extends RnObject {
       const idxN = idx * componentN;
       switch (componentN) {
         case 1:
-          setter.call(this, idx, typedArray[idxN + 0], {});
+          this.setScalar(idx, typedArray[idxN + 0], {});
           break;
         case 2:
-          setter.call(
-            this,
+          this.setVec2(
             idx,
             typedArray[idxN + 0],
             typedArray[idxN + 1],
@@ -764,8 +762,7 @@ export default class AccessorBase extends RnObject {
           );
           break;
         case 3:
-          setter.call(
-            this,
+          this.setVec3(
             idx,
             typedArray[idxN + 0],
             typedArray[idxN + 1],
@@ -774,8 +771,7 @@ export default class AccessorBase extends RnObject {
           );
           break;
         case 4:
-          setter.call(
-            this,
+          this.setVec4(
             idx,
             typedArray[idxN + 0],
             typedArray[idxN + 1],
