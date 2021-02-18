@@ -1,10 +1,29 @@
-import { Vector2_ } from './Vector2';
-import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector2 } from './IVector';
-import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
+import {Vector2_} from './Vector2';
+import {
+  IVector2,
+  IVector3,
+  IVector4,
+  IMutableVector,
+  IMutableVector2,
+} from './IVector';
+import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 
-export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T> implements IMutableVector, IMutableVector2 {
-  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, { type }: { type: T }) {
-    super(x, y, { type });
+export class MutableVector2_<T extends TypedArrayConstructor>
+  extends Vector2_<T>
+  implements IMutableVector, IMutableVector2 {
+  constructor(
+    x:
+      | number
+      | TypedArray
+      | IVector2
+      | IVector3
+      | IVector4
+      | Array<number>
+      | null,
+    y: number,
+    {type}: {type: T}
+  ) {
+    super(x, y, {type});
   }
 
   set x(x: number) {
@@ -66,8 +85,8 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
   }
 
   /**
-    * subtract
-    */
+   * subtract
+   */
   subtract(vec: IVector2) {
     this.v[0] -= vec.v[0];
     this.v[1] -= vec.v[1];
@@ -100,7 +119,7 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
       this.v[0] /= value;
       this.v[1] /= value;
     } else {
-      console.error("0 division occurred!");
+      console.error('0 division occurred!');
       this.v[0] = Infinity;
       this.v[1] = Infinity;
     }
@@ -108,14 +127,14 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
   }
 
   /**
-    * divide vector
-    */
+   * divide vector
+   */
   divideVector(vec: IVector2) {
     if (vec.v[0] !== 0 && vec.v[1] !== 0) {
       this.v[0] /= vec.v[0];
       this.v[1] /= vec.v[1];
     } else {
-      console.error("0 division occurred!");
+      console.error('0 division occurred!');
       this.v[0] = vec.v[0] === 0 ? Infinity : this.v[0] / vec.v[0];
       this.v[1] = vec.v[1] === 0 ? Infinity : this.v[1] / vec.v[1];
     }
@@ -124,8 +143,18 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
 }
 
 export default class MutableVector2 extends MutableVector2_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number) {
-    super(x, y!, { type: Float32Array })
+  constructor(
+    x:
+      | number
+      | TypedArray
+      | IVector2
+      | IVector3
+      | IVector4
+      | Array<number>
+      | null,
+    y?: number
+  ) {
+    super(x, y!, {type: Float32Array});
   }
 
   static zero() {
@@ -174,8 +203,18 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
 }
 
 export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number) {
-    super(x, y!, { type: Float64Array })
+  constructor(
+    x:
+      | number
+      | TypedArray
+      | IVector2
+      | IVector3
+      | IVector4
+      | Array<number>
+      | null,
+    y?: number
+  ) {
+    super(x, y!, {type: Float64Array});
   }
 
   static zero() {

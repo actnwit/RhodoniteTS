@@ -1,26 +1,38 @@
 import Matrix44 from './Matrix44';
-import { IMutableMatrix22, IMutableMatrix } from './IMatrix';
+import {IMutableMatrix22, IMutableMatrix} from './IMatrix';
 import Matrix22 from './Matrix22';
-import { Index } from '../../commontypes/CommonTypes';
+import {Index} from '../../commontypes/CommonTypes';
 import Matrix33 from './Matrix33';
 import Vector2 from './Vector2';
 
-export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutableMatrix22 {
-
+export default class MutableMatrix22
+  extends Matrix22
+  implements IMutableMatrix, IMutableMatrix22 {
   constructor(m: null);
-  constructor(m: Float32Array, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
+  constructor(
+    m: Float32Array,
+    isColumnMajor?: boolean,
+    notCopyFloatArray?: boolean
+  );
   constructor(m: Array<number>, isColumnMajor?: boolean);
   constructor(m: Matrix22, isColumnMajor?: boolean);
   constructor(m: Matrix33, isColumnMajor?: boolean);
   constructor(m: Matrix44, isColumnMajor?: boolean);
   constructor(
-    m0: number, m1: number,
-    m2: number, m3: number,
-    isColumnMajor?: boolean,);
+    m0: number,
+    m1: number,
+    m2: number,
+    m3: number,
+    isColumnMajor?: boolean
+  );
   constructor(
-    m0: any, m1?: any,
-    m2?: any, m3?: number,
-    isColumnMajor: boolean = false, notCopyFloatArray: boolean = false) {
+    m0: any,
+    m1?: any,
+    m2?: any,
+    m3?: number,
+    isColumnMajor = false,
+    notCopyFloatArray = false
+  ) {
     super(m0, m1, m2, m3!, isColumnMajor);
   }
 
@@ -124,18 +136,24 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   }
 
   setComponents(
-    m00: number, m01: number,
-    m10: number, m11: number
+    m00: number,
+    m01: number,
+    m10: number,
+    m11: number
   ): MutableMatrix22 {
-    this.v[0] = m00; this.v[2] = m01;
-    this.v[1] = m10; this.v[3] = m11;
+    this.v[0] = m00;
+    this.v[2] = m01;
+    this.v[1] = m10;
+    this.v[3] = m11;
 
     return this;
   }
 
   copyComponents(mat: Matrix22 | Matrix33 | Matrix44) {
-    this.v[0] = mat.m00; this.v[2] = mat.m01; // mat.m01 is mat.v[2 or 3 or 4]
-    this.v[1] = mat.m10; this.v[3] = mat.m11;
+    this.v[0] = mat.m00;
+    this.v[2] = mat.m01; // mat.m01 is mat.v[2 or 3 or 4]
+    this.v[1] = mat.m10;
+    this.v[3] = mat.m11;
 
     return this;
   }
@@ -148,14 +166,11 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   }
 
   identity() {
-    return this.setComponents(
-      1, 0,
-      0, 1
-    );
+    return this.setComponents(1, 0, 0, 1);
   }
 
   _swap(l: Index, r: Index) {
-    this.v[r] = [this.v[l], this.v[l] = this.v[r]][0];
+    this.v[r] = [this.v[l], (this.v[l] = this.v[r])][0];
   }
 
   /**
@@ -170,18 +185,15 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   invert() {
     const det = this.determinant();
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = this.v[3] / det;
-    const m01 = this.v[2] / det * (-1.0);
-    const m10 = this.v[1] / det * (-1.0);
+    const m01 = (this.v[2] / det) * -1.0;
+    const m10 = (this.v[1] / det) * -1.0;
     const m11 = this.v[0] / det;
 
-    return this.setComponents(
-      m00, m01,
-      m10, m11
-    );
+    return this.setComponents(m00, m01, m10, m11);
   }
 
   /**
@@ -190,17 +202,11 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   rotate(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return this.setComponents(
-      cos, -sin,
-      sin, cos
-    );
+    return this.setComponents(cos, -sin, sin, cos);
   }
 
   scale(vec: Vector2) {
-    return this.setComponents(
-      vec.v[0], 0,
-      0, vec.v[1]
-    );
+    return this.setComponents(vec.v[0], 0, 0, vec.v[1]);
   }
 
   putScale(vec: Vector2) {
@@ -214,8 +220,8 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
   }
 
   /**
-    * multiply the input matrix from right side
-    */
+   * multiply the input matrix from right side
+   */
   multiply(mat: Matrix22) {
     const m00 = this.v[0] * mat.v[0] + this.v[2] * mat.v[1];
     const m01 = this.v[0] * mat.v[2] + this.v[2] * mat.v[3];
@@ -223,10 +229,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     const m10 = this.v[1] * mat.v[0] + this.v[3] * mat.v[1];
     const m11 = this.v[1] * mat.v[2] + this.v[3] * mat.v[3];
 
-    return this.setComponents(
-      m00, m01,
-      m10, m11
-    );
+    return this.setComponents(m00, m01, m10, m11);
   }
 
   multiplyByLeft(mat: Matrix22) {
@@ -236,9 +239,6 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix,
     const m10 = mat.v[1] * this.v[0] + mat.v[3] * this.v[1];
     const m11 = mat.v[1] * this.v[2] + mat.v[3] * this.v[3];
 
-    return this.setComponents(
-      m00, m01,
-      m10, m11
-    );
+    return this.setComponents(m00, m01, m10, m11);
   }
 }

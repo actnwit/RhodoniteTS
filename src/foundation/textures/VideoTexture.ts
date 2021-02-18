@@ -1,25 +1,28 @@
-import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
+import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
+import {
+  TextureParameter,
+  TextureParameterEnum,
+} from '../definitions/TextureParameter';
 import AbstractTexture from './AbstractTexture';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import { Size } from '../../commontypes/CommonTypes';
+import {Size} from '../../commontypes/CommonTypes';
 
 export type VideoTextureArguments = {
-  level: number,
-  internalFormat: PixelFormatEnum,
-  format: PixelFormatEnum,
-  type: ComponentTypeEnum,
-  magFilter: TextureParameterEnum,
-  minFilter: TextureParameterEnum,
-  wrapS: TextureParameterEnum,
-  wrapT: TextureParameterEnum,
-  generateMipmap: boolean,
-  anisotropy: boolean,
-  isPremultipliedAlpha?: boolean,
-  mutedAutoPlay: boolean,
-  playButtonDomElement?: HTMLElement
-}
+  level: number;
+  internalFormat: PixelFormatEnum;
+  format: PixelFormatEnum;
+  type: ComponentTypeEnum;
+  magFilter: TextureParameterEnum;
+  minFilter: TextureParameterEnum;
+  wrapS: TextureParameterEnum;
+  wrapT: TextureParameterEnum;
+  generateMipmap: boolean;
+  anisotropy: boolean;
+  isPremultipliedAlpha?: boolean;
+  mutedAutoPlay: boolean;
+  playButtonDomElement?: HTMLElement;
+};
 
 export default class VideoTexture extends AbstractTexture {
   private __imageData?: ImageData;
@@ -34,7 +37,7 @@ export default class VideoTexture extends AbstractTexture {
   }
 
   private __getResizedCanvas(image: HTMLImageElement, maxSize: Size) {
-    var canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     const potWidth = this.__getNearestPowerOfTwo(image.width);
     const potHeight = this.__getNearestPowerOfTwo(image.height);
 
@@ -51,8 +54,18 @@ export default class VideoTexture extends AbstractTexture {
     canvas.width = dstWidth;
     canvas.height = dstHeight;
 
-    var ctx = canvas.getContext("2d")!;
-    ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(
+      image,
+      0,
+      0,
+      image.width,
+      image.height,
+      0,
+      0,
+      dstWidth,
+      dstHeight
+    );
 
     if (this.autoDetectTransparency) {
       this.__imageData = ctx.getImageData(0, 0, dstWidth, dstHeight);
@@ -71,37 +84,50 @@ export default class VideoTexture extends AbstractTexture {
     return canvas;
   }
 
-  generateTextureFromVideo(video: HTMLVideoElement, {
-    level = 0,
-    internalFormat = PixelFormat.RGBA,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte,
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.Linear,
-    wrapS = TextureParameter.ClampToEdge,
-    wrapT = TextureParameter.ClampToEdge,
-    generateMipmap = false,
-    anisotropy = false,
-    isPremultipliedAlpha = false,
-    mutedAutoPlay = true,
-  } = {}) {
+  generateTextureFromVideo(
+    video: HTMLVideoElement,
+    {
+      level = 0,
+      internalFormat = PixelFormat.RGBA,
+      format = PixelFormat.RGBA,
+      type = ComponentType.UnsignedByte,
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.Linear,
+      wrapS = TextureParameter.ClampToEdge,
+      wrapT = TextureParameter.ClampToEdge,
+      generateMipmap = false,
+      anisotropy = false,
+      isPremultipliedAlpha = false,
+      mutedAutoPlay = true,
+    } = {}
+  ) {
     this.__startedToLoad = true;
     this.#htmlVideoElement = video;
     if (mutedAutoPlay) {
       video.autoplay = true;
       video.muted = true;
     }
-    let img = video;
+    const img = video;
 
     this.__width = img.width;
     this.__height = img.height;
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    let texture = webGLResourceRepository.createTexture(
-      img, {
-      level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
-      border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-      wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy, isPremultipliedAlpha
+    const texture = webGLResourceRepository.createTexture(img, {
+      level: level,
+      internalFormat: internalFormat,
+      width: this.__width,
+      height: this.__height,
+      border: 0,
+      format: format,
+      type: type,
+      magFilter: magFilter,
+      minFilter: minFilter,
+      wrapS: wrapS,
+      wrapT: wrapT,
+      generateMipmap: generateMipmap,
+      anisotropy: anisotropy,
+      isPremultipliedAlpha,
     });
 
     this.cgApiResourceUid = texture;
@@ -111,37 +137,49 @@ export default class VideoTexture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
-  generateTextureFromUri(videoUri: string, {
-    level = 0,
-    internalFormat = PixelFormat.RGBA,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte,
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.Linear,
-    wrapS = TextureParameter.ClampToEdge,
-    wrapT = TextureParameter.ClampToEdge,
-    generateMipmap = false,
-    anisotropy = false,
-    isPremultipliedAlpha = false,
-    mutedAutoPlay = true,
-    playButtonDomElement = undefined
-  } = {}) {
+  generateTextureFromUri(
+    videoUri: string,
+    {
+      level = 0,
+      internalFormat = PixelFormat.RGBA,
+      format = PixelFormat.RGBA,
+      type = ComponentType.UnsignedByte,
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.Linear,
+      wrapS = TextureParameter.ClampToEdge,
+      wrapT = TextureParameter.ClampToEdge,
+      generateMipmap = false,
+      anisotropy = false,
+      isPremultipliedAlpha = false,
+      mutedAutoPlay = true,
+      playButtonDomElement = undefined,
+    } = {}
+  ) {
     this.__uri = videoUri;
     this.__startedToLoad = true;
     return new Promise((resolve, reject) => {
       const button = playButtonDomElement as HTMLButtonElement | undefined;
 
       const setupTexture = () => {
-
         this.__width = video.width;
         this.__height = video.height;
 
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        let texture = webGLResourceRepository.createTexture(
-          video, {
-          level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
-          border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-          wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy, isPremultipliedAlpha
+        const texture = webGLResourceRepository.createTexture(video, {
+          level: level,
+          internalFormat: internalFormat,
+          width: this.__width,
+          height: this.__height,
+          border: 0,
+          format: format,
+          type: type,
+          magFilter: magFilter,
+          minFilter: minFilter,
+          wrapS: wrapS,
+          wrapT: wrapT,
+          generateMipmap: generateMipmap,
+          anisotropy: anisotropy,
+          isPremultipliedAlpha,
         });
 
         this.cgApiResourceUid = texture;
@@ -151,7 +189,7 @@ export default class VideoTexture extends AbstractTexture {
       };
 
       button?.addEventListener(
-        "click",
+        'click',
         () => {
           setupTexture();
           video.play();
@@ -159,18 +197,18 @@ export default class VideoTexture extends AbstractTexture {
         true
       );
 
-      const video = document.createElement("video") as HTMLVideoElement;
-      video.crossOrigin = "anonymous";
-      video.setAttribute("playsinline", "playsinline");
+      const video = document.createElement('video') as HTMLVideoElement;
+      video.crossOrigin = 'anonymous';
+      video.setAttribute('playsinline', 'playsinline');
       if (mutedAutoPlay) {
         video.autoplay = true;
         video.muted = true;
       }
-      video.preload = "auto";
+      video.preload = 'auto';
       this.#htmlVideoElement = video;
 
       video.addEventListener(
-        "canplaythrough",
+        'canplaythrough',
         () => {
           setupTexture();
           video.play();
@@ -179,25 +217,33 @@ export default class VideoTexture extends AbstractTexture {
       );
 
       video.addEventListener(
-        "ended",
-        function() {
+        'ended',
+        () => {
           video.play();
         },
         true
       );
 
       video.src = videoUri;
-
     }) as Promise<void>;
   }
 
   updateTexture() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
-      webGLResourceRepository.updateTexture(this.cgApiResourceUid, this.#htmlVideoElement, {
-        level: 0, xoffset: 0, yoffset: 0, width: this.__width, height: this.__height,
-        format: PixelFormat.RGBA, type: ComponentType.UnsignedByte
-      });
+      webGLResourceRepository.updateTexture(
+        this.cgApiResourceUid,
+        this.#htmlVideoElement,
+        {
+          level: 0,
+          xoffset: 0,
+          yoffset: 0,
+          width: this.__width,
+          height: this.__height,
+          format: PixelFormat.RGBA,
+          type: ComponentType.UnsignedByte,
+        }
+      );
     }
   }
 
@@ -213,10 +259,10 @@ export default class VideoTexture extends AbstractTexture {
   }
 
   play() {
-    this.#htmlVideoElement?.play()
+    this.#htmlVideoElement?.play();
   }
 
   pause() {
-    this.#htmlVideoElement!.pause()
+    this.#htmlVideoElement!.pause();
   }
 }

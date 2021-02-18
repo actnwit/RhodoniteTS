@@ -1,33 +1,43 @@
 import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
-import { IMatrix, IMatrix22 } from './IMatrix';
-import { CompositionType } from '../definitions/CompositionType';
-import { TypedArray } from '../../commontypes/CommonTypes';
+import {IMatrix, IMatrix22} from './IMatrix';
+import {CompositionType} from '../definitions/CompositionType';
+import {TypedArray} from '../../commontypes/CommonTypes';
 import Vector2 from './Vector2';
 import MutableMatrix22 from './MutableMatrix22';
-import { MathUtil } from './MathUtil';
+import {MathUtil} from './MathUtil';
 import MutableVector2 from './MutableVector2';
 
 export default class Matrix22 implements IMatrix, IMatrix22 {
   v: TypedArray;
 
   constructor(m: null);
-  constructor(m: Float32Array, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
+  constructor(
+    m: Float32Array,
+    isColumnMajor?: boolean,
+    notCopyFloatArray?: boolean
+  );
   constructor(m: Array<number>, isColumnMajor?: boolean);
   constructor(m: Matrix22, isColumnMajor?: boolean);
   constructor(m: Matrix33, isColumnMajor?: boolean);
   constructor(m: Matrix44, isColumnMajor?: boolean);
   constructor(
-    m0: number, m1: number,
-    m2: number, m3: number,
-    isColumnMajor?: boolean, );
+    m0: number,
+    m1: number,
+    m2: number,
+    m3: number,
+    isColumnMajor?: boolean
+  );
   constructor(
-    m0: any, m1?: any,
-    m2?: any, m3?: number,
-    isColumnMajor: boolean = false, notCopyFloatArray: boolean = false) {
-
-    const _isColumnMajor = (arguments.length === 5) ? isColumnMajor : m1;
-    const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : m2;
+    m0: any,
+    m1?: any,
+    m2?: any,
+    m3?: number,
+    isColumnMajor = false,
+    notCopyFloatArray = false
+  ) {
+    const _isColumnMajor = arguments.length === 5 ? isColumnMajor : m1;
+    const _notCopyFloatArray = arguments.length === 3 ? notCopyFloatArray : m2;
     const m = m0;
 
     if (m == null) {
@@ -38,24 +48,32 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     if (4 <= arguments.length && arguments.length <= 5 && m3 != null) {
       this.v = new Float32Array(4);
       if (_isColumnMajor === true) {
-        let m = arguments;
-        this.v[0] = m[0]; this.v[2] = m[2];
-        this.v[1] = m[1]; this.v[3] = m[3];
+        const m = arguments;
+        this.v[0] = m[0];
+        this.v[2] = m[2];
+        this.v[1] = m[1];
+        this.v[3] = m[3];
       } else {
-        let m = arguments;
+        const m = arguments;
         // arguments[0-3] must be row major values if isColumnMajor is false
-        this.v[0] = m[0]; this.v[2] = m[1];
-        this.v[1] = m[2]; this.v[3] = m[3];
+        this.v[0] = m[0];
+        this.v[2] = m[1];
+        this.v[1] = m[2];
+        this.v[3] = m[3];
       }
     } else if (Array.isArray(m as Array<Number>)) {
       this.v = new Float32Array(4);
       if (_isColumnMajor === true) {
-        this.v[0] = m[0]; this.v[2] = m[2];
-        this.v[1] = m[1]; this.v[3] = m[3];
+        this.v[0] = m[0];
+        this.v[2] = m[2];
+        this.v[1] = m[1];
+        this.v[3] = m[3];
       } else {
         // 'm' must be row major array if isColumnMajor is false
-        this.v[0] = m[0]; this.v[2] = m[1];
-        this.v[1] = m[2]; this.v[3] = m[3];
+        this.v[0] = m[0];
+        this.v[2] = m[1];
+        this.v[1] = m[2];
+        this.v[3] = m[3];
       }
     } else if (m instanceof Float32Array) {
       if (_notCopyFloatArray) {
@@ -63,12 +81,16 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
       } else {
         this.v = new Float32Array(4);
         if (_isColumnMajor === true) {
-          this.v[0] = m[0]; this.v[2] = m[2];
-          this.v[1] = m[1]; this.v[3] = m[3];
+          this.v[0] = m[0];
+          this.v[2] = m[2];
+          this.v[1] = m[1];
+          this.v[3] = m[3];
         } else {
           // 'm' must be row major array if isColumnMajor is false
-          this.v[0] = m[0]; this.v[2] = m[1];
-          this.v[1] = m[2]; this.v[3] = m[3];
+          this.v[0] = m[0];
+          this.v[2] = m[1];
+          this.v[1] = m[2];
+          this.v[3] = m[3];
         }
       }
     } else if (!!m && m.v != null && m.v[3] !== null) {
@@ -78,20 +100,25 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
         this.v = new Float32Array(4);
         if (_isColumnMajor === true) {
           const v = (m as Matrix22 | Matrix33 | Matrix44).v;
-          this.v[0] = m[0]; this.v[2] = m[2];
-          this.v[1] = m[1]; this.v[3] = m[3];
+          this.v[0] = m[0];
+          this.v[2] = m[2];
+          this.v[1] = m[1];
+          this.v[3] = m[3];
         } else {
           const v = (m as Matrix22 | Matrix33 | Matrix44).v;
           // 'm' must be row major array if isColumnMajor is false
-          this.v[0] = m[0]; this.v[2] = m[1];
-          this.v[1] = m[2]; this.v[3] = m[3];
+          this.v[0] = m[0];
+          this.v[2] = m[1];
+          this.v[1] = m[2];
+          this.v[3] = m[3];
         }
       }
     } else {
       this.v = new Float32Array(4);
-      this.v[0] = 1; this.v[2] = 0;
-      this.v[1] = 0; this.v[3] = 1;
-
+      this.v[0] = 1;
+      this.v[2] = 0;
+      this.v[1] = 0;
+      this.v[3] = 1;
     }
   }
 
@@ -130,10 +157,7 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
    * Create identity matrix
    */
   static identity() {
-    return new this(
-      1, 0,
-      0, 1,
-    );
+    return new this(1, 0, 0, 1);
   }
 
   static dummy() {
@@ -144,10 +168,7 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
    * Create transpose matrix
    */
   static transpose(mat: Matrix22) {
-    return new this(
-      mat.v[0], mat.v[1],
-      mat.v[2], mat.v[3]
-    );
+    return new this(mat.v[0], mat.v[1], mat.v[2], mat.v[3]);
   }
 
   /**
@@ -156,35 +177,29 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   static invert(mat: Matrix22) {
     const det = mat.determinant();
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = mat.v[3] / det;
-    const m01 = mat.v[2] / det * (-1.0);
-    const m10 = mat.v[1] / det * (-1.0);
+    const m01 = (mat.v[2] / det) * -1.0;
+    const m10 = (mat.v[1] / det) * -1.0;
     const m11 = mat.v[0] / det;
 
-    return new this(
-      m00, m01,
-      m10, m11
-    );
+    return new this(m00, m01, m10, m11);
   }
 
   static invertTo(mat: Matrix22, outMat: MutableMatrix22) {
     const det = mat.determinant();
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = mat.v[3] / det;
-    const m01 = mat.v[2] / det * (-1.0);
-    const m10 = mat.v[1] / det * (-1.0);
+    const m01 = (mat.v[2] / det) * -1.0;
+    const m10 = (mat.v[1] / det) * -1.0;
     const m11 = mat.v[0] / det;
 
-    return outMat.setComponents(
-      m00, m01,
-      m10, m11
-    );
+    return outMat.setComponents(m00, m01, m10, m11);
   }
 
   /**
@@ -193,20 +208,14 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   static rotate(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return new this(
-      cos, -sin,
-      sin, cos
-    );
+    return new this(cos, -sin, sin, cos);
   }
 
   /**
    * Create Scale Matrix
    */
   static scale(vec: Vector2) {
-    return new this(
-      vec.v[0], 0,
-      0, vec.v[1]
-    );
+    return new this(vec.v[0], 0, 0, vec.v[1]);
   }
 
   /**
@@ -219,10 +228,7 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     const m01 = l_mat.v[0] * r_mat.v[2] + l_mat.v[2] * r_mat.v[3];
     const m11 = l_mat.v[1] * r_mat.v[2] + l_mat.v[3] * r_mat.v[3];
 
-    return new this(
-      m00, m01,
-      m10, m11
-    );
+    return new this(m00, m01, m10, m11);
   }
 
   /**
@@ -235,25 +241,30 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
     const m01 = l_mat.v[0] * r_mat.v[2] + l_mat.v[2] * r_mat.v[3];
     const m11 = l_mat.v[1] * r_mat.v[2] + l_mat.v[3] * r_mat.v[3];
 
-    return outMat.setComponents(
-      m00, m01,
-      m10, m11
-    );
+    return outMat.setComponents(m00, m01, m10, m11);
   }
 
   toString() {
-    return this.v[0] + ' ' + this.v[2] + '\n' +
-      this.v[1] + ' ' + this.v[3] + ' \n';
+    return (
+      this.v[0] + ' ' + this.v[2] + '\n' + this.v[1] + ' ' + this.v[3] + ' \n'
+    );
   }
 
   toStringApproximately() {
-    return MathUtil.nearZeroToZero(this.v[0]) + ' ' + MathUtil.nearZeroToZero(this.v[2]) + '\n' +
-      MathUtil.nearZeroToZero(this.v[1]) + ' ' + MathUtil.nearZeroToZero(this.v[3]) + ' \n';
+    return (
+      MathUtil.nearZeroToZero(this.v[0]) +
+      ' ' +
+      MathUtil.nearZeroToZero(this.v[2]) +
+      '\n' +
+      MathUtil.nearZeroToZero(this.v[1]) +
+      ' ' +
+      MathUtil.nearZeroToZero(this.v[3]) +
+      ' \n'
+    );
   }
 
   flattenAsArray() {
-    return [this.v[0], this.v[1],
-    this.v[2], this.v[3]];
+    return [this.v[0], this.v[1], this.v[2], this.v[3]];
   }
 
   isDummy() {
@@ -265,10 +276,12 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
   }
 
   isEqual(mat: Matrix22, delta: number = Number.EPSILON) {
-    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
+    if (
+      Math.abs(mat.v[0] - this.v[0]) < delta &&
       Math.abs(mat.v[1] - this.v[1]) < delta &&
       Math.abs(mat.v[2] - this.v[2]) < delta &&
-      Math.abs(mat.v[3] - this.v[3]) < delta) {
+      Math.abs(mat.v[3] - this.v[3]) < delta
+    ) {
       return true;
     } else {
       return false;
@@ -277,8 +290,10 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
 
   isStrictEqual(mat: Matrix22) {
     if (
-      mat.v[0] === this.v[0] && mat.v[1] === this.v[1] &&
-      mat.v[2] === this.v[2] && mat.v[3] === this.v[3]
+      mat.v[0] === this.v[0] &&
+      mat.v[1] === this.v[1] &&
+      mat.v[2] === this.v[2] &&
+      mat.v[3] === this.v[3]
     ) {
       return true;
     } else {
@@ -323,8 +338,10 @@ export default class Matrix22 implements IMatrix, IMatrix22 {
 
   clone() {
     return new (this.constructor as any)(
-      this.v[0], this.v[2],
-      this.v[1], this.v[3]
+      this.v[0],
+      this.v[2],
+      this.v[1],
+      this.v[3]
     ) as Matrix22;
   }
 }

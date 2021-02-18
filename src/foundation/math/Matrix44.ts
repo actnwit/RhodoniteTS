@@ -2,15 +2,16 @@ import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector4 from './Vector4';
-import { IMatrix, IMatrix44 } from './IMatrix';
-import { CompositionType } from '../definitions/CompositionType';
+import {IMatrix, IMatrix44} from './IMatrix';
+import {CompositionType} from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
 import MutableVector4 from './MutableVector4';
-import { TypedArray } from '../../commontypes/CommonTypes';
-import { IVector3 } from './IVector';
-import { MathUtil } from './MathUtil';
+import {TypedArray} from '../../commontypes/CommonTypes';
+import {IVector3} from './IVector';
+import {MathUtil} from './MathUtil';
 
+/* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
@@ -34,7 +35,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     m4?: number, m5?: number, m6?: number, m7?: number,
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor: boolean = false, notCopyFloatArray: boolean = false) {
+    isColumnMajor = false, notCopyFloatArray = false) {
 
     const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
     const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
@@ -48,7 +49,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
     if (arguments.length >= 16 && arguments[3] != null) {
       this.v = new FloatArray(16); // Data order is column major
-      let m = arguments;
+      const m = arguments;
       if (_isColumnMajor === true) {
         this.v[0] = m[0]; this.v[4] = m[4]; this.v[8] = m[8]; this.v[12] = m[12];
         this.v[1] = m[1]; this.v[5] = m[5]; this.v[9] = m[9]; this.v[13] = m[13];
@@ -268,7 +269,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = (mat.v[5] * n11 - mat.v[9] * n10 + mat.v[13] * n09) / det;
@@ -312,7 +313,7 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = (mat.v[5] * n11 - mat.v[9] * n10 + mat.v[13] * n09) / det;
@@ -758,9 +759,9 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   toEulerAngles() {
     let rotate = null;
     if (Math.abs(this.v[2]) != 1.0) {
-      let y = -Math.asin(this.v[2]);
-      let x = Math.atan2(this.v[6] / Math.cos(y), this.v[10] / Math.cos(y));
-      let z = Math.atan2(this.v[1] / Math.cos(y), this.v[0] / Math.cos(y));
+      const y = -Math.asin(this.v[2]);
+      const x = Math.atan2(this.v[6] / Math.cos(y), this.v[10] / Math.cos(y));
+      const z = Math.atan2(this.v[1] / Math.cos(y), this.v[0] / Math.cos(y));
       rotate = new Vector3(x, y, z);
     } else if (this.v[2] === -1.0) {
       rotate = new Vector3(Math.atan2(this.v[4], this.v[8]), Math.PI / 2.0, 0.0);
@@ -773,9 +774,9 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
   toEulerAnglesTo(outVec3: MutableVector3) {
     if (Math.abs(this.v[2]) != 1.0) {
-      let y = -Math.asin(this.v[2]);
-      let x = Math.atan2(this.v[6] / Math.cos(y), this.v[10] / Math.cos(y));
-      let z = Math.atan2(this.v[1] / Math.cos(y), this.v[0] / Math.cos(y));
+      const y = -Math.asin(this.v[2]);
+      const x = Math.atan2(this.v[6] / Math.cos(y), this.v[10] / Math.cos(y));
+      const z = Math.atan2(this.v[1] / Math.cos(y), this.v[0] / Math.cos(y));
       outVec3.v[0] = x;
       outVec3.v[1] = y;
       outVec3.v[2] = z;

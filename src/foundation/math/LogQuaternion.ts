@@ -1,14 +1,25 @@
-import { IVector3, IVector4 } from './IVector';
+import {IVector3, IVector4} from './IVector';
 import Quaternion from './Quaternion';
-import { TypedArray } from '../../commontypes/CommonTypes';
-import { ILogQuaternion, IQuaternion } from './IQuaternion';
+import {TypedArray} from '../../commontypes/CommonTypes';
+import {ILogQuaternion, IQuaternion} from './IQuaternion';
 
 export default class LogQuaternion implements ILogQuaternion {
   v: TypedArray;
 
-  constructor(x: number | TypedArray | IVector3 | IVector4 | IQuaternion | Array<number> | null, y?: number, z?: number) {
+  constructor(
+    x:
+      | number
+      | TypedArray
+      | IVector3
+      | IVector4
+      | IQuaternion
+      | Array<number>
+      | null,
+    y?: number,
+    z?: number
+  ) {
     if (ArrayBuffer.isView(x)) {
-      this.v = (x as TypedArray);
+      this.v = x as TypedArray;
       return;
     } else if (x == null) {
       this.v = new Float32Array(0);
@@ -20,7 +31,7 @@ export default class LogQuaternion implements ILogQuaternion {
     if (x instanceof Quaternion) {
       // for IQuaternion
       const theta = Math.acos(x.w);
-      const sin = Math.sin(theta)
+      const sin = Math.sin(theta);
       this.v[0] = x.x * (theta / sin);
       this.v[1] = x.y * (theta / sin);
       this.v[2] = x.z * (theta / sin);

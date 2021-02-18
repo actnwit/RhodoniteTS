@@ -7,9 +7,8 @@ export default abstract class CGAPIResourceRepository {
   static getWebGLResourceRepository(): WebGLResourceRepository {
     const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
+    const webglModule = moduleManager.getModule(moduleName)! as any;
     const webGLResourceRepository: WebGLResourceRepository = webglModule.WebGLResourceRepository.getInstance();
     return webGLResourceRepository;
   }
-
 }

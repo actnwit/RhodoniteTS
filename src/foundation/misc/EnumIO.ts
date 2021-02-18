@@ -13,7 +13,15 @@ export class EnumClass implements EnumIO {
   private static __indices: Map<Function, number[]> = new Map();
   private static __strings: Map<Function, string[]> = new Map();
 
-  constructor({index, str, noCheckStrUnique} : {index: number, str: string, noCheckStrUnique?: boolean}) {
+  constructor({
+    index,
+    str,
+    noCheckStrUnique,
+  }: {
+    index: number;
+    str: string;
+    noCheckStrUnique?: boolean;
+  }) {
     if (EnumClass.__indices.get(this.constructor) == null) {
       EnumClass.__indices.set(this.constructor, []);
     }
@@ -45,7 +53,13 @@ export class EnumClass implements EnumIO {
   }
 }
 
-export function _from({ typeList, index }: { typeList: Array<EnumIO>, index: number }): EnumIO|undefined {
+export function _from({
+  typeList,
+  index,
+}: {
+  typeList: Array<EnumIO>;
+  index: number;
+}): EnumIO | undefined {
   const match = typeList.find(type => type.index === index);
   if (!match) {
     return void 0;
@@ -54,8 +68,16 @@ export function _from({ typeList, index }: { typeList: Array<EnumIO>, index: num
   return match;
 }
 
-export function _fromString({ typeList, str }: { typeList: Array<EnumIO>, str: string }): EnumIO|undefined {
-  const match = typeList.find(type => type.str.toLowerCase() === str.toLowerCase());
+export function _fromString({
+  typeList,
+  str,
+}: {
+  typeList: Array<EnumIO>;
+  str: string;
+}): EnumIO | undefined {
+  const match = typeList.find(
+    type => type.str.toLowerCase() === str.toLowerCase()
+  );
   if (!match) {
     return void 0;
   }
@@ -63,7 +85,13 @@ export function _fromString({ typeList, str }: { typeList: Array<EnumIO>, str: s
   return match;
 }
 
-export function _fromStringCaseSensitively({ typeList, str }: { typeList: Array<EnumIO>, str: string }): EnumIO|undefined {
+export function _fromStringCaseSensitively({
+  typeList,
+  str,
+}: {
+  typeList: Array<EnumIO>;
+  str: string;
+}): EnumIO | undefined {
   const match = typeList.find(type => type.str === str);
   if (!match) {
     return void 0;

@@ -1,22 +1,29 @@
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import MutableVector3 from './MutableVector3';
-import { Index } from '../../commontypes/CommonTypes';
+import {Index} from '../../commontypes/CommonTypes';
 
 export default class AABB {
-  private __min: MutableVector3 = new MutableVector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-  private __max: MutableVector3 = new MutableVector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+  private __min: MutableVector3 = new MutableVector3(
+    Number.MAX_VALUE,
+    Number.MAX_VALUE,
+    Number.MAX_VALUE
+  );
+  private __max: MutableVector3 = new MutableVector3(
+    -Number.MAX_VALUE,
+    -Number.MAX_VALUE,
+    -Number.MAX_VALUE
+  );
   private __centerPoint = MutableVector3.zero();
   private __lengthCenterToCorner = 0;
   private __isCenterPointDirty = false;
   private __isLengthCenterToCornerDirty = false;
   private static __tmpVector3 = MutableVector3.zero();
 
-  constructor() {
-  }
+  constructor() {}
 
   clone() {
-    let instance = new AABB();
+    const instance = new AABB();
     instance.__max = this.__max.clone();
     instance.__min = this.__min.clone();
     instance.__centerPoint = this.__centerPoint.clone();
@@ -28,8 +35,16 @@ export default class AABB {
   }
 
   initialize() {
-    this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-    this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+    this.__min.setComponents(
+      Number.MAX_VALUE,
+      Number.MAX_VALUE,
+      Number.MAX_VALUE
+    );
+    this.__max.setComponents(
+      -Number.MAX_VALUE,
+      -Number.MAX_VALUE,
+      -Number.MAX_VALUE
+    );
     this.__centerPoint.zero();
     this.__lengthCenterToCorner = 0;
     this.__isCenterPointDirty = false;
@@ -57,8 +72,14 @@ export default class AABB {
   }
 
   isVanilla() {
-    if (this.__min.x >= Number.MAX_VALUE && this.__min.y >= Number.MAX_VALUE && this.__min.z >= Number.MAX_VALUE
-      && this.__max.x <= -Number.MAX_VALUE && this.__max.y <= -Number.MAX_VALUE && this.__max.z <= -Number.MAX_VALUE) {
+    if (
+      this.__min.x >= Number.MAX_VALUE &&
+      this.__min.y >= Number.MAX_VALUE &&
+      this.__min.z >= Number.MAX_VALUE &&
+      this.__max.x <= -Number.MAX_VALUE &&
+      this.__max.y <= -Number.MAX_VALUE &&
+      this.__max.z <= -Number.MAX_VALUE
+    ) {
       return true;
     } else {
       return false;
@@ -66,13 +87,19 @@ export default class AABB {
   }
 
   addPosition(positionVector: Vector3) {
-    this.__min.x = (positionVector.x < this.__min.x) ? positionVector.x : this.__min.x;
-    this.__min.y = (positionVector.y < this.__min.y) ? positionVector.y : this.__min.y;
-    this.__min.z = (positionVector.z < this.__min.z) ? positionVector.z : this.__min.z;
+    this.__min.x =
+      positionVector.x < this.__min.x ? positionVector.x : this.__min.x;
+    this.__min.y =
+      positionVector.y < this.__min.y ? positionVector.y : this.__min.y;
+    this.__min.z =
+      positionVector.z < this.__min.z ? positionVector.z : this.__min.z;
 
-    this.__max.x = (this.__max.x < positionVector.x) ? positionVector.x : this.__max.x;
-    this.__max.y = (this.__max.y < positionVector.y) ? positionVector.y : this.__max.y;
-    this.__max.z = (this.__max.z < positionVector.z) ? positionVector.z : this.__max.z;
+    this.__max.x =
+      this.__max.x < positionVector.x ? positionVector.x : this.__max.x;
+    this.__max.y =
+      this.__max.y < positionVector.y ? positionVector.y : this.__max.y;
+    this.__max.z =
+      this.__max.z < positionVector.z ? positionVector.z : this.__max.z;
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
@@ -81,12 +108,18 @@ export default class AABB {
   }
 
   addPositionWithArray(array: number[], index: Index) {
-    this.__min.x = (array[index + 0] < this.__min.x) ? array[index + 0] : this.__min.x;
-    this.__min.y = (array[index + 1] < this.__min.y) ? array[index + 1] : this.__min.y;
-    this.__min.z = (array[index + 2] < this.__min.z) ? array[index + 2] : this.__min.z;
-    this.__max.x = (this.__max.x < array[index + 0]) ? array[index + 0] : this.__max.x;
-    this.__max.y = (this.__max.y < array[index + 1]) ? array[index + 1] : this.__max.y;
-    this.__max.z = (this.__max.z < array[index + 2]) ? array[index + 2] : this.__max.z;
+    this.__min.x =
+      array[index + 0] < this.__min.x ? array[index + 0] : this.__min.x;
+    this.__min.y =
+      array[index + 1] < this.__min.y ? array[index + 1] : this.__min.y;
+    this.__min.z =
+      array[index + 2] < this.__min.z ? array[index + 2] : this.__min.z;
+    this.__max.x =
+      this.__max.x < array[index + 0] ? array[index + 0] : this.__max.x;
+    this.__max.y =
+      this.__max.y < array[index + 1] ? array[index + 1] : this.__max.y;
+    this.__max.z =
+      this.__max.z < array[index + 2] ? array[index + 2] : this.__max.z;
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
@@ -95,7 +128,7 @@ export default class AABB {
   }
 
   mergeAABB(aabb: AABB) {
-    var isUpdated = false;
+    let isUpdated = false;
 
     if (aabb.isVanilla()) {
       return isUpdated;
@@ -143,10 +176,11 @@ export default class AABB {
     return isUpdated;
   }
 
-
   get centerPoint() {
     if (this.__isCenterPointDirty) {
-      MutableVector3.addTo(this.__min, this.__max, this.__centerPoint).divide(2);
+      MutableVector3.addTo(this.__min, this.__max, this.__centerPoint).divide(
+        2
+      );
       this.__isCenterPointDirty = false;
     }
     return this.__centerPoint;
@@ -154,29 +188,32 @@ export default class AABB {
 
   get lengthCenterToCorner() {
     if (this.__isLengthCenterToCornerDirty) {
-      this.__lengthCenterToCorner = Vector3.lengthBtw(this.centerPoint, this.maxPoint);
+      this.__lengthCenterToCorner = Vector3.lengthBtw(
+        this.centerPoint,
+        this.maxPoint
+      );
       this.__isLengthCenterToCornerDirty = false;
     }
     return this.__lengthCenterToCorner;
   }
 
   get sizeX() {
-    return (this.__max.x - this.__min.x);
+    return this.__max.x - this.__min.x;
   }
 
   get sizeY() {
-    return (this.__max.y - this.__min.y);
+    return this.__max.y - this.__min.y;
   }
 
   get sizeZ() {
-    return (this.__max.z - this.__min.z);
+    return this.__max.z - this.__min.z;
   }
 
   static multiplyMatrix(matrix: Matrix44, aabb: AABB) {
     if (aabb.isVanilla()) {
       return aabb.clone();
     }
-    var newAabb = new AABB();
+    const newAabb = new AABB();
 
     AABB.__tmpVector3.x = aabb.__min.x;
     AABB.__tmpVector3.y = aabb.__min.y;
@@ -278,8 +315,18 @@ export default class AABB {
   }
 
   toString() {
-    return 'AABB_min: ' + this.__min + '\n' + 'AABB_max: ' + this.__max + '\n'
-      + 'centerPoint: ' + this.__centerPoint + '\n' + 'lengthCenterToCorner: ' + this.__lengthCenterToCorner;
+    return (
+      'AABB_min: ' +
+      this.__min +
+      '\n' +
+      'AABB_max: ' +
+      this.__max +
+      '\n' +
+      'centerPoint: ' +
+      this.__centerPoint +
+      '\n' +
+      'lengthCenterToCorner: ' +
+      this.__lengthCenterToCorner
+    );
   }
 }
-

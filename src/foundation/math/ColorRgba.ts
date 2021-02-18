@@ -1,11 +1,15 @@
 import Vector4 from './Vector4';
-import { IVector4 } from './IVector';
-import { IColorRgba } from './IColor';
-import { TypedArray } from '../../commontypes/CommonTypes';
+import {IVector4} from './IVector';
+import {IColorRgba} from './IColor';
+import {TypedArray} from '../../commontypes/CommonTypes';
 
 export default class ColorRgba extends Vector4 implements IVector4, IColorRgba {
-
-  constructor(r: number | TypedArray | IVector4 | Array<number> | null, g?: number, b?: number, a?: number) {
+  constructor(
+    r: number | TypedArray | IVector4 | Array<number> | null,
+    g?: number,
+    b?: number,
+    a?: number
+  ) {
     super(r, g, b, a);
   }
 

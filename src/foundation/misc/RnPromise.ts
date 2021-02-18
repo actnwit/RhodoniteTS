@@ -1,25 +1,28 @@
-type PromiseFn<T> = (resolve: (value?: T | PromiseLike<T> | undefined) => void, reject: (reason?: any) => void) => void;
+type PromiseFn<T> = (
+  resolve: (value?: T | PromiseLike<T> | undefined) => void,
+  reject: (reason?: any) => void
+) => void;
 type OnFulfilledFn<T> = ((value: T) => T | PromiseLike<T>) | null | undefined;
 type OnRejectedFn<T> = ((reason: any) => PromiseLike<never>) | null | undefined;
 type OnFinallyFn = (() => void) | null | undefined;
-export type CallbackObj =  {
-  promiseAllNum: number,
-  resolvedNum: number,
-  rejectedNum: number,
-  pendingNum: number
-  processedPromises: any[]
-}
+export type CallbackObj = {
+  promiseAllNum: number;
+  resolvedNum: number;
+  rejectedNum: number;
+  pendingNum: number;
+  processedPromises: any[];
+};
 export default class RnPromise<T> {
   private __promise: Promise<T>;
   private __callback?: Function;
-  public name: string = '';
+  public name = '';
   private __callbackObj: CallbackObj = {
     promiseAllNum: 0,
     resolvedNum: 0,
     rejectedNum: 0,
     pendingNum: 0,
-    processedPromises: []
-  }
+    processedPromises: [],
+  };
 
   constructor(promise: Promise<T>, callback?: Function);
   constructor(fn: PromiseFn<T>, callback?: Function);
@@ -38,14 +41,14 @@ export default class RnPromise<T> {
     } else if (arg instanceof RnPromise) {
       return arg;
     } else if (arg.then != null) {
-      const rnPromise = new RnPromise((resolve, reject)=>{
-        resolve(arg)
+      const rnPromise = new RnPromise((resolve, reject) => {
+        resolve(arg);
       });
       rnPromise.then = arg.then;
       return rnPromise;
     } else {
-      return new RnPromise((resolve, reject)=>{
-        resolve(arg)
+      return new RnPromise((resolve, reject) => {
+        resolve(arg);
       });
     }
   }
@@ -57,14 +60,14 @@ export default class RnPromise<T> {
   static allWithProgressCallback(promises: any[], callback: Function) {
     const rnPromises = [];
     const callbackObj: CallbackObj = {
-    promiseAllNum: promises.length,
-    resolvedNum: 0,
-    rejectedNum: 0,
-    pendingNum: promises.length,
-    processedPromises: []
-  }
+      promiseAllNum: promises.length,
+      resolvedNum: 0,
+      rejectedNum: 0,
+      pendingNum: promises.length,
+      processedPromises: [],
+    };
 
-    for (let promise of promises) {
+    for (const promise of promises) {
       const rnPromise = RnPromise.resolve(promise);
       rnPromise.__callback = callback;
       rnPromise.__callbackObj = callbackObj;
@@ -79,7 +82,10 @@ export default class RnPromise<T> {
 
   then(onFulfilled?: any, onRejected?: any) {
     const onFulfilledWrapper = (value: T) => {
-      if (this.__callbackObj.promiseAllNum !== 0 && this.__callbackObj.processedPromises.indexOf(this) === -1) {
+      if (
+        this.__callbackObj.promiseAllNum !== 0 &&
+        this.__callbackObj.processedPromises.indexOf(this) === -1
+      ) {
         this.__callbackObj.pendingNum--;
         this.__callbackObj.resolvedNum++;
         this.__callbackObj.processedPromises.push(this);

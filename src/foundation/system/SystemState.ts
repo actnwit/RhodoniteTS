@@ -1,7 +1,10 @@
-import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
+import {
+  ProcessApproachEnum,
+  ProcessApproach,
+} from '../definitions/ProcessApproach';
 
-let currentProcessApproach: ProcessApproachEnum = ProcessApproach.None;
+const currentProcessApproach: ProcessApproachEnum = ProcessApproach.None;
 
 export default {
-  currentProcessApproach
-}
+  currentProcessApproach,
+};

@@ -1,10 +1,31 @@
-import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector4 } from './IVector';
-import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
-import { Vector4_ } from './Vector4';
+import {
+  IVector2,
+  IVector3,
+  IVector4,
+  IMutableVector,
+  IMutableVector4,
+} from './IVector';
+import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
+import {Vector4_} from './Vector4';
 
-export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
-  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
-    super(x, y, z, w, { type });
+export class MutableVector4_<T extends TypedArrayConstructor>
+  extends Vector4_<T>
+  implements IMutableVector, IMutableVector4 {
+  constructor(
+    x:
+      | number
+      | TypedArray
+      | IVector2
+      | IVector3
+      | IVector4
+      | Array<number>
+      | null,
+    y: number,
+    z: number,
+    w: number,
+    {type}: {type: T}
+  ) {
+    super(x, y, z, w, {type});
   }
 
   set x(x: number) {
@@ -137,7 +158,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
       this.v[2] /= value;
       this.v[3] /= value;
     } else {
-      console.error("0 division occurred!");
+      console.error('0 division occurred!');
       this.v[0] = Infinity;
       this.v[1] = Infinity;
       this.v[2] = Infinity;
@@ -156,7 +177,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
       this.v[2] /= vec.v[2];
       this.v[3] /= vec.v[3];
     } else {
-      console.error("0 division occurred!");
+      console.error('0 division occurred!');
       this.v[0] = vec.v[0] === 0 ? Infinity : this.v[0] / vec.v[0];
       this.v[1] = vec.v[1] === 0 ? Infinity : this.v[1] / vec.v[1];
       this.v[2] = vec.v[2] === 0 ? Infinity : this.v[2] / vec.v[2];
@@ -166,10 +187,21 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
   }
 }
 
-
 export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
-    super(x, y!, z!, w!, { type: Float32Array })
+  constructor(
+    x:
+      | number
+      | TypedArray
+      | IVector2
+      | IVector3
+      | IVector4
+      | Array<number>
+      | null,
+    y?: number,
+    z?: number,
+    w?: number
+  ) {
+    super(x, y!, z!, w!, {type: Float32Array});
   }
 
   static zero() {
@@ -218,8 +250,20 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
 }
 
 export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
-    super(x, y!, z!, w!, { type: Float64Array })
+  constructor(
+    x:
+      | number
+      | TypedArray
+      | IVector2
+      | IVector3
+      | IVector4
+      | Array<number>
+      | null,
+    y?: number,
+    z?: number,
+    w?: number
+  ) {
+    super(x, y!, z!, w!, {type: Float64Array});
   }
 
   static zero() {

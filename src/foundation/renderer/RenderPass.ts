@@ -5,9 +5,9 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
 import Vector4 from '../math/Vector4';
 import CameraComponent from '../components/CameraComponent';
-import { EntityUID } from '../../commontypes/CommonTypes';
+import {EntityUID} from '../../commontypes/CommonTypes';
 import Material from '../materials/core/Material';
-import { WebGLStrategy } from '../../webgl/main';
+import {WebGLStrategy} from '../../webgl/main';
 import System from '../system/System';
 import ModuleManager from '../system/ModuleManager';
 import Primitive from '../geometry/Primitive';
@@ -30,7 +30,7 @@ export default class RenderPass extends RnObject {
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
-  public cullFrontFaceCCW: boolean = true;
+  public cullFrontFaceCCW = true;
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();
   private __webglRenderingStrategy?: WebGLStrategy;
@@ -62,17 +62,26 @@ export default class RenderPass extends RnObject {
    * @param entities An array of entities.
    */
   addEntities(entities: Entity[]) {
-    for (let entity of entities) {
+    for (const entity of entities) {
       const sceneGraphComponent = entity.getSceneGraph();
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
-      const collectedSgComponents = SceneGraphComponent.flattenHierarchy(sceneGraphComponent, false);
-      const collectedEntities: Entity[] = collectedSgComponents.map((sg: SceneGraphComponent) => { return sg.entity });
+      const collectedSgComponents = SceneGraphComponent.flattenHierarchy(
+        sceneGraphComponent,
+        false
+      );
+      const collectedEntities: Entity[] = collectedSgComponents.map(
+        (sg: SceneGraphComponent) => {
+          return sg.entity;
+        }
+      );
 
       // Eliminate duplicates
-      const map: Map<EntityUID, Entity> = this.__entities.concat(collectedEntities).reduce((map: Map<EntityUID, Entity>, entity: Entity) => {
-        map.set(entity.entityUID, entity);
-        return map;
-      }, new Map());
+      const map: Map<EntityUID, Entity> = this.__entities
+        .concat(collectedEntities)
+        .reduce((map: Map<EntityUID, Entity>, entity: Entity) => {
+          map.set(entity.entityUID, entity);
+          return map;
+        }, new Map());
 
       this.__entities = Array.from(map.values());
     }
@@ -104,23 +113,24 @@ export default class RenderPass extends RnObject {
     if (this.__topLevelSceneGraphComponents == null) {
       const goToTopLevel = (sg: SceneGraphComponent) => {
         if (sg.parent) {
-          goToTopLevel(sg.parent)
+          goToTopLevel(sg.parent);
         }
         return sg;
       };
-      this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map((sg: SceneGraphComponent) => {
-        return goToTopLevel(sg);
-      });
-      let set = new Set(this.__topLevelSceneGraphComponents);
+      this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map(
+        (sg: SceneGraphComponent) => {
+          return goToTopLevel(sg);
+        }
+      );
+      const set = new Set(this.__topLevelSceneGraphComponents);
       this.__topLevelSceneGraphComponents = Array.from(set);
     }
   }
 
-
   private __collectMeshComponents() {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];
-      this.__entities.filter((entity) => {
+      this.__entities.filter(entity => {
         const meshComponent = entity.getMesh();
         if (meshComponent) {
           this.__meshComponents!.push(meshComponent);
@@ -142,9 +152,11 @@ export default class RenderPass extends RnObject {
    * Get all the highest level SceneGraphComponents list of the entities on this render pass.
    * @return An array of SceneGraphComponents
    */
-  get sceneTopLevelGraphComponents(): SceneGraphComponent[]  {
+  get sceneTopLevelGraphComponents(): SceneGraphComponent[] {
     this.__collectTopLevelSceneGraphComponents();
-    return this.__topLevelSceneGraphComponents != null ? this.__topLevelSceneGraphComponents : []
+    return this.__topLevelSceneGraphComponents != null
+      ? this.__topLevelSceneGraphComponents
+      : [];
   }
 
   /**
@@ -155,7 +167,9 @@ export default class RenderPass extends RnObject {
   setFramebuffer(framebuffer: FrameBuffer) {
     this.__frameBuffer = framebuffer;
     if (framebuffer != null) {
-      this.setViewport(new Vector4(0, 0, framebuffer.width, framebuffer.height));
+      this.setViewport(
+        new Vector4(0, 0, framebuffer.width, framebuffer.height)
+      );
     } else {
       this.__viewport = undefined;
     }
@@ -194,13 +208,16 @@ export default class RenderPass extends RnObject {
     return viewport;
   }
 
-  private __setupMaterial(material: Material, isPointSprite: boolean = false) {
+  private __setupMaterial(material: Material, isPointSprite = false) {
     if (material.isEmptyMaterial()) return;
 
     if (this.__webglRenderingStrategy == null) {
       this.__setWebglRenderingStrategy();
     }
-    (this.__webglRenderingStrategy as any).setupDefaultShaderSemantics(material, isPointSprite);
+    (this.__webglRenderingStrategy as any).setupDefaultShaderSemantics(
+      material,
+      isPointSprite
+    );
   }
 
   /**
@@ -210,7 +227,11 @@ export default class RenderPass extends RnObject {
    * @param primitive A target primitive
    * @param isPointSprite Set true, if the primitive is a point sprite
    */
-  setMaterialForPrimitive(material: Material, primitive: Primitive, isPointSprite: boolean = false) {
+  setMaterialForPrimitive(
+    material: Material,
+    primitive: Primitive,
+    isPointSprite = false
+  ) {
     this.__primitiveMaterial.set(primitive, material);
 
     this.__setupMaterial(material, isPointSprite);
@@ -223,7 +244,7 @@ export default class RenderPass extends RnObject {
    * @param material A material attaching to the primitive
    * @param isPointSprite Set true, if the primitive is a point sprite
    */
-  setMaterial(material: Material, isPointSprite: boolean = false) {
+  setMaterial(material: Material, isPointSprite = false) {
     this.__material = material;
 
     this.__setupMaterial(material, isPointSprite);
@@ -233,15 +254,16 @@ export default class RenderPass extends RnObject {
     return this.__material;
   }
 
-
   private __setWebglRenderingStrategy() {
     const system = System.getInstance();
     const processApproach = system.processApproach;
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
-    this.__webglRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
+    const webglModule = moduleManager.getModule(moduleName)! as any;
+    this.__webglRenderingStrategy = webglModule.getRenderingStrategy(
+      processApproach
+    );
   }
 
   private __getMaterialOf(primitive: Primitive) {
@@ -252,7 +274,10 @@ export default class RenderPass extends RnObject {
     return this.__primitiveMaterial.has(primitive);
   }
 
-  getAppropriateMaterial(primitive: Primitive, defaultMaterial: Material): Material {
+  getAppropriateMaterial(
+    primitive: Primitive,
+    defaultMaterial: Material
+  ): Material {
     let material;
 
     if (this.__hasMaterialOf(primitive)) {
@@ -264,5 +289,4 @@ export default class RenderPass extends RnObject {
     }
     return material;
   }
-
 }
