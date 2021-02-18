@@ -1,23 +1,34 @@
-import { BoneDataType } from '../definitions/BoneDataType';
+import {BoneDataType} from '../definitions/BoneDataType';
 
-let byteAlignOfBuffer = 16;
-let maxEntityNumber = 5000;
-let maxLightNumberInShader = 4;
-let maxVertexMorphNumberInShader = 41;
-let maxMaterialInstanceForEachType = 500;
-let maxSkeletonNumber = 33;
-let maxCameraNumber = 15;
-let maxSizeLimitOfNonCompressedTexture = 512;
-let maxSkeletalBoneNumber = 250;
-let dataTextureWidth = Math.pow(2, 12);
-let dataTextureHeight = Math.pow(2, 12);
-let boneDataType = BoneDataType.Vec4x2;
-let noWebGLTex2DStateCache = false;
-let maxMorphTargetNumber = 4;
-let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+const byteAlignOfBuffer = 16;
+const maxEntityNumber = 5000;
+const maxLightNumberInShader = 4;
+const maxVertexMorphNumberInShader = 41;
+const maxMaterialInstanceForEachType = 500;
+const maxSkeletonNumber = 33;
+const maxCameraNumber = 15;
+const maxSizeLimitOfNonCompressedTexture = 512;
+const maxSkeletalBoneNumber = 250;
+const dataTextureWidth = Math.pow(2, 12);
+const dataTextureHeight = Math.pow(2, 12);
+const boneDataType = BoneDataType.Vec4x2;
+const noWebGLTex2DStateCache = false;
+const maxMorphTargetNumber = 4;
+const totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 
 export default {
-  maxEntityNumber, maxLightNumberInShader, maxVertexMorphNumberInShader, maxMaterialInstanceForEachType, boneDataType,
-  maxSkeletonNumber, maxCameraNumber, maxSizeLimitOfNonCompressedTexture, maxSkeletalBoneNumber, dataTextureWidth, dataTextureHeight,
-  noWebGLTex2DStateCache, maxMorphTargetNumber, totalSizeOfGPUShaderDataStorageExceptMorphData
+  maxEntityNumber,
+  maxLightNumberInShader,
+  maxVertexMorphNumberInShader,
+  maxMaterialInstanceForEachType,
+  boneDataType,
+  maxSkeletonNumber,
+  maxCameraNumber,
+  maxSizeLimitOfNonCompressedTexture,
+  maxSkeletalBoneNumber,
+  dataTextureWidth,
+  dataTextureHeight,
+  noWebGLTex2DStateCache,
+  maxMorphTargetNumber,
+  totalSizeOfGPUShaderDataStorageExceptMorphData,
 };

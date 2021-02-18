@@ -1,10 +1,7 @@
 import Entity from './Entity';
 import Component from './Component';
 import ComponentRepository from './ComponentRepository';
-import is from '../misc/IsUtil';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { match } from 'minimatch';
-import { RnTags, EntityUID, ComponentTID } from '../../commontypes/CommonTypes';
+import {RnTags, EntityUID, ComponentTID} from '../../commontypes/CommonTypes';
 
 /**
  * The class that generates and manages entities.
@@ -17,7 +14,6 @@ export default class EntityRepository {
   _components: Array<Map<ComponentTID, Component>>; // index is EntityUID
 
   private constructor() {
-
     this.__entity_uid_count = Entity.invalidEntityUID;
 
     this.__entities = [];
@@ -30,7 +26,6 @@ export default class EntityRepository {
       this.__instance = new EntityRepository();
     }
     return this.__instance;
-
   }
 
   /**
@@ -49,11 +44,18 @@ export default class EntityRepository {
    * @param componentClasses The class objects to set to the entity.
    * @param entityUid The entityUID of the entity.
    */
-  addComponentsToEntity(componentClasses: Array<typeof Component>, entityUid: EntityUID) {
+  addComponentsToEntity(
+    componentClasses: Array<typeof Component>,
+    entityUid: EntityUID
+  ) {
     const entity: Entity = this.getEntity(entityUid);
 
-    for (let componentClass of componentClasses) {
-      const component = this.__componentRepository.createComponent(componentClass.componentTID, entityUid, this);
+    for (const componentClass of componentClasses) {
+      const component = this.__componentRepository.createComponent(
+        componentClass.componentTID,
+        entityUid,
+        this
+      );
       let map = this._components[entity.entityUID];
       if (map == null) {
         map = new Map();
@@ -73,10 +75,13 @@ export default class EntityRepository {
    * @param componentClasses The class object of the components to remove.
    * @param entityUid The entityUID of the entity.
    */
-  removeComponentsFromEntity(componentClasses: Array<typeof Component>, entityUid: EntityUID) {
+  removeComponentsFromEntity(
+    componentClasses: Array<typeof Component>,
+    entityUid: EntityUID
+  ) {
     const entity: Entity = this.getEntity(entityUid);
 
-    for (let componentClass of componentClasses) {
+    for (const componentClass of componentClasses) {
       let map = this._components[entity.entityUID];
       if (map == null) {
         map = new Map();
@@ -101,7 +106,10 @@ export default class EntityRepository {
    * @param entityUid The entity to get the component from.
    * @param componentType The class object of the component to get.
    */
-  getComponentOfEntity(entityUid: EntityUID, componentType: typeof Component): Component | null {
+  getComponentOfEntity(
+    entityUid: EntityUID,
+    componentType: typeof Component
+  ): Component | null {
     const entity = this._components[entityUid];
     let component = null;
     if (entity != null) {
@@ -121,7 +129,7 @@ export default class EntityRepository {
    */
   searchByTags(tags: RnTags) {
     const matchEntities = [];
-    for (let entity of this.__entities) {
+    for (const entity of this.__entities) {
       if (entity.matchTags(tags)) {
         matchEntities.push(entity);
       }
@@ -134,7 +142,7 @@ export default class EntityRepository {
    * @param uniqueName The unique name of the entity.
    */
   getEntityByUniqueName(uniqueName: string) {
-    for (let entity of this.__entities) {
+    for (const entity of this.__entities) {
       if (entity.uniqueName === uniqueName) {
         return entity;
       }
@@ -157,4 +165,3 @@ export default class EntityRepository {
     return this.__entities.length;
   }
 }
-

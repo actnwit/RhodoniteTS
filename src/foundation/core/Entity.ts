@@ -1,10 +1,9 @@
-import EntityRepository from './EntityRepository';
 import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import RnObject from './RnObject';
-import { ComponentTID, EntityUID } from '../../commontypes/CommonTypes';
+import {ComponentTID, EntityUID} from '../../commontypes/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
@@ -24,7 +23,7 @@ export default class Entity extends RnObject {
   private __isAlive: Boolean;
   private static __instance: Entity;
 
-  private __components: Component[] = [] // index is ComponentTID
+  private __components: Component[] = []; // index is ComponentTID
 
   private __transformComponent?: TransformComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
@@ -67,7 +66,6 @@ export default class Entity extends RnObject {
     this.__components[(component.constructor as any).componentTID] = component;
   }
 
-
   /**
    * Get the component of the specified type that the entity has
    * @param componentType
@@ -90,7 +88,9 @@ export default class Entity extends RnObject {
    */
   getTransform(): TransformComponent {
     if (this.__transformComponent == null) {
-      this.__transformComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.TransformComponentTID) as TransformComponent;
+      this.__transformComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.TransformComponentTID
+      ) as TransformComponent;
     }
     return this.__transformComponent;
   }
@@ -101,65 +101,82 @@ export default class Entity extends RnObject {
    */
   getSceneGraph(): SceneGraphComponent {
     if (this.__sceneGraphComponent == null) {
-      this.__sceneGraphComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.SceneGraphComponentTID) as SceneGraphComponent;
+      this.__sceneGraphComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.SceneGraphComponentTID
+      ) as SceneGraphComponent;
     }
     return this.__sceneGraphComponent;
   }
 
   getSkeletal(): SkeletalComponent {
     if (this.__skeletalComponent == null) {
-      this.__skeletalComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.SkeletalComponentTID) as SkeletalComponent;
+      this.__skeletalComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.SkeletalComponentTID
+      ) as SkeletalComponent;
     }
     return this.__skeletalComponent;
   }
 
   getMesh(): MeshComponent {
     if (this.__meshComponent == null) {
-      this.__meshComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
+      this.__meshComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.MeshComponentTID
+      ) as MeshComponent;
     }
     return this.__meshComponent;
   }
 
   getMeshRenderer(): MeshRendererComponent {
     if (this.__meshRendererComponent == null) {
-      this.__meshRendererComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.MeshRendererComponentTID) as MeshRendererComponent;
+      this.__meshRendererComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.MeshRendererComponentTID
+      ) as MeshRendererComponent;
     }
     return this.__meshRendererComponent;
   }
 
   getCamera(): CameraComponent {
     if (this.__cameraComponent == null) {
-      this.__cameraComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as CameraComponent;
+      this.__cameraComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.CameraComponentTID
+      ) as CameraComponent;
     }
     return this.__cameraComponent;
   }
 
   getCameraController(): CameraControllerComponent {
     if (this.__cameraControllerComponent == null) {
-      this.__cameraControllerComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.CameraControllerComponentTID) as CameraControllerComponent;
+      this.__cameraControllerComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.CameraControllerComponentTID
+      ) as CameraControllerComponent;
     }
     return this.__cameraControllerComponent;
   }
 
   getBlendShape(): BlendShapeComponent {
     if (this.__blendShapeComponent == null) {
-      this.__blendShapeComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.BlendShapeComponentTID) as BlendShapeComponent;
+      this.__blendShapeComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.BlendShapeComponentTID
+      ) as BlendShapeComponent;
     }
     return this.__blendShapeComponent;
   }
 
   getPhysics(): PhysicsComponent {
     if (this.__physicsComponent == null) {
-      this.__physicsComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as PhysicsComponent;
+      this.__physicsComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.PhysicsComponentTID
+      ) as PhysicsComponent;
     }
     return this.__physicsComponent;
   }
 
   getLight(): LightComponent {
     if (this.__lightComponent == null) {
-      this.__lightComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.LightComponentTID) as LightComponent;
+      this.__lightComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.LightComponentTID
+      ) as LightComponent;
     }
     return this.__lightComponent;
-
   }
 }
