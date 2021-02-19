@@ -1,27 +1,41 @@
 import _Rn from '../../../dist/esm/index';
-import { OrbitCameraController, CameraComponent, MeshComponent, EntityRepository, AbstractTexture,
-  Expression, FrameBuffer, RenderPass} from '../../../dist/esm/index';
-
+import {
+  OrbitCameraController,
+  CameraComponent,
+  MeshComponent,
+  EntityRepository,
+  AbstractTexture,
+  Expression,
+  FrameBuffer,
+  RenderPass,
+} from '../../../dist/esm/index';
 
 let p: any;
 
 declare const window: any;
 declare const Rn: typeof _Rn;
 
-(async ()=>{
-
+(async () => {
   const promises = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
-  Promise.all(promises).then(function () {
+  Promise.all(promises).then(() => {
     const importer = Rn.Gltf2Importer.getInstance();
     const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+    const gl = system.setProcessApproachAndCanvas(
+      Rn.ProcessApproach.UniformWebGL1,
+      document.getElementById('world') as HTMLCanvasElement
+    );
 
     const entityRepository = Rn.EntityRepository.getInstance();
 
     // Camera
-    const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
+    const cameraEntity = entityRepository.createEntity([
+      Rn.TransformComponent,
+      Rn.SceneGraphComponent,
+      Rn.CameraComponent,
+      Rn.CameraControllerComponent,
+    ]);
     const cameraComponent = cameraEntity.getCamera();
     //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
     cameraComponent.zNear = 0.1;
@@ -30,24 +44,27 @@ declare const Rn: typeof _Rn;
     cameraComponent.aspect = 1;
     cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
 
-
     // Lights
-    const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
+    const lightEntity = entityRepository.createEntity([
+      Rn.TransformComponent,
+      Rn.SceneGraphComponent,
+      Rn.LightComponent,
+    ]);
     lightEntity.getTransform().translate = new Rn.Vector3(1.0, 1.0, 100000.0);
     lightEntity.getLight().intensity = new Rn.Vector3(1, 1, 1);
     lightEntity.getLight().type = Rn.LightType.Directional;
     lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-
-    const promise = importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
+    const promise = importer.import(
+      '../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+    );
     //    const promise = importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
-    promise.then(function (response) {
+    promise.then(response => {
       const modelConverter = Rn.ModelConverter.getInstance();
       const rootGroup = modelConverter.convertToRhodoniteObject(response);
       //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
       rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
-
 
       // CameraComponent
       const cameraControllerComponent = cameraEntity.getCameraController();
@@ -62,16 +79,13 @@ declare const Rn: typeof _Rn;
       const expression = new Rn.Expression();
       expression.addRenderPasses([renderPass]);
 
-
       Rn.CameraComponent.main = 0;
       let startTime = Date.now();
       const rotationVec3 = Rn.MutableVector3.one();
       let count = 0;
       const draw = function () {
-
         if (p == null && count > 0) {
           if (response != null) {
-
             gl.enable(gl.DEPTH_TEST);
             gl.viewport(0, 0, 600, 600);
             gl.clearColor(0.8, 0.8, 0.8, 1.0);
@@ -79,10 +93,9 @@ declare const Rn: typeof _Rn;
           }
 
           p = document.createElement('p');
-          p.setAttribute("id", "rendered");
+          p.setAttribute('id', 'rendered');
           p.innerText = 'Rendered.';
           document.body.appendChild(p);
-
         }
 
         if (window.isAnimating) {
@@ -105,16 +118,12 @@ declare const Rn: typeof _Rn;
         count++;
 
         requestAnimationFrame(draw);
-      }
+      };
 
       draw();
-
     });
-
   });
-
 })();
-
 
 function exportGltf2() {
   const exporter = Rn.Gltf2Exporter.getInstance();

@@ -1,10 +1,16 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../../foundation/definitions/VertexAttribute';
 import GLSLShader from '../GLSLShader';
 import Config from '../../../foundation/core/Config';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { MaterialNodeUID } from '../../../commontypes/CommonTypes';
-import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
+import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
+import {MaterialNodeUID} from '../../../commontypes/CommonTypes';
+import {
+  ComponentTypeEnum,
+  ComponentType,
+} from '../../../foundation/definitions/ComponentType';
 
 export type AttributeNames = Array<string>;
 
@@ -14,7 +20,8 @@ export default class UniformDataShader extends GLSLShader {
   constructor(
     private __functionName: string,
     private __compositionType: CompositionTypeEnum,
-    private __componentType: ComponentTypeEnum) {
+    private __componentType: ComponentTypeEnum
+  ) {
     super();
   }
 
@@ -28,8 +35,12 @@ export default class UniformDataShader extends GLSLShader {
 
   get vertexShaderDefinitions() {
     return `
-    uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${this.__variableName}; // initialValue=${this.__valueStr}
-    void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
+    uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
+      this.__variableName
+    }; // initialValue=${this.__valueStr}
+    void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
+      this.__componentType
+    )} outValue) {
 #ifdef RN_IS_FASTEST_MODE
   float materialSID = u_currentComponentSIDs[0];
 #else
@@ -39,12 +50,16 @@ export default class UniformDataShader extends GLSLShader {
 outValue = get_${this.__variableName}(materialSID, 0);
     }
     `;
-  };
+  }
 
   get pixelShaderDefinitions() {
     return `
-    uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${this.__variableName}; // initialValue=${this.__valueStr}
-    void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
+    uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
+      this.__variableName
+    }; // initialValue=${this.__valueStr}
+    void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
+      this.__componentType
+    )} outValue) {
 #ifdef RN_IS_FASTEST_MODE
   float materialSID = u_currentComponentSIDs[0];
 #else
@@ -68,4 +83,3 @@ outValue = get_${this.__variableName}(materialSID, 0);
     return [];
   }
 }
-

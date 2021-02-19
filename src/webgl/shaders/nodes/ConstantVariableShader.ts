@@ -1,10 +1,16 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../../foundation/definitions/VertexAttribute';
 import GLSLShader from '../GLSLShader';
 import Config from '../../../foundation/core/Config';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { MaterialNodeUID } from '../../../commontypes/CommonTypes';
-import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
+import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
+import {MaterialNodeUID} from '../../../commontypes/CommonTypes';
+import {
+  ComponentTypeEnum,
+  ComponentType,
+} from '../../../foundation/definitions/ComponentType';
 
 export type AttributeNames = Array<string>;
 
@@ -13,7 +19,8 @@ export default class ConstantVariableShader extends GLSLShader {
   constructor(
     private __functionName: string,
     private __compositionType: CompositionTypeEnum,
-    private __componentType: ComponentTypeEnum) {
+    private __componentType: ComponentTypeEnum
+  ) {
     super();
   }
 
@@ -36,7 +43,7 @@ export default class ConstantVariableShader extends GLSLShader {
       outValue = ${this.__constantValueStr};
     }
     `;
-  };
+  }
 
   get pixelShaderDefinitions() {
     return `
@@ -59,4 +66,3 @@ export default class ConstantVariableShader extends GLSLShader {
     return [];
   }
 }
-

@@ -1,6 +1,9 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../../foundation/definitions/VertexAttribute';
 import GLSLShader from '../GLSLShader';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 
 export type AttributeNames = Array<string>;
 
@@ -12,7 +15,7 @@ export default class IfStatementShader extends GLSLShader {
   get vertexShaderDefinitions() {
     return `
     `;
-  };
+  }
 
   get pixelShaderDefinitions() {
     return `

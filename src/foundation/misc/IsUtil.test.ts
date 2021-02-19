@@ -41,7 +41,7 @@ test('is.exist(false) return true', () => {
 });
 
 test('is.exist("") return true', () => {
-  expect(is.exist("")).toBe(true);
+  expect(is.exist('')).toBe(true);
 });
 
 test('is.exist([]) return true', () => {
@@ -63,7 +63,7 @@ test('is.exist(undefined) return false', () => {
 // is.function
 
 test('is.function(()=>{}) return true', () => {
-  expect(is.function(()=>{})).toBe(true);
+  expect(is.function(() => {})).toBe(true);
 });
 
 test('is.function({}) return false', () => {
@@ -107,7 +107,6 @@ test('is.any.null(null, null, null) return true', () => {
 test('is.any.null(undefined, undefined, undefined) return false', () => {
   expect(is.any.null(undefined, undefined, undefined)).toBe(false);
 });
-
 
 test('is.any.null([null, null, undefined]) return true', () => {
   expect(is.any.null([null, null, undefined])).toBe(true);

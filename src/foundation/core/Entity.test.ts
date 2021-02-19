@@ -26,7 +26,6 @@ test('A entity name is unique', () => {
   const renamed = secondEntity.tryToSetUniqueName('Foo', false);
   expect(renamed).toBe(false);
   expect(secondEntity.uniqueName).toBe(beforeSecondEntityName);
-
 });
 
 test('The tryToSetUniqueName method can almost certainly set a new unique name by setting the 2nd argument to true.', () => {
@@ -39,5 +38,4 @@ test('The tryToSetUniqueName method can almost certainly set a new unique name b
   expect(renamed).toBe(true);
   console.log('secondEntity.uniqueName is ' + secondEntity.uniqueName);
   expect(secondEntity.uniqueName === beforeSecondEntityName).toBe(false);
-
 });

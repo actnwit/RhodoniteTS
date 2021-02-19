@@ -1,6 +1,4 @@
-
-import _Rn, { OrbitCameraController } from '../../../dist/esm/index';
-
+import _Rn, {OrbitCameraController} from '../../../dist/esm/index';
 
 let p: any;
 
@@ -11,11 +9,19 @@ declare const Rn: typeof _Rn;
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+  system.setProcessApproachAndCanvas(
+    Rn.ProcessApproach.UniformWebGL1,
+    document.getElementById('world') as HTMLCanvasElement
+  );
 
   // camera
   const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+  const cameraEntity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+    Rn.CameraControllerComponent,
+  ]);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -24,9 +30,12 @@ declare const Rn: typeof _Rn;
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
-  const expression = await gltfImporter.import('../../../assets/gltf/2.0/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf', {
-    cameraComponent: cameraComponent
-  });
+  const expression = await gltfImporter.import(
+    '../../../assets/gltf/2.0/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
+    {
+      cameraComponent: cameraComponent,
+    }
+  );
 
   // cameraController
   const mainRenderPass = expression.renderPasses[0];
@@ -65,7 +74,11 @@ declare const Rn: typeof _Rn;
 
   draw();
 
-  function setParameterForMeshComponents(meshComponents, shaderSemantic, value) {
+  function setParameterForMeshComponents(
+    meshComponents,
+    shaderSemantic,
+    value
+  ) {
     for (let i = 0; i < meshComponents.length; i++) {
       const mesh = meshComponents[i].mesh;
       if (!mesh) continue;
@@ -78,5 +91,3 @@ declare const Rn: typeof _Rn;
     }
   }
 })();
-
-

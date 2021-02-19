@@ -1,10 +1,13 @@
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractMaterialNode';
-import { ShaderSemanticsClass } from '../../foundation/definitions/ShaderSemantics';
-import { VertexAttributeEnum, VertexAttributeClass } from '../../foundation/definitions/VertexAttribute';
+import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
+import {ProcessApproach} from '../../foundation/definitions/ProcessApproach';
+import {ShaderAttributeOrSemanticsOrString} from '../../foundation/materials/core/AbstractMaterialNode';
+import {ShaderSemanticsClass} from '../../foundation/definitions/ShaderSemantics';
+import {
+  VertexAttributeEnum,
+  VertexAttributeClass,
+} from '../../foundation/definitions/VertexAttribute';
 import WebGLResourceRepository from '../WebGLResourceRepository';
-import { WellKnownComponentTIDs } from '../../foundation/components/WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
 import SystemState from '../../foundation/system/SystemState';
 import MemoryManager from '../../foundation/core/MemoryManager';
 
@@ -13,7 +16,7 @@ export type AttributeNames = Array<string>;
 export default abstract class GLSLShader {
   static __instance: GLSLShader;
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  constructor() { }
+  constructor() {}
 
   get glsl_rt0() {
     const repo = this.__webglResourceRepository!;
@@ -26,7 +29,10 @@ export default abstract class GLSLShader {
 
   get glsl_fragColor() {
     const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper != null && repo.currentWebGLContextWrapper!.isWebGL2) {
+    if (
+      repo.currentWebGLContextWrapper != null &&
+      repo.currentWebGLContextWrapper!.isWebGL2
+    ) {
       return '';
     } else {
       return 'gl_FragColor = rt0;\n';
@@ -98,8 +104,11 @@ export default abstract class GLSLShader {
 
   get glsl_versionText() {
     const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper != null && repo.currentWebGLContextWrapper!.isWebGL2) {
-      return ''
+    if (
+      repo.currentWebGLContextWrapper != null &&
+      repo.currentWebGLContextWrapper!.isWebGL2
+    ) {
+      return '';
       // return '#version 300 es\n'
     } else {
       return '';
@@ -109,33 +118,37 @@ export default abstract class GLSLShader {
   get glslPrecision() {
     return `precision highp float;
 precision highp int;
-    `
+    `;
   }
 
   static get glslMainBegin() {
     return `
 void main() {
-`
+`;
   }
 
   static get glslMainEnd() {
     return `
 }
-    `
+    `;
   }
 
-  getGlslVertexShaderProperies(str: string = '') {
+  getGlslVertexShaderProperies(str = '') {
     return str;
   }
 
   get glsl1ShaderTextureLodExt() {
-    const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtSTL;
-    return (ext != null) ? '#extension GL_EXT_shader_texture_lod : require' : '';
+    const ext = WebGLResourceRepository.getInstance()
+      .currentWebGLContextWrapper!.webgl1ExtSTL;
+    return ext != null ? '#extension GL_EXT_shader_texture_lod : require' : '';
   }
 
   get glsl1ShaderDerivativeExt() {
-    const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtDRV;
-    return (ext != null) ? '#extension GL_OES_standard_derivatives : require' : '';
+    const ext = WebGLResourceRepository.getInstance()
+      .currentWebGLContextWrapper!.webgl1ExtDRV;
+    return ext != null
+      ? '#extension GL_OES_standard_derivatives : require'
+      : '';
   }
 
   get toNormalMatrix() {
@@ -301,7 +314,8 @@ vec4 encodeFloatRGBA(float v) {
   val -= g;
   float b = mod(val, 16581375.0);
   return vec4(r/255.0, g/65025.0, b/16581375.0, 1.0);
-}`}
+}`;
+  }
 
   get processGeometryWithSkinningOptionally() {
     return `
@@ -631,21 +645,21 @@ vec3 descramble(vec3 v) {
     let shaderText = '';
     shaderText += 'uniform vec2 uMetallicRoughnessFactors;\n';
     shaderText += 'uniform vec3 uBaseColorFactor;\n';
-    shaderText += 'uniform vec2 uOcclusionFactors;'
-    shaderText += 'uniform vec3 uEmissiveFactor;'
+    shaderText += 'uniform vec2 uOcclusionFactors;';
+    shaderText += 'uniform vec3 uEmissiveFactor;';
     shaderText += 'uniform sampler2D uMetallicRoughnessTexture;\n';
 
-    const occlusionTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_OCCLUSION);
+    const occlusionTexture = true; //material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_OCCLUSION);
     if (occlusionTexture) {
       shaderText += 'uniform sampler2D uOcclusionTexture;\n';
     }
 
-    const emissiveTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_EMISSIVE);
+    const emissiveTexture = true; //material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_EMISSIVE);
     if (emissiveTexture) {
       shaderText += 'uniform sampler2D uEmissiveTexture;\n';
     }
 
-    const diffuseEnvCubeTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_IBL_DIFFUSE_ENV_CUBE);
+    const diffuseEnvCubeTexture = true; //material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_IBL_DIFFUSE_ENV_CUBE);
     if (diffuseEnvCubeTexture) {
       shaderText += 'uniform sampler2D u_brdfLutTexture;\n';
       shaderText += 'uniform samplerCube uDiffuseEnvTexture;\n';
@@ -827,7 +841,7 @@ vec3 descramble(vec3 v) {
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
-    `
+    `;
   }
 
   get perturbedNormal() {
@@ -879,7 +893,9 @@ vec3 descramble(vec3 v) {
 `;
   }
 
-  static getStringFromShaderAnyDataType(data: ShaderAttributeOrSemanticsOrString): string {
+  static getStringFromShaderAnyDataType(
+    data: ShaderAttributeOrSemanticsOrString
+  ): string {
     if (data instanceof ShaderSemanticsClass) {
       return 'u_' + data.str;
     } else if (data instanceof VertexAttributeClass) {

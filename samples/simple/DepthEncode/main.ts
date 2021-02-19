@@ -1,5 +1,5 @@
 import _Rn from '../../../dist/esm/index';
-import { CameraComponent } from '../../../dist/esm/index';
+import {CameraComponent} from '../../../dist/esm/index';
 
 declare const window: any;
 declare const Rn: typeof _Rn;
@@ -12,14 +12,17 @@ document.body.appendChild(p);
   await Rn.ModuleManager.getInstance().loadModule('pbr');
 
   const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+  system.setProcessApproachAndCanvas(
+    Rn.ProcessApproach.UniformWebGL1,
+    document.getElementById('world') as HTMLCanvasElement
+  );
 
   // camera
   const cameraComponent = createCameraComponent();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 10;
   cameraComponent.setFovyAndChangeFocalLength(90);
-  cameraComponent.aspect = 1;  // depthCameraComponent.direction = lightDirection;
+  cameraComponent.aspect = 1; // depthCameraComponent.direction = lightDirection;
   const cameraEntity = cameraComponent.entity;
   cameraEntity.getTransform().translate = new Rn.Vector3(0.2, 0.35, -0.5);
 
@@ -42,18 +45,15 @@ document.body.appendChild(p);
   largeBoardEntity.getTransform().translate = new Rn.Vector3(0, 0, -1.5);
   largeBoardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
 
-
   // For debug
   // const cameraControllerComponent = cameraEntity.getCameraController();
   // const controller = cameraControllerComponent.controller as OrbitCameraController;
   // controller.dolly = 0.65;
   // controller.setTarget(largeBoardEntity);
 
-
   let count = 0;
 
   const draw = function () {
-
     if (count > 0) {
       p.id = 'rendered';
       p.innerText = 'Rendered.';
@@ -68,36 +68,48 @@ document.body.appendChild(p);
   draw();
 })();
 
-  function createBoardEntityWithDepthEncodeMaterial() {
-    const entityRepository = Rn.EntityRepository.getInstance();
-    const entity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+function createBoardEntityWithDepthEncodeMaterial() {
+  const entityRepository = Rn.EntityRepository.getInstance();
+  const entity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.MeshComponent,
+    Rn.MeshRendererComponent,
+  ]);
 
-    const primitive = new Rn.Plane();
-    primitive.generate({
-      width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false,
-      material: Rn.MaterialHelper.createDepthEncodeMaterial({})
-    });
+  const primitive = new Rn.Plane();
+  primitive.generate({
+    width: 1,
+    height: 1,
+    uSpan: 1,
+    vSpan: 1,
+    isUVRepeat: false,
+    material: Rn.MaterialHelper.createDepthEncodeMaterial({}),
+  });
 
-    const meshComponent = entity.getMesh();
-    const mesh = new Rn.Mesh();
-    mesh.addPrimitive(primitive);
-    meshComponent.setMesh(mesh);
-    return entity;
-  }
+  const meshComponent = entity.getMesh();
+  const mesh = new Rn.Mesh();
+  mesh.addPrimitive(primitive);
+  meshComponent.setMesh(mesh);
+  return entity;
+}
 
-  function createCameraComponent() {
-    const entityRepository = Rn.EntityRepository.getInstance();
-    const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
-    // For debug
-    // const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
-    const cameraComponent = cameraEntity.getCamera();
-    return cameraComponent;
-  }
+function createCameraComponent() {
+  const entityRepository = Rn.EntityRepository.getInstance();
+  const cameraEntity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+  ]);
+  // For debug
+  // const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+  const cameraComponent = cameraEntity.getCamera();
+  return cameraComponent;
+}
 
-  function createRenderPassSpecifyingCameraComponent(cameraComponent) {
-    const renderPass = new Rn.RenderPass();
-    renderPass.toClearColorBuffer = true;
-    renderPass.cameraComponent = cameraComponent;
-    return renderPass;
-  }
-
+function createRenderPassSpecifyingCameraComponent(cameraComponent) {
+  const renderPass = new Rn.RenderPass();
+  renderPass.toClearColorBuffer = true;
+  renderPass.cameraComponent = cameraComponent;
+  return renderPass;
+}

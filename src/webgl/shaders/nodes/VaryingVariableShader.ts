@@ -1,11 +1,16 @@
-
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../../foundation/definitions/VertexAttribute';
 import GLSLShader from '../GLSLShader';
 import Config from '../../../foundation/core/Config';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { MaterialNodeUID } from '../../../commontypes/CommonTypes';
-import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
+import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
+import {MaterialNodeUID} from '../../../commontypes/CommonTypes';
+import {
+  ComponentTypeEnum,
+  ComponentType,
+} from '../../../foundation/definitions/ComponentType';
 
 export type AttributeNames = Array<string>;
 
@@ -14,7 +19,8 @@ export default class VaryingVariableShader extends GLSLShader {
   constructor(
     private __functionName: string,
     private __compositionType: CompositionTypeEnum,
-    private __componentType: ComponentTypeEnum) {
+    private __componentType: ComponentTypeEnum
+  ) {
     super();
   }
 
@@ -24,17 +30,21 @@ export default class VaryingVariableShader extends GLSLShader {
 
   get vertexShaderDefinitions() {
     return `
-    out ${this.__compositionType.getGlslStr(this.__componentType)} ${this.__variableName};
+    out ${this.__compositionType.getGlslStr(this.__componentType)} ${
+      this.__variableName
+    };
     void ${this.__functionName}(
       in ${this.__compositionType.getGlslStr(this.__componentType)} value) {
       ${this.__variableName} = value;
     }
     `;
-  };
+  }
 
   get pixelShaderDefinitions() {
     return `
-    in ${this.__compositionType.getGlslStr(this.__componentType)} ${this.__variableName};
+    in ${this.__compositionType.getGlslStr(this.__componentType)} ${
+      this.__variableName
+    };
     void ${this.__functionName}(
       out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
       outValue = ${this.__variableName};
@@ -54,5 +64,3 @@ export default class VaryingVariableShader extends GLSLShader {
     return [];
   }
 }
-
-

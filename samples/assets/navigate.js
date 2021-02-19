@@ -10,7 +10,7 @@ if (isTestTopPage) {
   a.setAttribute('href', parent.location.href.replace('#', ''));
   a.setAttribute('target', '_parent');
 } else {
-  const newUri = document.location.href.replace(/samples\//, 'samples\/#');
+  const newUri = document.location.href.replace(/samples\//, 'samples/#');
   a.innerText = 'Show Index';
   a.setAttribute('href', newUri);
 }

@@ -1,15 +1,20 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../foundation/definitions/VertexAttribute';
 import GLSLShader from './GLSLShader';
 import Config from '../../foundation/core/Config';
-import { ShaderNode } from '../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { CompositionType } from '../../foundation/definitions/CompositionType';
+import {ShaderNode} from '../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
+import {CompositionType} from '../../foundation/definitions/CompositionType';
 import ISingleShader from './ISingleShader';
-import { WellKnownComponentTIDs } from '../../foundation/components/WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
 
 export type AttributeNames = Array<string>;
 
-export default class ShadowMapDecodeClassicShader extends GLSLShader implements ISingleShader {
+export default class ShadowMapDecodeClassicShader
+  extends GLSLShader
+  implements ISingleShader {
   static __instance: ShadowMapDecodeClassicShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
@@ -32,7 +37,7 @@ export default class ShadowMapDecodeClassicShader extends GLSLShader implements 
     return `${_version}
 ${this.glslPrecision}
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+${typeof args.definitions !== 'undefined' ? args.definitions : ''}
 
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
@@ -51,9 +56,9 @@ ${_out} vec4 v_projPosition_from_light;
 
 ${this.prerequisites}
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${typeof args.matricesGetters !== 'undefined' ? args.matricesGetters : ''}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
 ${this.toNormalMatrix}
 
@@ -64,7 +69,9 @@ ${this.processGeometryWithSkinningOptionally}
 void main(){
 
   ${this.mainPrerequisites}
-  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+  float cameraSID = u_currentComponentSIDs[${
+    WellKnownComponentTIDs.CameraComponentTID
+  }];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
@@ -104,9 +111,8 @@ void main(){
   v_texcoord_0 = a_texcoord_0;
 
 }
-`
+`;
   }
-
 
   getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
@@ -119,7 +125,7 @@ void main(){
     return `${_version}
 ${this.glslPrecision}
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+${typeof args.definitions !== 'undefined' ? args.definitions : ''}
 
 ${this.prerequisites}
 
@@ -131,7 +137,7 @@ ${_in} vec4 v_texcoord_1;
 ${_in} vec4 v_projPosition_from_light;
 ${_def_rt0}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
 float decodeRGBAToDepth(vec4 RGBA){
   const float rMask = 1.0;
@@ -243,7 +249,9 @@ void main (){
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+      float cameraSID = u_currentComponentSIDs[${
+        WellKnownComponentTIDs.CameraComponentTID
+      }];
       vec3 viewPosition = get_viewPosition(cameraSID, 0);
       float shininess = get_shininess(materialSID, 0);
       if (shadingModel == 2) {// BLINN
@@ -279,24 +287,35 @@ void main (){
 
   attributeNames: AttributeNames = [
     'a_instanceID',
-    'a_texcoord_0', 'a_texcoord_1',
-    'a_position', 'a_color', 'a_normal',
-    'a_joint', 'a_weight',
-
+    'a_texcoord_0',
+    'a_texcoord_1',
+    'a_position',
+    'a_color',
+    'a_normal',
+    'a_joint',
+    'a_weight',
   ];
   attributeSemantics: Array<VertexAttributeEnum> = [
     VertexAttribute.Instance,
-    VertexAttribute.Texcoord0, VertexAttribute.Texcoord1,
-    VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Normal,
-    VertexAttribute.Joints0, VertexAttribute.Weights0,
+    VertexAttribute.Texcoord0,
+    VertexAttribute.Texcoord1,
+    VertexAttribute.Position,
+    VertexAttribute.Color0,
+    VertexAttribute.Normal,
+    VertexAttribute.Joints0,
+    VertexAttribute.Weights0,
   ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
     return [
       CompositionType.Scalar,
-      CompositionType.Vec2, CompositionType.Vec2,
-      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
-      CompositionType.Vec4, CompositionType.Vec4,
+      CompositionType.Vec2,
+      CompositionType.Vec2,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec4,
+      CompositionType.Vec4,
     ];
   }
 }

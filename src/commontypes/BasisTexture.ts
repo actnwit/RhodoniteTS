@@ -1,5 +1,5 @@
 declare class _BasisFile {
-  constructor(x: Uint8Array)
+  constructor(x: Uint8Array);
   close(): void;
   getHasAlpha(): number;
   getNumImages(): number;
