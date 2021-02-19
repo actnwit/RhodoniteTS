@@ -82,4 +82,4 @@ dist/
 *.tgz
 VERSION-FILE
 samples/**/main.js*
-docs/*
+docs/api/
