@@ -1,11 +1,14 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../foundation/definitions/VertexAttribute';
 import GLSLShader from './GLSLShader';
 import Config from '../../foundation/core/Config';
-import { ShaderNode } from '../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { CompositionType } from '../../foundation/definitions/CompositionType';
+import {ShaderNode} from '../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
+import {CompositionType} from '../../foundation/definitions/CompositionType';
 import ISingleShader from './ISingleShader';
-import { WellKnownComponentTIDs } from '../../foundation/components/WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
 
 export type AttributeNames = Array<string>;
 
@@ -34,7 +37,7 @@ ${this.glslPrecision}
 
 // This shader is based on https://github.com/Santarh/MToon
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+${typeof args.definitions !== 'undefined' ? args.definitions : ''}
 
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord_0;
@@ -58,9 +61,9 @@ ${_out} vec3 v_binormal_inWorld; // bitangent_inWorld
 
 ${this.prerequisites}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${typeof args.matricesGetters !== 'undefined' ? args.matricesGetters : ''}
 
 ${this.toNormalMatrix}
 
@@ -90,7 +93,9 @@ void main(){
     v_normal_inWorld
   );
 
-  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+  float cameraSID = u_currentComponentSIDs[${
+    WellKnownComponentTIDs.CameraComponentTID
+  }];
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
@@ -137,7 +142,7 @@ void main(){
 
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
-}`
+}`;
   }
 
   getFragmentShader(args: any) {
@@ -162,7 +167,7 @@ ${this.glsl1ShaderDerivativeExt}
 ${this.glslPrecision}
 
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+${typeof args.definitions !== 'undefined' ? args.definitions : ''}
 
 ${this.prerequisites}
 
@@ -180,7 +185,7 @@ ${_in} vec4 v_position_inWorld;
 
 ${_def_rt0}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
@@ -246,7 +251,9 @@ void main (){
   #endif
 
   // view vector
-  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+  float cameraSID = u_currentComponentSIDs[${
+    WellKnownComponentTIDs.CameraComponentTID
+  }];
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
 
@@ -476,23 +483,35 @@ void main (){
   attributeNames: AttributeNames = [
     'a_instanceID',
     'a_texcoord_0',
-    'a_position', 'a_normal', 'a_tangent',
-    'a_baryCentricCoord', 'a_joint', 'a_weight',
+    'a_position',
+    'a_normal',
+    'a_tangent',
+    'a_baryCentricCoord',
+    'a_joint',
+    'a_weight',
   ];
   attributeSemantics: Array<VertexAttributeEnum> = [
     VertexAttribute.Instance,
     VertexAttribute.Texcoord0,
-    VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Tangent,
-    VertexAttribute.BaryCentricCoord, VertexAttribute.Joints0, VertexAttribute.Weights0,
+    VertexAttribute.Position,
+    VertexAttribute.Normal,
+    VertexAttribute.Tangent,
+    VertexAttribute.BaryCentricCoord,
+    VertexAttribute.Joints0,
+    VertexAttribute.Weights0,
   ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
     return [
       CompositionType.Scalar,
       CompositionType.Vec2,
-      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
-      CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec4,
+      CompositionType.Vec4,
+      CompositionType.Vec4,
     ];
   }
 }
-

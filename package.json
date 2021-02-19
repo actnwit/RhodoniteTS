@@ -33,9 +33,9 @@
     "yarn-pack": "yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",
-    "gts-lint": "gts lint",
-    "gts-clean": "gts clean",
-    "gts-fix": "gts fix"
+    "gts-lint": "gts lint ./src ./samples",
+    "gts-clean": "gts clean ./src ./samples",
+    "gts-fix": "gts fix ./src ./samples"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",

@@ -344,7 +344,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
     if (det === 0) {
-      console.error("the determinant is 0!");
+      console.error('the determinant is 0!');
     }
 
     const m00 = (this.v[5] * n11 - this.v[9] * n10 + this.v[13] * n09) / det;

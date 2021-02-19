@@ -1,7 +1,10 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../foundation/definitions/VertexAttribute';
 import GLSLShader from './GLSLShader';
-import { ShaderNode } from '../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import {ShaderNode} from '../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
 
 export type AttributeNames = Array<string>;
 
@@ -20,19 +23,16 @@ export default class WireframeShader extends GLSLShader {
   }
 
   get vertexShaderDefinitions() {
-
     return `
 
 `;
-
-  };
-
+  }
 
   get pixelShaderDefinitions() {
     return '';
   }
 
-  vertexShaderBody:string = `
+  vertexShaderBody = `
 
 
   `;

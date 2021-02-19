@@ -1,8 +1,11 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../../foundation/definitions/VertexAttribute';
 import GLSLShader from '../GLSLShader';
 import Config from '../../../foundation/core/Config';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 
 export type AttributeNames = Array<string>;
 
@@ -26,14 +29,13 @@ export default class EndShader extends GLSLShader {
       gl_Position = inPosition;
     }
     `;
-  };
+  }
 
   get vertexShaderBody() {
     return `
 
     `;
   }
-
 
   get pixelShaderDefinitions() {
     const _def_fragColor = this.glsl_fragColor;

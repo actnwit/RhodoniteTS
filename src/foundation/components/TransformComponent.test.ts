@@ -12,5 +12,7 @@ test('Use translate simply', () => {
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
   transformComponent.translate = new Rn.Vector3(1, 0, 0);
-  expect(transformComponent.translate.isEqual(new Rn.Vector3(1, 0, 0))).toBe(true);
+  expect(transformComponent.translate.isEqual(new Rn.Vector3(1, 0, 0))).toBe(
+    true
+  );
 });

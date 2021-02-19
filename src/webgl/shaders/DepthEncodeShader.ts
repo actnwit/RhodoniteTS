@@ -1,13 +1,21 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../foundation/definitions/VertexAttribute';
 import GLSLShader from './GLSLShader';
-import { ShaderNode } from '../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum, CompositionType } from '../../foundation/definitions/CompositionType';
+import {ShaderNode} from '../../foundation/definitions/ShaderNode';
+import {
+  CompositionTypeEnum,
+  CompositionType,
+} from '../../foundation/definitions/CompositionType';
 import ISingleShader from './ISingleShader';
-import { WellKnownComponentTIDs } from '../../foundation/components/WellKnownComponentTIDs';
+import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
 
 export type AttributeNames = Array<string>;
 
-export default class DepthEncodeShader extends GLSLShader implements ISingleShader {
+export default class DepthEncodeShader
+  extends GLSLShader
+  implements ISingleShader {
   static __instance: DepthEncodeShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
@@ -30,7 +38,7 @@ export default class DepthEncodeShader extends GLSLShader implements ISingleShad
     return `${_version}
 ${this.glslPrecision}
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+${typeof args.definitions !== 'undefined' ? args.definitions : ''}
 
 ${_in} vec3 a_position;
 ${_in} vec3 a_normal;
@@ -44,9 +52,9 @@ ${_out} vec4 v_position_inWorld;
 
 ${this.prerequisites}
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${typeof args.matricesGetters !== 'undefined' ? args.matricesGetters : ''}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
 ${this.toNormalMatrix}
 
@@ -57,7 +65,9 @@ ${this.processGeometryWithSkinningOptionally}
   void main(){
 
     ${this.mainPrerequisites}
-    float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+    float cameraSID = u_currentComponentSIDs[${
+      WellKnownComponentTIDs.CameraComponentTID
+    }];
     mat4 worldMatrix = get_worldMatrix(a_instanceID);
     mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
     mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
@@ -83,9 +93,7 @@ ${this.processGeometryWithSkinningOptionally}
 
   }
     `;
-
   }
-
 
   getPixelShaderBody(args: any) {
     const _version = this.glsl_versionText;
@@ -96,14 +104,14 @@ ${this.processGeometryWithSkinningOptionally}
     return `${_version}
 ${this.glslPrecision}
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+${typeof args.definitions !== 'undefined' ? args.definitions : ''}
 
 ${this.prerequisites}
 
 ${_in} vec4 v_position_inLocal;
 ${_def_rt0}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
 vec4 encodeDepthToRGBA(float depth){
   float r = depth;
@@ -135,20 +143,26 @@ void main (){
 
   attributeNames: AttributeNames = [
     'a_instanceID',
-    'a_position', 'a_normal',
-    'a_joint', 'a_weight',
+    'a_position',
+    'a_normal',
+    'a_joint',
+    'a_weight',
   ];
   attributeSemantics: Array<VertexAttributeEnum> = [
     VertexAttribute.Instance,
-    VertexAttribute.Position, VertexAttribute.Normal,
-    VertexAttribute.Joints0, VertexAttribute.Weights0,
+    VertexAttribute.Position,
+    VertexAttribute.Normal,
+    VertexAttribute.Joints0,
+    VertexAttribute.Weights0,
   ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
     return [
       CompositionType.Scalar,
-      CompositionType.Vec3, CompositionType.Vec3,
-      CompositionType.Vec4, CompositionType.Vec4,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec4,
+      CompositionType.Vec4,
     ];
   }
 }

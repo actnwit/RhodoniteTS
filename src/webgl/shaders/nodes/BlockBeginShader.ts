@@ -1,8 +1,14 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../../foundation/definitions/VertexAttribute';
 import GLSLShader from '../GLSLShader';
-import { CompositionTypeEnum, CompositionType } from '../../../foundation/definitions/CompositionType';
-import { ShaderSocket } from '../../../foundation/materials/core/AbstractMaterialNode';
-import { ComponentType } from '../../../foundation/definitions/ComponentType';
+import {
+  CompositionTypeEnum,
+  CompositionType,
+} from '../../../foundation/definitions/CompositionType';
+import {ShaderSocket} from '../../../foundation/materials/core/AbstractMaterialNode';
+import {ComponentType} from '../../../foundation/definitions/ComponentType';
 
 export type AttributeNames = Array<string>;
 
@@ -11,7 +17,7 @@ export default class BlockBeginShader extends GLSLShader {
     private __functionName: string,
     private __valueInputs: ShaderSocket[],
     private __valueOutputs: ShaderSocket[]
-    ) {
+  ) {
     super();
   }
 
@@ -20,29 +26,31 @@ export default class BlockBeginShader extends GLSLShader {
 in bool context,
       `;
 
-    for (let i=0; i<this.__valueInputs.length; i++) {
+    for (let i = 0; i < this.__valueInputs.length; i++) {
       const input = this.__valueInputs[i];
       const type = input.compositionType.getGlslStr(input.componentType);
       funcStr += `
-        in ${type} value${i},`
+        in ${type} value${i},`;
     }
 
-    for (let i=0; i<this.__valueOutputs.length; i++) {
+    for (let i = 0; i < this.__valueOutputs.length; i++) {
       const output = this.__valueOutputs[i];
       const type = output.compositionType.getGlslStr(output.componentType);
-      funcStr += `
-        out ${type} outValue${i}` + ((i === this.__valueOutputs.length-1) ? '' : ',');
+      funcStr +=
+        `
+        out ${type} outValue${i}` +
+        (i === this.__valueOutputs.length - 1 ? '' : ',');
     }
 
-    funcStr +=`) {\n`;
-    for (let i=0; i<this.__valueOutputs.length; i++) {
+    funcStr += ') {\n';
+    for (let i = 0; i < this.__valueOutputs.length; i++) {
       funcStr += `
       outValue${i} = value${i};\n`;
     }
-    funcStr += `}`;
+    funcStr += '}';
 
     return funcStr;
-  };
+  }
 
   get pixelShaderDefinitions() {
     return this.vertexShaderDefinitions;
@@ -60,4 +68,3 @@ in bool context,
     return [];
   }
 }
-

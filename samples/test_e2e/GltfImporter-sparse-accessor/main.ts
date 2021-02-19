@@ -8,12 +8,18 @@ document.body.appendChild(p);
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
-
+  system.setProcessApproachAndCanvas(
+    Rn.ProcessApproach.UniformWebGL1,
+    document.getElementById('world') as HTMLCanvasElement
+  );
 
   // camera
   const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
+  const cameraEntity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+  ]);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.type = Rn.CameraType.Orthographic;
 
@@ -27,15 +33,15 @@ document.body.appendChild(p);
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
-  const expression = await gltfImporter.import('../../../assets/gltf/2.0/SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf', {
-    cameraComponent: cameraComponent,
-  });
+  const expression = await gltfImporter.import(
+    '../../../assets/gltf/2.0/SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf',
+    {
+      cameraComponent: cameraComponent,
+    }
+  );
 
   system.process([expression]);
 
   p.id = 'rendered';
   p.innerText = 'Rendered.';
-
 })();
-
-

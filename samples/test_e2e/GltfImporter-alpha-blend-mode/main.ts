@@ -5,7 +5,7 @@ declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
-(async ()=>{
+(async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
@@ -14,7 +14,11 @@ document.body.appendChild(p);
 
   // camera
   const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
+  const cameraEntity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+  ]);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -25,15 +29,19 @@ document.body.appendChild(p);
   cameraTransform.translate = new Rn.Vector3(0, 2, 8);
   cameraTransform.rotate = new Rn.Vector3(-0.1, 0, 0);
 
-
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
-  const expression = await gltfImporter.import('./../../../assets/gltf/2.0/AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf', {
-    cameraComponent: cameraComponent,
-    defaultMaterialHelperArgumentArray: [{
-      isLighting: false
-    }]
-  });
+  const expression = await gltfImporter.import(
+    './../../../assets/gltf/2.0/AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf',
+    {
+      cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          isLighting: false,
+        },
+      ],
+    }
+  );
 
   // gamma correction
   // const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(world.width, world.height, 1, {});

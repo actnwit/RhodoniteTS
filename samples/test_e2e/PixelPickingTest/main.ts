@@ -1,12 +1,18 @@
-import _Rn, { CameraControllerComponent, Entity, LightComponent } from '../../../dist/esm/index';
-import { OrbitCameraController, CameraComponent } from '../../../dist/esm/index';
-
+import _Rn, {
+  CameraControllerComponent,
+  Entity,
+  LightComponent,
+} from '../../../dist/esm/index';
+import {OrbitCameraController, CameraComponent} from '../../../dist/esm/index';
 
 declare const window: any;
 declare const Rn: typeof _Rn;
 
-
-const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraComponent: CameraComponent, canvas: HTMLCanvasElement) {
+const setupRenderPassEntityUidOutput = function (
+  rootGroup: Entity,
+  cameraComponent: CameraComponent,
+  canvas: HTMLCanvasElement
+) {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
   // RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
@@ -14,7 +20,12 @@ const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraCompon
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
 
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
+  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
+    canvas.clientWidth,
+    canvas.clientHeight,
+    1,
+    {}
+  );
   renderPass.setFramebuffer(framebuffer);
   renderPass.clearColor = new Rn.Vector4(0, 0, 0, 1);
   renderPass.toClearColorBuffer = true;
@@ -25,21 +36,26 @@ const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraCompon
   renderPass.addEntities([rootGroup]);
 
   return renderPass;
-}
+};
 
-const setupRenderPassRendering = function (rootGroup: Entity, cameraComponent: CameraComponent) {
+const setupRenderPassRendering = function (
+  rootGroup: Entity,
+  cameraComponent: CameraComponent
+) {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
 
   return renderPass;
-}
+};
 
 const pick = function (e: any) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
-  const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(0);
+  const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(
+    0
+  );
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
@@ -48,7 +64,7 @@ const pick = function (e: any) {
   console.log(pickedEntityUID);
 
   return pickedEntityUID;
-}
+};
 
 let p: any;
 
@@ -59,13 +75,21 @@ let p: any;
   const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, canvas);
+  const gl = system.setProcessApproachAndCanvas(
+    Rn.ProcessApproach.UniformWebGL1,
+    canvas
+  );
   const expression = new Rn.Expression();
 
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
+  const cameraEntity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+    Rn.CameraControllerComponent,
+  ]);
   const cameraComponent = cameraEntity.getCamera() as CameraComponent;
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
@@ -74,17 +98,23 @@ let p: any;
   cameraComponent.aspect = 1;
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
 
-
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   // lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
   // lightEntity.getLight().intensity = new Rn.Vector3(1, 1, 1);
-  const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
+  const lightEntity2 = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.LightComponent,
+  ]);
   lightEntity2.getTransform().translate = new Rn.Vector3(0.0, 0.0, 10.0);
-  (lightEntity2.getLight() as LightComponent).intensity = new Rn.Vector3(1, 1, 1);
+  (lightEntity2.getLight() as LightComponent).intensity = new Rn.Vector3(
+    1,
+    1,
+    1
+  );
   //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
-
 
   //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
@@ -99,7 +129,9 @@ let p: any;
   //const response = await importer.import('../../../assets/gltf/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
   //  const response = await importer.import('../../../assets/gltf/1.0/Duck/glTF/Duck.gltf');
   //const response = await importer.import('../../../assets/gltf/1.0/Avocado/glTF/Avocado.gltf');
-  const response = await importer.import('../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf');
+  const response = await importer.import(
+    '../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf'
+  );
   //const response = await importer.import('../../../assets/gltf/1.0/BrainStem/glTF/BrainStem.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
@@ -107,43 +139,46 @@ let p: any;
   //  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
   //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
-
-  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(
+    rootGroup,
+    cameraComponent,
+    canvas
+  );
   window.renderPassEntityUidOutput = renderPassEntityUidOutput;
-  const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
+  const renderPassRendering = setupRenderPassRendering(
+    rootGroup,
+    cameraComponent
+  );
   // expression.addRenderPasses([renderPassEntityUidOutput]);
   // expression.addRenderPasses([renderPassRendering]);
   expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
   // expression.addRenderPasses([renderPassRendering]);
 
-
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController() as CameraControllerComponent;
-  (cameraControllerComponent.controller as OrbitCameraController).setTarget(rootGroup);
-
+  (cameraControllerComponent.controller as OrbitCameraController).setTarget(
+    rootGroup
+  );
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
   const draw = function () {
-
     if (p == null && count > 0) {
       if (response != null) {
-
         gl.enable(gl.DEPTH_TEST);
         gl.viewport(0, 0, 600, 600);
         gl.clearColor(0.8, 0.8, 0.8, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       }
 
-      window._pickedEntityUID = pick({ offsetX: 300, offsetY: 300 });
+      window._pickedEntityUID = pick({offsetX: 300, offsetY: 300});
 
       p = document.createElement('p');
-      p.setAttribute("id", "rendered");
+      p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';
       document.body.appendChild(p);
-
     }
 
     if (window.isAnimating) {
@@ -166,11 +201,9 @@ let p: any;
     count++;
 
     requestAnimationFrame(draw);
-  }
+  };
 
   canvas.addEventListener('mousedown', pick);
 
   draw();
 })();
-
-

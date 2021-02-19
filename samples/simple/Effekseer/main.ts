@@ -1,6 +1,5 @@
-
 import _Rn from '../../../dist/esm/index';
-import { OrbitCameraController } from '../../../dist/esm/index';
+import {OrbitCameraController} from '../../../dist/esm/index';
 
 let p: any;
 
@@ -15,26 +14,35 @@ declare const Rn: typeof _Rn;
 
   const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+  const gl = system.setProcessApproachAndCanvas(
+    Rn.ProcessApproach.UniformWebGL1,
+    document.getElementById('world') as HTMLCanvasElement
+  );
 
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // Effekseer
   const effekseerEntity = effekseerModule.createEffekseerEntity();
-  const effekseerComponent = effekseerEntity.getComponent(effekseerModule.EffekseerComponent);
+  const effekseerComponent = effekseerEntity.getComponent(
+    effekseerModule.EffekseerComponent
+  );
   effekseerComponent.playJustAfterLoaded = true;
   // effekseerComponent.isLoop = true;
   effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
   effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
+  const cameraEntity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+    Rn.CameraControllerComponent,
+  ]);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 7);
-
 
   // glTF Model
   //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
@@ -47,7 +55,9 @@ declare const Rn: typeof _Rn;
   //  const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
   // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
   // const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-  const response = await importer.import('../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf');
+  const response = await importer.import(
+    '../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf'
+  );
   //const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
@@ -63,22 +73,20 @@ declare const Rn: typeof _Rn;
   const renderPass = new Rn.RenderPass();
   renderPass.clearColor = new Rn.Vector3(0.5, 0.5, 0.5);
   renderPass.toClearColorBuffer = true;
-  renderPass.addEntities([rootGroup])
+  renderPass.addEntities([rootGroup]);
 
   // expression
   const expression = new Rn.Expression();
   expression.addRenderPasses([renderPass]);
-
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
   const draw = function () {
-
     if (p == null && count > 0) {
       p = document.createElement('p');
-      p.setAttribute("id", "rendered");
+      p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';
       document.body.appendChild(p);
     }
@@ -103,10 +111,7 @@ declare const Rn: typeof _Rn;
     count++;
 
     requestAnimationFrame(draw);
-  }
+  };
 
   draw();
 })();
-
-
-

@@ -1,12 +1,20 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../foundation/definitions/VertexAttribute';
 import GLSLShader from './GLSLShader';
-import { ShaderNode } from '../../foundation/definitions/ShaderNode';
-import { CompositionType, CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import {ShaderNode} from '../../foundation/definitions/ShaderNode';
+import {
+  CompositionType,
+  CompositionTypeEnum,
+} from '../../foundation/definitions/CompositionType';
 import ISingleShader from './ISingleShader';
 
 export type AttributeNames = Array<string>;
 
-export default class EnvConstantShader extends GLSLShader implements ISingleShader {
+export default class EnvConstantShader
+  extends GLSLShader
+  implements ISingleShader {
   static __instance: EnvConstantShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
@@ -29,7 +37,7 @@ export default class EnvConstantShader extends GLSLShader implements ISingleShad
     return `${_version}
 ${this.glslPrecision}
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+${typeof args.definitions !== 'undefined' ? args.definitions : ''}
 
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord_0;
@@ -44,9 +52,9 @@ ${_out} vec3 v_position_inWorld;
 
 ${this.prerequisites}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${typeof args.matricesGetters !== 'undefined' ? args.matricesGetters : ''}
 
 void main(){
   ${this.mainPrerequisites}
@@ -76,7 +84,7 @@ ${this.glslPrecision}
 
 ${this.prerequisites}
 
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
+${typeof args.getters !== 'undefined' ? args.getters : ''}
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -137,25 +145,29 @@ void main(){
 }`;
   }
 
-
   attributeNames: AttributeNames = [
-    'a_position', 'a_color', 'a_normal',
+    'a_position',
+    'a_color',
+    'a_normal',
     'a_texcoord_0',
-    'a_instanceID'
+    'a_instanceID',
   ];
 
   attributeSemantics: Array<VertexAttributeEnum> = [
-    VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Normal,
+    VertexAttribute.Position,
+    VertexAttribute.Color0,
+    VertexAttribute.Normal,
     VertexAttribute.Texcoord0,
-    VertexAttribute.Instance
+    VertexAttribute.Instance,
   ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
     return [
-      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
+      CompositionType.Vec3,
       CompositionType.Vec2,
-      CompositionType.Scalar
+      CompositionType.Scalar,
     ];
   }
 }
-

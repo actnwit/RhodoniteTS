@@ -1,8 +1,11 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../../foundation/definitions/VertexAttribute';
 import GLSLShader from '../GLSLShader';
 import Config from '../../../foundation/core/Config';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
+import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 
 export type AttributeNames = Array<string>;
 
@@ -28,9 +31,7 @@ export default class ClassicShadingShader extends GLSLShader {
     return `
 
 `;
-
-  };
-
+  }
 
   get pixelShaderDefinitions() {
     const _version = this.glsl_versionText;
@@ -116,7 +117,7 @@ bool classicShading(
     `;
   }
 
-  vertexShaderBody:string = `
+  vertexShaderBody = `
 
 
   `;

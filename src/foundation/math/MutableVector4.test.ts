@@ -7,4 +7,3 @@ test('Test isEqual', () => {
 
   expect(a.add(b).isEqual(c)).toBe(true);
 });
-

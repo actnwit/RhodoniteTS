@@ -1,8 +1,11 @@
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
 import GLSLShader from './GLSLShader';
-import { ShaderNode } from '../../foundation/definitions/ShaderNode';
-import { VertexAttributeEnum, VertexAttribute } from '../../foundation/definitions/VertexAttribute';
-import { WellKnownComponentTIDs } from '../../foundation/components/WellKnownComponentTIDs';
+import {ShaderNode} from '../../foundation/definitions/ShaderNode';
+import {
+  VertexAttributeEnum,
+  VertexAttribute,
+} from '../../foundation/definitions/VertexAttribute';
+import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
 
 export type AttributeNames = Array<string>;
 
@@ -70,15 +73,13 @@ mat4 getSkinMatrix() {
 }
 
 `;
-
-  };
-
+  }
 
   get pixelShaderDefinitions() {
     return '';
   }
 
-  vertexShaderBody: string = `
+  vertexShaderBody = `
 
 
   `;
@@ -91,8 +92,13 @@ mat4 getSkinMatrix() {
     return ['a_position', 'a_normal', 'a_joint', 'a_weight', 'a_instanceID'];
   }
   get attributeSemantics(): Array<VertexAttributeEnum> {
-    return [VertexAttribute.Position,
-    VertexAttribute.Normal, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+    return [
+      VertexAttribute.Position,
+      VertexAttribute.Normal,
+      VertexAttribute.Joints0,
+      VertexAttribute.Weights0,
+      VertexAttribute.Instance,
+    ];
   }
 
   get attributeCompositions(): Array<CompositionTypeEnum> {

@@ -1,7 +1,7 @@
 import Rn from '..';
 import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer');
 
 const timeout = 5000;
 
@@ -108,7 +108,6 @@ let page: any;
 
 // afterAll(() => {
 // })
-
 
 test('dummy', async () => {
   expect(true).toBe(true);

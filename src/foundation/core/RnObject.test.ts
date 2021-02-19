@@ -38,5 +38,4 @@ test('Try to set unique name', () => {
 
   obj2.tryToSetUniqueName('Foo', true);
   expect(obj2.uniqueName).toBe('Foo_(entity_of_uid_2)');
-
 });

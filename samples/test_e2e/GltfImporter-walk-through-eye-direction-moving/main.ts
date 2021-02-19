@@ -1,4 +1,4 @@
-import _Rn, { WalkThroughCameraController } from '../../../dist/esm/index';
+import _Rn, {WalkThroughCameraController} from '../../../dist/esm/index';
 
 declare const Rn: typeof _Rn;
 const p = document.createElement('p');
@@ -8,14 +8,22 @@ document.body.appendChild(p);
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+  system.setProcessApproachAndCanvas(
+    Rn.ProcessApproach.UniformWebGL1,
+    document.getElementById('world') as HTMLCanvasElement
+  );
 
   // expressions
   const expressions = [];
 
   // camera
   const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+  const cameraEntity = entityRepository.createEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+    Rn.CameraControllerComponent,
+  ]);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -24,9 +32,12 @@ document.body.appendChild(p);
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
-  const mainExpression = await gltfImporter.import('../../../assets/gltf/2.0/Triangle/glTF-Embedded/Triangle.gltf', {
-    cameraComponent: cameraComponent
-  });
+  const mainExpression = await gltfImporter.import(
+    '../../../assets/gltf/2.0/Triangle/glTF-Embedded/Triangle.gltf',
+    {
+      cameraComponent: cameraComponent,
+    }
+  );
   expressions.push(mainExpression);
 
   // cameraController
@@ -40,11 +51,11 @@ document.body.appendChild(p);
   // rootGroup.getTransform().scale = new Rn.MutableVector3(0.1, 0.1, 0.1);
 
   let count = 0;
-  let tmpSpeed = controller.horizontalSpeed;
+  const tmpSpeed = controller.horizontalSpeed;
 
   let mouseUpCount = -10;
   // detect mouseup event by puppeteer
-  document.addEventListener('mouseup', function () {
+  document.addEventListener('mouseup', () => {
     mouseUpCount = count;
   });
 
@@ -58,11 +69,15 @@ document.body.appendChild(p);
         break;
       case mouseUpCount + 1:
         controller.horizontalSpeed = 10;
-        document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 81 } as any)); // q key (back)
+        document.dispatchEvent(
+          new KeyboardEvent('keydown', {keyCode: 81} as any)
+        ); // q key (back)
         break;
       case mouseUpCount + 2:
         controller.horizontalSpeed = 5;
-        document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 69 } as any)); // e key (front)
+        document.dispatchEvent(
+          new KeyboardEvent('keydown', {keyCode: 69} as any)
+        ); // e key (front)
         break;
       case mouseUpCount + 3:
         document.dispatchEvent(new KeyboardEvent('keyup', {} as any));
@@ -77,8 +92,5 @@ document.body.appendChild(p);
     count++;
 
     requestAnimationFrame(draw);
-  };
+  }
 })();
-
-
-
