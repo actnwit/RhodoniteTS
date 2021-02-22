@@ -558,7 +558,7 @@ mat3 get_normalMatrix(float instanceId) {
         renderPass,
         gl
       );
-      material.setParametersForGPU({
+      material._setParametersForGPU({
         material,
         shaderProgram,
         firstTime,

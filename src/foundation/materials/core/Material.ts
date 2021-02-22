@@ -481,7 +481,10 @@ export default class Material extends RnObject {
     );
   }
 
-  setParametersForGPU({
+  /**
+   * @private
+   */
+  _setParametersForGPU({
     material,
     shaderProgram,
     firstTime,
