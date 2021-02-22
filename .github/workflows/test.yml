@@ -9,9 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
-      node-version: 14.15.5
+        node-version: '14'
     - run: npm install
     - uses: actions/upload-artifact@v2
       with:
