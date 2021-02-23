@@ -183,7 +183,7 @@ export default class GlobalDataRepository {
       this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
       this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
+      this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
       this.registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
       this.registerProperty(boneCompressedInfoInfo, 1);
       this.takeOne(ShaderSemantics.BoneCompressedInfo);
