@@ -7,11 +7,11 @@ const config = merge(baseConfig, {
   mode: 'production',
   output: {
     filename: 'rhodonite.min.js',
-    chunkFilename: "rhodonite-[name].min.js",
-    path: path.resolve(__dirname, "dist/umd"),
-    library: "Rn",
+    chunkFilename: 'rhodonite-[name].min.js',
+    path: path.resolve(__dirname, 'dist/umd'),
+    library: 'Rn',
     libraryExport: 'default',
-    libraryTarget: "umd"
+    libraryTarget: 'umd',
   },
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({
