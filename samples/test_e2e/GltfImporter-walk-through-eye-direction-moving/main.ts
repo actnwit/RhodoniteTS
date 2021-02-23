@@ -59,8 +59,6 @@ document.body.appendChild(p);
     mouseUpCount = count;
   });
 
-  draw();
-
   function draw() {
     switch (count) {
       case 1:
@@ -93,4 +91,6 @@ document.body.appendChild(p);
 
     requestAnimationFrame(draw);
   }
+
+  draw();
 })();

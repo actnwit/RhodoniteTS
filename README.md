@@ -149,7 +149,7 @@ Then, access http://localhost:8082/ with your web browser.
 
 ### Prerequisites
 
-* Node.js 12.18.1 or later
+* Node.js 14.15.5 or later
 
 ### Setup Project
 
@@ -181,6 +181,24 @@ $ npm run doc
 
 ```bash
 $ npm run test
+```
+
+You can execute a part of tests like this.
+
+### For unit test
+
+```bash
+$ npm run test-unit -- ./src/foundation/core
+```
+
+```bash
+$ npm run test-unit -- ./src/foundation/core/Entity.test.ts
+```
+
+### For E2E (visual) test
+
+```bash
+$ npm run test-e2e -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
 ```
 
 Some of the E2E (visual) tests might fail due to GPU environment differences.
