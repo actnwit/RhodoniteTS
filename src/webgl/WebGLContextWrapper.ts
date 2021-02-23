@@ -42,6 +42,9 @@ export default class WebGLContextWrapper {
   #maxVertexUniformBlocks = INVALID_SIZE;
   #maxFragmentUniformBlocks = INVALID_SIZE;
   #maxConventionUniformBlocks = INVALID_SIZE;
+  private __maxVertexUniformVectors = INVALID_SIZE;
+  private __maxFragmentUniformVectors = INVALID_SIZE;
+
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -89,6 +92,7 @@ export default class WebGLContextWrapper {
       this.webgl1ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloat);
     }
     this.getUniformBufferInfo();
+    this.getMaxUniformVectors();
   }
 
   getRawContext(): WebGLRenderingContext | WebGL2RenderingContext {
@@ -470,11 +474,29 @@ export default class WebGLContextWrapper {
     this.#maxUniformBlockSize = maxBlockSize;
   }
 
+  private getMaxUniformVectors() {
+    const gl = this.getRawContext();
+    this.__maxVertexUniformVectors = gl.getParameter(
+      gl.MAX_VERTEX_UNIFORM_VECTORS
+    ) as number;
+    this.__maxVertexUniformVectors = gl.getParameter(
+      gl.MAX_VERTEX_UNIFORM_VECTORS
+    ) as number;
+  }
+
   getMaxConventionUniformBlocks() {
     return this.#maxConventionUniformBlocks;
   }
 
   getAlignedMaxUniformBlockSize() {
     return this.#alignedMaxUniformBlockSize;
+  }
+
+  getMaxVertexUniformVectors() {
+    return this.__maxVertexUniformVectors;
+  }
+
+  getMaxFragmentUniformVectors() {
+    return this.__maxFragmentUniformVectors;
   }
 }
