@@ -475,7 +475,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
         (shaderProgram as any)._gl.uniform1i(
           (shaderProgram as any).skinningMode,
-          0
+          skeletalComponent.componentSID
         );
       }
     } else {
