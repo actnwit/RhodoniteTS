@@ -75,7 +75,6 @@ mat4 getSkinMatrix(float skeletalComponentSID) {
   skinMat += a_weight.z * get_boneMatrix(skeletalComponentSID, int(a_joint.z));
   skinMat += a_weight.w * get_boneMatrix(skeletalComponentSID, int(a_joint.w));
 #elif defined(RN_BONE_DATA_TYPE_VEC4X2)
-  highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
     get_boneQuaternion(skeletalComponentSID, int(a_joint.x)),
     get_boneTranslateScale(skeletalComponentSID, int(a_joint.x)));
