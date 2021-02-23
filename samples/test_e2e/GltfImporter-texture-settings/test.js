@@ -12,6 +12,6 @@ test('regression test GltfImporter-texture-settings', async () => {
     failureThreshold: 0.01,
     failureThresholdType: 'percent',
   });
-  await page.goto('about:blank');
+
   await page.close();
 });

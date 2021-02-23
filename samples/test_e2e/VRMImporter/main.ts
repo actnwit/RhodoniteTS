@@ -20,7 +20,7 @@ declare const Rn: typeof _Rn;
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
+    Rn.ProcessApproach.FastestWebGL1,
     document.getElementById('world') as HTMLCanvasElement
   );
 

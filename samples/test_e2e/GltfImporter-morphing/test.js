@@ -12,6 +12,6 @@ test('regression test GltfImporter-morphing', async () => {
     failureThreshold: 0.01,
     failureThresholdType: 'percent',
   });
-  await page.goto('about:blank');
+
   await page.close();
 });

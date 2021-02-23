@@ -12,6 +12,6 @@ test('regression test GltfImporter-skinning-mat44', async () => {
     failureThreshold: 0.03,
     failureThresholdType: 'percent',
   });
-  await page.goto('about:blank');
+
   await page.close();
 });

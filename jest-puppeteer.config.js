@@ -9,6 +9,6 @@ module.exports = {
     headless: false,
     devtools: false,
 
-    args: ["--start-maximized", "--no-sandbox"],
+    args: ["--start-maximized", "--no-sandbox"]//, "--disable-gpu"],
   },
 };

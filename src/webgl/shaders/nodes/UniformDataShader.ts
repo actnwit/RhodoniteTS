@@ -42,7 +42,7 @@ export default class UniformDataShader extends GLSLShader {
       this.__componentType
     )} outValue) {
 #ifdef RN_IS_FASTEST_MODE
-  float materialSID = u_currentComponentSIDs[0];
+  float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 #else
   float materialSID = u_materialSID;
 #endif
@@ -61,7 +61,7 @@ outValue = get_${this.__variableName}(materialSID, 0);
       this.__componentType
     )} outValue) {
 #ifdef RN_IS_FASTEST_MODE
-  float materialSID = u_currentComponentSIDs[0];
+  float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 #else
   float materialSID = u_materialSID;
 #endif

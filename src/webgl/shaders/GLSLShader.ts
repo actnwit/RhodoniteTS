@@ -601,7 +601,7 @@ vec3 descramble(vec3 v) {
     const processApproach = SystemState.currentProcessApproach;
     if (ProcessApproach.isFastestApproach(processApproach)) {
       return `
-  float materialSID = u_currentComponentSIDs[0];
+  float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING

@@ -21,6 +21,6 @@ test('regression test GltfImporter-orbit-moving', async () => {
     failureThreshold: 0.005,
     failureThresholdType: 'percent',
   });
-  await page.goto('about:blank');
+
   await page.close();
 });
