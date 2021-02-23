@@ -91,6 +91,7 @@ import _GreaterShaderNode from './foundation/materials/nodes/GreaterShaderNode';
 import _ShaderGraphResolver from './foundation/materials/core/ShaderGraphResolver';
 import _Quaternion from './foundation/math/Quaternion';
 import _MutableQuaternion from './foundation/math/MutableQuaternion';
+import _PbrShadingSingleMaterialNode from './foundation/materials/singles/PbrShadingSingleMaterialNode';
 import {
   FileType as _FileType,
   FileTypeEnum as _FileTypeEnum,
@@ -255,6 +256,7 @@ export default {
   ShaderGraphResolver: _ShaderGraphResolver,
   Quaternion: _Quaternion,
   MutableQuaternion: _MutableQuaternion,
+  PbrShadingSingleMaterialNode: _PbrShadingSingleMaterialNode,
   FileType: _FileType,
   VERSION: _VERSION,
 
@@ -378,6 +380,7 @@ export type BlockEndShaderNode = _BlockEndShaderNode;
 export type GreaterShaderNode = _GreaterShaderNode;
 export type ShaderGraphResolver = _ShaderGraphResolver;
 export type GltfLoadOption = _GltfLoadOption;
+export type PbrShadingSingleMaterialNode = _PbrShadingSingleMaterialNode;
 export type VERSION = typeof _VERSION;
 
 // Definition Enums

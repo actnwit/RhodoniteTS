@@ -19,7 +19,7 @@ document.body.appendChild(p);
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
   system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
+    Rn.ProcessApproach.FastestWebGL1,
     document.getElementById('world') as HTMLCanvasElement
   );
 
@@ -158,12 +158,12 @@ function setIBL(baseUri) {
   const specularCubeTexture = new Rn.CubeTexture();
   specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
   specularCubeTexture.isNamePosNeg = true;
-  specularCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
+  specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
   specularCubeTexture.mipmapLevelNumber = 10;
 
   const diffuseCubeTexture = new Rn.CubeTexture();
   diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
-  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
+  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
   diffuseCubeTexture.mipmapLevelNumber = 1;
   diffuseCubeTexture.isNamePosNeg = true;
 

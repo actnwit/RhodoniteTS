@@ -20,9 +20,6 @@ import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static readonly IsOutputHDR = new ShaderSemanticsClass({
-    str: 'isOutputHDR',
-  });
   static BaseColorTextureTransform = new ShaderSemanticsClass({
     str: 'baseColorTextureTransform',
   });
