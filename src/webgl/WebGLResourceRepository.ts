@@ -186,34 +186,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  resendVertexBuffer(
-    primitive: Primitive,
-    vboHandles: Array<WebGLResourceHandle>
-  ) {
-    const gl = this.__glw!.getRawContext();
-
-    if (gl == null) {
-      throw new Error('No WebGLRenderingContext set as Default.');
-    }
-
-    this.__glw!.bindVertexArray(null);
-    // const vbo = gl.createBuffer();
-    // const resourceHandle = this.getResourceNumber();
-    // this.__webglResources.set(resourceHandle, vbo!);
-
-    primitive.attributeAccessors.forEach((accessor, i) => {
-      const vbo = this.getWebGLResource(vboHandles[i]) as WebGLBuffer;
-      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        accessor.bufferView.getUint8Array(),
-        gl.STATIC_DRAW
-      );
-      //    gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
-      gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    });
-  }
-
   createVertexArray() {
     const gl = this.__glw;
 
@@ -237,39 +209,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTextureCube(textureSlotIndex, texture);
-  }
-
-  createVertexDataResources(primitive: Primitive): VertexHandles {
-    const gl = this.__glw!.getRawContext();
-
-    const vaoHandle = this.createVertexArray();
-
-    let iboHandle;
-    if (primitive.hasIndices()) {
-      iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
-    }
-
-    const attributesFlags: boolean[] = [];
-    for (let i = 0; i < VertexAttribute.AttributeTypeNumber; i++) {
-      attributesFlags[i] = false;
-    }
-    const vboHandles: Array<WebGLResourceHandle> = [];
-    primitive.attributeAccessors.forEach((accessor, i) => {
-      const vboHandle = this.createVertexBuffer(accessor);
-      const slotIdx = primitive.attributeSemantics[i].getAttributeSlot();
-      attributesFlags[slotIdx] = true;
-      vboHandles.push(vboHandle);
-    });
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-    return {
-      vaoHandle: vaoHandle,
-      iboHandle: iboHandle,
-      vboHandles: vboHandles,
-      attributesFlags: attributesFlags,
-      setComplete: false,
-    };
   }
 
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
