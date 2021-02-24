@@ -3,7 +3,6 @@ import CameraComponent from '../../components/CameraComponent';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
-import DepthEncodeShader from '../../../webgl/shaders/DepthEncodeShader';
 import Material from '../core/Material';
 import Scalar from '../../math/Scalar';
 import {
@@ -15,6 +14,8 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import SkeletalComponent from '../../components/SkeletalComponent';
 import Vector3 from '../../math/Vector3';
+import depthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/depthEncodeSingleShader/depthEncodeSingleShader.vert';
+import depthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/depthEncodeSingleShader/depthEncodeSingleShader.frag';
 
 export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
@@ -25,9 +26,11 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
 
   constructor({isSkinning}: {isSkinning: boolean}) {
     super(
-      DepthEncodeShader.getInstance(),
+      null,
       'depthEncodeShading' + (isSkinning ? '+skinning' : ''),
-      {isMorphing: false, isSkinning, isLighting: false}
+      {isMorphing: false, isSkinning, isLighting: false},
+      depthEncodeSingleShaderVertex,
+      depthEncodeSingleShaderFragment
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
