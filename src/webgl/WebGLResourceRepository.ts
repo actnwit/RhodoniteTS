@@ -55,6 +55,7 @@ import {
   ProcessApproachEnum,
 } from '../foundation/definitions/ProcessApproach';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
+import {Is as is} from '../foundation/misc/Is';
 
 declare let HDRImage: any;
 
@@ -143,6 +144,32 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  updateIndexBuffer(
+    accessor: Accessor,
+    resourceHandle: number
+  ) {
+    const glw = this.__glw as WebGLContextWrapper;
+    const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
+    if (!is.exist(gl)) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    const ibo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
+    if (!is.exist(ibo)) {
+      throw new Error('Not found VBO.');
+    }
+
+    glw.bindVertexArray(null);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferSubData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      0,
+      accessor.getTypedArray()
+    );
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  }
+
   createVertexBuffer(accessor: Accessor) {
     const gl = this.__glw!.getRawContext();
 
@@ -184,6 +211,31 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     return resourceHandle;
+  }
+
+  updateVertexBuffer(
+    accessor: Accessor,
+    resourceHandle: number
+  ) {
+    const glw = this.__glw as WebGLContextWrapper;
+    const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
+    if (!is.exist(gl)) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    const vbo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
+    if (!is.exist(vbo)) {
+      throw new Error('Not found VBO.');
+    }
+
+    glw.bindVertexArray(null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferSubData(
+      gl.ARRAY_BUFFER,
+      0,
+      accessor.bufferView.getUint8Array()
+    );
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
   createVertexArray() {
@@ -238,6 +290,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       attributesFlags: attributesFlags,
       setComplete: false,
     };
+  }
+
+  updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles) {
+    if (vertexHandles.iboHandle) {
+      this.updateIndexBuffer(primitive.indicesAccessor as Accessor, vertexHandles.iboHandle);
+    }
+
+    const attributeAccessors = primitive.attributeAccessors
+    for (let i = 0; i < attributeAccessors.length; i++) {
+      this.updateVertexBuffer(
+        attributeAccessors[i],
+        vertexHandles.vboHandles[i]
+      );
+    }
   }
 
   createShaderProgram({

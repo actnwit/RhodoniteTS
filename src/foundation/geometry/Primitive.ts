@@ -27,6 +27,7 @@ import Vector3 from '../math/Vector3';
 import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
+import {Is as is} from '../misc/Is';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -391,6 +392,21 @@ export default class Primitive extends RnObject {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(
       this
+    );
+
+    return true;
+  }
+
+  update3DAPIVertexData() {
+    const vertexHandles = this.__vertexHandles as VertexHandles;
+    if (!is.exist(this.__vertexHandles)) {
+      return false;
+    }
+
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.updateVertexBufferAndIndexBuffer(
+      this,
+      vertexHandles
     );
 
     return true;
