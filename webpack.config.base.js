@@ -6,35 +6,28 @@ module.exports = {
       {
         test: /\.(glsl|vs|fs|vert|frag)$/,
         exclude: /node_modules/,
-        use: [
-          'shaderity-loader'
-        ]
+        use: ['shaderity-loader'],
       },
       {
         test: /VERSION-FILE$/,
         exclude: /node_modules/,
-        use: [
-          'version-loader'
-        ]
+        use: ['version-loader'],
       },
       {
         test: /\.ts$/,
         exclude: [/node_modules/],
-        loader: 'ts-loader'
+        loader: 'ts-loader',
       },
-    ]
+    ],
   },
   resolve: {
-    extensions: [
-      '.ts',
-      '.js'
-    ],
-    modules: ["node_modules"]
+    extensions: ['.ts', '.js'],
+    modules: ['node_modules'],
   },
   output: {
-    publicPath: "/dist/", // Change the path to load splitted code chunks according to your wish.
+    publicPath: '/dist/', // Change the path to load splitted code chunks according to your wish.
   },
   optimization: {
-    namedChunks: true
-  }
+    chunkIds: 'named',
+  },
 };

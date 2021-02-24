@@ -10,6 +10,6 @@ test('regression test Gltf2Importer', async () => {
     failureThreshold: 0.005,
     failureThresholdType: 'percent',
   });
-  await page.goto('about:blank');
+
   await page.close();
 });

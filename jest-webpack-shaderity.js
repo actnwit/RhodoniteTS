@@ -1,4 +1,4 @@
-const Shaderity = require("shaderity-node")
+const Shaderity = require('shaderity-node');
 
 module.exports = {
   process(src, filename, config, options) {

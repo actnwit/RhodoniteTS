@@ -15,6 +15,7 @@ const boneDataType = BoneDataType.Vec4x2;
 const noWebGLTex2DStateCache = false;
 const maxMorphTargetNumber = 4;
 const totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+const isUboEnabled = true;
 
 export default {
   maxEntityNumber,
@@ -31,4 +32,5 @@ export default {
   noWebGLTex2DStateCache,
   maxMorphTargetNumber,
   totalSizeOfGPUShaderDataStorageExceptMorphData,
+  isUboEnabled,
 };

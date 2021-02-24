@@ -449,6 +449,18 @@ export default abstract class AbstractMaterialNode extends RnObject {
             jointMatricesArray
           );
         } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+          const jointTranslatePackedQuat =
+            skeletalComponent.jointTranslatePackedQuat;
+          const jointScalePackedQuat = skeletalComponent.jointScalePackedQuat;
+          (shaderProgram as any)._gl.uniform4fv(
+            (shaderProgram as any).boneTranslatePackedQuat,
+            jointTranslatePackedQuat
+          );
+          (shaderProgram as any)._gl.uniform4fv(
+            (shaderProgram as any).boneScalePackedQuat,
+            jointScalePackedQuat
+          );
+        } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
           const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
           const jointTranslateScaleArray =
             skeletalComponent.jointTranslateScaleArray;
@@ -475,7 +487,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
         (shaderProgram as any)._gl.uniform1i(
           (shaderProgram as any).skinningMode,
-          0
+          skeletalComponent.componentSID
         );
       }
     } else {

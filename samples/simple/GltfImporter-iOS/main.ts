@@ -150,6 +150,7 @@ declare const Rn: typeof _Rn;
   lightEntity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, Math.PI / 8);
 
   let count = 0;
+  let startTime = Date.now();
   const draw = function () {
     if (p == null && count > 0) {
       p = document.createElement('p');
@@ -160,6 +161,16 @@ declare const Rn: typeof _Rn;
 
     if (window.isAnimating) {
       // const date = new Date();
+      const date = new Date();
+      const rotation = 0.001 * (date.getTime() - startTime);
+      //rotationVec3.v[0] = 0.1;
+      //rotationVec3.v[1] = rotation;
+      //rotationVec3.v[2] = 0.1;
+      const time = (date.getTime() - startTime) / 1000;
+      Rn.AnimationComponent.globalTime = time;
+      if (time > Rn.AnimationComponent.endInputValue) {
+        startTime = date.getTime();
+      }
     }
 
     system.process(expressions);

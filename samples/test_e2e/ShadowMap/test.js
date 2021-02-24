@@ -10,6 +10,6 @@ test('regression test ShadowMap', async () => {
     failureThreshold: 0.01, // To counteract the error in depth encode shader
     failureThresholdType: 'percent',
   });
-  await page.goto('about:blank');
+
   await page.close();
 });

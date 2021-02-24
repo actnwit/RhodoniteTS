@@ -311,7 +311,6 @@ declare const Rn: typeof _Rn;
     }
 
     const startTime = Date.now();
-    let p = null;
     const rotationVec3 = Rn.MutableVector3.zero();
     let count = 0;
 
@@ -327,12 +326,10 @@ declare const Rn: typeof _Rn;
     const stats = new Stats();
     stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
     document.body.appendChild(stats.domElement);
+
     const draw = function () {
-      if (p == null && count > 0) {
-        p = document.createElement('p');
-        p.setAttribute('id', 'rendered');
-        p.innerText = 'Rendered.';
-        document.body.appendChild(p);
+      if (count > 0) {
+        window._rendered = true;
       }
 
       const date = new Date();

@@ -604,6 +604,9 @@ export default class Material extends RnObject {
     const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
     if (glw.isWebGL2) {
       definitions += '#version 300 es\n#define GLSL_ES3\n';
+      if (Config.isUboEnabled) {
+        definitions += '#define RN_IS_UBO_ENABLED\n';
+      }
     }
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
     if (
@@ -625,6 +628,8 @@ export default class Material extends RnObject {
       definitions += '#define RN_BONE_DATA_TYPE_MAT4X4\n';
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
       definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
+    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+      definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
       definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
     }

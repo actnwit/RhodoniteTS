@@ -6,9 +6,10 @@ module.exports = {
     launchTimeout: 5000, // Wait 5 secs max before timing out
   },
   launch: {
-    headless: false,
+    headless: true,
     devtools: false,
+    // dumpio: true,
 
-    args: ["--start-maximized", "--no-sandbox"],
+    args: ["--start-maximized", "--no-sandbox", "--disable-gpu"],
   },
 };

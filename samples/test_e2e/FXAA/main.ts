@@ -10,8 +10,6 @@ import {
   RenderPass,
 } from '../../../dist/esm/index';
 
-let p: any;
-
 declare const window: any;
 declare const Rn: typeof _Rn;
 
@@ -20,12 +18,13 @@ const expressionWithOutFXAA = new Rn.Expression();
 let expression: Expression;
 let framebuffer: FrameBuffer;
 let renderPassMain: RenderPass;
+
 (async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
+  Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
   const gl = system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.UniformWebGL1,
     canvas,
@@ -58,16 +57,11 @@ let renderPassMain: RenderPass;
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
-  const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
   const draw = function () {
-    if (p == null && count > 0) {
-      p = document.createElement('p');
-      p.setAttribute('id', 'rendered');
-      p.innerText = 'Rendered.';
-      document.body.appendChild(p);
+    if (count > 0) {
+      window._rendered = true;
     }
-
     if (window.isAnimating) {
       const date = new Date();
       const rotation = 0.001 * (date.getTime() - startTime);

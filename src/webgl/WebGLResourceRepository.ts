@@ -446,11 +446,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
 
     const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
-    for (const info of infoArray) {
+    const infoArrayLen = infoArray.length;
+    for (let i = 0; i < infoArrayLen; i++) {
+      const info = infoArray[i];
       shaderSemanticsInfoMap.set(info.semantic.str, info);
     }
 
-    for (const info of infoArray) {
+    for (let i = 0; i < infoArrayLen; i++) {
+      const info = infoArray[i];
       const semanticSingular = info.semantic.str;
 
       const identifier = semanticSingular;

@@ -14,7 +14,6 @@
     "GltfImporter-ibl-2",
     "GltfImporter-ibl-metallic-roughness",
     "GltfImporter-interpolation",
-    "GltfImporter-iOS",
     "GltfImporter-morphing",
     "GltfImporter-multiUV",
     "GltfImporter-orbit-moving",
@@ -41,6 +40,7 @@
     "NodeEditor",
     "SparkGear",
     "VideoTexture",
-    "VRMImporterMToon"
+    "VRMImporterMToon",
+    "GltfImporter-iOS"
   ]
 }

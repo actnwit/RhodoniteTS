@@ -141,6 +141,32 @@ export default class GlobalDataRepository {
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: new VectorN(new Float32Array(0)),
     };
+    const boneTranslatePackedQuatInfo = {
+      semantic: ShaderSemantics.BoneTranslatePackedQuat,
+      compositionType: CompositionType.Vec4Array,
+      maxIndex: Config.maxSkeletalBoneNumber,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: true,
+      initialValue: new VectorN(new Float32Array(0)),
+    };
+    const boneScalePackedQuatInfo = {
+      semantic: ShaderSemantics.BoneScalePackedQuat,
+      compositionType: CompositionType.Vec4Array,
+      maxIndex: Config.maxSkeletalBoneNumber,
+      componentType: ComponentType.Float,
+      soloDatum: true,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      initialValue: new VectorN(new Float32Array(0)),
+    };
     const boneCompressedChunkInfo = {
       semantic: ShaderSemantics.BoneCompressedChunk,
       compositionType: CompositionType.Vec4Array,
@@ -180,10 +206,16 @@ export default class GlobalDataRepository {
     if (Config.boneDataType === BoneDataType.Mat4x4) {
       this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+      this.registerProperty(
+        boneTranslatePackedQuatInfo,
+        Config.maxSkeletonNumber
+      );
+      this.registerProperty(boneScalePackedQuatInfo, Config.maxSkeletonNumber);
+    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
       this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
       this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
+      this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
       this.registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
       this.registerProperty(boneCompressedInfoInfo, 1);
       this.takeOne(ShaderSemantics.BoneCompressedInfo);

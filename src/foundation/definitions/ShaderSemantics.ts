@@ -162,6 +162,12 @@ const BoneQuaternion: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const BoneTranslateScale: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'boneTranslateScale',
 });
+const BoneTranslatePackedQuat: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'boneTranslatePackedQuat',
+});
+const BoneScalePackedQuat: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'boneScalePackedQuat',
+});
 const BoneCompressedChunk: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'boneCompressedChunk',
 });
@@ -260,6 +266,8 @@ const typeList = [
   VertexAttributesExistenceArray,
   BoneQuaternion,
   BoneTranslateScale,
+  BoneTranslatePackedQuat,
+  BoneScalePackedQuat,
   BoneCompressedChunk,
   BoneCompressedInfo,
   PointSize,
@@ -464,6 +472,8 @@ export const ShaderSemantics = Object.freeze({
   VertexAttributesExistenceArray,
   BoneQuaternion,
   BoneTranslateScale,
+  BoneTranslatePackedQuat,
+  BoneScalePackedQuat,
   BoneCompressedChunk,
   BoneCompressedInfo,
   PointSize,
