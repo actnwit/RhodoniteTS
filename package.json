@@ -22,7 +22,7 @@
   "license": "MIT",
   "scripts": {
     "setup": "npx shx cp ./pre-commit ./.git/hooks",
-    "prepare": "npm run build-ci",
+    "prepare": "npm run build-ci && node build-samples",
     "build": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod",
     "build-ci": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod",
     "build-umd-dev": "npm run create-VERSION-FILE && npx webpack --config webpack.config.development.js",
