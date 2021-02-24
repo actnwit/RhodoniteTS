@@ -9,10 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: Borales/actions-yarn@v2.3.0
       with:
-        node-version: '14'
-    - run: npm install
+        cmd: install
     - uses: actions/upload-artifact@v2
       with:
         name: Rhodonite-distribution-files
