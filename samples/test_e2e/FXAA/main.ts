@@ -60,7 +60,9 @@ let renderPassMain: RenderPass;
   let count = 0;
   const draw = function () {
     if (count > 0) {
-      window._rendered = true;
+      let p = document.createElement('p');
+      p.setAttribute('id', 'rendered');
+      p.innerText = 'Rendered.';
     }
     if (window.isAnimating) {
       const date = new Date();
