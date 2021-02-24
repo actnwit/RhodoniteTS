@@ -559,7 +559,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
 
-    const startOffsetOfDataTextureOnGPUInstanceData = glw!.isWebGL2
+    const startOffsetOfDataTextureOnGPUInstanceData = this.toUboUse(
+      glw!.isWebGL2
+    )
       ? glw!.getAlignedMaxUniformBlockSize()
       : 0;
 
@@ -595,35 +597,19 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         startOffsetOfDataTextureOnGPUInstanceData,
         updateByteSize / 4
       );
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__webglResourceRepository.updateTexture(
-          this.__dataTextureUid,
-          floatDataTextureBuffer,
-          {
-            level: 0,
-            xoffset: 0,
-            yoffset: 0,
-            width: MemoryManager.bufferWidthLength,
-            height: height,
-            format: PixelFormat.RGBA,
-            type: ComponentType.Float,
-          }
-        );
-      } else {
-        this.__webglResourceRepository.updateTexture(
-          this.__dataTextureUid,
-          floatDataTextureBuffer,
-          {
-            level: 0,
-            xoffset: 0,
-            yoffset: 0,
-            width: MemoryManager.bufferWidthLength,
-            height: height,
-            format: PixelFormat.RGBA,
-            type: ComponentType.Float,
-          }
-        );
-      }
+      this.__webglResourceRepository.updateTexture(
+        this.__dataTextureUid,
+        floatDataTextureBuffer,
+        {
+          level: 0,
+          xoffset: 0,
+          yoffset: 0,
+          width: MemoryManager.bufferWidthLength,
+          height: height,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+        }
+      );
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
       let morphBufferTakenSizeInByte = 0;
@@ -752,8 +738,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     ) as LightComponent[];
   }
 
+  private toUboUse(isWebGL2: boolean) {
+    return isWebGL2 && Config.isUboEnabled;
+  }
+
   private __createAndUpdateUBO() {
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+    if (
+      this.toUboUse(
+        this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2
+      )
+    ) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
       const memoryManager: MemoryManager = MemoryManager.getInstance();

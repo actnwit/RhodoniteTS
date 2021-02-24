@@ -413,13 +413,13 @@ uniform sampler2D u_dataTexture;
 const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};
 const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};
 
-#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
+#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE) && defined(RN_IS_UBO_ENABLED)
   ${dataUBOVec4SizeStr}
   ${dataUboDefinition}
 #endif
 
 highp vec4 fetchElement(highp sampler2D tex, int vec4_idx, int texWidth, int texHeight) {
-#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE)
+#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE) && defined(RN_IS_UBO_ENABLED)
   if (vec4_idx < dataUBOVec4Size) {
     return fetchVec4FromVec4Block(vec4_idx);
   } else {

@@ -10,6 +10,7 @@ document.body.appendChild(p);
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
+  Rn.Config.isUboEnabled = false;
   system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.FastestWebGL2,
     document.getElementById('world') as HTMLCanvasElement

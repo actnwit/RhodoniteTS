@@ -601,6 +601,9 @@ export default class Material extends RnObject {
     const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
     if (glw.isWebGL2) {
       definitions += '#version 300 es\n#define GLSL_ES3\n';
+      if (Config.isUboEnabled) {
+        definitions += '#define RN_IS_UBO_ENABLED\n';
+      }
     }
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
     if (
