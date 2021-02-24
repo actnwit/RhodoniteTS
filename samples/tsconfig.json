@@ -1,7 +1,7 @@
 {
   "extends": "./../tsconfig.json",
   "include": ["./simple", "./test_e2e/"],
-  "exclude": [],
+  "exclude": ["./simple/4DViews/"],
   "compilerOptions": {
     "module": "umd",
     "declaration": false,
