@@ -329,9 +329,10 @@ declare const Rn: typeof _Rn;
 
     const draw = function () {
       if (count > 0) {
-        window._rendered = true;
+        let p = document.createElement('p');
+        p.setAttribute('id', 'rendered');
+        p.innerText = 'Rendered.';
       }
-
       const date = new Date();
 
       if (window.isAnimating) {
