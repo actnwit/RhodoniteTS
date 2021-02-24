@@ -201,9 +201,6 @@ $ npm run test-unit -- ./src/foundation/core/Entity.test.ts
 $ npm run test-e2e -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
 ```
 
-Some of the E2E (visual) tests might fail due to GPU environment differences.
-The official test environment is our Github Action CI Runner instance.
-
 ## Debugging inside VSCode
 
 1. Install the "Debugger for Chrome" VSCode Extension.
