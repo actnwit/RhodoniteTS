@@ -10,7 +10,6 @@ import {ComponentType} from '../../definitions/ComponentType';
 import Vector4 from '../../math/Vector4';
 import Vector3 from '../../math/Vector3';
 import {ShadingModel} from '../../definitions/ShadingModel';
-import ShadowMapDecodeClassicShader from '../../../webgl/shaders/ShadowMapDecodeClassicShader';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
@@ -27,6 +26,8 @@ import MutableMatrix44 from '../../math/MutableMatrix44';
 import MeshComponent from '../../components/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShapeComponent';
 import MutableVector4 from '../../math/MutableVector4';
+import shadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
+import shadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static ShadowColorCoefficient: ShaderSemanticsEnum = new ShaderSemanticsClass(
@@ -78,11 +79,13 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     encodedDepthRenderPass: RenderPass
   ) {
     super(
-      ShadowMapDecodeClassicShader.getInstance(),
+      null,
       'ShadowMapDecodeClassicShading' +
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting'),
-      {isMorphing, isSkinning, isLighting}
+      {isMorphing, isSkinning, isLighting},
+      shadowMapDecodeSingleShaderVertex,
+      shadowMapDecodeSingleShaderFragment
     );
 
     this.__encodedDepthRenderPass = encodedDepthRenderPass;
