@@ -13,8 +13,8 @@ import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/CameraComponent';
 import Material from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import envConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/envConstantSingleShader/envConstantSingleShader.vert';
-import envConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/envConstantSingleShader/envConstantSingleShader.frag';
+import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
+import EnvConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
@@ -25,8 +25,8 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
       null,
       'envConstantShading',
       {},
-      envConstantSingleShaderVertex,
-      envConstantSingleShaderFragment
+      EnvConstantSingleShaderVertex,
+      EnvConstantSingleShaderFragment
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
