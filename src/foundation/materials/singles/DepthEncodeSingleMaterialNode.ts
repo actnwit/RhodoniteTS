@@ -14,8 +14,8 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import SkeletalComponent from '../../components/SkeletalComponent';
 import Vector3 from '../../math/Vector3';
-import depthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/depthEncodeSingleShader/depthEncodeSingleShader.vert';
-import depthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/depthEncodeSingleShader/depthEncodeSingleShader.frag';
+import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
+import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
 
 export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
@@ -29,8 +29,8 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
       null,
       'depthEncodeShading' + (isSkinning ? '+skinning' : ''),
       {isMorphing: false, isSkinning, isLighting: false},
-      depthEncodeSingleShaderVertex,
-      depthEncodeSingleShaderFragment
+      DepthEncodeSingleShaderVertex,
+      DepthEncodeSingleShaderFragment
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
