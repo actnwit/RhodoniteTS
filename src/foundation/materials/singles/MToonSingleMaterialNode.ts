@@ -9,7 +9,6 @@ import {CompositionType} from '../../definitions/CompositionType';
 import Config from '../../core/Config';
 import Material from '../core/Material';
 import MeshComponent from '../../components/MeshComponent';
-import MToonShader from '../../../webgl/shaders/MToonShader';
 import Scalar from '../../math/Scalar';
 import {
   ShaderSemanticsInfo,
@@ -22,10 +21,11 @@ import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
 import VectorN from '../../math/VectorN';
 import {Count} from '../../../commontypes/CommonTypes';
-import {MiscUtil} from '../../misc/MiscUtil';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import Texture from '../../textures/Texture';
+import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
+import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
@@ -111,13 +111,15 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     debugMode: Count | undefined
   ) {
     super(
-      MToonShader.getInstance(),
+      null,
       'MToonShading' +
         (isMorphing ? '+morphing' : '') +
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting') +
         (useTangentAttribute ? '+tangentAttribute' : ''),
-      {isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting}
+      {isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting},
+      mToonSingleShaderVertex,
+      mToonSingleShaderFragment
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];

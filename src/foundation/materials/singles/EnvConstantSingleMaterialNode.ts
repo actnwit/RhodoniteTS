@@ -7,20 +7,27 @@ import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import Vector4 from '../../math/Vector4';
-import EnvConstantShader from '../../../webgl/shaders/EnvConstantShader';
 import {ShaderType} from '../../definitions/ShaderType';
 import Scalar from '../../math/Scalar';
 import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/CameraComponent';
 import Material from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
+import envConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/envConstantSingleShader/envConstantSingleShader.vert';
+import envConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/envConstantSingleShader/envConstantSingleShader.frag';
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
   static EnvHdriFormat = new ShaderSemanticsClass({str: 'EnvHdriFormat'});
 
   constructor() {
-    super(EnvConstantShader.getInstance(), 'envConstantShading');
+    super(
+      null,
+      'envConstantShading',
+      {},
+      envConstantSingleShaderVertex,
+      envConstantSingleShaderFragment
+    );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
