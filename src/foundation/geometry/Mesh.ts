@@ -799,6 +799,7 @@ export default class Mesh {
         this.__vaoUids.forEach((vaoUid: CGAPIResourceHandle) => {
           webglResourceRepository.deleteVertexArray(vaoUid);
         });
+        this.__instancesDirty = true;
         return true;
       }
     }
