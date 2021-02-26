@@ -38,6 +38,7 @@ export default class AccessorBase extends RnObject {
   protected __min?: number[];
   protected __arrayLength = 1;
   protected __normalized = false;
+  private __isMinMixDirty = true;
 
   constructor({
     bufferView,
@@ -576,6 +577,7 @@ export default class AccessorBase extends RnObject {
       index = indicesAccessor.getScalar(i, {});
     }
     this.__dataViewSetter(this.__byteStride * index, value, endian);
+    this.__isMinMixDirty = true;
   }
 
   setVec2(
@@ -598,6 +600,7 @@ export default class AccessorBase extends RnObject {
       y,
       endian
     );
+    this.__isMinMixDirty = true;
   }
 
   setVec3(
@@ -626,6 +629,7 @@ export default class AccessorBase extends RnObject {
       z,
       endian
     );
+    this.__isMinMixDirty = true;
   }
 
   setVec4(
@@ -660,6 +664,7 @@ export default class AccessorBase extends RnObject {
       w,
       endian
     );
+    this.__isMinMixDirty = true;
   }
 
   setVec2AsVector(
@@ -681,6 +686,7 @@ export default class AccessorBase extends RnObject {
       vec.y,
       endian
     );
+    this.__isMinMixDirty = true;
   }
 
   setVec3AsVector(
@@ -707,6 +713,7 @@ export default class AccessorBase extends RnObject {
       vec.z,
       endian
     );
+    this.__isMinMixDirty = true;
   }
 
   setVec4AsVector(
@@ -738,6 +745,7 @@ export default class AccessorBase extends RnObject {
       vec.w,
       endian
     );
+    this.__isMinMixDirty = true;
   }
 
   copyFromTypedArray(typedArray: TypedArray) {
@@ -804,6 +812,7 @@ export default class AccessorBase extends RnObject {
       value,
       endian
     );
+    this.__isMinMixDirty = true;
   }
 
   setElementFromSameCompositionAccessor(
@@ -831,6 +840,7 @@ export default class AccessorBase extends RnObject {
       ),
       this.__byteOffsetInRawArrayBufferOfBuffer
     );
+    this.__isMinMixDirty = true;
   }
 
   setElementFromAccessor(i: Index, accessor: Accessor, secondIdx?: Index) {
@@ -1049,5 +1059,10 @@ export default class AccessorBase extends RnObject {
       this.__min = [min];
       this.__max = [max];
     }
+    this.__isMinMixDirty = false;
+  }
+
+  get isMinMaxDirty() {
+    return this.__isMinMixDirty;
   }
 }

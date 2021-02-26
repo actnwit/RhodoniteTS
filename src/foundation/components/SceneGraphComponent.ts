@@ -464,6 +464,18 @@ export default class SceneGraphComponent extends Component {
     // if (this.parent == null) {
     // this.calcWorldAABB();
     // }
+
+    const mesh = this.entity.getMesh()?.mesh;
+    if (mesh) {
+      const primitiveNum = mesh.getPrimitiveNumber();
+      for (let i = 0; i < primitiveNum; i++) {
+        const primitive = mesh.getPrimitiveAt(i);
+        if (primitive.isPositionAccessorUpdated) {
+          this.setWorldAABBDirtyParentRecursively();
+          break;
+        }
+      }
+    }
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);
