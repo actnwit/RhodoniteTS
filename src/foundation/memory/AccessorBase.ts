@@ -38,11 +38,15 @@ export default class AccessorBase extends RnObject {
   protected __typedArrayClass?: TypedArrayConstructor;
   protected __dataViewGetter: any;
   protected __dataViewSetter: any;
-  protected __max?: number[];
-  protected __min?: number[];
+  protected __max: MutableVector4 = new MutableVector4(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+  protected __min: MutableVector4 = new MutableVector4(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
   protected __arrayLength = 1;
   protected __normalized = false;
   private __isMinMixDirty = true;
+
+  private static __tmpVector4_0 = MutableVector4.zero();
+  private static __tmpVector3_0 = MutableVector3.zero();
+  private static __tmpVector2_0 = MutableVector2.zero();
 
   constructor({
     bufferView,
@@ -78,8 +82,25 @@ export default class AccessorBase extends RnObject {
     this.__componentType = componentType;
     this.__count = count;
     this.__arrayLength = arrayLength;
-    this.__max = max;
-    this.__min = min;
+
+    if (max) {
+      this.__max.setComponents(
+        max[0] || -Number.MAX_VALUE,
+        max[1] || -Number.MAX_VALUE,
+        max[2] || -Number.MAX_VALUE,
+        max[3] || -Number.MAX_VALUE
+      );
+    }
+
+    if (min) {
+      this.__min.setComponents(
+        min[0] || Number.MAX_VALUE,
+        min[1] || Number.MAX_VALUE,
+        min[2] || Number.MAX_VALUE,
+        min[3] || Number.MAX_VALUE
+      );
+    }
+
     this.__raw = raw;
     this.__normalized = normalized;
 
@@ -1096,11 +1117,29 @@ export default class AccessorBase extends RnObject {
   }
 
   get min() {
-    return this.__min;
+    const componentN = this.compositionType.getNumberOfComponents();
+    if (componentN === 4) {
+      return [this.__min.v[0], this.__min.v[1], this.__min.v[2], this.__min.v[3]]
+    } else if (componentN === 3) {
+      return [this.__min.v[0], this.__min.v[1], this.__min.v[2]]
+    } else if (componentN === 2) {
+      return [this.__min.v[0], this.__min.v[1]]
+    } else {
+      return [this.__min.v[0]]
+    }
   }
 
   get max() {
-    return this.__max;
+    const componentN = this.compositionType.getNumberOfComponents();
+    if (componentN === 4) {
+      return [this.__max.v[0], this.__max.v[1], this.__max.v[2], this.__max.v[3]]
+    } else if (componentN === 3) {
+      return [this.__max.v[0], this.__max.v[1], this.__max.v[2]]
+    } else if (componentN === 2) {
+      return [this.__max.v[0], this.__max.v[1]]
+    } else {
+      return [this.__max.v[0]]
+    }
   }
 
   get normalized() {
@@ -1110,77 +1149,66 @@ export default class AccessorBase extends RnObject {
   calcMinMax() {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
-      const minVec4 = [
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-      ];
-      const maxVec4 = [
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-      ];
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+
+      const vec4 = AccessorBase.__tmpVector4_0;
       for (let i = 0; i < this.elementCount; i++) {
-        const vec4array = this.getVec4AsArray(i, {});
+        this.getVec4To(i, vec4, {});
         for (let j = 0; j < 4; j++) {
-          if (vec4array[j] < minVec4[j]) {
-            minVec4[j] = vec4array[j];
+          if (this.__max.v[j] < vec4.v[j]) {
+            this.__max.v[j] = vec4.v[j];
           }
-          if (maxVec4[j] < vec4array[j]) {
-            maxVec4[j] = vec4array[j];
+          if (vec4.v[j] < this.__min.v[j]) {
+            this.__min.v[j] = vec4.v[j];
           }
         }
       }
-      this.__min = minVec4;
-      this.__max = maxVec4;
     } else if (componentN === 3) {
-      const minVec3 = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE];
-      const maxVec3 = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE];
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+
+      const vec3 = AccessorBase.__tmpVector3_0;
       for (let i = 0; i < this.elementCount; i++) {
-        const vec3array = this.getVec3AsArray(i, {});
+        this.getVec3To(i, vec3, {});
         for (let j = 0; j < 3; j++) {
-          if (vec3array[j] < minVec3[j]) {
-            minVec3[j] = vec3array[j];
+          if (this.__max.v[j] < vec3.v[j]) {
+            this.__max.v[j] = vec3.v[j];
           }
-          if (maxVec3[j] < vec3array[j]) {
-            maxVec3[j] = vec3array[j];
+          if (vec3.v[j] < this.__min.v[j]) {
+            this.__min.v[j] = vec3.v[j];
           }
         }
       }
-      this.__min = minVec3;
-      this.__max = maxVec3;
     } else if (componentN === 2) {
-      const minVec2 = [Number.MAX_VALUE, Number.MAX_VALUE];
-      const maxVec2 = [-Number.MAX_VALUE, -Number.MAX_VALUE];
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+
+      const vec2 = AccessorBase.__tmpVector2_0;
       for (let i = 0; i < this.elementCount; i++) {
-        const vec2array = this.getVec2AsArray(i, {});
+        this.getVec2To(i, vec2, {});
         for (let j = 0; j < 2; j++) {
-          if (vec2array[j] < minVec2[j]) {
-            minVec2[j] = vec2array[j];
+          if (this.__max.v[j] < vec2.v[j]) {
+            this.__max.v[j] = vec2.v[j];
           }
-          if (maxVec2[j] < vec2array[j]) {
-            maxVec2[j] = vec2array[j];
+          if (vec2.v[j] < this.__min.v[j]) {
+            this.__min.v[j] = vec2.v[j];
           }
         }
       }
-      this.__min = minVec2;
-      this.__max = maxVec2;
     } else if (componentN === 1) {
-      let min = Number.MAX_VALUE;
-      let max = -Number.MAX_VALUE;
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+
       for (let i = 0; i < this.elementCount; i++) {
         const scalar = this.getScalar(i, {});
-        if (scalar < min) {
-          min = scalar;
+        if (this.__max.v[0] < scalar) {
+          this.__max.v[0] = scalar;
         }
-        if (max < scalar) {
-          max = scalar;
+        if (scalar < this.__min.v[0]) {
+          this.__min.v[0] = scalar;
         }
       }
-      this.__min = [min];
-      this.__max = [max];
     }
     this.__isMinMixDirty = false;
   }
