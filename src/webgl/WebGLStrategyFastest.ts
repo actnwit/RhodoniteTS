@@ -514,6 +514,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         primitive.create3DAPIVertexData();
       }
       meshComponent.mesh.updateVariationVBO();
+      meshComponent.mesh.updateVAO();
     }
   }
 
@@ -536,19 +537,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      this.__webglResourceRepository.setVertexDataToPipeline(
-        {
-          vaoHandle: meshComponent.mesh.getVaoUids(i),
-          iboHandle: primitive.vertexHandles!.iboHandle,
-          vboHandles: primitive.vertexHandles!.vboHandles,
-        },
-        primitive,
-        meshComponent.mesh.variationVBOUid
-      );
-    }
     meshRendererComponent._readyForRendering = true;
   }
 

@@ -307,6 +307,7 @@ mat3 get_normalMatrix(float instanceId) {
         primitive.create3DAPIVertexData();
       }
       meshComponent.mesh.updateVariationVBO();
+      meshComponent.mesh.updateVAO();
     }
   }
 
@@ -318,28 +319,6 @@ mat3 get_normalMatrix(float instanceId) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
-    }
-
-    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
-
-    // if (meshComponent.mesh.weights.length > 0) {
-    //   for (let i = 0; i < primitiveNum; i++) {
-    //     const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-    //     this.__webglResourceRepository.resendVertexBuffer(primitive, primitive.vertexHandles!.vboHandles);
-    //   }
-    // }
-
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      this.__webglResourceRepository.setVertexDataToPipeline(
-        {
-          vaoHandle: meshComponent.mesh.getVaoUids(i),
-          iboHandle: primitive.vertexHandles!.iboHandle,
-          vboHandles: primitive.vertexHandles!.vboHandles,
-        },
-        primitive,
-        meshComponent.mesh.variationVBOUid
-      );
     }
   }
 
