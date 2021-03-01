@@ -272,6 +272,7 @@ export default class AABB {
     if (aabb.isVanilla()) {
       return outAabb.copyComponents(aabb);
     }
+    outAabb.initialize();
 
     AABB.__tmpVector3.x = aabb.__min.x;
     AABB.__tmpVector3.y = aabb.__min.y;

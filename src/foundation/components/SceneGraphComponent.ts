@@ -291,7 +291,6 @@ export default class SceneGraphComponent extends Component {
     ): AABB {
       const meshComponent = elem.entity.getMesh();
 
-      elem.__worldAABB.initialize();
       if (meshComponent?.mesh != null) {
         // const skeletalComponent = elem.entity.getSkeletal();
         // if (false) {//skeletalComponent) {
