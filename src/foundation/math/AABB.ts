@@ -148,12 +148,8 @@ export default class AABB {
     this.__isLengthCenterToCornerDirty = true;
 
     if (this.isVanilla()) {
-      this.__min.x = aabb.minPoint.x;
-      this.__min.y = aabb.minPoint.y;
-      this.__min.z = aabb.minPoint.z;
-      this.__max.x = aabb.maxPoint.x;
-      this.__max.y = aabb.maxPoint.y;
-      this.__max.z = aabb.maxPoint.z;
+      this.__min.copyComponents(aabb.minPoint);
+      this.__max.copyComponents(aabb.maxPoint);
       isUpdated = true;
       return isUpdated;
     }
