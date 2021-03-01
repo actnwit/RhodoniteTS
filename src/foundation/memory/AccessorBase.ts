@@ -8,7 +8,11 @@ import BufferView from './BufferView';
 import Vector2 from '../math/Vector2';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
+import MutableVector2 from '../math/MutableVector2';
+import MutableVector3 from '../math/MutableVector3';
+import MutableVector4 from '../math/MutableVector4';
 import Matrix33 from '../math/Matrix33';
+import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import Accessor from './Accessor';
 import {
@@ -545,6 +549,125 @@ export default class AccessorBase extends RnObject {
     }
     const byteSize = this.componentSizeInBytes;
     return new MutableMatrix44(
+      this.__dataViewGetter(this.__byteStride * index, endian),
+      this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 3 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 4 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 5 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 6 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 7 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 8 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 9 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 10 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 11 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 12 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 13 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 14 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 15 * byteSize, endian)
+    );
+  }
+
+  getVec2To(
+    i: Index,
+    out: MutableVector2,
+    {
+      indicesAccessor,
+      endian = true,
+    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+  ): Vector2 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const byteSize = this.componentSizeInBytes;
+    return out.setComponents(
+      this.__dataViewGetter(this.__byteStride * index, endian),
+      this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian)
+    );
+  }
+
+  getVec3To(
+    i: Index,
+    out: MutableVector3,
+    {
+      indicesAccessor,
+      endian = true,
+    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+  ): Vector3 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const byteSize = this.componentSizeInBytes;
+    return out.setComponents(
+      this.__dataViewGetter(this.__byteStride * index, endian),
+      this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian)
+    );
+  }
+
+  getVec4To(
+    i: Index,
+    out: MutableVector4,
+    {
+      indicesAccessor,
+      endian = true,
+    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+  ): Vector4 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const byteSize = this.componentSizeInBytes;
+    return out.setComponents(
+      this.__dataViewGetter(this.__byteStride * index, endian),
+      this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 3 * byteSize, endian)
+    );
+  }
+
+  getMat3To(
+    i: Index,
+    out: MutableMatrix33,
+    {
+      indicesAccessor,
+      endian = true,
+    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+  ): Matrix33 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const byteSize = this.componentSizeInBytes;
+    return out.setComponents(
+      this.__dataViewGetter(this.__byteStride * index, endian),
+      this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 3 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 4 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 5 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 6 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 7 * byteSize, endian),
+      this.__dataViewGetter(this.__byteStride * index + 8 * byteSize, endian)
+    );
+  }
+
+  getMat4To(
+    i: Index,
+    out: MutableMatrix44,
+    {
+      indicesAccessor,
+      endian = true,
+    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+  ): MutableMatrix44 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const byteSize = this.componentSizeInBytes;
+    return out.setComponents(
       this.__dataViewGetter(this.__byteStride * index, endian),
       this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
       this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
