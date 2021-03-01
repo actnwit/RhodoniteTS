@@ -34,6 +34,16 @@ export default class AABB {
     return instance;
   }
 
+  copyComponents(aabb: AABB) {
+    this.__max.copyComponents(aabb.__max);
+    this.__min.copyComponents(aabb.__min);
+    this.__centerPoint.copyComponents(aabb.__centerPoint);
+    this.__lengthCenterToCorner = aabb.__lengthCenterToCorner;
+    this.__isCenterPointDirty = aabb.__isCenterPointDirty;
+    this.__isLengthCenterToCornerDirty = aabb.__isLengthCenterToCornerDirty;
+    return this;
+  }
+
   initialize() {
     this.__min.setComponents(
       Number.MAX_VALUE,
@@ -260,7 +270,7 @@ export default class AABB {
 
   static multiplyMatrixTo(matrix: Matrix44, aabb: AABB, outAabb: AABB) {
     if (aabb.isVanilla()) {
-      return aabb.clone();
+      return outAabb.copyComponents(aabb);
     }
 
     AABB.__tmpVector3.x = aabb.__min.x;
