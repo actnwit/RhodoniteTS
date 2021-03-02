@@ -25,8 +25,12 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtDB?: WEBGL_draw_buffers;
   public readonly webgl1ExtBM?: EXT_blend_minmax;
   public readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
+  public readonly webgl1ExtCTASTC?: WEBGL_compressed_texture_astc;
+  public readonly webgl1ExtCTS3TC?: WEBGL_compressed_texture_s3tc;
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
   public readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
+  public readonly webgl2ExtCTAS?: WEBGL_compressed_texture_astc;
+  public readonly webgl2ExtCTS3TC?: WEBGL_compressed_texture_s3tc;
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
@@ -70,6 +74,13 @@ export default class WebGLContextWrapper {
       this.webgl2ExtTFA = this.__getExtension(
         WebGLExtension.TextureFilterAnisotropic
       );
+      this.webgl2ExtCTAS = this.__getExtension(
+        WebGLExtension.CompressedTextureAstc
+      );
+      this.webgl2ExtCTS3TC =
+      this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
+        this.__getExtension(WebGLExtension.CompressedTextureS3tcMOZ) ||
+        this.__getExtension(WebGLExtension.CompressedTextureS3tcWK);
     } else {
       this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
       this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
@@ -90,6 +101,13 @@ export default class WebGLContextWrapper {
       this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
       this.webgl1ExtBM = this.__getExtension(WebGLExtension.BlendMinmax);
       this.webgl1ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloat);
+      this.webgl1ExtCTASTC = this.__getExtension(
+        WebGLExtension.CompressedTextureAstc
+      );
+      this.webgl1ExtCTS3TC =
+        this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
+        this.__getExtension(WebGLExtension.CompressedTextureS3tcMOZ) ||
+        this.__getExtension(WebGLExtension.CompressedTextureS3tcWK);
     }
     this.getUniformBufferInfo();
     this.getMaxUniformVectors();

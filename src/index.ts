@@ -162,6 +162,10 @@ import {
   AnimationInterpolationEnum as _AnimationInterpolationEnum,
 } from './foundation/definitions/AnimationInterpolation';
 import {GltfLoadOption as _GltfLoadOption} from './types/glTF';
+import {
+  CompressionTextureType as _CompressionTextureType,
+  CompressionTextureTypeEnum as _CompressionTextureTypeEnum,
+} from './foundation/definitions/CompressionTextureType';
 
 export default {
   Entity: _Entity,
@@ -281,6 +285,7 @@ export default {
   ShadingModel: _ShadingModel,
   AnimationAttribute: _AnimationAttribute,
   AnimationInterpolation: _AnimationInterpolation,
+  CompressionTextureType: _CompressionTextureType,
 };
 
 export type Entity = _Entity;
@@ -400,3 +405,4 @@ export type ShadingModelEnum = _ShadingModelEnum;
 export type AnimationAttributeEnum = _AnimationAttributeEnum;
 export type AnimationInterpolationEnum = _AnimationInterpolationEnum;
 export type FileTypeEnum = _FileTypeEnum;
+export type CompressionTextureTypeEnum = _CompressionTextureTypeEnum;

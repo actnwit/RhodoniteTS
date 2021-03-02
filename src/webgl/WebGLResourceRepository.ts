@@ -56,6 +56,7 @@ import {
 } from '../foundation/definitions/ProcessApproach';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is as is} from '../foundation/misc/Is';
+import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
 
 declare let HDRImage: any;
 
@@ -1066,6 +1067,93 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
+    this.__glw!.unbindTexture2D(0);
+
+    return resourceHandle;
+  }
+
+  /**
+   * Create and bind compressed texture object
+   * @param dataArray transcoded texture data for each mipmap
+   * @param internalFormat internalFormat for gl.compressedTexImage2D
+   */
+  createCompressedTexture(
+    data: ArrayBufferView,
+    {
+      level,
+      compressionTextureType,
+      width,
+      height,
+      magFilter,
+      minFilter,
+      wrapS,
+      wrapT,
+      anisotropy,
+    }: {
+      level: Index;
+      compressionTextureType: CompressionTextureTypeEnum;
+      width: Size;
+      height: Size;
+      magFilter: TextureParameterEnum;
+      minFilter: TextureParameterEnum;
+      wrapS: TextureParameterEnum;
+      wrapT: TextureParameterEnum;
+      anisotropy: boolean;
+    }
+  ): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContext();
+
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.getResourceNumber();
+    texture._resourceUid = resourceHandle;
+    this.__webglResources.set(resourceHandle, texture!);
+
+    this.__glw!.bindTexture2D(0, texture);
+
+    const internalFormat = compressionTextureType.index;
+    gl.compressedTexImage2D(
+      gl.TEXTURE_2D,
+      level,
+      internalFormat,
+      width,
+      height,
+      0,
+      data
+    );
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+
+    if (minFilter === TextureParameter.LinearMipmapLinear) {
+      minFilter = TextureParameter.Linear;
+    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+
+    if (MathUtil.isPowerOfTwoTexture(width, height)) {
+      if (anisotropy) {
+        if (this.__glw!.webgl2ExtTFA) {
+          gl.texParameteri(
+            gl.TEXTURE_2D,
+            this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+            4
+          );
+        } else if (this.__glw!.webgl1ExtTFA) {
+          gl.texParameteri(
+            gl.TEXTURE_2D,
+            this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+            4
+          );
+        }
+      } else if (this.__glw!.webgl1ExtTFA) {
+        gl.texParameteri(
+          gl.TEXTURE_2D,
+          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+          1
+        );
+      }
+    }
+
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
