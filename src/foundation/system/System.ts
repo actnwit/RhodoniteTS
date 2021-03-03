@@ -252,7 +252,9 @@ export default class System {
       MiscUtil.isMobile() &&
       ProcessApproach.isUniformApproach(approach)
     ) {
-      alert('For this device, The ProcessApproach that is the argument of system.setProcessApproachAndCanvas method  should be FastestWebGL.');
+      alert(
+        'Use the FastestWebGL1/FastestWebGL2 as the argument of setProcessApproachAndCanvas method for this device.'
+      );
     }
 
     return gl;
