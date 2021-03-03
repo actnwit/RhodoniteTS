@@ -21,6 +21,7 @@ import {CameraType} from '../definitions/CameraType';
 import Time from '../misc/Time';
 import SystemState from './SystemState';
 import {RnXR} from '../../rhodonite-xr';
+import {MiscUtil} from '../misc/MiscUtil';
 
 export default class System {
   private static __instance: System;
@@ -245,6 +246,14 @@ export default class System {
     repo.addWebGLContext(gl!, canvas, true, rnWebGLDebug);
     this.__processApproach = approach;
     SystemState.currentProcessApproach = approach;
+
+    if (
+      rnWebGLDebug &&
+      MiscUtil.isMobile() &&
+      ProcessApproach.isUniformApproach(approach)
+    ) {
+      alert('For this device, The ProcessApproach that is the argument of system.setProcessApproachAndCanvas method  should be FastestWebGL.');
+    }
 
     return gl;
   }
