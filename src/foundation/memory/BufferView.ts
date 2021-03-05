@@ -1,11 +1,10 @@
-import RnObject from '../core/RnObject';
 import Buffer from '../memory/Buffer';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from './Accessor';
 import {Byte, Count, Size} from '../../types/CommonTypes';
 
-export default class BufferView extends RnObject {
+export default class BufferView {
   private __buffer: Buffer;
   private __byteOffsetInRawArrayBufferOfBuffer: Byte;
   private __byteLength: Byte;
@@ -31,7 +30,6 @@ export default class BufferView extends RnObject {
     isAoS: boolean;
     byteAlign: Byte;
   }) {
-    super();
     this.__buffer = buffer;
     this.__byteOffsetInRawArrayBufferOfBuffer = byteOffset;
     this.__byteLength = byteLength;

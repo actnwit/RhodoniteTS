@@ -1,4 +1,3 @@
-import RnObject from '../core/RnObject';
 import BufferView from './BufferView';
 import {Byte, TypedArray} from '../../types/CommonTypes';
 import {
@@ -12,7 +11,7 @@ import {
 
 import DataUtil from '../misc/DataUtil';
 
-export default class Buffer extends RnObject {
+export default class Buffer {
   private __byteLength: Byte = 0;
   private __byteOffset: Byte = 0;
   private __raw: ArrayBuffer;
@@ -32,7 +31,6 @@ export default class Buffer extends RnObject {
     name: string;
     byteAlign: Byte;
   }) {
-    super();
     this.__name = name;
     this.__byteLength = byteLength;
     this.__byteAlign = byteAlign;
