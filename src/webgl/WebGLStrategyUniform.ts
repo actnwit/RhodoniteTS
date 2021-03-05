@@ -40,6 +40,7 @@ import Buffer from '../foundation/memory/Buffer';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
+import {Is as is} from '../foundation/misc/Is';
 
 type ShaderVariableArguments = {
   glw: WebGLContextWrapper;
@@ -291,7 +292,8 @@ mat3 get_normalMatrix(float instanceId) {
   }
 
   $load(meshComponent: MeshComponent) {
-    if (meshComponent.mesh == null) {
+    const mesh = meshComponent.mesh as Mesh;
+    if (!is.exist(mesh)) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
@@ -300,14 +302,14 @@ mat3 get_normalMatrix(float instanceId) {
       this.setupShaderProgram(meshComponent);
     }
 
-    if (!WebGLStrategyCommonMethod.isMeshSetup(meshComponent)) {
-      const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
+    if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
+      const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent!.mesh.getPrimitiveAt(i);
+        const primitive = mesh.getPrimitiveAt(i);
         primitive.create3DAPIVertexData();
       }
-      meshComponent.mesh.updateVariationVBO();
-      meshComponent.mesh.updateVAO();
+      mesh.updateVariationVBO();
+      mesh.updateVAO();
     }
   }
 

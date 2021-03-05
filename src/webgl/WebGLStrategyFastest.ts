@@ -48,6 +48,7 @@ import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVari
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../rhodonite-xr';
 import Vector4 from '../foundation/math/Vector4';
+import {Is as is} from '../foundation/misc/Is';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -493,7 +494,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   $load(meshComponent: MeshComponent) {
-    if (meshComponent.mesh == null) {
+    const mesh = meshComponent.mesh as Mesh;
+    if (!is.exist(mesh)) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
@@ -507,14 +509,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.setupShaderProgram(meshComponent);
     }
 
-    if (!WebGLStrategyCommonMethod.isMeshSetup(meshComponent)) {
-      const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+    if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
+      const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent.mesh.getPrimitiveAt(i);
+        const primitive = mesh.getPrimitiveAt(i);
         primitive.create3DAPIVertexData();
       }
-      meshComponent.mesh.updateVariationVBO();
-      meshComponent.mesh.updateVAO();
+      mesh.updateVariationVBO();
+      mesh.updateVAO();
     }
   }
 

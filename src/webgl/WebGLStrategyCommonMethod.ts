@@ -5,6 +5,7 @@ import MeshRendererComponent from '../foundation/components/MeshRendererComponen
 import MeshComponent from '../foundation/components/MeshComponent';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
 import {Index} from '../commontypes/CommonTypes';
+import Mesh from '../foundation/geometry/Mesh';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -172,15 +173,15 @@ function endDepthMasking(
   }
 }
 
-function isMeshSetup(meshComponent: MeshComponent) {
+function isMeshSetup(mesh: Mesh) {
   if (
-    meshComponent.mesh!.variationVBOUid !==
+    mesh.variationVBOUid !==
     CGAPIResourceRepository.InvalidCGAPIResourceUid
   ) {
-    const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
+    const primitiveNum = mesh.getPrimitiveNumber();
     let count = 0;
     for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent.mesh!.getPrimitiveAt(i);
+      const primitive = mesh.getPrimitiveAt(i);
       if (primitive.vertexHandles != null) {
         count++;
       }
