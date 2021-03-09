@@ -510,13 +510,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
-      const primitiveNum = mesh.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
-        primitive.create3DAPIVertexData();
-      }
-      mesh.updateVariationVBO();
-      mesh.updateVAO();
+      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh)
     }
   }
 

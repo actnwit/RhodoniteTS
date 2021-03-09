@@ -174,6 +174,20 @@ function endDepthMasking(
   }
 }
 
+function updateVBOAndVAO(mesh: Mesh) {
+  const primitiveNum = mesh.getPrimitiveNumber();
+  for (let i = 0; i < primitiveNum; i++) {
+    const primitive = mesh.getPrimitiveAt(i);
+    // if (is.exist(primitive.vertexHandles)) {
+    // primitive.update3DAPIVertexData();
+    // } else {
+    primitive.create3DAPIVertexData();
+    // }
+  }
+  mesh.updateVariationVBO();
+  mesh.updateVAO();
+}
+
 function isMeshSetup(mesh: Mesh) {
   if (
     mesh.variationVBOUid ===
@@ -234,6 +248,7 @@ export default Object.freeze({
   setCullAndBlendSettings,
   startDepthMasking,
   endDepthMasking,
+  updateVBOAndVAO,
   isMeshSetup,
   isMaterialsSetup,
   isSkipDrawing,

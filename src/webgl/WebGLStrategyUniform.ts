@@ -279,13 +279,7 @@ mat3 get_normalMatrix(float instanceId) {
     }
 
     if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
-      const primitiveNum = mesh.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
-        primitive.create3DAPIVertexData();
-      }
-      mesh.updateVariationVBO();
-      mesh.updateVAO();
+      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh)
     }
   }
 
