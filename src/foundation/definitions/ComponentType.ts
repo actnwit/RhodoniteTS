@@ -1,5 +1,9 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {TypedArray, Byte} from '../../commontypes/CommonTypes';
+import {
+  TypedArray,
+  Byte,
+  TypedArrayConstructor,
+} from '../../commontypes/CommonTypes';
 
 export interface ComponentTypeEnum extends EnumIO {
   getSizeInBytes(): Byte;
@@ -156,6 +160,30 @@ function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   return Unknown;
 }
 
+function toTypedArray(
+  componentType: ComponentTypeEnum
+): TypedArrayConstructor | undefined {
+  if (componentType === Byte) {
+    return Int8Array;
+  } else if (componentType === UnsignedByte) {
+    return Uint8Array;
+  } else if (componentType === Short) {
+    return Int16Array;
+  } else if (componentType === UnsignedShort) {
+    return Uint16Array;
+  } else if (componentType === Int) {
+    return Int32Array;
+  } else if (componentType === UnsignedInt) {
+    return Uint32Array;
+  } else if (componentType === Float) {
+    return Float32Array;
+  } else if (componentType === Double) {
+    return Float64Array;
+  } else {
+    return undefined;
+  }
+}
+
 function fromGlslString(str_: string): ComponentTypeEnum {
   let str = str_;
   switch (str_) {
@@ -219,6 +247,7 @@ export const ComponentType = Object.freeze({
   HalfFloat,
   from,
   fromTypedArray,
+  toTypedArray,
   fromString,
   fromGlslString,
 });
