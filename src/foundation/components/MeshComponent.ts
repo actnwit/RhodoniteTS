@@ -247,10 +247,6 @@ export default class MeshComponent extends Component {
   }
 
   $logic() {
-    if (this.__mesh == null) {
-      return;
-    }
-    // this.__mesh.__calcMorphPrimitives();
   }
 }
 

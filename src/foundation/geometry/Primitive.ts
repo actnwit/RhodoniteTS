@@ -323,11 +323,16 @@ export default class Primitive extends RnObject {
     return this.__primitiveUid;
   }
 
+  get isPositionAccessorUpdated(): boolean {
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position);
+    return positionAccessor?.isMinMaxDirty || false;
+  }
+
   get AABB() {
-    if (this.__aabb.isVanilla()) {
+    if (this.__aabb.isVanilla() || this.isPositionAccessorUpdated) {
       const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
 
-      if (positionAccessor.min == null || positionAccessor.max == null) {
+      if (positionAccessor.isMinMaxDirty) {
         positionAccessor.calcMinMax();
       }
 

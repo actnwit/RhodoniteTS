@@ -712,6 +712,13 @@ export default class Mesh {
       return this.__instanceOf!.AABB;
     }
 
+    for (const primitive of this.__primitives) {
+      if (primitive.isPositionAccessorUpdated) {
+        this.__localAABB.initialize();
+        break;
+      }
+    }
+
     if (this.__localAABB.isVanilla()) {
       for (const primitive of this.__primitives) {
         this.__localAABB.mergeAABB(primitive.AABB);
