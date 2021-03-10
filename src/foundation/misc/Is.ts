@@ -53,6 +53,18 @@ const IsImpl = {
   function(val: unknown, ...args: unknown[]) {
     return typeof val === 'function';
   },
+
+  true(val: unknown, ...args: unknown[]) {
+    return val === true;
+  },
+
+  false(val: unknown, ...args: unknown[]) {
+    return val === false;
+  },
+
+  bool(val: unknown, ...args: unknown[]) {
+    return val;
+  },
 };
 
 type IsImplType = typeof IsImpl;
@@ -78,6 +90,4 @@ for (const subFn in IsSubImpl) {
   }
 }
 
-const Is = IsImpl as IsType;
-
-export default Is;
+export const Is = IsImpl as IsType;

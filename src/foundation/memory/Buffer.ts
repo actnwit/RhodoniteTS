@@ -1,6 +1,20 @@
 import RnObject from '../core/RnObject';
 import BufferView from './BufferView';
-import {Byte} from '../../commontypes/CommonTypes';
+import {
+  Byte,
+  TypedArray,
+  TypedArrayConstructor,
+} from '../../commontypes/CommonTypes';
+import {
+  CompositionType,
+  CompositionTypeEnum,
+} from '../../foundation/definitions/CompositionType';
+import {
+  ComponentType,
+  ComponentTypeEnum,
+} from '../../foundation/definitions/ComponentType';
+
+import {Is} from '../misc/Is';
 
 export default class Buffer extends RnObject {
   private __byteLength: Byte = 0;
@@ -144,5 +158,33 @@ export default class Buffer extends RnObject {
 
   get byteOffsetInRawArrayBuffer() {
     return this.__byteOffset;
+  }
+
+  getTypedArray(
+    offset4bytesUnit: number,
+    compositionType: CompositionTypeEnum,
+    componentType: ComponentTypeEnum,
+    length = 100
+  ) {
+    let ret: TypedArray;
+    const typedArray = ComponentType.toTypedArray(componentType)!;
+    if (typedArray === undefined) {
+      console.warn('componentType is Invalid');
+    }
+    if (CompositionType.isArray(compositionType)) {
+      ret = new typedArray(
+        this.__raw,
+        this.__byteOffset + offset4bytesUnit * 4,
+        length
+      );
+    } else {
+      ret = new typedArray(
+        this.__raw,
+        this.__byteOffset + offset4bytesUnit * 4,
+        1
+      );
+    }
+
+    return ret;
   }
 }
