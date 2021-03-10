@@ -1,5 +1,5 @@
 import Component from './Component';
-import is from '../misc/IsUtil';
+import {Is} from '../misc/Is';
 import EntityRepository from './EntityRepository';
 import Config from './Config';
 import {
@@ -14,7 +14,7 @@ import {
 export default class ComponentRepository {
   private static __instance: ComponentRepository;
   private __component_sid_count_map: Map<ComponentTID, number>;
-  private __components: Map<ComponentTID, Array<Component>>; // index of array is ComponentSID
+  private __components: Map<ComponentTID, Array<Component>>; // index of array Is ComponentSID
   static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
 
   constructor() {
@@ -70,7 +70,7 @@ export default class ComponentRepository {
       let component_sid_count = this.__component_sid_count_map.get(
         componentTid
       );
-      if (!is.exist(component_sid_count)) {
+      if (!Is.exist(component_sid_count)) {
         this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = Component.invalidComponentSID;
       }
