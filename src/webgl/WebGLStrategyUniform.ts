@@ -267,30 +267,6 @@ mat3 get_normalMatrix(float instanceId) {
     );
   }
 
-  private __isMeshSetup(meshComponent: MeshComponent) {
-    if (
-      meshComponent.mesh!.variationVBOUid !==
-      CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
-      const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
-      let count = 0;
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent.mesh!.getPrimitiveAt(i);
-        if (primitive.vertexHandles != null) {
-          count++;
-        }
-      }
-
-      if (primitiveNum === count) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
     if (!is.exist(mesh)) {
