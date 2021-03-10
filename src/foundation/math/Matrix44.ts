@@ -3,7 +3,6 @@ import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector4 from './Vector4';
 import {IMatrix, IMatrix44} from './IMatrix';
-import {CompositionType} from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
 import MutableVector4 from './MutableVector4';
@@ -209,10 +208,6 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
 
   get className() {
     return this.constructor.name;
-  }
-
-  static get compositionType() {
-    return CompositionType.Mat4;
   }
 
   /**

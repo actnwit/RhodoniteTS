@@ -52,6 +52,10 @@ export class MutableVector3_<T extends TypedArrayConstructor>
     return this.v[2];
   }
 
+  get w() {
+    return 1;
+  }
+
   raw() {
     return this.v;
   }
@@ -270,6 +274,10 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
 
   static multiplyQuaternion(quat: IQuaternion, vec: IVector3) {
     return super._multiplyQuaternion(quat, vec, Float32Array) as MutableVector3;
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 
   clone() {

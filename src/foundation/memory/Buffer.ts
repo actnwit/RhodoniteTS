@@ -15,6 +15,9 @@ import {
 } from '../../foundation/definitions/ComponentType';
 
 import {Is} from '../misc/Is';
+import Vector2 from '../math/Vector2';
+import Vector3 from '../math/Vector3';
+import Vector4 from '../math/Vector4';
 
 export default class Buffer extends RnObject {
   private __byteLength: Byte = 0;
@@ -164,7 +167,7 @@ export default class Buffer extends RnObject {
     offset4bytesUnit: number,
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum,
-    length = 100
+    length4BytesUnit = 100
   ) {
     let ret: TypedArray;
     const typedArray = ComponentType.toTypedArray(componentType)!;
@@ -175,16 +178,48 @@ export default class Buffer extends RnObject {
       ret = new typedArray(
         this.__raw,
         this.__byteOffset + offset4bytesUnit * 4,
-        length
+        length4BytesUnit
       );
     } else {
-      ret = new typedArray(
+      const componentN = compositionType.getNumberOfComponents();
+      const len = length4BytesUnit / componentN;
+      const array = new Array(len);
+      const dataView = new DataView(
         this.__raw,
-        this.__byteOffset + offset4bytesUnit * 4,
-        1
+        this.__byteOffset + offset4bytesUnit
       );
+      switch (compositionType) {
+        case CompositionType.Vec2:
+          {
+            for (let i = 0; i < len; i++) {
+              array[i] = new Vector2(
+                dataView.getFloat32(len * componentN, true)
+              );
+            }
+          }
+          break;
+        case CompositionType.Vec3:
+          {
+            for (let i = 0; i < len; i++) {
+              array[i] = new Vector3(dataView.getFloat32(len * 3, true));
+            }
+          }
+          break;
+        case CompositionType.Vec4:
+          {
+            for (let i = 0; i < len; i++) {
+              array[i] = new Vector4(dataView.getFloat32(len * 4, true));
+            }
+          }
+          break;
+        case CompositionType.Mat3: {
+          for (let i = 0; i < len; i++) {
+            array[i] = new Vector4(dataView.getFloat32(len * 4, true));
+          }
+        }
+      }
+      return array;
     }
-
     return ret;
   }
 }

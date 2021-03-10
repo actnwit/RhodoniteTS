@@ -7,7 +7,6 @@ import {
 } from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 import {MathUtil} from './MathUtil';
-import {CompositionType} from '../definitions/CompositionType';
 
 export class Vector4_<T extends TypedArrayConstructor>
   implements IVector, IVector4 {
@@ -104,10 +103,6 @@ export class Vector4_<T extends TypedArrayConstructor>
     return `ivec4(${Math.floor(this.v[0])}, ${Math.floor(
       this.v[1]
     )}, ${Math.floor(this.v[2])}, ${Math.floor(this.v[3])})`;
-  }
-
-  static get compositionType() {
-    return CompositionType.Vec4;
   }
 
   /**

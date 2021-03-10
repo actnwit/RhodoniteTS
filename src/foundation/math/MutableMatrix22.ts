@@ -68,6 +68,10 @@ export default class MutableMatrix22
     return this.v[3];
   }
 
+  get className() {
+    return this.constructor.name;
+  }
+
   /**
    * Create zero matrix
    */

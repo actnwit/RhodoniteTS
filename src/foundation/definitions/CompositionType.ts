@@ -1,6 +1,6 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {ComponentType, ComponentTypeEnum} from './ComponentType';
 import {Count} from '../../commontypes/CommonTypes';
+import type {ComponentTypeEnum} from './ComponentType';
 
 export interface CompositionTypeEnum extends EnumIO {
   getNumberOfComponents(): Count;
@@ -41,16 +41,16 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
 
   getGlslStr(componentType: ComponentTypeEnum) {
     if (
-      componentType === ComponentType.Float ||
-      componentType === ComponentType.Double ||
+      componentType.index === 5126 || // FLOAT
+      componentType.index === 5127 || // DOUBLE
       this === CompositionType.Texture2D ||
       this === CompositionType.TextureCube
     ) {
       return this.__glslStr;
     } else if (
-      componentType === ComponentType.Byte ||
-      componentType === ComponentType.Short ||
-      componentType === ComponentType.Int
+      componentType.index === 5120 || // BYTE
+      componentType.index === 5122 || // SHORT
+      componentType.index === 5124 // INT
     ) {
       if (
         this === CompositionType.Scalar ||
@@ -60,7 +60,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       } else {
         return 'i' + this.__glslStr;
       }
-    } else if (componentType === ComponentType.Bool) {
+      // eslint-disable-next-line prettier/prettier
+    } else if (componentType.index === 35670) { // BOOL
       return 'bool';
     }
     return 'unknown';
@@ -68,8 +69,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
 
   getGlslInitialValue(componentType: ComponentTypeEnum) {
     if (
-      componentType === ComponentType.Float ||
-      componentType === ComponentType.Double
+      componentType.index === 5126 || // FLOAT
+      componentType.index === 5127 // DOUBLE
     ) {
       if (this === CompositionType.Scalar) {
         return '0.0';
@@ -92,9 +93,9 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
         }
       }
     } else if (
-      componentType === ComponentType.Byte ||
-      componentType === ComponentType.Short ||
-      componentType === ComponentType.Int
+      componentType.index === 5120 || // BYTE
+      componentType.index === 5122 || // SHORT
+      componentType.index === 5124 // INT
     ) {
       if (this === CompositionType.Scalar) {
         return '0';
@@ -113,7 +114,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
           );
         }
       }
-    } else if (componentType === ComponentType.Bool) {
+      // eslint-disable-next-line prettier/prettier
+    } else if (componentType.index === 35670) { // BOOL
       if (this === CompositionType.Scalar) {
         return 'false';
       } else {

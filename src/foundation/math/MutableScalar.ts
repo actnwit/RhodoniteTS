@@ -21,10 +21,21 @@ export class MutableScalar_<T extends TypedArrayConstructor>
     this.v[0] = x;
   }
 
+  get y() {
+    return 0;
+  }
+  get z() {
+    return 0;
+  }
+  get w() {
+    return 1;
+  }
+
   setValue(value: number) {
     this.x = value;
     return this;
   }
+
 }
 
 export default class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
@@ -46,6 +57,10 @@ export default class MutableScalar extends MutableScalar_<Float32ArrayConstructo
 
   static zero() {
     return new MutableScalar(0);
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 }
 

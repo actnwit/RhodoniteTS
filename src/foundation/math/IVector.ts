@@ -40,7 +40,26 @@ export interface IMutableVector {
 }
 
 export interface IScalar {
+  readonly v: TypedArray;
   readonly x: number;
+  readonly y: number;
+  readonly z: number;
+  readonly w: number;
+  readonly className: string;
+  readonly glslStrAsFloat: string;
+  readonly glslStrAsInt: string;
+  toString(): string;
+  toStringApproximately(): string;
+  flattenAsArray(): Array<number>;
+  isDummy(): boolean;
+  isEqual(vec: IScalar, delta?: number): boolean;
+  isStrictEqual(vec: IScalar): boolean;
+  at(i: number): number;
+  length(): number;
+  lengthSquared(): number;
+  lengthTo(vec: IScalar): number;
+  dot(vec: IScalar): number;
+  clone(): IScalar;
 }
 
 export interface IVector2 {
@@ -51,6 +70,8 @@ export interface IVector2 {
 
   readonly x: number;
   readonly y: number;
+  readonly z: number;
+  readonly w: number;
 
   toString(): string;
   toStringApproximately(): string;
