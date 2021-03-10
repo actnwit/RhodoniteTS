@@ -55,6 +55,7 @@ import {
   ProcessApproachEnum,
 } from '../foundation/definitions/ProcessApproach';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
+import {Is as is} from '../foundation/misc/Is';
 
 declare let HDRImage: any;
 
@@ -143,6 +144,32 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  updateIndexBuffer(
+    accessor: Accessor,
+    resourceHandle: number
+  ) {
+    const glw = this.__glw as WebGLContextWrapper;
+    const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
+    if (!is.exist(gl)) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    const ibo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
+    if (!is.exist(ibo)) {
+      throw new Error('Not found VBO.');
+    }
+
+    glw.bindVertexArray(null);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferSubData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      0,
+      accessor.getTypedArray()
+    );
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  }
+
   createVertexBuffer(accessor: Accessor) {
     const gl = this.__glw!.getRawContext();
 
@@ -186,32 +213,29 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  resendVertexBuffer(
-    primitive: Primitive,
-    vboHandles: Array<WebGLResourceHandle>
+  updateVertexBuffer(
+    accessor: Accessor,
+    resourceHandle: number
   ) {
-    const gl = this.__glw!.getRawContext();
-
-    if (gl == null) {
+    const glw = this.__glw as WebGLContextWrapper;
+    const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
+    if (!is.exist(gl)) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
 
-    this.__glw!.bindVertexArray(null);
-    // const vbo = gl.createBuffer();
-    // const resourceHandle = this.getResourceNumber();
-    // this.__webglResources.set(resourceHandle, vbo!);
+    const vbo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
+    if (!is.exist(vbo)) {
+      throw new Error('Not found VBO.');
+    }
 
-    primitive.attributeAccessors.forEach((accessor, i) => {
-      const vbo = this.getWebGLResource(vboHandles[i]) as WebGLBuffer;
-      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        accessor.bufferView.getUint8Array(),
-        gl.STATIC_DRAW
-      );
-      //    gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
-      gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    });
+    glw.bindVertexArray(null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferSubData(
+      gl.ARRAY_BUFFER,
+      0,
+      accessor.bufferView.getUint8Array()
+    );
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
   createVertexArray() {
@@ -237,39 +261,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTextureCube(textureSlotIndex, texture);
-  }
-
-  createVertexDataResources(primitive: Primitive): VertexHandles {
-    const gl = this.__glw!.getRawContext();
-
-    const vaoHandle = this.createVertexArray();
-
-    let iboHandle;
-    if (primitive.hasIndices()) {
-      iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
-    }
-
-    const attributesFlags: boolean[] = [];
-    for (let i = 0; i < VertexAttribute.AttributeTypeNumber; i++) {
-      attributesFlags[i] = false;
-    }
-    const vboHandles: Array<WebGLResourceHandle> = [];
-    primitive.attributeAccessors.forEach((accessor, i) => {
-      const vboHandle = this.createVertexBuffer(accessor);
-      const slotIdx = primitive.attributeSemantics[i].getAttributeSlot();
-      attributesFlags[slotIdx] = true;
-      vboHandles.push(vboHandle);
-    });
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-    return {
-      vaoHandle: vaoHandle,
-      iboHandle: iboHandle,
-      vboHandles: vboHandles,
-      attributesFlags: attributesFlags,
-      setComplete: false,
-    };
   }
 
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
@@ -299,6 +290,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       attributesFlags: attributesFlags,
       setComplete: false,
     };
+  }
+
+  updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles) {
+    if (vertexHandles.iboHandle) {
+      this.updateIndexBuffer(primitive.indicesAccessor as Accessor, vertexHandles.iboHandle);
+    }
+
+    const attributeAccessors = primitive.attributeAccessors
+    for (let i = 0; i < attributeAccessors.length; i++) {
+      this.updateVertexBuffer(
+        attributeAccessors[i],
+        vertexHandles.vboHandles[i]
+      );
+    }
   }
 
   createShaderProgram({

@@ -19,6 +19,8 @@ import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';
 import MutableVector3 from '../math/MutableVector3';
+import {ProcessApproachEnum} from '../definitions/ProcessApproach';
+import {Is as is} from '../misc/Is';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -226,6 +228,31 @@ export default class MeshComponent extends Component {
     ) as SceneGraphComponent;
 
     this.moveStageTo(ProcessStage.Load);
+  }
+
+  static common_$load({
+    processApproach,
+  }: {
+    processApproach: ProcessApproachEnum;
+  }) {
+
+    // check for the need to update VBO
+    const componentRepository = ComponentRepository.getInstance();
+    const meshComponents = componentRepository.getComponentsWithType(MeshComponent) as MeshComponent[];
+    for (const meshComponent of meshComponents) {
+      const mesh = meshComponent.mesh as Mesh;
+      if (!is.exist(mesh)) {
+        continue;
+      }
+
+      const primitiveNum = mesh.getPrimitiveNumber();
+      for (let i = 0; i < primitiveNum; i++) {
+        const primitive = mesh.getPrimitiveAt(i);
+        if (primitive.isPositionAccessorUpdated) {
+          meshComponent.entity.getMeshRenderer()?.moveStageTo(ProcessStage.Load);
+        }
+      }
+    }
   }
 
   $load() {

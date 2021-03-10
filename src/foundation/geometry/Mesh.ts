@@ -17,6 +17,8 @@ import {
   MeshUID,
 } from '../../commontypes/CommonTypes';
 import MutableVector3 from '../math/MutableVector3';
+import {VertexHandles} from '../../webgl/WebGLResourceRepository';
+import {Is as is} from '../misc/Is';
 
 /**
  * The Mesh class.
@@ -758,10 +760,6 @@ export default class Mesh {
 
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-      this.__primitives.forEach((prim, i) => {
-        this.__vaoUids[i] = webglResourceRepository.createVertexArray();
-      });
-
       if (
         this.__variationVBOUid !=
         CGAPIResourceRepository.InvalidCGAPIResourceUid
@@ -796,13 +794,67 @@ export default class Mesh {
         CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
         webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-        this.__vaoUids.forEach((vaoUid: CGAPIResourceHandle) => {
-          webglResourceRepository.deleteVertexArray(vaoUid);
-        });
+        this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+
+        this.__instancesDirty = true;
         return true;
       }
     }
     return false;
+  }
+
+  updateVAO(): void {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVAO();
+    }
+
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+
+    // create and update VAO
+    for (let i = 0; i < this.__primitives.length; i++) {
+      const primitive = this.__primitives[i]
+      const vertexHandles = primitive.vertexHandles as VertexHandles;
+      if (is.undefined(vertexHandles)) {
+        console.warn('Need to create 3DAPIVertexData before update VAO');
+        continue;
+      }
+
+      if (
+        isNaN(this.__vaoUids[i]) ||
+        this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
+        vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid
+      ) {
+        this.__vaoUids[i] = webglResourceRepository.createVertexArray();
+        vertexHandles.vaoHandle = this.__vaoUids[i];
+      }
+
+
+      webglResourceRepository.setVertexDataToPipeline(
+        vertexHandles,
+        primitive,
+        this.__variationVBOUid
+      );
+    }
+
+    // remove useless VAO
+    for (let i = this.__primitives.length; i < this.__vaoUids.length; i++) {
+      if (this.__vaoUids[i]) {
+        webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
+        this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+    }
+  }
+
+  deleteVAO() {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVAO();
+    }
+
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    for (let i = 0; i < this.__vaoUids.length; i++) {
+      webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
+      this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
   }
 
   get instanceCountIncludeOriginal() {

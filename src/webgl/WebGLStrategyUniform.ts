@@ -40,6 +40,7 @@ import Buffer from '../foundation/memory/Buffer';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
+import {Is as is} from '../foundation/misc/Is';
 
 type ShaderVariableArguments = {
   glw: WebGLContextWrapper;
@@ -266,32 +267,9 @@ mat3 get_normalMatrix(float instanceId) {
     );
   }
 
-  private __isMeshSetup(meshComponent: MeshComponent) {
-    if (
-      meshComponent.mesh!.variationVBOUid !==
-      CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
-      const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
-      let count = 0;
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent.mesh!.getPrimitiveAt(i);
-        if (primitive.vertexHandles != null) {
-          count++;
-        }
-      }
-
-      if (primitiveNum === count) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
   $load(meshComponent: MeshComponent) {
-    if (meshComponent.mesh == null) {
+    const mesh = meshComponent.mesh as Mesh;
+    if (!is.exist(mesh)) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
@@ -300,13 +278,8 @@ mat3 get_normalMatrix(float instanceId) {
       this.setupShaderProgram(meshComponent);
     }
 
-    if (!WebGLStrategyCommonMethod.isMeshSetup(meshComponent)) {
-      const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-        primitive.create3DAPIVertexData();
-      }
-      meshComponent.mesh.updateVariationVBO();
+    if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
+      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh)
     }
   }
 
@@ -318,28 +291,6 @@ mat3 get_normalMatrix(float instanceId) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
-    }
-
-    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
-
-    // if (meshComponent.mesh.weights.length > 0) {
-    //   for (let i = 0; i < primitiveNum; i++) {
-    //     const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-    //     this.__webglResourceRepository.resendVertexBuffer(primitive, primitive.vertexHandles!.vboHandles);
-    //   }
-    // }
-
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      this.__webglResourceRepository.setVertexDataToPipeline(
-        {
-          vaoHandle: meshComponent.mesh.getVaoUids(i),
-          iboHandle: primitive.vertexHandles!.iboHandle,
-          vboHandles: primitive.vertexHandles!.vboHandles,
-        },
-        primitive,
-        meshComponent.mesh.variationVBOUid
-      );
     }
   }
 

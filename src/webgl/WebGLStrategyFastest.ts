@@ -48,6 +48,7 @@ import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVari
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../rhodonite-xr';
 import Vector4 from '../foundation/math/Vector4';
+import {Is as is} from '../foundation/misc/Is';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -493,7 +494,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   $load(meshComponent: MeshComponent) {
-    if (meshComponent.mesh == null) {
+    const mesh = meshComponent.mesh as Mesh;
+    if (!is.exist(mesh)) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
@@ -507,13 +509,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.setupShaderProgram(meshComponent);
     }
 
-    if (!WebGLStrategyCommonMethod.isMeshSetup(meshComponent)) {
-      const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent.mesh.getPrimitiveAt(i);
-        primitive.create3DAPIVertexData();
-      }
-      meshComponent.mesh.updateVariationVBO();
+    if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
+      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh)
     }
   }
 
@@ -536,19 +533,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      this.__webglResourceRepository.setVertexDataToPipeline(
-        {
-          vaoHandle: meshComponent.mesh.getVaoUids(i),
-          iboHandle: primitive.vertexHandles!.iboHandle,
-          vboHandles: primitive.vertexHandles!.vboHandles,
-        },
-        primitive,
-        meshComponent.mesh.variationVBOUid
-      );
-    }
     meshRendererComponent._readyForRendering = true;
   }
 
