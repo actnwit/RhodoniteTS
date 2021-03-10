@@ -1,64 +1,83 @@
-const IsUtil: any = {
-  not: {},
-  all: {},
-  any: {},
+/* eslint-disable prefer-rest-params */
+// Inspired by https://github.com/enricomarino/is
 
-  _not(fn: Function) {
+type FnType = (val: unknown) => boolean;
+
+const IsSubImpl = {
+  not(fn: FnType) {
     return function () {
-      return !fn.apply(null, [...arguments]);
+      /* eslint-disable prefer-spread */
+      return !fn.apply(null, [...arguments] as never);
     };
   },
 
-  _all(fn: Function) {
-    return function () {
-      if (Array.isArray(arguments[0])) {
-        return arguments[0].every(fn as any);
-      }
-      return [...arguments].every(fn as any);
-    };
-  },
-
-  _any(fn: Function) {
+  all(fn: FnType) {
     return function () {
       if (Array.isArray(arguments[0])) {
-        return arguments[0].some(fn as any);
+        return arguments[0].every(fn);
       }
-      return [...arguments].some(fn as any);
+      return [...arguments].every(fn);
     };
   },
 
-  defined(val: any) {
+  any(fn: FnType) {
+    return function () {
+      if (Array.isArray(arguments[0])) {
+        return arguments[0].some(fn);
+      }
+      return [...arguments].some(fn);
+    };
+  },
+};
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const IsImpl = {
+  defined(val: unknown, ...args: unknown[]) {
     return val !== void 0;
   },
 
-  undefined(val: any) {
+  undefined(val: unknown, ...args: unknown[]) {
     return val === void 0;
   },
 
-  null(val: any) {
+  null(val: unknown, ...args: unknown[]) {
     return val === null;
   },
 
   // is NOT null or undefined
-  exist(val: any) {
+  exist(val: unknown, ...args: unknown[]) {
+    // eslint-disable-next-line eqeqeq
     return val != null;
   },
 
-  function(val: any) {
+  function(val: unknown, ...args: unknown[]) {
     return typeof val === 'function';
   },
 };
 
-for (const fn in IsUtil) {
-  if (IsUtil.hasOwnProperty(fn)) {
-    const interfaces = ['not', 'all', 'any'];
-    if (fn.indexOf('_') === -1 && !(interfaces as any).includes(fn)) {
-      interfaces.forEach(itf => {
-        const op = '_' + itf;
-        (IsUtil as any)[itf][fn] = (IsUtil as any)[op]((IsUtil as any)[fn]);
-      });
+type IsImplType = typeof IsImpl;
+
+interface IsType extends IsImplType {
+  not: typeof IsImpl;
+  all: typeof IsImpl;
+  any: typeof IsImpl;
+}
+
+for (const subFn in IsSubImpl) {
+  if (Object.prototype.hasOwnProperty.call(IsSubImpl, subFn)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (IsImpl as any)[subFn] = {} as typeof IsImpl;
+    for (const fn in IsImpl) {
+      if (Object.prototype.hasOwnProperty.call(IsImpl, fn)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (IsImpl as any)[subFn][fn] = (IsSubImpl as any)[subFn](
+          (IsImpl as never)[fn]
+        );
+      }
     }
   }
 }
 
-export default IsUtil;
+const Is = IsImpl as IsType;
+
+export default Is;
