@@ -7,7 +7,6 @@ import {
 } from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 import {MathUtil} from './MathUtil';
-import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion} from './IQuaternion';
 
 export class Vector3_<T extends TypedArrayConstructor>
@@ -92,10 +91,6 @@ export class Vector3_<T extends TypedArrayConstructor>
     return `ivec3(${Math.floor(this.v[0])}, ${Math.floor(
       this.v[1]
     )}, ${Math.floor(this.v[2])})`;
-  }
-
-  static get compositionType() {
-    return CompositionType.Vec3;
   }
 
   /**

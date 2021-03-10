@@ -7,7 +7,6 @@ import {
 } from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 import {MathUtil} from './MathUtil';
-import {CompositionType} from '../definitions/CompositionType';
 
 export class Vector2_<T extends TypedArrayConstructor>
   implements IVector, IVector2 {
@@ -55,6 +54,14 @@ export class Vector2_<T extends TypedArrayConstructor>
     return this.v[1];
   }
 
+  get z() {
+    return 0;
+  }
+
+  get w() {
+    return 1;
+  }
+
   get className() {
     return this.constructor.name;
   }
@@ -67,10 +74,6 @@ export class Vector2_<T extends TypedArrayConstructor>
 
   get glslStrAsInt() {
     return `ivec2(${Math.floor(this.v[0])}, ${Math.floor(this.v[1])})`;
-  }
-
-  static get compositionType() {
-    return CompositionType.Vec2;
   }
 
   /**

@@ -1,6 +1,8 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
 import {ComponentType, ComponentTypeEnum} from './ComponentType';
 import {Count} from '../../commontypes/CommonTypes';
+import {IVector} from '../math/IVector';
+import {IMatrix} from '../math/IMatrix';
 
 export interface CompositionTypeEnum extends EnumIO {
   getNumberOfComponents(): Count;
@@ -313,6 +315,34 @@ function fromGlslString(str_: string): CompositionTypeEnum {
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
 
+function fromVector(vec: IVector) {
+  switch (vec.className) {
+    case 'Scalar' || 'MutableScalar':
+      return Scalar;
+    case 'Vector2' || 'MutableVector2':
+      return Vec2;
+    case 'Vector3' || 'MutableVector3':
+      return Vec3;
+    case 'Vector4' || 'MutableVector4':
+      return Vec4;
+    default:
+      return Unknown;
+  }
+}
+
+function fromMatrix(mat: IMatrix) {
+  switch (mat.className) {
+    case 'Matrix22' || 'MutableMatrix22':
+      return Mat2;
+    case 'Matrix33' || 'MutableMatrix33':
+      return Mat3;
+    case 'Matrix44' || 'MutableMatrix44':
+      return Mat4;
+    default:
+      return Unknown;
+  }
+}
+
 function isArray(compositionType: CompositionTypeEnum) {
   if (
     compositionType === ScalarArray ||
@@ -358,6 +388,8 @@ export const CompositionType = Object.freeze({
   from,
   fromString,
   fromGlslString,
+  fromVector,
+  fromMatrix,
   isArray,
   isTexture,
 });
