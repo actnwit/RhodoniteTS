@@ -167,6 +167,10 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return this.v[15];
   }
 
+  get className() {
+    return this.constructor.name;
+  }
+
   /**
    * zero matrix(static version)
    */

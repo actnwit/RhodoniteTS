@@ -99,6 +99,10 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     return this.v[8];
   }
 
+  get className() {
+    return this.constructor.name;
+  }
+
   /**
    * zero matrix(static version)
    */

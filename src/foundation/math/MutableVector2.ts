@@ -42,6 +42,14 @@ export class MutableVector2_<T extends TypedArrayConstructor>
     return this.v[1];
   }
 
+  get z() {
+    return 0;
+  }
+
+  get w() {
+    return 1;
+  }
+
   raw() {
     return this.v;
   }
@@ -199,6 +207,10 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
 
   clone() {
     return super.clone() as MutableVector2;
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 }
 

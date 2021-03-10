@@ -1,8 +1,6 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {ComponentType, ComponentTypeEnum} from './ComponentType';
 import {Count} from '../../commontypes/CommonTypes';
-import {IVector} from '../math/IVector';
-import {IMatrix} from '../math/IMatrix';
+import type {ComponentTypeEnum} from './ComponentType';
 
 export interface CompositionTypeEnum extends EnumIO {
   getNumberOfComponents(): Count;
@@ -43,16 +41,16 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
 
   getGlslStr(componentType: ComponentTypeEnum) {
     if (
-      componentType === ComponentType.Float ||
-      componentType === ComponentType.Double ||
+      componentType.index === 5126 || // FLOAT
+      componentType.index === 5127 || // DOUBLE
       this === CompositionType.Texture2D ||
       this === CompositionType.TextureCube
     ) {
       return this.__glslStr;
     } else if (
-      componentType === ComponentType.Byte ||
-      componentType === ComponentType.Short ||
-      componentType === ComponentType.Int
+      componentType.index === 5120 || // BYTE
+      componentType.index === 5122 || // SHORT
+      componentType.index === 5124 // INT
     ) {
       if (
         this === CompositionType.Scalar ||
@@ -62,7 +60,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       } else {
         return 'i' + this.__glslStr;
       }
-    } else if (componentType === ComponentType.Bool) {
+      // eslint-disable-next-line prettier/prettier
+    } else if (componentType.index === 35670) { // BOOL
       return 'bool';
     }
     return 'unknown';
@@ -70,8 +69,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
 
   getGlslInitialValue(componentType: ComponentTypeEnum) {
     if (
-      componentType === ComponentType.Float ||
-      componentType === ComponentType.Double
+      componentType.index === 5126 || // FLOAT
+      componentType.index === 5127 // DOUBLE
     ) {
       if (this === CompositionType.Scalar) {
         return '0.0';
@@ -94,9 +93,9 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
         }
       }
     } else if (
-      componentType === ComponentType.Byte ||
-      componentType === ComponentType.Short ||
-      componentType === ComponentType.Int
+      componentType.index === 5120 || // BYTE
+      componentType.index === 5122 || // SHORT
+      componentType.index === 5124 // INT
     ) {
       if (this === CompositionType.Scalar) {
         return '0';
@@ -115,7 +114,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
           );
         }
       }
-    } else if (componentType === ComponentType.Bool) {
+      // eslint-disable-next-line prettier/prettier
+    } else if (componentType.index === 35670) { // BOOL
       if (this === CompositionType.Scalar) {
         return 'false';
       } else {
@@ -315,34 +315,6 @@ function fromGlslString(str_: string): CompositionTypeEnum {
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
 
-function fromVector(vec: IVector) {
-  switch (vec.className) {
-    case 'Scalar' || 'MutableScalar':
-      return Scalar;
-    case 'Vector2' || 'MutableVector2':
-      return Vec2;
-    case 'Vector3' || 'MutableVector3':
-      return Vec3;
-    case 'Vector4' || 'MutableVector4':
-      return Vec4;
-    default:
-      return Unknown;
-  }
-}
-
-function fromMatrix(mat: IMatrix) {
-  switch (mat.className) {
-    case 'Matrix22' || 'MutableMatrix22':
-      return Mat2;
-    case 'Matrix33' || 'MutableMatrix33':
-      return Mat3;
-    case 'Matrix44' || 'MutableMatrix44':
-      return Mat4;
-    default:
-      return Unknown;
-  }
-}
-
 function isArray(compositionType: CompositionTypeEnum) {
   if (
     compositionType === ScalarArray ||
@@ -388,8 +360,6 @@ export const CompositionType = Object.freeze({
   from,
   fromString,
   fromGlslString,
-  fromVector,
-  fromMatrix,
   isArray,
   isTexture,
 });

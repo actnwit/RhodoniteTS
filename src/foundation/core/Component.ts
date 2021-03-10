@@ -4,13 +4,14 @@ import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import {BufferUseEnum} from '../definitions/BufferUse';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
-import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
-import Matrix44 from '../math/Matrix44';
+import {
+  CompositionType,
+  CompositionTypeEnum,
+} from '../../foundation/definitions/CompositionType';
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import {ProcessApproachEnum} from '../definitions/ProcessApproach';
 import ComponentRepository from './ComponentRepository';
 import Config from './Config';
-import MutableMatrix44 from '../math/MutableMatrix44';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
@@ -23,10 +24,40 @@ import {
 } from '../../commontypes/CommonTypes';
 import Entity from './Entity';
 
+export function fromTensorToCompositionType(tensorClass: any) {
+  switch (tensorClass.name) {
+    case 'Scalar':
+    case 'MutableScalar':
+      return CompositionType.Scalar;
+    case 'Vector2':
+    case 'MutableVector2':
+      return CompositionType.Vec2;
+    case 'Vector3':
+    case 'MutableVector3':
+      return CompositionType.Vec3;
+    case 'Vector4':
+    case 'MutableVector4':
+    case 'Quaternion':
+    case 'MutableQuaternion':
+      return CompositionType.Vec4;
+    case 'Matrix22':
+    case 'MutableMatrix22':
+      return CompositionType.Mat2;
+    case 'Matrix33':
+    case 'MutableMatrix33':
+      return CompositionType.Mat3;
+    case 'Matrix44':
+    case 'MutableMatrix44':
+      return CompositionType.Mat4;
+    default:
+      return CompositionType.Unknown;
+  }
+}
+
 type MemberInfo = {
   memberName: string;
   bufferUse: BufferUseEnum;
-  dataClassType: Function;
+  dataClassType: unknown;
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   initValues: number[];
@@ -349,11 +380,7 @@ export default class Component extends RnObject {
       .get(this.constructor)!
       .get(memberName)!
       .takeOne();
-    if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
-      (this as any)['_' + memberName] = new dataClassType(taken, false, true);
-    } else {
-      (this as any)['_' + memberName] = new dataClassType(taken, false, true);
-    }
+    (this as any)['_' + memberName] = new dataClassType(taken, false, true);
 
     for (let i = 0; i < (this as any)['_' + memberName].v.length; ++i) {
       (this as any)['_' + memberName].v[i] = initValues[i];
@@ -476,7 +503,7 @@ export default class Component extends RnObject {
   registerMember(
     bufferUse: BufferUseEnum,
     memberName: string,
-    dataClassType: Function,
+    dataClassType: unknown,
     componentType: ComponentTypeEnum,
     initValues: number[]
   ) {
@@ -488,8 +515,8 @@ export default class Component extends RnObject {
     memberInfoArray!.push({
       bufferUse: bufferUse,
       memberName: memberName,
-      dataClassType: dataClassType,
-      compositionType: (dataClassType as any).compositionType,
+      dataClassType: dataClassType as never,
+      compositionType: fromTensorToCompositionType(dataClassType as never),
       componentType: componentType,
       initValues: initValues,
     });
