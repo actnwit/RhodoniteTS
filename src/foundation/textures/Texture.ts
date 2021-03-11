@@ -6,14 +6,14 @@ import {
 } from '../definitions/TextureParameter';
 import AbstractTexture from './AbstractTexture';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import {Size, TypedArray, Count} from '../../types/CommonTypes';
+import {TypedArray, Count} from '../../types/CommonTypes';
 import Config from '../core/Config';
 import {BasisFile, BasisTranscoder, BASIS} from '../../types/BasisTexture';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
-import DataUtil from '../misc/DataUtil';
 import {CompressionTextureTypeEnum} from '../definitions/CompressionTextureType';
 import KTX2TextureLoader from '../../webgl/textureLoader/KTX2TextureLoader';
 import {TextureData} from '../../webgl/WebGLResourceRepository';
+import ImageUtil from '../misc/ImageUtil';
 
 declare const BASIS: BASIS;
 
@@ -187,7 +187,7 @@ export default class Texture extends AbstractTexture {
         resizedCanvas,
         resizedWidth,
         resizedHeight,
-      ] = DataUtil.getResizedCanvas(
+      ] = ImageUtil.getResizedCanvas(
         img,
         Config.maxSizeLimitOfNonCompressedTexture
       );
@@ -198,7 +198,7 @@ export default class Texture extends AbstractTexture {
     }
 
     if (this.autoDetectTransparency) {
-      this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(
+      this.__hasTransparentPixels = ImageUtil.detectTransparentPixelExistence(
         img
       );
     }
@@ -264,7 +264,7 @@ export default class Texture extends AbstractTexture {
             resizedCanvas,
             resizedWidth,
             resizedHeight,
-          ] = DataUtil.getResizedCanvas(
+          ] = ImageUtil.getResizedCanvas(
             img,
             Config.maxSizeLimitOfNonCompressedTexture
           );
@@ -275,7 +275,7 @@ export default class Texture extends AbstractTexture {
         }
 
         if (this.autoDetectTransparency) {
-          this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(
+          this.__hasTransparentPixels = ImageUtil.detectTransparentPixelExistence(
             img
           );
         }
