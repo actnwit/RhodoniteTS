@@ -14,11 +14,11 @@ import {
   BASIS,
 } from '../../commontypes/BasisTexture';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
+import DataUtil from '../misc/DataUtil';
 
 declare const BASIS: BASIS;
 
 export default class Texture extends AbstractTexture {
-  private __imageData?: ImageData;
   public autoResize = true;
   public autoDetectTransparency = false;
   private static __loadedBasisFunc = false;
@@ -27,54 +27,6 @@ export default class Texture extends AbstractTexture {
 
   constructor() {
     super();
-  }
-
-  private __getResizedCanvas(image: HTMLImageElement, maxSize: Size) {
-    const canvas = document.createElement('canvas');
-    const potWidth = this.__getNearestPowerOfTwo(image.width);
-    const potHeight = this.__getNearestPowerOfTwo(image.height);
-
-    const aspect = potHeight / potWidth;
-    let dstWidth = 0;
-    let dstHeight = 0;
-    if (potWidth > potHeight) {
-      dstWidth = Math.min(potWidth, maxSize);
-      dstHeight = dstWidth * aspect;
-    } else {
-      dstHeight = Math.min(potHeight, maxSize);
-      dstWidth = dstHeight / aspect;
-    }
-    canvas.width = dstWidth;
-    canvas.height = dstHeight;
-
-    const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(
-      image,
-      0,
-      0,
-      image.width,
-      image.height,
-      0,
-      0,
-      dstWidth,
-      dstHeight
-    );
-
-    if (this.autoDetectTransparency) {
-      this.__imageData = ctx.getImageData(0, 0, dstWidth, dstHeight);
-      for (let y = 0; y < dstHeight; y++) {
-        for (let x = 0; x < dstWidth; x++) {
-          const alpha = this.__imageData.data[(x + y * dstWidth) * 4 + 3];
-          if (alpha < 1) {
-            this.__hasTransparentPixels = true;
-            return canvas;
-          }
-        }
-      }
-      this.__hasTransparentPixels = false;
-    }
-
-    return canvas;
   }
 
   generateTextureFromBasis(
@@ -146,8 +98,6 @@ export default class Texture extends AbstractTexture {
     this.__startedToLoad = true;
 
     const basisFile = new Texture.__BasisFile!(uint8Array);
-    const width = basisFile.getImageWidth(0, 0);
-    const height = basisFile.getImageHeight(0, 0);
 
     if (!basisFile.startTranscoding()) {
       console.error('failed to start transcoding.');
@@ -199,16 +149,27 @@ export default class Texture extends AbstractTexture {
   ) {
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
+    let img: HTMLImageElement | HTMLCanvasElement | ImageData = image;
 
-    let img;
-    if (this.autoResize || this.autoDetectTransparency) {
-      img = this.__getResizedCanvas(
-        image,
+    if (this.autoResize) {
+      const [
+        resizedCanvas,
+        resizedWidth,
+        resizedHeight,
+      ] = DataUtil.getResizedCanvas(
+        img,
         Config.maxSizeLimitOfNonCompressedTexture
       );
-      this.__htmlCanvasElement = img;
-    } else {
-      img = image;
+      img = resizedCanvas;
+      this.__width = resizedWidth;
+      this.__height = resizedHeight;
+      this.__htmlCanvasElement = resizedCanvas;
+    }
+
+    if (this.autoDetectTransparency) {
+      this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(
+        img
+      );
     }
 
     this.__width = img.width;
@@ -265,15 +226,27 @@ export default class Texture extends AbstractTexture {
       this.__img.onload = () => {
         this.__htmlImageElement = this.__img;
 
-        let img;
-        if (this.autoResize || this.autoDetectTransparency) {
-          img = this.__getResizedCanvas(
-            this.__img!,
+        let img: HTMLImageElement | HTMLCanvasElement = this.__img!;
+
+        if (this.autoResize) {
+          const [
+            resizedCanvas,
+            resizedWidth,
+            resizedHeight,
+          ] = DataUtil.getResizedCanvas(
+            img,
             Config.maxSizeLimitOfNonCompressedTexture
           );
-          this.__htmlCanvasElement = img;
-        } else {
-          img = this.__img!;
+          img = resizedCanvas;
+          this.__width = resizedWidth;
+          this.__height = resizedHeight;
+          this.__htmlCanvasElement = resizedCanvas;
+        }
+
+        if (this.autoDetectTransparency) {
+          this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(
+            img
+          );
         }
 
         this.__width = img.width;

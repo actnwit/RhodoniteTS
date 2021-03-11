@@ -7,6 +7,7 @@ import {
 import AbstractTexture from './AbstractTexture';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Size} from '../../commontypes/CommonTypes';
+import DataUtil from '../misc/DataUtil';
 
 export type VideoTextureArguments = {
   level: number;
@@ -38,8 +39,8 @@ export default class VideoTexture extends AbstractTexture {
 
   private __getResizedCanvas(image: HTMLImageElement, maxSize: Size) {
     const canvas = document.createElement('canvas');
-    const potWidth = this.__getNearestPowerOfTwo(image.width);
-    const potHeight = this.__getNearestPowerOfTwo(image.height);
+    const potWidth = DataUtil.getNearestPowerOfTwo(image.width);
+    const potHeight = DataUtil.getNearestPowerOfTwo(image.height);
 
     const aspect = potHeight / potWidth;
     let dstWidth = 0;
