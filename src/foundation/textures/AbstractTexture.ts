@@ -70,15 +70,6 @@ export default abstract class AbstractTexture extends RnObject {
     return this.__startedToLoad;
   }
 
-  /**
-   * get a value nearest power of two.
-   *
-   * @param x texture size.
-   * @returns a value nearest power of two.
-   */
-  protected __getNearestPowerOfTwo(x: number): number {
-    return Math.pow(2, Math.round(Math.log(x) / Math.LN2));
-  }
 
   get htmlImageElement() {
     return this.__htmlImageElement;
