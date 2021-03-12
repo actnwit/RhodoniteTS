@@ -1,10 +1,9 @@
-import {IScalar} from './IVector';
 import {Scalar_} from './Scalar';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 
-export class MutableScalar_<T extends TypedArrayConstructor>
-  extends Scalar_<T>
-  implements IScalar {
+export class MutableScalar_<
+  T extends TypedArrayConstructor
+> extends Scalar_<T> {
   constructor(x: number | TypedArray | null, {type}: {type: T}) {
     super(x as any, {type});
   }
@@ -35,7 +34,6 @@ export class MutableScalar_<T extends TypedArrayConstructor>
     this.x = value;
     return this;
   }
-
 }
 
 export default class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {

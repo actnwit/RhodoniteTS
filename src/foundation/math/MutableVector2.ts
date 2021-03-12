@@ -8,9 +8,9 @@ import {
 } from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 
-export class MutableVector2_<T extends TypedArrayConstructor>
-  extends Vector2_<T>
-  implements IMutableVector, IMutableVector2 {
+export class MutableVector2_<
+  T extends TypedArrayConstructor
+> extends Vector2_<T> {
   constructor(
     x:
       | number
@@ -150,7 +150,9 @@ export class MutableVector2_<T extends TypedArrayConstructor>
   }
 }
 
-export default class MutableVector2 extends MutableVector2_<Float32ArrayConstructor> {
+export default class MutableVector2
+  extends MutableVector2_<Float32ArrayConstructor>
+  implements IMutableVector, IMutableVector2 {
   constructor(
     x:
       | number
@@ -205,12 +207,12 @@ export default class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableVector2;
   }
 
-  clone() {
-    return super.clone() as MutableVector2;
-  }
-
   get className() {
     return this.constructor.name;
+  }
+
+  clone() {
+    return super.clone() as MutableVector2;
   }
 }
 

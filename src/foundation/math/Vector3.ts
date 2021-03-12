@@ -75,10 +75,6 @@ export class Vector3_<T extends TypedArrayConstructor>
     return 1;
   }
 
-  get className() {
-    return this.constructor.name;
-  }
-
   get glslStrAsFloat() {
     return `vec3(${MathUtil.convertToStringAsGLSLFloat(
       this.v[0]
@@ -487,6 +483,10 @@ export class Vector3_<T extends TypedArrayConstructor>
    */
   dot(vec: IVector3) {
     return this.v[0] * vec.v[0] + this.v[1] * vec.v[1] + this.v[2] * vec.v[2];
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 
   clone() {

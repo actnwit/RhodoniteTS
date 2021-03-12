@@ -244,12 +244,12 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableVector4;
   }
 
-  clone() {
-    return super.clone() as MutableVector4;
-  }
-
   get className() {
     return this.constructor.name;
+  }
+
+  clone() {
+    return super.clone() as MutableVector4;
   }
 }
 

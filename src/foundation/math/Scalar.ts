@@ -2,8 +2,7 @@ import {IScalar, IVector} from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 import {MathUtil} from './MathUtil';
 
-export class Scalar_<T extends TypedArrayConstructor>
-  implements IVector, IScalar {
+export class Scalar_<T extends TypedArrayConstructor> {
   v: TypedArray;
 
   constructor(x: number | TypedArray | null, {type}: {type: T}) {
@@ -18,12 +17,6 @@ export class Scalar_<T extends TypedArrayConstructor>
     }
 
     this.v[0] = (x as any) as number;
-  }
-  clone(): IScalar {
-    throw new Error('Method not implemented.');
-  }
-  get className() {
-    return this.constructor.name;
   }
 
   toString() {
@@ -117,7 +110,9 @@ export class Scalar_<T extends TypedArrayConstructor>
   }
 }
 
-export default class Scalar extends Scalar_<Float32ArrayConstructor> {
+export default class Scalar
+  extends Scalar_<Float32ArrayConstructor>
+  implements IVector, IScalar {
   constructor(x: number | TypedArray | null) {
     super(x, {type: Float32Array});
   }
@@ -132,6 +127,10 @@ export default class Scalar extends Scalar_<Float32ArrayConstructor> {
 
   static dummy() {
     return new Scalar(null);
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 
   clone() {

@@ -17,7 +17,7 @@ export interface IMatrix {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix, delta?: number): boolean;
+  isEqual(mat: IMatrix, delta: number): boolean;
   isStrictEqual(mat: IMatrix): boolean;
   at(row_i: number, column_i: number): number;
   determinant(): number;
