@@ -516,7 +516,7 @@ export default class Component extends RnObject {
       bufferUse: bufferUse,
       memberName: memberName,
       dataClassType: dataClassType as never,
-      compositionType: fromTensorToCompositionType(dataClassType as never),
+      compositionType: (dataClassType as any).compositionType,
       componentType: componentType,
       initValues: initValues,
     });
