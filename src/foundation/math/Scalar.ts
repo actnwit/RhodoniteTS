@@ -1,14 +1,13 @@
-import {IScalar, IVector} from './IVector';
+import {IScalar} from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 import {MathUtil} from './MathUtil';
 
-export class Scalar_<T extends TypedArrayConstructor>
-  implements IVector, IScalar {
+export class Scalar_<T extends TypedArrayConstructor> {
   v: TypedArray;
 
   constructor(x: number | TypedArray | null, {type}: {type: T}) {
     if (ArrayBuffer.isView(x)) {
-      this.v = (x as unknown) as TypedArray;
+      this.v = (x as any) as TypedArray;
       return;
     } else if (x == null) {
       this.v = new type(0);
@@ -18,50 +17,6 @@ export class Scalar_<T extends TypedArrayConstructor>
     }
 
     this.v[0] = (x as any) as number;
-  }
-  clone(): IScalar {
-    throw new Error('Method not implemented.');
-  }
-  get className() {
-    return this.constructor.name;
-  }
-
-  toString() {
-    return '(' + this.v[0] + ')';
-  }
-
-  toStringApproximately() {
-    return MathUtil.nearZeroToZero(this.v[0]) + '\n';
-  }
-
-  flattenAsArray(): number[] {
-    throw new Error('Method not implemented.');
-  }
-  at(i: number) {
-    return this.v[i];
-  }
-  isDummy() {
-    if (this.v.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  length(): number {
-    throw this.v[0];
-  }
-
-  lengthTo(vec: IScalar) {
-    const deltaX = this.v[0] - vec.v[0];
-    return Math.hypot(deltaX);
-  }
-  lengthSquared(): number {
-    throw this.v[0] * this.v[0];
-  }
-
-  dot(vec: IVector): number {
-    throw this.v[0] * vec.v[0];
   }
 
   getValue() {
@@ -76,23 +31,11 @@ export class Scalar_<T extends TypedArrayConstructor>
     return this.v[0];
   }
 
-  get y() {
-    return 0;
-  }
-
-  get z() {
-    return 0;
-  }
-
-  get w() {
-    return 1;
-  }
-
   get raw() {
     return this.v;
   }
 
-  isStrictEqual(scalar: IScalar) {
+  isStrictEqual(scalar: Scalar_<T>) {
     if (this.x === scalar.x) {
       return true;
     } else {
@@ -100,7 +43,7 @@ export class Scalar_<T extends TypedArrayConstructor>
     }
   }
 
-  isEqual(scalar: IScalar, delta: number = Number.EPSILON) {
+  isEqual(scalar: Scalar_<T>, delta: number = Number.EPSILON) {
     if (Math.abs(scalar.x - this.x) < delta) {
       return true;
     } else {
@@ -117,7 +60,9 @@ export class Scalar_<T extends TypedArrayConstructor>
   }
 }
 
-export default class Scalar extends Scalar_<Float32ArrayConstructor> {
+export default class Scalar
+  extends Scalar_<Float32ArrayConstructor>
+  implements IScalar {
   constructor(x: number | TypedArray | null) {
     super(x, {type: Float32Array});
   }
@@ -132,6 +77,10 @@ export default class Scalar extends Scalar_<Float32ArrayConstructor> {
 
   static dummy() {
     return new Scalar(null);
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 
   clone() {

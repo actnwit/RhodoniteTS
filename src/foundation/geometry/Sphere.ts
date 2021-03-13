@@ -33,13 +33,20 @@ export default class Sphere extends Primitive {
     const texcoords = [];
     const normals = [];
 
+    if (radius <= 0) {
+      console.warn(
+        'The argument radius is zero. Rn will take the radius as 0.001 for safety. Check your code.'
+      );
+      radius = 0.001;
+    }
+
     const shiftValue = 0.00001; // for avoid Singular point
-    for (var latNumber = 0; latNumber <= heightSegments; latNumber++) {
+    for (let latNumber = 0; latNumber <= heightSegments; latNumber++) {
       const theta = (latNumber * Math.PI) / heightSegments + shiftValue;
       const sinTheta = Math.sin(theta);
       const cosTheta = Math.cos(theta);
 
-      for (var longNumber = 0; longNumber <= widthSegments; longNumber++) {
+      for (let longNumber = 0; longNumber <= widthSegments; longNumber++) {
         const phi = (longNumber * 2 * Math.PI) / widthSegments;
         const sinPhi = Math.sin(phi);
         const cosPhi = Math.cos(phi);

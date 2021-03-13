@@ -7,9 +7,9 @@ import {
 } from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
 import {MathUtil} from './MathUtil';
+import {CompositionType} from '../definitions/CompositionType';
 
-export class Vector2_<T extends TypedArrayConstructor>
-  implements IVector, IVector2 {
+export class Vector2_<T extends TypedArrayConstructor> {
   v: TypedArray;
 
   constructor(
@@ -54,18 +54,6 @@ export class Vector2_<T extends TypedArrayConstructor>
     return this.v[1];
   }
 
-  get z() {
-    return 0;
-  }
-
-  get w() {
-    return 1;
-  }
-
-  get className() {
-    return this.constructor.name;
-  }
-
   get glslStrAsFloat() {
     return `vec2(${MathUtil.convertToStringAsGLSLFloat(
       this.v[0]
@@ -74,6 +62,10 @@ export class Vector2_<T extends TypedArrayConstructor>
 
   get glslStrAsInt() {
     return `ivec2(${Math.floor(this.v[0])}, ${Math.floor(this.v[1])})`;
+  }
+
+  static get compositionType() {
+    return CompositionType.Vec2;
   }
 
   /**
@@ -357,7 +349,9 @@ export class Vector2_<T extends TypedArrayConstructor>
   }
 }
 
-export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
+export default class Vector2
+  extends Vector2_<Float32ArrayConstructor>
+  implements IVector, IVector2 {
   constructor(
     x:
       | number
@@ -410,6 +404,10 @@ export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
 
   static divideVector(l_vec: IVector2, r_vec: IVector2) {
     return super._divideVector(l_vec, r_vec, Float32Array) as Vector2;
+  }
+
+  get className() {
+    return this.constructor.name;
   }
 
   clone() {
