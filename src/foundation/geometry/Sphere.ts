@@ -33,9 +33,9 @@ export default class Sphere extends Primitive {
     const texcoords = [];
     const normals = [];
 
-    if (radius <= 0) {
+    if (Math.abs(radius) < Number.EPSILON) {
       console.warn(
-        'The argument radius is zero. Rn will take the radius as 0.001 for safety. Check your code.'
+        'The argument radius is zero / nearly zero. Rn will take the radius as 0.001 for safety. Check your code.'
       );
       radius = 0.001;
     }
