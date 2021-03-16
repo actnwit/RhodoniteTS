@@ -72,6 +72,14 @@ import WEB4DS from './web4dv/web4dvImporter.js';
     if (current4DSequence) current4DSequence.pause();
   });
 
+  document.getElementById('btnMute').addEventListener(clickEventName, function () {
+    if (current4DSequence) current4DSequence.mute();
+  });
+
+  document.getElementById('btnUnmute').addEventListener(clickEventName, function () {
+    if (current4DSequence) current4DSequence.unmute();
+  });
+
 
   function draw() {
     try {

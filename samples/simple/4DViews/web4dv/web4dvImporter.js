@@ -7,28 +7,18 @@
 //
 //
 // THREE.js plug-in for 4Dviews volumetric video sequences
+//
 // Version: 3.0.0
 // Release date: 18-December 2020
 //
 // Copyright: 4D View Solutions SAS
 // Authors: M.Adam & T.Groubet
 //
-// NOTE:
-// ADD: import WEB4DS from 'yourpath/web4dvImporter.js'
-// in your main script
-// Then create a WEB4DS object with the right parameters
-// Call yourObject.load() to start the streaming
-// OPTIONS:
-// - yourObject.load( bool showPlaceholder, bool playOnload, callback() )
-// Then you can call:
-// - play/pause
-// - mute/unmute
-// - destroy
-// - get some info like currentFrame or sequenceTotalLength
 //
 // **********************************************************
 
 import {default as ResourceManagerXHR, Decoder4D} from './web4dvResource.js';
+import AudioPlayer from './audioPlayer.js';
 
 // 4Dviews variables
 const resourceManager = new ResourceManagerXHR();
@@ -75,24 +65,17 @@ export default class WEB4DS {
     // Status
     this.isLoaded = false;
     this.isPlaying = false;
-    this.isAudioloaded = false;
-    this.isAudioplaying = false;
+    this.isAudioPlaying = false;
     this.wasPlaying = true;
     this.isDecoding = false;
     this.isMuted = false;
 
     // Audio
-    this.audioListener = null;
-    this.audioSound = null;
-    this.audioLoader = null;
-    // for cross browser compatibility
-    let AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.audioCtx = new AudioContext();
-    this.gainNode = null;
+    this.audioPlayer = new AudioPlayer();
+
     this.audioStartOffset = 0;
     this.audioStartTime = 0;
     this.audioPassedTime = 0;
-    this.audioTrack = null;
     this.audioLevel = null;
 
     // Loop
@@ -203,7 +186,7 @@ export default class WEB4DS {
 
         this.Decode();  // Start decoding, downloading
 
-        // this.loadAudio(this.urlA);
+        this.loadAudio(this.urlA);
 
         const waiter = setInterval(() => {
           if (this.meshesCache.length >= Decoder4D._maxCacheSize) {
@@ -376,12 +359,7 @@ export default class WEB4DS {
       this.isDecoding = false;
     }
 
-
-
-
-    // yet
-
-    // this.pauseAudio();
+    this.pauseAudio();
   }
 
   // For now, will play any WEB4DV object created (function is generic)
@@ -409,21 +387,24 @@ export default class WEB4DS {
 
         this.currentMesh = mesh;
 
-        // if (!this.isMuted) {
-        //   if (this.isAudioloaded) {
-        //     if (mesh.frame === 0) {
-        //       this.restartAudio();
-        //     }
+        if (!this.isMuted) {
+          if (this.audioPlayer.isLoaded) {
+            if (mesh.frame === 0) {
+              this.restartAudio();
+            }
 
-        //     if (this.audioStartOffset + this.audioPassedTime > ((mesh.frame / resourceManager._sequenceInfo.FrameRate))) {
-        //       console.log(`Audio Time: ${this.audioStartOffset + this.audioPassedTime}  - sequence time:  ${mesh.frame / resourceManager._sequenceInfo.FrameRate}`);
-        //       this.pauseAudio();
-        //     } else {
-        //       this.playAudio();
-        //       this.audioPassedTime = this.audioCtx.currentTime - this.audioStartTime;
-        //     }
-        //   }
-        // }
+            if (
+              (this.audioStartOffset + this.audioPassedTime) % this.audioPlayer.duration >
+              (mesh.frame / resourceManager._sequenceInfo.FrameRate)
+            ) {
+              console.log(`Audio Time: ${this.audioStartOffset + this.audioPassedTime}  - sequence time:  ${mesh.frame / resourceManager._sequenceInfo.FrameRate}`);
+              this.pauseAudio();
+            } else {
+              this.playAudio();
+              this.audioPassedTime = this.audioPlayer.currentTime - this.audioStartTime;
+            }
+          }
+        }
 
         if (!this.wasPlaying) {
           this.pauseSequence();
@@ -442,84 +423,51 @@ export default class WEB4DS {
   }
 
   loadAudio(audioFile) {
+    this.audioPlayer.volume = 0.5;
+    if (audioFile !== '') {
+      console.log(`loading audio file: ${audioFile}`);
+      this.audioPlayer.loadPromise(audioFile);
 
-    // yet
-
-    // if (typeof this.cameraComponent !== 'undefined') {
-    //   this.audioListener = new THREE.AudioListener(this.audioCtx);
-    //   this.audioSound = new THREE.PositionalAudio(this.audioListener);
-    //   // this.cameraComponent.add(this.audioListener)
-    //   this.gainNode = this.audioCtx.createGain();
-
-    //   if (audioFile !== '') {
-    //     console.log(`loading audio file: ${audioFile}`);
-
-    //     this.audioLoader = new THREE.AudioLoader();
-    //     this.audioLoader.load(audioFile, (buffer) => {
-    //       this.audioSound.setBuffer(buffer);
-    //       this.audioSound.setLoop(false);
-    //       this.audioSound.setVolume(0);
-    //       this.gainNode.gain.value = 0.5;
-    //       this.isAudioloaded = true;
-    //       //this.playAudio()
-    //     });
-    //   } else if (resourceManager._audioTrack !== 'undefined' && resourceManager._audioTrack !== []) {
-    //     console.log('loading internal audio ');
-
-    //     this.audioCtx.decodeAudioData(resourceManager._audioTrack, (buffer) => {
-    //       this.audioSound.setBuffer(buffer);
-    //       this.audioSound.setLoop(false);
-    //       this.audioSound.setVolume(0);
-    //       this.gainNode.gain.value = 0.5;
-    //       this.isAudioloaded = true;
-    //       //this.playAudio()
-    //     });
-    //   }
-    // } else {
-    //   alert('Please add a cameraComponent to your renderPass or set your camera to var = camera. AudioListener not attached.');
-    // }
+    } else if (Array.isArray(resourceManager._audioTrack) && resourceManager._audioTrack.length > 0) {
+      console.log('loading internal audio ');
+      this.audioPlayer.audioContext.decodeAudioData(resourceManager._audioTrack, (audioBuffer) => {
+        this.audioPlayer.audioBuffer = audioBuffer;
+      });
+    }
   }
 
   playAudio() {
-    if (this.isAudioplaying === false) {
-      this.audioTrack = this.audioCtx.createBufferSource();
-      this.audioTrack.buffer = this.audioSound.buffer;
-      this.audioTrack.connect(this.gainNode);
-      this.gainNode.connect(this.audioCtx.destination);
-
+    if (this.isAudioPlaying === false) {
       this.audioStartOffset = this.currentFrame / resourceManager._sequenceInfo.FrameRate;
-
-      this.audioTrack.start(this.audioCtx.currentTime, this.audioStartOffset);
-      console.log(`start audio at time ${this.audioStartOffset} ; ${this.audioCtx.currentTime}`);
-
-      this.isAudioplaying = true;
-      this.audioStartTime = this.audioCtx.currentTime;
+      this.audioPlayer.startAt(this.audioStartOffset);
+      console.log(`start audio at time ${this.audioStartOffset} ; ${this.audioPlayer.currentTime}`);
+      this.isAudioPlaying = true;
+      this.audioStartTime = this.audioPlayer.currentTime;
     }
   }
 
   pauseAudio() {
-    if (this.isAudioplaying === true) {
-      if (this.audioTrack) this.audioTrack.stop();
-
-      this.isAudioplaying = false;
+    if (this.isAudioPlaying === true) {
+      this.audioPlayer.stop();
+      this.isAudioPlaying = false;
     }
   }
 
   restartAudio() {
     console.log('restart audio playback');
-    if (this.audioTrack) this.audioTrack.stop();
-    this.isAudioplaying = false;
+    this.isAudioPlaying = false;
     this.audioPassedTime = 0;
 
+    this.audioPlayer.stop();
     this.playAudio();
   }
 
   // For now, will mute any WEB4DV object created (function is generic)
   mute() {
-    this.audioLevel = this.gainNode.gain.value;
+    this.audioLevel = this.audioPlayer.volume;
     console.log(`volume will be set back at:${this.audioLevel}`);
 
-    this.gainNode.gain.value = 0;
+    this.audioPlayer.volume = 0;
     this.isMuted = true;
   }
 
@@ -528,15 +476,11 @@ export default class WEB4DS {
     this.isMuted = false;
 
     if (this.audioLevel) {
-      this.gainNode.gain.value = this.audioLevel;
+      this.audioPlayer.volume = this.audioLevel;
     } else {
-      this.gainNode.gain.value = 0.5;
+      this.audioPlayer.volume = 0.5;
     }
   }
-
-  // isLoaded() {
-  //   return this.isLoaded
-  // }
 
   keepsChunksInCache(booleanVal) {
     Decoder4D._keepChunksInCache = booleanVal;
@@ -549,14 +493,9 @@ export default class WEB4DS {
     clearInterval(this.decodeLoop);
     // clearInterval(renderLoop); // No more needed: renderLoop is managed outside
 
-    if (this.audioSound) {
-      if (this.audioTrack) {
-        this.audioTrack.stop();
-      }
-
-      this.audioLoader = null;
-      this.audioSound = null;
-      this.audioListener = null;
+    if (this.audioPlayer) {
+      this.audioPlayer.stop();
+      this.audioPlayer.audioBuffer = null;
 
       this.audioStartTime = 0;
       this.audioStartOffset = 0;
@@ -568,8 +507,7 @@ export default class WEB4DS {
     this.isLoaded = false;
     this.isPlaying = false;
     this.isDecoding = false;
-    this.isAudioplaying = false;
-    this.isAudioloaded = false;
+    this.isAudioPlaying = false;
     this.firstChunks = false;
 
     this.currentMesh = null;
