@@ -527,4 +527,13 @@ export default class DataUtil {
   static getNearestPowerOfTwo(x: number): number {
     return Math.pow(2, Math.round(Math.log(x) / Math.LN2));
   }
+
+  static calcPaddingBytes(originalByteLength: Byte, byteAlign: Byte) {
+    if (originalByteLength % byteAlign !== 0) {
+      const sizeToPadding = byteAlign - (originalByteLength % byteAlign);
+      return sizeToPadding;
+    }
+
+    return 0;
+  }
 }
