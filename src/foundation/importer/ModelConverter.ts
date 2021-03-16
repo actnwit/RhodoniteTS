@@ -473,7 +473,7 @@ export default class ModelConverter {
         let weights: number[];
         if (node.weights) {
           weights = node.weights;
-        } else if (node.mesh.weights) {
+        } else if (node.mesh?.weights) {
           weights = node.mesh.weights;
         } else {
           weights = new Array(node.mesh.primitives[0].targets.length);
@@ -1824,7 +1824,7 @@ export default class ModelConverter {
     }
   }
 
-  private __getRnAccessor(accessor: any, rnBuffer: Buffer) {
+  private __getRnAccessor(accessor: Gltf2Accessor, rnBuffer: Buffer) {
     const bufferView = accessor.bufferView;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
@@ -1924,7 +1924,7 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __getRnBufferView(bufferView: any, rnBuffer: Buffer) {
+  private __getRnBufferView(bufferView: Gltf2BufferView, rnBuffer: Buffer) {
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,

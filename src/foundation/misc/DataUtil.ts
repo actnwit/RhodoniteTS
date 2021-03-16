@@ -1,4 +1,4 @@
-import { Size } from '../../commontypes/CommonTypes';
+import { Byte, Size } from '../../commontypes/CommonTypes';
 import {GltfLoadOption} from '../../commontypes/glTF';
 
 export default class DataUtil {

@@ -15,6 +15,7 @@ import {
 } from '../../foundation/definitions/ComponentType';
 
 import {Is} from '../misc/Is';
+import DataUtil from '../misc/DataUtil';
 
 export default class Buffer extends RnObject {
   private __byteLength: Byte = 0;
