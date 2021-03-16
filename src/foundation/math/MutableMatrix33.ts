@@ -3,7 +3,7 @@ import Quaternion from './Quaternion';
 import {IMutableMatrix33, IMutableMatrix} from './IMatrix';
 import Matrix33 from './Matrix33';
 import Vector3 from './Vector3';
-import {Index} from '../../commontypes/CommonTypes';
+import {Index} from '../../types/CommonTypes';
 
 /* eslint-disable prettier/prettier */
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {

@@ -3,7 +3,7 @@ import {IMutableMatrix44, IMutableMatrix} from './IMatrix';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector3 from './Vector3';
-import {Index} from '../../commontypes/CommonTypes';
+import {Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
 
 /* eslint-disable prettier/prettier */

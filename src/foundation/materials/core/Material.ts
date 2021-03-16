@@ -25,7 +25,7 @@ import {
   CGAPIResourceHandle,
   Count,
   IndexOf16Bytes,
-} from '../../../commontypes/CommonTypes';
+} from '../../../types/CommonTypes';
 import DataUtil from '../../misc/DataUtil';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import System from '../../system/System';

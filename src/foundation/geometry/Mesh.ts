@@ -15,7 +15,7 @@ import {
   Index,
   CGAPIResourceHandle,
   MeshUID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is as is} from '../misc/Is';

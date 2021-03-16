@@ -1,7 +1,7 @@
 import Vector3 from './Vector3';
 import {IVector3, IVector4} from './IVector';
 import {IColorRgb} from './IColor';
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 
 export default class ColorRgb extends Vector3 implements IVector3, IColorRgb {
   constructor(

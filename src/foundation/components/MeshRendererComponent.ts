@@ -31,7 +31,7 @@ import {
   ObjectUID,
   ComponentTID,
   EntityUID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
 
 export default class MeshRendererComponent extends Component {

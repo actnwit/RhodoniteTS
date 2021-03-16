@@ -2,7 +2,7 @@ import {
   Size,
   Index,
   TypedArrayConstructor,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 
 export default class TextureDataFloat {
   private __data: Float32Array;

@@ -21,7 +21,7 @@ import {
   TypedArray,
   Count,
   Byte,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import Entity from './Entity';
 
 export function fromTensorToCompositionType(tensorClass: any) {

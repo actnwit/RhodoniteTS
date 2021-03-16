@@ -3,7 +3,7 @@ import {
   TypedArray,
   Byte,
   TypedArrayConstructor,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 
 export interface ComponentTypeEnum extends EnumIO {
   getSizeInBytes(): Byte;

@@ -4,7 +4,7 @@ import {
   GltfLoadOption,
   Gltf2Image,
   GltfFileBuffers,
-} from '../../commontypes/glTF';
+} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 
 declare let Rn: any;

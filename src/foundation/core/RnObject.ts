@@ -1,4 +1,4 @@
-import {RnTags, ObjectUID} from '../../commontypes/CommonTypes';
+import {RnTags, ObjectUID} from '../../types/CommonTypes';
 
 export type Tag = {
   tag: string;

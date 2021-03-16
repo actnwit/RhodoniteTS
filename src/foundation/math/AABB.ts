@@ -1,7 +1,7 @@
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import MutableVector3 from './MutableVector3';
-import {Index} from '../../commontypes/CommonTypes';
+import {Index} from '../../types/CommonTypes';
 
 export default class AABB {
   private __min: MutableVector3 = new MutableVector3(

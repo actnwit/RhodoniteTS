@@ -6,7 +6,7 @@ import {
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../../definitions/ShaderType';
-import {CGAPIResourceHandle} from '../../../commontypes/CommonTypes';
+import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/CameraComponent';
 import Material from '../core/Material';

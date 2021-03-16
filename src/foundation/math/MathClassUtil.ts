@@ -15,7 +15,7 @@ import Scalar from './Scalar';
 import MutableQuaternion from './MutableQuaternion';
 import MutableScalar from './MutableScalar';
 import VectorN from './VectorN';
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 
 export default class MathClassUtil {
   private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();

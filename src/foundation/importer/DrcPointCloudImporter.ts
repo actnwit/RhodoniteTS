@@ -10,8 +10,8 @@ import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../definitions/VertexAttribute';
-import {TypedArray} from '../../commontypes/CommonTypes';
-import {glTF2, GltfLoadOption, Gltf2Image} from '../../commontypes/glTF';
+import {TypedArray} from '../../types/CommonTypes';
+import {glTF2, GltfLoadOption, Gltf2Image} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 
 declare let DracoDecoderModule: any;

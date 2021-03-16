@@ -1,7 +1,7 @@
 import Entity from './Entity';
 import Component from './Component';
 import ComponentRepository from './ComponentRepository';
-import {RnTags, EntityUID, ComponentTID} from '../../commontypes/CommonTypes';
+import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 
 /**
  * The class that generates and manages entities.

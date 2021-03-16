@@ -7,7 +7,7 @@ import {
   ComponentTID,
   ComponentSID,
   EntityUID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 
 export default class BlendShapeComponent extends Component {
   private __weights: number[] = [];

@@ -1,7 +1,7 @@
 import MutableVector4 from './MutableVector4';
 import {IVector4, IMutableVector4} from './IVector';
 import {IMutableColorRgba} from './IColor';
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 
 export default class MutableColorRgba
   extends MutableVector4

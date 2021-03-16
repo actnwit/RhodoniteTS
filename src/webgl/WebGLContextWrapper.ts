@@ -1,6 +1,6 @@
 import {WebGLExtensionEnum, WebGLExtension} from './WebGLExtension';
 import {RenderBufferTargetEnum} from '../foundation/definitions/RenderBufferTarget';
-import {Index, Size} from '../commontypes/CommonTypes';
+import {Index, Size} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
 import Config from '../foundation/core/Config';
 

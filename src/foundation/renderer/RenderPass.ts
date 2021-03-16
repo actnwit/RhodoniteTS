@@ -5,7 +5,7 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
 import Vector4 from '../math/Vector4';
 import CameraComponent from '../components/CameraComponent';
-import {EntityUID} from '../../commontypes/CommonTypes';
+import {EntityUID} from '../../types/CommonTypes';
 import Material from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
 import System from '../system/System';

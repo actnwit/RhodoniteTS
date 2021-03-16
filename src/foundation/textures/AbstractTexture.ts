@@ -10,7 +10,7 @@ import {
   TextureUID,
   Size,
   Index,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import TextureDataFloat from './TextureDataFloat';
 
 export default abstract class AbstractTexture extends RnObject {

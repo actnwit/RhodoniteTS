@@ -21,7 +21,7 @@ import {
   TypedArrayConstructor,
   TypedArray,
   Size,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (

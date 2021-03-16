@@ -1,11 +1,11 @@
 import Entity from '../core/Entity';
-import {glTF2} from '../../commontypes/glTF';
+import {glTF2} from '../../types/glTF';
 import ModelConverter from './ModelConverter';
 import EntityRepository from '../core/EntityRepository';
 import AnimationComponent from '../components/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
-import {Index} from '../../commontypes/CommonTypes';
-import {VRM} from '../../commontypes/VRM';
+import {Index} from '../../types/CommonTypes';
+import {VRM} from '../../types/VRM';
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;

@@ -20,7 +20,7 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
 import VectorN from '../../math/VectorN';
-import {Count} from '../../../commontypes/CommonTypes';
+import {Count} from '../../../types/CommonTypes';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import Texture from '../../textures/Texture';

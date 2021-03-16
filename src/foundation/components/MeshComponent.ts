@@ -12,7 +12,7 @@ import {
   ComponentTID,
   EntityUID,
   ComponentSID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import BlendShapeComponent from './BlendShapeComponent';
 import SceneGraphComponent from './SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';

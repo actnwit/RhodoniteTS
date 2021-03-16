@@ -6,7 +6,7 @@ import Matrix44 from '../math/Matrix44';
 import Time from '../misc/Time';
 import VRMSpringBoneGroup from './VRMSpringBoneGroup';
 import VRMColliderGroup from './VRMColliderGroup';
-import {Index} from '../../commontypes/CommonTypes';
+import {Index} from '../../types/CommonTypes';
 import PhysicsStrategy from './PhysicsStrategy';
 import MutableQuaternion from '../math/MutableQuaternion';
 

@@ -17,7 +17,7 @@ import {
   ComponentTID,
   ComponentSID,
   EntityUID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import AABBGizmo from '../gizmos/AABBGizmo';

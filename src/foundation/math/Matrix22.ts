@@ -2,7 +2,7 @@ import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
 import {IMatrix, IMatrix22} from './IMatrix';
 import {CompositionType} from '../definitions/CompositionType';
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 import Vector2 from './Vector2';
 import MutableMatrix22 from './MutableMatrix22';
 import {MathUtil} from './MathUtil';

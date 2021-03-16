@@ -10,7 +10,7 @@ import {
   Index,
   CGAPIResourceHandle,
   IndexOf16Bytes,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import {BufferUse} from '../definitions/BufferUse';
 import MemoryManager from './MemoryManager';
 import {CompositionType} from '../definitions/CompositionType';

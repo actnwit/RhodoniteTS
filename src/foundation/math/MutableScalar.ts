@@ -1,5 +1,5 @@
 import {Scalar_} from './Scalar';
-import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
+import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 
 export class MutableScalar_<
   T extends TypedArrayConstructor

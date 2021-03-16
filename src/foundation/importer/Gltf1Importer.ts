@@ -1,5 +1,5 @@
 import DataUtil from '../misc/DataUtil';
-import {glTF1, GltfFileBuffers, GltfLoadOption} from '../../commontypes/glTF';
+import {glTF1, GltfFileBuffers, GltfLoadOption} from '../../types/glTF';
 
 declare let Rn: any;
 

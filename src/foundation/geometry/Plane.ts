@@ -9,7 +9,7 @@ import MemoryManager from '../core/MemoryManager';
 import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
-import {Size} from '../../commontypes/CommonTypes';
+import {Size} from '../../types/CommonTypes';
 
 export default class Plane extends Primitive {
   constructor() {

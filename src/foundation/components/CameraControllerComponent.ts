@@ -3,7 +3,7 @@ import {
   EntityUID,
   ComponentSID,
   ComponentTID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import EntityRepository from '../core/EntityRepository';
 import CameraComponent from './CameraComponent';
 import {ProcessStage} from '../definitions/ProcessStage';

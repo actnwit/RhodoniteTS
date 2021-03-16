@@ -35,7 +35,7 @@ import {
   Count,
   IndexOf16Bytes,
   IndexOf4Bytes,
-} from '../commontypes/CommonTypes';
+} from '../types/CommonTypes';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import VectorN from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
