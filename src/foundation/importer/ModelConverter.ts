@@ -58,7 +58,6 @@ import GlobalDataRepository from '../core/GlobalDataRepository';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
-import FlexibleAccessor from '../memory/FlexibleAccessor';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 
 declare let DracoDecoderModule: any;
@@ -726,7 +725,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  setSparseAccessor(accessor: any, rnAccessor: Accessor | FlexibleAccessor) {
+  setSparseAccessor(accessor: any, rnAccessor: Accessor) {
     const uint8Array: Uint8Array = accessor.bufferView.buffer.buffer;
     const count = accessor.sparse.count;
 

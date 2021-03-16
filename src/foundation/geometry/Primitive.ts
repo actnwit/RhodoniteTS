@@ -11,7 +11,6 @@ import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import AccessorBase from '../memory/AccessorBase';
 import AABB from '../math/AABB';
 import Material from '../materials/core/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
@@ -201,7 +200,7 @@ export default class Primitive extends RnObject {
 
     attributes.forEach((attribute, i) => {
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor: AccessorBase = attributesBufferView.takeAccessor({
+      const accessor: Accessor = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count:

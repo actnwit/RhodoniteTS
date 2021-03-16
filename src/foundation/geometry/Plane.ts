@@ -8,7 +8,6 @@ import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import MemoryManager from '../core/MemoryManager';
 import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
-import AccessorBase from '../memory/AccessorBase';
 import Material from '../materials/core/Material';
 import {Size} from '../../commontypes/CommonTypes';
 
@@ -152,7 +151,7 @@ export default class Plane extends Primitive {
 
     attributes.forEach((attribute, i) => {
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor: AccessorBase = attributesBufferView.takeAccessor({
+      const accessor: Accessor = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count:
