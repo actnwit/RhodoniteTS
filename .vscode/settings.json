@@ -24,8 +24,11 @@
         "texcoord",
         "tids",
         "toon",
+        "typedoc",
         "vertex",
         "vrize",
+        "webgl",
+        "webvr",
         "well"
     ],
     "eslint.format.enable": true

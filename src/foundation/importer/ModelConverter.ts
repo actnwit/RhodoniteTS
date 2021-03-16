@@ -58,7 +58,6 @@ import GlobalDataRepository from '../core/GlobalDataRepository';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
-import FlexibleAccessor from '../memory/FlexibleAccessor';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 
 declare let DracoDecoderModule: any;
@@ -473,7 +472,7 @@ export default class ModelConverter {
         let weights: number[];
         if (node.weights) {
           weights = node.weights;
-        } else if (node.mesh.weights) {
+        } else if (node.mesh?.weights) {
           weights = node.mesh.weights;
         } else {
           weights = new Array(node.mesh.primitives[0].targets.length);
@@ -726,7 +725,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  setSparseAccessor(accessor: any, rnAccessor: Accessor | FlexibleAccessor) {
+  setSparseAccessor(accessor: any, rnAccessor: Accessor) {
     const uint8Array: Uint8Array = accessor.bufferView.buffer.buffer;
     const count = accessor.sparse.count;
 
@@ -1824,7 +1823,7 @@ export default class ModelConverter {
     }
   }
 
-  private __getRnAccessor(accessor: any, rnBuffer: Buffer) {
+  private __getRnAccessor(accessor: Gltf2Accessor, rnBuffer: Buffer) {
     const bufferView = accessor.bufferView;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
@@ -1924,7 +1923,7 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __getRnBufferView(bufferView: any, rnBuffer: Buffer) {
+  private __getRnBufferView(bufferView: Gltf2BufferView, rnBuffer: Buffer) {
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,

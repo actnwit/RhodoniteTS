@@ -8,7 +8,6 @@ import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import MemoryManager from '../core/MemoryManager';
 import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
-import AccessorBase from '../memory/AccessorBase';
 import Material from '../materials/core/Material';
 import Vector3 from '../math/Vector3';
 import {Size} from '../../commontypes/CommonTypes';
@@ -78,8 +77,8 @@ export default class Sphere extends Primitive {
     // second   second+1
     //
     const indices = [];
-    for (var latNumber = 0; latNumber < heightSegments; latNumber++) {
-      for (var longNumber = 0; longNumber < widthSegments; longNumber++) {
+    for (let latNumber = 0; latNumber < heightSegments; latNumber++) {
+      for (let longNumber = 0; longNumber < widthSegments; longNumber++) {
         const first = latNumber * (widthSegments + 1) + longNumber;
         const second = first + widthSegments + 1;
 
@@ -146,7 +145,7 @@ export default class Sphere extends Primitive {
 
     attributes.forEach((attribute, i) => {
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor: AccessorBase = attributesBufferView.takeAccessor({
+      const accessor: Accessor = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count:

@@ -1,10 +1,8 @@
 import RnObject from '../core/RnObject';
 import Buffer from '../memory/Buffer';
-import Accessor from './Accessor';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
-import AccessorBase from './AccessorBase';
-import FlexibleAccessor from './FlexibleAccessor';
+import Accessor from './Accessor';
 import {Byte, Count, Size} from '../../commontypes/CommonTypes';
 
 export default class BufferView extends RnObject {
@@ -21,6 +19,7 @@ export default class BufferView extends RnObject {
   constructor({
     buffer,
     byteOffset,
+    byteStride,
     byteLength,
     raw,
     isAoS,
@@ -28,6 +27,7 @@ export default class BufferView extends RnObject {
   }: {
     buffer: Buffer;
     byteOffset: Byte;
+    byteStride: Byte;
     byteLength: Byte;
     raw: ArrayBuffer;
     isAoS: boolean;
@@ -37,13 +37,10 @@ export default class BufferView extends RnObject {
     this.__buffer = buffer;
     this.__byteOffsetInRawArrayBufferOfBuffer = byteOffset;
     this.__byteLength = byteLength;
+    this.__byteStride = byteStride;
     this.__raw = raw;
     this.__isAoS = isAoS;
     this.__byteAlign = byteAlign;
-  }
-
-  set byteStride(stride: Byte) {
-    this.__byteStride = stride;
   }
 
   get byteStride() {
@@ -137,7 +134,6 @@ export default class BufferView extends RnObject {
       componentType,
       count,
       byteStride,
-      accessorClass: Accessor,
       max,
       min,
       byteAlign,
@@ -168,7 +164,7 @@ export default class BufferView extends RnObject {
     byteAlign?: Byte;
     arrayLength?: Size;
     normalized?: boolean;
-  }): FlexibleAccessor {
+  }): Accessor {
     const _arrayLength = arrayLength != null ? arrayLength : 1;
 
     const accessor = this.__takeAccessorInner({
@@ -176,7 +172,6 @@ export default class BufferView extends RnObject {
       componentType,
       count,
       byteStride,
-      accessorClass: FlexibleAccessor,
       max,
       min,
       byteAlign,
@@ -212,7 +207,6 @@ export default class BufferView extends RnObject {
       count,
       byteStride,
       byteOffset,
-      accessorClass: Accessor,
       max,
       min,
       normalized,
@@ -239,14 +233,13 @@ export default class BufferView extends RnObject {
     max?: number[];
     min?: number[];
     normalized?: boolean;
-  }): FlexibleAccessor {
+  }): Accessor {
     const accessor = this.__takeAccessorInnerWithByteOffset({
       compositionType,
       componentType,
       count,
       byteStride,
       byteOffset,
-      accessorClass: FlexibleAccessor,
       max,
       min,
       normalized,
@@ -260,7 +253,6 @@ export default class BufferView extends RnObject {
     componentType,
     count,
     byteStride,
-    accessorClass,
     max,
     min,
     byteAlign,
@@ -271,13 +263,12 @@ export default class BufferView extends RnObject {
     componentType: ComponentTypeEnum;
     count: Count;
     byteStride: Byte;
-    accessorClass: any;
     max?: number[];
     min?: number[];
     byteAlign: Byte;
     arrayLength: Size;
     normalized: boolean;
-  }): AccessorBase {
+  }): Accessor {
     let byteOffset = 0;
     if (this.isSoA) {
       byteOffset = this.__takenByteIndex;
@@ -302,24 +293,16 @@ export default class BufferView extends RnObject {
       // }
     }
 
-    if (byteOffset % byteAlign !== 0) {
-      console.info(
-        `Padding bytes added because byteOffset is not ${byteAlign}byte aligned.`
-      );
-      const paddingBytes = byteAlign - (byteOffset % byteAlign);
-      byteOffset += paddingBytes;
-      this.__takenByteIndex += paddingBytes;
-    }
-
-    // if (this.__byteOffset % byteAlign !== 0) {
-    //   console.info(`Padding bytes added because byteOffsetFromBuffer is not ${byteAlign}byte aligned.`);
-    //   const paddingBytes = byteAlign - this.__byteOffset % byteAlign;
-    //   // this.__byteOffset += paddingBytes;
+    // if (byteOffset % byteAlign !== 0) {
+    //   console.info(
+    //     `Padding bytes added because byteOffset is not ${byteAlign}byte aligned.`
+    //   );
+    //   const paddingBytes = byteAlign - (byteOffset % byteAlign);
+    //   byteOffset += paddingBytes;
     //   this.__takenByteIndex += paddingBytes;
-    //   // this.buffer._addTakenByteIndex(paddingBytes);
     // }
 
-    const accessor = new accessorClass({
+    const accessor = new Accessor({
       bufferView: this,
       byteOffset,
       compositionType,
@@ -344,7 +327,6 @@ export default class BufferView extends RnObject {
     count,
     byteStride,
     byteOffset,
-    accessorClass,
     max,
     min,
     normalized,
@@ -354,23 +336,11 @@ export default class BufferView extends RnObject {
     count: Count;
     byteStride: Byte;
     byteOffset: Byte;
-    accessorClass: any;
     max?: number[];
     min?: number[];
     normalized: boolean;
-  }): AccessorBase {
-    // if (byteOffset % 4 !== 0) {
-    //   console.info('Padding bytes added because byteOffset is not 4byte aligned.');
-    //   byteOffset += 4 - byteOffset % 4;
-    // }
-
-    // if (this.__byteOffset % 4 !== 0) {
-    //   console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
-    //   this.__byteOffset += 4 - this.__byteOffset % 4;
-    // this.buffer._addTakenByteIndex(4 - this.__byteOffset % 4);
-    // }
-
-    const accessor = new accessorClass({
+  }): Accessor {
+    const accessor = new Accessor({
       bufferView: this,
       byteOffset,
       compositionType,

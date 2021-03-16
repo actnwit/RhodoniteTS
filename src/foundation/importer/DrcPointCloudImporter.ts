@@ -553,7 +553,7 @@ export default class DrcPointCloudImporter {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferIndex = bufferView.buffer;
+        bufferView.bufferIndex = (bufferView.buffer as any) as number;
         bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
       }
     }
@@ -703,7 +703,7 @@ export default class DrcPointCloudImporter {
         let arrayBuffer = uint8Array;
         if (uint8Array == null) {
           const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
-          arrayBuffer = bufferView.buffer.buffer;
+          arrayBuffer = bufferView.buffer.buffer!;
         }
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
           gltfJson,

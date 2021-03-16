@@ -1,7 +1,7 @@
 import Buffer from './Buffer';
 import {CompositionType} from '../definitions/CompositionType';
 import {ComponentType} from '../definitions/ComponentType';
-import Accessor from './AccessorBase';
+import Accessor from './Accessor';
 
 function createBuffer(byteSize: number) {
   const arrayBuffer = new ArrayBuffer(byteSize);

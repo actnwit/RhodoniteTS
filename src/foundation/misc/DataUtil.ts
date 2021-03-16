@@ -1,4 +1,4 @@
-import { Size } from '../../commontypes/CommonTypes';
+import { Byte, Size } from '../../commontypes/CommonTypes';
 import {GltfLoadOption} from '../../commontypes/glTF';
 
 export default class DataUtil {
@@ -39,9 +39,8 @@ export default class DataUtil {
   }
 
   static dataUriToArrayBuffer(dataUri: string) {
-    const splittedDataUri = dataUri.split(',');
-    // let type = splittedDataUri[0].split(':')[1].split(';')[0];
-    const byteString = DataUtil.atob(splittedDataUri[1]);
+    const splitDataUri = dataUri.split(',');
+    const byteString = DataUtil.atob(splitDataUri[1]);
     const byteStringLength = byteString.length;
     const arrayBuffer = new ArrayBuffer(byteStringLength);
     const uint8Array = new Uint8Array(arrayBuffer);
@@ -527,5 +526,14 @@ export default class DataUtil {
    */
   static getNearestPowerOfTwo(x: number): number {
     return Math.pow(2, Math.round(Math.log(x) / Math.LN2));
+  }
+
+  static calcPaddingBytes(originalByteLength: Byte, byteAlign: Byte) {
+    if (originalByteLength % byteAlign !== 0) {
+      const sizeToPadding = byteAlign - (originalByteLength % byteAlign);
+      return sizeToPadding;
+    }
+
+    return 0;
   }
 }
