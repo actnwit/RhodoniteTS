@@ -12,7 +12,7 @@ import {
   ComponentTID,
   EntityUID,
   ComponentSID,
-} from '../commontypes/CommonTypes';
+} from '../types/CommonTypes';
 
 declare let window: any;
 declare let _SPARK_Data_Delete: Function;

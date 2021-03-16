@@ -17,7 +17,7 @@ import {
   ComponentSID,
   EntityUID,
   Index,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 
 type AnimationLine = {
   input: number[];

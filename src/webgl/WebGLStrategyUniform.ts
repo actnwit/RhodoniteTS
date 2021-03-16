@@ -34,7 +34,7 @@ import {
   WebGLResourceHandle,
   Index,
   Count,
-} from '../commontypes/CommonTypes';
+} from '../types/CommonTypes';
 import {BufferUse} from '../foundation/definitions/BufferUse';
 import Buffer from '../foundation/memory/Buffer';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';

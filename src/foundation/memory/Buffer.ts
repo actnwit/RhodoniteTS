@@ -1,6 +1,6 @@
 import RnObject from '../core/RnObject';
 import BufferView from './BufferView';
-import {Byte, TypedArray} from '../../commontypes/CommonTypes';
+import {Byte, TypedArray} from '../../types/CommonTypes';
 import {
   CompositionType,
   CompositionTypeEnum,

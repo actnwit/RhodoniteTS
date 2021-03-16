@@ -16,7 +16,7 @@ import {
   ComponentTID,
   ComponentSID,
   EntityUID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 
 // import AnimationComponent from './AnimationComponent';
 

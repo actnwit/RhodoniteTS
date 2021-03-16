@@ -1,5 +1,5 @@
 import Material from '../materials/core/Material';
-import {glTF2, Gltf2Material, Gltf2Sampler} from '../../commontypes/glTF';
+import {glTF2, Gltf2Material, Gltf2Sampler} from '../../types/glTF';
 import Entity from '../core/Entity';
 
 export default interface ILoaderExtension {

@@ -13,7 +13,7 @@ import {
   Index,
   Count,
   ComponentSID,
-} from '../commontypes/CommonTypes';
+} from '../types/CommonTypes';
 
 export default interface WebGLStrategy {
   $load(meshComponent: MeshComponent): void;

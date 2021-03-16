@@ -21,7 +21,7 @@ import Material from '../core/Material';
 import SkeletalComponent from '../../components/SkeletalComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import RenderPass from '../../renderer/RenderPass';
-import {Count} from '../../../commontypes/CommonTypes';
+import {Count} from '../../../types/CommonTypes';
 import MutableMatrix44 from '../../math/MutableMatrix44';
 import MeshComponent from '../../components/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShapeComponent';

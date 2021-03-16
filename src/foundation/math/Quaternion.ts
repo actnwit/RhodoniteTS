@@ -1,5 +1,5 @@
 import {IVector2, IVector3, IVector4} from './IVector';
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion, ILogQuaternion, IMutableQuaternion} from './IQuaternion';

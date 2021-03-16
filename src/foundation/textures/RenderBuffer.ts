@@ -5,7 +5,7 @@ import {
   TextureParameter,
   TextureParameterEnum,
 } from '../definitions/TextureParameter';
-import {Size, CGAPIResourceHandle} from '../../commontypes/CommonTypes';
+import {Size, CGAPIResourceHandle} from '../../types/CommonTypes';
 import FrameBuffer from '../renderer/FrameBuffer';
 
 export default class RenderBuffer extends RnObject implements IRenderable {

@@ -5,7 +5,7 @@ import {
   IMutableVector,
   IMutableVector3,
 } from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
+import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import {Vector3_} from './Vector3';
 import {IQuaternion} from './IQuaternion';
 

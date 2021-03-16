@@ -12,7 +12,7 @@ import {
   ComponentTID,
   EntityUID,
   ComponentSID,
-} from '../commontypes/CommonTypes';
+} from '../types/CommonTypes';
 import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 

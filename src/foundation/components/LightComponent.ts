@@ -11,7 +11,7 @@ import {
   ComponentTID,
   EntityUID,
   ComponentSID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import MutableVector4 from '../math/MutableVector4';

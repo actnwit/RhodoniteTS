@@ -8,7 +8,7 @@ import {
   IVector4,
   IMutableVector4,
 } from './IVector';
-import {TypedArray, Index} from '../../commontypes/CommonTypes';
+import {TypedArray, Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
 
 export interface IMatrix {

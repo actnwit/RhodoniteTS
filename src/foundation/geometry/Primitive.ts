@@ -21,7 +21,7 @@ import {
   TypedArray,
   Count,
   Index,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 import Vector3 from '../math/Vector3';
 import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';

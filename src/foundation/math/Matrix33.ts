@@ -4,7 +4,7 @@ import Quaternion from './Quaternion';
 import {IMatrix, IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import {CompositionType} from '../definitions/CompositionType';
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
 /* eslint-disable prettier/prettier */

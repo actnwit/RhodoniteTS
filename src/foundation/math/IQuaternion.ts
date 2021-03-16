@@ -1,4 +1,4 @@
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 import {IVector3, IMutableVector3} from './IVector';
 import {IMatrix44} from './IMatrix';
 

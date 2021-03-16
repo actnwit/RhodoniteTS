@@ -5,7 +5,7 @@ import {
   IVector,
   IMutableVector3,
 } from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
+import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion} from './IQuaternion';

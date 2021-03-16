@@ -4,7 +4,7 @@ import {AlphaMode} from '../foundation/definitions/AlphaMode';
 import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
 import MeshComponent from '../foundation/components/MeshComponent';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import {Index} from '../commontypes/CommonTypes';
+import {Index} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';
 import {Is as is} from '../foundation/misc/Is';
 

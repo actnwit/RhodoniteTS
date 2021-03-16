@@ -160,7 +160,7 @@ import {
   AnimationInterpolation as _AnimationInterpolation,
   AnimationInterpolationEnum as _AnimationInterpolationEnum,
 } from './foundation/definitions/AnimationInterpolation';
-import {GltfLoadOption as _GltfLoadOption} from './commontypes/glTF';
+import {GltfLoadOption as _GltfLoadOption} from './types/glTF';
 
 export default {
   Entity: _Entity,

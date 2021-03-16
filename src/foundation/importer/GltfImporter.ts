@@ -7,7 +7,7 @@ import {
   glTF2,
   GltfFileBuffers,
   glTF1,
-} from '../../commontypes/glTF';
+} from '../../types/glTF';
 import ModelConverter from './ModelConverter';
 import PhysicsComponent from '../components/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
@@ -21,7 +21,7 @@ import Gltf1Importer from './Gltf1Importer';
 import DrcPointCloudImporter from './DrcPointCloudImporter';
 import Expression from '../renderer/Expression';
 import RenderPass from '../renderer/RenderPass';
-import {VRM} from '../../commontypes/VRM';
+import {VRM} from '../../types/VRM';
 import DataUtil from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
 

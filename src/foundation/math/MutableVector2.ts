@@ -6,7 +6,7 @@ import {
   IMutableVector,
   IMutableVector2,
 } from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../commontypes/CommonTypes';
+import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 
 export class MutableVector2_<
   T extends TypedArrayConstructor

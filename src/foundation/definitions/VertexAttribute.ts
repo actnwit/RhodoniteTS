@@ -1,5 +1,5 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {Index} from '../../commontypes/CommonTypes';
+import {Index} from '../../types/CommonTypes';
 
 export interface VertexAttributeEnum extends EnumIO {
   getAttributeSlot(): Index;

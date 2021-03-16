@@ -39,7 +39,7 @@ import Mesh from '../geometry/Mesh';
 import MutableVector4 from '../math/MutableVector4';
 import LightComponent from '../components/LightComponent';
 import {LightType} from '../definitions/LightType';
-import {Count, Byte, Size, Index} from '../../commontypes/CommonTypes';
+import {Count, Byte, Size, Index} from '../../types/CommonTypes';
 import {
   GltfLoadOption,
   glTF2,
@@ -48,7 +48,7 @@ import {
   Gltf2BufferView,
   Gltf2Primitive,
   Gltf2Material,
-} from '../../commontypes/glTF';
+} from '../../types/glTF';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import MemoryManager from '../core/MemoryManager';

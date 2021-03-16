@@ -41,10 +41,10 @@ import {
   CGAPIResourceHandle,
   Byte,
   ArrayType,
-} from '../commontypes/CommonTypes';
+} from '../types/CommonTypes';
 import DataUtil from '../foundation/misc/DataUtil';
 import RenderBuffer from '../foundation/textures/RenderBuffer';
-import {BasisFile} from '../commontypes/BasisTexture';
+import {BasisFile} from '../types/BasisTexture';
 import {
   BasisCompressionTypeEnum,
   BasisCompressionType,

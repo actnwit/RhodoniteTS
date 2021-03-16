@@ -6,7 +6,7 @@ import {
   ComponentTID,
   ComponentSID,
   EntityUID,
-} from '../../commontypes/CommonTypes';
+} from '../../types/CommonTypes';
 
 /**
  * The class that generates and manages all kinds of components.

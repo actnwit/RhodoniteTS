@@ -9,7 +9,7 @@ import {CompositionType, CompositionTypeEnum} from './CompositionType';
 import {ShaderVariableUpdateIntervalEnum} from './ShaderVariableUpdateInterval';
 import {ShaderTypeEnum} from './ShaderType';
 import Material from '../materials/core/Material';
-import {Count, Index} from '../../commontypes/CommonTypes';
+import {Count, Index} from '../../types/CommonTypes';
 import {ComponentTypeEnum} from './ComponentType';
 
 export type ShaderSemanticsIndex = number;

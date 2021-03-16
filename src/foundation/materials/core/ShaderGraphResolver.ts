@@ -1,5 +1,5 @@
 import AbstractShaderNode, {ShaderNodeUID} from './AbstractShaderNode';
-import {Index} from '../../../commontypes/CommonTypes';
+import {Index} from '../../../types/CommonTypes';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import {VertexAttribute} from '../../definitions/VertexAttribute';
 import {ShaderType, ShaderTypeEnum} from '../../definitions/ShaderType';

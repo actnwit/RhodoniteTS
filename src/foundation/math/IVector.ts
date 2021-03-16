@@ -1,4 +1,4 @@
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 
 export interface IVector {
   readonly v: TypedArray;

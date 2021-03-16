@@ -3,7 +3,7 @@ import Buffer from '../memory/Buffer';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from './Accessor';
-import {Byte, Count, Size} from '../../commontypes/CommonTypes';
+import {Byte, Count, Size} from '../../types/CommonTypes';
 
 export default class BufferView extends RnObject {
   private __buffer: Buffer;

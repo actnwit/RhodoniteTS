@@ -6,7 +6,7 @@ import {
   RenderBufferTargetEnum,
   RenderBufferTarget,
 } from '../definitions/RenderBufferTarget';
-import {Index, Size, CGAPIResourceHandle} from '../../commontypes/CommonTypes';
+import {Index, Size, CGAPIResourceHandle} from '../../types/CommonTypes';
 import RenderTargetTexture from '../textures/RenderTargetTexture';
 
 export default class FrameBuffer extends RnObject {

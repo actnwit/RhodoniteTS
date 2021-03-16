@@ -1,4 +1,4 @@
-import {Size} from '../../commontypes/CommonTypes';
+import {Size} from '../../types/CommonTypes';
 
 //import GLBoost from '../../globals';
 

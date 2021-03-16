@@ -2,7 +2,7 @@ import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceReposit
 import Vector3 from '../foundation/math/Vector3';
 import Matrix44 from '../foundation/math/Matrix44';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
-import {Index} from '../commontypes/CommonTypes';
+import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
 import Entity from '../foundation/core/Entity';
 import EntityRepository from '../foundation/core/EntityRepository';

@@ -10,7 +10,7 @@ import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
 import Vector3 from '../math/Vector3';
-import {Size} from '../../commontypes/CommonTypes';
+import {Size} from '../../types/CommonTypes';
 
 export default class Sphere extends Primitive {
   constructor() {

@@ -1,6 +1,6 @@
 import Quaternion from './Quaternion';
 import {IVector3, IVector4} from './IVector';
-import {TypedArray} from '../../commontypes/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 import {IMutableQuaternion, ILogQuaternion, IQuaternion} from './IQuaternion';
 import {IMatrix44} from './IMatrix';
 
