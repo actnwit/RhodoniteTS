@@ -38,8 +38,18 @@ export default class AccessorBase extends RnObject {
   protected __typedArrayClass?: TypedArrayConstructor;
   protected __dataViewGetter: any;
   protected __dataViewSetter: any;
-  protected __max: MutableVector4 = new MutableVector4(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-  protected __min: MutableVector4 = new MutableVector4(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+  protected __max: MutableVector4 = new MutableVector4(
+    -Number.MAX_VALUE,
+    -Number.MAX_VALUE,
+    -Number.MAX_VALUE,
+    -Number.MAX_VALUE
+  );
+  protected __min: MutableVector4 = new MutableVector4(
+    Number.MAX_VALUE,
+    Number.MAX_VALUE,
+    Number.MAX_VALUE,
+    Number.MAX_VALUE
+  );
   protected __arrayLength = 1;
   protected __normalized = false;
   private __isMinMixDirty = true;
@@ -906,12 +916,7 @@ export default class AccessorBase extends RnObject {
           this.setScalar(idx, typedArray[idxN + 0], {});
           break;
         case 2:
-          this.setVec2(
-            idx,
-            typedArray[idxN + 0],
-            typedArray[idxN + 1],
-            {}
-          );
+          this.setVec2(idx, typedArray[idxN + 0], typedArray[idxN + 1], {});
           break;
         case 3:
           this.setVec3(
@@ -1119,26 +1124,36 @@ export default class AccessorBase extends RnObject {
   get min() {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
-      return [this.__min.v[0], this.__min.v[1], this.__min.v[2], this.__min.v[3]]
+      return [
+        this.__min.v[0],
+        this.__min.v[1],
+        this.__min.v[2],
+        this.__min.v[3],
+      ];
     } else if (componentN === 3) {
-      return [this.__min.v[0], this.__min.v[1], this.__min.v[2]]
+      return [this.__min.v[0], this.__min.v[1], this.__min.v[2]];
     } else if (componentN === 2) {
-      return [this.__min.v[0], this.__min.v[1]]
+      return [this.__min.v[0], this.__min.v[1]];
     } else {
-      return [this.__min.v[0]]
+      return [this.__min.v[0]];
     }
   }
 
   get max() {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
-      return [this.__max.v[0], this.__max.v[1], this.__max.v[2], this.__max.v[3]]
+      return [
+        this.__max.v[0],
+        this.__max.v[1],
+        this.__max.v[2],
+        this.__max.v[3],
+      ];
     } else if (componentN === 3) {
-      return [this.__max.v[0], this.__max.v[1], this.__max.v[2]]
+      return [this.__max.v[0], this.__max.v[1], this.__max.v[2]];
     } else if (componentN === 2) {
-      return [this.__max.v[0], this.__max.v[1]]
+      return [this.__max.v[0], this.__max.v[1]];
     } else {
-      return [this.__max.v[0]]
+      return [this.__max.v[0]];
     }
   }
 
@@ -1149,8 +1164,18 @@ export default class AccessorBase extends RnObject {
   calcMinMax() {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
-      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+      this.__max.setComponents(
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE
+      );
+      this.__min.setComponents(
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE
+      );
 
       const vec4 = AccessorBase.__tmpVector4_0;
       for (let i = 0; i < this.elementCount; i++) {
@@ -1165,8 +1190,18 @@ export default class AccessorBase extends RnObject {
         }
       }
     } else if (componentN === 3) {
-      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+      this.__max.setComponents(
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE
+      );
+      this.__min.setComponents(
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE
+      );
 
       const vec3 = AccessorBase.__tmpVector3_0;
       for (let i = 0; i < this.elementCount; i++) {
@@ -1181,8 +1216,18 @@ export default class AccessorBase extends RnObject {
         }
       }
     } else if (componentN === 2) {
-      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+      this.__max.setComponents(
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE
+      );
+      this.__min.setComponents(
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE
+      );
 
       const vec2 = AccessorBase.__tmpVector2_0;
       for (let i = 0; i < this.elementCount; i++) {
@@ -1197,8 +1242,18 @@ export default class AccessorBase extends RnObject {
         }
       }
     } else if (componentN === 1) {
-      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+      this.__max.setComponents(
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE
+      );
+      this.__min.setComponents(
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        Number.MAX_VALUE
+      );
 
       for (let i = 0; i < this.elementCount; i++) {
         const scalar = this.getScalar(i, {});
