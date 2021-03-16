@@ -23,6 +23,13 @@ import {
   Size,
 } from '../../commontypes/CommonTypes';
 
+type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
+type DataViewSetter = (
+  byteOffset: Byte,
+  value: number,
+  littleEndian?: boolean
+) => void;
+
 export default class Accessor extends RnObject {
   private __bufferView: BufferView;
   private __byteOffsetInRawArrayBufferOfBuffer: number;
@@ -35,8 +42,8 @@ export default class Accessor extends RnObject {
   private __takenCount: Count = 0;
   private __byteStride: Byte = 0;
   private __typedArrayClass?: TypedArrayConstructor;
-  private __dataViewGetter: any;
-  private __dataViewSetter: any;
+  private __dataViewGetter: DataViewGetter;
+  private __dataViewSetter: DataViewSetter;
   private __max: MutableVector4 = new MutableVector4(
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
@@ -122,10 +129,6 @@ export default class Accessor extends RnObject {
         this.__arrayLength;
     }
 
-    this.prepare();
-  }
-
-  prepare() {
     const typedArrayClass = this.getTypedArrayClass(this.__componentType);
     this.__typedArrayClass = typedArrayClass;
 
