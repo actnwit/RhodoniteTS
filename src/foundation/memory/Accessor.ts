@@ -24,32 +24,32 @@ import {
 } from '../../commontypes/CommonTypes';
 
 export default class Accessor extends RnObject {
-  protected __bufferView: BufferView;
-  protected __byteOffsetInRawArrayBufferOfBuffer: number;
-  protected __compositionType: CompositionTypeEnum = CompositionType.Unknown;
-  protected __componentType: ComponentTypeEnum = ComponentType.Unknown;
-  protected __count: Count = 0;
-  protected __raw: ArrayBuffer;
-  protected __typedArray?: TypedArray;
-  protected __takenCount: Count = 0;
-  protected __byteStride: Byte = 0;
-  protected __typedArrayClass?: TypedArrayConstructor;
-  protected __dataViewGetter: any;
-  protected __dataViewSetter: any;
-  protected __max: MutableVector4 = new MutableVector4(
+  private __bufferView: BufferView;
+  private __byteOffsetInRawArrayBufferOfBuffer: number;
+  private __compositionType: CompositionTypeEnum = CompositionType.Unknown;
+  private __componentType: ComponentTypeEnum = ComponentType.Unknown;
+  private __count: Count = 0;
+  private __raw: ArrayBuffer;
+  private __typedArray?: TypedArray;
+  private __takenCount: Count = 0;
+  private __byteStride: Byte = 0;
+  private __typedArrayClass?: TypedArrayConstructor;
+  private __dataViewGetter: any;
+  private __dataViewSetter: any;
+  private __max: MutableVector4 = new MutableVector4(
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
     -Number.MAX_VALUE
   );
-  protected __min: MutableVector4 = new MutableVector4(
+  private __min: MutableVector4 = new MutableVector4(
     Number.MAX_VALUE,
     Number.MAX_VALUE,
     Number.MAX_VALUE,
     Number.MAX_VALUE
   );
-  protected __arrayLength = 1;
-  protected __normalized = false;
+  private __arrayLength = 1;
+  private __normalized = false;
   private __isMinMixDirty = true;
 
   private static __tmpVector4_0 = MutableVector4.zero();
