@@ -129,17 +129,6 @@ export default class Accessor extends RnObject {
     const typedArrayClass = this.getTypedArrayClass(this.__componentType);
     this.__typedArrayClass = typedArrayClass;
 
-    if (this.__componentType.getSizeInBytes() === 8) {
-      if (this.__byteOffsetInRawArrayBufferOfBuffer % 8 !== 0) {
-        console.info(
-          'Padding added because of byteOffset of accessor is not 8 bytes aligned despite of Double precision.'
-        );
-        this.__byteOffsetInRawArrayBufferOfBuffer +=
-          this.__byteOffsetInRawArrayBufferOfBuffer % 8 === 0
-            ? 0
-            : 8 - (this.__byteOffsetInRawArrayBufferOfBuffer % 8);
-      }
-    }
     /// Check
     if (
       this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer <
