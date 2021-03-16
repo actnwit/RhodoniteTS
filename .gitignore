@@ -87,3 +87,4 @@ docs/api/
 !**/.vscode/tasks.json
 !**/.vscode/settings.json
 !**/.vscode/launch.json
+.vscode/workspace.code-workspace
