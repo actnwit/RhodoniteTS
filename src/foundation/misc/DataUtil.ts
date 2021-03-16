@@ -39,9 +39,8 @@ export default class DataUtil {
   }
 
   static dataUriToArrayBuffer(dataUri: string) {
-    const splittedDataUri = dataUri.split(',');
-    // let type = splittedDataUri[0].split(':')[1].split(';')[0];
-    const byteString = DataUtil.atob(splittedDataUri[1]);
+    const splitDataUri = dataUri.split(',');
+    const byteString = DataUtil.atob(splitDataUri[1]);
     const byteStringLength = byteString.length;
     const arrayBuffer = new ArrayBuffer(byteStringLength);
     const uint8Array = new Uint8Array(arrayBuffer);
