@@ -62,6 +62,29 @@ export default class Buffer extends RnObject {
     return this.__raw;
   }
 
+  private __padding() {
+    const paddingSize = DataUtil.calcPaddingBytes(
+      this.__takenBytesIndex,
+      this.__byteAlign
+    );
+    if (paddingSize > 0) {
+      console.info(`Padding bytes added to takenBytesIndex.`);
+    }
+
+    this.__takenBytesIndex += paddingSize;
+  }
+
+  private __paddingByteLengthToNeed(byteLengthToNeed: Byte) {
+    const paddingSize = DataUtil.calcPaddingBytes(
+      byteLengthToNeed,
+      this.__byteAlign
+    );
+    if (paddingSize > 0) {
+      console.info(`Padding bytes added to takenBytesIndex.`);
+    }
+    return paddingSize;
+  }
+
   takeBufferView({
     byteLengthToNeed,
     byteStride,
