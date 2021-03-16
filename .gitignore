@@ -56,7 +56,6 @@ internal/
 **/.DS_Store
 .settings
 **/.vs
-!**/.vscode/tasks.json
 !tests/cases/projects/projectOption/**/node_modules
 !tests/cases/projects/NodeModulesSearch/**/*
 !tests/baselines/reference/project/nodeModules*/**/*
@@ -83,3 +82,8 @@ dist/
 VERSION-FILE
 samples/**/main.js*
 docs/api/
+
+# VSCode
+!**/.vscode/tasks.json
+!**/.vscode/settings.json
+!**/.vscode/launch.json
