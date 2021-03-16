@@ -559,7 +559,7 @@ export default class Gltf2Importer {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferIndex = bufferView.buffer;
+        bufferView.bufferIndex = (bufferView as any).buffer;
         bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
       }
     }
@@ -658,7 +658,7 @@ export default class Gltf2Importer {
         let arrayBuffer = uint8Array;
         if (uint8Array == null) {
           const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
-          arrayBuffer = bufferView.buffer.buffer;
+          arrayBuffer = bufferView.buffer.buffer!;
         }
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
           gltfJson,

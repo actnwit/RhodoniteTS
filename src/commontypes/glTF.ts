@@ -251,6 +251,7 @@ export type Gltf2Accessor = {
   bufferView?: any;
   bufferViewIndex?: number;
   byteOffset?: number;
+  byteStride?: number; // for glTF1 only
   componentType: number;
   normalized?: boolean;
   count: number;
@@ -263,23 +264,24 @@ export type Gltf2Accessor = {
   extras?: any;
 };
 
-export type Gltf2BufferView = {
-  buffer: any;
-  bufferIndex?: number;
-  byteOffset?: number;
+export type Gltf2Buffer = {
+  uri?: string;
   byteLength: number;
-  byteStride?: boolean;
-  target: number;
+  buffer?: Uint8Array;
+  dataUri?: string;
+  bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Buffer = {
-  uri?: string;
+export type Gltf2BufferView = {
+  buffer: Gltf2Buffer;
+  bufferIndex?: number;
+  byteOffset?: number;
   byteLength: number;
-  buffer?: Uint8Array;
-  bufferPromise?: RnPromise<ArrayBuffer>;
+  byteStride?: number;
+  target: number;
   name?: string;
   extensions?: any;
   extras?: any;
