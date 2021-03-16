@@ -15,7 +15,6 @@ export default class BufferView extends RnObject {
   private __isAoS: boolean;
   private __accessors: Array<Accessor> = [];
   private __byteAlign: Byte;
-  private __dataView: DataView;
 
   constructor({
     buffer,
@@ -42,12 +41,6 @@ export default class BufferView extends RnObject {
     this.__raw = raw;
     this.__isAoS = isAoS;
     this.__byteAlign = byteAlign;
-
-    this.__dataView = new DataView(
-      this.__raw,
-      this.__byteOffsetInRawArrayBufferOfBuffer,
-      byteLength
-    );
   }
 
   get byteStride() {
@@ -321,7 +314,6 @@ export default class BufferView extends RnObject {
       min,
       arrayLength,
       normalized,
-      dataView: this.__dataView,
     });
 
     this.__accessors.push(accessor);
@@ -360,7 +352,6 @@ export default class BufferView extends RnObject {
       min,
       arrayLength: 1,
       normalized,
-      dataView: this.__dataView,
     });
 
     this.__accessors.push(accessor);

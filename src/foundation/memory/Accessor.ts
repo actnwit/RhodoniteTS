@@ -30,6 +30,7 @@ export default class Accessor extends RnObject {
   private __componentType: ComponentTypeEnum = ComponentType.Unknown;
   private __count: Count = 0;
   private __raw: ArrayBuffer;
+  private __dataView?: DataView;
   private __typedArray?: TypedArray;
   private __takenCount: Count = 0;
   private __byteStride: Byte = 0;
@@ -55,7 +56,6 @@ export default class Accessor extends RnObject {
   private static __tmpVector4_0 = MutableVector4.zero();
   private static __tmpVector3_0 = MutableVector3.zero();
   private static __tmpVector2_0 = MutableVector2.zero();
-  private __dataView?: DataView;
 
   constructor({
     bufferView,
@@ -69,7 +69,6 @@ export default class Accessor extends RnObject {
     min,
     arrayLength,
     normalized,
-    dataView,
   }: {
     bufferView: BufferView;
     byteOffset: Byte;
@@ -82,7 +81,6 @@ export default class Accessor extends RnObject {
     min?: number[];
     arrayLength: Size;
     normalized: boolean;
-    dataView: DataView;
   }) {
     super();
 
@@ -93,7 +91,6 @@ export default class Accessor extends RnObject {
     this.__componentType = componentType;
     this.__count = count;
     this.__arrayLength = arrayLength;
-    this.__dataView = dataView;
 
     if (max) {
       this.__max.setComponents(
@@ -143,12 +140,6 @@ export default class Accessor extends RnObject {
             : 8 - (this.__byteOffsetInRawArrayBufferOfBuffer % 8);
       }
     }
-    //  else if (this.__componentType.getSizeInBytes() === 4) {
-    //   if (this.__byteOffsetInBuffer % 4 !== 0) {
-    //     console.info('Padding added because of byteOffset of accessor is not 4 bytes aligned despite of Double precision.');
-    //     this.__byteOffsetInBuffer += 4 - this.__byteOffsetInBuffer % 4;
-    //   }
-    // }
     /// Check
     if (
       this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer <
@@ -171,6 +162,11 @@ export default class Accessor extends RnObject {
         `
       );
     }
+    this.__dataView = new DataView(
+      this.__raw,
+      this.__byteOffsetInRawArrayBufferOfBuffer,
+      this.__byteStride * this.__count
+    );
 
     if (
       this.__byteOffsetInRawArrayBufferOfBuffer %

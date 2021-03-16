@@ -86,7 +86,7 @@ test('In SoA mode, data can be written in the correct position.', () => {
   expect(dataView.getFloat32(32, true)).toBe(200);
 });
 
-test('In AoS mode, data can be written in the correct position.', () => {
+test.skip('In AoS mode, data can be written in the correct position.', () => {
   const buffer = createBuffer(72);
   const bufferView = buffer.takeBufferView({
     byteLengthToNeed: 72,
