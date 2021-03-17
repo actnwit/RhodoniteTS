@@ -91,11 +91,12 @@ export default class Buffer extends RnObject {
     isAoS: boolean;
   }) {
     const byteAlign = this.__byteAlign;
+    let paddingBytes = 0;
     if (byteLengthToNeed % byteAlign !== 0) {
       console.info(
         `Padding bytes added because byteLengthToNeed must be a multiple of ${byteAlign}.`
       );
-      byteLengthToNeed += byteAlign - (byteLengthToNeed % byteAlign);
+      paddingBytes = byteAlign - (byteLengthToNeed % byteAlign);
     }
     // if (byteStride % 4 !== 0) {
     //   console.info('Padding bytes added, byteStride must be a multiple of 4.');
@@ -106,12 +107,13 @@ export default class Buffer extends RnObject {
       buffer: this,
       byteOffset: this.__takenBytesIndex,
       byteStride: byteStride,
-      byteLength: byteLengthToNeed,
+      byteLength: byteLengthToNeed + paddingBytes,
       raw: this.__raw,
       isAoS: isAoS,
-      byteAlign,
+      byteAlign: this.__byteAlign,
     });
-    this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
+    this.__takenBytesIndex += byteLengthToNeed + paddingBytes;
+    // this.__padding();
 
     this.__bufferViews.push(bufferView);
 
