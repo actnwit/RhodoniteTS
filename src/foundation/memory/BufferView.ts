@@ -14,7 +14,6 @@ export default class BufferView extends RnObject {
   private __raw: ArrayBuffer;
   private __isAoS: boolean;
   private __accessors: Array<Accessor> = [];
-  private __byteAlign: Byte;
 
   constructor({
     buffer,
@@ -23,7 +22,6 @@ export default class BufferView extends RnObject {
     byteLength,
     raw,
     isAoS,
-    byteAlign,
   }: {
     buffer: Buffer;
     byteOffset: Byte;
@@ -40,7 +38,6 @@ export default class BufferView extends RnObject {
     this.__byteStride = byteStride;
     this.__raw = raw;
     this.__isAoS = isAoS;
-    this.__byteAlign = byteAlign;
   }
 
   get byteStride() {
@@ -128,7 +125,6 @@ export default class BufferView extends RnObject {
   }): Accessor {
     const byteStride = this.byteStride;
     const _arrayLength = arrayLength != null ? arrayLength : 1;
-    const byteAlign = this.__byteAlign;
     const accessor = this.__takeAccessorInner({
       compositionType,
       componentType,
@@ -136,7 +132,6 @@ export default class BufferView extends RnObject {
       byteStride,
       max,
       min,
-      byteAlign,
       arrayLength: _arrayLength,
       normalized,
     });
@@ -151,7 +146,6 @@ export default class BufferView extends RnObject {
     byteStride,
     max,
     min,
-    byteAlign = 16,
     arrayLength,
     normalized = false,
   }: {
@@ -174,7 +168,6 @@ export default class BufferView extends RnObject {
       byteStride,
       max,
       min,
-      byteAlign,
       arrayLength: _arrayLength,
       normalized,
     });
@@ -255,7 +248,6 @@ export default class BufferView extends RnObject {
     byteStride,
     max,
     min,
-    byteAlign,
     arrayLength,
     normalized,
   }: {
@@ -265,7 +257,6 @@ export default class BufferView extends RnObject {
     byteStride: Byte;
     max?: number[];
     min?: number[];
-    byteAlign: Byte;
     arrayLength: Size;
     normalized: boolean;
   }): Accessor {

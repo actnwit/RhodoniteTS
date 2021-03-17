@@ -1,7 +1,4 @@
 import _Rn from '../../../dist/esm/index';
-import {CameraComponent} from '../../../dist/esm/index';
-
-declare const window: any;
 declare const Rn: typeof _Rn;
 
 const p = document.createElement('p');
