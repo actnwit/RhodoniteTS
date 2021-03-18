@@ -1,4 +1,5 @@
 
 void viewMatrix(out mat4 outValue) {
-  outValue = get_viewMatrix(a_instanceID, 0);
+  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID}*/];
+  outValue = get_viewMatrix(cameraSID, 0);
 }

@@ -1,4 +1,5 @@
 
 void projectionMatrix(out mat4 outValue) {
-  outValue = get_projectionMatrix(a_instanceID, 0);
+  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID}*/];
+  outValue = get_projectionMatrix(cameraSID, 0);
 }
