@@ -9,7 +9,7 @@ const config = merge(baseConfig, {
   output: {
     filename: 'index.js',
     chunkFilename: 'rhodonite-[name].js',
-    path: path.resolve(__dirname, 'dist/esm'),
+    path: path.resolve(__dirname, './../../dist/esm'),
     libraryTarget: 'commonjs-module',
   },
   devtool: 'inline-source-map',
