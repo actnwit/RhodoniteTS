@@ -1,0 +1,15 @@
+{
+  "extends": "./../tsconfig.json",
+  "include": ["./simple", "./test_e2e/"],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "umd",
+    "declaration": false,
+    "declarationDir": null,
+
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false
+  }
+}
