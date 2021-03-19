@@ -8,7 +8,7 @@ const config = merge(baseConfig, {
   output: {
     filename: 'rhodonite.min.js',
     chunkFilename: 'rhodonite-[name].min.js',
-    path: path.resolve(__dirname, 'dist/umd'),
+    path: path.resolve(__dirname, './../../dist/umd'),
     library: 'Rn',
     libraryExport: 'default',
     libraryTarget: 'umd',

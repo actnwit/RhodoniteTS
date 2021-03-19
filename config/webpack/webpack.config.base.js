@@ -25,7 +25,7 @@ module.exports = {
     modules: ['node_modules'],
   },
   output: {
-    publicPath: '/dist/', // Change the path to load splitted code chunks according to your wish.
+    publicPath: './../../dist/', // Change the path to load splitted code chunks according to your wish.
   },
   optimization: {
     chunkIds: 'named',
