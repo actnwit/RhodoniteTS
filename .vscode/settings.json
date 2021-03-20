@@ -19,6 +19,7 @@
         "hdri",
         "instanceid",
         "known",
+        "preoutput",
         "renderable",
         "shaderity",
         "texcoord",
