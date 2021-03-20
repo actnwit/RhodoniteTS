@@ -617,23 +617,24 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
     }
   }
 
-  isEqual(mat: Matrix44, delta: number = Number.EPSILON) {
-    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-      Math.abs(mat.v[1] - this.v[1]) < delta &&
-      Math.abs(mat.v[2] - this.v[2]) < delta &&
-      Math.abs(mat.v[3] - this.v[3]) < delta &&
-      Math.abs(mat.v[4] - this.v[4]) < delta &&
-      Math.abs(mat.v[5] - this.v[5]) < delta &&
-      Math.abs(mat.v[6] - this.v[6]) < delta &&
-      Math.abs(mat.v[7] - this.v[7]) < delta &&
-      Math.abs(mat.v[8] - this.v[8]) < delta &&
-      Math.abs(mat.v[9] - this.v[9]) < delta &&
-      Math.abs(mat.v[10] - this.v[10]) < delta &&
-      Math.abs(mat.v[11] - this.v[11]) < delta &&
-      Math.abs(mat.v[12] - this.v[12]) < delta &&
-      Math.abs(mat.v[13] - this.v[13]) < delta &&
-      Math.abs(mat.v[14] - this.v[14]) < delta &&
-      Math.abs(mat.v[15] - this.v[15]) < delta) {
+  isEqual(mat: IMatrix44, delta: number = Number.EPSILON) {
+    const v = (mat as Matrix44).v;
+    if (Math.abs(v[0] - this.v[0]) < delta &&
+      Math.abs(v[1] - this.v[1]) < delta &&
+      Math.abs(v[2] - this.v[2]) < delta &&
+      Math.abs(v[3] - this.v[3]) < delta &&
+      Math.abs(v[4] - this.v[4]) < delta &&
+      Math.abs(v[5] - this.v[5]) < delta &&
+      Math.abs(v[6] - this.v[6]) < delta &&
+      Math.abs(v[7] - this.v[7]) < delta &&
+      Math.abs(v[8] - this.v[8]) < delta &&
+      Math.abs(v[9] - this.v[9]) < delta &&
+      Math.abs(v[10] - this.v[10]) < delta &&
+      Math.abs(v[11] - this.v[11]) < delta &&
+      Math.abs(v[12] - this.v[12]) < delta &&
+      Math.abs(v[13] - this.v[13]) < delta &&
+      Math.abs(v[14] - this.v[14]) < delta &&
+      Math.abs(v[15] - this.v[15]) < delta) {
       return true;
     } else {
       return false;
