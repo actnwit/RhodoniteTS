@@ -17,7 +17,7 @@ export default class IdentityMatrix44 implements IMatrix, IMatrix44 {
     return this.toString()
   }
   flattenAsArray(): number[] {
-    throw [1, 0, 0, 0,
+    return [1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 1];
