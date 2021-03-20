@@ -22,7 +22,6 @@
   "author": "Yuki Shimada <emadurandal@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "setup": "npx shx cp ./pre-commit ./.git/hooks",
     "postinstall": "npm run build && npm run build-samples",
     "prepublishOnly": "npm run preoutput",
     "prepack": "npm run preoutput",
