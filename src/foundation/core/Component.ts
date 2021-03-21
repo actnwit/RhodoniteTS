@@ -382,8 +382,8 @@ export default class Component extends RnObject {
       .takeOne();
     (this as any)['_' + memberName] = new dataClassType(taken, false, true);
 
-    for (let i = 0; i < (this as any)['_' + memberName].v.length; ++i) {
-      (this as any)['_' + memberName].v[i] = initValues[i];
+    for (let i = 0; i < (this as any)['_' + memberName]._v.length; ++i) {
+      (this as any)['_' + memberName]._v[i] = initValues[i];
     }
 
     return null;
