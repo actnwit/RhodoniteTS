@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { CompositionType } from '../definitions/CompositionType';
 import AbstractMatrix from './AbstractMatrix';
 import {IMatrix, IMatrix44} from './IMatrix';
@@ -11,7 +12,6 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 1]);
-  
   constructor() {
     super();
     this._v = IdentityMatrix44.__v;
@@ -58,7 +58,7 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
       return false;
     }
   }
-  
+
   isStrictEqual(mat: IMatrix): boolean {
     const v = (mat as Matrix44)._v;
     if (
@@ -76,7 +76,7 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
   at(row_i: number, column_i: number): number {
     return (row_i === column_i) ? 1 : 0;
   }
-  
+
   v(i: number): number {
     return (i%5 === 0) ? 1 : 0;
   }
@@ -102,10 +102,10 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
   getScale(): IVector {
     return new Vector4(1, 1, 1, 1);
   }
-  
+
   getScaleTo(outVec: IMutableVector): IMutableVector {
     const v = (outVec as MutableVector4)._v;
-    
+
     v[0] = 1;
     v[1] = 1;
     v[2] = 1;
@@ -116,7 +116,7 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
   clone(): IMatrix44 {
     return new IdentityMatrix44();
   }
-  
+
   getRotate(): IMatrix44 {
     return new IdentityMatrix44();
   }
@@ -191,5 +191,9 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
 
   static get compositionType() {
     return CompositionType.Mat4;
+  }
+
+  get isIdentityMatrixClass(): boolean {
+    return true;
   }
 }

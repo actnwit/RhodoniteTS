@@ -403,6 +403,10 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
    * multiply the input matrix from right side
    */
   multiply(mat: Matrix33) {
+    if (mat.isIdentityMatrixClass) {
+      return this;
+    }
+
     const m00 = this._v[0] * mat._v[0] + this._v[3] * mat._v[1] + this._v[6] * mat._v[2];
     const m01 = this._v[0] * mat._v[3] + this._v[3] * mat._v[4] + this._v[6] * mat._v[5];
     const m02 = this._v[0] * mat._v[6] + this._v[3] * mat._v[7] + this._v[6] * mat._v[8];
@@ -423,6 +427,10 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   multiplyByLeft(mat: Matrix33) {
+    if (mat.isIdentityMatrixClass) {
+      return this;
+    }
+
     const m00 = mat._v[0] * this._v[0] + mat._v[3] * this._v[1] + mat._v[6] * this._v[2];
     const m01 = mat._v[0] * this._v[3] + mat._v[3] * this._v[4] + mat._v[6] * this._v[5];
     const m02 = mat._v[0] * this._v[6] + mat._v[3] * this._v[7] + mat._v[6] * this._v[8];

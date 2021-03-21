@@ -4,7 +4,6 @@ import Quaternion from './Quaternion';
 import {IMatrix, IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import {CompositionType} from '../definitions/CompositionType';
-import {TypedArray} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
 import AbstractMatrix from './AbstractMatrix';
@@ -189,6 +188,10 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * Create transpose matrix
    */
   static transpose(mat: Matrix33) {
+    if (mat.isIdentityMatrixClass) {
+      return mat;
+    }
+
     return new this(
       mat._v[0], mat._v[1], mat._v[2],
       mat._v[3], mat._v[4], mat._v[5],
@@ -200,6 +203,9 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * Create invert matrix
    */
   static invert(mat: Matrix33) {
+    if (mat.isIdentityMatrixClass) {
+      return mat;
+    }
     const det = mat.determinant();
     if (det === 0) {
       console.error('the determinant is 0!');
@@ -223,6 +229,9 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   static invertTo(mat: Matrix33, outMat: MutableMatrix33) {
+    if (mat.isIdentityMatrixClass) {
+      return outMat.copyComponents(mat);
+    }
     const det = mat.determinant();
     if (det === 0) {
       console.error('the determinant is 0!');
@@ -370,6 +379,12 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * multiply matrixes
    */
   static multiply(l_mat: Matrix33, r_mat: Matrix33) {
+    if (l_mat.isIdentityMatrixClass) {
+      return r_mat;
+    } else if (r_mat.isIdentityMatrixClass) {
+      return l_mat;
+    }
+
     const m00 = l_mat._v[0] * r_mat._v[0] + l_mat._v[3] * r_mat._v[1] + l_mat._v[6] * r_mat._v[2];
     const m10 = l_mat._v[1] * r_mat._v[0] + l_mat._v[4] * r_mat._v[1] + l_mat._v[7] * r_mat._v[2];
     const m20 = l_mat._v[2] * r_mat._v[0] + l_mat._v[5] * r_mat._v[1] + l_mat._v[8] * r_mat._v[2];
@@ -393,6 +408,12 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * multiply matrixes
    */
   static multiplyTo(l_mat: Matrix33, r_mat: Matrix33, outMat: MutableMatrix33) {
+    if (l_mat.isIdentityMatrixClass) {
+      return outMat.copyComponents(r_mat);
+    } else if (r_mat.isIdentityMatrixClass) {
+      return outMat.copyComponents(l_mat);
+    }
+
     const m00 = l_mat._v[0] * r_mat._v[0] + l_mat._v[3] * r_mat._v[1] + l_mat._v[6] * r_mat._v[2];
     const m10 = l_mat._v[1] * r_mat._v[0] + l_mat._v[4] * r_mat._v[1] + l_mat._v[7] * r_mat._v[2];
     const m20 = l_mat._v[2] * r_mat._v[0] + l_mat._v[5] * r_mat._v[1] + l_mat._v[8] * r_mat._v[2];
