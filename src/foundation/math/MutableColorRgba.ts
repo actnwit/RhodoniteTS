@@ -16,67 +16,67 @@ export default class MutableColorRgba
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   set x(val) {
-    this.v[0] = val;
+    this._v[0] = val;
   }
 
   get y() {
-    return this.v[1];
+    return this._v[1];
   }
 
   set y(val) {
-    this.v[1] = val;
+    this._v[1] = val;
   }
 
   get z() {
-    return this.v[2];
+    return this._v[2];
   }
 
   set z(val) {
-    this.v[2] = val;
+    this._v[2] = val;
   }
 
   get w() {
-    return this.v[3];
+    return this._v[3];
   }
 
   set w(val) {
-    this.v[3] = val;
+    this._v[3] = val;
   }
 
   get r() {
-    return this.v[0];
+    return this._v[0];
   }
 
   set r(val) {
-    this.v[0] = val;
+    this._v[0] = val;
   }
 
   get g() {
-    return this.v[1];
+    return this._v[1];
   }
 
   set g(val) {
-    this.v[1] = val;
+    this._v[1] = val;
   }
 
   get b() {
-    return this.v[2];
+    return this._v[2];
   }
 
   set b(val) {
-    this.v[2] = val;
+    this._v[2] = val;
   }
 
   get a() {
-    return this.v[3];
+    return this._v[3];
   }
 
   set a(val) {
-    this.v[3] = val;
+    this._v[3] = val;
   }
 
   static zero() {

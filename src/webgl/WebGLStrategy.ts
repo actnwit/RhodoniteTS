@@ -14,6 +14,7 @@ import {
   Count,
   ComponentSID,
 } from '../types/CommonTypes';
+import { IMatrix44 } from '../foundation/math/IMatrix';
 
 export default interface WebGLStrategy {
   $load(meshComponent: MeshComponent): void;
@@ -37,8 +38,8 @@ export default interface WebGLStrategy {
   common_$render(
     meshComponentSids: Int32Array,
     meshComponents: MeshComponent[],
-    viewMatrix: Matrix44,
-    projectionMatrix: Matrix44,
+    viewMatrix: IMatrix44,
+    projectionMatrix: IMatrix44,
     renderPass: RenderPass,
     renderPassTickCount: Count
   ): boolean;

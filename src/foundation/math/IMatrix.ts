@@ -17,18 +17,12 @@ export interface IMatrix {
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
-  isEqual(mat: IMatrix, delta: number): boolean;
-  isStrictEqual(mat: IMatrix): boolean;
   at(row_i: number, column_i: number): number;
+  v(i: number): number;
   determinant(): number;
-  multiplyVector(vec: IVector): IVector;
-  multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
-  getScale(): IVector;
-  getScaleTo(outVec: IMutableVector): IMutableVector;
-  clone(): IMatrix;
 }
 
-export interface IMutableMatrix {
+export interface IMutableMatrix extends IMatrix {
   clone(): IMutableMatrix;
   raw(): TypedArray;
   setAt(row_i: number, column_i: number, value: number): void;
@@ -46,18 +40,13 @@ export interface IMutableMatrix {
   multiplyByLeft(mat: IMatrix): IMutableMatrix;
 }
 
-export interface IMatrix22 {
+export interface IMatrix22 extends IMatrix {
   readonly m00: number;
   readonly m01: number;
   readonly m10: number;
   readonly m11: number;
-  toString(): string;
-  toStringApproximately(): string;
-  flattenAsArray(): Array<number>;
-  isDummy(): boolean;
   isEqual(mat: IMatrix22, delta?: number): boolean;
   isStrictEqual(mat: IMatrix22): boolean;
-  at(row_i: number, column_i: number): number;
   determinant(): number;
   multiplyVector(vec: IVector2): IVector2;
   multiplyVectorTo(vec: IVector2, outVec: IMutableVector2): IMutableVector2;
@@ -109,7 +98,7 @@ export interface IMutableMatrix22 {
   multiplyByLeft(mat: IMatrix22): IMutableMatrix22;
 }
 
-export interface IMatrix33 {
+export interface IMatrix33 extends IMatrix {
   readonly m00: number;
   readonly m01: number;
   readonly m02: number;
@@ -119,18 +108,8 @@ export interface IMatrix33 {
   readonly m20: number;
   readonly m21: number;
   readonly m22: number;
-  toString(): string;
-  toStringApproximately(): string;
-  flattenAsArray(): Array<number>;
-  isDummy(): boolean;
   isEqual(mat: IMatrix33, delta?: number): boolean;
   isStrictEqual(mat: IMatrix33): boolean;
-  at(row_i: number, column_i: number): number;
-  determinant(): number;
-  multiplyVector(vec: IVector3): IVector3;
-  multiplyVectorTo(vec: IVector3, outVec: IMutableVector3): IMutableVector3;
-  getScale(): IVector3;
-  getScaleTo(outVec: IMutableVector3): IMutableVector3;
   clone(): IMatrix33;
 }
 
@@ -191,7 +170,7 @@ export interface IMutableMatrix33 {
   multiplyByLeft(mat: IMatrix33): IMutableMatrix33;
 }
 
-export interface IMatrix44 {
+export interface IMatrix44 extends IMatrix {
   readonly m00: number;
   readonly m01: number;
   readonly m02: number;
@@ -208,25 +187,7 @@ export interface IMatrix44 {
   readonly m31: number;
   readonly m32: number;
   readonly m33: number;
-  toString(): string;
-  toStringApproximately(): string;
-  flattenAsArray(): Array<number>;
-  isDummy(): boolean;
-  isEqual(mat: IMatrix44, delta?: number): boolean;
-  isStrictEqual(mat: IMatrix44): boolean;
   at(row_i: number, column_i: number): number;
-  determinant(): number;
-  multiplyVector(vec: IVector4): IVector4;
-  multiplyVectorTo(vec: IVector4, outVec: IMutableVector4): IMutableVector4;
-  multiplyVectorToVec3(vec: IVector4, outVec: IMutableVector3): IMutableVector3;
-  multiplyVector3(vec: IVector3): IVector3;
-  multiplyVector3To(vec: IVector3, outVec: IMutableVector3): IMutableVector3;
-  getTranslate(): IVector3;
-  getTranslateTo(outVec: IMutableVector3): IMutableVector3;
-  getScale(): IVector4;
-  getScaleTo(outVec: IMutableVector3): IMutableVector3;
-  toEulerAngles(): IVector3;
-  toEulerAnglesTo(outVec3: IMutableVector3): IMutableVector3;
   clone(): IMatrix44;
   getRotate(): IMatrix44;
 }

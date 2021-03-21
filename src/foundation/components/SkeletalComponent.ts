@@ -102,34 +102,34 @@ export default class SkeletalComponent extends Component {
       this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneMatrix,
         index
-      ).v;
+      )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
       this.__tqArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneTranslatePackedQuat,
         index
-      ).v;
+      )._v;
       this.__sqArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneScalePackedQuat,
         index
-      ).v;
+      )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
       this.__qArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneQuaternion,
         index
-      ).v;
+      )._v;
       this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneTranslateScale,
         index
-      ).v;
+      )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
       this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneTranslateScale,
         index
-      ).v;
+      )._v;
       this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneCompressedChunk,
         index
-      ).v;
+      )._v;
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneCompressedInfo,
         0
@@ -202,22 +202,22 @@ export default class SkeletalComponent extends Component {
         Config.boneDataType === BoneDataType.Mat4x4 ||
         Config.boneDataType === BoneDataType.Vec4x1
       ) {
-        this.__matArray[i * 16 + 0] = m.v[0];
-        this.__matArray[i * 16 + 1] = m.v[1];
-        this.__matArray[i * 16 + 2] = m.v[2];
-        this.__matArray[i * 16 + 3] = m.v[3];
-        this.__matArray[i * 16 + 4] = m.v[4];
-        this.__matArray[i * 16 + 5] = m.v[5];
-        this.__matArray[i * 16 + 6] = m.v[6];
-        this.__matArray[i * 16 + 7] = m.v[7];
-        this.__matArray[i * 16 + 8] = m.v[8];
-        this.__matArray[i * 16 + 9] = m.v[9];
-        this.__matArray[i * 16 + 10] = m.v[10];
-        this.__matArray[i * 16 + 11] = m.v[11];
-        this.__matArray[i * 16 + 12] = m.v[12];
-        this.__matArray[i * 16 + 13] = m.v[13];
-        this.__matArray[i * 16 + 14] = m.v[14];
-        this.__matArray[i * 16 + 15] = m.v[15];
+        this.__matArray[i * 16 + 0] = m._v[0];
+        this.__matArray[i * 16 + 1] = m._v[1];
+        this.__matArray[i * 16 + 2] = m._v[2];
+        this.__matArray[i * 16 + 3] = m._v[3];
+        this.__matArray[i * 16 + 4] = m._v[4];
+        this.__matArray[i * 16 + 5] = m._v[5];
+        this.__matArray[i * 16 + 6] = m._v[6];
+        this.__matArray[i * 16 + 7] = m._v[7];
+        this.__matArray[i * 16 + 8] = m._v[8];
+        this.__matArray[i * 16 + 9] = m._v[9];
+        this.__matArray[i * 16 + 10] = m._v[10];
+        this.__matArray[i * 16 + 11] = m._v[11];
+        this.__matArray[i * 16 + 12] = m._v[12];
+        this.__matArray[i * 16 + 13] = m._v[13];
+        this.__matArray[i * 16 + 14] = m._v[14];
+        this.__matArray[i * 16 + 15] = m._v[15];
       }
 
       if (Config.boneDataType !== BoneDataType.Mat4x4) {

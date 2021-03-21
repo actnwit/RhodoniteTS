@@ -205,9 +205,9 @@ declare const Stats: any;
       if (window.isAnimating) {
         const rotation = 0.001 * (date.getTime() - startTime);
         entities.forEach(entity => {
-          rotationVec3.v[0] = rotation;
-          rotationVec3.v[1] = rotation;
-          rotationVec3.v[2] = rotation;
+          rotationVec3._v[0] = rotation;
+          rotationVec3._v[1] = rotation;
+          rotationVec3._v[2] = rotation;
           entity.getTransform().rotate = rotationVec3;
         });
       }

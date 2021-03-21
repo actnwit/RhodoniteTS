@@ -382,8 +382,8 @@ export default class Component extends RnObject {
       .takeOne();
     (this as any)['_' + memberName] = new dataClassType(taken, false, true);
 
-    for (let i = 0; i < (this as any)['_' + memberName].v.length; ++i) {
-      (this as any)['_' + memberName].v[i] = initValues[i];
+    for (let i = 0; i < (this as any)['_' + memberName]._v.length; ++i) {
+      (this as any)['_' + memberName]._v[i] = initValues[i];
     }
 
     return null;
@@ -622,7 +622,7 @@ export default class Component extends RnObject {
    */
   static getDataByteInfoInner(component: Component, memberName: string) {
     const data = (component as any)['_' + memberName];
-    const typedArray = data.v as TypedArray;
+    const typedArray = data._v as TypedArray;
     const byteOffsetInBuffer = typedArray.byteOffset;
     const byteLength = typedArray.byteLength;
     const componentNumber = typedArray.length;

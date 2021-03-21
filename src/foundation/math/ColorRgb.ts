@@ -13,15 +13,15 @@ export default class ColorRgb extends Vector3 implements IVector3, IColorRgb {
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   get y() {
-    return this.v[1];
+    return this._v[1];
   }
 
   get z() {
-    return this.v[2];
+    return this._v[2];
   }
 
   get w() {
@@ -29,15 +29,15 @@ export default class ColorRgb extends Vector3 implements IVector3, IColorRgb {
   }
 
   get r() {
-    return this.v[0];
+    return this._v[0];
   }
 
   get g() {
-    return this.v[1];
+    return this._v[1];
   }
 
   get b() {
-    return this.v[2];
+    return this._v[2];
   }
 
   get a() {

@@ -233,7 +233,7 @@ export default class Gltf2Exporter {
 
           if (colorParam) {
             material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(
-              colorParam.v
+              colorParam._v
             );
           }
           material.pbrMetallicRoughness.metallicFactor = metallic;
@@ -408,7 +408,7 @@ export default class Gltf2Exporter {
       }
 
       // matrix
-      node.matrix = Array.prototype.slice.call(entity.getTransform().matrix.v);
+      node.matrix = Array.prototype.slice.call(entity.getTransform().matrix._v);
 
       // mesh
       node.mesh = (entity as any).gltfMeshIndex;

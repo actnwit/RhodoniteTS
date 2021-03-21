@@ -46,15 +46,15 @@ export default abstract class AbstractCameraController {
 
       // calc cos between eyeToTarget and eye direction
       const eyeToTargetDirectionX =
-        targetAABB.centerPoint.v[0] - eyePosition.v[0];
+        targetAABB.centerPoint.x - eyePosition.x;
       const eyeToTargetDirectionY =
-        targetAABB.centerPoint.v[1] - eyePosition.v[1];
+        targetAABB.centerPoint.y - eyePosition.y;
       const eyeToTargetDirectionZ =
-        targetAABB.centerPoint.v[2] - eyePosition.v[2];
+        targetAABB.centerPoint.z - eyePosition.z;
       const cos =
-        (eyeToTargetDirectionX * eyeDirection.v[0] +
-          eyeToTargetDirectionY * eyeDirection.v[1] +
-          eyeToTargetDirectionZ * eyeDirection.v[2]) /
+        (eyeToTargetDirectionX * eyeDirection.x +
+          eyeToTargetDirectionY * eyeDirection.y +
+          eyeToTargetDirectionZ * eyeDirection.z) /
         (Math.hypot(
           eyeToTargetDirectionX,
           eyeToTargetDirectionY,

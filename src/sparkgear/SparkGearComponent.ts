@@ -13,6 +13,7 @@ import {
   EntityUID,
   ComponentSID,
 } from '../types/CommonTypes';
+import { IMatrix44 } from '../foundation/math/IMatrix';
 
 declare let window: any;
 declare let _SPARK_Data_Delete: Function;
@@ -57,7 +58,7 @@ export default class SparkGearComponent extends Component {
   private static SPFX_BlendDstAlpha: any;
   private static SPFX_ActiveTexture: any;
   private static SPFX_Texture: any[] = [];
-  private static __tmp_indentityMatrix: Matrix44 = Matrix44.identity();
+  private static __tmp_indentityMatrix: IMatrix44 = Matrix44.identity();
 
   constructor(
     entityUid: EntityUID,
@@ -191,46 +192,48 @@ export default class SparkGearComponent extends Component {
   }
 
   static SPARK_SetCameraMatrix(
-    viewMatrix: Matrix44,
-    projectionMatrix: Matrix44
+    viewMatrix: IMatrix44,
+    projectionMatrix: IMatrix44
   ) {
+    const vMv = (viewMatrix as Matrix44)._v;
     _SPARK_SetMatrix(
       0,
-      viewMatrix.v[0],
-      viewMatrix.v[1],
-      viewMatrix.v[2],
-      viewMatrix.v[3],
-      viewMatrix.v[4],
-      viewMatrix.v[5],
-      viewMatrix.v[6],
-      viewMatrix.v[7],
-      viewMatrix.v[8],
-      viewMatrix.v[9],
-      viewMatrix.v[10],
-      viewMatrix.v[11],
-      viewMatrix.v[12],
-      viewMatrix.v[13],
-      viewMatrix.v[14],
-      viewMatrix.v[15]
+      vMv[0],
+      vMv[1],
+      vMv[2],
+      vMv[3],
+      vMv[4],
+      vMv[5],
+      vMv[6],
+      vMv[7],
+      vMv[8],
+      vMv[9],
+      vMv[10],
+      vMv[11],
+      vMv[12],
+      vMv[13],
+      vMv[14],
+      vMv[15]
     );
+    const pMv = (projectionMatrix as Matrix44)._v;
     _SPARK_SetMatrix(
       1,
-      projectionMatrix.v[0],
-      projectionMatrix.v[1],
-      projectionMatrix.v[2],
-      projectionMatrix.v[3],
-      projectionMatrix.v[4],
-      projectionMatrix.v[5],
-      projectionMatrix.v[6],
-      projectionMatrix.v[7],
-      projectionMatrix.v[8],
-      projectionMatrix.v[9],
-      projectionMatrix.v[10],
-      projectionMatrix.v[11],
-      projectionMatrix.v[12],
-      projectionMatrix.v[13],
-      projectionMatrix.v[14],
-      projectionMatrix.v[15]
+      pMv[0],
+      pMv[1],
+      pMv[2],
+      pMv[3],
+      pMv[4],
+      pMv[5],
+      pMv[6],
+      pMv[7],
+      pMv[8],
+      pMv[9],
+      pMv[10],
+      pMv[11],
+      pMv[12],
+      pMv[13],
+      pMv[14],
+      pMv[15]
     );
   }
 
@@ -342,22 +345,22 @@ export default class SparkGearComponent extends Component {
     const m = this.__sceneGraphComponent!.worldMatrixInner;
     _SPARK_Instance_SetTransformFor3D(
       this.__hSPFXInst,
-      m.v[0],
-      m.v[4],
-      m.v[8],
-      m.v[12],
-      m.v[1],
-      m.v[5],
-      m.v[9],
-      m.v[13],
-      m.v[2],
-      m.v[6],
-      m.v[10],
-      m.v[14],
-      m.v[3],
-      m.v[7],
-      m.v[11],
-      m.v[15]
+      m._v[0],
+      m._v[4],
+      m._v[8],
+      m._v[12],
+      m._v[1],
+      m._v[5],
+      m._v[9],
+      m._v[13],
+      m._v[2],
+      m._v[6],
+      m._v[10],
+      m._v[14],
+      m._v[3],
+      m._v[7],
+      m._v[11],
+      m._v[15]
     );
 
     this.moveStageTo(ProcessStage.Render);

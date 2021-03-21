@@ -27,19 +27,19 @@ export class MutableVector2_<
   }
 
   set x(x: number) {
-    this.v[0] = x;
+    this._v[0] = x;
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   set y(y: number) {
-    this.v[1] = y;
+    this._v[1] = y;
   }
 
   get y() {
-    return this.v[1];
+    return this._v[1];
   }
 
   get z() {
@@ -51,22 +51,22 @@ export class MutableVector2_<
   }
 
   raw() {
-    return this.v;
+    return this._v;
   }
 
   setAt(i: number, value: number) {
-    this.v[i] = value;
+    this._v[i] = value;
     return this;
   }
 
   setComponents(x: number, y: number) {
-    this.v[0] = x;
-    this.v[1] = y;
+    this._v[0] = x;
+    this._v[1] = y;
     return this;
   }
 
   copyComponents(vec: IVector2) {
-    return this.setComponents(vec.v[0], vec.v[1]);
+    return this.setComponents(vec._v[0], vec._v[1]);
   }
 
   zero() {
@@ -87,8 +87,8 @@ export class MutableVector2_<
    * add value
    */
   add(vec: IVector2) {
-    this.v[0] += vec.v[0];
-    this.v[1] += vec.v[1];
+    this._v[0] += vec._v[0];
+    this._v[1] += vec._v[1];
     return this;
   }
 
@@ -96,8 +96,8 @@ export class MutableVector2_<
    * subtract
    */
   subtract(vec: IVector2) {
-    this.v[0] -= vec.v[0];
-    this.v[1] -= vec.v[1];
+    this._v[0] -= vec._v[0];
+    this._v[1] -= vec._v[1];
     return this;
   }
 
@@ -105,8 +105,8 @@ export class MutableVector2_<
    * multiply
    */
   multiply(value: number) {
-    this.v[0] *= value;
-    this.v[1] *= value;
+    this._v[0] *= value;
+    this._v[1] *= value;
     return this;
   }
 
@@ -114,8 +114,8 @@ export class MutableVector2_<
    * multiply vector
    */
   multiplyVector(vec: IVector2) {
-    this.v[0] *= vec.v[0];
-    this.v[1] *= vec.v[1];
+    this._v[0] *= vec._v[0];
+    this._v[1] *= vec._v[1];
     return this;
   }
 
@@ -124,12 +124,12 @@ export class MutableVector2_<
    */
   divide(value: number) {
     if (value !== 0) {
-      this.v[0] /= value;
-      this.v[1] /= value;
+      this._v[0] /= value;
+      this._v[1] /= value;
     } else {
       console.error('0 division occurred!');
-      this.v[0] = Infinity;
-      this.v[1] = Infinity;
+      this._v[0] = Infinity;
+      this._v[1] = Infinity;
     }
     return this;
   }
@@ -138,13 +138,13 @@ export class MutableVector2_<
    * divide vector
    */
   divideVector(vec: IVector2) {
-    if (vec.v[0] !== 0 && vec.v[1] !== 0) {
-      this.v[0] /= vec.v[0];
-      this.v[1] /= vec.v[1];
+    if (vec._v[0] !== 0 && vec._v[1] !== 0) {
+      this._v[0] /= vec._v[0];
+      this._v[1] /= vec._v[1];
     } else {
       console.error('0 division occurred!');
-      this.v[0] = vec.v[0] === 0 ? Infinity : this.v[0] / vec.v[0];
-      this.v[1] = vec.v[1] === 0 ? Infinity : this.v[1] / vec.v[1];
+      this._v[0] = vec._v[0] === 0 ? Infinity : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? Infinity : this._v[1] / vec._v[1];
     }
     return this;
   }

@@ -29,27 +29,27 @@ export class MutableVector3_<T extends TypedArrayConstructor>
   }
 
   set x(x: number) {
-    this.v[0] = x;
+    this._v[0] = x;
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   set y(y: number) {
-    this.v[1] = y;
+    this._v[1] = y;
   }
 
   get y() {
-    return this.v[1];
+    return this._v[1];
   }
 
   set z(z: number) {
-    this.v[2] = z;
+    this._v[2] = z;
   }
 
   get z() {
-    return this.v[2];
+    return this._v[2];
   }
 
   get w() {
@@ -57,23 +57,23 @@ export class MutableVector3_<T extends TypedArrayConstructor>
   }
 
   raw() {
-    return this.v;
+    return this._v;
   }
 
   setAt(i: number, value: number) {
-    this.v[i] = value;
+    this._v[i] = value;
     return this;
   }
 
   setComponents(x: number, y: number, z: number) {
-    this.v[0] = x;
-    this.v[1] = y;
-    this.v[2] = z;
+    this._v[0] = x;
+    this._v[1] = y;
+    this._v[2] = z;
     return this;
   }
 
   copyComponents(vec: IVector3) {
-    return this.setComponents(vec.v[0], vec.v[1], vec.v[2]);
+    return this.setComponents(vec._v[0], vec._v[1], vec._v[2]);
   }
 
   zero() {
@@ -97,9 +97,9 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    * add value
    */
   add(vec: IVector3) {
-    this.v[0] += vec.v[0];
-    this.v[1] += vec.v[1];
-    this.v[2] += vec.v[2];
+    this._v[0] += vec._v[0];
+    this._v[1] += vec._v[1];
+    this._v[2] += vec._v[2];
     return this;
   }
 
@@ -107,9 +107,9 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    * subtract
    */
   subtract(vec: IVector3) {
-    this.v[0] -= vec.v[0];
-    this.v[1] -= vec.v[1];
-    this.v[2] -= vec.v[2];
+    this._v[0] -= vec._v[0];
+    this._v[1] -= vec._v[1];
+    this._v[2] -= vec._v[2];
     return this;
   }
 
@@ -117,9 +117,9 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    * multiply
    */
   multiply(value: number) {
-    this.v[0] *= value;
-    this.v[1] *= value;
-    this.v[2] *= value;
+    this._v[0] *= value;
+    this._v[1] *= value;
+    this._v[2] *= value;
     return this;
   }
 
@@ -127,9 +127,9 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    * multiply vector
    */
   multiplyVector(vec: IVector3) {
-    this.v[0] *= vec.v[0];
-    this.v[1] *= vec.v[1];
-    this.v[2] *= vec.v[2];
+    this._v[0] *= vec._v[0];
+    this._v[1] *= vec._v[1];
+    this._v[2] *= vec._v[2];
     return this;
   }
 
@@ -138,14 +138,14 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    */
   divide(value: number) {
     if (value !== 0) {
-      this.v[0] /= value;
-      this.v[1] /= value;
-      this.v[2] /= value;
+      this._v[0] /= value;
+      this._v[1] /= value;
+      this._v[2] /= value;
     } else {
       console.error('0 division occurred!');
-      this.v[0] = Infinity;
-      this.v[1] = Infinity;
-      this.v[2] = Infinity;
+      this._v[0] = Infinity;
+      this._v[1] = Infinity;
+      this._v[2] = Infinity;
     }
 
     return this;
@@ -155,15 +155,15 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    * divide vector
    */
   divideVector(vec: IVector3) {
-    if (vec.v[0] !== 0 && vec.v[1] !== 0 && vec.v[2] !== 0) {
-      this.v[0] /= vec.v[0];
-      this.v[1] /= vec.v[1];
-      this.v[2] /= vec.v[2];
+    if (vec._v[0] !== 0 && vec._v[1] !== 0 && vec._v[2] !== 0) {
+      this._v[0] /= vec._v[0];
+      this._v[1] /= vec._v[1];
+      this._v[2] /= vec._v[2];
     } else {
       console.error('0 division occurred!');
-      this.v[0] = vec.v[0] === 0 ? Infinity : this.v[0] / vec.v[0];
-      this.v[1] = vec.v[1] === 0 ? Infinity : this.v[1] / vec.v[1];
-      this.v[2] = vec.v[2] === 0 ? Infinity : this.v[2] / vec.v[2];
+      this._v[0] = vec._v[0] === 0 ? Infinity : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? Infinity : this._v[1] / vec._v[1];
+      this._v[2] = vec._v[2] === 0 ? Infinity : this._v[2] / vec._v[2];
     }
     return this;
   }
@@ -171,9 +171,9 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    * cross product
    */
   cross(vec: IVector3) {
-    const x = this.v[1] * vec.v[2] - this.v[2] * vec.v[1];
-    const y = this.v[2] * vec.v[0] - this.v[0] * vec.v[2];
-    const z = this.v[0] * vec.v[1] - this.v[1] * vec.v[0];
+    const x = this._v[1] * vec._v[2] - this._v[2] * vec._v[1];
+    const y = this._v[2] * vec._v[0] - this._v[0] * vec._v[2];
+    const z = this._v[0] * vec._v[1] - this._v[1] * vec._v[0];
 
     return this.setComponents(x, y, z);
   }
@@ -182,31 +182,31 @@ export class MutableVector3_<T extends TypedArrayConstructor>
    * quaternion * vector3
    */
   multiplyQuaternion(quat: IQuaternion) {
-    const num = quat.v[0] * 2;
-    const num2 = quat.v[1] * 2;
-    const num3 = quat.v[2] * 2;
-    const num4 = quat.v[0] * num;
-    const num5 = quat.v[1] * num2;
-    const num6 = quat.v[2] * num3;
-    const num7 = quat.v[0] * num2;
-    const num8 = quat.v[0] * num3;
-    const num9 = quat.v[1] * num3;
-    const num10 = quat.v[3] * num;
-    const num11 = quat.v[3] * num2;
-    const num12 = quat.v[3] * num3;
+    const num = quat._v[0] * 2;
+    const num2 = quat._v[1] * 2;
+    const num3 = quat._v[2] * 2;
+    const num4 = quat._v[0] * num;
+    const num5 = quat._v[1] * num2;
+    const num6 = quat._v[2] * num3;
+    const num7 = quat._v[0] * num2;
+    const num8 = quat._v[0] * num3;
+    const num9 = quat._v[1] * num3;
+    const num10 = quat._v[3] * num;
+    const num11 = quat._v[3] * num2;
+    const num12 = quat._v[3] * num3;
 
     const x =
-      (1 - (num5 + num6)) * this.v[0] +
-      (num7 - num12) * this.v[1] +
-      (num8 + num11) * this.v[2];
+      (1 - (num5 + num6)) * this._v[0] +
+      (num7 - num12) * this._v[1] +
+      (num8 + num11) * this._v[2];
     const y =
-      (num7 + num12) * this.v[0] +
-      (1 - (num4 + num6)) * this.v[1] +
-      (num9 - num10) * this.v[2];
+      (num7 + num12) * this._v[0] +
+      (1 - (num4 + num6)) * this._v[1] +
+      (num9 - num10) * this._v[2];
     const z =
-      (num8 - num11) * this.v[0] +
-      (num9 + num10) * this.v[1] +
-      (1 - (num4 + num5)) * this.v[2];
+      (num8 - num11) * this._v[0] +
+      (num9 + num10) * this._v[1] +
+      (1 - (num4 + num5)) * this._v[2];
 
     return this.setComponents(x, y, z);
   }

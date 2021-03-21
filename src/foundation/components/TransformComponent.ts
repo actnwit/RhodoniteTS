@@ -278,17 +278,17 @@ export default class TransformComponent extends Component {
 
     // Clear and set Scale
     const scale = this.scaleInner;
-    const n00 = scale.v[0];
+    const n00 = scale._v[0];
     // const n01 = 0;
     // const n02 = 0;
     // const n03 = 0;
     // const n10 = 0;
-    const n11 = scale.v[1];
+    const n11 = scale._v[1];
     // const n12 = 0;
     // const n13 = 0;
     // const n20 = 0;
     // const n21 = 0;
-    const n22 = scale.v[2];
+    const n22 = scale._v[2];
     // const n23 = 0;
     // const n30 = 0;
     // const n31 = 0;
@@ -296,15 +296,15 @@ export default class TransformComponent extends Component {
     // const n33 = 1;
 
     const q = this.quaternionInner;
-    const sx = q.v[0] * q.v[0];
-    const sy = q.v[1] * q.v[1];
-    const sz = q.v[2] * q.v[2];
-    const cx = q.v[1] * q.v[2];
-    const cy = q.v[0] * q.v[2];
-    const cz = q.v[0] * q.v[1];
-    const wx = q.v[3] * q.v[0];
-    const wy = q.v[3] * q.v[1];
-    const wz = q.v[3] * q.v[2];
+    const sx = q._v[0] * q._v[0];
+    const sy = q._v[1] * q._v[1];
+    const sz = q._v[2] * q._v[2];
+    const cx = q._v[1] * q._v[2];
+    const cy = q._v[0] * q._v[2];
+    const cz = q._v[0] * q._v[1];
+    const wx = q._v[3] * q._v[0];
+    const wy = q._v[3] * q._v[1];
+    const wz = q._v[3] * q._v[2];
 
     const m00 = 1.0 - 2.0 * (sy + sz);
     const m01 = 2.0 * (cz - wz);
@@ -330,17 +330,17 @@ export default class TransformComponent extends Component {
     this._matrix.m00 = m00 * n00;
     this._matrix.m01 = m01 * n11;
     this._matrix.m02 = m02 * n22;
-    this._matrix.m03 = translate.v[0];
+    this._matrix.m03 = translate.x;
 
     this._matrix.m10 = m10 * n00;
     this._matrix.m11 = m11 * n11;
     this._matrix.m12 = m12 * n22;
-    this._matrix.m13 = translate.v[1];
+    this._matrix.m13 = translate.y;
 
     this._matrix.m20 = m20 * n00;
     this._matrix.m21 = m21 * n11;
     this._matrix.m22 = m22 * n22;
-    this._matrix.m23 = translate.v[2];
+    this._matrix.m23 = translate.z;
 
     this._matrix.m30 = 0;
     this._matrix.m31 = 0;

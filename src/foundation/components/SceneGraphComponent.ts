@@ -277,7 +277,7 @@ export default class SceneGraphComponent extends Component {
     return this.worldMatrixInner.multiplyVector3(localPosition);
   }
 
-  getLocalPositionOf(worldPosition: Vector3) {
+  getLocalPositionOf(worldPosition: Vector3): Vector3 {
     return Matrix44.invert(this.worldMatrixInner).multiplyVector3(
       worldPosition
     );
