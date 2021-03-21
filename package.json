@@ -22,7 +22,6 @@
   "author": "Yuki Shimada <emadurandal@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "postinstall": "npm run build && npm run build-samples",
     "prepublishOnly": "npm run preoutput",
     "prepack": "npm run preoutput",
     "preoutput": "npm run build &&  npm run build-samples && npm run test",
