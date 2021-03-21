@@ -158,7 +158,7 @@ export default class EffekseerComponent extends Component {
       const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
         this.__sceneGraphComponent!.worldMatrixInner
       );
-      this.__handle.setMatrix(worldMatrix.v);
+      this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
     }
   }
@@ -179,8 +179,8 @@ export default class EffekseerComponent extends Component {
       projectionMatrix.identity();
     }
 
-    effekseer.setProjectionMatrix(projectionMatrix.v);
-    effekseer.setCameraMatrix(viewMatrix.v);
+    effekseer.setProjectionMatrix(projectionMatrix._v);
+    effekseer.setCameraMatrix(viewMatrix._v);
     effekseer.draw();
   }
 }

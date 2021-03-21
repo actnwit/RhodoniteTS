@@ -93,19 +93,19 @@ export default class Matrix22 extends AbstractMatrix implements IMatrix, IMatrix
           this._v[3] = m[3];
         }
       }
-    } else if (!!m && m.v != null && m._v[3] !== null) {
+    } else if (!!m && m._v != null && m._v[3] !== null) {
       if (_notCopyFloatArray) {
-        this._v = m.v;
+        this._v = m._v;
       } else {
         this._v = new Float32Array(4);
         if (_isColumnMajor === true) {
-          const v = (m as Matrix22 | Matrix33 | Matrix44).v;
+          const v = (m as Matrix22 | Matrix33 | Matrix44)._v;
           this._v[0] = m[0];
           this._v[2] = m[2];
           this._v[1] = m[1];
           this._v[3] = m[3];
         } else {
-          const v = (m as Matrix22 | Matrix33 | Matrix44).v;
+          const v = (m as Matrix22 | Matrix33 | Matrix44)._v;
           // 'm' must be row major array if isColumnMajor is false
           this._v[0] = m[0];
           this._v[2] = m[1];

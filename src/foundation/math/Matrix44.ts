@@ -38,7 +38,7 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
     m12?: number, m13?: number, m14?: number, m15?: number,
     isColumnMajor = false, notCopyFloatArray = false) {
     super();
-    
+
     const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
     const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
 
@@ -98,10 +98,10 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
       }
     } else if (!!m && typeof m._v[15] !== 'undefined' && typeof m._v[10] !== 'undefined') {
       if (_notCopyFloatArray) {
-        this._v = m.v;
+        this._v = m._v;
       } else {
         this._v = new FloatArray(16);
-        const v: FloatArray = (m as any).v;
+        const v: FloatArray = (m as any)._v;
         this._v[0] = v[0]; this._v[4] = v[4]; this._v[8] = v[8]; this._v[12] = v[12];
         this._v[1] = v[1]; this._v[5] = v[5]; this._v[9] = v[9]; this._v[13] = v[13];
         this._v[2] = v[2]; this._v[6] = v[6]; this._v[10] = v[10]; this._v[14] = v[14];
@@ -109,10 +109,10 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
       }
     } else if (!!m && typeof m._v[15] === 'undefined' && typeof m._v[10] !== 'undefined') {
       if (_notCopyFloatArray) {
-        this._v = m.v;
+        this._v = m._v;
       } else {
         this._v = new FloatArray(16);
-        const v: FloatArray = (m as any).v;
+        const v: FloatArray = (m as any)._v;
         this._v[0] = v[0]; this._v[4] = v[3]; this._v[8] = v[6]; this._v[12] = 0;
         this._v[1] = v[1]; this._v[5] = v[4]; this._v[9] = v[7]; this._v[13] = 0;
         this._v[2] = v[2]; this._v[6] = v[5]; this._v[10] = v[8]; this._v[14] = 0;

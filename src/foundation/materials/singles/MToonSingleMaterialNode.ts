@@ -869,7 +869,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
       (shaderProgram as any)._gl.uniform3fv(
         (shaderProgram as any).cameraUp,
-        cameraComponent.upInner.v
+        cameraComponent.upInner._v
       );
 
       if (this.__OutlineWidthModeIsScreen) {

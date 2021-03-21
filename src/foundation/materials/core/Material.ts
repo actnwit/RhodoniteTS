@@ -823,7 +823,7 @@ export default class Material extends RnObject {
       const value = Material.__soloDatumFields
         .get(material.__materialTypeName)!
         .get(propertyIndex);
-      return (value!.value.v as Float32Array).byteOffset / 4 / 4;
+      return (value!.value._v as Float32Array).byteOffset / 4 / 4;
     } else {
       const properties = this.__accessors.get(materialTypeName);
       const accessor = properties!.get(propertyIndex);

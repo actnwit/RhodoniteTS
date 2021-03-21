@@ -622,7 +622,7 @@ export default class Component extends RnObject {
    */
   static getDataByteInfoInner(component: Component, memberName: string) {
     const data = (component as any)['_' + memberName];
-    const typedArray = data.v as TypedArray;
+    const typedArray = data._v as TypedArray;
     const byteOffsetInBuffer = typedArray.byteOffset;
     const byteLength = typedArray.byteLength;
     const componentNumber = typedArray.length;

@@ -352,7 +352,7 @@ export default class MathClassUtil {
     if (isFinite(objForDetectType)) {
       // number?
       const array = new Float32Array(floatArray);
-      (floatArray as any).v = void 0;
+      (floatArray as any)._v = void 0;
       array[0] = val;
       return new Scalar(array);
     } else if (
@@ -447,19 +447,19 @@ export default class MathClassUtil {
           vec = new Scalar(floatArray);
           break;
       }
-      (floatArray as any).v = void 0;
+      (floatArray as any)._v = void 0;
       return vec;
     } else if (
       Array.isArray(objForDetectType) ||
       ArrayBuffer.isView(objForDetectType) ||
-      ArrayBuffer.isView(objForDetectType.v)
+      ArrayBuffer.isView(objForDetectType._v)
     ) {
       return objForDetectType;
     } else {
       console.error('Non supported type!');
       return void 0;
     }
-    (floatArray as any).v = void 0;
+    (floatArray as any)._v = void 0;
 
     return obj;
   }
@@ -492,7 +492,7 @@ export default class MathClassUtil {
       objForDetectType instanceof Scalar ||
       objForDetectType instanceof MutableScalar
     ) {
-      if (typeof val.v === 'undefined') {
+      if (typeof val._v === 'undefined') {
         objForDetectType._v[0] = val;
       } else {
         objForDetectType._v[0] = val._v[0];
@@ -552,8 +552,8 @@ export default class MathClassUtil {
       for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val._v[i];
       }
-    } else if (!isNaN(objForDetectType.v.length)) {
-      for (let i = 0; i < objForDetectType.v.length; i++) {
+    } else if (!isNaN(objForDetectType._v.length)) {
+      for (let i = 0; i < objForDetectType._v.length; i++) {
         if (Array.isArray(val)) {
           objForDetectType._v[i] = val[i];
         } else {

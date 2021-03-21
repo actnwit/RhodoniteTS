@@ -436,7 +436,7 @@ export default class GlobalDataRepository {
   //   const globalPropertyStruct = this.__fields.get(propertyIndex);
   //   if (globalPropertyStruct) {
   //     const value = globalPropertyStruct.values[countIndex];
-  //     return (value.v as Float32Array).byteOffset / 4 / 4;
+  //     return (value._v as Float32Array).byteOffset / 4 / 4;
   //   }
   //   return void 0;
   // }

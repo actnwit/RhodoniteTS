@@ -102,34 +102,34 @@ export default class SkeletalComponent extends Component {
       this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneMatrix,
         index
-      ).v;
+      )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
       this.__tqArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneTranslatePackedQuat,
         index
-      ).v;
+      )._v;
       this.__sqArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneScalePackedQuat,
         index
-      ).v;
+      )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
       this.__qArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneQuaternion,
         index
-      ).v;
+      )._v;
       this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneTranslateScale,
         index
-      ).v;
+      )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
       this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneTranslateScale,
         index
-      ).v;
+      )._v;
       this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneCompressedChunk,
         index
-      ).v;
+      )._v;
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneCompressedInfo,
         0

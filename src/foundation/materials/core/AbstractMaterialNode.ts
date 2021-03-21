@@ -346,7 +346,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     (shaderProgram as any)._gl.uniformMatrix4fv(
       (shaderProgram as any).worldMatrix,
       false,
-      worldMatrix.v
+      worldMatrix._v
     );
   }
 
@@ -357,7 +357,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     (shaderProgram as any)._gl.uniformMatrix3fv(
       (shaderProgram as any).normalMatrix,
       false,
-      normalMatrix.v
+      normalMatrix._v
     );
   }
 
@@ -373,11 +373,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
         (shaderProgram as any)._gl.uniformMatrix4fv(
           (shaderProgram as any).viewMatrix,
           false,
-          cameraComponent.viewMatrix.v
+          cameraComponent.viewMatrix._v
         );
         (shaderProgram as any)._gl.uniform3fv(
           (shaderProgram as any).viewPosition,
-          cameraPosition.v
+          cameraPosition._v
         );
       } else {
         // material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
@@ -390,11 +390,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
         (shaderProgram as any)._gl.uniformMatrix4fv(
           (shaderProgram as any).viewMatrix,
           false,
-          mat.v
+          mat._v
         );
         (shaderProgram as any)._gl.uniform3fv(
           (shaderProgram as any).viewPosition,
-          pos.v
+          pos._v
         );
       } else {
         // material.setParameter(ShaderSemantics.ViewMatrix, mat);
@@ -414,7 +414,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
         (shaderProgram as any)._gl.uniformMatrix4fv(
           (shaderProgram as any).projectionMatrix,
           false,
-          cameraComponent.projectionMatrix.v
+          cameraComponent.projectionMatrix._v
         );
       } else {
         // material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
@@ -481,7 +481,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
           );
           (shaderProgram as any)._gl.uniform4fv(
             (shaderProgram as any).boneCompressedInfo,
-            jointCompressedInfo.v
+            jointCompressedInfo._v
           );
         }
 
