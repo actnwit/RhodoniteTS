@@ -1,7 +1,7 @@
 import {TypedArray} from '../../types/CommonTypes';
 
 export interface IVector {
-  readonly v: TypedArray;
+  readonly _v: TypedArray;
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
@@ -12,14 +12,15 @@ export interface IVector {
   isEqual(vec: IVector, delta?: number): boolean;
   isStrictEqual(vec: IVector): boolean;
   at(i: number): number;
+  v(i: number): number;
   length(): number;
   lengthSquared(): number;
   lengthTo(vec: IVector): number;
   dot(vec: IVector): number;
 }
 
-export interface IMutableVector {
-  v: TypedArray;
+export interface IMutableVector extends IVector {
+  _v: TypedArray;
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
@@ -39,12 +40,15 @@ export interface IMutableVector {
   divideVector(vec: any): IMutableVector;
 }
 
-export interface IScalar {
+export interface IScalar extends IVector {
+  _v: TypedArray;
+  readonly x: number;
+}
+export interface IMutableScalar extends IMutableVector {
   readonly x: number;
 }
 
-export interface IVector2 {
-  readonly v: TypedArray;
+export interface IVector2 extends IVector {
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
@@ -66,8 +70,7 @@ export interface IVector2 {
   clone(): IVector2;
 }
 
-export interface IMutableVector2 {
-  v: TypedArray;
+export interface IMutableVector2 extends IMutableVector {
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
@@ -105,8 +108,7 @@ export interface IMutableVector2 {
   divideVector(vec: IVector2): IMutableVector2;
 }
 
-export interface IVector3 {
-  readonly v: TypedArray;
+export interface IVector3 extends IVector {
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
@@ -130,8 +132,7 @@ export interface IVector3 {
   clone(): IVector3;
 }
 
-export interface IMutableVector3 {
-  v: TypedArray;
+export interface IMutableVector3 extends IMutableVector {
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
@@ -172,8 +173,7 @@ export interface IMutableVector3 {
   cross(vec: IVector3): IMutableVector3;
 }
 
-export interface IVector4 {
-  readonly v: TypedArray;
+export interface IVector4 extends IVector {
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
@@ -197,8 +197,7 @@ export interface IVector4 {
   clone(): IVector4;
 }
 
-export interface IMutableVector4 {
-  v: TypedArray;
+export interface IMutableVector4 extends IMutableVector {
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;

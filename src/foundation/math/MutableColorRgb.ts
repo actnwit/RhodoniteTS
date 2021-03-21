@@ -15,27 +15,27 @@ export default class MutableColorRgb
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   set x(val) {
-    this.v[0] = val;
+    this._v[0] = val;
   }
 
   get y() {
-    return this.v[1];
+    return this._v[1];
   }
 
   set y(val) {
-    this.v[1] = val;
+    this._v[1] = val;
   }
 
   get z() {
-    return this.v[2];
+    return this._v[2];
   }
 
   set z(val) {
-    this.v[2] = val;
+    this._v[2] = val;
   }
 
   get w() {
@@ -43,27 +43,27 @@ export default class MutableColorRgb
   }
 
   get r() {
-    return this.v[0];
+    return this._v[0];
   }
 
   set r(val) {
-    this.v[0] = val;
+    this._v[0] = val;
   }
 
   get g() {
-    return this.v[1];
+    return this._v[1];
   }
 
   set g(val) {
-    this.v[1] = val;
+    this._v[1] = val;
   }
 
   get b() {
-    return this.v[2];
+    return this._v[2];
   }
 
   set b(val) {
-    this.v[2] = val;
+    this._v[2] = val;
   }
 
   get a() {

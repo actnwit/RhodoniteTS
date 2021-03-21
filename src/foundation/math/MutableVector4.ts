@@ -29,56 +29,56 @@ export class MutableVector4_<T extends TypedArrayConstructor>
   }
 
   set x(x: number) {
-    this.v[0] = x;
+    this._v[0] = x;
   }
 
   get x(): number {
-    return this.v[0];
+    return this._v[0];
   }
 
   set y(y: number) {
-    this.v[1] = y;
+    this._v[1] = y;
   }
 
   get y(): number {
-    return this.v[1];
+    return this._v[1];
   }
 
   set z(z: number) {
-    this.v[2] = z;
+    this._v[2] = z;
   }
 
   get z(): number {
-    return this.v[2];
+    return this._v[2];
   }
 
   set w(w: number) {
-    this.v[3] = w;
+    this._v[3] = w;
   }
 
   get w(): number {
-    return this.v[3];
+    return this._v[3];
   }
 
   raw() {
-    return this.v;
+    return this._v;
   }
 
   setAt(i: number, value: number) {
-    this.v[i] = value;
+    this._v[i] = value;
     return this;
   }
 
   setComponents(x: number, y: number, z: number, w: number) {
-    this.v[0] = x;
-    this.v[1] = y;
-    this.v[2] = z;
-    this.v[3] = w;
+    this._v[0] = x;
+    this._v[1] = y;
+    this._v[2] = z;
+    this._v[3] = w;
     return this;
   }
 
   copyComponents(vec: IVector4) {
-    return this.setComponents(vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
+    return this.setComponents(vec._v[0], vec._v[1], vec._v[2], vec._v[3]);
   }
 
   zero() {
@@ -99,7 +99,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
   }
 
   normalize3() {
-    const length = Math.hypot(this.v[0], this.v[1], this.v[2]);
+    const length = Math.hypot(this._v[0], this._v[1], this._v[2]);
     this.divide(length);
     return this;
   }
@@ -108,10 +108,10 @@ export class MutableVector4_<T extends TypedArrayConstructor>
    * add value
    */
   add(vec: IVector4) {
-    this.v[0] += vec.v[0];
-    this.v[1] += vec.v[1];
-    this.v[2] += vec.v[2];
-    this.v[3] += vec.v[3];
+    this._v[0] += vec._v[0];
+    this._v[1] += vec._v[1];
+    this._v[2] += vec._v[2];
+    this._v[3] += vec._v[3];
     return this;
   }
 
@@ -119,10 +119,10 @@ export class MutableVector4_<T extends TypedArrayConstructor>
    * subtract
    */
   subtract(vec: IVector4) {
-    this.v[0] -= vec.v[0];
-    this.v[1] -= vec.v[1];
-    this.v[2] -= vec.v[2];
-    this.v[3] -= vec.v[3];
+    this._v[0] -= vec._v[0];
+    this._v[1] -= vec._v[1];
+    this._v[2] -= vec._v[2];
+    this._v[3] -= vec._v[3];
     return this;
   }
 
@@ -130,10 +130,10 @@ export class MutableVector4_<T extends TypedArrayConstructor>
    * multiply
    */
   multiply(value: number) {
-    this.v[0] *= value;
-    this.v[1] *= value;
-    this.v[2] *= value;
-    this.v[3] *= value;
+    this._v[0] *= value;
+    this._v[1] *= value;
+    this._v[2] *= value;
+    this._v[3] *= value;
     return this;
   }
 
@@ -141,10 +141,10 @@ export class MutableVector4_<T extends TypedArrayConstructor>
    * multiply vector
    */
   multiplyVector(vec: IVector4) {
-    this.v[0] *= vec.v[0];
-    this.v[1] *= vec.v[1];
-    this.v[2] *= vec.v[2];
-    this.v[3] *= vec.v[3];
+    this._v[0] *= vec._v[0];
+    this._v[1] *= vec._v[1];
+    this._v[2] *= vec._v[2];
+    this._v[3] *= vec._v[3];
     return this;
   }
 
@@ -153,16 +153,16 @@ export class MutableVector4_<T extends TypedArrayConstructor>
    */
   divide(value: number) {
     if (value !== 0) {
-      this.v[0] /= value;
-      this.v[1] /= value;
-      this.v[2] /= value;
-      this.v[3] /= value;
+      this._v[0] /= value;
+      this._v[1] /= value;
+      this._v[2] /= value;
+      this._v[3] /= value;
     } else {
       console.error('0 division occurred!');
-      this.v[0] = Infinity;
-      this.v[1] = Infinity;
-      this.v[2] = Infinity;
-      this.v[3] = Infinity;
+      this._v[0] = Infinity;
+      this._v[1] = Infinity;
+      this._v[2] = Infinity;
+      this._v[3] = Infinity;
     }
     return this;
   }
@@ -171,17 +171,17 @@ export class MutableVector4_<T extends TypedArrayConstructor>
    * divide vector
    */
   divideVector(vec: IVector4) {
-    if (vec.v[0] !== 0 && vec.v[1] !== 0 && vec.v[2] !== 0 && vec.v[3] !== 0) {
-      this.v[0] /= vec.v[0];
-      this.v[1] /= vec.v[1];
-      this.v[2] /= vec.v[2];
-      this.v[3] /= vec.v[3];
+    if (vec._v[0] !== 0 && vec._v[1] !== 0 && vec._v[2] !== 0 && vec._v[3] !== 0) {
+      this._v[0] /= vec._v[0];
+      this._v[1] /= vec._v[1];
+      this._v[2] /= vec._v[2];
+      this._v[3] /= vec._v[3];
     } else {
       console.error('0 division occurred!');
-      this.v[0] = vec.v[0] === 0 ? Infinity : this.v[0] / vec.v[0];
-      this.v[1] = vec.v[1] === 0 ? Infinity : this.v[1] / vec.v[1];
-      this.v[2] = vec.v[2] === 0 ? Infinity : this.v[2] / vec.v[2];
-      this.v[3] = vec.v[3] === 0 ? Infinity : this.v[3] / vec.v[3];
+      this._v[0] = vec._v[0] === 0 ? Infinity : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? Infinity : this._v[1] / vec._v[1];
+      this._v[2] = vec._v[2] === 0 ? Infinity : this._v[2] / vec._v[2];
+      this._v[3] = vec._v[3] === 0 ? Infinity : this._v[3] / vec._v[3];
     }
     return this;
   }

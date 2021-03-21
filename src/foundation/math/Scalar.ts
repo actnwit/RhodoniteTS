@@ -1,38 +1,39 @@
 import {IScalar} from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
+import AbstractVector from './AbstractVector';
 
-export class Scalar_<T extends TypedArrayConstructor> {
-  v: TypedArray;
+export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
 
   constructor(x: number | TypedArray | null, {type}: {type: T}) {
+    super();
     if (ArrayBuffer.isView(x)) {
-      this.v = (x as any) as TypedArray;
+      this._v = (x as any) as TypedArray;
       return;
     } else if (x == null) {
-      this.v = new type(0);
+      this._v = new type(0);
       return;
     } else {
-      this.v = new type(1);
+      this._v = new type(1);
     }
 
-    this.v[0] = (x as any) as number;
+    this._v[0] = (x as any) as number;
   }
 
   getValue() {
-    return this.v[0];
+    return this._v[0];
   }
 
   getValueInArray() {
-    return [this.v[0]];
+    return [this._v[0]];
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   get raw() {
-    return this.v;
+    return this._v;
   }
 
   isStrictEqual(scalar: Scalar_<T>) {

@@ -1,11 +1,20 @@
 import { CompositionType } from '../definitions/CompositionType';
+import AbstractMatrix from './AbstractMatrix';
 import {IMatrix, IMatrix33} from './IMatrix';
 import {IVector, IMutableVector} from './IVector';
 import Matrix33 from './Matrix33';
 import MutableVector3 from './MutableVector3';
 import Vector3 from './Vector3';
 
-export default class IdentityMatrix33 implements IMatrix, IMatrix33 {
+export default class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
+  static readonly __v = new Float32Array([1, 0, 0,
+    0, 1, 0,
+    0, 0, 1]);
+  constructor() {
+    super();
+    this._v = IdentityMatrix33.__v;
+  }
+
   toString(): string {
     return `1 0 0
 0 1 0
@@ -41,7 +50,7 @@ export default class IdentityMatrix33 implements IMatrix, IMatrix33 {
   }
   
   isStrictEqual(mat: IMatrix33): boolean {
-    const v = (mat as Matrix33).v;
+    const v = (mat as Matrix33)._v;
     if (
       v[0] === 1 && v[1] === 0 && v[2] === 0 && v[3] === 0 &&
       v[4] === 0 && v[5] === 0 && v[6] === 0 && v[7] === 0 &&
@@ -67,11 +76,11 @@ export default class IdentityMatrix33 implements IMatrix, IMatrix33 {
   }
 
   multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector {
-    const v = (vec as Vector3).v;
-    outVec.v[0] = v[0];
-    outVec.v[1] = v[1];
-    outVec.v[2] = v[2];
-    outVec.v[3] = v[3];
+    const v = (vec as Vector3)._v;
+    outVec._v[0] = v[0];
+    outVec._v[1] = v[1];
+    outVec._v[2] = v[2];
+    outVec._v[3] = v[3];
 
     return outVec;
   }
@@ -81,7 +90,7 @@ export default class IdentityMatrix33 implements IMatrix, IMatrix33 {
   }
   
   getScaleTo(outVec: IMutableVector): IMutableVector {
-    const v = (outVec as MutableVector3).v;
+    const v = (outVec as MutableVector3)._v;
     
     v[0] = 1;
     v[1] = 1;

@@ -8,10 +8,10 @@ import {
 import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
+import AbstractVector from './AbstractVector';
 
-export class Vector4_<T extends TypedArrayConstructor>
+export class Vector4_<T extends TypedArrayConstructor> extends AbstractVector
   implements IVector, IVector4 {
-  v: TypedArray;
 
   constructor(
     x:
@@ -27,79 +27,80 @@ export class Vector4_<T extends TypedArrayConstructor>
     w: number,
     {type}: {type: T}
   ) {
+    super();
     if (ArrayBuffer.isView(x)) {
-      this.v = x as TypedArray;
+      this._v = x as TypedArray;
       return;
     } else if (x == null) {
-      this.v = new type(0);
+      this._v = new type(0);
       return;
     } else {
-      this.v = new type(4);
+      this._v = new type(4);
     }
 
     if (Array.isArray(x)) {
-      this.v[0] = x[0];
-      this.v[1] = x[1];
-      this.v[2] = x[2];
-      this.v[3] = x[3];
+      this._v[0] = x[0];
+      this._v[1] = x[1];
+      this._v[2] = x[2];
+      this._v[3] = x[3];
     } else if (typeof x === 'number') {
-      this.v[0] = x;
-      this.v[1] = y;
-      this.v[2] = z;
-      this.v[3] = w;
+      this._v[0] = x;
+      this._v[1] = y;
+      this._v[2] = z;
+      this._v[3] = w;
     } else {
-      if (typeof x.v[2] === 'undefined') {
+      if (typeof x._v[2] === 'undefined') {
         // IVector2
-        this.v[0] = x.v[0];
-        this.v[1] = x.v[1];
-        this.v[2] = 0;
-        this.v[3] = 1;
-      } else if (typeof x.v[3] === 'undefined') {
+        this._v[0] = x._v[0];
+        this._v[1] = x._v[1];
+        this._v[2] = 0;
+        this._v[3] = 1;
+      } else if (typeof x._v[3] === 'undefined') {
         // IVector3
-        this.v[0] = x.v[0];
-        this.v[1] = x.v[1];
-        this.v[2] = x.v[2];
-        this.v[3] = 1;
+        this._v[0] = x._v[0];
+        this._v[1] = x._v[1];
+        this._v[2] = x._v[2];
+        this._v[3] = 1;
       } else {
         // IVector4
-        this.v[0] = x.v[0];
-        this.v[1] = x.v[1];
-        this.v[2] = x.v[2];
-        this.v[3] = x.v[3];
+        this._v[0] = x._v[0];
+        this._v[1] = x._v[1];
+        this._v[2] = x._v[2];
+        this._v[3] = x._v[3];
       }
     }
   }
 
   get x(): number {
-    return this.v[0];
+    return this._v[0];
   }
 
   get y(): number {
-    return this.v[1];
+    return this._v[1];
   }
 
   get z(): number {
-    return this.v[2];
+    return this._v[2];
   }
 
   get w(): number {
-    return this.v[3];
+    return this._v[3];
   }
 
   get glslStrAsFloat() {
     return `vec4(${MathUtil.convertToStringAsGLSLFloat(
-      this.v[0]
+      this._v[0]
     )}, ${MathUtil.convertToStringAsGLSLFloat(
-      this.v[1]
+      this._v[1]
     )}, ${MathUtil.convertToStringAsGLSLFloat(
-      this.v[2]
-    )}, ${MathUtil.convertToStringAsGLSLFloat(this.v[3])})`;
+      this._v[2]
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[3])})`;
   }
 
   get glslStrAsInt() {
-    return `ivec4(${Math.floor(this.v[0])}, ${Math.floor(
-      this.v[1]
-    )}, ${Math.floor(this.v[2])}, ${Math.floor(this.v[3])})`;
+    return `ivec4(${Math.floor(this._v[0])}, ${Math.floor(
+      this._v[1]
+    )}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])})`;
   }
 
   static get compositionType() {
@@ -144,10 +145,10 @@ export class Vector4_<T extends TypedArrayConstructor>
    * add value（static version）
    */
   static _add(l_vec: IVector4, r_vec: IVector4, type: TypedArrayConstructor) {
-    const x = l_vec.v[0] + r_vec.v[0];
-    const y = l_vec.v[1] + r_vec.v[1];
-    const z = l_vec.v[2] + r_vec.v[2];
-    const w = l_vec.v[3] + r_vec.v[3];
+    const x = l_vec._v[0] + r_vec._v[0];
+    const y = l_vec._v[1] + r_vec._v[1];
+    const z = l_vec._v[2] + r_vec._v[2];
+    const w = l_vec._v[3] + r_vec._v[3];
     return new this(x, y, z, w, {type});
   }
 
@@ -155,10 +156,10 @@ export class Vector4_<T extends TypedArrayConstructor>
    * add value（static version）
    */
   static addTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
-    out.v[0] = l_vec.v[0] + r_vec.v[0];
-    out.v[1] = l_vec.v[1] + r_vec.v[1];
-    out.v[2] = l_vec.v[2] + r_vec.v[2];
-    out.v[3] = l_vec.v[3] + r_vec.v[3];
+    out._v[0] = l_vec._v[0] + r_vec._v[0];
+    out._v[1] = l_vec._v[1] + r_vec._v[1];
+    out._v[2] = l_vec._v[2] + r_vec._v[2];
+    out._v[3] = l_vec._v[3] + r_vec._v[3];
     return out;
   }
 
@@ -170,10 +171,10 @@ export class Vector4_<T extends TypedArrayConstructor>
     r_vec: IVector4,
     type: TypedArrayConstructor
   ) {
-    const x = l_vec.v[0] - r_vec.v[0];
-    const y = l_vec.v[1] - r_vec.v[1];
-    const z = l_vec.v[2] - r_vec.v[2];
-    const w = l_vec.v[3] - r_vec.v[3];
+    const x = l_vec._v[0] - r_vec._v[0];
+    const y = l_vec._v[1] - r_vec._v[1];
+    const z = l_vec._v[2] - r_vec._v[2];
+    const w = l_vec._v[3] - r_vec._v[3];
     return new this(x, y, z, w, {type});
   }
 
@@ -181,10 +182,10 @@ export class Vector4_<T extends TypedArrayConstructor>
    * subtract(static version)
    */
   static subtractTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
-    out.v[0] = l_vec.v[0] - r_vec.v[0];
-    out.v[1] = l_vec.v[1] - r_vec.v[1];
-    out.v[2] = l_vec.v[2] - r_vec.v[2];
-    out.v[3] = l_vec.v[3] - r_vec.v[3];
+    out._v[0] = l_vec._v[0] - r_vec._v[0];
+    out._v[1] = l_vec._v[1] - r_vec._v[1];
+    out._v[2] = l_vec._v[2] - r_vec._v[2];
+    out._v[3] = l_vec._v[3] - r_vec._v[3];
     return out;
   }
 
@@ -192,10 +193,10 @@ export class Vector4_<T extends TypedArrayConstructor>
    * multiply(static version)
    */
   static _multiply(vec: IVector4, value: number, type: TypedArrayConstructor) {
-    const x = vec.v[0] * value;
-    const y = vec.v[1] * value;
-    const z = vec.v[2] * value;
-    const w = vec.v[3] * value;
+    const x = vec._v[0] * value;
+    const y = vec._v[1] * value;
+    const z = vec._v[2] * value;
+    const w = vec._v[3] * value;
     return new this(x, y, z, w, {type});
   }
 
@@ -203,10 +204,10 @@ export class Vector4_<T extends TypedArrayConstructor>
    * multiplyTo(static version)
    */
   static multiplyTo(vec: IVector4, value: number, out: IMutableVector4) {
-    out.v[0] = vec.v[0] * value;
-    out.v[1] = vec.v[1] * value;
-    out.v[2] = vec.v[2] * value;
-    out.v[3] = vec.v[3] * value;
+    out._v[0] = vec._v[0] * value;
+    out._v[1] = vec._v[1] * value;
+    out._v[2] = vec._v[2] * value;
+    out._v[3] = vec._v[3] * value;
     return out;
   }
 
@@ -218,10 +219,10 @@ export class Vector4_<T extends TypedArrayConstructor>
     r_vec: IVector4,
     type: TypedArrayConstructor
   ) {
-    const x = l_vec.v[0] * r_vec.v[0];
-    const y = l_vec.v[1] * r_vec.v[1];
-    const z = l_vec.v[2] * r_vec.v[2];
-    const w = l_vec.v[3] * r_vec.v[3];
+    const x = l_vec._v[0] * r_vec._v[0];
+    const y = l_vec._v[1] * r_vec._v[1];
+    const z = l_vec._v[2] * r_vec._v[2];
+    const w = l_vec._v[3] * r_vec._v[3];
     return new this(x, y, z, w, {type});
   }
 
@@ -233,10 +234,10 @@ export class Vector4_<T extends TypedArrayConstructor>
     r_vec: IVector4,
     out: IMutableVector4
   ) {
-    out.v[0] = l_vec.v[0] * r_vec.v[0];
-    out.v[1] = l_vec.v[1] * r_vec.v[1];
-    out.v[2] = l_vec.v[2] * r_vec.v[2];
-    out.v[3] = l_vec.v[3] * r_vec.v[3];
+    out._v[0] = l_vec._v[0] * r_vec._v[0];
+    out._v[1] = l_vec._v[1] * r_vec._v[1];
+    out._v[2] = l_vec._v[2] * r_vec._v[2];
+    out._v[3] = l_vec._v[3] * r_vec._v[3];
     return out;
   }
 
@@ -249,10 +250,10 @@ export class Vector4_<T extends TypedArrayConstructor>
     let z;
     let w;
     if (value !== 0) {
-      x = vec.v[0] / value;
-      y = vec.v[1] / value;
-      z = vec.v[2] / value;
-      w = vec.v[3] / value;
+      x = vec._v[0] / value;
+      y = vec._v[1] / value;
+      z = vec._v[2] / value;
+      w = vec._v[3] / value;
     } else {
       console.error('0 division occurred!');
       x = Infinity;
@@ -268,16 +269,16 @@ export class Vector4_<T extends TypedArrayConstructor>
    */
   static divideTo(vec: IVector4, value: number, out: IMutableVector4) {
     if (value !== 0) {
-      out.v[0] = vec.v[0] / value;
-      out.v[1] = vec.v[1] / value;
-      out.v[2] = vec.v[2] / value;
-      out.v[3] = vec.v[3] / value;
+      out._v[0] = vec._v[0] / value;
+      out._v[1] = vec._v[1] / value;
+      out._v[2] = vec._v[2] / value;
+      out._v[3] = vec._v[3] / value;
     } else {
       console.error('0 division occurred!');
-      out.v[0] = Infinity;
-      out.v[1] = Infinity;
-      out.v[2] = Infinity;
-      out.v[3] = Infinity;
+      out._v[0] = Infinity;
+      out._v[1] = Infinity;
+      out._v[2] = Infinity;
+      out._v[3] = Infinity;
     }
     return out;
   }
@@ -295,21 +296,21 @@ export class Vector4_<T extends TypedArrayConstructor>
     let z;
     let w;
     if (
-      r_vec.v[0] !== 0 &&
-      r_vec.v[1] !== 0 &&
-      r_vec.v[2] !== 0 &&
-      r_vec.v[3] !== 0
+      r_vec._v[0] !== 0 &&
+      r_vec._v[1] !== 0 &&
+      r_vec._v[2] !== 0 &&
+      r_vec._v[3] !== 0
     ) {
-      x = l_vec.v[0] / r_vec.v[0];
-      y = l_vec.v[1] / r_vec.v[1];
-      z = l_vec.v[2] / r_vec.v[2];
-      w = l_vec.v[3] / r_vec.v[3];
+      x = l_vec._v[0] / r_vec._v[0];
+      y = l_vec._v[1] / r_vec._v[1];
+      z = l_vec._v[2] / r_vec._v[2];
+      w = l_vec._v[3] / r_vec._v[3];
     } else {
       console.error('0 division occurred!');
-      x = r_vec.v[0] === 0 ? Infinity : l_vec.v[0] / r_vec.v[0];
-      y = r_vec.v[1] === 0 ? Infinity : l_vec.v[1] / r_vec.v[1];
-      z = r_vec.v[2] === 0 ? Infinity : l_vec.v[2] / r_vec.v[2];
-      w = r_vec.v[3] === 0 ? Infinity : l_vec.v[3] / r_vec.v[3];
+      x = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
+      z = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
+      w = r_vec._v[3] === 0 ? Infinity : l_vec._v[3] / r_vec._v[3];
     }
     return new this(x, y, z, w, {type});
   }
@@ -323,21 +324,21 @@ export class Vector4_<T extends TypedArrayConstructor>
     out: IMutableVector4
   ) {
     if (
-      r_vec.v[0] !== 0 &&
-      r_vec.v[1] !== 0 &&
-      r_vec.v[2] !== 0 &&
-      r_vec.v[3] !== 0
+      r_vec._v[0] !== 0 &&
+      r_vec._v[1] !== 0 &&
+      r_vec._v[2] !== 0 &&
+      r_vec._v[3] !== 0
     ) {
-      out.v[0] = l_vec.v[0] / r_vec.v[0];
-      out.v[1] = l_vec.v[1] / r_vec.v[1];
-      out.v[2] = l_vec.v[2] / r_vec.v[2];
-      out.v[3] = l_vec.v[3] / r_vec.v[3];
+      out._v[0] = l_vec._v[0] / r_vec._v[0];
+      out._v[1] = l_vec._v[1] / r_vec._v[1];
+      out._v[2] = l_vec._v[2] / r_vec._v[2];
+      out._v[3] = l_vec._v[3] / r_vec._v[3];
     } else {
       console.error('0 division occurred!');
-      out.v[0] = r_vec.v[0] === 0 ? Infinity : l_vec.v[0] / r_vec.v[0];
-      out.v[1] = r_vec.v[1] === 0 ? Infinity : l_vec.v[1] / r_vec.v[1];
-      out.v[2] = r_vec.v[2] === 0 ? Infinity : l_vec.v[2] / r_vec.v[2];
-      out.v[3] = r_vec.v[3] === 0 ? Infinity : l_vec.v[3] / r_vec.v[3];
+      out._v[0] = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
+      out._v[2] = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
+      out._v[3] = r_vec._v[3] === 0 ? Infinity : l_vec._v[3] / r_vec._v[3];
     }
     return out;
   }
@@ -352,36 +353,36 @@ export class Vector4_<T extends TypedArrayConstructor>
   toString() {
     return (
       '(' +
-      this.v[0] +
+      this._v[0] +
       ', ' +
-      this.v[1] +
+      this._v[1] +
       ', ' +
-      this.v[2] +
+      this._v[2] +
       ', ' +
-      this.v[3] +
+      this._v[3] +
       ')'
     );
   }
 
   toStringApproximately() {
     return (
-      MathUtil.nearZeroToZero(this.v[0]) +
+      MathUtil.nearZeroToZero(this._v[0]) +
       ' ' +
-      MathUtil.nearZeroToZero(this.v[1]) +
+      MathUtil.nearZeroToZero(this._v[1]) +
       ' ' +
-      MathUtil.nearZeroToZero(this.v[2]) +
+      MathUtil.nearZeroToZero(this._v[2]) +
       ' ' +
-      MathUtil.nearZeroToZero(this.v[3]) +
+      MathUtil.nearZeroToZero(this._v[3]) +
       '\n'
     );
   }
 
   flattenAsArray() {
-    return [this.v[0], this.v[1], this.v[2], this.v[3]];
+    return [this._v[0], this._v[1], this._v[2], this._v[3]];
   }
 
   isDummy() {
-    if (this.v.length === 0) {
+    if (this._v.length === 0) {
       return true;
     } else {
       return false;
@@ -390,10 +391,10 @@ export class Vector4_<T extends TypedArrayConstructor>
 
   isEqual(vec: IVector4, delta: number = Number.EPSILON) {
     if (
-      Math.abs(vec.v[0] - this.v[0]) < delta &&
-      Math.abs(vec.v[1] - this.v[1]) < delta &&
-      Math.abs(vec.v[2] - this.v[2]) < delta &&
-      Math.abs(vec.v[3] - this.v[3]) < delta
+      Math.abs(vec._v[0] - this._v[0]) < delta &&
+      Math.abs(vec._v[1] - this._v[1]) < delta &&
+      Math.abs(vec._v[2] - this._v[2]) < delta &&
+      Math.abs(vec._v[3] - this._v[3]) < delta
     ) {
       return true;
     } else {
@@ -403,10 +404,10 @@ export class Vector4_<T extends TypedArrayConstructor>
 
   isStrictEqual(vec: IVector4): boolean {
     if (
-      this.v[0] === vec.v[0] &&
-      this.v[1] === vec.v[1] &&
-      this.v[2] === vec.v[2] &&
-      this.v[3] === vec.v[3]
+      this._v[0] === vec._v[0] &&
+      this._v[1] === vec._v[1] &&
+      this._v[2] === vec._v[2] &&
+      this._v[3] === vec._v[3]
     ) {
       return true;
     } else {
@@ -415,22 +416,22 @@ export class Vector4_<T extends TypedArrayConstructor>
   }
 
   at(i: number) {
-    return this.v[i];
+    return this._v[i];
   }
 
   length() {
-    return Math.hypot(this.v[0], this.v[1], this.v[2], this.v[3]);
+    return Math.hypot(this._v[0], this._v[1], this._v[2], this._v[3]);
   }
 
   lengthSquared(): number {
-    return this.v[0] ** 2 + this.v[1] ** 2 + this.v[2] ** 2 + this.v[3] ** 2;
+    return this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2;
   }
 
   lengthTo(vec: IVector4) {
-    const deltaX = this.v[0] - vec.v[0];
-    const deltaY = this.v[1] - vec.v[1];
-    const deltaZ = this.v[2] - vec.v[2];
-    const deltaW = this.v[3] - vec.v[3];
+    const deltaX = this._v[0] - vec._v[0];
+    const deltaY = this._v[1] - vec._v[1];
+    const deltaZ = this._v[2] - vec._v[2];
+    const deltaW = this._v[3] - vec._v[3];
     return Math.hypot(deltaX, deltaY, deltaZ, deltaW);
   }
 
@@ -439,10 +440,10 @@ export class Vector4_<T extends TypedArrayConstructor>
    */
   dot(vec: IVector4) {
     return (
-      this.v[0] * vec.v[0] +
-      this.v[1] * vec.v[1] +
-      this.v[2] * vec.v[2] +
-      this.v[3] * vec.v[3]
+      this._v[0] * vec._v[0] +
+      this._v[1] * vec._v[1] +
+      this._v[2] * vec._v[2] +
+      this._v[3] * vec._v[3]
     );
   }
 
@@ -452,10 +453,10 @@ export class Vector4_<T extends TypedArrayConstructor>
 
   clone() {
     return new (this.constructor as any)(
-      this.v[0],
-      this.v[1],
-      this.v[2],
-      this.v[3]
+      this._v[0],
+      this._v[1],
+      this._v[2],
+      this._v[3]
     );
   }
 }

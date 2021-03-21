@@ -28,75 +28,75 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   public set m00(val) {
-    this.v[0] = val;
+    this._v[0] = val;
   }
 
   public get m00() {
-    return this.v[0];
+    return this._v[0];
   }
 
   public set m10(val) {
-    this.v[1] = val;
+    this._v[1] = val;
   }
 
   public get m10() {
-    return this.v[1];
+    return this._v[1];
   }
 
   public set m20(val) {
-    this.v[2] = val;
+    this._v[2] = val;
   }
 
   public get m20() {
-    return this.v[2];
+    return this._v[2];
   }
 
   public set m01(val) {
-    this.v[3] = val;
+    this._v[3] = val;
   }
 
   public get m01() {
-    return this.v[3];
+    return this._v[3];
   }
 
   public set m11(val) {
-    this.v[4] = val;
+    this._v[4] = val;
   }
 
   public get m11() {
-    return this.v[4];
+    return this._v[4];
   }
 
   public set m21(val) {
-    this.v[5] = val;
+    this._v[5] = val;
   }
 
   public get m21() {
-    return this.v[5];
+    return this._v[5];
   }
 
   public set m02(val) {
-    this.v[6] = val;
+    this._v[6] = val;
   }
 
   public get m02() {
-    return this.v[6];
+    return this._v[6];
   }
 
   public set m12(val) {
-    this.v[7] = val;
+    this._v[7] = val;
   }
 
   public get m12() {
-    return this.v[7];
+    return this._v[7];
   }
 
   public set m22(val) {
-    this.v[8] = val;
+    this._v[8] = val;
   }
 
   public get m22() {
-    return this.v[8];
+    return this._v[8];
   }
 
   get className() {
@@ -161,7 +161,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   static rotate(vec: Vector3) {
-    return super.rotateXYZ(vec.v[0], vec.v[1], vec.v[2]) as MutableMatrix33;
+    return super.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]) as MutableMatrix33;
   }
 
   /**
@@ -184,11 +184,11 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   raw() {
-    return this.v;
+    return this._v;
   }
 
   setAt(row_i: number, column_i: number, value: number) {
-    this.v[row_i + column_i * 3] = value;
+    this._v[row_i + column_i * 3] = value;
     return this;
   }
 
@@ -197,17 +197,17 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     m10: number, m11: number, m12: number,
     m20: number, m21: number, m22: number
   ): MutableMatrix33 {
-    this.v[0] = m00; this.v[3] = m01; this.v[6] = m02;
-    this.v[1] = m10; this.v[4] = m11; this.v[7] = m12;
-    this.v[2] = m20; this.v[5] = m21; this.v[8] = m22;
+    this._v[0] = m00; this._v[3] = m01; this._v[6] = m02;
+    this._v[1] = m10; this._v[4] = m11; this._v[7] = m12;
+    this._v[2] = m20; this._v[5] = m21; this._v[8] = m22;
 
     return this;
   }
 
   copyComponents(mat: Matrix33 | Matrix44) {
-    this.v[0] = mat.m00; this.v[3] = mat.m01; this.v[6] = mat.m02; // mat.m01 is mat.v[3 or 4]
-    this.v[1] = mat.m10; this.v[4] = mat.m11; this.v[7] = mat.m12;
-    this.v[2] = mat.m20; this.v[5] = mat.m21; this.v[8] = mat.m22;
+    this._v[0] = mat.m00; this._v[3] = mat.m01; this._v[6] = mat.m02; // mat.m01 is mat._v[3 or 4]
+    this._v[1] = mat.m10; this._v[4] = mat.m11; this._v[7] = mat.m12;
+    this._v[2] = mat.m20; this._v[5] = mat.m21; this._v[8] = mat.m22;
 
     return this;
   }
@@ -228,7 +228,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   _swap(l: Index, r: Index) {
-    this.v[r] = [this.v[l], this.v[l] = this.v[r]][0];
+    this._v[r] = [this._v[l], this._v[l] = this._v[r]][0];
   }
 
   /**
@@ -248,15 +248,15 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
       console.error('the determinant is 0!');
     }
 
-    const m00 = (this.v[4] * this.v[8] - this.v[7] * this.v[5]) / det;
-    const m01 = (this.v[6] * this.v[5] - this.v[3] * this.v[8]) / det;
-    const m02 = (this.v[3] * this.v[7] - this.v[6] * this.v[4]) / det;
-    const m10 = (this.v[7] * this.v[2] - this.v[1] * this.v[8]) / det;
-    const m11 = (this.v[0] * this.v[8] - this.v[6] * this.v[2]) / det;
-    const m12 = (this.v[6] * this.v[1] - this.v[0] * this.v[7]) / det;
-    const m20 = (this.v[1] * this.v[5] - this.v[4] * this.v[2]) / det;
-    const m21 = (this.v[3] * this.v[2] - this.v[0] * this.v[5]) / det;
-    const m22 = (this.v[0] * this.v[4] - this.v[3] * this.v[1]) / det;
+    const m00 = (this._v[4] * this._v[8] - this._v[7] * this._v[5]) / det;
+    const m01 = (this._v[6] * this._v[5] - this._v[3] * this._v[8]) / det;
+    const m02 = (this._v[3] * this._v[7] - this._v[6] * this._v[4]) / det;
+    const m10 = (this._v[7] * this._v[2] - this._v[1] * this._v[8]) / det;
+    const m11 = (this._v[0] * this._v[8] - this._v[6] * this._v[2]) / det;
+    const m12 = (this._v[6] * this._v[1] - this._v[0] * this._v[7]) / det;
+    const m20 = (this._v[1] * this._v[5] - this._v[4] * this._v[2]) / det;
+    const m21 = (this._v[3] * this._v[2] - this._v[0] * this._v[5]) / det;
+    const m22 = (this._v[0] * this._v[4] - this._v[3] * this._v[1]) / det;
 
     return this.setComponents(
       m00, m01, m02,
@@ -372,29 +372,29 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   rotate(vec: Vector3) {
-    return this.rotateXYZ(vec.v[0], vec.v[1], vec.v[2]);
+    return this.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]);
   }
 
   scale(vec: Vector3) {
     return this.setComponents(
-      vec.v[0], 0, 0,
-      0, vec.v[1], 0,
-      0, 0, vec.v[2]
+      vec._v[0], 0, 0,
+      0, vec._v[1], 0,
+      0, 0, vec._v[2]
     );
   }
 
   putScale(vec: Vector3) {
-    this.v[0] *= vec.v[0];
-    this.v[3] *= vec.v[0];
-    this.v[6] *= vec.v[0];
+    this._v[0] *= vec._v[0];
+    this._v[3] *= vec._v[0];
+    this._v[6] *= vec._v[0];
 
-    this.v[1] *= vec.v[1];
-    this.v[4] *= vec.v[1];
-    this.v[7] *= vec.v[1];
+    this._v[1] *= vec._v[1];
+    this._v[4] *= vec._v[1];
+    this._v[7] *= vec._v[1];
 
-    this.v[2] *= vec.v[2];
-    this.v[5] *= vec.v[2];
-    this.v[8] *= vec.v[2];
+    this._v[2] *= vec._v[2];
+    this._v[5] *= vec._v[2];
+    this._v[8] *= vec._v[2];
 
     return this;
   }
@@ -403,17 +403,17 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
    * multiply the input matrix from right side
    */
   multiply(mat: Matrix33) {
-    const m00 = this.v[0] * mat.v[0] + this.v[3] * mat.v[1] + this.v[6] * mat.v[2];
-    const m01 = this.v[0] * mat.v[3] + this.v[3] * mat.v[4] + this.v[6] * mat.v[5];
-    const m02 = this.v[0] * mat.v[6] + this.v[3] * mat.v[7] + this.v[6] * mat.v[8];
+    const m00 = this._v[0] * mat._v[0] + this._v[3] * mat._v[1] + this._v[6] * mat._v[2];
+    const m01 = this._v[0] * mat._v[3] + this._v[3] * mat._v[4] + this._v[6] * mat._v[5];
+    const m02 = this._v[0] * mat._v[6] + this._v[3] * mat._v[7] + this._v[6] * mat._v[8];
 
-    const m10 = this.v[1] * mat.v[0] + this.v[4] * mat.v[1] + this.v[7] * mat.v[2];
-    const m11 = this.v[1] * mat.v[3] + this.v[4] * mat.v[4] + this.v[7] * mat.v[5];
-    const m12 = this.v[1] * mat.v[6] + this.v[4] * mat.v[7] + this.v[7] * mat.v[8];
+    const m10 = this._v[1] * mat._v[0] + this._v[4] * mat._v[1] + this._v[7] * mat._v[2];
+    const m11 = this._v[1] * mat._v[3] + this._v[4] * mat._v[4] + this._v[7] * mat._v[5];
+    const m12 = this._v[1] * mat._v[6] + this._v[4] * mat._v[7] + this._v[7] * mat._v[8];
 
-    const m20 = this.v[2] * mat.v[0] + this.v[5] * mat.v[1] + this.v[8] * mat.v[2];
-    const m21 = this.v[2] * mat.v[3] + this.v[5] * mat.v[4] + this.v[8] * mat.v[5];
-    const m22 = this.v[2] * mat.v[6] + this.v[5] * mat.v[7] + this.v[8] * mat.v[8];
+    const m20 = this._v[2] * mat._v[0] + this._v[5] * mat._v[1] + this._v[8] * mat._v[2];
+    const m21 = this._v[2] * mat._v[3] + this._v[5] * mat._v[4] + this._v[8] * mat._v[5];
+    const m22 = this._v[2] * mat._v[6] + this._v[5] * mat._v[7] + this._v[8] * mat._v[8];
 
     return this.setComponents(
       m00, m01, m02,
@@ -423,17 +423,17 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
   }
 
   multiplyByLeft(mat: Matrix33) {
-    const m00 = mat.v[0] * this.v[0] + mat.v[3] * this.v[1] + mat.v[6] * this.v[2];
-    const m01 = mat.v[0] * this.v[3] + mat.v[3] * this.v[4] + mat.v[6] * this.v[5];
-    const m02 = mat.v[0] * this.v[6] + mat.v[3] * this.v[7] + mat.v[6] * this.v[8];
+    const m00 = mat._v[0] * this._v[0] + mat._v[3] * this._v[1] + mat._v[6] * this._v[2];
+    const m01 = mat._v[0] * this._v[3] + mat._v[3] * this._v[4] + mat._v[6] * this._v[5];
+    const m02 = mat._v[0] * this._v[6] + mat._v[3] * this._v[7] + mat._v[6] * this._v[8];
 
-    const m10 = mat.v[1] * this.v[0] + mat.v[4] * this.v[1] + mat.v[7] * this.v[2];
-    const m11 = mat.v[1] * this.v[3] + mat.v[4] * this.v[4] + mat.v[7] * this.v[5];
-    const m12 = mat.v[1] * this.v[6] + mat.v[4] * this.v[7] + mat.v[7] * this.v[8];
+    const m10 = mat._v[1] * this._v[0] + mat._v[4] * this._v[1] + mat._v[7] * this._v[2];
+    const m11 = mat._v[1] * this._v[3] + mat._v[4] * this._v[4] + mat._v[7] * this._v[5];
+    const m12 = mat._v[1] * this._v[6] + mat._v[4] * this._v[7] + mat._v[7] * this._v[8];
 
-    const m20 = mat.v[2] * this.v[0] + mat.v[5] * this.v[1] + mat.v[8] * this.v[2];
-    const m21 = mat.v[2] * this.v[3] + mat.v[5] * this.v[4] + mat.v[8] * this.v[5];
-    const m22 = mat.v[2] * this.v[6] + mat.v[5] * this.v[7] + mat.v[8] * this.v[8];
+    const m20 = mat._v[2] * this._v[0] + mat._v[5] * this._v[1] + mat._v[8] * this._v[2];
+    const m21 = mat._v[2] * this._v[3] + mat._v[5] * this._v[4] + mat._v[8] * this._v[5];
+    const m22 = mat._v[2] * this._v[6] + mat._v[5] * this._v[7] + mat._v[8] * this._v[8];
 
     return this.setComponents(
       m00, m01, m02,

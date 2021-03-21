@@ -1,8 +1,8 @@
 import {TypedArray} from '../../types/CommonTypes';
 
 export default class VectorN {
-  public v: TypedArray;
+  public _v: TypedArray;
   constructor(typedArray: TypedArray) {
-    this.v = typedArray;
+    this._v = typedArray;
   }
 }

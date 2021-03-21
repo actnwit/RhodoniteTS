@@ -9,15 +9,15 @@ export class MutableScalar_<
   }
 
   copyComponents(vec: Scalar_<T>) {
-    this.v[0] = vec.v[0];
+    this._v[0] = vec._v[0];
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   set x(x: number) {
-    this.v[0] = x;
+    this._v[0] = x;
   }
 
   get y() {

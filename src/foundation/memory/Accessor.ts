@@ -1116,17 +1116,17 @@ export default class Accessor extends RnObject {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [
-        this.__min.v[0],
-        this.__min.v[1],
-        this.__min.v[2],
-        this.__min.v[3],
+        this.__min._v[0],
+        this.__min._v[1],
+        this.__min._v[2],
+        this.__min._v[3],
       ];
     } else if (componentN === 3) {
-      return [this.__min.v[0], this.__min.v[1], this.__min.v[2]];
+      return [this.__min._v[0], this.__min._v[1], this.__min._v[2]];
     } else if (componentN === 2) {
-      return [this.__min.v[0], this.__min.v[1]];
+      return [this.__min._v[0], this.__min._v[1]];
     } else {
-      return [this.__min.v[0]];
+      return [this.__min._v[0]];
     }
   }
 
@@ -1134,17 +1134,17 @@ export default class Accessor extends RnObject {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [
-        this.__max.v[0],
-        this.__max.v[1],
-        this.__max.v[2],
-        this.__max.v[3],
+        this.__max._v[0],
+        this.__max._v[1],
+        this.__max._v[2],
+        this.__max._v[3],
       ];
     } else if (componentN === 3) {
-      return [this.__max.v[0], this.__max.v[1], this.__max.v[2]];
+      return [this.__max._v[0], this.__max._v[1], this.__max._v[2]];
     } else if (componentN === 2) {
-      return [this.__max.v[0], this.__max.v[1]];
+      return [this.__max._v[0], this.__max._v[1]];
     } else {
-      return [this.__max.v[0]];
+      return [this.__max._v[0]];
     }
   }
 
@@ -1172,11 +1172,11 @@ export default class Accessor extends RnObject {
       for (let i = 0; i < this.elementCount; i++) {
         this.getVec4To(i, vec4, {});
         for (let j = 0; j < 4; j++) {
-          if (this.__max.v[j] < vec4.v[j]) {
-            this.__max.v[j] = vec4.v[j];
+          if (this.__max._v[j] < vec4._v[j]) {
+            this.__max._v[j] = vec4._v[j];
           }
-          if (vec4.v[j] < this.__min.v[j]) {
-            this.__min.v[j] = vec4.v[j];
+          if (vec4._v[j] < this.__min._v[j]) {
+            this.__min._v[j] = vec4._v[j];
           }
         }
       }
@@ -1198,11 +1198,11 @@ export default class Accessor extends RnObject {
       for (let i = 0; i < this.elementCount; i++) {
         this.getVec3To(i, vec3, {});
         for (let j = 0; j < 3; j++) {
-          if (this.__max.v[j] < vec3.v[j]) {
-            this.__max.v[j] = vec3.v[j];
+          if (this.__max._v[j] < vec3._v[j]) {
+            this.__max._v[j] = vec3._v[j];
           }
-          if (vec3.v[j] < this.__min.v[j]) {
-            this.__min.v[j] = vec3.v[j];
+          if (vec3._v[j] < this.__min._v[j]) {
+            this.__min._v[j] = vec3._v[j];
           }
         }
       }
@@ -1224,11 +1224,11 @@ export default class Accessor extends RnObject {
       for (let i = 0; i < this.elementCount; i++) {
         this.getVec2To(i, vec2, {});
         for (let j = 0; j < 2; j++) {
-          if (this.__max.v[j] < vec2.v[j]) {
-            this.__max.v[j] = vec2.v[j];
+          if (this.__max._v[j] < vec2._v[j]) {
+            this.__max._v[j] = vec2._v[j];
           }
-          if (vec2.v[j] < this.__min.v[j]) {
-            this.__min.v[j] = vec2.v[j];
+          if (vec2._v[j] < this.__min._v[j]) {
+            this.__min._v[j] = vec2._v[j];
           }
         }
       }
@@ -1248,11 +1248,11 @@ export default class Accessor extends RnObject {
 
       for (let i = 0; i < this.elementCount; i++) {
         const scalar = this.getScalar(i, {});
-        if (this.__max.v[0] < scalar) {
-          this.__max.v[0] = scalar;
+        if (this.__max._v[0] < scalar) {
+          this.__max._v[0] = scalar;
         }
-        if (scalar < this.__min.v[0]) {
-          this.__min.v[0] = scalar;
+        if (scalar < this.__min._v[0]) {
+          this.__min._v[0] = scalar;
         }
       }
     }

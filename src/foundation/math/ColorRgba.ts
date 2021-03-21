@@ -14,35 +14,35 @@ export default class ColorRgba extends Vector4 implements IVector4, IColorRgba {
   }
 
   get x() {
-    return this.v[0];
+    return this._v[0];
   }
 
   get y() {
-    return this.v[1];
+    return this._v[1];
   }
 
   get z() {
-    return this.v[2];
+    return this._v[2];
   }
 
   get w() {
-    return this.v[3];
+    return this._v[3];
   }
 
   get r() {
-    return this.v[0];
+    return this._v[0];
   }
 
   get g() {
-    return this.v[1];
+    return this._v[1];
   }
 
   get b() {
-    return this.v[2];
+    return this._v[2];
   }
 
   get a() {
-    return this.v[3];
+    return this._v[3];
   }
 
   static zero() {

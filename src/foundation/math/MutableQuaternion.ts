@@ -25,35 +25,35 @@ export default class MutableQuaternion
   }
 
   set x(x: number) {
-    this.v[0] = x;
+    this._v[0] = x;
   }
 
   get x(): number {
-    return this.v[0];
+    return this._v[0];
   }
 
   set y(y: number) {
-    this.v[1] = y;
+    this._v[1] = y;
   }
 
   get y(): number {
-    return this.v[1];
+    return this._v[1];
   }
 
   set z(z: number) {
-    this.v[2] = z;
+    this._v[2] = z;
   }
 
   get z(): number {
-    return this.v[2];
+    return this._v[2];
   }
 
   set w(w: number) {
-    this.v[3] = w;
+    this._v[3] = w;
   }
 
   get w(): number {
-    return this.v[3];
+    return this._v[3];
   }
 
   static identity() {
@@ -109,24 +109,24 @@ export default class MutableQuaternion
   }
 
   raw() {
-    return this.v;
+    return this._v;
   }
 
   setAt(i: number, value: number) {
-    this.v[i] = value;
+    this._v[i] = value;
     return this;
   }
 
   setComponents(x: number, y: number, z: number, w: number) {
-    this.v[0] = x;
-    this.v[1] = y;
-    this.v[2] = z;
-    this.v[3] = w;
+    this._v[0] = x;
+    this._v[1] = y;
+    this._v[2] = z;
+    this._v[3] = w;
     return this;
   }
 
   copyComponents(quat: IQuaternion) {
-    return this.setComponents(quat.v[0], quat.v[1], quat.v[2], quat.v[3]);
+    return this.setComponents(quat._v[0], quat._v[1], quat._v[2], quat._v[3]);
   }
 
   identity() {
@@ -144,19 +144,19 @@ export default class MutableQuaternion
       return this; // [0, 0, 0, 0]
     }
 
-    this.v[0] = -this.v[0] / norm;
-    this.v[1] = -this.v[1] / norm;
-    this.v[2] = -this.v[2] / norm;
-    this.v[3] = this.v[3] / norm;
+    this._v[0] = -this._v[0] / norm;
+    this._v[1] = -this._v[1] / norm;
+    this._v[2] = -this._v[2] / norm;
+    this._v[3] = this._v[3] / norm;
     return this;
   }
 
   qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
     let qr =
-      l_quat.v[3] * r_quat.v[3] +
-      l_quat.v[0] * r_quat.v[0] +
-      l_quat.v[1] * r_quat.v[1] +
-      l_quat.v[2] * r_quat.v[2];
+      l_quat._v[3] * r_quat._v[3] +
+      l_quat._v[0] * r_quat._v[0] +
+      l_quat._v[1] * r_quat._v[1] +
+      l_quat._v[2] * r_quat._v[2];
     const ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
@@ -172,10 +172,10 @@ export default class MutableQuaternion
       let s2;
       if (qr < 0.0 && ph > Math.PI / 2.0) {
         qr =
-          -l_quat.v[3] * r_quat.v[3] -
-          l_quat.v[0] * r_quat.v[0] -
-          l_quat.v[1] * r_quat.v[1] -
-          l_quat.v[2] * r_quat.v[2];
+          -l_quat._v[3] * r_quat._v[3] -
+          l_quat._v[0] * r_quat._v[0] -
+          l_quat._v[1] * r_quat._v[1] -
+          l_quat._v[2] * r_quat._v[2];
         ph = Math.acos(qr);
         s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
       } else {
@@ -183,20 +183,20 @@ export default class MutableQuaternion
       }
       const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
 
-      this.v[0] = l_quat.v[0] * s1 + r_quat.v[0] * s2;
-      this.v[1] = l_quat.v[1] * s1 + r_quat.v[1] * s2;
-      this.v[2] = l_quat.v[2] * s1 + r_quat.v[2] * s2;
-      this.v[3] = l_quat.v[3] * s1 + r_quat.v[3] * s2;
+      this._v[0] = l_quat._v[0] * s1 + r_quat._v[0] * s2;
+      this._v[1] = l_quat._v[1] * s1 + r_quat._v[1] * s2;
+      this._v[2] = l_quat._v[2] * s1 + r_quat._v[2] * s2;
+      this._v[3] = l_quat._v[3] * s1 + r_quat._v[3] * s2;
     }
 
     return this;
   }
 
   lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
-    this.v[0] = l_quat.v[0] * (1 - ratio) + r_quat.v[0] * ratio;
-    this.v[1] = l_quat.v[1] * (1 - ratio) + r_quat.v[1] * ratio;
-    this.v[2] = l_quat.v[2] * (1 - ratio) + r_quat.v[2] * ratio;
-    this.v[3] = l_quat.v[3] * (1 - ratio) + r_quat.v[3] * ratio;
+    this._v[0] = l_quat._v[0] * (1 - ratio) + r_quat._v[0] * ratio;
+    this._v[1] = l_quat._v[1] * (1 - ratio) + r_quat._v[1] * ratio;
+    this._v[2] = l_quat._v[2] * (1 - ratio) + r_quat._v[2] * ratio;
+    this._v[3] = l_quat._v[3] * (1 - ratio) + r_quat._v[3] * ratio;
 
     return this;
   }
@@ -210,10 +210,10 @@ export default class MutableQuaternion
       console.error('0 division occurred!');
     }
 
-    this.v[3] = Math.cos(halfAngle);
-    this.v[0] = (sin * vec.v[0]) / length;
-    this.v[1] = (sin * vec.v[1]) / length;
-    this.v[2] = (sin * vec.v[2]) / length;
+    this._v[3] = Math.cos(halfAngle);
+    this._v[0] = (sin * vec._v[0]) / length;
+    this._v[1] = (sin * vec._v[1]) / length;
+    this._v[2] = (sin * vec._v[2]) / length;
 
     return this;
   }
@@ -223,97 +223,97 @@ export default class MutableQuaternion
 
     if (tr > 0) {
       const S = 0.5 / Math.sqrt(tr + 1.0);
-      this.v[0] = (mat.m21 - mat.m12) * S;
-      this.v[1] = (mat.m02 - mat.m20) * S;
-      this.v[2] = (mat.m10 - mat.m01) * S;
-      this.v[3] = 0.25 / S;
+      this._v[0] = (mat.m21 - mat.m12) * S;
+      this._v[1] = (mat.m02 - mat.m20) * S;
+      this._v[2] = (mat.m10 - mat.m01) * S;
+      this._v[3] = 0.25 / S;
     } else if (mat.m00 > mat.m11 && mat.m00 > mat.m22) {
       const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
-      this.v[0] = 0.25 * S;
-      this.v[1] = (mat.m01 + mat.m10) / S;
-      this.v[2] = (mat.m02 + mat.m20) / S;
-      this.v[3] = (mat.m21 - mat.m12) / S;
+      this._v[0] = 0.25 * S;
+      this._v[1] = (mat.m01 + mat.m10) / S;
+      this._v[2] = (mat.m02 + mat.m20) / S;
+      this._v[3] = (mat.m21 - mat.m12) / S;
     } else if (mat.m11 > mat.m22) {
       const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
-      this.v[0] = (mat.m01 + mat.m10) / S;
-      this.v[1] = 0.25 * S;
-      this.v[2] = (mat.m12 + mat.m21) / S;
-      this.v[3] = (mat.m02 - mat.m20) / S;
+      this._v[0] = (mat.m01 + mat.m10) / S;
+      this._v[1] = 0.25 * S;
+      this._v[2] = (mat.m12 + mat.m21) / S;
+      this._v[3] = (mat.m02 - mat.m20) / S;
     } else {
       const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
-      this.v[0] = (mat.m02 + mat.m20) / S;
-      this.v[1] = (mat.m12 + mat.m21) / S;
-      this.v[2] = 0.25 * S;
-      this.v[3] = (mat.m10 - mat.m01) / S;
+      this._v[0] = (mat.m02 + mat.m20) / S;
+      this._v[1] = (mat.m12 + mat.m21) / S;
+      this._v[2] = 0.25 * S;
+      this._v[3] = (mat.m10 - mat.m01) / S;
     }
 
     return this;
   }
 
   fromPosition(vec: IVector3) {
-    return this.setComponents(vec.v[0], vec.v[1], vec.v[2], 0);
+    return this.setComponents(vec._v[0], vec._v[1], vec._v[2], 0);
   }
 
   add(quat: IQuaternion) {
-    this.v[0] += quat.v[0];
-    this.v[1] += quat.v[1];
-    this.v[2] += quat.v[2];
-    this.v[3] += quat.v[3];
+    this._v[0] += quat._v[0];
+    this._v[1] += quat._v[1];
+    this._v[2] += quat._v[2];
+    this._v[3] += quat._v[3];
     return this;
   }
 
   subtract(quat: IQuaternion) {
-    this.v[0] -= quat.v[0];
-    this.v[1] -= quat.v[1];
-    this.v[2] -= quat.v[2];
-    this.v[3] -= quat.v[3];
+    this._v[0] -= quat._v[0];
+    this._v[1] -= quat._v[1];
+    this._v[2] -= quat._v[2];
+    this._v[3] -= quat._v[3];
     return this;
   }
 
   multiply(quat: IQuaternion) {
     const x =
-      quat.v[3] * this.v[0] +
-      quat.v[2] * this.v[1] +
-      quat.v[1] * this.v[2] -
-      quat.v[0] * this.v[3];
+      quat._v[3] * this._v[0] +
+      quat._v[2] * this._v[1] +
+      quat._v[1] * this._v[2] -
+      quat._v[0] * this._v[3];
     const y =
-      -quat.v[2] * this.v[0] +
-      quat.v[3] * this.v[1] +
-      quat.v[0] * this.v[2] -
-      quat.v[1] * this.v[3];
+      -quat._v[2] * this._v[0] +
+      quat._v[3] * this._v[1] +
+      quat._v[0] * this._v[2] -
+      quat._v[1] * this._v[3];
     const z =
-      quat.v[1] * this.v[0] +
-      quat.v[0] * this.v[1] +
-      quat.v[3] * this.v[2] -
-      quat.v[2] * this.v[3];
+      quat._v[1] * this._v[0] +
+      quat._v[0] * this._v[1] +
+      quat._v[3] * this._v[2] -
+      quat._v[2] * this._v[3];
     const w =
-      -quat.v[0] * this.v[0] -
-      quat.v[1] * this.v[1] -
-      quat.v[2] * this.v[2] -
-      quat.v[3] * this.v[3];
+      -quat._v[0] * this._v[0] -
+      quat._v[1] * this._v[1] -
+      quat._v[2] * this._v[2] -
+      quat._v[3] * this._v[3];
     return this.setComponents(x, y, z, w);
   }
 
   multiplyNumber(value: number) {
-    this.v[0] *= value;
-    this.v[1] *= value;
-    this.v[2] *= value;
-    this.v[3] *= value;
+    this._v[0] *= value;
+    this._v[1] *= value;
+    this._v[2] *= value;
+    this._v[3] *= value;
     return this;
   }
 
   divideNumber(value: number) {
     if (value !== 0) {
-      this.v[0] /= value;
-      this.v[1] /= value;
-      this.v[2] /= value;
-      this.v[3] /= value;
+      this._v[0] /= value;
+      this._v[1] /= value;
+      this._v[2] /= value;
+      this._v[3] /= value;
     } else {
       console.error('0 division occurred!');
-      this.v[0] = Infinity;
-      this.v[1] = Infinity;
-      this.v[2] = Infinity;
-      this.v[3] = Infinity;
+      this._v[0] = Infinity;
+      this._v[1] = Infinity;
+      this._v[2] = Infinity;
+      this._v[3] = Infinity;
     }
     return this;
   }

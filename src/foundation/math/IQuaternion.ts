@@ -3,8 +3,8 @@ import {IVector3, IMutableVector3} from './IVector';
 import {IMatrix44} from './IMatrix';
 
 export interface IQuaternion {
-  readonly v: TypedArray;
   readonly className: string;
+  _v: Float32Array;
 
   readonly x: number;
   readonly y: number;
@@ -25,8 +25,7 @@ export interface IQuaternion {
   clone(): IQuaternion;
 }
 
-export interface IMutableQuaternion {
-  readonly v: TypedArray;
+export interface IMutableQuaternion extends IQuaternion {
   readonly className: string;
 
   x: number;
@@ -66,8 +65,8 @@ export interface IMutableQuaternion {
 }
 
 export interface ILogQuaternion {
-  readonly v: TypedArray;
   readonly className: string;
+  readonly _v: Float32Array;
 
   readonly x: number;
   readonly y: number;

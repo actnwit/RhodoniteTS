@@ -1,11 +1,21 @@
 import { CompositionType } from '../definitions/CompositionType';
+import AbstractMatrix from './AbstractMatrix';
 import {IMatrix, IMatrix44} from './IMatrix';
 import { IVector, IMutableVector4, IMutableVector } from './IVector';
 import Matrix44 from './Matrix44';
 import MutableVector4 from './MutableVector4';
 import Vector4 from './Vector4';
 
-export default class IdentityMatrix44 implements IMatrix, IMatrix44 {
+export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
+  static readonly __v = new Float32Array([1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1]);
+  
+  constructor() {
+    super();
+    this._v = IdentityMatrix44.__v;
+  }
   toString(): string {
     return `1 0 0 0
 0 1 0 0
@@ -50,7 +60,7 @@ export default class IdentityMatrix44 implements IMatrix, IMatrix44 {
   }
   
   isStrictEqual(mat: IMatrix): boolean {
-    const v = (mat as Matrix44).v;
+    const v = (mat as Matrix44)._v;
     if (
       v[0] === 1 && v[1] === 0 && v[2] === 0 && v[3] === 0 &&
       v[4] === 0 && v[5] === 1 && v[6] === 0 && v[7] === 0 &&
@@ -66,6 +76,10 @@ export default class IdentityMatrix44 implements IMatrix, IMatrix44 {
   at(row_i: number, column_i: number): number {
     return (row_i === column_i) ? 1 : 0;
   }
+  
+  v(i: number): number {
+    return (i%5 === 0) ? 1 : 0;
+  }
 
   determinant(): number {
     return 1;
@@ -76,11 +90,11 @@ export default class IdentityMatrix44 implements IMatrix, IMatrix44 {
   }
 
   multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector {
-    const v = (vec as Vector4).v;
-    outVec.v[0] = v[0];
-    outVec.v[1] = v[1];
-    outVec.v[2] = v[2];
-    outVec.v[3] = v[3];
+    const v = (vec as Vector4)._v;
+    outVec._v[0] = v[0];
+    outVec._v[1] = v[1];
+    outVec._v[2] = v[2];
+    outVec._v[3] = v[3];
 
     return outVec;
   }
@@ -90,7 +104,7 @@ export default class IdentityMatrix44 implements IMatrix, IMatrix44 {
   }
   
   getScaleTo(outVec: IMutableVector): IMutableVector {
-    const v = (outVec as MutableVector4).v;
+    const v = (outVec as MutableVector4)._v;
     
     v[0] = 1;
     v[1] = 1;

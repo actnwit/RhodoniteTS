@@ -18,6 +18,7 @@ export interface IMatrix {
   flattenAsArray(): Array<number>;
   isDummy(): boolean;
   at(row_i: number, column_i: number): number;
+  v(i: number): number;
   determinant(): number;
 }
 
@@ -46,7 +47,6 @@ export interface IMatrix22 extends IMatrix {
   readonly m11: number;
   isEqual(mat: IMatrix22, delta?: number): boolean;
   isStrictEqual(mat: IMatrix22): boolean;
-  at(row_i: number, column_i: number): number;
   determinant(): number;
   multiplyVector(vec: IVector2): IVector2;
   multiplyVectorTo(vec: IVector2, outVec: IMutableVector2): IMutableVector2;

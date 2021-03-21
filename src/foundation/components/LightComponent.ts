@@ -78,7 +78,7 @@ export default class LightComponent extends Component {
       ShaderSemantics.CurrentComponentSIDs,
       0
     );
-    currentComponentSIDs!.v[WellKnownComponentTIDs.LightComponentTID] =
+    currentComponentSIDs!._v[WellKnownComponentTIDs.LightComponentTID] =
       lightComponents.length;
 
     LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue(
@@ -102,38 +102,38 @@ export default class LightComponent extends Component {
       this.__initialdirection
     );
 
-    LightComponent.__lightDirections.v[
+    LightComponent.__lightDirections._v[
       4 * this.componentSID + 0
     ] = this.__direction.x;
-    LightComponent.__lightDirections.v[
+    LightComponent.__lightDirections._v[
       4 * this.componentSID + 1
     ] = this.__direction.y;
-    LightComponent.__lightDirections.v[
+    LightComponent.__lightDirections._v[
       4 * this.componentSID + 2
     ] = this.__direction.z;
-    LightComponent.__lightDirections.v[4 * this.componentSID + 3] = 0;
+    LightComponent.__lightDirections._v[4 * this.componentSID + 3] = 0;
 
     const lightPosition = this.__sceneGraphComponent!.worldPosition;
-    LightComponent.__lightPositions.v[4 * this.componentSID + 0] =
+    LightComponent.__lightPositions._v[4 * this.componentSID + 0] =
       lightPosition.x;
-    LightComponent.__lightPositions.v[4 * this.componentSID + 1] =
+    LightComponent.__lightPositions._v[4 * this.componentSID + 1] =
       lightPosition.y;
-    LightComponent.__lightPositions.v[4 * this.componentSID + 2] =
+    LightComponent.__lightPositions._v[4 * this.componentSID + 2] =
       lightPosition.z;
-    LightComponent.__lightPositions.v[
+    LightComponent.__lightPositions._v[
       4 * this.componentSID + 3
     ] = this.type.index;
 
-    LightComponent.__lightIntensities.v[
+    LightComponent.__lightIntensities._v[
       4 * this.componentSID + 0
     ] = this.__intensity.x;
-    LightComponent.__lightIntensities.v[
+    LightComponent.__lightIntensities._v[
       4 * this.componentSID + 1
     ] = this.__intensity.y;
-    LightComponent.__lightIntensities.v[
+    LightComponent.__lightIntensities._v[
       4 * this.componentSID + 2
     ] = this.__intensity.z;
-    LightComponent.__lightIntensities.v[4 * this.componentSID + 3] = 0;
+    LightComponent.__lightIntensities._v[4 * this.componentSID + 3] = 0;
   }
 }
 ComponentRepository.registerComponentClass(LightComponent);

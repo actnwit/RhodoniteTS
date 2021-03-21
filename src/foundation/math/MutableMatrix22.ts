@@ -37,35 +37,35 @@ export default class MutableMatrix22
   }
 
   public set m00(val) {
-    this.v[0] = val;
+    this._v[0] = val;
   }
 
   public get m00() {
-    return this.v[0];
+    return this._v[0];
   }
 
   public set m10(val) {
-    this.v[1] = val;
+    this._v[1] = val;
   }
 
   public get m10() {
-    return this.v[1];
+    return this._v[1];
   }
 
   public set m01(val) {
-    this.v[2] = val;
+    this._v[2] = val;
   }
 
   public get m01() {
-    return this.v[2];
+    return this._v[2];
   }
 
   public set m11(val) {
-    this.v[3] = val;
+    this._v[3] = val;
   }
 
   public get m11() {
-    return this.v[3];
+    return this._v[3];
   }
 
   get className() {
@@ -115,7 +115,7 @@ export default class MutableMatrix22
    * Create Scale Matrix
    */
   static scale(vec: Vector2) {
-    return super.scale(vec) as MutableMatrix22;
+    return super.scale(vec) as unknown as MutableMatrix22;
   }
 
   /**
@@ -131,11 +131,11 @@ export default class MutableMatrix22
   }
 
   raw() {
-    return this.v;
+    return this._v;
   }
 
   setAt(row_i: number, column_i: number, value: number) {
-    this.v[row_i + column_i * 2] = value;
+    this._v[row_i + column_i * 2] = value;
     return this;
   }
 
@@ -145,19 +145,19 @@ export default class MutableMatrix22
     m10: number,
     m11: number
   ): MutableMatrix22 {
-    this.v[0] = m00;
-    this.v[2] = m01;
-    this.v[1] = m10;
-    this.v[3] = m11;
+    this._v[0] = m00;
+    this._v[2] = m01;
+    this._v[1] = m10;
+    this._v[3] = m11;
 
     return this;
   }
 
   copyComponents(mat: Matrix22 | Matrix33 | Matrix44) {
-    this.v[0] = mat.m00;
-    this.v[2] = mat.m01; // mat.m01 is mat.v[2 or 3 or 4]
-    this.v[1] = mat.m10;
-    this.v[3] = mat.m11;
+    this._v[0] = mat.m00;
+    this._v[2] = mat.m01; // mat.m01 is mat._v[2 or 3 or 4]
+    this._v[1] = mat.m10;
+    this._v[3] = mat.m11;
 
     return this;
   }
@@ -174,7 +174,7 @@ export default class MutableMatrix22
   }
 
   _swap(l: Index, r: Index) {
-    this.v[r] = [this.v[l], (this.v[l] = this.v[r])][0];
+    this._v[r] = [this._v[l], (this._v[l] = this._v[r])][0];
   }
 
   /**
@@ -192,10 +192,10 @@ export default class MutableMatrix22
       console.error('the determinant is 0!');
     }
 
-    const m00 = this.v[3] / det;
-    const m01 = (this.v[2] / det) * -1.0;
-    const m10 = (this.v[1] / det) * -1.0;
-    const m11 = this.v[0] / det;
+    const m00 = this._v[3] / det;
+    const m01 = (this._v[2] / det) * -1.0;
+    const m10 = (this._v[1] / det) * -1.0;
+    const m11 = this._v[0] / det;
 
     return this.setComponents(m00, m01, m10, m11);
   }
@@ -210,15 +210,15 @@ export default class MutableMatrix22
   }
 
   scale(vec: Vector2) {
-    return this.setComponents(vec.v[0], 0, 0, vec.v[1]);
+    return this.setComponents(vec._v[0], 0, 0, vec._v[1]);
   }
 
   putScale(vec: Vector2) {
-    this.v[0] *= vec.v[0];
-    this.v[2] *= vec.v[0];
+    this._v[0] *= vec._v[0];
+    this._v[2] *= vec._v[0];
 
-    this.v[1] *= vec.v[1];
-    this.v[3] *= vec.v[1];
+    this._v[1] *= vec._v[1];
+    this._v[3] *= vec._v[1];
 
     return this;
   }
@@ -227,21 +227,21 @@ export default class MutableMatrix22
    * multiply the input matrix from right side
    */
   multiply(mat: Matrix22) {
-    const m00 = this.v[0] * mat.v[0] + this.v[2] * mat.v[1];
-    const m01 = this.v[0] * mat.v[2] + this.v[2] * mat.v[3];
+    const m00 = this._v[0] * mat._v[0] + this._v[2] * mat._v[1];
+    const m01 = this._v[0] * mat._v[2] + this._v[2] * mat._v[3];
 
-    const m10 = this.v[1] * mat.v[0] + this.v[3] * mat.v[1];
-    const m11 = this.v[1] * mat.v[2] + this.v[3] * mat.v[3];
+    const m10 = this._v[1] * mat._v[0] + this._v[3] * mat._v[1];
+    const m11 = this._v[1] * mat._v[2] + this._v[3] * mat._v[3];
 
     return this.setComponents(m00, m01, m10, m11);
   }
 
   multiplyByLeft(mat: Matrix22) {
-    const m00 = mat.v[0] * this.v[0] + mat.v[2] * this.v[1];
-    const m01 = mat.v[0] * this.v[2] + mat.v[2] * this.v[3];
+    const m00 = mat._v[0] * this._v[0] + mat._v[2] * this._v[1];
+    const m01 = mat._v[0] * this._v[2] + mat._v[2] * this._v[3];
 
-    const m10 = mat.v[1] * this.v[0] + mat.v[3] * this.v[1];
-    const m11 = mat.v[1] * this.v[2] + mat.v[3] * this.v[3];
+    const m10 = mat._v[1] * this._v[0] + mat._v[3] * this._v[1];
+    const m11 = mat._v[1] * this._v[2] + mat._v[3] * this._v[3];
 
     return this.setComponents(m00, m01, m10, m11);
   }

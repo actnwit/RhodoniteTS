@@ -864,7 +864,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-      WebGLStrategyFastest.__currentComponentSIDs!.v[
+      WebGLStrategyFastest.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.CameraComponentTID
       ] = webvrSystem.getCameraComponentSIDAt(displayIdx);
     } else {
@@ -876,11 +876,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         ) as CameraComponent;
       }
       if (cameraComponent) {
-        WebGLStrategyFastest.__currentComponentSIDs!.v[
+        WebGLStrategyFastest.__currentComponentSIDs!._v[
           WellKnownComponentTIDs.CameraComponentTID
         ] = cameraComponent.componentSID;
       } else {
-        WebGLStrategyFastest.__currentComponentSIDs!.v[
+        WebGLStrategyFastest.__currentComponentSIDs!._v[
           WellKnownComponentTIDs.CameraComponentTID
         ] = -1;
       }
@@ -898,11 +898,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {
         index = skeletalComponent.componentSID;
       }
-      WebGLStrategyFastest.__currentComponentSIDs!.v[
+      WebGLStrategyFastest.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.SkeletalComponentTID
       ] = index;
     } else {
-      WebGLStrategyFastest.__currentComponentSIDs!.v[
+      WebGLStrategyFastest.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.SkeletalComponentTID
       ] = -1;
     }
@@ -914,10 +914,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     material: Material,
     entity: Entity
   ) {
-    WebGLStrategyFastest.__currentComponentSIDs!.v[0] = material.materialSID;
+    WebGLStrategyFastest.__currentComponentSIDs!._v[0] = material.materialSID;
     gl.uniform1fv(
       (WebGLStrategyFastest.__shaderProgram as any).currentComponentSIDs,
-      WebGLStrategyFastest.__currentComponentSIDs!.v as Float32Array
+      WebGLStrategyFastest.__currentComponentSIDs!._v as Float32Array
     );
   }
 
