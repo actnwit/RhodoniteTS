@@ -1,5 +1,4 @@
-import { TypedArray } from "../../types/CommonTypes";
-import { IMatrix } from "./IMatrix";
+import {IMatrix} from './IMatrix';
 
 export default class AbstractMatrix implements IMatrix {
   _v: Float32Array = new Float32Array();
@@ -17,9 +16,9 @@ export default class AbstractMatrix implements IMatrix {
   }
   isDummy(): boolean {
     if (this._v.length === 0) {
-    return true;
+      return true;
     } else {
-    return false;
+      return false;
     }
   }
   v(i: number): number {
@@ -32,4 +31,7 @@ export default class AbstractMatrix implements IMatrix {
     return this.constructor.name;
   }
 
+  get isIdentityMatrixClass(): boolean {
+    return false;
+  }
 }

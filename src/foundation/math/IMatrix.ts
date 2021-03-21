@@ -1,6 +1,5 @@
 import {
   IVector,
-  IMutableVector,
   IVector2,
   IMutableVector2,
   IVector3,
@@ -12,6 +11,7 @@ import {TypedArray, Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
 
 export interface IMatrix {
+  _v: Float32Array;
   readonly className: string;
   toString(): string;
   toStringApproximately(): string;
@@ -20,6 +20,7 @@ export interface IMatrix {
   at(row_i: number, column_i: number): number;
   v(i: number): number;
   determinant(): number;
+  readonly isIdentityMatrixClass: boolean;
 }
 
 export interface IMutableMatrix extends IMatrix {

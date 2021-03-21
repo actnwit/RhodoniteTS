@@ -7,7 +7,6 @@ import {CompositionType} from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
 import MutableVector4 from './MutableVector4';
-import {TypedArray} from '../../types/CommonTypes';
 import {IVector3} from './IVector';
 import {MathUtil} from './MathUtil';
 import IdentityMatrix44 from './IdentityMatrix44';
@@ -225,13 +224,6 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Create identity matrix
    */
   static identity() {
-    // return new this(
-    //   1, 0, 0, 0,
-    //   0, 1, 0, 0,
-    //   0, 0, 1, 0,
-    //   0, 0, 0, 1
-    // );
-
     return new IdentityMatrix44();
   }
 
@@ -243,6 +235,10 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Create transpose matrix
    */
   static transpose(mat: Matrix44) {
+    if (mat.isIdentityMatrixClass) {
+      return mat;
+    }
+
     return new this(
       mat._v[0], mat._v[1], mat._v[2], mat._v[3],
       mat._v[4], mat._v[5], mat._v[6], mat._v[7],
@@ -255,6 +251,9 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Create invert matrix
    */
   static invert(mat: Matrix44) {
+    if (mat.isIdentityMatrixClass) {
+      return mat;
+    }
     const n00 = mat._v[0] * mat._v[5] - mat._v[4] * mat._v[1];
     const n01 = mat._v[0] * mat._v[9] - mat._v[8] * mat._v[1];
     const n02 = mat._v[0] * mat._v[13] - mat._v[12] * mat._v[1];
@@ -299,6 +298,9 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   static invertTo(mat: Matrix44, outMat: MutableMatrix44) {
+    if (mat.isIdentityMatrixClass) {
+      return outMat.copyComponents(mat);
+    }
     const n00 = mat._v[0] * mat._v[5] - mat._v[4] * mat._v[1];
     const n01 = mat._v[0] * mat._v[9] - mat._v[8] * mat._v[1];
     const n02 = mat._v[0] * mat._v[13] - mat._v[12] * mat._v[1];
@@ -493,6 +495,12 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * multiply matrixes
    */
   static multiply(l_mat: Matrix44, r_mat: Matrix44) {
+    if (l_mat.isIdentityMatrixClass) {
+      return r_mat;
+    } else if (r_mat.isIdentityMatrixClass) {
+      return l_mat;
+    }
+
     const lv = (l_mat as Matrix44)._v;
     const rv = (r_mat as Matrix44)._v;
     const m00 = lv[0] * rv[0] + lv[4] * rv[1] + lv[8] * rv[2] + lv[12] * rv[3];
@@ -527,6 +535,12 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * multiply matrixes
    */
   static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44) {
+    if (l_mat.isIdentityMatrixClass) {
+      return outMat.copyComponents(r_mat);
+    } else if (r_mat.isIdentityMatrixClass) {
+      return outMat.copyComponents(l_mat);
+    }
+
     const lv = (l_mat as Matrix44)._v;
     const rv = (r_mat as Matrix44)._v;
     const m00 = lv[0] * rv[0] + lv[4] * rv[1] + lv[8] * rv[2] + lv[12] * rv[3];

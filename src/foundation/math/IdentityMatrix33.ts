@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { CompositionType } from '../definitions/CompositionType';
 import AbstractMatrix from './AbstractMatrix';
 import {IMatrix, IMatrix33} from './IMatrix';
@@ -48,7 +49,7 @@ export default class IdentityMatrix33 extends AbstractMatrix implements IMatrix,
       return false;
     }
   }
-  
+
   isStrictEqual(mat: IMatrix33): boolean {
     const v = (mat as Matrix33)._v;
     if (
@@ -88,10 +89,10 @@ export default class IdentityMatrix33 extends AbstractMatrix implements IMatrix,
   getScale(): IVector {
     return new Vector3(1, 1, 1);
   }
-  
+
   getScaleTo(outVec: IMutableVector): IMutableVector {
     const v = (outVec as MutableVector3)._v;
-    
+
     v[0] = 1;
     v[1] = 1;
     v[2] = 1;
@@ -102,7 +103,7 @@ export default class IdentityMatrix33 extends AbstractMatrix implements IMatrix,
   clone(): IMatrix33 {
     return new IdentityMatrix33();
   }
-  
+
   getRotate(): IMatrix33 {
     return new IdentityMatrix33();
   }
@@ -177,5 +178,9 @@ export default class IdentityMatrix33 extends AbstractMatrix implements IMatrix,
 
   static get compositionType() {
     return CompositionType.Mat3;
+  }
+
+  get isIdentityMatrixClass(): boolean {
+    return true;
   }
 }

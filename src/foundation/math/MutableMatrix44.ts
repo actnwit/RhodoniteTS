@@ -1,5 +1,5 @@
 import Matrix44 from './Matrix44';
-import {IMutableMatrix44, IMutableMatrix} from './IMatrix';
+import {IMutableMatrix44, IMutableMatrix, IMatrix44} from './IMatrix';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector3 from './Vector3';
@@ -289,7 +289,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return this;
   }
 
-  copyComponents(mat: Matrix44) {
+  copyComponents(mat: IMatrix44) {
     this._v[0] = mat._v[0]; this._v[4] = mat._v[4]; this._v[8] = mat._v[8]; this._v[12] = mat._v[12];
     this._v[1] = mat._v[1]; this._v[5] = mat._v[5]; this._v[9] = mat._v[9]; this._v[13] = mat._v[13];
     this._v[2] = mat._v[2]; this._v[6] = mat._v[6]; this._v[10] = mat._v[10]; this._v[14] = mat._v[14];
@@ -549,6 +549,9 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
    * multiply the input matrix from right side
    */
   multiply(mat: Matrix44) {
+    if (mat.isIdentityMatrixClass) {
+      return this;
+    }
     const m00 = this._v[0] * mat._v[0] + this._v[4] * mat._v[1] + this._v[8] * mat._v[2] + this._v[12] * mat._v[3];
     const m01 = this._v[0] * mat._v[4] + this._v[4] * mat._v[5] + this._v[8] * mat._v[6] + this._v[12] * mat._v[7];
     const m02 = this._v[0] * mat._v[8] + this._v[4] * mat._v[9] + this._v[8] * mat._v[10] + this._v[12] * mat._v[11];
@@ -578,6 +581,9 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
   }
 
   multiplyByLeft(mat: Matrix44) {
+    if (mat.isIdentityMatrixClass) {
+      return this;
+    }
     const m00 = mat._v[0] * this._v[0] + mat._v[4] * this._v[1] + mat._v[8] * this._v[2] + mat._v[12] * this._v[3];
     const m01 = mat._v[0] * this._v[4] + mat._v[4] * this._v[5] + mat._v[8] * this._v[6] + mat._v[12] * this._v[7];
     const m02 = mat._v[0] * this._v[8] + mat._v[4] * this._v[9] + mat._v[8] * this._v[10] + mat._v[12] * this._v[11];
