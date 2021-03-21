@@ -83,7 +83,14 @@ export default class Scalar
   get className() {
     return this.constructor.name;
   }
-
+  
+  /**
+   * change to string
+   */
+  toString() {
+    return '(' + this._v[0] + ')';
+  }
+  
   clone() {
     return new Scalar(this.x);
   }
