@@ -29,6 +29,13 @@ export class MutableScalar_<
   get w() {
     return 1;
   }
+  
+  /**
+   * change to string
+   */
+  toString() {
+    return '(' + this._v[0] + ')';
+  }
 
   setValue(value: number) {
     this.x = value;
