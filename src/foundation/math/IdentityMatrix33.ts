@@ -25,16 +25,15 @@ export default class IdentityMatrix33 implements IMatrix, IMatrix33 {
   }
 
   isEqual(mat: IMatrix33, delta: number = Number.EPSILON): boolean {
-    const v = (mat as Matrix33).v;
-    if (Math.abs(v[0] - 1) < delta &&
-      Math.abs(v[1]) < delta &&
-      Math.abs(v[2]) < delta &&
-      Math.abs(v[3]) < delta &&
-      Math.abs(v[4] - 1) < delta &&
-      Math.abs(v[5]) < delta &&
-      Math.abs(v[6]) < delta &&
-      Math.abs(v[7]) < delta &&
-      Math.abs(v[8] - 1) < delta) {
+    if (Math.abs(mat.m00 - 1) < delta &&
+      Math.abs(mat.m10) < delta &&
+      Math.abs(mat.m20) < delta &&
+      Math.abs(mat.m01) < delta &&
+      Math.abs(mat.m11 - 1) < delta &&
+      Math.abs(mat.m21) < delta &&
+      Math.abs(mat.m02) < delta &&
+      Math.abs(mat.m12) < delta &&
+      Math.abs(mat.m22 - 1) < delta) {
       return true;
     } else {
       return false;

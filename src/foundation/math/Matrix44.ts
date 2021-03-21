@@ -10,6 +10,7 @@ import MutableVector4 from './MutableVector4';
 import {TypedArray} from '../../types/CommonTypes';
 import {IVector3} from './IVector';
 import {MathUtil} from './MathUtil';
+import IdentityMatrix44 from './IdentityMatrix44';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -226,12 +227,14 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
    * Create identity matrix
    */
   static identity() {
-    return new this(
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    );
+    // return new this(
+    //   1, 0, 0, 0,
+    //   0, 1, 0, 0,
+    //   0, 0, 1, 0,
+    //   0, 0, 0, 1
+    // );
+
+    return new IdentityMatrix44();
   }
 
   static dummy() {
@@ -492,25 +495,27 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
    * multiply matrixes
    */
   static multiply(l_mat: Matrix44, r_mat: Matrix44) {
-    const m00 = l_mat.v[0] * r_mat.v[0] + l_mat.v[4] * r_mat.v[1] + l_mat.v[8] * r_mat.v[2] + l_mat.v[12] * r_mat.v[3];
-    const m10 = l_mat.v[1] * r_mat.v[0] + l_mat.v[5] * r_mat.v[1] + l_mat.v[9] * r_mat.v[2] + l_mat.v[13] * r_mat.v[3];
-    const m20 = l_mat.v[2] * r_mat.v[0] + l_mat.v[6] * r_mat.v[1] + l_mat.v[10] * r_mat.v[2] + l_mat.v[14] * r_mat.v[3];
-    const m30 = l_mat.v[3] * r_mat.v[0] + l_mat.v[7] * r_mat.v[1] + l_mat.v[11] * r_mat.v[2] + l_mat.v[15] * r_mat.v[3];
+    const lv = (l_mat as Matrix44).v;
+    const rv = (r_mat as Matrix44).v;
+    const m00 = lv[0] * rv[0] + lv[4] * rv[1] + lv[8] * rv[2] + lv[12] * rv[3];
+    const m10 = lv[1] * rv[0] + lv[5] * rv[1] + lv[9] * rv[2] + lv[13] * rv[3];
+    const m20 = lv[2] * rv[0] + lv[6] * rv[1] + lv[10] * rv[2] + lv[14] * rv[3];
+    const m30 = lv[3] * rv[0] + lv[7] * rv[1] + lv[11] * rv[2] + lv[15] * rv[3];
 
-    const m01 = l_mat.v[0] * r_mat.v[4] + l_mat.v[4] * r_mat.v[5] + l_mat.v[8] * r_mat.v[6] + l_mat.v[12] * r_mat.v[7];
-    const m11 = l_mat.v[1] * r_mat.v[4] + l_mat.v[5] * r_mat.v[5] + l_mat.v[9] * r_mat.v[6] + l_mat.v[13] * r_mat.v[7];
-    const m21 = l_mat.v[2] * r_mat.v[4] + l_mat.v[6] * r_mat.v[5] + l_mat.v[10] * r_mat.v[6] + l_mat.v[14] * r_mat.v[7];
-    const m31 = l_mat.v[3] * r_mat.v[4] + l_mat.v[7] * r_mat.v[5] + l_mat.v[11] * r_mat.v[6] + l_mat.v[15] * r_mat.v[7];
+    const m01 = lv[0] * rv[4] + lv[4] * rv[5] + lv[8] * rv[6] + lv[12] * rv[7];
+    const m11 = lv[1] * rv[4] + lv[5] * rv[5] + lv[9] * rv[6] + lv[13] * rv[7];
+    const m21 = lv[2] * rv[4] + lv[6] * rv[5] + lv[10] * rv[6] + lv[14] * rv[7];
+    const m31 = lv[3] * rv[4] + lv[7] * rv[5] + lv[11] * rv[6] + lv[15] * rv[7];
 
-    const m02 = l_mat.v[0] * r_mat.v[8] + l_mat.v[4] * r_mat.v[9] + l_mat.v[8] * r_mat.v[10] + l_mat.v[12] * r_mat.v[11];
-    const m12 = l_mat.v[1] * r_mat.v[8] + l_mat.v[5] * r_mat.v[9] + l_mat.v[9] * r_mat.v[10] + l_mat.v[13] * r_mat.v[11];
-    const m22 = l_mat.v[2] * r_mat.v[8] + l_mat.v[6] * r_mat.v[9] + l_mat.v[10] * r_mat.v[10] + l_mat.v[14] * r_mat.v[11];
-    const m32 = l_mat.v[3] * r_mat.v[8] + l_mat.v[7] * r_mat.v[9] + l_mat.v[11] * r_mat.v[10] + l_mat.v[15] * r_mat.v[11];
+    const m02 = lv[0] * rv[8] + lv[4] * rv[9] + lv[8] * rv[10] + lv[12] * rv[11];
+    const m12 = lv[1] * rv[8] + lv[5] * rv[9] + lv[9] * rv[10] + lv[13] * rv[11];
+    const m22 = lv[2] * rv[8] + lv[6] * rv[9] + lv[10] * rv[10] + lv[14] * rv[11];
+    const m32 = lv[3] * rv[8] + lv[7] * rv[9] + lv[11] * rv[10] + lv[15] * rv[11];
 
-    const m03 = l_mat.v[0] * r_mat.v[12] + l_mat.v[4] * r_mat.v[13] + l_mat.v[8] * r_mat.v[14] + l_mat.v[12] * r_mat.v[15];
-    const m13 = l_mat.v[1] * r_mat.v[12] + l_mat.v[5] * r_mat.v[13] + l_mat.v[9] * r_mat.v[14] + l_mat.v[13] * r_mat.v[15];
-    const m23 = l_mat.v[2] * r_mat.v[12] + l_mat.v[6] * r_mat.v[13] + l_mat.v[10] * r_mat.v[14] + l_mat.v[14] * r_mat.v[15];
-    const m33 = l_mat.v[3] * r_mat.v[12] + l_mat.v[7] * r_mat.v[13] + l_mat.v[11] * r_mat.v[14] + l_mat.v[15] * r_mat.v[15];
+    const m03 = lv[0] * rv[12] + lv[4] * rv[13] + lv[8] * rv[14] + lv[12] * rv[15];
+    const m13 = lv[1] * rv[12] + lv[5] * rv[13] + lv[9] * rv[14] + lv[13] * rv[15];
+    const m23 = lv[2] * rv[12] + lv[6] * rv[13] + lv[10] * rv[14] + lv[14] * rv[15];
+    const m33 = lv[3] * rv[12] + lv[7] * rv[13] + lv[11] * rv[14] + lv[15] * rv[15];
 
     return new this(
       m00, m01, m02, m03,
@@ -523,26 +528,28 @@ export default class Matrix44 implements IMatrix, IMatrix44 {
   /**
    * multiply matrixes
    */
-  static multiplyTo(l_mat: Matrix44, r_mat: Matrix44, outMat: MutableMatrix44) {
-    const m00 = l_mat.v[0] * r_mat.v[0] + l_mat.v[4] * r_mat.v[1] + l_mat.v[8] * r_mat.v[2] + l_mat.v[12] * r_mat.v[3];
-    const m10 = l_mat.v[1] * r_mat.v[0] + l_mat.v[5] * r_mat.v[1] + l_mat.v[9] * r_mat.v[2] + l_mat.v[13] * r_mat.v[3];
-    const m20 = l_mat.v[2] * r_mat.v[0] + l_mat.v[6] * r_mat.v[1] + l_mat.v[10] * r_mat.v[2] + l_mat.v[14] * r_mat.v[3];
-    const m30 = l_mat.v[3] * r_mat.v[0] + l_mat.v[7] * r_mat.v[1] + l_mat.v[11] * r_mat.v[2] + l_mat.v[15] * r_mat.v[3];
+  static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44) {
+    const lv = (l_mat as Matrix44).v;
+    const rv = (r_mat as Matrix44).v;
+    const m00 = lv[0] * rv[0] + lv[4] * rv[1] + lv[8] * rv[2] + lv[12] * rv[3];
+    const m10 = lv[1] * rv[0] + lv[5] * rv[1] + lv[9] * rv[2] + lv[13] * rv[3];
+    const m20 = lv[2] * rv[0] + lv[6] * rv[1] + lv[10] * rv[2] + lv[14] * rv[3];
+    const m30 = lv[3] * rv[0] + lv[7] * rv[1] + lv[11] * rv[2] + lv[15] * rv[3];
 
-    const m01 = l_mat.v[0] * r_mat.v[4] + l_mat.v[4] * r_mat.v[5] + l_mat.v[8] * r_mat.v[6] + l_mat.v[12] * r_mat.v[7];
-    const m11 = l_mat.v[1] * r_mat.v[4] + l_mat.v[5] * r_mat.v[5] + l_mat.v[9] * r_mat.v[6] + l_mat.v[13] * r_mat.v[7];
-    const m21 = l_mat.v[2] * r_mat.v[4] + l_mat.v[6] * r_mat.v[5] + l_mat.v[10] * r_mat.v[6] + l_mat.v[14] * r_mat.v[7];
-    const m31 = l_mat.v[3] * r_mat.v[4] + l_mat.v[7] * r_mat.v[5] + l_mat.v[11] * r_mat.v[6] + l_mat.v[15] * r_mat.v[7];
+    const m01 = lv[0] * rv[4] + lv[4] * rv[5] + lv[8] * rv[6] + lv[12] * rv[7];
+    const m11 = lv[1] * rv[4] + lv[5] * rv[5] + lv[9] * rv[6] + lv[13] * rv[7];
+    const m21 = lv[2] * rv[4] + lv[6] * rv[5] + lv[10] * rv[6] + lv[14] * rv[7];
+    const m31 = lv[3] * rv[4] + lv[7] * rv[5] + lv[11] * rv[6] + lv[15] * rv[7];
 
-    const m02 = l_mat.v[0] * r_mat.v[8] + l_mat.v[4] * r_mat.v[9] + l_mat.v[8] * r_mat.v[10] + l_mat.v[12] * r_mat.v[11];
-    const m12 = l_mat.v[1] * r_mat.v[8] + l_mat.v[5] * r_mat.v[9] + l_mat.v[9] * r_mat.v[10] + l_mat.v[13] * r_mat.v[11];
-    const m22 = l_mat.v[2] * r_mat.v[8] + l_mat.v[6] * r_mat.v[9] + l_mat.v[10] * r_mat.v[10] + l_mat.v[14] * r_mat.v[11];
-    const m32 = l_mat.v[3] * r_mat.v[8] + l_mat.v[7] * r_mat.v[9] + l_mat.v[11] * r_mat.v[10] + l_mat.v[15] * r_mat.v[11];
+    const m02 = lv[0] * rv[8] + lv[4] * rv[9] + lv[8] * rv[10] + lv[12] * rv[11];
+    const m12 = lv[1] * rv[8] + lv[5] * rv[9] + lv[9] * rv[10] + lv[13] * rv[11];
+    const m22 = lv[2] * rv[8] + lv[6] * rv[9] + lv[10] * rv[10] + lv[14] * rv[11];
+    const m32 = lv[3] * rv[8] + lv[7] * rv[9] + lv[11] * rv[10] + lv[15] * rv[11];
 
-    const m03 = l_mat.v[0] * r_mat.v[12] + l_mat.v[4] * r_mat.v[13] + l_mat.v[8] * r_mat.v[14] + l_mat.v[12] * r_mat.v[15];
-    const m13 = l_mat.v[1] * r_mat.v[12] + l_mat.v[5] * r_mat.v[13] + l_mat.v[9] * r_mat.v[14] + l_mat.v[13] * r_mat.v[15];
-    const m23 = l_mat.v[2] * r_mat.v[12] + l_mat.v[6] * r_mat.v[13] + l_mat.v[10] * r_mat.v[14] + l_mat.v[14] * r_mat.v[15];
-    const m33 = l_mat.v[3] * r_mat.v[12] + l_mat.v[7] * r_mat.v[13] + l_mat.v[11] * r_mat.v[14] + l_mat.v[15] * r_mat.v[15];
+    const m03 = lv[0] * rv[12] + lv[4] * rv[13] + lv[8] * rv[14] + lv[12] * rv[15];
+    const m13 = lv[1] * rv[12] + lv[5] * rv[13] + lv[9] * rv[14] + lv[13] * rv[15];
+    const m23 = lv[2] * rv[12] + lv[6] * rv[13] + lv[10] * rv[14] + lv[14] * rv[15];
+    const m33 = lv[3] * rv[12] + lv[7] * rv[13] + lv[11] * rv[14] + lv[15] * rv[15];
 
     return outMat.setComponents(
       m00, m01, m02, m03,

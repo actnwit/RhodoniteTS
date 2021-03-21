@@ -7,6 +7,7 @@ import {CompositionType} from '../definitions/CompositionType';
 import {TypedArray} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
+import IdentityMatrix33 from './IdentityMatrix33';
 /* eslint-disable prettier/prettier */
 
 export default class Matrix33 implements IMatrix, IMatrix33 {
@@ -170,12 +171,14 @@ export default class Matrix33 implements IMatrix, IMatrix33 {
   /**
    * Create identity matrix
    */
-  static identity() {
-    return new this(
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
-    );
+  static identity(): IMatrix33 {
+    // return new this(
+    //   1, 0, 0,
+    //   0, 1, 0,
+    //   0, 0, 1
+    // );
+
+    return new IdentityMatrix33();
   }
 
   static dummy() {

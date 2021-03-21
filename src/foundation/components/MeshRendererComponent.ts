@@ -33,6 +33,7 @@ import {
   EntityUID,
 } from '../../types/CommonTypes';
 import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
+import { IMatrix44 } from '../math/IMatrix';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -53,7 +54,7 @@ export default class MeshRendererComponent extends Component {
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webglRenderingStrategy?: WebGLStrategy;
   private static __instanceIdAccessor?: Accessor;
-  private static __tmp_identityMatrix: Matrix44 = Matrix44.identity();
+  private static __tmp_identityMatrix: IMatrix44 = Matrix44.identity();
   private static __cameraComponent?: CameraComponent;
   private static __firstTransparentIndex = -1;
   private static __lastTransparentIndex = -1;

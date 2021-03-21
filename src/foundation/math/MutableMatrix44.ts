@@ -182,7 +182,10 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
    * Create identity matrix
    */
   static identity() {
-    return super.identity() as MutableMatrix44;
+    return new MutableMatrix44(1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1);
   }
 
   static dummy() {

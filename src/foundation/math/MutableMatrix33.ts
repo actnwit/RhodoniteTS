@@ -114,7 +114,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
    * Create identity matrix
    */
   static identity() {
-    return super.identity() as MutableMatrix33;
+    return new MutableMatrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
   }
 
   static dummy() {

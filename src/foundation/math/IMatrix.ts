@@ -21,7 +21,7 @@ export interface IMatrix {
   determinant(): number;
 }
 
-export interface IMutableMatrix {
+export interface IMutableMatrix extends IMatrix {
   clone(): IMutableMatrix;
   raw(): TypedArray;
   setAt(row_i: number, column_i: number, value: number): void;

@@ -9,6 +9,7 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import TransformComponent from '../foundation/components/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import CameraComponent from '../foundation/components/CameraComponent';
+import { IMatrix44 } from '../foundation/math/IMatrix';
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;
@@ -19,7 +20,7 @@ export default class WebVRSystem {
   private __isReadyForWebVR = false;
   private __vrDisplay?: VRDisplay;
   private __defaultUserSittingPositionInVR = new Vector3(0.0, 1.1, 1.5);
-  private __invertSittingToStandingTransform: Matrix44 = Matrix44.identity();
+  private __invertSittingToStandingTransform: IMatrix44 = Matrix44.identity();
   private __minRenderWidthFromUser = 0;
   private __minRenderHeightFromUser = 0;
   private __canvasWidthBackup = 0;
