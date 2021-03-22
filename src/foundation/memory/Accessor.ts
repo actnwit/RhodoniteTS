@@ -3,7 +3,6 @@ import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import RnObject from '../core/RnObject';
 import BufferView from './BufferView';
 import Vector2 from '../math/Vector2';
 import Vector3 from '../math/Vector3';
@@ -30,7 +29,7 @@ type DataViewSetter = (
   littleEndian?: boolean
 ) => void;
 
-export default class Accessor extends RnObject {
+export default class Accessor {
   private __bufferView: BufferView;
   private __byteOffsetInRawArrayBufferOfBuffer: number;
   private __compositionType: CompositionTypeEnum = CompositionType.Unknown;
@@ -89,8 +88,6 @@ export default class Accessor extends RnObject {
     arrayLength: Size;
     normalized: boolean;
   }) {
-    super();
-
     this.__bufferView = bufferView;
     this.__byteOffsetInRawArrayBufferOfBuffer =
       bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffset;

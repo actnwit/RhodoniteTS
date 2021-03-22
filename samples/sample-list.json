@@ -34,6 +34,7 @@
     "VRMImporter"
   ],
   "simple": [
+    "4DViews",
     "BasisTexture",
     "DepthEncode",
     "Effekseer",

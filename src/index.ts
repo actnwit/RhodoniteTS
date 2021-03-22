@@ -92,6 +92,7 @@ import _ShaderGraphResolver from './foundation/materials/core/ShaderGraphResolve
 import _Quaternion from './foundation/math/Quaternion';
 import _MutableQuaternion from './foundation/math/MutableQuaternion';
 import _PbrShadingSingleMaterialNode from './foundation/materials/singles/PbrShadingSingleMaterialNode';
+import _Buffer from './foundation/memory/Buffer';
 import {
   FileType as _FileType,
   FileTypeEnum as _FileTypeEnum,
@@ -161,6 +162,10 @@ import {
   AnimationInterpolationEnum as _AnimationInterpolationEnum,
 } from './foundation/definitions/AnimationInterpolation';
 import {GltfLoadOption as _GltfLoadOption} from './types/glTF';
+import {
+  CompressionTextureType as _CompressionTextureType,
+  CompressionTextureTypeEnum as _CompressionTextureTypeEnum,
+} from './foundation/definitions/CompressionTextureType';
 
 export default {
   Entity: _Entity,
@@ -257,6 +262,7 @@ export default {
   Quaternion: _Quaternion,
   MutableQuaternion: _MutableQuaternion,
   PbrShadingSingleMaterialNode: _PbrShadingSingleMaterialNode,
+  Buffer: _Buffer,
   FileType: _FileType,
   VERSION: _VERSION,
 
@@ -279,6 +285,7 @@ export default {
   ShadingModel: _ShadingModel,
   AnimationAttribute: _AnimationAttribute,
   AnimationInterpolation: _AnimationInterpolation,
+  CompressionTextureType: _CompressionTextureType,
 };
 
 export type Entity = _Entity;
@@ -381,6 +388,7 @@ export type GreaterShaderNode = _GreaterShaderNode;
 export type ShaderGraphResolver = _ShaderGraphResolver;
 export type GltfLoadOption = _GltfLoadOption;
 export type PbrShadingSingleMaterialNode = _PbrShadingSingleMaterialNode;
+export type Buffer = _Buffer;
 export type VERSION = typeof _VERSION;
 
 // Definition Enums
@@ -397,3 +405,4 @@ export type ShadingModelEnum = _ShadingModelEnum;
 export type AnimationAttributeEnum = _AnimationAttributeEnum;
 export type AnimationInterpolationEnum = _AnimationInterpolationEnum;
 export type FileTypeEnum = _FileTypeEnum;
+export type CompressionTextureTypeEnum = _CompressionTextureTypeEnum;

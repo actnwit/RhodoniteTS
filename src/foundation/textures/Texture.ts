@@ -15,6 +15,7 @@ import {
 } from '../../types/BasisTexture';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
 import DataUtil from '../misc/DataUtil';
+import {CompressionTextureTypeEnum} from '../definitions/CompressionTextureType';
 
 declare const BASIS: BASIS;
 
@@ -351,6 +352,47 @@ export default class Texture extends AbstractTexture {
 
     this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(texture, this);
+  }
+
+  generateCompressedTextureFromTypedArray(
+    typedArray: TypedArray,
+    width: number,
+    height: number,
+    compressionTextureType: CompressionTextureTypeEnum,
+    {
+      level = 0,
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.ClampToEdge,
+      wrapT = TextureParameter.ClampToEdge,
+      anisotropy = true,
+      // isPremultipliedAlpha = false,
+    } = {}
+  ) {
+    this.__width = width;
+    this.__height = height;
+
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.createCompressedTexture(
+      typedArray,
+      {
+        level,
+        compressionTextureType,
+        width,
+        height,
+        magFilter,
+        minFilter,
+        wrapS,
+        wrapT,
+        anisotropy,
+        // isPremultipliedAlpha,
+      }
+    );
+
+    this.cgApiResourceUid = texture;
+    this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(texture, this);
   }
 
   importWebGLTextureDirectly(

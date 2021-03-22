@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>4DViews</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <style>
+      main {
+        display: flex;
+      }
+
+      section {
+        background-color: darkgray;
+        padding: 10px;
+        margin: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1 class="header-title">Rhodonite - 4DViews</h1>
+    </header>
+    <main>
+      <section class="test">
+        <h2>Rendering Test Image</h2>
+        <div>
+          <button id="btnLoad" disabled>load</button>
+          <button id="btnPlay">play</button>
+          <button id="btnPause">pause</button>
+          <button id="btnMute">mute</button>
+          <button id="btnUnmute">unmute</button>
+        </div>
+        <div>
+          <canvas id="world" width="600" height="600"></canvas>
+        </div>
+      </section>
+    </main>
+    <script src="../../assets/navigate.js"></script>
+    <script src="../../../dist/umd/rhodonite.js"></script>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
