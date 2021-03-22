@@ -34,12 +34,13 @@ import WEB4DS from './web4dv/web4dvImporter.js';
 
   const expression = new Rn.Expression();
 
-
+  // to try this sample, you need to prepare 4ds samples data and write the path to them here
+  // you can get the sample data from [the official 4D VIEWS website](https://www.4dviews.com/).
   const model4DS01 = new WEB4DS(
-    'id',
-    'DESKTOP',
-    'MOBILE',
-    'AUDIO',
+    'id(Arbitrary id)',
+    'DESKTOP.4ds (4D Views file for desktop)',
+    'MOBILE.4ds (4D Views file for mobile)',
+    'AUDIO.wav (audio file of 4D Views. if there is no audio file, you set empty string here)',
     [0.45, -0.8, 0.2],
     gl
   );
