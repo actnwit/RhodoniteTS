@@ -14,11 +14,11 @@ Rhodonite is a WebGL library written in TypeScript.
 
 ## What's the "Blittable Memory Architecture"
 
-With the Blittable Memory Architecture, Rhodonite stores almost all of its data in a large pre-allocated ArrayBuffer.
-Most of data are on that memory pool, which is transferred to the GPU every frame as a floating point texture.
-This allows all shaders to always access to a huge amount of data.
 
-For example, Rhodonite can handle and blend the all morph targets of VRM characters (38 targets) at the same time in the shader.
+With the Blittable Memory Architecture, Rhodonite stores almost all of its data in a large pre-allocated ArrayBuffer. Data storage for matrix or vector classes in Rhodonite's component classes and materials are assigned from the memory pool, which means most of the data are on that memory pool, transferred to the GPU every frame as a floating-point texture.
+This architecture allows all shaders always to access a vast amount of data.
+
+For example, Rhodonite can handle and blend all morph targets (38 targets) of VRM characters simultaneously in the shader.
 
 ## Viewer
 
@@ -68,11 +68,11 @@ $ npm install rhodonite
 
 ### In TypeScript
 
-There are two package version of Rhodonite: esm (ESModule wrapped in CommonJS) and umd.
+There are two package versions of Rhodonite: esm (ESModule wrapped in CommonJS) and umd.
 
 #### Using esm package
 
-You need a bundler like Webpack to import Rhodonite esm package directly.
+You need a bundler like Webpack to import the Rhodonite esm package directly.
 
 ```typescript
 import Rn from 'rhodonite'; // All Rhodonite Objects in this
@@ -99,8 +99,8 @@ async function load() {
 
 #### Using umd version for actual object and esm version for type only
 
-You also be able to use `dist/umd/rhodonite.js` or `dist/umd/rhodonite.min.js` for actual Rhodonite object by script tag in HTML file.
-Next, import types from `rhodonite` esm package.
+You can also use `dist/umd/rhodonite.js` or `dist/umd/rhodonite.min.js` for the actual Rhodonite object by script tag in HTML file.
+Then, import types from the `rhodonite` esm package.
 
 ```typescript
 import _Rn from 'rhodonite'; // Use this for adding type annotations to window.Rn in this sample
