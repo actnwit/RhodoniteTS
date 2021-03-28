@@ -40,6 +40,10 @@ export default class WebGLContextWrapper {
   private __viewport_top = 0;
   private __viewport_width = 0;
   private __viewport_height = 0;
+  private __default_viewport_left = 0;
+  private __default_viewport_top = 0;
+  private __default_viewport_width = 0;
+  private __default_viewport_height = 0;
   #alignedMaxUniformBlockSize = INVALID_SIZE;
   #maxUniformBlockSize = INVALID_SIZE;
   #uniformBufferOffsetAlignment = INVALID_SIZE;
@@ -48,7 +52,6 @@ export default class WebGLContextWrapper {
   #maxConventionUniformBlocks = INVALID_SIZE;
   private __maxVertexUniformVectors = INVALID_SIZE;
   private __maxFragmentUniformVectors = INVALID_SIZE;
-
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -61,8 +64,8 @@ export default class WebGLContextWrapper {
     this.width = canvas.width;
     this.height = canvas.height;
     this.canvas = canvas;
-    this.__viewport_width = this.width;
-    this.__viewport_height = this.height;
+    this.__viewport_width = this.__default_viewport_width = this.width;
+    this.__viewport_height = this.__default_viewport_height = this.height;
 
     this.__isDebugMode = isDebug;
 
@@ -78,7 +81,7 @@ export default class WebGLContextWrapper {
         WebGLExtension.CompressedTextureAstc
       );
       this.webgl2ExtCTS3TC =
-      this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
+        this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
         this.__getExtension(WebGLExtension.CompressedTextureS3tcMOZ) ||
         this.__getExtension(WebGLExtension.CompressedTextureS3tcWK);
     } else {
@@ -131,6 +134,15 @@ export default class WebGLContextWrapper {
       this.__viewport_top,
       this.__viewport_width,
       this.__viewport_height
+    );
+  }
+
+  get defaultViewport() {
+    return new Vector4(
+      this.__default_viewport_left,
+      this.__default_viewport_top,
+      this.__default_viewport_width,
+      this.__default_viewport_height
     );
   }
 
@@ -433,13 +445,11 @@ export default class WebGLContextWrapper {
   setViewport(left: number, top: number, width: number, height: number): void {
     const gl: any = this.__gl;
     if (
-      this.__viewport_width === width &&
-      this.__viewport_height === height &&
-      this.__viewport_left === left &&
-      this.__viewport_top === top
+      this.__viewport_width !== width ||
+      this.__viewport_height !== height ||
+      this.__viewport_left !== left ||
+      this.__viewport_top !== top
     ) {
-      return;
-    } else {
       gl.viewport(left, top, width, height);
       this.__viewport_left = left;
       this.__viewport_top = top;
@@ -451,13 +461,11 @@ export default class WebGLContextWrapper {
   setViewportAsVector4(viewport: Vector4): void {
     const gl: any = this.__gl;
     if (
-      this.__viewport_width === viewport.z &&
-      this.__viewport_height === viewport.w &&
-      this.__viewport_left === viewport.x &&
-      this.__viewport_top === viewport.y
+      this.__viewport_width !== viewport.z ||
+      this.__viewport_height !== viewport.w ||
+      this.__viewport_left !== viewport.x ||
+      this.__viewport_top !== viewport.y
     ) {
-      return;
-    } else {
       gl.viewport(viewport.x, viewport.y, viewport.z, viewport.w);
       this.__viewport_left = viewport.x;
       this.__viewport_top = viewport.y;
