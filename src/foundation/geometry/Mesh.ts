@@ -464,6 +464,10 @@ export default class Mesh {
     return this.__primitives.length;
   }
 
+  get primitives() {
+    return Array.from(this.__primitives);
+  }
+
   __calcFaceNormalsIfNonNormal() {
     if (this.isInstanceMesh()) {
       return;

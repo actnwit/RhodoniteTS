@@ -28,8 +28,6 @@ import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleS
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 
 export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
     str: 'isOutputHDR',
   });
@@ -81,6 +79,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     useTangentAttribute,
     useNormalTexture,
     alphaMode,
+    makeOutputSrgb,
   }: {
     isMorphing: boolean;
     isSkinning: boolean;
@@ -88,6 +87,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
     alphaMode: AlphaModeEnum;
+    makeOutputSrgb: boolean;
   }) {
     super(
       null,
@@ -201,7 +201,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: new Scalar(makeOutputSrgb ? 1 : 0),
       },
       {
         semantic: ShaderSemantics.IBLParameter,

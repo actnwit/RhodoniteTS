@@ -73,6 +73,7 @@ function createPbrUberMaterial({
   useNormalTexture = true,
   alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  makeOutputSrgb = true,
 } = {}) {
   const materialName =
     'PbrUber' +
@@ -91,6 +92,7 @@ function createPbrUberMaterial({
     useTangentAttribute,
     useNormalTexture,
     alphaMode,
+    makeOutputSrgb,
   });
 
   materialNode.isSingleOperation = true;
