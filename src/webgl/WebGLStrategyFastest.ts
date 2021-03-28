@@ -861,7 +861,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     displayIdx: Index,
     isVRMainPass: boolean
   ) {
-    if (isVRMainPass) {
+    if (isVRMainPass && !renderPass.useNormalCameraEvenIfInVR) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
       WebGLStrategyFastest.__currentComponentSIDs!._v[

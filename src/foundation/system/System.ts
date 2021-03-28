@@ -98,6 +98,8 @@ export default class System {
       cameraEntity.getCamera().yMag = 1;
     }
 
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
@@ -113,6 +115,7 @@ export default class System {
             for (let i = 0; i < loopN; i++) {
               const renderPass = exp!.renderPasses[i];
               renderPass.doPreRender();
+              repo.switchDepthTest(renderPass.isDepthTest);
               if (
                 componentTid === MeshRendererComponent.componentTID &&
                 stage == ProcessStage.Render
@@ -209,12 +212,7 @@ export default class System {
     webglOption: any = {},
     rnWebGLDebug = true
   ) {
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = moduleManager.getModule(moduleName)! as any;
-    this.__webglStrategy = webglModule.getRenderingStrategy(approach);
-    const repo = webglModule.WebGLResourceRepository.getInstance();
-
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     let gl: WebGLRenderingContext | null;
     if (
       approach === ProcessApproach.DataTextureWebGL2 ||
@@ -232,9 +230,6 @@ export default class System {
           webglOption
         ) as WebGLRenderingContext);
     }
-
-    gl!.enable(gl!.DEPTH_TEST);
-
     MemoryManager.createInstanceIfNotCreated(
       0.125 * memoryUsageOrder,
       0.0625 * memoryUsageOrder,
@@ -244,6 +239,7 @@ export default class System {
     globalDataRepository.initialize();
 
     repo.addWebGLContext(gl!, canvas, true, rnWebGLDebug);
+    repo.switchDepthTest(true);
     this.__processApproach = approach;
     SystemState.currentProcessApproach = approach;
 

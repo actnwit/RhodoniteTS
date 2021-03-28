@@ -170,11 +170,12 @@ function createClassicUberMaterial({
 
 function createEnvConstantMaterial({
   additionalName = '',
-  maxInstancesNumber = 10,
+  maxInstancesNumber = 5,
+  makeOutputSrgb = true,
 } = {}) {
   const materialName = 'EnvConstant' + `_${additionalName}`;
 
-  const materialNode = new EnvConstantSingleMaterialNode();
+  const materialNode = new EnvConstantSingleMaterialNode(makeOutputSrgb);
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,

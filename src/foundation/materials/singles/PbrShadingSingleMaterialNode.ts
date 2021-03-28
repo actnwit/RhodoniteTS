@@ -31,9 +31,6 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
     str: 'isOutputHDR',
   });
-  static readonly makeOutputSrgb = new ShaderSemanticsClass({
-    str: 'makeOutputSrgb',
-  });
   static readonly BaseColorTextureTransform = new ShaderSemanticsClass({
     str: 'baseColorTextureTransform',
   });
@@ -193,7 +190,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         initialValue: new Scalar(0),
       },
       {
-        semantic: PbrShadingSingleMaterialNode.makeOutputSrgb,
+        semantic: ShaderSemantics.MakeOutputSrgb,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Bool,
         stage: ShaderType.PixelShader,

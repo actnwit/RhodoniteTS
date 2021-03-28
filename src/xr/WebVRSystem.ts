@@ -354,4 +354,12 @@ export default class WebVRSystem {
   _setIsWebVRMode() {
     this.__isWebVRMode = true;
   }
+
+  getCanvasWidthForVr() {
+    return this.__canvasWidthForVR;
+  }
+
+  getCanvasHeightForVr() {
+    return this.__canvasHeightForVR;
+  }
 }
