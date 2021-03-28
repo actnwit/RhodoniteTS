@@ -25,6 +25,8 @@ export default class WebVRSystem {
   private __minRenderHeightFromUser = 0;
   private __canvasWidthBackup = 0;
   private __canvasHeightBackup = 0;
+  private __canvasWidthForVR = 0;
+  private __canvasHeightForVR = 0;
   private __leftViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __rightViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __leftCameraEntity: Entity;
@@ -100,21 +102,23 @@ export default class WebVRSystem {
 
         this.__canvasWidthBackup = glw.width;
         this.__canvasHeightBackup = glw.height;
-
         if (
           this.__minRenderWidthFromUser > leftEye.renderWidth &&
           this.__minRenderHeightFromUser > rightEye.renderWidth
         ) {
-          webglResourceRepository.resizeCanvas(
-            this.__minRenderWidthFromUser * 2,
-            this.__minRenderHeightFromUser
-          );
+          this.__canvasWidthForVR = this.__minRenderWidthFromUser * 2;
+          this.__canvasHeightForVR = this.__minRenderHeightFromUser;
         } else {
-          webglResourceRepository.resizeCanvas(
-            Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2,
-            Math.max(leftEye.renderHeight, rightEye.renderHeight)
+          this.__canvasWidthForVR = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
+          this.__canvasHeightForVR = Math.max(
+            leftEye.renderHeight,
+            rightEye.renderHeight
           );
         }
+        webglResourceRepository.resizeCanvas(
+          this.__canvasWidthForVR,
+          this.__canvasHeightForVR
+        );
         this.__webvrDisplay
           .requestPresent([{source: glw.canvas}])
           .then(() => {
@@ -282,19 +286,19 @@ export default class WebVRSystem {
 
   getLeftViewport(originalViewport: Vector4) {
     return new Vector4(
-      originalViewport.x,
-      originalViewport.y,
-      originalViewport.z * 0.5,
-      originalViewport.w
+      0,
+      0,
+      this.__canvasWidthForVR / 2,
+      this.__canvasHeightForVR
     );
   }
 
   getRightViewport(originalViewport: Vector4) {
     return new Vector4(
-      originalViewport.z * 0.5,
-      originalViewport.y,
-      originalViewport.z * 0.5,
-      originalViewport.w
+      this.__canvasWidthForVR / 2,
+      0,
+      this.__canvasWidthForVR / 2,
+      this.__canvasHeightForVR
     );
   }
 

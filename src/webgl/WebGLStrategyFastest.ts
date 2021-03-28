@@ -843,7 +843,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     let viewport = renderPass.getViewport() as Vector4;
     if (viewport == null) {
       viewport = this.__webglResourceRepository.currentWebGLContextWrapper!
-        .viewport;
+        .defaultViewport;
     }
     return viewport!;
   }

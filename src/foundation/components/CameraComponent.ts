@@ -663,10 +663,7 @@ export default class CameraComponent extends Component {
     this.calcProjectionMatrix();
 
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (
-      rnXRModule?.WebVRSystem.getInstance().isWebVRMode &&
-      renderPass.isMainPass
-    ) {
+    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode) {
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
       webvrSystem.setValuesToGlobalDataRepository();
     } else {
