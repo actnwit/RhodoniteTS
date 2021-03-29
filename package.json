@@ -23,8 +23,7 @@
   "license": "MIT",
   "scripts": {
     "prepublishOnly": "npm run preoutput",
-    "prepack": "npm run preoutput",
-    "preoutput": "npm run build &&  npm run build-samples && npm run test",
+    "preoutput": "npm run build && npm run build-samples && npm run test",
     "build": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod",
     "build-umd-dev": "npm run create-VERSION-FILE && npx webpack --config ./config/webpack/webpack.config.development.js",
     "build-umd-prod": "npm run create-VERSION-FILE && npx webpack --config ./config/webpack/webpack.config.production.js",
