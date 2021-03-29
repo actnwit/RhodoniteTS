@@ -10,7 +10,6 @@ import {Index, Size, CGAPIResourceHandle} from '../../types/CommonTypes';
 import RenderTargetTexture from '../textures/RenderTargetTexture';
 
 export default class FrameBuffer extends RnObject {
-  private __entities?: Entity[];
   private __colorAttachments: Array<IRenderable> = [];
   private __depthAttachment?: IRenderable;
   private __stencilAttachment?: IRenderable;
@@ -146,7 +145,12 @@ export default class FrameBuffer extends RnObject {
   }
 
   resize(width: Size, height: Size) {
-    this.destroy3DAPIResources();
+    // this.destroy3DAPIResources();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
+    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.width = 0;
+    this.height = 0;
     this.create(width, height);
     if (this.depthAttachment) {
       this.depthAttachment.resize(width, height);
@@ -172,22 +176,29 @@ export default class FrameBuffer extends RnObject {
   destroy3DAPIResources() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
+    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.width = 0;
+    this.height = 0;
 
     if (this.depthAttachment) {
       this.depthAttachment.destroy3DAPIResources();
+      this.__depthAttachment = undefined;
     }
 
     if (this.depthStencilAttachment) {
       this.depthStencilAttachment.destroy3DAPIResources();
+      this.__depthStencilAttachment = undefined;
     }
 
     if (this.stencilAttachment) {
       this.stencilAttachment.destroy3DAPIResources();
+      this.__stencilAttachment = undefined;
     }
 
     for (const colorAttachment of this.colorAttachments) {
       colorAttachment.destroy3DAPIResources();
     }
+    this.__colorAttachmentMap = new Map();
   }
 
   whichColorAttachment(renderable: IRenderable) {
