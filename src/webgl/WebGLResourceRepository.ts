@@ -2450,4 +2450,13 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     this.__glw!.canvas.height = height;
     this.__glw!.setViewportAsVector4(new Vector4(0, 0, width, height));
   }
+
+  switchDepthTest(flag: boolean) {
+    const gl = this.__glw!.getRawContext();
+    if (flag) {
+      gl.enable(gl.DEPTH_TEST);
+    } else {
+      gl.disable(gl.DEPTH_TEST);
+    }
+  }
 }

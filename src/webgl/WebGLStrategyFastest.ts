@@ -839,23 +839,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return this.__instance;
   }
 
-  private __getViewport(renderPass: RenderPass) {
-    let viewport = renderPass.getViewport() as Vector4;
-    if (viewport == null) {
-      viewport = this.__webglResourceRepository.currentWebGLContextWrapper!
-        .defaultViewport;
-    }
-    return viewport!;
-  }
-
-  private __setVRViewport(renderPass: RenderPass, displayIdx: Index) {
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-    this.__webglResourceRepository.setViewport(
-      webvrSystem.getViewportAt(this.__getViewport(renderPass), displayIdx)
-    );
-  }
-
   private __setCurrentComponentSIDsForEachRenderPass(
     renderPass: RenderPass,
     displayIdx: Index,
@@ -921,14 +904,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
   }
 
-  private __getDisplayNumber(isVRMainPass: boolean) {
-    if (isVRMainPass) {
-      return 2;
-    } else {
-      return 1;
-    }
-  }
-
   common_$render(
     meshComponentSids: Int32Array,
     meshComponents: MeshComponent[],
@@ -940,16 +915,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const isVRMainPass =
-      rnXRModule?.WebVRSystem.getInstance().isWebVRMode &&
-      renderPass.isMainPass;
-
-    const displayNumber = this.__getDisplayNumber(isVRMainPass);
+    const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(
+      isVRMainPass
+    );
 
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVRMainPass) {
-        this.__setVRViewport(renderPass, displayIdx);
+        WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
       this.__setCurrentComponentSIDsForEachRenderPass(
         renderPass,

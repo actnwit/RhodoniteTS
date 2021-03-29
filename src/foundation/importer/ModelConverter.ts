@@ -881,6 +881,7 @@ export default class ModelConverter {
       const rnExtension = VRMProperties.rnExtension;
       if (rnExtension) {
         renderPassOutline = rnExtension.renderPassOutline;
+        renderPassOutline.isMainPass = true;
       }
 
       //exist outline

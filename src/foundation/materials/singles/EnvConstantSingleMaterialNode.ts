@@ -20,7 +20,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
   static EnvHdriFormat = new ShaderSemanticsClass({str: 'EnvHdriFormat'});
 
-  constructor() {
+  constructor(makeOutputSrgb: boolean) {
     super(
       null,
       'envConstantShading',
@@ -77,6 +77,17 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
+      {
+        semantic: ShaderSemantics.MakeOutputSrgb,
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Bool,
+        stage: ShaderType.PixelShader,
+        min: 0,
+        max: 1,
+        isSystem: false,
+        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        initialValue: new Scalar(makeOutputSrgb ? 1 : 0),
+      }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
@@ -109,14 +120,14 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
       this.setViewInfo(
         shaderProgram,
         cameraComponent,
-        material,
-        args.setUniform
+        args.isVr,
+        args.displayIdx
       );
       this.setProjection(
         shaderProgram,
         cameraComponent,
-        material,
-        args.setUniform
+        args.isVr,
+        args.displayIdx
       );
     }
   }

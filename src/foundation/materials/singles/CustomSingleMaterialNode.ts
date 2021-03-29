@@ -137,8 +137,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
 
-      if (firstTime) {
-        /// Matrices
+      if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
@@ -149,16 +148,18 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
         this.setViewInfo(
           shaderProgram,
           cameraComponent,
-          material,
-          args.setUniform
+          args.isVr,
+          args.displayIdx
         );
         this.setProjection(
           shaderProgram,
           cameraComponent,
-          material,
-          args.setUniform
+          args.isVr,
+          args.displayIdx
         );
+      }
 
+      if (firstTime) {
         // Lights
         this.setLightsInfo(
           shaderProgram,

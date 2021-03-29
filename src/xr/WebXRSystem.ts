@@ -326,14 +326,6 @@ export default class WebVRSystem {
     }
   }
 
-  getCameraWorldPositionAt(index: Index) {
-    if (index === 0) {
-      return this.__leftCameraEntity.getCamera().worldPosition;
-    } else {
-      return this.__rightCameraEntity.getCamera().worldPosition;
-    }
-  }
-
   get vrDisplay() {
     return this.__vrDisplay;
   }
@@ -361,13 +353,5 @@ export default class WebVRSystem {
 
   _setIsWebVRMode() {
     this.__isWebVRMode = true;
-  }
-
-  getCanvasWidthForVr() {
-    return this.__canvasWidthForVR;
-  }
-
-  getCanvasHeightForVr() {
-    return this.__canvasHeightForVR;
   }
 }

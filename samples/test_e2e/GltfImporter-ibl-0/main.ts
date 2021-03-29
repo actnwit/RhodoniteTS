@@ -79,7 +79,7 @@ function createEnvCubeExpression(baseuri) {
   const environmentCubeTexture = new Rn.CubeTexture();
   environmentCubeTexture.baseUriToLoad = baseuri + '/environment/environment';
   environmentCubeTexture.isNamePosNeg = true;
-  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_LINEAR;
+  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
 
@@ -90,7 +90,7 @@ function createEnvCubeExpression(baseuri) {
   );
   sphereMaterial.setParameter(
     Rn.EnvConstantSingleMaterialNode.EnvHdriFormat,
-    Rn.HdriFormat.LDR_LINEAR.index
+    Rn.HdriFormat.LDR_SRGB.index
   );
 
   const spherePrimitive = new Rn.Sphere();

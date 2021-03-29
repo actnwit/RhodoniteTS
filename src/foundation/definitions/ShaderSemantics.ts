@@ -231,6 +231,9 @@ const AlphaCutoff: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const AlphaTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'alphaTexture',
 });
+const MakeOutputSrgb: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'makeOutputSrgb',
+});
 
 const typeList = [
   WorldMatrix,
@@ -289,6 +292,7 @@ const typeList = [
   CurrentComponentSIDs,
   AlphaCutoff,
   AlphaTexture,
+  MakeOutputSrgb,
 ];
 
 function from(index: number): ShaderSemanticsEnum {
@@ -497,4 +501,5 @@ export const ShaderSemantics = Object.freeze({
   CurrentComponentSIDs,
   AlphaCutoff,
   AlphaTexture,
+  MakeOutputSrgb,
 });

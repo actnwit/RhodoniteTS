@@ -37,6 +37,9 @@ import {ShaderityObject} from 'shaderity';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
+import { IVector3 } from '../../math/IVector';
+import ModuleManager from '../../system/ModuleManager';
+import { RnXR } from '../../../rhodonite-xr';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -364,71 +367,56 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected setViewInfo(
     shaderProgram: WebGLProgram,
     cameraComponent: CameraComponent,
-    material: Material,
-    setUniform: boolean
+    isVr: boolean,
+    displayIdx: number
   ) {
-    if (cameraComponent) {
-      const cameraPosition = cameraComponent.worldPosition;
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniformMatrix4fv(
-          (shaderProgram as any).viewMatrix,
-          false,
-          cameraComponent.viewMatrix._v
-        );
-        (shaderProgram as any)._gl.uniform3fv(
-          (shaderProgram as any).viewPosition,
-          cameraPosition._v
-        );
-      } else {
-        // material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
-        // material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
-      }
+    let viewMatrix: Matrix44;
+    let cameraPosition: IVector3;
+    if (isVr) {
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+      viewMatrix = webvrSystem.getViewMatrixAt(displayIdx);
+      cameraPosition = webvrSystem.getCameraWorldPositionAt(displayIdx);
+    } else if (cameraComponent) {
+      cameraPosition = cameraComponent.worldPosition;
+      viewMatrix = cameraComponent.viewMatrix;
     } else {
-      const mat = MutableMatrix44.identity();
-      const pos = new Vector3(0, 0, 10);
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniformMatrix4fv(
-          (shaderProgram as any).viewMatrix,
-          false,
-          mat._v
-        );
-        (shaderProgram as any)._gl.uniform3fv(
-          (shaderProgram as any).viewPosition,
-          pos._v
-        );
-      } else {
-        // material.setParameter(ShaderSemantics.ViewMatrix, mat);
-        // material.setParameter(ShaderSemantics.ViewPosition, pos);
-      }
+      viewMatrix = MutableMatrix44.identity();
+      cameraPosition = new Vector3(0, 0, 10);
     }
+
+    (shaderProgram as any)._gl.uniformMatrix4fv(
+      (shaderProgram as any).viewMatrix,
+      false,
+      viewMatrix._v
+    );
+    (shaderProgram as any)._gl.uniform3fv(
+      (shaderProgram as any).viewPosition,
+      cameraPosition._v
+    );
   }
 
   protected setProjection(
     shaderProgram: WebGLProgram,
     cameraComponent: CameraComponent,
-    material: Material,
-    setUniform: boolean
+    isVr: boolean,
+    displayIdx: number
   ) {
-    if (cameraComponent) {
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniformMatrix4fv(
-          (shaderProgram as any).projectionMatrix,
-          false,
-          cameraComponent.projectionMatrix._v
-        );
-      } else {
-        // material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
-      }
+    let projectionMatrix: Matrix44;
+    if (isVr) {
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+      projectionMatrix = webvrSystem.getProjectMatrixAt(displayIdx);
+    } else if (cameraComponent) {
+      projectionMatrix = cameraComponent.projectionMatrix;
     } else {
-      if (setUniform) {
-        this.__webglResourceRepository!.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.ProjectionMatrix.str,
-          true,
-          MutableMatrix44.identity()
-        );
-      }
+      projectionMatrix = MutableMatrix44.identity();
     }
+    (shaderProgram as any)._gl.uniformMatrix4fv(
+      (shaderProgram as any).projectionMatrix,
+      false,
+      projectionMatrix._v
+    );
   }
 
   protected setSkinning(

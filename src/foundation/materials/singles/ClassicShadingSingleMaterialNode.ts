@@ -170,34 +170,39 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
-    /// Matrices
-    let cameraComponent = args.renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(
-        CameraComponent,
-        CameraComponent.main
-      ) as CameraComponent;
+    if (firstTime || args.isVr) {
+      let cameraComponent = args.renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        cameraComponent = ComponentRepository.getInstance().getComponent(
+          CameraComponent,
+          CameraComponent.main
+        ) as CameraComponent;
+      }
+      this.setViewInfo(
+        shaderProgram,
+        cameraComponent,
+        args.isVr,
+        args.displayIdx
+      );
+      this.setProjection(
+        shaderProgram,
+        cameraComponent,
+        args.isVr,
+        args.displayIdx
+      );
     }
-    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    this.setProjection(
-      shaderProgram,
-      cameraComponent,
-      material,
-      args.setUniform
-    );
 
-    /// Skinning
-    const skeletalComponent = args.entity.getComponent(
-      SkeletalComponent
-    ) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-
-    // Lights
-    this.setLightsInfo(
-      shaderProgram,
-      args.lightComponents,
-      material,
-      args.setUniform
-    );
+    if (firstTime) {
+      // Lights
+      this.setLightsInfo(
+        shaderProgram,
+        args.lightComponents,
+        material,
+        args.setUniform
+      );
+      /// Skinning
+      const skeletalComponent = args.entity.getSkeletal();
+      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    }
   }
 }

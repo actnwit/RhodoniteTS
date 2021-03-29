@@ -95,6 +95,7 @@ export default class RenderTargetTexture
     AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
+    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
     return true;
   }

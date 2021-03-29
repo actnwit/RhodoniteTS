@@ -134,7 +134,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
     const buffer = await response.arrayBuffer();
     const uint8Array = new Uint8Array(buffer);
     environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
-    environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_LINEAR;
+    environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   }
   sphereMaterial.setTextureParameter(
     Rn.ShaderSemantics.ColorEnvTexture,
@@ -142,7 +142,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   );
   sphereMaterial.setParameter(
     Rn.EnvConstantSingleMaterialNode.EnvHdriFormat,
-    Rn.HdriFormat.LDR_LINEAR.index
+    Rn.HdriFormat.LDR_SRGB.index
   );
   const sphereMeshComponent = sphereEntity.getMesh();
   const sphereMesh = new Rn.Mesh();

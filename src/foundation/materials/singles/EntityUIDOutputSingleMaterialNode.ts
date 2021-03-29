@@ -128,12 +128,17 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         CameraComponent.main
       ) as CameraComponent;
     }
-    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setViewInfo(
+      shaderProgram,
+      cameraComponent,
+      args.isVr,
+      args.displayIdx
+    );
     this.setProjection(
       shaderProgram,
       cameraComponent,
-      material,
-      args.setUniform
+      args.isVr,
+      args.displayIdx
     );
 
     /// Skinning

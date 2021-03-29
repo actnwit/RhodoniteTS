@@ -26,6 +26,7 @@ export default class RenderPass extends RnObject {
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
+  public isDepthTest = true;
   public clearColor = new Vector4(1, 1, 1, 1);
   public clearDepth = 1;
   public clearStencil = 0;
@@ -34,7 +35,7 @@ export default class RenderPass extends RnObject {
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();
   private __webglRenderingStrategy?: WebGLStrategy;
-  public isMainPass = false;
+  public isMainPass = true;
 
   private __preRenderFunc?: Function;
   private static __tmp_Vector4_0 = MutableVector4.zero();
