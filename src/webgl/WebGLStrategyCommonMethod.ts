@@ -7,6 +7,10 @@ import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceReposit
 import {Index} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';
 import {Is as is} from '../foundation/misc/Is';
+import ModuleManager from '../foundation/system/ModuleManager';
+import WebGLResourceRepository from './WebGLResourceRepository';
+import { RnXR } from '../rhodonite-xr';
+import Vector4 from '../foundation/math/Vector4';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -244,6 +248,40 @@ function isSkipDrawing(material: Material, idx: Index) {
   }
 }
 
+function getViewport(renderPass: RenderPass) {
+  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  let viewport = renderPass.getViewport() as Vector4;
+  if (viewport == null) {
+    viewport = webglResourceRepository.currentWebGLContextWrapper!
+      .defaultViewport;
+  }
+  return viewport!;
+}
+
+function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
+  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+  const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+  webglResourceRepository.setViewport(
+    webvrSystem.getViewportAt(getViewport(renderPass), displayIdx)
+  );
+}
+
+function getDisplayNumber(isVRMainPass: boolean) {
+  if (isVRMainPass) {
+    return 2;
+  } else {
+    return 1;
+  }
+}
+
+function isVrMainPass(renderPass: RenderPass) {
+  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+  const isVRMainPass =
+    rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass;
+  return isVRMainPass;
+}
+
 export default Object.freeze({
   setCullAndBlendSettings,
   startDepthMasking,
@@ -252,4 +290,7 @@ export default Object.freeze({
   isMeshSetup,
   isMaterialsSetup,
   isSkipDrawing,
+  setVRViewport,
+  getDisplayNumber,
+  isVrMainPass,
 });

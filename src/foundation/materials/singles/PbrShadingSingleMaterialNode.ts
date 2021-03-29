@@ -531,8 +531,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
 
-      if (firstTime) {
-        /// Matrices
+      if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
@@ -543,16 +542,18 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         this.setViewInfo(
           shaderProgram,
           cameraComponent,
-          material,
-          args.setUniform
+          args.isVr,
+          args.displayIdx
         );
         this.setProjection(
           shaderProgram,
           cameraComponent,
-          material,
-          args.setUniform
+          args.isVr,
+          args.displayIdx
         );
+      }
 
+      if (firstTime) {
         // Lights
         this.setLightsInfo(
           shaderProgram,
@@ -560,11 +561,10 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           material,
           args.setUniform
         );
+        /// Skinning
+        const skeletalComponent = args.entity.getSkeletal();
+        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
       }
-
-      /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
     }
 
     // Env map

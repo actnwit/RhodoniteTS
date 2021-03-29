@@ -120,14 +120,14 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
       this.setViewInfo(
         shaderProgram,
         cameraComponent,
-        material,
-        args.setUniform
+        args.isVr,
+        args.displayIdx
       );
       this.setProjection(
         shaderProgram,
         cameraComponent,
-        material,
-        args.setUniform
+        args.isVr,
+        args.displayIdx
       );
     }
   }
