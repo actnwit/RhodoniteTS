@@ -253,6 +253,19 @@ export default class System {
       );
     }
 
+    canvas.addEventListener('webglcontextlost', event => {
+      // Calling preventDefault signals to the page that you intent to handle context restoration.
+      event.preventDefault();
+      console.error('WebGL context lost occurred.');
+    });
+
+    canvas.addEventListener('webglcontextrestored', () => {
+      // Once this function is called the gl context will be restored but any graphics resources
+      // that were previously loaded will be lost, so the scene should be reloaded.
+      console.error('WebGL context restored.');
+      // TODO: Implement restoring the previous graphics resources
+      // loadSceneGraphics(gl);
+    });
     return gl;
   }
 
