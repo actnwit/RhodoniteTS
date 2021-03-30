@@ -263,6 +263,7 @@ export interface IMutableMatrix44 {
   invert(): IMutableMatrix44;
   translate(vec: IVector3): IMutableMatrix44;
   putTranslate(vec: IVector3): IMutableMatrix44;
+  addTranslate(vec: IVector3): IMutableMatrix44;
   rotateX(radian: number): IMutableMatrix44;
   rotateY(radian: number): IMutableMatrix44;
   rotateZ(radian: number): IMutableMatrix44;

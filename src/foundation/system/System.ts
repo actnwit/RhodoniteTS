@@ -22,8 +22,9 @@ import Time from '../misc/Time';
 import SystemState from './SystemState';
 import {RnXR} from '../../rhodonite-xr';
 import {MiscUtil} from '../misc/MiscUtil';
-import { XRFrame, XRSession } from 'webxr';
+import {XRFrame, XRSession} from 'webxr';
 import WebVRSystem from '../../xr/WebVRSystem';
+import { RenderBufferTarget } from '../definitions/RenderBufferTarget';
 
 export default class System {
   private static __instance: System;
@@ -44,29 +45,30 @@ export default class System {
 
   doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
     const animationFrameObject = this.__getAnimationFrameObject();
-    this.__animationFrameId = animationFrameObject.requestAnimationFrame(
-      ((_time: number, xrFrame: XRFrame) => {
-        const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
-        let webVRSystem: WebVRSystem;
-        if (webXRSystem.requestedToEnterWebXR) {
-          webXRSystem.preRender(xrFrame);
-        } else {
-          webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-          webVRSystem.preRender();
-        }
+    this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
+      _time: number,
+      xrFrame: XRFrame
+    ) => {
+      const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+      let webVRSystem: WebVRSystem;
+      if (webXRSystem.requestedToEnterWebXR) {
+        webXRSystem.preRender(xrFrame);
+      } else {
+        webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
+        webVRSystem.preRender();
+      }
 
-        args.splice(0, 0, time);
-        renderLoopFunc.apply(renderLoopFunc, args);
+      args.splice(0, 0, time);
+      renderLoopFunc.apply(renderLoopFunc, args);
 
-        if (webXRSystem.requestedToEnterWebXR) {
-          webXRSystem!.postRender();
-        } else {
-          webVRSystem!.postRender();
-        }
+      if (webXRSystem.requestedToEnterWebXR) {
+        webXRSystem!.postRender();
+      } else {
+        webVRSystem!.postRender();
+      }
 
-        this.doRenderLoop(renderLoopFunc, _time, args);
-      }) as any
-    );
+      this.doRenderLoop(renderLoopFunc, _time, args);
+    }) as any);
   }
 
   private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
@@ -109,6 +111,7 @@ export default class System {
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
 
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
@@ -130,15 +133,26 @@ export default class System {
                 componentTid === MeshRendererComponent.componentTID &&
                 stage == ProcessStage.Render
               ) {
-                this.__webglResourceRepository.bindFramebuffer(
-                  renderPass.getFramebuffer()
-                );
-                this.__webglResourceRepository.setViewport(
-                  renderPass.getViewport()
-                );
-                this.__webglResourceRepository.setDrawTargets(
-                  renderPass.getFramebuffer()
-                );
+                if (webXRSystem.isWebXRMode) {
+                  const glw = this.__webglResourceRepository
+                    .currentWebGLContextWrapper!;
+                  const gl = glw.getRawContext();
+                  gl?.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
+                  this.__webglResourceRepository.setViewport(
+                    renderPass.getViewport()
+                  );
+                  // glw.drawBuffers([RenderBufferTarget.ColorAttachment0]);
+                } else {
+                  this.__webglResourceRepository.bindFramebuffer(
+                    renderPass.getFramebuffer()
+                  );
+                  this.__webglResourceRepository.setViewport(
+                    renderPass.getViewport()
+                  );
+                  this.__webglResourceRepository.setDrawTargets(
+                    renderPass.getFramebuffer()
+                  );
+                }
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
               }
 

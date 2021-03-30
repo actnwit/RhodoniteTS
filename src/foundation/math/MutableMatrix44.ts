@@ -395,6 +395,13 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return this;
   }
 
+  addTranslate(vec: Vector3) {
+    this._v[12] += vec._v[0];
+    this._v[13] += vec._v[1];
+    this._v[14] += vec._v[2];
+    return this;
+  }
+
   /**
    * Create X oriented Rotation Matrix
    */
