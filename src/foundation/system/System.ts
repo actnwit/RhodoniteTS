@@ -45,18 +45,14 @@ export default class System {
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(
       (_time: number) => {
         const webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-        if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
-          webVRSystem.getFrameData();
-        }
+
+        webVRSystem.preRender();
+
         args.splice(0, 0, time);
         renderLoopFunc.apply(renderLoopFunc, args);
 
-        if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
-          webVRSystem.vrDisplay!.submitFrame();
-        }
-        if (webVRSystem?.requestedToEnterWebVR) {
-          webVRSystem._setIsWebVRMode();
-        }
+        webVRSystem.postRender();
+
         this.doRenderLoop(renderLoopFunc, _time, args);
       }
     );

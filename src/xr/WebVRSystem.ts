@@ -9,9 +9,9 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import TransformComponent from '../foundation/components/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import CameraComponent from '../foundation/components/CameraComponent';
-import { IMatrix44 } from '../foundation/math/IMatrix';
+import {IMatrix44} from '../foundation/math/IMatrix';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;
@@ -387,5 +387,20 @@ export default class WebVRSystem {
 
   getCanvasHeightForVr() {
     return this.__canvasHeightForVR;
+  }
+
+  preRender() {
+    if (this?.isWebVRMode && this.vrDisplay?.isPresenting) {
+      this.getFrameData();
+    }
+  }
+
+  postRender() {
+    if (this?.isWebVRMode && this.vrDisplay?.isPresenting) {
+      this.vrDisplay!.submitFrame();
+    }
+    if (this?.requestedToEnterWebVR) {
+      this._setIsWebVRMode();
+    }
   }
 }
