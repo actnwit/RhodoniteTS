@@ -846,10 +846,17 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   ) {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      let cameraComponentSid = -1;
+      if (webxrSystem.isWebXRMode) {
+        cameraComponentSid = webxrSystem.getCameraComponentSIDAt(displayIdx);
+      } else {
+        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+        cameraComponentSid = webvrSystem.getCameraComponentSIDAt(displayIdx);
+      }
       WebGLStrategyFastest.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.CameraComponentTID
-      ] = webvrSystem.getCameraComponentSIDAt(displayIdx);
+      ] = cameraComponentSid;
     } else {
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {

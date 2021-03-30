@@ -22,6 +22,8 @@ import Time from '../misc/Time';
 import SystemState from './SystemState';
 import {RnXR} from '../../rhodonite-xr';
 import {MiscUtil} from '../misc/MiscUtil';
+import { XRFrame, XRSession } from 'webxr';
+import WebVRSystem from '../../xr/WebVRSystem';
 
 export default class System {
   private static __instance: System;
@@ -43,25 +45,37 @@ export default class System {
   doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
     const animationFrameObject = this.__getAnimationFrameObject();
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(
-      (_time: number) => {
-        const webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-
-        webVRSystem.preRender();
+      ((_time: number, xrFrame: XRFrame) => {
+        const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+        let webVRSystem: WebVRSystem;
+        if (webXRSystem.requestedToEnterWebXR) {
+          webXRSystem.preRender(xrFrame);
+        } else {
+          webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
+          webVRSystem.preRender();
+        }
 
         args.splice(0, 0, time);
         renderLoopFunc.apply(renderLoopFunc, args);
 
-        webVRSystem.postRender();
+        if (webXRSystem.requestedToEnterWebXR) {
+          webXRSystem!.postRender();
+        } else {
+          webVRSystem!.postRender();
+        }
 
         this.doRenderLoop(renderLoopFunc, _time, args);
-      }
+      }) as any
     );
   }
 
-  private __getAnimationFrameObject() {
-    let animationFrameObject: Window | VRDisplay = window;
+  private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
+    let animationFrameObject: Window | VRDisplay | XRSession = window;
     const webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-    if (webVRSystem?.isWebVRMode) {
+    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+    if (webXRSystem?.requestedToEnterWebXR) {
+      animationFrameObject = webXRSystem.xrSession!;
+    } else if (webVRSystem?.isWebVRMode) {
       animationFrameObject = webVRSystem.vrDisplay!;
     }
     return animationFrameObject;

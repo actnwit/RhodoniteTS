@@ -9,26 +9,29 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import TransformComponent from '../foundation/components/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import CameraComponent from '../foundation/components/CameraComponent';
-import { IMatrix44 } from '../foundation/math/IMatrix';
+import {IMatrix44} from '../foundation/math/IMatrix';
+import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
+import type { Navigator, XRSession, XRReferenceSpace, XRViewerPose, XRWebGLLayer, XRFrame } from 'webxr';
 
-export default class WebVRSystem {
-  private static __instance: WebVRSystem;
-  private __isWebVRMode = false;
-  private __webvrFrameData?: VRFrameData;
-  private __webvrDisplay?: VRDisplay;
-  private __requestedToEnterWebVR = false;
-  private __isReadyForWebVR = false;
-  private __vrDisplay?: VRDisplay;
+declare const navigator: Navigator;
+declare const window: any;
+
+export default class WebXRSystem {
+  private static __instance: WebXRSystem;
+  private __xrSession?: XRSession;
+  private __xrReferenceSpace?: XRReferenceSpace;
+  private __glw?: WebGLContextWrapper;
+  private __xrViewerPose?: XRViewerPose | null;
+  private __isWebXRMode = false;
+  private __requestedToEnterWebXR = false;
+  private __isReadyForWebXR = false;
   private __defaultUserSittingPositionInVR = new Vector3(0.0, 1.1, 1.5);
-  private __invertSittingToStandingTransform: IMatrix44 = Matrix44.identity();
   private __minRenderWidthFromUser = 0;
   private __minRenderHeightFromUser = 0;
   private __canvasWidthBackup = 0;
   private __canvasHeightBackup = 0;
   private __canvasWidthForVR = 0;
   private __canvasHeightForVR = 0;
-  private __leftViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
-  private __rightViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __leftCameraEntity: Entity;
   private __rightCameraEntity: Entity;
 
@@ -48,238 +51,170 @@ export default class WebVRSystem {
 
   static getInstance() {
     if (!this.__instance) {
-      this.__instance = new WebVRSystem();
+      this.__instance = new WebXRSystem();
     }
 
     return this.__instance;
   }
 
-  getFrameData() {
-    if (this.__webvrDisplay == null) {
-      return;
-    }
-    this.__webvrDisplay.getFrameData(this.__webvrFrameData!);
-    if (this.__webvrDisplay.stageParameters) {
-      this.__invertSittingToStandingTransform = Matrix44.invert(
-        new Matrix44(
-          this.__webvrDisplay.stageParameters.sittingToStandingTransform!,
-          true
-        )
-      );
+  async enterWebXR() {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webglResourceRepository.currentWebGLContextWrapper;
+    if (glw != null && this.__isReadyForWebXR) {
+      try {
+        const session = await navigator.xr.requestSession('immersive-vr') as XRSession;
+        this.__xrSession = session;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const that = this;
+        session
+          .requestReferenceSpace('local-floor')
+          .then(referenceSpace => {
+            that.__xrReferenceSpace = referenceSpace;
+          })
+          .then(this.__setupWebGLLayer.bind(that, session))
+          .then(() => {
+            that.__requestedToEnterWebXR = true;
+          });
+      } catch (err) {
+        console.error('Failed to start XRSession.');
+      }
     } else {
-      this.__invertSittingToStandingTransform = Matrix44.invert(
-        Matrix44.translate(this.__defaultUserSittingPositionInVR)
-      );
+      console.error('WebGL context or WebXRSession is not ready yet.');
     }
   }
 
-  async enterWebVR(
-    initialUserSittingPositionIfStageParametersDoNotExist?: Vector3,
-    minRenderWidth?: number,
-    minRenderHeight?: number
-  ) {
-    return new Promise((resolve, reject) => {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const glw = webglResourceRepository.currentWebGLContextWrapper;
-      if (
-        glw != null &&
-        this.__webvrDisplay != null &&
-        !this.__webvrDisplay.isPresenting
-      ) {
-        if (initialUserSittingPositionIfStageParametersDoNotExist != null) {
-          this.__defaultUserSittingPositionInVR = initialUserSittingPositionIfStageParametersDoNotExist;
-        }
-        if (minRenderWidth != null) {
-          this.__minRenderWidthFromUser = minRenderWidth;
-        }
-        if (minRenderHeight != null) {
-          this.__minRenderHeightFromUser = minRenderHeight;
-        }
+  private __setupWebGLLayer(xrSession: XRSession) {
+    const gl = this.__glw?.getRawContext();
 
-        this.__vrDisplay = this.__webvrDisplay;
-        const leftEye = this.__webvrDisplay.getEyeParameters('left');
-        const rightEye = this.__webvrDisplay.getEyeParameters('right');
-
-        this.__canvasWidthBackup = glw.width;
-        this.__canvasHeightBackup = glw.height;
-        if (
-          this.__minRenderWidthFromUser > leftEye.renderWidth &&
-          this.__minRenderHeightFromUser > rightEye.renderWidth
-        ) {
-          this.__canvasWidthForVR = this.__minRenderWidthFromUser * 2;
-          this.__canvasHeightForVR = this.__minRenderHeightFromUser;
-        } else {
-          this.__canvasWidthForVR = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
-          this.__canvasHeightForVR = Math.max(
-            leftEye.renderHeight,
-            rightEye.renderHeight
-          );
-        }
+    if (gl != null) {
+      // Make sure the canvas context we want to use is compatible with the current xr device.
+      return (gl as any).makeXRCompatible().then(() => {
+        // The content that will be shown on the device is defined by the session's
+        // baseLayer.
+        const webglLayer = new window.XRWebGLLayer(
+          xrSession,
+          gl
+        ) as XRWebGLLayer;
+        xrSession.updateRenderState({
+          baseLayer: webglLayer,
+          depthNear: 0.1,
+          depthFar: 10000,
+        });
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        this.__canvasWidthForVR = webglLayer.framebufferWidth;
+        this.__canvasHeightForVR = webglLayer.framebufferHeight;
         webglResourceRepository.resizeCanvas(
           this.__canvasWidthForVR,
           this.__canvasHeightForVR
         );
-        this.__webvrDisplay
-          .requestPresent([{source: glw.canvas}])
-          .then(() => {
-            this.__requestedToEnterWebVR = true;
-            console.info('requestPresent is succeeded.');
-            resolve();
-          })
-          .catch(() => {
-            console.error(
-              'Failed to requestPresent. Please check your VR Setting, or something wrong with your VR system?'
-            );
-            reject();
-          });
-      } else {
-        reject('WebGL context or WebVRDisplay is not ready yet.');
-      }
-    }) as Promise<void>;
+      });
+    } else {
+      console.error('WebGL context is not ready for WebXR.');
+    }
   }
 
-  async readyForWebVR(requestButtonDom: HTMLElement) {
-    return new Promise((resolve, reject) => {
-      const glw = CGAPIResourceRepository.getWebGLResourceRepository()
-        .currentWebGLContextWrapper;
-      if (glw == null) {
-        reject('WebGL Context is not ready yet.');
-        return;
-      }
-      if (window.VRFrameData) {
-        this.__webvrFrameData = new window.VRFrameData();
+  /**
+   * Ready for WebXR
+   *
+   * @param requestButtonDom
+   * @returns true: prepared properly, false: failed to prepare
+   */
+  async readyForWebXR(requestButtonDom: HTMLElement) {
+    const glw = CGAPIResourceRepository.getWebGLResourceRepository()
+      .currentWebGLContextWrapper;
+    if (glw == null) {
+      console.error('WebGL Context is not ready yet.');
+      return false;
+    }
+    this.__glw = glw;
+    const supported = await navigator.xr.isSessionSupported('immersive-vr');
+    if (supported) {
+      if (requestButtonDom) {
+        requestButtonDom.style.display = 'block';
       } else {
-        reject('WebVR is not supported in this environment.');
+        const paragraph = document.createElement('p');
+        const anchor = document.createElement('a');
+        anchor.setAttribute('id', 'enter-vr');
+        const enterVr = document.createTextNode('Enter VR');
+
+        anchor.appendChild(enterVr);
+        paragraph.appendChild(anchor);
+
+        const canvas = glw.canvas;
+        canvas.parentNode!.insertBefore(paragraph, canvas);
+        window.addEventListener('click', this.enterWebXR.bind(this) as any);
       }
 
-      if (navigator.getVRDisplays) {
-        navigator
-          .getVRDisplays()
-          .then((vrDisplays: VRDisplay[]) => {
-            if (vrDisplays.length > 0) {
-              const webvrDisplay = vrDisplays[vrDisplays.length - 1];
-              webvrDisplay.depthNear = 0.01;
-              webvrDisplay.depthFar = 10000;
-
-              if (webvrDisplay.capabilities.canPresent) {
-                this.__webvrDisplay = webvrDisplay;
-
-                if (requestButtonDom) {
-                  requestButtonDom.style.display = 'block';
-                } else {
-                  const paragrach = document.createElement('p');
-                  const anchor = document.createElement('a');
-                  anchor.setAttribute('id', 'enter-vr');
-                  const enterVr = document.createTextNode('Enter VR');
-
-                  anchor.appendChild(enterVr);
-                  paragrach.appendChild(anchor);
-
-                  const canvas = glw.canvas;
-                  canvas.parentNode!.insertBefore(paragrach, canvas);
-                  window.addEventListener(
-                    'click',
-                    this.enterWebVR.bind(this) as any
-                  );
-                }
-
-                this.__isReadyForWebVR = true;
-                resolve();
-              } else {
-                console.error("Can't requestPresent now. try again.");
-                reject();
-              }
-            } else {
-              console.error(
-                'Failed to get VR Display. Please check your VR Setting, or something wrong with your VR system?'
-              );
-              reject();
-            }
-          })
-          .catch(() => {
-            console.error(
-              'Failed to get VR Displays. Please check your VR Setting.'
-            );
-            reject();
-          });
-      } else {
-        console.error(
-          'Your browser does not support WebVR. Or it is disabled. Check again.'
-        );
-        reject();
-      }
-    }) as Promise<void>;
+      this.__isReadyForWebXR = true;
+    } else {
+      console.error('WebXR is not supported in this environment.');
+      return false;
+    }
+    return true;
   }
 
   async exitWebVR() {
-    this.__isWebVRMode = false;
-    if (this.__webvrDisplay && this.__webvrDisplay.isPresenting) {
-      await this.__webvrDisplay.exitPresent();
+    if (this.__xrSession) {
+      // End the XR session now.
+      this.__xrSession.end().then(() => {
+        const gl = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper?.getRawContext();
+        gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
+        this.__xrSession = undefined;
+      });
     }
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.resizeCanvas(
       this.__canvasWidthBackup,
       this.__canvasHeightBackup
     );
-    this.__isReadyForWebVR = false;
+    this.__isReadyForWebXR = false;
+    this.__requestedToEnterWebXR = false;
   }
 
-  async disableWebVR() {
-    this.__isWebVRMode = false;
-    this.__requestedToEnterWebVR = false;
-    this.__isReadyForWebVR = false;
-    if (this.__webvrDisplay && this.__webvrDisplay.isPresenting) {
-      await this.__webvrDisplay.exitPresent();
+  async disableWebXR() {
+    this.__isWebXRMode = false;
+    this.__requestedToEnterWebXR = false;
+    this.__isReadyForWebXR = false;
+  }
+
+  get isWebXRMode() {
+    return this.__isWebXRMode;
+  }
+
+  get isReadyForWebXR() {
+    return this.__isReadyForWebXR;
+  }
+
+  getCameraWorldPositionAt(displayIdx: Index) {
+    const xrView = this.__xrViewerPose?.views[displayIdx];
+    const pos = xrView?.transform.position;
+    if (pos != null) {
+      return new Vector3(pos.x, pos.y, pos.z);
+    } else {
+      return Vector3.zero();
     }
-    this.__webvrDisplay = void 0;
-  }
-
-  get isWebVRMode() {
-    return this.__isWebVRMode;
-  }
-
-  get isReadyForWebVR() {
-    return this.__isReadyForWebVR;
-  }
-
-  webVrSubmitFrame() {
-    if (this.__webvrDisplay && this.__webvrDisplay.isPresenting) {
-      this.__webvrDisplay.submitFrame();
-    }
-  }
-
-  get webVrFrameData() {
-    return this.__webvrFrameData;
   }
 
   get leftViewMatrix() {
-    Matrix44.multiplyTo(
-      new Matrix44(this.__webvrFrameData!.leftViewMatrix, true),
-      this.__invertSittingToStandingTransform,
-      this.__leftViewMatrix
-    );
-    return this.__leftViewMatrix;
+    return this.__leftCameraEntity.getCamera().viewMatrix;
   }
 
   get rightViewMatrix() {
-    Matrix44.multiplyTo(
-      new Matrix44(this.__webvrFrameData!.rightViewMatrix, true),
-      this.__invertSittingToStandingTransform,
-      this.__rightViewMatrix
-    );
-    return this.__rightViewMatrix;
+    return this.__rightCameraEntity.getCamera().viewMatrix;
   }
 
   get leftProjectionMatrix() {
+    const xrViewLeft = this.__xrViewerPose?.views[0];
     return new MutableMatrix44(
-      this.__webvrFrameData!.leftProjectionMatrix,
+      xrViewLeft?.projectionMatrix as Float32Array,
       true
     );
   }
 
   get rightProjectionMatrix() {
+    const xrViewRight = this.__xrViewerPose?.views[1];
     return new MutableMatrix44(
-      this.__webvrFrameData!.rightProjectionMatrix,
+      xrViewRight?.projectionMatrix as Float32Array,
       true
     );
   }
@@ -326,13 +261,7 @@ export default class WebVRSystem {
     }
   }
 
-  get vrDisplay() {
-    return this.__vrDisplay;
-  }
-
   setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera().viewMatrix = this.leftViewMatrix;
-    this.__rightCameraEntity.getCamera().viewMatrix = this.rightViewMatrix;
     this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
     this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
     this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
@@ -348,10 +277,47 @@ export default class WebVRSystem {
   }
 
   get requestedToEnterWebVR() {
-    return this.__requestedToEnterWebVR;
+    return this.__requestedToEnterWebXR;
   }
 
-  _setIsWebVRMode() {
-    this.__isWebVRMode = true;
+  preRender(xrFrame: XRFrame) {
+    if (this.isWebXRMode && this.__requestedToEnterWebXR) {
+      this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
+      const gl = this.__glw?.getRawContext();
+      const glLayer = this.__xrSession?.renderState.baseLayer;
+      gl?.bindFramebuffer(gl.FRAMEBUFFER, glLayer!.framebuffer);
+      this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
+    }
+  }
+
+  private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
+    const xrViewLeft = xrViewerPose?.views[0];
+    const xrViewRight = xrViewerPose?.views[1];
+    this.__leftCameraEntity.getTransform().matrix = new Matrix44(
+      xrViewLeft?.transform.matrix as Float32Array,
+      true
+    );
+    this.__rightCameraEntity.getTransform().matrix = new Matrix44(
+      xrViewRight?.transform.matrix as Float32Array,
+      true
+    );
+  }
+
+  postRender() {
+    if (this?.__isWebXRMode) {
+      const gl = this.__glw?.getRawContext();
+      gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+    if (this?.requestedToEnterWebVR) {
+      this.__isWebXRMode = true;
+    }
+  }
+
+  get requestedToEnterWebXR() {
+    return this.__requestedToEnterWebXR;
+  }
+
+  get xrSession() {
+    return this.__xrSession;
   }
 }
