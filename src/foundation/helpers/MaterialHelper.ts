@@ -312,7 +312,7 @@ function createMToonMaterial({
     `_${additionalName}_` +
     (isMorphing ? '+morphing' : '') +
     (isSkinning ? '+skinning' : '') +
-    (isLighting ? '-lighting' : '') +
+    (isLighting ? '' : '-lighting') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (isOutline ? '-outline' : '');
 
