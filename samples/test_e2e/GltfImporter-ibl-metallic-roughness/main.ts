@@ -47,6 +47,11 @@ document.body.appendChild(p);
     '../../../assets/gltf/2.0/MetalRoughSpheresNoTextures/glTF/MetalRoughSpheresNoTextures.gltf',
     {
       cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
     }
   );
   expressions.push(mainExpression);

@@ -42,6 +42,11 @@ document.body.appendChild(p);
     '../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
     {
       cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
     }
   );
   expressions.push(mainExpression);

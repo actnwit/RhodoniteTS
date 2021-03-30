@@ -48,6 +48,11 @@ document.body.appendChild(p);
     '../../../assets/gltf/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf',
     {
       cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
     }
   );
   expressions.push(mainExpression);
