@@ -1,5 +1,3 @@
-import {ComponentType} from '../../../dist/esm/foundation/definitions/ComponentType';
-import {CompositionType} from '../../../dist/esm/foundation/definitions/CompositionType';
 import _Rn from '../../../dist/esm/index';
 
 let p: any;
@@ -25,8 +23,8 @@ declare const Rn: typeof _Rn;
   constant2.setDefaultInputValue('value', new Rn.Vector4(4, 3, 2, 1));
 
   const addShaderNode = new Rn.AddShaderNode(
-    CompositionType.Vec4,
-    ComponentType.Float
+    Rn.CompositionType.Vec4,
+    Rn.ComponentType.Float
   );
   addShaderNode.addInputConnection(constant1, 'outValue', 'lhs');
   addShaderNode.addInputConnection(constant2, 'outValue', 'rhs');
