@@ -1,6 +1,5 @@
 import _Rn from '../../../dist/esm/index';
 
-declare const window: any;
 declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -44,48 +43,8 @@ document.body.appendChild(p);
     }
   );
 
-  // gamma correction
-  // const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(world.width, world.height, 1, {});
-  // expression.renderPasses[0].setFramebuffer(gammaTargetFramebuffer);
-
-  // const gammaRenderPass = createGammaCorrectRenderPass(gammaTargetFramebuffer);
-  // const gammaExpression = new Rn.Expression();
-  // gammaExpression.addRenderPasses([gammaRenderPass]);
-
   system.process([expression]);
-  // system.process([expression, gammaExpression]);
 
   p.id = 'rendered';
   p.innerText = 'Rendered.';
-
-  // function createGammaCorrectRenderPass(targetFramebuffer) {
-  //   const boardPrimitive = new Rn.Plane();
-  //   boardPrimitive.generate({
-  //     width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false,
-  //     material: Rn.MaterialHelper.createGammaCorrectionMaterial()
-  //   });
-  //   boardPrimitive.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, targetFramebuffer.getColorAttachedRenderTargetTexture(0));
-
-  //   const boardMesh = new Rn.Mesh();
-  //   boardMesh.addPrimitive(boardPrimitive);
-
-  //   const boardEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-  //   const boardMeshComponent = boardEntity.getMesh();
-  //   boardMeshComponent.setMesh(boardMesh);
-
-  //   boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-  //   boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
-
-  //   const cameraEntityGamma = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
-  //   const cameraComponentGamma = cameraEntityGamma.getCamera();
-  //   cameraComponentGamma.zFarInner = 1.0;
-
-  //   const renderPass = new Rn.RenderPass();
-  //   renderPass.toClearColorBuffer = true;
-  //   renderPass.clearColor = new Rn.Vector4(0.0, 0.0, 0.0, 1.0);
-  //   renderPass.cameraComponent = cameraComponentGamma;
-  //   renderPass.addEntities([boardEntity]);
-
-  //   return renderPass;
-  // }
 })();
