@@ -10,6 +10,8 @@ import TransformComponent from '../foundation/components/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import CameraComponent from '../foundation/components/CameraComponent';
 import { IMatrix44 } from '../foundation/math/IMatrix';
+import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;
@@ -326,11 +328,13 @@ export default class WebVRSystem {
     }
   }
 
-  getCameraWorldPositionAt(index: Index) {
-    if (index === 0) {
-      return this.__leftCameraEntity.getCamera().worldPosition;
+  getCameraWorldPosition() {
+    const pos = this.__webvrDisplay?.getPose()?.position;
+    if (pos != null) {
+      console.log(pos);
+      return new Vector3(pos);
     } else {
-      return this.__rightCameraEntity.getCamera().worldPosition;
+      return Vector3.zero();
     }
   }
 
@@ -339,12 +343,26 @@ export default class WebVRSystem {
   }
 
   setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera().viewMatrix = this.leftViewMatrix;
-    this.__rightCameraEntity.getCamera().viewMatrix = this.rightViewMatrix;
-    this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
-    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
-    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
+    const leftCamera = this.__leftCameraEntity.getCamera();
+    const rightCamera = this.__rightCameraEntity.getCamera();
+    leftCamera.viewMatrix = this.leftViewMatrix;
+    rightCamera.viewMatrix = this.rightViewMatrix;
+    leftCamera.projectionMatrix = this.leftProjectionMatrix;
+    rightCamera.projectionMatrix = this.rightProjectionMatrix;
+    leftCamera.setValuesToGlobalDataRepositoryOnlyMatrices();
+    rightCamera.setValuesToGlobalDataRepositoryOnlyMatrices();
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const cameraPos = this.getCameraWorldPosition();
+    globalDataRepository.setValue(
+      ShaderSemantics.ViewPosition,
+      leftCamera.componentSID,
+      cameraPos
+    );
+    globalDataRepository.setValue(
+      ShaderSemantics.ViewPosition,
+      rightCamera.componentSID,
+      cameraPos
+    );
   }
 
   getCameraComponentSIDAt(index: Index) {
