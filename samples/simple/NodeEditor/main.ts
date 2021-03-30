@@ -1,15 +1,9 @@
 import _Rn from '../../../dist/esm/index';
-
-let p: any;
-
 declare const Rn: typeof _Rn;
 
 (async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
-
-  Rn.Material.registerMaterial('MyMaterial', []);
-  const material = Rn.Material.createMaterial('MyMaterial');
 
   const constant1 = new Rn.ConstantVariableShaderNode(
     Rn.CompositionType.Vec4,
@@ -46,10 +40,16 @@ declare const Rn: typeof _Rn;
     constant1,
     constant2,
   ]);
+
+  console.log('vertex shader');
+  console.log(vertexRet.shader);
+  console.log('pixel shader');
+  console.log(pixelRet.shader);
+
   const rnMaterial = Rn.MaterialHelper.recreateCustomMaterial(
     vertexRet.shader,
     pixelRet.shader
   );
-  // const returnValues = material.createProgramString();
-  // console.log(returnValues.pixelShader)
+  console.log('material');
+  console.log(rnMaterial);
 })();
