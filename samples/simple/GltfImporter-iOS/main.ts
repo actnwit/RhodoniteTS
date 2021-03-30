@@ -59,6 +59,7 @@ declare const Rn: typeof _Rn;
         {
           isSkinning: false,
           isMorphing: false,
+          makeOutputSrgb: false,
         },
       ],
       autoResizeTexture: true,

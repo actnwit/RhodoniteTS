@@ -81,8 +81,10 @@ declare const Rn: typeof _Rn;
     {
       defaultMaterialHelperArgumentArray: [
         {
+          isLighting: true,
           isSkinning: false,
           isMorphing: false,
+          makeOutputSrgb: false,
         },
       ],
       // autoResizeTexture: true
