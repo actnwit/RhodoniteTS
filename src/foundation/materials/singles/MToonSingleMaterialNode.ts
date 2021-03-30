@@ -108,7 +108,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     isSkinning: boolean,
     isLighting: boolean,
     useTangentAttribute: boolean,
-    debugMode: Count | undefined
+    debugMode: Count | undefined,
+    makeOutputSrgb: boolean
   ) {
     super(
       null,
@@ -416,6 +417,17 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         initialValue: new Vector3(0, 0, 1),
         min: 0,
         max: 10,
+      },
+      {
+        semantic: ShaderSemantics.MakeOutputSrgb,
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Bool,
+        stage: ShaderType.PixelShader,
+        min: 0,
+        max: 1,
+        isSystem: false,
+        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        initialValue: new Scalar(makeOutputSrgb ? 1 : 0),
       }
     );
 

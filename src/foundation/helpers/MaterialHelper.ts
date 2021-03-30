@@ -305,6 +305,7 @@ function createMToonMaterial({
   textures = undefined,
   debugMode = undefined,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  makeOutputSrgb = true,
 } = {}) {
   const materialName =
     'MToon' +
@@ -323,7 +324,8 @@ function createMToonMaterial({
     isSkinning,
     isLighting,
     useTangentAttribute,
-    debugMode
+    debugMode,
+    makeOutputSrgb,
   );
 
   materialNode.isSingleOperation = true;
