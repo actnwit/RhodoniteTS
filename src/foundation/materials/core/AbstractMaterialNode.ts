@@ -376,7 +376,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
       viewMatrix = webvrSystem.getViewMatrixAt(displayIdx);
-      cameraPosition = webvrSystem.getCameraWorldPositionAt(displayIdx);
+      cameraPosition = webvrSystem.getCameraWorldPosition();
     } else if (cameraComponent) {
       cameraPosition = cameraComponent.worldPosition;
       viewMatrix = cameraComponent.viewMatrix;

@@ -603,6 +603,19 @@ export default class CameraComponent extends Component {
     );
   }
 
+  setValuesToGlobalDataRepositoryOnlyMatrices() {
+    CameraComponent.__globalDataRepository.setValue(
+      ShaderSemantics.ViewMatrix,
+      this.componentSID,
+      this.viewMatrix
+    );
+    CameraComponent.__globalDataRepository.setValue(
+      ShaderSemantics.ProjectionMatrix,
+      this.componentSID,
+      this.projectionMatrix
+    );
+  }
+
   setValuesToGlobalDataRepository() {
     CameraComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewMatrix,
