@@ -28,6 +28,8 @@
         "typedoc",
         "vertex",
         "webgl",
+        "webglcontextlost",
+        "webglcontextrestored",
         "webvr",
         "well"
     ],
