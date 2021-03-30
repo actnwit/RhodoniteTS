@@ -42,7 +42,7 @@ declare const Rn: typeof _Rn;
     {}
   );
 
-  const renderPassGamma = createRenderPassForPostEffect(
+  const renderPassGamma = createPostEffectRenderPass(
     'createGammaCorrectionMaterial'
   );
   setTextureParameterForMeshComponents(
@@ -58,7 +58,7 @@ declare const Rn: typeof _Rn;
     {}
   );
 
-  const renderPassFxaa = createRenderPassForPostEffect(
+  const renderPassFxaa = createPostEffectRenderPass(
     'createFXAA3QualityMaterial'
   );
   setParameterForMeshComponents(
@@ -304,8 +304,8 @@ function materialHelperForMeshComponents(
   }
 }
 
-let renderPassForPostEffectCameraComponent: CameraComponent;
-function createRenderPassForPostEffect(
+let postEffectRenderPassCameraComponent: CameraComponent;
+function createPostEffectRenderPass(
   materialHelperFunctionStr,
   arrayOfHelperFunctionArgument = []
 ) {
@@ -331,7 +331,7 @@ function createRenderPassForPostEffect(
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 
-  if (renderPassForPostEffectCameraComponent == null) {
+  if (postEffectRenderPassCameraComponent == null) {
     const entityRepository = Rn.EntityRepository.getInstance();
     const cameraEntity = entityRepository.createEntity([
       Rn.TransformComponent,
@@ -340,13 +340,13 @@ function createRenderPassForPostEffect(
     ]);
     const cameraComponent = cameraEntity.getCamera();
     cameraComponent.zFarInner = 1.0;
-    renderPassForPostEffectCameraComponent = cameraComponent;
+    postEffectRenderPassCameraComponent = cameraComponent;
   }
 
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
   renderPass.clearColor = new Rn.Vector4(0.0, 0.0, 0.0, 1.0);
-  renderPass.cameraComponent = renderPassForPostEffectCameraComponent;
+  renderPass.cameraComponent = postEffectRenderPassCameraComponent;
   renderPass.addEntities([boardEntity]);
 
   return renderPass;
