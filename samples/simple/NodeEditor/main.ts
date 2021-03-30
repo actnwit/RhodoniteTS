@@ -31,12 +31,8 @@ declare const Rn: typeof _Rn;
 
   const outPositionShaderNode = new Rn.OutPositionShaderNode();
   const outColorShaderNode = new Rn.OutColorShaderNode();
-  outPositionShaderNode.addInputConnection(
-    addShaderNode,
-    'outValue',
-    'inPosition'
-  );
-  outColorShaderNode.addInputConnection(constant2, 'outValue', 'inColor');
+  outPositionShaderNode.addInputConnection(addShaderNode, 'outValue', 'value');
+  outColorShaderNode.addInputConnection(constant2, 'outValue', 'value');
 
   const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode([
     outPositionShaderNode,
