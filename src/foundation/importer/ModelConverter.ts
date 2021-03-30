@@ -875,6 +875,7 @@ export default class ModelConverter {
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber =
         defaultMaterialHelperArgument.maxInstancesNumber;
+      const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
 
       // outline
       let renderPassOutline;
@@ -899,6 +900,7 @@ export default class ModelConverter {
             textures,
             debugMode,
             maxInstancesNumber,
+            makeOutputSrgb,
           });
         } else {
           outlineMaterial = MaterialHelper.createEmptyMaterial();
@@ -918,6 +920,7 @@ export default class ModelConverter {
         textures,
         debugMode,
         maxInstancesNumber,
+        makeOutputSrgb,
       });
 
       return material;
@@ -993,6 +996,7 @@ export default class ModelConverter {
         primitive
       );
       const useNormalTexture = this.__useNormalTexture(gltfModel);
+      const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
       return MaterialHelper.createPbrUberMaterial({
         isMorphing,
         isSkinning,
@@ -1002,6 +1006,7 @@ export default class ModelConverter {
         useNormalTexture,
         additionalName: additionalName,
         maxInstancesNumber: maxMaterialInstanceNumber,
+        makeOutputSrgb,
       });
     } else {
       return MaterialHelper.createClassicUberMaterial({
@@ -1061,6 +1066,7 @@ export default class ModelConverter {
     }
     return false;
   }
+
   private __useNormalTexture(gltfModel: glTF2) {
     const argument = gltfModel?.asset?.extras?.rnLoaderOptions
       ?.defaultMaterialHelperArgumentArray![0];
@@ -1071,6 +1077,12 @@ export default class ModelConverter {
         gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode !== 0
       );
     }
+  }
+
+  private __makeOutputSrgb(gltfModel: glTF2) {
+    const argument = gltfModel?.asset?.extras?.rnLoaderOptions
+      ?.defaultMaterialHelperArgumentArray![0];
+    return argument?.makeOutputSrgb as boolean | undefined;
   }
 
   private __getMaterialHash(

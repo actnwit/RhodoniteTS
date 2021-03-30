@@ -31,6 +31,10 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
+vec3 linearToSrgb(vec3 linearColor) {
+  return pow(linearColor, vec3(1.0/2.2));
+}
+
 vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
@@ -300,6 +304,8 @@ void main (){
       discard;
     }
   }
+
+  #pragma shaderity: require(../common/outputSrgb.glsl)
 
   #pragma shaderity: require(../common/glFragColor.glsl)
 }

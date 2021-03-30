@@ -305,13 +305,14 @@ function createMToonMaterial({
   textures = undefined,
   debugMode = undefined,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  makeOutputSrgb = true,
 } = {}) {
   const materialName =
     'MToon' +
     `_${additionalName}_` +
     (isMorphing ? '+morphing' : '') +
     (isSkinning ? '+skinning' : '') +
-    (isLighting ? '-lighting' : '') +
+    (isLighting ? '' : '-lighting') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (isOutline ? '-outline' : '');
 
@@ -323,7 +324,8 @@ function createMToonMaterial({
     isSkinning,
     isLighting,
     useTangentAttribute,
-    debugMode
+    debugMode,
+    makeOutputSrgb,
   );
 
   materialNode.isSingleOperation = true;
