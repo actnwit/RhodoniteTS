@@ -24,7 +24,6 @@ import {RnXR} from '../../rhodonite-xr';
 import {MiscUtil} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import WebVRSystem from '../../xr/WebVRSystem';
-import { RenderBufferTarget } from '../definitions/RenderBufferTarget';
 
 export default class System {
   private static __instance: System;
@@ -55,7 +54,9 @@ export default class System {
         webXRSystem.preRender(xrFrame);
       } else {
         webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-        webVRSystem.preRender();
+        if (webVRSystem.isReadyForWebVR) {
+          webVRSystem.preRender();
+        }
       }
 
       args.splice(0, 0, time);
@@ -64,7 +65,9 @@ export default class System {
       if (webXRSystem.requestedToEnterWebXR) {
         webXRSystem!.postRender();
       } else {
-        webVRSystem!.postRender();
+        if (webVRSystem!.isReadyForWebVR) {
+          webVRSystem!.postRender();
+        }
       }
 
       this.doRenderLoop(renderLoopFunc, _time, args);

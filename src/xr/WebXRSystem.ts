@@ -21,6 +21,7 @@ export default class WebXRSystem {
   private static __instance: WebXRSystem;
   private __xrSession?: XRSession;
   private __xrReferenceSpace?: XRReferenceSpace;
+  private __webglLayer?: XRWebGLLayer;
   private __glw?: WebGLContextWrapper;
   private __xrViewerPose?: XRViewerPose | null;
   private __isWebXRMode = false;
@@ -64,14 +65,23 @@ export default class WebXRSystem {
         : defaultUserPositionInVR;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
+
+    if (this.__xrSession != null) {
+      this.__requestedToEnterWebXR = true;
+      this.__isWebXRMode = true;
+      return true;
+    }
+
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
       const session = await navigator.xr.requestSession('immersive-vr') as XRSession;
       this.__xrSession = session;
       try {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        referenceSpace = await session.requestReferenceSpace('local-floor');
-        this.__spaceType = 'local-floor';
+        // referenceSpace = await session.requestReferenceSpace('local-floor');
+        // this.__spaceType = 'local-floor';
+        referenceSpace = await session.requestReferenceSpace('local');
+        this.__spaceType = 'local';
       } catch (err) {
         console.error(`Failed to start XRSession: ${err}`);
         referenceSpace = await session.requestReferenceSpace('local');
@@ -80,8 +90,10 @@ export default class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session);
       this.__requestedToEnterWebXR = true;
+      return true;
     } else {
       console.error('WebGL context or WebXRSession is not ready yet.');
+      return false;
     }
   }
 
@@ -93,7 +105,9 @@ export default class WebXRSystem {
       await (gl as any).makeXRCompatible();
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
-      const webglLayer = new window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer;
+
+      this.__webglLayer = new window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer;
+      const webglLayer = this.__webglLayer;
       xrSession.updateRenderState({
         baseLayer: webglLayer,
         depthNear: 0.1,
@@ -154,13 +168,18 @@ export default class WebXRSystem {
   }
 
   async exitWebXR() {
-    if (this.__xrSession) {
+    this.__requestedToEnterWebXR = false;
+    this.__isWebXRMode = false;
+  }
+
+  async disableWebXR() {
+    if (this.__xrSession != null) {
       // End the XR session now.
-      this.__xrSession.end().then(() => {
-        // const gl = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper?.getRawContext();
-        // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
-        this.__xrSession = undefined;
-      });
+      await this.__xrSession.end();
+      // const gl = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper?.getRawContext();
+      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
+      console.log('XRSession ends.');
+      this.__xrSession = undefined;
     }
     // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // webglResourceRepository.resizeCanvas(
@@ -283,11 +302,11 @@ export default class WebXRSystem {
   }
 
   preRender(xrFrame: XRFrame) {
-    if (this.isWebXRMode && this.__requestedToEnterWebXR) {
+    if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
       this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
-      const gl = this.__glw?.getRawContext();
-      const glLayer = this.__xrSession?.renderState.baseLayer;
-      gl?.bindFramebuffer(gl.FRAMEBUFFER, glLayer!.framebuffer);
+      // const gl = this.__glw?.getRawContext();
+      // const glLayer = this.__xrSession?.renderState.baseLayer;
+      // gl?.bindFramebuffer(gl.FRAMEBUFFER, glLayer!.framebuffer);
       this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
     }
   }
@@ -319,7 +338,7 @@ export default class WebXRSystem {
   postRender() {
     if (this?.__isWebXRMode) {
       const gl = this.__glw?.getRawContext();
-      gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
+      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
     if (this?.requestedToEnterWebVR) {
       this.__isWebXRMode = true;

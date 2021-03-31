@@ -268,9 +268,11 @@ function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
     );
   } else {
     const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-    webglResourceRepository.setViewport(
-      webvrSystem.getViewportAt(getViewport(renderPass), displayIdx)
-    );
+    if (webvrSystem.isWebVRMode) {
+      webglResourceRepository.setViewport(
+        webvrSystem.getViewportAt(getViewport(renderPass), displayIdx)
+      );
+    }
   }
 }
 
