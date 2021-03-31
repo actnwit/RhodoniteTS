@@ -1,4 +1,4 @@
-import _Rn from '../../../dist/esm/index';
+import _Rn, {CameraComponent, Material} from '../../../dist/esm/index';
 
 declare const Rn: typeof _Rn;
 const p = document.createElement('p');
@@ -36,6 +36,11 @@ document.body.appendChild(p);
     '../../../assets/gltf/2.0/BarramundiFish/glTF-Draco/BarramundiFish.gltf',
     {
       cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
     }
   );
   expressions.push(mainExpression);
@@ -61,16 +66,22 @@ document.body.appendChild(p);
   rootTransFormComponent.rotate = new Rn.Vector3(0, Math.PI / 2.0, 0.0);
   rootTransFormComponent.translate = new Rn.Vector3(0, -0.13, -1.5);
 
-  const gammaRenderPass = createPostEffectRenderPass(
-    'createGammaCorrectionMaterial'
+  const postEffectCameraEntity = createPostEffectCameraEntity();
+  const postEffectCameraComponent = postEffectCameraEntity.getCamera();
+
+  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionRenderPass = createPostEffectRenderPass(
+    gammaCorrectionMaterial,
+    postEffectCameraComponent
   );
+
   setTextureParameterForMeshComponents(
-    gammaRenderPass.meshComponents,
+    gammaCorrectionRenderPass.meshComponents,
     Rn.ShaderSemantics.BaseColorTexture,
     gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
   );
 
-  expressionPostEffect.addRenderPasses([gammaRenderPass]);
+  expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
   // lighting
   const lightEntity = entityRepository.createEntity([
@@ -101,59 +112,58 @@ document.body.appendChild(p);
 })();
 
 function createPostEffectRenderPass(
-  materialHelperFunctionStr,
-  arrayOfHelperFunctionArgument = []
+  material: Material,
+  cameraComponent: CameraComponent
 ) {
   const boardPrimitive = new Rn.Plane();
-  const material = Rn.MaterialHelper[materialHelperFunctionStr].apply(
-    this,
-    arrayOfHelperFunctionArgument
-  );
-  material.alphaMode = Rn.AlphaMode.Translucent;
   boardPrimitive.generate({
     width: 1,
     height: 1,
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
-    material: material,
+    material,
   });
+
+  const boardMesh = new Rn.Mesh();
+  boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
   boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
   boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
-
-  const boardMesh = new Rn.Mesh();
-  boardMesh.addPrimitive(boardPrimitive);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
-  const cameraComponent = cameraEntity.getCamera();
-  cameraComponent.zFarInner = 1.0;
-
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = false;
-  renderPass.toClearDepthBuffer = false;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([boardEntity]);
 
   return renderPass;
 }
 
-function generateEntity() {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([
+function createPostEffectCameraEntity() {
+  const cameraEntity = generateEntity([
+    Rn.TransformComponent,
+    Rn.SceneGraphComponent,
+    Rn.CameraComponent,
+  ]);
+  const cameraComponent = cameraEntity.getCamera();
+  cameraComponent.zNearInner = 0.5;
+  cameraComponent.zFarInner = 2.0;
+  return cameraEntity;
+}
+
+function generateEntity(
+  componentArray = [
     Rn.TransformComponent,
     Rn.SceneGraphComponent,
     Rn.MeshComponent,
     Rn.MeshRendererComponent,
-  ]);
+  ] as Array<typeof Rn.Component>
+) {
+  const repo = Rn.EntityRepository.getInstance();
+  const entity = repo.createEntity(componentArray);
   return entity;
 }
 

@@ -9,7 +9,7 @@ test('regression test GltfImporter-draco-extension', async () => {
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot({
-    failureThreshold: 2.0,
+    failureThreshold: 0.1,
     failureThresholdType: 'percent',
   });
 
