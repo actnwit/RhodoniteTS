@@ -11,7 +11,15 @@ import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import CameraComponent from '../foundation/components/CameraComponent';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
-import type { Navigator, XRSession, XRReferenceSpace, XRViewerPose, XRWebGLLayer, XRFrame, XRReferenceSpaceType } from 'webxr';
+import type {
+  Navigator,
+  XRSession,
+  XRReferenceSpace,
+  XRViewerPose,
+  XRWebGLLayer,
+  XRFrame,
+  XRReferenceSpaceType,
+} from 'webxr';
 import System from '../foundation/system/System';
 
 declare const navigator: Navigator;
@@ -59,7 +67,13 @@ export default class WebXRSystem {
     return this.__instance;
   }
 
-  async enterWebXR(initialUserPosition?: Vector3) {
+  async enterWebXR({
+    initialUserPosition,
+    callbackOnXrSessionEnd = () => {},
+  }: {
+    initialUserPosition?: Vector3;
+    callbackOnXrSessionEnd: Function;
+  }) {
     this.__defaultPositionInLocalSpaceMode =
       initialUserPosition != null
         ? initialUserPosition
@@ -75,7 +89,9 @@ export default class WebXRSystem {
 
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
-      const session = await navigator.xr.requestSession('immersive-vr') as XRSession;
+      const session = (await navigator.xr.requestSession(
+        'immersive-vr'
+      )) as XRSession;
       this.__xrSession = session;
 
       session.addEventListener('end', e => {
@@ -91,7 +107,7 @@ export default class WebXRSystem {
         console.log('XRSession ends.');
         System.getInstance().stopRenderLoop();
         System.getInstance().restartRenderLoop();
-        callbackOnXRSessionEnd();
+        callbackOnXrSessionEnd();
       });
 
       try {
@@ -127,7 +143,10 @@ export default class WebXRSystem {
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
 
-      this.__webglLayer = new window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer;
+      this.__webglLayer = new window.XRWebGLLayer(
+        xrSession,
+        gl
+      ) as XRWebGLLayer;
       const webglLayer = this.__webglLayer;
       xrSession.updateRenderState({
         baseLayer: webglLayer,
