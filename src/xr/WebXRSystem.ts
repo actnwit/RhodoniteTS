@@ -91,8 +91,8 @@ export default class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session);
       this.__requestedToEnterWebXR = true;
-      // System.getInstance().stopRenderLoop();
-      // System.getInstance().restartRenderLoop();
+      System.getInstance().stopRenderLoop();
+      System.getInstance().restartRenderLoop();
       console.warn('End of enterWebXR.');
       return true;
     } else {
@@ -122,6 +122,8 @@ export default class WebXRSystem {
       this.__canvasHeightBackup = this.__glw!.height;
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
+      console.log(this.__canvasWidthForVR);
+      console.log(this.__canvasHeightForVR);
       webglResourceRepository.resizeCanvas(
         this.__canvasWidthForVR,
         this.__canvasHeightForVR
@@ -377,5 +379,7 @@ export default class WebXRSystem {
     this.__requestedToEnterWebXR = false;
     this.__isWebXRMode = false;
     this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
+    System.getInstance().stopRenderLoop();
+    System.getInstance().restartRenderLoop();
   }
 }

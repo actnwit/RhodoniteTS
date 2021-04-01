@@ -289,7 +289,7 @@ function isVrMainPass(renderPass: RenderPass) {
   const isVRMainPass =
     (rnXRModule?.WebXRSystem.getInstance().isWebXRMode ||
       rnXRModule?.WebVRSystem.getInstance().isWebVRMode) &&
-    renderPass.isMainPass;
+    renderPass.isVrRendering;
   return isVRMainPass;
 }
 

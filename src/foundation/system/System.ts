@@ -147,26 +147,27 @@ export default class System {
                 componentTid === MeshRendererComponent.componentTID &&
                 stage == ProcessStage.Render
               ) {
-                if (webXRSystem.isWebXRMode) {
+                if (webXRSystem.isWebXRMode && renderPass.isOutputForVr) {
                   const glw = this.__webglResourceRepository
                     .currentWebGLContextWrapper!;
                   const gl = glw.getRawContext();
                   gl?.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
-                  this.__webglResourceRepository.setViewport(
-                    renderPass.getViewport()
-                  );
                   // glw.drawBuffers([RenderBufferTarget.ColorAttachment0]);
                 } else {
                   this.__webglResourceRepository.bindFramebuffer(
                     renderPass.getFramebuffer()
                   );
-                  this.__webglResourceRepository.setViewport(
-                    renderPass.getViewport()
-                  );
                   this.__webglResourceRepository.setDrawTargets(
                     renderPass.getFramebuffer()
                   );
                 }
+
+                if (!webXRSystem.isWebXRMode || !renderPass.isVrRendering) {
+                  this.__webglResourceRepository.setViewport(
+                    renderPass.getViewport()
+                  );
+                }
+
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
               }
 
