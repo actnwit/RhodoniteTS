@@ -55,7 +55,7 @@ export default class System {
     ) => {
       const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
       let webVRSystem: WebVRSystem;
-      if (webXRSystem.requestedToEnterWebXR) {
+      if (webXRSystem.isReadyForWebXR) {
         webXRSystem.preRender(xrFrame);
       } else {
         webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
@@ -67,7 +67,7 @@ export default class System {
       args.splice(0, 0, time);
       renderLoopFunc.apply(renderLoopFunc, args);
 
-      if (webXRSystem.requestedToEnterWebXR) {
+      if (webXRSystem.isReadyForWebXR) {
         webXRSystem!.postRender();
       } else {
         if (webVRSystem!.isReadyForWebVR) {
