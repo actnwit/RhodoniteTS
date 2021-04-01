@@ -12,6 +12,7 @@ import CameraComponent from '../foundation/components/CameraComponent';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
 import type { Navigator, XRSession, XRReferenceSpace, XRViewerPose, XRWebGLLayer, XRFrame, XRReferenceSpaceType } from 'webxr';
+import System from '../foundation/system/System';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -90,6 +91,8 @@ export default class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session);
       this.__requestedToEnterWebXR = true;
+      // System.getInstance().stopRenderLoop();
+      // System.getInstance().restartRenderLoop();
       console.warn('End of enterWebXR.');
       return true;
     } else {
@@ -119,10 +122,10 @@ export default class WebXRSystem {
       this.__canvasHeightBackup = this.__glw!.height;
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
-      // webglResourceRepository.resizeCanvas(
-      //   this.__canvasWidthForVR,
-      //   this.__canvasHeightForVR
-      // );
+      webglResourceRepository.resizeCanvas(
+        this.__canvasWidthForVR,
+        this.__canvasHeightForVR
+      );
     } else {
       console.error('WebGL context is not ready for WebXR.');
     }
