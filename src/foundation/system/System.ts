@@ -40,9 +40,14 @@ export default class System {
     'xr'
   ) as RnXR;
 
+  private __renderLoopFunc?: Function;
+  private __args?: any[];
+
   private constructor() {}
 
   doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
+    this.__renderLoopFunc = renderLoopFunc;
+    this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
       _time: number,
@@ -90,6 +95,12 @@ export default class System {
     const animationFrameObject = this.__getAnimationFrameObject();
     animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
     this.__animationFrameId = -1;
+  }
+
+  restartRenderLoop() {
+    if (this.__renderLoopFunc != null) {
+      this.doRenderLoop(this.__renderLoopFunc, 0, this.__args);
+    }
   }
 
   process(expressions: Expression[]) {
