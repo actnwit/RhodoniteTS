@@ -261,10 +261,19 @@ function getViewport(renderPass: RenderPass) {
 function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-  const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-  webglResourceRepository.setViewport(
-    webvrSystem.getViewportAt(getViewport(renderPass), displayIdx)
-  );
+  const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+  if (webxrSystem.isWebXRMode) {
+    webglResourceRepository.setViewport(
+      webxrSystem.getViewportAt(getViewport(renderPass), displayIdx)
+    );
+  } else {
+    const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+    if (webvrSystem.isWebVRMode) {
+      webglResourceRepository.setViewport(
+        webvrSystem.getViewportAt(getViewport(renderPass), displayIdx)
+      );
+    }
+  }
 }
 
 function getDisplayNumber(isVRMainPass: boolean) {
@@ -278,7 +287,9 @@ function getDisplayNumber(isVRMainPass: boolean) {
 function isVrMainPass(renderPass: RenderPass) {
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const isVRMainPass =
-    rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass;
+    (rnXRModule?.WebXRSystem.getInstance().isWebXRMode ||
+      rnXRModule?.WebVRSystem.getInstance().isWebVRMode) &&
+    renderPass.isVrRendering;
   return isVRMainPass;
 }
 

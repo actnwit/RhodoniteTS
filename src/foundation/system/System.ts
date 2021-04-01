@@ -22,6 +22,8 @@ import Time from '../misc/Time';
 import SystemState from './SystemState';
 import {RnXR} from '../../rhodonite-xr';
 import {MiscUtil} from '../misc/MiscUtil';
+import {XRFrame, XRSession} from 'webxr';
+import WebVRSystem from '../../xr/WebVRSystem';
 
 export default class System {
   private static __instance: System;
@@ -38,34 +40,52 @@ export default class System {
     'xr'
   ) as RnXR;
 
+  private __renderLoopFunc?: Function;
+  private __args?: any[];
+
   private constructor() {}
 
   doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
+    this.__renderLoopFunc = renderLoopFunc;
+    this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
-    this.__animationFrameId = animationFrameObject.requestAnimationFrame(
-      (_time: number) => {
-        const webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-        if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
-          webVRSystem.getFrameData();
+    this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
+      _time: number,
+      xrFrame: XRFrame
+    ) => {
+      const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+      let webVRSystem: WebVRSystem;
+      if (webXRSystem.isReadyForWebXR) {
+        webXRSystem.preRender(xrFrame);
+      } else {
+        webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
+        if (webVRSystem.isReadyForWebVR) {
+          webVRSystem.preRender();
         }
-        args.splice(0, 0, time);
-        renderLoopFunc.apply(renderLoopFunc, args);
-
-        if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
-          webVRSystem.vrDisplay!.submitFrame();
-        }
-        if (webVRSystem?.requestedToEnterWebVR) {
-          webVRSystem._setIsWebVRMode();
-        }
-        this.doRenderLoop(renderLoopFunc, _time, args);
       }
-    );
+
+      args.splice(0, 0, time);
+      renderLoopFunc.apply(renderLoopFunc, args);
+
+      if (webXRSystem.isReadyForWebXR) {
+        webXRSystem!.postRender();
+      } else {
+        if (webVRSystem!.isReadyForWebVR) {
+          webVRSystem!.postRender();
+        }
+      }
+
+      this.doRenderLoop(renderLoopFunc, _time, args);
+    }) as any);
   }
 
-  private __getAnimationFrameObject() {
-    let animationFrameObject: Window | VRDisplay = window;
+  private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
+    let animationFrameObject: Window | VRDisplay | XRSession = window;
     const webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-    if (webVRSystem?.isWebVRMode) {
+    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+    if (webXRSystem?.requestedToEnterWebXR) {
+      animationFrameObject = webXRSystem.xrSession!;
+    } else if (webVRSystem?.isWebVRMode) {
       animationFrameObject = webVRSystem.vrDisplay!;
     }
     return animationFrameObject;
@@ -75,6 +95,12 @@ export default class System {
     const animationFrameObject = this.__getAnimationFrameObject();
     animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
     this.__animationFrameId = -1;
+  }
+
+  restartRenderLoop() {
+    if (this.__renderLoopFunc != null) {
+      this.doRenderLoop(this.__renderLoopFunc, 0, this.__args);
+    }
   }
 
   process(expressions: Expression[]) {
@@ -99,6 +125,7 @@ export default class System {
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
 
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
@@ -120,15 +147,27 @@ export default class System {
                 componentTid === MeshRendererComponent.componentTID &&
                 stage == ProcessStage.Render
               ) {
-                this.__webglResourceRepository.bindFramebuffer(
-                  renderPass.getFramebuffer()
-                );
-                this.__webglResourceRepository.setViewport(
-                  renderPass.getViewport()
-                );
-                this.__webglResourceRepository.setDrawTargets(
-                  renderPass.getFramebuffer()
-                );
+                if (webXRSystem.isWebXRMode && renderPass.isOutputForVr) {
+                  const glw = this.__webglResourceRepository
+                    .currentWebGLContextWrapper!;
+                  const gl = glw.getRawContext();
+                  gl?.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
+                  // glw.drawBuffers([RenderBufferTarget.ColorAttachment0]);
+                } else {
+                  this.__webglResourceRepository.bindFramebuffer(
+                    renderPass.getFramebuffer()
+                  );
+                  this.__webglResourceRepository.setDrawTargets(
+                    renderPass.getFramebuffer()
+                  );
+                }
+
+                if (!webXRSystem.isWebXRMode || !renderPass.isVrRendering) {
+                  this.__webglResourceRepository.setViewport(
+                    renderPass.getViewport()
+                  );
+                }
+
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
               }
 
@@ -253,6 +292,19 @@ export default class System {
       );
     }
 
+    canvas.addEventListener('webglcontextlost', event => {
+      // Calling preventDefault signals to the page that you intent to handle context restoration.
+      event.preventDefault();
+      console.error('WebGL context lost occurred.');
+    });
+
+    canvas.addEventListener('webglcontextrestored', () => {
+      // Once this function is called the gl context will be restored but any graphics resources
+      // that were previously loaded will be lost, so the scene should be reloaded.
+      console.error('WebGL context restored.');
+      // TODO: Implement restoring the previous graphics resources
+      // loadSceneGraphics(gl);
+    });
     return gl;
   }
 

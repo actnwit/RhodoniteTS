@@ -374,9 +374,15 @@ export default abstract class AbstractMaterialNode extends RnObject {
     let cameraPosition: IVector3;
     if (isVr) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-      viewMatrix = webvrSystem.getViewMatrixAt(displayIdx);
-      cameraPosition = webvrSystem.getCameraWorldPosition();
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      if (webxrSystem.isWebXRMode) {
+        viewMatrix = webxrSystem.getViewMatrixAt(displayIdx);
+        cameraPosition = webxrSystem.getCameraWorldPositionAt(displayIdx);
+      } else {
+        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+        viewMatrix = webvrSystem.getViewMatrixAt(displayIdx);
+        cameraPosition = webvrSystem.getCameraWorldPosition();
+      }
     } else if (cameraComponent) {
       cameraPosition = cameraComponent.worldPosition;
       viewMatrix = cameraComponent.viewMatrix;
@@ -405,8 +411,13 @@ export default abstract class AbstractMaterialNode extends RnObject {
     let projectionMatrix: Matrix44;
     if (isVr) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-      projectionMatrix = webvrSystem.getProjectMatrixAt(displayIdx);
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      if (webxrSystem.isWebXRMode) {
+        projectionMatrix = webxrSystem.getProjectMatrixAt(displayIdx);
+      } else {
+        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+        projectionMatrix = webvrSystem.getProjectMatrixAt(displayIdx);
+      }
     } else if (cameraComponent) {
       projectionMatrix = cameraComponent.projectionMatrix;
     } else {

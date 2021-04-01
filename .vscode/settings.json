@@ -28,7 +28,10 @@
         "typedoc",
         "vertex",
         "webgl",
+        "webglcontextlost",
+        "webglcontextrestored",
         "webvr",
+        "webxr",
         "well"
     ],
     "eslint.format.enable": true
