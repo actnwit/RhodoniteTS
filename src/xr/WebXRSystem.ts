@@ -78,10 +78,10 @@ export default class WebXRSystem {
       this.__xrSession = session;
       try {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        // referenceSpace = await session.requestReferenceSpace('local-floor');
-        // this.__spaceType = 'local-floor';
-        referenceSpace = await session.requestReferenceSpace('local');
-        this.__spaceType = 'local';
+        referenceSpace = await session.requestReferenceSpace('local-floor');
+        this.__spaceType = 'local-floor';
+        // referenceSpace = await session.requestReferenceSpace('local');
+        // this.__spaceType = 'local';
       } catch (err) {
         console.error(`Failed to start XRSession: ${err}`);
         referenceSpace = await session.requestReferenceSpace('local');
@@ -90,6 +90,7 @@ export default class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session);
       this.__requestedToEnterWebXR = true;
+      console.warn('End of enterWebXR.');
       return true;
     } else {
       console.error('WebGL context or WebXRSession is not ready yet.');
@@ -118,10 +119,10 @@ export default class WebXRSystem {
       this.__canvasHeightBackup = this.__glw!.height;
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
-      webglResourceRepository.resizeCanvas(
-        this.__canvasWidthForVR,
-        this.__canvasHeightForVR
-      );
+      // webglResourceRepository.resizeCanvas(
+      //   this.__canvasWidthForVR,
+      //   this.__canvasHeightForVR
+      // );
     } else {
       console.error('WebGL context is not ready for WebXR.');
     }
@@ -165,32 +166,6 @@ export default class WebXRSystem {
       return false;
     }
     return true;
-  }
-
-  async exitWebXR() {
-    this.__requestedToEnterWebXR = false;
-    this.__isWebXRMode = false;
-  }
-
-  async disableWebXR() {
-    if (this.__xrSession != null) {
-      // End the XR session now.
-      await this.__xrSession.end();
-      // const gl = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper?.getRawContext();
-      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
-      console.log('XRSession ends.');
-      this.__xrSession = undefined;
-    }
-    // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    // webglResourceRepository.resizeCanvas(
-    //   this.__canvasWidthBackup,
-    //   this.__canvasHeightBackup
-    // );
-    this.__spaceType = 'local';
-    this.__isReadyForWebXR = false;
-    this.__requestedToEnterWebXR = false;
-    this.__isWebXRMode = false;
-    this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
   }
 
   get isWebXRMode() {
@@ -359,5 +334,45 @@ export default class WebXRSystem {
 
   getCanvasHeightForVr() {
     return this.__canvasHeightForVR;
+  }
+
+  exitWebXR() {
+    this.__requestedToEnterWebXR = false;
+    this.__isWebXRMode = false;
+  }
+
+  async exitWebXR2() {
+    this.__requestedToEnterWebXR = false;
+    this.__isWebXRMode = false;
+    if (this.__xrSession != null) {
+      // End the XR session now.
+      await this.__xrSession.end();
+      console.log('XRSession ends.');
+      this.__xrSession = undefined;
+    }
+  }
+
+  async disableWebXR() {
+    if (this.__xrSession != null) {
+      // End the XR session now.
+      await this.__xrSession.end();
+      // const gl = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper?.getRawContext();
+      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
+      console.log('XRSession ends.');
+      this.__xrSession = undefined;
+      this.__webglLayer = undefined;
+      this.__xrViewerPose = undefined;
+      this.__xrReferenceSpace = undefined;
+    }
+    // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    // webglResourceRepository.resizeCanvas(
+    //   this.__canvasWidthBackup,
+    //   this.__canvasHeightBackup
+    // );
+    this.__spaceType = 'local';
+    this.__isReadyForWebXR = false;
+    this.__requestedToEnterWebXR = false;
+    this.__isWebXRMode = false;
+    this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
   }
 }
