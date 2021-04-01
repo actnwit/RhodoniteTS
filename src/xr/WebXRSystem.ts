@@ -77,6 +77,23 @@ export default class WebXRSystem {
       let referenceSpace: XRReferenceSpace;
       const session = await navigator.xr.requestSession('immersive-vr') as XRSession;
       this.__xrSession = session;
+
+      session.addEventListener('end', e => {
+        this.__xrSession = undefined;
+        this.__webglLayer = undefined;
+        this.__xrViewerPose = undefined;
+        this.__xrReferenceSpace = undefined;
+        this.__spaceType = 'local';
+        this.__isReadyForWebXR = false;
+        this.__requestedToEnterWebXR = false;
+        this.__isWebXRMode = false;
+        this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
+        console.log('XRSession ends.');
+        System.getInstance().stopRenderLoop();
+        System.getInstance().restartRenderLoop();
+        callbackOnXRSessionEnd();
+      });
+
       try {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         referenceSpace = await session.requestReferenceSpace('local-floor');
@@ -346,40 +363,17 @@ export default class WebXRSystem {
     this.__isWebXRMode = false;
   }
 
-  async exitWebXR2() {
-    this.__requestedToEnterWebXR = false;
-    this.__isWebXRMode = false;
-    if (this.__xrSession != null) {
-      // End the XR session now.
-      await this.__xrSession.end();
-      console.log('XRSession ends.');
-      this.__xrSession = undefined;
-    }
-  }
-
   async disableWebXR() {
     if (this.__xrSession != null) {
       // End the XR session now.
       await this.__xrSession.end();
       // const gl = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper?.getRawContext();
       // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
-      console.log('XRSession ends.');
-      this.__xrSession = undefined;
-      this.__webglLayer = undefined;
-      this.__xrViewerPose = undefined;
-      this.__xrReferenceSpace = undefined;
     }
     // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // webglResourceRepository.resizeCanvas(
     //   this.__canvasWidthBackup,
     //   this.__canvasHeightBackup
     // );
-    this.__spaceType = 'local';
-    this.__isReadyForWebXR = false;
-    this.__requestedToEnterWebXR = false;
-    this.__isWebXRMode = false;
-    this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
-    System.getInstance().stopRenderLoop();
-    System.getInstance().restartRenderLoop();
   }
 }
