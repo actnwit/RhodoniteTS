@@ -21,6 +21,7 @@ import type {
   XRReferenceSpaceType,
 } from 'webxr';
 import System from '../foundation/system/System';
+import ModuleManager from '../foundation/system/ModuleManager';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -111,11 +112,8 @@ export default class WebXRSystem {
       });
 
       try {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         referenceSpace = await session.requestReferenceSpace('local-floor');
         this.__spaceType = 'local-floor';
-        // referenceSpace = await session.requestReferenceSpace('local');
-        // this.__spaceType = 'local';
       } catch (err) {
         console.error(`Failed to start XRSession: ${err}`);
         referenceSpace = await session.requestReferenceSpace('local');
@@ -176,6 +174,8 @@ export default class WebXRSystem {
    * @returns true: prepared properly, false: failed to prepare
    */
   async readyForWebXR(requestButtonDom: HTMLElement) {
+    await ModuleManager.getInstance().loadModule('xr');
+
     const glw = CGAPIResourceRepository.getWebGLResourceRepository()
       .currentWebGLContextWrapper;
     if (glw == null) {

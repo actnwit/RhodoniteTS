@@ -20,10 +20,10 @@ import Vector3 from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
 import Time from '../misc/Time';
 import SystemState from './SystemState';
-import {RnXR} from '../../rhodonite-xr';
 import {MiscUtil} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
-import WebVRSystem from '../../xr/WebVRSystem';
+import type {RnXR} from '../../rhodonite-xr';
+import type WebVRSystem from '../../xr/WebVRSystem';
 
 export default class System {
   private static __instance: System;
@@ -36,9 +36,6 @@ export default class System {
   private __lastEntitiesNumber = -1;
   private __renderPassTickCount = 0;
   private __animationFrameId = -1;
-  private __rnXRModule: RnXR = ModuleManager.getInstance().getModule(
-    'xr'
-  ) as RnXR;
 
   private __renderLoopFunc?: Function;
   private __args?: any[];
@@ -53,36 +50,44 @@ export default class System {
       _time: number,
       xrFrame: XRFrame
     ) => {
-      const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
-      let webVRSystem: WebVRSystem;
-      if (webXRSystem.isReadyForWebXR) {
-        webXRSystem.preRender(xrFrame);
-      } else {
-        webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-        if (webVRSystem.isReadyForWebVR) {
-          webVRSystem.preRender();
+      const rnVRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
+      if (rnVRModule != null) {
+        let webVRSystem: WebVRSystem;
+        if (webXRSystem.isReadyForWebXR) {
+          webXRSystem.preRender(xrFrame);
+        } else {
+          webVRSystem = rnVRModule.WebVRSystem.getInstance();
+          if (webVRSystem.isReadyForWebVR) {
+            webVRSystem.preRender();
+          }
         }
       }
 
       args.splice(0, 0, time);
       renderLoopFunc.apply(renderLoopFunc, args);
 
-      if (webXRSystem.isReadyForWebXR) {
-        webXRSystem!.postRender();
-      } else {
-        if (webVRSystem!.isReadyForWebVR) {
-          webVRSystem!.postRender();
+      if (rnVRModule != null) {
+        if (webXRSystem.isReadyForWebXR) {
+          webXRSystem!.postRender();
+        } else {
+          const webVRSystem = rnVRModule.WebVRSystem.getInstance();
+          if (webVRSystem!.isReadyForWebVR) {
+            webVRSystem!.postRender();
+          }
         }
       }
-
       this.doRenderLoop(renderLoopFunc, _time, args);
     }) as any);
   }
 
   private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
     let animationFrameObject: Window | VRDisplay | XRSession = window;
-    const webVRSystem = this.__rnXRModule.WebVRSystem.getInstance();
-    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+    const rnVRModule = ModuleManager.getInstance().getModule('xr') as
+      | RnXR
+      | undefined;
+    const webVRSystem = rnVRModule?.WebVRSystem.getInstance();
+    const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
     if (webXRSystem?.requestedToEnterWebXR) {
       animationFrameObject = webXRSystem.xrSession!;
     } else if (webVRSystem?.isWebVRMode) {
@@ -125,7 +130,8 @@ export default class System {
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+    const rnVRModule = ModuleManager.getInstance().getModule('xr') as (RnXR | undefined);
+    const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
 
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
@@ -147,7 +153,7 @@ export default class System {
                 componentTid === MeshRendererComponent.componentTID &&
                 stage == ProcessStage.Render
               ) {
-                if (webXRSystem.isWebXRMode && renderPass.isOutputForVr) {
+                if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
                   const glw = this.__webglResourceRepository
                     .currentWebGLContextWrapper!;
                   const gl = glw.getRawContext();
@@ -162,7 +168,7 @@ export default class System {
                   );
                 }
 
-                if (!webXRSystem.isWebXRMode || !renderPass.isVrRendering) {
+                if (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) {
                   this.__webglResourceRepository.setViewport(
                     renderPass.getViewport()
                   );
