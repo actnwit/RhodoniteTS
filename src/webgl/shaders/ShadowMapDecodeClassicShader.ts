@@ -201,9 +201,9 @@ void main (){
 
     if(measureDepth > textureDepth + allowableDepthError){
       // case of shadow
-      vec4 shadowColorCoefficient = get_shadowColorCoefficient(materialSID, 0);
-      diffuseColor *= shadowColorCoefficient.rgb;
-      alpha *= shadowColorCoefficient.a;
+      vec4 shadowColorFactor = get_shadowColorFactor(materialSID, 0);
+      diffuseColor = shadowColorFactor.rgb;
+      alpha = shadowColorFactor.a;
     }
   }
 

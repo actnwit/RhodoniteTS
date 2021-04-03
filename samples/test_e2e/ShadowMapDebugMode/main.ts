@@ -79,6 +79,11 @@ document.body.appendChild(p);
     Rn.ShadowMapDecodeClassicSingleMaterialNode.DebugColorFactor,
     new Rn.Vector4(0.85, 0.0, 0.0, 1.0)
   );
+  setParameterForMeshComponent(
+    meshComponentLargeBoard,
+    Rn.ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
+    new Rn.Vector4(0.05, 0.35, 0.25, 1)
+  );
 
   const scaleSmallBoard = new Rn.Vector3(0.2, 0.2, 0.2);
   const translateSmallBoard = new Rn.Vector3(0.0, 0.0, -1.0);
