@@ -30,9 +30,9 @@ import shadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/
 import shadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
-  static ShadowColorCoefficient: ShaderSemanticsEnum = new ShaderSemanticsClass(
-    {str: 'shadowColorCoefficient'}
-  );
+  static ShadowColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+    str: 'shadowColorFactor',
+  });
   static ShadowAlpha: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'shadowAlpha',
   });
@@ -152,8 +152,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         max: 1,
       },
       {
-        semantic:
-          ShadowMapDecodeClassicSingleMaterialNode.ShadowColorCoefficient,
+        semantic: ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
