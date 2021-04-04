@@ -4,7 +4,7 @@ import {nullishToEmptyArray} from '../misc/MiscUtil';
 export type EventType = string | symbol;
 export type EventSubscriberIndex = number;
 export type CalledSubscriberNumber = number;
-type EventHandler = (event: unknown) => void;
+export type EventHandler = (event: unknown) => void;
 
 export interface IEventPubSub {
   subscribe(type: EventType, handler: EventHandler): EventSubscriberIndex;

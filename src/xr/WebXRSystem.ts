@@ -9,7 +9,6 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import TransformComponent from '../foundation/components/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import CameraComponent from '../foundation/components/CameraComponent';
-import {IMatrix44} from '../foundation/math/IMatrix';
 import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
 import type {
   Navigator,
@@ -21,6 +20,7 @@ import type {
   XRReferenceSpaceType,
 } from 'webxr';
 import System from '../foundation/system/System';
+import ModuleManager from '../foundation/system/ModuleManager';
 
 declare const navigator: Navigator;
 declare const window: any;

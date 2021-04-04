@@ -20,28 +20,40 @@ import {
 } from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
 import {defaultValue} from '../misc/MiscUtil';
+import {EventPubSub, EventHandler} from '../system/EventPubSub';
 
 type AnimationName = string;
 type TimeInSec = number;
 
-type AnimationInfo = {
+interface AnimationInfo {
   name: AnimationName;
   maxStartInputTime: TimeInSec;
   maxEndInputTime: TimeInSec;
-};
-const defaultAnimationInfo = {
-  name: '',
-  maxStartInputTime: 0,
-  maxEndInputTime: 0,
-};
-type AnimationLine = {
+}
+
+interface AnimationLine {
   name: AnimationName;
   input: number[];
   output: any[];
   outputAttributeName: string;
   interpolationMethod: AnimationInterpolationEnum;
   targetEntityUid?: EntityUID;
+}
+
+interface AnimationAddEvent {
+  info: AnimationInfo;
+  line: AnimationLine;
+}
+
+const defaultAnimationInfo = {
+  name: '',
+  maxStartInputTime: 0,
+  maxEndInputTime: 0,
 };
+
+const AddAnimation = Symbol('AnimationComponentEventAddAnimation');
+const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
+type AnimationComponentEvent = typeof AddAnimation | typeof PlayEnd;
 
 export default class AnimationComponent extends Component {
   private __animationLine: Map<Index, AnimationLine> = new Map();
@@ -66,6 +78,11 @@ export default class AnimationComponent extends Component {
   private static __tmpQuaternion_2 = MutableQuaternion.identity();
   private static __tmpQuaternion_3 = MutableQuaternion.identity();
   private static __animationInfo: Map<AnimationName, AnimationInfo> = new Map();
+  private static __pubsub = new EventPubSub();
+  static Event = {
+    AddAnimation,
+    PlayEnd,
+  };
 
   constructor(
     entityUid: EntityUID,
@@ -107,14 +124,15 @@ export default class AnimationComponent extends Component {
     const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
     const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
 
-    AnimationComponent.__animationInfo.set(animationName, {
+    const info = {
       name: animationName,
       maxStartInputTime: Math.min(
         existingMaxStartInputTime,
         newMaxStartInputTime
       ),
       maxEndInputTime: Math.max(existingMaxEndInputTime, newMaxEndInputTime),
-    });
+    };
+    AnimationComponent.__animationInfo.set(animationName, info);
 
     this.__animationLine.set(
       AnimationAttribute.fromString(attributeName).index,
@@ -131,6 +149,15 @@ export default class AnimationComponent extends Component {
     this.backupDefaultValues(
       AnimationAttribute.fromString(attributeName).index
     );
+
+    AnimationComponent.__pubsub.publishAsync(
+      AnimationComponent.Event.AddAnimation,
+      {line, info}
+    );
+  }
+
+  static subscribe(type: AnimationComponentEvent, handler: EventHandler) {
+    AnimationComponent.__pubsub.subscribe(type, handler);
   }
 
   static lerp(
