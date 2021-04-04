@@ -164,6 +164,14 @@ export const defaultValue = <T>(defaultValue: T, value?: T) => {
   return value;
 };
 
+export const nullishToEmptyArray = <T>(value?: T[] | null): T[] => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return [];
+  }
+  return value;
+};
+
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,
