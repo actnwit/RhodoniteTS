@@ -191,6 +191,9 @@
     <iframe id="viewer" name="viewer" allowfullscreen onmousewheel=""></iframe>
 
     <script>
+      const sanitize = (str) => {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
 
       // Checking GET Parameters
       var arg = new Object;
@@ -331,7 +334,7 @@
           window.location.hash = file;
 
           if (!isRunstant) {
-            viewer.src = file + '/index.html';
+            viewer.src = sanitize(file) + '/index.html';
             viewer.focus();
           }
 
