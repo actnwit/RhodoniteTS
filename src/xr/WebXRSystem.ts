@@ -21,7 +21,6 @@ import type {
   XRReferenceSpaceType,
 } from 'webxr';
 import System from '../foundation/system/System';
-import ModuleManager from '../foundation/system/EventEmitter';
 
 declare const navigator: Navigator;
 declare const window: any;
