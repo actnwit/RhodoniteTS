@@ -18,8 +18,24 @@ import {
   EntityUID,
   Index,
 } from '../../types/CommonTypes';
+import {Is} from '../misc/Is';
+import {defaultValue} from '../misc/MiscUtil';
 
+type AnimationName = string;
+type TimeInSec = number;
+
+type AnimationInfo = {
+  name: AnimationName;
+  maxStartInputTime: TimeInSec;
+  maxEndInputTime: TimeInSec;
+};
+const defaultAnimationInfo = {
+  name: '',
+  maxStartInputTime: 0,
+  maxEndInputTime: 0,
+};
 type AnimationLine = {
+  name: AnimationName;
   input: number[];
   output: any[];
   outputAttributeName: string;
@@ -37,8 +53,6 @@ export default class AnimationComponent extends Component {
   private __meshComponent?: MeshComponent;
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
   private static __endInputValueOfAllComponent: number = -Number.MAX_VALUE;
-  private static __startInputValueDirty = false;
-  private static __endInputValueDirty = false;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
 
   private static __returnVector3 = MutableVector3.zero();
@@ -51,6 +65,7 @@ export default class AnimationComponent extends Component {
   private static __tmpQuaternion_1 = MutableQuaternion.identity();
   private static __tmpQuaternion_2 = MutableQuaternion.identity();
   private static __tmpQuaternion_3 = MutableQuaternion.identity();
+  private static __animationInfo: Map<AnimationName, AnimationInfo> = new Map();
 
   constructor(
     entityUid: EntityUID,
@@ -67,17 +82,39 @@ export default class AnimationComponent extends Component {
   }
 
   setAnimation(
+    animationName: string,
     attributeName: string,
     animationInputArray: number[],
     animationOutputArray: any[],
     interpolation: AnimationInterpolationEnum
   ) {
     const line: AnimationLine = {
+      name: animationName,
       input: animationInputArray,
       output: animationOutputArray,
       outputAttributeName: attributeName,
       interpolationMethod: interpolation,
     };
+
+    const newMaxStartInputTime = animationInputArray[0];
+    const newMaxEndInputTime =
+      animationInputArray[animationInputArray.length - 1];
+
+    const existingAnimationInfo = defaultValue<AnimationInfo>(
+      defaultAnimationInfo,
+      AnimationComponent.__animationInfo.get(animationName)
+    );
+    const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
+    const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
+
+    AnimationComponent.__animationInfo.set(animationName, {
+      name: animationName,
+      maxStartInputTime: Math.min(
+        existingMaxStartInputTime,
+        newMaxStartInputTime
+      ),
+      maxEndInputTime: Math.max(existingMaxEndInputTime, newMaxEndInputTime),
+    });
 
     this.__animationLine.set(
       AnimationAttribute.fromString(attributeName).index,
@@ -94,8 +131,6 @@ export default class AnimationComponent extends Component {
     this.backupDefaultValues(
       AnimationAttribute.fromString(attributeName).index
     );
-    AnimationComponent.__startInputValueDirty = true;
-    AnimationComponent.__endInputValueDirty = true;
   }
 
   static lerp(
@@ -384,49 +419,43 @@ export default class AnimationComponent extends Component {
     return latestInputValue;
   }
 
-  getEndInputValueOfAnimation() {
-    let latestInputValue = -Number.MAX_VALUE;
-
-    for (const line of this.__animationLine.values()) {
-      const inputValueArray = line.input;
-      const inputLatestValueAtThisAttribute =
-        inputValueArray[inputValueArray.length - 1];
-      if (inputLatestValueAtThisAttribute > latestInputValue) {
-        latestInputValue = inputLatestValueAtThisAttribute;
-        if (
-          latestInputValue > AnimationComponent.__endInputValueOfAllComponent
-        ) {
-          AnimationComponent.__endInputValueOfAllComponent = latestInputValue;
-        }
+  getEndInputValueOfAnimation(animationName?: string) {
+    if (Is.not.exist(animationName)) {
+      const array = Array.from(AnimationComponent.__animationInfo);
+      if (array.length === 0) {
+        return 0;
       }
+      const firstAnimationInfo = (array[0] as unknown) as AnimationInfo;
+      return firstAnimationInfo.maxEndInputTime;
     }
-    return latestInputValue;
+    const maxEndInputTime = defaultValue<AnimationInfo>(
+      defaultAnimationInfo,
+      AnimationComponent.__animationInfo.get(animationName!)
+    );
+
+    return maxEndInputTime;
   }
 
   static get startInputValue() {
-    if (this.__startInputValueDirty) {
-      const components = ComponentRepository.getInstance().getComponentsWithType(
-        AnimationComponent
-      ) as AnimationComponent[];
-      components!.forEach(component => {
-        component.getStartInputValueOfAnimation();
-      });
-      this.__startInputValueDirty = false;
+    const components = ComponentRepository.getInstance().getComponentsWithType(
+      AnimationComponent
+    ) as AnimationComponent[];
+    if (components.length === 0) {
+      return 0;
+    } else {
+      return components[0].getStartInputValueOfAnimation();
     }
-    return AnimationComponent.__startInputValueOfAllComponent;
   }
 
   static get endInputValue() {
-    if (this.__endInputValueDirty) {
-      const components = ComponentRepository.getInstance().getComponentsWithType(
-        AnimationComponent
-      ) as AnimationComponent[];
-      components!.forEach(component => {
-        component.getEndInputValueOfAnimation();
-      });
-      this.__endInputValueDirty = false;
+    const components = ComponentRepository.getInstance().getComponentsWithType(
+      AnimationComponent
+    ) as AnimationComponent[];
+    if (components.length === 0) {
+      return 0;
+    } else {
+      return components[0].getEndInputValueOfAnimation();
     }
-    return AnimationComponent.__endInputValueOfAllComponent;
   }
 
   static get isAnimating() {
@@ -448,11 +477,11 @@ export default class AnimationComponent extends Component {
 
   set isAnimating(flg: boolean) {
     if (flg) {
-      for (var [i, line] of this.__animationLine) {
+      for (let [i, line] of this.__animationLine) {
         this.backupDefaultValues(i);
       }
     } else {
-      for (var [i, line] of this.__animationLine) {
+      for (let [i, line] of this.__animationLine) {
         this.restoreDefaultValues(i);
       }
     }
@@ -492,6 +521,10 @@ export default class AnimationComponent extends Component {
         this.__backupDefaultValues.set(i, this.__meshComponent!.weights);
       }
     }
+  }
+
+  static getAnimationList() {
+    return Array.from(this.__animationInfo.keys());
   }
 
   $create() {

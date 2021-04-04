@@ -59,6 +59,7 @@ import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleM
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { Is } from '../misc/Is';
 
 declare let DracoDecoderModule: any;
 
@@ -321,6 +322,7 @@ export default class ModelConverter {
             ) as AnimationComponent;
             if (animationComponent) {
               animationComponent.setAnimation(
+                Is.exist(animation.name) ? animation.name! : 'Untitled',
                 animationAttributeName,
                 animInputArray,
                 animOutputArray,

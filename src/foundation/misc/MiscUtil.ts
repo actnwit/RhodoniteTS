@@ -156,6 +156,14 @@ const concatArrayBuffers2 = ({
   return dstBuf.buffer;
 };
 
+export const defaultValue = <T>(defaultValue: T, value?: T) => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return defaultValue;
+  }
+  return value;
+};
+
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,
