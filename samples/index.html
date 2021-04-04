@@ -208,8 +208,6 @@
       }
 
       $(function() {
-        var isRunstant = false;
-
         var redirect = function() {
           window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname +  window.location.hash;
         };
@@ -311,19 +309,6 @@
 
         }
 
-        if (arg.env === 'runstant') {
-          (function rewriteLinks() {
-            $('a.example').each(function (index, element) {
-              var splitted = $(element).attr("href").split('/');
-              $(element).attr("href", "//runstant.com/GLBoost/projects/" + splitted[splitted.length - 3] + '-' + splitted[splitted.length - 2]);
-            });
-
-            splitted = window.location.href.split('#')[1].split('/');
-
-            document.getElementById('viewer').contentWindow.location.replace("//runstant.com/GLBoost/projects/" + splitted[splitted.length - 2] + '-' + splitted[splitted.length - 1]);
-          })();
-        }
-
         var loadNormal = function ( file ) {
 
           if ( selected !== null ) divs.get(selected).className = 'link';
@@ -333,10 +318,8 @@
 
           window.location.hash = file;
 
-          if (!isRunstant) {
-            viewer.src = sanitize(file) + '/index.html';
-            viewer.focus();
-          }
+          viewer.src = location.href.replace('#', '');
+          viewer.focus();
 
           button.style.display = '';
 
