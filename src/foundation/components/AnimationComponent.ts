@@ -21,8 +21,11 @@ import {
 import {Is} from '../misc/Is';
 import {defaultValue, greaterThan, lessThan} from '../misc/MiscUtil';
 import {EventPubSub, EventHandler} from '../system/EventPubSub';
+import {IVector, IVector3} from '../math/IVector';
+import {IQuaternion} from '../math/IQuaternion';
 
 export type AnimationName = string;
+export type AnimationAttributeName = string;
 type TimeInSec = number;
 
 export interface AnimationInfo {
@@ -34,8 +37,8 @@ export interface AnimationInfo {
 interface AnimationLine {
   name: AnimationName;
   input: number[];
-  output: any[];
-  outputAttributeName: string;
+  output: Array<IVector | IQuaternion>;
+  outputAttributeName: AnimationAttributeName;
   interpolationMethod: AnimationInterpolationEnum;
   targetEntityUid?: EntityUID;
 }
@@ -50,13 +53,21 @@ const defaultAnimationInfo = {
   maxEndInputTime: 0,
 };
 
-const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
+const ChangeAnimationInfo = Symbol(
+  'AnimationComponentEventChangeAnimationInfo'
+);
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 type AnimationComponentEventType = symbol;
 
 export default class AnimationComponent extends Component {
-  private __animationLine: Map<Index, AnimationLine> = new Map();
-  private __backupDefaultValues: Map<Index, any> = new Map();
+  private __animationLine: Map<
+    AnimationAttributeName,
+    AnimationLine
+  > = new Map();
+  private __backupDefaultValues: Map<
+    AnimationAttributeName,
+    IVector | IQuaternion | number[]
+  > = new Map();
   public static globalTime = 0;
   private static __isAnimating = true;
   private __isAnimating = true;
@@ -123,6 +134,7 @@ export default class AnimationComponent extends Component {
     const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
     const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
 
+    // eslint-disable-next-line prettier/prettier
     const startResult = lessThan(existingMaxStartInputTime, newMaxStartInputTime);
     const endResult = greaterThan(newMaxEndInputTime, existingMaxEndInputTime);
     if (startResult.result || endResult.result) {
@@ -138,10 +150,7 @@ export default class AnimationComponent extends Component {
       );
     }
 
-    this.__animationLine.set(
-      AnimationAttribute.fromString(attributeName).index,
-      line
-    );
+    this.__animationLine.set(attributeName, line);
     this.__transformComponent = this.__entityRepository.getComponentOfEntity(
       this.__entityUid,
       TransformComponent
@@ -150,9 +159,7 @@ export default class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
-    this.backupDefaultValues(
-      AnimationAttribute.fromString(attributeName).index
-    );
+    this.backupDefaultValues(attributeName);
   }
 
   static subscribe(type: AnimationComponentEventType, handler: EventHandler) {
@@ -518,37 +525,52 @@ export default class AnimationComponent extends Component {
     this.__isAnimating = flg;
   }
 
-  private restoreDefaultValues(i: Index) {
-    if (this.__backupDefaultValues.get(i) == null) {
-      if (i === AnimationAttribute.Quaternion.index) {
+  private restoreDefaultValues(attributeName: AnimationAttributeName) {
+    const attributeType = AnimationAttribute.fromString(attributeName);
+    if (this.__backupDefaultValues.get(attributeName) == null) {
+      if (attributeType === AnimationAttribute.Quaternion) {
         this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
-          i
-        );
-      } else if (i === AnimationAttribute.Translate.index) {
+          attributeName
+        ) as IQuaternion;
+      } else if (attributeType === AnimationAttribute.Translate) {
         this.__transformComponent!.translate = this.__backupDefaultValues.get(
-          i
-        );
-      } else if (i === AnimationAttribute.Scale.index) {
-        this.__transformComponent!.scale = this.__backupDefaultValues.get(i);
-      } else if (i === AnimationAttribute.Weights.index) {
-        this.__meshComponent!.weights = this.__backupDefaultValues.get(i);
+          attributeName
+        ) as IVector3;
+      } else if (attributeType === AnimationAttribute.Scale) {
+        this.__transformComponent!.scale = this.__backupDefaultValues.get(
+          attributeName
+        ) as IVector3;
+      } else if (attributeType === AnimationAttribute.Weights) {
+        this.__meshComponent!.weights = this.__backupDefaultValues.get(
+          attributeName
+        ) as number[];
       }
     }
   }
 
-  private backupDefaultValues(i: Index) {
-    if (this.__backupDefaultValues.get(i) == null) {
-      if (i === AnimationAttribute.Quaternion.index) {
+  private backupDefaultValues(attributeName: AnimationAttributeName) {
+    const attributeType = AnimationAttribute.fromString(attributeName);
+    if (this.__backupDefaultValues.get(attributeName) == null) {
+      if (attributeType === AnimationAttribute.Quaternion) {
         this.__backupDefaultValues.set(
-          i,
+          attributeName,
           this.__transformComponent!.quaternion
         );
-      } else if (i === AnimationAttribute.Translate.index) {
-        this.__backupDefaultValues.set(i, this.__transformComponent!.translate);
-      } else if (i === AnimationAttribute.Scale.index) {
-        this.__backupDefaultValues.set(i, this.__transformComponent!.scale);
-      } else if (i === AnimationAttribute.Weights.index) {
-        this.__backupDefaultValues.set(i, this.__meshComponent!.weights);
+      } else if (attributeType === AnimationAttribute.Translate) {
+        this.__backupDefaultValues.set(
+          attributeName,
+          this.__transformComponent!.translate
+        );
+      } else if (attributeType === AnimationAttribute.Scale) {
+        this.__backupDefaultValues.set(
+          attributeName,
+          this.__transformComponent!.scale
+        );
+      } else if (attributeType === AnimationAttribute.Weights) {
+        this.__backupDefaultValues.set(
+          attributeName,
+          this.__meshComponent!.weights
+        );
       }
     }
   }
@@ -571,20 +593,21 @@ export default class AnimationComponent extends Component {
 
   $logic() {
     if (AnimationComponent.isAnimating) {
-      for (const [i, line] of this.__animationLine) {
+      for (const [attributeName, line] of this.__animationLine) {
+        const i = AnimationAttribute.fromString(attributeName).index;
         const value = AnimationComponent.interpolate(
           line,
           AnimationComponent.globalTime,
           i
         );
         if (i === AnimationAttribute.Quaternion.index) {
-          this.__transformComponent!.quaternion = value;
+          this.__transformComponent!.quaternion = value as IQuaternion;
         } else if (i === AnimationAttribute.Translate.index) {
-          this.__transformComponent!.translate = value;
+          this.__transformComponent!.translate = value as IVector3;
         } else if (i === AnimationAttribute.Scale.index) {
-          this.__transformComponent!.scale = value;
+          this.__transformComponent!.scale = value as IVector3;
         } else if (i === AnimationAttribute.Weights.index) {
-          this.__meshComponent!.weights = value;
+          this.__meshComponent!.weights = value as number[];
         }
       }
     }
