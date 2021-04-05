@@ -19,7 +19,12 @@ import {
   Index,
 } from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
-import {defaultValue, greaterThan, lessThan} from '../misc/MiscUtil';
+import {
+  defaultValue,
+  defaultValueWithCallback,
+  greaterThan,
+  lessThan,
+} from '../misc/MiscUtil';
 import {EventPubSub, EventHandler} from '../system/EventPubSub';
 import {IVector, IVector3} from '../math/IVector';
 import {IQuaternion} from '../math/IQuaternion';
@@ -43,6 +48,8 @@ interface AnimationLine {
   targetEntityUid?: EntityUID;
 }
 
+type AnimationSet = Map<AnimationAttributeName, AnimationLine>;
+
 export interface ChangeAnimationInfoEvent {
   infoMap: Map<AnimationName, AnimationInfo>;
 }
@@ -60,16 +67,13 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 type AnimationComponentEventType = symbol;
 
 export default class AnimationComponent extends Component {
-  private __animationLine: Map<
-    AnimationAttributeName,
-    AnimationLine
-  > = new Map();
   private __backupDefaultValues: Map<
     AnimationAttributeName,
     IVector | IQuaternion | number[]
   > = new Map();
+  private __currentActiveAnimationName?: AnimationName;
+  private __animationData: Map<AnimationName, AnimationSet> = new Map();
   public static globalTime = 0;
-  private static __isAnimating = true;
   private __isAnimating = true;
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
@@ -108,13 +112,31 @@ export default class AnimationComponent extends Component {
     return WellKnownComponentTIDs.AnimationComponentTID;
   }
 
+  static setActiveAnimationForAll(animationName: AnimationName) {
+    const components = ComponentRepository.getInstance().getComponentsWithType(
+      AnimationComponent
+    ) as AnimationComponent[];
+    for (const component of components) {
+      component.setActiveAnimation(animationName);
+    }
+  }
+
+  setActiveAnimation(animationName: AnimationName) {
+    this.__currentActiveAnimationName = animationName;
+  }
+
   setAnimation(
     animationName: string,
     attributeName: string,
     animationInputArray: number[],
-    animationOutputArray: any[],
+    animationOutputArray: Array<IVector | IQuaternion>,
     interpolation: AnimationInterpolationEnum
   ) {
+    this.__currentActiveAnimationName = defaultValue(
+      animationName,
+      this.__currentActiveAnimationName
+    );
+
     const line: AnimationLine = {
       name: animationName,
       input: animationInputArray,
@@ -123,6 +145,16 @@ export default class AnimationComponent extends Component {
       interpolationMethod: interpolation,
     };
 
+    // set AnimationSet
+    const animationSet = defaultValueWithCallback(() => {
+      const map = new Map();
+      this.__animationData.set(animationName, map);
+      return map;
+    }, this.__animationData.get(animationName));
+
+    animationSet.set(attributeName, line);
+
+    // set AnimationInfo
     const newMaxStartInputTime = animationInputArray[0];
     const newMaxEndInputTime =
       animationInputArray[animationInputArray.length - 1];
@@ -150,7 +182,6 @@ export default class AnimationComponent extends Component {
       );
     }
 
-    this.__animationLine.set(attributeName, line);
     this.__transformComponent = this.__entityRepository.getComponentOfEntity(
       this.__entityUid,
       TransformComponent
@@ -159,7 +190,7 @@ export default class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
-    this.backupDefaultValues(attributeName);
+    this.backupDefaultValues();
   }
 
   static subscribe(type: AnimationComponentEventType, handler: EventHandler) {
@@ -496,15 +527,28 @@ export default class AnimationComponent extends Component {
   }
 
   static get isAnimating() {
-    return this.__isAnimating;
+    const components = ComponentRepository.getInstance().getComponentsWithType(
+      AnimationComponent
+    ) as AnimationComponent[];
+
+    for (const component of components) {
+      if (component.isAnimating) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  static set isAnimating(flg: boolean) {
+  setAnimating(flg: boolean) {
+    this.__isAnimating = flg;
+  }
+
+  static setAnimatingForAll(flg: boolean) {
     const animationComponents = this.__componentRepository._getComponents(
       AnimationComponent
     )! as AnimationComponent[];
     for (const animationComponent of animationComponents) {
-      animationComponent.isAnimating = flg;
+      animationComponent.setAnimating(flg);
     }
   }
 
@@ -512,66 +556,45 @@ export default class AnimationComponent extends Component {
     return this.__isAnimating;
   }
 
-  set isAnimating(flg: boolean) {
-    if (flg) {
-      for (let [i, line] of this.__animationLine) {
-        this.backupDefaultValues(i);
-      }
-    } else {
-      for (let [i, line] of this.__animationLine) {
-        this.restoreDefaultValues(i);
-      }
-    }
-    this.__isAnimating = flg;
+  setAnimationToRest() {
+    this.restoreDefaultValues();
   }
 
-  private restoreDefaultValues(attributeName: AnimationAttributeName) {
-    const attributeType = AnimationAttribute.fromString(attributeName);
-    if (this.__backupDefaultValues.get(attributeName) == null) {
-      if (attributeType === AnimationAttribute.Quaternion) {
-        this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
-          attributeName
-        ) as IQuaternion;
-      } else if (attributeType === AnimationAttribute.Translate) {
-        this.__transformComponent!.translate = this.__backupDefaultValues.get(
-          attributeName
-        ) as IVector3;
-      } else if (attributeType === AnimationAttribute.Scale) {
-        this.__transformComponent!.scale = this.__backupDefaultValues.get(
-          attributeName
-        ) as IVector3;
-      } else if (attributeType === AnimationAttribute.Weights) {
-        this.__meshComponent!.weights = this.__backupDefaultValues.get(
-          attributeName
-        ) as number[];
-      }
+  private restoreDefaultValues() {
+    this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
+      AnimationAttribute.Quaternion.str
+    ) as IQuaternion;
+    this.__transformComponent!.translate = this.__backupDefaultValues.get(
+      AnimationAttribute.Translate.str
+    ) as IVector3;
+    this.__transformComponent!.scale = this.__backupDefaultValues.get(
+      AnimationAttribute.Scale.str
+    ) as IVector3;
+    if (this.__meshComponent != null) {
+      this.__meshComponent!.weights = this.__backupDefaultValues.get(
+        AnimationAttribute.Weights.str
+      ) as number[];
     }
   }
 
-  private backupDefaultValues(attributeName: AnimationAttributeName) {
-    const attributeType = AnimationAttribute.fromString(attributeName);
-    if (this.__backupDefaultValues.get(attributeName) == null) {
-      if (attributeType === AnimationAttribute.Quaternion) {
-        this.__backupDefaultValues.set(
-          attributeName,
-          this.__transformComponent!.quaternion
-        );
-      } else if (attributeType === AnimationAttribute.Translate) {
-        this.__backupDefaultValues.set(
-          attributeName,
-          this.__transformComponent!.translate
-        );
-      } else if (attributeType === AnimationAttribute.Scale) {
-        this.__backupDefaultValues.set(
-          attributeName,
-          this.__transformComponent!.scale
-        );
-      } else if (attributeType === AnimationAttribute.Weights) {
-        this.__backupDefaultValues.set(
-          attributeName,
-          this.__meshComponent!.weights
-        );
-      }
+  private backupDefaultValues() {
+    this.__backupDefaultValues.set(
+      AnimationAttribute.Quaternion.str,
+      this.__transformComponent!.quaternion
+    );
+    this.__backupDefaultValues.set(
+      AnimationAttribute.Translate.str,
+      this.__transformComponent!.translate
+    );
+    this.__backupDefaultValues.set(
+      AnimationAttribute.Scale.str,
+      this.__transformComponent!.scale
+    );
+    if (this.__meshComponent != null) {
+      this.__backupDefaultValues.set(
+        AnimationAttribute.Weights.str,
+        this.__meshComponent?.weights
+      );
     }
   }
 
@@ -592,22 +615,27 @@ export default class AnimationComponent extends Component {
   }
 
   $logic() {
-    if (AnimationComponent.isAnimating) {
-      for (const [attributeName, line] of this.__animationLine) {
-        const i = AnimationAttribute.fromString(attributeName).index;
-        const value = AnimationComponent.interpolate(
-          line,
-          AnimationComponent.globalTime,
-          i
-        );
-        if (i === AnimationAttribute.Quaternion.index) {
-          this.__transformComponent!.quaternion = value as IQuaternion;
-        } else if (i === AnimationAttribute.Translate.index) {
-          this.__transformComponent!.translate = value as IVector3;
-        } else if (i === AnimationAttribute.Scale.index) {
-          this.__transformComponent!.scale = value as IVector3;
-        } else if (i === AnimationAttribute.Weights.index) {
-          this.__meshComponent!.weights = value as number[];
+    if (this.isAnimating && this.__currentActiveAnimationName !== undefined) {
+      const animationSet = this.__animationData.get(
+        this.__currentActiveAnimationName
+      );
+      if (animationSet !== undefined) {
+        for (const [attributeName, line] of animationSet) {
+          const i = AnimationAttribute.fromString(attributeName).index;
+          const value = AnimationComponent.interpolate(
+            line,
+            AnimationComponent.globalTime,
+            i
+          );
+          if (i === AnimationAttribute.Quaternion.index) {
+            this.__transformComponent!.quaternion = value as IQuaternion;
+          } else if (i === AnimationAttribute.Translate.index) {
+            this.__transformComponent!.translate = value as IVector3;
+          } else if (i === AnimationAttribute.Scale.index) {
+            this.__transformComponent!.scale = value as IVector3;
+          } else if (i === AnimationAttribute.Weights.index) {
+            this.__meshComponent!.weights = value as number[];
+          }
         }
       }
     }

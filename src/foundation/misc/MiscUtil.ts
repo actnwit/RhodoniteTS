@@ -164,10 +164,28 @@ export const defaultValue = <T>(defaultValue: T, value?: T) => {
   return value;
 };
 
+export const defaultValueWithCallback = <T>(callback: () => T, value?: T) => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return callback();
+  }
+  return value;
+};
+
 export const nullishToEmptyArray = <T>(value?: T[] | null): T[] => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return [];
+  }
+  return value;
+};
+
+export const nullishToEmptyMap = <M, N>(
+  value?: Map<M, N> | null
+): Map<M, N> => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return new Map();
   }
   return value;
 };
