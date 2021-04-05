@@ -172,6 +172,28 @@ export const nullishToEmptyArray = <T>(value?: T[] | null): T[] => {
   return value;
 };
 
+interface CompareResult {
+  result: boolean;
+  greater: number;
+  less: number;
+}
+
+export const greaterThan = (it: number, than: number): CompareResult => {
+  if (it > than) {
+    return {result: true, greater: it, less: than};
+  } else {
+    return {result: false, greater: than, less: it};
+  }
+};
+
+export const lessThan = (it: number, than: number): CompareResult => {
+  if (it < than) {
+    return {result: true, greater: than, less: it};
+  } else {
+    return {result: false, greater: it, less: than};
+  }
+};
+
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,
