@@ -123,6 +123,7 @@ export default class AnimationComponent extends Component {
       this.__currentActiveAnimationName = animationName;
       return true;
     } else {
+      this.__currentActiveAnimationName = undefined;
       return false;
     }
   }
