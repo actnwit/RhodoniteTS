@@ -18,7 +18,6 @@ import {
   EntityUID,
   Index,
 } from '../../types/CommonTypes';
-import {Is} from '../misc/Is';
 import {
   defaultValue,
   defaultValueWithCallback,
@@ -120,7 +119,12 @@ export default class AnimationComponent extends Component {
   }
 
   setActiveAnimation(animationName: AnimationName) {
-    this.__currentActiveAnimationName = animationName;
+    if (this.__animationData.has(animationName)) {
+      this.__currentActiveAnimationName = animationName;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   setAnimation(
@@ -128,12 +132,17 @@ export default class AnimationComponent extends Component {
     attributeName: string,
     animationInputArray: number[],
     animationOutputArray: Array<IVector | IQuaternion>,
-    interpolation: AnimationInterpolationEnum
+    interpolation: AnimationInterpolationEnum,
+    makeThisActiveAnimation = true
   ) {
-    this.__currentActiveAnimationName = defaultValue(
-      animationName,
-      this.__currentActiveAnimationName
-    );
+    if (makeThisActiveAnimation) {
+      this.__currentActiveAnimationName = animationName;
+    } else {
+      this.__currentActiveAnimationName = defaultValue(
+        animationName,
+        this.__currentActiveAnimationName
+      );
+    }
 
     const line: AnimationLine = {
       name: animationName,
@@ -514,7 +523,9 @@ export default class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     } else {
-      return components[0].getStartInputValueOfAnimation();
+      const infoArray = Array.from(this.__animationInfo.values());
+      const lastInfo = infoArray[infoArray.length - 1];
+      return lastInfo.maxStartInputTime;
     }
   }
 
@@ -525,7 +536,9 @@ export default class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     } else {
-      return components[0].getEndInputValueOfAnimation();
+      const infoArray = Array.from(this.__animationInfo.values());
+      const lastInfo = infoArray[infoArray.length - 1];
+      return lastInfo.maxEndInputTime;
     }
   }
 

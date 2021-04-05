@@ -332,10 +332,6 @@ export default class ModelConverter {
           }
         }
       }
-      const firstAnimation = gltfModel.animations[0];
-      AnimationComponent.setActiveAnimationForAll(
-        firstAnimation.name != null ? firstAnimation.name : 'Untitled'
-      );
     }
   }
 
