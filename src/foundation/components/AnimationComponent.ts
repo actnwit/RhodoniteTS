@@ -430,7 +430,7 @@ export default class AnimationComponent extends Component {
 
   getStartInputValueOfAnimation(animationName?: string) {
     if (Is.not.exist(animationName)) {
-      const array = Array.from(AnimationComponent.__animationInfo);
+      const array = Array.from(AnimationComponent.__animationInfo.values());
       if (array.length === 0) {
         return 0;
       }
@@ -447,7 +447,7 @@ export default class AnimationComponent extends Component {
 
   getEndInputValueOfAnimation(animationName?: string) {
     if (Is.not.exist(animationName)) {
-      const array = Array.from(AnimationComponent.__animationInfo);
+      const array = Array.from(AnimationComponent.__animationInfo.values());
       if (array.length === 0) {
         return 0;
       }
@@ -460,6 +460,10 @@ export default class AnimationComponent extends Component {
     ).maxEndInputTime;
 
     return maxEndInputTime;
+  }
+
+  static getAnimationInfo() {
+    return new Map(this.__animationInfo);
   }
 
   static get startInputValue() {
