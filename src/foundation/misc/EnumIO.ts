@@ -3,12 +3,14 @@
 export interface EnumIO {
   readonly index: number;
   readonly str: string;
+  readonly symbol: symbol;
   toString(): string;
   toJSON(): number;
 }
 
 export class EnumClass implements EnumIO {
   readonly index: number;
+  readonly symbol: symbol;
   readonly str: string;
   private static __indices: Map<Function, number[]> = new Map();
   private static __strings: Map<Function, string[]> = new Map();
@@ -39,6 +41,7 @@ export class EnumClass implements EnumIO {
 
     this.index = index;
     this.str = str;
+    this.symbol = Symbol(str);
 
     EnumClass.__indices.get(this.constructor)!.push(index);
     EnumClass.__strings.get(this.constructor)!.push(str);

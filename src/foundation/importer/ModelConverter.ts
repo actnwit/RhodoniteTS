@@ -59,6 +59,7 @@ import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleM
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { Is } from '../misc/Is';
 
 declare let DracoDecoderModule: any;
 
@@ -294,7 +295,7 @@ export default class ModelConverter {
 
     const entityRepository = EntityRepository.getInstance();
 
-    if (gltfModel.animations) {
+    if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
           const animInputArray = channel.sampler.input.extras.typedDataArray;
@@ -321,6 +322,7 @@ export default class ModelConverter {
             ) as AnimationComponent;
             if (animationComponent) {
               animationComponent.setAnimation(
+                Is.exist(animation.name) ? animation.name! : 'Untitled',
                 animationAttributeName,
                 animInputArray,
                 animOutputArray,

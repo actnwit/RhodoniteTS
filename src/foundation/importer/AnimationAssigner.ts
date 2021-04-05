@@ -6,6 +6,7 @@ import AnimationComponent from '../components/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {Index} from '../../types/CommonTypes';
 import {VRM} from '../../types/VRM';
+import { Is } from '../misc/Is';
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -119,7 +120,7 @@ export default class AnimationAssigner {
 
     const entityRepository = EntityRepository.getInstance();
 
-    if (gltfModel.animations) {
+    if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
           const animInputArray = channel.sampler.input.extras.typedDataArray;
@@ -157,6 +158,7 @@ export default class AnimationAssigner {
             if (animationComponent) {
               if (animationAttributeName === 'quaternion') {
                 animationComponent.setAnimation(
+                  Is.exist(animation.name) ? animation.name! : 'Untitled',
                   animationAttributeName,
                   animInputArray,
                   animOutputArray,
@@ -167,6 +169,7 @@ export default class AnimationAssigner {
                 this.__isHips(rootEntity, vrmModel, channel.target.nodeIndex!)
               ) {
                 animationComponent.setAnimation(
+                  Is.exist(animation.name) ? animation.name! : 'Untitled',
                   animationAttributeName,
                   animInputArray,
                   animOutputArray,

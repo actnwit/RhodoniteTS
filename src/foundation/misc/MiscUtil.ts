@@ -156,6 +156,62 @@ const concatArrayBuffers2 = ({
   return dstBuf.buffer;
 };
 
+export const defaultValue = <T>(defaultValue: T, value?: T) => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return defaultValue;
+  }
+  return value;
+};
+
+export const defaultValueWithCallback = <T>(callback: () => T, value?: T) => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return callback();
+  }
+  return value;
+};
+
+export const nullishToEmptyArray = <T>(value?: T[] | null): T[] => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return [];
+  }
+  return value;
+};
+
+export const nullishToEmptyMap = <M, N>(
+  value?: Map<M, N> | null
+): Map<M, N> => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return new Map();
+  }
+  return value;
+};
+
+interface CompareResult {
+  result: boolean;
+  greater: number;
+  less: number;
+}
+
+export const greaterThan = (it: number, than: number): CompareResult => {
+  if (it > than) {
+    return {result: true, greater: it, less: than};
+  } else {
+    return {result: false, greater: than, less: it};
+  }
+};
+
+export const lessThan = (it: number, than: number): CompareResult => {
+  if (it < than) {
+    return {result: true, greater: than, less: it};
+  } else {
+    return {result: false, greater: it, less: than};
+  }
+};
+
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,

@@ -17,6 +17,9 @@ import {
   ComponentSID,
   EntityUID,
 } from '../../types/CommonTypes';
+import { IQuaternion } from '../math/IQuaternion';
+import { IMatrix44 } from '../math/IMatrix';
+import { IVector3 } from '../math/IVector';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -142,7 +145,7 @@ export default class TransformComponent extends Component {
     this._updateCount++;
   }
 
-  set translate(vec: Vector3) {
+  set translate(vec: IVector3) {
     this._translate.copyComponents(vec);
     this._is_translate_updated = true;
     this._is_trs_matrix_updated = false;
@@ -166,7 +169,7 @@ export default class TransformComponent extends Component {
     return this._translate;
   }
 
-  set rotate(vec: Vector3) {
+  set rotate(vec: IVector3) {
     this._rotate.copyComponents(vec);
     this._is_euler_angles_updated = true;
     this._is_quaternion_updated = false;
@@ -194,7 +197,7 @@ export default class TransformComponent extends Component {
     return this._rotate;
   }
 
-  set scale(vec: Vector3) {
+  set scale(vec: IVector3) {
     this._scale.copyComponents(vec);
     this._is_scale_updated = true;
     this._is_trs_matrix_updated = false;
@@ -219,7 +222,7 @@ export default class TransformComponent extends Component {
     return this._scale;
   }
 
-  set quaternion(quat: Quaternion) {
+  set quaternion(quat: IQuaternion) {
     this._quaternion.copyComponents(quat);
     this._is_quaternion_updated = true;
     this._is_euler_angles_updated = false;
@@ -254,7 +257,7 @@ export default class TransformComponent extends Component {
     return this._quaternion;
   }
 
-  set matrix(mat: Matrix44) {
+  set matrix(mat: IMatrix44) {
     this._matrix.copyComponents(mat);
     this._is_trs_matrix_updated = true;
     this._is_translate_updated = false;
@@ -408,11 +411,11 @@ export default class TransformComponent extends Component {
    */
 
   setTransform(
-    translate: Vector3,
-    rotate: Vector3,
-    scale: Vector3,
-    quaternion: Quaternion,
-    matrix: Matrix44
+    translate: IVector3,
+    rotate: IVector3,
+    scale: IVector3,
+    quaternion: IQuaternion,
+    matrix: IMatrix44
   ) {
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
@@ -540,7 +543,7 @@ export default class TransformComponent extends Component {
     }
   }
 
-  setRotationFromNewUpAndFront(UpVec: Vector3, FrontVec: Vector3) {
+  setRotationFromNewUpAndFront(UpVec: IVector3, FrontVec: IVector3) {
     const yDir = UpVec;
     const xDir = MutableVector3.crossTo(
       yDir,
@@ -596,7 +599,7 @@ export default class TransformComponent extends Component {
     );
   }
 
-  set rotateMatrix44(rotateMatrix: Matrix44) {
+  set rotateMatrix44(rotateMatrix: IMatrix44) {
     this.quaternion = TransformComponent.__tmpQuaternion_0.fromMatrix(
       rotateMatrix
     );

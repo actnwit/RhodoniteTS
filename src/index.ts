@@ -29,7 +29,10 @@ import _ModelConverter from './foundation/importer/ModelConverter';
 import _ModuleManager from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
 import _CameraComponent from './foundation/components/CameraComponent';
-import _AnimationComponent from './foundation/components/AnimationComponent';
+import _AnimationComponent, {
+  AnimationInfo as _AnimationInfo,
+  ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent
+} from './foundation/components/AnimationComponent';
 import _LightComponent from './foundation/components/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
 import _CameraControllerComponent from './foundation/components/CameraControllerComponent';
@@ -324,6 +327,8 @@ export type MemoryManager = _MemoryManager;
 export type CameraComponent = _CameraComponent;
 export type CameraType = typeof _CameraType;
 export type AnimationComponent = _AnimationComponent;
+export type AnimationInfo = _AnimationInfo;
+export type ChangeAnimationInfoEvent = _ChangeAnimationInfoEvent;
 export type LightComponent = _LightComponent;
 export type LightType = typeof _LightType;
 export type CubeTexture = _CubeTexture;
