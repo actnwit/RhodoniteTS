@@ -19,13 +19,13 @@ import {
   Index,
 } from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
-import {defaultValue} from '../misc/MiscUtil';
+import {defaultValue, greaterThan, lessThan} from '../misc/MiscUtil';
 import {EventPubSub, EventHandler} from '../system/EventPubSub';
 
-type AnimationName = string;
+export type AnimationName = string;
 type TimeInSec = number;
 
-interface AnimationInfo {
+export interface AnimationInfo {
   name: AnimationName;
   maxStartInputTime: TimeInSec;
   maxEndInputTime: TimeInSec;
@@ -40,9 +40,8 @@ interface AnimationLine {
   targetEntityUid?: EntityUID;
 }
 
-interface AnimationAddEvent {
-  info: AnimationInfo;
-  line: AnimationLine;
+export interface ChangeAnimationInfoEvent {
+  infoMap: Map<AnimationName, AnimationInfo>;
 }
 
 const defaultAnimationInfo = {
@@ -51,9 +50,9 @@ const defaultAnimationInfo = {
   maxEndInputTime: 0,
 };
 
-const AddAnimation = Symbol('AnimationComponentEventAddAnimation');
+const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
-type AnimationComponentEvent = typeof AddAnimation | typeof PlayEnd;
+type AnimationComponentEventType = symbol;
 
 export default class AnimationComponent extends Component {
   private __animationLine: Map<Index, AnimationLine> = new Map();
@@ -80,7 +79,7 @@ export default class AnimationComponent extends Component {
   private static __animationInfo: Map<AnimationName, AnimationInfo> = new Map();
   private static __pubsub = new EventPubSub();
   static Event = {
-    AddAnimation,
+    ChangeAnimationInfo,
     PlayEnd,
   };
 
@@ -124,15 +123,20 @@ export default class AnimationComponent extends Component {
     const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
     const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
 
-    const info = {
-      name: animationName,
-      maxStartInputTime: Math.min(
-        existingMaxStartInputTime,
-        newMaxStartInputTime
-      ),
-      maxEndInputTime: Math.max(existingMaxEndInputTime, newMaxEndInputTime),
-    };
-    AnimationComponent.__animationInfo.set(animationName, info);
+    const startResult = lessThan(existingMaxStartInputTime, newMaxStartInputTime);
+    const endResult = greaterThan(newMaxEndInputTime, existingMaxEndInputTime);
+    if (startResult.result || endResult.result) {
+      const info = {
+        name: animationName,
+        maxStartInputTime: startResult.less,
+        maxEndInputTime: endResult.greater,
+      };
+      AnimationComponent.__animationInfo.set(animationName, info);
+      AnimationComponent.__pubsub.publishAsync(
+        AnimationComponent.Event.ChangeAnimationInfo,
+        {infoMap: new Map(AnimationComponent.__animationInfo)}
+      );
+    }
 
     this.__animationLine.set(
       AnimationAttribute.fromString(attributeName).index,
@@ -149,14 +153,9 @@ export default class AnimationComponent extends Component {
     this.backupDefaultValues(
       AnimationAttribute.fromString(attributeName).index
     );
-
-    AnimationComponent.__pubsub.publishAsync(
-      AnimationComponent.Event.AddAnimation,
-      {line, info}
-    );
   }
 
-  static subscribe(type: AnimationComponentEvent, handler: EventHandler) {
+  static subscribe(type: AnimationComponentEventType, handler: EventHandler) {
     AnimationComponent.__pubsub.subscribe(type, handler);
   }
 
@@ -429,21 +428,21 @@ export default class AnimationComponent extends Component {
     return [p_0, p_1, m_0, m_1];
   }
 
-  getStartInputValueOfAnimation() {
-    let latestInputValue = Number.MAX_VALUE;
-    for (const line of this.__animationLine.values()) {
-      const inputValueArray = line.input;
-      const inputLatestValueAtThisAttribute = inputValueArray[0];
-      if (inputLatestValueAtThisAttribute < latestInputValue) {
-        latestInputValue = inputLatestValueAtThisAttribute;
-        if (
-          latestInputValue < AnimationComponent.__startInputValueOfAllComponent
-        ) {
-          AnimationComponent.__startInputValueOfAllComponent = latestInputValue;
-        }
+  getStartInputValueOfAnimation(animationName?: string) {
+    if (Is.not.exist(animationName)) {
+      const array = Array.from(AnimationComponent.__animationInfo);
+      if (array.length === 0) {
+        return 0;
       }
+      const firstAnimationInfo = (array[0] as unknown) as AnimationInfo;
+      return firstAnimationInfo.maxEndInputTime;
     }
-    return latestInputValue;
+    const maxStartInputTime = defaultValue<AnimationInfo>(
+      defaultAnimationInfo,
+      AnimationComponent.__animationInfo.get(animationName!)
+    ).maxStartInputTime;
+
+    return maxStartInputTime;
   }
 
   getEndInputValueOfAnimation(animationName?: string) {
@@ -458,7 +457,7 @@ export default class AnimationComponent extends Component {
     const maxEndInputTime = defaultValue<AnimationInfo>(
       defaultAnimationInfo,
       AnimationComponent.__animationInfo.get(animationName!)
-    );
+    ).maxEndInputTime;
 
     return maxEndInputTime;
   }
