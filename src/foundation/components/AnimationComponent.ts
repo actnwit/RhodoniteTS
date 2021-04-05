@@ -77,8 +77,6 @@ export default class AnimationComponent extends Component {
   private __isAnimating = true;
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
-  private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
-  private static __endInputValueOfAllComponent: number = -Number.MAX_VALUE;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
 
   private static __returnVector3 = MutableVector3.zero();
@@ -467,7 +465,9 @@ export default class AnimationComponent extends Component {
   }
 
   getStartInputValueOfAnimation(animationName?: string) {
-    if (Is.not.exist(animationName)) {
+    const name =
+      animationName != null ? animationName : this.__currentActiveAnimationName;
+    if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationInfo.values());
       if (array.length === 0) {
         return 0;
@@ -477,14 +477,17 @@ export default class AnimationComponent extends Component {
     }
     const maxStartInputTime = defaultValue<AnimationInfo>(
       defaultAnimationInfo,
-      AnimationComponent.__animationInfo.get(animationName!)
+      AnimationComponent.__animationInfo.get(name)
     ).maxStartInputTime;
 
     return maxStartInputTime;
   }
 
   getEndInputValueOfAnimation(animationName?: string) {
-    if (Is.not.exist(animationName)) {
+    const name =
+      animationName != null ? animationName : this.__currentActiveAnimationName;
+
+    if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationInfo.values());
       if (array.length === 0) {
         return 0;
@@ -494,7 +497,7 @@ export default class AnimationComponent extends Component {
     }
     const maxEndInputTime = defaultValue<AnimationInfo>(
       defaultAnimationInfo,
-      AnimationComponent.__animationInfo.get(animationName!)
+      AnimationComponent.__animationInfo.get(name)
     ).maxEndInputTime;
 
     return maxEndInputTime;

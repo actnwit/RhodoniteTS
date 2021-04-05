@@ -120,7 +120,7 @@ export default class AnimationAssigner {
 
     const entityRepository = EntityRepository.getInstance();
 
-    if (gltfModel.animations) {
+    if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
           const animInputArray = channel.sampler.input.extras.typedDataArray;
@@ -180,6 +180,10 @@ export default class AnimationAssigner {
           }
         }
       }
+      const firstAnimation = gltfModel.animations[0];
+      AnimationComponent.setActiveAnimationForAll(
+        firstAnimation.name != null ? firstAnimation.name : 'Untitled'
+      );
     }
   }
 }
