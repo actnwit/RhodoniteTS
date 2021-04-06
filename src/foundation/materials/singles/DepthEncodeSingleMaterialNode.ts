@@ -21,8 +21,8 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
   static zFarInner = new ShaderSemanticsClass({str: 'zFarInner'});
 
-  private static __lastZNear = 0.0;
-  private static __lastZFar = 0.0;
+  private __lastZNear = 0.0;
+  private __lastZFar = 0.0;
 
   constructor({isSkinning}: {isSkinning: boolean}) {
     super(
@@ -126,24 +126,20 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
         args.displayIdx
       );
 
-      if (
-        DepthEncodeSingleMaterialNode.__lastZNear !== cameraComponent.zNearInner
-      ) {
+      if (firstTime || this.__lastZNear !== cameraComponent.zNearInner) {
         (shaderProgram as any)._gl.uniform1f(
           (shaderProgram as any).zNearInner,
           cameraComponent.zNearInner
         );
-        DepthEncodeSingleMaterialNode.__lastZNear = cameraComponent.zNearInner;
+        this.__lastZNear = cameraComponent.zNearInner;
       }
 
-      if (
-        DepthEncodeSingleMaterialNode.__lastZFar !== cameraComponent.zFarInner
-      ) {
+      if (this.__lastZFar !== cameraComponent.zFarInner) {
         (shaderProgram as any)._gl.uniform1f(
           (shaderProgram as any).zFarInner,
           cameraComponent.zFarInner
         );
-        DepthEncodeSingleMaterialNode.__lastZFar = cameraComponent.zFarInner;
+        this.__lastZFar = cameraComponent.zFarInner;
       }
     } else {
       material.setParameter(
