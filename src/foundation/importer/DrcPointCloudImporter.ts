@@ -1073,39 +1073,15 @@ export default class DrcPointCloudImporter {
    * Import Draco file of point cloud type.
    * WEIGHTS_0 and JOINTS_0 attribute and all the mesh type and is not support yet.
    * @param uri - uri of glTF file
-   * @param options - options for loading process
    * @returns a primitive of Rhodonite object
    */
-  async importPointCloudToPrimitive(uri: string, options: GltfLoadOption) {
-    const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
-    const defaultOptions = DataUtil.createDefaultGltfOptions();
-
-    if (options && options.files) {
-      for (const fileName in options.files) {
-        const fileExtension = DataUtil.getExtension(fileName);
-
-        if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.__loadFromArrayBuffer(
-            (options.files as any)[fileName],
-            defaultOptions,
-            basePath,
-            options
-          ).catch(err => {
-            console.log('this.__loadFromArrayBuffer error', err);
-          });
-        }
-      }
-    }
-
+  async importPointCloudToPrimitive(uri: string) {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    return this.__decodeDracoDirect(arrayBuffer, options);
+    return this.__decodeDracoDirect(arrayBuffer);
   }
 
   // tangent is not available
-  private __decodeDracoDirect(
-    arrayBuffer: ArrayBuffer,
-    options: GltfLoadOption
-  ) {
+  private __decodeDracoDirect(arrayBuffer: ArrayBuffer) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
     const dracoGeometry = this.__getGeometryFromDracoBuffer(
