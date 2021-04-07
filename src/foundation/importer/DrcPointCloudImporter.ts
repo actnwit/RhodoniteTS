@@ -32,7 +32,10 @@ export default class DrcPointCloudImporter {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  async importPointCloud(uri: string, options?: GltfLoadOption) {
+  async importPointCloud(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<void | glTF2> {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
 
@@ -1075,7 +1078,7 @@ export default class DrcPointCloudImporter {
    * @param uri - uri of glTF file
    * @returns a primitive of Rhodonite object
    */
-  async importPointCloudToPrimitive(uri: string) {
+  async importPointCloudToPrimitive(uri: string): Promise<Primitive> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     return this.__decodeDracoDirect(arrayBuffer);
   }
@@ -1147,9 +1150,7 @@ export default class DrcPointCloudImporter {
     draco.destroy(decoder);
     draco.destroy(dracoGeometry);
 
-    return new Promise((resolve, reject) => {
-      resolve(primitive);
-    });
+    return primitive;
   }
 
   private __getGeometryFromDracoBuffer(
