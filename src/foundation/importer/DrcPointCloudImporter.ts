@@ -341,7 +341,7 @@ export default class DrcPointCloudImporter {
           node.extensions.KHR_lights_punctual.light;
         node.extensions.KHR_lights_punctual.light =
           gltfJson.extensions.KHR_lights_punctual.lights[
-            node.extensions.KHR_lights_punctual.lightIndex
+          node.extensions.KHR_lights_punctual.lightIndex
           ];
       }
     }
@@ -1080,11 +1080,11 @@ export default class DrcPointCloudImporter {
    */
   async importPointCloudToPrimitive(uri: string): Promise<Primitive> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    return this.__decodeDracoDirect(arrayBuffer);
+    return this.__decodeDracoToPrimitive(arrayBuffer);
   }
 
   // tangent is not available
-  private __decodeDracoDirect(arrayBuffer: ArrayBuffer) {
+  private __decodeDracoToPrimitive(arrayBuffer: ArrayBuffer) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
     const dracoGeometry = this.__getGeometryFromDracoBuffer(
