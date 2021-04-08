@@ -4,6 +4,9 @@
 
 Rhodonite is a WebGL library written in TypeScript.
 
+![npm](https://img.shields.io/npm/v/rhodonite)
+![NPM](https://img.shields.io/npm/l/rhodonite)
+
 ## Feature
 
 * Entity Component System
@@ -206,6 +209,10 @@ $ npm run test-e2e -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
 1. Install the "Debugger for Chrome" VSCode Extension.
 2. Start the local server with `$ npm run start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
+
+## Contributors
+
+![GitHub Contributors Image](https://contrib.rocks/image?repo=actnwit/RhodoniteTS)
 
 ## License
 
