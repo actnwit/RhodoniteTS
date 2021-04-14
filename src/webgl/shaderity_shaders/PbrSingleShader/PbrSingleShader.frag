@@ -20,7 +20,7 @@ in vec3 v_baryCentricCoord;
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-#pragma shaderity: require(./pbrDefinition.glsl)
+#pragma shaderity: require(../common/pbrDefinition.glsl)
 
 /* shaderity: @{getters} */
 
@@ -51,7 +51,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   float lod = (userRoughness * (mipCount - 1.0));
 
   vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-#pragma shaderity: require(./fetchCubeTexture.glsl)
+#pragma shaderity: require(./../common/fetchCubeTexture.glsl)
 
   vec3 specularLight;
   if (hdriFormat.y == 0) {
