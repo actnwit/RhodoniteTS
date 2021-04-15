@@ -11,8 +11,8 @@ import ShadowMapDecodeClassicSingleMaterialNode from '../materials/singles/Shado
 import GammaCorrectionSingleMaterialNode from '../materials/singles/GammaCorrectionSingleMaterialNode';
 import EntityUIDOutputSingleMaterialNode from '../materials/singles/EntityUIDOutputSingleMaterialNode';
 import MToonSingleMaterialNode from '../materials/singles/MToonSingleMaterialNode';
-import classicSingleShaderVertex from '../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.vert';
-import classicSingleShaderFragment from '../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag';
+import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import CustomSingleMaterialNode from '../materials/singles/CustomSingleMaterialNode';
 import Primitive from '../geometry/Primitive';
 import Entity from '../core/Entity';
@@ -155,8 +155,8 @@ function createClassicUberMaterial({
     isLighting,
     isMorphing,
     alphaMode,
-    vertexShader: classicSingleShaderVertex,
-    pixelShader: classicSingleShaderFragment,
+    vertexShader: ClassicSingleShaderVertex,
+    pixelShader: ClassicSingleShaderFragment,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(
