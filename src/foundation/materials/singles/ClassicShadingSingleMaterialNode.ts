@@ -5,7 +5,6 @@ import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
 import Material from '../core/Material';
 import Scalar from '../../math/Scalar';
-import SkeletalComponent from '../../components/SkeletalComponent';
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
@@ -16,8 +15,8 @@ import {ShadingModel} from '../../definitions/ShadingModel';
 import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
 
-import classicSingleShaderVertex from '../../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.vert';
-import classicSingleShaderFragment from '../../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag';
+import ClassicSingleShaderVertex from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import ClassicSingleShaderFragment from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import {AlphaModeEnum} from '../../definitions/AlphaMode';
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
@@ -38,8 +37,8 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         ' alpha_' +
         alphaMode.str.toLowerCase(),
       {isMorphing: false, isLighting: isLighting, isSkinning: isSkinning},
-      classicSingleShaderVertex,
-      classicSingleShaderFragment
+      ClassicSingleShaderVertex,
+      ClassicSingleShaderFragment
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
