@@ -246,7 +246,7 @@ void main ()
     float satNL = saturateEpsilonToOne(NL);
 
     vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, satNV, F, alphaRoughness);
-    vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
+    vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
 
     rt0.xyz += diffuseAndSpecular;
 //      rt0.xyz += specularContrib * vec3(NL) * incidentLight.rgb;
