@@ -59,12 +59,48 @@ export default class WebXRSystem {
     ]);
   }
 
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new WebXRSystem();
-    }
+  /// Public Methods
 
-    return this.__instance;
+  /**
+   * Ready for WebXR
+   *
+   * @param requestButtonDom
+   * @returns true: prepared properly, false: failed to prepare
+   */
+  async readyForWebXR(requestButtonDom: HTMLElement) {
+    await ModuleManager.getInstance().loadModule('xr');
+
+    const glw = CGAPIResourceRepository.getWebGLResourceRepository()
+      .currentWebGLContextWrapper;
+    if (glw == null) {
+      console.error('WebGL Context is not ready yet.');
+      return false;
+    }
+    this.__glw = glw;
+    const supported = await navigator.xr.isSessionSupported('immersive-vr');
+    if (supported) {
+      if (requestButtonDom) {
+        requestButtonDom.style.display = 'block';
+      } else {
+        const paragraph = document.createElement('p');
+        const anchor = document.createElement('a');
+        anchor.setAttribute('id', 'enter-vr');
+        const enterVr = document.createTextNode('Enter VR');
+
+        anchor.appendChild(enterVr);
+        paragraph.appendChild(anchor);
+
+        const canvas = glw.canvas;
+        canvas.parentNode!.insertBefore(paragraph, canvas);
+        window.addEventListener('click', this.enterWebXR.bind(this) as any);
+      }
+
+      this.__isReadyForWebXR = true;
+    } else {
+      console.error('WebXR is not supported in this environment.');
+      return false;
+    }
+    return true;
   }
 
   async enterWebXR({
@@ -131,6 +167,202 @@ export default class WebXRSystem {
     }
   }
 
+  exitWebXR() {
+    this.__requestedToEnterWebXR = false;
+    this.__isWebXRMode = false;
+  }
+
+  async disableWebXR() {
+    if (this.__xrSession != null) {
+      // End the XR session now.
+      await this.__xrSession.end();
+    }
+  }
+
+  _getCameraWorldPositionAt(displayIdx: Index) {
+    const xrView = this.__xrViewerPose?.views[displayIdx];
+    const pos = xrView?.transform.position;
+    if (pos != null) {
+      const def = this.__defaultPositionInLocalSpaceMode;
+      if (this.__spaceType === 'local') {
+        return new Vector3(def.x + pos.x, def.y + pos.y, def.z + pos.z);
+      } else {
+        return new Vector3(pos.x, pos.y, pos.z);
+      }
+    } else {
+      return this.__defaultPositionInLocalSpaceMode;
+    }
+  }
+
+  _getLeftViewport() {
+    return new Vector4(
+      0,
+      0,
+      this.__canvasWidthForVR / 2,
+      this.__canvasHeightForVR
+    );
+  }
+
+  _getRightViewport() {
+    return new Vector4(
+      this.__canvasWidthForVR / 2,
+      0,
+      this.__canvasWidthForVR / 2,
+      this.__canvasHeightForVR
+    );
+  }
+
+  _getViewMatrixAt(index: Index) {
+    if (index === 0) {
+      return this.leftViewMatrix;
+    } else {
+      return this.rightViewMatrix;
+    }
+  }
+
+  _getProjectMatrixAt(index: Index) {
+    if (index === 0) {
+      return this.leftProjectionMatrix;
+    } else {
+      return this.rightProjectionMatrix;
+    }
+  }
+
+  _getViewportAt(index: Index) {
+    if (index === 0) {
+      return this._getLeftViewport();
+    } else {
+      return this._getRightViewport();
+    }
+  }
+
+  _setValuesToGlobalDataRepository() {
+    this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
+    this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
+    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
+    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
+  }
+
+  _getCameraComponentSIDAt(index: Index) {
+    if (index === 0) {
+      return this.__leftCameraEntity.getCamera().componentSID;
+    } else {
+      return this.__rightCameraEntity.getCamera().componentSID;
+    }
+  }
+
+  _preRender(xrFrame: XRFrame) {
+    if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
+      this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
+      // const gl = this.__glw?.getRawContext();
+      // const glLayer = this.__xrSession?.renderState.baseLayer;
+      // gl?.bindFramebuffer(gl.FRAMEBUFFER, glLayer!.framebuffer);
+      this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
+    }
+  }
+
+  _postRender() {
+    if (this?.__isWebXRMode) {
+      const gl = this.__glw?.getRawContext();
+      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+    if (this?.requestedToEnterWebVR) {
+      this.__isWebXRMode = true;
+    }
+  }
+
+  /// Getter Methods
+
+  getCanvasWidthForVr() {
+    return this.__canvasWidthForVR;
+  }
+
+  getCanvasHeightForVr() {
+    return this.__canvasHeightForVR;
+  }
+
+  /// Accessors
+
+  get leftViewMatrix() {
+    return this.__leftCameraEntity.getCamera().viewMatrix;
+  }
+
+  get rightViewMatrix() {
+    return this.__rightCameraEntity.getCamera().viewMatrix;
+  }
+
+  get leftProjectionMatrix() {
+    const xrViewLeft = this.__xrViewerPose?.views[0];
+    return new MutableMatrix44(
+      xrViewLeft?.projectionMatrix as Float32Array,
+      true
+    );
+  }
+
+  get rightProjectionMatrix() {
+    const xrViewRight = this.__xrViewerPose?.views[1];
+    return new MutableMatrix44(
+      xrViewRight?.projectionMatrix as Float32Array,
+      true
+    );
+  }
+
+  get framebuffer() {
+    return this.__xrSession?.renderState.baseLayer?.framebuffer;
+  }
+
+  get requestedToEnterWebXR() {
+    return this.__requestedToEnterWebXR;
+  }
+
+  get xrSession() {
+    return this.__xrSession;
+  }
+
+  get requestedToEnterWebVR() {
+    return this.__requestedToEnterWebXR;
+  }
+
+  get isWebXRMode() {
+    return this.__isWebXRMode;
+  }
+
+  get isReadyForWebXR() {
+    return this.__isReadyForWebXR;
+  }
+
+  /// Public Static Methods
+
+  static getInstance() {
+    if (!this.__instance) {
+      this.__instance = new WebXRSystem();
+    }
+
+    return this.__instance;
+  }
+
+  /// Private Methods
+
+  private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
+    const xrViewLeft = xrViewerPose?.views[0];
+    const xrViewRight = xrViewerPose?.views[1];
+
+    const lm = new MutableMatrix44(
+      xrViewLeft?.transform.matrix as Float32Array,
+      true
+    );
+    const rm = new MutableMatrix44(
+      xrViewRight?.transform.matrix as Float32Array,
+      true
+    );
+    if (this.__spaceType === 'local') {
+      lm.addTranslate(this.__defaultPositionInLocalSpaceMode);
+      rm.addTranslate(this.__defaultPositionInLocalSpaceMode);
+    }
+    this.__leftCameraEntity.getTransform().matrix = lm;
+    this.__rightCameraEntity.getTransform().matrix = rm;
+  }
+
   private async __setupWebGLLayer(xrSession: XRSession) {
     const gl = this.__glw?.getRawContext();
 
@@ -164,234 +396,5 @@ export default class WebXRSystem {
     } else {
       console.error('WebGL context is not ready for WebXR.');
     }
-  }
-
-  /**
-   * Ready for WebXR
-   *
-   * @param requestButtonDom
-   * @returns true: prepared properly, false: failed to prepare
-   */
-  async readyForWebXR(requestButtonDom: HTMLElement) {
-    await ModuleManager.getInstance().loadModule('xr');
-
-    const glw = CGAPIResourceRepository.getWebGLResourceRepository()
-      .currentWebGLContextWrapper;
-    if (glw == null) {
-      console.error('WebGL Context is not ready yet.');
-      return false;
-    }
-    this.__glw = glw;
-    const supported = await navigator.xr.isSessionSupported('immersive-vr');
-    if (supported) {
-      if (requestButtonDom) {
-        requestButtonDom.style.display = 'block';
-      } else {
-        const paragraph = document.createElement('p');
-        const anchor = document.createElement('a');
-        anchor.setAttribute('id', 'enter-vr');
-        const enterVr = document.createTextNode('Enter VR');
-
-        anchor.appendChild(enterVr);
-        paragraph.appendChild(anchor);
-
-        const canvas = glw.canvas;
-        canvas.parentNode!.insertBefore(paragraph, canvas);
-        window.addEventListener('click', this.enterWebXR.bind(this) as any);
-      }
-
-      this.__isReadyForWebXR = true;
-    } else {
-      console.error('WebXR is not supported in this environment.');
-      return false;
-    }
-    return true;
-  }
-
-  get isWebXRMode() {
-    return this.__isWebXRMode;
-  }
-
-  get isReadyForWebXR() {
-    return this.__isReadyForWebXR;
-  }
-
-  getCameraWorldPositionAt(displayIdx: Index) {
-    const xrView = this.__xrViewerPose?.views[displayIdx];
-    const pos = xrView?.transform.position;
-    if (pos != null) {
-      const def = this.__defaultPositionInLocalSpaceMode;
-      if (this.__spaceType === 'local') {
-        return new Vector3(def.x + pos.x, def.y + pos.y, def.z + pos.z);
-      } else {
-        return new Vector3(pos.x, pos.y, pos.z);
-      }
-    } else {
-      return this.__defaultPositionInLocalSpaceMode;
-    }
-  }
-
-  get leftViewMatrix() {
-    return this.__leftCameraEntity.getCamera().viewMatrix;
-  }
-
-  get rightViewMatrix() {
-    return this.__rightCameraEntity.getCamera().viewMatrix;
-  }
-
-  get leftProjectionMatrix() {
-    const xrViewLeft = this.__xrViewerPose?.views[0];
-    return new MutableMatrix44(
-      xrViewLeft?.projectionMatrix as Float32Array,
-      true
-    );
-  }
-
-  get rightProjectionMatrix() {
-    const xrViewRight = this.__xrViewerPose?.views[1];
-    return new MutableMatrix44(
-      xrViewRight?.projectionMatrix as Float32Array,
-      true
-    );
-  }
-
-  getLeftViewport(originalViewport: Vector4) {
-    return new Vector4(
-      0,
-      0,
-      this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR
-    );
-  }
-
-  getRightViewport(originalViewport: Vector4) {
-    return new Vector4(
-      this.__canvasWidthForVR / 2,
-      0,
-      this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR
-    );
-  }
-
-  getViewMatrixAt(index: Index) {
-    if (index === 0) {
-      return this.leftViewMatrix;
-    } else {
-      return this.rightViewMatrix;
-    }
-  }
-
-  getProjectMatrixAt(index: Index) {
-    if (index === 0) {
-      return this.leftProjectionMatrix;
-    } else {
-      return this.rightProjectionMatrix;
-    }
-  }
-
-  getViewportAt(viewport: Vector4, index: Index) {
-    if (index === 0) {
-      return this.getLeftViewport(viewport);
-    } else {
-      return this.getRightViewport(viewport);
-    }
-  }
-
-  setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
-    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
-    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
-  }
-
-  getCameraComponentSIDAt(index: Index) {
-    if (index === 0) {
-      return this.__leftCameraEntity.getCamera().componentSID;
-    } else {
-      return this.__rightCameraEntity.getCamera().componentSID;
-    }
-  }
-
-  get requestedToEnterWebVR() {
-    return this.__requestedToEnterWebXR;
-  }
-
-  preRender(xrFrame: XRFrame) {
-    if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
-      this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
-      // const gl = this.__glw?.getRawContext();
-      // const glLayer = this.__xrSession?.renderState.baseLayer;
-      // gl?.bindFramebuffer(gl.FRAMEBUFFER, glLayer!.framebuffer);
-      this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
-    }
-  }
-
-  get framebuffer() {
-    return this.__xrSession?.renderState.baseLayer?.framebuffer;
-  }
-
-  private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
-    const xrViewLeft = xrViewerPose?.views[0];
-    const xrViewRight = xrViewerPose?.views[1];
-
-    const lm = new MutableMatrix44(
-      xrViewLeft?.transform.matrix as Float32Array,
-      true
-    );
-    const rm = new MutableMatrix44(
-      xrViewRight?.transform.matrix as Float32Array,
-      true
-    );
-    if (this.__spaceType === 'local') {
-      lm.addTranslate(this.__defaultPositionInLocalSpaceMode);
-      rm.addTranslate(this.__defaultPositionInLocalSpaceMode);
-    }
-    this.__leftCameraEntity.getTransform().matrix = lm;
-    this.__rightCameraEntity.getTransform().matrix = rm;
-  }
-
-  postRender() {
-    if (this?.__isWebXRMode) {
-      const gl = this.__glw?.getRawContext();
-      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
-    }
-    if (this?.requestedToEnterWebVR) {
-      this.__isWebXRMode = true;
-    }
-  }
-
-  get requestedToEnterWebXR() {
-    return this.__requestedToEnterWebXR;
-  }
-
-  get xrSession() {
-    return this.__xrSession;
-  }
-
-  getCanvasWidthForVr() {
-    return this.__canvasWidthForVR;
-  }
-
-  getCanvasHeightForVr() {
-    return this.__canvasHeightForVR;
-  }
-
-  exitWebXR() {
-    this.__requestedToEnterWebXR = false;
-    this.__isWebXRMode = false;
-  }
-
-  async disableWebXR() {
-    if (this.__xrSession != null) {
-      // End the XR session now.
-      await this.__xrSession.end();
-      // const gl = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper?.getRawContext();
-      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
-    }
-    // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    // webglResourceRepository.resizeCanvas(
-    //   this.__canvasWidthBackup,
-    //   this.__canvasHeightBackup
-    // );
   }
 }

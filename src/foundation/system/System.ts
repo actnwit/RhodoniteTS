@@ -55,7 +55,7 @@ export default class System {
       if (rnVRModule != null) {
         let webVRSystem: WebVRSystem;
         if (webXRSystem.isReadyForWebXR) {
-          webXRSystem.preRender(xrFrame);
+          webXRSystem._preRender(xrFrame);
         } else {
           webVRSystem = rnVRModule.WebVRSystem.getInstance();
           if (webVRSystem.isReadyForWebVR) {
@@ -69,7 +69,7 @@ export default class System {
 
       if (rnVRModule != null) {
         if (webXRSystem.isReadyForWebXR) {
-          webXRSystem!.postRender();
+          webXRSystem!._postRender();
         } else {
           const webVRSystem = rnVRModule.WebVRSystem.getInstance();
           if (webVRSystem!.isReadyForWebVR) {
