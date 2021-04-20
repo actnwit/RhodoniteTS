@@ -111,9 +111,7 @@ export default class WebXRSystem {
     callbackOnXrSessionEnd: Function;
   }) {
     this.__defaultPositionInLocalSpaceMode =
-      initialUserPosition != null
-        ? initialUserPosition
-        : defaultUserPositionInVR;
+      initialUserPosition ?? defaultUserPositionInVR;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
