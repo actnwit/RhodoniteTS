@@ -18,6 +18,7 @@ import type {
   XRWebGLLayer,
   XRFrame,
   XRReferenceSpaceType,
+  XRInputSourceEvent,
 } from 'webxr';
 import System from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
@@ -149,6 +150,8 @@ export default class WebXRSystem {
         System.getInstance().restartRenderLoop();
         callbackOnXrSessionEnd();
       });
+
+      session.addEventListener('inputsourceschange', this.__onInputSourcesChange.bind(this) as EventHandlerNonNull);
 
       try {
         referenceSpace = await session.requestReferenceSpace('local-floor');
@@ -381,9 +384,6 @@ export default class WebXRSystem {
   _preRender(xrFrame: XRFrame) {
     if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
       this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
-      // const gl = this.__glw?.getRawContext();
-      // const glLayer = this.__xrSession?.renderState.baseLayer;
-      // gl?.bindFramebuffer(gl.FRAMEBUFFER, glLayer!.framebuffer);
       this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
     }
   }
@@ -393,16 +393,26 @@ export default class WebXRSystem {
    * @private
    */
   _postRender() {
-    if (this?.__isWebXRMode) {
+    if (this.__isWebXRMode) {
       const gl = this.__glw?.getRawContext();
       // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
-    if (this?.requestedToEnterWebVR) {
+    if (this.requestedToEnterWebVR) {
       this.__isWebXRMode = true;
     }
   }
 
   /// Private Methods
+
+  private __onInputSourcesChange(event: XRInputSourceEvent) {
+    const xrFrame = event.frame;
+    const xrInputSource = event.inputSource;
+
+    let inputSourcePose = xrFrame.getPose(xrInputSource.targetRaySpace, this.__xrReferenceSpace!);
+    if (inputSourcePose) {
+      // do something with the result
+    }
+  }
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
     const xrViewLeft = xrViewerPose?.views[0];
