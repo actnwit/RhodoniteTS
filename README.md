@@ -204,6 +204,22 @@ $ npm run test-unit -- ./src/foundation/core/Entity.test.ts
 $ npm run test-e2e -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
 ```
 
+### For M1 Mac in E2E test
+
+If you have trouble with the E2E test in your M1 Mac, Try to install Chromium.
+
+```bash
+$ brew install chromium
+```
+Then Try these environment variables.
+
+```bashrc
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=`which chromium`
+```
+
+See https://stackoverflow.com/questions/65928783/puppeteer5-5-0-install-node-install-js-on-m1 for more detail.
+
 ## Debugging inside VSCode
 
 1. Install the "Debugger for Chrome" VSCode Extension.
