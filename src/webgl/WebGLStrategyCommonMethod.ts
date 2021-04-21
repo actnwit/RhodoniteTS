@@ -9,7 +9,7 @@ import Mesh from '../foundation/geometry/Mesh';
 import {Is as is} from '../foundation/misc/Is';
 import ModuleManager from '../foundation/system/ModuleManager';
 import WebGLResourceRepository from './WebGLResourceRepository';
-import { RnXR } from '../rhodonite-xr';
+import {RnXR} from '../rhodonite-xr';
 import Vector4 from '../foundation/math/Vector4';
 
 let lastIsTransparentMode: boolean;
@@ -155,11 +155,7 @@ function differentWithLastBlendFuncFactor(
   return result;
 }
 
-function startDepthMasking(
-  idx: number,
-  gl: WebGLRenderingContext,
-  renderPass: RenderPass
-) {
+function startDepthMasking(idx: number, gl: WebGLRenderingContext) {
   if (MeshRendererComponent.isDepthMaskTrueForTransparencies) {
     return;
   }
@@ -168,11 +164,7 @@ function startDepthMasking(
   }
 }
 
-function endDepthMasking(
-  idx: number,
-  gl: WebGLRenderingContext,
-  renderPass: RenderPass
-) {
+function endDepthMasking(idx: number, gl: WebGLRenderingContext) {
   if (idx === MeshRendererComponent.lastTransparentIndex) {
     gl.depthMask(true);
   }
@@ -194,8 +186,7 @@ function updateVBOAndVAO(mesh: Mesh) {
 
 function isMeshSetup(mesh: Mesh) {
   if (
-    mesh.variationVBOUid ===
-    CGAPIResourceRepository.InvalidCGAPIResourceUid
+    mesh.variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
   ) {
     return false;
   }
@@ -203,7 +194,10 @@ function isMeshSetup(mesh: Mesh) {
   const primitiveNum = mesh.getPrimitiveNumber();
   for (let i = 0; i < primitiveNum; i++) {
     const primitive = mesh.getPrimitiveAt(i);
-    if (!is.exist(primitive.vertexHandles) || primitive.isPositionAccessorUpdated) {
+    if (
+      !is.exist(primitive.vertexHandles) ||
+      primitive.isPositionAccessorUpdated
+    ) {
       return false;
     }
   }
@@ -263,9 +257,7 @@ function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const webxrSystem = rnXRModule.WebXRSystem.getInstance();
   if (webxrSystem.isWebXRMode) {
-    webglResourceRepository.setViewport(
-      webxrSystem.getViewportAt(getViewport(renderPass), displayIdx)
-    );
+    webglResourceRepository.setViewport(webxrSystem._getViewportAt(displayIdx));
   } else {
     const webvrSystem = rnXRModule.WebVRSystem.getInstance();
     if (webvrSystem.isWebVRMode) {

@@ -849,7 +849,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
-        cameraComponentSid = webxrSystem.getCameraComponentSIDAt(displayIdx);
+        cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
       } else {
         const webvrSystem = rnXRModule.WebVRSystem.getInstance();
         cameraComponentSid = webvrSystem.getCameraComponentSIDAt(displayIdx);
@@ -952,7 +952,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           continue;
         }
 
-        WebGLStrategyCommonMethod.startDepthMasking(idx, gl, renderPass);
+        WebGLStrategyCommonMethod.startDepthMasking(idx, gl);
 
         const entity = meshComponent.entity;
         this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
@@ -1072,6 +1072,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   ) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
-    WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);
+    WebGLStrategyCommonMethod.endDepthMasking(idx, gl);
   }
 }

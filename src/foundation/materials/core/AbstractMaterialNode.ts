@@ -376,8 +376,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       if (webxrSystem.isWebXRMode) {
-        viewMatrix = webxrSystem.getViewMatrixAt(displayIdx);
-        cameraPosition = webxrSystem.getCameraWorldPositionAt(displayIdx);
+        viewMatrix = webxrSystem._getViewMatrixAt(displayIdx);
+        cameraPosition = webxrSystem._getCameraWorldPositionAt(displayIdx);
       } else {
         const webvrSystem = rnXRModule.WebVRSystem.getInstance();
         viewMatrix = webvrSystem.getViewMatrixAt(displayIdx);
@@ -413,7 +413,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       if (webxrSystem.isWebXRMode) {
-        projectionMatrix = webxrSystem.getProjectMatrixAt(displayIdx);
+        projectionMatrix = webxrSystem._getProjectMatrixAt(displayIdx);
       } else {
         const webvrSystem = rnXRModule.WebVRSystem.getInstance();
         projectionMatrix = webvrSystem.getProjectMatrixAt(displayIdx);

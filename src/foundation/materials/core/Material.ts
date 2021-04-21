@@ -18,7 +18,6 @@ import {BufferUse} from '../../definitions/BufferUse';
 import Config from '../../core/Config';
 import BufferView from '../../memory/BufferView';
 import Accessor from '../../memory/Accessor';
-import ISingleShader from '../../../webgl/shaders/ISingleShader';
 import {ShaderType} from '../../definitions/ShaderType';
 import {
   Index,
@@ -658,42 +657,25 @@ export default class Material extends RnObject {
     let pixelShader = this.__setupGlobalShaderDefinition();
     let vertexShaderBody = '';
     let pixelShaderBody = '';
-    if (materialNode.vertexShaderityObject != null) {
-      vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(
-        materialNode.vertexShaderityObject,
-        {
-          getters: vertexPropertiesStr,
-          definitions: definitions,
-          dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-          dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-          matricesGetters: vertexShaderMethodDefinitions_uniform,
-        }
-      );
-      pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(
-        materialNode.pixelShaderityObject!,
-        {
-          getters: pixelPropertiesStr,
-          definitions: definitions,
-          dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-          dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-        }
-      );
-    } else {
-      vertexShaderBody = ((glslShader as any) as ISingleShader).getVertexShaderBody(
-        {
-          getters: vertexPropertiesStr,
-          definitions: definitions,
-          matricesGetters: vertexShaderMethodDefinitions_uniform,
-        }
-      );
-      pixelShaderBody = ((glslShader as any) as ISingleShader).getPixelShaderBody(
-        {
-          getters: pixelPropertiesStr,
-          definitions: definitions,
-          materialNode: materialNode,
-        }
-      );
-    }
+    vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(
+      materialNode.vertexShaderityObject!,
+      {
+        getters: vertexPropertiesStr,
+        definitions: definitions,
+        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+        dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+        matricesGetters: vertexShaderMethodDefinitions_uniform,
+      }
+    );
+    pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(
+      materialNode.pixelShaderityObject!,
+      {
+        getters: pixelPropertiesStr,
+        definitions: definitions,
+        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+        dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      }
+    );
 
     vertexShader += vertexShaderBody.replace(/#version\s+300\s+es/, '');
     pixelShader += pixelShaderBody.replace(/#version\s+300\s+es/, '');

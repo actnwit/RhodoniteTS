@@ -461,7 +461,7 @@ mat3 get_normalMatrix(float instanceId) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    WebGLStrategyCommonMethod.startDepthMasking(idx, gl, renderPass);
+    WebGLStrategyCommonMethod.startDepthMasking(idx, gl);
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(
       isVrMainPass
@@ -558,7 +558,7 @@ mat3 get_normalMatrix(float instanceId) {
       }
 
     }
-    WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);
+    WebGLStrategyCommonMethod.endDepthMasking(idx, gl);
     this.__lastRenderPassTickCount = renderPassTickCount;
   }
 }
