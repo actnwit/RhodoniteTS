@@ -220,6 +220,24 @@ export PUPPETEER_EXECUTABLE_PATH=`which chromium`
 
 See https://stackoverflow.com/questions/65928783/puppeteer5-5-0-install-node-install-js-on-m1 for more detail.
 
+And you can try to uncomment the "executablePath" line.
+
+```javascript
+// config/test/jest-puppeteer.config.js
+module.exports = {
+  
+  ...
+  
+  launch: {
+    headless: true,
+    devtools: false,
+    // executablePath: "/Applications/Chromium.app/Contents/MacOS/Chromium", // Try to uncomment this line if you got error in M1 Mac
+
+    args: ["--start-maximized", "--no-sandbox", "--disable-gpu"],
+  },
+};
+```
+
 ## Debugging inside VSCode
 
 1. Install the "Debugger for Chrome" VSCode Extension.
