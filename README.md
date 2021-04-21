@@ -211,7 +211,7 @@ If you have trouble with the E2E test in your M1 Mac, Try to install Chromium.
 ```bash
 $ brew install chromium
 ```
-Then Try these environment variables.
+Then try these environment variables.
 
 ```bashrc
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -225,9 +225,9 @@ And you can try to uncomment the "executablePath" line.
 ```javascript
 // config/test/jest-puppeteer.config.js
 module.exports = {
-  
+
   ...
-  
+
   launch: {
     headless: true,
     devtools: false,
