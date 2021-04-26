@@ -39,7 +39,7 @@
     "test-e2e-update": "npm run test-e2e-part -- --updateSnapshot ./samples/test_e2e",
     "test-coverage": "npx jest --coverage",
     "doc": "npx typedoc --exclude '**/*+(test|d).ts' --out ./docs/api/ ./src/",
-    "yarn-pack": "yarn pack -f rhodonite-tmp.tgz",
+    "yarn-pack": "npx yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",
     "gts-lint": "gts lint ./src ./samples",
