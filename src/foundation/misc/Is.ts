@@ -32,33 +32,33 @@ const IsSubImpl = {
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const IsImpl = {
-  defined(val: unknown, ...args: unknown[]) {
+  defined(val: unknown, ...args: unknown[]): val is Exclude<Object, undefined> {
     return val !== void 0;
   },
 
-  undefined(val: unknown, ...args: unknown[]) {
+  undefined(val: unknown, ...args: unknown[]): val is undefined {
     return val === void 0;
   },
 
-  null(val: unknown, ...args: unknown[]) {
+  null(val: unknown, ...args: unknown[]): val is null {
     return val === null;
   },
 
   // is NOT null or undefined
-  exist(val: unknown, ...args: unknown[]) {
+  exist(val?: unknown, ...args: unknown[]): val is Object {
     // eslint-disable-next-line eqeqeq
     return val != null;
   },
 
-  function(val: unknown, ...args: unknown[]) {
+  function(val: unknown, ...args: unknown[]): val is Function {
     return typeof val === 'function';
   },
 
-  true(val: unknown, ...args: unknown[]) {
+  true(val: unknown, ...args: unknown[]): boolean {
     return val === true;
   },
 
-  false(val: unknown, ...args: unknown[]) {
+  false(val: unknown, ...args: unknown[]): boolean {
     return val === false;
   },
 
