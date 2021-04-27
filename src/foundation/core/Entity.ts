@@ -12,6 +12,7 @@ import BlendShapeComponent from '../components/BlendShapeComponent';
 import PhysicsComponent from '../components/PhysicsComponent';
 import CameraControllerComponent from '../components/CameraControllerComponent';
 import LightComponent from '../components/LightComponent';
+import { Is } from '../misc/Is';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
@@ -178,5 +179,22 @@ export default class Entity extends RnObject {
       ) as LightComponent;
     }
     return this.__lightComponent;
+  }
+
+  get worldMatrixInner() {
+    const skeletalComponent = this.getSkeletal() as SkeletalComponent|undefined;
+    if (Is.exist(skeletalComponent) && skeletalComponent.isWorldMatrixUpdated) {
+      return skeletalComponent.worldMatrixInner;
+    } else {
+      const sceneGraphComponent = this.getSceneGraph();
+      if (Is.exist(sceneGraphComponent)) {
+        return sceneGraphComponent.worldMatrixInner;
+      }
+    }
+    return undefined;
+  }
+
+  get worldMatrix() {
+    return this.worldMatrixInner?.clone();
   }
 }
