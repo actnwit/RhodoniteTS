@@ -281,9 +281,9 @@ export class Vector2_<T extends TypedArrayConstructor> extends AbstractVector {
 
   toStringApproximately() {
     return (
-      MathUtil.roundAsFloat(this._v[0]) +
+      MathUtil.financial(this._v[0]) +
       ' ' +
-      MathUtil.roundAsFloat(this._v[1]) +
+      MathUtil.financial(this._v[1]) +
       '\n'
     );
   }

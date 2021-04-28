@@ -109,19 +109,16 @@ function convertToStringAsGLSLFloat(value: number): string {
   }
 }
 
-function roundAsFloat(value: number): number {
-  if (Math.abs(value) < 0.00001) {
-    value = 0;
-  } else if (0.99999 < value && value < 1.00001) {
-    value = 1;
-  } else if (-1.00001 < value && value < -0.99999) {
-    value = -1;
+function financial(val: number|string) {
+  const fixedStr = Number.parseFloat(val as string).toFixed(7);
+  if (val >= 0) {
+    return ' ' + fixedStr;
   }
-  return value;
+  return fixedStr;
 }
 
 function roundAsFloat(value: number): number {
-  return Math.round(value*10000000/10000000);
+  return Math.round(value*10000000) / 10000000;
 }
 
 export const MathUtil = Object.freeze({
@@ -133,5 +130,5 @@ export const MathUtil = Object.freeze({
   packNormalizedVec4ToVec2,
   convertToStringAsGLSLFloat,
   roundAsFloat,
-  roundAsFloat,
+  financial
 });

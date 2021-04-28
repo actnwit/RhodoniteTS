@@ -2,6 +2,7 @@ import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import MutableVector3 from './MutableVector3';
 import {Index} from '../../types/CommonTypes';
+import { MathUtil } from './MathUtil';
 
 export default class AABB {
   private __min: MutableVector3 = new MutableVector3(
@@ -334,6 +335,22 @@ export default class AABB {
       '\n' +
       'lengthCenterToCorner: ' +
       this.__lengthCenterToCorner
+    );
+  }
+
+  toStringApproximately() {
+    return (
+      'AABB_max: ' +
+      this.__max.toStringApproximately() +
+      '\n' +
+      'AABB_min: ' +
+      this.__min.toStringApproximately() +
+      '\n' +
+      'centerPoint: ' +
+      this.__centerPoint.toStringApproximately() +
+      '\n' +
+      'lengthCenterToCorner: ' +
+      MathUtil.financial(this.__lengthCenterToCorner)
     );
   }
 }

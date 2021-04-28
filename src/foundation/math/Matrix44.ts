@@ -615,10 +615,10 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   toStringApproximately() {
-    return MathUtil.roundAsFloat(this._v[0]) + ' ' + MathUtil.roundAsFloat(this._v[4]) + ' ' + MathUtil.roundAsFloat(this._v[8]) + ' ' + MathUtil.roundAsFloat(this._v[12]) + ' \n' +
-      MathUtil.roundAsFloat(this._v[1]) + ' ' + MathUtil.roundAsFloat(this._v[5]) + ' ' + MathUtil.roundAsFloat(this._v[9]) + ' ' + MathUtil.roundAsFloat(this._v[13]) + ' \n' +
-      MathUtil.roundAsFloat(this._v[2]) + ' ' + MathUtil.roundAsFloat(this._v[6]) + ' ' + MathUtil.roundAsFloat(this._v[10]) + ' ' + MathUtil.roundAsFloat(this._v[14]) + ' \n' +
-      MathUtil.roundAsFloat(this._v[3]) + ' ' + MathUtil.roundAsFloat(this._v[7]) + ' ' + MathUtil.roundAsFloat(this._v[11]) + ' ' + MathUtil.roundAsFloat(this._v[15]) + ' \n';
+    return MathUtil.financial(this._v[0]) + ' ' + MathUtil.financial(this._v[4]) + ' ' + MathUtil.financial(this._v[8]) + ' ' + MathUtil.financial(this._v[12]) + ' \n' +
+      MathUtil.financial(this._v[1]) + ' ' + MathUtil.financial(this._v[5]) + ' ' + MathUtil.financial(this._v[9]) + ' ' + MathUtil.financial(this._v[13]) + ' \n' +
+      MathUtil.financial(this._v[2]) + ' ' + MathUtil.financial(this._v[6]) + ' ' + MathUtil.financial(this._v[10]) + ' ' + MathUtil.financial(this._v[14]) + ' \n' +
+      MathUtil.financial(this._v[3]) + ' ' + MathUtil.financial(this._v[7]) + ' ' + MathUtil.financial(this._v[11]) + ' ' + MathUtil.financial(this._v[15]) + ' \n';
   }
 
   flattenAsArray() {
