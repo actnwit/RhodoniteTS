@@ -2,8 +2,6 @@ import _Rn from '../../../dist/esm/index';
 
 declare const window: any;
 declare const Rn: typeof _Rn;
-const p = document.createElement('p');
-document.body.appendChild(p);
 
 (async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
@@ -55,8 +53,7 @@ document.body.appendChild(p);
 
   const draw = function () {
     if (count > 0) {
-      p.id = 'rendered';
-      p.innerText = 'Rendered.';
+      window._rendered = true;
     }
 
     if (window.isAnimating) {
@@ -76,6 +73,5 @@ document.body.appendChild(p);
 
     requestAnimationFrame(draw);
   };
-
   draw();
 })();
