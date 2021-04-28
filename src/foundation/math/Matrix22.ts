@@ -252,13 +252,13 @@ export default class Matrix22 extends AbstractMatrix implements IMatrix, IMatrix
 
   toStringApproximately() {
     return (
-      MathUtil.nearZeroToZero(this._v[0]) +
+      MathUtil.roundAsFloat(this._v[0]) +
       ' ' +
-      MathUtil.nearZeroToZero(this._v[2]) +
+      MathUtil.roundAsFloat(this._v[2]) +
       '\n' +
-      MathUtil.nearZeroToZero(this._v[1]) +
+      MathUtil.roundAsFloat(this._v[1]) +
       ' ' +
-      MathUtil.nearZeroToZero(this._v[3]) +
+      MathUtil.roundAsFloat(this._v[3]) +
       ' \n'
     );
   }

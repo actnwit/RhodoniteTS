@@ -109,7 +109,7 @@ function convertToStringAsGLSLFloat(value: number): string {
   }
 }
 
-function nearZeroToZero(value: number): number {
+function roundAsFloat(value: number): number {
   if (Math.abs(value) < 0.00001) {
     value = 0;
   } else if (0.99999 < value && value < 1.00001) {
@@ -132,6 +132,6 @@ export const MathUtil = Object.freeze({
   isPowerOfTwoTexture,
   packNormalizedVec4ToVec2,
   convertToStringAsGLSLFloat,
-  nearZeroToZero,
+  roundAsFloat,
   roundAsFloat,
 });

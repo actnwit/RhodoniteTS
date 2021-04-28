@@ -440,9 +440,9 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   toStringApproximately() {
-    return MathUtil.nearZeroToZero(this._v[0]) + ' ' + MathUtil.nearZeroToZero(this._v[3]) + ' ' + MathUtil.nearZeroToZero(this._v[6]) + '\n' +
-      MathUtil.nearZeroToZero(this._v[1]) + ' ' + MathUtil.nearZeroToZero(this._v[4]) + ' ' + MathUtil.nearZeroToZero(this._v[7]) + ' \n' +
-      MathUtil.nearZeroToZero(this._v[2]) + ' ' + MathUtil.nearZeroToZero(this._v[5]) + ' ' + MathUtil.nearZeroToZero(this._v[8]) + '\n';
+    return MathUtil.roundAsFloat(this._v[0]) + ' ' + MathUtil.roundAsFloat(this._v[3]) + ' ' + MathUtil.roundAsFloat(this._v[6]) + '\n' +
+      MathUtil.roundAsFloat(this._v[1]) + ' ' + MathUtil.roundAsFloat(this._v[4]) + ' ' + MathUtil.roundAsFloat(this._v[7]) + ' \n' +
+      MathUtil.roundAsFloat(this._v[2]) + ' ' + MathUtil.roundAsFloat(this._v[5]) + ' ' + MathUtil.roundAsFloat(this._v[8]) + '\n';
   }
 
   flattenAsArray() {
