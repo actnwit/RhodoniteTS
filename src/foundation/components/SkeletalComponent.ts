@@ -55,7 +55,7 @@ export default class SkeletalComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository);
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
-      if (Config.boneDataType === BoneDataType.Mat4x4) {
+      if (Config.boneDataType === BoneDataType.Mat44x1) {
         SkeletalComponent.__globalDataRepository.takeOne(
           ShaderSemantics.BoneMatrix
         );
@@ -101,7 +101,7 @@ export default class SkeletalComponent extends Component {
     if (this.componentSID < Config.maxSkeletonNumber) {
       index = this.componentSID;
     }
-    if (Config.boneDataType === BoneDataType.Mat4x4) {
+    if (Config.boneDataType === BoneDataType.Mat44x1) {
       this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneMatrix,
         index
@@ -219,13 +219,13 @@ export default class SkeletalComponent extends Component {
       this.__isWorldMatrixVanilla = false;
 
       if (
-        Config.boneDataType === BoneDataType.Mat4x4 ||
+        Config.boneDataType === BoneDataType.Mat44x1 ||
         Config.boneDataType === BoneDataType.Vec4x1
       ) {
         this.__copyToMatArray(m, i);
       }
 
-      if (Config.boneDataType !== BoneDataType.Mat4x4) {
+      if (Config.boneDataType !== BoneDataType.Mat44x1) {
         const scaleVec = SkeletalComponent.__tmpVec3_0.setComponents(
           Math.hypot(m.m00, m.m01, m.m02),
           Math.hypot(m.m10, m.m11, m.m12),

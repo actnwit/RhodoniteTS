@@ -7,7 +7,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 (async () => {
-  Rn.Config.boneDataType = Rn.BoneDataType.Mat4x4;
+  Rn.Config.boneDataType = Rn.BoneDataType.Mat44x1;
   Rn.Config.maxSkeletalBoneNumber = 2;
 
   await Rn.ModuleManager.getInstance().loadModule('webgl');
