@@ -325,8 +325,12 @@ export default class SceneGraphComponent extends Component {
     return this.__worldAABB;
   }
 
+  private get __shouldJointWorldAabbBeCalculated() {
+    return !SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint();
+  }
+
   get worldAABB() {
-    if (!SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint()) {
+    if (this.__shouldJointWorldAabbBeCalculated) {
       return this.__worldAABB;
     }
 
