@@ -199,6 +199,14 @@ export default class SceneGraphComponent extends Component {
     return this._normalMatrix;
   }
 
+  get entityWorldMatrix() {
+    return this.entity.worldMatrix as MutableMatrix44;
+  }
+
+  get entityWorldMatrixInner() {
+    return this.entity.worldMatrixInner as MutableMatrix44;
+  }
+
   get normalMatrix() {
     return this.normalMatrixInner.clone();
   }
