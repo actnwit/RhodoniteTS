@@ -292,7 +292,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   calcWorldAABB() {
-    // this.__worldAABB.initialize();
+    this.__worldAABB.initialize();
     const aabb = (function mergeAABBRecursively(
       elem: SceneGraphComponent,
       flg: boolean
@@ -300,16 +300,11 @@ export default class SceneGraphComponent extends Component {
       const meshComponent = elem.entity.getMesh();
 
       if (meshComponent?.mesh != null) {
-        // const skeletalComponent = elem.entity.getSkeletal();
-        // if (false) {//skeletalComponent) {
-        //   // AABB.multiplyMatrixTo(skeletalComponent.rootJointWorldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
-        // } else {
         AABB.multiplyMatrixTo(
-          elem.worldMatrixInner,
+          elem.entityWorldMatrixInner,
           meshComponent.mesh.AABB,
           elem.__worldAABB
         );
-        // }
       }
 
       const children = elem.children;
