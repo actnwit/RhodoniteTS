@@ -294,8 +294,7 @@ export default class SceneGraphComponent extends Component {
   calcWorldAABB() {
     this.__worldAABB.initialize();
     const aabb = (function mergeAABBRecursively(
-      elem: SceneGraphComponent,
-      flg: boolean
+      elem: SceneGraphComponent
     ): AABB {
       const meshComponent = elem.entity.getMesh();
 
@@ -309,20 +308,14 @@ export default class SceneGraphComponent extends Component {
 
       const children = elem.children;
       for (let i = 0; i < children.length; i++) {
-        const aabb = mergeAABBRecursively(children[i], true);
-        if (flg && elem.__animationComponent == null) {
-          elem.__worldAABB.mergeAABB(aabb);
-        } else {
-          elem.__worldAABB.mergeAABB(aabb);
-        }
+        const aabb = mergeAABBRecursively(children[i]);
+        elem.__worldAABB.mergeAABB(aabb);
       }
 
       return elem.__worldAABB;
-    })(this, false);
+    })(this);
 
-    this.__worldAABB.mergeAABB(aabb);
-
-    return this.__worldAABB;
+    return aabb;
   }
 
   private get __shouldJointWorldAabbBeCalculated() {
