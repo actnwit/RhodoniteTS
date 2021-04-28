@@ -20,6 +20,7 @@ import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
 import {BoneDataType} from '../definitions/BoneDataType';
+import { IMatrix44 } from '../math/IMatrix';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -42,6 +43,8 @@ export default class SkeletalComponent extends Component {
   private __qtsArray = new Float32Array(0);
   private __qtsInfo = MutableVector4.dummy();
   private __matArray = new Float32Array(0);
+  private __worldMatrix = MutableMatrix44.identity();
+  private __isWorldMatrixVanilla = true;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
 
@@ -52,7 +55,7 @@ export default class SkeletalComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository);
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
-      if (Config.boneDataType === BoneDataType.Mat4x4) {
+      if (Config.boneDataType === BoneDataType.Mat44x1) {
         SkeletalComponent.__globalDataRepository.takeOne(
           ShaderSemantics.BoneMatrix
         );
@@ -98,7 +101,7 @@ export default class SkeletalComponent extends Component {
     if (this.componentSID < Config.maxSkeletonNumber) {
       index = this.componentSID;
     }
-    if (Config.boneDataType === BoneDataType.Mat4x4) {
+    if (Config.boneDataType === BoneDataType.Mat44x1) {
       this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneMatrix,
         index
@@ -173,6 +176,18 @@ export default class SkeletalComponent extends Component {
     return this.__qtsInfo;
   }
 
+  get worldMatrix() {
+    return this.__worldMatrix.clone();
+  }
+
+  get worldMatrixInner() {
+    return this.__worldMatrix;
+  }
+
+  get isWorldMatrixUpdated() {
+    return !this.__isWorldMatrixVanilla;
+  }
+
   $logic() {
     if (!this.isSkinning) {
       return;
@@ -198,29 +213,19 @@ export default class SkeletalComponent extends Component {
         m = SkeletalComponent.__identityMat;
       }
 
+      if (i===0) {
+        this.__worldMatrix.copyComponents(m);
+      }
+      this.__isWorldMatrixVanilla = false;
+
       if (
-        Config.boneDataType === BoneDataType.Mat4x4 ||
+        Config.boneDataType === BoneDataType.Mat44x1 ||
         Config.boneDataType === BoneDataType.Vec4x1
       ) {
-        this.__matArray[i * 16 + 0] = m._v[0];
-        this.__matArray[i * 16 + 1] = m._v[1];
-        this.__matArray[i * 16 + 2] = m._v[2];
-        this.__matArray[i * 16 + 3] = m._v[3];
-        this.__matArray[i * 16 + 4] = m._v[4];
-        this.__matArray[i * 16 + 5] = m._v[5];
-        this.__matArray[i * 16 + 6] = m._v[6];
-        this.__matArray[i * 16 + 7] = m._v[7];
-        this.__matArray[i * 16 + 8] = m._v[8];
-        this.__matArray[i * 16 + 9] = m._v[9];
-        this.__matArray[i * 16 + 10] = m._v[10];
-        this.__matArray[i * 16 + 11] = m._v[11];
-        this.__matArray[i * 16 + 12] = m._v[12];
-        this.__matArray[i * 16 + 13] = m._v[13];
-        this.__matArray[i * 16 + 14] = m._v[14];
-        this.__matArray[i * 16 + 15] = m._v[15];
+        this.__copyToMatArray(m, i);
       }
 
-      if (Config.boneDataType !== BoneDataType.Mat4x4) {
+      if (Config.boneDataType !== BoneDataType.Mat44x1) {
         const scaleVec = SkeletalComponent.__tmpVec3_0.setComponents(
           Math.hypot(m.m00, m.m01, m.m02),
           Math.hypot(m.m10, m.m11, m.m12),
@@ -352,6 +357,25 @@ export default class SkeletalComponent extends Component {
         this.__qtsArray[i * 4 + 3] = vec2TPacked[1];
       }
     }
+  }
+
+  private __copyToMatArray(m: IMatrix44, i: Index) {
+    this.__matArray[i * 16 + 0] = m._v[0];
+    this.__matArray[i * 16 + 1] = m._v[1];
+    this.__matArray[i * 16 + 2] = m._v[2];
+    this.__matArray[i * 16 + 3] = m._v[3];
+    this.__matArray[i * 16 + 4] = m._v[4];
+    this.__matArray[i * 16 + 5] = m._v[5];
+    this.__matArray[i * 16 + 6] = m._v[6];
+    this.__matArray[i * 16 + 7] = m._v[7];
+    this.__matArray[i * 16 + 8] = m._v[8];
+    this.__matArray[i * 16 + 9] = m._v[9];
+    this.__matArray[i * 16 + 10] = m._v[10];
+    this.__matArray[i * 16 + 11] = m._v[11];
+    this.__matArray[i * 16 + 12] = m._v[12];
+    this.__matArray[i * 16 + 13] = m._v[13];
+    this.__matArray[i * 16 + 14] = m._v[14];
+    this.__matArray[i * 16 + 15] = m._v[15];
   }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);

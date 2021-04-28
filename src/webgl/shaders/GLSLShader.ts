@@ -252,7 +252,7 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
 
 mat4 getSkinMatrix(float skeletalComponentSID) {
 
-#ifdef RN_BONE_DATA_TYPE_MAT4X4
+#ifdef RN_BONE_DATA_TYPE_Mat44x1
   mat4 skinMat = a_weight.x * get_boneMatrix(skeletalComponentSID, int(a_joint.x));
   skinMat += a_weight.y * get_boneMatrix(skeletalComponentSID, int(a_joint.y));
   skinMat += a_weight.z * get_boneMatrix(skeletalComponentSID, int(a_joint.z));

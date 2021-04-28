@@ -203,7 +203,7 @@ export default class GlobalDataRepository {
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: new Scalar(-1),
     };
-    if (Config.boneDataType === BoneDataType.Mat4x4) {
+    if (Config.boneDataType === BoneDataType.Mat44x1) {
       this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
       this.registerProperty(

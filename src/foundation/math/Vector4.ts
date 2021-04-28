@@ -366,13 +366,13 @@ export class Vector4_<T extends TypedArrayConstructor> extends AbstractVector
 
   toStringApproximately() {
     return (
-      MathUtil.nearZeroToZero(this._v[0]) +
+      MathUtil.financial(this._v[0]) +
       ' ' +
-      MathUtil.nearZeroToZero(this._v[1]) +
+      MathUtil.financial(this._v[1]) +
       ' ' +
-      MathUtil.nearZeroToZero(this._v[2]) +
+      MathUtil.financial(this._v[2]) +
       ' ' +
-      MathUtil.nearZeroToZero(this._v[3]) +
+      MathUtil.financial(this._v[3]) +
       '\n'
     );
   }

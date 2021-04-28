@@ -199,6 +199,14 @@ export default class SceneGraphComponent extends Component {
     return this._normalMatrix;
   }
 
+  get entityWorldMatrix() {
+    return this.entity.worldMatrix as MutableMatrix44;
+  }
+
+  get entityWorldMatrixInner() {
+    return this.entity.worldMatrixInner as MutableMatrix44;
+  }
+
   get normalMatrix() {
     return this.normalMatrixInner.clone();
   }
@@ -284,46 +292,38 @@ export default class SceneGraphComponent extends Component {
   }
 
   calcWorldAABB() {
-    // this.__worldAABB.initialize();
+    this.__worldAABB.initialize();
     const aabb = (function mergeAABBRecursively(
-      elem: SceneGraphComponent,
-      flg: boolean
+      elem: SceneGraphComponent
     ): AABB {
       const meshComponent = elem.entity.getMesh();
 
       if (meshComponent?.mesh != null) {
-        // const skeletalComponent = elem.entity.getSkeletal();
-        // if (false) {//skeletalComponent) {
-        //   // AABB.multiplyMatrixTo(skeletalComponent.rootJointWorldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
-        // } else {
         AABB.multiplyMatrixTo(
-          elem.worldMatrixInner,
+          elem.entityWorldMatrixInner,
           meshComponent.mesh.AABB,
           elem.__worldAABB
         );
-        // }
       }
 
       const children = elem.children;
       for (let i = 0; i < children.length; i++) {
-        const aabb = mergeAABBRecursively(children[i], true);
-        if (flg && elem.__animationComponent == null) {
-          elem.__worldAABB.mergeAABB(aabb);
-        } else {
-          elem.__worldAABB.mergeAABB(aabb);
-        }
+        const aabb = mergeAABBRecursively(children[i]);
+        elem.__worldAABB.mergeAABB(aabb);
       }
 
       return elem.__worldAABB;
-    })(this, false);
+    })(this);
 
-    this.__worldAABB.mergeAABB(aabb);
+    return aabb;
+  }
 
-    return this.__worldAABB;
+  private get __shouldJointWorldAabbBeCalculated() {
+    return !SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint();
   }
 
   get worldAABB() {
-    if (!SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint()) {
+    if (this.__shouldJointWorldAabbBeCalculated) {
       return this.__worldAABB;
     }
 
