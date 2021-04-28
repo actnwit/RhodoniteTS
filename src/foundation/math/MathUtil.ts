@@ -120,6 +120,10 @@ function nearZeroToZero(value: number): number {
   return value;
 }
 
+function roundAsFloat(value: number): number {
+  return Math.round(value*10000000/10000000);
+}
+
 export const MathUtil = Object.freeze({
   radianToDegree,
   degreeToRadian,
@@ -129,4 +133,5 @@ export const MathUtil = Object.freeze({
   packNormalizedVec4ToVec2,
   convertToStringAsGLSLFloat,
   nearZeroToZero,
+  roundAsFloat,
 });
