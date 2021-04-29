@@ -6,11 +6,12 @@ import { Is } from '../foundation/misc/Is';
  */
 export interface Option<T> {
   // do the "f" function for
-  flatMap<U>(f: (value: T) => Option<U>): Option<U>;
-  flatMap(f: (value: T) => None): None;
+  then<U>(f: (value: T) => Option<U>): Option<U>;
+  then(f: (value: T) => None): None;
 
-  getOrElse(altValue: T): T;
-  unWrap(): T;
+  getOrDefault(altValue: T): T;
+  getOrElse(f: (value: T) => T): T;
+  getOrError(): T;
 }
 
 /**
@@ -23,34 +24,63 @@ export class Some<T> implements Option<T> {
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  flatMap<U>(f: (value: T) => None): None
-  flatMap<U>(f: (value: T) => Some<U>): Some<U>
-  flatMap<U>(f: (value: T) => Option<U>): Option<U> {
-    return f(this.value)
+  then<U>(f: (value: T) => None): None
+  then<U>(f: (value: T) => Some<U>): Some<U>
+  then<U>(f: (value: T) => Option<U>): Option<U> {
+    return f(this.value);
   }
 
-  getOrElse(): T {
+  /**
+   * @deprecated use the 'get' method instead
+   * @param altValue
+   * @returns
+   */
+  getOrDefault(altValue: T): T {
     return this.value;
   }
 
-  unWrap(): T {
+  /**
+   * @deprecated use the 'get' method instead
+   * @param altValue
+   * @returns
+   */
+  getOrElse(f: (value: T) => T): T {
     return this.value;
   }
+
+  /**
+   * @deprecated use the 'get' method instead
+   * @param altValue
+   * @returns
+   */
+  getOrError(): T {
+    return this.value;
+  }
+
+  get(): T {
+    return this.value;
+  }
+
 }
 
 /**
  * a class indicating no existence.
  */
 export class None implements Option<never> {
-  flatMap(): None {
+  then(): None {
     return this;
   }
 
-  getOrElse<U>(value: U): U {
+  getOrDefault<T>(value: T): T {
     return value;
   }
-  unWrap(): never {
-    throw 'No value due to None!'
+
+  getOrElse(f: (value: never) => never): never {
+    return f(undefined as never);
+  }
+
+  getOrError(): never {
+    throw new ReferenceError(`The value does not exist!`);
   }
 }
 
@@ -59,13 +89,13 @@ export class None implements Option<never> {
  */
 export class RnOption<T> implements Option<T> {
   constructor(private value: T) { }
-  flatMap<U>(f: (value: T) => None): None
-  flatMap<U>(f: (value: T) => Some<U>): Some<U>
-  flatMap<U>(f: (value: T) => Option<U>): Option<U> {
+  then<U>(f: (value: T) => None): None
+  then<U>(f: (value: T) => Some<U>): Some<U>
+  then<U>(f: (value: T) => Option<U>): Option<U> {
     return f(this.value)
   }
 
-  getOrElse(altValue: T): T {
+  getOrDefault(altValue: T): T {
     if (Is.exist(this.value)) {
       return this.value;
     } else {
@@ -73,7 +103,11 @@ export class RnOption<T> implements Option<T> {
     }
   }
 
-  unWrap(): T {
+  getOrElse(f: (value: T) => T): T {
+    return f(this.value);
+  }
+
+  getOrError(): T {
     if (Is.exist(this.value)) {
       return this.value;
     } else {
