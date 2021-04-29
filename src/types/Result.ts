@@ -7,14 +7,14 @@ import { RequireOne } from './TypeGenerators';
  */
 
 export interface IResult<T, E> {
-  match(thenFn: Function, catchFn: Function);
+  match(thenFn: Function, catchFn: Function): void;
   then<U, F>(f: (value: T) => IResult<U, F>): IResult<U, F>;
   catch(f: (value: E) => E): E;
   getBoolean(): boolean;
 }
 
 abstract class Result {
-  match(thenFn: Function, catchFn: Function) {
+  match(thenFn: Function, catchFn: Function): void {
     if (this instanceof Ok) {
       return thenFn();
     } else {
