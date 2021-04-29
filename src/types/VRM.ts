@@ -1,4 +1,4 @@
-import {GltfLoadOption} from './glTF';
+import {glTF2, GltfLoadOption} from './glTF';
 import Entity from '../foundation/core/Entity';
 
 export type HumanBone = {
@@ -112,35 +112,7 @@ export type MaterialProperty = {
   };
 };
 
-export type VRM = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: GltfLoadOption;
-      rnEntities?: Entity[];
-      basePath?: string;
-      version?: string;
-      fileType?: string;
-    };
-  };
-  buffers: any[];
-  scenes: any[];
-  meshes: any[];
-  nodes: any[];
-  skins: any[];
-  materials: any[];
-  cameras: any[];
-  shaders?: any[];
-  images: any[];
-  animations: Array<{
-    channels: any[];
-    samplers: any[];
-  }>;
-  textures: any[];
-  samplers: any[];
-  accessors: any[];
-  bufferViews: any[];
-  buffer: any[];
-  extensionsUsed?: any;
+export type VRM_Extension = {
   extensions: {
     VRM: {
       exporterVersion: string;
@@ -195,3 +167,5 @@ export type VRM = {
     };
   };
 };
+
+export type VRM = VRM_Extension & glTF2;

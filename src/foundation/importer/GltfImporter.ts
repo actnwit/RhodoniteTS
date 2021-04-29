@@ -24,6 +24,7 @@ import RenderPass from '../renderer/RenderPass';
 import {VRM} from '../../types/VRM';
 import DataUtil from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
+import { Is } from '../misc/Is';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -44,13 +45,16 @@ export default class GltfImporter {
    * For VRM file only
    * Generate JSON.
    */
-  async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<VRM> {
+  async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<VRM|undefined> {
     options = this._getOptions(options);
 
     const gltf2Importer = Gltf2Importer.getInstance();
     const gltfModel = await gltf2Importer.import(uri, options);
-    this._readVRMHumanoidInfo(gltfModel);
-    return gltfModel;
+    if (Is.not.exist(gltfModel)) {
+      return undefined;
+    }
+    this._readVRMHumanoidInfo(gltfModel as VRM);
+    return gltfModel as VRM;
   }
 
   /**
@@ -398,20 +402,22 @@ export default class GltfImporter {
     const gltf2Importer = Gltf2Importer.getInstance();
     return gltf2Importer
       .importGltfOrGlbFromArrayBuffers(file, options.files!, options)
-      .then(gltfModel => {
+      .then(gltfModel_ => {
+        const gltfModel = gltfModel_!;
         const defaultMaterialHelperArgumentArray =
-          gltfModel.asset.extras.rnLoaderOptions
-            .defaultMaterialHelperArgumentArray;
-        defaultMaterialHelperArgumentArray[0].textures =
-          defaultMaterialHelperArgumentArray[0].textures ??
-          this._createTextures(gltfModel);
-        defaultMaterialHelperArgumentArray[0].isLighting =
-          defaultMaterialHelperArgumentArray[0].isLighting ?? true;
+          gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
+        if (Is.exist(defaultMaterialHelperArgumentArray)) {
+          defaultMaterialHelperArgumentArray[0].textures =
+            defaultMaterialHelperArgumentArray[0].textures ??
+            this._createTextures(gltfModel);
+          defaultMaterialHelperArgumentArray[0].isLighting =
+            defaultMaterialHelperArgumentArray[0].isLighting ?? true;
 
-        this._initializeMaterialProperties(
-          gltfModel,
-          defaultMaterialHelperArgumentArray[0].textures.length
-        );
+          this._initializeMaterialProperties(
+            gltfModel,
+            defaultMaterialHelperArgumentArray[0].textures.length
+          );
+        }
 
         let rootGroup;
         const modelConverter = ModelConverter.getInstance();
@@ -436,8 +442,8 @@ export default class GltfImporter {
         const renderPassMain = renderPasses[0];
         renderPassMain.addEntities([rootGroup]);
 
-        this._readSpringBone(rootGroup, gltfModel);
-        this._readVRMHumanoidInfo(gltfModel, rootGroup);
+        this._readSpringBone(rootGroup, gltfModel as VRM);
+        this._readVRMHumanoidInfo(gltfModel as VRM, rootGroup);
       });
   }
 

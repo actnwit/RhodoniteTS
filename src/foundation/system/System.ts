@@ -55,7 +55,7 @@ export default class System {
       if (rnVRModule != null) {
         let webVRSystem: WebVRSystem;
         if (webXRSystem.isReadyForWebXR) {
-          webXRSystem._preRender(xrFrame);
+          webXRSystem._preRender(time, xrFrame);
         } else {
           webVRSystem = rnVRModule.WebVRSystem.getInstance();
           if (webVRSystem.isReadyForWebVR) {
