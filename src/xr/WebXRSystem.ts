@@ -1,6 +1,5 @@
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
 import Vector3 from '../foundation/math/Vector3';
-import Matrix44 from '../foundation/math/Matrix44';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
@@ -18,10 +17,11 @@ import type {
   XRWebGLLayer,
   XRFrame,
   XRReferenceSpaceType,
-  XRInputSourceEvent,
+  XRInputSourceChangeEvent,
 } from 'webxr';
 import System from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
+import {updateGamePad, createMotionController} from './WebXRInput';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -45,6 +45,7 @@ export default class WebXRSystem {
   private __canvasHeightForVR = 0;
   private __leftCameraEntity: Entity;
   private __rightCameraEntity: Entity;
+  private __basePath?: string;
 
   private constructor() {
     const repo = EntityRepository.getInstance();
@@ -68,7 +69,8 @@ export default class WebXRSystem {
    * @param requestButtonDom
    * @returns true: prepared properly, false: failed to prepare
    */
-  async readyForWebXR(requestButtonDom: HTMLElement) {
+  async readyForWebXR(requestButtonDom: HTMLElement, basePath: string) {
+    this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
     const glw = CGAPIResourceRepository.getWebGLResourceRepository()
@@ -381,10 +383,11 @@ export default class WebXRSystem {
    * @private
    * @param xrFrame XRFrame object
    */
-  _preRender(xrFrame: XRFrame) {
+  _preRender(time: number, xrFrame: XRFrame) {
     if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
       this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
       this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
+      updateGamePad(time, xrFrame);
     }
   }
 
@@ -404,14 +407,20 @@ export default class WebXRSystem {
 
   /// Private Methods
 
-  private __onInputSourcesChange(event: XRInputSourceEvent) {
-    const xrFrame = event.frame;
-    const xrInputSource = event.inputSource;
+  private __onInputSourcesChange(event: XRInputSourceChangeEvent) {
+    const added = event.added
+    // const leftInputSource = added[0];
+    // const rightInputSource = added[1];
 
-    let inputSourcePose = xrFrame.getPose(xrInputSource.targetRaySpace, this.__xrReferenceSpace!);
-    if (inputSourcePose) {
-      // do something with the result
-    }
+    // let inputSourcePose = xrFrame.getPose(leftInputSource.targetRaySpace, this.__xrReferenceSpace!);
+    // if (inputSourcePose) {
+    //   // do something with the result
+    //   console.log('WebXRInputSourcePose:'+ inputSourcePose.transform.position);
+    // }
+
+    event.added.forEach((xrInputSource) => {
+      createMotionController(xrInputSource, this.__basePath as string);
+    });
   }
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {

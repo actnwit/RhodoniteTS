@@ -61,6 +61,7 @@
     "jest": "^26.6.3",
     "jest-image-snapshot": "^4.3.0",
     "jest-puppeteer": "^4.2.0",
+    "json-loader": "^0.5.7",
     "puppeteer": "^7.1.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
@@ -75,7 +76,8 @@
     "version-loader": "^0.1.0",
     "webpack": "^5.23.0",
     "webpack-cli": "^4.5.0",
-    "webpack-merge": "^5.7.3"
+    "webpack-merge": "^5.7.3",
+    "webxr-input-profiles": "immersive-web/webxr-input-profiles#73d647040a827975a2100325afb3d13e0895b26b"
   },
   "dependencies": {
     "requirejs": "^2.3.6",
