@@ -2,7 +2,7 @@ import { Is } from '../foundation/misc/Is';
 // Inspired from https://scleapt.com/typescript_option/
 
 /**
- * a interface for handling values whose existence is uncertain.
+ * An interface for handling values whose existence is uncertain.
  */
 
 const errorStr = `The value does not exist!`;

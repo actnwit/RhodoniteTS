@@ -1,24 +1,21 @@
-import { Is } from '../foundation/misc/Is';
-import { RequireOne } from './TypeGenerators';
-// Inspired from https://scleapt.com/typescript_option/
-
 /**
- * a interface for handling values whose existence is uncertain.
+ * An interface to handle the results in a unified manner,
+ * regardless of whether they are successful or not.
  */
-
 export interface IResult<T, E> {
-  match(thenFn: Function, catchFn: Function): void;
+  match<U, F>(thenFn: (value: T) => IResult<U, F>, catchFn: (value: E) => E): void;
   then<U, F>(f: (value: T) => IResult<U, F>): IResult<U, F>;
   catch(f: (value: E) => E): E;
   getBoolean(): boolean;
 }
 
-abstract class Result {
-  match(thenFn: Function, catchFn: Function): void {
+abstract class Result<T, E> {
+  constructor(protected val: T | E) { }
+  match<U, F>(thenFn: (value: T) => IResult<U, F>, catchFn: (value: E) => E): IResult<U, F> | E {
     if (this instanceof Ok) {
-      return thenFn();
+      return thenFn(this.val);
     } else {
-      return catchFn();
+      return catchFn(this.val as E);
     }
   }
 }
@@ -26,15 +23,13 @@ abstract class Result {
 /**
  * a class indicating that the result is Ok (Succeeded).
  */
-export class Ok<T> extends Result implements IResult<T, never> {
-  constructor(private ok: T) { super(); }
-
+export class Ok<T> extends Result<T, never> implements IResult<T, never> {
   /**
    * This method is essentially same to the Ok::and_then() in Rust language
    * @param f
    */
   then<U, F>(f: (value: T) => IResult<U, F>): IResult<U, F> {
-    return f(this.ok);
+    return f(this.val);
   }
 
   catch(f: (value: never) => never): never {
@@ -50,22 +45,21 @@ export class Ok<T> extends Result implements IResult<T, never> {
   }
 
   get(): T {
-    return this.ok;
+    return this.val;
   }
 }
 
 /**
  * a class indicating that the result is Error (Failed).
  */
-export class Err<E> extends Result implements IResult<never, E> {
-  constructor(private err: E) { super(); }
+export class Err<E> extends Result<never, E> implements IResult<never, E> {
 
-  then<U, F>(f: (value: U) => IResult<U, F>): IResult<U, F> {
+  then<U, F>(f: (value: never) => IResult<U, F>): IResult<U, F> {
     throw new Error('Error due to calling the "then" method from an Err object!');
   }
 
   catch(f: (value: E) => E): E {
-    return this.err;
+    return this.val;
   }
 
   false(): false {
@@ -77,6 +71,6 @@ export class Err<E> extends Result implements IResult<never, E> {
   }
 
   get(): E {
-    return this.err;
+    return this.val;
   }
 }
