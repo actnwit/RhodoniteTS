@@ -1,4 +1,4 @@
-import { Is } from '../foundation/misc/Is';
+import { Is } from './Is';
 // Inspired from https://scleapt.com/typescript_option/
 
 /**
