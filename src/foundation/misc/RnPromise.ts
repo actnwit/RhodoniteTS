@@ -1,5 +1,6 @@
+type ResolveArg<T> = T | PromiseLike<T|undefined> | undefined;
 type PromiseFn<T> = (
-  resolve: (value?: T | PromiseLike<T> | undefined) => void,
+  resolve: (value: ResolveArg<T>) => void,
   reject: (reason?: any) => void
 ) => void;
 type OnFulfilledFn<T> = ((value: T) => T | PromiseLike<T>) | null | undefined;
@@ -13,7 +14,7 @@ export type CallbackObj = {
   processedPromises: any[];
 };
 export default class RnPromise<T> {
-  private __promise: Promise<T>;
+  private __promise: Promise<T | undefined>;
   private __callback?: Function;
   public name = '';
   private __callbackObj: CallbackObj = {
@@ -26,7 +27,7 @@ export default class RnPromise<T> {
 
   constructor(promise: Promise<T>, callback?: Function);
   constructor(fn: PromiseFn<T>, callback?: Function);
-  constructor(arg: any, callback?: Function) {
+  constructor(arg: Promise<T> | PromiseFn<T>, callback?: Function) {
     if (arg instanceof Promise) {
       this.__promise = arg;
     } else {
@@ -35,7 +36,7 @@ export default class RnPromise<T> {
     this.__callback = callback;
   }
 
-  static resolve(arg: any) {
+  static resolve<T>(arg: any) {
     if (arg instanceof Promise) {
       return new RnPromise(arg);
     } else if (arg instanceof RnPromise) {
@@ -81,7 +82,7 @@ export default class RnPromise<T> {
   }
 
   then(onFulfilled?: any, onRejected?: any) {
-    const onFulfilledWrapper = (value: T) => {
+    const onFulfilledWrapper = (value: T | undefined) => {
       if (
         this.__callbackObj.promiseAllNum !== 0 &&
         this.__callbackObj.processedPromises.indexOf(this) === -1
