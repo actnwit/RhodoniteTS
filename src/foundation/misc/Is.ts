@@ -7,7 +7,7 @@ const IsSubImpl = {
   not(fn: FnType) {
     return function () {
       /* eslint-disable prefer-spread */
-      return !fn.apply(null, [...arguments] as never);
+      return fn.apply(null, [...arguments] as never);
     };
   },
 
