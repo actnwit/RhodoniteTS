@@ -22,6 +22,7 @@ import type {
 import System from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {updateGamePad, createMotionController} from './WebXRInput';
+import { Is } from '../foundation/misc/Is';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -46,6 +47,7 @@ export default class WebXRSystem {
   private __leftCameraEntity: Entity;
   private __rightCameraEntity: Entity;
   private __basePath?: string;
+  private __controllerEntities: Entity[] = [];
 
   private constructor() {
     const repo = EntityRepository.getInstance();
@@ -202,6 +204,10 @@ export default class WebXRSystem {
 
   getCanvasHeightForVr() {
     return this.__canvasHeightForVR;
+  }
+
+  getControllerEntities() {
+    return this.__controllerEntities;
   }
 
   /// Accessors
@@ -407,20 +413,13 @@ export default class WebXRSystem {
 
   /// Private Methods
 
-  private __onInputSourcesChange(event: XRInputSourceChangeEvent) {
-    const added = event.added
-    // const leftInputSource = added[0];
-    // const rightInputSource = added[1];
-
-    // let inputSourcePose = xrFrame.getPose(leftInputSource.targetRaySpace, this.__xrReferenceSpace!);
-    // if (inputSourcePose) {
-    //   // do something with the result
-    //   console.log('WebXRInputSourcePose:'+ inputSourcePose.transform.position);
-    // }
-
-    event.added.forEach((xrInputSource) => {
-      createMotionController(xrInputSource, this.__basePath as string);
-    });
+  private async __onInputSourcesChange(event: XRInputSourceChangeEvent) {
+    for (let xrInputSource of event.added) {
+      const controller = await createMotionController(xrInputSource, this.__basePath as string);
+      if (Is.exist(controller)) {
+        this.__controllerEntities.push(controller);
+      }
+    };
   }
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {

@@ -3,6 +3,8 @@ import {fetchProfile} from 'webxr-input-profiles/packages/motion-controllers/src
 import {Constants} from 'webxr-input-profiles/packages/motion-controllers/src/constants';
 import { XRFrame, XRInputSource } from 'webxr';
 import Gltf2Importer from '../foundation/importer/Gltf2Importer';
+import ModelConverter from '../foundation/importer/ModelConverter';
+import { Is } from '../foundation/misc/Is';
 const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers:Map<XRInputSource, MotionController> = new Map();
@@ -11,7 +13,14 @@ export async function createMotionController(xrInputSource: XRInputSource, baseP
   const { profile, assetPath } = await fetchProfile(xrInputSource, basePath);
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
-  addMotionControllerToScene(motionController);
+  const asset = await addMotionControllerToScene(motionController);
+  const modelConverter = ModelConverter.getInstance();
+  if (Is.exist(asset)) {
+    const rootGroup = modelConverter.convertToRhodoniteObject(asset);
+    return rootGroup;
+  } else {
+    return undefined;
+  }
 }
 
 
@@ -20,6 +29,8 @@ async function addMotionControllerToScene(motionController: MotionController) {
   const asset = await importer.import(motionController.assetUrl);
   addTouchPointDots(motionController, asset);
   // MyEngine.scene.add(asset);
+
+  return asset;
 }
 
 export function updateGamePad(timestamp: number, xrFrame: XRFrame) {
