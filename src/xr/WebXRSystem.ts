@@ -18,11 +18,13 @@ import type {
   XRFrame,
   XRReferenceSpaceType,
   XRInputSourceChangeEvent,
+  XRInputSource,
 } from 'webxr';
 import System from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {updateGamePad, createMotionController} from './WebXRInput';
 import { Is } from '../foundation/misc/Is';
+import Matrix44 from '../foundation/math/Matrix44';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -48,6 +50,7 @@ export default class WebXRSystem {
   private __rightCameraEntity: Entity;
   private __basePath?: string;
   private __controllerEntities: Entity[] = [];
+  private __xrInputSources: XRInputSource[] = [];
 
   private constructor() {
     const repo = EntityRepository.getInstance();
@@ -391,8 +394,7 @@ export default class WebXRSystem {
    */
   _preRender(time: number, xrFrame: XRFrame) {
     if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
-      this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
-      this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
+      this.__updateView(xrFrame);
       updateGamePad(time, xrFrame);
     }
   }
@@ -475,5 +477,23 @@ export default class WebXRSystem {
     } else {
       console.error('WebGL context is not ready for WebXR.');
     }
+  }
+
+  private __updateView(xrFrame: XRFrame) {
+    this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
+    this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
+  }
+
+  private __updateInputSources(xrFrame: XRFrame) {
+    this.__xrInputSources.forEach((input, i) => {
+      if (Is.defined(input.gripSpace)) {
+        const xrPose = xrFrame.getPose(input.gripSpace, this.__xrReferenceSpace!);
+        if (Is.exist(xrPose)) {
+          const hand = this.__controllerEntities[i];
+          const handWorldMatrix = new Matrix44(xrPose.transform.matrix, true);
+          hand.getTransform().matrix = handWorldMatrix;
+        }
+      }
+    });
   }
 }
