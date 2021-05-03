@@ -158,7 +158,11 @@ export default class WebXRSystem {
         callbackOnXrSessionEnd();
       });
 
-      session.addEventListener('inputsourceschange', this.__onInputSourcesChange.bind(this) as EventHandlerNonNull);
+      const that = this;
+      const promiseFn = (resolve: (entities: Entity[]) => void) => {
+        session.addEventListener('inputsourceschange', (e: Event) => { that.__onInputSourcesChange(e as XRInputSourceChangeEvent, resolve) });
+      };
+      const promise = new Promise(promiseFn);
 
       try {
         referenceSpace = await session.requestReferenceSpace('local-floor');
@@ -174,10 +178,10 @@ export default class WebXRSystem {
       System.getInstance().stopRenderLoop();
       System.getInstance().restartRenderLoop();
       console.warn('End of enterWebXR.');
-      return true;
+      return promise;
     } else {
       console.error('WebGL context or WebXRSession is not ready yet.');
-      return false;
+      return undefined;
     }
   }
 
@@ -395,6 +399,7 @@ export default class WebXRSystem {
   _preRender(time: number, xrFrame: XRFrame) {
     if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
       this.__updateView(xrFrame);
+      this.__updateInputSources(xrFrame);
       updateGamePad(time, xrFrame);
     }
   }
@@ -415,11 +420,12 @@ export default class WebXRSystem {
 
   /// Private Methods
 
-  private async __onInputSourcesChange(event: XRInputSourceChangeEvent) {
+  private async __onInputSourcesChange(event: XRInputSourceChangeEvent, resolve: (entities: Entity[]) => void) {
     for (let xrInputSource of event.added) {
       const controller = await createMotionController(xrInputSource, this.__basePath as string);
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
+        resolve(this.__controllerEntities);
       }
     };
   }
