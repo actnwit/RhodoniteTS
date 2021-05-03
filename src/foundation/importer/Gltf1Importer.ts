@@ -794,7 +794,7 @@ export default class Gltf1Importer {
 
       if (imageUri.match(/basis$/)) {
         const promise = new Promise(async resolve => {
-          const response = await fetch(imageUri);
+          const response = await fetch(imageUri, {mode: 'cors'});
           const buffer = await response.arrayBuffer();
           const uint8Array = new Uint8Array(buffer);
           imageJson.basis = uint8Array;
