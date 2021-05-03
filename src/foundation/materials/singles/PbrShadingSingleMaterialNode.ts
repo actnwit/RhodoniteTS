@@ -449,7 +449,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           max: Number.MAX_SAFE_INTEGER,
           isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: [2, AbstractMaterialNode.__dummyBlueTexture],
+          initialValue: [2, AbstractMaterialNode.__dummyBlackTexture],
         },
         {
           semantic: PbrShadingSingleMaterialNode.NormalTextureTransform,
