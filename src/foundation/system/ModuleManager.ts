@@ -15,7 +15,7 @@ export default class ModuleManager {
     } else if (moduleName.toLowerCase() === 'pbr') {
       module = await import(/* webpackChunkName: "pbr" */'../../pbr/main');
     } else if (moduleName.toLowerCase() === 'xr') {
-      module = await import(/* webpackChunkName: "xr" */'../../rhodonite-xr');
+      module = await import(/* webpackChunkName: "xr" */'../../xr/main');
     }
     this.__modules.set(moduleName, module);
     console.log('Module Loaded:', module);

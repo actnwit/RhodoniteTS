@@ -15,7 +15,7 @@ const config = merge(baseConfig, {
   },
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1,
+      maxChunks: 0,
     }),
   ],
 });

@@ -25,7 +25,7 @@ import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import {MathUtil} from '../math/MathUtil';
 import CameraControllerComponent from './CameraControllerComponent';
 import ModuleManager from '../system/ModuleManager';
-import {RnXR} from '../../rhodonite-xr';
+import {RnXR} from '../../xr/main';
 import RenderPass from '../renderer/RenderPass';
 
 export default class CameraComponent extends Component {

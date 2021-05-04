@@ -46,7 +46,7 @@ import Matrix33 from '../foundation/math/Matrix33';
 import CubeTexture from '../foundation/textures/CubeTexture';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import ModuleManager from '../foundation/system/ModuleManager';
-import {RnXR} from '../rhodonite-xr';
+import {RnXR} from '../xr/main';
 import Vector4 from '../foundation/math/Vector4';
 import {Is as is} from '../foundation/misc/Is';
 

@@ -97,11 +97,11 @@ import _MutableQuaternion from './foundation/math/MutableQuaternion';
 import _PbrShadingSingleMaterialNode from './foundation/materials/singles/PbrShadingSingleMaterialNode';
 import _Buffer from './foundation/memory/Buffer';
 import _CGAPIResourceRepository from './foundation/renderer/CGAPIResourceRepository';
-
 import {
   FileType as _FileType,
   FileTypeEnum as _FileTypeEnum,
 } from './foundation/definitions/FileType';
+import _WebXRSystem from './xr/WebXRSystem';
 
 const _VERSION = require('./../VERSION-FILE').default;
 
@@ -269,6 +269,7 @@ export default {
   PbrShadingSingleMaterialNode: _PbrShadingSingleMaterialNode,
   Buffer: _Buffer,
   CGAPIResourceRepository: _CGAPIResourceRepository,
+  WebXRSystem: _WebXRSystem,
   FileType: _FileType,
   VERSION: _VERSION,
 
@@ -398,6 +399,7 @@ export type GltfLoadOption = _GltfLoadOption;
 export type PbrShadingSingleMaterialNode = _PbrShadingSingleMaterialNode;
 export type Buffer = _Buffer;
 export type CGAPIResourceRepository = _CGAPIResourceRepository;
+export type WebXRSystem = _WebXRSystem;
 export type VERSION = typeof _VERSION;
 
 // Definition Enums
