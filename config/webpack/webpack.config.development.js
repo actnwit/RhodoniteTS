@@ -16,7 +16,7 @@ const config = merge(baseConfig, {
   devtool: 'inline-source-map',
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 0,
+      maxChunks: 1,
     }),
   ],
 });
