@@ -9,8 +9,8 @@ const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/o
 
 const motionControllers:Map<XRInputSource, MotionController> = new Map();
 
-export async function createMotionController(xrInputSource: XRInputSource, basePath: string) {
-  const { profile, assetPath } = await fetchProfile(xrInputSource, basePath);
+export async function createMotionController(xrInputSource: XRInputSource, basePath: string, profilePriorities: string[]) {
+  const { profile, assetPath } = await fetchProfile(xrInputSource, basePath, undefined, true, profilePriorities);
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
   const asset = await addMotionControllerToScene(motionController);

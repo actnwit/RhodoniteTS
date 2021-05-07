@@ -82,7 +82,7 @@ export default class WebXRSystem {
       .currentWebGLContextWrapper;
     if (glw == null) {
       console.error('WebGL Context is not ready yet.');
-      return false;
+      return [];
     }
     this.__glw = glw;
     const supported = await navigator.xr.isSessionSupported('immersive-vr');
@@ -106,9 +106,9 @@ export default class WebXRSystem {
       this.__isReadyForWebXR = true;
     } else {
       console.error('WebXR is not supported in this environment.');
-      return false;
+      return [];
     }
-    return true;
+    return [];
   }
 
   /**
@@ -120,9 +120,11 @@ export default class WebXRSystem {
   async enterWebXR({
     initialUserPosition,
     callbackOnXrSessionEnd = () => {},
+    profilePriorities = []
   }: {
     initialUserPosition?: Vector3;
     callbackOnXrSessionEnd: Function;
+    profilePriorities: string[]
   }) {
     this.__defaultPositionInLocalSpaceMode =
       initialUserPosition ?? defaultUserPositionInVR;
@@ -160,7 +162,7 @@ export default class WebXRSystem {
 
       const that = this;
       const promiseFn = (resolve: (entities: Entity[]) => void) => {
-        session.addEventListener('inputsourceschange', (e: Event) => { that.__onInputSourcesChange(e as XRInputSourceChangeEvent, resolve) });
+        session.addEventListener('inputsourceschange', (e: Event) => { that.__onInputSourcesChange(e as XRInputSourceChangeEvent, resolve, profilePriorities) });
       };
       const promise = new Promise(promiseFn);
 
@@ -420,14 +422,20 @@ export default class WebXRSystem {
 
   /// Private Methods
 
-  private async __onInputSourcesChange(event: XRInputSourceChangeEvent, resolve: (entities: Entity[]) => void) {
+  private async __onInputSourcesChange(
+    event: XRInputSourceChangeEvent,
+    resolve: (entities: Entity[]) => void,
+    profilePriorities: string[]
+    ) {
+    this.__xrInputSources.length = 0;
     for (let xrInputSource of event.added) {
-      const controller = await createMotionController(xrInputSource, this.__basePath as string);
+      this.__xrInputSources.push(xrInputSource);
+      const controller = await createMotionController(xrInputSource, this.__basePath as string, profilePriorities);
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
-        resolve(this.__controllerEntities);
       }
     };
+    resolve(this.__controllerEntities);
   }
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
@@ -496,8 +504,13 @@ export default class WebXRSystem {
         const xrPose = xrFrame.getPose(input.gripSpace, this.__xrReferenceSpace!);
         if (Is.exist(xrPose)) {
           const hand = this.__controllerEntities[i];
-          const handWorldMatrix = new Matrix44(xrPose.transform.matrix, true);
-          hand.getTransform().matrix = handWorldMatrix;
+          if (Is.exist(hand)) {
+            const handWorldMatrix = new MutableMatrix44(xrPose.transform.matrix, true);
+            if (this.__spaceType === 'local') {
+              handWorldMatrix.addTranslate(this.__defaultPositionInLocalSpaceMode);
+            }
+            hand.getTransform().matrix = handWorldMatrix;
+          }
         }
       }
     });

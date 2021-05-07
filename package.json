@@ -77,7 +77,7 @@
     "webpack": "^5.23.0",
     "webpack-cli": "^4.5.0",
     "webpack-merge": "^5.7.3",
-    "webxr-input-profiles": "actnwit/webxr-input-profiles#283b62d6ffde678de70122909a47eae28add1f14"
+    "webxr-input-profiles": "actnwit/webxr-input-profiles#25c0dfcd2bb4d8f2fc6854ee28474c3698dd2a46"
   },
   "dependencies": {
     "requirejs": "^2.3.6",
