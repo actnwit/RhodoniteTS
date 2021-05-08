@@ -56,7 +56,7 @@ test('ScalarToVector4 works correctly 1', async () => {
     constant4,
   ]);
 
-  console.log(retVal.shaderBody);
+  // console.log(retVal.shaderBody);
   expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
     `
         void constantVariable_3(
