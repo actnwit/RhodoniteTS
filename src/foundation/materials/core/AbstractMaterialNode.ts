@@ -39,7 +39,7 @@ import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import { IVector3 } from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
-import { RnXR } from '../../../rhodonite-xr';
+import { RnXR } from '../../../xr/main';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string

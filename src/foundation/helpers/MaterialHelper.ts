@@ -24,9 +24,9 @@ function createMaterial(
   materialNodes?: AbstractMaterialNode[],
   maxInstancesNumber?: number
 ): Material {
-  const isRegistMaterialType = Material.isRegisteredMaterialType(materialName);
+  const isRegisteredMaterialType = Material.isRegisteredMaterialType(materialName);
 
-  if (!isRegistMaterialType) {
+  if (!isRegisteredMaterialType) {
     Material.registerMaterial(
       materialName,
       materialNodes!,
@@ -82,7 +82,8 @@ function createPbrUberMaterial({
     (isSkinning ? '+skinning' : '') +
     (isLighting ? '' : '-lighting') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
-    ' alpha_' +
+    (useNormalTexture ? '' : '-normalTexture') +
+    '_alpha_' +
     alphaMode.str.toLowerCase();
 
   const materialNode = new PbrShadingSingleMaterialNode({

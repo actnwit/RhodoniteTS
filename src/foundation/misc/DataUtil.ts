@@ -436,7 +436,7 @@ export default class DataUtil {
 
   static fetchArrayBuffer(uri: string): Promise<ArrayBuffer> {
     return new Promise(resolve => {
-      fetch(uri)
+      fetch(uri, {mode: 'cors'})
         .then(response => {
           response.arrayBuffer().then(arrayBuffer => {
             resolve(arrayBuffer);

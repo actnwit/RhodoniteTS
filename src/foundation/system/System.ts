@@ -22,7 +22,7 @@ import Time from '../misc/Time';
 import SystemState from './SystemState';
 import {MiscUtil} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
-import type {RnXR} from '../../rhodonite-xr';
+import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
 
 export default class System {
@@ -55,7 +55,7 @@ export default class System {
       if (rnVRModule != null) {
         let webVRSystem: WebVRSystem;
         if (webXRSystem.isReadyForWebXR) {
-          webXRSystem._preRender(xrFrame);
+          webXRSystem._preRender(time, xrFrame);
         } else {
           webVRSystem = rnVRModule.WebVRSystem.getInstance();
           if (webVRSystem.isReadyForWebVR) {

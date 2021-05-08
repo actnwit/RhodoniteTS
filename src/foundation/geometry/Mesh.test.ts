@@ -1,4 +1,4 @@
-import Rn from '../..';
+import Rn from '../../../dist/esm';
 
 function generatePrimitive() {
   const indices = new Uint32Array([0, 1, 3, 3, 1, 2]);

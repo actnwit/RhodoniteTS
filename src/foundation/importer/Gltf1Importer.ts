@@ -1,5 +1,5 @@
 import DataUtil from '../misc/DataUtil';
-import {glTF1, GltfFileBuffers, GltfLoadOption} from '../../types/glTF';
+import {glTF1, glTF2, GltfFileBuffers, GltfLoadOption} from '../../types/glTF';
 
 declare let Rn: any;
 
@@ -14,7 +14,7 @@ export default class Gltf1Importer {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  async import(uri: string, options?: GltfLoadOption) {
+  async import(uri: string, options?: GltfLoadOption): Promise<glTF2> {
     if (options && options.files) {
       for (const fileName in options.files) {
         const fileExtension = DataUtil.getExtension(fileName);
@@ -39,7 +39,7 @@ export default class Gltf1Importer {
     );
   }
 
-  async importGltfOrGlbFromFile(uri: string, options?: GltfLoadOption) {
+  async importGltfOrGlbFromFile(uri: string, options?: GltfLoadOption): Promise<glTF2|undefined> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
@@ -48,6 +48,7 @@ export default class Gltf1Importer {
       uri
     ).catch(err => {
       console.log('this.__loadFromArrayBuffer error', err);
+      return undefined;
     });
     return glTFJson;
   }
@@ -65,21 +66,21 @@ export default class Gltf1Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ) {
+  ): Promise<glTF2> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);
-    let result;
     // 0x46546C67 is 'glTF' in ASCII codes.
     if (magic !== 0x46546c67) {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this.importGltf(json, otherFiles, options!, uri);
+      const gltfJson = await this.importGltf(json, otherFiles, options!, uri);
+      return gltfJson;
     } else {
-      result = await this.importGlb(arrayBuffer, otherFiles, options!);
+      const gltfJson = await this.importGlb(arrayBuffer, otherFiles, options!);
+      return gltfJson;
     }
-    return result;
   }
 
   _getOptions(defaultOptions: any, json: glTF1, options: any): GltfLoadOption {
@@ -116,7 +117,7 @@ export default class Gltf1Importer {
     arrayBuffer: ArrayBuffer,
     files: GltfFileBuffers,
     options: GltfLoadOption
-  ) {
+  ): Promise<glTF2> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const gltfVer = dataView.getUint32(4, true);
     if (gltfVer !== 1) {
@@ -159,7 +160,7 @@ export default class Gltf1Importer {
     files: GltfFileBuffers,
     options: GltfLoadOption,
     uri?: string
-  ) {
+  ): Promise<glTF2> {
     const basePath = uri?.substring(0, uri?.lastIndexOf('/')) + '/'; // location of model file as basePath
     if (gltfJson.asset === undefined) {
       gltfJson.asset = {};
@@ -192,7 +193,7 @@ export default class Gltf1Importer {
     options: GltfLoadOption,
     uint8array?: Uint8Array,
     basePath?: string
-  ) {
+  ): Promise<any> {
     const promises = [] as Promise<any>[];
 
     const resources = {
@@ -793,7 +794,7 @@ export default class Gltf1Importer {
 
       if (imageUri.match(/basis$/)) {
         const promise = new Promise(async resolve => {
-          const response = await fetch(imageUri);
+          const response = await fetch(imageUri, {mode: 'cors'});
           const buffer = await response.arrayBuffer();
           const uint8Array = new Uint8Array(buffer);
           imageJson.basis = uint8Array;

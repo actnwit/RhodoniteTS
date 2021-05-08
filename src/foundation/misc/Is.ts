@@ -7,7 +7,7 @@ const IsSubImpl = {
   not(fn: FnType) {
     return function () {
       /* eslint-disable prefer-spread */
-      return !fn.apply(null, [...arguments] as never);
+      return fn.apply(null, [...arguments] as never);
     };
   },
 
@@ -61,16 +61,43 @@ const IsImpl = {
   false(val: unknown, ...args: unknown[]): boolean {
     return val === false;
   },
+};
 
-  bool(val: unknown, ...args: unknown[]) {
-    return val;
+const IsNotImpl = {
+  defined(val: unknown, ...args: unknown[]): val is undefined {
+    return val === void 0;
+  },
+
+  undefined(val: unknown, ...args: unknown[]): val is Object {
+    return val !== void 0;
+  },
+
+  null(val: unknown, ...args: unknown[]): val is Object {
+    return val !== null;
+  },
+
+  exist(val?: unknown, ...args: unknown[]): val is undefined|null {
+    // eslint-disable-next-line eqeqeq
+    return val == null;
+  },
+
+  function(val: unknown, ...args: unknown[]): val is Exclude<unknown, Function> {
+    return typeof val !== 'function';
+  },
+
+  true(val: unknown, ...args: unknown[]): boolean {
+    return val !== true;
+  },
+
+  false(val: unknown, ...args: unknown[]): boolean {
+    return val !== false;
   },
 };
 
 type IsImplType = typeof IsImpl;
 
 interface IsType extends IsImplType {
-  not: typeof IsImpl;
+  not: typeof IsNotImpl;
   all: typeof IsImpl;
   any: typeof IsImpl;
 }
@@ -82,9 +109,15 @@ for (const subFn in IsSubImpl) {
     for (const fn in IsImpl) {
       if (Object.prototype.hasOwnProperty.call(IsImpl, fn)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (IsImpl as any)[subFn][fn] = (IsSubImpl as any)[subFn](
-          (IsImpl as never)[fn]
-        );
+        if (subFn === 'not') {
+          (IsImpl as any)[subFn][fn] = (IsSubImpl as any)[subFn](
+            (IsNotImpl as never)[fn]
+          );
+        } else {
+          (IsImpl as any)[subFn][fn] = (IsSubImpl as any)[subFn](
+            (IsImpl as never)[fn]
+          );
+        }
       }
     }
   }

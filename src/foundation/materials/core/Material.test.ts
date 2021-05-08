@@ -1,4 +1,4 @@
-import Rn from '../../..';
+import Rn from '../../../../dist/esm';
 
 test('MaterialTID are processed correctly', () => {
   Rn.ModuleManager.getInstance().loadModule('webgl');

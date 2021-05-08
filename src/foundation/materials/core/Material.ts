@@ -247,7 +247,7 @@ export default class Material extends RnObject {
         byteAlign: 16,
       });
 
-      const propertyName = this._getPropertyIndex(semanticInfo);
+      const propertyIndex = this._getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {
         const typedArray = accessor.takeOne() as Float32Array;
         let map = this.__soloDatumFields.get(materialTypeName);
@@ -267,7 +267,7 @@ export default class Material extends RnObject {
         });
       } else {
         const properties = this.__accessors.get(materialTypeName)!;
-        properties.set(propertyName, accessor);
+        properties.set(propertyIndex, accessor);
       }
     }
 

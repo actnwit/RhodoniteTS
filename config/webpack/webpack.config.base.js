@@ -14,6 +14,11 @@ module.exports = {
         use: ['version-loader'],
       },
       {
+        test: /\.json$/,
+        exclude: /node_modules/,
+        use: ['json-loader'],
+      },
+      {
         test: /\.ts$/,
         exclude: [/node_modules/],
         loader: 'ts-loader',

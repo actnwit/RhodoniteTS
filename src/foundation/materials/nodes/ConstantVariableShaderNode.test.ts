@@ -38,7 +38,7 @@ test('ConstantVariable works correctly 1', async () => {
     outPosition,
   ]);
 
-  console.log(ret.shaderBody, ret.shader);
+  // console.log(ret.shaderBody, ret.shader);
 
   expect(ret.shaderBody.replace(/\s+/g, '')).toEqual(
     `

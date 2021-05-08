@@ -1,4 +1,4 @@
-import Rn from '../..';
+import Rn from '../../../dist/esm';
 
 function generateEntity() {
   const repo = Rn.EntityRepository.getInstance();

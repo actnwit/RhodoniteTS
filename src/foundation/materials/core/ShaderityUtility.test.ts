@@ -1,4 +1,4 @@
-import Rn from '../../..';
+import Rn from '../../../../dist/esm';
 import {ShaderityObject} from 'shaderity';
 import MutableScalar from '../../math/MutableScalar';
 import MutableVector2 from '../../math/MutableVector2';
