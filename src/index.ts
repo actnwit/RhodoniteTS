@@ -102,6 +102,8 @@ import {
   FileTypeEnum as _FileTypeEnum,
 } from './foundation/definitions/FileType';
 import _WebXRSystem from './xr/WebXRSystem';
+import { GetComponentFromEntities as _GetComponentFromEntities } from './foundation/enhanced_js_objects/Array';
+import { ArrayAsRn as _ArrayAsRn, enhanceArray as _enhanceArray } from './foundation/enhanced_js_objects/Array';
 
 const _VERSION = require('./../VERSION-FILE').default;
 
@@ -270,6 +272,8 @@ export default {
   Buffer: _Buffer,
   CGAPIResourceRepository: _CGAPIResourceRepository,
   WebXRSystem: _WebXRSystem,
+  GetComponentFromEntities: _GetComponentFromEntities,
+  enhanceArray: _enhanceArray,
   FileType: _FileType,
   VERSION: _VERSION,
 
@@ -400,7 +404,10 @@ export type PbrShadingSingleMaterialNode = _PbrShadingSingleMaterialNode;
 export type Buffer = _Buffer;
 export type CGAPIResourceRepository = _CGAPIResourceRepository;
 export type WebXRSystem = _WebXRSystem;
+export type GetComponentFromEntities = typeof _GetComponentFromEntities;
 export type VERSION = typeof _VERSION;
+export type ArrayAsRn<T> = _ArrayAsRn<T>;
+export type enhanceArray = typeof _enhanceArray;
 
 // Definition Enums
 export type CompositionTypeEnum = _CompositionTypeEnum;
