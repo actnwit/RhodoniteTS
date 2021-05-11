@@ -498,6 +498,14 @@ export class Vector3_<T extends TypedArrayConstructor> extends AbstractVector
   clone() {
     return new (this.constructor as any)(this._v[0], this._v[1], this._v[2]);
   }
+
+  static lerp(lhs: IVector3, rhs: IVector3, ratio: number) {
+    return new Vector3(
+      (lhs._v[0] * ratio) + rhs._v[0] * (1 - ratio),
+      (lhs._v[1] * ratio) + rhs._v[1] * (1 - ratio),
+      (lhs._v[2] * ratio) + rhs._v[2] * (1 - ratio)
+    );
+  }
 }
 
 export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
