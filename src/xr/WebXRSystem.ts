@@ -22,9 +22,8 @@ import type {
 } from 'webxr';
 import System from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
-import {updateGamePad, createMotionController} from './WebXRInput';
+import {updateGamePad, createMotionController, updateMotionControllerModel, getMotionController} from './WebXRInput';
 import { Is } from '../foundation/misc/Is';
-import Matrix44 from '../foundation/math/Matrix44';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -505,11 +504,20 @@ export default class WebXRSystem {
         if (Is.exist(xrPose)) {
           const hand = this.__controllerEntities[i];
           if (Is.exist(hand)) {
+            // update the transform of the controller itself
             const handWorldMatrix = new MutableMatrix44(xrPose.transform.matrix, true);
             if (this.__spaceType === 'local') {
               handWorldMatrix.addTranslate(this.__defaultPositionInLocalSpaceMode);
             }
             hand.getTransform().matrix = handWorldMatrix;
+
+            // update the components (buttons, etc...) of the controller
+            const motionController = getMotionController(input);
+            if (Is.exist(motionController)) {
+              updateMotionControllerModel(hand, motionController);
+            } else {
+              console.warn('motionController not found');
+            }
           }
         }
       }

@@ -5,6 +5,10 @@ import { XRFrame, XRInputSource } from 'webxr';
 import Gltf2Importer from '../foundation/importer/Gltf2Importer';
 import ModelConverter from '../foundation/importer/ModelConverter';
 import { Is } from '../foundation/misc/Is';
+import Entity from '../foundation/core/Entity';
+import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component';
+import Quaternion from '../foundation/math/Quaternion';
+import Vector3 from '../foundation/math/Vector3';
 const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers:Map<XRInputSource, MotionController> = new Map();
@@ -75,35 +79,51 @@ function addTouchPointDots(motionController: MotionController, asset: any) {
   });
 }
 
-function updateMotionControllerModel(motionController: MotionController) {
+export function updateMotionControllerModel(entity: Entity, motionController: MotionController) {
+  // this codes are from https://immersive-web.github.io/webxr-input-profiles/packages/motion-controllers/#animating-components
 
-  // // Update the 3D model to reflect the button, thumbstick, and touchpad state
-  // const motionControllerRoot = MyEngine.scene.getChildByName(motionController.rootNodeName);
-  // Object.values(motionController.components).forEach((component: Component) => {
-  //   component.visualResponses.forEach((visualResponse) => {
-  //     // Find the topmost node in the visualization
-  //     const valueNode = motionControllerRoot.getChildByName(visualResponse.valueNodeName);
+  // Update the 3D model to reflect the button, thumbstick, and touchpad state
+  const map = entity.getTagValue('rnEntitiesByNames');
+  Object.values(motionController.components).forEach((component: Component) => {
+    for (const visualResponseName in component.visualResponses) {
+      const visualResponse = component.visualResponses[visualResponseName];
 
-  //     // Calculate the new properties based on the weight supplied
-  //     if (visualResponse.valueNodeProperty === 'visibility') {
-  //       valueNode.visible = visualResponse.value;
-  //     } else if (visualResponse.valueNodeProperty === 'transform') {
-  //       const minNode = motionControllerRoot.getObjectByName(visualResponse.minNodeName);
-  //       const maxNode = motionControllerRoot.getObjectByName(visualResponse.maxNodeName);
+      // Find the topmost node in the visualization
+      const entity = map.get(visualResponse.valueNodeName);
+      if (Is.not.exist(entity)) {
+        console.warn(`The entity of the controller doesn't exist`)
+        continue;
+      }
+      // Calculate the new properties based on the weight supplied
+      if (visualResponse.valueNodeProperty === 'visibility') {
+        entity.getSceneGraph().isVisible = !!visualResponse.value;
+      } else if (visualResponse.valueNodeProperty === 'transform') {
+        const minNode = map.get(visualResponse.minNodeName!);
+        const maxNode = map.get(visualResponse.maxNodeName!);
+        if (Is.not.exist(minNode) || Is.not.exist(maxNode)) {
+          console.warn(`The min/max Node of the component of the controller doesn't exist`)
+          continue;
+        }
 
-  //       THREE.Quaternion.slerp(
-  //         minNode.quaternion,
-  //         maxNode.quaternion,
-  //         valueNode.quaternion,
-  //         visualResponse.value
-  //       );
+        const minNodeTransform = minNode.getTransform();
+        const maxNodeTransform = maxNode.getTransform();
 
-  //       valueNode.position.lerpVectors(
-  //         minNode.position,
-  //         maxNode.position,
-  //         visualResponse.value
-  //       );
-  //     }
-  //   });
-  // });
+        entity.getTransform().quaternion = Quaternion.qlerp(
+          minNodeTransform.quaternionInner,
+          maxNodeTransform.quaternionInner,
+          visualResponse.value as number,
+        );
+
+        entity.getTransform().translate = Vector3.lerp(
+          maxNodeTransform.translateInner,
+          minNodeTransform.translateInner,
+          visualResponse.value as number
+        );
+      }
+    }
+  });
+}
+
+export function getMotionController(xrInputSource: XRInputSource) {
+  return motionControllers.get(xrInputSource)
 }

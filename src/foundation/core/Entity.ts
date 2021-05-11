@@ -197,4 +197,15 @@ export default class Entity extends RnObject {
   get worldMatrix() {
     return this.worldMatrixInner?.clone();
   }
+
+  getChildByName(name: string) {
+    const sceneComponent = this.getSceneGraph();
+    const children = sceneComponent.children;
+    for (const child of children) {
+      if (child.entity.uniqueName === name) {
+        return child.entity;
+      }
+    }
+    return undefined
+  }
 }

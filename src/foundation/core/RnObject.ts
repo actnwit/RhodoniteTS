@@ -30,7 +30,7 @@ export default class RnObject {
     RnObject.__objectsByNameMap.set(this.__uniqueName, this);
   }
 
-  searchByTag(tag: string, value: string) {
+  static searchByTag(tag: string, value: string) {
     for (const obj of RnObject.__objects) {
       if (obj.getTagValue(tag) === value) {
         return obj;
