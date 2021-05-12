@@ -244,10 +244,22 @@ module.exports = {
 2. Start the local server with `$ npm run start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
-## Contributors
-
-![GitHub Contributors Image](https://contrib.rocks/image?repo=actnwit/RhodoniteTS)
 
 ## License
 
 MIT License
+
+## Acknowledgements
+
+### Libraries & Tools
+
+Our library uses the following libraries and tools and more. Thank you.
+
+- [immersive-web/webxr-input-profiles](https://github.com/immersive-web/webxr-input-profiles) (forked version)
+- [glTF samples](KhronosGroup/glTF-Sample-Models)
+
+Check the complete list on package.json.
+
+### Contributors
+
+![GitHub Contributors Image](https://contrib.rocks/image?repo=actnwit/RhodoniteTS)
