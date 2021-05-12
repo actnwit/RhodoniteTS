@@ -24,6 +24,7 @@ import System from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {updateGamePad, createMotionController, updateMotionControllerModel, getMotionController} from './WebXRInput';
 import { Is } from '../foundation/misc/Is';
+import MutableVector3 from '../foundation/math/MutableVector3';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -50,6 +51,8 @@ export default class WebXRSystem {
   private __basePath?: string;
   private __controllerEntities: Entity[] = [];
   private __xrInputSources: XRInputSource[] = [];
+  private __translateViewer: MutableVector3 = new MutableVector3(0, 0, 0);
+  private __scaleViewer: MutableVector3 = new MutableVector3(0, 0, 0);
 
   private constructor() {
     const repo = EntityRepository.getInstance();
@@ -368,10 +371,11 @@ export default class WebXRSystem {
     const pos = xrView?.transform.position;
     if (pos != null) {
       const def = this.__defaultPositionInLocalSpaceMode;
+      const translate = this.__translateViewer;
       if (this.__spaceType === 'local') {
-        return new Vector3(def.x + pos.x, def.y + pos.y, def.z + pos.z);
+        return new Vector3(def.x + translate.x + pos.x, def.y + translate.y + pos.y, def.z + translate.z + pos.z);
       } else {
-        return new Vector3(pos.x, pos.y, pos.z);
+        return new Vector3(pos.x + translate.x, pos.y + translate.y, pos.z + translate.z);
       }
     } else {
       return this.__defaultPositionInLocalSpaceMode;
@@ -453,6 +457,8 @@ export default class WebXRSystem {
       lm.addTranslate(this.__defaultPositionInLocalSpaceMode);
       rm.addTranslate(this.__defaultPositionInLocalSpaceMode);
     }
+    lm.addTranslate(this.__translateViewer);
+    rm.addTranslate(this.__translateViewer);
     this.__leftCameraEntity.getTransform().matrix = lm;
     this.__rightCameraEntity.getTransform().matrix = rm;
   }
@@ -509,6 +515,7 @@ export default class WebXRSystem {
             if (this.__spaceType === 'local') {
               handWorldMatrix.addTranslate(this.__defaultPositionInLocalSpaceMode);
             }
+            handWorldMatrix.addTranslate(this.__translateViewer);
             hand.getTransform().matrix = handWorldMatrix;
 
             // update the components (buttons, etc...) of the controller
