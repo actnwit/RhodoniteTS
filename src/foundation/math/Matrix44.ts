@@ -95,7 +95,7 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
           this._v[3] = m[12]; this._v[7] = m[13]; this._v[11] = m[14]; this._v[15] = m[15];
         }
       }
-    } else if (!!m && typeof m._v[15] !== 'undefined' && typeof m._v[10] !== 'undefined') {
+    } else if (!!m && typeof m._v[15] !== 'undefined' && m._v[10] !== undefined) {
       if (_notCopyFloatArray) {
         this._v = m._v;
       } else {
@@ -106,7 +106,7 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
         this._v[2] = v[2]; this._v[6] = v[6]; this._v[10] = v[10]; this._v[14] = v[14];
         this._v[3] = v[3]; this._v[7] = v[7]; this._v[11] = v[11]; this._v[15] = v[15];
       }
-    } else if (!!m && typeof m._v[15] === 'undefined' && typeof m._v[10] !== 'undefined') {
+    } else if (!!m && typeof m._v[15] === 'undefined' && m._v[10] !== undefined) {
       if (_notCopyFloatArray) {
         this._v = m._v;
       } else {
@@ -117,7 +117,7 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
         this._v[2] = v[2]; this._v[6] = v[5]; this._v[10] = v[8]; this._v[14] = 0;
         this._v[3] = 0; this._v[7] = 0; this._v[11] = 0; this._v[15] = 1;
       }
-    } else if (!!m && typeof m.className !== 'undefined' && m instanceof Quaternion) {
+    } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className.indexOf('Quaternion') !== -1) {
       this._v = new FloatArray(16);
 
       const sx = m._v[0] * m._v[0];

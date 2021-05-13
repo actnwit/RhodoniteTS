@@ -80,7 +80,7 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
           this._v[2] = m[6]; this._v[5] = m[7]; this._v[8] = m[8];
         }
       }
-    } else if (!!m && m._v != null && m._v[8] !== null) {
+    } else if (!!m && m._v != null && m._v[8] != undefined) {
       if (_notCopyFloatArray) {
         this._v = m._v;
       } else {
@@ -90,7 +90,7 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
         this._v[1] = v[1]; this._v[4] = v[4]; this._v[7] = v[7];
         this._v[2] = v[2]; this._v[5] = v[5]; this._v[8] = v[8];
       }
-    } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className === 'Quaternion') {
+    } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className.indexOf('Quaternion') !== -1) {
       this._v = new Float32Array(9);
       const q = m as Quaternion;
       const sx = q._v[0] * q._v[0];
