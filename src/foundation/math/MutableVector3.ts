@@ -228,6 +228,10 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     super(x, y!, z!, {type: Float32Array});
   }
 
+  static identity() {
+    return new this(0, 0, 0);
+  }
+
   static zero() {
     return super._zero(Float32Array) as MutableVector3;
   }
@@ -299,6 +303,10 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
     z?: number
   ) {
     super(x, y!, z!, {type: Float64Array});
+  }
+
+  static identity() {
+    return new this(0, 0, 0);
   }
 
   static zero() {
