@@ -9,7 +9,7 @@ import Entity from '../foundation/core/Entity';
 import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component';
 import Quaternion from '../foundation/math/Quaternion';
 import Vector3 from '../foundation/math/Vector3';
-import { IMutableVector3 } from '../foundation/math/IVector';
+import { IMutableScalar, IMutableVector3 } from '../foundation/math/IVector';
 import WebXRSystem from './WebXRSystem';
 import { defaultValue } from '../foundation/misc/MiscUtil';
 import { IMutableQuaternion } from '../foundation/math/IQuaternion';
@@ -17,6 +17,7 @@ import Matrix33 from '../foundation/math/Matrix33';
 import Matrix44 from '../foundation/math/Matrix44';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableMatrix33 from '../foundation/math/MutableMatrix33';
+import MutableScalar from '../foundation/math/MutableScalar';
 const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers:Map<XRInputSource, MotionController> = new Map();
@@ -59,6 +60,7 @@ type WebXRSystemViewerData = {
   viewerTranslate: IMutableVector3,
   viewerScale: IMutableVector3,
   viewerOrientation: IMutableQuaternion,
+  viewerAzimuthAngle: MutableScalar,
 }
 
 const wellKnownMapping = new Map();
@@ -177,6 +179,7 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
   const componentName = wellKnownMapping.get(thumbstickComponent.rootNodeName);
   let xAxisAccumulated = 0;
   let yAxisAccumulated = 0;
+  const deltaScale = 0.5;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, thumbstickComponent.values.button, thumbstickComponent.values.state, handed);
     xAxisAccumulated += defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
@@ -189,18 +192,19 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
     xAxisAccumulated = 0;
     yAxisAccumulated = 0;
   }
-  xAxisAccumulated = Math.min(xAxisAccumulated, 1);
-  yAxisAccumulated = Math.min(yAxisAccumulated, 1);
+  xAxisAccumulated = Math.min(xAxisAccumulated, 1 * deltaScale);
+  yAxisAccumulated = Math.min(yAxisAccumulated, 1 * deltaScale);
 
-  const rotateMat = new MutableMatrix33(viewerData.viewerOrientation);
   const deltaVector = MutableVector3.zero();
+  // const rotateMat = new MutableMatrix33(viewerData.viewerOrientation);
   if (handed === 'right') {
-    // viewerData.viewerTranslate.x = xAxis;
+    viewerData.viewerAzimuthAngle.x -= xAxisAccumulated;
     deltaVector.y -= yAxisAccumulated;
   } else {
     deltaVector.x += xAxisAccumulated;
     deltaVector.z += yAxisAccumulated;
   }
+  const rotateMat = MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x).multiply(new MutableMatrix33(viewerData.viewerOrientation));
   rotateMat.multiplyVectorTo(deltaVector, deltaVector as MutableVector3);
   viewerData.viewerTranslate.add(deltaVector);
 }
