@@ -184,15 +184,12 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
   const deltaScaleAzimuthAngle = 0.15;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, thumbstickComponent.values.button, thumbstickComponent.values.state, handed);
-    xAxisAccumulated += defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
-    yAxisAccumulated += defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
+    xAxisAccumulated = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
+    yAxisAccumulated = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
     // Align the world orientation to the user's current orientation
   } else if (thumbstickComponent.values.state === Constants.ComponentState.TOUCHED) {
-    xAxisAccumulated += defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
-    yAxisAccumulated += defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
-  } else {
-    xAxisAccumulated = 0;
-    yAxisAccumulated = 0;
+    xAxisAccumulated = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
+    yAxisAccumulated = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
   }
   xAxisAccumulated = Math.min(xAxisAccumulated, 1);
   yAxisAccumulated = Math.min(yAxisAccumulated, 1);
