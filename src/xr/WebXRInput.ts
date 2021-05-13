@@ -179,7 +179,9 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
   const componentName = wellKnownMapping.get(thumbstickComponent.rootNodeName);
   let xAxisAccumulated = 0;
   let yAxisAccumulated = 0;
-  const deltaScale = 0.5;
+  const deltaScaleHorizontal = 0.25;
+  const deltaScaleVertical= 0.10;
+  const deltaScaleAzimuthAngle = 0.15;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, thumbstickComponent.values.button, thumbstickComponent.values.state, handed);
     xAxisAccumulated += defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
@@ -192,17 +194,17 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
     xAxisAccumulated = 0;
     yAxisAccumulated = 0;
   }
-  xAxisAccumulated = Math.min(xAxisAccumulated, 1 * deltaScale);
-  yAxisAccumulated = Math.min(yAxisAccumulated, 1 * deltaScale);
+  xAxisAccumulated = Math.min(xAxisAccumulated, 1);
+  yAxisAccumulated = Math.min(yAxisAccumulated, 1);
 
   const deltaVector = MutableVector3.zero();
   // const rotateMat = new MutableMatrix33(viewerData.viewerOrientation);
   if (handed === 'right') {
-    viewerData.viewerAzimuthAngle.x -= xAxisAccumulated;
-    deltaVector.y -= yAxisAccumulated;
+    viewerData.viewerAzimuthAngle.x -= xAxisAccumulated * deltaScaleAzimuthAngle;
+    deltaVector.y -= yAxisAccumulated * deltaScaleVertical;
   } else {
-    deltaVector.x += xAxisAccumulated;
-    deltaVector.z += yAxisAccumulated;
+    deltaVector.x += xAxisAccumulated * deltaScaleHorizontal;
+    deltaVector.z += yAxisAccumulated * deltaScaleHorizontal;
   }
   const rotateMat = MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x).multiply(new MutableMatrix33(viewerData.viewerOrientation));
   rotateMat.multiplyVectorTo(deltaVector, deltaVector as MutableVector3);
