@@ -9,6 +9,14 @@ import Entity from '../foundation/core/Entity';
 import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component';
 import Quaternion from '../foundation/math/Quaternion';
 import Vector3 from '../foundation/math/Vector3';
+import { IMutableVector3 } from '../foundation/math/IVector';
+import WebXRSystem from './WebXRSystem';
+import { defaultValue } from '../foundation/misc/MiscUtil';
+import { IMutableQuaternion } from '../foundation/math/IQuaternion';
+import Matrix33 from '../foundation/math/Matrix33';
+import Matrix44 from '../foundation/math/Matrix44';
+import MutableVector3 from '../foundation/math/MutableVector3';
+import MutableMatrix33 from '../foundation/math/MutableMatrix33';
 const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers:Map<XRInputSource, MotionController> = new Map();
@@ -45,6 +53,12 @@ type ComponentFunctionMap = {
   'button_2': ComponentChangeCallback;
   'button_3': ComponentChangeCallback;
   'buttonSpecial': ComponentChangeCallback;
+}
+
+type WebXRSystemViewerData = {
+  viewerTranslate: IMutableVector3,
+  viewerScale: IMutableVector3,
+  viewerOrientation: IMutableQuaternion,
 }
 
 const wellKnownMapping = new Map();
@@ -87,14 +101,14 @@ async function addMotionControllerToScene(motionController: MotionController) {
   return asset;
 }
 
-export function updateGamePad(timestamp: number, xrFrame: XRFrame) {
+export function updateGamePad(timestamp: number, xrFrame: XRFrame, viewerData: WebXRSystemViewerData) {
   // Other frame-loop stuff ...
 
   Array.from(motionControllers.values()).forEach((motionController: MotionController) => {
     motionController.updateFromGamepad();
     Object.keys(motionController.components).forEach((componentId: string) =>{
       const component = motionController.components[componentId];
-      processInput(component, (motionController.xrInputSource as XRInputSource).handedness);
+      processInput(component, (motionController.xrInputSource as XRInputSource).handedness, viewerData, timestamp);
     })
   });
 
@@ -103,31 +117,39 @@ export function updateGamePad(timestamp: number, xrFrame: XRFrame) {
 
 }
 
-function processInput(component: Component, handed: string) {
+let lastTimestamp = 0;
+function processInput(component: Component, handed: string, viewerData: WebXRSystemViewerData, timestamp: number) {
   const componentName = wellKnownMapping.get(component.rootNodeName);
   if (Is.not.exist(componentName)) {
     return;
   }
+
+  if (lastTimestamp === 0) {
+    lastTimestamp = timestamp;
+    return;
+  }
+
+  const deltaSec = (timestamp - lastTimestamp) * 0.000001;
   switch(componentName) {
     case GeneralType.TRIGGER:
-      processTriggerInput(component, handed); break;
+      processTriggerInput(component, handed, viewerData, deltaSec); break;
     case GeneralType.THUMBSTICK:
-      processThumbstickInput(component, handed); break;
+      processThumbstickInput(component, handed, viewerData, deltaSec); break;
     case GeneralType.SQUEEZE:
-      processSqueezeInput(component, handed); break;
+      processSqueezeInput(component, handed, viewerData, deltaSec); break;
     case GeneralType.BUTTON_1:
     case GeneralType.BUTTON_2:
     case GeneralType.BUTTON_3:
     case GeneralType.BUTTON_SPECIAL:
-      processButtonInput(component, handed); break;
+      processButtonInput(component, handed, viewerData, deltaSec); break;
     case GeneralType.TOUCHPAD:
-      processTouchpadInput(component, handed); break;
+      processTouchpadInput(component, handed, viewerData, deltaSec); break;
     default:
   }
 }
 
 
-function processTriggerInput(triggerComponent: Component, handed: string) {
+function processTriggerInput(triggerComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   const componentName = wellKnownMapping.get(triggerComponent.rootNodeName);
   if (triggerComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, triggerComponent.values.button, handed);
@@ -139,7 +161,7 @@ function processTriggerInput(triggerComponent: Component, handed: string) {
   }
 }
 
-function processSqueezeInput(squeezeComponent: Component, handed: string) {
+function processSqueezeInput(squeezeComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   const componentName = wellKnownMapping.get(squeezeComponent.rootNodeName);
   if (squeezeComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, squeezeComponent.values.button, handed);
@@ -150,20 +172,40 @@ function processSqueezeInput(squeezeComponent: Component, handed: string) {
     // Show ray gun charging up
   }
 }
-function processThumbstickInput(thumbstickComponent: Component, handed: string) {
+
+function processThumbstickInput(thumbstickComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   const componentName = wellKnownMapping.get(thumbstickComponent.rootNodeName);
+  let xAxisAccumulated = 0;
+  let yAxisAccumulated = 0;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, thumbstickComponent.values.button, thumbstickComponent.values.state, handed);
+    xAxisAccumulated += defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
+    yAxisAccumulated += defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
     // Align the world orientation to the user's current orientation
   } else if (thumbstickComponent.values.state === Constants.ComponentState.TOUCHED) {
-    const scootDistanceX = thumbstickComponent.values.yAxis;//* scootIncrement;
-    const scootDistanceY = thumbstickComponent.values.xAxis;//* scootIncrement;
-    // Scoot the user forward
-    console.log(componentName, `scootDistanceX: ${scootDistanceX}, scootDistanceY: ${scootDistanceY}`, thumbstickComponent.values.state, handed);
+    xAxisAccumulated += defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
+    yAxisAccumulated += defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
+  } else {
+    xAxisAccumulated = 0;
+    yAxisAccumulated = 0;
   }
+  xAxisAccumulated = Math.min(xAxisAccumulated, 1);
+  yAxisAccumulated = Math.min(yAxisAccumulated, 1);
+
+  const rotateMat = new MutableMatrix33(viewerData.viewerOrientation);
+  const deltaVector = MutableVector3.zero();
+  if (handed === 'right') {
+    // viewerData.viewerTranslate.x = xAxis;
+    deltaVector.y -= yAxisAccumulated;
+  } else {
+    deltaVector.x += xAxisAccumulated;
+    deltaVector.z += yAxisAccumulated;
+  }
+  rotateMat.multiplyVectorTo(deltaVector, deltaVector as MutableVector3);
+  viewerData.viewerTranslate.add(deltaVector);
 }
 
-function processButtonInput(buttonComponent: Component, handed: string) {
+function processButtonInput(buttonComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   const componentName = wellKnownMapping.get(buttonComponent.rootNodeName);
   if (buttonComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, buttonComponent.values.button, buttonComponent.values.state, handed);
@@ -172,7 +214,7 @@ function processButtonInput(buttonComponent: Component, handed: string) {
   }
 }
 
-function processTouchpadInput(thumbstick: Component, handed: string) {
+function processTouchpadInput(thumbstick: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   if (thumbstick.values.state === Constants.ComponentState.PRESSED) {
     // Align the world orientation to the user's current orientation
   } else if (thumbstick.values.state === Constants.ComponentState.TOUCHED
