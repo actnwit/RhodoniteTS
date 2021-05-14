@@ -67,6 +67,6 @@ export default class LogQuaternion implements ILogQuaternion {
   }
 
   get className() {
-    return this.constructor.name;
+    return 'LogQuaternion';
   }
 }

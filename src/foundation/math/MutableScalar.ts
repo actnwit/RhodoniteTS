@@ -29,7 +29,7 @@ export class MutableScalar_<
   get w() {
     return 1;
   }
-  
+
   /**
    * change to string
    */
@@ -65,7 +65,7 @@ export default class MutableScalar extends MutableScalar_<Float32ArrayConstructo
   }
 
   get className() {
-    return this.constructor.name;
+    return 'MutableScalar';
   }
 }
 

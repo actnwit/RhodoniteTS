@@ -186,7 +186,7 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
   }
 
   get className() {
-    return this.constructor.name;
+    return 'IdentityMatrix44';
   }
 
   static get compositionType() {

@@ -56,6 +56,10 @@ export default class MutableQuaternion
     return this._v[3];
   }
 
+  get className() {
+    return 'MutableQuaternion';
+  }
+
   static identity() {
     return super.identity() as MutableQuaternion;
   }

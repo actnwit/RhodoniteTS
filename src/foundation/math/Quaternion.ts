@@ -77,6 +77,10 @@ export default class Quaternion extends AbstractQuaternion implements IQuaternio
     }
   }
 
+  get className() {
+    return 'Quaternion';
+  }
+
   static get compositionType() {
     return CompositionType.Vec4;
   }
