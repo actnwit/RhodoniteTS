@@ -203,7 +203,8 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
     deltaVector.x += xAxisAccumulated * deltaScaleHorizontal;
     deltaVector.z += yAxisAccumulated * deltaScaleHorizontal;
   }
-  const rotateMat = (new MutableMatrix33(viewerData.viewerOrientation)).multiply(MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x));
+  const orientationMat = new MutableMatrix33(viewerData.viewerOrientation);
+  const rotateMat = orientationMat.multiply(MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x));
   rotateMat.multiplyVectorTo(deltaVector, deltaVector as MutableVector3);
   viewerData.viewerTranslate.add(deltaVector);
 }

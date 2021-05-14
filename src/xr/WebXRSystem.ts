@@ -456,8 +456,12 @@ const pos = xrView.transform.position;
   }
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
-    const xrViewLeft = xrViewerPose?.views[0];
-    const xrViewRight = xrViewerPose?.views[1];
+    if (Is.not.exist(xrViewerPose)) {
+      console.warn('xrViewerPose not exist')
+      return;
+    }
+    const xrViewLeft = xrViewerPose.views[0];
+    const xrViewRight = xrViewerPose.views[1];
 
     const orientation = xrViewerPose.transform.orientation;
     this.__viewerOrientation.x = orientation.x;
