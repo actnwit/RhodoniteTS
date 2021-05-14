@@ -1,7 +1,7 @@
 import { TypedArray } from "../../types/CommonTypes";
 import { IVector } from "./IVector";
 
-export default class AbstractVector implements IVector {
+export default abstract class AbstractVector implements IVector {
   _v: TypedArray = new Float32Array();
 
   get glslStrAsFloat(): string {

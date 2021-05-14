@@ -1,6 +1,6 @@
 import {IMatrix} from './IMatrix';
 
-export default class AbstractMatrix implements IMatrix {
+export default abstract class AbstractMatrix implements IMatrix {
   _v: Float32Array = new Float32Array();
   at(row_i: number, column_i: number): number {
     throw new Error("Method not implemented.");
