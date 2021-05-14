@@ -156,7 +156,7 @@ const concatArrayBuffers2 = ({
   return dstBuf.buffer;
 };
 
-export const defaultValue = <T>(defaultValue: T, value?: T) => {
+export const defaultValue = <T>(defaultValue: T, value?: T): T => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return defaultValue;
