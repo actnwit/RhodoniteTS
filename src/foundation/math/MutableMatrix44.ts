@@ -168,7 +168,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
   }
 
   get className() {
-    return this.constructor.name;
+    return 'MutableMatrix44';
   }
 
   /**

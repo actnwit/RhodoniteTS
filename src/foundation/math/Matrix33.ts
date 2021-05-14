@@ -153,7 +153,7 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   get className() {
-    return this.constructor.name;
+    return 'Matrix33';
   }
 
   static get compositionType() {

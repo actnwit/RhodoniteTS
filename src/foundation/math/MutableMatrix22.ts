@@ -69,7 +69,7 @@ export default class MutableMatrix22
   }
 
   get className() {
-    return this.constructor.name;
+    return 'MutableMatrix22';
   }
 
   /**

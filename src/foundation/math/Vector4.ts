@@ -448,7 +448,7 @@ export class Vector4_<T extends TypedArrayConstructor> extends AbstractVector
   }
 
   get className() {
-    return this.constructor.name;
+    return 'Vector4';
   }
 
   clone() {

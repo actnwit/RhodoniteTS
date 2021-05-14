@@ -139,7 +139,7 @@ export default class Matrix22 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   get className() {
-    return this.constructor.name;
+    return 'Matrix22';
   }
 
   static get compositionType() {

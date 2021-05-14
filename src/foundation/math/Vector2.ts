@@ -407,7 +407,7 @@ export default class Vector2
   }
 
   get className() {
-    return this.constructor.name;
+    return 'Vector2';
   }
 
   clone() {

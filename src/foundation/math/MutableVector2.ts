@@ -208,7 +208,7 @@ export default class MutableVector2
   }
 
   get className() {
-    return this.constructor.name;
+    return 'MutableVector2';
   }
 
   clone() {
