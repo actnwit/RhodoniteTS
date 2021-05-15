@@ -188,12 +188,17 @@ export interface IMatrix44 extends IMatrix {
   readonly m31: number;
   readonly m32: number;
   readonly m33: number;
+  readonly translateX: number;
+  readonly translateY: number;
+  readonly translateZ: number;
   at(row_i: number, column_i: number): number;
   clone(): IMatrix44;
   getRotate(): IMatrix44;
+  getTranslate(): IVector3;
+  getScale(): IVector3;
 }
 
-export interface IMutableMatrix44 {
+export interface IMutableMatrix44 extends IMatrix {
   m00: number;
   m01: number;
   m02: number;
@@ -210,6 +215,9 @@ export interface IMutableMatrix44 {
   m31: number;
   m32: number;
   m33: number;
+  translateX: number;
+  translateY: number;
+  translateZ: number;
 
   // common with immutable matrix33
   toString(): string;

@@ -208,6 +208,17 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
     return this._v[15];
   }
 
+  public get translateX() {
+    return this._v[12];
+  }
+
+  public get translateY() {
+    return this._v[13];
+  }
+
+  public get translateZ() {
+    return this._v[14];
+  }
 
   static get compositionType() {
     return CompositionType.Mat4;

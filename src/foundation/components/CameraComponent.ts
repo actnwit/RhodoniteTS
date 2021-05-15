@@ -27,6 +27,7 @@ import CameraControllerComponent from './CameraControllerComponent';
 import ModuleManager from '../system/ModuleManager';
 import {RnXR} from '../../xr/main';
 import RenderPass from '../renderer/RenderPass';
+import { IMutableVector3, IVector3 } from '../math/IVector';
 
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
@@ -578,6 +579,7 @@ export default class CameraComponent extends Component {
       this.__sceneGraphComponent!.worldMatrixInner,
       CameraComponent.__tmpMatrix44_0
     );
+
     this._viewMatrix.multiply(invertWorldMatrix);
 
     return this._viewMatrix;

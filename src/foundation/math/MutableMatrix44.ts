@@ -5,6 +5,7 @@ import Quaternion from './Quaternion';
 import Vector3 from './Vector3';
 import {Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
+import MutableVector3 from './MutableVector3';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -167,6 +168,30 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     return this._v[15];
   }
 
+  public get translateX() {
+    return this._v[12];
+  }
+
+  public set translateX(val: number) {
+    this._v[12] = val;
+  }
+
+  public get translateY() {
+    return this._v[13];
+  }
+
+  public set translateY(val: number) {
+    this._v[13] = val;
+  }
+
+  public get translateZ() {
+    return this._v[14];
+  }
+
+  public set translateZ(val: number) {
+    this._v[14] = val;
+  }
+
   get className() {
     return 'MutableMatrix44';
   }
@@ -263,6 +288,16 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
 
   getRotate() {
     const rotateMat = super.getRotate() as MutableMatrix44;
+    return rotateMat;
+  }
+
+  getTranslate() {
+    const rotateMat = super.getTranslate() as MutableVector3;
+    return rotateMat;
+  }
+
+  getScale() {
+    const rotateMat = super.getScale() as MutableVector3;
     return rotateMat;
   }
 
