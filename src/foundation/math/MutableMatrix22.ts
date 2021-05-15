@@ -213,7 +213,7 @@ export default class MutableMatrix22
     return this.setComponents(vec._v[0], 0, 0, vec._v[1]);
   }
 
-  putScale(vec: Vector2) {
+  multiplyScale(vec: Vector2) {
     this._v[0] *= vec._v[0];
     this._v[2] *= vec._v[0];
 

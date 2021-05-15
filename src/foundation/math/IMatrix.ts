@@ -36,7 +36,7 @@ export interface IMutableMatrix extends IMatrix {
   invert(): IMutableMatrix;
   rotate(any: any): IMutableMatrix;
   scale(vec: IVector): IMutableMatrix;
-  putScale(vec: IVector): IMutableMatrix;
+  multiplyScale(vec: IVector): IMutableMatrix;
   multiply(mat: IMatrix): IMutableMatrix;
   multiplyByLeft(mat: IMatrix): IMutableMatrix;
 }
@@ -94,7 +94,7 @@ export interface IMutableMatrix22 {
   invert(): IMutableMatrix22;
   rotate(radian: number): IMutableMatrix22;
   scale(vec: IVector2): IMutableMatrix22;
-  putScale(vec: IVector2): IMutableMatrix22;
+  multiplyScale(vec: IVector2): IMutableMatrix22;
   multiply(mat: IMatrix22): IMutableMatrix22;
   multiplyByLeft(mat: IMatrix22): IMutableMatrix22;
 }
@@ -166,7 +166,7 @@ export interface IMutableMatrix33 {
   rotateXYZ(x: number, y: number, z: number): IMutableMatrix33;
   rotate(vec3: IVector3): IMutableMatrix33;
   scale(vec: IVector3): IMutableMatrix33;
-  putScale(vec: IVector3): IMutableMatrix33;
+  multiplyScale(vec: IVector3): IMutableMatrix33;
   multiply(mat: IMatrix33): IMutableMatrix33;
   multiplyByLeft(mat: IMatrix33): IMutableMatrix33;
 }
@@ -270,7 +270,7 @@ export interface IMutableMatrix44 {
   rotateXYZ(x: number, y: number, z: number): IMutableMatrix44;
   rotate(vec3: IVector3): IMutableMatrix44;
   scale(vec: IVector3): IMutableMatrix44;
-  putScale(vec: IVector3): IMutableMatrix44;
+  multiplyScale(vec: IVector3): IMutableMatrix44;
   multiply(mat: IMatrix44): IMutableMatrix44;
   multiplyByLeft(mat: IMatrix44): IMutableMatrix44;
   fromQuaternion(quat: IQuaternion): IMutableMatrix44;

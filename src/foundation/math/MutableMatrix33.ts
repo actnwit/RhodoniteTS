@@ -383,7 +383,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     );
   }
 
-  putScale(vec: Vector3) {
+  multiplyScale(vec: Vector3) {
     this._v[0] *= vec._v[0];
     this._v[3] *= vec._v[0];
     this._v[6] *= vec._v[0];
