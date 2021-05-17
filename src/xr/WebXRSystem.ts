@@ -55,7 +55,7 @@ export default class WebXRSystem {
   private __viewerTranslate = MutableVector3.identity();
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();
-  private __viewerScale = MutableVector3.identity();
+  private __viewerScale = MutableVector3.one();
 
   private constructor() {
     const repo = EntityRepository.getInstance();
@@ -479,8 +479,8 @@ export default class WebXRSystem {
       true
     );
 
-    const rotateMatLeft = MutableMatrix44.rotateY(this.__viewerAzimuthAngle.x).multiply(new MutableMatrix44(lm));
-    const rotateMatRight = MutableMatrix44.rotateY(this.__viewerAzimuthAngle.x).multiply(new MutableMatrix44(rm));
+    const rotateMatLeft = lm;
+    const rotateMatRight = rm;
 
     const scale = this.__viewerScale.x;
     const pos = xrViewLeft.transform.position;
@@ -497,6 +497,7 @@ export default class WebXRSystem {
     const viewerTransform = this.__viewerEntity.getTransform();
     viewerTransform.translate = new Vector3(viewerTranslateScaledX, 0, viewerTranslateScaledZ);
     viewerTransform.scale = new Vector3(scale, scale, scale);
+    viewerTransform.rotate = new Vector3(0, this.__viewerAzimuthAngle.x, 0);
 
     rotateMatLeft.translateY = translateLeft.y;
     rotateMatLeft.translateX = (translateLeft.x - viewerTranslateX);
@@ -562,14 +563,9 @@ export default class WebXRSystem {
           if (Is.exist(hand)) {
             // update the transform of the controller itself
             const handWorldMatrix = new MutableMatrix44(xrPose.transform.matrix, true);
-            const rotateMat = MutableMatrix44.rotateY(this.__viewerAzimuthAngle.x).multiply(new MutableMatrix44(handWorldMatrix));
-            // rotateMat.translateX = 0;
+            const rotateMat = new MutableMatrix44(handWorldMatrix);
             rotateMat.translateY += this.__defaultPositionInLocalSpaceMode.y;
-            // rotateMat.translateZ = 0;
-            // rotateMat.translateY *= this.__viewerScaleMat.m00;
-            // rotateMat.translateX = 0;
             rotateMat.translateY += this.__viewerTranslate.y;
-            // rotateMat.translateZ = 0;
             hand.getTransform().matrix = rotateMat;
 
             // update the components (buttons, etc...) of the controller

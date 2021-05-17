@@ -154,7 +154,7 @@ function processInput(component: Component, handed: string, viewerData: WebXRSys
 const scaleVec3 = MutableVector3.one();
 function processTriggerInput(triggerComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   let value = 0;
-  const scale = 0.25;
+  const scale = 0.1;
 
   const componentName = wellKnownMapping.get(triggerComponent.rootNodeName);
   if (triggerComponent.values.state === Constants.ComponentState.PRESSED) {
@@ -216,10 +216,10 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
   const deltaVector = MutableVector3.zero();
   if (handed === 'right') {
     viewerData.viewerAzimuthAngle.x -= xAxis * deltaScaleAzimuthAngle;
-    deltaVector.y -= yAxis * deltaScaleVertical;
+    deltaVector.y -= yAxis * deltaScaleVertical * viewerData.viewerScale.x;
   } else {
-    deltaVector.x += xAxis * deltaScaleHorizontal;
-    deltaVector.z += yAxis * deltaScaleHorizontal;
+    deltaVector.x += xAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
+    deltaVector.z += yAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
   }
   const orientationMat = new MutableMatrix33(viewerData.viewerOrientation);
   const rotateMat = orientationMat.multiply(MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x));
