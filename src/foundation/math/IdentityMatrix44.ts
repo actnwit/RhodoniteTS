@@ -2,9 +2,10 @@
 import { CompositionType } from '../definitions/CompositionType';
 import AbstractMatrix from './AbstractMatrix';
 import {IMatrix, IMatrix44} from './IMatrix';
-import { IVector, IMutableVector4, IMutableVector } from './IVector';
+import { IVector, IMutableVector4, IMutableVector, IVector3 } from './IVector';
 import Matrix44 from './Matrix44';
 import MutableVector4 from './MutableVector4';
+import Vector3 from './Vector3';
 import Vector4 from './Vector4';
 
 export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
@@ -99,8 +100,8 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
     return outVec;
   }
 
-  getScale(): IVector {
-    return new Vector4(1, 1, 1, 1);
+  getScale(): IVector3 {
+    return Vector3.one();
   }
 
   getScaleTo(outVec: IMutableVector): IMutableVector {
@@ -119,6 +120,10 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
 
   getRotate(): IMatrix44 {
     return new IdentityMatrix44();
+  }
+
+  getTranslate(): IVector3 {
+    return Vector3.zero();
   }
 
   public get m00() {
@@ -183,6 +188,16 @@ export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
 
   public get m33() {
     return 1;
+  }
+
+  public get translateX() {
+    return 0;
+  }
+  public get translateY() {
+    return 0;
+  }
+  public get translateZ() {
+    return 0;
   }
 
   get className() {

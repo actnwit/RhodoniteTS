@@ -18,6 +18,7 @@ import Matrix44 from '../foundation/math/Matrix44';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableMatrix33 from '../foundation/math/MutableMatrix33';
 import MutableScalar from '../foundation/math/MutableScalar';
+import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers:Map<XRInputSource, MotionController> = new Map();
@@ -58,7 +59,7 @@ type ComponentFunctionMap = {
 
 type WebXRSystemViewerData = {
   viewerTranslate: IMutableVector3,
-  viewerScale: IMutableVector3,
+  viewerScale: MutableVector3,
   viewerOrientation: IMutableQuaternion,
   viewerAzimuthAngle: MutableScalar,
 }
@@ -150,17 +151,35 @@ function processInput(component: Component, handed: string, viewerData: WebXRSys
   }
 }
 
-
+const scaleVec3 = MutableVector3.one();
 function processTriggerInput(triggerComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
+  let value = 0;
+  const scale = 0.1;
+
   const componentName = wellKnownMapping.get(triggerComponent.rootNodeName);
   if (triggerComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, triggerComponent.values.button, handed);
+    value = defaultValue(0, triggerComponent.values.button) * deltaSec;
     // Fire ray gun
   } else if (triggerComponent.values.state === Constants.ComponentState.TOUCHED) {
     const chargeLevel = triggerComponent.values.button;
     console.log(componentName, triggerComponent.values.button, handed);
+    value = defaultValue(0, triggerComponent.values.button) * deltaSec;
     // Show ray gun charging up
   }
+  if (handed === 'right') {
+    value *= -1;
+  }
+  scaleVec3.x -= value * scale;
+  scaleVec3.y -= value * scale;
+  scaleVec3.z -= value * scale;
+  scaleVec3.x = Math.max(scaleVec3.x, 0.05);
+  scaleVec3.y = Math.max(scaleVec3.y, 0.05);
+  scaleVec3.z = Math.max(scaleVec3.z, 0.05);
+  scaleVec3.x = Math.min(scaleVec3.x, 3.00);
+  scaleVec3.y = Math.min(scaleVec3.y, 3.00);
+  scaleVec3.z = Math.min(scaleVec3.z, 3.00);
+  viewerData.viewerScale.copyComponents(scaleVec3);
 }
 
 function processSqueezeInput(squeezeComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
@@ -177,31 +196,30 @@ function processSqueezeInput(squeezeComponent: Component, handed: string, viewer
 
 function processThumbstickInput(thumbstickComponent: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   const componentName = wellKnownMapping.get(thumbstickComponent.rootNodeName);
-  let xAxisAccumulated = 0;
-  let yAxisAccumulated = 0;
+  let xAxis = 0;
+  let yAxis = 0;
   const deltaScaleHorizontal = 0.25;
   const deltaScaleVertical= 0.10;
   const deltaScaleAzimuthAngle = 0.15;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, thumbstickComponent.values.button, thumbstickComponent.values.state, handed);
-    xAxisAccumulated = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
-    yAxisAccumulated = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
+    xAxis = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
+    yAxis = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
     // Align the world orientation to the user's current orientation
   } else if (thumbstickComponent.values.state === Constants.ComponentState.TOUCHED) {
-    xAxisAccumulated = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
-    yAxisAccumulated = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
+    xAxis = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
+    yAxis = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
   }
-  xAxisAccumulated = Math.min(xAxisAccumulated, 1);
-  yAxisAccumulated = Math.min(yAxisAccumulated, 1);
+  xAxis = Math.min(xAxis, 1);
+  yAxis = Math.min(yAxis, 1);
 
   const deltaVector = MutableVector3.zero();
-  // const rotateMat = new MutableMatrix33(viewerData.viewerOrientation);
   if (handed === 'right') {
-    viewerData.viewerAzimuthAngle.x -= xAxisAccumulated * deltaScaleAzimuthAngle;
-    deltaVector.y -= yAxisAccumulated * deltaScaleVertical;
+    viewerData.viewerAzimuthAngle.x -= xAxis * deltaScaleAzimuthAngle;
+    deltaVector.y -= yAxis * deltaScaleVertical * viewerData.viewerScale.x;
   } else {
-    deltaVector.x += xAxisAccumulated * deltaScaleHorizontal;
-    deltaVector.z += yAxisAccumulated * deltaScaleHorizontal;
+    deltaVector.x += xAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
+    deltaVector.z += yAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
   }
   const orientationMat = new MutableMatrix33(viewerData.viewerOrientation);
   const rotateMat = orientationMat.multiply(MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x));
