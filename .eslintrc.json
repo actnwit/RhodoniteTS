@@ -7,6 +7,6 @@
     "ecmaVersion": 2019
   },
   "rules": {
-    "eqeqeq": "smart"
+    "eqeqeq":  [2, "smart"]
   }
 }
