@@ -702,7 +702,7 @@ export default class Gltf2Importer {
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);
-      } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
+      } else if (imageJson.uri?.match(/basis$/)) {
         const promise = new Promise(resolve => {
           imageJson.basis = new Uint8Array(files[imageJson.uri!]);
           resolve();

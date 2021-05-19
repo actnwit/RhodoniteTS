@@ -80,7 +80,7 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
           this._v[2] = m[6]; this._v[5] = m[7]; this._v[8] = m[8];
         }
       }
-    } else if (!!m && m._v != null && m._v[8] != undefined) {
+    } else if (!!m && m._v?.[8] != null) {
       if (_notCopyFloatArray) {
         this._v = m._v;
       } else {

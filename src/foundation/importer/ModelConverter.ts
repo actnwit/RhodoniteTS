@@ -507,7 +507,7 @@ export default class ModelConverter {
     if (argument?.isMorphing === false) {
       return false;
     } else {
-      return node.mesh != null && node.mesh.primitives[0].targets != null;
+      return node.mesh?.primitives[0].targets != null;
     }
   }
 
