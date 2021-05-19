@@ -6,6 +6,13 @@ import Config from '../foundation/core/Config';
 
 const INVALID_SIZE = -1;
 
+interface WEBGL_compressed_texture_etc {
+  readonly COMPRESSED_RGBA8_ETC2_EAC: number;
+}
+interface WEBGL_compressed_texture_bptc {
+  readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
+}
+
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext | any;
   __webglVersion = 1;
@@ -27,11 +34,21 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
   public readonly webgl1ExtCTAstc?: WEBGL_compressed_texture_astc;
   public readonly webgl1ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
+  public readonly webgl1ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
+  public readonly webgl1ExtCTAtc?: WEBGL_compressed_texture_atc;
+  public readonly webgl1ExtCTEtc?: WEBGL_compressed_texture_etc;
+  public readonly webgl1ExtCTEtc1?: WEBGL_compressed_texture_etc1;
+  public readonly webgl1ExtCTBptc?: WEBGL_compressed_texture_bptc;
 
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
   public readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
   public readonly webgl2ExtCTAstc?: WEBGL_compressed_texture_astc;
   public readonly webgl2ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
+  public readonly webgl2ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
+  public readonly webgl2ExtCTAtc?: WEBGL_compressed_texture_atc;
+  public readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
+  public readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
+  public readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
@@ -84,6 +101,21 @@ export default class WebGLContextWrapper {
       this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureS3tc
       );
+      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTexturePvrtc
+      );
+      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureAtc
+      );
+      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc
+      );
+      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc1
+      );
+      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureBptc
+      );
     } else {
       this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
       this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
@@ -109,6 +141,21 @@ export default class WebGLContextWrapper {
       );
       this.webgl1ExtCTS3tc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureS3tc
+      );
+      this.webgl1ExtCTPvrtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTexturePvrtc
+      );
+      this.webgl1ExtCTAtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureAtc
+      );
+      this.webgl1ExtCTEtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc
+      );
+      this.webgl1ExtCTEtc1 = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc1
+      );
+      this.webgl1ExtCTBptc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureBptc
       );
     }
     this.getUniformBufferInfo();
