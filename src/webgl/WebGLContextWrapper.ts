@@ -77,13 +77,19 @@ export default class WebGLContextWrapper {
       this.webgl2ExtTFA = this.__getExtension(
         WebGLExtension.TextureFilterAnisotropic
       );
-      this.webgl2ExtCTAS = this.__getExtension(
+      this.webgl2ExtCTAS = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureAstc
       );
       this.webgl2ExtCTS3TC =
-        this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcMOZ) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcWK);
+        this.__getCompressedTextureExtension(
+          WebGLExtension.CompressedTextureS3tc
+        ) ??
+        this.__getCompressedTextureExtension(
+          WebGLExtension.CompressedTextureS3tcMOZ
+        ) ??
+        this.__getCompressedTextureExtension(
+          WebGLExtension.CompressedTextureS3tcWK
+        );
     } else {
       this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
       this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
@@ -104,13 +110,19 @@ export default class WebGLContextWrapper {
       this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
       this.webgl1ExtBM = this.__getExtension(WebGLExtension.BlendMinmax);
       this.webgl1ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloat);
-      this.webgl1ExtCTASTC = this.__getExtension(
+      this.webgl1ExtCTASTC = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureAstc
       );
       this.webgl1ExtCTS3TC =
-        this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcMOZ) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcWK);
+        this.__getCompressedTextureExtension(
+          WebGLExtension.CompressedTextureS3tc
+        ) ??
+        this.__getCompressedTextureExtension(
+          WebGLExtension.CompressedTextureS3tcMOZ
+        ) ??
+        this.__getCompressedTextureExtension(
+          WebGLExtension.CompressedTextureS3tcWK
+        );
     }
     this.getUniformBufferInfo();
     this.getMaxUniformVectors();
@@ -430,11 +442,22 @@ export default class WebGLContextWrapper {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
         const text = `The library does not support this environment because the ${extension.toString()} is not available`;
-        if (console.error != null) {
-          console.error(text);
-        } else {
-          console.log(text);
-        }
+        console.error(text);
+      }
+      this.__extensions.set(extension, extObj);
+      return extObj;
+    }
+    return this.__extensions.get(extension);
+  }
+
+  private __getCompressedTextureExtension(extension: WebGLExtensionEnum) {
+    const gl = this.__gl as WebGLRenderingContext | WebGL2RenderingContext;
+
+    if (!this.__extensions.has(extension)) {
+      const extObj = gl.getExtension(extension.toString());
+      if (extObj == null) {
+        const text = `This environment does not support the ${extension.toString()}`;
+        console.warn(text);
       }
       this.__extensions.set(extension, extObj);
       return extObj;
