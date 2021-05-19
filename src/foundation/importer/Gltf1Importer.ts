@@ -33,7 +33,7 @@ export default class Gltf1Importer {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     return await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
-      options?.files != null ? options.files : {},
+      options?.files ?? {},
       options,
       uri
     );

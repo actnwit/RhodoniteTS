@@ -249,8 +249,7 @@ export default class DataUtil {
     buffer: ArrayBuffer | Uint8Array
   ): Uint8Array {
     const bufferViewJson = json.bufferViews[bufferViewIndex];
-    let byteOffset =
-      bufferViewJson.byteOffset != null ? bufferViewJson.byteOffset : 0;
+    let byteOffset = bufferViewJson.byteOffset ?? 0;
     const byteLength = bufferViewJson.byteLength;
     let arrayBuffer: ArrayBuffer = buffer;
     if (buffer instanceof Uint8Array) {
@@ -344,8 +343,7 @@ export default class DataUtil {
     buffer: ArrayBuffer | Uint8Array
   ): Uint8Array {
     const bufferViewJson = json.bufferViews[bufferViewIndex];
-    let byteOffset =
-      bufferViewJson.byteOffset != null ? bufferViewJson.byteOffset : 0;
+    let byteOffset = bufferViewJson.byteOffset ?? 0;
     const byteLength = bufferViewJson.byteLength;
     let arrayBuffer: ArrayBuffer = buffer;
     if (buffer instanceof Uint8Array) {

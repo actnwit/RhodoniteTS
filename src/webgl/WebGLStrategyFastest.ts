@@ -377,11 +377,11 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       }
 
       const instanceSize =
-        vec4SizeOfProperty * (info.maxIndex != null ? info.maxIndex : 1);
+        vec4SizeOfProperty * (info.maxIndex ?? 1);
       indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId;\n`;
       if (CompositionType.isArray(info.compositionType)) {
         const instanceSizeInScalar =
-          scalarSizeOfProperty * (info.maxIndex != null ? info.maxIndex : 1);
+          scalarSizeOfProperty * (info.maxIndex ?? 1);
         indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
         indexStr += `int scalar_idx = ${
           dataBeginPos * 4

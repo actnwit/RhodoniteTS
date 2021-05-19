@@ -122,7 +122,7 @@ export default class BufferView {
     normalized?: boolean;
   }): Accessor {
     const byteStride = this.byteStride;
-    const _arrayLength = arrayLength != null ? arrayLength : 1;
+    const _arrayLength = arrayLength ?? 1;
     const accessor = this.__takeAccessorInner({
       compositionType,
       componentType,
@@ -157,7 +157,7 @@ export default class BufferView {
     arrayLength?: Size;
     normalized?: boolean;
   }): Accessor {
-    const _arrayLength = arrayLength != null ? arrayLength : 1;
+    const _arrayLength = arrayLength ?? 1;
 
     const accessor = this.__takeAccessorInner({
       compositionType,

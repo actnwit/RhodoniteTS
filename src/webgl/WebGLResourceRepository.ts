@@ -118,7 +118,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     WebGLResourceHandle: WebGLResourceHandle
   ): WebGLObject | null {
     const result = this.__webglResources.get(WebGLResourceHandle);
-    return result != null ? result : null;
+    return result ?? null;
   }
 
   createIndexBuffer(accessor: Accessor) {

@@ -45,7 +45,7 @@ export default class Gltf2Importer {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
-      options?.files != null ? options.files : {},
+      options?.files ?? {},
       options,
       uri
     ).catch(err => {
