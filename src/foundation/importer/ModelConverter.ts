@@ -1039,7 +1039,7 @@ export default class ModelConverter {
     if (argument?.isSkinning === false) {
       return false;
     } else {
-      return node.skin != null ? true : false;
+      return node.skin != null;
     }
   }
 
