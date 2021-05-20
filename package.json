@@ -80,6 +80,7 @@
     "webxr-input-profiles": "actnwit/webxr-input-profiles#369df6294cb57d429ecdec544c1409deef040e5a"
   },
   "dependencies": {
+    "ktx-parse": "^0.2.1",
     "requirejs": "^2.3.6",
     "shaderity": "0.1.27"
   },

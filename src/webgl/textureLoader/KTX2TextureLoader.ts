@@ -1,3 +1,5 @@
+import {KTX2Container, read} from 'ktx-parse';
+
 declare const MSC_TRANSCODER: any;
 
 export default class KTX2TextureLoader {
@@ -26,6 +28,22 @@ export default class KTX2TextureLoader {
     return this.__instance;
   }
 
+  transcode(uint8Array: Uint8Array) {
+    const ktx2Container = this.__parse(uint8Array);
+
+    if (ktx2Container.pixelDepth > 0) {
+      throw new Error('Only 2D textures are currently supported');
+    }
+
+    if (ktx2Container.layerCount > 1) {
+      throw new Error('Array textures are not currently supported');
+    }
+
+    if (ktx2Container.faceCount > 1) {
+      throw new Error('Cube textures are not currently supported');
+    }
+  }
+
   // ----- Private Methods ----------------------------------------------------
 
   private __loadMSCTranscoder(): Promise<void> {
@@ -41,5 +59,10 @@ export default class KTX2TextureLoader {
         resolve();
       });
     });
+  }
+
+  private __parse(uint8Array: Uint8Array): KTX2Container {
+    // The parser can detect an invalid identifier.
+    return read(uint8Array);
   }
 }
