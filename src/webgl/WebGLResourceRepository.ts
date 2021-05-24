@@ -50,10 +50,6 @@ import {
   BasisCompressionType,
 } from '../foundation/definitions/BasisCompressionType';
 import {WebGLExtension} from './WebGLExtension';
-import {
-  ProcessApproach,
-  ProcessApproachEnum,
-} from '../foundation/definitions/ProcessApproach';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is as is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
@@ -73,6 +69,13 @@ type DirectTextureData =
   | HTMLImageElement
   | HTMLVideoElement
   | HTMLCanvasElement;
+
+export type TextureData = {
+  level: Count;
+  width: Count;
+  height: Count;
+  buffer: ArrayBufferView;
+}
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance: WebGLResourceRepository;
@@ -1074,26 +1077,19 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   /**
    * Create and bind compressed texture object
-   * @param dataArray transcoded texture data for each mipmap
-   * @param internalFormat internalFormat for gl.compressedTexImage2D
+   * @param textureDataArray transcoded texture data for each mipmaps(levels)
+   * @param compressionTextureType
    */
   createCompressedTexture(
-    data: ArrayBufferView,
+    textureDataArray: TextureData[],
+    compressionTextureType: CompressionTextureTypeEnum,
     {
-      level,
-      compressionTextureType,
-      width,
-      height,
       magFilter,
       minFilter,
       wrapS,
       wrapT,
       anisotropy,
     }: {
-      level: Index;
-      compressionTextureType: CompressionTextureTypeEnum;
-      width: Size;
-      height: Size;
       magFilter: TextureParameterEnum;
       minFilter: TextureParameterEnum;
       wrapS: TextureParameterEnum;
@@ -1106,20 +1102,26 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.getResourceNumber();
     texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    this.__webglResources.set(
+      resourceHandle,
+      texture as unknown as WebGLObject
+    );
 
     this.__glw!.bindTexture2D(0, texture);
 
     const internalFormat = compressionTextureType.index;
-    gl.compressedTexImage2D(
-      gl.TEXTURE_2D,
-      level,
-      internalFormat,
-      width,
-      height,
-      0,
-      data
-    );
+
+    for (const textureData of textureDataArray) {
+      gl.compressedTexImage2D(
+        gl.TEXTURE_2D,
+        textureData.level,
+        internalFormat,
+        textureData.width,
+        textureData.height,
+        0,
+        textureData.buffer
+      );
+    }
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
@@ -1130,6 +1132,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
 
+    const width = textureDataArray[0].width;
+    const height = textureDataArray[0].height;
     if (MathUtil.isPowerOfTwoTexture(width, height)) {
       if (anisotropy) {
         if (this.__glw!.webgl2ExtTFA) {

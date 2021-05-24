@@ -16,6 +16,7 @@ import {
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
 import DataUtil from '../misc/DataUtil';
 import {CompressionTextureTypeEnum} from '../definitions/CompressionTextureType';
+import {TextureData} from '../../webgl/WebGLResourceRepository';
 
 declare const BASIS: BASIS;
 
@@ -361,7 +362,6 @@ export default class Texture extends AbstractTexture {
     height: number,
     compressionTextureType: CompressionTextureTypeEnum,
     {
-      level = 0,
       magFilter = TextureParameter.Linear,
       minFilter = TextureParameter.LinearMipmapLinear,
       wrapS = TextureParameter.ClampToEdge,
@@ -373,14 +373,19 @@ export default class Texture extends AbstractTexture {
     this.__width = width;
     this.__height = height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const textureData = {
+      level: 0,
+      width,
+      height,
+      buffer: typedArray,
+    } as TextureData;
+
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
-      typedArray,
+      [textureData],
+      compressionTextureType,
       {
-        level,
-        compressionTextureType,
-        width,
-        height,
         magFilter,
         minFilter,
         wrapS,
