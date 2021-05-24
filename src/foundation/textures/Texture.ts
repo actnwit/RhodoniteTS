@@ -400,6 +400,48 @@ export default class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
+  generateCompressedTextureWithMipmapFromTypedArray(
+    textureDataArray: TextureData[],
+    compressionTextureType: CompressionTextureTypeEnum,
+    {
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.ClampToEdge,
+      wrapT = TextureParameter.ClampToEdge,
+      anisotropy = true,
+      // isPremultipliedAlpha = false,
+    } = {}
+  ) {
+    const originalTextureData = textureDataArray.find(
+      textureData => textureData.level === 0
+    );
+    if (originalTextureData == null) {
+      throw new Error('texture data with level 0 is not found');
+    }
+
+    this.__width = originalTextureData.width;
+    this.__height = originalTextureData.height;
+
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.createCompressedTexture(
+      textureDataArray,
+      compressionTextureType,
+      {
+        magFilter,
+        minFilter,
+        wrapS,
+        wrapT,
+        anisotropy,
+        // isPremultipliedAlpha,
+      }
+    );
+
+    this.cgApiResourceUid = texture;
+    this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(texture, this);
+  }
+
   importWebGLTextureDirectly(
     webGLTexture: WebGLTexture,
     width = 0,
