@@ -1414,20 +1414,15 @@ export default class ModelConverter {
       }
 
       rnTexture.generateTextureFromImage(imageElem, textureOption);
-      if (image.uri) {
-        rnTexture.name = image.uri;
-      } else {
-        const ext = image.mimeType?.split('/')[1];
-        rnTexture.name = image.name + `.${ext}`;
-      }
     } else if (image.basis) {
       rnTexture.generateTextureFromBasis(image.basis, textureOption);
-      if (image.uri) {
-        rnTexture.name = image.uri;
-      } else {
-        const ext = image.mimeType?.split('/')[1];
-        rnTexture.name = image.name + `.${ext}`;
-      }
+    }
+
+    if (image.uri) {
+      rnTexture.name = image.uri;
+    } else {
+      const ext = image.mimeType?.split('/')[1];
+      rnTexture.name = image.name + `.${ext}`;
     }
 
     return rnTexture;
