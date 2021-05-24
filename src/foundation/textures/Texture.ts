@@ -16,6 +16,7 @@ import {
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
 import DataUtil from '../misc/DataUtil';
 import {CompressionTextureTypeEnum} from '../definitions/CompressionTextureType';
+import KTX2TextureLoader from '../../webgl/textureLoader/KTX2TextureLoader';
 import {TextureData} from '../../webgl/WebGLResourceRepository';
 
 declare const BASIS: BASIS;
@@ -131,6 +132,38 @@ export default class Texture extends AbstractTexture {
 
     basisFile.close();
     basisFile.delete();
+  }
+
+  generateTextureFromKTX2(
+    uint8Array: Uint8Array,
+    {
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.Repeat,
+      wrapT = TextureParameter.Repeat,
+      anisotropy = true,
+      // isPremultipliedAlpha = false,
+    } = {}
+  ) {
+    this.__startedToLoad = true;
+
+    const transcodedData = KTX2TextureLoader.getInstance().transcode(uint8Array);
+    transcodedData.then(data => {
+      this.__width = data.width;
+      this.__height = data.height;
+      this.generateCompressedTextureWithMipmapFromTypedArray(
+        data.mipmapData,
+        data.compressionTextureType,
+        {
+          magFilter,
+          minFilter,
+          wrapS,
+          wrapT,
+          anisotropy,
+          // isPremultipliedAlpha = false,
+        }
+      );
+    });
   }
 
   generateTextureFromImage(
