@@ -48,6 +48,7 @@ import {
   Gltf2BufferView,
   Gltf2Primitive,
   Gltf2Material,
+  Gltf2Image,
 } from '../../types/glTF';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
@@ -1397,34 +1398,35 @@ export default class ModelConverter {
         TextureParameter.Repeat,
     };
 
-    if (texture.image.image) {
-      const image = texture.image.image as HTMLImageElement;
+    const image = texture.image as Gltf2Image;
+    if (image.image) {
+      const imageElem = image.image as HTMLImageElement;
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper
         ?.isWebGL2;
 
       if (
         isWebGL1 &&
-        !this.__sizeIsPowerOfTwo(image) &&
+        !this.__sizeIsPowerOfTwo(imageElem) &&
         this.__needResizeToPowerOfTwoOnWebGl1(textureOption)
       ) {
         rnTexture.autoResize = true;
       }
 
-      rnTexture.generateTextureFromImage(image, textureOption);
-      if (texture.image.uri) {
-        rnTexture.name = texture.image.uri;
+      rnTexture.generateTextureFromImage(imageElem, textureOption);
+      if (image.uri) {
+        rnTexture.name = image.uri;
       } else {
-        const ext = texture.image.mimeType.split('/')[1];
-        rnTexture.name = texture.image.name + `.${ext}`;
+        const ext = image.mimeType?.split('/')[1];
+        rnTexture.name = image.name + `.${ext}`;
       }
-    } else if (texture.image.basis) {
-      rnTexture.generateTextureFromBasis(texture.image.basis, textureOption);
-      if (texture.image.uri) {
-        rnTexture.name = texture.image.uri;
+    } else if (image.basis) {
+      rnTexture.generateTextureFromBasis(image.basis, textureOption);
+      if (image.uri) {
+        rnTexture.name = image.uri;
       } else {
-        const ext = texture.image.mimeType.split('/')[1];
-        rnTexture.name = texture.image.name + `.${ext}`;
+        const ext = image.mimeType?.split('/')[1];
+        rnTexture.name = image.name + `.${ext}`;
       }
     }
 
