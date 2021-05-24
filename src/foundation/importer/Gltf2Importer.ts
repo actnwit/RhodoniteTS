@@ -471,7 +471,13 @@ export default class Gltf2Importer {
           texture.samplerIndex = texture.sampler;
           texture.sampler = gltfJson.samplers[texture.samplerIndex!];
         }
-        if (texture.source !== void 0) {
+
+        if (texture.extensions?.KHR_texture_basisu?.source != null) {
+          texture.extensions.KHR_texture_basisu.fallbackSourceIndex =
+            texture.source;
+          texture.sourceIndex = texture.extensions.KHR_texture_basisu.source;
+          texture.image = gltfJson.images[texture.sourceIndex!];
+        } else if (texture.source !== void 0) {
           texture.sourceIndex = texture.source;
           texture.image = gltfJson.images[texture.sourceIndex!];
         }
@@ -705,6 +711,23 @@ export default class Gltf2Importer {
       } else if (imageJson.uri?.match(/basis$/)) {
         const promise = new Promise(resolve => {
           imageJson.basis = new Uint8Array(files[imageJson.uri!]);
+          resolve();
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
+      } else if (imageUri && imageJson.mimeType === 'image/ktx2') {
+        const promise = new Promise(resolve => {
+          fetch(imageUri, {mode: 'cors'}).then(response => {
+            response.arrayBuffer().then(buffer => {
+              const uint8Array = new Uint8Array(buffer);
+              imageJson.ktx2 = uint8Array;
+              resolve();
+            });
+          });
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
+      } else if (imageJson.uri?.match(/ktx2$/)) {
+        const promise = new Promise(resolve => {
+          imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);

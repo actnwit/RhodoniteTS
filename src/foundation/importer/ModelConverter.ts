@@ -839,6 +839,8 @@ export default class ModelConverter {
         rnTexture.generateTextureFromImage(image.image, textureOption);
       } else if (image?.basis) {
         rnTexture.generateTextureFromBasis(image.basis, textureOption);
+      } else if (image?.ktx2) {
+        rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
       } else {
         console.warn('default image not found');
         continue;
@@ -1416,6 +1418,8 @@ export default class ModelConverter {
       rnTexture.generateTextureFromImage(imageElem, textureOption);
     } else if (image.basis) {
       rnTexture.generateTextureFromBasis(image.basis, textureOption);
+    } else if (image.ktx2) {
+      rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
     }
 
     if (image.uri) {
