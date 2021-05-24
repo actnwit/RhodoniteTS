@@ -203,6 +203,36 @@ const S3TC_RGBA_DXT5: CompressionTextureTypeEnum = new CompressionTextureTypeCla
     str: 'COMPRESSED_RGBA_S3TC_DXT5_EXT',
   }
 );
+const BPTC_RGBA: CompressionTextureTypeEnum = new CompressionTextureTypeClass(
+  {
+    index: 36492,
+    str: 'COMPRESSED_RGBA_BPTC_UNORM_EXT',
+  }
+);
+const PVRTC_RGBA_4BPPV1: CompressionTextureTypeEnum = new CompressionTextureTypeClass(
+  {
+    index: 35842,
+    str: 'COMPRESSED_RGBA_PVRTC_4BPPV1_IMG',
+  }
+);
+const ETC2_RGBA8_EAC: CompressionTextureTypeEnum = new CompressionTextureTypeClass(
+  {
+    index: 37496,
+    str: 'COMPRESSED_RGBA8_ETC2_EAC',
+  }
+);
+const ETC1_RGB: CompressionTextureTypeEnum = new CompressionTextureTypeClass(
+  {
+    index: 36196,
+    str: 'COMPRESSED_RGB_ETC1_WEBGL',
+  }
+);
+const RGBA8_EXT: CompressionTextureTypeEnum = new CompressionTextureTypeClass(
+  {
+    index: 32856,
+    str: 'RGBA8_EXT',
+  }
+);
 
 const typeList = [
   ASTC_RGBA_4x4,
@@ -237,6 +267,11 @@ const typeList = [
   S3TC_RGBA_DXT1,
   S3TC_RGBA_DXT3,
   S3TC_RGBA_DXT5,
+  BPTC_RGBA,
+  PVRTC_RGBA_4BPPV1,
+  ETC2_RGBA8_EAC,
+  ETC1_RGB,
+  RGBA8_EXT,
 ];
 
 function from(index: number): CompressionTextureTypeEnum {
@@ -280,6 +315,11 @@ export const CompressionTextureType = Object.freeze({
   S3TC_RGBA_DXT1,
   S3TC_RGBA_DXT3,
   S3TC_RGBA_DXT5,
+  BPTC_RGBA,
+  PVRTC_RGBA_4BPPV1,
+  ETC2_RGBA8_EAC,
+  ETC1_RGB,
+  RGBA8_EXT,
   from,
   fromString,
 });
