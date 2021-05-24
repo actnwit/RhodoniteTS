@@ -692,12 +692,14 @@ export default class Gltf2Importer {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       // }
       if (imageUri.match(/basis$/)) {
-        const promise = new Promise(async resolve => {
-          const response = await fetch(imageUri, {mode: 'cors'});
-          const buffer = await response.arrayBuffer();
-          const uint8Array = new Uint8Array(buffer);
-          imageJson.basis = uint8Array;
-          resolve();
+        const promise = new Promise(resolve => {
+          fetch(imageUri, {mode: 'cors'}).then(response => {
+            response.arrayBuffer().then(buffer => {
+              const uint8Array = new Uint8Array(buffer);
+              imageJson.basis = uint8Array;
+              resolve();
+            });
+          });
         }) as Promise<void>;
         promisesToLoadResources.push(promise);
       } else if (imageJson.uri?.match(/basis$/)) {
