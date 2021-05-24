@@ -164,7 +164,8 @@ export type Gltf2Image = {
   mimeType?: string;
   bufferView?: number;
   image?: HTMLImageElement;
-  basis?: any;
+  basis?: Uint8Array;
+  ktx2?: Uint8Array;
   name?: string;
   extensions?: any;
   extras?: any;
