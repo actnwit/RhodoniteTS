@@ -574,10 +574,8 @@ export default class Gltf2Importer {
       extendedJson = JSON.parse(extendedJsonStr);
     } else if (typeof extendedData === 'string') {
       extendedJson = JSON.parse(extendedData);
-      extendedJson = extendedJson;
     } else if (typeof extendedData === 'object') {
       extendedJson = extendedData;
-    } else {
     }
 
     Object.assign(gltfJson, extendedJson);
