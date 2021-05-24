@@ -809,6 +809,23 @@ export default class Gltf1Importer {
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);
+      } else if (imageUri && imageJson.mimeType === 'image/ktx2') {
+        const promise = new Promise(resolve => {
+          fetch(imageUri, {mode: 'cors'}).then(response => {
+            response.arrayBuffer().then(buffer => {
+              const uint8Array = new Uint8Array(buffer);
+              imageJson.ktx2 = uint8Array;
+              resolve();
+            });
+          });
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
+      } else if (imageJson.uri?.match(/ktx2$/)) {
+        const promise = new Promise(resolve => {
+          imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
+          resolve();
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
       } else {
         const promise = DataUtil.createImageFromUri(
           imageUri,
