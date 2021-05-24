@@ -1,10 +1,16 @@
-import {KTX2Container, read} from 'ktx-parse';
+import {KTX2Container, KTX2Model, KTX2Transfer, read} from 'ktx-parse';
 import CGAPIResourceRepository from '../../foundation/renderer/CGAPIResourceRepository';
 import WebGLContextWrapper from '../WebGLContextWrapper';
+import {TextureData} from '../WebGLResourceRepository';
 import {
   CompressionTextureType,
   CompressionTextureTypeEnum,
 } from '../../foundation/definitions/CompressionTextureType';
+
+enum CompressedTextureFormat {
+  ETC1S = 0,
+  UASTC4x4 = 1,
+}
 
 enum TranscodeTarget {
   ETC1_RGB,
@@ -80,6 +86,7 @@ export default class KTX2TextureLoader {
       throw new Error('Cube textures are not currently supported');
     }
 
+    // TODO: support super compressions
     return this.__mscTranscoderPromise.then(() => {
       return this.__transcodeData(ktx2Container);
     });
@@ -152,14 +159,96 @@ export default class KTX2TextureLoader {
   }
 
   private __transcodeData(ktx2Container: KTX2Container) {
+    const width = ktx2Container.pixelWidth;
+    const height = ktx2Container.pixelHeight;
+    // const faceCount = ktx2Container.faceCount; // faceCount is 6 if the transcoded data is a cube map (not support yet)
+
+    const dfd = ktx2Container.dataFormatDescriptor[0];
+    const compressedTextureFormat =
+      dfd.colorModel === KTX2Model.UASTC
+        ? CompressedTextureFormat.UASTC4x4
+        : CompressedTextureFormat.ETC1S;
+
+    //  TODO: compute hasAlpha
+    const hasAlpha = true;
+    const isVideo = false;
+
+    const transcoderModule = KTX2TextureLoader.__mscTranscoderModule;
+    const transcoder =
+      compressedTextureFormat === CompressedTextureFormat.UASTC4x4
+        ? new transcoderModule.UastcImageTranscoder()
+        : new transcoderModule.BasisLzEtc1sImageTranscoder();
+    const textureFormat =
+      compressedTextureFormat === CompressedTextureFormat.UASTC4x4
+        ? transcoderModule.TextureFormat.UASTC4x4
+        : transcoderModule.TextureFormat.ETC1S;
+
     // TODO: change value depending on having Alpha and so on
     const transcodeTargetStr = TranscodeTarget[this.__transcodeTarget];
     const transcodeTarget =
-      KTX2TextureLoader.__mscTranscoderModule.TranscodeTarget[
-        transcodeTargetStr
-      ];
+      transcoderModule.TranscodeTarget[transcodeTargetStr];
     const compressionTextureType = this.__compressionTextureType;
 
-    return;
+    const mipmapData: TextureData[] = [];
+    const transcodedData = {
+      width,
+      height,
+      compressionTextureType,
+      mipmapData,
+      needGammaCorrection: dfd.transferFunction !== KTX2Transfer.SRGB,
+    };
+
+    for (let level = 0; level < ktx2Container.levels.length; level++) {
+      const levelWidth = Math.max(1, Math.floor(width / Math.pow(2, level)));
+      const levelHeight = Math.max(1, Math.floor(height / Math.pow(2, level)));
+
+      const imageInfo = new transcoderModule.ImageInfo(
+        textureFormat,
+        levelWidth,
+        levelHeight,
+        level
+      );
+
+      const levelBuffer = ktx2Container.levels[level].levelData;
+      const levelUncompressedByteLength =
+        ktx2Container.levels[level].uncompressedByteLength;
+
+      let result: any;
+
+      // TODO: support the other texture format
+      if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
+        imageInfo.flags = 0;
+        imageInfo.rgbByteOffset = 0;
+        imageInfo.rgbByteLength = levelUncompressedByteLength;
+        imageInfo.alphaByteOffset = 0;
+        imageInfo.alphaByteLength = 0;
+
+        result = transcoder.transcodeImage(
+          transcodeTarget,
+          levelBuffer,
+          imageInfo,
+          0,
+          hasAlpha,
+          isVideo
+        );
+      }
+
+      if (result?.transcodedImage != null) {
+        const transcodedTextureBuffer = result.transcodedImage
+          .get_typed_memory_view()
+          .slice() as ArrayBufferView;
+        result.transcodedImage.delete();
+
+        const mipmap = {
+          level,
+          width: levelWidth,
+          height: levelHeight,
+          buffer: transcodedTextureBuffer,
+        } as TextureData;
+        mipmapData.push(mipmap);
+      }
+    }
+
+    return transcodedData;
   }
 }
