@@ -212,10 +212,20 @@ export default class KTX2TextureLoader {
       const levelBuffer = ktx2Container.levels[level].levelData;
       const levelUncompressedByteLength =
         ktx2Container.levels[level].uncompressedByteLength;
+      const levelBufferByteLength =
+        imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
+
+      let faceBufferByteOffset = 0;
 
       for (let faceIndex = 0; faceIndex < faceCount; faceIndex++) {
-        let result: any;
+        const faceBuffer = new Uint8Array(
+          levelBuffer,
+          faceBufferByteOffset,
+          levelBufferByteLength
+        );
+        faceBufferByteOffset += levelBufferByteLength;
 
+        let result: any;
         // TODO: support the other texture format
         if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
           imageInfo.flags = 0;
@@ -226,7 +236,7 @@ export default class KTX2TextureLoader {
 
           result = transcoder.transcodeImage(
             transcodeTarget,
-            levelBuffer,
+            faceBuffer,
             imageInfo,
             0,
             hasAlpha,
