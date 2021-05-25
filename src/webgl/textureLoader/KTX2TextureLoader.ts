@@ -1,4 +1,11 @@
-import {KTX2Container, KTX2Model, KTX2Transfer, read} from 'ktx-parse';
+import {
+  KTX2Container,
+  KTX2GlobalDataBasisLZ,
+  KTX2Model,
+  KTX2SupercompressionScheme,
+  KTX2Transfer,
+  read,
+} from 'ktx-parse';
 import CGAPIResourceRepository from '../../foundation/renderer/CGAPIResourceRepository';
 import WebGLContextWrapper from '../WebGLContextWrapper';
 import {TextureData} from '../WebGLResourceRepository';
@@ -33,6 +40,14 @@ enum TranscodeTarget {
   PVRTC2_4_RGBA,
   EAC_R11,
   EAC_RG11,
+}
+
+interface KTX2GlobalDataBasisLZImageDesc {
+  imageFlags: number;
+  rgbSliceByteOffset: number;
+  rgbSliceByteLength: number;
+  alphaSliceByteOffset: number;
+  alphaSliceByteLength: number;
 }
 
 declare const MSC_TRANSCODER: any;
@@ -163,6 +178,8 @@ export default class KTX2TextureLoader {
     const height = ktx2Container.pixelHeight;
     const faceCount = ktx2Container.faceCount; // faceCount is 6 if the transcoded data is a cube map (not support yet)
 
+    const imageDescs = ktx2Container.globalData?.imageDescs;
+
     const dfd = ktx2Container.dataFormatDescriptor[0];
     const compressedTextureFormat =
       dfd.colorModel === KTX2Model.UASTC
@@ -216,17 +233,38 @@ export default class KTX2TextureLoader {
         imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
 
       let faceBufferByteOffset = 0;
+      const firstImageDescIndexInLevel =
+        level *
+        Math.max(ktx2Container.layerCount, 1) *
+        faceCount *
+        Math.max(ktx2Container.pixelDepth, 1);
 
       for (let faceIndex = 0; faceIndex < faceCount; faceIndex++) {
-        const faceBuffer = new Uint8Array(
-          levelBuffer,
-          faceBufferByteOffset,
-          levelBufferByteLength
-        );
-        faceBufferByteOffset += levelBufferByteLength;
+        let imageDesc: KTX2GlobalDataBasisLZImageDesc | null = null;
+        let faceBuffer: Uint8Array;
+        if (
+          ktx2Container.supercompressionScheme ===
+          KTX2SupercompressionScheme.BASISLZ
+        ) {
+          imageDesc = imageDescs?.[
+            firstImageDescIndexInLevel + faceIndex
+          ] as KTX2GlobalDataBasisLZImageDesc;
+
+          faceBuffer = new Uint8Array(
+            levelBuffer,
+            imageDesc.rgbSliceByteOffset,
+            imageDesc.rgbSliceByteLength + imageDesc.alphaSliceByteLength
+          );
+        } else {
+          faceBuffer = new Uint8Array(
+            levelBuffer,
+            faceBufferByteOffset,
+            levelBufferByteLength
+          );
+          faceBufferByteOffset += levelBufferByteLength;
+        }
 
         let result: any;
-        // TODO: support the other texture format
         if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
           imageInfo.flags = 0;
           imageInfo.rgbByteOffset = 0;
@@ -240,6 +278,32 @@ export default class KTX2TextureLoader {
             imageInfo,
             0,
             hasAlpha,
+            isVideo
+          );
+        } else {
+          const sgd = ktx2Container.globalData as KTX2GlobalDataBasisLZ;
+          transcoder.decodePalettes(
+            sgd.endpointCount,
+            sgd.endpointsData,
+            sgd.selectorCount,
+            sgd.selectorsData
+          );
+          transcoder.decodeTables(sgd.tablesData);
+
+          imageInfo.flags = imageDesc!.imageFlags;
+          imageInfo.rgbByteOffset = 0;
+          imageInfo.rgbByteLength = imageDesc!.rgbSliceByteLength;
+          imageInfo.alphaByteOffset =
+            imageDesc!.alphaSliceByteOffset > 0
+              ? imageDesc!.rgbSliceByteLength
+              : 0;
+          imageInfo.alphaByteLength = imageDesc!.alphaSliceByteLength;
+
+          result = transcoder.transcodeImage(
+            transcodeTarget,
+            faceBuffer,
+            imageInfo,
+            0,
             isVideo
           );
         }
