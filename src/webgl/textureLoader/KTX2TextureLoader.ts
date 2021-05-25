@@ -13,6 +13,7 @@ import {
   CompressionTextureType,
   CompressionTextureTypeEnum,
 } from '../../foundation/definitions/CompressionTextureType';
+import {ZSTDDecoder} from 'zstddec';
 
 enum CompressedTextureFormat {
   ETC1S = 0,
@@ -57,6 +58,7 @@ export default class KTX2TextureLoader {
 
   // TODO: create type of __mscTranscoderModule
   private static __mscTranscoderModule: any;
+  private static __zstdDecoder: ZSTDDecoder;
 
   private __transcodeTarget: TranscodeTarget;
   private __compressionTextureType: CompressionTextureTypeEnum;
@@ -101,10 +103,23 @@ export default class KTX2TextureLoader {
       throw new Error('Cube textures are not currently supported');
     }
 
-    // TODO: support super compressions
-    return this.__mscTranscoderPromise.then(() => {
-      return this.__transcodeData(ktx2Container);
-    });
+    if (
+      ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD
+    ) {
+      if (KTX2TextureLoader.__zstdDecoder == null) {
+        KTX2TextureLoader.__zstdDecoder = new ZSTDDecoder();
+      }
+
+      return KTX2TextureLoader.__zstdDecoder.init().then(() => {
+        return this.__mscTranscoderPromise.then(() => {
+          return this.__transcodeData(ktx2Container);
+        });
+      });
+    } else {
+      return this.__mscTranscoderPromise.then(() => {
+        return this.__transcodeData(ktx2Container);
+      });
+    }
   }
 
   // ----- Private Methods ----------------------------------------------------
@@ -226,11 +241,20 @@ export default class KTX2TextureLoader {
         level
       );
 
-      const levelBuffer = ktx2Container.levels[level].levelData;
+      let levelBuffer = ktx2Container.levels[level].levelData;
       const levelUncompressedByteLength =
         ktx2Container.levels[level].uncompressedByteLength;
       const levelBufferByteLength =
         imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
+
+      if (
+        ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD
+      ) {
+        levelBuffer = KTX2TextureLoader.__zstdDecoder.decode(
+          levelBuffer,
+          levelUncompressedByteLength
+        );
+      }
 
       let faceBufferByteOffset = 0;
       const firstImageDescIndexInLevel =
