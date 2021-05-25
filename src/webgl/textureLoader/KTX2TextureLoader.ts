@@ -1,5 +1,8 @@
 import {
+  KTX2ChannelETC1S,
+  KTX2ChannelUASTC,
   KTX2Container,
+  KTX2DataFormatDescriptorBasicFormat,
   KTX2GlobalDataBasisLZ,
   KTX2Model,
   KTX2SupercompressionScheme,
@@ -60,9 +63,6 @@ export default class KTX2TextureLoader {
   private static __mscTranscoderModule: any;
   private static __zstdDecoder: ZSTDDecoder;
 
-  private __transcodeTarget: TranscodeTarget;
-  private __compressionTextureType: CompressionTextureTypeEnum;
-
   private __mscTranscoderPromise: Promise<void>;
 
   constructor() {
@@ -72,11 +72,6 @@ export default class KTX2TextureLoader {
       );
     }
     this.__mscTranscoderPromise = this.__loadMSCTranscoder();
-
-    const {transcodeTarget, compressionTextureType} =
-      this.__getDeviceDependentParameters();
-    this.__transcodeTarget = transcodeTarget;
-    this.__compressionTextureType = compressionTextureType;
   }
 
   // ----- Public Methods -----------------------------------------------------
@@ -139,7 +134,7 @@ export default class KTX2TextureLoader {
     });
   }
 
-  private __getDeviceDependentParameters() {
+  private __getDeviceDependentParameters(hasAlpha: boolean) {
     const webGLResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const glw =
@@ -152,35 +147,47 @@ export default class KTX2TextureLoader {
     const etc2 = glw.webgl2ExtCTEtc || glw.webgl1ExtCTEtc;
     const etc1 = glw.webgl2ExtCTEtc1 || glw.webgl1ExtCTEtc1;
 
-    let transcodeTarget;
-    let compressionTextureType;
+    let transcodeTargetEnum: TranscodeTarget;
+    let compressionTextureType: CompressionTextureTypeEnum;
     if (astc) {
-      transcodeTarget = TranscodeTarget.ASTC_4x4_RGBA;
+      transcodeTargetEnum = TranscodeTarget.ASTC_4x4_RGBA;
       compressionTextureType = CompressionTextureType.ASTC_RGBA_4x4;
     } else if (bptc) {
-      transcodeTarget = TranscodeTarget.BC7_RGBA;
+      transcodeTargetEnum = TranscodeTarget.BC7_RGBA;
       compressionTextureType = CompressionTextureType.BPTC_RGBA;
     } else if (s3tc) {
-      // TODO: no-alpha case
-      transcodeTarget = TranscodeTarget.BC3_RGBA;
-      compressionTextureType = CompressionTextureType.S3TC_RGBA_DXT5;
+      if (hasAlpha) {
+        transcodeTargetEnum = TranscodeTarget.BC3_RGBA;
+        compressionTextureType = CompressionTextureType.S3TC_RGBA_DXT5;
+      } else {
+        transcodeTargetEnum = TranscodeTarget.BC1_RGB;
+        compressionTextureType = CompressionTextureType.S3TC_RGB_DXT1;
+      }
     } else if (pvrtc) {
-      // TODO: no-alpha case
-      transcodeTarget = TranscodeTarget.PVRTC1_4_RGBA;
-      compressionTextureType = CompressionTextureType.PVRTC_RGBA_4BPPV1;
+      if (hasAlpha) {
+        transcodeTargetEnum = TranscodeTarget.PVRTC1_4_RGBA;
+        compressionTextureType = CompressionTextureType.PVRTC_RGBA_4BPPV1;
+      } else {
+        transcodeTargetEnum = TranscodeTarget.PVRTC1_4_RGB;
+        compressionTextureType = CompressionTextureType.PVRTC_RGB_4BPPV1;
+      }
     } else if (etc2) {
-      // TODO: no-alpha case
-      transcodeTarget = TranscodeTarget.ETC2_RGBA;
-      compressionTextureType = CompressionTextureType.ETC2_RGBA8_EAC;
+      if (hasAlpha) {
+        transcodeTargetEnum = TranscodeTarget.ETC2_RGBA;
+        compressionTextureType = CompressionTextureType.ETC2_RGBA8_EAC;
+      } else {
+        transcodeTargetEnum = TranscodeTarget.ETC1_RGB;
+        compressionTextureType = CompressionTextureType.ETC2_RGB8;
+      }
     } else if (etc1) {
-      transcodeTarget = TranscodeTarget.ETC1_RGB;
+      transcodeTargetEnum = TranscodeTarget.ETC1_RGB;
       compressionTextureType = CompressionTextureType.ETC1_RGB;
     } else {
-      transcodeTarget = TranscodeTarget.RGBA32;
+      transcodeTargetEnum = TranscodeTarget.RGBA32;
       compressionTextureType = CompressionTextureType.RGBA8_EXT;
     }
 
-    return {transcodeTarget, compressionTextureType};
+    return {transcodeTargetEnum, compressionTextureType};
   }
 
   private __parse(uint8Array: Uint8Array): KTX2Container {
@@ -201,8 +208,7 @@ export default class KTX2TextureLoader {
         ? CompressedTextureFormat.UASTC4x4
         : CompressedTextureFormat.ETC1S;
 
-    //  TODO: compute hasAlpha
-    const hasAlpha = true;
+    const hasAlpha = this.__hasAlpha(dfd, compressedTextureFormat);
     const isVideo = false;
 
     const transcoderModule = KTX2TextureLoader.__mscTranscoderModule;
@@ -215,11 +221,12 @@ export default class KTX2TextureLoader {
         ? transcoderModule.TextureFormat.UASTC4x4
         : transcoderModule.TextureFormat.ETC1S;
 
-    // TODO: change value depending on having Alpha and so on
-    const transcodeTargetStr = TranscodeTarget[this.__transcodeTarget];
+    const {transcodeTargetEnum, compressionTextureType} =
+      this.__getDeviceDependentParameters(hasAlpha);
+
+    const transcodeTargetStr = TranscodeTarget[transcodeTargetEnum];
     const transcodeTarget =
       transcoderModule.TranscodeTarget[transcodeTargetStr];
-    const compressionTextureType = this.__compressionTextureType;
 
     const mipmapData: TextureData[] = [];
     const transcodedData = {
@@ -350,5 +357,20 @@ export default class KTX2TextureLoader {
     }
 
     return transcodedData;
+  }
+
+  private __hasAlpha(
+    dfd: KTX2DataFormatDescriptorBasicFormat,
+    compressedTextureFormat: CompressedTextureFormat
+  ) {
+    if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
+      return dfd.samples[0].channelID === KTX2ChannelUASTC.RGBA;
+    } else {
+      return (
+        dfd.samples.length === 2 &&
+        (dfd.samples[0].channelID === KTX2ChannelETC1S.AAA ||
+          dfd.samples[1].channelID === KTX2ChannelETC1S.AAA)
+      );
+    }
   }
 }
