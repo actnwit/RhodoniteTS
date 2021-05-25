@@ -199,8 +199,8 @@ export default class KTX2TextureLoader {
     };
 
     for (let level = 0; level < ktx2Container.levels.length; level++) {
-      const levelWidth = Math.max(1, Math.floor(width / Math.pow(2, level)));
-      const levelHeight = Math.max(1, Math.floor(height / Math.pow(2, level)));
+      const levelWidth = Math.max(1, width >> level);
+      const levelHeight = Math.max(1, height >> level);
 
       const imageInfo = new transcoderModule.ImageInfo(
         textureFormat,
