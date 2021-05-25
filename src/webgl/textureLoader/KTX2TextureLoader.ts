@@ -161,7 +161,7 @@ export default class KTX2TextureLoader {
   private __transcodeData(ktx2Container: KTX2Container) {
     const width = ktx2Container.pixelWidth;
     const height = ktx2Container.pixelHeight;
-    // const faceCount = ktx2Container.faceCount; // faceCount is 6 if the transcoded data is a cube map (not support yet)
+    const faceCount = ktx2Container.faceCount; // faceCount is 6 if the transcoded data is a cube map (not support yet)
 
     const dfd = ktx2Container.dataFormatDescriptor[0];
     const compressedTextureFormat =
@@ -213,39 +213,41 @@ export default class KTX2TextureLoader {
       const levelUncompressedByteLength =
         ktx2Container.levels[level].uncompressedByteLength;
 
-      let result: any;
+      for (let faceIndex = 0; faceIndex < faceCount; faceIndex++) {
+        let result: any;
 
-      // TODO: support the other texture format
-      if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
-        imageInfo.flags = 0;
-        imageInfo.rgbByteOffset = 0;
-        imageInfo.rgbByteLength = levelUncompressedByteLength;
-        imageInfo.alphaByteOffset = 0;
-        imageInfo.alphaByteLength = 0;
+        // TODO: support the other texture format
+        if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
+          imageInfo.flags = 0;
+          imageInfo.rgbByteOffset = 0;
+          imageInfo.rgbByteLength = levelUncompressedByteLength;
+          imageInfo.alphaByteOffset = 0;
+          imageInfo.alphaByteLength = 0;
 
-        result = transcoder.transcodeImage(
-          transcodeTarget,
-          levelBuffer,
-          imageInfo,
-          0,
-          hasAlpha,
-          isVideo
-        );
-      }
+          result = transcoder.transcodeImage(
+            transcodeTarget,
+            levelBuffer,
+            imageInfo,
+            0,
+            hasAlpha,
+            isVideo
+          );
+        }
 
-      if (result?.transcodedImage != null) {
-        const transcodedTextureBuffer = result.transcodedImage
-          .get_typed_memory_view()
-          .slice() as ArrayBufferView;
-        result.transcodedImage.delete();
+        if (result?.transcodedImage != null) {
+          const transcodedTextureBuffer = result.transcodedImage
+            .get_typed_memory_view()
+            .slice() as ArrayBufferView;
+          result.transcodedImage.delete();
 
-        const mipmap = {
-          level,
-          width: levelWidth,
-          height: levelHeight,
-          buffer: transcodedTextureBuffer,
-        } as TextureData;
-        mipmapData.push(mipmap);
+          const mipmap = {
+            level,
+            width: levelWidth,
+            height: levelHeight,
+            buffer: transcodedTextureBuffer,
+          } as TextureData;
+          mipmapData.push(mipmap);
+        }
       }
     }
 
