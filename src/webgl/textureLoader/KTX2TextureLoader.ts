@@ -17,6 +17,13 @@ import {
   CompressionTextureTypeEnum,
 } from '../../foundation/definitions/CompressionTextureType';
 import {ZSTDDecoder} from 'zstddec';
+import {
+  BasisLzEtc1sImageTranscoder,
+  MscTranscoderModule,
+  MSC_TRANSCODER,
+  TranscodedImage,
+  UastcImageTranscoder,
+} from '../../types/KTX2Texture';
 
 const CompressedTextureFormat = {
   ETC1S: 0,
@@ -57,13 +64,13 @@ interface KTX2GlobalDataBasisLZImageDesc {
   alphaSliceByteLength: number;
 }
 
-declare const MSC_TRANSCODER: any;
+declare const MSC_TRANSCODER: MSC_TRANSCODER;
 
 export default class KTX2TextureLoader {
   private static __instance: KTX2TextureLoader;
 
   // TODO: create type of __mscTranscoderModule
-  private static __mscTranscoderModule: any;
+  private static __mscTranscoderModule: MscTranscoderModule;
   private static __zstdDecoder: ZSTDDecoder;
 
   private __mscTranscoderPromise: Promise<void>;
@@ -129,7 +136,7 @@ export default class KTX2TextureLoader {
         resolve();
       }
 
-      MSC_TRANSCODER().then((transcoderModule: any) => {
+      MSC_TRANSCODER().then((transcoderModule: MscTranscoderModule) => {
         transcoderModule.initTranscoders();
         KTX2TextureLoader.__mscTranscoderModule = transcoderModule;
         resolve();
@@ -297,7 +304,7 @@ export default class KTX2TextureLoader {
           faceBufferByteOffset += levelBufferByteLength;
         }
 
-        let result: any;
+        let result: TranscodedImage | undefined;
         if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
           imageInfo.flags = 0;
           imageInfo.rgbByteOffset = 0;
@@ -305,7 +312,7 @@ export default class KTX2TextureLoader {
           imageInfo.alphaByteOffset = 0;
           imageInfo.alphaByteLength = 0;
 
-          result = transcoder.transcodeImage(
+          result = (transcoder as UastcImageTranscoder).transcodeImage(
             transcodeTarget,
             faceBuffer,
             imageInfo,
@@ -315,13 +322,14 @@ export default class KTX2TextureLoader {
           );
         } else {
           const sgd = ktx2Container.globalData as KTX2GlobalDataBasisLZ;
-          transcoder.decodePalettes(
+          const basisTranscoder = transcoder as BasisLzEtc1sImageTranscoder;
+          basisTranscoder.decodePalettes(
             sgd.endpointCount,
             sgd.endpointsData,
             sgd.selectorCount,
             sgd.selectorsData
           );
-          transcoder.decodeTables(sgd.tablesData);
+          basisTranscoder.decodeTables(sgd.tablesData);
 
           imageInfo.flags = imageDesc!.imageFlags;
           imageInfo.rgbByteOffset = 0;
@@ -332,7 +340,7 @@ export default class KTX2TextureLoader {
               : 0;
           imageInfo.alphaByteLength = imageDesc!.alphaSliceByteLength;
 
-          result = transcoder.transcodeImage(
+          result = basisTranscoder.transcodeImage(
             transcodeTarget,
             faceBuffer,
             imageInfo,
@@ -344,7 +352,7 @@ export default class KTX2TextureLoader {
         if (result?.transcodedImage != null) {
           const transcodedTextureBuffer = result.transcodedImage
             .get_typed_memory_view()
-            .slice() as ArrayBufferView;
+            .slice();
           result.transcodedImage.delete();
 
           const mipmap = {
