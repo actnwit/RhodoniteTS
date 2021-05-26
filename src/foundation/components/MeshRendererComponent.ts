@@ -116,7 +116,6 @@ export default class MeshRendererComponent extends Component {
       const bufferView = buffer.takeBufferView({
         byteLengthToNeed: 4 /*byte*/ * count,
         byteStride: 0,
-        isAoS: false,
       });
       MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({
         compositionType: CompositionType.Scalar,

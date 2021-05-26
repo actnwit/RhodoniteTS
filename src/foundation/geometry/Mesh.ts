@@ -297,7 +297,6 @@ export default class Mesh {
         const tangentBufferView = buffer.takeBufferView({
           byteLengthToNeed: tangentAttributeByteSize,
           byteStride: 0,
-          isAoS: false,
         });
         const tangentAccessor = tangentBufferView.takeAccessor({
           compositionType: CompositionType.Vec4,
@@ -506,7 +505,6 @@ export default class Mesh {
       const normalBufferView = buffer.takeBufferView({
         byteLengthToNeed: normalAttributeByteSize,
         byteStride: 0,
-        isAoS: false,
       });
       const normalAccessor = normalBufferView.takeAccessor({
         compositionType: CompositionType.Vec3,
@@ -629,7 +627,6 @@ export default class Mesh {
       const baryCentricCoordBufferView = buffer.takeBufferView({
         byteLengthToNeed: baryCentricCoordAttributeByteSize,
         byteStride: 0,
-        isAoS: false,
       });
       const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({
         compositionType: CompositionType.Vec4,

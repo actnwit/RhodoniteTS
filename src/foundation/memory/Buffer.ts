@@ -67,11 +67,9 @@ export default class Buffer {
   takeBufferView({
     byteLengthToNeed,
     byteStride,
-    isAoS,
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
-    isAoS: boolean;
   }) {
     const byteAlign = this.__byteAlign;
     const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
@@ -79,10 +77,9 @@ export default class Buffer {
     const bufferView = new BufferView({
       buffer: this,
       byteOffset: this.__takenBytesIndex,
-      byteStride: byteStride,
+      byteStride,
       byteLength: byteLengthToNeed + paddingBytes,
       raw: this.__raw,
-      isAoS: isAoS,
       byteAlign: this.__byteAlign,
     });
     this.__takenBytesIndex += byteLengthToNeed + paddingBytes;
@@ -96,21 +93,18 @@ export default class Buffer {
     byteLengthToNeed,
     byteStride,
     byteOffset,
-    isAoS,
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
     byteOffset: Byte;
-    isAoS: boolean;
   }) {
     const byteAlign = this.__byteAlign;
     const bufferView = new BufferView({
       buffer: this,
       byteOffset: byteOffset + this.__byteOffset,
-      byteStride: byteStride,
+      byteStride,
       byteLength: byteLengthToNeed,
       raw: this.__raw,
-      isAoS: isAoS,
       byteAlign,
     });
 

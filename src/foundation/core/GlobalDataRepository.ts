@@ -307,7 +307,6 @@ export default class GlobalDataRepository {
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: alignedByteLength * maxCount,
       byteStride: 0,
-      isAoS: false,
     });
 
     let maxArrayLength = semanticInfo.maxIndex;

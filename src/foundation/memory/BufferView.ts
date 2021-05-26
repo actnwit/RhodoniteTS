@@ -11,7 +11,6 @@ export default class BufferView {
   private __byteStride: Byte = 0;
   private __takenByteIndex: Byte = 0;
   private __raw: ArrayBuffer;
-  private __isAoS: boolean;
   private __accessors: Array<Accessor> = [];
 
   constructor({
@@ -20,14 +19,13 @@ export default class BufferView {
     byteStride,
     byteLength,
     raw,
-    isAoS,
+    byteAlign,
   }: {
     buffer: Buffer;
     byteOffset: Byte;
     byteStride: Byte;
     byteLength: Byte;
     raw: ArrayBuffer;
-    isAoS: boolean;
     byteAlign: Byte;
   }) {
     this.__buffer = buffer;
@@ -35,7 +33,7 @@ export default class BufferView {
     this.__byteLength = byteLength;
     this.__byteStride = byteStride;
     this.__raw = raw;
-    this.__isAoS = isAoS;
+
   }
 
   get byteStride() {
@@ -68,7 +66,11 @@ export default class BufferView {
   }
 
   get isSoA() {
-    return !this.__isAoS;
+    return !this.isAoS;
+  }
+
+  get isAoS() {
+    return false;
   }
 
   recheckIsSoA() {
@@ -90,10 +92,6 @@ export default class BufferView {
     } else {
       return false;
     }
-  }
-
-  get isAoS() {
-    return this.__isAoS;
   }
 
   getUint8Array() {
@@ -177,7 +175,7 @@ export default class BufferView {
     compositionType,
     componentType,
     count,
-    byteOffset,
+    byteOffsetInBufferView,
     max,
     min,
     normalized = false,
@@ -185,7 +183,7 @@ export default class BufferView {
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     count: Count;
-    byteOffset: Byte;
+    byteOffsetInBufferView: Byte;
     max?: number[];
     min?: number[];
     normalized?: boolean;
@@ -197,7 +195,8 @@ export default class BufferView {
       componentType,
       count,
       byteStride,
-      byteOffset,
+      byteOffsetInBufferView,
+      byteOffsetInAccessor: 0,
       max,
       min,
       normalized,
@@ -211,7 +210,8 @@ export default class BufferView {
     componentType,
     count,
     byteStride,
-    byteOffset,
+    byteOffsetInBufferView,
+    byteOffsetInAccessor,
     max,
     min,
     normalized = false,
@@ -220,7 +220,8 @@ export default class BufferView {
     componentType: ComponentTypeEnum;
     count: Count;
     byteStride: Byte;
-    byteOffset: Byte;
+    byteOffsetInBufferView: Byte;
+    byteOffsetInAccessor: Byte;
     max?: number[];
     min?: number[];
     normalized?: boolean;
@@ -230,7 +231,8 @@ export default class BufferView {
       componentType,
       count,
       byteStride,
-      byteOffset,
+      byteOffsetInBufferView,
+      byteOffsetInAccessor,
       max,
       min,
       normalized,
@@ -282,18 +284,10 @@ export default class BufferView {
       // }
     }
 
-    // if (byteOffset % byteAlign !== 0) {
-    //   console.info(
-    //     `Padding bytes added because byteOffset is not ${byteAlign}byte aligned.`
-    //   );
-    //   const paddingBytes = byteAlign - (byteOffset % byteAlign);
-    //   byteOffset += paddingBytes;
-    //   this.__takenByteIndex += paddingBytes;
-    // }
-
     const accessor = new Accessor({
       bufferView: this,
-      byteOffset,
+      byteOffsetInBufferView: byteOffset,
+      byteOffsetInAccessor: 0,
       compositionType,
       componentType,
       byteStride,
@@ -315,7 +309,8 @@ export default class BufferView {
     componentType,
     count,
     byteStride,
-    byteOffset,
+    byteOffsetInBufferView,
+    byteOffsetInAccessor,
     max,
     min,
     normalized,
@@ -324,14 +319,16 @@ export default class BufferView {
     componentType: ComponentTypeEnum;
     count: Count;
     byteStride: Byte;
-    byteOffset: Byte;
+    byteOffsetInBufferView: Byte;
+    byteOffsetInAccessor: Byte;
     max?: number[];
     min?: number[];
     normalized: boolean;
   }): Accessor {
     const accessor = new Accessor({
       bufferView: this,
-      byteOffset,
+      byteOffsetInBufferView,
+      byteOffsetInAccessor,
       compositionType,
       componentType,
       byteStride,

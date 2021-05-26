@@ -360,7 +360,6 @@ export default class Component extends RnObject {
       const bufferView = buffer.takeBufferView({
         byteLengthToNeed: byteLengthSumOfMembers * count,
         byteStride: 0,
-        isAoS: false,
       });
       bufferViews.set(bufferUse, bufferView);
       return bufferView;

@@ -31,7 +31,8 @@ type DataViewSetter = (
 
 export default class Accessor {
   private __bufferView: BufferView;
-  private __byteOffsetInRawArrayBufferOfBuffer: number;
+  private __byteOffsetInRawArrayBufferOfBuffer: Byte;
+  private __byteOffsetInAccessor: Byte;
   private __compositionType: CompositionTypeEnum = CompositionType.Unknown;
   private __componentType: ComponentTypeEnum = ComponentType.Unknown;
   private __count: Count = 0;
@@ -65,7 +66,8 @@ export default class Accessor {
 
   constructor({
     bufferView,
-    byteOffset,
+    byteOffsetInBufferView,
+    byteOffsetInAccessor,
     compositionType,
     componentType,
     byteStride,
@@ -77,7 +79,8 @@ export default class Accessor {
     normalized,
   }: {
     bufferView: BufferView;
-    byteOffset: Byte;
+    byteOffsetInBufferView: Byte;
+    byteOffsetInAccessor: Byte;
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     byteStride: Byte;
@@ -89,8 +92,9 @@ export default class Accessor {
     normalized: boolean;
   }) {
     this.__bufferView = bufferView;
+    this.__byteOffsetInAccessor = byteOffsetInAccessor;
     this.__byteOffsetInRawArrayBufferOfBuffer =
-      bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffset;
+      bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffsetInBufferView;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
@@ -133,6 +137,7 @@ export default class Accessor {
     if (
       this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer <
       this.byteStride * this.__count
+      // this.byteStride * this.__count - byteOffsetInAccessor
     ) {
       console.error(
         `Requesting a data size that exceeds the remaining capacity of the buffer: ${
@@ -155,6 +160,7 @@ export default class Accessor {
       this.__raw,
       this.__byteOffsetInRawArrayBufferOfBuffer,
       this.__byteStride * this.__count
+      // this.__byteStride * this.__count - byteOffsetInAccessor
     );
 
     if (
@@ -1258,5 +1264,9 @@ export default class Accessor {
 
   get isMinMaxDirty() {
     return this.__isMinMixDirty;
+  }
+
+  get byteOffsetInAccessor() {
+    return this.__byteOffsetInAccessor;
   }
 }

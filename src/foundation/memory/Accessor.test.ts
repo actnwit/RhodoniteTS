@@ -20,7 +20,6 @@ test('An accessor can take full size typedArray of the buffer', () => {
   const bufferView = buffer.takeBufferView({
     byteLengthToNeed: 64,
     byteStride: 0,
-    isAoS: false,
   });
   const accessor = bufferView!.takeAccessor({
     compositionType: CompositionType.Mat4,
@@ -37,7 +36,6 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
   const bufferView = buffer.takeBufferView({
     byteLengthToNeed: 64,
     byteStride: 0,
-    isAoS: false,
   });
   let accessor = null;
   try {
@@ -56,7 +54,6 @@ test('In SoA mode, data can be written in the correct position.', () => {
   const bufferView = buffer.takeBufferView({
     byteLengthToNeed: 72,
     byteStride: 0,
-    isAoS: false,
   });
   const accessor0 = bufferView!.takeAccessor({
     compositionType: CompositionType.Vec4,
@@ -91,7 +88,6 @@ test.skip('In AoS mode, data can be written in the correct position.', () => {
   const bufferView = buffer.takeBufferView({
     byteLengthToNeed: 72,
     byteStride: 36,
-    isAoS: true,
   });
   const accessor0 = bufferView!.takeAccessor({
     compositionType: CompositionType.Vec4,

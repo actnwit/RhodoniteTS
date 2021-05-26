@@ -1845,7 +1845,6 @@ export default class ModelConverter {
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,
       byteOffset: bufferView.byteOffset ?? 0,
-      isAoS: false,
     });
 
     let rnAccessor;
@@ -1855,7 +1854,8 @@ export default class ModelConverter {
         componentType: ComponentType.from(accessor.componentType),
         count: accessor.count,
         byteStride: accessor.byteStride,
-        byteOffset: accessor.byteOffset ?? 0,
+        byteOffsetInBufferView: accessor.byteOffset ?? 0,
+        byteOffsetInAccessor: accessor.byteOffset ?? 0,
         max: accessor.max,
         min: accessor.min,
         normalized: accessor.normalized,
@@ -1865,7 +1865,7 @@ export default class ModelConverter {
         compositionType: CompositionType.fromString(accessor.type),
         componentType: ComponentType.from(accessor.componentType),
         count: accessor.count,
-        byteOffset: accessor.byteOffset ?? 0,
+        byteOffsetInBufferView: accessor.byteOffset ?? 0,
         max: accessor.max,
         min: accessor.min,
         normalized: accessor.normalized,
@@ -1883,7 +1883,6 @@ export default class ModelConverter {
     const dstRnBufferView = dstRnBuffer.takeBufferView({
       byteLengthToNeed: byteSize,
       byteStride: 3 /* vec4 */ * 4 /* bytes */,
-      isAoS: false,
     });
 
     const dstRnAccessor = dstRnBufferView.takeAccessor({
@@ -1901,7 +1900,7 @@ export default class ModelConverter {
   }
 
   private __createRnAccessor(
-    accessor: any,
+    accessor: Gltf2Accessor,
     numOfAttributes: Count,
     compositionNum: Count,
     rnBuffer: Buffer
@@ -1909,7 +1908,6 @@ export default class ModelConverter {
     const rnBufferView = rnBuffer.takeBufferView({
       byteLengthToNeed: numOfAttributes * compositionNum * 4,
       byteStride: 0,
-      isAoS: false,
     });
 
     let rnAccessor;
@@ -1919,7 +1917,8 @@ export default class ModelConverter {
         componentType: ComponentType.from(accessor.componentType),
         count: numOfAttributes,
         byteStride: accessor.byteStride,
-        byteOffset: accessor.byteOffset ?? 0,
+        byteOffsetInBufferView: accessor.bufferView.byteOffset ?? 0,
+        byteOffsetInAccessor: accessor.byteOffset ?? 0,
         max: accessor.max,
         min: accessor.min,
         normalized: accessor.normalized,
@@ -1929,7 +1928,7 @@ export default class ModelConverter {
         compositionType: CompositionType.fromString(accessor.type),
         componentType: ComponentType.from(accessor.componentType),
         count: numOfAttributes,
-        byteOffset: accessor.byteOffset ?? 0,
+        byteOffsetInBufferView: accessor.bufferView.byteOffset ?? 0,
         max: accessor.max,
         min: accessor.min,
         normalized: accessor.normalized,
@@ -1944,7 +1943,6 @@ export default class ModelConverter {
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,
       byteOffset: bufferView.byteOffset ?? 0,
-      isAoS: false,
     });
 
     return rnBufferView;
