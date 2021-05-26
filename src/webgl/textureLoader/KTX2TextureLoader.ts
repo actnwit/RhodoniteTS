@@ -18,33 +18,36 @@ import {
 } from '../../foundation/definitions/CompressionTextureType';
 import {ZSTDDecoder} from 'zstddec';
 
-enum CompressedTextureFormat {
-  ETC1S = 0,
-  UASTC4x4 = 1,
-}
+const CompressedTextureFormat = {
+  ETC1S: 0,
+  UASTC4x4: 1,
+} as const;
+type CompressedTextureFormat =
+  typeof CompressedTextureFormat[keyof typeof CompressedTextureFormat];
 
-enum TranscodeTarget {
-  ETC1_RGB,
-  BC1_RGB,
-  BC4_R,
-  BC5_RG,
-  BC3_RGBA,
-  PVRTC1_4_RGB,
-  PVRTC1_4_RGBA,
-  BC7_RGBA,
-  BC7_M6_RGB,
-  BC7_M5_RGBA,
-  ETC2_RGBA,
-  ASTC_4x4_RGBA,
-  RGBA32,
-  RGB565,
-  BGR565,
-  RGBA4444,
-  PVRTC2_4_RGB,
-  PVRTC2_4_RGBA,
-  EAC_R11,
-  EAC_RG11,
-}
+const TranscodeTarget = {
+  ETC1_RGB: 'ETC1_RGB',
+  BC1_RGB: 'BC1_RGB',
+  BC4_R: 'BC4_R',
+  BC5_RG: 'BC5_RG',
+  BC3_RGBA: 'BC3_RGBA',
+  PVRTC1_4_RGB: 'PVRTC1_4_RGB',
+  PVRTC1_4_RGBA: 'PVRTC1_4_RGBA',
+  BC7_RGBA: 'BC7_RGBA',
+  BC7_M6_RGB: 'BC7_M6_RGB',
+  BC7_M5_RGBA: 'BC7_M5_RGBA',
+  ETC2_RGBA: 'ETC2_RGBA',
+  ASTC_4x4_RGBA: 'ASTC_4x4_RGBA',
+  RGBA32: 'RGBA32',
+  RGB565: 'RGB565',
+  BGR565: 'BGR565',
+  RGBA4444: 'RGBA4444',
+  PVRTC2_4_RGB: 'PVRTC2_4_RGB',
+  PVRTC2_4_RGBA: 'PVRTC2_4_RGBA',
+  EAC_R11: 'EAC_R11',
+  EAC_RG11: 'EAC_RG11',
+} as const;
+type TranscodeTarget = typeof TranscodeTarget[keyof typeof TranscodeTarget];
 
 interface KTX2GlobalDataBasisLZImageDesc {
   imageFlags: number;
@@ -147,47 +150,47 @@ export default class KTX2TextureLoader {
     const etc2 = glw.webgl2ExtCTEtc || glw.webgl1ExtCTEtc;
     const etc1 = glw.webgl2ExtCTEtc1 || glw.webgl1ExtCTEtc1;
 
-    let transcodeTargetEnum: TranscodeTarget;
+    let transcodeTargetStr: TranscodeTarget;
     let compressionTextureType: CompressionTextureTypeEnum;
     if (astc) {
-      transcodeTargetEnum = TranscodeTarget.ASTC_4x4_RGBA;
+      transcodeTargetStr = TranscodeTarget.ASTC_4x4_RGBA;
       compressionTextureType = CompressionTextureType.ASTC_RGBA_4x4;
     } else if (bptc) {
-      transcodeTargetEnum = TranscodeTarget.BC7_RGBA;
+      transcodeTargetStr = TranscodeTarget.BC7_RGBA;
       compressionTextureType = CompressionTextureType.BPTC_RGBA;
     } else if (s3tc) {
       if (hasAlpha) {
-        transcodeTargetEnum = TranscodeTarget.BC3_RGBA;
+        transcodeTargetStr = TranscodeTarget.BC3_RGBA;
         compressionTextureType = CompressionTextureType.S3TC_RGBA_DXT5;
       } else {
-        transcodeTargetEnum = TranscodeTarget.BC1_RGB;
+        transcodeTargetStr = TranscodeTarget.BC1_RGB;
         compressionTextureType = CompressionTextureType.S3TC_RGB_DXT1;
       }
     } else if (pvrtc) {
       if (hasAlpha) {
-        transcodeTargetEnum = TranscodeTarget.PVRTC1_4_RGBA;
+        transcodeTargetStr = TranscodeTarget.PVRTC1_4_RGBA;
         compressionTextureType = CompressionTextureType.PVRTC_RGBA_4BPPV1;
       } else {
-        transcodeTargetEnum = TranscodeTarget.PVRTC1_4_RGB;
+        transcodeTargetStr = TranscodeTarget.PVRTC1_4_RGB;
         compressionTextureType = CompressionTextureType.PVRTC_RGB_4BPPV1;
       }
     } else if (etc2) {
       if (hasAlpha) {
-        transcodeTargetEnum = TranscodeTarget.ETC2_RGBA;
+        transcodeTargetStr = TranscodeTarget.ETC2_RGBA;
         compressionTextureType = CompressionTextureType.ETC2_RGBA8_EAC;
       } else {
-        transcodeTargetEnum = TranscodeTarget.ETC1_RGB;
+        transcodeTargetStr = TranscodeTarget.ETC1_RGB;
         compressionTextureType = CompressionTextureType.ETC2_RGB8;
       }
     } else if (etc1) {
-      transcodeTargetEnum = TranscodeTarget.ETC1_RGB;
+      transcodeTargetStr = TranscodeTarget.ETC1_RGB;
       compressionTextureType = CompressionTextureType.ETC1_RGB;
     } else {
-      transcodeTargetEnum = TranscodeTarget.RGBA32;
+      transcodeTargetStr = TranscodeTarget.RGBA32;
       compressionTextureType = CompressionTextureType.RGBA8_EXT;
     }
 
-    return {transcodeTargetEnum, compressionTextureType};
+    return {transcodeTargetStr, compressionTextureType};
   }
 
   private __parse(uint8Array: Uint8Array): KTX2Container {
@@ -221,10 +224,9 @@ export default class KTX2TextureLoader {
         ? transcoderModule.TextureFormat.UASTC4x4
         : transcoderModule.TextureFormat.ETC1S;
 
-    const {transcodeTargetEnum, compressionTextureType} =
+    const {transcodeTargetStr, compressionTextureType} =
       this.__getDeviceDependentParameters(hasAlpha);
 
-    const transcodeTargetStr = TranscodeTarget[transcodeTargetEnum];
     const transcodeTarget =
       transcoderModule.TranscodeTarget[transcodeTargetStr];
 
