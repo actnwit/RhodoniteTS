@@ -1,7 +1,17 @@
 {
     "cSpell.words": [
+        "BASISLZ",
+        "BPPV",
+        "BPTC",
+        "Descs",
+        "Khronos",
+        "PVRTC",
+        "Transcoders",
+        "Uastc",
+        "ZSTD",
         "bary",
         "barycentriccoord",
+        "basisu",
         "blittable",
         "brdf",
         "centric",
@@ -20,14 +30,18 @@
         "instanceid",
         "known",
         "lerp",
+        "mipmaps",
         "preoutput",
         "qlerp",
         "renderable",
         "shaderity",
+        "supercompression",
         "texcoord",
         "tids",
         "toon",
         "touchpad",
+        "transcoded",
+        "transcoder",
         "typedoc",
         "vertex",
         "webgl",
@@ -35,7 +49,8 @@
         "webglcontextrestored",
         "webvr",
         "webxr",
-        "well"
+        "well",
+        "zstddec"
     ],
     "eslint.format.enable": true
 }
