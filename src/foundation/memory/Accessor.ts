@@ -274,6 +274,8 @@ export default class Accessor {
     );
     this.__takenCount += 1;
 
+    // console.log(this.byteOffsetInRawArrayBufferOfBuffer, this.__byteStride, this.__takenCount, this.__arrayLength);
+
     (subTypedArray as any)._accessor = this;
     (subTypedArray as any)._idx_of_accessor = this.__takenCount;
 

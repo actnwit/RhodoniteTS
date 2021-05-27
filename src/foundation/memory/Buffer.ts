@@ -77,7 +77,7 @@ export default class Buffer {
     const bufferView = new BufferView({
       buffer: this,
       byteOffset: this.__takenBytesIndex,
-      byteStride,
+      defaultByteStride: byteStride,
       byteLength: byteLengthToNeed + paddingBytes,
       raw: this.__raw,
       byteAlign: this.__byteAlign,
@@ -102,7 +102,7 @@ export default class Buffer {
     const bufferView = new BufferView({
       buffer: this,
       byteOffset: byteOffset + this.__byteOffset,
-      byteStride,
+      defaultByteStride: byteStride,
       byteLength: byteLengthToNeed,
       raw: this.__raw,
       byteAlign,
