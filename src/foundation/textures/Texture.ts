@@ -16,6 +16,8 @@ import {
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
 import DataUtil from '../misc/DataUtil';
 import {CompressionTextureTypeEnum} from '../definitions/CompressionTextureType';
+import KTX2TextureLoader from '../../webgl/textureLoader/KTX2TextureLoader';
+import {TextureData} from '../../webgl/WebGLResourceRepository';
 
 declare const BASIS: BASIS;
 
@@ -130,6 +132,38 @@ export default class Texture extends AbstractTexture {
 
     basisFile.close();
     basisFile.delete();
+  }
+
+  generateTextureFromKTX2(
+    uint8Array: Uint8Array,
+    {
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.Repeat,
+      wrapT = TextureParameter.Repeat,
+      anisotropy = true,
+      // isPremultipliedAlpha = false,
+    } = {}
+  ) {
+    this.__startedToLoad = true;
+
+    const transcodedData = KTX2TextureLoader.getInstance().transcode(uint8Array);
+    transcodedData.then(data => {
+      this.__width = data.width;
+      this.__height = data.height;
+      this.generateCompressedTextureWithMipmapFromTypedArray(
+        data.mipmapData,
+        data.compressionTextureType,
+        {
+          magFilter,
+          minFilter,
+          wrapS,
+          wrapT,
+          anisotropy,
+          // isPremultipliedAlpha = false,
+        }
+      );
+    });
   }
 
   generateTextureFromImage(
@@ -361,7 +395,6 @@ export default class Texture extends AbstractTexture {
     height: number,
     compressionTextureType: CompressionTextureTypeEnum,
     {
-      level = 0,
       magFilter = TextureParameter.Linear,
       minFilter = TextureParameter.LinearMipmapLinear,
       wrapS = TextureParameter.ClampToEdge,
@@ -373,14 +406,61 @@ export default class Texture extends AbstractTexture {
     this.__width = width;
     this.__height = height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const textureData = {
+      level: 0,
+      width,
+      height,
+      buffer: typedArray,
+    } as TextureData;
+
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
-      typedArray,
+      [textureData],
+      compressionTextureType,
       {
-        level,
-        compressionTextureType,
-        width,
-        height,
+        magFilter,
+        minFilter,
+        wrapS,
+        wrapT,
+        anisotropy,
+        // isPremultipliedAlpha,
+      }
+    );
+
+    this.cgApiResourceUid = texture;
+    this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(texture, this);
+  }
+
+  generateCompressedTextureWithMipmapFromTypedArray(
+    textureDataArray: TextureData[],
+    compressionTextureType: CompressionTextureTypeEnum,
+    {
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.ClampToEdge,
+      wrapT = TextureParameter.ClampToEdge,
+      anisotropy = true,
+      // isPremultipliedAlpha = false,
+    } = {}
+  ) {
+    const originalTextureData = textureDataArray.find(
+      textureData => textureData.level === 0
+    );
+    if (originalTextureData == null) {
+      throw new Error('texture data with level 0 is not found');
+    }
+
+    this.__width = originalTextureData.width;
+    this.__height = originalTextureData.height;
+
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.createCompressedTexture(
+      textureDataArray,
+      compressionTextureType,
+      {
         magFilter,
         minFilter,
         wrapS,

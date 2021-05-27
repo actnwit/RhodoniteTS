@@ -256,7 +256,7 @@ export default class VideoTexture extends AbstractTexture {
 
   get playbackRate() {
     const playbackRate = this.#htmlVideoElement?.playbackRate;
-    return playbackRate != null ? playbackRate : 1;
+    return playbackRate ?? 1;
   }
 
   play() {

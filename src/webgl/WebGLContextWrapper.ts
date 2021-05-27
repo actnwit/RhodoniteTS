@@ -6,6 +6,13 @@ import Config from '../foundation/core/Config';
 
 const INVALID_SIZE = -1;
 
+interface WEBGL_compressed_texture_etc {
+  readonly COMPRESSED_RGBA8_ETC2_EAC: number;
+}
+interface WEBGL_compressed_texture_bptc {
+  readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
+}
+
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext | any;
   __webglVersion = 1;
@@ -25,12 +32,23 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtDB?: WEBGL_draw_buffers;
   public readonly webgl1ExtBM?: EXT_blend_minmax;
   public readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
-  public readonly webgl1ExtCTASTC?: WEBGL_compressed_texture_astc;
-  public readonly webgl1ExtCTS3TC?: WEBGL_compressed_texture_s3tc;
+  public readonly webgl1ExtCTAstc?: WEBGL_compressed_texture_astc;
+  public readonly webgl1ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
+  public readonly webgl1ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
+  public readonly webgl1ExtCTAtc?: WEBGL_compressed_texture_atc;
+  public readonly webgl1ExtCTEtc?: WEBGL_compressed_texture_etc;
+  public readonly webgl1ExtCTEtc1?: WEBGL_compressed_texture_etc1;
+  public readonly webgl1ExtCTBptc?: WEBGL_compressed_texture_bptc;
+
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
   public readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
-  public readonly webgl2ExtCTAS?: WEBGL_compressed_texture_astc;
-  public readonly webgl2ExtCTS3TC?: WEBGL_compressed_texture_s3tc;
+  public readonly webgl2ExtCTAstc?: WEBGL_compressed_texture_astc;
+  public readonly webgl2ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
+  public readonly webgl2ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
+  public readonly webgl2ExtCTAtc?: WEBGL_compressed_texture_atc;
+  public readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
+  public readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
+  public readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
@@ -77,13 +95,27 @@ export default class WebGLContextWrapper {
       this.webgl2ExtTFA = this.__getExtension(
         WebGLExtension.TextureFilterAnisotropic
       );
-      this.webgl2ExtCTAS = this.__getExtension(
+      this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureAstc
       );
-      this.webgl2ExtCTS3TC =
-        this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcMOZ) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcWK);
+      this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureS3tc
+      );
+      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTexturePvrtc
+      );
+      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureAtc
+      );
+      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc
+      );
+      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc1
+      );
+      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureBptc
+      );
     } else {
       this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
       this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
@@ -104,13 +136,27 @@ export default class WebGLContextWrapper {
       this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
       this.webgl1ExtBM = this.__getExtension(WebGLExtension.BlendMinmax);
       this.webgl1ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloat);
-      this.webgl1ExtCTASTC = this.__getExtension(
+      this.webgl1ExtCTAstc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureAstc
       );
-      this.webgl1ExtCTS3TC =
-        this.__getExtension(WebGLExtension.CompressedTextureS3tc) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcMOZ) ||
-        this.__getExtension(WebGLExtension.CompressedTextureS3tcWK);
+      this.webgl1ExtCTS3tc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureS3tc
+      );
+      this.webgl1ExtCTPvrtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTexturePvrtc
+      );
+      this.webgl1ExtCTAtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureAtc
+      );
+      this.webgl1ExtCTEtc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc
+      );
+      this.webgl1ExtCTEtc1 = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureEtc1
+      );
+      this.webgl1ExtCTBptc = this.__getCompressedTextureExtension(
+        WebGLExtension.CompressedTextureBptc
+      );
     }
     this.getUniformBufferInfo();
     this.getMaxUniformVectors();
@@ -430,13 +476,30 @@ export default class WebGLContextWrapper {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
         const text = `The library does not support this environment because the ${extension.toString()} is not available`;
-        if (console.error != null) {
-          console.error(text);
-        } else {
-          console.log(text);
-        }
+        console.error(text);
       }
       this.__extensions.set(extension, extObj);
+      return extObj;
+    }
+    return this.__extensions.get(extension);
+  }
+
+  private __getCompressedTextureExtension(extension: WebGLExtensionEnum) {
+    const gl = this.__gl as WebGLRenderingContext | WebGL2RenderingContext;
+
+    if (!this.__extensions.has(extension)) {
+      const extensionName = extension.toString();
+      const extObj =
+        gl.getExtension(extensionName) ??
+        gl.getExtension('MOZ_' + extensionName) ??
+        gl.getExtension('WEBKIT_' + extensionName);
+
+      if (extObj == null) {
+        const text = `This environment does not support the ${extension.toString()}`;
+        console.warn(text);
+      } else {
+        this.__extensions.set(extension, extObj);
+      }
       return extObj;
     }
     return this.__extensions.get(extension);

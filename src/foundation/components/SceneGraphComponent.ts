@@ -231,10 +231,7 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (
-      this.__parent == null ||
-      (isJointMode && this.__parent != null && !this.__parent.isJoint())
-    ) {
+    if (this.__parent == null || (isJointMode && this.__parent?.isJoint())) {
       return transform.matrixInner;
     }
 

@@ -957,7 +957,7 @@ export default class Accessor {
     accessor: Accessor,
     secondIdx?: Index
   ) {
-    const j = secondIdx != null ? secondIdx : i;
+    const j = secondIdx ?? i;
     if (this.compositionType.getNumberOfComponents() === 1) {
       this.setScalar(i, accessor.getScalar(j, {}), {});
     } else if (this.compositionType.getNumberOfComponents() === 2) {
@@ -981,7 +981,7 @@ export default class Accessor {
   }
 
   setElementFromAccessor(i: Index, accessor: Accessor, secondIdx?: Index) {
-    const j = secondIdx != null ? secondIdx : i;
+    const j = secondIdx ?? i;
     if (this.compositionType.getNumberOfComponents() === 1) {
       if (accessor.compositionType.getNumberOfComponents() === 1) {
         this.setScalar(i, accessor.getScalar(j, {}), {});
@@ -1042,7 +1042,7 @@ export default class Accessor {
     coeff: number,
     secondIdx?: Index
   ) {
-    const j = secondIdx != null ? secondIdx : i;
+    const j = secondIdx ?? i;
     if (this.compositionType.getNumberOfComponents() === 1) {
       this.setScalar(
         i,

@@ -244,9 +244,8 @@ ${prerequisitesShaderityObject.code}
         for (let k = 0; k < targetNodeInputConnections.length; k++) {
           const inputConnection = targetNodeInputConnections[k];
           if (
-            prevMaterialNodeInner != null &&
-            inputConnection.shaderNodeUid !==
-              prevMaterialNodeInner.shaderNodeUid
+            prevMaterialNodeInner?.shaderNodeUid !==
+            inputConnection.shaderNodeUid
           ) {
             continue;
           }

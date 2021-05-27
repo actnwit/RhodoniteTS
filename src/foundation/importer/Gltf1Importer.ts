@@ -33,7 +33,7 @@ export default class Gltf1Importer {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     return await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
-      options?.files != null ? options.files : {},
+      options?.files ?? {},
       options,
       uri
     );
@@ -793,17 +793,36 @@ export default class Gltf1Importer {
       }
 
       if (imageUri.match(/basis$/)) {
-        const promise = new Promise(async resolve => {
-          const response = await fetch(imageUri, {mode: 'cors'});
-          const buffer = await response.arrayBuffer();
-          const uint8Array = new Uint8Array(buffer);
-          imageJson.basis = uint8Array;
+        const promise = new Promise(resolve => {
+          fetch(imageUri, {mode: 'cors'}).then(response => {
+            response.arrayBuffer().then(buffer => {
+              const uint8Array = new Uint8Array(buffer);
+              imageJson.basis = uint8Array;
+              resolve();
+            });
+          });
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
+      } else if (imageJson.uri?.match(/basis$/)) {
+        const promise = new Promise(resolve => {
+          imageJson.basis = new Uint8Array(files[imageJson.uri!]);
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);
-      } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
+      } else if (imageUri && imageJson.mimeType === 'image/ktx2') {
         const promise = new Promise(resolve => {
-          imageJson.basis = new Uint8Array(files[imageJson.uri!]);
+          fetch(imageUri, {mode: 'cors'}).then(response => {
+            response.arrayBuffer().then(buffer => {
+              const uint8Array = new Uint8Array(buffer);
+              imageJson.ktx2 = uint8Array;
+              resolve();
+            });
+          });
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
+      } else if (imageJson.uri?.match(/ktx2$/)) {
+        const promise = new Promise(resolve => {
+          imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);

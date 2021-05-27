@@ -48,6 +48,7 @@ import {
   Gltf2BufferView,
   Gltf2Primitive,
   Gltf2Material,
+  Gltf2Image,
 } from '../../types/glTF';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
@@ -507,7 +508,7 @@ export default class ModelConverter {
     if (argument?.isMorphing === false) {
       return false;
     } else {
-      return node.mesh != null && node.mesh.primitives[0].targets != null;
+      return node.mesh?.primitives[0].targets != null;
     }
   }
 
@@ -838,6 +839,8 @@ export default class ModelConverter {
         rnTexture.generateTextureFromImage(image.image, textureOption);
       } else if (image?.basis) {
         rnTexture.generateTextureFromBasis(image.basis, textureOption);
+      } else if (image?.ktx2) {
+        rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
       } else {
         console.warn('default image not found');
         continue;
@@ -1039,7 +1042,7 @@ export default class ModelConverter {
     if (argument?.isSkinning === false) {
       return false;
     } else {
-      return node.skin != null ? true : false;
+      return node.skin != null;
     }
   }
 
@@ -1397,35 +1400,33 @@ export default class ModelConverter {
         TextureParameter.Repeat,
     };
 
-    if (texture.image.image) {
-      const image = texture.image.image as HTMLImageElement;
+    const image = texture.image as Gltf2Image;
+    if (image.image) {
+      const imageElem = image.image as HTMLImageElement;
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper
         ?.isWebGL2;
 
       if (
         isWebGL1 &&
-        !this.__sizeIsPowerOfTwo(image) &&
+        !this.__sizeIsPowerOfTwo(imageElem) &&
         this.__needResizeToPowerOfTwoOnWebGl1(textureOption)
       ) {
         rnTexture.autoResize = true;
       }
 
-      rnTexture.generateTextureFromImage(image, textureOption);
-      if (texture.image.uri) {
-        rnTexture.name = texture.image.url;
-      } else {
-        const ext = texture.image.mimeType.split('/')[1];
-        rnTexture.name = texture.image.name + `.${ext}`;
-      }
-    } else if (texture.image.basis) {
-      rnTexture.generateTextureFromBasis(texture.image.basis, textureOption);
-      if (texture.image.uri) {
-        rnTexture.name = texture.image.url;
-      } else {
-        const ext = texture.image.mimeType.split('/')[1];
-        rnTexture.name = texture.image.name + `.${ext}`;
-      }
+      rnTexture.generateTextureFromImage(imageElem, textureOption);
+    } else if (image.basis) {
+      rnTexture.generateTextureFromBasis(image.basis, textureOption);
+    } else if (image.ktx2) {
+      rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
+    }
+
+    if (image.uri) {
+      rnTexture.name = image.uri;
+    } else {
+      const ext = image.mimeType?.split('/')[1];
+      rnTexture.name = image.name + `.${ext}`;
     }
 
     return rnTexture;

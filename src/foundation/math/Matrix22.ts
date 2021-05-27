@@ -93,7 +93,7 @@ export default class Matrix22 extends AbstractMatrix implements IMatrix, IMatrix
           this._v[3] = m[3];
         }
       }
-    } else if (!!m && m._v != null && m._v[3] !== null) {
+    } else if (!!m && m._v?.[3] != null) {
       if (_notCopyFloatArray) {
         this._v = m._v;
       } else {

@@ -45,7 +45,7 @@ export default class Gltf2Importer {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
-      options?.files != null ? options.files : {},
+      options?.files ?? {},
       options,
       uri
     ).catch(err => {
@@ -471,7 +471,13 @@ export default class Gltf2Importer {
           texture.samplerIndex = texture.sampler;
           texture.sampler = gltfJson.samplers[texture.samplerIndex!];
         }
-        if (texture.source !== void 0) {
+
+        if (texture.extensions?.KHR_texture_basisu?.source != null) {
+          texture.extensions.KHR_texture_basisu.fallbackSourceIndex =
+            texture.source;
+          texture.sourceIndex = texture.extensions.KHR_texture_basisu.source;
+          texture.image = gltfJson.images[texture.sourceIndex!];
+        } else if (texture.source !== void 0) {
           texture.sourceIndex = texture.source;
           texture.image = gltfJson.images[texture.sourceIndex!];
         }
@@ -574,10 +580,8 @@ export default class Gltf2Importer {
       extendedJson = JSON.parse(extendedJsonStr);
     } else if (typeof extendedData === 'string') {
       extendedJson = JSON.parse(extendedData);
-      extendedJson = extendedJson;
     } else if (typeof extendedData === 'object') {
       extendedJson = extendedData;
-    } else {
     }
 
     Object.assign(gltfJson, extendedJson);
@@ -694,17 +698,36 @@ export default class Gltf2Importer {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       // }
       if (imageUri.match(/basis$/)) {
-        const promise = new Promise(async resolve => {
-          const response = await fetch(imageUri, {mode: 'cors'});
-          const buffer = await response.arrayBuffer();
-          const uint8Array = new Uint8Array(buffer);
-          imageJson.basis = uint8Array;
+        const promise = new Promise(resolve => {
+          fetch(imageUri, {mode: 'cors'}).then(response => {
+            response.arrayBuffer().then(buffer => {
+              const uint8Array = new Uint8Array(buffer);
+              imageJson.basis = uint8Array;
+              resolve();
+            });
+          });
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
+      } else if (imageJson.uri?.match(/basis$/)) {
+        const promise = new Promise(resolve => {
+          imageJson.basis = new Uint8Array(files[imageJson.uri!]);
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);
-      } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
+      } else if (imageUri && imageJson.mimeType === 'image/ktx2') {
         const promise = new Promise(resolve => {
-          imageJson.basis = new Uint8Array(files[imageJson.uri!]);
+          fetch(imageUri, {mode: 'cors'}).then(response => {
+            response.arrayBuffer().then(buffer => {
+              const uint8Array = new Uint8Array(buffer);
+              imageJson.ktx2 = uint8Array;
+              resolve();
+            });
+          });
+        }) as Promise<void>;
+        promisesToLoadResources.push(promise);
+      } else if (imageJson.uri?.match(/ktx2$/)) {
+        const promise = new Promise(resolve => {
+          imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);

@@ -475,8 +475,7 @@ export default class AnimationComponent extends Component {
   }
 
   getStartInputValueOfAnimation(animationName?: string) {
-    const name =
-      animationName != null ? animationName : this.__currentActiveAnimationName;
+    const name = animationName ?? this.__currentActiveAnimationName;
     if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationInfo.values());
       if (array.length === 0) {
@@ -494,8 +493,7 @@ export default class AnimationComponent extends Component {
   }
 
   getEndInputValueOfAnimation(animationName?: string) {
-    const name =
-      animationName != null ? animationName : this.__currentActiveAnimationName;
+    const name = animationName ?? this.__currentActiveAnimationName;
 
     if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationInfo.values());

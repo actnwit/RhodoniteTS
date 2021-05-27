@@ -68,13 +68,25 @@ const CompressedTextureS3tc: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 15,
   str: 'WEBGL_compressed_texture_s3tc',
 });
-const CompressedTextureS3tcMOZ: WebGLExtensionEnum = new WebGLExtensionClass({
+const CompressedTexturePvrtc: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 16,
-  str: 'MOZ_WEBGL_compressed_texture_s3tc',
+  str: 'WEBGL_compressed_texture_pvrtc',
 });
-const CompressedTextureS3tcWK: WebGLExtensionEnum = new WebGLExtensionClass({
+const CompressedTextureAtc: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 17,
-  str: 'WEBKIT_WEBGL_compressed_texture_s3tc',
+  str: 'WEBGL_compressed_texture_atc',
+});
+const CompressedTextureEtc: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 18,
+  str: 'WEBGL_compressed_texture_etc',
+});
+const CompressedTextureEtc1: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 19,
+  str: 'WEBGL_compressed_texture_etc1',
+});
+const CompressedTextureBptc: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 20,
+  str: 'EXT_texture_compression_bptc',
 });
 
 const typeList = [
@@ -93,8 +105,11 @@ const typeList = [
   ColorBufferFloat,
   CompressedTextureAstc,
   CompressedTextureS3tc,
-  CompressedTextureS3tcMOZ,
-  CompressedTextureS3tcWK,
+  CompressedTexturePvrtc,
+  CompressedTextureAtc,
+  CompressedTextureEtc,
+  CompressedTextureEtc1,
+  CompressedTextureBptc,
 ];
 
 function from({index}: {index: number}): WebGLExtensionEnum {
@@ -117,6 +132,9 @@ export const WebGLExtension = Object.freeze({
   ColorBufferFloat,
   CompressedTextureAstc,
   CompressedTextureS3tc,
-  CompressedTextureS3tcMOZ,
-  CompressedTextureS3tcWK,
+  CompressedTexturePvrtc,
+  CompressedTextureAtc,
+  CompressedTextureEtc,
+  CompressedTextureEtc1,
+  CompressedTextureBptc,
 });
