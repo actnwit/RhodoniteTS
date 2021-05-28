@@ -587,6 +587,7 @@ export default class ModelConverter {
     const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
+    // set flag to rnMesh with options
     const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
     if (rnLoaderOptions?.tangentCalculationMode != null) {
       rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
