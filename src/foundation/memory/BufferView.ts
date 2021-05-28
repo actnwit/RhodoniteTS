@@ -70,9 +70,8 @@ export default class BufferView {
   }
 
   get isAoS() {
-    // return false;
     const foundAoS = this.__accessors.find((accessor: Accessor) => {
-      return accessor.byteOffsetInAccessor !== 0;
+      return accessor.isAoS;
     });
     return Is.defined(foundAoS);
   }

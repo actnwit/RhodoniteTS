@@ -324,11 +324,11 @@ export default class Accessor {
   }
 
   get isAoS() {
-    return this.__bufferView.isAoS;
+    return this.__byteOffsetInAccessor !== 0;
   }
 
   get isSoA() {
-    return this.__bufferView.isSoA;
+    return !this.isAoS;
   }
 
   get byteStride() {
