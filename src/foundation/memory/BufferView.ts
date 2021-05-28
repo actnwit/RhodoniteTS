@@ -16,21 +16,20 @@ export default class BufferView {
 
   constructor({
     buffer,
-    byteOffset,
+    byteOffsetInBuffer,
     defaultByteStride,
     byteLength,
     raw,
-    byteAlign,
   }: {
     buffer: Buffer;
-    byteOffset: Byte;
+    byteOffsetInBuffer: Byte;
     defaultByteStride: Byte;
     byteLength: Byte;
     raw: ArrayBuffer;
-    byteAlign: Byte;
   }) {
     this.__buffer = buffer;
-    this.__byteOffsetInRawArrayBufferOfBuffer = byteOffset;
+    this.__byteOffsetInRawArrayBufferOfBuffer =
+      buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
     this.__byteLength = byteLength;
     this.__defaultByteStride = defaultByteStride;
     this.__raw = raw;

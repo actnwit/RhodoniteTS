@@ -38,7 +38,6 @@ export default class Buffer {
     if (buffer instanceof Uint8Array) {
       this.__raw = buffer.buffer;
       this.__byteOffset = buffer.byteOffset;
-      this.__takenBytesIndex = buffer.byteOffset;
     } else {
       this.__raw = buffer;
     }
@@ -76,11 +75,10 @@ export default class Buffer {
 
     const bufferView = new BufferView({
       buffer: this,
-      byteOffset: this.__takenBytesIndex,
+      byteOffsetInBuffer: this.__takenBytesIndex,
       defaultByteStride: byteStride,
       byteLength: byteLengthToNeed + paddingBytes,
       raw: this.__raw,
-      byteAlign: this.__byteAlign,
     });
     this.__takenBytesIndex += byteLengthToNeed + paddingBytes;
 
@@ -98,20 +96,16 @@ export default class Buffer {
     byteStride: Byte;
     byteOffset: Byte;
   }) {
-    const byteAlign = this.__byteAlign;
     const bufferView = new BufferView({
       buffer: this,
-      byteOffset: byteOffset + this.__byteOffset,
+      byteOffsetInBuffer: byteOffset,
       defaultByteStride: byteStride,
       byteLength: byteLengthToNeed,
       raw: this.__raw,
-      byteAlign,
     });
 
     const takenBytesIndex =
-      Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed +
-      byteOffset +
-      this.__byteOffset;
+      Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed + byteOffset;
     if (this.__takenBytesIndex < takenBytesIndex) {
       this.__takenBytesIndex = takenBytesIndex;
     }
