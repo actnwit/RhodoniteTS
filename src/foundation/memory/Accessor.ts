@@ -136,14 +136,20 @@ export default class Accessor {
     this.__typedArrayClass = typedArrayClass;
 
     /// Check
-    if (
-      this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer <
-      this.byteStride * this.__count
-    ) {
+    const maxExceededSizeOnAoS =
+      this.__byteStride -
+      this.__compositionType.getNumberOfComponents() *
+        this.__componentType.getSizeInBytes();
+    const sizeFromAccessorBeginToArrayBufferEnd = this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
+    const maxLimitSizeToAccess = this.byteStride * this.__count - maxExceededSizeOnAoS;
+    if (sizeFromAccessorBeginToArrayBufferEnd < maxLimitSizeToAccess) {
       console.error(
         `Requesting a data size that exceeds the remaining capacity of the buffer: ${
           this.bufferView.buffer.name
         }.
+        Exceeded Size: ${
+          maxLimitSizeToAccess - sizeFromAccessorBeginToArrayBufferEnd
+        }
         this.__raw.byteLength: ${this.__raw.byteLength}
         this.__byteOffsetInRawArrayBufferOfBuffer: ${
           this.byteOffsetInRawArrayBufferOfBuffer
@@ -154,6 +160,7 @@ export default class Accessor {
           this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer
         }
         this.byteStride * this.__count: ${this.byteStride * this.__count}
+        maxExceededSizeOnAoS: ${maxExceededSizeOnAoS}
         `
       );
     }
