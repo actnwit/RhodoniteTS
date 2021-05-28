@@ -76,27 +76,6 @@ export default class BufferView {
     return Is.defined(foundAoS);
   }
 
-  recheckIsSoA() {
-    if (this.__accessors.length <= 1) {
-      return true;
-    }
-
-    const firstStrideBytes = this.__accessors[0].byteStride;
-    const secondStrideBytes = this.__accessors[1].byteStride;
-    const firstElementSizeInBytes = this.__accessors[0].elementSizeInBytes;
-    const secondElementSizeInBytes = this.__accessors[1].elementSizeInBytes;
-
-    if (
-      firstStrideBytes === secondStrideBytes &&
-      firstElementSizeInBytes + secondElementSizeInBytes <
-        firstElementSizeInBytes
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   getUint8Array() {
     return new Uint8Array(
       this.__raw,
