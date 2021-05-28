@@ -8,11 +8,14 @@ import {Is} from '../misc/Is';
 export default class BufferView {
   private __buffer: Buffer;
   private __byteOffsetInRawArrayBufferOfBuffer: Byte;
+  private __byteOffsetInBuffer: Byte;
   private __byteLength: Byte;
   private __defaultByteStride: Byte = 0;
-  private __takenByteIndex: Byte = 0;
+  private __takenByte: Byte = 0;
+  private __takenAccessorCount = 0;
   private __raw: ArrayBuffer;
   private __accessors: Array<Accessor> = [];
+  private __totalBytesUpToLastAccessor: Byte = 0;
 
   constructor({
     buffer,
@@ -28,6 +31,7 @@ export default class BufferView {
     raw: ArrayBuffer;
   }) {
     this.__buffer = buffer;
+    this.__byteOffsetInBuffer = byteOffsetInBuffer;
     this.__byteOffsetInRawArrayBufferOfBuffer =
       buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
     this.__byteLength = byteLength;
@@ -206,7 +210,7 @@ export default class BufferView {
     arrayLength: Size;
     normalized: boolean;
   }): Accessor {
-    const byteOffsetInBufferView = this.__takenByteIndex;
+    const byteOffsetInBufferView = this.__takenByte;
     let actualByteStride = byteStride;
     if (actualByteStride === 0) {
       actualByteStride =
@@ -232,7 +236,8 @@ export default class BufferView {
 
     this.__accessors.push(accessor);
 
-    this.__takenByteIndex += actualByteStride * count;
+    this.__takenByte += actualByteStride * count;
+    this.__totalBytesUpToLastAccessor = this.__takenByte;
 
     return accessor;
   }

@@ -139,7 +139,6 @@ export default class Accessor {
     if (
       this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer <
       this.byteStride * this.__count
-      // this.byteStride * this.__count - byteOffsetInAccessor
     ) {
       console.error(
         `Requesting a data size that exceeds the remaining capacity of the buffer: ${
@@ -161,8 +160,10 @@ export default class Accessor {
     this.__dataView = new DataView(
       this.__raw,
       this.__byteOffsetInRawArrayBufferOfBuffer,
-      this.__byteStride * this.__count
-      // this.__byteStride * this.__count - byteOffsetInAccessor
+      Math.min(
+        this.__byteStride * this.__count,
+        this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer
+      )
     );
 
     if (
@@ -1276,5 +1277,16 @@ export default class Accessor {
 
   get byteOffsetInAccessor() {
     return this.__byteOffsetInAccessor;
+  }
+
+  get actualByteStride() {
+    if (this.__byteStride === 0) {
+      const actualByteStride = this.__compositionType.getNumberOfComponents() *
+        this.__componentType.getSizeInBytes() *
+        this.__arrayLength;
+      return actualByteStride;
+    } else {
+      return this.__byteStride;
+    }
   }
 }
