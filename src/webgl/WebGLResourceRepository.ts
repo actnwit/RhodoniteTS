@@ -75,7 +75,15 @@ export type TextureData = {
   width: Count;
   height: Count;
   buffer: ArrayBufferView;
-}
+};
+
+export type WebGLResource =
+  | WebGLBuffer
+  | WebGLFramebuffer
+  | WebGLObject
+  | WebGLProgram
+  | WebGLRenderbuffer
+  | WebGLTexture;
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance: WebGLResourceRepository;
@@ -83,7 +91,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private __glw?: WebGLContextWrapper;
   private __resourceCounter: number =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __webglResources: Map<WebGLResourceHandle, WebGLObject> = new Map();
+  private __webglResources: Map<WebGLResourceHandle, WebGLResource> = new Map();
 
   private constructor() {
     super();
@@ -119,7 +127,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   getWebGLResource(
     WebGLResourceHandle: WebGLResourceHandle
-  ): WebGLObject | null {
+  ): WebGLResource | null {
     const result = this.__webglResources.get(WebGLResourceHandle);
     return result ?? null;
   }
@@ -2379,7 +2387,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const transformFeedback = this.getWebGLResource(transformFeedbackUid)!;
-    gl.deleteTransformFeedback(transformFeedback);
+    gl.deleteTransformFeedback(transformFeedback as WebGLTransformFeedback);
     this.__webglResources.delete(transformFeedbackUid);
   }
 
