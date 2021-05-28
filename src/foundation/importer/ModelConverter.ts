@@ -1902,7 +1902,7 @@ export default class ModelConverter {
       componentType: ComponentType.from(accessor.componentType),
       count: numOfAttributes,
       byteStride: accessor.byteStride ?? 0,
-      byteOffsetInBufferView: accessor.bufferView.byteOffset ?? 0,
+      byteOffsetInBufferView: accessor.byteOffset ?? 0,
       byteOffsetInAccessor: accessor.byteOffset ?? 0,
       max: accessor.max,
       min: accessor.min,
