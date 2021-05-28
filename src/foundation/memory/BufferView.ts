@@ -69,10 +69,12 @@ export default class BufferView {
   }
 
   get isAoS() {
-    const foundAoS = this.__accessors.find((accessor: Accessor) => {
-      return accessor.isAoS;
-    });
-    return Is.defined(foundAoS);
+    for (const accessor of this.__accessors) {
+      if (accessor.isAoS) {
+        return true;
+      }
+    }
+    return false;
   }
 
   getUint8Array() {

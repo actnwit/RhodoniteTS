@@ -326,11 +326,15 @@ export default class Accessor {
   }
 
   get isAoS() {
-    return this.__byteOffsetInAccessor !== 0;
+    return !this.isSoA;
   }
 
   get isSoA() {
-    return !this.isAoS;
+    const isSoA =
+      this.byteStride ===
+      this.__compositionType.getNumberOfComponents() *
+        this.__componentType.getSizeInBytes();
+    return isSoA;
   }
 
   get byteStride() {
