@@ -94,9 +94,7 @@ export default class Accessor {
     this.__bufferView = bufferView;
     this.__byteOffsetInAccessor = byteOffsetInAccessor;
     this.__byteOffsetInRawArrayBufferOfBuffer =
-      bufferView.byteOffsetInRawArrayBufferOfBuffer +
-      byteOffsetInBufferView;// +
-      // byteOffsetInAccessor;
+      bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffsetInBufferView;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;

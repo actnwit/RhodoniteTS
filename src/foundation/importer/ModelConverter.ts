@@ -1848,17 +1848,30 @@ export default class ModelConverter {
       byteOffset: bufferView.byteOffset ?? 0,
     });
 
-    const rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: accessor.count,
-      byteStride: accessor.byteStride ?? 0,
-      byteOffsetInBufferView: accessor.byteOffset ?? 0,
-      byteOffsetInAccessor: accessor.byteOffset ?? 0,
-      max: accessor.max,
-      min: accessor.min,
-      normalized: accessor.normalized,
-    });
+    let rnAccessor;
+    if (accessor.byteStride != null) {
+      rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteStride: accessor.byteStride,
+        byteOffsetInBufferView: accessor.byteOffset ?? 0,
+        byteOffsetInAccessor: accessor.byteOffset ?? 0,
+        max: accessor.max,
+        min: accessor.min,
+        normalized: accessor.normalized,
+      });
+    } else {
+      rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteOffsetInBufferView: accessor.byteOffset ?? 0,
+        max: accessor.max,
+        min: accessor.min,
+        normalized: accessor.normalized,
+      });
+    }
 
     return rnAccessor;
   }
@@ -1898,17 +1911,30 @@ export default class ModelConverter {
       byteStride: 0,
     });
 
-    const rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: numOfAttributes,
-      byteStride: accessor.byteStride ?? 0,
-      byteOffsetInBufferView: accessor.byteOffset ?? 0,
-      byteOffsetInAccessor: accessor.byteOffset ?? 0,
-      max: accessor.max,
-      min: accessor.min,
-      normalized: accessor.normalized,
-    });
+    let rnAccessor;
+    if (accessor.byteStride != null) {
+      rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: numOfAttributes,
+        byteStride: accessor.byteStride,
+        byteOffsetInBufferView: accessor.bufferView.byteOffset ?? 0,
+        byteOffsetInAccessor: accessor.byteOffset ?? 0,
+        max: accessor.max,
+        min: accessor.min,
+        normalized: accessor.normalized,
+      });
+    } else {
+      rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: numOfAttributes,
+        byteOffsetInBufferView: accessor.bufferView.byteOffset ?? 0,
+        max: accessor.max,
+        min: accessor.min,
+        normalized: accessor.normalized,
+      });
+    }
 
     return rnAccessor;
   }
