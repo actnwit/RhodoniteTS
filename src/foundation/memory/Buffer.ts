@@ -38,7 +38,6 @@ export default class Buffer {
     if (buffer instanceof Uint8Array) {
       this.__raw = buffer.buffer;
       this.__byteOffset = buffer.byteOffset;
-      this.__takenBytesIndex = buffer.byteOffset;
     } else {
       this.__raw = buffer;
     }
@@ -67,23 +66,19 @@ export default class Buffer {
   takeBufferView({
     byteLengthToNeed,
     byteStride,
-    isAoS,
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
-    isAoS: boolean;
   }) {
     const byteAlign = this.__byteAlign;
     const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
     const bufferView = new BufferView({
       buffer: this,
-      byteOffset: this.__takenBytesIndex,
-      byteStride: byteStride,
+      byteOffsetInBuffer: this.__takenBytesIndex,
+      defaultByteStride: byteStride,
       byteLength: byteLengthToNeed + paddingBytes,
       raw: this.__raw,
-      isAoS: isAoS,
-      byteAlign: this.__byteAlign,
     });
     this.__takenBytesIndex += byteLengthToNeed + paddingBytes;
 
@@ -96,28 +91,21 @@ export default class Buffer {
     byteLengthToNeed,
     byteStride,
     byteOffset,
-    isAoS,
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
     byteOffset: Byte;
-    isAoS: boolean;
   }) {
-    const byteAlign = this.__byteAlign;
     const bufferView = new BufferView({
       buffer: this,
-      byteOffset: byteOffset + this.__byteOffset,
-      byteStride: byteStride,
+      byteOffsetInBuffer: byteOffset,
+      defaultByteStride: byteStride,
       byteLength: byteLengthToNeed,
       raw: this.__raw,
-      isAoS: isAoS,
-      byteAlign,
     });
 
     const takenBytesIndex =
-      Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed +
-      byteOffset +
-      this.__byteOffset;
+      Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed + byteOffset;
     if (this.__takenBytesIndex < takenBytesIndex) {
       this.__takenBytesIndex = takenBytesIndex;
     }

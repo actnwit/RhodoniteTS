@@ -217,7 +217,6 @@ export default class Material extends RnObject {
       bufferView = buffer.takeBufferView({
         byteLengthToNeed: totalByteLength,
         byteStride: 0,
-        isAoS: false,
       });
       this.__bufferViews.set(materialTypeName, bufferView);
     }
@@ -238,13 +237,12 @@ export default class Material extends RnObject {
       ) {
         maxArrayLength = 100;
       }
-      const accessor = bufferView!.takeFlexibleAccessor({
+      const accessor = bufferView!.takeAccessor({
         compositionType: semanticInfo.compositionType,
         componentType: ComponentType.Float,
         count: count,
         byteStride: alignedByte,
         arrayLength: maxArrayLength,
-        byteAlign: 16,
       });
 
       const propertyIndex = this._getPropertyIndex(semanticInfo);

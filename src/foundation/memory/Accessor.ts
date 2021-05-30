@@ -31,7 +31,7 @@ type DataViewSetter = (
 
 export default class Accessor {
   private __bufferView: BufferView;
-  private __byteOffsetInRawArrayBufferOfBuffer: number;
+  private __byteOffsetInRawArrayBufferOfBuffer: Byte;
   private __compositionType: CompositionTypeEnum = CompositionType.Unknown;
   private __componentType: ComponentTypeEnum = ComponentType.Unknown;
   private __count: Count = 0;
@@ -65,7 +65,7 @@ export default class Accessor {
 
   constructor({
     bufferView,
-    byteOffset,
+    byteOffsetInBufferView,
     compositionType,
     componentType,
     byteStride,
@@ -77,7 +77,7 @@ export default class Accessor {
     normalized,
   }: {
     bufferView: BufferView;
-    byteOffset: Byte;
+    byteOffsetInBufferView: Byte;
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     byteStride: Byte;
@@ -90,7 +90,7 @@ export default class Accessor {
   }) {
     this.__bufferView = bufferView;
     this.__byteOffsetInRawArrayBufferOfBuffer =
-      bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffset;
+      bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffsetInBufferView;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
@@ -130,14 +130,20 @@ export default class Accessor {
     this.__typedArrayClass = typedArrayClass;
 
     /// Check
-    if (
-      this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer <
-      this.byteStride * this.__count
-    ) {
+    const maxExceededSizeOnAoS =
+      this.__byteStride -
+      this.__compositionType.getNumberOfComponents() *
+        this.__componentType.getSizeInBytes();
+    const sizeFromAccessorBeginToArrayBufferEnd = this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
+    const maxLimitSizeToAccess = this.byteStride * this.__count - maxExceededSizeOnAoS;
+    if (sizeFromAccessorBeginToArrayBufferEnd < maxLimitSizeToAccess) {
       console.error(
         `Requesting a data size that exceeds the remaining capacity of the buffer: ${
           this.bufferView.buffer.name
         }.
+        Exceeded Size: ${
+          maxLimitSizeToAccess - sizeFromAccessorBeginToArrayBufferEnd
+        }
         this.__raw.byteLength: ${this.__raw.byteLength}
         this.__byteOffsetInRawArrayBufferOfBuffer: ${
           this.byteOffsetInRawArrayBufferOfBuffer
@@ -148,13 +154,17 @@ export default class Accessor {
           this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer
         }
         this.byteStride * this.__count: ${this.byteStride * this.__count}
+        maxExceededSizeOnAoS: ${maxExceededSizeOnAoS}
         `
       );
     }
     this.__dataView = new DataView(
       this.__raw,
       this.__byteOffsetInRawArrayBufferOfBuffer,
-      this.__byteStride * this.__count
+      Math.min(
+        this.__byteStride * this.__count,
+        this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer
+      )
     );
 
     if (
@@ -268,6 +278,8 @@ export default class Accessor {
     );
     this.__takenCount += 1;
 
+    // console.log(this.byteOffsetInRawArrayBufferOfBuffer, this.__byteStride, this.__takenCount, this.__arrayLength);
+
     (subTypedArray as any)._accessor = this;
     (subTypedArray as any)._idx_of_accessor = this.__takenCount;
 
@@ -316,11 +328,15 @@ export default class Accessor {
   }
 
   get isAoS() {
-    return this.__bufferView.isAoS;
+    return !this.isSoA;
   }
 
   get isSoA() {
-    return this.__bufferView.isSoA;
+    const isSoA =
+      this.byteStride ===
+      this.__compositionType.getNumberOfComponents() *
+        this.__componentType.getSizeInBytes();
+    return isSoA;
   }
 
   get byteStride() {
@@ -1258,5 +1274,16 @@ export default class Accessor {
 
   get isMinMaxDirty() {
     return this.__isMinMixDirty;
+  }
+
+  get actualByteStride() {
+    if (this.__byteStride === 0) {
+      const actualByteStride = this.__compositionType.getNumberOfComponents() *
+        this.__componentType.getSizeInBytes() *
+        this.__arrayLength;
+      return actualByteStride;
+    } else {
+      return this.__byteStride;
+    }
   }
 }

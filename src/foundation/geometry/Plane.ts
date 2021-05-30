@@ -128,7 +128,6 @@ export default class Plane extends Primitive {
     const indicesBufferView = buffer.takeBufferView({
       byteLengthToNeed: indexSizeInByte /*byte*/,
       byteStride: 0,
-      isAoS: false,
     });
     const indicesAccessor = indicesBufferView.takeAccessor({
       compositionType: CompositionType.Scalar,
@@ -143,7 +142,6 @@ export default class Plane extends Primitive {
     const attributesBufferView = buffer.takeBufferView({
       byteLengthToNeed: sumOfAttributesByteSize,
       byteStride: 0,
-      isAoS: false,
     });
 
     const attributeAccessors: Array<Accessor> = [];

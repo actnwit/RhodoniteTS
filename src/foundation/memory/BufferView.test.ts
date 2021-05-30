@@ -20,7 +20,6 @@ test('An bufferView can take an accessor from itself', () => {
   const bufferView = buffer.takeBufferView({
     byteLengthToNeed: 64,
     byteStride: 0,
-    isAoS: false,
   });
   const accessor = bufferView!.takeAccessor({
     compositionType: CompositionType.Mat4,

@@ -587,6 +587,7 @@ export default class ModelConverter {
     const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
+    // set flag to rnMesh with options
     const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
     if (rnLoaderOptions?.tangentCalculationMode != null) {
       rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
@@ -1845,32 +1846,18 @@ export default class ModelConverter {
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,
       byteOffset: bufferView.byteOffset ?? 0,
-      isAoS: false,
     });
 
-    let rnAccessor;
-    if (accessor.byteStride != null) {
-      rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
-        compositionType: CompositionType.fromString(accessor.type),
-        componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
-        byteStride: accessor.byteStride,
-        byteOffset: accessor.byteOffset ?? 0,
-        max: accessor.max,
-        min: accessor.min,
-        normalized: accessor.normalized,
-      });
-    } else {
-      rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-        compositionType: CompositionType.fromString(accessor.type),
-        componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
-        byteOffset: accessor.byteOffset ?? 0,
-        max: accessor.max,
-        min: accessor.min,
-        normalized: accessor.normalized,
-      });
-    }
+    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+      compositionType: CompositionType.fromString(accessor.type),
+      componentType: ComponentType.from(accessor.componentType),
+      count: accessor.count,
+      byteOffsetInBufferView: accessor.byteOffset ?? 0,
+      byteStride: accessor.byteStride,
+      max: accessor.max,
+      min: accessor.min,
+      normalized: accessor.normalized,
+    });
 
     return rnAccessor;
   }
@@ -1883,7 +1870,6 @@ export default class ModelConverter {
     const dstRnBufferView = dstRnBuffer.takeBufferView({
       byteLengthToNeed: byteSize,
       byteStride: 3 /* vec4 */ * 4 /* bytes */,
-      isAoS: false,
     });
 
     const dstRnAccessor = dstRnBufferView.takeAccessor({
@@ -1901,7 +1887,7 @@ export default class ModelConverter {
   }
 
   private __createRnAccessor(
-    accessor: any,
+    accessor: Gltf2Accessor,
     numOfAttributes: Count,
     compositionNum: Count,
     rnBuffer: Buffer
@@ -1909,32 +1895,18 @@ export default class ModelConverter {
     const rnBufferView = rnBuffer.takeBufferView({
       byteLengthToNeed: numOfAttributes * compositionNum * 4,
       byteStride: 0,
-      isAoS: false,
     });
 
-    let rnAccessor;
-    if (accessor.byteStride != null) {
-      rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
-        compositionType: CompositionType.fromString(accessor.type),
-        componentType: ComponentType.from(accessor.componentType),
-        count: numOfAttributes,
-        byteStride: accessor.byteStride,
-        byteOffset: accessor.byteOffset ?? 0,
-        max: accessor.max,
-        min: accessor.min,
-        normalized: accessor.normalized,
-      });
-    } else {
-      rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-        compositionType: CompositionType.fromString(accessor.type),
-        componentType: ComponentType.from(accessor.componentType),
-        count: numOfAttributes,
-        byteOffset: accessor.byteOffset ?? 0,
-        max: accessor.max,
-        min: accessor.min,
-        normalized: accessor.normalized,
-      });
-    }
+    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+      compositionType: CompositionType.fromString(accessor.type),
+      componentType: ComponentType.from(accessor.componentType),
+      count: numOfAttributes,
+      byteStride: accessor.byteStride,
+      byteOffsetInBufferView: accessor.byteOffset ?? 0,
+      max: accessor.max,
+      min: accessor.min,
+      normalized: accessor.normalized,
+    });
 
     return rnAccessor;
   }
@@ -1944,7 +1916,6 @@ export default class ModelConverter {
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,
       byteOffset: bufferView.byteOffset ?? 0,
-      isAoS: false,
     });
 
     return rnBufferView;

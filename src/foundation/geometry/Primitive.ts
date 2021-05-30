@@ -172,7 +172,6 @@ export default class Primitive extends RnObject {
       indicesBufferView = buffer.takeBufferView({
         byteLengthToNeed: indices.byteLength,
         byteStride: 0,
-        isAoS: false,
       });
       indicesAccessor = indicesBufferView.takeAccessor({
         compositionType: CompositionType.Scalar,
@@ -192,7 +191,6 @@ export default class Primitive extends RnObject {
     const attributesBufferView = buffer.takeBufferView({
       byteLengthToNeed: sumOfAttributesByteSize,
       byteStride: 0,
-      isAoS: false,
     });
 
     const attributeAccessors: Array<Accessor> = [];

@@ -41,6 +41,18 @@ IE11 is not supported.
 You can install the esm version of Rhodonite easily.
 
 ```
+$ yarn add rhodonite
+```
+
+You can install yarn as following,
+
+```
+$ npm install -g yarn
+```
+
+You can use npm of course, but we recommend yarn because we use it usually.
+
+```
 $ npm install rhodonite
 ```
 
@@ -143,7 +155,7 @@ For detail, See the typescript-based samples like ./samples/simple/VideoTexture/
 ## Try Samples
 
 ```bash
-$ npm run start
+$ yarn start
 ```
 
 Then, access http://localhost:8082/ with your web browser.
@@ -157,7 +169,7 @@ Then, access http://localhost:8082/ with your web browser.
 ### Setup Project
 
 ```bash
-$ npm install
+$ yarn install
 ```
 
 You can use yarn instead.
@@ -165,25 +177,25 @@ You can use yarn instead.
 ### Build command for Rhodonite library
 
 ```bash
-$ npm run build
+$ yarn build
 ```
 
 ### Build command for samples
 
 ```bash
-$ npm run build-samples
+$ yarn build-samples
 ```
 
 ## Build command for API documents
 
 ```bash
-$ npm run doc
+$ yarn doc
 ```
 
 ## Testing Rhodonite
 
 ```bash
-$ npm run test
+$ yarn test
 ```
 
 You can execute a part of tests like this.
@@ -191,17 +203,17 @@ You can execute a part of tests like this.
 ### For unit test
 
 ```bash
-$ npm run test-unit -- ./src/foundation/core
+$ yarn test-unit -- ./src/foundation/core
 ```
 
 ```bash
-$ npm run test-unit -- ./src/foundation/core/Entity.test.ts
+$ yarn test-unit -- ./src/foundation/core/Entity.test.ts
 ```
 
 ### For E2E (visual) test
 
 ```bash
-$ npm run test-e2e -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
+$ yarn test-e2e -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
 ```
 
 ### For M1 Mac in E2E test
@@ -241,7 +253,7 @@ module.exports = {
 ## Debugging inside VSCode
 
 1. Install the "Debugger for Chrome" VSCode Extension.
-2. Start the local server with `$ npm run start`.
+2. Start the local server with `$ yarn start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
 

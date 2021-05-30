@@ -3,43 +3,44 @@ import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from './Accessor';
 import {Byte, Count, Size} from '../../types/CommonTypes';
+import {Is} from '../misc/Is';
 
 export default class BufferView {
   private __buffer: Buffer;
   private __byteOffsetInRawArrayBufferOfBuffer: Byte;
+  private __byteOffsetInBuffer: Byte;
   private __byteLength: Byte;
-  private __byteStride: Byte = 0;
-  private __takenByteIndex: Byte = 0;
+  private __defaultByteStride: Byte = 0;
+  private __takenByte: Byte = 0;
+  private __takenAccessorCount = 0;
   private __raw: ArrayBuffer;
-  private __isAoS: boolean;
   private __accessors: Array<Accessor> = [];
+  private __totalBytesUpToLastAccessor: Byte = 0;
 
   constructor({
     buffer,
-    byteOffset,
-    byteStride,
+    byteOffsetInBuffer,
+    defaultByteStride,
     byteLength,
     raw,
-    isAoS,
   }: {
     buffer: Buffer;
-    byteOffset: Byte;
-    byteStride: Byte;
+    byteOffsetInBuffer: Byte;
+    defaultByteStride: Byte;
     byteLength: Byte;
     raw: ArrayBuffer;
-    isAoS: boolean;
-    byteAlign: Byte;
   }) {
     this.__buffer = buffer;
-    this.__byteOffsetInRawArrayBufferOfBuffer = byteOffset;
+    this.__byteOffsetInBuffer = byteOffsetInBuffer;
+    this.__byteOffsetInRawArrayBufferOfBuffer =
+      buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
     this.__byteLength = byteLength;
-    this.__byteStride = byteStride;
+    this.__defaultByteStride = defaultByteStride;
     this.__raw = raw;
-    this.__isAoS = isAoS;
   }
 
-  get byteStride() {
-    return this.__byteStride;
+  get defaultByteStride() {
+    return this.__defaultByteStride;
   }
 
   get byteLength() {
@@ -68,32 +69,16 @@ export default class BufferView {
   }
 
   get isSoA() {
-    return !this.__isAoS;
-  }
-
-  recheckIsSoA() {
-    if (this.__accessors.length <= 1) {
-      return true;
-    }
-
-    const firstStrideBytes = this.__accessors[0].byteStride;
-    const secondStrideBytes = this.__accessors[1].byteStride;
-    const firstElementSizeInBytes = this.__accessors[0].elementSizeInBytes;
-    const secondElementSizeInBytes = this.__accessors[1].elementSizeInBytes;
-
-    if (
-      firstStrideBytes === secondStrideBytes &&
-      firstElementSizeInBytes + secondElementSizeInBytes <
-        firstElementSizeInBytes
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+    return !this.isAoS;
   }
 
   get isAoS() {
-    return this.__isAoS;
+    for (const accessor of this.__accessors) {
+      if (accessor.isAoS) {
+        return true;
+      }
+    }
+    return false;
   }
 
   getUint8Array() {
@@ -108,21 +93,21 @@ export default class BufferView {
     compositionType,
     componentType,
     count,
+    byteStride = this.defaultByteStride,
     max,
     min,
-    arrayLength,
+    arrayLength = 1,
     normalized = false,
   }: {
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     count: Count;
+    byteStride?: Byte;
     max?: number[];
     min?: number[];
     arrayLength?: Size;
     normalized?: boolean;
   }): Accessor {
-    const byteStride = this.byteStride;
-    const _arrayLength = arrayLength ?? 1;
     const accessor = this.__takeAccessorInner({
       compositionType,
       componentType,
@@ -130,44 +115,8 @@ export default class BufferView {
       byteStride,
       max,
       min,
-      arrayLength: _arrayLength,
       normalized,
-    });
-
-    return accessor;
-  }
-
-  takeFlexibleAccessor({
-    compositionType,
-    componentType,
-    count,
-    byteStride,
-    max,
-    min,
-    arrayLength,
-    normalized = false,
-  }: {
-    compositionType: CompositionTypeEnum;
-    componentType: ComponentTypeEnum;
-    count: Count;
-    byteStride: Byte;
-    max?: number[];
-    min?: number[];
-    byteAlign?: Byte;
-    arrayLength?: Size;
-    normalized?: boolean;
-  }): Accessor {
-    const _arrayLength = arrayLength ?? 1;
-
-    const accessor = this.__takeAccessorInner({
-      compositionType,
-      componentType,
-      count,
-      byteStride,
-      max,
-      min,
-      arrayLength: _arrayLength,
-      normalized,
+      arrayLength,
     });
 
     return accessor;
@@ -177,7 +126,8 @@ export default class BufferView {
     compositionType,
     componentType,
     count,
-    byteOffset,
+    byteOffsetInBufferView,
+    byteStride = this.defaultByteStride,
     max,
     min,
     normalized = false,
@@ -185,42 +135,8 @@ export default class BufferView {
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     count: Count;
-    byteOffset: Byte;
-    max?: number[];
-    min?: number[];
-    normalized?: boolean;
-  }): Accessor {
-    const byteStride = this.byteStride;
-
-    const accessor = this.__takeAccessorInnerWithByteOffset({
-      compositionType,
-      componentType,
-      count,
-      byteStride,
-      byteOffset,
-      max,
-      min,
-      normalized,
-    });
-
-    return accessor;
-  }
-
-  takeFlexibleAccessorWithByteOffset({
-    compositionType,
-    componentType,
-    count,
-    byteStride,
-    byteOffset,
-    max,
-    min,
-    normalized = false,
-  }: {
-    compositionType: CompositionTypeEnum;
-    componentType: ComponentTypeEnum;
-    count: Count;
-    byteStride: Byte;
-    byteOffset: Byte;
+    byteOffsetInBufferView: Byte;
+    byteStride?: Byte;
     max?: number[];
     min?: number[];
     normalized?: boolean;
@@ -230,7 +146,7 @@ export default class BufferView {
       componentType,
       count,
       byteStride,
-      byteOffset,
+      byteOffsetInBufferView,
       max,
       min,
       normalized,
@@ -258,42 +174,18 @@ export default class BufferView {
     arrayLength: Size;
     normalized: boolean;
   }): Accessor {
-    let byteOffset = 0;
-    if (this.isSoA) {
-      byteOffset = this.__takenByteIndex;
-      if (byteStride === 0) {
-        this.__takenByteIndex +=
-          compositionType.getNumberOfComponents() *
-          componentType.getSizeInBytes() *
-          arrayLength *
-          count;
-      } else {
-        this.__takenByteIndex += byteStride * count;
-      }
-    } else {
-      byteOffset = this.__takenByteIndex;
-      // if (byteStride === 0) {
-      this.__takenByteIndex +=
+    const byteOffsetInBufferView = this.__takenByte;
+    let actualByteStride = byteStride;
+    if (actualByteStride === 0) {
+      actualByteStride =
         compositionType.getNumberOfComponents() *
         componentType.getSizeInBytes() *
         arrayLength;
-      // } else {
-      //   this.__takenByteIndex += byteStride;
-      // }
     }
-
-    // if (byteOffset % byteAlign !== 0) {
-    //   console.info(
-    //     `Padding bytes added because byteOffset is not ${byteAlign}byte aligned.`
-    //   );
-    //   const paddingBytes = byteAlign - (byteOffset % byteAlign);
-    //   byteOffset += paddingBytes;
-    //   this.__takenByteIndex += paddingBytes;
-    // }
 
     const accessor = new Accessor({
       bufferView: this,
-      byteOffset,
+      byteOffsetInBufferView: byteOffsetInBufferView,
       compositionType,
       componentType,
       byteStride,
@@ -307,6 +199,9 @@ export default class BufferView {
 
     this.__accessors.push(accessor);
 
+    this.__takenByte += actualByteStride * count;
+    this.__totalBytesUpToLastAccessor = this.__takenByte;
+
     return accessor;
   }
 
@@ -315,7 +210,7 @@ export default class BufferView {
     componentType,
     count,
     byteStride,
-    byteOffset,
+    byteOffsetInBufferView,
     max,
     min,
     normalized,
@@ -324,14 +219,14 @@ export default class BufferView {
     componentType: ComponentTypeEnum;
     count: Count;
     byteStride: Byte;
-    byteOffset: Byte;
+    byteOffsetInBufferView: Byte;
     max?: number[];
     min?: number[];
     normalized: boolean;
   }): Accessor {
     const accessor = new Accessor({
       bufferView: this,
-      byteOffset,
+      byteOffsetInBufferView,
       compositionType,
       componentType,
       byteStride,

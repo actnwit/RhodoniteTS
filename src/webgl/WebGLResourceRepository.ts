@@ -148,12 +148,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  updateIndexBuffer(
-    accessor: Accessor,
-    resourceHandle: number
-  ) {
+  updateIndexBuffer(accessor: Accessor, resourceHandle: number) {
     const glw = this.__glw as WebGLContextWrapper;
-    const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
+    const gl = glw?.getRawContext() as
+      | WebGLRenderingContext
+      | WebGL2RenderingContext;
     if (!is.exist(gl)) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
@@ -166,11 +165,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     glw.bindVertexArray(null);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    gl.bufferSubData(
-      gl.ELEMENT_ARRAY_BUFFER,
-      0,
-      accessor.getTypedArray()
-    );
+    gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, 0, accessor.getTypedArray());
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
@@ -217,12 +212,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  updateVertexBuffer(
-    accessor: Accessor,
-    resourceHandle: number
-  ) {
+  updateVertexBuffer(accessor: Accessor, resourceHandle: number) {
     const glw = this.__glw as WebGLContextWrapper;
-    const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
+    const gl = glw?.getRawContext() as
+      | WebGLRenderingContext
+      | WebGL2RenderingContext;
     if (!is.exist(gl)) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
@@ -234,11 +228,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     glw.bindVertexArray(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferSubData(
-      gl.ARRAY_BUFFER,
-      0,
-      accessor.bufferView.getUint8Array()
-    );
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, accessor.bufferView.getUint8Array());
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 

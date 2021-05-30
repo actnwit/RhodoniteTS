@@ -360,7 +360,6 @@ export default class Component extends RnObject {
       const bufferView = buffer.takeBufferView({
         byteLengthToNeed: byteLengthSumOfMembers * count,
         byteStride: 0,
-        isAoS: false,
       });
       bufferViews.set(bufferUse, bufferView);
       return bufferView;
@@ -424,12 +423,11 @@ export default class Component extends RnObject {
         alignedBytes += bytes % 16 === 0 ? 0 : 16 - (bytes % 16);
       }
 
-      const accessor = bufferViews.get(bufferUse)!.takeFlexibleAccessor({
+      const accessor = bufferViews.get(bufferUse)!.takeAccessor({
         compositionType: compositionType,
         componentType,
         count: count,
         byteStride: alignedBytes,
-        byteAlign: 16,
       });
       accessors.set(memberName, accessor);
       return accessor;
