@@ -180,7 +180,6 @@ export default class BufferView {
       count,
       byteStride,
       byteOffsetInBufferView,
-      byteOffsetInAccessor: 0,
       max,
       min,
       normalized,
@@ -195,7 +194,6 @@ export default class BufferView {
     count,
     byteStride,
     byteOffsetInBufferView,
-    byteOffsetInAccessor,
     max,
     min,
     normalized = false,
@@ -205,7 +203,6 @@ export default class BufferView {
     count: Count;
     byteStride: Byte;
     byteOffsetInBufferView: Byte;
-    byteOffsetInAccessor: Byte;
     max?: number[];
     min?: number[];
     normalized?: boolean;
@@ -216,7 +213,6 @@ export default class BufferView {
       count,
       byteStride,
       byteOffsetInBufferView,
-      byteOffsetInAccessor,
       max,
       min,
       normalized,
@@ -256,7 +252,6 @@ export default class BufferView {
     const accessor = new Accessor({
       bufferView: this,
       byteOffsetInBufferView: byteOffsetInBufferView,
-      byteOffsetInAccessor: 0,
       compositionType,
       componentType,
       byteStride,
@@ -282,7 +277,6 @@ export default class BufferView {
     count,
     byteStride,
     byteOffsetInBufferView,
-    byteOffsetInAccessor,
     max,
     min,
     normalized,
@@ -292,7 +286,6 @@ export default class BufferView {
     count: Count;
     byteStride: Byte;
     byteOffsetInBufferView: Byte;
-    byteOffsetInAccessor: Byte;
     max?: number[];
     min?: number[];
     normalized: boolean;
@@ -300,7 +293,6 @@ export default class BufferView {
     const accessor = new Accessor({
       bufferView: this,
       byteOffsetInBufferView,
-      byteOffsetInAccessor,
       compositionType,
       componentType,
       byteStride,

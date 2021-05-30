@@ -32,7 +32,6 @@ type DataViewSetter = (
 export default class Accessor {
   private __bufferView: BufferView;
   private __byteOffsetInRawArrayBufferOfBuffer: Byte;
-  private __byteOffsetInAccessor: Byte;
   private __compositionType: CompositionTypeEnum = CompositionType.Unknown;
   private __componentType: ComponentTypeEnum = ComponentType.Unknown;
   private __count: Count = 0;
@@ -67,7 +66,6 @@ export default class Accessor {
   constructor({
     bufferView,
     byteOffsetInBufferView,
-    byteOffsetInAccessor,
     compositionType,
     componentType,
     byteStride,
@@ -80,7 +78,6 @@ export default class Accessor {
   }: {
     bufferView: BufferView;
     byteOffsetInBufferView: Byte;
-    byteOffsetInAccessor: Byte;
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     byteStride: Byte;
@@ -92,7 +89,6 @@ export default class Accessor {
     normalized: boolean;
   }) {
     this.__bufferView = bufferView;
-    this.__byteOffsetInAccessor = byteOffsetInAccessor;
     this.__byteOffsetInRawArrayBufferOfBuffer =
       bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffsetInBufferView;
     this.__compositionType = compositionType;
@@ -1278,10 +1274,6 @@ export default class Accessor {
 
   get isMinMaxDirty() {
     return this.__isMinMixDirty;
-  }
-
-  get byteOffsetInAccessor() {
-    return this.__byteOffsetInAccessor;
   }
 
   get actualByteStride() {
