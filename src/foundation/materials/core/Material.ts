@@ -237,13 +237,12 @@ export default class Material extends RnObject {
       ) {
         maxArrayLength = 100;
       }
-      const accessor = bufferView!.takeFlexibleAccessor({
+      const accessor = bufferView!.takeAccessor({
         compositionType: semanticInfo.compositionType,
         componentType: ComponentType.Float,
         count: count,
         byteStride: alignedByte,
         arrayLength: maxArrayLength,
-        byteAlign: 16,
       });
 
       const propertyIndex = this._getPropertyIndex(semanticInfo);

@@ -317,13 +317,12 @@ export default class GlobalDataRepository {
       maxArrayLength = 100;
     }
 
-    const accessor = bufferView.takeFlexibleAccessor({
+    const accessor = bufferView.takeAccessor({
       compositionType: semanticInfo.compositionType,
       componentType: ComponentType.Float,
       count: maxCount,
       byteStride: alignedByteLength,
       arrayLength: maxArrayLength,
-      byteAlign: 16,
     });
 
     const globalPropertyStruct: GlobalPropertyStruct = {

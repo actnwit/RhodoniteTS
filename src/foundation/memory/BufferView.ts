@@ -93,54 +93,21 @@ export default class BufferView {
     compositionType,
     componentType,
     count,
+    byteStride = this.defaultByteStride,
     max,
     min,
+    arrayLength = 1,
     normalized = false,
   }: {
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     count: Count;
+    byteStride?: Byte;
     max?: number[];
     min?: number[];
-    normalized?: boolean;
-  }): Accessor {
-    const byteStride = this.defaultByteStride;
-    const accessor = this.__takeAccessorInner({
-      compositionType,
-      componentType,
-      count,
-      byteStride,
-      max,
-      min,
-      normalized,
-      arrayLength: 1,
-    });
-
-    return accessor;
-  }
-
-  takeFlexibleAccessor({
-    compositionType,
-    componentType,
-    count,
-    byteStride,
-    max,
-    min,
-    arrayLength,
-    normalized = false,
-  }: {
-    compositionType: CompositionTypeEnum;
-    componentType: ComponentTypeEnum;
-    count: Count;
-    byteStride: Byte;
-    max?: number[];
-    min?: number[];
-    byteAlign?: Byte;
     arrayLength?: Size;
     normalized?: boolean;
   }): Accessor {
-    const _arrayLength = arrayLength ?? 1;
-
     const accessor = this.__takeAccessorInner({
       compositionType,
       componentType,
@@ -148,8 +115,8 @@ export default class BufferView {
       byteStride,
       max,
       min,
-      arrayLength: _arrayLength,
       normalized,
+      arrayLength,
     });
 
     return accessor;
@@ -160,6 +127,7 @@ export default class BufferView {
     componentType,
     count,
     byteOffsetInBufferView,
+    byteStride = this.defaultByteStride,
     max,
     min,
     normalized = false,
@@ -168,41 +136,7 @@ export default class BufferView {
     componentType: ComponentTypeEnum;
     count: Count;
     byteOffsetInBufferView: Byte;
-    max?: number[];
-    min?: number[];
-    normalized?: boolean;
-  }): Accessor {
-    const byteStride = this.defaultByteStride;
-
-    const accessor = this.__takeAccessorInnerWithByteOffset({
-      compositionType,
-      componentType,
-      count,
-      byteStride,
-      byteOffsetInBufferView,
-      max,
-      min,
-      normalized,
-    });
-
-    return accessor;
-  }
-
-  takeFlexibleAccessorWithByteOffset({
-    compositionType,
-    componentType,
-    count,
-    byteStride,
-    byteOffsetInBufferView,
-    max,
-    min,
-    normalized = false,
-  }: {
-    compositionType: CompositionTypeEnum;
-    componentType: ComponentTypeEnum;
-    count: Count;
-    byteStride: Byte;
-    byteOffsetInBufferView: Byte;
+    byteStride?: Byte;
     max?: number[];
     min?: number[];
     normalized?: boolean;
