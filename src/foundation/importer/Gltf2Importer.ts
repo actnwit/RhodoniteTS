@@ -714,7 +714,7 @@ export default class Gltf2Importer {
           resolve();
         }) as Promise<void>;
         promisesToLoadResources.push(promise);
-      } else if (imageUri && imageJson.mimeType === 'image/ktx2') {
+      } else if (imageUri.match(/ktx2$/)) {
         const promise = new Promise(resolve => {
           fetch(imageUri, {mode: 'cors'}).then(response => {
             response.arrayBuffer().then(buffer => {
