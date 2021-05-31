@@ -83,7 +83,8 @@ export type WebGLResource =
   | WebGLObject
   | WebGLProgram
   | WebGLRenderbuffer
-  | WebGLTexture;
+  | WebGLTexture
+  | WebGLTransformFeedback;
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance: WebGLResourceRepository;
