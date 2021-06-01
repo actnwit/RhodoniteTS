@@ -631,27 +631,30 @@ export default class Gltf2Importer {
 
     // Textures Async load
     for (const imageJson of gltfJson.images ?? []) {
-      let imageUri: string;
-
-      if (typeof imageJson.uri === 'undefined') {
+      if (imageJson.uri == null) {
         if (uint8Array == null) {
           // need to wait for load gltfJson.buffer
-          // imageUint8Array is not correct now
+          // need to call this.__loadImageUri
+        } else {
+          const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
+            gltfJson,
+            imageJson.bufferView!,
+            uint8Array
+          );
+          const imageUri = DataUtil.createBlobImageUriFromUint8Array(
+            imageUint8Array,
+            imageJson.mimeType!
+          );
+          promisesToLoadResources.push(
+            this.__loadImageUri(imageUri, imageJson, files)
+          );
         }
-        const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
-          gltfJson,
-          imageJson.bufferView!,
-          uint8Array
-        );
-        imageUri = DataUtil.createBlobImageUriFromUint8Array(
-          imageUint8Array,
-          imageJson.mimeType!
-        );
       } else {
         const imageFileStr = imageJson.uri;
         const splitUri = imageFileStr.split('/');
         const filename = splitUri[splitUri.length - 1];
 
+        let imageUri;
         if (files && this.__containsFileName(files, filename)) {
           const fullPath = this.__getFullPathOfFileName(files, filename);
           const arrayBuffer = files[fullPath!];
@@ -664,14 +667,11 @@ export default class Gltf2Importer {
         } else {
           imageUri = basePath + imageFileStr;
         }
-      }
 
-      // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
-      //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
-      // }
-      promisesToLoadResources.push(
-        this.__loadImageUri(imageUri, imageJson, files)
-      );
+        promisesToLoadResources.push(
+          this.__loadImageUri(imageUri, imageJson, files)
+        );
+      }
     }
 
     if (options.defaultTextures) {
