@@ -634,10 +634,9 @@ export default class Gltf2Importer {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        let arrayBuffer = uint8Array;
         if (uint8Array == null) {
-          const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
-          arrayBuffer = bufferView.buffer.buffer!;
+          // need to wait for load gltfJson.buffer
+          // imageUint8Array is not correct now
         }
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
           gltfJson,
