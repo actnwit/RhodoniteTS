@@ -228,22 +228,9 @@ export default class Gltf2Importer {
   ) {
     const promises = [];
 
-    const resources = {
-      shaders: [],
-      buffers: [],
-      images: [],
-    };
-
     // Load resources to above resources object.
     promises.push(
-      this._loadResources(
-        uint8array!,
-        gltfJson,
-        files,
-        options,
-        resources,
-        basePath
-      )
+      this._loadResources(uint8array!, gltfJson, files, options, basePath)
     );
 
     // Parse glTF JSON
@@ -592,11 +579,6 @@ export default class Gltf2Importer {
     gltfJson: glTF2,
     files: GltfFileBuffers,
     options: GltfLoadOption,
-    resources: {
-      shaders: any[];
-      buffers: any[];
-      images: any[];
-    },
     basePath?: string
   ) {
     const promisesToLoadResources = [];
@@ -614,14 +596,12 @@ export default class Gltf2Importer {
 
       if (typeof bufferInfo.uri === 'undefined') {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
-          resources.buffers[i] = uint8Array;
           bufferInfo.buffer = uint8Array;
           resolve(uint8Array);
         });
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
           const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
-          resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
@@ -629,7 +609,6 @@ export default class Gltf2Importer {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
           const fullPath = this.__getFullPathOfFileName(files, filename);
           const arrayBuffer = files[fullPath!];
-          resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
@@ -639,7 +618,6 @@ export default class Gltf2Importer {
             basePath + bufferInfo.uri,
             true,
             (resolve: Function, response: ArrayBuffer) => {
-              resources.buffers[i] = new Uint8Array(response);
               bufferInfo.buffer = new Uint8Array(response);
               resolve(response);
             },
@@ -737,7 +715,6 @@ export default class Gltf2Importer {
           imageJson.mimeType!
         ).then(image => {
           image.crossOrigin = 'Anonymous';
-          resources.images[i] = image;
           imageJson.image = image;
         });
         promisesToLoadResources.push(promise);

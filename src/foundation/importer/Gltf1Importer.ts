@@ -196,20 +196,8 @@ export default class Gltf1Importer {
   ): Promise<any> {
     const promises = [] as Promise<any>[];
 
-    const resources = {
-      shaders: [],
-      buffers: [],
-      images: [],
-    };
     promises.push(
-      this._loadResources(
-        uint8array!,
-        gltfJson,
-        files,
-        options,
-        resources,
-        basePath
-      )
+      this._loadResources(uint8array!, gltfJson, files, options, basePath)
     );
     promises.push(
       new Promise((resolve, reject) => {
@@ -670,11 +658,6 @@ export default class Gltf1Importer {
     gltfJson: glTF1,
     files: GltfFileBuffers,
     options: GltfLoadOption,
-    resources: {
-      shaders: any[];
-      buffers: any[];
-      images: any[];
-    },
     basePath?: string
   ) {
     const promisesToLoadResources = [];
@@ -692,7 +675,6 @@ export default class Gltf1Importer {
       if (typeof bufferInfo.uri === 'undefined') {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            resources.buffers[i] = uint8Array;
             bufferInfo.buffer = uint8Array;
             resolve(gltfJson);
           })
@@ -700,7 +682,6 @@ export default class Gltf1Importer {
       } else if (bufferInfo.uri === '' || bufferInfo.uri === 'data:,') {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            resources.buffers[i] = uint8Array;
             bufferInfo.buffer = uint8Array;
             resolve(gltfJson);
           })
@@ -709,7 +690,6 @@ export default class Gltf1Importer {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
             const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
-            resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           })
@@ -719,7 +699,6 @@ export default class Gltf1Importer {
           new Promise((resolve, reject) => {
             const fullPath = this.__getFullPathOfFileName(files, filename);
             const arrayBuffer = files[fullPath!];
-            resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           })
@@ -731,7 +710,6 @@ export default class Gltf1Importer {
             basePath + bufferInfo.uri,
             true,
             (resolve: Function, response: any) => {
-              resources.buffers[i] = new Uint8Array(response);
               bufferInfo.buffer = new Uint8Array(response);
               resolve(gltfJson);
             },
@@ -832,7 +810,6 @@ export default class Gltf1Importer {
           imageJson.mimeType!
         ).then(image => {
           image.crossOrigin = 'Anonymous';
-          resources.images[i] = image;
           imageJson.image = image;
         });
         promisesToLoadResources.push(promise);
