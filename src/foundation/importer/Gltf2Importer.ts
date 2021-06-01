@@ -23,7 +23,10 @@ export default class Gltf2Importer {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  async import(uri: string, options?: GltfLoadOption): Promise<glTF2|undefined> {
+  async import(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<glTF2 | undefined> {
     if (options && options.files) {
       for (const fileName in options.files) {
         const fileExtension = DataUtil.getExtension(fileName);
@@ -81,7 +84,7 @@ export default class Gltf2Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ): Promise<glTF2|undefined> {
+  ): Promise<glTF2 | undefined> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);
@@ -132,9 +135,8 @@ export default class Gltf2Importer {
       typeof options.loaderExtensionName === 'string'
     ) {
       if (Rn[options.loaderExtensionName] != null) {
-        defaultOptions.loaderExtension = Rn[
-          options.loaderExtensionName
-        ].getInstance();
+        defaultOptions.loaderExtension =
+          Rn[options.loaderExtensionName].getInstance();
       } else {
         console.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;

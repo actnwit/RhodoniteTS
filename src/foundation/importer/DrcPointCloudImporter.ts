@@ -150,9 +150,8 @@ export default class DrcPointCloudImporter {
       typeof options.loaderExtensionName === 'string'
     ) {
       if (Rn[options.loaderExtensionName] != null) {
-        defaultOptions.loaderExtension = Rn[
-          options.loaderExtensionName
-        ].getInstance();
+        defaultOptions.loaderExtension =
+          Rn[options.loaderExtensionName].getInstance();
       } else {
         console.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;
@@ -341,7 +340,7 @@ export default class DrcPointCloudImporter {
           node.extensions.KHR_lights_punctual.light;
         node.extensions.KHR_lights_punctual.light =
           gltfJson.extensions.KHR_lights_punctual.lights[
-          node.extensions.KHR_lights_punctual.lightIndex
+            node.extensions.KHR_lights_punctual.lightIndex
           ];
       }
     }
@@ -556,7 +555,7 @@ export default class DrcPointCloudImporter {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferIndex = (bufferView.buffer as any) as number;
+        bufferView.bufferIndex = bufferView.buffer as any as number;
         bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
       }
     }
@@ -695,7 +694,7 @@ export default class DrcPointCloudImporter {
 
     // Textures Async load
     for (const _i in gltfJson.images) {
-      const i = (_i as any) as number;
+      const i = _i as any as number;
       const imageJson = gltfJson.images[i] as Gltf2Image;
       //let imageJson = gltfJson.images[textureJson.source];
       //let samplerJson = gltfJson.samplers[textureJson.sampler];

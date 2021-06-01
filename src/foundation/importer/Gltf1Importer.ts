@@ -1,5 +1,11 @@
 import DataUtil from '../misc/DataUtil';
-import {glTF1, glTF2, Gltf2Image, GltfFileBuffers, GltfLoadOption} from '../../types/glTF';
+import {
+  glTF1,
+  glTF2,
+  Gltf2Image,
+  GltfFileBuffers,
+  GltfLoadOption,
+} from '../../types/glTF';
 
 declare let Rn: any;
 
@@ -39,7 +45,10 @@ export default class Gltf1Importer {
     );
   }
 
-  async importGltfOrGlbFromFile(uri: string, options?: GltfLoadOption): Promise<glTF2|undefined> {
+  async importGltfOrGlbFromFile(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<glTF2 | undefined> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
@@ -101,9 +110,8 @@ export default class Gltf1Importer {
       typeof options.loaderExtensionName === 'string'
     ) {
       if (Rn[options.loaderExtensionName] != null) {
-        defaultOptions.loaderExtension = Rn[
-          options.loaderExtensionName
-        ].getInstance();
+        defaultOptions.loaderExtension =
+          Rn[options.loaderExtensionName].getInstance();
       } else {
         console.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;
@@ -481,17 +489,17 @@ export default class Gltf1Importer {
                 (material.technique === 'CONSTANT' && valueName === 'ambient')
               ) {
                 origMaterial.diffuseColorTexture = {};
-                origMaterial.diffuseColorTexture.texture = (gltfJson.textures as any)[
-                  value
-                ];
+                origMaterial.diffuseColorTexture.texture = (
+                  gltfJson.textures as any
+                )[value];
               } else if (
                 valueName === 'emission' &&
                 textureStr.match(/_normal$/)
               ) {
                 origMaterial.emissionTexture = {};
-                origMaterial.emissionTexture.texture = (gltfJson.textures as any)[
-                  value
-                ];
+                origMaterial.emissionTexture.texture = (
+                  gltfJson.textures as any
+                )[value];
               }
               origMaterial.extras = {};
               origMaterial.extras.technique = material.technique;
