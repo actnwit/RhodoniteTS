@@ -634,7 +634,39 @@ export default class Gltf2Importer {
       if (imageJson.uri == null) {
         if (uint8Array == null) {
           // need to wait for load gltfJson.buffer
-          // need to call this.__loadImageUri
+          const bufferViewInfo = gltfJson.bufferViews[imageJson.bufferView!];
+          let bufferInfo = bufferViewInfo.buffer;
+          if (!isNaN(bufferInfo as unknown as number)) {
+            const bufferIndex = bufferInfo as unknown as number;
+            bufferInfo = gltfJson.buffers[bufferIndex];
+          }
+
+          const bufferPromise =
+            bufferInfo.bufferPromise as RnPromise<ArrayBuffer>;
+
+          const loadImageAfterLoadingBuffer = new RnPromise(resolve => {
+            bufferPromise.then((arraybuffer: ArrayBuffer) => {
+              const imageUint8Array =
+                DataUtil.createUint8ArrayFromBufferViewInfo(
+                  gltfJson,
+                  imageJson.bufferView!,
+                  arraybuffer
+                );
+              const imageUri = DataUtil.createBlobImageUriFromUint8Array(
+                imageUint8Array,
+                imageJson.mimeType!
+              );
+              this.__loadImageUri(imageUri, imageJson, files).then(() => {
+                resolve(arraybuffer);
+              });
+            });
+          }) as RnPromise<ArrayBuffer>;
+
+          const bufferPromiseIndex: number =
+            promisesToLoadResources.indexOf(bufferPromise);
+          promisesToLoadResources[bufferPromiseIndex] =
+            loadImageAfterLoadingBuffer;
+          bufferInfo.bufferPromise = loadImageAfterLoadingBuffer;
         } else {
           const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
             gltfJson,
@@ -753,7 +785,10 @@ export default class Gltf2Importer {
         imageJson.basis = new Uint8Array(files[imageJson.uri!]);
         resolve();
       });
-    } else if (imageUri.match(/ktx2$/)) {
+    } else if (
+      imageUri.match(/ktx2$/) ||
+      (imageJson.bufferView != null && imageJson.mimeType === 'image/ktx2')
+    ) {
       // load ktx2 file from uri or bufferView
       loadImagePromise = new Promise(resolve => {
         fetch(imageUri, {mode: 'cors'}).then(response => {

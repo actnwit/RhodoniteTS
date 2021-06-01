@@ -845,7 +845,10 @@ export default class Gltf1Importer {
         imageJson.basis = new Uint8Array(files[imageJson.uri!]);
         resolve();
       });
-    } else if (imageUri.match(/ktx2$/)) {
+    } else if (
+      imageUri.match(/ktx2$/) ||
+      (imageJson.bufferView != null && imageJson.mimeType === 'image/ktx2')
+    ) {
       // load ktx2 file from uri or bufferView
       loadImagePromise = new Promise(resolve => {
         fetch(imageUri, {mode: 'cors'}).then(response => {
