@@ -630,12 +630,7 @@ export default class Gltf2Importer {
     }
 
     // Textures Async load
-    for (const _i in gltfJson.images) {
-      const i = (_i as any) as number;
-      const imageJson = gltfJson.images[i] as Gltf2Image;
-      //let imageJson = gltfJson.images[textureJson.source];
-      //let samplerJson = gltfJson.samplers[textureJson.sampler];
-
+    for (const imageJson of gltfJson.images ?? []) {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
