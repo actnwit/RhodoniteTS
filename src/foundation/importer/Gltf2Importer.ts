@@ -788,10 +788,11 @@ export default class Gltf2Importer {
         resolve();
       });
     } else if (
-      imageUri.match(/ktx2$/) ||
+      imageUri.match(/\.ktx2$/) ||
+      imageUri.match(/^data:image\/ktx2/) ||
       (imageJson.bufferView != null && imageJson.mimeType === 'image/ktx2')
     ) {
-      // load ktx2 file from uri or bufferView
+      // load ktx2 file from uri(ktx2 file or data uri) or bufferView
       loadImagePromise = new Promise(resolve => {
         fetch(imageUri, {mode: 'cors'}).then(response => {
           response.arrayBuffer().then(buffer => {
