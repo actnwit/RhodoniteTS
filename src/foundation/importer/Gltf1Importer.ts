@@ -1,5 +1,11 @@
 import DataUtil from '../misc/DataUtil';
-import {glTF1, glTF2, GltfFileBuffers, GltfLoadOption} from '../../types/glTF';
+import {
+  glTF1,
+  glTF2,
+  Gltf2Image,
+  GltfFileBuffers,
+  GltfLoadOption,
+} from '../../types/glTF';
 
 declare let Rn: any;
 
@@ -39,7 +45,10 @@ export default class Gltf1Importer {
     );
   }
 
-  async importGltfOrGlbFromFile(uri: string, options?: GltfLoadOption): Promise<glTF2|undefined> {
+  async importGltfOrGlbFromFile(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<glTF2 | undefined> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
@@ -101,9 +110,8 @@ export default class Gltf1Importer {
       typeof options.loaderExtensionName === 'string'
     ) {
       if (Rn[options.loaderExtensionName] != null) {
-        defaultOptions.loaderExtension = Rn[
-          options.loaderExtensionName
-        ].getInstance();
+        defaultOptions.loaderExtension =
+          Rn[options.loaderExtensionName].getInstance();
       } else {
         console.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;
@@ -196,20 +204,8 @@ export default class Gltf1Importer {
   ): Promise<any> {
     const promises = [] as Promise<any>[];
 
-    const resources = {
-      shaders: [],
-      buffers: [],
-      images: [],
-    };
     promises.push(
-      this._loadResources(
-        uint8array!,
-        gltfJson,
-        files,
-        options,
-        resources,
-        basePath
-      )
+      this._loadResources(uint8array!, gltfJson, files, options, basePath)
     );
     promises.push(
       new Promise((resolve, reject) => {
@@ -493,17 +489,17 @@ export default class Gltf1Importer {
                 (material.technique === 'CONSTANT' && valueName === 'ambient')
               ) {
                 origMaterial.diffuseColorTexture = {};
-                origMaterial.diffuseColorTexture.texture = (gltfJson.textures as any)[
-                  value
-                ];
+                origMaterial.diffuseColorTexture.texture = (
+                  gltfJson.textures as any
+                )[value];
               } else if (
                 valueName === 'emission' &&
                 textureStr.match(/_normal$/)
               ) {
                 origMaterial.emissionTexture = {};
-                origMaterial.emissionTexture.texture = (gltfJson.textures as any)[
-                  value
-                ];
+                origMaterial.emissionTexture.texture = (
+                  gltfJson.textures as any
+                )[value];
               }
               origMaterial.extras = {};
               origMaterial.extras.technique = material.technique;
@@ -656,10 +652,8 @@ export default class Gltf1Importer {
       extendedJson = JSON.parse(extendedJsonStr);
     } else if (typeof extendedData === 'string') {
       extendedJson = JSON.parse(extendedData);
-      extendedJson = extendedJson;
     } else if (typeof extendedData === 'object') {
       extendedJson = extendedData;
-    } else {
     }
 
     Object.assign(gltfJson, extendedJson);
@@ -670,11 +664,6 @@ export default class Gltf1Importer {
     gltfJson: glTF1,
     files: GltfFileBuffers,
     options: GltfLoadOption,
-    resources: {
-      shaders: any[];
-      buffers: any[];
-      images: any[];
-    },
     basePath?: string
   ) {
     const promisesToLoadResources = [];
@@ -692,7 +681,6 @@ export default class Gltf1Importer {
       if (typeof bufferInfo.uri === 'undefined') {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            resources.buffers[i] = uint8Array;
             bufferInfo.buffer = uint8Array;
             resolve(gltfJson);
           })
@@ -700,7 +688,6 @@ export default class Gltf1Importer {
       } else if (bufferInfo.uri === '' || bufferInfo.uri === 'data:,') {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            resources.buffers[i] = uint8Array;
             bufferInfo.buffer = uint8Array;
             resolve(gltfJson);
           })
@@ -709,7 +696,6 @@ export default class Gltf1Importer {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
             const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
-            resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           })
@@ -719,7 +705,6 @@ export default class Gltf1Importer {
           new Promise((resolve, reject) => {
             const fullPath = this.__getFullPathOfFileName(files, filename);
             const arrayBuffer = files[fullPath!];
-            resources.buffers[i] = new Uint8Array(arrayBuffer);
             bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           })
@@ -731,7 +716,6 @@ export default class Gltf1Importer {
             basePath + bufferInfo.uri,
             true,
             (resolve: Function, response: any) => {
-              resources.buffers[i] = new Uint8Array(response);
               bufferInfo.buffer = new Uint8Array(response);
               resolve(gltfJson);
             },
@@ -742,12 +726,7 @@ export default class Gltf1Importer {
     }
 
     // Textures Async load
-    for (const _i in gltfJson.images) {
-      const i = (_i as any) as number;
-      const imageJson = gltfJson.images[i];
-      //let imageJson = gltfJson.images[textureJson.source];
-      //let samplerJson = gltfJson.samplers[textureJson.sampler];
-
+    for (const imageJson of gltfJson.images ?? []) {
       let imageUri: string;
 
       if (
@@ -792,51 +771,9 @@ export default class Gltf1Importer {
         }
       }
 
-      if (imageUri.match(/basis$/)) {
-        const promise = new Promise(resolve => {
-          fetch(imageUri, {mode: 'cors'}).then(response => {
-            response.arrayBuffer().then(buffer => {
-              const uint8Array = new Uint8Array(buffer);
-              imageJson.basis = uint8Array;
-              resolve();
-            });
-          });
-        }) as Promise<void>;
-        promisesToLoadResources.push(promise);
-      } else if (imageJson.uri?.match(/basis$/)) {
-        const promise = new Promise(resolve => {
-          imageJson.basis = new Uint8Array(files[imageJson.uri!]);
-          resolve();
-        }) as Promise<void>;
-        promisesToLoadResources.push(promise);
-      } else if (imageUri && imageJson.mimeType === 'image/ktx2') {
-        const promise = new Promise(resolve => {
-          fetch(imageUri, {mode: 'cors'}).then(response => {
-            response.arrayBuffer().then(buffer => {
-              const uint8Array = new Uint8Array(buffer);
-              imageJson.ktx2 = uint8Array;
-              resolve();
-            });
-          });
-        }) as Promise<void>;
-        promisesToLoadResources.push(promise);
-      } else if (imageJson.uri?.match(/ktx2$/)) {
-        const promise = new Promise(resolve => {
-          imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
-          resolve();
-        }) as Promise<void>;
-        promisesToLoadResources.push(promise);
-      } else {
-        const promise = DataUtil.createImageFromUri(
-          imageUri,
-          imageJson.mimeType!
-        ).then(image => {
-          image.crossOrigin = 'Anonymous';
-          resources.images[i] = image;
-          imageJson.image = image;
-        });
-        promisesToLoadResources.push(promise);
-      }
+      promisesToLoadResources.push(
+        this.__loadImageUri(imageUri, imageJson, files)
+      );
     }
 
     if (options.defaultTextures) {
@@ -891,6 +828,62 @@ export default class Gltf1Importer {
     }
 
     return undefined;
+  }
+
+  private __loadImageUri(
+    imageUri: string,
+    imageJson: Gltf2Image,
+    files: GltfFileBuffers
+  ) {
+    let loadImagePromise: Promise<void>;
+    if (imageUri.match(/basis$/)) {
+      // load basis file from uri
+      loadImagePromise = new Promise(resolve => {
+        fetch(imageUri, {mode: 'cors'}).then(response => {
+          response.arrayBuffer().then(buffer => {
+            const uint8Array = new Uint8Array(buffer);
+            imageJson.basis = uint8Array;
+            resolve();
+          });
+        });
+      });
+    } else if (imageJson.uri?.match(/basis$/)) {
+      // find basis file from files option
+      loadImagePromise = new Promise(resolve => {
+        imageJson.basis = new Uint8Array(files[imageJson.uri!]);
+        resolve();
+      });
+    } else if (
+      imageUri.match(/ktx2$/) ||
+      (imageJson.bufferView != null && imageJson.mimeType === 'image/ktx2')
+    ) {
+      // load ktx2 file from uri or bufferView
+      loadImagePromise = new Promise(resolve => {
+        fetch(imageUri, {mode: 'cors'}).then(response => {
+          response.arrayBuffer().then(buffer => {
+            const uint8Array = new Uint8Array(buffer);
+            imageJson.ktx2 = uint8Array;
+            resolve();
+          });
+        });
+      });
+    } else if (imageJson.uri?.match(/ktx2$/)) {
+      // find ktx2 file from files option
+      loadImagePromise = new Promise(resolve => {
+        imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
+        resolve();
+      });
+    } else {
+      loadImagePromise = DataUtil.createImageFromUri(
+        imageUri,
+        imageJson.mimeType!
+      ).then(image => {
+        image.crossOrigin = 'Anonymous';
+        imageJson.image = image;
+      });
+    }
+
+    return loadImagePromise;
   }
 
   static getInstance() {

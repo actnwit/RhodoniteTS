@@ -6,7 +6,7 @@ import AnimationComponent from '../components/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {Index} from '../../types/CommonTypes';
 import {VRM} from '../../types/VRM';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;

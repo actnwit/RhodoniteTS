@@ -2,12 +2,7 @@ import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
-import {
-  GltfLoadOption,
-  glTF2,
-  GltfFileBuffers,
-  glTF1,
-} from '../../types/glTF';
+import {GltfLoadOption, glTF2, GltfFileBuffers, glTF1} from '../../types/glTF';
 import ModelConverter from './ModelConverter';
 import PhysicsComponent from '../components/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
@@ -24,7 +19,7 @@ import RenderPass from '../renderer/RenderPass';
 import {VRM} from '../../types/VRM';
 import DataUtil from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -45,7 +40,10 @@ export default class GltfImporter {
    * For VRM file only
    * Generate JSON.
    */
-  async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<VRM|undefined> {
+  async importJsonOfVRM(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<VRM | undefined> {
     options = this._getOptions(options);
 
     const gltf2Importer = Gltf2Importer.getInstance();
@@ -106,10 +104,8 @@ export default class GltfImporter {
   ): Promise<Expression> {
     options = this.__initOptions(options);
 
-    const renderPasses: RenderPass[] = await this.__importMultipleModelsFromArrayBuffers(
-      files,
-      options
-    );
+    const renderPasses: RenderPass[] =
+      await this.__importMultipleModelsFromArrayBuffers(files, options);
 
     if (options && options.cameraComponent) {
       for (const renderPass of renderPasses) {
@@ -316,9 +312,8 @@ export default class GltfImporter {
             importer
               .importGltf(json, options.files!, options, fileName)
               .then(gltfModel => {
-                const rootGroup = modelConverter.convertToRhodoniteObject(
-                  gltfModel
-                );
+                const rootGroup =
+                  modelConverter.convertToRhodoniteObject(gltfModel);
                 renderPasses[0].addEntities([rootGroup]);
                 resolve();
               });
@@ -336,9 +331,8 @@ export default class GltfImporter {
             importer
               .importGlb(fileArrayBuffer, options.files!, options)
               .then(gltfModel => {
-                const rootGroup = modelConverter.convertToRhodoniteObject(
-                  gltfModel
-                );
+                const rootGroup =
+                  modelConverter.convertToRhodoniteObject(gltfModel);
                 renderPasses[0].addEntities([rootGroup]);
                 resolve();
               });
@@ -346,7 +340,8 @@ export default class GltfImporter {
           break;
         case FileType.Draco:
           {
-            const importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
+            const importer =
+              DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
             importer
               .importArrayBuffer(uri, fileArrayBuffer, options)
               .then(gltfModel => {
@@ -354,9 +349,8 @@ export default class GltfImporter {
                   console.error('importArrayBuffer error is occurred');
                   reject();
                 } else {
-                  const rootGroup = modelConverter.convertToRhodoniteObject(
-                    gltfModel
-                  );
+                  const rootGroup =
+                    modelConverter.convertToRhodoniteObject(gltfModel);
                   renderPasses[0].addEntities([rootGroup]);
                   resolve();
                 }
@@ -405,7 +399,8 @@ export default class GltfImporter {
       .then(gltfModel_ => {
         const gltfModel = gltfModel_!;
         const defaultMaterialHelperArgumentArray =
-          gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
+          gltfModel.asset.extras?.rnLoaderOptions
+            ?.defaultMaterialHelperArgumentArray;
         if (Is.exist(defaultMaterialHelperArgumentArray)) {
           defaultMaterialHelperArgumentArray[0].textures =
             defaultMaterialHelperArgumentArray[0].textures ??
@@ -571,9 +566,8 @@ export default class GltfImporter {
         colliders.push(sphereCollider);
       }
       vrmColliderGroup.colliders = colliders;
-      const baseSg = gltfModel.asset.extras!.rnEntities![
-        colliderGroup.node
-      ].getSceneGraph();
+      const baseSg =
+        gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
       vrmColliderGroup.baseSceneGraph = baseSg;
       VRMSpringBonePhysicsStrategy.addColliderGroup(
         parseInt(colliderGroupIdx),
@@ -744,34 +738,31 @@ export default class GltfImporter {
       // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimRotation", 0.0);
 
       const vectorProperties = materialProperties[i].vectorProperties;
-      this.__initializeForUndefinedProperty(vectorProperties, '_Color', [
-        1,
-        1,
-        1,
-        1,
-      ]);
+      this.__initializeForUndefinedProperty(
+        vectorProperties,
+        '_Color',
+        [1, 1, 1, 1]
+      );
       this.__initializeForUndefinedProperty(
         vectorProperties,
         '_EmissionColor',
         [0, 0, 0]
       );
-      this.__initializeForUndefinedProperty(vectorProperties, '_OutlineColor', [
-        0,
-        0,
-        0,
-        1,
-      ]);
-      this.__initializeForUndefinedProperty(vectorProperties, '_ShadeColor', [
-        0.97,
-        0.81,
-        0.86,
-        1,
-      ]);
-      this.__initializeForUndefinedProperty(vectorProperties, '_RimColor', [
-        0,
-        0,
-        0,
-      ]);
+      this.__initializeForUndefinedProperty(
+        vectorProperties,
+        '_OutlineColor',
+        [0, 0, 0, 1]
+      );
+      this.__initializeForUndefinedProperty(
+        vectorProperties,
+        '_ShadeColor',
+        [0.97, 0.81, 0.86, 1]
+      );
+      this.__initializeForUndefinedProperty(
+        vectorProperties,
+        '_RimColor',
+        [0, 0, 0]
+      );
       // this.__initializeForUndefinedProperty(vectorProperties, "_BumpMap", [0, 0, 1, 1]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_EmissionMap", [0, 0, 1, 1]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_MainTex", [0, 0, 1, 1]);
