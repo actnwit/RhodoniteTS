@@ -22,10 +22,12 @@ let lastBlendFuncAlphaSrcFactor: number;
 let lastBlendFuncAlphaDstFactor: number;
 let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
+let lastAlphaToCoverage: boolean;
 
 function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
   setCull(material, gl);
   setBlendSettings(material, gl);
+  setAlphaToCoverage(material, gl);
 }
 
 function setCull(material: Material, gl: WebGLRenderingContext) {
@@ -146,6 +148,18 @@ function differentWithLastBlendFuncFactor(
     lastBlendFuncAlphaSrcFactor != alphaSrcFactor ||
     lastBlendFuncAlphaDstFactor != alphaDstFactor;
   return result;
+}
+
+function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
+  const alphaToCoverage = material.alphaToCoverage;
+  if (alphaToCoverage !== lastAlphaToCoverage) {
+    if (alphaToCoverage) {
+      gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    } else {
+      gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    }
+    lastAlphaToCoverage = alphaToCoverage;
+  }
 }
 
 function startDepthMasking(idx: number, gl: WebGLRenderingContext) {

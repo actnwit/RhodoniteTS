@@ -95,6 +95,8 @@ export default class Material extends RnObject {
   private __blendFuncAlphaSrcFactor = 1; // gl.ONE
   private __blendFuncAlphaDstFactor = 1; // gl.ONE
 
+  private __alphaToCoverage = false;
+
   private constructor(
     materialTid: Index,
     materialTypeName: string,
@@ -909,5 +911,23 @@ export default class Material extends RnObject {
       return materialNode.getShaderSemanticInfoFromName(name);
     }
     return void 0;
+  }
+
+  /**
+   * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
+   * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.
+   * So we need to improve the shader to use the alphaToCoverage.
+   * @param alphaToCoverage apply alphaToCoverage to this material or not
+   */
+  set alphaToCoverage(alphaToCoverage: boolean) {
+    if (alphaToCoverage && this.alphaMode === AlphaMode.Translucent) {
+      console.warn(
+        'If you set alphaToCoverage = true on a material whose AlphaMode is Translucent, you may get drawing problems.'
+      );
+    }
+    this.__alphaToCoverage = alphaToCoverage;
+  }
+  get alphaToCoverage() {
+    return this.__alphaToCoverage;
   }
 }
