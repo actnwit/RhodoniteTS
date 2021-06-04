@@ -1008,11 +1008,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             entity
           );
 
-          WebGLStrategyCommonMethod.setCullAndBlendSettings(
-            material,
-            renderPass,
-            gl
-          );
+          WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
           material._setParametersForGPU({
             material: material,

@@ -23,11 +23,7 @@ let lastBlendFuncAlphaDstFactor: number;
 let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
 
-function setCullAndBlendSettings(
-  material: Material,
-  renderPass: RenderPass,
-  gl: WebGLRenderingContext
-) {
+function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
   const cullFace = material.cullFace;
   const cullFrontFaceCCW = material.cullFrontFaceCCW;
 
@@ -305,7 +301,7 @@ function getLocationOffsetOfProperty(
 }
 
 export default Object.freeze({
-  setCullAndBlendSettings,
+  setWebGLParameters,
   startDepthMasking,
   endDepthMasking,
   updateVBOAndVAO,
