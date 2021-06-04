@@ -24,18 +24,14 @@ let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
 
 function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
-  const cullFace = material.cullFace;
-  const cullFrontFaceCCW = material.cullFrontFaceCCW;
-
-  setCull(cullFace, cullFrontFaceCCW, gl);
+  setCull(material, gl);
   setBlendSettings(material, gl);
 }
 
-function setCull(
-  cullFace: boolean,
-  cullFrontFaceCCW: boolean,
-  gl: WebGLRenderingContext
-) {
+function setCull(material: Material, gl: WebGLRenderingContext) {
+  const cullFace = material.cullFace;
+  const cullFrontFaceCCW = material.cullFrontFaceCCW;
+
   if (lastCullFace !== cullFace) {
     if (cullFace) {
       gl.enable(gl.CULL_FACE);
