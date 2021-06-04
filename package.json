@@ -65,7 +65,7 @@
     "puppeteer": "^7.1.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "shaderity-loader": "^0.0.13",
+    "shaderity-loader": "0.0.14",
     "shelljs": "^0.8.3",
     "shx": "0.3.3",
     "ts-jest": "^26.5.1",

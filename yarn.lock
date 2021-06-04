@@ -5795,10 +5795,10 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
-shaderity-loader@^0.0.13:
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/shaderity-loader/-/shaderity-loader-0.0.13.tgz#b29bfbcbc9cb679e9978514af9e8bd2859e14603"
-  integrity sha512-zrdm6HLqKqv9bRki3rPYB5cmYq+IOJY/cnbvYt//pZBBQHPcUq7bJczuuHDlV6Fe2yBuGvmAdqo7opxpeomjRA==
+shaderity-loader@0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/shaderity-loader/-/shaderity-loader-0.0.14.tgz#efdb95e994c59a88ecab9f04edcae24cbb32aa7a"
+  integrity sha512-pYR4O0NLnDmbqKbAlMQ5yb4LtDH1MGJTcjxHolRBMAgOIA8i+8HjfoJ8szoRDnzoedOiwvjvACmHVBOYWnpdyA==
   dependencies:
     shaderity-node "0.0.4"
 
