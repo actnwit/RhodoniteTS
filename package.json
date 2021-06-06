@@ -64,7 +64,7 @@
     "puppeteer": "^7.1.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "shaderity-loader": "0.0.14",
+    "shaderity-loader": "0.0.15",
     "shelljs": "^0.8.3",
     "shx": "0.3.3",
     "ts-jest": "^26.5.1",
@@ -81,7 +81,7 @@
   "dependencies": {
     "ktx-parse": "^0.2.1",
     "requirejs": "^2.3.6",
-    "shaderity": "0.1.27",
+    "shaderity": "0.1.28",
     "zstddec": "^0.0.2"
   },
   "description": "Rhodonite is a WebGL library written in TypeScript.",
