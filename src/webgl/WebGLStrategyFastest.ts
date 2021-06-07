@@ -543,9 +543,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
 
-    const startOffsetOfDataTextureOnGPUInstanceData = this.toUboUse(
-      glw!.isWebGL2
-    )
+    const startOffsetOfDataTextureOnGPUInstanceData = this.__isUboUse()
       ? glw!.getAlignedMaxUniformBlockSize()
       : 0;
 
@@ -722,16 +720,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     ) as LightComponent[];
   }
 
-  private toUboUse(isWebGL2: boolean) {
-    return isWebGL2 && Config.isUboEnabled;
+  private __isUboUse() {
+    return (
+      this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 &&
+      Config.isUboEnabled
+    );
   }
 
   private __createAndUpdateUBO() {
-    if (
-      this.toUboUse(
-        this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2
-      )
-    ) {
+    if (this.__isUboUse()) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
       const memoryManager: MemoryManager = MemoryManager.getInstance();
