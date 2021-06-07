@@ -230,7 +230,7 @@ export default class WebGLContextWrapper {
     vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES
   ) {
     if (this.isWebGL2) {
-      this.__gl.createVertexArray(vertexArray);
+      this.__gl.deleteVertexArray(vertexArray);
     } else {
       if (this.webgl1ExtVAO != null) {
         this.webgl1ExtVAO.deleteVertexArrayOES(
