@@ -51,7 +51,7 @@ import {
 } from '../foundation/definitions/BasisCompressionType';
 import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
-import {Is as is} from '../foundation/misc/Is';
+import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
 
 declare let HDRImage: any;
@@ -249,6 +249,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const vao = this.__glw!.createVertexArray();
+    if (Is.not.exist(vao)) {
+      return undefined;
+    }
 
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, vao);

@@ -8,11 +8,7 @@ import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
 import Entity from '../core/Entity';
-import {
-  ComponentTID,
-  EntityUID,
-  ComponentSID,
-} from '../../types/CommonTypes';
+import {ComponentTID, EntityUID, ComponentSID} from '../../types/CommonTypes';
 import BlendShapeComponent from './BlendShapeComponent';
 import SceneGraphComponent from './SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';

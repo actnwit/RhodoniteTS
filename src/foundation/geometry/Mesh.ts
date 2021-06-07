@@ -825,10 +825,9 @@ export default class Mesh {
         this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
         vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
-        this.__vaoUids[i] = webglResourceRepository.createVertexArray();
+        this.__vaoUids[i] = webglResourceRepository.createVertexArray()!;
         vertexHandles.vaoHandle = this.__vaoUids[i];
       }
-
 
       webglResourceRepository.setVertexDataToPipeline(
         vertexHandles,
