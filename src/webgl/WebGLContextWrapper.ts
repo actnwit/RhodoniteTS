@@ -303,9 +303,7 @@ export default class WebGLContextWrapper {
   }
 
   colorAttachment(index: Index) {
-    return this.webgl1ExtDB
-      ? (this.webgl1ExtDB as any)[`COLOR_ATTACHMENT${index}_WEBGL`]
-      : (this.__gl as any)[`COLOR_ATTACHMENT${index}`];
+    return 0x8ce0 + index; // GL_COLOR_ATTACHMENT0 = 0x8ce0
   }
 
   drawBuffers(buffers: RenderBufferTargetEnum[]) {
