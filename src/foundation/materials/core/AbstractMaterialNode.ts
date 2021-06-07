@@ -2,8 +2,7 @@ import RnObject from '../../core/RnObject';
 import {
   ShaderSemanticsInfo,
   ShaderSemanticsEnum,
-  ShaderSemantics,
-  ShaderSemanticsStr,
+  ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {ComponentTypeEnum} from '../../definitions/ComponentType';
@@ -65,7 +64,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
   protected static __semanticsMap: Map<
     MaterialNodeTypeName,
-    Map<ShaderSemanticsStr, ShaderSemanticsInfo>
+    Map<ShaderSemanticsName, ShaderSemanticsInfo>
   > = new Map();
   protected __vertexInputs: ShaderSocket[] = [];
   protected __pixelInputs: ShaderSocket[] = [];
@@ -85,24 +84,6 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
-  private static __transposedMatrix44 = new MutableMatrix44([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-  ]);
   protected static __dummyWhiteTexture = new Texture();
   protected static __dummyBlueTexture = new Texture();
   protected static __dummyBlackTexture = new Texture();

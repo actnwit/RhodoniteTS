@@ -22,6 +22,7 @@ import {MathUtil} from '../foundation/math/MathUtil';
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
+  ShaderSemanticsName
 } from '../foundation/definitions/ShaderSemantics';
 import AbstractTexture from '../foundation/textures/AbstractTexture';
 import RenderTargetTexture from '../foundation/textures/RenderTargetTexture';
@@ -85,6 +86,10 @@ export type WebGLResource =
   | WebGLRenderbuffer
   | WebGLTexture
   | WebGLTransformFeedback;
+
+interface WebGLProgramEX extends WebGLProgram {
+  _shaderSemanticsInfoMap: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
+}
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance: WebGLResourceRepository;
@@ -162,12 +167,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = glw?.getRawContext() as
       | WebGLRenderingContext
       | WebGL2RenderingContext;
-    if (!is.exist(gl)) {
+    if (!Is.exist(gl)) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
 
     const ibo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
-    if (!is.exist(ibo)) {
+    if (!Is.exist(ibo)) {
       throw new Error('Not found VBO.');
     }
 
@@ -226,12 +231,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = glw?.getRawContext() as
       | WebGLRenderingContext
       | WebGL2RenderingContext;
-    if (!is.exist(gl)) {
+    if (!Is.exist(gl)) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
 
     const vbo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
-    if (!is.exist(vbo)) {
+    if (!Is.exist(vbo)) {
       throw new Error('Not found VBO.');
     }
 
@@ -454,10 +459,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   ): WebGLProgram {
     const glw = this.__glw!;
     const gl = glw.getRawContext();
-    const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
+    const shaderProgram = this.getWebGLResource(
+      shaderProgramUid
+    ) as WebGLProgramEX;
 
-    const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
     const infoArrayLen = infoArray.length;
+    const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
     for (let i = 0; i < infoArrayLen; i++) {
       const info = infoArray[i];
       shaderSemanticsInfoMap.set(info.semantic.str, info);
@@ -465,38 +472,41 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     for (let i = 0; i < infoArrayLen; i++) {
       const info = infoArray[i];
-      const semanticSingular = info.semantic.str;
-
-      const identifier = semanticSingular;
-
-      let shaderVarName = ShaderSemantics.fullSemanticStr(info);
-      if (info.index != null) {
-        if (shaderVarName.match(/\[.+?\]/)) {
-          shaderVarName = shaderVarName.replace(/\[.+?\]/g, `[${info.index}]`);
-        } else {
-          shaderVarName += `[${info.index}]`;
-        }
-      }
-
-      if (info.none_u_prefix !== true) {
-        shaderVarName = 'u_' + shaderVarName;
-      }
-
       const isUniformExist =
-        CompositionType.isTexture(info.compositionType) ||
+        isUniformOnlyMode ||
         info.needUniformInFastest ||
-        isUniformOnlyMode;
+        CompositionType.isTexture(info.compositionType);
 
       if (isUniformExist) {
-        const location = gl.getUniformLocation(shaderProgram, shaderVarName);
+        const semanticSingular = info.semantic.str;
 
+        const identifier = semanticSingular;
+
+        let shaderVarName = ShaderSemantics.fullSemanticStr(info);
         if (info.index != null) {
-          if (shaderProgram[identifier] == null) {
-            shaderProgram[identifier] = [];
+          if (shaderVarName.match(/\[.+?\]/)) {
+            shaderVarName = shaderVarName.replace(
+              /\[.+?\]/g,
+              `[${info.index}]`
+            );
+          } else {
+            shaderVarName += `[${info.index}]`;
           }
-          shaderProgram[identifier][info.index] = location;
+        }
+
+        if (info.none_u_prefix !== true) {
+          shaderVarName = 'u_' + shaderVarName;
+        }
+
+        const location = gl.getUniformLocation(shaderProgram, shaderVarName);
+        const _shaderProgram = shaderProgram as any;
+        if (info.index != null) {
+          if (_shaderProgram[identifier] == null) {
+            _shaderProgram[identifier] = [];
+          }
+          _shaderProgram[identifier][info.index] = location;
         } else {
-          shaderProgram[identifier] = location;
+          _shaderProgram[identifier] = location;
         }
         if (location == null && glw.isDebugMode) {
           console.warn(

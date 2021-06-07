@@ -13,7 +13,7 @@ import {Count, Index} from '../../types/CommonTypes';
 import {ComponentTypeEnum} from './ComponentType';
 
 export type ShaderSemanticsIndex = number;
-export type ShaderSemanticsStr = string;
+export type ShaderSemanticsName = string;
 
 export interface ShaderSemanticsEnum extends EnumIO {
   str: string;

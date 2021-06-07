@@ -358,26 +358,24 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     } else {
       // for non-`index` property (this is general case)
       const scalarSizeOfProperty: IndexOf4Bytes = WebGLStrategyFastest.__getScalarSizeOfShaderSemanticsInfo4BytesAligned(
-        info
-      );
+          info
+        );
       let dataBeginPos: IndexOf16Bytes = -1;
       if (isGlobalData) {
-        const globalDataRepository = GlobalDataRepository.getInstance();
-        dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(
-          propertyIndex
-        );
+        dataBeginPos =
+          WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex);
       } else {
-        dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(
-          materialTypeName,
-          propertyIndex
+        dataBeginPos = WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+          propertyIndex,
+          materialTypeName
         );
       }
+
       if (dataBeginPos === -1) {
         console.error('Could not get the location offset of the property.');
       }
 
-      const instanceSize =
-        vec4SizeOfProperty * (info.maxIndex ?? 1);
+      const instanceSize = vec4SizeOfProperty * (info.maxIndex ?? 1);
       indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId;\n`;
       if (CompositionType.isArray(info.compositionType)) {
         const instanceSizeInScalar =
