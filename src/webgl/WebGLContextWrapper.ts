@@ -208,6 +208,12 @@ export default class WebGLContextWrapper {
     return this.__isDebugMode;
   }
 
+  getIsWebGL2(
+    gl: WebGLRenderingContext | WebGL2RenderingContext
+  ): gl is WebGL2RenderingContext {
+    return this.isWebGL2;
+  }
+
   get isWebGL2() {
     if (this.__webglVersion === 2) {
       return true;
@@ -306,26 +312,24 @@ export default class WebGLContextWrapper {
     return 0x8ce0 + index; // GL_COLOR_ATTACHMENT0 = 0x8ce0
   }
 
-  drawBuffers(buffers: RenderBufferTargetEnum[]) {
-    const gl: any = this.__gl;
+  drawBuffers(buffers: RenderBufferTargetClass[]) {
+    const gl = this.__gl;
     if (buffers.length === 0) {
       return;
     }
-    let buffer = buffers;
-    if (this.isWebGL2) {
+    const buffer = buffers[0].webGLConstantValue();
+    if (this.getIsWebGL2(gl)) {
       gl.drawBuffers(
         buffers.map(buf => {
-          return gl[buf.str];
+          return buf.webGLConstantValue();
         })
       );
-      buffer = gl[buffer[0].str];
     } else if (this.webgl1ExtDB) {
       this.webgl1ExtDB.drawBuffersWEBGL(
         buffers.map(buf => {
-          return gl[buf.str];
+          return buf.webGLConstantValue();
         })
       );
-      buffer = gl[buffer[0].str];
     }
 
     if (buffer === gl.NONE) {
