@@ -20,11 +20,13 @@ import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/De
 export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
   static zFarInner = new ShaderSemanticsClass({str: 'zFarInner'});
+  static isPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
+  static depthPow = new ShaderSemanticsClass({str: 'depthPow'});
 
   private __lastZNear = 0.0;
   private __lastZFar = 0.0;
 
-  constructor({isSkinning}: {isSkinning: boolean}) {
+  constructor(depthPow: number, {isSkinning}: {isSkinning: boolean}) {
     super(
       null,
       'depthEncodeShading' + (isSkinning ? '+skinning' : ''),
@@ -59,11 +61,35 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
         max: Number.MAX_SAFE_INTEGER,
       },
       {
+        semantic: DepthEncodeSingleMaterialNode.isPointLight,
+        componentType: ComponentType.Bool,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isSystem: false,
+        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        soloDatum: false,
+        initialValue: new Scalar(1),
+        min: 0,
+        max: 1,
+      },
+      {
+        semantic: DepthEncodeSingleMaterialNode.depthPow,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isSystem: false,
+        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        soloDatum: false,
+        initialValue: new Scalar(depthPow),
+        min: 1,
+        max: 2,
+      },
+      {
         semantic: ShaderSemantics.PointSize,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isSystem: true,
+        isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: new Scalar(30.0),
@@ -75,7 +101,7 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isSystem: true,
+        isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: new Vector3(0.0, 0.1, 0.01),

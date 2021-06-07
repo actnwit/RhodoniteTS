@@ -159,7 +159,6 @@ void main ()
 #pragma shaderity: require(../common/alphaMask.glsl)
 
 #ifdef RN_IS_LIGHTING
-
   // Metallic & Roughness
   vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
   float userRoughness = metallicRoughnessFactor.y;

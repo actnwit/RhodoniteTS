@@ -249,8 +249,10 @@ declare const Rn: typeof _Rn;
     return primitive;
   }
 
-  const promise = Rn.ModuleManager.getInstance().loadModule('webgl');
-  promise.then(() => {
+  const promises: Promise<void>[] = [];
+  promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
+  promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
+  Promise.all(promises).then(() => {
     const system = Rn.System.getInstance();
     const gl = system.setProcessApproachAndCanvas(
       Rn.ProcessApproach.FastestWebGL1,

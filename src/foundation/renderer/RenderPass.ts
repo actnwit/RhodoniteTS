@@ -10,6 +10,7 @@ import Material from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
 import System from '../system/System';
 import ModuleManager from '../system/ModuleManager';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import Primitive from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
 
@@ -22,6 +23,7 @@ export default class RenderPass extends RnObject {
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
   private __meshComponents?: MeshComponent[];
   private __frameBuffer?: FrameBuffer;
+  private __resolveFrameBuffer?: FrameBuffer;
   private __viewport?: MutableVector4;
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
@@ -208,6 +210,49 @@ export default class RenderPass extends RnObject {
     }
 
     return viewport;
+  }
+
+  setResolveFramebuffer(framebuffer: FrameBuffer) {
+    const repo = WebGLResourceRepository.getInstance();
+    const glw = repo.currentWebGLContextWrapper!;
+    if (!glw || !glw.isWebGL2) {
+      console.error('resolve framebuffer is unavailable in this webgl context');
+      return;
+    }
+    this.__resolveFrameBuffer = framebuffer;
+  }
+
+  getResolveFramebuffer(): FrameBuffer | undefined {
+    return this.__resolveFrameBuffer;
+  }
+
+  copyFramebufferToResolveFramebuffer() {
+    const repo = WebGLResourceRepository.getInstance();
+    const webGLResourceFrameBuffer = repo.getWebGLResource(
+      this.__frameBuffer!.cgApiResourceUid
+    ) as WebGLFramebuffer;
+    const webGLResourceResolveFramebuffer = repo.getWebGLResource(
+      this.__resolveFrameBuffer!.cgApiResourceUid
+    ) as WebGLFramebuffer;
+
+    const glw = repo.currentWebGLContextWrapper!;
+    const gl = glw.getRawContextAsWebGL2();
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, webGLResourceFrameBuffer);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, webGLResourceResolveFramebuffer);
+    gl.blitFramebuffer(
+      0,
+      0,
+      this.__frameBuffer!.width,
+      this.__frameBuffer!.height,
+      0,
+      0,
+      this.__resolveFrameBuffer!.width,
+      this.__resolveFrameBuffer!.height,
+      gl.COLOR_BUFFER_BIT,
+      gl.NEAREST
+    );
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
   }
 
   private __setupMaterial(material: Material, isPointSprite = false) {

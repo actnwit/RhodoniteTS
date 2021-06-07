@@ -735,7 +735,8 @@ export default class DrcPointCloudImporter {
 
       // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
-      //
+      // }
+
       const promise = DataUtil.createImageFromUri(
         imageUri,
         imageJson.mimeType!
@@ -866,21 +867,21 @@ export default class DrcPointCloudImporter {
     const buffer = new Float32Array(bufferLength);
     for (let i = 0, currentBufferIndex = 0; i < attributeNames.length; i++) {
       if (attributeNames[i] === 'COLOR' && attributeComponents[i] === 3) {
-        for (var j = 0; j < numPoints; currentBufferIndex += 4, j += 3) {
+        for (let j = 0; j < numPoints; currentBufferIndex += 4, j += 3) {
           buffer[currentBufferIndex] = attributeDataAll[i].GetValue(j);
           buffer[currentBufferIndex + 1] = attributeDataAll[i].GetValue(j + 1);
           buffer[currentBufferIndex + 2] = attributeDataAll[i].GetValue(j + 2);
           buffer[currentBufferIndex + 3] = 1.0; // alpha value
         }
       } else if (attributeNames[i] === 'TEX_COORD') {
-        for (var j = 0; j < numPoints; currentBufferIndex += 2, j++) {
+        for (let j = 0; j < numPoints; currentBufferIndex += 2, j++) {
           buffer[currentBufferIndex] = attributeDataAll[i].GetValue(2 * j);
           buffer[currentBufferIndex + 1] =
             1.0 - attributeDataAll[i].GetValue(2 * j + 1);
         }
       } else {
         for (
-          var j = 0;
+          let j = 0;
           j < numPoints * attributeComponents[i];
           currentBufferIndex++, j++
         ) {

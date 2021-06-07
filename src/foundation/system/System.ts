@@ -210,6 +210,13 @@ export default class System {
               });
 
               this.__renderPassTickCount++;
+
+              if (
+                stage === ProcessStage.Render &&
+                renderPass.getResolveFramebuffer()
+              ) {
+                renderPass.copyFramebufferToResolveFramebuffer();
+              }
             }
           }
         } else {

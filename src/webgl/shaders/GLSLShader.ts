@@ -858,6 +858,148 @@ vec3 descramble(vec3 v) {
     `;
   }
 
+  get hash() {
+    return `
+    vec2 hash(vec2 p) {
+      return fract(sin(p * mat2(127.1, 311.7, 269.5, 183.3))*43758.5453123);
+    }
+    `;
+  }
+
+  get returnToOriginalColorSpace() {
+    return `
+// Decorrelated color space vectors and origin
+uniform vec3 u_colorSpaceVector1;
+uniform vec3 u_colorSpaceVector2;
+uniform vec3 u_colorSpaceVector3;
+uniform vec3 u_colorSpaceOrigin;
+
+vec3 ReturnToOriginalColorSpace(vec3 color)
+{
+  vec3 result =
+    u_colorSpaceOrigin +
+    u_colorSpaceVector1 * color.r +
+    u_colorSpaceVector2 * color.g +
+    u_colorSpaceVector3 * color.b;
+  return result;
+}`;
+  }
+
+  get triangleGrid() {
+    return `
+void TriangleGrid(vec2 uv,
+  out float w1, out float w2, out float w3,
+  out ivec2 vertex1, out ivec2 vertex2, out ivec2 vertex3)
+{
+  // Scaling of the input
+  uv *= 3.464; // 2 * sqrt(3)
+
+  // Skew input space into simplex triangle grid
+  const mat2 gridToSkewedGrid = mat2(1.0, 0.0, -0.57735027, 1.15470054);
+  vec2 skewedCoord = gridToSkewedGrid * uv;
+
+  // Compute local triangle vertex IDs and local barycentric coordinates
+  ivec2 baseId = ivec2(floor(skewedCoord));
+  vec3 temp = vec3(fract(skewedCoord), 0);
+  temp.z = 1.0 - temp.x - temp.y;
+  if (temp.z > 0.0)
+  {
+    w1 = temp.z;
+    w2 = temp.y;
+    w3 = temp.x;
+    vertex1 = baseId;
+    vertex2 = baseId + ivec2(0, 1);
+    vertex3 = baseId + ivec2(1, 0);
+  }
+  else
+  {
+    w1 = -temp.z;
+    w2 = 1.0 - temp.y;
+    w3 = 1.0 - temp.x;
+    vertex1 = baseId + ivec2(1, 1);
+    vertex2 = baseId + ivec2(1, 0);
+    vertex3 = baseId + ivec2(0, 1);
+  }
+}`;
+  }
+
+  get mipmap_level() {
+    return `
+// https://stackoverflow.com/questions/24388346/how-to-access-automatic-mipmap-level-in-glsl-fragment-shader-texture
+float mipmapLevel(in vec2 uv_as_texel)
+{
+  vec2  dx_vtc        = dFdx(uv_as_texel);
+  vec2  dy_vtc        = dFdy(uv_as_texel);
+  float delta_max_sqr = max(dot(dx_vtc, dx_vtc), dot(dy_vtc, dy_vtc));
+  float mml = 0.5 * log2(delta_max_sqr);
+  return max( 0, mml );
+}
+    `;
+  }
+
+  // These codes are from https://eheitzresearch.wordpress.com/738-2/
+  // "Procedural Stochastic Textures by Tiling and Blending"
+  // Thanks to the authors for permission to use.
+  // A little modified to work on WebGL 1
+  byExampleProceduralNoise() {
+    return `
+
+uniform sampler2D u_Tinput; // Gaussian input T(I)
+uniform sampler2D u_invT; // Inverse histogram transformation T^{-1}
+
+// By-Example procedural noise at uv
+vec3 byExampleProceduralNoise(vec2 uv, vec2 textureSizeOfTinput, vec2 textureSizeOfInvT)
+{
+	// Get triangle info
+	float w1, w2, w3;
+	ivec2 vertex1, vertex2, vertex3;
+	TriangleGrid(uv, w1, w2, w3, vertex1, vertex2, vertex3);
+
+	// Assign random offset to each triangle vertex
+	vec2 uv1 = uv + hash(vertex1);
+	vec2 uv2 = uv + hash(vertex2);
+	vec2 uv3 = uv + hash(vertex3);
+
+	// Precompute UV derivatives
+	vec2 duvdx = dFdx(uv);
+	vec2 duvdy = dFdy(uv);
+
+	// Fetch Gaussian input
+	vec3 G1 = textureGrad(u_Tinput, uv1, duvdx, duvdy).rgb;
+	vec3 G2 = textureGrad(u_Tinput, uv2, duvdx, duvdy).rgb;
+	vec3 G3 = textureGrad(u_Tinput, uv3, duvdx, duvdy).rgb;
+
+	// Variance-preserving blending
+	vec3 G = w1*G1 + w2*G2 + w3*G3;
+	G = G - vec3(0.5);
+	G = G * inversesqrt(w1*w1 + w2*w2 + w3*w3);
+	G = G + vec3(0.5);
+
+	// Compute LOD level to fetch the prefiltered look-up table invT
+	float LOD = mipmapLevel(uv * textureSizeOfTinput).y / textureSizeOfInvT.y);
+
+	// Fetch prefiltered LUT (T^{-1})
+	vec3 color;
+	color.r	= texture(u_invT, vec2(G.r, LOD)).r;
+	color.g	= texture(u_invT, vec2(G.g, LOD)).g;
+	color.b	= texture(u_invT, vec2(G.b, LOD)).b;
+
+	// Original color space
+	color = returnToOriginalColorSpace(color);
+
+	return color;
+}`;
+  }
+
+  get texture2DSeamless() {
+    return `
+
+vec4 texture2DSeamless(vec2 uv, vec4 scaleTranslate) {
+  color = vec4(byExampleProceduralNoise(uv * scaleTranslate.xy + scaleTranslate.zw), 1);
+}
+`;
+  }
+
   get simpleMVPPosition() {
     return `
   float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];

@@ -1,6 +1,6 @@
-import { TypedArray } from "../../types/CommonTypes";
-import { IQuaternion } from "./IQuaternion";
-import { IMutableVector3 } from "./IVector";
+import {TypedArray} from '../../types/CommonTypes';
+import {IQuaternion} from './IQuaternion';
+import {IMutableVector3} from './IVector';
 
 export default abstract class AbstractQuaternion implements IQuaternion {
   get className() {
@@ -31,35 +31,37 @@ export default abstract class AbstractQuaternion implements IQuaternion {
   }
 
   lengthSquared(): number {
-    return this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2;
+    return (
+      this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2
+    );
   }
 
   toString(): string {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   toStringApproximately(): string {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   flattenAsArray(): number[] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   isDummy(): boolean {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   isEqual(vec: IQuaternion, delta?: number): boolean {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   isStrictEqual(vec: IQuaternion): boolean {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   toEulerAnglesTo(out: IMutableVector3): IMutableVector3 {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   /**
    * dot product
    */
-   dot(quat: IQuaternion) {
+  dot(quat: IQuaternion) {
     return (
       this._v[0] * quat._v[0] +
       this._v[1] * quat._v[1] +
@@ -69,7 +71,7 @@ export default abstract class AbstractQuaternion implements IQuaternion {
   }
 
   clone(): IQuaternion {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   _v = new Float32Array();
 }

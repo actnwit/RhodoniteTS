@@ -14,7 +14,7 @@ import {
   Count,
   ComponentSID,
 } from '../types/CommonTypes';
-import { IMatrix44 } from '../foundation/math/IMatrix';
+import {IMatrix44} from '../foundation/math/IMatrix';
 
 export default interface WebGLStrategy {
   $load(meshComponent: MeshComponent): void;

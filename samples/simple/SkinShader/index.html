@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <title>Skin Shader</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <style>
+    main {
+      display: flex;
+    }
+    section {
+      background-color: darkgray;
+      padding: 10px;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="header-title">Rhodonite E2E Test - Skin Shader</h1>
+  </header>
+  <main>
+    <section class="test">
+      <h2>Rendering Test Image</h2>
+      <canvas id="world" width="600" height="600"></canvas>
+      <div>
+        <button onclick="window.isAnimating = true;">Animate</button>
+        <button onclick="exportGltf2();">Export as glTF2</button>
+      </div>
+    </section>
+  </main>
+  <p>
+    Please download a model from <a href='https://www.3dscanstore.com/blog/Free-3D-Head-Model'>this site</a> or others
+  </p>
+  <script src="../../assets/navigate.js"></script>
+  <script src="../../../vendor/draco_decoder.js"></script>
+  <script src="../../../dist/umd/rhodonite.js"></script>
+  <script src="../../../node_modules/requirejs/require.js" data-main="./main.js"></script>
+</body>
+</html>

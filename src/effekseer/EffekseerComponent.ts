@@ -8,11 +8,7 @@ import CameraComponent from '../foundation/components/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import {
-  ComponentTID,
-  EntityUID,
-  ComponentSID,
-} from '../types/CommonTypes';
+import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
 import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 

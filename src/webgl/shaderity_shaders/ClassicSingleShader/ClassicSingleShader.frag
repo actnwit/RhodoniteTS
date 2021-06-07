@@ -1,4 +1,5 @@
 #pragma shaderity: require(../common/version.glsl)
+#pragma shaderity: require(../common/enableExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 /* shaderity: @{definitions} */
@@ -19,6 +20,13 @@ uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
 uniform sampler2D u_normalTexture; // initialValue=(1,blue)
 
 #pragma shaderity: require(../common/rt0.glsl)
+// #pragma shaderity: require(../common/deliot2019SeamlessTexture.glsl)
+// uniform sampler2D u_tInvTexture; // initialValue=(1,white)
+// uniform vec3 u_colorSpaceOrigin;
+// uniform vec3 u_colorSpaceVector1;
+// uniform vec3 u_colorSpaceVector2;
+// uniform vec3 u_colorSpaceVector3;
+// uniform vec4 u_scaleTranslate;
 
 /* shaderity: @{getters} */
 

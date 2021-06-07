@@ -87,7 +87,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Scalar(makeOutputSrgb ? 1 : 0),
-      }
+      },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }

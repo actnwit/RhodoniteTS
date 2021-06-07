@@ -47,6 +47,10 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
   static DebugColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'debugColorFactor',
   });
+  static DepthTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+    str: 'depthTexture',
+  });
+  static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
 
   private static __lastZNear = 0.0;
   private static __lastZFar = 0.0;
@@ -176,6 +180,41 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         max: 2,
       },
       {
+        semantic: ShadowMapDecodeClassicSingleMaterialNode.IsPointLight,
+        componentType: ComponentType.Bool,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isSystem: false,
+        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        soloDatum: false,
+        initialValue: new Scalar(1),
+        min: 0,
+        max: 1,
+      },
+      {
+        semantic: ShaderSemantics.Wireframe,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Vec3,
+        stage: ShaderType.PixelShader,
+        isSystem: false,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: false,
+        initialValue: new Vector3(0, 0, 1),
+        min: 0,
+        max: 10,
+      },
+      {
+        semantic: ShaderSemantics.NormalTexture,
+        compositionType: CompositionType.Texture2D,
+        componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
+        isSystem: false,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [0, AbstractMaterialNode.__dummyBlueTexture],
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
+      },
+      {
         semantic: ShaderSemantics.DepthTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
@@ -229,7 +268,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isSystem: true,
+        isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: new Scalar(30.0),
@@ -241,7 +280,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isSystem: true,
+        isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: new Vector3(0.0, 0.1, 0.01),

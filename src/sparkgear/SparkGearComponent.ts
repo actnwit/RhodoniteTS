@@ -8,12 +8,8 @@ import ComponentRepository from '../foundation/core/ComponentRepository';
 import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import ModuleManager from '../foundation/system/ModuleManager';
-import {
-  ComponentTID,
-  EntityUID,
-  ComponentSID,
-} from '../types/CommonTypes';
-import { IMatrix44 } from '../foundation/math/IMatrix';
+import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
+import {IMatrix44} from '../foundation/math/IMatrix';
 
 declare let window: any;
 declare let _SPARK_Data_Delete: Function;

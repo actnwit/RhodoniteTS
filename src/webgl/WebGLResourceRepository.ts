@@ -295,12 +295,18 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     };
   }
 
-  updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles) {
+  updateVertexBufferAndIndexBuffer(
+    primitive: Primitive,
+    vertexHandles: VertexHandles
+  ) {
     if (vertexHandles.iboHandle) {
-      this.updateIndexBuffer(primitive.indicesAccessor as Accessor, vertexHandles.iboHandle);
+      this.updateIndexBuffer(
+        primitive.indicesAccessor as Accessor,
+        vertexHandles.iboHandle
+      );
     }
 
-    const attributeAccessors = primitive.attributeAccessors
+    const attributeAccessors = primitive.attributeAccessors;
     for (let i = 0; i < attributeAccessors.length; i++) {
       this.updateVertexBuffer(
         attributeAccessors[i],
@@ -1432,7 +1438,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   createRenderBuffer(
     width: Size,
     height: Size,
-    internalFormat: TextureParameterEnum
+    internalFormat: TextureParameterEnum,
+    isMSAA: boolean
   ) {
     const gl = this.__glw!.getRawContext();
     const renderBuffer = gl.createRenderbuffer();
@@ -1440,12 +1447,26 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, renderBuffer!);
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
-    gl.renderbufferStorage(
-      gl.RENDERBUFFER,
-      (gl as any)[internalFormat.str],
-      width,
-      height
-    );
+    if (isMSAA) {
+      if (this.__glw!.isWebGL2) {
+        (gl as WebGL2RenderingContext).renderbufferStorageMultisample(
+          gl.RENDERBUFFER,
+          4,
+          (gl as any)[internalFormat.str],
+          width,
+          height
+        );
+      } else {
+        console.error('MSAA is unavailable in this webgl context');
+      }
+    } else {
+      gl.renderbufferStorage(
+        gl.RENDERBUFFER,
+        (gl as any)[internalFormat.str],
+        width,
+        height
+      );
+    }
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
     return resourceHandle;

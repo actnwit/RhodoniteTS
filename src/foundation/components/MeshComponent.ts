@@ -8,11 +8,7 @@ import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
 import Entity from '../core/Entity';
-import {
-  ComponentTID,
-  EntityUID,
-  ComponentSID,
-} from '../../types/CommonTypes';
+import {ComponentTID, EntityUID, ComponentSID} from '../../types/CommonTypes';
 import BlendShapeComponent from './BlendShapeComponent';
 import SceneGraphComponent from './SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';
@@ -235,10 +231,11 @@ export default class MeshComponent extends Component {
   }: {
     processApproach: ProcessApproachEnum;
   }) {
-
     // check for the need to update VBO
     const componentRepository = ComponentRepository.getInstance();
-    const meshComponents = componentRepository.getComponentsWithType(MeshComponent) as MeshComponent[];
+    const meshComponents = componentRepository.getComponentsWithType(
+      MeshComponent
+    ) as MeshComponent[];
     for (const meshComponent of meshComponents) {
       const mesh = meshComponent.mesh as Mesh;
       if (!is.exist(mesh)) {
@@ -249,7 +246,9 @@ export default class MeshComponent extends Component {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
         if (primitive.isPositionAccessorUpdated) {
-          meshComponent.entity.getMeshRenderer()?.moveStageTo(ProcessStage.Load);
+          meshComponent.entity
+            .getMeshRenderer()
+            ?.moveStageTo(ProcessStage.Load);
         }
       }
     }
@@ -273,8 +272,7 @@ export default class MeshComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $logic() {
-  }
+  $logic() {}
 }
 
 ComponentRepository.registerComponentClass(MeshComponent);

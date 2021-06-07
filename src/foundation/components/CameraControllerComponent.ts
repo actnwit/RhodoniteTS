@@ -1,9 +1,5 @@
 import Component from '../core/Component';
-import {
-  EntityUID,
-  ComponentSID,
-  ComponentTID,
-} from '../../types/CommonTypes';
+import {EntityUID, ComponentSID, ComponentTID} from '../../types/CommonTypes';
 import EntityRepository from '../core/EntityRepository';
 import CameraComponent from './CameraComponent';
 import {ProcessStage} from '../definitions/ProcessStage';

@@ -58,7 +58,7 @@ export default class Buffer {
   private __padding(byteLengthToNeed: Byte, byteAlign: Byte) {
     const paddingSize = DataUtil.calcPaddingBytes(byteLengthToNeed, byteAlign);
     if (paddingSize > 0) {
-      console.info(`Padding bytes added to takenBytesIndex.`);
+      console.info('Padding bytes added to takenBytesIndex.');
     }
     return paddingSize;
   }

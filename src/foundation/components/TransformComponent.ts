@@ -12,14 +12,10 @@ import MutableQuaternion from '../math/MutableQuaternion';
 import {ProcessStage} from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-} from '../../types/CommonTypes';
-import { IQuaternion } from '../math/IQuaternion';
-import { IMatrix44 } from '../math/IMatrix';
-import { IVector3 } from '../math/IVector';
+import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
+import {IQuaternion} from '../math/IQuaternion';
+import {IMatrix44} from '../math/IMatrix';
+import {IVector3} from '../math/IVector';
 
 // import AnimationComponent from './AnimationComponent';
 

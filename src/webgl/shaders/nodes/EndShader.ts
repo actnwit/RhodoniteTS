@@ -51,7 +51,7 @@ export default class EndShader extends GLSLShader {
     `;
   }
 
-  get pixelShaderBody() {
+  getPixelShaderBody() {
     return '';
   }
 

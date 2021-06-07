@@ -3,11 +3,7 @@ import ComponentRepository from '../core/ComponentRepository';
 import EntityRepository from '../core/EntityRepository';
 import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
 import {ProcessStage} from '../definitions/ProcessStage';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-} from '../../types/CommonTypes';
+import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 
 export default class BlendShapeComponent extends Component {
   private __weights: number[] = [];

@@ -26,14 +26,22 @@ vec4 encodeDepthToRGBA(float depth){
 void main (){
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
+  float depth;
+  bool isPointLight = get_isPointLight(materialSID, 0);
+  if(isPointLight){
+    float zNear = get_zNearInner(materialSID, 0);
+    float zFar = get_zFarInner(materialSID, 0);
+    float normalizationCoefficient = 1.0 / (zFar - zNear);
+    depth = normalizationCoefficient * length(v_position_inLocal);
+  }else{
+    depth = gl_FragCoord.z;
+  }
 
-  float zNear = get_zNearInner(materialSID, 0);
-  float zFar = get_zFarInner(materialSID, 0);
-  float normalizationCoefficient = 1.0 / (zFar - zNear);
-  float linerDepth = normalizationCoefficient * length(v_position_inLocal);
-  vec4 encodedLinearDepth = encodeDepthToRGBA(linerDepth);
+  float depthPow = get_depthPow(materialSID, 0);
+  float depthData = pow(depth, depthPow);
+  vec4 encodedDepth = encodeDepthToRGBA(depthData);
 
-  rt0 = encodedLinearDepth;
+  rt0 = encodedDepth;
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 }

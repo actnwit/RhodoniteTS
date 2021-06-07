@@ -33,7 +33,7 @@ import {
   EntityUID,
 } from '../../types/CommonTypes';
 import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
-import { IMatrix44 } from '../math/IMatrix';
+import {IMatrix44} from '../math/IMatrix';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;

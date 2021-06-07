@@ -37,7 +37,7 @@ import {ShaderityObject} from 'shaderity';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
-import { IVector3 } from '../../math/IVector';
+import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
 import { RnXR } from '../../../xr/main';
 
@@ -106,6 +106,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected static __dummyWhiteTexture = new Texture();
   protected static __dummyBlueTexture = new Texture();
   protected static __dummyBlackTexture = new Texture();
+  protected static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
+  protected static __dummySRGBGrayTexture = new Texture();
   protected static __dummyBlackCubeTexture = new CubeTexture();
 
   protected static __tmp_vector4 = MutableVector4.zero();
@@ -155,6 +157,14 @@ export default abstract class AbstractMaterialNode extends RnObject {
     );
     AbstractMaterialNode.__dummyBlackCubeTexture.tryToSetUniqueName(
       'dummyBlackCubeTexture',
+      true
+    );
+    AbstractMaterialNode.__dummySRGBGrayTexture.tryToSetUniqueName(
+      'dummySRGBGrayTexture',
+      true
+    );
+    AbstractMaterialNode.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.tryToSetUniqueName(
+      'dummyPbrKelemenSzirmayKalosBrdfLutTexture',
       true
     );
 
@@ -330,6 +340,16 @@ export default abstract class AbstractMaterialNode extends RnObject {
     );
     this.__dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
     this.__dummyBlackCubeTexture.load1x1Texture('rgba(0, 0, 0, 1)');
+    this.__dummySRGBGrayTexture.generate1x1TextureFrom(
+      'rgba(186, 186, 186, 1)'
+    );
+
+    const moduleName = 'pbr';
+    const moduleManager = ModuleManager.getInstance();
+    const pbrModule = moduleManager.getModule(moduleName)! as any;
+    this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.generateTextureFromUri(
+      pbrModule.pbrKelemenSzirmayKalosBrdfLutDataUrl
+    );
   }
 
   static get dummyWhiteTexture() {
@@ -343,6 +363,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
   static get dummyBlackCubeTexture() {
     return this.__dummyWhiteTexture;
+  }
+  static get dummyPbrKelemenSzirmayKalosBrdfLutTexture() {
+    return this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture;
   }
 
   protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {

@@ -49,6 +49,8 @@ import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import Vector4 from '../foundation/math/Vector4';
 import {Is as is} from '../foundation/misc/Is';
+import Scalar from '../foundation/math/Scalar';
+import Vector3 from '../foundation/math/Vector3';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -196,9 +198,10 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
             compositionType: CompositionType.Scalar,
             componentType: ComponentType.Float,
             stage: ShaderType.PixelShader,
+            initialValue: new Scalar(30.0),
             min: 0,
             max: Number.MAX_VALUE,
-            isSystem: true,
+            isSystem: false,
             updateInterval: ShaderVariableUpdateInterval.EveryTime,
           },
           {
@@ -206,9 +209,10 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
             compositionType: CompositionType.Vec3,
             componentType: ComponentType.Float,
             stage: ShaderType.PixelShader,
+            initialValue: new Vector3(0.0, 0.1, 0.01),
             min: 0,
             max: 1,
-            isSystem: true,
+            isSystem: false,
             updateInterval: ShaderVariableUpdateInterval.EveryTime,
           },
         ],
@@ -510,7 +514,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
-      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh)
+      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
     }
   }
 

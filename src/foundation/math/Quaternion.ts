@@ -8,7 +8,9 @@ import {IMatrix44} from './IMatrix';
 import LogQuaternion from './LogQuaternion';
 import AbstractQuaternion from './AbstractQuaternion';
 
-export default class Quaternion extends AbstractQuaternion implements IQuaternion {
+export default class Quaternion
+  extends AbstractQuaternion
+  implements IQuaternion {
   private static __tmp_upVec: any = undefined;
 
   constructor(
@@ -119,7 +121,11 @@ export default class Quaternion extends AbstractQuaternion implements IQuaternio
     return out;
   }
 
-  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): IQuaternion {
+  static qlerp(
+    l_quat: IQuaternion,
+    r_quat: IQuaternion,
+    ratio: number
+  ): IQuaternion {
     let qr =
       l_quat._v[3] * r_quat._v[3] +
       l_quat._v[0] * r_quat._v[0] +
@@ -308,7 +314,10 @@ export default class Quaternion extends AbstractQuaternion implements IQuaternio
     return out;
   }
 
-  static lookFromTo(fromDirection: IVector3, toDirection: IVector3): IQuaternion {
+  static lookFromTo(
+    fromDirection: IVector3,
+    toDirection: IVector3
+  ): IQuaternion {
     if (fromDirection.isEqual(toDirection)) {
       return new this(0, 0, 0, 1) as IQuaternion;
     }
@@ -327,7 +336,10 @@ export default class Quaternion extends AbstractQuaternion implements IQuaternio
     return this.lookForwardAccordingToThisUp(forward, Quaternion.__tmp_upVec);
   }
 
-  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): IQuaternion {
+  static lookForwardAccordingToThisUp(
+    forward: IVector3,
+    up: IVector3
+  ): IQuaternion {
     const forwardLength = forward.length();
     if (forwardLength === 0) {
       console.error('0 division occurred!');
@@ -615,7 +627,6 @@ export default class Quaternion extends AbstractQuaternion implements IQuaternio
       return false;
     }
   }
-
 
   toEulerAnglesTo(out: IMutableVector3) {
     // this is from https://en._v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2

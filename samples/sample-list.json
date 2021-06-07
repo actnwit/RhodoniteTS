@@ -31,7 +31,15 @@
     "ShadowMap",
     "ShadowMapDebugMode",
     "VRMAnimation",
-    "VRMImporter"
+    "VRMImporter",
+    "ColorGradingUsingLUTs",
+    "FurnaceTest-weakWhiteFurnaceResult",
+    "FurnaceTest-whiteFurnace",
+    "GaussianBlur",
+    "MatCap",
+    "ShadowMapVariance",
+    "Gltf2Importer-GlareEffect",
+    "Gltf2Importer-MSAA"
   ],
   "simple": [
     "4DViews",
@@ -42,6 +50,12 @@
     "SparkGear",
     "VideoTexture",
     "VRMImporterMToon",
-    "GltfImporter-iOS"
+    "GltfImporter-iOS",
+    "DracoPointCloudPrimitiveImporter",
+    "DracoPointCloudJSONImporter",
+    "GaussianBlurDepth",
+    "Gltf2ImporterShadow",
+    "ShadowMapping",
+    "SkinShader"
   ]
 }
