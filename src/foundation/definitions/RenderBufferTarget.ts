@@ -1,12 +1,23 @@
 import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
 
-export type RenderBufferTargetEnum = EnumIO;
+export interface RenderBufferTargetEnum extends EnumIO {
+  webGLConstantValue(): number;
+}
 
 class RenderBufferTargetClass
   extends EnumClass
   implements RenderBufferTargetEnum {
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
+  }
+
+  webGLConstantValue() {
+    if (this.index === -2) {
+      return 0x0; // gl.NONE
+    } else if (this.index === -1) {
+      return 0x0405; // gl.BACK
+    }
+    return 0x8ce0 + this.index; // GL_COLOR_ATTACHMENT0 = 0x8ce0
   }
 }
 

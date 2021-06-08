@@ -362,26 +362,24 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     } else {
       // for non-`index` property (this is general case)
       const scalarSizeOfProperty: IndexOf4Bytes = WebGLStrategyFastest.__getScalarSizeOfShaderSemanticsInfo4BytesAligned(
-        info
-      );
+          info
+        );
       let dataBeginPos: IndexOf16Bytes = -1;
       if (isGlobalData) {
-        const globalDataRepository = GlobalDataRepository.getInstance();
-        dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(
-          propertyIndex
-        );
+        dataBeginPos =
+          WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex);
       } else {
-        dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(
-          materialTypeName,
-          propertyIndex
+        dataBeginPos = WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+          propertyIndex,
+          materialTypeName
         );
       }
+
       if (dataBeginPos === -1) {
         console.error('Could not get the location offset of the property.');
       }
 
-      const instanceSize =
-        vec4SizeOfProperty * (info.maxIndex ?? 1);
+      const instanceSize = vec4SizeOfProperty * (info.maxIndex ?? 1);
       indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId;\n`;
       if (CompositionType.isArray(info.compositionType)) {
         const instanceSizeInScalar =
@@ -547,9 +545,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
 
-    const startOffsetOfDataTextureOnGPUInstanceData = this.toUboUse(
-      glw!.isWebGL2
-    )
+    const startOffsetOfDataTextureOnGPUInstanceData = this.__isUboUse()
       ? glw!.getAlignedMaxUniformBlockSize()
       : 0;
 
@@ -716,7 +712,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   common_$prerender(): void {
-    // Setup Data Texture
+    // Setup GPU Storage (Data Texture & UBO)
     this.__createAndUpdateDataTexture();
     this.__createAndUpdateUBO();
 
@@ -726,16 +722,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     ) as LightComponent[];
   }
 
-  private toUboUse(isWebGL2: boolean) {
-    return isWebGL2 && Config.isUboEnabled;
+  private __isUboUse() {
+    return (
+      this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 &&
+      Config.isUboEnabled
+    );
   }
 
   private __createAndUpdateUBO() {
-    if (
-      this.toUboUse(
-        this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2
-      )
-    ) {
+    if (this.__isUboUse()) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
       const memoryManager: MemoryManager = MemoryManager.getInstance();

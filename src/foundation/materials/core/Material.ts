@@ -48,40 +48,30 @@ export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
 
   private __fields: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
-  private __fieldsForNonSystem: Map<
-    ShaderSemanticsIndex,
-    ShaderVariable
-  > = new Map();
+  private __fieldsForNonSystem: Map<ShaderSemanticsIndex, ShaderVariable> =
+    new Map();
   private static __soloDatumFields: Map<
     MaterialTypeName,
     Map<ShaderSemanticsIndex, ShaderVariable>
   > = new Map();
-  private __fieldsInfo: Map<
-    ShaderSemanticsIndex,
-    ShaderSemanticsInfo
-  > = new Map();
+  private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> =
+    new Map();
 
   public _shaderProgramUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __alphaMode = AlphaMode.Opaque;
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
-  private static __shaderStringMap: Map<
-    string,
-    CGAPIResourceHandle
-  > = new Map();
+  private static __shaderStringMap: Map<string, CGAPIResourceHandle> =
+    new Map();
   private static __materials: Material[] = [];
-  private static __instancesByTypes: Map<
-    MaterialTypeName,
-    Material
-  > = new Map();
+  private static __instancesByTypes: Map<MaterialTypeName, Material> =
+    new Map();
   private __materialTid: Index;
   private static __materialTidCount = -1;
 
   private static __materialTids: Map<MaterialTypeName, Index> = new Map();
-  private static __materialInstanceCountOfType: Map<
-    MaterialTypeName,
-    Count
-  > = new Map();
+  private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> =
+    new Map();
   private __materialSid: Index = -1;
   private static __materialTypes: Map<
     MaterialTypeName,
@@ -162,7 +152,8 @@ export default class Material extends RnObject {
   }
 
   static _calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
-    const compositionNumber = semanticInfo.compositionType.getNumberOfComponents();
+    const compositionNumber =
+      semanticInfo.compositionType.getNumberOfComponents();
     const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
     const semanticInfoByte = compositionNumber * componentSizeInByte;
     let alignedByteLength = semanticInfoByte;
@@ -463,7 +454,8 @@ export default class Material extends RnObject {
     shaderProgramUid: CGAPIResourceHandle,
     isUniformOnlyMode: boolean
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const map: Map<string, ShaderSemanticsInfo> = new Map();
     let array: ShaderSemanticsInfo[] = [];
     this.__materialNodes.forEach(materialNode => {
@@ -503,7 +495,8 @@ export default class Material extends RnObject {
       }
     });
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     if (args.setUniform) {
       this.__fieldsForNonSystem.forEach(value => {
         const info = value.info;
@@ -564,7 +557,8 @@ export default class Material extends RnObject {
     firstTime: boolean;
     args?: any;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;
     const map = Material.__soloDatumFields.get(materialTypeName);
     if (map == null) return;
@@ -597,8 +591,10 @@ export default class Material extends RnObject {
 
   private __setupGlobalShaderDefinition() {
     let definitions = '';
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw =
+      webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
     if (glw.isWebGL2) {
       definitions += '#version 300 es\n#define GLSL_ES3\n';
       if (Config.isUboEnabled) {
@@ -639,7 +635,8 @@ export default class Material extends RnObject {
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
@@ -660,7 +657,8 @@ export default class Material extends RnObject {
       {
         getters: vertexPropertiesStr,
         definitions: definitions,
-        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+        dataUBODefinition:
+          webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
         matricesGetters: vertexShaderMethodDefinitions_uniform,
       }
@@ -670,7 +668,8 @@ export default class Material extends RnObject {
       {
         getters: pixelPropertiesStr,
         definitions: definitions,
-        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+        dataUBODefinition:
+          webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
       }
     );
@@ -758,15 +757,13 @@ export default class Material extends RnObject {
       }
     });
     const globalDataRepository = GlobalDataRepository.getInstance();
-    [
-      vertexPropertiesStr,
-      pixelPropertiesStr,
-    ] = globalDataRepository.addPropertiesStr(
-      vertexPropertiesStr,
-      pixelPropertiesStr,
-      propertySetter,
-      isWebGL2
-    );
+    [vertexPropertiesStr, pixelPropertiesStr] =
+      globalDataRepository.addPropertiesStr(
+        vertexPropertiesStr,
+        pixelPropertiesStr,
+        propertySetter,
+        isWebGL2
+      );
     return {vertexPropertiesStr, pixelPropertiesStr};
   }
 

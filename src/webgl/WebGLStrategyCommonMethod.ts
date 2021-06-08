@@ -6,11 +6,12 @@ import MeshComponent from '../foundation/components/MeshComponent';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
 import {Index} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';
-import {Is as is} from '../foundation/misc/Is';
+import {Is, Is as is} from '../foundation/misc/Is';
 import ModuleManager from '../foundation/system/ModuleManager';
 import WebGLResourceRepository from './WebGLResourceRepository';
 import {RnXR} from '../xr/main';
 import Vector4 from '../foundation/math/Vector4';
+import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -285,6 +286,24 @@ function isVrMainPass(renderPass: RenderPass) {
   return isVRMainPass;
 }
 
+function getLocationOffsetOfProperty(
+  propertyIndex: Index,
+  materialTypeName?: string
+) {
+  if (Is.exist(materialTypeName)) {
+    const dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(
+      materialTypeName,
+      propertyIndex
+    );
+    return dataBeginPos;
+  } else {
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const dataBeginPos =
+      globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
+    return dataBeginPos;
+  }
+}
+
 export default Object.freeze({
   setCullAndBlendSettings,
   startDepthMasking,
@@ -296,4 +315,5 @@ export default Object.freeze({
   setVRViewport,
   getDisplayNumber,
   isVrMainPass,
+  getLocationOffsetOfProperty,
 });

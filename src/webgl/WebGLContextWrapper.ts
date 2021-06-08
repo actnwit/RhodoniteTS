@@ -14,7 +14,7 @@ interface WEBGL_compressed_texture_bptc {
 }
 
 export default class WebGLContextWrapper {
-  __gl: WebGLRenderingContext | any;
+  __gl: WebGLRenderingContext | WebGL2RenderingContext;
   __webglVersion = 1;
   public width: Size = 0;
   public height: Size = 0;
@@ -74,7 +74,7 @@ export default class WebGLContextWrapper {
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
   constructor(
-    gl: WebGLRenderingContext,
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
     canvas: HTMLCanvasElement,
     isDebug: boolean
   ) {
@@ -167,11 +167,11 @@ export default class WebGLContextWrapper {
   }
 
   getRawContextAsWebGL1(): WebGLRenderingContext {
-    return this.__gl;
+    return this.__gl as WebGLRenderingContext;
   }
 
   getRawContextAsWebGL2(): WebGL2RenderingContext {
-    return this.__gl;
+    return this.__gl as WebGL2RenderingContext;
   }
 
   get viewport() {
@@ -208,6 +208,12 @@ export default class WebGLContextWrapper {
     return this.__isDebugMode;
   }
 
+  getIsWebGL2(
+    gl: WebGLRenderingContext | WebGL2RenderingContext
+  ): gl is WebGL2RenderingContext {
+    return this.isWebGL2;
+  }
+
   get isWebGL2() {
     if (this.__webglVersion === 2) {
       return true;
@@ -217,11 +223,13 @@ export default class WebGLContextWrapper {
   }
 
   createVertexArray() {
-    if (this.isWebGL2) {
+    if (this.getIsWebGL2(this.__gl)) {
       return this.__gl.createVertexArray();
     } else {
       if (this.webgl1ExtVAO != null) {
         return this.webgl1ExtVAO.createVertexArrayOES();
+      } else {
+        return undefined;
       }
     }
   }
@@ -229,8 +237,8 @@ export default class WebGLContextWrapper {
   deleteVertexArray(
     vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES
   ) {
-    if (this.isWebGL2) {
-      this.__gl.createVertexArray(vertexArray);
+    if (this.getIsWebGL2(this.__gl)) {
+      this.__gl.deleteVertexArray(vertexArray);
     } else {
       if (this.webgl1ExtVAO != null) {
         this.webgl1ExtVAO.deleteVertexArrayOES(
@@ -241,7 +249,7 @@ export default class WebGLContextWrapper {
   }
 
   bindVertexArray(vao: WebGLVertexArrayObjectOES | null) {
-    if (this.isWebGL2) {
+    if (this.getIsWebGL2(this.__gl)) {
       this.__gl.bindVertexArray(vao);
     } else {
       if (this.webgl1ExtVAO != null) {
@@ -251,7 +259,7 @@ export default class WebGLContextWrapper {
   }
 
   vertexAttribDivisor(index: number, divisor: number) {
-    if (this.isWebGL2) {
+    if (this.getIsWebGL2(this.__gl)) {
       this.__gl.vertexAttribDivisor(index, divisor);
     } else {
       this.webgl1ExtIA!.vertexAttribDivisorANGLE(index, divisor);
@@ -265,7 +273,7 @@ export default class WebGLContextWrapper {
     offset: number,
     instanceCount: number
   ) {
-    if (this.isWebGL2) {
+    if (this.getIsWebGL2(this.__gl)) {
       this.__gl.drawElementsInstanced(
         primitiveMode,
         indexCount,
@@ -290,7 +298,7 @@ export default class WebGLContextWrapper {
     count: number,
     instanceCount: number
   ) {
-    if (this.isWebGL2) {
+    if (this.getIsWebGL2(this.__gl)) {
       this.__gl.drawArraysInstanced(primitiveMode, first, count, instanceCount);
     } else {
       this.webgl1ExtIA!.drawArraysInstancedANGLE(
@@ -303,31 +311,27 @@ export default class WebGLContextWrapper {
   }
 
   colorAttachment(index: Index) {
-    return this.webgl1ExtDB
-      ? (this.webgl1ExtDB as any)[`COLOR_ATTACHMENT${index}_WEBGL`]
-      : (this.__gl as any)[`COLOR_ATTACHMENT${index}`];
+    return 0x8ce0 + index; // GL_COLOR_ATTACHMENT0 = 0x8ce0
   }
 
   drawBuffers(buffers: RenderBufferTargetEnum[]) {
-    const gl: any = this.__gl;
+    const gl = this.__gl;
     if (buffers.length === 0) {
       return;
     }
-    let buffer = buffers;
-    if (this.isWebGL2) {
+    const buffer = buffers[0].webGLConstantValue();
+    if (this.getIsWebGL2(gl)) {
       gl.drawBuffers(
         buffers.map(buf => {
-          return gl[buf.str];
+          return buf.webGLConstantValue();
         })
       );
-      buffer = gl[buffer[0].str];
     } else if (this.webgl1ExtDB) {
       this.webgl1ExtDB.drawBuffersWEBGL(
         buffers.map(buf => {
-          return gl[buf.str];
+          return buf.webGLConstantValue();
         })
       );
-      buffer = gl[buffer[0].str];
     }
 
     if (buffer === gl.NONE) {

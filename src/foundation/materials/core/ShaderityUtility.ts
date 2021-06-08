@@ -13,7 +13,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
   ShaderSemanticsInfo,
-  ShaderSemanticsStr,
+  ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import MutableVector2 from '../../math/MutableVector2';
 import MutableVector3 from '../../math/MutableVector3';
@@ -129,7 +129,7 @@ export default class ShaderityUtility {
 
   getShaderDataRefection(
     shaderityObject: ShaderityObject,
-    existingShaderInfoMap?: Map<ShaderSemanticsStr, ShaderSemanticsInfo>
+    existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
   ): {
     shaderSemanticsInfoArray: ShaderSemanticsInfo[];
     shaderityObject: ShaderityObject;
