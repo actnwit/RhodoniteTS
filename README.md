@@ -152,14 +152,6 @@ $ npx tsc ./main.ts --lib es2015,dom --target es2015 --module umd --moduleResolu
 
 For detail, See the typescript-based samples like ./samples/simple/VideoTexture/main.ts .
 
-## Try Samples
-
-```bash
-$ yarn start
-```
-
-Then, access http://localhost:8082/ with your web browser.
-
 ## Building Rhodonite
 
 ### Prerequisites
@@ -185,6 +177,17 @@ $ yarn build
 ```bash
 $ yarn build-samples
 ```
+
+## Try Samples
+
+After building Rhodonite, try:
+
+```bash
+$ yarn watch-samples
+```
+
+Then, access http://localhost:8082/ with your web browser.
+When you are finished, press ctrl + c.
 
 ## Build command for API documents
 
