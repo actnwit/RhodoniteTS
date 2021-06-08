@@ -557,12 +557,10 @@ export default class WebGLContextWrapper {
     this.#maxFragmentUniformBlocks = gl.getParameter(
       gl.MAX_FRAGMENT_UNIFORM_BLOCKS
     ) as number;
-    this.#maxConventionUniformBlocks = 2; /*
-    Math.min(
+    this.#maxConventionUniformBlocks = Math.min(
       this.#maxVertexUniformBlocks,
       this.#maxFragmentUniformBlocks
     );
-    */
     this.#alignedMaxUniformBlockSize =
       maxBlockSize - (maxBlockSize % offsetAlignment);
     this.#uniformBufferOffsetAlignment = offsetAlignment;

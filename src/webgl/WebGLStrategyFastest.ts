@@ -707,14 +707,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  common_$load() {
-    // Setup GPU Storage (Data Texture & UBO)
-    this.__createAndUpdateDataTexture();
-    this.__createAndUpdateUBO();
-  }
-
   common_$prerender(): void {
-    // Update GPU Storage (Data Texture & UBO)
+    // Setup GPU Storage (Data Texture & UBO)
     this.__createAndUpdateDataTexture();
     this.__createAndUpdateUBO();
 
