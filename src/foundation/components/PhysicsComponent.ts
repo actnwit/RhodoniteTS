@@ -3,11 +3,7 @@ import ComponentRepository from '../core/ComponentRepository';
 import EntityRepository from '../core/EntityRepository';
 import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
 import {ProcessStage} from '../definitions/ProcessStage';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-} from '../../types/CommonTypes';
+import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrategy';
 import PhysicsStrategy from '../physics/PhysicsStrategy';
 

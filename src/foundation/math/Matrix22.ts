@@ -9,7 +9,9 @@ import {MathUtil} from './MathUtil';
 import MutableVector2 from './MutableVector2';
 import AbstractMatrix from './AbstractMatrix';
 
-export default class Matrix22 extends AbstractMatrix implements IMatrix, IMatrix22 {
+export default class Matrix22
+  extends AbstractMatrix
+  implements IMatrix, IMatrix22 {
   constructor(m: null);
   constructor(
     m: Float32Array,
@@ -246,7 +248,14 @@ export default class Matrix22 extends AbstractMatrix implements IMatrix, IMatrix
 
   toString() {
     return (
-      this._v[0] + ' ' + this._v[2] + '\n' + this._v[1] + ' ' + this._v[3] + ' \n'
+      this._v[0] +
+      ' ' +
+      this._v[2] +
+      '\n' +
+      this._v[1] +
+      ' ' +
+      this._v[3] +
+      ' \n'
     );
   }
 

@@ -4,7 +4,6 @@ import {MathUtil} from './MathUtil';
 import AbstractVector from './AbstractVector';
 
 export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
-
   constructor(x: number | TypedArray | null, {type}: {type: T}) {
     super();
     if (ArrayBuffer.isView(x)) {

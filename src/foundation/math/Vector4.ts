@@ -10,9 +10,9 @@ import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import AbstractVector from './AbstractVector';
 
-export class Vector4_<T extends TypedArrayConstructor> extends AbstractVector
+export class Vector4_<T extends TypedArrayConstructor>
+  extends AbstractVector
   implements IVector, IVector4 {
-
   constructor(
     x:
       | number
@@ -424,7 +424,9 @@ export class Vector4_<T extends TypedArrayConstructor> extends AbstractVector
   }
 
   lengthSquared(): number {
-    return this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2;
+    return (
+      this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2
+    );
   }
 
   lengthTo(vec: IVector4) {

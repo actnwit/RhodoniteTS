@@ -15,7 +15,6 @@ const setupRenderPassEntityUidOutput = function (
 ) {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-  // RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
 
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;

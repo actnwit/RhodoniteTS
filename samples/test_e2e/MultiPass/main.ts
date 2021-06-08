@@ -169,6 +169,22 @@ declare const Stats: any;
       Rn.ShaderSemantics.ScreenInfo,
       new Rn.Vector2(600, 600)
     );
+    primitive_fxaa.generate({
+      width: 2,
+      height: 2,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: false,
+    });
+    primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
+    primitive_fxaa.material.setTextureParameter(
+      Rn.ShaderSemantics.BaseColorTexture,
+      framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0)
+    );
+    primitive_fxaa.material.setParameter(
+      Rn.ShaderSemantics.ScreenInfo,
+      new Rn.Vector2(600, 600)
+    );
     const meshComponent_fxaa = entity_fxaa.getMesh();
     const mesh_fxaa = new Rn.Mesh();
     mesh_fxaa.addPrimitive(primitive_fxaa);

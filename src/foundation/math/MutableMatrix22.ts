@@ -115,7 +115,7 @@ export default class MutableMatrix22
    * Create Scale Matrix
    */
   static scale(vec: Vector2) {
-    return super.scale(vec) as unknown as MutableMatrix22;
+    return (super.scale(vec) as unknown) as MutableMatrix22;
   }
 
   /**

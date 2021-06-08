@@ -41,6 +41,8 @@ import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import {Is as is} from '../foundation/misc/Is';
+import Scalar from '../foundation/math/Scalar';
+import Vector3 from '../foundation/math/Vector3';
 
 type ShaderVariableArguments = {
   glw: WebGLContextWrapper;
@@ -149,9 +151,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           compositionType: CompositionType.Scalar,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
+          initialValue: new Scalar(30.0),
           min: 0,
           max: Number.MAX_VALUE,
-          isSystem: true,
+          isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
         },
         {
@@ -159,9 +162,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           compositionType: CompositionType.Vec3,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
+          initialValue: new Vector3(0.0, 0.1, 0.01),
           min: 0,
           max: 1,
-          isSystem: true,
+          isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
         }
       );
@@ -279,7 +283,7 @@ mat3 get_normalMatrix(float instanceId) {
     }
 
     if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
-      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh)
+      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
     }
   }
 
@@ -503,7 +507,10 @@ mat3 get_normalMatrix(float instanceId) {
 
           gl.useProgram(shaderProgram);
           gl.uniform1i((shaderProgram as any).dataTexture, 7);
-          this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+          this.__webglResourceRepository.bindTexture2D(
+            7,
+            this.__dataTextureUid
+          );
 
           this.__lastShader = shaderProgramUid;
         }
@@ -556,7 +563,6 @@ mat3 get_normalMatrix(float instanceId) {
         }
         // this.dettachVertexData(glw);
       }
-
     }
     WebGLStrategyCommonMethod.endDepthMasking(idx, gl);
     this.__lastRenderPassTickCount = renderPassTickCount;

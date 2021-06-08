@@ -430,6 +430,9 @@ export default class MathClassUtil {
       obj.m32 = val.m32;
       obj.m33 = val.m33;
     } else if (objForDetectType instanceof VectorN) {
+      for (let i = 0; i < val._v.length; i++) {
+        floatArray[i] = val._v[i];
+      }
       obj = new VectorN(floatArray);
     } else if (objForDetectType == null) {
       let vec;

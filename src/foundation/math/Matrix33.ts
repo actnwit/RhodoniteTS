@@ -21,7 +21,7 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
     m0: number, m1: number, m2: number,
     m3: number, m4: number, m5: number,
     m6: number, m7: number, m8: number,
-    isColumnMajor?: boolean, );
+    isColumnMajor?: boolean,);
   constructor(
     m0: any, m1?: any, m2?: any,
     m3?: number, m4?: number, m5?: number,

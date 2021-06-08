@@ -171,7 +171,12 @@ export class MutableVector4_<T extends TypedArrayConstructor>
    * divide vector
    */
   divideVector(vec: IVector4) {
-    if (vec._v[0] !== 0 && vec._v[1] !== 0 && vec._v[2] !== 0 && vec._v[3] !== 0) {
+    if (
+      vec._v[0] !== 0 &&
+      vec._v[1] !== 0 &&
+      vec._v[2] !== 0 &&
+      vec._v[3] !== 0
+    ) {
       this._v[0] /= vec._v[0];
       this._v[1] /= vec._v[1];
       this._v[2] /= vec._v[2];

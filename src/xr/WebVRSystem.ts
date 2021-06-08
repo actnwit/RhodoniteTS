@@ -111,7 +111,8 @@ export default class WebVRSystem {
           this.__canvasWidthForVR = this.__minRenderWidthFromUser * 2;
           this.__canvasHeightForVR = this.__minRenderHeightFromUser;
         } else {
-          this.__canvasWidthForVR = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
+          this.__canvasWidthForVR =
+            Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
           this.__canvasHeightForVR = Math.max(
             leftEye.renderHeight,
             rightEye.renderHeight

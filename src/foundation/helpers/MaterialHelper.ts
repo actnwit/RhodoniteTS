@@ -18,11 +18,25 @@ import Primitive from '../geometry/Primitive';
 import Entity from '../core/Entity';
 import {ProcessStage} from '../definitions/ProcessStage';
 import {AlphaMode} from '../definitions/AlphaMode';
+import AbstractTexture from '../textures/AbstractTexture';
+import FurnaceTestSingleMaterialNode from '../materials/singles/FurnaceTestSingleMaterialNode';
+import GaussianBlurForEncodedDepthSingleMaterialNode from '../materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
+import GaussianBlurSingleMaterialNode from '../materials/singles/GaussianBlurSingleMaterialNode';
+import DetectHighLuminanceSingleMaterialNode from '../materials/singles/DetectHighLuminanceSingleMaterialNode';
+import SynthesizeHDRSingleMaterialNode from '../materials/singles/SynthesizeHDRSingleMaterialNode';
+import ColorGradingUsingLUTsSingleMaterialNode from '../materials/singles/ColorGradingUsingLUTsSingleMaterialNode';
+import MatCapSingleMaterialNode from '../materials/singles/MatCapSingleMaterialNode';
+import VarianceShadowMapDecodeClassicSingleMaterialNode from '../materials/singles/VarianceShadowMapDecodeClassicSingleMaterialNode';
+import SkinPbrShadingSingleMaterialNode from '../materials/singles/SkinPbrShadingSingleMaterialNode';
+import PbrExtendedShadingSingleMaterialNode from '../materials/singles/PbrExtendedShadingSingleMaterialNode';
+import Texture from '../textures/Texture';
+import {CameraComponent} from '../..';
+import {Count} from '../../types/CommonTypes';
 
 function createMaterial(
   materialName: string,
   materialNodes?: AbstractMaterialNode[],
-  maxInstancesNumber?: number
+  maxInstancesNumber?: Count
 ): Material {
   const isRegisteredMaterialType = Material.isRegisteredMaterialType(materialName);
 
@@ -41,7 +55,7 @@ function createMaterial(
 function recreateMaterial(
   materialName: string,
   materialNodes?: AbstractMaterialNode[],
-  maxInstancesNumber?: number
+  maxInstancesNumber?: Count
 ): Material {
   Material.forceRegisterMaterial(
     materialName,
@@ -94,6 +108,36 @@ function createPbrUberMaterial({
     useNormalTexture,
     alphaMode,
     makeOutputSrgb,
+  });
+
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createSkinPbrUberMaterial({
+  additionalName = '',
+  isMorphing = false,
+  isSkinning = false,
+  isLighting = false,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+} = {}) {
+  const materialName =
+    'PbrUber' +
+    `_${additionalName}_` +
+    (isMorphing ? '+morphing' : '') +
+    (isSkinning ? '+skinning' : '') +
+    (isLighting ? '' : '-lighting');
+
+  const materialNode = new SkinPbrShadingSingleMaterialNode({
+    isMorphing: isMorphing,
+    isSkinning: isSkinning,
+    isLighting: isLighting,
   });
 
   materialNode.isSingleOperation = true;
@@ -204,15 +248,35 @@ function createFXAA3QualityMaterial({
   return material;
 }
 
+function createFurnaceTestMaterial({
+  additionalName = '',
+  maxInstancesNumber = 1,
+} = {}) {
+  const materialName = 'FurnaceTest' + `_${additionalName}`;
+
+  const materialNode = new FurnaceTestSingleMaterialNode();
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
 function createDepthEncodeMaterial({
   additionalName = '',
   isSkinning = false,
+  depthPow = 1.0,
   maxInstancesNumber = 10,
 } = {}) {
   const materialName =
     'DepthEncode' + `_${additionalName}_` + (isSkinning ? '+skinning' : '');
 
-  const materialNode = new DepthEncodeSingleMaterialNode({isSkinning});
+  const materialNode = new DepthEncodeSingleMaterialNode(depthPow, {
+    isSkinning,
+  });
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -261,6 +325,178 @@ function createShadowMapDecodeClassicSingleMaterial(
   return material;
 }
 
+function createGaussianBlurForEncodedDepthMaterial({
+  additionalName = '',
+  maxInstancesNumber = 10,
+} = {}) {
+  const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
+
+  const materialNode = new GaussianBlurForEncodedDepthSingleMaterialNode();
+  materialNode.isSingleOperation = true;
+
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createVarianceShadowMapDecodeClassicSingleMaterial(
+  {
+    additionalName = '',
+    isMorphing = false,
+    isSkinning = false,
+    isDebugging = false,
+    isLighting = true,
+    colorAttachmentsNumberDepth = 0,
+    colorAttachmentsNumberSquareDepth = 0,
+    depthCameraComponent = undefined,
+    maxInstancesNumber = 10,
+  }: {
+    additionalName?: string;
+    isMorphing?: boolean;
+    isSkinning?: boolean;
+    isDebugging?: boolean;
+    isLighting?: boolean;
+    colorAttachmentsNumberDepth?: Count;
+    colorAttachmentsNumberSquareDepth?: Count;
+    depthCameraComponent?: CameraComponent;
+    maxInstancesNumber?: Count;
+  },
+  encodedDepthRenderPasses: RenderPass[]
+) {
+  const materialName =
+    'VarianceShadowMapDecodeShading' +
+    `_${additionalName}_` +
+    (isMorphing ? '+morphing' : '') +
+    (isSkinning ? '+skinning' : '') +
+    (isLighting ? '' : '-lighting') +
+    (isDebugging ? '' : '+debugging');
+
+  const materialNode = new VarianceShadowMapDecodeClassicSingleMaterialNode(
+    {
+      isMorphing,
+      isSkinning,
+      isLighting,
+      isDebugging,
+      colorAttachmentsNumberDepth,
+      colorAttachmentsNumberSquareDepth,
+      depthCameraComponent,
+    },
+    encodedDepthRenderPasses
+  );
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+  return material;
+}
+
+function createDetectHighLuminanceMaterial(
+  {
+    additionalName = '',
+    colorAttachmentsNumber = 0,
+    maxInstancesNumber = 5,
+  } = {},
+  HDRRenderPass: RenderPass
+) {
+  const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
+  const materialNode = new DetectHighLuminanceSingleMaterialNode(
+    HDRRenderPass,
+    colorAttachmentsNumber
+  );
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+  return material;
+}
+
+function createGaussianBlurMaterial({
+  additionalName = '',
+  maxInstancesNumber = 10,
+} = {}) {
+  const materialName = 'GaussianBlur' + `_${additionalName}`;
+
+  const materialNode = new GaussianBlurSingleMaterialNode();
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createSynthesizeHDRMaterial(
+  {
+    additionalName = '',
+    targetRegionTexture,
+    maxInstancesNumber = 1,
+  }: {
+    additionalName?: string;
+    targetRegionTexture?: AbstractTexture;
+    maxInstancesNumber?: Count;
+  },
+  synthesizeTextures: AbstractTexture[]
+) {
+  const materialName = 'SynthesizeHDR' + `_${additionalName}`;
+
+  const materialNode = new SynthesizeHDRSingleMaterialNode(
+    synthesizeTextures,
+    targetRegionTexture!
+  );
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createColorGradingUsingLUTsMaterial(
+  {
+    additionalName = '',
+    colorAttachmentsNumber = 0,
+    uri,
+    texture,
+    maxInstancesNumber = 1,
+  }: {
+    additionalName?: string;
+    colorAttachmentsNumber?: Count;
+    uri?: string;
+    texture?: Texture;
+    maxInstancesNumber?: Count;
+  },
+  targetRenderPass: RenderPass
+) {
+  const materialName = 'ColorGradingUsingLUTs' + `_${additionalName}`;
+
+  const materialNode = new ColorGradingUsingLUTsSingleMaterialNode(
+    targetRenderPass,
+    colorAttachmentsNumber,
+    uri,
+    texture
+  );
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
 function createGammaCorrectionMaterial({
   additionalName = '',
   maxInstancesNumber = 1,
@@ -268,6 +504,33 @@ function createGammaCorrectionMaterial({
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
   const materialNode = new GammaCorrectionSingleMaterialNode();
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createMatCapMaterial({
+  additionalName = '',
+  isSkinning = false,
+  uri,
+  texture,
+  maxInstancesNumber = 10,
+}: {
+  additionalName?: string;
+  isSkinning?: boolean;
+  uri?: string;
+  texture?: Texture;
+  maxInstancesNumber?: Count;
+}) {
+  const materialName =
+    'MatCap' + `_${additionalName}` + (isSkinning ? '+skinning' : '');
+
+  const materialNode = new MatCapSingleMaterialNode(isSkinning, uri, texture);
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -302,12 +565,24 @@ function createMToonMaterial({
   isLighting = true,
   useTangentAttribute = false,
   isOutline = false,
-  materialProperties = undefined,
-  textures = undefined,
-  debugMode = undefined,
+  materialProperties,
+  textures,
+  debugMode,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
   makeOutputSrgb = true,
-} = {}) {
+}: {
+  additionalName?: string;
+  isMorphing?: boolean;
+  isSkinning?: boolean;
+  isLighting?: boolean;
+  useTangentAttribute?: boolean;
+  isOutline?: boolean;
+  materialProperties?: any[];
+  textures?: any[];
+  debugMode?: any;
+  maxInstancesNumber?: Count;
+  makeOutputSrgb?: boolean;
+}) {
   const materialName =
     'MToon' +
     `_${additionalName}_` +
@@ -326,7 +601,7 @@ function createMToonMaterial({
     isLighting,
     useTangentAttribute,
     debugMode,
-    makeOutputSrgb,
+    makeOutputSrgb
   );
 
   materialNode.isSingleOperation = true;
@@ -336,6 +611,29 @@ function createMToonMaterial({
     maxInstancesNumber
   );
   materialNode.setMaterialParameters(material, isOutline);
+
+  return material;
+}
+
+function createPbrExtendedUberMaterial(maxInstancesNumber?: Count) {
+  const enables = {isMorphing: false, isSkinning: false, isLighting: true};
+  const materialName =
+    'PbrExtendedShadingUber' +
+    (enables.isMorphing ? '+morphing' : '') +
+    (enables.isSkinning ? '+skinning' : '') +
+    (enables.isLighting ? '' : '-lighting');
+
+  const materialNode = new PbrExtendedShadingSingleMaterialNode({
+    isMorphing: enables.isMorphing,
+    isSkinning: enables.isSkinning,
+    isLighting: enables.isLighting,
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    [materialNode],
+    maxInstancesNumber
+  );
 
   return material;
 }
@@ -397,12 +695,22 @@ export default Object.freeze({
   createEmptyMaterial,
   createClassicUberMaterial,
   createPbrUberMaterial,
+  createSkinPbrUberMaterial,
   createEnvConstantMaterial,
   createFXAA3QualityMaterial,
   createDepthEncodeMaterial,
   createShadowMapDecodeClassicSingleMaterial,
   createGammaCorrectionMaterial,
+  createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,
   createMToonMaterial,
+  createFurnaceTestMaterial,
+  createGaussianBlurForEncodedDepthMaterial,
+  createDetectHighLuminanceMaterial,
+  createGaussianBlurMaterial,
+  createSynthesizeHDRMaterial,
+  createColorGradingUsingLUTsMaterial,
+  createMatCapMaterial,
+  createPbrExtendedUberMaterial,
   changeMaterial,
 });

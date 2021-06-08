@@ -8,7 +8,10 @@ class GpuStateClass extends EnumClass implements GpuStateEnum {
   }
 }
 
-const DepthTest: GpuStateEnum = new GpuStateClass({index: 0, str: 'DEPTH_TEST'});
+const DepthTest: GpuStateEnum = new GpuStateClass({
+  index: 0,
+  str: 'DEPTH_TEST',
+});
 
 const typeList = [DepthTest];
 

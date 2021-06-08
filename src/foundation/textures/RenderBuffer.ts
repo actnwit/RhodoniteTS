@@ -14,6 +14,7 @@ export default class RenderBuffer extends RnObject implements IRenderable {
   private __internalFormat: TextureParameterEnum = TextureParameter.Depth24;
   public cgApiResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
+  private __isMSAA = false;
 
   constructor() {
     super();
@@ -27,21 +28,28 @@ export default class RenderBuffer extends RnObject implements IRenderable {
     return this.__fbo;
   }
 
-  create(width: Size, height: Size, internalFormat: TextureParameterEnum) {
+  create(
+    width: Size,
+    height: Size,
+    internalFormat: TextureParameterEnum,
+    isMSAA: boolean
+  ) {
     this.width = width;
     this.height = height;
+    this.__isMSAA = isMSAA;
     this.__internalFormat = internalFormat;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(
       width,
       height,
-      internalFormat
+      internalFormat,
+      isMSAA
     );
   }
 
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();
-    this.create(width, height, this.__internalFormat);
+    this.create(width, height, this.__internalFormat, this.__isMSAA);
   }
 
   destroy3DAPIResources() {

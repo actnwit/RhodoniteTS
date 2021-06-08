@@ -11,11 +11,7 @@ import Vector2 from '../math/Vector2';
 import AABB from '../math/AABB';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import Entity from '../core/Entity';
-import {
-  Index,
-  CGAPIResourceHandle,
-  MeshUID,
-} from '../../types/CommonTypes';
+import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
 import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is as is} from '../misc/Is';
@@ -795,7 +791,8 @@ export default class Mesh {
         CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
         webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-        this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__variationVBOUid =
+          CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
         this.__instancesDirty = true;
         return true;
@@ -813,7 +810,7 @@ export default class Mesh {
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
-      const primitive = this.__primitives[i]
+      const primitive = this.__primitives[i];
       const vertexHandles = primitive.vertexHandles as VertexHandles;
       if (is.undefined(vertexHandles)) {
         console.warn('Need to create 3DAPIVertexData before update VAO');
@@ -823,12 +820,12 @@ export default class Mesh {
       if (
         isNaN(this.__vaoUids[i]) ||
         this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
-        vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid
+        vertexHandles.vaoHandle ===
+          CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
         this.__vaoUids[i] = webglResourceRepository.createVertexArray();
         vertexHandles.vaoHandle = this.__vaoUids[i];
       }
-
 
       webglResourceRepository.setVertexDataToPipeline(
         vertexHandles,

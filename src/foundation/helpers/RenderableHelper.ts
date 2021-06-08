@@ -18,6 +18,8 @@ function createTexturesForRenderTarget(
     minFilter = TextureParameter.Linear,
     wrapS = TextureParameter.ClampToEdge,
     wrapT = TextureParameter.ClampToEdge,
+    createDepthBuffer = true,
+    isMSAA = false,
   }
 ) {
   const frameBuffer = new FrameBuffer();
@@ -40,10 +42,17 @@ function createTexturesForRenderTarget(
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
 
-  const renderBuffer = new RenderBuffer();
-  renderBuffer.create(width, height, TextureParameter.Depth16);
+  if (createDepthBuffer) {
+    const renderBuffer = new RenderBuffer();
+    renderBuffer.create(width, height, TextureParameter.Depth16, isMSAA);
+    frameBuffer.setDepthAttachment(renderBuffer);
+  }
 
-  frameBuffer.setDepthAttachment(renderBuffer);
+  if (isMSAA) {
+    const renderBuffer = new RenderBuffer();
+    renderBuffer.create(width, height, TextureParameter.RGBA8, isMSAA);
+    frameBuffer.setColorAttachmentAt(textureNum, renderBuffer);
+  }
 
   return frameBuffer;
 }

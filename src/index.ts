@@ -103,7 +103,17 @@ import {
 } from './foundation/definitions/FileType';
 import _WebXRSystem from './xr/WebXRSystem';
 import { GetComponentFromEntities as _GetComponentFromEntities } from './foundation/enhanced_js_objects/Array';
-import { ArrayAsRn as _ArrayAsRn, enhanceArray as _enhanceArray } from './foundation/enhanced_js_objects/Array';
+import {ArrayAsRn as _ArrayAsRn, enhanceArray as _enhanceArray} from './foundation/enhanced_js_objects/Array';
+import _VarianceShadowMapDecodeClassicSingleMaterialNode from './foundation/materials/singles/VarianceShadowMapDecodeClassicSingleMaterialNode';
+import _FurnaceTestSingleMaterialNode from './foundation/materials/singles/FurnaceTestSingleMaterialNode';
+import _SynthesizeHDRMaterialNode from './foundation/materials/singles/SynthesizeHDRSingleMaterialNode';
+import _DetectHighLuminanceSingleMaterialNode from './foundation/materials/singles/DetectHighLuminanceSingleMaterialNode';
+import _DepthEncodeSingleMaterialNode from './foundation/materials/singles/DepthEncodeSingleMaterialNode';
+import _PbrShadingMaterialNode from './foundation/materials/singles/PbrShadingSingleMaterialNode';
+import _MatCapMaterialNode from './foundation/materials/singles/MatCapSingleMaterialNode';
+import _GaussianBlurSingleMaterialNode from './foundation/materials/singles/GaussianBlurSingleMaterialNode';
+import _GaussianBlurForEncodedDepthSingleMaterialNode from './foundation/materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
+import _ImageUtil from './foundation/math/ImageUtil';
 
 const _VERSION = require('./../VERSION-FILE').default;
 
@@ -272,6 +282,16 @@ export default {
   Buffer: _Buffer,
   CGAPIResourceRepository: _CGAPIResourceRepository,
   WebXRSystem: _WebXRSystem,
+  VarianceShadowMapDecodeClassicSingleMaterialNode: _VarianceShadowMapDecodeClassicSingleMaterialNode,
+  FurnaceTestSingleMaterialNode: _FurnaceTestSingleMaterialNode,
+  SynthesizeHDRMaterialNode: _SynthesizeHDRMaterialNode,
+  DetectHighLuminanceSingleMaterialNode: _DetectHighLuminanceSingleMaterialNode,
+  DepthEncodeSingleMaterialNode: _DepthEncodeSingleMaterialNode,
+  PbrShadingMaterialNode: _PbrShadingMaterialNode,
+  MatCapMaterialNode: _MatCapMaterialNode,
+  GaussianBlurSingleMaterialNode: _GaussianBlurSingleMaterialNode,
+  GaussianBlurForEncodedDepthSingleMaterialNode: _GaussianBlurForEncodedDepthSingleMaterialNode,
+  ImageUtil: _ImageUtil,
   GetComponentFromEntities: _GetComponentFromEntities,
   enhanceArray: _enhanceArray,
   FileType: _FileType,
@@ -404,6 +424,16 @@ export type PbrShadingSingleMaterialNode = _PbrShadingSingleMaterialNode;
 export type Buffer = _Buffer;
 export type CGAPIResourceRepository = _CGAPIResourceRepository;
 export type WebXRSystem = _WebXRSystem;
+export type VarianceShadowMapDecodeClassicSingleMaterialNode = _VarianceShadowMapDecodeClassicSingleMaterialNode;
+export type FurnaceTestSingleMaterialNode = _FurnaceTestSingleMaterialNode;
+export type SynthesizeHDRMaterialNode = _SynthesizeHDRMaterialNode;
+export type DetectHighLuminanceSingleMaterialNode = _DetectHighLuminanceSingleMaterialNode;
+export type DepthEncodeSingleMaterialNode = _DepthEncodeSingleMaterialNode;
+export type PbrShadingMaterialNode = _PbrShadingMaterialNode;
+export type MatCapMaterialNode = _MatCapMaterialNode;
+export type GaussianBlurSingleMaterialNode = _GaussianBlurSingleMaterialNode;
+export type GaussianBlurForEncodedDepthSingleMaterialNode = _GaussianBlurForEncodedDepthSingleMaterialNode;
+export type ImageUtil = typeof _ImageUtil;
 export type GetComponentFromEntities = typeof _GetComponentFromEntities;
 export type VERSION = typeof _VERSION;
 export type ArrayAsRn<T> = _ArrayAsRn<T>;

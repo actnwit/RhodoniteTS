@@ -15,11 +15,7 @@ import MutableVector4 from '../math/MutableVector4';
 import MutableVector3 from '../math/MutableVector3';
 import Frustum from '../geometry/Frustum';
 import Config from '../core/Config';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-} from '../../types/CommonTypes';
+import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import {MathUtil} from '../math/MathUtil';

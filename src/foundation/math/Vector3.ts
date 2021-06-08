@@ -11,9 +11,9 @@ import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion} from './IQuaternion';
 import AbstractVector from './AbstractVector';
 
-export class Vector3_<T extends TypedArrayConstructor> extends AbstractVector
+export class Vector3_<T extends TypedArrayConstructor>
+  extends AbstractVector
   implements IVector, IVector3 {
-
   constructor(
     x:
       | number
@@ -488,7 +488,9 @@ export class Vector3_<T extends TypedArrayConstructor> extends AbstractVector
    * dot product
    */
   dot(vec: IVector3) {
-    return this._v[0] * vec._v[0] + this._v[1] * vec._v[1] + this._v[2] * vec._v[2];
+    return (
+      this._v[0] * vec._v[0] + this._v[1] * vec._v[1] + this._v[2] * vec._v[2]
+    );
   }
 
   get className() {

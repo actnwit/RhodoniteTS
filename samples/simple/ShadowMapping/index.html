@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Shadow Mapping</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <style>
+    main {
+      display: flex;
+    }
+
+    section {
+      background-color: darkgray;
+      padding: 10px;
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 class="header-title">Rhodonite Simple Test - Shadow Mapping</h1>
+  </header>
+  <main>
+    <section class="test">
+      <h2>Rendering Test Image</h2>
+      <canvas id="world" width="600" height="600"></canvas>
+    </section>
+  </main>
+  <sub>
+    <p>light position</p>
+    <input type="range" id="light_pos" min="-1000" max="1000" value="0">
+  </sub>
+  <script src="../../assets/navigate.js"></script>
+  <script src="../../../dist/umd/rhodonite.js"></script>
+  <script src="../../../node_modules/requirejs/require.js" data-main="./main.js"></script>
+</body>
+
+</html>
