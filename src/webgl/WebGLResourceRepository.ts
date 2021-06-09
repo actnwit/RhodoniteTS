@@ -22,7 +22,7 @@ import {MathUtil} from '../foundation/math/MathUtil';
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
-  ShaderSemanticsName
+  ShaderSemanticsName,
 } from '../foundation/definitions/ShaderSemantics';
 import AbstractTexture from '../foundation/textures/AbstractTexture';
 import RenderTargetTexture from '../foundation/textures/RenderTargetTexture';
@@ -1452,7 +1452,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     width: Size,
     height: Size,
     internalFormat: TextureParameterEnum,
-    isMSAA: boolean
+    isMSAA: boolean,
+    sampleCountMSAA: Count
   ) {
     const gl = this.__glw!.getRawContext();
     const renderBuffer = gl.createRenderbuffer();
@@ -1464,7 +1465,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       if (this.__glw!.isWebGL2) {
         (gl as WebGL2RenderingContext).renderbufferStorageMultisample(
           gl.RENDERBUFFER,
-          4,
+          sampleCountMSAA,
           (gl as any)[internalFormat.str],
           width,
           height
