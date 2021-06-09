@@ -261,7 +261,7 @@ export default class System {
     approach: ProcessApproachEnum,
     canvas: HTMLCanvasElement,
     memoryUsageOrder = 1,
-    webglOption: any = {},
+    webglOption: WebGLContextAttributes = {},
     rnWebGLDebug = true
   ) {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
