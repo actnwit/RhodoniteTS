@@ -15,6 +15,7 @@ export default class RenderBuffer extends RnObject implements IRenderable {
   public cgApiResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
   private __isMSAA = false;
+  private __sampleCountMSAA = 4;
 
   constructor() {
     super();
@@ -32,24 +33,27 @@ export default class RenderBuffer extends RnObject implements IRenderable {
     width: Size,
     height: Size,
     internalFormat: TextureParameterEnum,
-    isMSAA: boolean
+    {isMSAA = false, sampleCountMSAA = this.__sampleCountMSAA} = {}
   ) {
     this.width = width;
     this.height = height;
     this.__isMSAA = isMSAA;
+    this.__sampleCountMSAA = sampleCountMSAA;
     this.__internalFormat = internalFormat;
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(
       width,
       height,
       internalFormat,
-      isMSAA
+      isMSAA,
+      sampleCountMSAA
     );
   }
 
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();
-    this.create(width, height, this.__internalFormat, this.__isMSAA);
+    this.create(width, height, this.__internalFormat, {isMSAA: this.__isMSAA});
   }
 
   destroy3DAPIResources() {
