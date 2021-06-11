@@ -520,11 +520,7 @@ mat3 get_normalMatrix(float instanceId) {
           this.__lastMaterial = material;
         }
 
-        WebGLStrategyCommonMethod.setCullAndBlendSettings(
-          material,
-          renderPass,
-          gl
-        );
+        WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
         material._setParametersForGPU({
           material,
           shaderProgram,

@@ -22,24 +22,18 @@ let lastBlendFuncAlphaSrcFactor: number;
 let lastBlendFuncAlphaDstFactor: number;
 let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
+let lastAlphaToCoverage: boolean;
 
-function setCullAndBlendSettings(
-  material: Material,
-  renderPass: RenderPass,
-  gl: WebGLRenderingContext
-) {
+function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
+  setCull(material, gl);
+  setBlendSettings(material, gl);
+  setAlphaToCoverage(material, gl);
+}
+
+function setCull(material: Material, gl: WebGLRenderingContext) {
   const cullFace = material.cullFace;
   const cullFrontFaceCCW = material.cullFrontFaceCCW;
 
-  setCull(cullFace, cullFrontFaceCCW, gl);
-  setBlendSettings(material, gl);
-}
-
-function setCull(
-  cullFace: boolean,
-  cullFrontFaceCCW: boolean,
-  gl: WebGLRenderingContext
-) {
   if (lastCullFace !== cullFace) {
     if (cullFace) {
       gl.enable(gl.CULL_FACE);
@@ -154,6 +148,18 @@ function differentWithLastBlendFuncFactor(
     lastBlendFuncAlphaSrcFactor != alphaSrcFactor ||
     lastBlendFuncAlphaDstFactor != alphaDstFactor;
   return result;
+}
+
+function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
+  const alphaToCoverage = material.alphaToCoverage;
+  if (alphaToCoverage !== lastAlphaToCoverage) {
+    if (alphaToCoverage) {
+      gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    } else {
+      gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    }
+    lastAlphaToCoverage = alphaToCoverage;
+  }
 }
 
 function startDepthMasking(idx: number, gl: WebGLRenderingContext) {
@@ -305,7 +311,7 @@ function getLocationOffsetOfProperty(
 }
 
 export default Object.freeze({
-  setCullAndBlendSettings,
+  setWebGLParameters,
   startDepthMasking,
   endDepthMasking,
   updateVBOAndVAO,
