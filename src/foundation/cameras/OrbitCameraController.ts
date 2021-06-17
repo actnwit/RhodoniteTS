@@ -21,7 +21,7 @@ export default class OrbitCameraController
   public dollyScale = 2.0;
   public scaleOfLengthCenterToCamera = 1.0;
   public moveSpeed = 1;
-  public followTargetAABB = true;
+  public followTargetAABB = false;
 
   private __isKeyUp = true;
   private __originalY = -1;
@@ -64,6 +64,8 @@ export default class OrbitCameraController
 
   private __resetDollyTouchTime: Count = 0;
 
+  private __originalTargetAABB?: AABB;
+
   // private __controllerTranslate = MutableVector3.zero();
   private __mouseDownFunc = this.__mouseDown.bind(this);
   private __mouseUpFunc = this.__mouseUp.bind(this);
@@ -104,6 +106,7 @@ export default class OrbitCameraController
 
   setTarget(targetEntity: Entity) {
     this.__targetEntity = targetEntity;
+    this.__originalTargetAABB = undefined;
   }
 
   getTarget(): Entity | undefined {
@@ -610,14 +613,17 @@ export default class OrbitCameraController
       newEyeVec.copyComponents(eyeVec);
       newCenterVec.copyComponents(centerVec);
     } else {
-      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+      if (this.__originalTargetAABB == null) {
+        const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+        this.__originalTargetAABB = targetAABB.clone();
+      }
 
       // calc newCenterVec
       if (this.followTargetAABB) {
+        const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
         newCenterVec.copyComponents(targetAABB.centerPoint);
       } else {
-        // TODO: set the AABB center immediately after calling setTarget method
-        newCenterVec.zero();
+        newCenterVec.copyComponents(this.__originalTargetAABB.centerPoint);
       }
 
       // calc newEyeVec
@@ -628,7 +634,7 @@ export default class OrbitCameraController
       ) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
       const lengthCenterToCamera =
-        targetAABB.lengthCenterToCorner *
+        this.__originalTargetAABB.lengthCenterToCorner *
         (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
         this.scaleOfLengthCenterToCamera;
       centerToCameraVecNormalized
