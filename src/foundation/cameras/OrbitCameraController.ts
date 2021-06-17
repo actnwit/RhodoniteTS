@@ -15,7 +15,13 @@ declare let window: any;
 
 export default class OrbitCameraController
   extends AbstractCameraController
-  implements ICameraController {
+  implements ICameraController
+{
+  public eventTargetDom?: HTMLElement;
+  public dollyScale = 2.0;
+  public scaleOfLengthCenterToCamera = 1.0;
+  public moveSpeed = 1;
+
   private __isKeyUp = true;
   private __originalY = -1;
   private __originalX = -1;
@@ -34,22 +40,18 @@ export default class OrbitCameraController
   // private __verticalAngleThreshold = 0;
   // private __verticalAngleOfVectors = 0;
   private __isSymmetryMode = true;
-  public eventTargetDom?: HTMLElement;
   // private __doResetWhenCameraSettingChanged = false;
   private __rot_bgn_x = 0;
   private __rot_bgn_y = 0;
   private __rot_x = 0;
   private __rot_y = 0;
   private __dolly = 0.5;
-  public dollyScale = 2.0;
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
   protected __targetEntity?: Entity;
-  public scaleOfLengthCenterToCamera = 1.0;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
-  public moveSpeed = 1;
   private __isPressingShift = false;
   private __isPressingCtrl = false;
 
