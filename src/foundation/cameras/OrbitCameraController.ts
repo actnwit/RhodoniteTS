@@ -21,6 +21,7 @@ export default class OrbitCameraController
   public dollyScale = 2.0;
   public scaleOfLengthCenterToCamera = 1.0;
   public moveSpeed = 1;
+  public followTargetAABB = true;
 
   private __isKeyUp = true;
   private __originalY = -1;
@@ -612,7 +613,12 @@ export default class OrbitCameraController
       const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
 
       // calc newCenterVec
-      newCenterVec.copyComponents(targetAABB.centerPoint);
+      if (this.followTargetAABB) {
+        newCenterVec.copyComponents(targetAABB.centerPoint);
+      } else {
+        // TODO: set the AABB center immediately after calling setTarget method
+        newCenterVec.zero();
+      }
 
       // calc newEyeVec
       const centerToCameraVec = MutableVector3.subtractTo(
