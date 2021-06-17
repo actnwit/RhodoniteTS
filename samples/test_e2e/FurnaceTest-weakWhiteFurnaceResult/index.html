@@ -28,6 +28,16 @@
       <h2>Rendering Test Image</h2>
       <canvas id="world" width="512" height="512"></canvas>
       <div>
+        <button onclick="setMode(0);">Board</button>
+        <button onclick="setMode(1);">Sphere</button>
+        <p>
+          You can call these functions to set properties via browser console.<br>
+          function setRoughness(floatValue: number);<br>
+          function setDebugView(intValue: number);<br>
+          function setGType(intValue: number);<br>
+          function setF0(floatValue: number);<br>
+          function setDisableFresnel(intValue: number);
+        </p>
       </div>
     </section>
     <section class="correct">
