@@ -15,7 +15,14 @@ declare let window: any;
 
 export default class OrbitCameraController
   extends AbstractCameraController
-  implements ICameraController {
+  implements ICameraController
+{
+  public eventTargetDom?: HTMLElement;
+  public dollyScale = 2.0;
+  public scaleOfLengthCenterToCamera = 1.0;
+  public moveSpeed = 1;
+  public followTargetAABB = false;
+
   private __isKeyUp = true;
   private __originalY = -1;
   private __originalX = -1;
@@ -34,22 +41,18 @@ export default class OrbitCameraController
   // private __verticalAngleThreshold = 0;
   // private __verticalAngleOfVectors = 0;
   private __isSymmetryMode = true;
-  public eventTargetDom?: HTMLElement;
   // private __doResetWhenCameraSettingChanged = false;
   private __rot_bgn_x = 0;
   private __rot_bgn_y = 0;
   private __rot_x = 0;
   private __rot_y = 0;
   private __dolly = 0.5;
-  public dollyScale = 2.0;
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
   protected __targetEntity?: Entity;
-  public scaleOfLengthCenterToCamera = 1.0;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
-  public moveSpeed = 1;
   private __isPressingShift = false;
   private __isPressingCtrl = false;
 
@@ -60,6 +63,8 @@ export default class OrbitCameraController
   private __minimum_y?: number;
 
   private __resetDollyTouchTime: Count = 0;
+
+  private __originalTargetAABB?: AABB;
 
   // private __controllerTranslate = MutableVector3.zero();
   private __mouseDownFunc = this.__mouseDown.bind(this);
@@ -101,6 +106,7 @@ export default class OrbitCameraController
 
   setTarget(targetEntity: Entity) {
     this.__targetEntity = targetEntity;
+    this.__originalTargetAABB = undefined;
   }
 
   getTarget(): Entity | undefined {
@@ -607,10 +613,18 @@ export default class OrbitCameraController
       newEyeVec.copyComponents(eyeVec);
       newCenterVec.copyComponents(centerVec);
     } else {
-      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+      if (this.__originalTargetAABB == null) {
+        const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+        this.__originalTargetAABB = targetAABB.clone();
+      }
 
       // calc newCenterVec
-      newCenterVec.copyComponents(targetAABB.centerPoint);
+      if (this.followTargetAABB) {
+        const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+        newCenterVec.copyComponents(targetAABB.centerPoint);
+      } else {
+        newCenterVec.copyComponents(this.__originalTargetAABB.centerPoint);
+      }
 
       // calc newEyeVec
       const centerToCameraVec = MutableVector3.subtractTo(
@@ -620,7 +634,7 @@ export default class OrbitCameraController
       ) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
       const lengthCenterToCamera =
-        targetAABB.lengthCenterToCorner *
+        this.__originalTargetAABB.lengthCenterToCorner *
         (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
         this.scaleOfLengthCenterToCamera;
       centerToCameraVecNormalized
