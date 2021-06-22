@@ -54,6 +54,7 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
+import { ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
 
 declare let HDRImage: any;
 
@@ -111,7 +112,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   addWebGLContext(
-    gl: WebGLRenderingContext,
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
     canvas: HTMLCanvasElement,
     asCurrent: boolean,
     isDebug: boolean
@@ -121,6 +122,29 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     if (asCurrent) {
       this.__glw = glw;
     }
+  }
+
+  generateWebGLContext(
+    canvas: HTMLCanvasElement,
+    webglOption: WebGLContextAttributes,
+    version: number,
+    asCurrent: boolean,
+    isDebug: boolean,
+    fallback = true
+  ) {
+    let gl: WebGL2RenderingContext | WebGLRenderingContext = canvas.getContext(
+      'webgl2',
+      webglOption
+    ) as WebGL2RenderingContext;
+    if (version === 2) {
+      if (fallback && Is.not.exist(gl)) {
+        gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
+        return;
+      }
+    } else {
+      gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
+    }
+    this.addWebGLContext(gl, canvas, asCurrent, isDebug);
   }
 
   get currentWebGLContextWrapper() {

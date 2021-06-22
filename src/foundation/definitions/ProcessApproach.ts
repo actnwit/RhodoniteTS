@@ -1,12 +1,25 @@
 import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
 
-export type ProcessApproachEnum = EnumIO;
-
-class ProcessApproachClass extends EnumClass implements ProcessApproachEnum {
+export class ProcessApproachClass extends EnumClass implements EnumIO {
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }
+
+  get webGLVersion() {
+    switch (this) {
+      case UniformWebGL2:
+      case FastestWebGL2:
+        return 2;
+      case UniformWebGL1:
+      case FastestWebGL1:
+        return 1;
+      default:
+        return 0;
+    }
+  }
 }
+
+export type ProcessApproachEnum = ProcessApproachClass;
 
 const None: ProcessApproachEnum = new ProcessApproachClass({
   index: 0,
@@ -19,22 +32,6 @@ const UniformWebGL1: ProcessApproachEnum = new ProcessApproachClass({
 const UniformWebGL2: ProcessApproachEnum = new ProcessApproachClass({
   index: 2,
   str: 'UNIFORM_WEBGL2',
-});
-const DataTextureWebGL1: ProcessApproachEnum = new ProcessApproachClass({
-  index: 3,
-  str: 'DATA_TEXTURE_WEBGL1',
-});
-const DataTextureWebGL2: ProcessApproachEnum = new ProcessApproachClass({
-  index: 4,
-  str: 'DATA_TEXTURE_WEBGL2',
-});
-const UBOWebGL2: ProcessApproachEnum = new ProcessApproachClass({
-  index: 5,
-  str: 'UBO_WEBGL2',
-});
-const TransformFeedbackWebGL2: ProcessApproachEnum = new ProcessApproachClass({
-  index: 6,
-  str: 'TRANSFORM_FEEDBACK_WEBGL2',
 });
 const FastestWebGL1: ProcessApproachEnum = new ProcessApproachClass({
   index: 7,
@@ -49,16 +46,12 @@ const typeList = [
   None,
   UniformWebGL1,
   UniformWebGL2,
-  DataTextureWebGL1,
-  DataTextureWebGL2,
-  UBOWebGL2,
-  TransformFeedbackWebGL2,
   FastestWebGL1,
   FastestWebGL2,
 ];
 
 function from(index: number): ProcessApproachEnum | undefined {
-  return _from({typeList, index});
+  return _from({typeList, index}) as ProcessApproachEnum;
 }
 
 const isFastestApproach = (processApproach: ProcessApproachEnum) => {
@@ -97,10 +90,7 @@ export const ProcessApproach = Object.freeze({
   None,
   UniformWebGL1,
   UniformWebGL2,
-  DataTextureWebGL1,
-  DataTextureWebGL2,
-  UBOWebGL2,
-  TransformFeedbackWebGL2,
   FastestWebGL1,
   FastestWebGL2,
+  isWebGL2Approach,
 });

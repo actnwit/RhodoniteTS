@@ -31,7 +31,7 @@ import _MemoryManager from './foundation/core/MemoryManager';
 import _CameraComponent from './foundation/components/CameraComponent';
 import _AnimationComponent, {
   AnimationInfo as _AnimationInfo,
-  ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent
+  ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent,
 } from './foundation/components/AnimationComponent';
 import _LightComponent from './foundation/components/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
