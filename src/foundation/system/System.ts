@@ -267,9 +267,6 @@ export default class System {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     let gl: WebGLRenderingContext | null;
     if (
-      approach === ProcessApproach.DataTextureWebGL2 ||
-      approach === ProcessApproach.UBOWebGL2 ||
-      approach === ProcessApproach.TransformFeedbackWebGL2 ||
       approach === ProcessApproach.UniformWebGL2 ||
       approach === ProcessApproach.FastestWebGL2
     ) {
