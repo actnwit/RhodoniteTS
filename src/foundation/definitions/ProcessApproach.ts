@@ -1,7 +1,6 @@
 import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
 
-
-class ProcessApproachClass extends EnumClass implements EnumIO {
+export class ProcessApproachClass extends EnumClass implements EnumIO {
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }
@@ -52,7 +51,7 @@ const typeList = [
 ];
 
 function from(index: number): ProcessApproachEnum | undefined {
-  return _from({typeList, index});
+  return _from({typeList, index}) as ProcessApproachEnum;
 }
 
 const isFastestApproach = (processApproach: ProcessApproachEnum) => {
