@@ -262,7 +262,8 @@ export default class System {
     canvas: HTMLCanvasElement,
     memoryUsageOrder = 1,
     webglOption: WebGLContextAttributes = {},
-    rnWebGLDebug = true
+    rnWebGLDebug = true,
+    fallback3dApi = true
   ) {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     let gl: WebGLRenderingContext | null;
@@ -272,12 +273,7 @@ export default class System {
     ) {
       gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
     } else {
-      gl =
-        (canvas.getContext('webgl', webglOption) as WebGLRenderingContext) ||
-        (canvas.getContext(
-          'experimental-webgl',
-          webglOption
-        ) as WebGLRenderingContext);
+      gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
     }
     MemoryManager.createInstanceIfNotCreated(
       0.125 * memoryUsageOrder,
