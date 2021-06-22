@@ -1,12 +1,26 @@
 import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
 
-export type ProcessApproachEnum = EnumIO;
 
-class ProcessApproachClass extends EnumClass implements ProcessApproachEnum {
+class ProcessApproachClass extends EnumClass implements EnumIO {
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }
+
+  get webGLVersion() {
+    switch (this) {
+      case UniformWebGL2:
+      case FastestWebGL2:
+        return 2;
+      case UniformWebGL1:
+      case FastestWebGL1:
+        return 1;
+      default:
+        return 0;
+    }
+  }
 }
+
+export type ProcessApproachEnum = ProcessApproachClass;
 
 const None: ProcessApproachEnum = new ProcessApproachClass({
   index: 0,
