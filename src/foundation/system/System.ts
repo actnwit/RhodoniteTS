@@ -266,15 +266,6 @@ export default class System {
     fallback3dApi = true
   ) {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    let gl: WebGLRenderingContext | null;
-    if (
-      approach === ProcessApproach.UniformWebGL2 ||
-      approach === ProcessApproach.FastestWebGL2
-    ) {
-      gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
-    } else {
-      gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
-    }
     MemoryManager.createInstanceIfNotCreated(
       0.125 * memoryUsageOrder,
       0.0625 * memoryUsageOrder,
@@ -283,6 +274,14 @@ export default class System {
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize();
 
+    const gl = repo.generateWebGLContext(
+      canvas,
+      webglOption,
+      approach.webGLVersion,
+      true,
+      rnWebGLDebug,
+      fallback3dApi
+    );
     repo.addWebGLContext(gl!, canvas, true, rnWebGLDebug);
     repo.switchDepthTest(true);
     this.__processApproach = approach;

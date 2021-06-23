@@ -145,6 +145,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
     }
     this.addWebGLContext(gl, canvas, asCurrent, isDebug);
+
+    return gl;
   }
 
   get currentWebGLContextWrapper() {
