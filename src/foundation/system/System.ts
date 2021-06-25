@@ -282,7 +282,7 @@ export default class System {
       rnWebGLDebug,
       fallback3dApi
     );
-    repo.addWebGLContext(gl!, canvas, true, rnWebGLDebug);
+
     repo.switchDepthTest(true);
     this.__processApproach = approach;
     SystemState.currentProcessApproach = approach;
