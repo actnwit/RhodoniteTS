@@ -985,7 +985,8 @@ export default class ModelConverter {
       Config.maxMaterialInstanceForEachType;
     if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
       maxMaterialInstanceNumber =
-        gltfModel.meshes.length + Config.maxMaterialInstanceForEachType / 2;
+        gltfModel.meshes.length +
+        Math.floor(Config.maxMaterialInstanceForEachType / 2);
     }
 
     const isMorphing = this.__isMorphing(node, gltfModel);
