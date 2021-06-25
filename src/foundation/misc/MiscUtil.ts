@@ -212,6 +212,24 @@ export const lessThan = (it: number, than: number): CompareResult => {
   }
 };
 
+export const addLineNumberToCode = (shaderString: string) => {
+  const shaderTextLines = shaderString.split(/\r\n|\r|\n/);
+  let shaderTextWithLineNumber = '';
+  for (let i = 0; i < shaderTextLines.length; i++) {
+    const lineIndex = i + 1;
+    let splitter = ' : ';
+    if (lineIndex < 10) {
+      splitter = '  : ';
+    } else if (lineIndex >= 100) {
+      splitter = ': ';
+    }
+    shaderTextWithLineNumber +=
+      lineIndex + splitter + shaderTextLines[i] + '\n';
+  }
+
+  return shaderTextWithLineNumber;
+};
+
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,
@@ -221,4 +239,5 @@ export const MiscUtil = Object.freeze({
   isNode,
   concatArrayBuffers,
   concatArrayBuffers2,
+  addLineNumberToCode,
 });

@@ -424,24 +424,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  private __addLineNumber(shaderString: string) {
-    const shaderTextLines = shaderString.split(/\r\n|\r|\n/);
-    let shaderTextWithLineNumber = '';
-    for (let i = 0; i < shaderTextLines.length; i++) {
-      const lineIndex = i + 1;
-      let splitter = ' : ';
-      if (lineIndex < 10) {
-        splitter = '  : ';
-      } else if (lineIndex >= 100) {
-        splitter = ': ';
-      }
-      shaderTextWithLineNumber +=
-        lineIndex + splitter + shaderTextLines[i] + '\n';
-    }
-
-    return shaderTextWithLineNumber;
-  }
-
   private __checkShaderCompileStatus(
     materialTypeName: string,
     shader: WebGLShader,
@@ -452,7 +434,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       console.log('MaterialTypeName: ' + materialTypeName);
-      console.log(this.__addLineNumber(shaderText));
+      console.log(MiscUtil.addLineNumberToCode(shaderText));
       throw new Error(
         'An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader)
       );
@@ -471,10 +453,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
       console.log('MaterialTypeName: ' + materialTypeName);
-      console.log(this.__addLineNumber('Vertex Shader:'));
-      console.log(this.__addLineNumber(vertexShaderText));
-      console.log(this.__addLineNumber('Fragment Shader:'));
-      console.log(this.__addLineNumber(fragmentShaderText));
+      console.log(MiscUtil.addLineNumberToCode('Vertex Shader:'));
+      console.log(MiscUtil.addLineNumberToCode(vertexShaderText));
+      console.log(MiscUtil.addLineNumberToCode('Fragment Shader:'));
+      console.log(MiscUtil.addLineNumberToCode(fragmentShaderText));
       throw new Error(
         'Unable to initialize the shader program: ' +
           gl.getProgramInfoLog(shaderProgram)
