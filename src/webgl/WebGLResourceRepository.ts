@@ -132,11 +132,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     isDebug: boolean,
     fallback = true
   ) {
-    let gl: WebGL2RenderingContext | WebGLRenderingContext = canvas.getContext(
-      'webgl2',
-      webglOption
-    ) as WebGL2RenderingContext;
+    let gl: WebGL2RenderingContext | WebGLRenderingContext;
     if (version === 2) {
+      gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
       if (fallback && Is.not.exist(gl)) {
         gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
         return;
@@ -145,6 +143,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
     }
     this.addWebGLContext(gl, canvas, asCurrent, isDebug);
+
+    return gl;
   }
 
   get currentWebGLContextWrapper() {
