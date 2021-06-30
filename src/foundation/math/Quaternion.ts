@@ -121,6 +121,9 @@ export default class Quaternion
     return out;
   }
 
+  /**
+   * Compute spherical linear interpolation
+   */
   static qlerp(
     l_quat: IQuaternion,
     r_quat: IQuaternion,
@@ -166,6 +169,9 @@ export default class Quaternion
     }
   }
 
+  /**
+   *  Compute the spherical linear interpolation and output it as the fourth argument
+   */
   static qlerpTo(
     l_quat: IQuaternion,
     r_quat: IQuaternion,
