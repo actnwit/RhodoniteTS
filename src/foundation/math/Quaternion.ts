@@ -148,11 +148,7 @@ export default class Quaternion
       let ph = Math.acos(qr);
       let s2;
       if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr =
-          -l_quat._v[3] * r_quat._v[3] -
-          l_quat._v[0] * r_quat._v[0] -
-          l_quat._v[1] * r_quat._v[1] -
-          l_quat._v[2] * r_quat._v[2];
+        qr *= -1;
         ph = Math.acos(qr);
         s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
       } else {
@@ -197,11 +193,7 @@ export default class Quaternion
       let ph = Math.acos(qr);
       let s2;
       if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr =
-          -l_quat._v[3] * r_quat._v[3] -
-          l_quat._v[0] * r_quat._v[0] -
-          l_quat._v[1] * r_quat._v[1] -
-          l_quat._v[2] * r_quat._v[2];
+        qr *= -1;
         ph = Math.acos(qr);
         s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
       } else {
