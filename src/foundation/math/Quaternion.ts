@@ -121,87 +121,96 @@ export default class Quaternion
     return out;
   }
 
+  /**
+   * Compute spherical linear interpolation
+   */
   static qlerp(
     l_quat: IQuaternion,
     r_quat: IQuaternion,
     ratio: number
   ): IQuaternion {
-    let qr =
-      l_quat._v[3] * r_quat._v[3] +
+    let dotProduct =
       l_quat._v[0] * r_quat._v[0] +
       l_quat._v[1] * r_quat._v[1] +
-      l_quat._v[2] * r_quat._v[2];
-    const ss = 1.0 - qr * qr;
+      l_quat._v[2] * r_quat._v[2] +
+      l_quat._v[3] * r_quat._v[3];
+    const ss = 1.0 - dotProduct * dotProduct;
 
     if (ss === 0.0) {
       return l_quat.clone();
     } else {
-      if (qr > 1) {
-        qr = 0.999;
-      } else if (qr < -1) {
-        qr = -0.999;
+      if (dotProduct > 1) {
+        dotProduct = 0.999;
+      } else if (dotProduct < -1) {
+        dotProduct = -0.999;
       }
 
-      let ph = Math.acos(qr);
+      let theta = Math.acos(dotProduct);
+      const sinTheta = Math.sin(theta);
+
       let s2;
-      if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr =
-          -l_quat._v[3] * r_quat._v[3] -
-          l_quat._v[0] * r_quat._v[0] -
-          l_quat._v[1] * r_quat._v[1] -
-          l_quat._v[2] * r_quat._v[2];
-        ph = Math.acos(qr);
-        s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
+      if (dotProduct < 0.0) {
+        dotProduct *= -1;
+        theta = Math.acos(dotProduct);
+        s2 = (-1 * Math.sin(theta * ratio)) / sinTheta;
       } else {
-        s2 = Math.sin(ph * ratio) / Math.sin(ph);
+        s2 = Math.sin(theta * ratio) / sinTheta;
       }
-      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+      const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
 
-      return new this(
-        l_quat._v[0] * s1 + r_quat._v[0] * s2,
-        l_quat._v[1] * s1 + r_quat._v[1] * s2,
-        l_quat._v[2] * s1 + r_quat._v[2] * s2,
-        l_quat._v[3] * s1 + r_quat._v[3] * s2
-      ) as IQuaternion;
+      let x = l_quat._v[0] * s1 + r_quat._v[0] * s2;
+      let y = l_quat._v[1] * s1 + r_quat._v[1] * s2;
+      let z = l_quat._v[2] * s1 + r_quat._v[2] * s2;
+      let w = l_quat._v[3] * s1 + r_quat._v[3] * s2;
+
+      // normalize
+      const length = Math.hypot(x, y, z, w);
+      x = x / length;
+      y = y / length;
+      z = z / length;
+      w = w / length;
+
+      return new this(x, y, z, w) as IQuaternion;
     }
   }
 
+  /**
+   *  Compute the spherical linear interpolation and output it as the fourth argument
+   */
   static qlerpTo(
     l_quat: IQuaternion,
     r_quat: IQuaternion,
     ratio: number,
     out: IMutableQuaternion
   ) {
-    let qr =
-      l_quat._v[3] * r_quat._v[3] +
+    let dotProduct =
       l_quat._v[0] * r_quat._v[0] +
       l_quat._v[1] * r_quat._v[1] +
-      l_quat._v[2] * r_quat._v[2];
-    const ss = 1.0 - qr * qr;
+      l_quat._v[2] * r_quat._v[2] +
+      l_quat._v[3] * r_quat._v[3];
+    const ss = 1.0 - dotProduct * dotProduct;
 
     if (ss === 0.0) {
       return out.copyComponents(l_quat);
     } else {
-      if (qr > 1) {
-        qr = 0.999;
-      } else if (qr < -1) {
-        qr = -0.999;
+      if (dotProduct > 1) {
+        dotProduct = 0.999;
+      } else if (dotProduct < -1) {
+        dotProduct = -0.999;
       }
 
-      let ph = Math.acos(qr);
+      let theta = Math.acos(dotProduct);
+      const sinTheta = Math.sin(theta);
+
       let s2;
-      if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr =
-          -l_quat._v[3] * r_quat._v[3] -
-          l_quat._v[0] * r_quat._v[0] -
-          l_quat._v[1] * r_quat._v[1] -
-          l_quat._v[2] * r_quat._v[2];
-        ph = Math.acos(qr);
-        s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
+      if (dotProduct < 0.0) {
+        dotProduct *= -1;
+        theta = Math.acos(dotProduct);
+        s2 = (-1 * Math.sin(theta * ratio)) / sinTheta;
       } else {
-        s2 = Math.sin(ph * ratio) / Math.sin(ph);
+        s2 = Math.sin(theta * ratio) / sinTheta;
       }
-      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+      const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
 
       out._v[0] = l_quat._v[0] * s1 + r_quat._v[0] * s2;
       out._v[1] = l_quat._v[1] * s1 + r_quat._v[1] * s2;
@@ -209,7 +218,7 @@ export default class Quaternion
       out._v[3] = l_quat._v[3] * s1 + r_quat._v[3] * s2;
     }
 
-    return out;
+    return out.normalize();
   }
 
   static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
