@@ -52,7 +52,7 @@ export default class EffekseerComponent extends Component {
     };
 
     if (this.isLoop) {
-      this.__timer = setInterval(__play, 200);
+      this.__timer = setInterval(__play, 0);
     } else {
       __play();
     }
