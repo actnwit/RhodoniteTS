@@ -1607,8 +1607,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       posZ: DirectTextureData;
       negZ: DirectTextureData;
     }>,
-    width?: Size,
-    height?: Size
+    width: Size,
+    height: Size
   ) {
     const gl = this.__glw!.getRawContext();
 
@@ -1700,8 +1700,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           cubeMapSide,
           i,
           gl.RGBA,
-          width! / (i + 1),
-          height! / (i + 1),
+          width / (i + 1),
+          height / (i + 1),
           0,
           gl.RGBA,
           gl.UNSIGNED_BYTE,
