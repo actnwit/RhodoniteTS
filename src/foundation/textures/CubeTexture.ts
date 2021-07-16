@@ -152,6 +152,7 @@ export default class CubeTexture extends AbstractTexture {
     );
 
     this.__isTextureReady = true;
+    this.__startedToLoad = true;
     AbstractTexture.__textureMap.set(this.cgApiResourceUid, this);
   }
 
