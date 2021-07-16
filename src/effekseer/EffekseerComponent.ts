@@ -17,12 +17,14 @@ declare let effekseer: any;
 
 export default class EffekseerComponent extends Component {
   private __effect?: any;
+  private __context: any;
   private __handle?: any;
   private __speed = 1;
   private __timer?: unknown;
   public uri?: string;
   public playJustAfterLoaded = false;
   public isLoop = false;
+  public isPause = false;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
@@ -51,7 +53,11 @@ export default class EffekseerComponent extends Component {
   }
 
   play() {
-    this.__handle = effekseer.play(this.__effect);
+    this.__handle = this.__context.play(this.__effect);
+  }
+
+  stop() {
+    this.__handle?.stop();
   }
 
   set playSpeed(val) {
@@ -63,6 +69,20 @@ export default class EffekseerComponent extends Component {
 
   get playSpeed() {
     return this.__speed;
+  }
+
+  setTime(second: Second) {
+    this.stop();
+    this.play();
+
+    let time = 0;
+    const oneTime = 16.6;
+    for (let i = 0; time <= second; i++) {
+      const advTime = time + oneTime - second;
+      const addTime = advTime > 0 ? oneTime - advTime : oneTime;
+      time += addTime;
+      this.__context.update(addTime / oneTime);
+    }
   }
 
   set translate(vec: Vector3) {
@@ -111,22 +131,20 @@ export default class EffekseerComponent extends Component {
   }
 
   static common_$load() {
-    if (EffekseerComponent.__isInitialized) {
-      return;
-    }
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-
-    if (glw) {
-      effekseer.init(glw.getRawContext());
-      EffekseerComponent.__isInitialized = true;
-    }
   }
 
   $load() {
-    if (this.__effect == null) {
-      this.__effect = effekseer.loadEffect(this.uri, () => {
+    if (EffekseerComponent.__isInitialized) {
+      return;
+    }
+    if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
+      this.__context = effekseer.createContext();
+      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const glw = webGLResourceRepository.currentWebGLContextWrapper;
+      EffekseerComponent.__isInitialized = true;
+      this.__context.init(glw!.getRawContext());
+      this.__effect = this.__context.loadEffect(this.uri, () => {
         if (this.playJustAfterLoaded) {
           if (this.isLoop) {
             this.__timer = setInterval(() => {
@@ -141,14 +159,14 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  static common_$logic() {
-    effekseer.update();
-  }
-
   $logic() {
+    if (!this.isPause) {
+      this.__context.update();
+    }
+
     if (this.__handle != null) {
       const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
-        this.__sceneGraphComponent!.worldMatrixInner
+          this.__sceneGraphComponent!.worldMatrixInner
         );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
@@ -161,7 +179,7 @@ export default class EffekseerComponent extends Component {
     }
   }
 
-  static common_$render() {
+  $render() {
     const cameraComponent = ComponentRepository.getInstance().getComponent(
       CameraComponent,
       CameraComponent.main
@@ -176,10 +194,9 @@ export default class EffekseerComponent extends Component {
       viewMatrix.identity();
       projectionMatrix.identity();
     }
-
-    effekseer.setProjectionMatrix(projectionMatrix._v);
-    effekseer.setCameraMatrix(viewMatrix._v);
-    effekseer.draw();
+    this.__context.setProjectionMatrix(projectionMatrix._v);
+    this.__context.setCameraMatrix(viewMatrix._v);
+    this.__context.draw();
   }
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);
