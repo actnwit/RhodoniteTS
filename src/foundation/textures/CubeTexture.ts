@@ -3,6 +3,7 @@ import {HdriFormat} from '../definitions/HdriFormat';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {BasisTranscoder, BASIS} from '../../types/BasisTexture';
 import {TextureParameter} from '../definitions/TextureParameter';
+import {Size, TypedArray} from '../../types/CommonTypes';
 
 declare const BASIS: BASIS;
 
@@ -120,6 +121,38 @@ export default class CubeTexture extends AbstractTexture {
       1
     );
     this.__isTextureReady = true;
+  }
+
+  /**
+   * Generate cubemap texture object from typed array of cubemap images
+   * @param typedArrays Array of typed array object for cubemap textures. The nth element is the nth mipmap reduction level(level 0 is the base image level).
+   * @param width Texture width of the base image level texture
+   * @param height Texture height of the base image level texture
+   */
+  generateTextureFromTypedArrays(
+    typedArrayImages: Array<{
+      posX: TypedArray;
+      negX: TypedArray;
+      posY: TypedArray;
+      negY: TypedArray;
+      posZ: TypedArray;
+      negZ: TypedArray;
+    }>,
+    baseLevelWidth: Size,
+    baseLevelHeight: Size
+  ) {
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+
+    this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(
+      typedArrayImages.length,
+      typedArrayImages,
+      baseLevelWidth,
+      baseLevelHeight
+    );
+
+    this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(this.cgApiResourceUid, this);
   }
 
   importWebGLTextureDirectly(
