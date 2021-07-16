@@ -8,9 +8,10 @@ import CameraComponent from '../foundation/components/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
+import {ComponentTID, EntityUID, ComponentSID, Second} from '../types/CommonTypes';
 import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
+import {Is} from '../foundation/misc/Is';
 
 declare let effekseer: any;
 
@@ -45,17 +46,12 @@ export default class EffekseerComponent extends Component {
     clearInterval(this.__timer as number);
   }
 
-  play() {
-    const __play = () => {
-      // Play the loaded effect
-      this.__handle = effekseer.play(this.__effect);
-    };
+  isPlay(): boolean {
+    return Is.exist(this.__handle) ? this.__handle.exists : false;
+  }
 
-    if (this.isLoop) {
-      this.__timer = setInterval(__play, 0);
-    } else {
-      __play();
-    }
+  play() {
+    this.__handle = effekseer.play(this.__effect);
   }
 
   set playSpeed(val) {
@@ -153,9 +149,15 @@ export default class EffekseerComponent extends Component {
     if (this.__handle != null) {
       const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
         this.__sceneGraphComponent!.worldMatrixInner
-      );
+        );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
+    }
+
+    if (this.isLoop) {
+      if (!this.isPlay()) {
+        this.play();
+      }
     }
   }
 

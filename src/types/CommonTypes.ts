@@ -27,6 +27,8 @@ export type IndexOf4Bytes = number;
 export type Size = number;
 export type Count = number;
 export type Byte = number;
+export type Second = number;
+export type MilliSecond = number;
 
 export type ObjectUID = number;
 export type PrimitiveUID = number;
