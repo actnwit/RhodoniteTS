@@ -18,7 +18,7 @@ export default class EffekseerComponent extends Component {
   private __effect?: any;
   private __handle?: any;
   private __speed = 1;
-  private __timer?: any;
+  private __timer?: unknown;
   public uri?: string;
   public playJustAfterLoaded = false;
   public isLoop = false;
@@ -42,7 +42,7 @@ export default class EffekseerComponent extends Component {
   }
 
   cancelLoop() {
-    clearInterval(this.__timer);
+    clearInterval(this.__timer as number);
   }
 
   play() {
