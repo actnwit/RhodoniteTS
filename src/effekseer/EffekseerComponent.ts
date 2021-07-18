@@ -144,7 +144,8 @@ export default class EffekseerComponent extends Component {
       const glw = webGLResourceRepository.currentWebGLContextWrapper;
       EffekseerComponent.__isInitialized = true;
       this.__context.init(glw!.getRawContext());
-      this.__effect = this.__context.loadEffect(this.uri, () => {
+      
+      this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
         if (this.playJustAfterLoaded) {
           if (this.isLoop) {
             this.__timer = setInterval(() => {
@@ -155,6 +156,7 @@ export default class EffekseerComponent extends Component {
           }
         }
       });
+      
     }
     this.moveStageTo(ProcessStage.Logic);
   }
