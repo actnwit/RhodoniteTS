@@ -179,9 +179,16 @@ export default class EffekseerComponent extends Component {
         this.play();
       }
     }
+
+    this.moveStageTo(ProcessStage.Render);
   }
 
+  static common_$render() {
+    console.log("common_$render");
+
+  }
   $render() {
+    console.log("$render");
     const cameraComponent = ComponentRepository.getInstance().getComponent(
       CameraComponent,
       CameraComponent.main
@@ -199,6 +206,9 @@ export default class EffekseerComponent extends Component {
     this.__context.setProjectionMatrix(projectionMatrix._v);
     this.__context.setCameraMatrix(viewMatrix._v);
     this.__context.draw();
+
+    this.moveStageTo(ProcessStage.Logic);
   }
+  
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);
