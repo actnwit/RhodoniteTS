@@ -800,8 +800,14 @@ export default class ModelConverter {
       const rnTexture = new Texture();
 
       //options
-      rnTexture.autoDetectTransparency =
-        options.autoDetectTextureTransparency === true;
+      if (
+        textureInfo.shaderSemantics === ShaderSemantics.BaseColorTexture ||
+        textureInfo.shaderSemantics === ShaderSemantics.DiffuseColorTexture
+      ) {
+        rnTexture.autoDetectTransparency =
+          options.autoDetectTextureTransparency === true;
+      }
+
       rnTexture.autoResize = options.autoResizeTexture === true;
 
       const textureOption = {
@@ -1148,6 +1154,7 @@ export default class ModelConverter {
     )
       return material;
 
+    const options = gltfModel.asset.extras!.rnLoaderOptions;
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
       const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
@@ -1162,7 +1169,10 @@ export default class ModelConverter {
       if (baseColorTexture != null) {
         const rnTexture = ModelConverter._createTexture(
           baseColorTexture,
-          gltfModel
+          gltfModel,
+          {
+            autoDetectTransparency: options?.autoDetectTextureTransparency,
+          }
         );
         material.setTextureParameter(
           ShaderSemantics.BaseColorTexture,
@@ -1278,7 +1288,6 @@ export default class ModelConverter {
       }
     }
 
-    const options = gltfModel.asset.extras!.rnLoaderOptions;
     let alphaMode = materialJson.alphaMode;
     if (options?.alphaMode) {
       alphaMode = options.alphaMode;
@@ -1308,7 +1317,10 @@ export default class ModelConverter {
     if (diffuseColorTexture != null) {
       const rnTexture = ModelConverter._createTexture(
         diffuseColorTexture,
-        gltfModel
+        gltfModel,
+        {
+          autoDetectTransparency: options?.autoDetectTextureTransparency,
+        }
       );
       material.setTextureParameter(
         ShaderSemantics.DiffuseColorTexture,
@@ -1378,12 +1390,15 @@ export default class ModelConverter {
     return material;
   }
 
-  static _createTexture(textureType: any, gltfModel: glTF2) {
+  static _createTexture(
+    textureType: any,
+    gltfModel: glTF2,
+    {autoDetectTransparency = false} = {}
+  ) {
     const options = gltfModel.asset.extras?.rnLoaderOptions;
 
     const rnTexture = new Texture();
-    rnTexture.autoDetectTransparency =
-      options?.autoDetectTextureTransparency === true;
+    rnTexture.autoDetectTransparency = autoDetectTransparency;
     rnTexture.autoResize = options?.autoResizeTexture === true;
     const texture = textureType.texture;
 
