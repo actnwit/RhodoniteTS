@@ -76,7 +76,7 @@ export default class EffekseerComponent extends Component {
     this.play();
 
     let time = 0;
-    const oneTime = 16.6;
+    const oneTime = 0.0166;
     for (let i = 0; time <= second; i++) {
       const advTime = time + oneTime - second;
       const addTime = advTime > 0 ? oneTime - advTime : oneTime;
@@ -130,10 +130,6 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  static common_$load() {
-
-  }
-
   $load() {
     if (EffekseerComponent.__isInitialized) {
       return;
@@ -144,7 +140,6 @@ export default class EffekseerComponent extends Component {
       const glw = webGLResourceRepository.currentWebGLContextWrapper;
       EffekseerComponent.__isInitialized = true;
       this.__context.init(glw!.getRawContext());
-      
       this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
         if (this.playJustAfterLoaded) {
           if (this.isLoop) {
@@ -156,7 +151,6 @@ export default class EffekseerComponent extends Component {
           }
         }
       });
-      
     }
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -183,12 +177,7 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Render);
   }
 
-  static common_$render() {
-    console.log("common_$render");
-
-  }
   $render() {
-    console.log("$render");
     const cameraComponent = ComponentRepository.getInstance().getComponent(
       CameraComponent,
       CameraComponent.main
@@ -209,6 +198,5 @@ export default class EffekseerComponent extends Component {
 
     this.moveStageTo(ProcessStage.Logic);
   }
-  
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);
