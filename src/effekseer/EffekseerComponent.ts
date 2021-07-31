@@ -130,29 +130,58 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
+  
   $load() {
     if (EffekseerComponent.__isInitialized) {
       return;
     }
-    if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
-      this.__context = effekseer.createContext();
-      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const glw = webGLResourceRepository.currentWebGLContextWrapper;
-      EffekseerComponent.__isInitialized = true;
-      this.__context.init(glw!.getRawContext());
-      this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
-        if (this.playJustAfterLoaded) {
-          if (this.isLoop) {
-            this.__timer = setInterval(() => {
-              this.play();
-            }, 500);
-          } else {
-            this.play();
-          }
+    var useWASM = true;
+    if(useWASM)
+    {
+      effekseer.initRuntime('./effekseer.wasm', () => {
+        if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
+          this.__context = effekseer.createContext();
+          const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+          const glw = webGLResourceRepository.currentWebGLContextWrapper;
+          EffekseerComponent.__isInitialized = true;
+          this.__context.init(glw!.getRawContext());
+          this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
+            if (this.playJustAfterLoaded) {
+              if (this.isLoop) {
+                this.__timer = setInterval(() => {
+                  this.play();
+                }, 500);
+              } else {
+                this.play();
+              }
+            }
+          });
         }
-      });
+        this.moveStageTo(ProcessStage.Logic);
+      })
     }
-    this.moveStageTo(ProcessStage.Logic);
+    else
+    {
+      if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
+        this.__context = effekseer.createContext();
+        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const glw = webGLResourceRepository.currentWebGLContextWrapper;
+        EffekseerComponent.__isInitialized = true;
+        this.__context.init(glw!.getRawContext());
+        this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
+          if (this.playJustAfterLoaded) {
+            if (this.isLoop) {
+              this.__timer = setInterval(() => {
+                this.play();
+              }, 500);
+            } else {
+              this.play();
+            }
+          }
+        });
+      }
+      this.moveStageTo(ProcessStage.Logic);
+    }
   }
 
   $logic() {
