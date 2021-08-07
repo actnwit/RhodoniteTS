@@ -8,7 +8,12 @@ import CameraComponent from '../foundation/components/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import {ComponentTID, EntityUID, ComponentSID, Second} from '../types/CommonTypes';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+  Second,
+} from '../types/CommonTypes';
 import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
@@ -28,9 +33,10 @@ export default class EffekseerComponent extends Component {
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
-  private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
-  private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
-
+  private static __tmp_identityMatrix_0: MutableMatrix44 =
+    MutableMatrix44.identity();
+  private static __tmp_identityMatrix_1: MutableMatrix44 =
+    MutableMatrix44.identity();
 
   private isLoadefect = false;
 
@@ -133,41 +139,34 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  
   $load() {
     if (EffekseerComponent.__isInitialized) {
       return;
     }
-    var useWASM = true;
-    if(useWASM)
-    {
-      
+    const useWASM = true;
+    if (useWASM) {
       effekseer.initRuntime('./effekseer.wasm', () => {
         if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
-          
           this.__context = effekseer.createContext();
-          const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+          const webGLResourceRepository =
+            CGAPIResourceRepository.getWebGLResourceRepository();
           const glw = webGLResourceRepository.currentWebGLContextWrapper;
           EffekseerComponent.__isInitialized = true;
           this.__context.init(glw!.getRawContext());
-          
-         
-          console.log("TO loadeffect");
+
+          console.log('TO loadeffect');
           this.moveStageTo(ProcessStage.Logic);
         }
-        
-      })
-      
-    }
-    else
-    {
+      });
+    } else {
       if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
         this.__context = effekseer.createContext();
-        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository =
+          CGAPIResourceRepository.getWebGLResourceRepository();
         const glw = webGLResourceRepository.currentWebGLContextWrapper;
         EffekseerComponent.__isInitialized = true;
         this.__context.init(glw!.getRawContext());
-        this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
+        this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
           if (this.playJustAfterLoaded) {
             if (this.isLoop) {
               this.__timer = setInterval(() => {
@@ -184,75 +183,70 @@ export default class EffekseerComponent extends Component {
   }
 
   $loadeffect() {
-    console.log("loadeffect");
-    this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
+    console.log('loadeffect');
+    this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
       if (this.playJustAfterLoaded) {
         if (this.isLoop) {
           this.__timer = setInterval(() => {
             this.play();
           }, 500);
         } else {
-          
           this.play();
         }
       }
-
-      
     });
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
+    console.log('logic');
 
-    console.log("logic");
-
-    if(!this.isLoadefect)
-    {
-      this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
+    if (!this.isLoadefect) {
+      this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
         if (this.playJustAfterLoaded) {
           if (this.isLoop) {
             this.__timer = setInterval(() => {
               this.play();
             }, 500);
           } else {
-            
             this.play();
           }
         }
         this.isLoadefect = true;
-        
+
         if (!this.isPause) {
           this.__context.update();
         }
-    
+
         if (this.__handle != null) {
-          const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
+          const worldMatrix =
+            EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
               this.__sceneGraphComponent!.worldMatrixInner
             );
           this.__handle.setMatrix(worldMatrix._v);
           this.__handle.setSpeed(this.__speed);
         }
-    
+
         if (this.isLoop) {
           if (!this.isPlay()) {
             this.play();
           }
         }
-    
+
         this.moveStageTo(ProcessStage.Render);
       });
-      
-      console.log("return");
+
+      console.log('return');
       return;
     }
-
 
     if (!this.isPause) {
       this.__context.update();
     }
 
     if (this.__handle != null) {
-      const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
+      const worldMatrix =
+        EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
           this.__sceneGraphComponent!.worldMatrixInner
         );
       this.__handle.setMatrix(worldMatrix._v);
