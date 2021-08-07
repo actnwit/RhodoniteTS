@@ -31,6 +31,9 @@ export default class EffekseerComponent extends Component {
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
 
+
+  private isLoadefect = false;
+
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -138,27 +141,23 @@ export default class EffekseerComponent extends Component {
     var useWASM = true;
     if(useWASM)
     {
+      
       effekseer.initRuntime('./effekseer.wasm', () => {
         if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
+          
           this.__context = effekseer.createContext();
           const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
           const glw = webGLResourceRepository.currentWebGLContextWrapper;
           EffekseerComponent.__isInitialized = true;
           this.__context.init(glw!.getRawContext());
-          this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
-            if (this.playJustAfterLoaded) {
-              if (this.isLoop) {
-                this.__timer = setInterval(() => {
-                  this.play();
-                }, 500);
-              } else {
-                this.play();
-              }
-            }
-          });
+          
+         
+          console.log("TO loadeffect");
+          this.moveStageTo(ProcessStage.Logic);
         }
-        this.moveStageTo(ProcessStage.Logic);
+        
       })
+      
     }
     else
     {
@@ -184,7 +183,70 @@ export default class EffekseerComponent extends Component {
     }
   }
 
+  $loadeffect() {
+    console.log("loadeffect");
+    this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
+      if (this.playJustAfterLoaded) {
+        if (this.isLoop) {
+          this.__timer = setInterval(() => {
+            this.play();
+          }, 500);
+        } else {
+          
+          this.play();
+        }
+      }
+
+      
+    });
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
   $logic() {
+
+    console.log("logic");
+
+    if(!this.isLoadefect)
+    {
+      this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
+        if (this.playJustAfterLoaded) {
+          if (this.isLoop) {
+            this.__timer = setInterval(() => {
+              this.play();
+            }, 500);
+          } else {
+            
+            this.play();
+          }
+        }
+        this.isLoadefect = true;
+        
+        if (!this.isPause) {
+          this.__context.update();
+        }
+    
+        if (this.__handle != null) {
+          const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
+              this.__sceneGraphComponent!.worldMatrixInner
+            );
+          this.__handle.setMatrix(worldMatrix._v);
+          this.__handle.setSpeed(this.__speed);
+        }
+    
+        if (this.isLoop) {
+          if (!this.isPlay()) {
+            this.play();
+          }
+        }
+    
+        this.moveStageTo(ProcessStage.Render);
+      });
+      
+      console.log("return");
+      return;
+    }
+
+
     if (!this.isPause) {
       this.__context.update();
     }
