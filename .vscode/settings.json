@@ -1,11 +1,11 @@
 {
     "cSpell.words": [
-        "MSAA",
         "BASISLZ",
         "BPPV",
         "BPTC",
         "Descs",
         "Khronos",
+        "MSAA",
         "PVRTC",
         "Transcoders",
         "Uastc",
@@ -46,6 +46,7 @@
         "transcoder",
         "typedoc",
         "vertex",
+        "wasm",
         "webgl",
         "webglcontextlost",
         "webglcontextrestored",

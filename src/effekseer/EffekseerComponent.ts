@@ -8,7 +8,12 @@ import CameraComponent from '../foundation/components/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import {ComponentTID, EntityUID, ComponentSID, Second} from '../types/CommonTypes';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+  Second,
+} from '../types/CommonTypes';
 import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
@@ -16,20 +21,23 @@ import {Is} from '../foundation/misc/Is';
 declare let effekseer: any;
 
 export default class EffekseerComponent extends Component {
+  public uri?: string;
+  public playJustAfterLoaded = false;
+  public isLoop = false;
+  public isPause = false;
+  public static wasmModuleUri = undefined;
   private __effect?: any;
   private __context: any;
   private __handle?: any;
   private __speed = 1;
   private __timer?: unknown;
-  public uri?: string;
-  public playJustAfterLoaded = false;
-  public isLoop = false;
-  public isPause = false;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
+
+  private isLoadEffect = false;
 
   constructor(
     entityUid: EntityUID,
@@ -76,7 +84,7 @@ export default class EffekseerComponent extends Component {
     this.play();
 
     let time = 0;
-    const oneTime = 16.6;
+    const oneTime = 0.0166;
     for (let i = 0; time <= second; i++) {
       const advTime = time + oneTime - second;
       const addTime = advTime > 0 ? oneTime - advTime : oneTime;
@@ -130,8 +138,25 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  static common_$load() {
-
+  private __createEffekseerContext() {
+    this.__context = effekseer.createContext();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    EffekseerComponent.__isInitialized = true;
+    const gl = glw!.getRawContext();
+    this.__context.init(gl);
+    this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
+      if (this.playJustAfterLoaded) {
+        if (this.isLoop) {
+          this.__timer = setInterval(() => {
+            this.play();
+          }, 500);
+        } else {
+          this.play();
+        }
+        this.moveStageTo(ProcessStage.Logic);
+      }
+    });
   }
 
   $load() {
@@ -139,26 +164,17 @@ export default class EffekseerComponent extends Component {
       return;
     }
     if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
-      this.__context = effekseer.createContext();
-      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const glw = webGLResourceRepository.currentWebGLContextWrapper;
-      EffekseerComponent.__isInitialized = true;
-      this.__context.init(glw!.getRawContext());
-      
-      this.__effect = this.__context.loadEffect(this.uri, 1.0,() => {
-        if (this.playJustAfterLoaded) {
-          if (this.isLoop) {
-            this.__timer = setInterval(() => {
-              this.play();
-            }, 500);
-          } else {
-            this.play();
-          }
-        }
-      });
-      
+      const useWASM = Is.exist(EffekseerComponent.wasmModuleUri);
+      if (useWASM) {
+        effekseer.initRuntime(EffekseerComponent.wasmModuleUri, () => {
+          this.__createEffekseerContext();
+          this.moveStageTo(ProcessStage.Logic);
+        });
+      } else {
+        this.__createEffekseerContext();
+        this.moveStageTo(ProcessStage.Logic);
+      }
     }
-    this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
@@ -168,8 +184,8 @@ export default class EffekseerComponent extends Component {
 
     if (this.__handle != null) {
       const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
-          this.__sceneGraphComponent!.worldMatrixInner
-        );
+        this.__sceneGraphComponent!.worldMatrixInner
+      );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
     }
@@ -183,12 +199,7 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Render);
   }
 
-  static common_$render() {
-    console.log("common_$render");
-
-  }
   $render() {
-    console.log("$render");
     const cameraComponent = ComponentRepository.getInstance().getComponent(
       CameraComponent,
       CameraComponent.main
@@ -209,6 +220,5 @@ export default class EffekseerComponent extends Component {
 
     this.moveStageTo(ProcessStage.Logic);
   }
-  
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);
