@@ -21,15 +21,16 @@ import {Is} from '../foundation/misc/Is';
 declare let effekseer: any;
 
 export default class EffekseerComponent extends Component {
+  public uri?: string;
+  public playJustAfterLoaded = false;
+  public isLoop = false;
+  public isPause = false;
+  public static wasmModuleUri = undefined;
   private __effect?: any;
   private __context: any;
   private __handle?: any;
   private __speed = 1;
   private __timer?: unknown;
-  public uri?: string;
-  public playJustAfterLoaded = false;
-  public isLoop = false;
-  public isPause = false;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
@@ -38,7 +39,7 @@ export default class EffekseerComponent extends Component {
   private static __tmp_identityMatrix_1: MutableMatrix44 =
     MutableMatrix44.identity();
 
-  private isLoadefect = false;
+  private isLoadEffect = false;
 
   constructor(
     entityUid: EntityUID,
@@ -139,50 +140,14 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  $load() {
-    if (EffekseerComponent.__isInitialized) {
-      return;
-    }
-    const useWASM = true;
-    if (useWASM) {
-      effekseer.initRuntime('./effekseer.wasm', () => {
-        if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
-          this.__context = effekseer.createContext();
-          const webGLResourceRepository =
-            CGAPIResourceRepository.getWebGLResourceRepository();
-          const glw = webGLResourceRepository.currentWebGLContextWrapper;
-          EffekseerComponent.__isInitialized = true;
-          this.__context.init(glw!.getRawContext());
-
-          console.log('TO loadeffect');
-          this.moveStageTo(ProcessStage.Logic);
-        }
-      });
-    } else {
-      if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
-        this.__context = effekseer.createContext();
-        const webGLResourceRepository =
-          CGAPIResourceRepository.getWebGLResourceRepository();
-        const glw = webGLResourceRepository.currentWebGLContextWrapper;
-        EffekseerComponent.__isInitialized = true;
-        this.__context.init(glw!.getRawContext());
-        this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
-          if (this.playJustAfterLoaded) {
-            if (this.isLoop) {
-              this.__timer = setInterval(() => {
-                this.play();
-              }, 500);
-            } else {
-              this.play();
-            }
-          }
-        });
-      }
-      this.moveStageTo(ProcessStage.Logic);
-    }
-  }
-
-  $loadeffect() {
+  private __createEffekseerContext() {
+    this.__context = effekseer.createContext();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    EffekseerComponent.__isInitialized = true;
+    const gl = glw!.getRawContext();
+    this.__context.init(gl);
     console.log('loadeffect');
     this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
       if (this.playJustAfterLoaded) {
@@ -193,15 +158,32 @@ export default class EffekseerComponent extends Component {
         } else {
           this.play();
         }
+        this.moveStageTo(ProcessStage.Logic);
       }
     });
-    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $load() {
+    if (EffekseerComponent.__isInitialized) {
+      return;
+    }
+    const useWASM = Is.exist(EffekseerComponent.wasmModuleUri);
+    if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
+      if (useWASM) {
+        effekseer.initRuntime(EffekseerComponent.wasmModuleUri, () => {
+          this.__createEffekseerContext();
+        });
+      } else {
+        this.__createEffekseerContext();
+      }
+      this.moveStageTo(ProcessStage.Logic);
+    }
   }
 
   $logic() {
     console.log('logic');
 
-    if (!this.isLoadefect) {
+    if (!this.isLoadEffect) {
       this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
         if (this.playJustAfterLoaded) {
           if (this.isLoop) {
@@ -212,7 +194,7 @@ export default class EffekseerComponent extends Component {
             this.play();
           }
         }
-        this.isLoadefect = true;
+        this.isLoadEffect = true;
 
         if (!this.isPause) {
           this.__context.update();

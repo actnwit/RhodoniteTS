@@ -67,11 +67,6 @@ const Discard: ProcessStageEnum = new ProcessStageClass({
   str: 'DISCARD',
   methodName: '$discard',
 });
-const LoadEffect: ProcessStageEnum = new ProcessStageClass({
-  index: 8,
-  str: 'LOADEFFECT',
-  methodName: '$loadeffect',
-});
 
 const typeList = [
   Unknown,
@@ -82,7 +77,6 @@ const typeList = [
   PreRender,
   Render,
   Unmount,
-  LoadEffect,
   Discard,
 ];
 
@@ -100,6 +94,5 @@ export const ProcessStage = Object.freeze({
   Render,
   Unmount,
   Discard,
-  LoadEffect,
   from,
 });

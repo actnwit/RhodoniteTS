@@ -7,10 +7,19 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
+  Rn.Config.maxSkeletalBoneNumber = 300
+  Rn.Config.maxMaterialInstanceForEachType = 5
+  Rn.Config.maxVertexMorphNumberInShader = 6
+  Rn.Config.maxSkeletonNumber = 16
+  Rn.Config.maxEntityNumber = 1200
+  Rn.Config.dataTextureWidth = Math.pow(2, 12)
+  Rn.Config.dataTextureHeight = Math.pow(2, 11)
   const moduleManager = Rn.ModuleManager.getInstance();
   await moduleManager.loadModule('webgl');
   await moduleManager.loadModule('pbr');
-  const effekseerModule = await moduleManager.loadModule('effekseer');
+  const effekseerModule = await moduleManager.loadModule('effekseer', {
+    wasm: '../../../vendor/effekseer.wasm',
+  });
 
   const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();

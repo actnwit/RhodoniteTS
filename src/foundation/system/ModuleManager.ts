@@ -4,12 +4,15 @@ export default class ModuleManager {
   private constructor() {}
 
 /* eslint-disable prettier/prettier */
-  async loadModule(moduleName: string) {
+  async loadModule(moduleName: string, options?: {
+    wasm?: string
+  }): Promise<any> {
     let module: any;
     if (moduleName.toLowerCase() === 'webgl') {
       module = await import(/* webpackChunkName: "webgl" */'../../webgl/main');
     } else if (moduleName.toLowerCase() === 'effekseer') {
       module = await import(/* webpackChunkName: "effekseer" */'../../effekseer/main');
+      module.default.EffekseerComponent.wasmModuleUri = options?.wasm;
     } else if (moduleName.toLowerCase() === 'sparkgear') {
       module = await import(/* webpackChunkName: "sparkgear" */'../../sparkgear/main');
     } else if (moduleName.toLowerCase() === 'pbr') {
