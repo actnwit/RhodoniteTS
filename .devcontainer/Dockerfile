@@ -24,3 +24,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive && \
 && wget https://github.com/andmarios/duphard/releases/download/v1.0/duphard -O /bin/duphard \
 && chmod +x /bin/duphard
 RUN su node -c "npm install -g yarn"
+RUN yarn install
