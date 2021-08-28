@@ -259,6 +259,17 @@ module.exports = {
 2. Start the local server with `$ yarn start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
+## Development using VSCode devcontainer
+
+This project supports the VSCode devcontainer for any docker-installed OS.
+
+Input the following command in the VSCode command palette.
+
+```
+> Remote-Containers: Reopen in Container
+```
+
+After a new dev container window opens, You can work in the Debian Linux container environment. All dependencies (node, npm, yarn, typescript, and all packages for Rhodonite) are already set up.
 
 ## License
 
