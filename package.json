@@ -74,7 +74,7 @@
     "typescript": "^4.0.3",
     "version-loader": "^0.1.0",
     "webpack": "^5.23.0",
-    "webpack-cli": "^4.5.0",
+    "webpack-cli": "^4.8.0",
     "webpack-merge": "^5.7.3",
     "webxr-input-profiles": "actnwit/webxr-input-profiles#369df6294cb57d429ecdec544c1409deef040e5a"
   },

@@ -11,8 +11,7 @@ import {
 } from '../../../dist/esm/index';
 
 declare const Rn: typeof _Rn;
-const p = document.createElement('p');
-document.body.appendChild(p);
+let p: any;
 
 (async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
@@ -105,9 +104,11 @@ document.body.appendChild(p);
   let count = 0;
 
   const draw = function () {
-    if (count > 100) {
-      p.id = 'rendered';
+    if (p == null && count > 0) {
+      p = document.createElement('p');
+      p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';
+      document.body.appendChild(p);
     }
 
     system.process(expressions);
