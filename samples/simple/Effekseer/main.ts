@@ -36,6 +36,8 @@ declare const Rn: typeof _Rn;
     effekseerModule.EffekseerComponent
   );
   effekseerComponent.playJustAfterLoaded = true;
+  effekseerComponent.randomSeed = 1;
+
   // effekseerComponent.isLoop = true;
   effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
   effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
@@ -100,21 +102,15 @@ declare const Rn: typeof _Rn;
       document.body.appendChild(p);
     }
 
-    if (window.isAnimating) {
-      const date = new Date();
-      const rotation = 0.001 * (date.getTime() - startTime);
-      //rotationVec3._v[0] = 0.1;
-      //rotationVec3._v[1] = rotation;
-      //rotationVec3._v[2] = 0.1;
-      const time = (date.getTime() - startTime) / 1000;
-      Rn.AnimationComponent.globalTime = time;
-      if (time > Rn.AnimationComponent.endInputValue) {
-        startTime = date.getTime();
+    setTimeout(()=>{
+      if (effekseerComponent.isPlay()) {
+        effekseerComponent.setTime(2);
+        //effekseerComponent.stop();  
       }
-      //console.log(time);
-      //      rootGroup.getTransform().scale = rotationVec3;
-      //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
-    }
+    }, 2000);
+    
+    
+
 
     system.process([expression]);
     count++;
