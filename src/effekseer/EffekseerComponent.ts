@@ -129,6 +129,13 @@ export default class EffekseerComponent extends Component {
     return true;
   }
 
+  setRandomSeed(seed: number)
+  {
+
+    this.randomSeed = seed;
+    return true;
+  }
+
   set translate(vec: Vector3) {
     if (this.__handle) {
       this.__handle.setLocation(vec.x, vec.y, vec.z);

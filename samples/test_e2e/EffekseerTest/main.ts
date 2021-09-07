@@ -40,6 +40,7 @@ declare const Rn: typeof _Rn;
 
   // effekseerComponent.isLoop = true;
   effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
+  effekseerComponent.setRandomSeed(2);
   effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
   // Camera
   const cameraEntity = entityRepository.createEntity([
