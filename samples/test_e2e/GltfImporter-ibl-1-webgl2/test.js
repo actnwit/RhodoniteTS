@@ -1,6 +1,7 @@
 test('regression test GltfImporter-ibl-1--webgl2', async () => {
   jest.setTimeout(180000);
   const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(180000);
   await page.goto(
     'http://localhost:8082/samples/test_e2e/GltfImporter-ibl-1-webgl2'
   );
