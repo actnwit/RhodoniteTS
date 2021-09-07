@@ -1,6 +1,7 @@
 test('regression test VRMImporter', async () => {
   jest.setTimeout(180000);
   const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(180000);
   await page.goto('http://localhost:8082/samples/test_e2e/VRMImporter');
   await page.setViewport({width: 1000, height: 1000});
   await page.waitForSelector('p#rendered', {timeout: 180000});
