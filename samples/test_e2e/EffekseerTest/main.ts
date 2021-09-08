@@ -105,10 +105,11 @@ declare const Rn: typeof _Rn;
 
     setTimeout(()=>{
       if (effekseerComponent.isPlay()) {
-        effekseerComponent.setTime(2);
+        
+        effekseerComponent.setTime(1);
         //effekseerComponent.stop();  
       }
-    }, 2000);
+    }, 1200);
     
     
 
