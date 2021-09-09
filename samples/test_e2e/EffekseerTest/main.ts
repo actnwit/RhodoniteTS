@@ -40,8 +40,8 @@ declare const Rn: typeof _Rn;
 
   // effekseerComponent.isLoop = true;
   effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
-  effekseerComponent.setRandomSeed(2);
   effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
+
   // Camera
   const cameraEntity = entityRepository.createEntity([
     Rn.TransformComponent,
@@ -54,7 +54,6 @@ declare const Rn: typeof _Rn;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 7);
 
   // glTF Model
   //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
@@ -92,8 +91,6 @@ declare const Rn: typeof _Rn;
   expression.addRenderPasses([renderPass]);
 
   Rn.CameraComponent.main = 0;
-  let startTime = Date.now();
-  const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
   const draw = function () {
     if (p == null && count > 0) {
