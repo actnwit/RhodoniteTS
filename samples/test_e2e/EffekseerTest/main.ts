@@ -92,6 +92,7 @@ declare const Rn: typeof _Rn;
 
   Rn.CameraComponent.main = 0;
   let count = 0;
+  let setTimeDone = false;
   const draw = function () {
     if (p == null && count > 0) {
       p = document.createElement('p');
@@ -100,16 +101,15 @@ declare const Rn: typeof _Rn;
       document.body.appendChild(p);
     }
 
-    setTimeout(()=>{
-      if (effekseerComponent.isPlay()) {
-        
-        effekseerComponent.setTime(1);
-        //effekseerComponent.stop();  
-      }
-    }, 1200);
-    
-    
-
+    if (effekseerComponent.isPlay() && !setTimeDone) {
+      // const cameraController =
+        // cameraEntity.getCameraController() as unknown as OrbitCameraController;
+      // cameraController.rotX = 90;
+      // cameraController.rotY = 90;
+      effekseerComponent.setTime(0.16);
+      setTimeDone = true;
+      //effekseerComponent.stop();
+    }
 
     system.process([expression]);
     count++;
