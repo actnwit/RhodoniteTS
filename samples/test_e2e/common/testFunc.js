@@ -1,0 +1,24 @@
+exports.testFunc = async (jest, browser, url, expect) => {
+  jest.setTimeout(450000);
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(450000);
+  await page.goto('http://localhost:8082/samples/test_e2e/ColorGradingUsingLUTs');
+  await page.setViewport({ width: 1000, height: 1000 });
+  await page.waitForSelector('p#rendered', { timeout: 450000});
+  const canvasElement = await page.$('#world');
+  const image = await canvasElement.screenshot();
+  expect(image).toMatchImageSnapshot();
+  await page.goto('about:blank');
+  await page.close();
+};
+
+exports.consoleLog = async page => {
+  page.on('console', async msg => {
+    const lines = [];
+    for (let i = 0; i < msg.args().length; i++) {
+      const value = await msg.args()[i].jsonValue();
+      lines.push(value);
+    }
+    console.log(lines.join('\n')); // comment out if you check the browser side console out
+  });
+};
