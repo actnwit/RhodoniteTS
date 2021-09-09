@@ -1,7 +1,7 @@
 test('regression test GltfImporter-walk-through-fixed-direction-moving', async () => {
-  jest.setTimeout(180000);
+  jest.setTimeout(450000);
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(180000);
+  await page.setDefaultNavigationTimeout(450000);
   await page.goto(
     'http://localhost:8082/samples/test_e2e/GltfImporter-walk-through-fixed-direction-moving'
   );
