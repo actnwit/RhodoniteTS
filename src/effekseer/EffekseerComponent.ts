@@ -109,19 +109,23 @@ export default class EffekseerComponent extends Component {
     return this.__speed;
   }
 
-  setTime(second: Second) {
-    this.stop();
+  setTime(targetSec: Second) {
     if (!this.play()) {
       return false;
     }
 
     let time = 0;
     const oneTime = 0.0166;
-    for (let i = 0; time < second; i++) {
-      const advTime = time + oneTime - second;
-      const addTime = advTime > 0 ? oneTime - advTime : oneTime;
-      time += addTime;
-      this.__context.update(addTime / oneTime);
+    time = oneTime;
+    while (time <= targetSec) {
+      this.__context.update(time / oneTime);
+      time += oneTime;
+      if (targetSec < time) {
+        const exceededSec = targetSec - time;
+        const remainSec = oneTime - exceededSec;
+        this.__context.update(remainSec / oneTime);
+        break;
+      }
     }
 
     this.pause();
