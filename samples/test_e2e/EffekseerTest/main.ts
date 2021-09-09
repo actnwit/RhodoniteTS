@@ -7,13 +7,30 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-  Rn.Config.maxSkeletalBoneNumber = 300
-  Rn.Config.maxMaterialInstanceForEachType = 5
-  Rn.Config.maxVertexMorphNumberInShader = 6
-  Rn.Config.maxSkeletonNumber = 16
-  Rn.Config.maxEntityNumber = 1200
-  Rn.Config.dataTextureWidth = Math.pow(2, 12)
-  Rn.Config.dataTextureHeight = Math.pow(2, 11)
+  Rn.Config.maxSkeletalBoneNumber = 10;
+  const createSphere = ()=> {
+    const entityRepository = Rn.EntityRepository.getInstance();
+    const entity = entityRepository.createEntity([
+      Rn.TransformComponent,
+      Rn.SceneGraphComponent,
+      Rn.MeshComponent,
+      Rn.MeshRendererComponent,
+    ]);
+
+    const primitive = new Rn.Sphere();
+    primitive.generate({
+      radius: 1,
+      heightSegments: 20,
+      widthSegments: 20,
+    });
+
+    const meshComponent = entity.getMesh();
+    const mesh = new Rn.Mesh();
+    mesh.addPrimitive(primitive);
+    meshComponent.setMesh(mesh);
+    return entity;
+  };
+
   const moduleManager = Rn.ModuleManager.getInstance();
   await moduleManager.loadModule('webgl');
   await moduleManager.loadModule('pbr');
@@ -21,11 +38,11 @@ declare const Rn: typeof _Rn;
     wasm: '../../../vendor/effekseer.wasm',
   });
 
-  const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.UniformWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
+    document.getElementById('world') as HTMLCanvasElement,
+    0.5
   );
 
   const entityRepository = Rn.EntityRepository.getInstance();
@@ -56,35 +73,19 @@ declare const Rn: typeof _Rn;
   cameraComponent.aspect = 1;
 
   // glTF Model
-  //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
-  //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
-  //  const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
-  //const response = await importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
-  //const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
-  //const response = await importer.import('../../../assets/gltf/2.0/VC/glTF/VC.gltf');
-  //  const response = await importer.import('../../../assets/gltf/2.0/Buggy/glTF/Buggy.gltf');
-  //  const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
-  // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
-  // const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-  const response = await importer.import(
-    '../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf'
-  );
-  //const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
-  const modelConverter = Rn.ModelConverter.getInstance();
-  const rootGroup = modelConverter.convertToRhodoniteObject(response);
-  //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
-  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
+  const sphereEntity = createSphere();
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller = cameraControllerComponent.controller as OrbitCameraController;
-  controller.setTarget(rootGroup);
+  controller.setTarget(sphereEntity);
 
   // renderPass
   const renderPass = new Rn.RenderPass();
   renderPass.clearColor = new Rn.Vector3(0.5, 0.5, 0.5);
   renderPass.toClearColorBuffer = true;
-  renderPass.addEntities([rootGroup]);
+  //// renderPass.addEntities([rootGroup, effekseerEntity]);
+  renderPass.addEntities([sphereEntity, effekseerEntity]);
 
   // expression
   const expression = new Rn.Expression();
@@ -94,21 +95,21 @@ declare const Rn: typeof _Rn;
   let count = 0;
   let setTimeDone = false;
   const draw = function () {
-    if (p == null && count > 0) {
+    if (count > 0 && window._rendered !== true && setTimeDone) {
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';
       document.body.appendChild(p);
+      window._rendered = true;
     }
-
     if (effekseerComponent.isPlay() && !setTimeDone) {
-      // const cameraController =
-        // cameraEntity.getCameraController() as unknown as OrbitCameraController;
-      // cameraController.rotX = 90;
-      // cameraController.rotY = 90;
+      const cameraController =
+        cameraEntity.getCameraController() as unknown as OrbitCameraController;
+      cameraController.rotX = 90;
+      cameraController.rotY = 90;
       effekseerComponent.setTime(0.16);
       setTimeDone = true;
-      //effekseerComponent.stop();
+      effekseerComponent.stop();
     }
 
     system.process([expression]);
