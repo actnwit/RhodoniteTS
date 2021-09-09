@@ -102,6 +102,7 @@ import {
   FileTypeEnum as _FileTypeEnum,
 } from './foundation/definitions/FileType';
 import _WebXRSystem from './xr/WebXRSystem';
+import Effekseer from './effekseer/main';
 import { GetComponentFromEntities as _GetComponentFromEntities } from './foundation/enhanced_js_objects/Array';
 import {ArrayAsRn as _ArrayAsRn, enhanceArray as _enhanceArray} from './foundation/enhanced_js_objects/Array';
 import _VarianceShadowMapDecodeClassicSingleMaterialNode from './foundation/materials/singles/VarianceShadowMapDecodeClassicSingleMaterialNode';
@@ -438,6 +439,7 @@ export type GetComponentFromEntities = typeof _GetComponentFromEntities;
 export type VERSION = typeof _VERSION;
 export type ArrayAsRn<T> = _ArrayAsRn<T>;
 export type enhanceArray = typeof _enhanceArray;
+export type EffekseerComponent = typeof Effekseer.EffekseerComponent;
 
 // Definition Enums
 export type CompositionTypeEnum = _CompositionTypeEnum;
