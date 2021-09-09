@@ -219,6 +219,7 @@ export default class EffekseerComponent extends Component {
 
   $logic() {
     if (!this.isPause) {
+      // Playing ...
       this.__context.update();
     }
 
@@ -228,6 +229,12 @@ export default class EffekseerComponent extends Component {
       );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
+    }
+
+    if(this.isPause) {
+      // If Pause mode...
+      this.moveStageTo(ProcessStage.Render);
+      return;
     }
 
     if (this.isLoop) {
