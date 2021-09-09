@@ -1,4 +1,4 @@
-test('regression test ColorGradingUsingLUTs', async () => {
+exports.testFunc = async (jest, browser, url, expect) => {
   jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
@@ -10,4 +10,15 @@ test('regression test ColorGradingUsingLUTs', async () => {
   expect(image).toMatchImageSnapshot();
   await page.goto('about:blank');
   await page.close();
-});
+};
+
+exports.consoleLog = async page => {
+  page.on('console', async msg => {
+    const lines = [];
+    for (let i = 0; i < msg.args().length; i++) {
+      const value = await msg.args()[i].jsonValue();
+      lines.push(value);
+    }
+    console.log(lines.join('\n')); // comment out if you check the browser side console out
+  });
+};

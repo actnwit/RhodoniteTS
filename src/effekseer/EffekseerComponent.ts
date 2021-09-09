@@ -26,6 +26,7 @@ export default class EffekseerComponent extends Component {
   public isLoop = false;
   public isPause = false;
   public static wasmModuleUri = undefined;
+  public randomSeed = -1;
   private __effect?: any;
   private __context: any;
   private __handle?: any;
@@ -61,11 +62,40 @@ export default class EffekseerComponent extends Component {
   }
 
   play() {
-    this.__handle = this.__context.play(this.__effect);
+    if (Is.not.exist(this.__context)) {
+      console.warn('No Effekseer context yet');
+      return false;
+    }
+    if (Is.not.exist(this.__context)) {
+      console.warn('No Effekseer effect yet');
+      return false;
+    }
+
+    this.stop();
+    this.isPause = false;
+
+    this.__handle = this.__context?.play(this.__effect);
+    if (this.randomSeed > 0) {
+      this.__handle?.setRandomSeed(this.randomSeed);
+    }
+
+    return true;
+  }
+
+  continue() {
+    this.isPause = false;
+  }
+
+  pause() {
+    if (Is.exist(this.__handle)) {
+      this.isPause = true;
+    }
   }
 
   stop() {
-    this.__handle?.stop();
+    if (Is.exist(this.__handle)) {
+      this.__handle.stop();
+    }
   }
 
   set playSpeed(val) {
@@ -79,18 +109,28 @@ export default class EffekseerComponent extends Component {
     return this.__speed;
   }
 
-  setTime(second: Second) {
-    this.stop();
-    this.play();
+  setTime(targetSec: Second) {
+    if (!this.play()) {
+      return false;
+    }
 
     let time = 0;
     const oneTime = 0.0166;
-    for (let i = 0; time <= second; i++) {
-      const advTime = time + oneTime - second;
-      const addTime = advTime > 0 ? oneTime - advTime : oneTime;
-      time += addTime;
-      this.__context.update(addTime / oneTime);
+    time = oneTime;
+    while (time <= targetSec) {
+      this.__context.update(time / oneTime);
+      time += oneTime;
+      if (targetSec < time) {
+        const exceededSec = targetSec - time;
+        const remainSec = oneTime - exceededSec;
+        this.__context.update(remainSec / oneTime);
+        break;
+      }
     }
+
+    this.pause();
+
+    return true;
   }
 
   set translate(vec: Vector3) {
@@ -179,6 +219,7 @@ export default class EffekseerComponent extends Component {
 
   $logic() {
     if (!this.isPause) {
+      // Playing ...
       this.__context.update();
     }
 
@@ -188,6 +229,12 @@ export default class EffekseerComponent extends Component {
       );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
+    }
+
+    if(this.isPause) {
+      // If Pause mode...
+      this.moveStageTo(ProcessStage.Render);
+      return;
     }
 
     if (this.isLoop) {

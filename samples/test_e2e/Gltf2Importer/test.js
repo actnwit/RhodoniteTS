@@ -1,10 +1,10 @@
 test('regression test Gltf2Importer', async () => {
-  jest.setTimeout(180000);
+  jest.setTimeout(450000);
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(180000);
+  await page.setDefaultNavigationTimeout(450000);
   await page.goto('http://localhost:8082/samples/test_e2e/Gltf2Importer');
   await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 180000});
+  await page.waitForSelector('p#rendered', {timeout: 450000});
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot({

@@ -39,7 +39,8 @@
     "ShadowMapDebugMode",
     "ShadowMapVariance",
     "VRMAnimation",
-    "VRMImporter"
+    "VRMImporter",
+    "EffekseerTest"
   ],
   "simple": [
     "4DViews",

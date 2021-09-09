@@ -1,10 +1,14 @@
-test('regression test MultiPass', async () => {
+const consoleLog = require('../common/testFunc').consoleLog;
+
+test('regression test EffekseerTest', async () => {
   jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
-  await page.goto('http://localhost:8082/samples/test_e2e/MultiPass');
+  await page.goto('http://localhost:8082/samples/test_e2e/EffekseerTest');
+  consoleLog(page);
   await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 450000});
+  await page.waitForFunction(() => {return window._rendered}, {timeout: 450000});
+  // await page.waitForTimeout(8000);
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot({
