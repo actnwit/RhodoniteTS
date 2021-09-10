@@ -1,6 +1,10 @@
 const consoleLog = require('../common/testFunc').consoleLog;
+const test01 = require('../common/testFunc').test01;
+const SetURL = 'http://localhost:8082/samples/test_e2e/EffekseerTest';
 
 test('regression test EffekseerTest', async () => {
+  await test01(jest,browser,SetURL,expect);
+  /*
   jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
@@ -17,4 +21,6 @@ test('regression test EffekseerTest', async () => {
   });
 
   await page.close();
+  */
+  
 });

@@ -22,3 +22,23 @@ exports.consoleLog = async page => {
     console.log(lines.join('\n')); // comment out if you check the browser side console out
   });
 };
+
+
+exports.test01 = async (jest, browser, url, expect) => {
+  jest.setTimeout(450000);
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(450000);
+  await page.goto('http://localhost:8082/samples/test_e2e/EffekseerTest');
+  this.consoleLog(page);
+  await page.setViewport({width: 1000, height: 1000});
+  await page.waitForFunction(() => {return window._rendered}, {timeout: 450000});
+  // await page.waitForTimeout(8000);
+  const canvasElement = await page.$('#world');
+  const image = await canvasElement.screenshot();
+  expect(image).toMatchImageSnapshot({
+    failureThreshold: 0.03,
+    failureThresholdType: 'percent',
+  });
+
+  await page.close();
+};
