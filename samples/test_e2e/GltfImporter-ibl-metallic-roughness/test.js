@@ -1,4 +1,11 @@
+const testCheckPtoDocument = require('../common/testFunc').testCheckPtoDocument;
+const SetURL = 'http://localhost:8082/samples/test_e2e/GltfImporter-ibl-metallic-roughness';
+
 test.skip('regression test GltfImporter-ibl-metallic-roughness', async () => {
+
+  await testCheckPtoDocument(jest,browser,SetURL,expect,0.001,false,false);
+
+  /*
   jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
@@ -15,4 +22,5 @@ test.skip('regression test GltfImporter-ibl-metallic-roughness', async () => {
   });
 
   await page.close();
+  */
 });

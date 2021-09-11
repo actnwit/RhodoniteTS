@@ -1,4 +1,10 @@
+const testCheckWindowRendered = require('../common/testFunc').testCheckWindowRendered;
+const SetURL = 'http://localhost:8082/samples/test_e2e/FastestInstancedDrawingWebGL1';
+
 test('regression test FastestInstancedDrawingWebGL1', async () => {
+
+  await testCheckWindowRendered(jest,browser,SetURL,expect,0.03,true);
+  /*
   jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
@@ -10,4 +16,5 @@ test('regression test FastestInstancedDrawingWebGL1', async () => {
   expect(image).toMatchImageSnapshot();
 
   await page.close();
+  */
 });
