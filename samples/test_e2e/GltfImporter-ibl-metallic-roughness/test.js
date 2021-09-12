@@ -3,6 +3,6 @@ const SetURL = 'http://localhost:8082/samples/test_e2e/GltfImporter-ibl-metallic
 
 test.skip('regression test GltfImporter-ibl-metallic-roughness', async () => {
 
-  await testCheckPtoDocument(jest,browser,SetURL,expect,0.001,false,false);
+  await testCheckPtoDocument(jest,browser,SetURL,expect,0.001);
 
 });

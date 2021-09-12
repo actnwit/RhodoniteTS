@@ -24,12 +24,12 @@ exports.consoleLog = async page => {
 };
 
 
-exports.testCheckWindowRendered = async (jest, browser, url, expect,threshold,noParam,goto,consoleOn = false) => {
+exports.testCheckWindowRendered = async (jest, browser, url, expect,threshold,noParam = false,consoleOn = false) => {
   jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
   await page.goto(url);
-  if(consoleOn == true)
+  if(consoleOn )
   {
     this.consoleLog(page);
   }
@@ -37,7 +37,7 @@ exports.testCheckWindowRendered = async (jest, browser, url, expect,threshold,no
   await page.waitForFunction(() => {return window._rendered}, {timeout: 450000});
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  if(noParam==true)
+  if(noParam)
   {
     expect(image).toMatchImageSnapshot();
   }
@@ -49,20 +49,16 @@ exports.testCheckWindowRendered = async (jest, browser, url, expect,threshold,no
     });
   }
   
-  if(goto == true)
-  {
-    await page.goto('about:blank');
-  }
 
   await page.close();
 };
 
-exports.testCheckPtoDocument= async (jest, browser, url, expect,threshold,noParam,goto,consoleOn = false) => {
+exports.testCheckPtoDocument= async (jest, browser, url, expect,threshold,noParam = false,consoleOn = false) => {
   jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
   await page.goto(url);
-  if(consoleOn == true)
+  if(consoleOn)
   {
     this.consoleLog(page);
   }
@@ -70,7 +66,7 @@ exports.testCheckPtoDocument= async (jest, browser, url, expect,threshold,noPara
   await page.waitForSelector('p#rendered', {timeout: 450000});
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  if(noParam==true)
+  if(noParam)
   {
     expect(image).toMatchImageSnapshot();
   }
@@ -82,9 +78,5 @@ exports.testCheckPtoDocument= async (jest, browser, url, expect,threshold,noPara
     });
   }
   
-  if(goto == true)
-  {
-    await page.goto('about:blank');
-  }
   await page.close();
 };

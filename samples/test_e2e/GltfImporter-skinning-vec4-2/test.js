@@ -3,6 +3,6 @@ const SetURL = 'http://localhost:8082/samples/test_e2e/GltfImporter-skinning-vec
 
 test('regression test GltfImporter-skinning-vec4-2', async () => {
 
-  await testCheckPtoDocument(jest,browser,SetURL,expect,0.03,false,false);
+  await testCheckPtoDocument(jest,browser,SetURL,expect,0.03);
 
 });
