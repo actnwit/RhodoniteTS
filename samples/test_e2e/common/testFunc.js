@@ -22,3 +22,61 @@ exports.consoleLog = async page => {
     console.log(lines.join('\n')); // comment out if you check the browser side console out
   });
 };
+
+
+exports.testCheckWindowRendered = async (jest, browser, url, expect,threshold,noParam = false,consoleOn = false) => {
+  jest.setTimeout(450000);
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(450000);
+  await page.goto(url);
+  if(consoleOn )
+  {
+    this.consoleLog(page);
+  }
+  await page.setViewport({width: 1000, height: 1000});
+  await page.waitForFunction(() => {return window._rendered}, {timeout: 450000});
+  const canvasElement = await page.$('#world');
+  const image = await canvasElement.screenshot();
+  if(noParam)
+  {
+    expect(image).toMatchImageSnapshot();
+  }
+  else
+  {
+    expect(image).toMatchImageSnapshot({
+      failureThreshold: threshold,
+      failureThresholdType: 'percent',
+    });
+  }
+  
+
+  await page.close();
+};
+
+exports.testCheckPtoDocument= async (jest, browser, url, expect,threshold,noParam = false,consoleOn = false) => {
+  jest.setTimeout(450000);
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(450000);
+  await page.goto(url);
+  if(consoleOn)
+  {
+    this.consoleLog(page);
+  }
+  await page.setViewport({width: 1000, height: 1000});
+  await page.waitForSelector('p#rendered', {timeout: 450000});
+  const canvasElement = await page.$('#world');
+  const image = await canvasElement.screenshot();
+  if(noParam)
+  {
+    expect(image).toMatchImageSnapshot();
+  }
+  else
+  {
+    expect(image).toMatchImageSnapshot({
+      failureThreshold: threshold,
+      failureThresholdType: 'percent',
+    });
+  }
+  
+  await page.close();
+};

@@ -1,19 +1,10 @@
 const consoleLog = require('../common/testFunc').consoleLog;
+const testCheckPtoDocument = require('../common/testFunc').testCheckPtoDocument;
+const SetURL = 'http://localhost:8082/samples/test_e2e/GltfImporter-iOS';
+
 
 test('regression test GltfImporter-interpolation', async () => {
-  jest.setTimeout(450000);
-  const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(450000);
-  await page.goto('http://localhost:8082/samples/test_e2e/GltfImporter-iOS');
-  consoleLog(page);
-  await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 450000});
-  const canvasElement = await page.$('#world');
-  const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot({
-    failureThreshold: 0.01,
-    failureThresholdType: 'percent',
-  });
 
-  await page.close();
+  await testCheckPtoDocument(jest,browser,SetURL,expect,0.01,false,true);
+
 });
