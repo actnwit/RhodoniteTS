@@ -272,7 +272,7 @@ export default class System {
       0.9375 * memoryUsageOrder
     );
     const globalDataRepository = GlobalDataRepository.getInstance();
-    globalDataRepository.initialize();
+    globalDataRepository.initialize(approach);
 
     const gl = repo.generateWebGLContext(
       canvas,
