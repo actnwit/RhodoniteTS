@@ -155,7 +155,7 @@ export default class System {
               repo.switchDepthTest(renderPass.isDepthTest);
               if (
                 componentTid === MeshRendererComponent.componentTID &&
-                stage == ProcessStage.Render
+                stage === ProcessStage.Render
               ) {
                 if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
                   const glw =
