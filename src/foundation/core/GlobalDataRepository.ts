@@ -29,6 +29,7 @@ import Vector3 from '../math/Vector3';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import {BoneDataType} from '../definitions/BoneDataType';
+import { ProcessApproachEnum } from '../..';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -46,7 +47,7 @@ export default class GlobalDataRepository {
 
   private constructor() {}
 
-  initialize() {
+  initialize(approach: ProcessApproachEnum) {
     // CurrentComponentSIDs
     const currentComponentSIDsInfo = {
       semantic: ShaderSemantics.CurrentComponentSIDs,
@@ -101,11 +102,13 @@ export default class GlobalDataRepository {
     this.registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
     this.registerProperty(viewPositionInfo, Config.maxCameraNumber);
 
+    const maxSkeletalBoneNumber = Config.getMaxSkeletalBoneNumber(approach);
+
     // Skinning
     const boneMatrixInfo = {
       semantic: ShaderSemantics.BoneMatrix,
       compositionType: CompositionType.Mat4Array,
-      maxIndex: Config.maxSkeletalBoneNumber,
+      maxIndex: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
@@ -118,7 +121,7 @@ export default class GlobalDataRepository {
     const boneQuaternionInfo = {
       semantic: ShaderSemantics.BoneQuaternion,
       compositionType: CompositionType.Vec4Array,
-      maxIndex: Config.maxSkeletalBoneNumber,
+      maxIndex: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
@@ -131,7 +134,7 @@ export default class GlobalDataRepository {
     const boneTranslateScaleInfo = {
       semantic: ShaderSemantics.BoneTranslateScale,
       compositionType: CompositionType.Vec4Array,
-      maxIndex: Config.maxSkeletalBoneNumber,
+      maxIndex: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
       soloDatum: true,
       stage: ShaderType.VertexShader,
@@ -144,7 +147,7 @@ export default class GlobalDataRepository {
     const boneTranslatePackedQuatInfo = {
       semantic: ShaderSemantics.BoneTranslatePackedQuat,
       compositionType: CompositionType.Vec4Array,
-      maxIndex: Config.maxSkeletalBoneNumber,
+      maxIndex: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
@@ -157,7 +160,7 @@ export default class GlobalDataRepository {
     const boneScalePackedQuatInfo = {
       semantic: ShaderSemantics.BoneScalePackedQuat,
       compositionType: CompositionType.Vec4Array,
-      maxIndex: Config.maxSkeletalBoneNumber,
+      maxIndex: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
       soloDatum: true,
       stage: ShaderType.VertexShader,
@@ -170,7 +173,7 @@ export default class GlobalDataRepository {
     const boneCompressedChunkInfo = {
       semantic: ShaderSemantics.BoneCompressedChunk,
       compositionType: CompositionType.Vec4Array,
-      maxIndex: Config.maxSkeletalBoneNumber,
+      maxIndex: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
       soloDatum: true,
       stage: ShaderType.VertexShader,

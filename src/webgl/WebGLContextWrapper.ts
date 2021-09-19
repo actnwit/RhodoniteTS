@@ -158,8 +158,8 @@ export default class WebGLContextWrapper {
         WebGLExtension.CompressedTextureBptc
       );
     }
-    this.getUniformBufferInfo();
-    this.getMaxUniformVectors();
+    this.__getUniformBufferInfo();
+    this.__getMaxUniformVectors();
   }
 
   getRawContext(): WebGLRenderingContext | WebGL2RenderingContext {
@@ -541,7 +541,7 @@ export default class WebGLContextWrapper {
     }
   }
 
-  private getUniformBufferInfo() {
+  private __getUniformBufferInfo() {
     if (!this.isWebGL2) {
       return;
     }
@@ -567,7 +567,7 @@ export default class WebGLContextWrapper {
     this.#maxUniformBlockSize = maxBlockSize;
   }
 
-  private getMaxUniformVectors() {
+  private __getMaxUniformVectors() {
     const gl = this.getRawContext();
     this.__maxVertexUniformVectors = gl.getParameter(
       gl.MAX_VERTEX_UNIFORM_VECTORS

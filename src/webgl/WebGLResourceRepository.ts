@@ -54,7 +54,8 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
-import { ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
+import {ProcessApproachClass, ProcessApproachEnum} from '../foundation/definitions/ProcessApproach';
+import Config from '../foundation/core/Config';
 
 declare let HDRImage: any;
 
@@ -1376,7 +1377,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.FRAMEBUFFER,
         attachmentId,
         gl.RENDERBUFFER,
-        (renderableWebGLResource as any) as WebGLRenderbuffer
+        renderableWebGLResource as any as WebGLRenderbuffer
       );
     }
 
@@ -1447,7 +1448,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.FRAMEBUFFER,
         attachmentType,
         gl.RENDERBUFFER,
-        (renderableWebGLResource as any) as WebGLRenderbuffer
+        renderableWebGLResource as any as WebGLRenderbuffer
       );
     }
 
@@ -2144,7 +2145,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         height,
         format.index,
         type.index,
-        (textureData as any) as ArrayBufferView
+        textureData as any as ArrayBufferView
       );
     } else {
       const gl = this.__glw!.getRawContextAsWebGL1();
@@ -2342,7 +2343,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, ubo!);
 
-    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    const alignedMaxUniformBlockSize =
+      this.__glw!.getAlignedMaxUniformBlockSize();
     const array = typedArray
       ? typedArray
       : new Float32Array(alignedMaxUniformBlockSize / 4);
@@ -2373,7 +2375,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   getGlslDataUBODefinitionString() {
     let text = '';
     const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();
-    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    const alignedMaxUniformBlockSize =
+      this.__glw!.getAlignedMaxUniformBlockSize();
     for (let i = 0; i < maxConventionblocks; i++) {
       text += `
 layout (std140) uniform Vec4Block${i} {
@@ -2400,7 +2403,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
 
   getGlslDataUBOVec4SizeString() {
-    const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
+    const alignedMaxUniformBlockSize =
+      this.__glw!.getAlignedMaxUniformBlockSize();
     return `const int dataUBOVec4Size = ${alignedMaxUniformBlockSize / 4 / 4};`;
   }
 
@@ -2503,4 +2507,5 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       gl.disable(gl.DEPTH_TEST);
     }
   }
+
 }

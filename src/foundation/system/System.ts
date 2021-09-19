@@ -27,10 +27,12 @@ import type WebVRSystem from '../../xr/WebVRSystem';
 
 export default class System {
   private static __instance: System;
-  private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
+  private __componentRepository: ComponentRepository =
+    ComponentRepository.getInstance();
   private __entityRepository: EntityRepository = EntityRepository.getInstance();
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
-  private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  private __webglResourceRepository =
+    CGAPIResourceRepository.getWebGLResourceRepository();
   private __webglStrategy?: WebGLStrategy;
   private __localExpression = new Expression();
   private __lastEntitiesNumber = -1;
@@ -130,7 +132,9 @@ export default class System {
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    const rnVRModule = ModuleManager.getInstance().getModule('xr') as (RnXR | undefined);
+    const rnVRModule = ModuleManager.getInstance().getModule('xr') as
+      | RnXR
+      | undefined;
     const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
 
     for (const stage of Component._processStages) {
@@ -154,8 +158,8 @@ export default class System {
                 stage == ProcessStage.Render
               ) {
                 if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
-                  const glw = this.__webglResourceRepository
-                    .currentWebGLContextWrapper!;
+                  const glw =
+                    this.__webglResourceRepository.currentWebGLContextWrapper!;
                   const gl = glw.getRawContext();
                   gl?.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
                   // glw.drawBuffers([RenderBufferTarget.ColorAttachment0]);
@@ -177,9 +181,8 @@ export default class System {
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
               }
 
-              const componentClass: typeof Component = ComponentRepository.getComponentClass(
-                componentTid
-              )!;
+              const componentClass: typeof Component =
+                ComponentRepository.getComponentClass(componentTid)!;
               componentClass.updateComponentsOfEachProcessStage(
                 componentClass,
                 stage,
@@ -220,9 +223,8 @@ export default class System {
             }
           }
         } else {
-          const componentClass: typeof Component = ComponentRepository.getComponentClass(
-            componentTid
-          )!;
+          const componentClass: typeof Component =
+            ComponentRepository.getComponentClass(componentTid)!;
           componentClass.updateComponentsOfEachProcessStage(
             componentClass,
             stage,
@@ -272,7 +274,7 @@ export default class System {
       0.9375 * memoryUsageOrder
     );
     const globalDataRepository = GlobalDataRepository.getInstance();
-    globalDataRepository.initialize();
+    globalDataRepository.initialize(approach);
 
     const gl = repo.generateWebGLContext(
       canvas,
