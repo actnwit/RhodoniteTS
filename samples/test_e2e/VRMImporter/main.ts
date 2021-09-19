@@ -1,16 +1,7 @@
 import _Rn from '../../../dist/esm/index';
-import {
-  OrbitCameraController,
-  CameraComponent,
-  MeshComponent,
-  EntityRepository,
-  AbstractTexture,
-  Expression,
-  FrameBuffer,
-  RenderPass,
-} from '../../../dist/esm/index';
+import {OrbitCameraController} from '../../../dist/esm/index';
 
-let p: any;
+let p: HTMLParagraphElement | undefined;
 
 declare const window: any;
 declare const Rn: typeof _Rn;
@@ -18,6 +9,7 @@ declare const Rn: typeof _Rn;
 (async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
+
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.FastestWebGL1,
@@ -35,7 +27,6 @@ declare const Rn: typeof _Rn;
     Rn.CameraControllerComponent,
   ]);
   const cameraComponent = cameraEntity.getCamera();
-  //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
@@ -87,9 +78,8 @@ declare const Rn: typeof _Rn;
   expression.addRenderPasses([renderPass]);
 
   Rn.CameraComponent.main = 0;
-  let startTime = Date.now();
-  const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
+  let startTime = Date.now();
   const draw = function () {
     if (p == null && count > 0) {
       if (rootGroups[0] != null) {

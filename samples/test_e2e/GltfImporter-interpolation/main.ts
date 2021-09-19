@@ -1,14 +1,4 @@
 import _Rn from '../../../dist/esm/index';
-import {
-  OrbitCameraController,
-  CameraComponent,
-  MeshComponent,
-  EntityRepository,
-  AbstractTexture,
-  Expression,
-  FrameBuffer,
-  RenderPass,
-} from '../../../dist/esm/index';
 
 declare const window: any;
 declare const Rn: typeof _Rn;
