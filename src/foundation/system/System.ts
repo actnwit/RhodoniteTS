@@ -24,6 +24,7 @@ import {MiscUtil} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
+import { Is } from '../misc/Is';
 
 export default class System {
   private static __instance: System;
@@ -44,17 +45,18 @@ export default class System {
 
   private constructor() {}
 
-  doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
+  doRenderLoop(renderLoopFunc: Function, time: number, ...args: unknown[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
+
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
       _time: number,
       xrFrame: XRFrame
     ) => {
       const rnVRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
-      if (rnVRModule != null) {
+      if (Is.exist(rnVRModule)) {
         let webVRSystem: WebVRSystem;
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._preRender(time, xrFrame);
@@ -69,18 +71,18 @@ export default class System {
       args.splice(0, 0, time);
       renderLoopFunc.apply(renderLoopFunc, args);
 
-      if (rnVRModule != null) {
+      if (Is.exist(rnVRModule)) {
         if (webXRSystem.isReadyForWebXR) {
-          webXRSystem!._postRender();
+          webXRSystem._postRender();
         } else {
           const webVRSystem = rnVRModule.WebVRSystem.getInstance();
-          if (webVRSystem!.isReadyForWebVR) {
-            webVRSystem!.postRender();
+          if (webVRSystem.isReadyForWebVR) {
+            webVRSystem.postRender();
           }
         }
       }
       this.doRenderLoop(renderLoopFunc, _time, args);
-    }) as any);
+    }) as FrameRequestCallback);
   }
 
   private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
