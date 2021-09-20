@@ -11,6 +11,16 @@ import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
 import {Size} from '../../types/CommonTypes';
 
+export type PlaneDescripter = {
+  width: Size;
+  height: Size;
+  uSpan: Size;
+  vSpan: Size;
+  isUVRepeat: boolean;
+  flipTextureCoordinateY?: boolean;
+  material?: Material;
+};
+
 export default class Plane extends Primitive {
   constructor() {
     super();
@@ -26,44 +36,28 @@ export default class Plane extends Primitive {
    * @param flipTextureCoordinateY draw textures by flipping on the V(Y)-axis
    * @param material attach a rhodonite material to this plane(the default material is the classicUberMaterial)
    */
-  generate({
-    width,
-    height,
-    uSpan,
-    vSpan,
-    isUVRepeat = false,
-    flipTextureCoordinateY = false,
-    material,
-  }: {
-    width: Size;
-    height: Size;
-    uSpan: Size;
-    vSpan: Size;
-    isUVRepeat: boolean;
-    flipTextureCoordinateY?: boolean;
-    material?: Material;
-  }) {
+  generate(desc: PlaneDescripter) {
     const positions = [];
 
-    for (let i = 0; i <= vSpan; i++) {
-      for (let j = 0; j <= uSpan; j++) {
-        positions.push((j / uSpan - 1 / 2) * width);
+    for (let i = 0; i <= desc.vSpan; i++) {
+      for (let j = 0; j <= desc.uSpan; j++) {
+        positions.push((j / desc.uSpan - 1 / 2) * desc.width);
         positions.push(0);
-        positions.push((i / vSpan - 1 / 2) * height);
+        positions.push((i / desc.vSpan - 1 / 2) * desc.height);
       }
     }
 
     const indices = [];
-    for (let i = 0; i < vSpan; i++) {
+    for (let i = 0; i < desc.vSpan; i++) {
       let degenerate_left_index = 0;
       let degenerate_right_index = 0;
-      for (let j = 0; j <= uSpan; j++) {
-        indices.push(i * (uSpan + 1) + j);
-        indices.push((i + 1) * (uSpan + 1) + j);
+      for (let j = 0; j <= desc.uSpan; j++) {
+        indices.push(i * (desc.uSpan + 1) + j);
+        indices.push((i + 1) * (desc.uSpan + 1) + j);
         if (j === 0) {
-          degenerate_left_index = (i + 1) * (uSpan + 1) + j;
-        } else if (j === uSpan) {
-          degenerate_right_index = (i + 1) * (uSpan + 1) + j;
+          degenerate_left_index = (i + 1) * (desc.uSpan + 1) + j;
+        } else if (j === desc.uSpan) {
+          degenerate_right_index = (i + 1) * (desc.uSpan + 1) + j;
         }
       }
       indices.push(degenerate_right_index);
@@ -71,8 +65,8 @@ export default class Plane extends Primitive {
     }
 
     const normals = [];
-    for (let i = 0; i <= vSpan; i++) {
-      for (let j = 0; j <= uSpan; j++) {
+    for (let i = 0; i <= desc.vSpan; i++) {
+      for (let j = 0; j <= desc.uSpan; j++) {
         normals.push(0);
         normals.push(1);
         normals.push(0);
@@ -80,16 +74,16 @@ export default class Plane extends Primitive {
     }
 
     const texcoords = [];
-    for (let i = 0; i <= vSpan; i++) {
-      const i_ = flipTextureCoordinateY ? i : vSpan - i;
+    for (let i = 0; i <= desc.vSpan; i++) {
+      const i_ = desc.flipTextureCoordinateY ? i : desc.vSpan - i;
 
-      for (let j = 0; j <= uSpan; j++) {
-        if (isUVRepeat) {
+      for (let j = 0; j <= desc.uSpan; j++) {
+        if (desc.isUVRepeat) {
           texcoords.push(j);
           texcoords.push(i_);
         } else {
-          texcoords.push(j / uSpan);
-          texcoords.push(i_ / vSpan);
+          texcoords.push(j / desc.uSpan);
+          texcoords.push(i_ / desc.vSpan);
         }
       }
     }
@@ -166,6 +160,6 @@ export default class Plane extends Primitive {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
-    this.setData(attributeMap, primitiveMode, material, indicesAccessor);
+    this.setData(attributeMap, primitiveMode, desc.material, indicesAccessor);
   }
 }
