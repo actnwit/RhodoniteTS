@@ -79,6 +79,7 @@ dist/
 *.tgz
 VERSION-FILE
 samples/**/main.js*
+samples/**/types.js*
 docs/api/
 
 # VSCode

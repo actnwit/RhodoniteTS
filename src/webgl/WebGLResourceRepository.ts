@@ -54,7 +54,10 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
-import {ProcessApproachClass, ProcessApproachEnum} from '../foundation/definitions/ProcessApproach';
+import {
+  ProcessApproachClass,
+  ProcessApproachEnum,
+} from '../foundation/definitions/ProcessApproach';
 import Config from '../foundation/core/Config';
 
 declare let HDRImage: any;
@@ -432,8 +435,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   ) {
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    if (
+      Is.false(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) &&
+      Is.false(gl.isContextLost())
+    ) {
       console.log('MaterialTypeName: ' + materialTypeName);
       console.log(MiscUtil.addLineNumberToCode(shaderText));
       throw new Error(
@@ -452,7 +457,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = glw!.getRawContext();
 
     // If creating the shader program failed, alert
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+    if (
+      Is.false(gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) &&
+      Is.false(gl.isContextLost())
+    ) {
       console.log('MaterialTypeName: ' + materialTypeName);
       console.log(MiscUtil.addLineNumberToCode('Vertex Shader:'));
       console.log(MiscUtil.addLineNumberToCode(vertexShaderText));
@@ -2507,5 +2515,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       gl.disable(gl.DEPTH_TEST);
     }
   }
-
+}
+function getShaderParameter(shader: WebGLShader, COMPILE_STATUS: number) {
+  throw new Error('Function not implemented.');
 }

@@ -13,7 +13,7 @@ document.body.appendChild(p);
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
+
   system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.UniformWebGL1,
     document.getElementById('world') as HTMLCanvasElement
@@ -57,12 +57,8 @@ document.body.appendChild(p);
 
   // gamma correction (and super sampling)
   const mainRenderPass = mainExpression.renderPasses[0];
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    600,
-    600,
-    1,
-    {}
-  );
+  const gammaTargetFramebuffer =
+    Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
   mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
   mainRenderPass.toClearColorBuffer = true;
   mainRenderPass.toClearDepthBuffer = true;

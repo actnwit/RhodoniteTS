@@ -24,6 +24,7 @@ import {MiscUtil} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
+import {Is} from '../misc/Is';
 
 export default class System {
   private static __instance: System;
@@ -34,27 +35,26 @@ export default class System {
   private __webglResourceRepository =
     CGAPIResourceRepository.getWebGLResourceRepository();
   private __webglStrategy?: WebGLStrategy;
-  private __localExpression = new Expression();
-  private __lastEntitiesNumber = -1;
   private __renderPassTickCount = 0;
   private __animationFrameId = -1;
 
   private __renderLoopFunc?: Function;
-  private __args?: any[];
+  private __args?: unknown[];
 
   private constructor() {}
 
-  doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
+  doRenderLoop(renderLoopFunc: Function, time: number, ...args: unknown[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
+
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
       _time: number,
       xrFrame: XRFrame
     ) => {
       const rnVRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
-      if (rnVRModule != null) {
+      if (Is.exist(rnVRModule)) {
         let webVRSystem: WebVRSystem;
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._preRender(time, xrFrame);
@@ -69,31 +69,37 @@ export default class System {
       args.splice(0, 0, time);
       renderLoopFunc.apply(renderLoopFunc, args);
 
-      if (rnVRModule != null) {
+      if (Is.exist(rnVRModule)) {
         if (webXRSystem.isReadyForWebXR) {
-          webXRSystem!._postRender();
+          webXRSystem._postRender();
         } else {
           const webVRSystem = rnVRModule.WebVRSystem.getInstance();
-          if (webVRSystem!.isReadyForWebVR) {
-            webVRSystem!.postRender();
+          if (webVRSystem.isReadyForWebVR) {
+            webVRSystem.postRender();
           }
         }
       }
       this.doRenderLoop(renderLoopFunc, _time, args);
-    }) as any);
+    }) as FrameRequestCallback);
   }
 
   private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
-    let animationFrameObject: Window | VRDisplay | XRSession = window;
+    let animationFrameObject: Window | VRDisplay | XRSession | undefined =
+      window;
     const rnVRModule = ModuleManager.getInstance().getModule('xr') as
       | RnXR
       | undefined;
-    const webVRSystem = rnVRModule?.WebVRSystem.getInstance();
-    const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
-    if (webXRSystem?.requestedToEnterWebXR) {
-      animationFrameObject = webXRSystem.xrSession!;
-    } else if (webVRSystem?.isWebVRMode) {
-      animationFrameObject = webVRSystem.vrDisplay!;
+    if (Is.exist(rnVRModule)) {
+      const webVRSystem = rnVRModule.WebVRSystem.getInstance();
+      const webXRSystem = rnVRModule.WebXRSystem.getInstance();
+      if (webXRSystem.requestedToEnterWebXR) {
+        animationFrameObject = webXRSystem.xrSession;
+      } else if (webVRSystem.isWebVRMode) {
+        animationFrameObject = webVRSystem.vrDisplay;
+      }
+      if (Is.not.exist(animationFrameObject)) {
+        return window;
+      }
     }
     return animationFrameObject;
   }
@@ -299,11 +305,15 @@ export default class System {
       );
     }
 
-    canvas.addEventListener('webglcontextlost', event => {
-      // Calling preventDefault signals to the page that you intent to handle context restoration.
-      event.preventDefault();
-      console.error('WebGL context lost occurred.');
-    });
+    canvas.addEventListener(
+      'webglcontextlost',
+      ((event: Event) => {
+        // Calling preventDefault signals to the page that you intent to handle context restoration.
+        event.preventDefault();
+        this.stopRenderLoop();
+        console.error('WebGL context lost occurred.');
+      }).bind(this)
+    );
 
     canvas.addEventListener('webglcontextrestored', () => {
       // Once this function is called the gl context will be restored but any graphics resources
@@ -311,6 +321,7 @@ export default class System {
       console.error('WebGL context restored.');
       // TODO: Implement restoring the previous graphics resources
       // loadSceneGraphics(gl);
+      this.restartRenderLoop();
     });
     return gl;
   }

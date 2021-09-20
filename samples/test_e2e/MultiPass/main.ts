@@ -41,7 +41,7 @@ declare const Stats: any;
   Promise.all(promises).then(() => {
     const system = Rn.System.getInstance();
     const entityRepository = Rn.EntityRepository.getInstance();
-    Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
+  
     const gl = system.setProcessApproachAndCanvas(
       Rn.ProcessApproach.UniformWebGL1,
       document.getElementById('world') as HTMLCanvasElement

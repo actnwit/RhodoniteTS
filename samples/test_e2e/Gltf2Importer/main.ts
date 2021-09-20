@@ -22,7 +22,7 @@ declare const Rn: typeof _Rn;
   Promise.all(promises).then(() => {
     const importer = Rn.Gltf2Importer.getInstance();
     const system = Rn.System.getInstance();
-    Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
+  
     const gl = system.setProcessApproachAndCanvas(
       Rn.ProcessApproach.UniformWebGL1,
       document.getElementById('world') as HTMLCanvasElement
