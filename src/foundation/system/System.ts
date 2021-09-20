@@ -24,7 +24,7 @@ import {MiscUtil} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 export default class System {
   private static __instance: System;
@@ -35,8 +35,6 @@ export default class System {
   private __webglResourceRepository =
     CGAPIResourceRepository.getWebGLResourceRepository();
   private __webglStrategy?: WebGLStrategy;
-  private __localExpression = new Expression();
-  private __lastEntitiesNumber = -1;
   private __renderPassTickCount = 0;
   private __animationFrameId = -1;
 
@@ -301,11 +299,15 @@ export default class System {
       );
     }
 
-    canvas.addEventListener('webglcontextlost', event => {
-      // Calling preventDefault signals to the page that you intent to handle context restoration.
-      event.preventDefault();
-      console.error('WebGL context lost occurred.');
-    });
+    canvas.addEventListener(
+      'webglcontextlost',
+      ((event: Event) => {
+        // Calling preventDefault signals to the page that you intent to handle context restoration.
+        event.preventDefault();
+        this.stopRenderLoop();
+        console.error('WebGL context lost occurred.');
+      }).bind(this)
+    );
 
     canvas.addEventListener('webglcontextrestored', () => {
       // Once this function is called the gl context will be restored but any graphics resources
@@ -313,6 +315,7 @@ export default class System {
       console.error('WebGL context restored.');
       // TODO: Implement restoring the previous graphics resources
       // loadSceneGraphics(gl);
+      this.restartRenderLoop();
     });
     return gl;
   }
