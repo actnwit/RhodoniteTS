@@ -39,7 +39,7 @@ export default class System {
   private __animationFrameId = -1;
 
   private __renderLoopFunc?: Function;
-  private __args?: any[];
+  private __args?: unknown[];
 
   private constructor() {}
 
@@ -84,16 +84,22 @@ export default class System {
   }
 
   private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
-    let animationFrameObject: Window | VRDisplay | XRSession = window;
+    let animationFrameObject: Window | VRDisplay | XRSession | undefined =
+      window;
     const rnVRModule = ModuleManager.getInstance().getModule('xr') as
       | RnXR
       | undefined;
-    const webVRSystem = rnVRModule?.WebVRSystem.getInstance();
-    const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
-    if (webXRSystem?.requestedToEnterWebXR) {
-      animationFrameObject = webXRSystem.xrSession!;
-    } else if (webVRSystem?.isWebVRMode) {
-      animationFrameObject = webVRSystem.vrDisplay!;
+    if (Is.exist(rnVRModule)) {
+      const webVRSystem = rnVRModule.WebVRSystem.getInstance();
+      const webXRSystem = rnVRModule.WebXRSystem.getInstance();
+      if (webXRSystem.requestedToEnterWebXR) {
+        animationFrameObject = webXRSystem.xrSession;
+      } else if (webVRSystem.isWebVRMode) {
+        animationFrameObject = webVRSystem.vrDisplay;
+      }
+      if (Is.not.exist(animationFrameObject)) {
+        return window;
+      }
     }
     return animationFrameObject;
   }
