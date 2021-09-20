@@ -24,7 +24,7 @@ let renderPassMain: RenderPass;
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
-  Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
+
   const gl = system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.UniformWebGL1,
     canvas,

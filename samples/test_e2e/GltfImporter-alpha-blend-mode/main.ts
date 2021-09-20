@@ -9,7 +9,7 @@ document.body.appendChild(p);
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
   const world = document.getElementById('world') as HTMLCanvasElement;
-  Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
+
   system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, world);
 
   // camera

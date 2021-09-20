@@ -17,7 +17,7 @@ let p = null;
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
+
   system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.UniformWebGL1,
     document.getElementById('world') as HTMLCanvasElement

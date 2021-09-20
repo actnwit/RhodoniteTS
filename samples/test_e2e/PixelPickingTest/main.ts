@@ -74,7 +74,7 @@ let p: any;
   const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
-  Rn.Config.maxSkeletalBoneNumber = 50; // avoiding too many uniforms error for software renderer
+
   const gl = system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.UniformWebGL1,
     canvas
