@@ -57,12 +57,8 @@ document.body.appendChild(p);
 
   // gamma correction (and super sampling)
   const mainRenderPass = mainExpression.renderPasses[0];
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    600,
-    600,
-    1,
-    {}
-  );
+  const gammaTargetFramebuffer =
+    Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
   mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
   mainRenderPass.toClearColorBuffer = true;
   mainRenderPass.toClearDepthBuffer = true;
