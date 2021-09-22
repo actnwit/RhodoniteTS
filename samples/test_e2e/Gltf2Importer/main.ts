@@ -1,3 +1,5 @@
+
+
 import _Rn from '../../../dist/esm/index';
 import {
   OrbitCameraController,
@@ -10,6 +12,9 @@ import {
   RenderPass,
 } from '../../../dist/esm/index';
 
+
+
+
 let p: any;
 
 declare const window: any;
@@ -19,6 +24,8 @@ declare const Rn: typeof _Rn;
   const promises = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
+  
+  //-------------------------------
   Promise.all(promises).then(() => {
     const importer = Rn.Gltf2Importer.getInstance();
     const system = Rn.System.getInstance();
@@ -61,6 +68,7 @@ declare const Rn: typeof _Rn;
       '../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
     );
     //    const promise = importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
+    //---------------------------
     promise.then(response => {
       const modelConverter = Rn.ModelConverter.getInstance();
       const rootGroup = modelConverter.convertToRhodoniteObject(response);
@@ -122,11 +130,14 @@ declare const Rn: typeof _Rn;
       };
 
       draw();
+    //-----------------
     });
+  //---------------------
   });
-})();
 
-function exportGltf2() {
+})();
+window.exportGltf2 = function () {
+  
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
-}
+};

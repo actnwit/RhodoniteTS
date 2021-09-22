@@ -359,7 +359,8 @@ declare const Rn: typeof _Rn;
   });
 })();
 
-function exportGltf2() {
+window.exportGltf2 = function () {
+  
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
-}
+};
