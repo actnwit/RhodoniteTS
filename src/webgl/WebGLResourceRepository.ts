@@ -54,11 +54,6 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
-import {
-  ProcessApproachClass,
-  ProcessApproachEnum,
-} from '../foundation/definitions/ProcessApproach';
-import Config from '../foundation/core/Config';
 
 declare let HDRImage: any;
 
