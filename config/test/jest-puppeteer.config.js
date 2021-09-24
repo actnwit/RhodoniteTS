@@ -11,6 +11,11 @@ module.exports = {
     // dumpio: true,
     // executablePath: "/Applications/Chromium.app/Contents/MacOS/Chromium", // Try this if you got error in M1 Mac
 
-    args: ["--start-maximized", "--no-sandbox", "--disable-gpu", "--disable-audio-output"],
+    args: [
+      '--start-maximized',
+      '--no-sandbox',
+      '--disable-gpu',
+      '--disable-audio-output',
+    ],
   },
 };

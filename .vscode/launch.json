@@ -1,22 +1,25 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            // You need the "Debugger for Chrome" VSCode Extension
-            "name": "Launch Chrome to debug Rhodonite samples",
-            "request": "launch",
-            "type": "chrome",
-            "webRoot": "${workspaceFolder}",
-            "url": "http://localhost:8082/samples/",
-            "skipFiles": ["<node_internals>/**"],
-            // "preLaunchTask": "npm: build-umd-dev",
-            // "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-            "sourceMaps": true,
-            "smartStep": true,
-            "internalConsoleOptions": "openOnSessionStart",
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // You need the "Debugger for Chrome" VSCode Extension
+      "name": "Launch Chrome to debug Rhodonite samples",
+      "request": "launch",
+      "type": "chrome",
+      "webRoot": "${workspaceFolder}",
+      "url": "http://localhost:8082/samples/",
+      "skipFiles": ["<node_internals>/**"],
+      // "preLaunchTask": "npm: build-umd-dev",
+      // "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "sourceMaps": true,
+      "smartStep": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "runtimeArgs": [
+        "--remote-debugging-port=9222"
+      ],
+    }
+  ]
 }
