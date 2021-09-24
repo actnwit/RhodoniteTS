@@ -39,11 +39,11 @@ export default class System {
   private __animationFrameId = -1;
 
   private __renderLoopFunc?: Function;
-  private __args?: unknown[];
+  private __args: unknown[] = [];
 
   private constructor() {}
 
-  doRenderLoop(renderLoopFunc: Function, time: number, ...args: unknown[]) {
+  startRenderLoop(renderLoopFunc: Function, ...args: unknown[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
@@ -57,7 +57,7 @@ export default class System {
       if (Is.exist(rnVRModule)) {
         let webVRSystem: WebVRSystem;
         if (webXRSystem.isReadyForWebXR) {
-          webXRSystem._preRender(time, xrFrame);
+          webXRSystem._preRender(_time, xrFrame);
         } else {
           webVRSystem = rnVRModule.WebVRSystem.getInstance();
           if (webVRSystem.isReadyForWebVR) {
@@ -66,8 +66,7 @@ export default class System {
         }
       }
 
-      args.splice(0, 0, time);
-      renderLoopFunc.apply(renderLoopFunc, args);
+      renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
 
       if (Is.exist(rnVRModule)) {
         if (webXRSystem.isReadyForWebXR) {
@@ -79,7 +78,7 @@ export default class System {
           }
         }
       }
-      this.doRenderLoop(renderLoopFunc, _time, args);
+      this.startRenderLoop(renderLoopFunc, ...args);
     }) as FrameRequestCallback);
   }
 
@@ -112,7 +111,7 @@ export default class System {
 
   restartRenderLoop() {
     if (this.__renderLoopFunc != null) {
-      this.doRenderLoop(this.__renderLoopFunc, 0, this.__args);
+      this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
     }
   }
 
