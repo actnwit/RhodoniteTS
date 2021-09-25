@@ -382,10 +382,10 @@ export default class Primitive extends RnObject {
     if (this.__vertexHandles != null) {
       return false;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(
-      this
-    );
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__vertexHandles =
+      webglResourceRepository.createVertexBufferAndIndexBuffer(this);
 
     return true;
   }
@@ -396,7 +396,8 @@ export default class Primitive extends RnObject {
       return false;
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.updateVertexBufferAndIndexBuffer(
       this,
       vertexHandles
@@ -409,7 +410,8 @@ export default class Primitive extends RnObject {
     if (this.__vertexHandles == null) {
       return false;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.deleteVertexDataResources(this.__vertexHandles);
     this.__vertexHandles = undefined;
 
@@ -535,12 +537,10 @@ export default class Primitive extends RnObject {
     }
 
     const vec3 = Vector3.subtract(origVec3, this.__arenberg3rdPosition[i]);
-    const convertedOrigVec3 = this.__inverseArenbergMatrix[i].multiplyVector(
-      vec3
-    );
-    const convertedDirVec3 = this.__inverseArenbergMatrix[i].multiplyVector(
-      dirVec3
-    );
+    const convertedOrigVec3 =
+      this.__inverseArenbergMatrix[i].multiplyVector(vec3);
+    const convertedDirVec3 =
+      this.__inverseArenbergMatrix[i].multiplyVector(dirVec3);
 
     if (convertedDirVec3.z >= -1e-6 && convertedDirVec3.z <= 1e-6) {
       return null;

@@ -756,7 +756,8 @@ export default class Mesh {
         return false;
       }
 
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
 
       if (
         this.__variationVBOUid !==
@@ -772,9 +773,8 @@ export default class Mesh {
         entityUIDs[i + 1] = this.__instances[i]._attachedEntityUID;
       }
 
-      this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(
-        entityUIDs
-      );
+      this.__variationVBOUid =
+        webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
 
       this.__instancesDirty = false;
 
@@ -786,7 +786,8 @@ export default class Mesh {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.deleteVariationVBO();
     } else {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
       if (
         this.__variationVBOUid !==
         CGAPIResourceRepository.InvalidCGAPIResourceUid
@@ -807,7 +808,8 @@ export default class Mesh {
       return this.__instanceOf!.updateVAO();
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
@@ -849,7 +851,8 @@ export default class Mesh {
       return this.__instanceOf!.updateVAO();
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
       webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
