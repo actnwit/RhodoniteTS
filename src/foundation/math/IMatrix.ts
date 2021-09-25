@@ -21,6 +21,7 @@ export interface IMatrix {
   v(i: number): number;
   determinant(): number;
   readonly isIdentityMatrixClass: boolean;
+  isTheSourceSame(arrayBuffer: ArrayBuffer): boolean;
 }
 
 export interface IMutableMatrix extends IMatrix {

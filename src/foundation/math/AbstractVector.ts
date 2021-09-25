@@ -51,11 +51,11 @@ export default abstract class AbstractVector implements IVector {
     return this._v[i];
   }
 
-  isArrayBufferOfTheSourceSame(arrayBuffer: ArrayBuffer): boolean {
+  isTheSourceSame(arrayBuffer: ArrayBuffer): boolean {
     return this._v.buffer === arrayBuffer;
   }
 
-  get className() {
+  get className(): string {
     return this.constructor.name;
   }
 }

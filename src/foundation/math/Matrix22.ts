@@ -9,9 +9,7 @@ import {MathUtil} from './MathUtil';
 import MutableVector2 from './MutableVector2';
 import AbstractMatrix from './AbstractMatrix';
 
-export default class Matrix22
-  extends AbstractMatrix
-  implements IMatrix, IMatrix22 {
+export default class Matrix22 extends AbstractMatrix implements IMatrix22 {
   constructor(m: null);
   constructor(
     m: Float32Array,
@@ -39,7 +37,7 @@ export default class Matrix22
   ) {
     super();
     const _isColumnMajor = arguments.length === 5 ? isColumnMajor : m1;
-    const _notCopyFloatArray = arguments.length === 3 ? notCopyFloatArray : m2;
+    const _notCopyFloatArray = arguments.length === 6 ? notCopyFloatArray : m2;
     const m = m0;
 
     if (m == null) {
