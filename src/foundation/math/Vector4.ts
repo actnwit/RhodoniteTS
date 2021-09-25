@@ -12,7 +12,8 @@ import AbstractVector from './AbstractVector';
 
 export class Vector4_<T extends TypedArrayConstructor>
   extends AbstractVector
-  implements IVector, IVector4 {
+  implements IVector, IVector4
+{
   constructor(
     x:
       | number
@@ -588,3 +589,7 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
 }
 
 export type Vector4f = Vector4;
+
+export const ConstVector4_1_1_1_1 = new Vector4(1, 1, 1, 1);
+export const ConstVector4_0_0_0_1 = new Vector4(0, 0, 0, 1);
+export const ConstVector4_0_0_0_0 = new Vector4(0, 0, 0, 0);
