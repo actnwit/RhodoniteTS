@@ -200,10 +200,11 @@ export default class MeshComponent extends Component {
         );
         let intersectedPositionInWorld = null;
         if (intersectedPosition != null && t >= 0) {
-          intersectedPositionInWorld = this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
-            intersectedPosition,
-            MeshComponent.__returnVector3
-          );
+          intersectedPositionInWorld =
+            this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
+              intersectedPosition,
+              MeshComponent.__returnVector3
+            );
         }
 
         return {t, intersectedPositionInWorld};

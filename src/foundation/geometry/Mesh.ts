@@ -15,6 +15,7 @@ import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
 import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is as is} from '../misc/Is';
+import {IVector3} from '../math/IVector';
 
 /**
  * The Mesh class.
@@ -860,24 +861,22 @@ export default class Mesh {
   }
 
   castRay(
-    srcPointInLocal: Vector3,
-    directionInLocal: Vector3,
+    srcPointInLocal: IVector3,
+    directionInLocal: IVector3,
     dotThreshold = 0
   ) {
     let finalShortestIntersectedPosVec3: Vector3 | undefined;
     let finalShortestT = Number.MAX_VALUE;
     for (const primitive of this.__primitives) {
-      const {
-        currentShortestIntersectedPosVec3,
-        currentShortestT,
-      } = primitive.castRay(
-        srcPointInLocal,
-        directionInLocal,
-        true,
-        true,
-        dotThreshold,
-        this.__hasFaceNormal
-      );
+      const {currentShortestIntersectedPosVec3, currentShortestT} =
+        primitive.castRay(
+          srcPointInLocal,
+          directionInLocal,
+          true,
+          true,
+          dotThreshold,
+          this.__hasFaceNormal
+        );
       if (currentShortestT != null && currentShortestT < finalShortestT) {
         finalShortestT = currentShortestT;
         finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;

@@ -22,6 +22,7 @@ import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
 import {Is as is} from '../misc/Is';
+import {IVector3} from '../math/IVector';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -420,8 +421,8 @@ export default class Primitive extends RnObject {
   }
 
   castRay(
-    origVec3: Vector3,
-    dirVec3: Vector3,
+    origVec3: IVector3,
+    dirVec3: IVector3,
     isFrontFacePickable: boolean,
     isBackFacePickable: boolean,
     dotThreshold: number,
@@ -505,8 +506,8 @@ export default class Primitive extends RnObject {
   }
 
   private __castRayInner(
-    origVec3: Vector3,
-    dirVec3: Vector3,
+    origVec3: IVector3,
+    dirVec3: IVector3,
     i: Index,
     pos0IndexBase: Index,
     pos1IndexBase: Index,
