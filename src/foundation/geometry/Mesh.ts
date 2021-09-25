@@ -758,7 +758,7 @@ export default class Mesh {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
       if (
-        this.__variationVBOUid !=
+        this.__variationVBOUid !==
         CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
         webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);

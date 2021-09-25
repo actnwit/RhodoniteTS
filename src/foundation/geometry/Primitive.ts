@@ -576,7 +576,7 @@ export default class Primitive extends RnObject {
   }
 
   _calcArenbergInverseMatrices() {
-    if (this.__inverseArenbergMatrix.length != 0) {
+    if (this.__inverseArenbergMatrix.length !== 0) {
       return;
     }
 
