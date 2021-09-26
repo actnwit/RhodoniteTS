@@ -1,5 +1,5 @@
 import {IVector2, IVector3, IVector4, IMutableVector4} from './IVector';
-import {Array4, FloatTypedArrayConstructor} from '../../types/CommonTypes';
+import {Array4, FloatTypedArray, FloatTypedArrayConstructor} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import AbstractVector from './AbstractVector';
@@ -8,9 +8,9 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
   implements IVector4
 {
-  constructor(x: Float32Array | Float64Array, {type}: {type: T}) {
+  protected constructor(v: FloatTypedArray, {type}: {type: T}) {
     super();
-    this._v = x;
+    this._v = v;
   }
 
   get x(): number {
@@ -523,7 +523,7 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
 }
 
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
-  constructor(x: Float64Array) {
+  private constructor(x: Float64Array) {
     super(x, {type: Float64Array});
   }
 
