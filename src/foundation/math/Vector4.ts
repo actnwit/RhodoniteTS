@@ -45,11 +45,18 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
     )}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])})`;
   }
 
-  static _fromCopyArray(
+  static _fromCopyArray4(
     array: Array4<number>,
     type: FloatTypedArrayConstructor
   ) {
     return new this(new type(array), {type});
+  }
+
+  static _fromCopyArray(
+    array: Array<number>,
+    type: FloatTypedArrayConstructor
+  ) {
+    return new this(new type(array.slice(0, 4)), {type});
   }
 
   static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor) {
@@ -457,6 +464,10 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
     return super._fromCopyArray(array, Float32Array);
   }
 
+  static fromCopyArray4(array: Array4<number>): Vector4 {
+    return super._fromCopyArray4(array, Float32Array);
+  }
+
   static fromCopyVector3(vec3: IVector3): Vector4 {
     return super._fromCopyVector3(vec3, Float32Array);
   }
@@ -525,6 +536,10 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   private constructor(x: Float64Array) {
     super(x, {type: Float64Array});
+  }
+
+  static fromCopyArray4(array: Array4<number>): Vector4d {
+    return super._fromCopyArray4(array, Float64Array) as Vector4d;
   }
 
   static fromCopyArray(array: Array4<number>): Vector4d {
