@@ -225,4 +225,8 @@ export default class RnObject {
     this.__objectsByNameMap = new Map();
     this.__objects = [];
   }
+
+  destroy() {
+
+  }
 }
