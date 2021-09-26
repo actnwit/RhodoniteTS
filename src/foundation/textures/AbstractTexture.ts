@@ -96,12 +96,15 @@ export default abstract class AbstractTexture extends RnObject {
     if (this.__htmlCanvasElement == null) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
+      if (this.__htmlImageElement == null) {
+        this.__htmlImageElement = document.createElement("img");
+      }
       ctx.drawImage(
         this.__htmlImageElement!,
         0,
         0,
-        this.__htmlImageElement!.width,
-        this.__htmlImageElement!.height
+        this.__width,
+        this.__height
       );
       this.__htmlCanvasElement = canvas;
     }
