@@ -244,7 +244,14 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
   }
 
   clone() {
-    return super.clone() as MutableVector4;
+    return new (this.constructor as any)(
+      new (this._v.constructor as any)([
+        this._v[0],
+        this._v[1],
+        this._v[2],
+        this._v[3],
+      ])
+    );
   }
 }
 

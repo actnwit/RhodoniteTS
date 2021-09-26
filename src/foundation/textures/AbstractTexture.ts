@@ -154,9 +154,13 @@ export default abstract class AbstractTexture extends RnObject {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     if (typeClass.compositionType === CompositionType.Vec4) {
-      return new (typeClass as any)(data[0], data[1], data[2], data[3]);
+      return new (typeClass as any)(
+        new Float32Array([data[0], data[1], data[2], data[3]])
+      );
     } else {
-      return new (typeClass as any)(data[0], data[1], data[2]);
+      return new (typeClass as any)(
+        new Float32Array([data[0], data[1], data[2]])
+      );
     }
   }
 
@@ -178,11 +182,12 @@ export default abstract class AbstractTexture extends RnObject {
   ) {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
-    const classOfValue = (value.constructor as unknown) as {
+    const classOfValue = value.constructor as unknown as {
       compositionType: CompositionTypeEnum; // value.constructor needs to have compositionType only
     };
 
-    const numberOfComponents = classOfValue.compositionType.getNumberOfComponents();
+    const numberOfComponents =
+      classOfValue.compositionType.getNumberOfComponents();
     for (let i = 0; i < numberOfComponents; i++) {
       data[i] = value.at(i);
     }
