@@ -8,6 +8,7 @@ export type TypedArray =
   | Uint32Array
   | Float32Array
   | Float64Array;
+export type FloatTypedArray = Float32Array | Float64Array;
 export type ArrayType = TypedArray | Array<number>;
 
 export type TypedArrayConstructor =
@@ -18,6 +19,10 @@ export type TypedArrayConstructor =
   | Uint16ArrayConstructor
   | Int32ArrayConstructor
   | Uint32ArrayConstructor
+  | Float32ArrayConstructor
+  | Float64ArrayConstructor;
+
+export type FloatTypedArrayConstructor =
   | Float32ArrayConstructor
   | Float64ArrayConstructor;
 
