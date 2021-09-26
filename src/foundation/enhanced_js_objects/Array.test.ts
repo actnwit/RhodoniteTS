@@ -23,7 +23,7 @@ test('array[GetComponentFromEntities]', () => {
   entities.push(generateEntity());
   entities.push(generateEntity());
 
-  console.log('getComponentFromEntities: ' +  entities.Rn.getComponentFromEntities)
+  // console.log('getComponentFromEntities: ' +  entities.Rn.getComponentFromEntities)
 
   const components = entities.Rn.getComponentFromEntities(Rn.MeshComponent);
   expect(components[0]).toBeInstanceOf(Rn.MeshComponent);

@@ -7,7 +7,7 @@ test('Promise.', async () => {
     const p3 = RnPromise.resolve(3);
 
     RnPromise.all([p1, p2, p3]).then((results: any) => {
-      console.log(results); // [1, 2, 3]
+      // console.log(results); // [1, 2, 3]
       expect(results).toEqual([1, 2, 3]);
       resolve();
     });
@@ -24,7 +24,7 @@ test('RnPromise.resolve of thenable', async () => {
     const p1 = RnPromise.resolve(thenable);
 
     RnPromise.all([p1]).then((results: any) => {
-      console.log(results);
+      // console.log(results);
       expect(results).toEqual(['Resolving']);
       resolve();
     });
@@ -40,11 +40,11 @@ test('RnPromise.resolve of resolving rnPromise', async () => {
 
     RnPromise.all([p1])
       .then((results: any) => {
-        console.log(results);
+        // console.log(results);
         expect(results).toEqual(['resolve']);
       })
       .catch((results: any) => {
-        console.log(results);
+        // console.log(results);
       })
       .finally(() => {
         resolve();
@@ -61,10 +61,10 @@ test('RnPromise.resolve of rejecting rnPromise', async () => {
 
     RnPromise.all([p1])
       .then((results: any) => {
-        console.log(results);
+        // console.log(results);
       })
       .catch((results: any) => {
-        console.log(results);
+        // console.log(results);
         expect(results).toEqual('reject');
       })
       .finally(() => {
