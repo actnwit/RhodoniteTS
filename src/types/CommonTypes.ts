@@ -8,7 +8,7 @@ export type TypedArray =
   | Uint32Array
   | Float32Array
   | Float64Array;
-export type ArrayType = TypedArray | Array<number> | Array<boolean>;
+export type ArrayType = TypedArray | Array<number>;
 
 export type TypedArrayConstructor =
   | Int8ArrayConstructor
