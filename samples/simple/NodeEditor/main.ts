@@ -9,12 +9,18 @@ declare const Rn: typeof _Rn;
     Rn.CompositionType.Vec4,
     Rn.ComponentType.Float
   );
-  constant1.setDefaultInputValue('value', new Rn.Vector4(1, 2, 3, 4));
+  constant1.setDefaultInputValue(
+    'value',
+    Rn.Vector4.fromCopyArray([1, 2, 3, 4])
+  );
   const constant2 = new Rn.ConstantVariableShaderNode(
     Rn.CompositionType.Vec4,
     Rn.ComponentType.Float
   );
-  constant2.setDefaultInputValue('value', new Rn.Vector4(4, 3, 2, 1));
+  constant2.setDefaultInputValue(
+    'value',
+    Rn.Vector4.fromCopyArray([4, 3, 2, 1])
+  );
 
   const addShaderNode = new Rn.AddShaderNode(
     Rn.CompositionType.Vec4,

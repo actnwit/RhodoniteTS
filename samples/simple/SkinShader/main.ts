@@ -19,7 +19,7 @@ const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraCompon
 
   const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
   renderPass.setFramebuffer(framebuffer);
-  renderPass.clearColor = new Rn.Vector4(0, 0, 0, 1);
+  renderPass.clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 1]);
   renderPass.toClearColorBuffer = true;
   renderPass.toClearDepthBuffer = true;
 

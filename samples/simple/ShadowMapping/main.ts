@@ -17,10 +17,10 @@ declare const Rn: typeof _Rn;
 
   const resolutionDepthCamera = 512;
 
-  const diffuseColorFactorSmallBoard = new Rn.Vector4(0.5, 0.1, 0.4, 1);
-  const diffuseColorFactorLargeBoard = new Rn.Vector4(0.1, 0.7, 0.5, 1);
+  const diffuseColorFactorSmallBoard = Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1]);
+  const diffuseColorFactorLargeBoard = Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1]);
 
-  const shadowColorFactorLargeBoard = new Rn.Vector4(0.05, 0.35, 0.25, 1);
+  const shadowColorFactorLargeBoard = Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1]);
 
   // ---main algorithm-----------------------------------------------------------------------------------------
 

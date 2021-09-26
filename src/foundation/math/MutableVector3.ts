@@ -5,11 +5,11 @@ import {
   IMutableVector,
   IMutableVector3,
 } from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+import {TypedArray, FloatTypedArrayConstructor} from '../../types/CommonTypes';
 import {Vector3_} from './Vector3';
 import {IQuaternion} from './IQuaternion';
 
-export class MutableVector3_<T extends TypedArrayConstructor>
+export class MutableVector3_<T extends FloatTypedArrayConstructor>
   extends Vector3_<T>
   implements IMutableVector, IMutableVector3 {
   constructor(

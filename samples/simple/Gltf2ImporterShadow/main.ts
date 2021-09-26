@@ -179,11 +179,11 @@ declare const Rn: typeof _Rn;
     );
     material.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
-      new Rn.Vector4(0.0, 0.0, 0.0, 0.0)
+      Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0])
     );
     material.setParameter(
       Rn.ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
-      new Rn.Vector4(0.0, 0.0, 0.0, 0.5)
+      Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5])
     );
     material.alphaMode = Rn.AlphaMode.Translucent;
 

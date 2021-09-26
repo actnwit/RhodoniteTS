@@ -448,7 +448,7 @@ export default class MathClassUtil {
       let vec;
       switch (floatArray.length) {
         case 4:
-          vec = new Vector4(floatArray);
+          vec = Vector4.fromFloat32Array(floatArray);
           break;
         case 3:
           vec = new Vector3(floatArray);

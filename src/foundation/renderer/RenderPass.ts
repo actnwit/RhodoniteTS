@@ -192,11 +192,16 @@ export default class RenderPass extends RnObject {
    * Sets the viewport of this render pass.
    * @param vec A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
    */
-  setViewport(vec: Vector4) {
+  setViewport(vec: IVector4) {
     if (this.__viewport != null) {
       this.__viewport.copyComponents(vec);
     } else {
-      this.__viewport = new MutableVector4(vec);
+      this.__viewport = MutableVector4.fromCopyArray([
+        vec.x,
+        vec.y,
+        vec.z,
+        vec.w,
+      ]);
     }
   }
 
