@@ -1,25 +1,17 @@
+import {IVector4, IMutableVector, IMutableVector4} from './IVector';
 import {
-  IVector2,
-  IVector3,
-  IVector4,
-  IMutableVector,
-  IMutableVector4,
-} from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+  Array4,
+  FloatTypedArray,
+  FloatTypedArrayConstructor,
+} from '../../types/CommonTypes';
 import {Vector4_} from './Vector4';
 
-export class MutableVector4_<T extends TypedArrayConstructor>
+export class MutableVector4_<T extends FloatTypedArrayConstructor>
   extends Vector4_<T>
   implements IMutableVector, IMutableVector4
 {
-  constructor(
-    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
-    y: number,
-    z: number,
-    w: number,
-    {type}: {type: T}
-  ) {
-    super(x, y, z, w, {type});
+  constructor(x: FloatTypedArray, {type}: {type: T}) {
+    super(x, {type});
   }
 
   set x(x: number) {
@@ -199,13 +191,12 @@ export class MutableVector4_<T extends TypedArrayConstructor>
 }
 
 export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
-  constructor(
-    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
-    y?: number,
-    z?: number,
-    w?: number
-  ) {
-    super(x, y!, z!, w!, {type: Float32Array});
+  constructor(x: Float32Array) {
+    super(x, {type: Float32Array});
+  }
+
+  static fromCopyArray(array: Array4<number>): MutableVector4 {
+    return new MutableVector4(new Float32Array(array));
   }
 
   static zero() {
@@ -258,13 +249,8 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
 }
 
 export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
-  constructor(
-    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
-    y?: number,
-    z?: number,
-    w?: number
-  ) {
-    super(x, y!, z!, w!, {type: Float64Array});
+  constructor(x: Float64Array) {
+    super(x, {type: Float64Array});
   }
 
   static zero() {
@@ -305,6 +291,10 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
 
   static divideVector(l_vec: IVector4, r_vec: IVector4) {
     return super._divideVector(l_vec, r_vec, Float64Array) as MutableVector4d;
+  }
+
+  static fromCopyArray(array: Array4<number>): MutableVector4d {
+    return new MutableVector4d(new Float64Array(array));
   }
 
   clone() {
