@@ -22,15 +22,20 @@ import type {
 } from 'webxr';
 import System from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
-import {updateGamePad, createMotionController, updateMotionControllerModel, getMotionController} from './WebXRInput';
-import { Is } from '../foundation/misc/Is';
+import {
+  updateGamePad,
+  createMotionController,
+  updateMotionControllerModel,
+  getMotionController,
+} from './WebXRInput';
+import {Is} from '../foundation/misc/Is';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableQuaternion from '../foundation/math/MutableQuaternion';
 import MutableScalar from '../foundation/math/MutableScalar';
 
 declare const navigator: Navigator;
 declare const window: any;
-const defaultUserPositionInVR = new Vector3(0.0, 1.1, 0);
+const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 
 export default class WebXRSystem {
   private static __instance: WebXRSystem;
@@ -381,8 +386,15 @@ export default class WebXRSystem {
       const pos = xrView.transform.position;
       const def = this.__defaultPositionInLocalSpaceMode;
       const translate = this.__viewerTranslate;
-      const viewerHeadPos = Vector3.add(new Vector3(pos.x, pos.y, pos.z), def);
-      return new Vector3((viewerHeadPos.x + translate.x) * this.__viewerScale.x, (viewerHeadPos.y + translate.y) * this.__viewerScale.y, (viewerHeadPos.z + translate.z) * this.__viewerScale.z);
+      const viewerHeadPos = Vector3.add(
+        Vector3.fromCopyArray([pos.x, pos.y, pos.z]),
+        def
+      );
+      return Vector3.fromCopyArray([
+        (viewerHeadPos.x + translate.x) * this.__viewerScale.x,
+        (viewerHeadPos.y + translate.y) * this.__viewerScale.y,
+        (viewerHeadPos.z + translate.z) * this.__viewerScale.z,
+      ]);
     } else {
       return this.__defaultPositionInLocalSpaceMode;
     }
@@ -484,30 +496,52 @@ export default class WebXRSystem {
 
     const scale = this.__viewerScale.x;
     const pos = xrViewLeft.transform.position;
-    const translateLeftScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
-    const translateRightScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
-    const xrViewerPosLeft = new Vector3(pos.x, pos.y, pos.z);
-    const xrViewerPosRight = new Vector3(pos.x, pos.y, pos.z);
-    const translateLeft = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate).add(xrViewerPosLeft);
-    const translateRight = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate).add(xrViewerPosRight);
-    const viewerTranslateScaledX = (translateLeftScaled.x + translateRightScaled.x) / 2;
-    const viewerTranslateScaledZ = (translateLeftScaled.z + translateRightScaled.z) / 2;
+    const translateLeftScaled = MutableVector3.add(
+      this.__defaultPositionInLocalSpaceMode,
+      this.__viewerTranslate
+    );
+    const translateRightScaled = MutableVector3.add(
+      this.__defaultPositionInLocalSpaceMode,
+      this.__viewerTranslate
+    );
+    const xrViewerPosLeft = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
+    const xrViewerPosRight = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
+    const translateLeft = MutableVector3.add(
+      this.__defaultPositionInLocalSpaceMode,
+      this.__viewerTranslate
+    ).add(xrViewerPosLeft);
+    const translateRight = MutableVector3.add(
+      this.__defaultPositionInLocalSpaceMode,
+      this.__viewerTranslate
+    ).add(xrViewerPosRight);
+    const viewerTranslateScaledX =
+      (translateLeftScaled.x + translateRightScaled.x) / 2;
+    const viewerTranslateScaledZ =
+      (translateLeftScaled.z + translateRightScaled.z) / 2;
     const viewerTranslateX = (translateLeft.x + translateRight.x) / 2;
     const viewerTranslateZ = (translateLeft.z + translateRight.z) / 2;
     const viewerTransform = this.__viewerEntity.getTransform();
-    viewerTransform.translate = new Vector3(viewerTranslateScaledX, 0, viewerTranslateScaledZ);
-    viewerTransform.scale = new Vector3(scale, scale, scale);
-    viewerTransform.rotate = new Vector3(0, this.__viewerAzimuthAngle.x, 0);
+    viewerTransform.translate = Vector3.fromCopyArray([
+      viewerTranslateScaledX,
+      0,
+      viewerTranslateScaledZ,
+    ]);
+    viewerTransform.scale = Vector3.fromCopyArray([scale, scale, scale]);
+    viewerTransform.rotate = Vector3.fromCopyArray([
+      0,
+      this.__viewerAzimuthAngle.x,
+      0,
+    ]);
 
     rotateMatLeft.translateY = translateLeft.y;
-    rotateMatLeft.translateX = (translateLeft.x - viewerTranslateX);
-    rotateMatLeft.translateZ = (translateLeft.z - viewerTranslateZ);
+    rotateMatLeft.translateX = translateLeft.x - viewerTranslateX;
+    rotateMatLeft.translateZ = translateLeft.z - viewerTranslateZ;
     rotateMatLeft.translateY += xrViewerPosLeft.y;
     rotateMatLeft.translateX += xrViewerPosLeft.x;
     rotateMatLeft.translateZ += xrViewerPosLeft.z;
     rotateMatRight.translateY = translateRight.y;
-    rotateMatRight.translateX = (translateRight.x - viewerTranslateX);
-    rotateMatRight.translateZ = (translateRight.z - viewerTranslateZ);
+    rotateMatRight.translateX = translateRight.x - viewerTranslateX;
+    rotateMatRight.translateZ = translateRight.z - viewerTranslateZ;
     rotateMatRight.translateY += xrViewerPosRight.y;
     rotateMatRight.translateX += xrViewerPosRight.x;
     rotateMatRight.translateZ += xrViewerPosRight.z;

@@ -12,7 +12,7 @@ import MutableQuaternion from '../math/MutableQuaternion';
 import {ProcessStage} from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
-import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
+import {ComponentTID, ComponentSID, EntityUID, Array3} from '../../types/CommonTypes';
 import {IQuaternion} from '../math/IQuaternion';
 import {IMatrix44} from '../math/IMatrix';
 import {IVector3} from '../math/IVector';
@@ -155,7 +155,7 @@ export default class TransformComponent extends Component {
     return this.translateInner.clone();
   }
 
-  get translateInner() {
+  get translateInner(): MutableVector3 {
     if (this._is_translate_updated) {
       return this._translate;
     } else if (this._is_trs_matrix_updated) {
@@ -533,7 +533,9 @@ export default class TransformComponent extends Component {
         } else if (key === 'matrix') {
           this[key] = new Matrix44((json as any)[key] as Array<number>);
         } else {
-          (this as any)[key] = new Vector3((json as any)[key] as Array<number>);
+          (this as any)[key] = Vector3.fromCopyArray(
+            (json as any)[key] as Array3<number>
+          );
         }
       }
     }

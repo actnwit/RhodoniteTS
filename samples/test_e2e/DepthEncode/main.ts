@@ -19,7 +19,7 @@ let p: any;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1; // depthCameraComponent.direction = lightDirection;
   const cameraEntity = cameraComponent.entity;
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.2, 0.35, -0.5);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.2, 0.35, -0.5]);
 
   // render pass and expression
   const renderPass = createRenderPassSpecifyingCameraComponent(cameraComponent);
@@ -33,12 +33,12 @@ let p: any;
 
   renderPass.addEntities([smallBoardEntity, largeBoardEntity]);
 
-  smallBoardEntity.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
-  smallBoardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -1.0);
-  smallBoardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+  smallBoardEntity.getTransform().scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
+  smallBoardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
+  smallBoardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
-  largeBoardEntity.getTransform().translate = new Rn.Vector3(0, 0, -1.5);
-  largeBoardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+  largeBoardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 0, -1.5]);
+  largeBoardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
   // For debug
   // const cameraControllerComponent = cameraEntity.getCameraController();

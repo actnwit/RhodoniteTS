@@ -162,7 +162,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           compositionType: CompositionType.Vec3,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
-          initialValue: new Vector3(0.0, 0.1, 0.01),
+          initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
           min: 0,
           max: 1,
           isSystem: false,

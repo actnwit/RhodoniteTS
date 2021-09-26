@@ -31,22 +31,22 @@ declare const Rn: typeof _Rn;
   cameraComponent.setFovyAndChangeFocalLength(45);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  // lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
-  // lightEntity.getLight().intensity = new Rn.Vector3(1, 1, 1);
+  // lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
+  // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   const lightEntity = entityRepository.createEntity([
     Rn.TransformComponent,
     Rn.SceneGraphComponent,
     Rn.LightComponent,
   ]);
-  lightEntity.getTransform().translate = new Rn.Vector3(1.0, 1.0, 100000.0);
-  lightEntity.getLight().intensity = new Rn.Vector3(1, 1, 1);
+  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 1.0, 100000.0]);
+  lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   lightEntity.getLight().type = Rn.LightType.Directional;
-  lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
-  //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+  //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
   //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
@@ -68,9 +68,9 @@ declare const Rn: typeof _Rn;
   //const response = await importer.import('../../../assets/gltf/1.0/BrainStem/glTF/BrainStem.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
-  //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
-  //  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
-  //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
+  //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
+  //  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
+  //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();

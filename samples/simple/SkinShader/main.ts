@@ -23,7 +23,7 @@ const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraCompon
   renderPass.toClearColorBuffer = true;
   renderPass.toClearDepthBuffer = true;
 
-  // rootGroup.getTransform().scale = new Rn.Vector3(100, 100, 100);
+  // rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([100, 100, 100]);
 
   renderPass.addEntities([rootGroup]);
 
@@ -60,13 +60,13 @@ const load = async function () {
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(30);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
 
   // Lights
   const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  lightEntity2.getTransform().translate = new Rn.Vector3(0.0, 0.0, 10.0);
-  (lightEntity2.getComponent(Rn.LightComponent) as LightComponent).intensity = new Rn.Vector3(1, 1, 1);
+  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
+  (lightEntity2.getComponent(Rn.LightComponent) as LightComponent).intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
   const response = await importer.import('');

@@ -27,8 +27,8 @@ declare const Rn: typeof _Rn;
   cameraComponent.aspect = 1.0;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = new Rn.Vector3(3, 0, 3);
-  cameraTransform.rotate = new Rn.Vector3(0, Math.PI / 4, 0);
+  cameraTransform.translate = Rn.Vector3.fromCopyArray([3, 0, 3]);
+  cameraTransform.rotate = Rn.Vector3.fromCopyArray([0, Math.PI / 4, 0]);
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
@@ -45,8 +45,8 @@ declare const Rn: typeof _Rn;
     Rn.SceneGraphComponent,
     Rn.LightComponent,
   ]);
-  lightEntity.getLight().intensity = new Rn.Vector3(0.4, 0.9, 0.7);
-  lightEntity.getTransform().translate = new Rn.Vector3(4.0, 0.0, 5.0);
+  lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.4, 0.9, 0.7]);
+  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
 
   let count = 0;
   Rn.AnimationComponent.globalTime = 3.6;

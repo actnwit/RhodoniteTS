@@ -19,13 +19,13 @@ declare const Rn: typeof _Rn;
   const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
 
-  const lightPosition = new Rn.Vector3(-15.0, 50.0, 30.0);
+  const lightPosition = Rn.Vector3.fromCopyArray([-15.0, 50.0, 30.0]);
 
   const zFarDepth = 3000;
 
-  const groundPosition = new Rn.Vector3(0.0, 0.0, 0.0);
-  const groundSize = new Rn.Vector3(128, 128, 128);
-  const rootGroupScale = new Rn.Vector3(4, 4, 4);
+  const groundPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 0.0]);
+  const groundSize = Rn.Vector3.fromCopyArray([128, 128, 128]);
+  const rootGroupScale = Rn.Vector3.fromCopyArray([4, 4, 4]);
   const resolutionDepthCamera = 1024;
 
   // ---main algorithm-----------------------------------------------------------------------------------------
@@ -166,8 +166,8 @@ declare const Rn: typeof _Rn;
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
-    entitySphere.getTransform().scale = new Rn.Vector3(-1, 1, 1);
-    entitySphere.getTransform().translate = new Rn.Vector3(0, 300, 0);
+    entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }

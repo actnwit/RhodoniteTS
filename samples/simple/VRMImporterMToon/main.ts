@@ -19,7 +19,7 @@ declare const Rn: typeof _Rn;
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // params
-  const rootGroupScale = new Rn.Vector3(1, 1, 1);
+  const rootGroupScale = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   const displayResolution = 800;
 
@@ -106,7 +106,7 @@ declare const Rn: typeof _Rn;
 
   for (const rootGroup of rootGroups) {
     rootGroup.getTransform().scale = rootGroupScale;
-    rootGroup.getTransform().rotate = new Rn.Vector3(0.0, Math.PI, 0.0);
+    rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, Math.PI, 0.0]);
   }
 
   renderPassMain.addEntities(rootGroups);
@@ -142,7 +142,7 @@ declare const Rn: typeof _Rn;
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
-  sphereEntity.getTransform().translate = new Rn.Vector3(0, 20, -20);
+  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 20, -20]);
 
   renderPassMain.addEntities([sphereEntity]);
 
@@ -154,8 +154,8 @@ declare const Rn: typeof _Rn;
   ]);
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
-  lightComponent.intensity = new Rn.Vector3(1.0, 1.0, 1.0);
-  lightEntity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, Math.PI / 8);
+  lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
   // CameraControllerComponent
   const mainCameraEntityUID = mainCameraComponent.entityUID;
@@ -204,7 +204,7 @@ declare const Rn: typeof _Rn;
 })();
 
 window.exportGltf2 = function () {
-  
+
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
 };
@@ -214,7 +214,7 @@ function rotEnv(rot) {
     meshRendererComponent.rotationOfCubeMap = rot;
   }
   // window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
-  window.sphereEntity.getTransform().rotate = new Rn.Vector3(0, -rot, 0);
+  window.sphereEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0, -rot, 0]);
 }
 
 function setDiffuseCubeMapContribution(value) {
@@ -325,8 +325,8 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-  boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

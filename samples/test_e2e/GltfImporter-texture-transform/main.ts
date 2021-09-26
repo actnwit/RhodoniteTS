@@ -28,7 +28,7 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = new Rn.Vector3(0, 0, 5.5);
+  cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 0, 5.5]);
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();

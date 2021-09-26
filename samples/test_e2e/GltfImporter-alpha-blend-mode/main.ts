@@ -26,8 +26,8 @@ document.body.appendChild(p);
   cameraComponent.aspect = world.width / world.height;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = new Rn.Vector3(0, 2, 8);
-  cameraTransform.rotate = new Rn.Vector3(-0.1, 0, 0);
+  cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 2, 8]);
+  cameraTransform.rotate = Rn.Vector3.fromCopyArray([-0.1, 0, 0]);
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();

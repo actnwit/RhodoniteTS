@@ -232,7 +232,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Vector3(this.__vectorProperties._ShadeColor),
+        initialValue: Vector3.fromCopyArray(
+          this.__vectorProperties._ShadeColor
+        ),
         min: 0,
         max: 1,
       },
@@ -316,7 +318,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Vector3(0.5785, 0.5785, 0.5785),
+        initialValue: Vector3.fromCopyArray([0.5785, 0.5785, 0.5785]),
         min: 0,
         max: 1,
       },
@@ -333,7 +335,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Vector3(this.__vectorProperties._RimColor),
+        initialValue: Vector3.fromCopyArray(
+          this.__vectorProperties._RimColor as Array3<number>
+        ),
         min: 0,
         max: 1,
       },
@@ -380,7 +384,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         isSystem: true,
         soloDatum: true,
-        initialValue: new Vector3(0, 1, 0),
+        initialValue: Vector3.fromCopyArray([0, 1, 0]),
         min: 0,
         max: 1,
       },
@@ -392,7 +396,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Vector3(this.__vectorProperties._EmissionColor),
+        initialValue: Vector3.fromCopyArray(
+          this.__vectorProperties._EmissionColor as Array3<number>
+        ),
         min: 0,
         max: 1,
       },
@@ -420,7 +426,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Vector3(0, 0, 1),
+        initialValue: Vector3.fromCopyArray([0, 0, 1]),
         min: 0,
         max: 10,
       },
@@ -509,7 +515,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
           isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
-          initialValue: new Vector3(this.__vectorProperties._OutlineColor),
+          initialValue: Vector3.fromCopyArray(
+            this.__vectorProperties._OutlineColor as Array3<number>
+          ),
           min: 0,
           max: 1,
         },

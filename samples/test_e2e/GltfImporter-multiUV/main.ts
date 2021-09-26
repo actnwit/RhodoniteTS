@@ -30,8 +30,8 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = new Rn.Vector3(4, 3, 4);
-  cameraTransform.rotate = new Rn.Vector3(-Math.PI / 6, Math.PI / 4, 0);
+  cameraTransform.translate = Rn.Vector3.fromCopyArray([4, 3, 4]);
+  cameraTransform.rotate = Rn.Vector3.fromCopyArray([-Math.PI / 6, Math.PI / 4, 0]);
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
@@ -48,8 +48,8 @@ document.body.appendChild(p);
     Rn.SceneGraphComponent,
     Rn.LightComponent,
   ]);
-  lightEntity.getLight().intensity = new Rn.Vector3(0.4, 0.9, 0.7);
-  lightEntity.getTransform().translate = new Rn.Vector3(4.0, 0.0, 5.0);
+  lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.4, 0.9, 0.7]);
+  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
 
   system.process([expression]);
 

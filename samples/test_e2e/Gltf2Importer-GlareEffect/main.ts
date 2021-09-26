@@ -25,7 +25,7 @@ declare const Rn: typeof _Rn;
   const gaussianBlurLevelHighLuminance = 3;
   const gaussianKernelSize = 5;
   const gaussianVariance = 3;
-  const rootGroupScale = new Rn.Vector3(50, 50, 50);
+  const rootGroupScale = Rn.Vector3.fromCopyArray([50, 50, 50]);
 
   //  ratio of the final drawing ([original image, glare level 0, glare level 1, glare level 2])
   //  glare level N means the glare effect in size [2^(N-1) * original image size]
@@ -186,8 +186,8 @@ declare const Rn: typeof _Rn;
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
-    entitySphere.getTransform().scale = new Rn.Vector3(-1, 1, 1);
-    entitySphere.getTransform().translate = new Rn.Vector3(0, 300, 0);
+    entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }
@@ -263,8 +263,8 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-    boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 
