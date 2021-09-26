@@ -1,4 +1,4 @@
-import {TypedArray} from 'rhodonite/dist/esm/types/CommonTypes';
+import {TypedArray} from '../../types/CommonTypes';
 import {IArrayBufferBasedMathNumber} from './IMathNumber';
 
 export abstract class AbstractArrayBufferBaseMathNumber
