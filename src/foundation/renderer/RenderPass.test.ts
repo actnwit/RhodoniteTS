@@ -29,7 +29,7 @@ test('addEntities and get entities', () => {
     return entity.entityUID;
   });
 
-  console.log(JSON.stringify(entitieUids));
+  // console.log(JSON.stringify(entitieUids));
 
   expect(JSON.stringify(entitieUids) == JSON.stringify([0, 2, 3, 1])).toBe(
     true

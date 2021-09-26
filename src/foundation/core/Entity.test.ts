@@ -36,6 +36,6 @@ test('The tryToSetUniqueName method can almost certainly set a new unique name b
   firstEntity.tryToSetUniqueName('Foo', false);
   const renamed = secondEntity.tryToSetUniqueName('Foo', true);
   expect(renamed).toBe(true);
-  console.log('secondEntity.uniqueName Is ' + secondEntity.uniqueName);
+  // console.log('secondEntity.uniqueName Is ' + secondEntity.uniqueName);
   expect(secondEntity.uniqueName === beforeSecondEntityName).toBe(false);
 });

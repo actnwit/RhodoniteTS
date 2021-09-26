@@ -54,7 +54,7 @@ export class EventPubSub implements IEventPubSub {
     let count = 0;
     const subscribers = nullishToEmptyArray(this.__subscriberMap.get(type));
     for (const sub of subscribers) {
-      console.log(sub);
+      // console.log(sub);
       sub(event);
       count++;
     }

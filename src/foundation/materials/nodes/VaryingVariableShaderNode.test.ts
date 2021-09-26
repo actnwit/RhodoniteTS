@@ -47,7 +47,7 @@ test('VaryingVariable works correctly 1', async () => {
     varyingIn1,
   ]);
 
-  console.log(vertexRet.shaderBody + pixelRet.shaderBody);
+  // console.log(vertexRet.shaderBody + pixelRet.shaderBody);
   expect(
     (vertexRet.shaderBody + pixelRet.shaderBody).replace(/\s+/g, '')
   ).toEqual(
