@@ -438,10 +438,12 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
 
   clone() {
     return new (this.constructor as any)(
-      this._v[0],
-      this._v[1],
-      this._v[2],
-      this._v[3]
+      new (this._v.constructor as any)([
+        this._v[0],
+        this._v[1],
+        this._v[2],
+        this._v[3],
+      ])
     );
   }
 }
