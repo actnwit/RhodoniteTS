@@ -21,6 +21,8 @@ export type TypedArrayConstructor =
   | Float32ArrayConstructor
   | Float64ArrayConstructor;
 
+export type Array4<T> = [T, T, T, T];
+export type Array3<T> = [T, T, T];
 export type Index = number;
 export type IndexOf16Bytes = number;
 export type IndexOf4Bytes = number;
