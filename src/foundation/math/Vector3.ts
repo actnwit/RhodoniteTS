@@ -5,7 +5,7 @@ import {
   IVector,
   IMutableVector3,
 } from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+import {Array3, FloatTypedArrayConstructor, TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion} from './IQuaternion';
@@ -500,6 +500,19 @@ export class Vector3_<T extends TypedArrayConstructor>
   clone() {
     return new (this.constructor as any)(this._v[0], this._v[1], this._v[2]);
   }
+  static _fromCopyArray3(
+    array: Array3<number>,
+    type: FloatTypedArrayConstructor
+  ) {
+    return new this(new type(array), 0, 0, {type});
+  }
+
+  static _fromCopyArray(
+    array: Array<number>,
+    type: FloatTypedArrayConstructor
+  ) {
+    return new this(new type(array.slice(0, 3)), 0, 0, {type});
+  }
 
   static lerp(lhs: IVector3, rhs: IVector3, ratio: number) {
     return new Vector3(
@@ -507,6 +520,27 @@ export class Vector3_<T extends TypedArrayConstructor>
       (lhs._v[1] * ratio) + rhs._v[1] * (1 - ratio),
       (lhs._v[2] * ratio) + rhs._v[2] * (1 - ratio)
     );
+  }
+
+  static _fromCopyVector3(vec3: IVector3, type: FloatTypedArrayConstructor) {
+    const vec = new this(new type([vec3._v[0], vec3._v[1], vec3._v[2]]), 0, 0, {
+      type,
+    });
+    return vec;
+  }
+
+  static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor) {
+    const vec = new this(new type([vec4._v[0], vec4._v[1], vec4._v[2]]), 0, 0, {
+      type,
+    });
+    return vec;
+  }
+
+  static _fromVector2(vec2: IVector2, type: FloatTypedArrayConstructor) {
+    const vec = new this(new type([vec2._v[0], vec2._v[1], 0]), 0, 0, {
+      type,
+    });
+    return vec;
   }
 }
 
@@ -529,29 +563,50 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
   static zero() {
     return super._zero(Float32Array) as Vector3;
   }
+  static fromCopyArray3(array: Array3<number>): Vector3 {
+    return super._fromCopyArray3(array, Float32Array);
+  }
 
   static one() {
     return super._one(Float32Array) as Vector3;
+  }
+  static fromCopyArray(array: Array<number>): Vector3 {
+    return super._fromCopyArray(array, Float32Array);
   }
 
   static dummy() {
     return super._dummy(Float32Array) as Vector3;
   }
+  static fromCopyVector3(vec3: IVector3): Vector3 {
+    return super._fromCopyVector3(vec3, Float32Array);
+  }
 
   static normalize(vec: IVector3) {
     return super._normalize(vec, Float32Array) as Vector3;
+  }
+  static fromCopyVector4(vec4: IVector4): Vector3 {
+    return super._fromCopyVector4(vec4, Float32Array);
   }
 
   static add(l_vec: IVector3, r_vec: IVector3) {
     return super._add(l_vec, r_vec, Float32Array) as Vector3;
   }
+  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector3 {
+    return new Vector3(new Float32Array(arrayBuffer));
+  }
 
   static subtract(l_vec: IVector3, r_vec: IVector3) {
     return super._subtract(l_vec, r_vec, Float32Array) as Vector3;
   }
+  static fromFloat32Array(float32Array: Float32Array): Vector3 {
+    return new Vector3(float32Array);
+  }
 
   static multiply(vec: IVector3, value: number) {
     return super._multiply(vec, value, Float32Array) as Vector3;
+  }
+  static fromCopyFloat32Array(float32Array: Float32Array): Vector3 {
+    return new Vector3(float32Array.slice(0));
   }
 
   static multiplyVector(l_vec: IVector3, r_vec: IVector3) {
@@ -598,17 +653,29 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
   static zero() {
     return super._zero(Float64Array) as Vector3d;
   }
+  static fromCopyArray3(array: Array3<number>): Vector3d {
+    return super._fromCopyArray3(array, Float64Array);
+  }
 
   static one() {
     return super._one(Float64Array) as Vector3d;
+  }
+  static fromCopyArray(array: Array<number>): Vector3d {
+    return super._fromCopyArray(array, Float64Array);
   }
 
   static dummy() {
     return super._dummy(Float64Array) as Vector3d;
   }
+  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector3d {
+    return new Vector3d(new Float64Array(arrayBuffer));
+  }
 
   static normalize(vec: IVector3) {
     return super._normalize(vec, Float64Array) as Vector3d;
+  }
+  static fromFloat64Array(float64Array: Float64Array): Vector3d {
+    return new Vector3d(float64Array);
   }
 
   static add(l_vec: IVector3, r_vec: IVector3) {
