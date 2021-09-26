@@ -15,14 +15,7 @@ export class Vector4_<T extends TypedArrayConstructor>
   implements IVector, IVector4
 {
   constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
+    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
     y: number,
     z: number,
     w: number,
@@ -104,6 +97,42 @@ export class Vector4_<T extends TypedArrayConstructor>
     )}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])})`;
   }
 
+  static _fromArray(
+    array: [number, number, number, number],
+    type: TypedArrayConstructor
+  ) {
+    return new this(new type(array), 0, 0, 0, {type});
+  }
+
+  static _fromVector4(vec4: IVector4, type: TypedArrayConstructor) {
+    const vec = new this(
+      new type([vec4._v[0], vec4._v[1], vec4._v[2], vec4._v[3]]),
+      0,
+      0,
+      0,
+      {type}
+    );
+    return vec;
+  }
+
+  static _fromVector3(vec3: IVector3, type: TypedArrayConstructor) {
+    const vec = new this(
+      new type([vec3._v[0], vec3._v[1], vec3._v[2], 1]),
+      0,
+      0,
+      0,
+      {type}
+    );
+    return vec;
+  }
+
+  static _fromVector2(vec2: IVector2, type: TypedArrayConstructor) {
+    const vec = new this(new type([vec2._v[0], vec2._v[1], 0, 1]), 0, 0, 0, {
+      type,
+    });
+    return vec;
+  }
+
   static get compositionType() {
     return CompositionType.Vec4;
   }
@@ -131,7 +160,7 @@ export class Vector4_<T extends TypedArrayConstructor>
   }
 
   static _dummy(type: TypedArrayConstructor) {
-    return new this(null, 0, 0, 0, {type});
+    return new this(new type(0), 0, 0, 0, {type});
   }
 
   /**
@@ -466,19 +495,20 @@ export class Vector4_<T extends TypedArrayConstructor>
 
 export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
   constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
+    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
     y?: number,
     z?: number,
     w?: number
   ) {
     super(x, y!, z!, w!, {type: Float32Array});
+  }
+
+  static fromArrayBuffer(arrayBuffer: ArrayBuffer) {
+    new Vector4(new Float32Array(arrayBuffer));
+  }
+
+  static fromArray(array: [number, number, number, number]) {
+    return super._fromArray(array, Float32Array) as Vector4f;
   }
 
   static zero() {
@@ -528,19 +558,20 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
 
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
+    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
     y?: number,
     z?: number,
     w?: number
   ) {
     super(x, y!, z!, w!, {type: Float64Array});
+  }
+
+  static fromArray(array: [number, number, number, number]) {
+    return super._fromArray(array, Float64Array) as Vector4d;
+  }
+
+  static fromArrayBuffer(arrayBuffer: ArrayBuffer) {
+    new Vector4d(new Float64Array(arrayBuffer));
   }
 
   static zero() {

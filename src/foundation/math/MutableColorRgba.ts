@@ -5,9 +5,10 @@ import {TypedArray} from '../../types/CommonTypes';
 
 export default class MutableColorRgba
   extends MutableVector4
-  implements IMutableVector4, IMutableColorRgba {
+  implements IMutableVector4, IMutableColorRgba
+{
   constructor(
-    r: number | TypedArray | IVector4 | Array<number> | null,
+    r: number | TypedArray | IVector4 | Array<number>,
     g?: number,
     b?: number,
     a?: number

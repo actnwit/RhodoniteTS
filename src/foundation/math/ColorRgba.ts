@@ -5,7 +5,7 @@ import {TypedArray} from '../../types/CommonTypes';
 
 export default class ColorRgba extends Vector4 implements IVector4, IColorRgba {
   constructor(
-    r: number | TypedArray | IVector4 | Array<number> | null,
+    r: number | TypedArray | IVector4 | Array<number>,
     g?: number,
     b?: number,
     a?: number

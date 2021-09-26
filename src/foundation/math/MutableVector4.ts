@@ -13,14 +13,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
   implements IMutableVector, IMutableVector4
 {
   constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
+    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
     y: number,
     z: number,
     w: number,
@@ -207,14 +200,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
 
 export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
   constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
+    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
     y?: number,
     z?: number,
     w?: number
@@ -273,14 +259,7 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
 
 export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
   constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
+    x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
     y?: number,
     z?: number,
     w?: number
