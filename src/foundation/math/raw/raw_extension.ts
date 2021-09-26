@@ -29,14 +29,14 @@ declare global {
   interface Float32Array extends Extension {}
 }
 
-Array.prototype[add2] = function (array: number[]) {
+const add2_fn = function (array: number[]) {
   this[0] += array[0];
   this[1] += array[1];
 
   return this;
 };
 
-Array.prototype[add2_offset] = function (
+const add2_offset_fn = function (
   array: number[],
   selfOffset: number,
   argOffset: number
@@ -47,7 +47,7 @@ Array.prototype[add2_offset] = function (
   return this;
 };
 
-Array.prototype[add3] = function (array: number[]) {
+const add3_fn = function (array: number[]) {
   this[0] += array[0];
   this[1] += array[1];
   this[2] += array[2];
@@ -55,7 +55,7 @@ Array.prototype[add3] = function (array: number[]) {
   return this;
 };
 
-Array.prototype[add3_offset] = function (
+const add3_offset_fn = function (
   array: number[],
   selfOffset: number,
   argOffset: number
@@ -67,9 +67,15 @@ Array.prototype[add3_offset] = function (
   return this;
 };
 
-// Float32Array.prototype[add3] = function {
+Array.prototype[add2] = add2_fn;
+Array.prototype[add2_offset] = add2_offset_fn;
+Array.prototype[add3] = add3_fn;
+Array.prototype[add3_offset] = add3_offset_fn;
 
-// }
+Float32Array.prototype[add2] = add2_fn;
+Float32Array.prototype[add2_offset] = add2_offset_fn;
+Float32Array.prototype[add3] = add3_fn;
+Float32Array.prototype[add3_offset] = add3_offset_fn;
 
 const s = [1, 2, 3];
 const ss = s[add3]([1, 2, 3]);
