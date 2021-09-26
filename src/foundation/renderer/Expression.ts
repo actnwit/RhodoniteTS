@@ -5,10 +5,11 @@ import RenderPass from './RenderPass';
  * Expression specifies the order of render passes on rendering process.
  */
 export default class Expression extends RnObject {
-  private __renderPasses: RenderPass[] = [];
+  private __renderPasses: RenderPass[];
 
-  constructor() {
+  constructor(renderPasses: RenderPass[] = []) {
     super();
+    this.__renderPasses = renderPasses;
   }
 
   /**
