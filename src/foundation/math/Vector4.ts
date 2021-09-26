@@ -1,10 +1,4 @@
-import {
-  IVector2,
-  IVector3,
-  IVector4,
-  IVector,
-  IMutableVector4,
-} from './IVector';
+import {IVector2, IVector3, IVector4, IMutableVector4} from './IVector';
 import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
@@ -12,7 +6,7 @@ import AbstractVector from './AbstractVector';
 
 export class Vector4_<T extends TypedArrayConstructor>
   extends AbstractVector
-  implements IVector, IVector4
+  implements IVector4
 {
   constructor(
     x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number>,
