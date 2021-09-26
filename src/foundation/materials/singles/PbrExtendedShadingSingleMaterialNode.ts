@@ -139,7 +139,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: 0,
         max: 10,
         isSystem: false,
-        initialValue: new Vector3(0, 0, 1),
+        initialValue: Vector3.fromCopyArray([0, 0, 1]),
       },
       {
         semantic: ShaderSemantics.Anisotropy,
@@ -169,7 +169,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: 0,
         max: 1,
         isSystem: false,
-        initialValue: new Vector3(0.0, 0.0, 0.0),
+        initialValue: Vector3.fromCopyArray([0.0, 0.0, 0.0]),
       },
       {
         semantic: PbrExtendedShadingSingleMaterialNode.detailNormalTexture,
@@ -339,7 +339,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
       //   max: Number.MAX_VALUE,
       //   isSystem: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-      //   initialValue: new Vector3(0, 0.0),
+      //   initialValue: Vector3.fromCopyArray([0, 0.0]),
       //   soloDatum: true,
       // },
       {

@@ -53,7 +53,7 @@ export default class Sphere extends Primitive {
         const x = radius * cosPhi * sinTheta;
         const y = radius * cosTheta;
         const z = radius * sinPhi * sinTheta;
-        const position = new Vector3(x, y, z);
+        const position = Vector3.fromCopyArray([x, y, z]);
         positions.push(x);
         positions.push(y);
         positions.push(z);

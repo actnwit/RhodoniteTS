@@ -147,7 +147,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         sceneGraph.worldPosition,
         sceneGraph.parent!.worldPosition
       );
-      let childPosition = new Vector3(1, 1, 1);
+      let childPosition = Vector3.fromCopyArray([1, 1, 1]);
       if (delta.lengthSquared() > 0) {
         childPosition = Vector3.add(
           sceneGraph.worldPosition,
@@ -234,7 +234,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       this.head.children[0].entity.getTransform().translate = this.__transform!.getLocalPositionOf(
         nextTail
       );
-      // this.head.children[0].entity.getTransform().translate = new Vector3(1, 0, 0);
+      // this.head.children[0].entity.getTransform().translate = Vector3.fromCopyArray([1, 0, 0]);
       // this.head.children[0].entity.getTransform().quaternion = resultRotation;
     }
 

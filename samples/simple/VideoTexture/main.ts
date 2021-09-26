@@ -45,7 +45,7 @@ declare const Rn: typeof _Rn;
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
   // Camera
   const cameraEntity = entityRepository.createEntity([
@@ -61,7 +61,7 @@ declare const Rn: typeof _Rn;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();

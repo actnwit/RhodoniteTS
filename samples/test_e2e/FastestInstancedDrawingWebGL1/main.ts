@@ -296,20 +296,20 @@ declare const Rn: typeof _Rn;
       // mesh.addPrimitive(primitive);
       // meshComponent.setMesh(mesh);
 
-      entity.getTransform().scale = new Rn.Vector3(
+      entity.getTransform().scale = Rn.Vector3.fromCopyArray([
         1 / sqrtEntityNumber / 2,
         1 / sqrtEntityNumber / 2,
-        1 / sqrtEntityNumber / 2
-      );
-      entity.getTransform().translate = new Rn.Vector3(
+        1 / sqrtEntityNumber / 2,
+      ]);
+      entity.getTransform().translate = Rn.Vector3.fromCopyArray([
         (1 / sqrtEntityNumber) * 2 * (i % sqrtEntityNumber) -
           1.0 +
           1 / sqrtEntityNumber,
         (Math.floor(i / sqrtEntityNumber) / sqrtEntityNumber) * 2 -
           1.0 +
           1 / sqrtEntityNumber,
-        0.0
-      );
+        0.0,
+      ]);
     }
 
     const startTime = Date.now();

@@ -80,7 +80,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
       //   {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()},
       //   {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: tirue, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1), soloDatum: true},
+      //   stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: tirue, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Vector3.fromCopyArray([0, 0, 1]), soloDatum: true},
       {
         semantic: ShaderSemantics.BaseColorFactor,
         compositionType: CompositionType.Vec4,
@@ -182,7 +182,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 10,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector3(0, 0, 1),
+        initialValue: Vector3.fromCopyArray([0, 0, 1]),
       },
       {
         semantic: SkinPbrShadingSingleMaterialNode.IsOutputHDR,
@@ -204,7 +204,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
       //   max: Number.MAX_VALUE,
       //   isSystem: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-      //   initialValue: new Vector3(0, 0, 0),
+      //   initialValue: Vector3.fromCopyArray([0, 0, 0]),
       //   soloDatum: true
       // },
       {
@@ -354,7 +354,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
-        initialValue: new Vector3(0.0, 0.1, 0.01),
+        initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
         min: 0,
         max: 1,
       }

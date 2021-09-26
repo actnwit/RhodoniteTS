@@ -264,10 +264,12 @@ export default class ShaderityUtility {
                 break;
               case 3:
                 checkCompositionNumber(CompositionType.Vec3);
-                shaderSemanticsInfo.initialValue = new MutableVector3(
-                  parseFloat(split[0]),
-                  parseFloat(split[1]),
-                  parseFloat(split[2])
+                shaderSemanticsInfo.initialValue = MutableVector3.fromCopyArray(
+                  [
+                    parseFloat(split[0]),
+                    parseFloat(split[1]),
+                    parseFloat(split[2]),
+                  ]
                 );
                 break;
               case 4:

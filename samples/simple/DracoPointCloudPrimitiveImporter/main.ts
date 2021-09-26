@@ -29,7 +29,7 @@ declare const Rn: typeof _Rn;
 
   // prepare entity
   const rootGroup = await createEntityPointCloud(pointCloudDrcUri);
-  rootGroup.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0.0, 0.0);
+  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([-Math.PI / 2, 0.0, 0.0]);
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera

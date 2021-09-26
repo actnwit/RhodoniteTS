@@ -236,17 +236,17 @@ export default class ModelConverter {
       const nodeJson = gltfModel.nodes[node_i];
 
       if (nodeJson.translation) {
-        group.getTransform().translate = new Vector3(
+        group.getTransform().translate = Vector3.fromCopyArray([
           nodeJson.translation[0],
           nodeJson.translation[1],
-          nodeJson.translation[2]
+          nodeJson.translation[2]]
         );
       }
       if (nodeJson.scale) {
-        group.getTransform().scale = new Vector3(
+        group.getTransform().scale = Vector3.fromCopyArray([
           nodeJson.scale[0],
           nodeJson.scale[1],
-          nodeJson.scale[2]
+          nodeJson.scale[2]]
         );
       }
       if (nodeJson.rotation) {
@@ -520,10 +520,10 @@ export default class ModelConverter {
     if (light.name != null) {
       lightComponent.tryToSetUniqueName(light.name, true);
       lightComponent.type = LightType.fromString(light.type);
-      let color = new Vector3(1, 1, 1);
+      let color = Vector3.fromCopyArray3([1, 1, 1]);
       let intensity = 1;
       if (light.color != null) {
-        color = new Vector3(light.color);
+        color = Vector3.fromCopyArray3(light.color);
       }
       if (light.intensity != null) {
         intensity = light.intensity;
@@ -541,16 +541,16 @@ export default class ModelConverter {
     const cameraComponent = cameraEntity.getComponent(
       CameraComponent
     )! as CameraComponent;
-    cameraComponent.direction = new Vector3(0, 0, -1);
+    cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (
       gltfModel.asset &&
       (gltfModel.asset as any).LastSaved_ApplicationVendor
     ) {
       // For an old exporter compatibility
-      cameraComponent.direction = new Vector3(1, 0, 0);
-      cameraComponent.directionInner = new Vector3(1, 0, 0);
+      cameraComponent.direction = Vector3.fromCopyArray([1, 0, 0]);
+      cameraComponent.directionInner = Vector3.fromCopyArray([1, 0, 0]);
     }
-    cameraComponent.up = new Vector3(0, 1, 0);
+    cameraComponent.up = Vector3.fromCopyArray([0, 1, 0]);
     cameraComponent.type = CameraType.fromString(camera.type);
     if (cameraComponent.type === CameraType.Perspective) {
       cameraComponent.aspect = camera.perspective.aspectRatio
@@ -1780,11 +1780,14 @@ export default class ModelConverter {
             break;
           case 'VEC3':
             typedDataArray.push(
-              new Vector3(
+              Vector3.fromCopyArray([
                 dataView[dataViewMethod](pos, littleEndian),
                 dataView[dataViewMethod](pos + componentBytes, littleEndian),
-                dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
-              )
+                dataView[dataViewMethod](
+                  pos + componentBytes * 2,
+                  littleEndian
+                ),
+              ])
             );
             break;
           case 'VEC4':

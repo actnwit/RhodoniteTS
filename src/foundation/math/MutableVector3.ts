@@ -10,7 +10,7 @@ import {
   FloatTypedArrayConstructor,
   Array3,
 } from '../../types/CommonTypes';
-import {Vector3_} from './Vector3';
+import {Vector3d, Vector3_} from './Vector3';
 import {IQuaternion} from './IQuaternion';
 
 export class MutableVector3_<T extends FloatTypedArrayConstructor>
@@ -227,10 +227,10 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
       | IVector4
       | Array<number>
       | null,
-    y?: number,
-    z?: number
+    y: number,
+    z: number
   ) {
-    super(x, y!, z!, {type: Float32Array});
+    super(x, y, z, {type: Float32Array});
   }
 
   static zero() {
@@ -286,7 +286,19 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
   }
 
   static fromCopyArray(array: Array3<number>): MutableVector3 {
-    return new MutableVector3(new Float32Array(array));
+    return new MutableVector3(new Float32Array(array), 0, 0);
+  }
+
+  static fromFloat32Array(float32Array: Float32Array): MutableVector3 {
+    return new MutableVector3(float32Array, 0, 0);
+  }
+
+  static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3 {
+    return new MutableVector3(
+      new Float32Array(float32Array.buffer.slice(0)),
+      0,
+      0
+    );
   }
 
   clone() {

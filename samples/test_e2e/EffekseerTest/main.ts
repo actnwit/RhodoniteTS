@@ -61,7 +61,7 @@ declare const Rn: typeof _Rn;
 
   // effekseerComponent.isLoop = true;
   effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
-  // effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
+  // effekseerEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
 
   // Camera
   const cameraEntity = entityRepository.createEntity([
@@ -92,7 +92,7 @@ declare const Rn: typeof _Rn;
 
   // renderPass
   const renderPass = new Rn.RenderPass();
-  renderPass.clearColor = new Rn.Vector3(0.5, 0.5, 0.5);
+  renderPass.clearColor = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
   renderPass.toClearColorBuffer = true;
   // renderPass.addEntities([effekseerEntity]);
   renderPass.addEntities([rootGroup, effekseerEntity]);

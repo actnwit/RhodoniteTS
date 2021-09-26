@@ -26,11 +26,11 @@ export default class WalkThroughCameraController
   private _isMouseDrag = false;
   private _lastKeyCode = -1;
   private _onKeyup: KeyboardEventListener;
-  private _currentDir = new MutableVector3(0, 0, -1);
-  private _currentPos = new MutableVector3(0, 0, 0);
-  private _currentCenter = new MutableVector3(0, 0, -1);
-  private _currentHorizontalDir = new MutableVector3(0, 0, -1);
-  private _newDir = new MutableVector3(0, 0, -1);
+  private _currentDir = MutableVector3.fromCopyArray([0, 0, -1]);
+  private _currentPos = MutableVector3.fromCopyArray([0, 0, 0]);
+  private _currentCenter = MutableVector3.fromCopyArray([0, 0, -1]);
+  private _currentHorizontalDir = MutableVector3.fromCopyArray([0, 0, -1]);
+  private _newDir = MutableVector3.fromCopyArray([0, 0, -1]);
   private _isMouseDown = false;
   private _clickedMouseXOnCanvas = -1;
   private _clickedMouseYOnCanvas = -1;

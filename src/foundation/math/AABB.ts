@@ -2,19 +2,19 @@ import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import MutableVector3 from './MutableVector3';
 import {Index} from '../../types/CommonTypes';
-import { MathUtil } from './MathUtil';
+import {MathUtil} from './MathUtil';
 
 export default class AABB {
-  private __min: MutableVector3 = new MutableVector3(
+  private __min: MutableVector3 = MutableVector3.fromCopyArray([
     Number.MAX_VALUE,
     Number.MAX_VALUE,
-    Number.MAX_VALUE
-  );
-  private __max: MutableVector3 = new MutableVector3(
+    Number.MAX_VALUE,
+  ]);
+  private __max: MutableVector3 = MutableVector3.fromCopyArray([
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
-    -Number.MAX_VALUE
-  );
+    -Number.MAX_VALUE,
+  ]);
   private __centerPoint = MutableVector3.zero();
   private __lengthCenterToCorner = 0;
   private __isCenterPointDirty = false;

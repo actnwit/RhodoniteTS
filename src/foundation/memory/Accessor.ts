@@ -519,11 +519,11 @@ export default class Accessor {
       index = indicesAccessor.getScalar(i, {});
     }
     const byteSize = this.componentSizeInBytes;
-    return new Vector3(
+    return Vector3.fromCopyArray([
       this.__dataViewGetter(this.__byteStride * index, endian),
       this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
       this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian)
-    );
+    ]);
   }
 
   getVec4(

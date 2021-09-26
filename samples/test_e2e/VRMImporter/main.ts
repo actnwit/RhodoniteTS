@@ -32,12 +32,12 @@ declare const Rn: typeof _Rn;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  // lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
-  // lightEntity.getLight().intensity = new Rn.Vector3(1, 1, 1);
+  // lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
+  // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   const lightEntity2 = entityRepository.createEntity([
     Rn.TransformComponent,
     Rn.SceneGraphComponent,
@@ -45,22 +45,22 @@ declare const Rn: typeof _Rn;
   ]);
   const lightComponent2 = lightEntity2.getLight();
   lightComponent2.type = Rn.LightType.Directional;
-  lightComponent2.intensity = new Rn.Vector3(1.0, 1.0, 1.0);
-  lightEntity2.getTransform().rotate = new Rn.Vector3(0.0, 0.0, Math.PI / 8);
-  //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  lightComponent2.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
+  lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
   const rootGroups = await importer.import('../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{isLighting: true}],
     tangentCalculationMode: 0,
   });
-  //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
+  //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 
   for (const rootGroup of rootGroups) {
-    rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
+    rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
   }
 
-  //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
+  //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();

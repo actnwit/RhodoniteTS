@@ -76,21 +76,21 @@ function computeEigenVectors(input: TextureDataFloat, eigenVectors: Vector3[]) {
   );
 
   // Set return values
-  eigenVectors[0] = new Vector3(
+  eigenVectors[0] = Vector3.fromCopyArray([
     eigenVectorsTemp.m00,
     eigenVectorsTemp.m10,
-    eigenVectorsTemp.m20
-  );
-  eigenVectors[1] = new Vector3(
+    eigenVectorsTemp.m20,
+  ]);
+  eigenVectors[1] = Vector3.fromCopyArray([
     eigenVectorsTemp.m01,
     eigenVectorsTemp.m11,
-    eigenVectorsTemp.m21
-  );
-  eigenVectors[2] = new Vector3(
+    eigenVectorsTemp.m21,
+  ]);
+  eigenVectors[2] = Vector3.fromCopyArray([
     eigenVectorsTemp.m02,
     eigenVectorsTemp.m12,
-    eigenVectorsTemp.m22
-  );
+    eigenVectorsTemp.m22,
+  ]);
 }
 
 function decorrelateColorSpace(

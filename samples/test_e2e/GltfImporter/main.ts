@@ -31,7 +31,7 @@ declare const Rn: typeof _Rn;
   // params
 
   const displayResolution = 800;
-  const vrmModelRotation = new Rn.Vector3(0, (3 / 4) * Math.PI, 0.0);
+  const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0.0]);
 
   // camera
   const cameraEntity = entityRepository.createEntity([
@@ -154,8 +154,8 @@ declare const Rn: typeof _Rn;
   ]);
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
-  lightComponent.intensity = new Rn.Vector3(1.0, 1.0, 1.0);
-  lightEntity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, Math.PI / 8);
+  lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
   let count = 0;
   const draw = function () {
@@ -181,7 +181,7 @@ declare const Rn: typeof _Rn;
 })();
 
 window.exportGltf2 = function () {
-  
+
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
 };
@@ -204,8 +204,8 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-  boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

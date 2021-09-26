@@ -5,7 +5,7 @@ test('AABB is vanilla first', () => {
   const aabb = new AABB();
   expect(aabb.isVanilla()).toBe(true);
 
-  aabb.addPosition(new Vector3(0, 0, 0));
+  aabb.addPosition(Vector3.fromCopyArray([0, 0, 0]));
 
   expect(aabb.isVanilla()).toBe(false);
 });

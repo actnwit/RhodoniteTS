@@ -163,8 +163,8 @@ declare const Rn: typeof _Rn;
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
-    entitySphere.getTransform().scale = new Rn.Vector3(-1, 1, 1);
-    entitySphere.getTransform().translate = new Rn.Vector3(0, 300, 0);
+    entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }
@@ -210,8 +210,8 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-    boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

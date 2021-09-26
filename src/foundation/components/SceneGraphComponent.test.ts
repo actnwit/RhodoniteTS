@@ -19,10 +19,10 @@ test('create Parents and children.', () => {
   //  const child2Entity = generateEntity();
 
   // set transform info
-  sceneEntity.getTransform().translate = new Rn.Vector3(1, 0, 0);
-  parentEntity.getTransform().translate = new Rn.Vector3(1, 0, 0);
-  childEntity.getTransform().translate = new Rn.Vector3(1, 0, 0);
-  //  child2Entity.getTransform().translate = new Rn.Vector3(0, 1, 0);
+  sceneEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
+  parentEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
+  childEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
+  //  child2Entity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 1, 0]);
 
   // setup scene graph
   parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());

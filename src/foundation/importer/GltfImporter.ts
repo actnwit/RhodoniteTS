@@ -520,10 +520,10 @@ export default class GltfImporter {
       vrmSpringBoneGroup.dragForce = boneGroup.dragForce;
       vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffiness;
       vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
-      vrmSpringBoneGroup.gravityDir = new Vector3(
+      vrmSpringBoneGroup.gravityDir = Vector3.fromCopyArray([
         boneGroup.gravityDir.x,
         boneGroup.gravityDir.y,
-        boneGroup.gravityDir.z
+        boneGroup.gravityDir.z]
       );
       vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
       vrmSpringBoneGroup.hitRadius = boneGroup.hitRadius;
@@ -557,10 +557,10 @@ export default class GltfImporter {
       const colliders: SphereCollider[] = [];
       for (const collider of colliderGroup.colliders) {
         const sphereCollider = new SphereCollider();
-        sphereCollider.position = new Vector3(
+        sphereCollider.position = Vector3.fromCopyArray([
           collider.offset.x,
           collider.offset.y,
-          collider.offset.z
+          collider.offset.z]
         );
         sphereCollider.radius = collider.radius;
         colliders.push(sphereCollider);

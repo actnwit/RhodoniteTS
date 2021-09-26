@@ -420,7 +420,7 @@ export default class Mesh {
       const validate = Math.abs(abc.x) < Number.EPSILON;
       if (validate) {
         console.assert(validate, 'Polygons or polygons on UV are degenerate!');
-        return new Vector3(0, 0, 0);
+        return Vector3.fromCopyArray([0, 0, 0]);
       }
 
       u[i] = -abc.y / abc.x;
