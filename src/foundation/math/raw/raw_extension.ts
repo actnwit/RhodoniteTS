@@ -29,7 +29,7 @@ declare global {
   interface Float32Array extends Extension {}
 }
 
-const add2_fn = function (array: number[]) {
+const add2_fn = function (this: ArrayType, array: ArrayType) {
   this[0] += array[0];
   this[1] += array[1];
 
@@ -37,7 +37,8 @@ const add2_fn = function (array: number[]) {
 };
 
 const add2_offset_fn = function (
-  array: number[],
+  this: ArrayType,
+  array: ArrayType,
   selfOffset: number,
   argOffset: number
 ) {
@@ -47,7 +48,7 @@ const add2_offset_fn = function (
   return this;
 };
 
-const add3_fn = function (array: number[]) {
+const add3_fn = function (this: ArrayType, array: ArrayType) {
   this[0] += array[0];
   this[1] += array[1];
   this[2] += array[2];
@@ -56,7 +57,8 @@ const add3_fn = function (array: number[]) {
 };
 
 const add3_offset_fn = function (
-  array: number[],
+  this: ArrayType,
+  array: ArrayType,
   selfOffset: number,
   argOffset: number
 ) {
@@ -67,19 +69,12 @@ const add3_offset_fn = function (
   return this;
 };
 
-Array.prototype[add2] = add2_fn;
-Array.prototype[add2_offset] = add2_offset_fn;
-Array.prototype[add3] = add3_fn;
-Array.prototype[add3_offset] = add3_offset_fn;
+const arrayTypes = [Array, Float32Array, Float64Array];
+const operators = [add2, add2_offset, add3, add3_offset];
+const functions = [add2_fn, add2_offset_fn, add3_fn, add3_offset_fn];
 
-Float32Array.prototype[add2] = add2_fn;
-Float32Array.prototype[add2_offset] = add2_offset_fn;
-Float32Array.prototype[add3] = add3_fn;
-Float32Array.prototype[add3_offset] = add3_offset_fn;
-
-const s = [1, 2, 3];
-const ss = s[add3]([1, 2, 3]);
-const sss = s[add3_offset]([1, 2, 3], 0, 0);
-
-console.log(s);
-console.log(ss);
+for (let i = 0; i < arrayTypes.length; i++) {
+  for (let j = 0; j < operators.length; j++) {
+    arrayTypes[i].prototype[operators[j] as unknown as number] = functions[j];
+  }
+}
