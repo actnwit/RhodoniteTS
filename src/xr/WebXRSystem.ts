@@ -52,7 +52,7 @@ export default class WebXRSystem {
   private __basePath?: string;
   private __controllerEntities: Entity[] = [];
   private __xrInputSources: XRInputSource[] = [];
-  private __viewerTranslate = MutableVector3.identity();
+  private __viewerTranslate = MutableVector3.zero();
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();
   private __viewerScale = MutableVector3.one();
