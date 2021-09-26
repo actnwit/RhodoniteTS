@@ -18,13 +18,6 @@ import MutableVector4 from '../math/MutableVector4';
  * A render pass is a collection of the resources which is used in rendering process.
  */
 export default class RenderPass extends RnObject {
-  private __entities: Entity[] = [];
-  private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
-  private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
-  private __meshComponents?: MeshComponent[];
-  private __frameBuffer?: FrameBuffer;
-  private __resolveFrameBuffer?: FrameBuffer;
-  private __viewport?: MutableVector4;
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
@@ -34,14 +27,8 @@ export default class RenderPass extends RnObject {
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
   public cullFrontFaceCCW = true;
-  private __material?: Material;
-  private __primitiveMaterial: Map<Primitive, Material> = new Map();
-  private __webglRenderingStrategy?: WebGLStrategy;
   public isVrRendering = true;
   public isOutputForVr = false;
-
-  private __preRenderFunc?: Function;
-  private static __tmp_Vector4_0 = MutableVector4.zero();
 
   constructor() {
     super();
@@ -308,9 +295,8 @@ export default class RenderPass extends RnObject {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    this.__webglRenderingStrategy = webglModule.getRenderingStrategy(
-      processApproach
-    );
+    this.__webglRenderingStrategy =
+      webglModule.getRenderingStrategy(processApproach);
   }
 
   private __getMaterialOf(primitive: Primitive) {
@@ -336,4 +322,17 @@ export default class RenderPass extends RnObject {
     }
     return material;
   }
+
+  private __entities: Entity[] = [];
+  private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
+  private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
+  private __meshComponents?: MeshComponent[];
+  private __frameBuffer?: FrameBuffer;
+  private __resolveFrameBuffer?: FrameBuffer;
+  private __viewport?: MutableVector4;
+  private __material?: Material;
+  private __primitiveMaterial: Map<Primitive, Material> = new Map();
+  private __webglRenderingStrategy?: WebGLStrategy;
+  private __preRenderFunc?: Function;
+  private static __tmp_Vector4_0 = MutableVector4.zero();
 }
