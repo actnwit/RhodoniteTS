@@ -5,13 +5,18 @@ import {
   IMutableVector,
   IMutableVector3,
 } from './IVector';
-import {TypedArray, FloatTypedArrayConstructor, Array3} from '../../types/CommonTypes';
+import {
+  TypedArray,
+  FloatTypedArrayConstructor,
+  Array3,
+} from '../../types/CommonTypes';
 import {Vector3_} from './Vector3';
 import {IQuaternion} from './IQuaternion';
 
 export class MutableVector3_<T extends FloatTypedArrayConstructor>
   extends Vector3_<T>
-  implements IMutableVector, IMutableVector3 {
+  implements IMutableVector, IMutableVector3
+{
   constructor(
     x:
       | number
@@ -228,10 +233,6 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     super(x, y!, z!, {type: Float32Array});
   }
 
-  static identity() {
-    return new this(0, 0, 0);
-  }
-
   static zero() {
     return super._zero(Float32Array) as MutableVector3;
   }
@@ -284,6 +285,10 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     return 'MutableVector3';
   }
 
+  static fromCopyArray(array: Array3<number>): MutableVector3 {
+    return new MutableVector3(new Float32Array(array));
+  }
+
   clone() {
     return super.clone() as MutableVector3;
   }
@@ -303,10 +308,6 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
     z?: number
   ) {
     super(x, y!, z!, {type: Float64Array});
-  }
-
-  static identity() {
-    return new this(0, 0, 0);
   }
 
   static zero() {
@@ -359,6 +360,10 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
       vec,
       Float64Array
     ) as MutableVector3d;
+  }
+
+  static fromCopyArray(array: Array3<number>): MutableVector3d {
+    return new MutableVector3d(new Float64Array(array));
   }
 
   clone() {

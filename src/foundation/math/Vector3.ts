@@ -500,6 +500,7 @@ export class Vector3_<T extends TypedArrayConstructor>
   clone() {
     return new (this.constructor as any)(this._v[0], this._v[1], this._v[2]);
   }
+
   static _fromCopyArray3(
     array: Array3<number>,
     type: FloatTypedArrayConstructor
@@ -598,6 +599,7 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
   static subtract(l_vec: IVector3, r_vec: IVector3) {
     return super._subtract(l_vec, r_vec, Float32Array) as Vector3;
   }
+
   static fromFloat32Array(float32Array: Float32Array): Vector3 {
     return new Vector3(float32Array);
   }
@@ -605,6 +607,7 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
   static multiply(vec: IVector3, value: number) {
     return super._multiply(vec, value, Float32Array) as Vector3;
   }
+
   static fromCopyFloat32Array(float32Array: Float32Array): Vector3 {
     return new Vector3(float32Array.slice(0));
   }
