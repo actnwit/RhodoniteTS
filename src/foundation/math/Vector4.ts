@@ -473,6 +473,10 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
     return new Vector4(float32Array);
   }
 
+  static fromCopyFloat32Array(float32Array: Float32Array): Vector4 {
+    return new Vector4(float32Array.slice(0));
+  }
+
   static zero() {
     return super._zero(Float32Array) as Vector4;
   }
