@@ -1,4 +1,4 @@
-import {add3, add3_offset} from './raw_extension';
+import {add3, add3_offset, add4, add4_offset} from './raw_extension';
 
 test('Array extensions', () => {
   const a = [0, 0, 0];
@@ -37,4 +37,24 @@ test('Float32Array extensions', () => {
   const b = [0, 1, 0, 0];
   b[add3_offset]([1, 0, 0, 1], 1, 1);
   expect(b.toString()).toEqual([0, 1, 0, 1].toString());
+});
+
+test(`${add4.toString()} operator`, () => {
+  const a = [0, 0, 0, 0];
+
+  // add Float32Array
+  const a_add4 = a[add4]([1, 0, 0, 1]);
+  expect(a.toString()).toEqual([1, 0, 0, 1].toString());
+  // return value is the same
+  expect(a_add4.toString()).toEqual([1, 0, 0, 1].toString());
+});
+
+test(`${add4_offset.toString()} operator`, () => {
+  const a = [1, 0, 0, 0, 0];
+
+  // add Float32Array
+  const ret = a[add4_offset](new Float32Array([1, 0, 0, 0, 1]), 1, 1);
+  expect(a.toString()).toEqual([1, 0, 0, 0, 1].toString());
+  // return value is the same
+  expect(ret.toString()).toEqual([1, 0, 0, 0, 1].toString());
 });
