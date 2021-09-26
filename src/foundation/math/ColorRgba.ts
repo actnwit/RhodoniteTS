@@ -1,16 +1,10 @@
 import Vector4 from './Vector4';
 import {IVector4} from './IVector';
 import {IColorRgba} from './IColor';
-import {TypedArray} from '../../types/CommonTypes';
 
 export default class ColorRgba extends Vector4 implements IVector4, IColorRgba {
-  constructor(
-    r: number | TypedArray | IVector4 | Array<number>,
-    g?: number,
-    b?: number,
-    a?: number
-  ) {
-    super(r, g, b, a);
+  constructor(r: Float32Array) {
+    super(r);
   }
 
   get x() {
