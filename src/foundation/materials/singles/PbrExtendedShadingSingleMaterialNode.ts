@@ -89,7 +89,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: 0,
         max: 2,
         isSystem: false,
-        initialValue: new Vector4(1, 1, 1, 1),
+        initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
       {
         semantic: ShaderSemantics.DiffuseColorTexture,
@@ -109,7 +109,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: 0,
         max: 2,
         isSystem: false,
-        initialValue: new Vector4(0.0, 0.0, 0.0, 0.0),
+        initialValue: Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0]),
       },
       {
         semantic: ShaderSemantics.SpecularGlossinessTexture,
@@ -199,7 +199,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -10,
         max: 10,
         isSystem: false,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic: PbrExtendedShadingSingleMaterialNode.diffuseTextureRotation,
@@ -219,7 +219,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -10,
         max: 10,
         isSystem: false,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic: PbrExtendedShadingSingleMaterialNode.normalTextureRotation,
@@ -240,7 +240,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -10,
         max: 10,
         isSystem: false,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic:
@@ -262,7 +262,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -10,
         max: 10,
         isSystem: false,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic:
@@ -294,7 +294,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         max: Number.MAX_VALUE,
         isSystem: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: new Vector4(1, 1, 1, 1),
+        initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
       {
         semantic: ShaderSemantics.HDRIFormat,
@@ -383,7 +383,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
       //         maxIndex: 4,
       //         isSystem: true,
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      //         initialValue: new Vector4(0, 0, 0, 1),
+      //         initialValue: Vector4.fromCopyArray([0, 0, 0, 1]),
       //         soloDatum: true,
       //       });
       //     lights.push(
@@ -397,7 +397,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
       //         index: idx,
       //         maxIndex: 4,
       //         isSystem: true,
-      //         initialValue: new Vector4(0, 1, 0, 1),
+      //         initialValue: Vector4.fromCopyArray([0, 1, 0, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //         soloDatum: true,
       //       });
@@ -412,7 +412,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
       //         index: idx,
       //         maxIndex: 4,
       //         isSystem: true,
-      //         initialValue: new Vector4(1, 1, 1, 1),
+      //         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //         soloDatum: true,
       //       });

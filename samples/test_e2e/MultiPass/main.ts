@@ -41,7 +41,7 @@ declare const Stats: any;
   Promise.all(promises).then(() => {
     const system = Rn.System.getInstance();
     const entityRepository = Rn.EntityRepository.getInstance();
-  
+
     const gl = system.setProcessApproachAndCanvas(
       Rn.ProcessApproach.UniformWebGL1,
       document.getElementById('world') as HTMLCanvasElement
@@ -107,7 +107,7 @@ declare const Stats: any;
     //primitive.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
     primitive.material.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
-      new Rn.Vector4(1, 0, 1, 1)
+      Rn.Vector4.fromCopyArray([1, 0, 1, 1])
     );
 
     const entities = [];
@@ -242,7 +242,7 @@ declare const Stats: any;
 })();
 
 window.exportGltf2 = function () {
-  
+
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
 };

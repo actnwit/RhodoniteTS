@@ -6,7 +6,7 @@ test('AbstractVector::isTheSourceSame', () => {
   const vec1 = new Vector4(vec_source);
   const vec2 = new Vector4(vec_source);
   const vecAnother = new Vector4(vec_source2);
-  const vecAnother2 = new Vector4(0, 0, 0, 0);
+  const vecAnother2 = Vector4.fromCopyArray([0, 0, 0, 0]);
 
   expect(vec1.isTheSourceSame(vec2._v.buffer)).toBe(true);
   expect(vec1.isTheSourceSame(vecAnother._v.buffer)).toBe(false);

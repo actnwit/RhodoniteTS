@@ -43,17 +43,17 @@ export default class Accessor {
   private __typedArrayClass?: TypedArrayConstructor;
   private __dataViewGetter: DataViewGetter;
   private __dataViewSetter: DataViewSetter;
-  private __max: MutableVector4 = new MutableVector4(
+  private __max: MutableVector4 = MutableVector4.fromCopyArray([
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
-    -Number.MAX_VALUE
+    -Number.MAX_VALUE]
   );
-  private __min: MutableVector4 = new MutableVector4(
+  private __min: MutableVector4 = MutableVector4.fromCopyArray([
     Number.MAX_VALUE,
     Number.MAX_VALUE,
     Number.MAX_VALUE,
-    Number.MAX_VALUE
+    Number.MAX_VALUE]
   );
   private __arrayLength = 1;
   private __normalized = false;
@@ -538,12 +538,12 @@ export default class Accessor {
       index = indicesAccessor.getScalar(i, {});
     }
     const byteSize = this.componentSizeInBytes;
-    return new Vector4(
+    return Vector4.fromCopyArray([
       this.__dataViewGetter(this.__byteStride * index, endian),
       this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
       this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
       this.__dataViewGetter(this.__byteStride * index + 3 * byteSize, endian)
-    );
+    ]);
   }
 
   getMat3(

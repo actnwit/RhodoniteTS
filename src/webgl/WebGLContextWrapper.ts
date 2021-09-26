@@ -175,20 +175,20 @@ export default class WebGLContextWrapper {
   }
 
   get viewport() {
-    return new Vector4(
+    return Vector4.fromCopyArray([
       this.__viewport_left,
       this.__viewport_top,
       this.__viewport_width,
-      this.__viewport_height
+      this.__viewport_height]
     );
   }
 
   get defaultViewport() {
-    return new Vector4(
+    return Vector4.fromCopyArray([
       this.__default_viewport_left,
       this.__default_viewport_top,
       this.__default_viewport_width,
-      this.__default_viewport_height
+      this.__default_viewport_height]
     );
   }
 

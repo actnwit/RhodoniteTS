@@ -20,7 +20,7 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
 import VectorN from '../../math/VectorN';
-import {Count} from '../../../types/CommonTypes';
+import {Array3, Array4, Count} from '../../../types/CommonTypes';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import Texture from '../../textures/Texture';
@@ -96,8 +96,12 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static usableBlendEquationModeAlpha?: number;
   private __OutlineWidthModeIsScreen = false;
 
-  private __floatProperties: any = {};
-  private __vectorProperties: any = {};
+  private __floatProperties: {
+    [s: string]: number;
+  } = {};
+  private __vectorProperties: {
+    [s: string]: Array3<number> | Array4<number>;
+  } = {};
   private __textureProperties: any = {};
 
   constructor(
@@ -214,7 +218,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Vector4(this.__vectorProperties._Color),
+        initialValue: Vector4.fromCopyArray(
+          this.__vectorProperties._Color as Array4<number>
+        ),
         min: 0,
         max: 1,
       },

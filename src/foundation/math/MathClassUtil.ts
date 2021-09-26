@@ -26,7 +26,12 @@ export default class MathClassUtil {
   static arrayToVector(element: Array<number>) {
     if (Array.isArray(element)) {
       if (typeof element[3] !== 'undefined') {
-        return new Vector4(element[0], element[1], element[2], element[3]);
+        return Vector4.fromCopyArray([
+          element[0],
+          element[1],
+          element[2],
+          element[3],
+        ]);
       } else if (typeof element[2] !== 'undefined') {
         return new Vector3(element[0], element[1], element[2]);
       } else {
@@ -44,7 +49,12 @@ export default class MathClassUtil {
       } else if (typeof element[8] !== 'undefined') {
         return new Matrix33(element);
       } else if (typeof element[3] !== 'undefined') {
-        return new Vector4(element[0], element[1], element[2], element[3]);
+        return Vector4.fromCopyArray([
+          element[0],
+          element[1],
+          element[2],
+          element[3],
+        ]);
       } else if (typeof element[2] !== 'undefined') {
         return new Vector3(element[0], element[1], element[2]);
       } else {
@@ -327,7 +337,7 @@ export default class MathClassUtil {
     } else if (objForDetectType instanceof Vector3) {
       return new Vector3(val, val, val);
     } else if (objForDetectType instanceof Vector4) {
-      return new Vector4(val, val, val, val);
+      return Vector4.fromCopyArray([val, val, val, val]);
     } else if (objForDetectType instanceof Quaternion) {
       return new Quaternion(0, 0, 0, 1);
     } else if (Array.isArray(objForDetectType)) {

@@ -67,17 +67,17 @@ document.body.appendChild(p);
   setParameterForMeshComponent(
     meshComponentSmallBoard,
     Rn.ShaderSemantics.DiffuseColorFactor,
-    new Rn.Vector4(0.5, 0.1, 0.4, 1)
+    Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
     Rn.ShaderSemantics.DiffuseColorFactor,
-    new Rn.Vector4(0.1, 0.7, 0.5, 1)
+    Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
     Rn.ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
-    new Rn.Vector4(0.05, 0.35, 0.25, 1)
+    Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
   );
 
   const scaleSmallBoard = new Rn.Vector3(0.2, 0.2, 0.2);

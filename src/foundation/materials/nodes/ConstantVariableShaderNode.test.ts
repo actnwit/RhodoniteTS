@@ -16,12 +16,12 @@ test('ConstantVariable works correctly 1', async () => {
     CompositionType.Vec4,
     ComponentType.Float
   );
-  constant1.setDefaultInputValue('value', new Vector4(1, 2, 3, 4));
+  constant1.setDefaultInputValue('value', Vector4.fromCopyArray([1, 2, 3, 4]));
   const constant2 = new ConstantVariableShaderNode(
     CompositionType.Vec4,
     ComponentType.Float
   );
-  constant2.setDefaultInputValue('value', new Vector4(4, 3, 2, 1));
+  constant2.setDefaultInputValue('value', Vector4.fromCopyArray([4, 3, 2, 1]));
 
   const add = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
   add.addInputConnection(constant1, 'outValue', 'lhs');

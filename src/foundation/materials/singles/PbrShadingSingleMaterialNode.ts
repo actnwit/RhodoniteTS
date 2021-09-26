@@ -110,7 +110,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 2,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 1, 1),
+        initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
       {
         semantic: ShaderSemantics.BaseColorTexture,
@@ -209,7 +209,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_VALUE,
         isSystem: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 1, 1),
+        initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
       {
         semantic: ShaderSemantics.HDRIFormat,
@@ -253,7 +253,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 10,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic: PbrShadingSingleMaterialNode.BaseColorTextureRotation,
@@ -276,7 +276,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 10,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic: PbrShadingSingleMaterialNode.MetallicRoughnessTextureRotation,
@@ -460,7 +460,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           max: 10,
           isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Vector4(1, 1, 0, 0),
+          initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
         },
         {
           semantic: PbrShadingSingleMaterialNode.NormalTextureRotation,

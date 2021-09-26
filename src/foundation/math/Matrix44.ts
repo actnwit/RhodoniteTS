@@ -706,7 +706,7 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
     const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14] * vec._v[3];
     const w = this._v[3] * vec._v[0] + this._v[7] * vec._v[1] + this._v[11] * vec._v[2] + this._v[15] * vec._v[3];
 
-    return new Vector4(x, y, z, w);
+    return Vector4.fromCopyArray([x, y, z, w]);
   }
 
   multiplyVectorTo(vec: Vector4, outVec: MutableVector4) {
