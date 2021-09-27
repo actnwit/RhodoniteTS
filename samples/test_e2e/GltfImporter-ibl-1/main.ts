@@ -6,6 +6,7 @@ import _Rn, {
 } from '../../../dist/esm/index';
 
 declare const Rn: typeof _Rn;
+declare const window: any;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
@@ -206,3 +207,8 @@ function setTextureParameterForMeshComponents(
     }
   }
 }
+
+window.exportGltf2 = function () {
+  const exporter = Rn.Gltf2Exporter.getInstance();
+  exporter.export('Rhodonite');
+};
