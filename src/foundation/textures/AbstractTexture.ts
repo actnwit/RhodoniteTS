@@ -22,6 +22,7 @@ import MutableVector3 from '../math/MutableVector3';
 import MutableVector4 from '../math/MutableVector4';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
+import { Is } from '../misc/Is';
 
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -93,20 +94,19 @@ export default abstract class AbstractTexture extends RnObject {
   }
 
   get htmlCanvasElement() {
-    if (this.__htmlCanvasElement == null) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      if (this.__htmlImageElement == null) {
-        this.__htmlImageElement = document.createElement("img");
-      }
-      ctx.drawImage(
-        this.__htmlImageElement!,
-        0,
-        0,
-        this.__width,
-        this.__height
-      );
+    const canvas = document.createElement('canvas');
+    const ctx = canvas?.getContext('2d');
+    if (Is.not.exist(this.__htmlCanvasElement)) {
       this.__htmlCanvasElement = canvas;
+    }
+    if (Is.exist(ctx) && Is.exist(this.__htmlImageElement)) {
+      ctx.drawImage(
+        this.__htmlImageElement,
+        0,
+        0,
+        this.__htmlImageElement.width,
+        this.__htmlImageElement.height
+      );
     }
     return this.__htmlCanvasElement;
   }
