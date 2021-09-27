@@ -254,8 +254,10 @@ export default class Gltf2Exporter {
                   }
                 }
                 if (!match) {
-                  json.images[countImage++] = {
-                    uri: rnTexture.name ? rnTexture.name : rnTexture.uniqueName,
+                  const imageJson = {
+                    uri:
+                      (rnTexture.name ? rnTexture.name : rnTexture.uniqueName) +
+                      '.png',
                   };
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
@@ -281,11 +283,12 @@ export default class Gltf2Exporter {
                           null
                         );
                         a.href = URL.createObjectURL(blob);
-                        a.download = rnTexture.name;
+                        a.download = imageJson.uri;
                         a.dispatchEvent(e);
                       }, Math.random() * 10000);
                     });
                   }
+                  json.images[countImage++] = imageJson;
                 }
 
                 json.textures[countTexture] = {
