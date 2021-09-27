@@ -39,7 +39,7 @@ export default class Accessor {
   private __dataView?: DataView;
   private __typedArray?: TypedArray;
   private __takenCount: Count = 0;
-  private __byteStride: Byte = 0;
+  private __byteStride: Byte = 0; // Accessor has the byteStride. BufferView doesn't. For supporting glTF1, not only glTF2
   private __typedArrayClass?: TypedArrayConstructor;
   private __dataViewGetter: DataViewGetter;
   private __dataViewSetter: DataViewSetter;
