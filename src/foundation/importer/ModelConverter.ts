@@ -39,7 +39,7 @@ import Mesh from '../geometry/Mesh';
 import MutableVector4 from '../math/MutableVector4';
 import LightComponent from '../components/LightComponent';
 import {LightType} from '../definitions/LightType';
-import {Count, Byte, Size, Index} from '../../types/CommonTypes';
+import {Count, Byte, Size, Index, TypedArrayConstructor} from '../../types/CommonTypes';
 import {
   GltfLoadOption,
   glTF2,
@@ -1497,26 +1497,17 @@ export default class ModelConverter {
     }
   }
 
-  _adjustByteAlign(
-    typedArrayClass: any,
+  private __rewrapWithTypedArray(
+    typedArrayClass: TypedArrayConstructor,
     uint8Array: Uint8Array,
-    alignSize: Size,
     byteOffset: Byte,
     length: Size
   ) {
-    if (byteOffset % alignSize != 0) {
-      return new typedArrayClass(
-        uint8Array.buffer.slice(byteOffset + uint8Array.byteOffset),
-        0,
-        length
-      );
-    } else {
-      return new typedArrayClass(
-        uint8Array.buffer,
-        byteOffset + uint8Array.byteOffset,
-        length
-      );
-    }
+    return new typedArrayClass(
+      uint8Array.buffer,
+      byteOffset + uint8Array.byteOffset,
+      length
+    );
   }
 
   _checkBytesPerComponent(accessor: any) {
@@ -1608,7 +1599,7 @@ export default class ModelConverter {
 
   _accessBinaryWithAccessor(accessor: Gltf2Accessor) {
     const bufferView = accessor.bufferView;
-    const byteOffset: number =
+    const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.buffer;
     const uint8Array: Uint8Array = buffer.buffer;
@@ -1629,64 +1620,59 @@ export default class ModelConverter {
     let typedDataArray: any = [];
 
     if (accessor.extras?.toGetAsTypedArray) {
-      if (ModelConverter._isSystemLittleEndian()) {
-        if (dataViewMethod === 'getFloat32') {
-          typedDataArray = this._adjustByteAlign(
-            Float32Array,
-            uint8Array,
-            4,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getInt8') {
-          typedDataArray = new Int8Array(
-            uint8Array,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getUint8') {
-          typedDataArray = new Uint8Array(
-            uint8Array,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getInt16') {
-          typedDataArray = this._adjustByteAlign(
-            Int16Array,
-            uint8Array,
-            2,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getUint16') {
-          typedDataArray = this._adjustByteAlign(
-            Uint16Array,
-            uint8Array,
-            2,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getInt32') {
-          typedDataArray = this._adjustByteAlign(
-            Int32Array,
-            uint8Array,
-            4,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getUint32') {
-          typedDataArray = this._adjustByteAlign(
-            Uint32Array,
-            uint8Array,
-            4,
-            byteOffset,
-            byteLength / componentBytes
-          );
+    if (ModelConverter._isSystemLittleEndian()) {
+      if (dataViewMethod === 'getFloat32') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Float32Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getInt8') {
+        typedDataArray = new Int8Array(
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getUint8') {
+        typedDataArray = new Uint8Array(
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getInt16') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Int16Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getUint16') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Uint16Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getInt32') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Int32Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getUint32') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Uint32Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
         }
       } else {
         const dataView: any = new DataView(
           uint8Array.buffer,
-          byteOffset + uint8Array.byteOffset,
+          byteOffsetFromBuffer + uint8Array.byteOffset,
           byteLength
         );
         const byteDelta = componentBytes * componentN;
@@ -1744,7 +1730,7 @@ export default class ModelConverter {
     } else {
       const dataView: any = new DataView(
         uint8Array.buffer,
-        byteOffset + uint8Array.byteOffset,
+        byteOffsetFromBuffer + uint8Array.byteOffset,
         byteLength
       );
       let byteDelta = componentBytes * componentN;
