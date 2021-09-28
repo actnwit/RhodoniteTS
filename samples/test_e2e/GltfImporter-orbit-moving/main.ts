@@ -80,7 +80,7 @@ document.body.appendChild(p);
   }
   mainExpression.renderPasses[0].toClearColorBuffer = true;
   mainExpression.renderPasses[0].toClearDepthBuffer = true;
-  mainExpression.renderPasses[0].clearColor = new Rn.Vector4(0, 0, 0, 0);
+  mainExpression.renderPasses[0].clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 0]);
 
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();

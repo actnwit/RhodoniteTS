@@ -62,7 +62,7 @@ declare const Rn: typeof _Rn;
   createAndSetFramebuffer(renderPassHDR, rnCanvasElement.width, 1, {
     type: Rn.ComponentType.HalfFloat,
   });
-  renderPassHDR.clearColor = new Rn.Vector4(0.0, 0.0, 0.0, 1.0);
+  renderPassHDR.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
   const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMaterial(
     {maxInstancesNumber: 1},
@@ -335,7 +335,7 @@ declare const Rn: typeof _Rn;
 
         // need to draw the full viewport size
         renderPassBlurH.setViewport(
-          new Rn.Vector4(0, 0, resolutionBlur, resolutionBlur)
+          Rn.Vector4.fromCopyArray([0, 0, resolutionBlur, resolutionBlur])
         );
       }
       renderPassBlurH.cameraComponent = cameraComponentPostEffect;
@@ -480,7 +480,7 @@ declare const Rn: typeof _Rn;
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
-    renderPass.clearColor = new Rn.Vector4(1.0, 1.0, 1.0, 1.0);
+    renderPass.clearColor = Rn.Vector4.fromCopyArray([1.0, 1.0, 1.0, 1.0]);
     renderPass.cameraComponent = cameraComponent;
     renderPass.addEntities([entityGlareTarget]);
     renderPass.setMaterial(material);

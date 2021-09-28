@@ -8,6 +8,7 @@ import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
 import AbstractMatrix from './AbstractMatrix';
 import IdentityMatrix33 from './IdentityMatrix33';
+import {IMutableVector3, IVector3} from './IVector';
 /* eslint-disable prettier/prettier */
 
 export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
@@ -500,14 +501,14 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
       - this._v[0] * this._v[5] * this._v[7] - this._v[2] * this._v[4] * this._v[6] - this._v[1] * this._v[3] * this._v[8];
   }
 
-  multiplyVector(vec: Vector3) {
+  multiplyVector(vec: IVector3) {
     const x = this._v[0] * vec._v[0] + this._v[3] * vec._v[1] + this._v[6] * vec._v[2];
     const y = this._v[1] * vec._v[0] + this._v[4] * vec._v[1] + this._v[7] * vec._v[2];
     const z = this._v[2] * vec._v[0] + this._v[5] * vec._v[1] + this._v[8] * vec._v[2];
     return new (vec.constructor as any)(x, y, z);
   }
 
-  multiplyVectorTo(vec: Vector3, outVec: MutableVector3) {
+  multiplyVectorTo(vec: IVector3, outVec: IMutableVector3) {
     const x = this._v[0] * vec._v[0] + this._v[3] * vec._v[1] + this._v[6] * vec._v[2];
     const y = this._v[1] * vec._v[0] + this._v[4] * vec._v[1] + this._v[7] * vec._v[2];
     const z = this._v[2] * vec._v[0] + this._v[5] * vec._v[1] + this._v[8] * vec._v[2];

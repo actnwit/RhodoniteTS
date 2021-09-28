@@ -22,6 +22,7 @@ import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
 import {Is as is} from '../misc/Is';
+import {IVector3} from '../math/IVector';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -381,10 +382,10 @@ export default class Primitive extends RnObject {
     if (this.__vertexHandles != null) {
       return false;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(
-      this
-    );
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__vertexHandles =
+      webglResourceRepository.createVertexBufferAndIndexBuffer(this);
 
     return true;
   }
@@ -395,7 +396,8 @@ export default class Primitive extends RnObject {
       return false;
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.updateVertexBufferAndIndexBuffer(
       this,
       vertexHandles
@@ -408,7 +410,8 @@ export default class Primitive extends RnObject {
     if (this.__vertexHandles == null) {
       return false;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.deleteVertexDataResources(this.__vertexHandles);
     this.__vertexHandles = undefined;
 
@@ -420,8 +423,8 @@ export default class Primitive extends RnObject {
   }
 
   castRay(
-    origVec3: Vector3,
-    dirVec3: Vector3,
+    origVec3: IVector3,
+    dirVec3: IVector3,
     isFrontFacePickable: boolean,
     isBackFacePickable: boolean,
     dotThreshold: number,
@@ -505,8 +508,8 @@ export default class Primitive extends RnObject {
   }
 
   private __castRayInner(
-    origVec3: Vector3,
-    dirVec3: Vector3,
+    origVec3: IVector3,
+    dirVec3: IVector3,
     i: Index,
     pos0IndexBase: Index,
     pos1IndexBase: Index,
@@ -534,12 +537,10 @@ export default class Primitive extends RnObject {
     }
 
     const vec3 = Vector3.subtract(origVec3, this.__arenberg3rdPosition[i]);
-    const convertedOrigVec3 = this.__inverseArenbergMatrix[i].multiplyVector(
-      vec3
-    );
-    const convertedDirVec3 = this.__inverseArenbergMatrix[i].multiplyVector(
-      dirVec3
-    );
+    const convertedOrigVec3 =
+      this.__inverseArenbergMatrix[i].multiplyVector(vec3);
+    const convertedDirVec3 =
+      this.__inverseArenbergMatrix[i].multiplyVector(dirVec3);
 
     if (convertedDirVec3.z >= -1e-6 && convertedDirVec3.z <= 1e-6) {
       return null;
@@ -576,7 +577,7 @@ export default class Primitive extends RnObject {
   }
 
   _calcArenbergInverseMatrices() {
-    if (this.__inverseArenbergMatrix.length != 0) {
+    if (this.__inverseArenbergMatrix.length !== 0) {
       return;
     }
 

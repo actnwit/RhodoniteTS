@@ -58,7 +58,7 @@ let p = null;
   setParameterForMeshComponents(
     meshComponents,
     Rn.ShaderSemantics.BaseColorFactor,
-    new Rn.Vector4(0.5, 0.5, 0.5, 1.0)
+    Rn.Vector4.fromCopyArray([0.5, 0.5, 0.5, 1.0])
   );
 
   // cameraController

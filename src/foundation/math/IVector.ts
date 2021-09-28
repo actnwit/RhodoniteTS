@@ -17,6 +17,7 @@ export interface IVector {
   lengthSquared(): number;
   lengthTo(vec: IVector): number;
   dot(vec: IVector): number;
+  isTheSourceSame(arrayBuffer: ArrayBuffer): boolean;
 }
 
 export interface IMutableVector extends IVector {

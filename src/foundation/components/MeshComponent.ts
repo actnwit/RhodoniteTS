@@ -122,11 +122,13 @@ export default class MeshComponent extends Component {
           this.__sceneGraphComponent.worldMatrixInner
         );
         srcPointInLocal = new Vector3(
-          invWorldMatrix.multiplyVector(new Vector4(srcPointInWorld))
+          invWorldMatrix.multiplyVector(
+            Vector4.fromCopyVector3(srcPointInWorld)
+          )
         );
         const distVecInWorld = Vector3.add(srcPointInWorld, directionInWorld);
         const distVecInLocal = new Vector3(
-          invWorldMatrix.multiplyVector(new Vector4(distVecInWorld))
+          invWorldMatrix.multiplyVector(Vector4.fromCopyVector3(distVecInWorld))
         );
         directionInLocal = Vector3.normalize(
           Vector3.subtract(distVecInLocal, srcPointInLocal)
@@ -141,7 +143,7 @@ export default class MeshComponent extends Component {
         if (t >= 0) {
           intersectPositionInWorld = new Vector3(
             this.__sceneGraphComponent.worldMatrixInner.multiplyVector(
-              new Vector4(intersectedPosition!)
+              Vector4.fromCopyVector3(intersectedPosition!)
             )
           );
         }
@@ -200,10 +202,11 @@ export default class MeshComponent extends Component {
         );
         let intersectedPositionInWorld = null;
         if (intersectedPosition != null && t >= 0) {
-          intersectedPositionInWorld = this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
-            intersectedPosition,
-            MeshComponent.__returnVector3
-          );
+          intersectedPositionInWorld =
+            this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
+              intersectedPosition,
+              MeshComponent.__returnVector3
+            );
         }
 
         return {t, intersectedPositionInWorld};

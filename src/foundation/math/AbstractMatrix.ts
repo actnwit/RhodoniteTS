@@ -27,11 +27,15 @@ export default abstract class AbstractMatrix implements IMatrix {
   determinant(): number {
     throw new Error('Method not implemented.');
   }
-  get className() {
+  get className(): string {
     return this.constructor.name;
   }
 
   get isIdentityMatrixClass(): boolean {
     return false;
+  }
+
+  isTheSourceSame(arrayBuffer: ArrayBuffer): boolean {
+    return this._v.buffer === arrayBuffer;
   }
 }

@@ -3,7 +3,6 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import TransformComponent from '../foundation/components/TransformComponent';
-import Vector3 from '../foundation/math/Vector3';
 import CameraComponent from '../foundation/components/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
@@ -17,6 +16,7 @@ import {
 import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
+import { IVector3 } from '../foundation/math/IVector';
 
 declare let effekseer: any;
 
@@ -133,7 +133,7 @@ export default class EffekseerComponent extends Component {
     return true;
   }
 
-  set translate(vec: Vector3) {
+  set translate(vec: IVector3) {
     if (this.__handle) {
       this.__handle.setLocation(vec.x, vec.y, vec.z);
     }

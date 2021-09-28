@@ -1805,7 +1805,7 @@ export default class ModelConverter {
               );
             } else {
               typedDataArray.push(
-                new Vector4(
+                Vector4.fromCopyArray([
                   dataView[dataViewMethod](pos, littleEndian),
                   dataView[dataViewMethod](pos + componentBytes, littleEndian),
                   dataView[dataViewMethod](
@@ -1816,19 +1816,21 @@ export default class ModelConverter {
                     pos + componentBytes * 3,
                     littleEndian
                   )
-                )
+                ])
               );
             }
             break;
           case 'MAT4':
-            const matrixComponents = [];
-            for (let i = 0; i < 16; i++) {
-              matrixComponents[i] = dataView[dataViewMethod](
-                pos + componentBytes * i,
-                littleEndian
-              );
+            {
+              const matrixComponents = [];
+              for (let i = 0; i < 16; i++) {
+                matrixComponents[i] = dataView[dataViewMethod](
+                  pos + componentBytes * i,
+                  littleEndian
+                );
+              }
+              typedDataArray.push(new Matrix44(matrixComponents, true));
             }
-            typedDataArray.push(new Matrix44(matrixComponents, true));
             break;
         }
       }
@@ -2177,7 +2179,7 @@ export default class ModelConverter {
     textureRotationShaderSemantic: ShaderSemanticsEnum
   ) {
     if (textureJson?.extensions?.KHR_texture_transform) {
-      const transform = new MutableVector4(1.0, 1.0, 0.0, 0.0);
+      const transform = MutableVector4.fromCopyArray([1.0, 1.0, 0.0, 0.0]);
       let rotation = 0;
 
       const transformJson = textureJson.extensions.KHR_texture_transform;

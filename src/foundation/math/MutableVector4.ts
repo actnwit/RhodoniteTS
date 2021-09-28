@@ -1,35 +1,22 @@
+import {IVector4, IMutableVector, IMutableVector4} from './IVector';
 import {
-  IVector2,
-  IVector3,
-  IVector4,
-  IMutableVector,
-  IMutableVector4,
-} from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+  Array4,
+  FloatTypedArray,
+  FloatTypedArrayConstructor,
+} from '../../types/CommonTypes';
 import {Vector4_} from './Vector4';
 
-export class MutableVector4_<T extends TypedArrayConstructor>
+export class MutableVector4_<T extends FloatTypedArrayConstructor>
   extends Vector4_<T>
-  implements IMutableVector, IMutableVector4 {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y: number,
-    z: number,
-    w: number,
-    {type}: {type: T}
-  ) {
-    super(x, y, z, w, {type});
+  implements IMutableVector, IMutableVector4
+{
+  constructor(x: FloatTypedArray, {type}: {type: T}) {
+    super(x, {type});
   }
 
   set x(x: number) {
     this._v[0] = x;
+    this.__updateCount++;
   }
 
   get x(): number {
@@ -38,6 +25,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
 
   set y(y: number) {
     this._v[1] = y;
+    this.__updateCount++;
   }
 
   get y(): number {
@@ -46,6 +34,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
 
   set z(z: number) {
     this._v[2] = z;
+    this.__updateCount++;
   }
 
   get z(): number {
@@ -54,6 +43,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
 
   set w(w: number) {
     this._v[3] = w;
+    this.__updateCount++;
   }
 
   get w(): number {
@@ -66,6 +56,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
 
   setAt(i: number, value: number) {
     this._v[i] = value;
+    this.__updateCount++;
     return this;
   }
 
@@ -74,6 +65,7 @@ export class MutableVector4_<T extends TypedArrayConstructor>
     this._v[1] = y;
     this._v[2] = z;
     this._v[3] = w;
+    this.__updateCount++;
     return this;
   }
 
@@ -190,23 +182,21 @@ export class MutableVector4_<T extends TypedArrayConstructor>
     }
     return this;
   }
+
+  get _updateCount() {
+    return this.__updateCount;
+  }
+
+  private __updateCount = 0;
 }
 
 export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y?: number,
-    z?: number,
-    w?: number
-  ) {
-    super(x, y!, z!, w!, {type: Float32Array});
+  constructor(x: Float32Array) {
+    super(x, {type: Float32Array});
+  }
+
+  static fromCopyArray(array: Array4<number>): MutableVector4 {
+    return new MutableVector4(new Float32Array(array));
   }
 
   static zero() {
@@ -259,20 +249,8 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
 }
 
 export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y?: number,
-    z?: number,
-    w?: number
-  ) {
-    super(x, y!, z!, w!, {type: Float64Array});
+  constructor(x: Float64Array) {
+    super(x, {type: Float64Array});
   }
 
   static zero() {
@@ -313,6 +291,10 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
 
   static divideVector(l_vec: IVector4, r_vec: IVector4) {
     return super._divideVector(l_vec, r_vec, Float64Array) as MutableVector4d;
+  }
+
+  static fromCopyArray(array: Array4<number>): MutableVector4d {
+    return new MutableVector4d(new Float64Array(array));
   }
 
   clone() {

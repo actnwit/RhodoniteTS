@@ -203,11 +203,11 @@ declare const Rn: typeof _Rn;
     );
     materialSphere.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
-      new Rn.Vector4(0.5, 0.1, 0.4, 1)
+      Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
     );
     materialSphere.setParameter(
       Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.ShadowColor,
-      new Rn.Vector4(0.25, 0.05, 0.2, 1)
+      Rn.Vector4.fromCopyArray([0.25, 0.05, 0.2, 1])
     );
     materialSphere.setParameter(
       Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.MinimumVariance,
@@ -223,11 +223,11 @@ declare const Rn: typeof _Rn;
     );
     materialBoard.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
-      new Rn.Vector4(0.1, 0.7, 0.5, 1)
+      Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
     );
     materialBoard.setParameter(
       Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.ShadowColor,
-      new Rn.Vector4(0.05, 0.35, 0.25, 1)
+      Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
     );
     materialBoard.setParameter(
       Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.MinimumVariance,

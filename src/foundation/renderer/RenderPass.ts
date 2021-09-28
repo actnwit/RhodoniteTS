@@ -13,6 +13,7 @@ import ModuleManager from '../system/ModuleManager';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import Primitive from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
+import { IVector4 } from '../math/IVector';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -29,7 +30,7 @@ export default class RenderPass extends RnObject {
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
   public isDepthTest = true;
-  public clearColor = new Vector4(1, 1, 1, 1);
+  public clearColor = Vector4.fromCopyArray([1, 1, 1, 1]);
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
@@ -172,7 +173,7 @@ export default class RenderPass extends RnObject {
     this.__frameBuffer = framebuffer;
     if (framebuffer != null) {
       this.setViewport(
-        new Vector4(0, 0, framebuffer.width, framebuffer.height)
+        Vector4.fromCopyArray([0, 0, framebuffer.width, framebuffer.height])
       );
     } else {
       this.__viewport = undefined;
@@ -191,11 +192,16 @@ export default class RenderPass extends RnObject {
    * Sets the viewport of this render pass.
    * @param vec A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
    */
-  setViewport(vec: Vector4) {
+  setViewport(vec: IVector4) {
     if (this.__viewport != null) {
       this.__viewport.copyComponents(vec);
     } else {
-      this.__viewport = new MutableVector4(vec);
+      this.__viewport = MutableVector4.fromCopyArray([
+        vec.x,
+        vec.y,
+        vec.z,
+        vec.w,
+      ]);
     }
   }
 
@@ -308,9 +314,8 @@ export default class RenderPass extends RnObject {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    this.__webglRenderingStrategy = webglModule.getRenderingStrategy(
-      processApproach
-    );
+    this.__webglRenderingStrategy =
+      webglModule.getRenderingStrategy(processApproach);
   }
 
   private __getMaterialOf(primitive: Primitive) {

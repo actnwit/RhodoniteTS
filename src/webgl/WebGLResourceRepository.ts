@@ -2499,7 +2499,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     this.__glw!.height = height;
     this.__glw!.canvas.width = width;
     this.__glw!.canvas.height = height;
-    this.__glw!.setViewportAsVector4(new Vector4(0, 0, width, height));
+    this.__glw!.setViewportAsVector4(Vector4.fromCopyArray([0, 0, width, height]));
   }
 
   switchDepthTest(flag: boolean) {

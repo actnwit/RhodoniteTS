@@ -1,18 +1,13 @@
 import MutableVector4 from './MutableVector4';
 import {IVector4, IMutableVector4} from './IVector';
 import {IMutableColorRgba} from './IColor';
-import {TypedArray} from '../../types/CommonTypes';
 
 export default class MutableColorRgba
   extends MutableVector4
-  implements IMutableVector4, IMutableColorRgba {
-  constructor(
-    r: number | TypedArray | IVector4 | Array<number> | null,
-    g?: number,
-    b?: number,
-    a?: number
-  ) {
-    super(r, g, b, a);
+  implements IMutableVector4, IMutableColorRgba
+{
+  constructor(r: Float32Array) {
+    super(r);
   }
 
   get x() {

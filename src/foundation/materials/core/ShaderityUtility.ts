@@ -42,7 +42,8 @@ export type VertexAttributesLayout = {
 export default class ShaderityUtility {
   static __instance: ShaderityUtility;
   private __shaderity = Shaderity.getInstance();
-  private __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  private __webglResourceRepository?: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
 
   private constructor() {
     const attributeSemanticsMap = new Map();
@@ -74,8 +75,8 @@ export default class ShaderityUtility {
     _args.widthOfDataTexture = `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`;
     _args.heightOfDataTexture = `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`;
     const obj = this.__shaderity.fillTemplate(shaderityObject, _args);
-    const isWebGL2 = this.__webglResourceRepository?.currentWebGLContextWrapper
-      ?.isWebGL2;
+    const isWebGL2 =
+      this.__webglResourceRepository?.currentWebGLContextWrapper?.isWebGL2;
     const code = this.__shaderity.transformTo(
       isWebGL2 ? 'WebGL2' : 'WebGL1',
       obj
@@ -91,8 +92,8 @@ export default class ShaderityUtility {
     _args.heightOfDataTexture = `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`;
     _args.Config = Config;
     const obj = this.__shaderity.fillTemplate(shaderityObject, _args);
-    const isWebGL2 = this.__webglResourceRepository?.currentWebGLContextWrapper
-      ?.isWebGL2;
+    const isWebGL2 =
+      this.__webglResourceRepository?.currentWebGLContextWrapper?.isWebGL2;
     const code = this.__shaderity.transformTo(
       isWebGL2 ? 'WebGL2' : 'WebGL1',
       obj
@@ -141,7 +142,8 @@ export default class ShaderityUtility {
 
     const shaderSemanticsInfoArray = [];
     for (const row of splitCode) {
-      const reg = /^(?![\/])[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
+      const reg =
+        /^(?![\/])[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const match = row.match(reg);
 
       if (match) {
@@ -165,9 +167,8 @@ export default class ShaderityUtility {
           }
         }
 
-        const systemSemantic = ShaderSemantics.fromStringCaseSensitively(
-          variableName
-        );
+        const systemSemantic =
+          ShaderSemantics.fromStringCaseSensitively(variableName);
         shaderSemanticsInfo.semantic = systemSemantic;
         if (systemSemantic == null) {
           if (existingShaderInfoMap) {
@@ -184,9 +185,8 @@ export default class ShaderityUtility {
           }
         }
         shaderSemanticsInfo.componentType = ComponentType.fromGlslString(type);
-        shaderSemanticsInfo.compositionType = CompositionType.fromGlslString(
-          type
-        );
+        shaderSemanticsInfo.compositionType =
+          CompositionType.fromGlslString(type);
 
         const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
         let bool = false;
@@ -272,11 +272,13 @@ export default class ShaderityUtility {
                 break;
               case 4:
                 checkCompositionNumber(CompositionType.Vec4);
-                shaderSemanticsInfo.initialValue = new MutableVector4(
-                  parseFloat(split[0]),
-                  parseFloat(split[1]),
-                  parseFloat(split[2]),
-                  parseFloat(split[3])
+                shaderSemanticsInfo.initialValue = MutableVector4.fromCopyArray(
+                  [
+                    parseFloat(split[0]),
+                    parseFloat(split[1]),
+                    parseFloat(split[2]),
+                    parseFloat(split[3]),
+                  ]
                 );
                 break;
               case 9:

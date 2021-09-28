@@ -62,7 +62,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Vector4(1, 1, 1, 1),
+        initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
         min: 0,
         max: 2,
       },

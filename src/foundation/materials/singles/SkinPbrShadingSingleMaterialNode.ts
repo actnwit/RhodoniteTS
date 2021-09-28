@@ -90,7 +90,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 2,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 1, 1),
+        initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
       {
         semantic: ShaderSemantics.BaseColorTexture,
@@ -215,7 +215,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
         isSystem: true,
-        initialValue: new Vector4(1, 1, 1, 1),
+        initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       },
       {
@@ -272,7 +272,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 10,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic: SkinPbrShadingSingleMaterialNode.baseColorTextureRotation,
@@ -294,7 +294,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 10,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic: SkinPbrShadingSingleMaterialNode.normalTextureRotation,
@@ -317,7 +317,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 10,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector4(1, 1, 0, 0),
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic:
@@ -378,7 +378,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
             maxIndex: 4,
             isSystem: true,
             updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-            initialValue: new Vector4(0, 0, 0, 1),
+            initialValue: Vector4.fromCopyArray([0, 0, 0, 1]),
             soloDatum: true
           });
         lights.push(
@@ -392,7 +392,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
           index: idx,
           maxIndex: 4,
           isSystem: true,
-          initialValue: new Vector4(0, 1, 0, 1),
+          initialValue: Vector4.fromCopyArray([0, 1, 0, 1]),
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
           soloDatum: true
         });
@@ -407,7 +407,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
             index: idx,
             maxIndex: 4,
             isSystem: true,
-            initialValue: new Vector4(1, 1, 1, 1),
+            initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
             updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
             soloDatum: true
           });

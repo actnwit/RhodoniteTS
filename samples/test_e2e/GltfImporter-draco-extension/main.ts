@@ -1,5 +1,6 @@
 import _Rn, {CameraComponent, Material} from '../../../dist/esm/index';
 
+declare const window: any;
 declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -183,3 +184,8 @@ function setTextureParameterForMeshComponents(
     }
   }
 }
+
+window.exportGltf2 = function () {
+  const exporter = Rn.Gltf2Exporter.getInstance();
+  exporter.export('Rhodonite');
+};

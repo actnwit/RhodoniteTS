@@ -340,12 +340,12 @@ export default class WebXRSystem {
    * @returns The viewport vector of left eye
    */
   _getLeftViewport() {
-    return new Vector4(
+    return Vector4.fromCopyArray([
       0,
       0,
       this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR
-    );
+      this.__canvasHeightForVR,
+    ]);
   }
 
   /**
@@ -354,12 +354,12 @@ export default class WebXRSystem {
    * @returns The viewport vector of right eye
    */
   _getRightViewport() {
-    return new Vector4(
+    return Vector4.fromCopyArray([
       this.__canvasWidthForVR / 2,
       0,
       this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR
-    );
+      this.__canvasHeightForVR,
+    ]);
   }
 
   _setValuesToGlobalDataRepository() {

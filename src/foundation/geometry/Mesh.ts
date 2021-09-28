@@ -15,6 +15,7 @@ import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
 import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is as is} from '../misc/Is';
+import {IVector3} from '../math/IVector';
 
 /**
  * The Mesh class.
@@ -755,10 +756,11 @@ export default class Mesh {
         return false;
       }
 
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
 
       if (
-        this.__variationVBOUid !=
+        this.__variationVBOUid !==
         CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
         webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
@@ -771,9 +773,8 @@ export default class Mesh {
         entityUIDs[i + 1] = this.__instances[i]._attachedEntityUID;
       }
 
-      this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(
-        entityUIDs
-      );
+      this.__variationVBOUid =
+        webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
 
       this.__instancesDirty = false;
 
@@ -785,7 +786,8 @@ export default class Mesh {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.deleteVariationVBO();
     } else {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
       if (
         this.__variationVBOUid !==
         CGAPIResourceRepository.InvalidCGAPIResourceUid
@@ -806,7 +808,8 @@ export default class Mesh {
       return this.__instanceOf!.updateVAO();
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
@@ -848,7 +851,8 @@ export default class Mesh {
       return this.__instanceOf!.updateVAO();
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
       webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -860,24 +864,22 @@ export default class Mesh {
   }
 
   castRay(
-    srcPointInLocal: Vector3,
-    directionInLocal: Vector3,
+    srcPointInLocal: IVector3,
+    directionInLocal: IVector3,
     dotThreshold = 0
   ) {
     let finalShortestIntersectedPosVec3: Vector3 | undefined;
     let finalShortestT = Number.MAX_VALUE;
     for (const primitive of this.__primitives) {
-      const {
-        currentShortestIntersectedPosVec3,
-        currentShortestT,
-      } = primitive.castRay(
-        srcPointInLocal,
-        directionInLocal,
-        true,
-        true,
-        dotThreshold,
-        this.__hasFaceNormal
-      );
+      const {currentShortestIntersectedPosVec3, currentShortestT} =
+        primitive.castRay(
+          srcPointInLocal,
+          directionInLocal,
+          true,
+          true,
+          dotThreshold,
+          this.__hasFaceNormal
+        );
       if (currentShortestT != null && currentShortestT < finalShortestT) {
         finalShortestT = currentShortestT;
         finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;

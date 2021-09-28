@@ -149,11 +149,11 @@ export default class RenderTargetTexture
       byteArray = this.getTexturePixelData();
     }
 
-    const color = new Vector4(
+    const color = Vector4.fromCopyArray([
       byteArray[(y * this.width + x) * 4 + 0],
       byteArray[(y * this.width + x) * 4 + 1],
       byteArray[(y * this.width + x) * 4 + 2],
-      byteArray[(y * this.width + x) * 4 + 3]
+      byteArray[(y * this.width + x) * 4 + 3]]
     );
     return color;
   }

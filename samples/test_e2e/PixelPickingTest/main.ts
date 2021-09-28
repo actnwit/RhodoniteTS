@@ -26,7 +26,7 @@ const setupRenderPassEntityUidOutput = function (
     {}
   );
   renderPass.setFramebuffer(framebuffer);
-  renderPass.clearColor = new Rn.Vector4(0, 0, 0, 1);
+  renderPass.clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 1]);
   renderPass.toClearColorBuffer = true;
   renderPass.toClearDepthBuffer = true;
 
@@ -58,7 +58,7 @@ const pick = function (e: any) {
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
-  const bitDec = new Rn.Vector4(1, 255, 65025, 0);
+  const bitDec = Rn.Vector4.fromCopyArray([1, 255, 65025, 0]);
   const pickedEntityUID = bitDec.dot(pickedPixel);
   console.log(pickedEntityUID);
 
@@ -209,7 +209,7 @@ let p: any;
 })();
 
 window.exportGltf2 = function () {
-  
+
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
 };

@@ -95,7 +95,7 @@ declare const Rn: typeof _Rn;
     renderPass.cameraComponent = cameraComponent;
 
     const entitySmallBoard = createEntityColoredBoard(
-      new Rn.Vector4(0.5, 0.1, 0.4, 1)
+      Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
     );
     const transformSmallBoard = entitySmallBoard.getTransform();
     transformSmallBoard.scale = new Rn.Vector3(0.2, 0.2, 0.2);
@@ -103,7 +103,7 @@ declare const Rn: typeof _Rn;
     transformSmallBoard.rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
 
     const entityLargeBoard = createEntityColoredBoard(
-      new Rn.Vector4(0.1, 0.7, 0.5, 1)
+      Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
     );
     const transformLargeBoard = entityLargeBoard.getTransform();
     transformLargeBoard.translate = new Rn.Vector3(15, 30, -1.5);

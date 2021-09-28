@@ -288,21 +288,21 @@ export default class WebVRSystem {
   }
 
   getLeftViewport(originalViewport: Vector4) {
-    return new Vector4(
+    return Vector4.fromCopyArray([
       0,
       0,
       this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR
+      this.__canvasHeightForVR]
     );
   }
 
   getRightViewport(originalViewport: Vector4) {
-    return new Vector4(
+    return Vector4.fromCopyArray([
       this.__canvasWidthForVR / 2,
       0,
       this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR
-    );
+      this.__canvasHeightForVR,
+    ]);
   }
 
   getViewMatrixAt(index: Index) {
