@@ -738,7 +738,7 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
     const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13];
     const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14];
 
-    return new Vector3(x, y, z);
+    return Vector3.fromCopyArray([x, y, z]);
   }
 
   multiplyVector3To(vec: IVector3, outVec: MutableVector3) {
@@ -753,7 +753,7 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   getTranslate() {
-    return new Vector3(this._v[12], this._v[13], this._v[14]);
+    return Vector3.fromCopyArray([this._v[12], this._v[13], this._v[14]]);
   }
 
   /**
@@ -767,10 +767,10 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   getScale() {
-    return new Vector3(
+    return Vector3.fromCopyArray([
       Math.hypot(this._v[0], this._v[4], this._v[8]),
       Math.hypot(this._v[1], this._v[5], this._v[9]),
-      Math.hypot(this._v[2], this._v[6], this._v[10])
+      Math.hypot(this._v[2], this._v[6], this._v[10])]
     );
   }
 
@@ -793,11 +793,11 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
       const y = -Math.asin(this._v[2]);
       const x = Math.atan2(this._v[6] / Math.cos(y), this._v[10] / Math.cos(y));
       const z = Math.atan2(this._v[1] / Math.cos(y), this._v[0] / Math.cos(y));
-      rotate = new Vector3(x, y, z);
+      rotate = Vector3.fromCopyArray([x, y, z]);
     } else if (this._v[2] === -1.0) {
-      rotate = new Vector3(Math.atan2(this._v[4], this._v[8]), Math.PI / 2.0, 0.0);
+      rotate = Vector3.fromCopyArray([Math.atan2(this._v[4], this._v[8]), Math.PI / 2.0, 0.0]);
     } else {
-      rotate = new Vector3(Math.atan2(-this._v[4], -this._v[8]), -Math.PI / 2.0, 0.0);
+      rotate = Vector3.fromCopyArray([Math.atan2(-this._v[4], -this._v[8]), -Math.PI / 2.0, 0.0]);
     }
 
     return rotate;

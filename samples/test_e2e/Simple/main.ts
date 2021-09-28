@@ -17,12 +17,12 @@ declare const window: Window;
 
   // Plane
   const planeEntity = Rn.MeshHelper.createPlane();
-  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI, 0, 0);
-  planeEntity.getTransform().scale = new Rn.Vector3(0.1, 0.1, 0.1);
+  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI, 0, 0]);
+  planeEntity.getTransform().scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 
   // renderPass
   const renderPass = new Rn.RenderPass();
-  renderPass.clearColor = new Rn.Vector3(0, 0, 1);
+  renderPass.clearColor = Rn.Vector3.fromCopyArray([0, 0, 1]);
   renderPass.toClearColorBuffer = true;
   renderPass.addEntities([planeEntity]);
 

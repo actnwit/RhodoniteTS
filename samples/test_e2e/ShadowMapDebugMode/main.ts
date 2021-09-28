@@ -19,11 +19,11 @@ let p: any;
   depthCameraComponent.zFar = 50.0;
   depthCameraComponent.setFovyAndChangeFocalLength(40);
   const depthCameraEntity = depthCameraComponent.entity;
-  depthCameraEntity.getTransform().translate = new Rn.Vector3(2.0, 2.0, 5.0);
+  depthCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([2.0, 2.0, 5.0]);
 
   const mainCameraComponent = createCameraComponent();
   const mainCameraEntity = mainCameraComponent.entity;
-  mainCameraEntity.getTransform().translate = new Rn.Vector3(-0.1, -0.1, -0.2);
+  mainCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
 
   // setting render passes
   const renderPassDepth = createRenderPassSpecifyingCameraComponent(
@@ -85,11 +85,11 @@ let p: any;
     Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
   );
 
-  const scaleSmallBoard = new Rn.Vector3(0.2, 0.2, 0.2);
-  const translateSmallBoard = new Rn.Vector3(0.0, 0.0, -1.0);
-  const rotateSmallBoard = new Rn.Vector3(Math.PI / 2, 0, 0);
-  const translateBigBoard = new Rn.Vector3(0, 0, -1.5);
-  const rotateBigBoard = new Rn.Vector3(Math.PI / 2, 0, 0);
+  const scaleSmallBoard = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
+  const translateSmallBoard = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
+  const rotateSmallBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+  const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -1.5]);
+  const rotateBigBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
   entitySmallBoardForDepth.getTransform().scale = scaleSmallBoard;
   entitySmallBoardForDepth.getTransform().translate = translateSmallBoard;

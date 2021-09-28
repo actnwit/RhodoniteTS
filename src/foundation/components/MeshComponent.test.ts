@@ -48,7 +48,7 @@ function generateEntity() {
 //   mesh.addPrimitive(primitive);
 //   meshComponent.setMesh(mesh);
 
-//  // expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);
+//  // expect(transformComponent.translate.isEqual(Vector3.fromCopyArray([1, 0, 0))).toBe(true]);
 // });
 
 test('dummy', async () => {

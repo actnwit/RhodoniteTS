@@ -33,7 +33,7 @@ export default class MathClassUtil {
           element[3],
         ]);
       } else if (typeof element[2] !== 'undefined') {
-        return new Vector3(element[0], element[1], element[2]);
+        return Vector3.fromCopyArray([element[0], element[1], element[2]]);
       } else {
         return new Vector2(element[0], element[1]);
       }
@@ -56,7 +56,7 @@ export default class MathClassUtil {
           element[3],
         ]);
       } else if (typeof element[2] !== 'undefined') {
-        return new Vector3(element[0], element[1], element[2]);
+        return Vector3.fromCopyArray([element[0], element[1], element[2]]);
       } else {
         return new Vector2(element[0], element[1]);
       }
@@ -335,7 +335,7 @@ export default class MathClassUtil {
     } else if (objForDetectType instanceof Vector2) {
       return new Vector2(val, val);
     } else if (objForDetectType instanceof Vector3) {
-      return new Vector3(val, val, val);
+      return Vector3.fromCopyArray([val, val, val]);
     } else if (objForDetectType instanceof Vector4) {
       return Vector4.fromCopyArray([val, val, val, val]);
     } else if (objForDetectType instanceof Quaternion) {
@@ -385,7 +385,7 @@ export default class MathClassUtil {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       floatArray[2] = val.z;
-      obj = new MutableVector3(floatArray);
+      obj = MutableVector3.fromFloat32Array(floatArray);
     } else if (
       objForDetectType instanceof Vector4 ||
       objForDetectType instanceof MutableVector4
@@ -448,10 +448,10 @@ export default class MathClassUtil {
       let vec;
       switch (floatArray.length) {
         case 4:
-          vec = Vector4.fromFloat32Array(floatArray);
+          vec = Vector4.fromCopyFloat32Array(floatArray);
           break;
         case 3:
-          vec = new Vector3(floatArray);
+          vec = Vector3.fromCopyFloat32Array(floatArray);
           break;
         case 2:
           vec = new Vector2(floatArray);

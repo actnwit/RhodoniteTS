@@ -87,7 +87,7 @@ export default class IdentityMatrix33 extends AbstractMatrix implements IMatrix,
   }
 
   getScale(): IVector {
-    return new Vector3(1, 1, 1);
+    return Vector3.fromCopyArray([1, 1, 1]);
   }
 
   getScaleTo(outVec: IMutableVector): IMutableVector {

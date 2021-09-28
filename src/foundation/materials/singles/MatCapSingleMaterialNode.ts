@@ -62,7 +62,7 @@ export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
       isSystem: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       soloDatum: false,
-      initialValue: new Vector3(0, 0, 1),
+      initialValue: Vector3.fromCopyArray([0, 0, 1]),
       min: 0,
       max: 10,
     });
@@ -89,7 +89,7 @@ export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
-        initialValue: new Vector3(0.0, 0.1, 0.01),
+        initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
         min: 0,
         max: 1,
       }

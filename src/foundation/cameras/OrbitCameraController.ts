@@ -86,7 +86,7 @@ export default class OrbitCameraController
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
 
-  private static readonly __tmp_up: Vector3 = new Vector3(0, 0, 1);
+  private static readonly __tmp_up: Vector3 = Vector3.fromCopyArray([0, 0, 1]);
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVec3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVec3_2: MutableVector3 = MutableVector3.zero();

@@ -96,7 +96,7 @@ export default class GlobalDataRepository {
       max: Number.MAX_VALUE,
       isSystem: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-      initialValue: new Vector3(0, 0, 1),
+      initialValue: Vector3.fromCopyArray([0, 0, 1]),
     };
     this.registerProperty(viewMatrixInfo, Config.maxCameraNumber);
     this.registerProperty(projectionMatrixInfo, Config.maxCameraNumber);

@@ -30,7 +30,7 @@ document.body.appendChild(p);
   cameraComponent.yMag = 3.3;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = new Rn.Vector3(3, 2, 1);
+  cameraTransform.translate = Rn.Vector3.fromCopyArray([3, 2, 1]);
 
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();

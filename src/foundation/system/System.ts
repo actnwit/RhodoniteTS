@@ -127,7 +127,7 @@ export default class System {
         SceneGraphComponent,
         CameraComponent,
       ]);
-      cameraEntity.getTransform().translate = new Vector3(0, 0, 1);
+      cameraEntity.getTransform().translate = Vector3.fromCopyArray([0, 0, 1]);
       cameraEntity.getCamera().type = CameraType.Orthographic;
       cameraEntity.getCamera().zNear = 0.1;
       cameraEntity.getCamera().zFar = 10000;

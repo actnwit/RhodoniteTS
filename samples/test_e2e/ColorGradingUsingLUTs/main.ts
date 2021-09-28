@@ -65,7 +65,7 @@ declare const Rn: typeof _Rn;
     ]);
 
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = new Rn.Vector3(10.0, 15.0, 20.0);
+    transformCamera.translate = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.setFovyAndChangeFocalLength(120);
@@ -82,16 +82,16 @@ declare const Rn: typeof _Rn;
       Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
     );
     const transformSmallBoard = entitySmallBoard.getTransform();
-    transformSmallBoard.scale = new Rn.Vector3(0.2, 0.2, 0.2);
-    transformSmallBoard.translate = new Rn.Vector3(0.0, 0.0, -1.0);
-    transformSmallBoard.rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    transformSmallBoard.scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
+    transformSmallBoard.translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
+    transformSmallBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
     const entityLargeBoard = createEntityColoredBoard(
       Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
     );
     const transformLargeBoard = entityLargeBoard.getTransform();
-    transformLargeBoard.translate = new Rn.Vector3(15, 30, -1.5);
-    transformLargeBoard.rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    transformLargeBoard.translate = Rn.Vector3.fromCopyArray([15, 30, -1.5]);
+    transformLargeBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
     renderPass.addEntities([entitySmallBoard, entityLargeBoard]);
     return renderPass;
@@ -197,8 +197,8 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-    boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

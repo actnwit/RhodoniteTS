@@ -24,12 +24,12 @@ declare const Rn: typeof _Rn;
   const promises = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
-  
+
   //-------------------------------
   Promise.all(promises).then(() => {
     const importer = Rn.Gltf2Importer.getInstance();
     const system = Rn.System.getInstance();
-  
+
     const gl = system.setProcessApproachAndCanvas(
       Rn.ProcessApproach.UniformWebGL1,
       document.getElementById('world') as HTMLCanvasElement
@@ -50,7 +50,7 @@ declare const Rn: typeof _Rn;
     cameraComponent.zFar = 1000;
     cameraComponent.setFovyAndChangeFocalLength(45);
     cameraComponent.aspect = 1;
-    cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
     // Lights
     const lightEntity = entityRepository.createEntity([
@@ -58,10 +58,10 @@ declare const Rn: typeof _Rn;
       Rn.SceneGraphComponent,
       Rn.LightComponent,
     ]);
-    lightEntity.getTransform().translate = new Rn.Vector3(1.0, 1.0, 100000.0);
-    lightEntity.getLight().intensity = new Rn.Vector3(1, 1, 1);
+    lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 1.0, 100000.0]);
+    lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
     lightEntity.getLight().type = Rn.LightType.Directional;
-    lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
     //lightEntity2.getLight().type = Rn.LightType.Directional;
 
     const promise = importer.import(
@@ -72,8 +72,8 @@ declare const Rn: typeof _Rn;
     promise.then(response => {
       const modelConverter = Rn.ModelConverter.getInstance();
       const rootGroup = modelConverter.convertToRhodoniteObject(response);
-      //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
-      rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
+      //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
+      rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 
       // CameraComponent
       const cameraControllerComponent = cameraEntity.getCameraController();
@@ -137,7 +137,7 @@ declare const Rn: typeof _Rn;
 
 })();
 window.exportGltf2 = function () {
-  
+
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
 };

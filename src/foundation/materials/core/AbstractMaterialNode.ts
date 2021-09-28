@@ -392,7 +392,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
       viewMatrix = cameraComponent.viewMatrix;
     } else {
       viewMatrix = MutableMatrix44.identity();
-      cameraPosition = new Vector3(0, 0, 10);
+      cameraPosition = Vector3.fromCopyArray([0, 0, 10]);
     }
 
     (shaderProgram as any)._gl.uniformMatrix4fv(

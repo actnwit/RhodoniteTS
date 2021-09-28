@@ -4,12 +4,8 @@ import {IColorRgb} from './IColor';
 import {TypedArray} from '../../types/CommonTypes';
 
 export default class ColorRgb extends Vector3 implements IVector3, IColorRgb {
-  constructor(
-    r: number | TypedArray | IVector3 | IVector4 | Array<number> | null,
-    g?: number,
-    b?: number
-  ) {
-    super(r, g, b);
+  constructor(r: Float32Array) {
+    super(r, 0, 0);
   }
 
   get x() {

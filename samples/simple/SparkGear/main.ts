@@ -37,7 +37,7 @@ const Module = {
     cameraComponent.setFovyAndChangeFocalLength(90);
     cameraComponent.aspect = 1;
 
-    cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 3);
+    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 3]);
 
     const importer = Rn.Gltf2Importer.getInstance();
     const modelConverter = Rn.ModelConverter.getInstance();
@@ -52,7 +52,7 @@ const Module = {
       sparkgearModule.SparkGearComponent
     );
     sparkGearComponent.url = '../../../assets/vfxb/sample.vfxb';
-    entity.getTransform().translate = new Rn.Vector3(1, 1, 0);
+    entity.getTransform().translate = Rn.Vector3.fromCopyArray([1, 1, 0]);
 
     // renderPass
     const renderPass = new Rn.RenderPass();

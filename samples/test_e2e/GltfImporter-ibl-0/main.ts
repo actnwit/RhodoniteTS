@@ -111,8 +111,8 @@ function createEnvCubeExpression(baseuri) {
     Rn.MeshComponent,
     Rn.MeshRendererComponent,
   ]);
-  sphereEntity.getTransform().scale = new Rn.Vector3(-1, 1, 1);
-  sphereEntity.getTransform().translate = new Rn.Vector3(0, 20, -20);
+  sphereEntity.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 20, -20]);
 
   const sphereMeshComponent = sphereEntity.getMesh();
   sphereMeshComponent.setMesh(sphereMesh);
