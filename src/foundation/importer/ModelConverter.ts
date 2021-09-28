@@ -1617,10 +1617,12 @@ export default class ModelConverter {
 
     const byteLength = componentBytes * componentN * accessor.count;
 
-    let typedDataArray: any = [];
+    let float32Array = new Float32Array();
+    const numberArray: number[] = [];
 
     if (accessor.extras?.toGetAsTypedArray) {
     if (ModelConverter._isSystemLittleEndian()) {
+        let typedDataArray: TypedArray = new Float32Array();
       if (dataViewMethod === 'getFloat32') {
         typedDataArray = this.__rewrapWithTypedArray(
           Float32Array,
@@ -1669,6 +1671,10 @@ export default class ModelConverter {
           byteLength / componentBytes
         );
         }
+        float32Array = this.__arrayToFloat32Array(
+          dataViewMethod,
+          typedDataArray
+        );
       } else {
         const dataView: any = new DataView(
           uint8Array.buffer,
@@ -1711,21 +1717,7 @@ export default class ModelConverter {
               break;
           }
         }
-        if (dataViewMethod === 'getInt8') {
-          typedDataArray = new Int8Array(typedDataArray);
-        } else if (dataViewMethod === 'getUint8') {
-          typedDataArray = new Uint8Array(typedDataArray);
-        } else if (dataViewMethod === 'getInt16') {
-          typedDataArray = new Int16Array(typedDataArray);
-        } else if (dataViewMethod === 'getUint16') {
-          typedDataArray = new Uint16Array(typedDataArray);
-        } else if (dataViewMethod === 'getInt32') {
-          typedDataArray = new Int32Array(typedDataArray);
-        } else if (dataViewMethod === 'getUint32') {
-          typedDataArray = new Uint32Array(typedDataArray);
-        } else if (dataViewMethod === 'getFloat32') {
-          typedDataArray = new Float32Array(typedDataArray);
-        }
+        float32Array = this.__arrayToFloat32Array(dataViewMethod, numberArray);
       }
     } else {
       const dataView: any = new DataView(
@@ -1823,11 +1815,145 @@ export default class ModelConverter {
             break;
         }
       }
+      float32Array = this.__arrayToFloat32Array(dataViewMethod, numberArray);
     }
+    // } else {
+    // const dataView: any = new DataView(
+    //   uint8Array.buffer,
+    //   byteOffset + uint8Array.byteOffset,
+    //   byteLength
+    // );
+    // let byteDelta = componentBytes * componentN;
+    // if (accessor.extras?.weightsArrayLength) {
+    //   byteDelta = componentBytes * componentN * accessor.extras.weightsArrayLength;
+    // }
+    // const littleEndian = true;
+    // for (let pos = 0; pos < byteLength; pos += byteDelta) {
+    //   switch (accessor.type) {
+    //     case 'SCALAR':
+    //       if (accessor.extras?.weightsArrayLength) {
+    //         const array = [];
+    //         for (let i = 0; i < accessor.extras.weightsArrayLength; i++) {
+    //           array.push(
+    //             dataView[dataViewMethod](
+    //               pos + componentBytes * i,
+    //               littleEndian
+    //             )
+    //           );
+    //         }
+    //         typedDataArray.push(array);
+    //       } else {
+    //         typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+    //       }
+    //       break;
+    //     case 'VEC2':
+    //       typedDataArray.push(
+    //         new Vector2(
+    //           dataView[dataViewMethod](pos, littleEndian),
+    //           dataView[dataViewMethod](pos + componentBytes, littleEndian)
+    //         )
+    //       );
+    //       break;
+    //     case 'VEC3':
+    //       typedDataArray.push(
+    //         Vector3.fromCopyArray([
+    //           dataView[dataViewMethod](pos, littleEndian),
+    //           dataView[dataViewMethod](pos + componentBytes, littleEndian),
+    //           dataView[dataViewMethod](
+    //             pos + componentBytes * 2,
+    //             littleEndian
+    //           ),
+    //         ])
+    //       );
+    //       break;
+    //     case 'VEC4':
+    //       if (accessor.extras?.quaternionIfVec4) {
+    //         typedDataArray.push(
+    //           new Quaternion(
+    //             dataView[dataViewMethod](pos, littleEndian),
+    //             dataView[dataViewMethod](pos + componentBytes, littleEndian),
+    //             dataView[dataViewMethod](
+    //               pos + componentBytes * 2,
+    //               littleEndian
+    //             ),
+    //             dataView[dataViewMethod](
+    //               pos + componentBytes * 3,
+    //               littleEndian
+    //             )
+    //           )
+    //         );
+    //       } else {
+    //         typedDataArray.push(
+    //           Vector4.fromCopyArray([
+    //             dataView[dataViewMethod](pos, littleEndian),
+    //             dataView[dataViewMethod](pos + componentBytes, littleEndian),
+    //             dataView[dataViewMethod](
+    //               pos + componentBytes * 2,
+    //               littleEndian
+    //             ),
+    //             dataView[dataViewMethod](
+    //               pos + componentBytes * 3,
+    //               littleEndian
+    //             )
+    //           ])
+    //         );
+    //       }
+    //       break;
+    //     case 'MAT4':
+    //       {
+    //         const matrixComponents = [];
+    //         for (let i = 0; i < 16; i++) {
+    //           matrixComponents[i] = dataView[dataViewMethod](
+    //             pos + componentBytes * i,
+    //             littleEndian
+    //           );
+    //         }
+    //         typedDataArray.push(new Matrix44(matrixComponents, true));
+    //       }
+    //       break;
+    //   }
+    // }
+    // }
 
-    accessor.extras.typedDataArray = typedDataArray;
+    accessor.extras!.typedDataArray = float32Array;
 
-    return typedDataArray;
+    return float32Array;
+  }
+
+  private __arrayToFloat32Array(
+    dataViewMethod: string,
+    numberArray: number[] | TypedArray
+  ): Float32Array {
+    if (dataViewMethod === 'getInt8') {
+      return DataUtil.normalizedInt8ArrayToFloat32Array(
+        numberArray as unknown as Int8Array
+      );
+    } else if (dataViewMethod === 'getUint8') {
+      return DataUtil.normalizedUint8ArrayToFloat32Array(
+        numberArray as unknown as Uint8Array
+      );
+    } else if (dataViewMethod === 'getInt16') {
+      return DataUtil.normalizedInt16ArrayToFloat32Array(
+        numberArray as unknown as Int16Array
+      );
+    } else if (dataViewMethod === 'getUint16') {
+      return DataUtil.normalizedUint16ArrayToFloat32Array(
+        numberArray as unknown as Uint16Array
+      );
+    } else if (dataViewMethod === 'getInt32') {
+      // typedDataArray = new Int32Array(numberArray);
+      console.error('Not considered');
+      return new Float32Array();
+    } else if (dataViewMethod === 'getUint32') {
+      // typedDataArray = new Uint32Array(numberArray);
+      console.error('Not considered');
+      return new Float32Array();
+    } else if (dataViewMethod === 'getFloat32') {
+      return new Float32Array(numberArray);
+    } else {
+      console.error('Not considered');
+      return new Float32Array();
+    }
   }
 
   private __addOffsetToIndices(meshComponent: MeshComponent) {
