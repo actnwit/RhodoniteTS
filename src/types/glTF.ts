@@ -1,6 +1,6 @@
 import Entity from '../foundation/core/Entity';
 import RnPromise from '../foundation/misc/RnPromise';
-import {Index} from './CommonTypes';
+import {Index, TypedArray} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
 import CameraComponent from '../foundation/components/CameraComponent';
 import Material from '../foundation/materials/core/Material';
@@ -262,13 +262,21 @@ export type Gltf2Accessor = {
   sparse?: any;
   name?: string;
   extensions?: any;
-  extras?: any;
+  extras?: {
+    attributeName: string;
+    toGetAsTypedArray: boolean;
+    typedDataArray?: TypedArray;
+    componentN?: number;
+    componentBytes?: number;
+    dataViewMethod?: string;
+    weightsArrayLength?: number;
+  };
 };
 
 export type Gltf2Buffer = {
   uri?: string;
   byteLength: number;
-  buffer?: Uint8Array;
+  buffer?: Uint8Array; // Uint8Array is needed insted of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
   dataUri?: string;
   bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
