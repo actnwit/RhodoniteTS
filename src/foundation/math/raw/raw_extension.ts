@@ -320,7 +320,7 @@ const arrayN_lerp_offsetAsComposition_fn = function (
   argOffsetAsComposition: number
 ) {
   const ret = new Array(componentN);
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < componentN; i++) {
     ret[i] =
       this[selfOffsetAsComposition * componentN + i] * (1 - ratio) +
       array[argOffsetAsComposition * componentN + i] * ratio;
