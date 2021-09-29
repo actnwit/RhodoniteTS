@@ -1,4 +1,4 @@
-import {add3, add3_offset, add4, add4_offset} from './raw_extension';
+import {add3, add3_offset, add4, add4_offset, get3_offsetAsComposition} from './raw_extension';
 
 test('Array extensions', () => {
   const a = [0, 0, 0];
@@ -39,7 +39,7 @@ test('Float32Array extensions', () => {
   expect(b.toString()).toEqual([0, 1, 0, 1].toString());
 });
 
-test(`${add4.toString()} operator`, () => {
+test(`${add4.description} operator`, () => {
   const a = [0, 0, 0, 0];
 
   // add Float32Array
@@ -49,7 +49,7 @@ test(`${add4.toString()} operator`, () => {
   expect(a_add4.toString()).toEqual([1, 0, 0, 1].toString());
 });
 
-test(`${add4_offset.toString()} operator`, () => {
+test(`${add4_offset.description} operator`, () => {
   const a = [1, 0, 0, 0, 0];
 
   // add Float32Array
@@ -57,4 +57,14 @@ test(`${add4_offset.toString()} operator`, () => {
   expect(a.toString()).toEqual([1, 0, 0, 0, 1].toString());
   // return value is the same
   expect(ret.toString()).toEqual([1, 0, 0, 0, 1].toString());
+});
+
+test(`${get3_offsetAsComposition.description} operator`, () => {
+  const a = new Float32Array([1, 2, 3, 4, 5, 6]);
+
+  // add Float32Array
+  const a_0 = a[get3_offsetAsComposition](0);
+  expect(a_0.toString()).toEqual([1, 2, 3].toString());
+  const a_1 = a[get3_offsetAsComposition](1);
+  expect(a_1.toString()).toEqual([4, 5, 6].toString());
 });

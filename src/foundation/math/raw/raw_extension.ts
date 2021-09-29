@@ -4,39 +4,54 @@ import type {
   Array1,
   Array2,
   Array3,
+  Array4,
   ArrayType,
 } from '../../../types/CommonTypes';
-export const get1_offsetAsComposition = Symbol();
-export const get2_offsetAsComposition = Symbol();
-export const get3_offsetAsComposition = Symbol();
-export const get4_offsetAsComposition = Symbol();
-export const add2 = Symbol();
-export const add2_offset = Symbol();
-export const add3 = Symbol();
-export const add3_offset = Symbol();
-export const add4 = Symbol();
-export const add4_offset = Symbol();
-export const qlerp_offsetAsComposition_to = Symbol();
-export const scalar_lerp_offsetAsComposition = Symbol();
+export const get1_offsetAsComposition = Symbol('get1_offsetAsComposition');
+export const get2_offsetAsComposition = Symbol('get2_offsetAsComposition');
+export const get3_offsetAsComposition = Symbol('get3_offsetAsComposition');
+export const get4_offsetAsComposition = Symbol('get4_offsetAsComposition');
+export const getN_offsetAsComposition = Symbol('getN_offsetAsComposition');
+export const add2 = Symbol('add2');
+export const add2_offset = Symbol('add2_offset');
+export const add3 = Symbol('add3');
+export const add3_offset = Symbol('add3_offset');
+export const add4 = Symbol('add4');
+export const add4_offset = Symbol('add4_offset');
+export const qlerp_offsetAsComposition = Symbol('qlerp_offsetAsComposition');
+export const scalar_lerp_offsetAsComposition = Symbol(
+  'scalar_lerp_offsetAsComposition'
+);
+export const array3_lerp_offsetAsComposition = Symbol(
+  'array3_lerp_offsetAsComposition'
+);
+export const arrayN_lerp_offsetAsComposition = Symbol(
+  'arrayN_lerp_offsetAsComposition'
+);
 
 declare global {
   interface Extension {
     [get1_offsetAsComposition](
       this: ArrayType,
       offsetAsComposition: number
-    ): ArrayType;
+    ): Array1<number>;
     [get2_offsetAsComposition](
       this: ArrayType,
       offsetAsComposition: number
-    ): ArrayType;
+    ): Array2<number>;
     [get3_offsetAsComposition](
       this: ArrayType,
       offsetAsComposition: number
-    ): ArrayType;
+    ): Array3<number>;
     [get4_offsetAsComposition](
       this: ArrayType,
       offsetAsComposition: number
-    ): ArrayType;
+    ): Array4<number>;
+    [getN_offsetAsComposition](
+      this: ArrayType,
+      offsetAsComposition: number,
+      componentN: number
+    ): Array<number>;
     [add2](this: ArrayType, array: ArrayType): ArrayType;
     [add2_offset](
       this: ArrayType,
@@ -58,14 +73,13 @@ declare global {
       selfOffset: number,
       argOffset: number
     ): ArrayType;
-    [qlerp_offsetAsComposition_to](
+    [qlerp_offsetAsComposition](
       this: ArrayType,
       array: ArrayType,
       ratio: number,
-      out: ArrayType,
       selfOffset: number,
       argOffset: number
-    ): ArrayType;
+    ): Array4<number>;
     [scalar_lerp_offsetAsComposition](
       this: ArrayType,
       array: ArrayType,
@@ -73,12 +87,30 @@ declare global {
       selfOffset: number,
       argOffset: number
     ): number;
+    [array3_lerp_offsetAsComposition](
+      this: ArrayType,
+      array: ArrayType,
+      ratio: number,
+      selfOffset: number,
+      argOffset: number
+    ): Array3<number>;
+    [arrayN_lerp_offsetAsComposition](
+      this: ArrayType,
+      array: ArrayType,
+      componentN: number,
+      ratio: number,
+      selfOffset: number,
+      argOffset: number
+    ): Array<number>;
   }
 
   interface Array<T> extends Extension {}
   interface ReadonlyArray<T> extends Extension {}
   interface Float32Array extends Extension {}
 }
+// interface Array<T> extends Extension {}
+// interface ReadonlyArray<T> extends Extension {}
+// interface Float32Array extends Extension {}
 
 const get1_offsetAsComposition_fn = function (
   this: ArrayType,
@@ -108,13 +140,25 @@ const get3_offsetAsComposition_fn = function (
 const get4_offsetAsComposition_fn = function (
   this: ArrayType,
   offsetAsComposition: number
-) {
+): Array4<number> {
   return [
     this[offsetAsComposition * 4],
     this[offsetAsComposition * 4 + 1],
     this[offsetAsComposition * 4 + 2],
     this[offsetAsComposition * 4 + 3],
   ];
+};
+
+const getN_offsetAsComposition_fn = function (
+  this: ArrayType,
+  offsetAsComposition: number,
+  componentN: number
+): Array<number> {
+  const array = new Array(componentN) as unknown as Array<number>;
+  for (let i = 0; i < componentN; i++) {
+    array[i] = this[offsetAsComposition * componentN + i];
+  }
+  return array;
 };
 
 const add2_fn = function (this: ArrayType, array: ArrayType) {
@@ -184,10 +228,10 @@ const qlerp_offsetAsComposition_to_fn = function (
   this: ArrayType,
   array: ArrayType,
   ratio: number,
-  out: ArrayType,
   selfOffsetAsComposition: number,
   argOffsetAsComposition: number
 ) {
+  const out = new Array(4);
   let dotProduct =
     this[0 + selfOffsetAsComposition * 4] *
       array[0 + argOffsetAsComposition * 4] +
@@ -238,7 +282,7 @@ const qlerp_offsetAsComposition_to_fn = function (
       array[3 + selfOffsetAsComposition * 4] * s2;
   }
 
-  return this;
+  return out;
 };
 
 const scalar_lerp_offsetAsComposition_fn = function (
@@ -248,7 +292,36 @@ const scalar_lerp_offsetAsComposition_fn = function (
   selfOffset: number,
   argOffset: number
 ) {
-  return this[selfOffset] * (1 - ratio) - array[argOffset + 1] * ratio;
+  return this[selfOffset] * (1 - ratio) + array[argOffset] * ratio;
+};
+
+const array3_lerp_offsetAsComposition_fn = function (
+  this: ArrayType,
+  array: ArrayType,
+  ratio: number,
+  selfOffset: number,
+  argOffset: number
+) {
+  const ret = new Array(3);
+  for (let i = 0; i < 3; i++) {
+    ret[i] = this[selfOffset] * (1 - ratio) + array[argOffset] * ratio;
+  }
+  return ret;
+};
+
+const arrayN_lerp_offsetAsComposition_fn = function (
+  this: ArrayType,
+  array: ArrayType,
+  componentN: number,
+  ratio: number,
+  selfOffset: number,
+  argOffset: number
+) {
+  const ret = new Array(componentN);
+  for (let i = 0; i < componentN; i++) {
+    ret[i] = this[selfOffset] * (1 - ratio) + array[argOffset] * ratio;
+  }
+  return ret;
 };
 
 const arrayTypes = [
@@ -263,20 +336,28 @@ const arrayTypes = [
   Uint32Array,
 ];
 const operators = [
+  get1_offsetAsComposition,
+  get2_offsetAsComposition,
   get3_offsetAsComposition,
   get4_offsetAsComposition,
+  getN_offsetAsComposition,
   add2,
   add2_offset,
   add3,
   add3_offset,
   add4,
   add4_offset,
-  qlerp_offsetAsComposition_to,
+  qlerp_offsetAsComposition,
   scalar_lerp_offsetAsComposition,
+  array3_lerp_offsetAsComposition,
+  arrayN_lerp_offsetAsComposition,
 ];
 const functions = [
+  get1_offsetAsComposition_fn,
+  get2_offsetAsComposition_fn,
   get3_offsetAsComposition_fn,
   get4_offsetAsComposition_fn,
+  getN_offsetAsComposition_fn,
   add2_fn,
   add2_offset_fn,
   add3_fn,
@@ -285,6 +366,8 @@ const functions = [
   add4_offset_fn,
   qlerp_offsetAsComposition_to_fn,
   scalar_lerp_offsetAsComposition_fn,
+  array3_lerp_offsetAsComposition_fn,
+  arrayN_lerp_offsetAsComposition_fn,
 ];
 
 for (let i = 0; i < arrayTypes.length; i++) {
