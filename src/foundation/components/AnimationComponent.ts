@@ -35,9 +35,16 @@ import Quaternion from '../math/Quaternion';
 import {
   array3_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
+  get3_offset,
   get3_offsetAsComposition,
+  get4_offset,
   get4_offsetAsComposition,
+  getN_offset,
   getN_offsetAsComposition,
+  mulArray3WithScalar_offset,
+  mulArray4WithScalar_offset,
+  mulArrayNWithScalar_offset,
+  normalizeArray4,
   qlerp_offsetAsComposition,
 } from '../math/raw/raw_extension';
 import Vector3 from '../math/Vector3';
@@ -92,17 +99,6 @@ export default class AnimationComponent extends Component {
   private __meshComponent?: MeshComponent;
   private static __componentRepository: ComponentRepository =
     ComponentRepository.getInstance();
-
-  private static __returnVector3 = MutableVector3.zero();
-  private static __tmpVector3_0 = MutableVector3.zero();
-  private static __tmpVector3_1 = MutableVector3.zero();
-  private static __tmpVector3_2 = MutableVector3.zero();
-  private static __tmpVector3_3 = MutableVector3.zero();
-  private static __returnQuaternion = MutableQuaternion.identity();
-  private static __tmpQuaternion_0 = MutableQuaternion.identity();
-  private static __tmpQuaternion_1 = MutableQuaternion.identity();
-  private static __tmpQuaternion_2 = MutableQuaternion.identity();
-  private static __tmpQuaternion_3 = MutableQuaternion.identity();
   private static __animationInfo: Map<AnimationName, AnimationInfo> = new Map();
   private static __pubsub = new EventPubSub();
   static Event = {
@@ -265,62 +261,21 @@ export default class AnimationComponent extends Component {
    */
 
   static cubicSpline(
-    p_0: Array<number>,
-    p_1: Array<number>,
-    m_0: Array<number>,
-    m_1: Array<number>,
-    t: number,
-    animationAttributeIndex: Index
+    p0: Array<number>,
+    p1: Array<number>,
+    m0: Array<number>,
+    m1: Array<number>,
+    t: number
   ): Array<number> {
-    //  const ratio2 = t * t;
-    //    const ratio3 = ratio2 * t;
-
-    // // coefficients
-    // const c_0 = 2 * ratio3 - 3 * ratio2 + 1;
-    // const c_1 = ratio3 - 2 * ratio2 + t;
-    // const c_2 = -2 * ratio3 + 3 * ratio2;
-    // const c_3 = ratio3 - ratio2;
-
-    // if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-    //   const cp_0 = MutableQuaternion.multiplyNumberTo(
-    //     p_0,
-    //     c_0,
-    //     this.__tmpQuaternion_0
-    //   );
-    //   const cm_0 = MutableQuaternion.multiplyNumberTo(
-    //     m_0,
-    //     c_1,
-    //     this.__tmpQuaternion_1
-    //   );
-    //   const cp_1 = MutableQuaternion.multiplyNumberTo(
-    //     p_1,
-    //     c_2,
-    //     this.__tmpQuaternion_2
-    //   );
-    //   const cm_1 = MutableQuaternion.multiplyNumberTo(
-    //     m_1,
-    //     c_3,
-    //     this.__tmpQuaternion_3
-    //   );
-    //   return this.__returnQuaternion
-    //     .copyComponents(cp_0)
-    //     .add(cm_0)
-    //     .add(cp_1)
-    //     .add(cm_1);
-    // } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-    //   return [c_0 * p_0 + c_1 * m_0 + c_2 * p_1 + c_3 * m_1];
-    // } else {
-    //   const cp_0 = MutableVector3.multiplyTo(p_0, c_0, this.__tmpVector3_0);
-    //   const cm_0 = MutableVector3.multiplyTo(m_0, c_1, this.__tmpVector3_1);
-    //   const cp_1 = MutableVector3.multiplyTo(p_1, c_2, this.__tmpVector3_2);
-    //   const cm_1 = MutableVector3.multiplyTo(m_1, c_3, this.__tmpVector3_3);
-    //   return this.__returnVector3
-    //     .copyComponents(cp_0)
-    //     .add(cm_0)
-    //     .add(cp_1)
-    //     .add(cm_1);
-    // }
-    return [];
+    const ret = new Array(p0.length);
+    for (let i = 0; i < p0.length; i++) {
+      ret[i] =
+        (2 * t ** 3 - 3 * t ** 2 + 1) * p0[i] +
+        (t ** 3 - 2 * t ** 2 + t) * m0[i] +
+        (-2 * t ** 3 + 3 * t ** 2) * p1[i] +
+        (t ** 3 - t ** 2) * m1[i];
+    }
+    return ret;
   }
 
   private static __isClamped(idx: number, inputArray: number[]) {
@@ -333,7 +288,7 @@ export default class AnimationComponent extends Component {
     return false;
   }
 
-  static binarySearch(inputArray: number[], currentTime: number) {
+  static binarySearch(inputArray: Float32Array, currentTime: number) {
     let low = 0;
     let high = inputArray.length - 1;
     let mid = 0;
@@ -388,7 +343,7 @@ export default class AnimationComponent extends Component {
     return retVal;
   }
 
-  static bruteForceSearch(inputArray: number[], currentTime: number) {
+  static bruteForceSearch(inputArray: Float32Array, currentTime: number) {
     for (let i = 0; i < inputArray.length; i++) {
       if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
         return i;
@@ -429,7 +384,7 @@ export default class AnimationComponent extends Component {
     line: AnimationLine,
     currentTime: number,
     animationAttributeIndex: Index
-  ): number[] {
+  ): Array<number> {
     const inputArray = line.input;
     const outputArray = line.output;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
@@ -449,23 +404,26 @@ export default class AnimationComponent extends Component {
 
     if (method === AnimationInterpolation.CubicSpline) {
       // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation
-      const k = this.interpolationSearch(inputArray, currentTime);
-      const t_diff = inputArray[k + 1] - inputArray[k]; // t_(k+1) - t_k
-      const t = (currentTime - inputArray[k]) / t_diff;
+      const i = this.interpolationSearch(inputArray, currentTime);
+      const t_diff = inputArray[i + 1] - inputArray[i]; // t_(k+1) - t_k
+      const t = (currentTime - inputArray[i]) / t_diff;
       const {p_0, p_1, m_0, m_1} = this.__prepareVariablesForCubicSpline(
         outputArray,
-        k,
-        t_diff,
-        animationAttributeIndex
+        i,
+        line.outputComponentN,
+        t_diff
       );
       const ret = this.cubicSpline(
         p_0,
         p_1,
         m_0,
         m_1,
-        t,
-        animationAttributeIndex
-      );
+        t
+      ) as globalThis.Array<number>;
+      if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
+        (ret as any)[normalizeArray4]();
+      }
+      console.log(ret);
       return ret;
     } else if (method === AnimationInterpolation.Linear) {
       const i = this.interpolationSearch(inputArray, currentTime);
@@ -478,7 +436,7 @@ export default class AnimationComponent extends Component {
         i,
         line.outputComponentN
       );
-      return ret;
+      return ret as Array<number>;
     } else if (method === AnimationInterpolation.Step) {
       for (let i = 0; i < inputArray.length - 1; i++) {
         if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
@@ -499,62 +457,77 @@ export default class AnimationComponent extends Component {
   }
 
   private static __prepareVariablesForCubicSpline(
-    outputArray: Float32Array,
-    k: number,
-    ratio: number,
-    animationAttributeIndex: number
+    outputArray_: Float32Array,
+    i: number,
+    componentN: number,
+    t_diff: number
   ): {
     p_0: Array<number>;
     p_1: Array<number>;
     m_0: Array<number>;
     m_1: Array<number>;
   } {
-    const p_0: Array<number> = [];
-    const p_1: Array<number> = [];
-    const m_0: Array<number> = [];
-    const m_1: Array<number> = [];
+    const outputArray = outputArray_ as globalThis.Float32Array;
 
-    //   if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-    //     p_0 = outputArray[3 * k + 1]; //v_k
-    //     p_1 = outputArray[3 * k + 4]; //v_(k+1)
-
-    //     // the num of__tmpQuaternion is specified by this.cubicSpline
-    //     const b_k = this.__tmpQuaternion_2.copyComponents(
-    //       Quaternion.fromCopyArray4(
-    //         outputArray[get4_offsetAsComposition](3 * k + 2)
-    //       )
-    //     );
-    //     m_0 = b_k.multiplyNumber(t_diff);
-
-    //     const a_k_plus_one = this.__tmpQuaternion_3.copyComponents(
-    //       Quaternion.fromCopyArray4(
-    //         outputArray[get4_offsetAsComposition](3 * k + 3)
-    //       )
-    //     ); // a_(k+1)
-    //     m_1 = a_k_plus_one.multiplyNumber(t_diff);
-    //   } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-    //     p_0 = outputArray[k][1]; //v_k
-    //     p_1 = outputArray[k + 1][1]; //v_(k+1)
-
-    //     const b_k = outputArray[k][2];
-    //     m_0 = t_diff * b_k;
-
-    //     const a_k_plus_one = outputArray[k + 1][0];
-    //     m_1 = t_diff * a_k_plus_one;
-    //   } else {
-    //     p_0 = outputArray[3 * k + 1];
-    //     p_1 = outputArray[3 * k + 4];
-
-    //     const b_k = this.__tmpVector3_2.copyComponents(outputArray[3 * k + 2]);
-    //     m_0 = b_k.multiply(t_diff);
-
-    //     const a_k_plus_one = this.__tmpVector3_3.copyComponents(
-    //       outputArray[3 * k + 3]
-    //     );
-    //     m_1 = a_k_plus_one.multiply(t_diff);
-    //   }
-
-    return {p_0, p_1, m_0, m_1};
+    if (componentN === 4) {
+      const p_0 = outputArray[get4_offset](
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        componentN * 3 * i + componentN
+      );
+      const p_1 = outputArray[get4_offset](
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        componentN * 3 * (i + 1) + componentN
+      );
+      const m_0 = outputArray[mulArray4WithScalar_offset](
+        componentN * 3 * i + componentN * 2,
+        t_diff
+      );
+      const m_1 = outputArray[mulArray4WithScalar_offset](
+        componentN * 3 * (i + 1),
+        t_diff
+      );
+      return {p_0, p_1, m_0, m_1};
+    } else if (componentN === 3) {
+      const p_0 = outputArray[get3_offset](
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        componentN * 3 * i + componentN
+      ) as Array<number>;
+      const p_1 = outputArray[get3_offset](
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        componentN * 3 * (i + 1) + componentN
+      ) as Array<number>;
+      const m_0 = outputArray[mulArray3WithScalar_offset](
+        componentN * 3 * i + componentN * 2,
+        t_diff
+      ) as Array<number>;
+      const m_1 = outputArray[mulArray3WithScalar_offset](
+        componentN * 3 * (i + 1),
+        t_diff
+      ) as Array<number>;
+      return {p_0, p_1, m_0, m_1};
+    } else {
+      const p_0 = outputArray[getN_offset](
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        componentN * 3 * i + componentN,
+        componentN
+      );
+      const p_1 = outputArray[getN_offset](
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        componentN * 3 * (i + 1) + componentN,
+        componentN
+      );
+      const m_0 = outputArray[mulArrayNWithScalar_offset](
+        componentN * 3 * i + componentN * 2,
+        componentN,
+        t_diff
+      ) as Array<number>;
+      const m_1 = outputArray[mulArrayNWithScalar_offset](
+        componentN * 3 * (i + 1),
+        componentN,
+        t_diff
+      ) as Array<number>;
+      return {p_0, p_1, m_0, m_1};
+    }
   }
 
   getStartInputValueOfAnimation(animationName?: string) {
