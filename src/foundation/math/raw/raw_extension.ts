@@ -77,8 +77,8 @@ declare global {
       this: ArrayType,
       array: ArrayType,
       ratio: number,
-      selfOffset: number,
-      argOffset: number
+      selfOffsetAsComposition: number,
+      argOffsetAsComposition: number
     ): Array4<number>;
     [scalar_lerp_offsetAsComposition](
       this: ArrayType,
@@ -224,7 +224,7 @@ const add4_offset_fn = function (
   return this;
 };
 
-const qlerp_offsetAsComposition_to_fn = function (
+const qlerp_offsetAsComposition_fn = function (
   this: ArrayType,
   array: ArrayType,
   ratio: number,
@@ -299,12 +299,14 @@ const array3_lerp_offsetAsComposition_fn = function (
   this: ArrayType,
   array: ArrayType,
   ratio: number,
-  selfOffset: number,
-  argOffset: number
+  selfOffsetAsComposition: number,
+  argOffsetAsComposition: number
 ) {
   const ret = new Array(3);
   for (let i = 0; i < 3; i++) {
-    ret[i] = this[selfOffset] * (1 - ratio) + array[argOffset] * ratio;
+    ret[i] =
+      this[selfOffsetAsComposition * 3 + i] * (1 - ratio) +
+      array[argOffsetAsComposition * 3 + i] * ratio;
   }
   return ret;
 };
@@ -314,12 +316,14 @@ const arrayN_lerp_offsetAsComposition_fn = function (
   array: ArrayType,
   componentN: number,
   ratio: number,
-  selfOffset: number,
-  argOffset: number
+  selfOffsetAsComposition: number,
+  argOffsetAsComposition: number
 ) {
   const ret = new Array(componentN);
-  for (let i = 0; i < componentN; i++) {
-    ret[i] = this[selfOffset] * (1 - ratio) + array[argOffset] * ratio;
+  for (let i = 0; i < 3; i++) {
+    ret[i] =
+      this[selfOffsetAsComposition * componentN + i] * (1 - ratio) +
+      array[argOffsetAsComposition * componentN + i] * ratio;
   }
   return ret;
 };
@@ -364,7 +368,7 @@ const functions = [
   add3_offset_fn,
   add4_fn,
   add4_offset_fn,
-  qlerp_offsetAsComposition_to_fn,
+  qlerp_offsetAsComposition_fn,
   scalar_lerp_offsetAsComposition_fn,
   array3_lerp_offsetAsComposition_fn,
   arrayN_lerp_offsetAsComposition_fn,
