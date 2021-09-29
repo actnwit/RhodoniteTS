@@ -521,9 +521,9 @@ export default class DrcPointCloudImporter {
             channel.sampler.output.extras.quaternionIfVec4 = true;
           }
           if (channel.target.path === 'weights') {
-            const weightCount =
+            const weightsArrayLength =
               channel.sampler.output.count / channel.sampler.input.count;
-            channel.sampler.output.extras.weightCount = weightCount;
+            channel.sampler.output.extras.weightsArrayLength = weightsArrayLength;
           }
         }
       }
