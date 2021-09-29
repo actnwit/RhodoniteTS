@@ -17,6 +17,10 @@ import {
   ComponentSID,
   EntityUID,
   Index,
+  TypedArray as Float32Array,
+  AnimationAttributeType,
+  Array4,
+  Array3,
 } from '../../types/CommonTypes';
 import {
   defaultValue,
@@ -27,9 +31,18 @@ import {
 import {EventPubSub, EventHandler} from '../system/EventPubSub';
 import {IVector, IVector3} from '../math/IVector';
 import {IQuaternion} from '../math/IQuaternion';
+import Quaternion from '../math/Quaternion';
+import {
+  array3_lerp_offsetAsComposition,
+  arrayN_lerp_offsetAsComposition,
+  get3_offsetAsComposition,
+  get4_offsetAsComposition,
+  getN_offsetAsComposition,
+  qlerp_offsetAsComposition,
+} from '../math/raw/raw_extension';
+import Vector3 from '../math/Vector3';
 
 export type AnimationName = string;
-export type AnimationAttributeName = string;
 type TimeInSec = number;
 
 export interface AnimationInfo {
@@ -40,14 +53,15 @@ export interface AnimationInfo {
 
 interface AnimationLine {
   name: AnimationName;
-  input: number[];
-  output: Array<IVector | IQuaternion>;
-  outputAttributeName: AnimationAttributeName;
+  input: Float32Array;
+  output: Float32Array;
+  outputAttributeName: AnimationAttributeType;
+  outputComponentN: number;
   interpolationMethod: AnimationInterpolationEnum;
   targetEntityUid?: EntityUID;
 }
 
-type AnimationSet = Map<AnimationAttributeName, AnimationLine>;
+type AnimationSet = Map<AnimationAttributeType, AnimationLine>;
 
 export interface ChangeAnimationInfoEvent {
   infoMap: Map<AnimationName, AnimationInfo>;
@@ -67,7 +81,7 @@ type AnimationComponentEventType = symbol;
 
 export default class AnimationComponent extends Component {
   private __backupDefaultValues: Map<
-    AnimationAttributeName,
+    AnimationAttributeType,
     IVector | IQuaternion | number[]
   > = new Map();
   private __currentActiveAnimationName?: AnimationName;
@@ -76,7 +90,8 @@ export default class AnimationComponent extends Component {
   private __isAnimating = true;
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
-  private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
+  private static __componentRepository: ComponentRepository =
+    ComponentRepository.getInstance();
 
   private static __returnVector3 = MutableVector3.zero();
   private static __tmpVector3_0 = MutableVector3.zero();
@@ -130,9 +145,10 @@ export default class AnimationComponent extends Component {
 
   setAnimation(
     animationName: string,
-    attributeName: string,
-    animationInputArray: number[],
-    animationOutputArray: Array<IVector | IQuaternion>,
+    attributeName: AnimationAttributeType,
+    animationInputArray: Float32Array,
+    animationOutputArray: Float32Array,
+    outputComponentN: number,
     interpolation: AnimationInterpolationEnum,
     makeThisActiveAnimation = true
   ) {
@@ -149,6 +165,7 @@ export default class AnimationComponent extends Component {
       name: animationName,
       input: animationInputArray,
       output: animationOutputArray,
+      outputComponentN: outputComponentN,
       outputAttributeName: attributeName,
       interpolationMethod: interpolation,
     };
@@ -206,32 +223,34 @@ export default class AnimationComponent extends Component {
   }
 
   static lerp(
-    start: any,
-    end: any,
+    data_: Float32Array,
     ratio: number,
-    animationAttributeIndex: Index
+    animationAttributeIndex: Index,
+    i: Index,
+    outputComponentN: number
   ) {
+    const data = data_ as globalThis.Float32Array;
     if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-      return MutableQuaternion.qlerpTo(
-        start,
-        end,
-        ratio,
-        AnimationComponent.__returnQuaternion
-      );
+      const array3 = data[qlerp_offsetAsComposition](data, ratio, i, i + 1);
+      return array3;
     } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-      const returnArray = Array(start.length);
-      for (let i = 0; i < start.length; i++) {
-        returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
-      }
-      return returnArray;
-    } else {
-      const l_vec = MutableVector3.multiplyTo(
-        start,
-        1 - ratio,
-        this.__tmpVector3_0
+      const arrayN = data[arrayN_lerp_offsetAsComposition](
+        data,
+        ratio,
+        outputComponentN,
+        i,
+        i + 1
       );
-      const r_vec = MutableVector3.multiplyTo(end, ratio, this.__tmpVector3_1);
-      return this.__returnVector3.copyComponents(l_vec).add(r_vec);
+      return arrayN;
+    } else {
+      // Translate / Scale
+      const array3 = data[array3_lerp_offsetAsComposition](
+        data,
+        ratio,
+        i,
+        i + 1
+      );
+      return array3;
     }
   }
 
@@ -246,61 +265,62 @@ export default class AnimationComponent extends Component {
    */
 
   static cubicSpline(
-    p_0: any,
-    p_1: any,
-    m_0: any,
-    m_1: any,
+    p_0: Array<number>,
+    p_1: Array<number>,
+    m_0: Array<number>,
+    m_1: Array<number>,
     t: number,
     animationAttributeIndex: Index
-  ) {
-    const ratio2 = t * t;
-    const ratio3 = ratio2 * t;
+  ): Array<number> {
+    //  const ratio2 = t * t;
+    //    const ratio3 = ratio2 * t;
 
-    // coefficients
-    const c_0 = 2 * ratio3 - 3 * ratio2 + 1;
-    const c_1 = ratio3 - 2 * ratio2 + t;
-    const c_2 = -2 * ratio3 + 3 * ratio2;
-    const c_3 = ratio3 - ratio2;
+    // // coefficients
+    // const c_0 = 2 * ratio3 - 3 * ratio2 + 1;
+    // const c_1 = ratio3 - 2 * ratio2 + t;
+    // const c_2 = -2 * ratio3 + 3 * ratio2;
+    // const c_3 = ratio3 - ratio2;
 
-    if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-      const cp_0 = MutableQuaternion.multiplyNumberTo(
-        p_0,
-        c_0,
-        this.__tmpQuaternion_0
-      );
-      const cm_0 = MutableQuaternion.multiplyNumberTo(
-        m_0,
-        c_1,
-        this.__tmpQuaternion_1
-      );
-      const cp_1 = MutableQuaternion.multiplyNumberTo(
-        p_1,
-        c_2,
-        this.__tmpQuaternion_2
-      );
-      const cm_1 = MutableQuaternion.multiplyNumberTo(
-        m_1,
-        c_3,
-        this.__tmpQuaternion_3
-      );
-      return this.__returnQuaternion
-        .copyComponents(cp_0)
-        .add(cm_0)
-        .add(cp_1)
-        .add(cm_1);
-    } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-      return [c_0 * p_0 + c_1 * m_0 + c_2 * p_1 + c_3 * m_1];
-    } else {
-      const cp_0 = MutableVector3.multiplyTo(p_0, c_0, this.__tmpVector3_0);
-      const cm_0 = MutableVector3.multiplyTo(m_0, c_1, this.__tmpVector3_1);
-      const cp_1 = MutableVector3.multiplyTo(p_1, c_2, this.__tmpVector3_2);
-      const cm_1 = MutableVector3.multiplyTo(m_1, c_3, this.__tmpVector3_3);
-      return this.__returnVector3
-        .copyComponents(cp_0)
-        .add(cm_0)
-        .add(cp_1)
-        .add(cm_1);
-    }
+    // if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
+    //   const cp_0 = MutableQuaternion.multiplyNumberTo(
+    //     p_0,
+    //     c_0,
+    //     this.__tmpQuaternion_0
+    //   );
+    //   const cm_0 = MutableQuaternion.multiplyNumberTo(
+    //     m_0,
+    //     c_1,
+    //     this.__tmpQuaternion_1
+    //   );
+    //   const cp_1 = MutableQuaternion.multiplyNumberTo(
+    //     p_1,
+    //     c_2,
+    //     this.__tmpQuaternion_2
+    //   );
+    //   const cm_1 = MutableQuaternion.multiplyNumberTo(
+    //     m_1,
+    //     c_3,
+    //     this.__tmpQuaternion_3
+    //   );
+    //   return this.__returnQuaternion
+    //     .copyComponents(cp_0)
+    //     .add(cm_0)
+    //     .add(cp_1)
+    //     .add(cm_1);
+    // } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+    //   return [c_0 * p_0 + c_1 * m_0 + c_2 * p_1 + c_3 * m_1];
+    // } else {
+    //   const cp_0 = MutableVector3.multiplyTo(p_0, c_0, this.__tmpVector3_0);
+    //   const cm_0 = MutableVector3.multiplyTo(m_0, c_1, this.__tmpVector3_1);
+    //   const cp_1 = MutableVector3.multiplyTo(p_1, c_2, this.__tmpVector3_2);
+    //   const cm_1 = MutableVector3.multiplyTo(m_1, c_3, this.__tmpVector3_3);
+    //   return this.__returnVector3
+    //     .copyComponents(cp_0)
+    //     .add(cm_0)
+    //     .add(cp_1)
+    //     .add(cm_1);
+    // }
+    return [];
   }
 
   private static __isClamped(idx: number, inputArray: number[]) {
@@ -336,7 +356,7 @@ export default class AnimationComponent extends Component {
     return retVal;
   }
 
-  static interpolationSearch(inputArray: number[], currentTime: number) {
+  static interpolationSearch(inputArray: Float32Array, currentTime: number) {
     let mid = 0;
     let lower = 0;
     let upper = inputArray.length - 1;
@@ -377,101 +397,164 @@ export default class AnimationComponent extends Component {
     return inputArray.length - 1;
   }
 
+  private static __getOutputValue(
+    keyFrameId: Index,
+    line: AnimationLine,
+    array_: Float32Array
+  ) {
+    const array = array_ as globalThis.Float32Array;
+    if (line.outputComponentN === 4) {
+      // Quaternion/weights
+      const value = array[get4_offsetAsComposition](
+        keyFrameId
+      ) as Array4<number>;
+      return value;
+    } else if (line.outputComponentN === 3) {
+      // Translate/Scale/weights
+      const value = array[get3_offsetAsComposition](
+        keyFrameId
+      ) as Array3<number>;
+      return value;
+    } else {
+      // weights
+      const value = array[getN_offsetAsComposition](
+        keyFrameId,
+        line.outputComponentN
+      ) as Array<number>;
+      return value;
+    }
+  }
+
   static interpolate(
     line: AnimationLine,
     currentTime: number,
     animationAttributeIndex: Index
-  ) {
+  ): number[] {
     const inputArray = line.input;
     const outputArray = line.output;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
+    const outputOfZeroFrame = this.__getOutputValue(0, line, outputArray);
 
     // out of range
     if (currentTime <= inputArray[0]) {
-      return outputArray[0];
+      return outputOfZeroFrame;
     } else if (inputArray[inputArray.length - 1] <= currentTime) {
-      return outputArray[inputArray.length - 1];
+      const outputOfEndFrame = this.__getOutputValue(
+        inputArray.length - 1,
+        line,
+        outputArray
+      );
+      return outputOfEndFrame;
     }
 
     if (method === AnimationInterpolation.CubicSpline) {
       // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation
-
       const k = this.interpolationSearch(inputArray, currentTime);
       const t_diff = inputArray[k + 1] - inputArray[k]; // t_(k+1) - t_k
       const t = (currentTime - inputArray[k]) / t_diff;
-      const [p_0, p_1, m_0, m_1] = this.__prepareVariablesForCubicSpline(
+      const {p_0, p_1, m_0, m_1} = this.__prepareVariablesForCubicSpline(
         outputArray,
         k,
         t_diff,
         animationAttributeIndex
       );
-      return this.cubicSpline(p_0, p_1, m_0, m_1, t, animationAttributeIndex);
+      const ret = this.cubicSpline(
+        p_0,
+        p_1,
+        m_0,
+        m_1,
+        t,
+        animationAttributeIndex
+      );
+      return ret;
     } else if (method === AnimationInterpolation.Linear) {
       const i = this.interpolationSearch(inputArray, currentTime);
       const ratio =
         (currentTime - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
-      return this.lerp(
-        outputArray[i],
-        outputArray[i + 1],
+      const ret = this.lerp(
+        outputArray,
         ratio,
-        animationAttributeIndex
+        animationAttributeIndex,
+        i,
+        line.outputComponentN
       );
+      return ret;
     } else if (method === AnimationInterpolation.Step) {
       for (let i = 0; i < inputArray.length - 1; i++) {
         if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
-          return outputArray[i];
+          const output_frame_i = this.__getOutputValue(i, line, outputArray);
+          return output_frame_i;
         }
       }
-      return outputArray[inputArray.length - 1];
+      const outputOfEndFrame = this.__getOutputValue(
+        inputArray.length - 1,
+        line,
+        outputArray
+      );
+      return outputOfEndFrame;
     }
 
     // non supported type
-    return outputArray[0];
+    return outputOfZeroFrame;
   }
 
   private static __prepareVariablesForCubicSpline(
-    outputArray: any[],
+    outputArray: Float32Array,
     k: number,
-    t_diff: number,
+    ratio: number,
     animationAttributeIndex: number
-  ) {
-    let p_0, p_1, m_0, m_1;
+  ): {
+    p_0: Array<number>;
+    p_1: Array<number>;
+    m_0: Array<number>;
+    m_1: Array<number>;
+  } {
+    const p_0: Array<number> = [];
+    const p_1: Array<number> = [];
+    const m_0: Array<number> = [];
+    const m_1: Array<number> = [];
 
-    if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-      p_0 = outputArray[3 * k + 1]; //v_k
-      p_1 = outputArray[3 * k + 4]; //v_(k+1)
+    //   if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
+    //     p_0 = outputArray[3 * k + 1]; //v_k
+    //     p_1 = outputArray[3 * k + 4]; //v_(k+1)
 
-      // the num of__tmpQuaternion is specified by this.cubicSpline
-      const b_k = this.__tmpQuaternion_2.copyComponents(outputArray[3 * k + 2]);
-      m_0 = b_k.multiplyNumber(t_diff);
+    //     // the num of__tmpQuaternion is specified by this.cubicSpline
+    //     const b_k = this.__tmpQuaternion_2.copyComponents(
+    //       Quaternion.fromCopyArray4(
+    //         outputArray[get4_offsetAsComposition](3 * k + 2)
+    //       )
+    //     );
+    //     m_0 = b_k.multiplyNumber(t_diff);
 
-      const a_k_plus_one = this.__tmpQuaternion_3.copyComponents(
-        outputArray[3 * k + 3]
-      ); // a_(k+1)
-      m_1 = a_k_plus_one.multiplyNumber(t_diff);
-    } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
-      p_0 = outputArray[k][1]; //v_k
-      p_1 = outputArray[k + 1][1]; //v_(k+1)
+    //     const a_k_plus_one = this.__tmpQuaternion_3.copyComponents(
+    //       Quaternion.fromCopyArray4(
+    //         outputArray[get4_offsetAsComposition](3 * k + 3)
+    //       )
+    //     ); // a_(k+1)
+    //     m_1 = a_k_plus_one.multiplyNumber(t_diff);
+    //   } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+    //     p_0 = outputArray[k][1]; //v_k
+    //     p_1 = outputArray[k + 1][1]; //v_(k+1)
 
-      const b_k = outputArray[k][2];
-      m_0 = t_diff * b_k;
+    //     const b_k = outputArray[k][2];
+    //     m_0 = t_diff * b_k;
 
-      const a_k_plus_one = outputArray[k + 1][0];
-      m_1 = t_diff * a_k_plus_one;
-    } else {
-      p_0 = outputArray[3 * k + 1];
-      p_1 = outputArray[3 * k + 4];
+    //     const a_k_plus_one = outputArray[k + 1][0];
+    //     m_1 = t_diff * a_k_plus_one;
+    //   } else {
+    //     p_0 = outputArray[3 * k + 1];
+    //     p_1 = outputArray[3 * k + 4];
 
-      const b_k = this.__tmpVector3_2.copyComponents(outputArray[3 * k + 2]);
-      m_0 = b_k.multiply(t_diff);
+    //     const b_k = this.__tmpVector3_2.copyComponents(outputArray[3 * k + 2]);
+    //     m_0 = b_k.multiply(t_diff);
 
-      const a_k_plus_one = this.__tmpVector3_3.copyComponents(
-        outputArray[3 * k + 3]
-      );
-      m_1 = a_k_plus_one.multiply(t_diff);
-    }
+    //     const a_k_plus_one = this.__tmpVector3_3.copyComponents(
+    //       outputArray[3 * k + 3]
+    //     );
+    //     m_1 = a_k_plus_one.multiply(t_diff);
+    //   }
 
-    return [p_0, p_1, m_0, m_1];
+    return {p_0, p_1, m_0, m_1};
   }
 
   getStartInputValueOfAnimation(animationName?: string) {
@@ -481,7 +564,7 @@ export default class AnimationComponent extends Component {
       if (array.length === 0) {
         return 0;
       }
-      const firstAnimationInfo = (array[0] as unknown) as AnimationInfo;
+      const firstAnimationInfo = array[0] as unknown as AnimationInfo;
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxStartInputTime = defaultValue<AnimationInfo>(
@@ -500,7 +583,7 @@ export default class AnimationComponent extends Component {
       if (array.length === 0) {
         return 0;
       }
-      const firstAnimationInfo = (array[0] as unknown) as AnimationInfo;
+      const firstAnimationInfo = array[0] as unknown as AnimationInfo;
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxEndInputTime = defaultValue<AnimationInfo>(
@@ -577,37 +660,38 @@ export default class AnimationComponent extends Component {
 
   private restoreDefaultValues() {
     this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
-      AnimationAttribute.Quaternion.str
-    ) as IQuaternion;
+      AnimationAttribute.Quaternion.str as AnimationAttributeType
+    ) as Quaternion;
+
     this.__transformComponent!.translate = this.__backupDefaultValues.get(
-      AnimationAttribute.Translate.str
+      AnimationAttribute.Translate.str as AnimationAttributeType
     ) as IVector3;
     this.__transformComponent!.scale = this.__backupDefaultValues.get(
-      AnimationAttribute.Scale.str
+      AnimationAttribute.Scale.str as AnimationAttributeType
     ) as IVector3;
     if (this.__meshComponent != null) {
       this.__meshComponent!.weights = this.__backupDefaultValues.get(
-        AnimationAttribute.Weights.str
+        AnimationAttribute.Weights.str as AnimationAttributeType
       ) as number[];
     }
   }
 
   private backupDefaultValues() {
     this.__backupDefaultValues.set(
-      AnimationAttribute.Quaternion.str,
+      AnimationAttribute.Quaternion.str as AnimationAttributeType,
       this.__transformComponent!.quaternion
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Translate.str,
+      AnimationAttribute.Translate.str as AnimationAttributeType,
       this.__transformComponent!.translate
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Scale.str,
+      AnimationAttribute.Scale.str as AnimationAttributeType,
       this.__transformComponent!.scale
     );
     if (this.__meshComponent != null) {
       this.__backupDefaultValues.set(
-        AnimationAttribute.Weights.str,
+        AnimationAttribute.Weights.str as AnimationAttributeType,
         this.__meshComponent?.weights
       );
     }
@@ -643,13 +727,19 @@ export default class AnimationComponent extends Component {
             i
           );
           if (i === AnimationAttribute.Quaternion.index) {
-            this.__transformComponent!.quaternion = value as IQuaternion;
+            this.__transformComponent!.quaternion = Quaternion.fromCopyArray4(
+              value as Array4<number>
+            );
           } else if (i === AnimationAttribute.Translate.index) {
-            this.__transformComponent!.translate = value as IVector3;
+            this.__transformComponent!.translate = Vector3.fromCopyArray3(
+              value as Array3<number>
+            );
           } else if (i === AnimationAttribute.Scale.index) {
-            this.__transformComponent!.scale = value as IVector3;
+            this.__transformComponent!.scale = Vector3.fromCopyArray3(
+              value as Array3<number>
+            );
           } else if (i === AnimationAttribute.Weights.index) {
-            this.__meshComponent!.weights = value as number[];
+            this.__meshComponent!.weights = value;
           }
         }
       }

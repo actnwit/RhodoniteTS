@@ -270,6 +270,7 @@ export type Gltf2Accessor = {
     componentBytes?: number;
     dataViewMethod?: string;
     weightsArrayLength?: number;
+    quaternionIfVec4?: boolean;
   };
 };
 
