@@ -1,5 +1,5 @@
 import {IVector2, IVector3, IVector4} from './IVector';
-import {TypedArray} from '../../types/CommonTypes';
+import {Array4, TypedArray} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion, ILogQuaternion, IMutableQuaternion} from './IQuaternion';
@@ -666,5 +666,13 @@ export default class Quaternion
       this._v[2],
       this._v[3]
     ) as IQuaternion;
+  }
+
+  static fromCopyArray4(array: Array4<number>) {
+    return new Quaternion(new Float32Array(array), 0, 0, 0);
+  }
+
+  static fromCopyXYZW(x: number, y: number, z: number, w: number) {
+    return new Quaternion(new Float32Array([x, y, z, w]), 0, 0, 0);
   }
 }
