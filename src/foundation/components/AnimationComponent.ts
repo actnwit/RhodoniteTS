@@ -231,13 +231,13 @@ export default class AnimationComponent extends Component {
   ) {
     const data = data_ as globalThis.Float32Array;
     if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
-      const array3 = data[qlerp_offsetAsComposition](data, ratio, i, i + 1);
-      return array3;
+      const array4 = data[qlerp_offsetAsComposition](data, ratio, i, i + 1);
+      return array4;
     } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
       const arrayN = data[arrayN_lerp_offsetAsComposition](
         data,
-        ratio,
         outputComponentN,
+        ratio,
         i,
         i + 1
       );
