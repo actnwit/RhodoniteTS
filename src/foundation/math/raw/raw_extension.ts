@@ -270,16 +270,16 @@ const qlerp_offsetAsComposition_fn = function (
 
     out[0] =
       this[0 + selfOffsetAsComposition * 4] * s1 +
-      array[0 + selfOffsetAsComposition * 4] * s2;
+      array[0 + argOffsetAsComposition * 4] * s2;
     out[1] =
       this[1 + selfOffsetAsComposition * 4] * s1 +
-      array[1 + selfOffsetAsComposition * 4] * s2;
+      array[1 + argOffsetAsComposition * 4] * s2;
     out[2] =
       this[2 + selfOffsetAsComposition * 4] * s1 +
-      array[2 + selfOffsetAsComposition * 4] * s2;
+      array[2 + argOffsetAsComposition * 4] * s2;
     out[3] =
       this[3 + selfOffsetAsComposition * 4] * s1 +
-      array[3 + selfOffsetAsComposition * 4] * s2;
+      array[3 + argOffsetAsComposition * 4] * s2;
   }
 
   return out;
