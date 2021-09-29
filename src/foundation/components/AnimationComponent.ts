@@ -358,25 +358,49 @@ export default class AnimationComponent extends Component {
     array_: Float32Array
   ) {
     const array = array_ as globalThis.Float32Array;
-    if (line.outputComponentN === 4) {
-      // Quaternion/weights
-      const value = array[get4_offsetAsComposition](
-        keyFrameId
-      ) as Array4<number>;
-      return value;
-    } else if (line.outputComponentN === 3) {
-      // Translate/Scale/weights
-      const value = array[get3_offsetAsComposition](
-        keyFrameId
-      ) as Array3<number>;
-      return value;
+    if (line.interpolationMethod === AnimationInterpolation.CubicSpline) {
+      // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+      if (line.outputComponentN === 4) {
+        // Quaternion/weights
+        const value = array[get4_offset](
+          line.outputComponentN * 3 * keyFrameId + line.outputComponentN
+        ) as Array4<number>;
+        return value;
+      } else if (line.outputComponentN === 3) {
+        // Translate/Scale/weights
+        const value = array[get3_offset](
+          line.outputComponentN * 3 * keyFrameId + line.outputComponentN
+        ) as Array3<number>;
+        return value;
+      } else {
+        // weights
+        const value = array[getN_offset](
+          line.outputComponentN * 3 * keyFrameId + line.outputComponentN,
+          line.outputComponentN
+        ) as Array<number>;
+        return value;
+      }
     } else {
-      // weights
-      const value = array[getN_offsetAsComposition](
-        keyFrameId,
-        line.outputComponentN
-      ) as Array<number>;
-      return value;
+      if (line.outputComponentN === 4) {
+        // Quaternion/weights
+        const value = array[get4_offsetAsComposition](
+          keyFrameId
+        ) as Array4<number>;
+        return value;
+      } else if (line.outputComponentN === 3) {
+        // Translate/Scale/weights
+        const value = array[get3_offsetAsComposition](
+          keyFrameId
+        ) as Array3<number>;
+        return value;
+      } else {
+        // weights
+        const value = array[getN_offsetAsComposition](
+          keyFrameId,
+          line.outputComponentN
+        ) as Array<number>;
+        return value;
+      }
     }
   }
 
@@ -388,10 +412,10 @@ export default class AnimationComponent extends Component {
     const inputArray = line.input;
     const outputArray = line.output;
     const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
-    const outputOfZeroFrame = this.__getOutputValue(0, line, outputArray);
 
     // out of range
     if (currentTime <= inputArray[0]) {
+      const outputOfZeroFrame = this.__getOutputValue(0, line, outputArray);
       return outputOfZeroFrame;
     } else if (inputArray[inputArray.length - 1] <= currentTime) {
       const outputOfEndFrame = this.__getOutputValue(
@@ -423,7 +447,6 @@ export default class AnimationComponent extends Component {
       if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
         (ret as any)[normalizeArray4]();
       }
-      console.log(ret);
       return ret;
     } else if (method === AnimationInterpolation.Linear) {
       const i = this.interpolationSearch(inputArray, currentTime);
@@ -453,7 +476,7 @@ export default class AnimationComponent extends Component {
     }
 
     // non supported type
-    return outputOfZeroFrame;
+    return [];
   }
 
   private static __prepareVariablesForCubicSpline(
