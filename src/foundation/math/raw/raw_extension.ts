@@ -62,7 +62,7 @@ declare global {
     ): Array4<number>;
     [getN_offset](
       this: ArrayType,
-      offsetAsComposition: number,
+      offset: number,
       componentN: number
     ): Array<number>;
     [getN_offsetAsComposition](
