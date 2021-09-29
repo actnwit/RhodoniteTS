@@ -162,6 +162,7 @@ export default class AnimationAssigner {
                   animationAttributeType,
                   animInputArray,
                   animOutputArray,
+                  4, // Quaternion
                   AnimationInterpolation.fromString(interpolation)
                 );
               } else if (
@@ -173,6 +174,7 @@ export default class AnimationAssigner {
                   animationAttributeType,
                   animInputArray,
                   animOutputArray,
+                  3, // translate
                   AnimationInterpolation.fromString(interpolation)
                 );
               }
