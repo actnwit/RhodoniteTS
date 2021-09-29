@@ -130,13 +130,13 @@ export default class AnimationAssigner {
               ? channel.sampler.interpolation
               : 'LINEAR';
 
-          let animationAttributeName = '';
+          let animationAttributeType = '';
           if (channel.target.path === 'translation') {
-            animationAttributeName = 'translate';
+            animationAttributeType = 'translate';
           } else if (channel.target.path === 'rotation') {
-            animationAttributeName = 'quaternion';
+            animationAttributeType = 'quaternion';
           } else {
-            animationAttributeName = channel.target.path;
+            animationAttributeType = channel.target.path;
           }
           const node = gltfModel.nodes[channel.target.nodeIndex!];
           const rnEntity = this.__getCorrespondingEntity(
@@ -156,21 +156,21 @@ export default class AnimationAssigner {
               AnimationComponent
             ) as AnimationComponent;
             if (animationComponent) {
-              if (animationAttributeName === 'quaternion') {
+              if (animationAttributeType === 'quaternion') {
                 animationComponent.setAnimation(
                   Is.exist(animation.name) ? animation.name! : 'Untitled',
-                  animationAttributeName,
+                  animationAttributeType,
                   animInputArray,
                   animOutputArray,
                   AnimationInterpolation.fromString(interpolation)
                 );
               } else if (
-                animationAttributeName === 'translate' &&
+                animationAttributeType === 'translate' &&
                 this.__isHips(rootEntity, vrmModel, channel.target.nodeIndex!)
               ) {
                 animationComponent.setAnimation(
                   Is.exist(animation.name) ? animation.name! : 'Untitled',
-                  animationAttributeName,
+                  animationAttributeType,
                   animInputArray,
                   animOutputArray,
                   AnimationInterpolation.fromString(interpolation)
