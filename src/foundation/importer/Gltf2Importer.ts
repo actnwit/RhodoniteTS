@@ -519,8 +519,13 @@ export default class Gltf2Importer {
             channel.sampler.output.extras.quaternionIfVec4 = true;
           }
           if (channel.target.path === 'weights') {
-            const weightsArrayLength =
+            let weightsArrayLength =
               channel.sampler.output.count / channel.sampler.input.count;
+            if (channel.sampler.interpolation === 'CUBICSPLINE') {
+              // divided by 3, because in glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+              weightsArrayLength =
+                channel.sampler.output.count / channel.sampler.input.count / 3;
+            }
             channel.sampler.output.extras.weightsArrayLength =
               weightsArrayLength;
           }
