@@ -274,9 +274,6 @@ export default class Gltf2Importer {
     // BufferView
     this._loadDependenciesOfBufferViews(gltfJson);
 
-    if (gltfJson.asset === void 0) {
-      gltfJson.asset = {};
-    }
     if (gltfJson.asset.extras === void 0) {
       gltfJson.asset.extras = {};
     }
