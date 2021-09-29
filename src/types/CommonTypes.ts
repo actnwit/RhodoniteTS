@@ -9,6 +9,11 @@ export type TypedArray =
   | Float32Array
   | Float64Array;
 export type FloatTypedArray = Float32Array | Float64Array;
+export type IntergerTypedArray =
+  | Int8Array
+  | Uint8Array
+  | Int16Array
+  | Uint16Array;
 export type ArrayType = TypedArray | Array<number>;
 
 export type TypedArrayConstructor =
@@ -28,6 +33,8 @@ export type FloatTypedArrayConstructor =
 
 export type Array4<T> = [T, T, T, T];
 export type Array3<T> = [T, T, T];
+export type Array2<T> = [T, T];
+export type Array1<T> = [T];
 export type Index = number;
 export type IndexOf16Bytes = number;
 export type IndexOf4Bytes = number;
@@ -53,3 +60,10 @@ export type WebGLResourceHandle = number;
 export type CGAPIResourceHandle = WebGLResourceHandle;
 
 export type RnTags = {[s: string]: string};
+
+export type AnimationAttributeType =
+  | 'undefined'
+  | 'translate'
+  | 'quaternion'
+  | 'scale'
+  | 'weights';

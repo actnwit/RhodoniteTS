@@ -534,4 +534,36 @@ export default class DataUtil {
 
     return 0;
   }
+
+  static normalizedInt8ArrayToFloat32Array(from: Int8Array | number[]) {
+    const float32Array = new Float32Array(from.length);
+    for (let i = 0; i < from.length; i++) {
+      float32Array[i] = Math.max(from[i] / 127.0, -1.0);
+    }
+    return float32Array;
+  }
+
+  static normalizedUint8ArrayToFloat32Array(from: Uint8Array | number[]) {
+    const float32Array = new Float32Array(from.length);
+    for (let i = 0; i < from.length; i++) {
+      float32Array[i] = from[i] / 255.0;
+    }
+    return float32Array;
+  }
+
+  static normalizedInt16ArrayToFloat32Array(from: Int16Array | number[]) {
+    const float32Array = new Float32Array(from.length);
+    for (let i = 0; i < from.length; i++) {
+      float32Array[i] = Math.max(from[i] / 32767.0, -1.0);
+    }
+    return float32Array;
+  }
+
+  static normalizedUint16ArrayToFloat32Array(from: Uint16Array | number[]) {
+    const float32Array = new Float32Array(from.length);
+    for (let i = 0; i < from.length; i++) {
+      float32Array[i] = from[i] / 65535.0;
+    }
+    return float32Array;
+  }
 }
