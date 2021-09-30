@@ -534,7 +534,7 @@ export default class Gltf2Exporter {
     a.download = filename + '.gltf';
     a.href =
       'data:application/octet-stream,' +
-      encodeURIComponent(JSON.stringify(json));
+      encodeURIComponent(JSON.stringify(json, null, 2));
 
     (e as any).initEvent(
       'click',
