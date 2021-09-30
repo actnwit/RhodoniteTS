@@ -2,6 +2,7 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
+import { Is } from '../misc/Is';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
@@ -255,10 +256,11 @@ export default class Gltf2Exporter {
                 }
                 if (!match) {
                   const imageJson = {
-                    uri:
-                      (rnTexture.name ? rnTexture.name : rnTexture.uniqueName) +
-                      '.png',
+                    uri: rnTexture.name ? rnTexture.name : rnTexture.uniqueName,
                   };
+                  if (Is.not.exist(imageJson.uri.match(/\.(png|jpg|jpeg)/))) {
+                    imageJson.uri += '.png';
+                  }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
                     const blob = htmlCanvasElement.toBlob(blob => {
