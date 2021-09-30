@@ -168,9 +168,9 @@ export default class Gltf2Exporter {
           const attributes = primitive.attributes;
           for (let k = 0; k < attributeAccessors.length; k++) {
             const attributeAccessor = attributeAccessors[k];
-            attributes[
-              rnPrimitive.attributeSemantics[k].str
-            ] = (attributeAccessor as any).gltfAccessorIndex;
+            attributes[rnPrimitive.attributeSemantics[k].str] = (
+              attributeAccessor as any
+            ).gltfAccessorIndex;
           }
           primitive.material = 0;
         }
@@ -233,9 +233,8 @@ export default class Gltf2Exporter {
           }
 
           if (colorParam) {
-            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(
-              colorParam._v
-            );
+            material.pbrMetallicRoughness.baseColorFactor =
+              Array.prototype.slice.call(colorParam._v);
           }
           material.pbrMetallicRoughness.metallicFactor = metallic;
           material.pbrMetallicRoughness.roughnessFactor = roughness;
