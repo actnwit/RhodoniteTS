@@ -2,6 +2,7 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
+import { Is } from '../misc/Is';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
@@ -167,9 +168,9 @@ export default class Gltf2Exporter {
           const attributes = primitive.attributes;
           for (let k = 0; k < attributeAccessors.length; k++) {
             const attributeAccessor = attributeAccessors[k];
-            attributes[
-              rnPrimitive.attributeSemantics[k].str
-            ] = (attributeAccessor as any).gltfAccessorIndex;
+            attributes[rnPrimitive.attributeSemantics[k].str] = (
+              attributeAccessor as any
+            ).gltfAccessorIndex;
           }
           primitive.material = 0;
         }
@@ -232,9 +233,8 @@ export default class Gltf2Exporter {
           }
 
           if (colorParam) {
-            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(
-              colorParam._v
-            );
+            material.pbrMetallicRoughness.baseColorFactor =
+              Array.prototype.slice.call(colorParam._v);
           }
           material.pbrMetallicRoughness.metallicFactor = metallic;
           material.pbrMetallicRoughness.roughnessFactor = roughness;
@@ -255,10 +255,11 @@ export default class Gltf2Exporter {
                 }
                 if (!match) {
                   const imageJson = {
-                    uri:
-                      (rnTexture.name ? rnTexture.name : rnTexture.uniqueName) +
-                      '.png',
+                    uri: rnTexture.name ? rnTexture.name : rnTexture.uniqueName,
                   };
+                  if (Is.not.exist(imageJson.uri.match(/\.(png|jpg|jpeg)/))) {
+                    imageJson.uri += '.png';
+                  }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
                     const blob = htmlCanvasElement.toBlob(blob => {
@@ -534,7 +535,7 @@ export default class Gltf2Exporter {
     a.download = filename + '.gltf';
     a.href =
       'data:application/octet-stream,' +
-      encodeURIComponent(JSON.stringify(json));
+      encodeURIComponent(JSON.stringify(json, null, 2));
 
     (e as any).initEvent(
       'click',
