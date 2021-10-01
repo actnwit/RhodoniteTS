@@ -265,8 +265,10 @@ export default class Gltf2Exporter {
                     const blob = htmlCanvasElement.toBlob(blob => {
                       setTimeout(() => {
                         const a = document.createElement('a');
-                        const e = document.createEvent('MouseEvent');
-                        (e as any).initEvent(
+                        const e = document.createEvent(
+                          'MouseEvent'
+                        ) as MouseEvent;
+                        e.initMouseEvent(
                           'click',
                           true,
                           true,
