@@ -312,8 +312,7 @@ export default class DrcPointCloudImporter {
 
       // Skin
       if (node.skin !== void 0 && gltfJson.skins !== void 0) {
-        node.skinIndex = node.skin;
-        node.skin = gltfJson.skins[node.skinIndex];
+        node.skinObject = gltfJson.skins[node.skin];
         if (node.mesh.extras === void 0) {
           node.mesh.extras = {};
         }
@@ -552,7 +551,7 @@ export default class DrcPointCloudImporter {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferIndex = bufferView.buffer as any as number;
+        bufferView.bufferIndex = bufferView.buffer as unknown as number;
         bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
       }
     }
@@ -565,10 +564,8 @@ export default class DrcPointCloudImporter {
       extendedJson = JSON.parse(extendedJsonStr);
     } else if (typeof extendedData === 'string') {
       extendedJson = JSON.parse(extendedData);
-      extendedJson = extendedJson;
     } else if (typeof extendedData === 'object') {
       extendedJson = extendedData;
-    } else {
     }
 
     Object.assign(gltfJson, extendedJson);

@@ -47,8 +47,8 @@ export type Gltf2Node = {
   cameraIndex?: number;
   children?: any[];
   childrenIndices?: number[];
-  skin?: any;
-  skinIndex?: any;
+  skin?: number;
+  skinObject?: Gltf2Skin;
   matrix?: number[];
   mesh?: any;
   meshIndex?: number;
@@ -65,6 +65,7 @@ export type Gltf2Node = {
 export type Gltf2Skin = {
   inverseBindMatrices?: any;
   inverseBindMatricesIndex?: number;
+  bindShapeMatrix?: number[];
   skeleton?: any;
   skeletonIndex?: number;
   joints: any[];

@@ -307,8 +307,7 @@ export default class Gltf2Importer {
 
       // Skin
       if (node.skin !== void 0 && gltfJson.skins !== void 0) {
-        node.skinIndex = node.skin;
-        node.skin = gltfJson.skins[node.skinIndex];
+        node.skinObject = gltfJson.skins[node.skin];
         if (node.mesh.extras === void 0) {
           node.mesh.extras = {};
         }

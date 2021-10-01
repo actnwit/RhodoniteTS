@@ -369,7 +369,7 @@ export default class ModelConverter {
       const node = gltfModel.nodes[node_i];
       const sg = rnEntities[node_i].getSceneGraph();
       let skeletalComponent: SkeletalComponent;
-      if (node.skin != null) {
+      if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
         entityRepository.addComponentsToEntity(
           [SkeletalComponent],
@@ -379,67 +379,65 @@ export default class ModelConverter {
           SkeletalComponent
         ) as SkeletalComponent;
 
-        //        skeletalComponent.isSkinning = false;
-
-        skeletalComponent._jointIndices = node.skin.jointsIndices;
-        if (node.skin.bindShapeMatrix != null) {
+        skeletalComponent._jointIndices = node.skinObject.jointsIndices;
+        if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = new Matrix44(
-            node.skin.bindShapeMatrix,
+            node.skinObject.bindShapeMatrix,
             true
           );
         }
-      }
+        if (node.skinObject.skeleton) {
+          sg.isRootJoint = true;
+          // if (node.meshes) {
+          //   // let rnEntity = rnEntities[node_i];
+          //   // entityRepository
+          //   // for (let mesh of node.meshes) {
+          //   //   mesh
+          //   //   const entity = this.__generateMeshEntity() {
 
-      if (node.skin?.skeleton) {
-        sg.isRootJoint = true;
-        // if (node.meshes) {
-        //   // let rnEntity = rnEntities[node_i];
-        //   // entityRepository
-        //   // for (let mesh of node.meshes) {
-        //   //   mesh
-        //   //   const entity = this.__generateMeshEntity() {
-
-        //   //   }
-        //   // }
-        //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
-        // } else
-        if (node.mesh) {
-          const joints = [];
-          for (const i of node.skin.jointsIndices) {
-            joints.push(rnEntities[i].getSceneGraph());
+          //   //   }
+          //   // }
+          //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+          // } else
+          if (node.mesh) {
+            const joints = [];
+            for (const i of node.skinObject.jointsIndices) {
+              joints.push(rnEntities[i].getSceneGraph());
+            }
+            skeletalComponent!.joints = joints;
+            if (node.skinObject.skeletonIndex != null) {
+              skeletalComponent!.jointsHierarchy =
+                rnEntities[node.skinObject.skeletonIndex].getSceneGraph();
+            } else {
+              skeletalComponent!.jointsHierarchy = joints[0];
+            }
           }
-          skeletalComponent!.joints = joints;
-          if (node.skin.skeletonIndex != null) {
-            skeletalComponent!.jointsHierarchy =
-              rnEntities[node.skin.skeletonIndex].getSceneGraph();
-          } else {
-            skeletalComponent!.jointsHierarchy = joints[0];
+        }
+        if (node.skinObject.joints) {
+          for (const joint_i of node.skinObject.jointsIndices) {
+            const sg = rnEntities[joint_i].getSceneGraph();
+            sg.jointIndex = joint_i;
           }
+        }
+
+        if (node.skinObject.inverseBindMatrices != null) {
+          const matrixN = (node.skinObject.inverseBindMatrices.extras
+            .typedDataArray.length / 16) as number;
+          const matrices = new Array(matrixN);
+          for (let i = 0; i < matrixN; i++) {
+            matrices[i] = new Matrix44(
+              node.skinObject.inverseBindMatrices.extras.typedDataArray.subarray(
+                16 * i,
+                16 * (i + 1)
+              ),
+              true,
+              true
+            );
+          }
+          skeletalComponent!._inverseBindMatrices = matrices;
         }
       }
 
-      if (node.skin?.joints) {
-        for (const joint_i of node.skin.jointsIndices) {
-          const sg = rnEntities[joint_i].getSceneGraph();
-          sg.jointIndex = joint_i;
-        }
-      }
-      if (node.skin?.inverseBindMatrices != null) {
-        const matrixN = (node.skin.inverseBindMatrices.extras.typedDataArray
-          .length / 16) as number;
-        const matrices = new Array(matrixN);
-        for (let i = 0; i < matrixN; i++) {
-          matrices[i] = new Matrix44(
-            node.skin.inverseBindMatrices.extras.typedDataArray.subarray(
-              16 * i,
-              16 * (i + 1)
-            ),
-            true,
-            true
-          );
-        }
-        skeletalComponent!._inverseBindMatrices = matrices;
-      }
     }
   }
 
