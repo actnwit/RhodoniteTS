@@ -9,7 +9,7 @@ export type TypedArray =
   | Float32Array
   | Float64Array;
 export type FloatTypedArray = Float32Array | Float64Array;
-export type IntergerTypedArray =
+export type IntegerTypedArray =
   | Int8Array
   | Uint8Array
   | Int16Array
