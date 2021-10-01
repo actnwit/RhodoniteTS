@@ -22,7 +22,7 @@ import MutableVector3 from '../math/MutableVector3';
 import MutableVector4 from '../math/MutableVector4';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -51,10 +51,8 @@ export default abstract class AbstractTexture extends RnObject {
   protected __canvasContext?: CanvasRenderingContext2D;
   protected __uri?: string;
   protected __name = 'untitled';
-  protected static __textureMap: Map<
-    CGAPIResourceHandle,
-    AbstractTexture
-  > = new Map();
+  protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> =
+    new Map();
 
   constructor() {
     super();
@@ -96,9 +94,7 @@ export default abstract class AbstractTexture extends RnObject {
   get htmlCanvasElement() {
     const canvas = document.createElement('canvas');
     const ctx = canvas?.getContext('2d');
-    if (Is.not.exist(this.__htmlCanvasElement)) {
-      this.__htmlCanvasElement = canvas;
-    }
+    this.__htmlCanvasElement = canvas;
     if (Is.exist(ctx) && Is.exist(this.__htmlImageElement)) {
       canvas.width = this.__htmlImageElement.width;
       canvas.height = this.__htmlImageElement.height;

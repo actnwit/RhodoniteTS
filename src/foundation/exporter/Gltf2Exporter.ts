@@ -242,6 +242,8 @@ export default class Gltf2Exporter {
           if (rnMaterial) {
             material.alphaMode = rnMaterial.alphaMode.str;
 
+            const existedImages: string[] = [];
+
             const processTexture = (rnTexture: AbstractTexture) => {
               if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
                 let imageIndex = countImage;
@@ -255,14 +257,21 @@ export default class Gltf2Exporter {
                 }
                 if (!match) {
                   const imageJson = {
-                    uri: rnTexture.name ? rnTexture.name : rnTexture.uniqueName,
+                    uri: rnTexture.name,
                   };
+
+                  if (existedImages.indexOf(rnTexture.name) !== -1) {
+                    imageJson.uri += '_' + rnTexture.textureUID;
+                  }
+
+                  existedImages.push(imageJson.uri);
+
                   if (Is.not.exist(imageJson.uri.match(/\.(png|jpg|jpeg)/))) {
                     imageJson.uri += '.png';
                   }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
-                    const blob = htmlCanvasElement.toBlob(blob => {
+                    htmlCanvasElement.toBlob(blob => {
                       setTimeout(() => {
                         const a = document.createElement('a');
                         const e = document.createEvent(
