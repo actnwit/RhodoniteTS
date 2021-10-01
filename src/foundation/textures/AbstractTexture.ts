@@ -100,6 +100,8 @@ export default abstract class AbstractTexture extends RnObject {
       this.__htmlCanvasElement = canvas;
     }
     if (Is.exist(ctx) && Is.exist(this.__htmlImageElement)) {
+      canvas.width = this.__htmlImageElement.width;
+      canvas.height = this.__htmlImageElement.height;
       ctx.drawImage(
         this.__htmlImageElement,
         0,
