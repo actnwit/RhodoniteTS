@@ -1,5 +1,6 @@
 import {off} from 'process';
 import {Byte, Size} from '../../types/CommonTypes';
+import { Is } from './Is';
 
 const isMobile = function () {
   const ua = [
@@ -175,6 +176,52 @@ export const valueWithDefault = <T>({
   value?: T;
   defaultValue: T;
 }): T => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return defaultValue;
+  }
+  return value;
+};
+
+export const ifExistThen = <T>(
+  value: T,
+  callback: (value: T) => void
+): void => {
+  if (Is.exist(value)) {
+    callback(value);
+  }
+};
+
+export const assignIfExists = <T>(assignTarget: T, subject?: T): T => {
+  if (Is.exist(subject)) {
+    assignTarget = subject;
+  }
+  return assignTarget;
+};
+
+export const assignIfThatExists = <T, U>(
+  assignTarget: U,
+  assignFunction: (value: T) => U,
+  subject?: T
+): U => {
+  if (Is.exist(subject)) {
+    assignTarget = assignFunction(subject);
+  }
+  return assignTarget;
+};
+
+export const assignIfNotExists = <T, U>(
+  assignTarget: U,
+  assignRealThing: U,
+  subject?: T
+): U => {
+  if (Is.not.exist(subject)) {
+    assignTarget = assignRealThing;
+  }
+  return assignTarget;
+};
+
+export const defaultValue = <T>(defaultValue: T, value?: T): T => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return defaultValue;
