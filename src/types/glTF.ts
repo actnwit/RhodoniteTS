@@ -63,13 +63,13 @@ export type Gltf2Node = {
 };
 
 export type Gltf2Skin = {
-  inverseBindMatrices?: any;
-  inverseBindMatricesIndex?: number;
+  inverseBindMatrices?: number;
+  inverseBindMatricesObject?: Gltf2Accessor;
   bindShapeMatrix?: number[];
-  skeleton?: any;
-  skeletonIndex?: number;
-  joints: any[];
-  jointsIndices: number[];
+  skeleton?: number;
+  skeletonObject?: Gltf2Node;
+  joints: number[];
+  jointsObjects: Gltf2Node[];
   name?: string;
   extensions?: any;
   extras?: any;
@@ -259,7 +259,7 @@ export type Gltf2Accessor = {
   extras?: {
     attributeName: string;
     toGetAsTypedArray: boolean;
-    typedDataArray?: TypedArray;
+    typedDataArray?: Float32Array;
     componentN?: number;
     componentBytes?: number;
     dataViewMethod?: string;

@@ -6,6 +6,7 @@ import {
   GltfFileBuffers,
 } from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
+import { Is } from '../misc/Is';
 
 declare let Rn: any;
 
@@ -473,22 +474,19 @@ export default class Gltf2Importer {
   _loadDependenciesOfJoints(gltfJson: glTF2) {
     if (gltfJson.skins) {
       for (const skin of gltfJson.skins) {
-        skin.skeletonIndex = skin.skeleton;
-        skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
+        skin.skeletonObject = gltfJson.nodes[skin.skeleton!];
 
-        skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
-        skin.inverseBindMatrices =
-          gltfJson.accessors[skin.inverseBindMatricesIndex!];
+        skin.inverseBindMatricesObject =
+          gltfJson.accessors[skin.inverseBindMatrices!];
 
-        if (skin.skeleton == null) {
-          skin.skeletonIndex = skin.joints[0];
-          skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
+        if (Is.not.exist(skin.skeleton)) {
+          skin.skeleton = skin.joints[0];
+          skin.skeletonObject = gltfJson.nodes[skin.skeleton];
         }
 
-        skin.jointsIndices = skin.joints;
-        skin.joints = [];
-        for (const jointIndex of skin.jointsIndices) {
-          skin.joints.push(gltfJson.nodes[jointIndex]);
+        skin.jointsObjects = [];
+        for (const jointIndex of skin.joints) {
+          skin.jointsObjects.push(gltfJson.nodes[jointIndex]);
         }
       }
     }
