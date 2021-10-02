@@ -14,7 +14,7 @@ import {TypedArray} from '../../types/CommonTypes';
 import {glTF2, GltfLoadOption, Gltf2Image} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import { Is } from '../misc/Is';
-import { assignIfNotExists, assignIfThatExists} from '../misc/MiscUtil';
+import { assignIfNotExists, assignIfThatDefined, assignIfThatExists} from '../misc/MiscUtil';
 
 declare let DracoDecoderModule: any;
 declare let Rn: any;
@@ -459,10 +459,12 @@ export default class DrcPointCloudImporter {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
-        if (texture.sampler !== void 0) {
-          texture.samplerIndex = texture.sampler;
-          texture.sampler = gltfJson.samplers[texture.samplerIndex!];
-        }
+        assignIfThatExists(
+          texture.samplerObject,
+          v => gltfJson.samplers[v],
+          texture.sampler
+        );
+
         if (texture.source !== void 0) {
           texture.sourceIndex = texture.source;
           texture.image = gltfJson.images[texture.sourceIndex!];

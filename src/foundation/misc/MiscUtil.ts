@@ -192,6 +192,35 @@ export const ifExistThen = <T>(
   }
 };
 
+export const assignIfDefined = <T>(assignTarget: T, subject?: T): T => {
+  if (Is.defined(subject)) {
+    assignTarget = subject;
+  }
+  return assignTarget;
+};
+
+export const assignIfThatDefined = <T, U>(
+  assignTarget: U,
+  assignFunction: (value: T) => U,
+  subject?: T
+): U => {
+  if (Is.defined(subject)) {
+    assignTarget = assignFunction(subject);
+  }
+  return assignTarget;
+};
+
+export const assignIfUndefined = <T, U>(
+  assignTarget: U,
+  assignRealThing: U,
+  subject?: T
+): U => {
+  if (Is.undefined(subject)) {
+    assignTarget = assignRealThing;
+  }
+  return assignTarget;
+};
+
 export const assignIfExists = <T>(assignTarget: T, subject?: T): T => {
   if (Is.exist(subject)) {
     assignTarget = subject;

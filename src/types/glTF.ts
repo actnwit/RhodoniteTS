@@ -198,8 +198,8 @@ export type Gltf2Animation = {
 };
 
 export type Gltf2Texture = {
-  sampler?: any;
-  samplerIndex?: number;
+  samplerObject?: Gltf2Sampler;
+  sampler?: number;
   source?: any;
   sourceIndex?: number;
   texture?: Gltf2Texture;
