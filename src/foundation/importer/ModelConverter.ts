@@ -70,6 +70,7 @@ import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
+import {ifExistsThen} from '../misc/MiscUtil';
 
 declare let DracoDecoderModule: any;
 
@@ -669,10 +670,8 @@ export default class ModelConverter {
             indicesRnAccessor = this.__getRnAccessor(
               primitive.indices,
               rnBuffers[
-                (
-                  (primitive.indices as Gltf2Accessor)
-                    .bufferView as Gltf2BufferView
-                ).bufferIndex!
+                (primitive.indices as Gltf2Accessor).bufferViewObject!
+                  .bufferIndex!
               ]
             );
           }
@@ -684,7 +683,7 @@ export default class ModelConverter {
             const attributeRnAccessor = this.__getRnAccessor(
               attributeAccessor,
               rnBuffers[
-                (attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!
+                (attributeAccessor.bufferViewObject as Gltf2BufferView).bufferIndex!
               ]
             );
 
@@ -723,9 +722,7 @@ export default class ModelConverter {
               const attributeAccessor = target[attributeName] as Gltf2Accessor;
               const attributeRnAccessor = this.__getRnAccessor(
                 attributeAccessor,
-                rnBuffers[
-                  (attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!
-                ]
+                rnBuffers[attributeAccessor.bufferViewObject!.bufferIndex!]
               );
               // targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
               const attributeRnAccessorInGPUVertexData =
@@ -757,8 +754,8 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  setSparseAccessor(accessor: any, rnAccessor: Accessor) {
-    const uint8Array: Uint8Array = accessor.bufferView.buffer.buffer;
+  setSparseAccessor(accessor: Gltf2Accessor, rnAccessor: Accessor) {
+    const uint8Array: Uint8Array = accessor.bufferViewObject!.buffer.buffer!;
     const count = accessor.sparse.count;
 
     // indices
@@ -1633,11 +1630,11 @@ export default class ModelConverter {
   }
 
   _accessBinaryWithAccessor(accessor: Gltf2Accessor): Float32Array {
-    const bufferView = accessor.bufferView;
+    const bufferView = accessor.bufferViewObject!;
     const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.buffer;
-    const uint8Array: Uint8Array = buffer.buffer;
+    const uint8Array: Uint8Array = buffer.buffer!;
 
     const componentN = this._checkComponentNumber(accessor);
     const componentBytes = this._checkBytesPerComponent(accessor);
@@ -1917,7 +1914,7 @@ export default class ModelConverter {
   }
 
   private __getRnAccessor(accessor: Gltf2Accessor, rnBuffer: Buffer) {
-    const bufferView = accessor.bufferView;
+    const bufferView = accessor.bufferViewObject!;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,
@@ -2142,16 +2139,14 @@ export default class ModelConverter {
       const attributeGltf2Accessor = primitive.attributes[
         attributeName
       ] as Gltf2Accessor;
-      let attributeRnAccessor;
+      let attributeRnAccessor: Accessor | undefined = undefined;
 
-      if (dracoAttributeId == null) {
+      if (Is.not.exist(dracoAttributeId)) {
         // non-encoded data
 
         attributeRnAccessor = this.__getRnAccessor(
           attributeGltf2Accessor,
-          rnBuffers[
-            (attributeGltf2Accessor.bufferView as Gltf2BufferView).bufferIndex!
-          ]
+          rnBuffers[attributeGltf2Accessor.bufferViewObject!.bufferIndex!]
         );
       } else {
         // encoded data
@@ -2215,14 +2210,14 @@ export default class ModelConverter {
       }
 
       if (attributeGltf2Accessor.sparse) {
-        this.setSparseAccessor(attributeGltf2Accessor, attributeRnAccessor);
+        this.setSparseAccessor(attributeGltf2Accessor, attributeRnAccessor!);
       }
 
       map.set(
         VertexAttribute.fromString(
           attributeGltf2Accessor.extras!.attributeName
         ),
-        attributeRnAccessor
+        attributeRnAccessor!
       );
     }
 

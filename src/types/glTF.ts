@@ -6,6 +6,7 @@ import CameraComponent from '../foundation/components/CameraComponent';
 import Material from '../foundation/materials/core/Material';
 import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
+import Accessor from '../foundation/memory/Accessor';
 
 export type Gltf2Scene = {
   nodes?: any[];
@@ -242,8 +243,8 @@ export type Gltf2Sparse = {
 };
 
 export type Gltf2Accessor = {
-  bufferView?: any;
-  bufferViewIndex?: number;
+  bufferViewObject?: Gltf2BufferView;
+  bufferView?: number;
   byteOffset?: number;
   byteStride?: number; // for glTF1 only
   componentType: number;
@@ -254,6 +255,7 @@ export type Gltf2Accessor = {
   min?: number[];
   sparse?: any;
   name?: string;
+  accessor?: Accessor;
   extensions?: any;
   extras?: {
     attributeName: string;
