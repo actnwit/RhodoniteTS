@@ -14,7 +14,8 @@ import {TypedArray} from '../../types/CommonTypes';
 import {glTF2, GltfLoadOption, Gltf2Image} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
-import {ifDefinedThen, ifNotExistsThen} from '../misc/MiscUtil';
+import {ifDefinedThen} from '../misc/MiscUtil';
+import {ifUndefinedThen} from '../misc/MiscUtil';
 
 declare let DracoDecoderModule: any;
 declare let Rn: any;
@@ -477,13 +478,15 @@ export default class DrcPointCloudImporter {
         if (Is.exist(skin.skeleton)) {
           skin.skeletonObject = gltfJson.nodes[skin.skeleton];
 
-          ifDefinedThen(v => {
-            skin.inverseBindMatricesObject = gltfJson.accessors[v];
-          }, skin.inverseBindMatrices);
+          ifDefinedThen(
+            v => (skin.inverseBindMatricesObject = gltfJson.accessors[v]),
+            skin.inverseBindMatrices
+          );
 
-          ifNotExistsThen(() => {
-            skin.skeletonObject = gltfJson.nodes[skin.joints[0]];
-          }, skin.skeleton);
+          ifUndefinedThen(
+            () => (skin.skeletonObject = gltfJson.nodes[skin.joints[0]]),
+            skin.skeleton
+          );
 
           skin.jointsObjects = [];
           for (const jointIndex of skin.joints) {

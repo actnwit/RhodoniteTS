@@ -7,7 +7,7 @@ import {
 } from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
-import {ifDefinedThen} from '../misc/MiscUtil';
+import {ifDefinedThen, ifExistsThen} from '../misc/MiscUtil';
 
 declare let Rn: any;
 
@@ -454,9 +454,10 @@ export default class Gltf2Importer {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
-        ifDefinedThen(v => {
-          texture.samplerObject = gltfJson.samplers[v];
-        }, texture.sampler);
+        ifDefinedThen(
+          v => (texture.samplerObject = gltfJson.samplers[v]),
+          texture.sampler
+        );
 
         if (texture.extensions?.KHR_texture_basisu?.source != null) {
           texture.extensions.KHR_texture_basisu.fallbackSourceIndex =

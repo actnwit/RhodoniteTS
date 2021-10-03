@@ -202,7 +202,6 @@ export type Gltf2Texture = {
   sampler?: number;
   source?: any;
   sourceIndex?: number;
-  texture?: Gltf2Texture;
   image?: Gltf2Image;
   name?: string;
   extensions?: any;
