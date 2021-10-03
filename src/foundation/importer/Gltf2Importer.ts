@@ -7,7 +7,7 @@ import {
 } from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
-import {ifDefinedThen, ifExistsThen} from '../misc/MiscUtil';
+import {ifDefinedThen} from '../misc/MiscUtil';
 
 declare let Rn: any;
 
@@ -538,8 +538,7 @@ export default class Gltf2Importer {
       if (accessor.bufferView == null) {
         accessor.bufferView = 0;
       }
-      accessor.bufferViewIndex = accessor.bufferView;
-      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex!];
+      accessor.bufferViewObject = gltfJson.bufferViews[accessor.bufferView];
 
       if (accessor.sparse != null) {
         const sparse = accessor.sparse;

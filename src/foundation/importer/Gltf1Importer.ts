@@ -623,7 +623,7 @@ export default class Gltf1Importer {
       const accessor = (gltfJson.accessorDic as any)[accessorName];
       if (accessor.bufferView !== void 0) {
         accessor.bufferViewName = accessor.bufferView;
-        accessor.bufferView = (gltfJson.bufferViewDic as any)[
+        accessor.bufferViewObject = (gltfJson.bufferViewDic as any)[
           accessor.bufferViewName
         ];
       }

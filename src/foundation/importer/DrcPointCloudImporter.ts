@@ -536,8 +536,7 @@ export default class DrcPointCloudImporter {
       if (accessor.bufferView == null) {
         accessor.bufferView = 0;
       }
-      accessor.bufferViewIndex = accessor.bufferView;
-      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex!];
+      accessor.bufferViewObject = gltfJson.bufferViews[accessor.bufferView];
 
       if (accessor.sparse != null) {
         const sparse = accessor.sparse;
