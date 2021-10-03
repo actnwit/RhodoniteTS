@@ -1,4 +1,10 @@
-import {add3, add3_offset, add4, add4_offset, get3_offsetAsComposition} from './raw_extension';
+import {
+  add3,
+  add3_offset,
+  add4,
+  add4_offset,
+  get3_offsetAsComposition,
+} from './raw_extension';
 
 test('Array extensions', () => {
   const a = [0, 0, 0];

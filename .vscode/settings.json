@@ -13,6 +13,7 @@
         "cgapi",
         "component",
         "coord",
+        "CUBICSPLINE",
         "data",
         "Descs",
         "dettach",

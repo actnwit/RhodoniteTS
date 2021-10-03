@@ -1370,7 +1370,7 @@ export default class ModelConverter {
         if (loaderExtension.setUVTransformToTexture) {
           loaderExtension.setUVTransformToTexture(
             material,
-            diffuseColorTexture.texture.sampler
+            diffuseColorTexture.texture.samplerObject
           );
         }
       }
@@ -1438,16 +1438,16 @@ export default class ModelConverter {
 
     const textureOption = {
       magFilter:
-        TextureParameter.from(texture.sampler?.magFilter) ??
+        TextureParameter.from(texture.samplerObject?.magFilter) ??
         TextureParameter.Linear,
       minFilter:
-        TextureParameter.from(texture.sampler?.minFilter) ??
+        TextureParameter.from(texture.samplerObject?.minFilter) ??
         TextureParameter.Linear,
       wrapS:
-        TextureParameter.from(texture.sampler?.wrapS) ??
+        TextureParameter.from(texture.samplerObject?.wrapS) ??
         TextureParameter.Repeat,
       wrapT:
-        TextureParameter.from(texture.sampler?.wrapT) ??
+        TextureParameter.from(texture.samplerObject?.wrapT) ??
         TextureParameter.Repeat,
     };
 
