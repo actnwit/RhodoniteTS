@@ -17,7 +17,6 @@ import {
   ComponentSID,
   EntityUID,
   Index,
-  TypedArray as Float32Array,
   AnimationAttributeType,
   Array4,
   Array3,
