@@ -186,94 +186,105 @@ ${prerequisitesShaderityObject.code}
     };
     shaderBody += GLSLShader.glslMainBegin;
     shaderBody += mainPrerequisitesShaderityObject.code;
-    const varInputNames: Array<Array<string>> = [];
-    const varOutputNames: Array<Array<string>> = [];
-    const existingInputs: ShaderNodeUID[] = [];
-    const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
-    const existingOutputs: ShaderNodeUID[] = [];
-    for (let i = 1; i < materialNodes.length; i++) {
-      const materialNode = materialNodes[i];
-      if (varInputNames[i] == null) {
-        varInputNames[i] = [];
-      }
-      if (i - 1 >= 0) {
-        if (varOutputNames[i - 1] == null) {
-          varOutputNames[i - 1] = [];
+
+    // Collects varInputNames and varOutputNames
+    const varInputNames: Array<Array<string>> = []; // input names of topological sorted Nodes
+    const varOutputNames: Array<Array<string>> = []; // output names of topological sorted Nodes
+    {
+      const existingInputs: ShaderNodeUID[] = [];
+      const existingOutputs: ShaderNodeUID[] = [];
+      const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
+      for (let i = 1; i < materialNodes.length; i++) {
+        const materialNode = materialNodes[i];
+        if (varInputNames[i] == null) {
+          varInputNames[i] = [];
         }
-      }
-      const inputConnections = materialNode.inputConnections;
-      for (let j = 0; j < inputConnections.length; j++) {
-        const inputConnection = inputConnections[j];
-        const inputNode =
-          AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
-        if (isAnyTypeInput(materialNode.getInputs()[j])) {
-          continue;
-        }
-        const outputSocketOfPrev = inputNode.getOutput(
-          inputConnection.outputNameOfPrev
-        );
-        const inputSocketOfThis = materialNode.getInput(
-          inputConnection.inputNameOfThis
-        );
-        let varName = `${outputSocketOfPrev!.name}_${
-          inputConnection.shaderNodeUid
-        }_to_${materialNode.shaderNodeUid}`;
-        if (existingInputs.indexOf(inputNode.shaderNodeUid) === -1) {
-          const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(
-            inputSocketOfThis!.componentType
-          );
-          const glslInitialValue = inputSocketOfThis!.compositionType.getGlslInitialValue(
-            inputSocketOfThis!.componentType
-          );
-          const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
-          shaderBody += rowStr;
-        }
-        const existVarName = existingOutputsVarName.get(
-          inputNode.shaderNodeUid
-        );
-        if (existVarName) {
-          varName = existVarName;
-        }
-        varInputNames[i].push(varName);
-        existingInputs.push(inputConnection.shaderNodeUid);
-      }
-      for (let j = i; j < materialNodes.length; j++) {
-        const targetMaterialNode = materialNodes[j];
-        const prevMaterialNodeInner = materialNodes[i - 1];
-        const targetNodeInputConnections = targetMaterialNode.inputConnections;
-        for (let k = 0; k < targetNodeInputConnections.length; k++) {
-          const inputConnection = targetNodeInputConnections[k];
-          if (
-            prevMaterialNodeInner?.shaderNodeUid !==
-            inputConnection.shaderNodeUid
-          ) {
-            continue;
+        if (i - 1 >= 0) {
+          if (varOutputNames[i - 1] == null) {
+            varOutputNames[i - 1] = [];
           }
+        }
+
+        const inputConnections = materialNode.inputConnections;
+
+        // Collects ExistingInputs
+        for (let j = 0; j < inputConnections.length; j++) {
+          const inputConnection = inputConnections[j];
           const inputNode =
             AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
-          if (!isAnyTypeInput(targetMaterialNode.getInputs()[k])) {
-            if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
-              const outputSocketOfPrev = inputNode.getOutput(
-                inputConnection.outputNameOfPrev
-              );
-              const varName = `${outputSocketOfPrev!.name}_${
-                inputConnection.shaderNodeUid
-              }_to_${targetMaterialNode.shaderNodeUid}`;
+          if (isAnyTypeInput(materialNode.getInputs()[j])) {
+            continue;
+          }
 
-              if (i - 1 >= 0) {
-                varOutputNames[i - 1].push(varName);
-              }
-              existingOutputsVarName.set(
-                inputConnection.shaderNodeUid,
-                varName
+          const outputSocketOfPrev = inputNode.getOutput(
+            inputConnection.outputNameOfPrev
+          );
+          const inputSocketOfThis = materialNode.getInput(
+            inputConnection.inputNameOfThis
+          );
+          const varName = `${outputSocketOfPrev!.name}_${
+            inputConnection.shaderNodeUid
+          }_to_${materialNode.shaderNodeUid}`;
+
+          //
+          if (existingInputs.indexOf(inputNode.shaderNodeUid) === -1) {
+            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(
+              inputSocketOfThis!.componentType
+            );
+            const glslInitialValue =
+              inputSocketOfThis!.compositionType.getGlslInitialValue(
+                inputSocketOfThis!.componentType
               );
+            const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+            shaderBody += rowStr;
+          }
+          const existVarName = existingOutputsVarName.get(
+            inputNode.shaderNodeUid
+          );
+          varInputNames[i].push(existVarName ? existVarName : varName);
+          existingInputs.push(inputConnection.shaderNodeUid);
+        }
+
+        // Collects ExistingOutputs
+        for (let j = i; j < materialNodes.length; j++) {
+          const targetMaterialNode = materialNodes[j];
+          const prevMaterialNodeInner = materialNodes[i - 1];
+          const targetNodeInputConnections = targetMaterialNode.inputConnections;
+          for (let k = 0; k < targetNodeInputConnections.length; k++) {
+            const inputConnection = targetNodeInputConnections[k];
+            if (
+              prevMaterialNodeInner?.shaderNodeUid !==
+              inputConnection.shaderNodeUid
+            ) {
+              continue;
             }
-            existingOutputs.push(inputConnection.shaderNodeUid);
+            const inputNode =
+              AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
+            if (!isAnyTypeInput(targetMaterialNode.getInputs()[k])) {
+              if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
+                const outputSocketOfPrev = inputNode.getOutput(
+                  inputConnection.outputNameOfPrev
+                );
+                const varName = `${outputSocketOfPrev!.name}_${
+                  inputConnection.shaderNodeUid
+                }_to_${targetMaterialNode.shaderNodeUid}`;
+
+                if (i - 1 >= 0) {
+                  varOutputNames[i - 1].push(varName);
+                }
+                existingOutputsVarName.set(
+                  inputConnection.shaderNodeUid,
+                  varName
+                );
+              }
+              existingOutputs.push(inputConnection.shaderNodeUid);
+            }
           }
         }
       }
     }
 
+    // generate shader code by topological sorted nodes, varInputNames and varOutputNames
     let ifCondition = '';
     for (let i = 0; i < materialNodes.length; i++) {
       const materialNode = materialNodes[i];
@@ -294,9 +305,10 @@ ${prerequisitesShaderityObject.code}
           ifCondition = '';
         }
 
+        // Normal Node Process Begin
         if (
-          materialNode.getInputs().length != varInputNames[i].length ||
-          materialNode.getOutputs().length != varOutputNames[i].length
+          materialNode.getInputs().length !== varInputNames[i].length ||
+          materialNode.getOutputs().length !== varOutputNames[i].length
         ) {
           continue;
         }
@@ -316,6 +328,7 @@ ${prerequisitesShaderityObject.code}
           }
           rowStr += ');\n';
         }
+        // Normal Node Process End
 
         if (functionName.match(/^blockEnd_/)) {
           rowStr += '}\n';
