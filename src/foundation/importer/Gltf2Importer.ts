@@ -283,9 +283,11 @@ export default class Gltf2Importer {
 
   _loadDependenciesOfScenes(gltfJson: glTF2) {
     for (const scene of gltfJson.scenes) {
-      scene.nodesIndices = scene.nodes!.concat();
-      for (const i in scene.nodesIndices) {
-        scene.nodes![i] = gltfJson.nodes[scene.nodes![i]];
+      if (Is.undefined(scene.nodesObjects)) {
+        scene.nodesObjects = [];
+      }
+      for (const i of scene.nodes!) {
+        scene.nodesObjects![i] = gltfJson.nodes[scene.nodes![i]];
       }
     }
   }
@@ -294,33 +296,32 @@ export default class Gltf2Importer {
     for (const node of gltfJson.nodes) {
       // Hierarchy
       if (node.children) {
-        node.childrenIndices = node.children.concat();
-        node.children = [];
-        for (const i in node.childrenIndices) {
-          node.children[i] = gltfJson.nodes[node.childrenIndices[i]];
+        node.children = node.children.concat();
+        for (const i of node.children) {
+          node.childrenObjects![i] = gltfJson.nodes[node.children[i]];
         }
       }
 
       // Mesh
       if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
-        node.meshIndex = node.mesh;
-        node.mesh = gltfJson.meshes[node.meshIndex!];
+        node.meshObject = gltfJson.meshes[node.mesh!];
       }
 
       // Skin
       if (node.skin !== void 0 && gltfJson.skins !== void 0) {
         node.skinObject = gltfJson.skins[node.skin];
-        if (node.mesh.extras === void 0) {
-          node.mesh.extras = {};
-        }
+        if (Is.exist(node.skinObject)) {
+          if (Is.not.exist(node.meshObject?.extras)) {
+            node.meshObject!.extras = {};
+          }
 
-        node.mesh.extras._skin = node.skin;
+          node.meshObject!.extras._skin = node.skin;
+        }
       }
 
       // Camera
       if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
-        node.cameraIndex = node.camera;
-        node.camera = gltfJson.cameras[node.cameraIndex!];
+        node.cameraObject = gltfJson.cameras[node.camera];
       }
 
       // Lights
@@ -343,49 +344,35 @@ export default class Gltf2Importer {
     // Mesh
     for (const mesh of gltfJson.meshes) {
       for (const primitive of mesh.primitives) {
+
         if (primitive.material !== void 0) {
-          primitive.materialIndex = primitive.material;
-          primitive.material = gltfJson.materials[primitive.materialIndex!];
+          primitive.materialObject = gltfJson.materials[primitive.material];
         }
 
-        primitive.attributesIndex = Object.assign({}, primitive.attributes);
-        for (const attributeName in primitive.attributesIndex) {
-          if (primitive.attributesIndex[attributeName] >= 0) {
-            const accessor =
-              gltfJson.accessors[primitive.attributesIndex[attributeName]];
+        primitive.attributesObjects = new Map();
+        for (const attributeName in primitive.attributes) {
+          const accessorId = primitive.attributes[attributeName];
+          const accessor = gltfJson.accessors[accessorId!];
+          accessor.extras = {
+            toGetAsTypedArray: true,
+            attributeName: attributeName,
+          };
+          primitive.attributesObjects.set(attributeName, accessor);
+        }
+
+        if (primitive.indices != null) {
+          primitive.indicesObject = gltfJson.accessors[primitive.indices];
+        }
+
+        if (primitive.targets != null) {
+          primitive.targetsObjects = new Map();
+          for (const [attributeName, accessorId] of primitive.targets) {
+            const accessor = gltfJson.accessors[accessorId];
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName,
             };
-            (primitive.attributes as any)[attributeName] = accessor;
-          } else {
-            (primitive.attributes as any)[attributeName] = void 0;
-          }
-        }
-
-        if (primitive.indices != null) {
-          primitive.indicesIndex = primitive.indices;
-          primitive.indices = gltfJson.accessors[primitive.indicesIndex!];
-        }
-
-        if (primitive.targets != null) {
-          primitive.targetIndices = primitive.targets;
-          primitive.targets = [];
-          for (const target of primitive.targetIndices) {
-            const attributes = {};
-            for (const attributeName in target) {
-              if (target[attributeName] >= 0) {
-                const accessor = gltfJson.accessors[target[attributeName]];
-                accessor.extras = {
-                  toGetAsTypedArray: true,
-                  attributeName: attributeName,
-                };
-                (attributes as any)[attributeName] = accessor;
-              } else {
-                (attributes as any)[attributeName] = void 0;
-              }
-            }
-            primitive.targets.push(attributes);
+            primitive.targetsObjects.set(attributeName, accessor);
           }
         }
       }
@@ -462,11 +449,11 @@ export default class Gltf2Importer {
         if (texture.extensions?.KHR_texture_basisu?.source != null) {
           texture.extensions.KHR_texture_basisu.fallbackSourceIndex =
             texture.source;
-          texture.sourceIndex = texture.extensions.KHR_texture_basisu.source;
-          texture.image = gltfJson.images[texture.sourceIndex!];
+          texture.source = texture.extensions.KHR_texture_basisu
+            .source as number;
+          texture.image = gltfJson.images[texture.source];
         } else if (texture.source !== void 0) {
-          texture.sourceIndex = texture.source;
-          texture.image = gltfJson.images[texture.sourceIndex!];
+          texture.image = gltfJson.images[texture.source!];
         }
       }
     }
@@ -497,35 +484,34 @@ export default class Gltf2Importer {
     if (gltfJson.animations) {
       for (const animation of gltfJson.animations) {
         for (const channel of animation.channels) {
-          channel.samplerIndex = channel.sampler;
-          channel.sampler = animation.samplers[channel.samplerIndex!];
-
-          channel.target.nodeIndex = channel.target.node;
-          channel.target.node = gltfJson.nodes[channel.target.nodeIndex!];
-        }
-        for (const channel of animation.channels) {
-          channel.sampler.inputIndex = channel.sampler.input;
-          channel.sampler.outputIndex = channel.sampler.output;
-          channel.sampler.input =
-            gltfJson.accessors[channel.sampler.inputIndex];
-          channel.sampler.output =
-            gltfJson.accessors[channel.sampler.outputIndex];
-          if (channel.sampler.output.extras === void 0) {
-            channel.sampler.output.extras = {};
-          }
-          if (channel.target.path === 'rotation') {
-            channel.sampler.output.extras.quaternionIfVec4 = true;
-          }
-          if (channel.target.path === 'weights') {
-            let weightsArrayLength =
-              channel.sampler.output.count / channel.sampler.input.count;
-            if (channel.sampler.interpolation === 'CUBICSPLINE') {
-              // divided by 3, because in glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
-              weightsArrayLength =
-                channel.sampler.output.count / channel.sampler.input.count / 3;
+          if (Is.defined(channel.sampler)) {
+            channel.samplerObject = animation.samplers[channel.sampler];
+            channel.targetObject!.nodeObject = gltfJson.nodes[channel.targetObject!.node!];
+            channel.samplerObject.inputObject =
+              gltfJson.accessors[channel.samplerObject.input!];
+            channel.samplerObject.outputObject =
+              gltfJson.accessors[channel.samplerObject.output!];
+            if (Is.undefined(channel.samplerObject.outputObject.extras)) {
+              channel.samplerObject.outputObject.extras = {} as any;
             }
-            channel.sampler.output.extras.weightsArrayLength =
-              weightsArrayLength;
+            if (channel.targetObject!.path === 'weights') {
+              let weightsArrayLength =
+                channel.samplerObject.outputObject.count /
+                channel.samplerObject.inputObject.count;
+              if (channel.samplerObject.interpolation === 'CUBICSPLINE') {
+                // divided by 3, because in glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+                weightsArrayLength =
+                  channel.samplerObject.outputObject.count /
+                  channel.samplerObject.inputObject.count /
+                  3;
+              }
+              channel.samplerObject.outputObject.extras!.weightsArrayLength =
+                weightsArrayLength;
+            }
+            if (channel.targetObject!.path === 'rotation') {
+              channel.samplerObject.outputObject.extras!.quaternionIfVec4 =
+                true;
+            }
           }
         }
       }
@@ -540,14 +526,18 @@ export default class Gltf2Importer {
       }
       accessor.bufferViewObject = gltfJson.bufferViews[accessor.bufferView];
 
-      if (accessor.sparse != null) {
+      if (Is.exist(accessor.sparse)) {
         const sparse = accessor.sparse;
-        sparse.indices.indicesIndex = sparse.indices.bufferView;
-        sparse.indices.bufferView =
-          gltfJson.bufferViews[sparse.indices.indicesIndex];
-        sparse.values.valuesIndex = sparse.values.bufferView;
-        sparse.values.bufferView =
-          gltfJson.bufferViews[sparse.values.valuesIndex];
+        if (
+          Is.exist(sparse) &&
+          Is.exist(sparse.indices) &&
+          Is.exist(sparse.values)
+        ) {
+          sparse.indices.bufferViewObject =
+            gltfJson.bufferViews[sparse.indices.bufferView];
+          sparse.values.bufferViewObject =
+            gltfJson.bufferViews[sparse.values.bufferView];
+        }
       }
     }
   }
@@ -556,8 +546,7 @@ export default class Gltf2Importer {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferIndex = (bufferView as any).buffer;
-        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
+        bufferView.bufferObject = gltfJson.buffers[bufferView.buffer!];
       }
     }
   }
@@ -587,8 +576,7 @@ export default class Gltf2Importer {
 
     // Buffers Async load
     let rnpArrayBuffer: RnPromise<ArrayBuffer>;
-    for (const i in gltfJson.buffers) {
-      const bufferInfo = gltfJson.buffers[i];
+    for (const bufferInfo of gltfJson.buffers) {
 
       let filename = '';
       if (bufferInfo.uri) {
@@ -632,12 +620,12 @@ export default class Gltf2Importer {
     }
 
     // Textures Async load
-    for (const imageJson of gltfJson.images ?? []) {
+    for (const imageJson of gltfJson.images!) {
       if (imageJson.uri == null) {
         if (uint8Array == null) {
           // need to wait for load gltfJson.buffer
           const bufferViewInfo = gltfJson.bufferViews[imageJson.bufferView!];
-          let bufferInfo = bufferViewInfo.buffer;
+          let bufferInfo = bufferViewInfo.bufferObject!;
           if (!isNaN(bufferInfo as unknown as number)) {
             const bufferIndex = bufferInfo as unknown as number;
             bufferInfo = gltfJson.buffers[bufferIndex];

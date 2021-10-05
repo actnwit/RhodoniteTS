@@ -2,6 +2,7 @@ import DataUtil from '../misc/DataUtil';
 import {
   glTF1,
   glTF2,
+  Gltf2Animation,
   Gltf2Image,
   GltfFileBuffers,
   GltfLoadOption,
@@ -439,7 +440,10 @@ export default class Gltf1Importer {
 
         if (primitive.indices !== void 0) {
           primitive.indicesName = primitive.indices;
-          primitive.indices = (gltfJson.accessorDic as any)[
+          primitive.indices = (gltfJson.accessorDic as any).indexof(
+            primitive.indicesName
+          );
+          primitive.indicesObject = (gltfJson.accessorDic as any)[
             primitive.indicesName
           ];
         }
@@ -582,33 +586,32 @@ export default class Gltf1Importer {
   _loadDependenciesOfAnimations(gltfJson: glTF1) {
     if (gltfJson.animations) {
       for (const animationName in gltfJson.animationDic) {
-        const animation = (gltfJson.animationDic as any)[animationName];
-        animation.samplerDic = animation.samplers;
-        animation.samplers = [];
+        const animation = (gltfJson.animationDic as any)[
+          animationName
+        ] as Gltf2Animation;
         for (const channel of animation.channels) {
-          channel.sampler = animation.samplerDic[channel.sampler];
+          channel.samplerObject = animation.samplers[channel.sampler];
 
-          channel.target.node = (gltfJson.nodeDic as any)[channel.target.id];
-          channel.target.nodeIndex = channel.target.node._index;
+          channel.targetObject!.nodeObject = (gltfJson.nodeDic as any)[
+            (channel.target as any)!.id
+          ];
+          channel.targetObject!.node = (channel.target! as any).node!._index;
 
-          channel.sampler.input =
-            gltfJson.accessors[animation.parameters['TIME']];
-          channel.sampler.output =
-            gltfJson.accessors[animation.parameters[channel.target.path]];
+          channel.samplerObject.inputObject =
+            gltfJson.accessors[(animation as any).parameters['TIME']];
+          channel.samplerObject.outputObject =
+            gltfJson.accessors[
+              (animation as any).parameters[channel.targetObject!.path]
+            ];
 
-          animation.samplers.push(channel.sampler);
+          animation.samplers.push(channel.samplerObject);
 
-          if (channel.target.path === 'rotation') {
-            if (channel.sampler.output.extras === void 0) {
-              channel.sampler.output.extras = {};
+          if (channel.targetObject!.path === 'rotation') {
+            if (channel.samplerObject!.outputObject!.extras === void 0) {
+              channel.samplerObject!.outputObject!.extras = {} as any;
             }
-            channel.sampler.output.extras.quaternionIfVec4 = true;
+            channel.samplerObject!.outputObject!.extras!.quaternionIfVec4 = true;
           }
-        }
-        animation.channelDic = animation.channels;
-        animation.channels = [];
-        for (const channel of animation.channelDic) {
-          animation.channels.push(channel);
         }
       }
     }

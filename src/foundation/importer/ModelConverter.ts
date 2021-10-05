@@ -57,6 +57,8 @@ import {
   Gltf2Primitive,
   Gltf2Material,
   Gltf2Image,
+  KHR_lights_punctual_Light,
+  Gltf2Camera,
 } from '../../types/glTF';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
@@ -70,7 +72,6 @@ import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
-import {ifExistsThen} from '../misc/MiscUtil';
 
 declare let DracoDecoderModule: any;
 
@@ -194,8 +195,8 @@ export default class ModelConverter {
     const rootGroup = this.__generateGroupEntity(gltfModel);
     rootGroup.tryToSetUniqueName('FileRoot', true);
     rootGroup.tryToSetTag({tag: 'ObjectType', value: 'top'});
-    if (gltfModel.scenes[0].nodesIndices) {
-      for (const nodesIndex of gltfModel.scenes[0].nodesIndices) {
+    if (gltfModel.scenes[0].nodes) {
+      for (const nodesIndex of gltfModel.scenes[0].nodes) {
         rootGroup
           .getSceneGraph()
           .addChild(rnEntities[nodesIndex].getSceneGraph());
@@ -281,9 +282,9 @@ export default class ModelConverter {
     for (const node_i in gltfModel.nodes) {
       const parentNode_i = parseInt(node_i);
       const node = gltfModel.nodes[parentNode_i];
-      if (node.childrenIndices) {
+      if (node.children) {
         const parentGroup = groupSceneComponents[parentNode_i];
-        for (const childNode_i of node.childrenIndices) {
+        for (const childNode_i of node.children) {
           const childGroup = groupSceneComponents[childNode_i];
           parentGroup.addChild(childGroup);
         }
@@ -298,8 +299,8 @@ export default class ModelConverter {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          this._accessBinaryWithAccessor(sampler.input);
-          this._accessBinaryWithAccessor(sampler.output);
+          this._accessBinaryWithAccessor(sampler.inputObject!);
+          this._accessBinaryWithAccessor(sampler.outputObject!);
         }
       }
     }
@@ -309,40 +310,45 @@ export default class ModelConverter {
     if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
-          const animInputArray = channel.sampler.input.extras!.typedDataArray;
-          const animOutputArray = channel.sampler.output.extras!.typedDataArray;
-          const interpolation = channel.sampler.interpolation ?? 'LINEAR';
+          if (Is.defined(channel.samplerObject)) {
+            const animInputArray =
+              channel.samplerObject.inputObject!.extras!.typedDataArray!;
+            const animOutputArray =
+              channel.samplerObject.outputObject!.extras!.typedDataArray!;
+            const interpolation =
+              channel.samplerObject.interpolation ?? 'LINEAR';
 
-          let animationAttributeType: AnimationAttributeType = 'undefined';
-          if (channel.target.path === 'translation') {
-            animationAttributeType = 'translate';
-          } else if (channel.target.path === 'rotation') {
-            animationAttributeType = 'quaternion';
-          } else {
-            animationAttributeType = channel.target
-              .path as AnimationAttributeType;
-          }
+            let animationAttributeType: AnimationAttributeType = 'undefined';
+            if (channel.targetObject!.path === 'translation') {
+              animationAttributeType = 'translate';
+            } else if (channel.targetObject!.path === 'rotation') {
+              animationAttributeType = 'quaternion';
+            } else {
+              animationAttributeType = channel.targetObject!
+                .path as AnimationAttributeType;
+            }
 
-          const rnEntity = rnEntities[channel.target.nodeIndex!];
-          if (rnEntity) {
-            entityRepository.addComponentsToEntity(
-              [AnimationComponent],
-              rnEntity.entityUID
-            );
-            const animationComponent = rnEntity.getComponent(
-              AnimationComponent
-            ) as AnimationComponent;
-            if (animationComponent) {
-              const outputComponentN =
-                channel.sampler.output.extras!.componentN!;
-              animationComponent.setAnimation(
-                Is.exist(animation.name) ? animation.name! : 'Untitled',
-                animationAttributeType,
-                animInputArray,
-                animOutputArray,
-                outputComponentN,
-                AnimationInterpolation.fromString(interpolation)
+            const rnEntity = rnEntities[channel.targetObject!.node!];
+            if (rnEntity) {
+              entityRepository.addComponentsToEntity(
+                [AnimationComponent],
+                rnEntity.entityUID
               );
+              const animationComponent = rnEntity.getComponent(
+                AnimationComponent
+              ) as AnimationComponent;
+              if (animationComponent) {
+                const outputComponentN =
+                  channel.samplerObject.outputObject!.extras!.componentN!;
+                animationComponent.setAnimation(
+                  Is.exist(animation.name) ? animation.name! : 'Untitled',
+                  animationAttributeType,
+                  animInputArray,
+                  animOutputArray,
+                  outputComponentN,
+                  AnimationInterpolation.fromString(interpolation)
+                );
+              }
             }
           }
         }
@@ -455,27 +461,24 @@ export default class ModelConverter {
       const node = gltfModel.nodes[parseInt(node_i)] as Gltf2Node;
       let entity;
       if (node.mesh != null) {
-        let meshIdxOrName: any = node.meshIndex;
-        if (meshIdxOrName == null) {
-          meshIdxOrName = node.meshNames![0];
-        }
+        const meshIdx = node.mesh;
         const meshEntity = this.__setupMesh(
           node,
           node.mesh,
-          meshIdxOrName,
+          meshIdx,
           rnBuffers,
           gltfModel
         );
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
-        if (node.mesh.name) {
+        if (node.meshObject?.name) {
           const meshComponent = meshEntity.getComponent(MeshComponent)!;
-          meshComponent.tryToSetUniqueName(node.mesh.name, true);
+          meshComponent.tryToSetUniqueName(node.meshObject.name, true);
         }
         entity = meshEntity;
-      } else if (node.camera != null) {
-        const cameraEntity = this.__setupCamera(node.camera, gltfModel);
+      } else if (node.cameraObject != null) {
+        const cameraEntity = this.__setupCamera(node.cameraObject, gltfModel);
         if (node.name) {
           cameraEntity.tryToSetUniqueName(node.name, true);
         }
@@ -500,16 +503,11 @@ export default class ModelConverter {
       rnEntitiesByNames.set(node.name!, entity);
 
       if (this.__isMorphing(node, gltfModel)) {
-        let weights: number[];
+        let weights: number[] = [];
         if (node.weights) {
           weights = node.weights;
-        } else if (node.mesh?.weights) {
-          weights = node.mesh.weights;
-        } else {
-          weights = new Array(node.mesh.primitives[0].targets.length);
-          for (let i = 0; i < weights.length; i++) {
-            weights[i] = 0;
-          }
+        } else if (node.meshObject?.weights) {
+          weights = node.meshObject.weights;
         }
         const entityRepository = EntityRepository.getInstance();
         entityRepository.addComponentsToEntity(
@@ -520,9 +518,9 @@ export default class ModelConverter {
           BlendShapeComponent
         ) as BlendShapeComponent;
         blendShapeComponent.weights = weights;
-        if (node.mesh.primitives[0].extras?.targetNames) {
+        if (node.meshObject?.primitives[0].extras?.targetNames) {
           blendShapeComponent.targetNames =
-            node.mesh.primitives[0].extras.targetNames;
+            node.meshObject.primitives[0].extras.targetNames;
         }
       }
     }
@@ -530,18 +528,18 @@ export default class ModelConverter {
     return {rnEntities, rnEntitiesByNames};
   }
 
-  private __isMorphing(node: any, gltfModel: glTF2) {
+  private __isMorphing(node: Gltf2Node, gltfModel: glTF2) {
     const argument =
-      gltfModel?.asset?.extras?.rnLoaderOptions
+      gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
-    if (argument?.isMorphing === false) {
-      return false;
+    if (argument?.isMorphing === true) {
+      return node.meshObject!.primitives[0].targets != null;
     } else {
-      return node.mesh?.primitives[0].targets != null;
+      return false;
     }
   }
 
-  private __setupLight(light: any, gltfModel: glTF2) {
+  private __setupLight(light: KHR_lights_punctual_Light, gltfModel: glTF2) {
     const lightEntity = this.__generateLightEntity(gltfModel);
     const lightComponent = lightEntity.getComponent(
       LightComponent
@@ -565,7 +563,7 @@ export default class ModelConverter {
     return lightEntity;
   }
 
-  private __setupCamera(camera: any, gltfModel: glTF2) {
+  private __setupCamera(camera: Gltf2Camera, gltfModel: glTF2) {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getComponent(
       CameraComponent
@@ -582,21 +580,21 @@ export default class ModelConverter {
     cameraComponent.up = Vector3.fromCopyArray([0, 1, 0]);
     cameraComponent.type = CameraType.fromString(camera.type);
     if (cameraComponent.type === CameraType.Perspective) {
-      cameraComponent.aspect = camera.perspective.aspectRatio
-        ? camera.perspective.aspectRatio
+      cameraComponent.aspect = camera.perspective!.aspectRatio
+        ? camera.perspective!.aspectRatio
         : 1;
       cameraComponent.setFovyAndChangeFocalLength(
-        MathUtil.radianToDegree(camera.perspective.yfov)
+        MathUtil.radianToDegree(camera.perspective!.yfov)
       );
-      cameraComponent.zNear = camera.perspective.znear;
-      cameraComponent.zFar = camera.perspective.zfar
-        ? camera.perspective.zfar
+      cameraComponent.zNear = camera.perspective!.znear;
+      cameraComponent.zFar = camera.perspective!.zfar
+        ? camera.perspective!.zfar
         : 100000;
     } else if (cameraComponent.type === CameraType.Orthographic) {
-      cameraComponent.xMag = camera.orthographic.xmag;
-      cameraComponent.yMag = camera.orthographic.ymag;
-      cameraComponent.zNear = camera.orthographic.znear;
-      cameraComponent.zFar = camera.orthographic.zfar;
+      cameraComponent.xMag = camera.orthographic!.xmag;
+      cameraComponent.yMag = camera.orthographic!.ymag;
+      cameraComponent.zNear = camera.orthographic!.znear;
+      cameraComponent.zFar = camera.orthographic!.zfar;
     }
     return cameraEntity;
   }
@@ -632,7 +630,7 @@ export default class ModelConverter {
       originalRnMesh = existingRnMesh;
     } else {
       for (const i in mesh.primitives) {
-        const primitive = mesh.primitives[i];
+        const primitive = mesh.primitives[i] as Gltf2Primitive;
         if (primitive.mode != null) {
           rnPrimitiveMode = PrimitiveMode.from(primitive.mode)!;
         }
@@ -668,22 +666,22 @@ export default class ModelConverter {
           // attributes
           if (primitive.indices) {
             indicesRnAccessor = this.__getRnAccessor(
-              primitive.indices,
+              primitive.indicesObject!,
               rnBuffers[
-                (primitive.indices as Gltf2Accessor).bufferViewObject!
-                  .bufferIndex!
+                (primitive.indices as unknown as Gltf2Accessor)
+                  .bufferViewObject!.buffer!
               ]
             );
           }
 
-          for (const attributeName in primitive.attributes) {
-            const attributeAccessor = primitive.attributes[
-              attributeName
-            ] as Gltf2Accessor;
+          for (const [
+            attributeName,
+            attributeAccessor,
+          ] of primitive.attributesObjects!) {
             const attributeRnAccessor = this.__getRnAccessor(
               attributeAccessor,
               rnBuffers[
-                (attributeAccessor.bufferViewObject as Gltf2BufferView).bufferIndex!
+                (attributeAccessor.bufferViewObject as Gltf2BufferView).buffer!
               ]
             );
 
@@ -711,18 +709,22 @@ export default class ModelConverter {
           }
 
           const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
-          for (let i = 0; i < primitive.targets.length; i++) {
-            if (i >= maxMorphTargetNumber) {
+          let count = 0;
+          for (const [
+            attributeName,
+            targetAccessor,
+          ] of primitive.targetsObjects!) {
+            if (count++ >= maxMorphTargetNumber) {
               break;
             }
 
-            const target = primitive.targets[i];
+            const target = targetAccessor;
             const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
             for (const attributeName in target) {
-              const attributeAccessor = target[attributeName] as Gltf2Accessor;
+              const attributeAccessor = targetAccessor;
               const attributeRnAccessor = this.__getRnAccessor(
                 attributeAccessor,
-                rnBuffers[attributeAccessor.bufferViewObject!.bufferIndex!]
+                rnBuffers[attributeAccessor.bufferViewObject!.buffer!]
               );
               // targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
               const attributeRnAccessorInGPUVertexData =
@@ -755,12 +757,13 @@ export default class ModelConverter {
   }
 
   setSparseAccessor(accessor: Gltf2Accessor, rnAccessor: Accessor) {
-    const uint8Array: Uint8Array = accessor.bufferViewObject!.buffer.buffer!;
-    const count = accessor.sparse.count;
+    const uint8Array: Uint8Array =
+      accessor.bufferViewObject!.bufferObject!.buffer!;
+    const count = accessor.sparse!.count;
 
     // indices
-    const accessorIndices = accessor.sparse.indices;
-    const bufferViewIndices = accessorIndices.bufferView;
+    const accessorIndices = accessor.sparse!.indices!;
+    const bufferViewIndices = accessorIndices.bufferViewObject;
     const byteOffsetIndices: number =
       (bufferViewIndices.byteOffset ?? 0) + (accessorIndices.byteOffset ?? 0);
 
@@ -775,8 +778,8 @@ export default class ModelConverter {
     const dataViewMethodIndices = this._checkDataViewMethod(accessorIndices);
 
     // sparse values
-    const accessorValues = accessor.sparse.values;
-    const bufferViewValues = accessorValues.bufferView;
+    const accessorValues = accessor.sparse!.values!;
+    const bufferViewValues = accessorValues.bufferViewObject;
     const byteOffsetValues: number =
       (bufferViewValues.byteOffset ?? 0) + (accessorValues.byteOffset ?? 0);
 
@@ -886,7 +889,7 @@ export default class ModelConverter {
 
   private __setVRMMaterial(
     rnPrimitive: Primitive,
-    node: any,
+    node: Gltf2Node,
     gltfModel: glTF2,
     primitive: any,
     materialJson: Gltf2Material,
@@ -975,7 +978,7 @@ export default class ModelConverter {
 
   private __generateAppropriateMaterial(
     rnPrimitive: Primitive,
-    node: any,
+    node: Gltf2Node,
     gltfModel: glTF2,
     primitive: Gltf2Primitive,
     materialJson: Gltf2Material
@@ -1029,7 +1032,7 @@ export default class ModelConverter {
       materialJson?.alphaMode || 'OPAQUE'
     );
     const additionalName =
-      node.skin != null ? `skin${node.skinIndex ?? node.skinName}` : void 0;
+      node.skin != null ? `skin${node.skin ?? (node as any).skinName}` : void 0;
     if (parseFloat(gltfModel.asset?.version) >= 2) {
       const useTangentAttribute = this.__useTangentAttribute(
         gltfModel,
@@ -1136,7 +1139,7 @@ export default class ModelConverter {
     materialJson: any
   ) {
     return (
-      primitive.materialIndex! +
+      primitive.material! +
       '_isSkinning_' +
       this.__isSkinning(node, gltfModel) +
       '_isMorphing_' +
@@ -1150,7 +1153,7 @@ export default class ModelConverter {
 
   private __setupMaterial(
     rnPrimitive: Primitive,
-    node: any,
+    node: Gltf2Node,
     gltfModel: glTF2,
     primitive: Gltf2Primitive,
     materialJson: any
@@ -1297,7 +1300,10 @@ export default class ModelConverter {
             param = ShadingModel.Phong.index;
             break;
         }
-        material.setParameter(ShaderSemantics.ShadingModel, Scalar.fromCopyNumber(param));
+        material.setParameter(
+          ShaderSemantics.ShadingModel,
+          Scalar.fromCopyNumber(param)
+        );
       }
     }
 
@@ -1633,7 +1639,7 @@ export default class ModelConverter {
     const bufferView = accessor.bufferViewObject!;
     const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
-    const buffer = bufferView.buffer;
+    const buffer = bufferView.bufferObject!;
     const uint8Array: Uint8Array = buffer.buffer!;
 
     const componentN = this._checkComponentNumber(accessor);
@@ -2071,7 +2077,7 @@ export default class ModelConverter {
   }
 
   private __decodeDraco(
-    primitive: any,
+    primitive: Gltf2Primitive,
     rnBuffers: Buffer[],
     gltfModel: glTF2,
     map: Map<VertexAttributeEnum, Accessor>
@@ -2082,7 +2088,7 @@ export default class ModelConverter {
       ];
     const rnBufferView = this.__getRnBufferView(
       bufferView,
-      rnBuffers[bufferView.bufferIndex!]
+      rnBuffers[bufferView.buffer!]
     );
     const arraybufferOfBufferView = new Uint8Array(rnBufferView.getUint8Array())
       .buffer;
@@ -2107,7 +2113,7 @@ export default class ModelConverter {
     );
 
     // decode indices
-    const primitiveMode = PrimitiveMode.from(primitive.mode);
+    const primitiveMode = PrimitiveMode.from(primitive.mode!);
     let isTriangleStrip = false;
     if (primitiveMode === PrimitiveMode.TriangleStrip) {
       isTriangleStrip = true;
@@ -2120,7 +2126,7 @@ export default class ModelConverter {
       isTriangleStrip
     )!;
     const indicesRnAccessor = this.__createRnAccessor(
-      primitive.indices,
+      primitive.indicesObject!,
       indices.length,
       1,
       rnBufferForDraco
@@ -2136,26 +2142,25 @@ export default class ModelConverter {
           attributeName
         ];
 
-      const attributeGltf2Accessor = primitive.attributes[
-        attributeName
-      ] as Gltf2Accessor;
+      const attributeGltf2Accessor =
+        primitive.attributesObjects?.get(attributeName);
       let attributeRnAccessor: Accessor | undefined = undefined;
 
       if (Is.not.exist(dracoAttributeId)) {
         // non-encoded data
 
         attributeRnAccessor = this.__getRnAccessor(
-          attributeGltf2Accessor,
-          rnBuffers[attributeGltf2Accessor.bufferViewObject!.bufferIndex!]
+          attributeGltf2Accessor!,
+          rnBuffers[attributeGltf2Accessor!.bufferViewObject!.buffer!]
         );
       } else {
         // encoded data
 
         const compositionNum = CompositionType.fromString(
-          attributeGltf2Accessor.type
+          attributeGltf2Accessor!.type
         ).getNumberOfComponents();
         attributeRnAccessor = this.__createRnAccessor(
-          attributeGltf2Accessor,
+          attributeGltf2Accessor!,
           numPoints,
           compositionNum,
           rnBufferForDraco
@@ -2209,13 +2214,13 @@ export default class ModelConverter {
         draco.destroy(decompressedAttributeData);
       }
 
-      if (attributeGltf2Accessor.sparse) {
-        this.setSparseAccessor(attributeGltf2Accessor, attributeRnAccessor!);
+      if (attributeGltf2Accessor!.sparse) {
+        this.setSparseAccessor(attributeGltf2Accessor!, attributeRnAccessor!);
       }
 
       map.set(
         VertexAttribute.fromString(
-          attributeGltf2Accessor.extras!.attributeName
+          attributeGltf2Accessor!.extras!.attributeName
         ),
         attributeRnAccessor!
       );
