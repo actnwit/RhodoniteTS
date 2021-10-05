@@ -1,6 +1,6 @@
 import Entity from '../foundation/core/Entity';
 import RnPromise from '../foundation/misc/RnPromise';
-import {Array4, Index} from './CommonTypes';
+import {Array3, Array4, Index} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
 import CameraComponent from '../foundation/components/CameraComponent';
 import Material from '../foundation/materials/core/Material';
@@ -9,28 +9,38 @@ import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 
 export type Gltf2Scene = {
-  nodes?: any[];
+  nodesObjects?: Gltf2Node[];
   name?: string;
-  sceneIndex?: number;
-  nodesIndices?: number[];
+  scene?: number;
+  sceneObject?: Gltf2Node;
+  nodes?: number[];
   extensions: any;
   extras?: any;
+};
+
+export type Gltf2AttributesObject = {
+  [s: string]: Gltf2Accessor;
 };
 
 export type Gltf2Attributes = {
   [s: string]: Gltf2Accessor;
 };
 
+export type Gltf2Attribute = {[s: string]: number};
+export type Gltf2AttributeAccessor = Map<string, Gltf2Accessor>;
+export type Gltf2AttributeBlendShape = Gltf2Attribute;
+export type Gltf2AttributeBlendShapeAccessor = Gltf2AttributeAccessor;
+
 export type Gltf2Primitive = {
-  attributes: Gltf2Attributes;
-  attributesIndex?: any;
-  indices?: any;
-  indicesIndex?: number;
-  material?: any;
-  materialIndex?: number;
+  attributesObjects?: Gltf2AttributeAccessor;
+  attributes?: {[s: string]: number};
+  indicesObject?: Gltf2Accessor;
+  indices?: number;
+  materialObject?: Gltf2Material;
+  material?: number;
   mode?: number;
-  targets?: any[];
-  targetIndices?: any;
+  targetsObjects?: Gltf2AttributeBlendShapeAccessor;
+  targets?: Gltf2AttributeBlendShape;
   extensions?: any;
   extras?: any;
 };
@@ -44,15 +54,15 @@ export type Gltf2Mesh = {
 };
 
 export type Gltf2Node = {
-  camera?: any;
-  cameraIndex?: number;
-  children?: any[];
-  childrenIndices?: number[];
-  skin?: number;
+  cameraObject?: Gltf2Camera;
+  camera?: number;
+  childrenObjects?: Gltf2Node[];
+  children?: number[];
   skinObject?: Gltf2Skin;
+  skin?: number;
   matrix?: number[];
-  mesh?: any;
-  meshIndex?: number;
+  meshObject?: Gltf2Mesh;
+  mesh?: number;
   meshNames?: string[];
   rotation?: number[];
   scale?: number[];
@@ -79,7 +89,7 @@ export type Gltf2Skin = {
 export type Gltf2TextureInfo = {
   index: number;
   texCoord?: number;
-  texture?: any;
+  texture?: Gltf2Texture;
   extensions?: any;
   extras?: any;
 };
@@ -87,7 +97,7 @@ export type Gltf2TextureInfo = {
 export type Gltf2OcclusionTextureInfo = {
   index: number;
   texCoord?: number;
-  texture?: any;
+  texture?: Gltf2Texture;
   strength?: number;
   extensions?: any;
   extras?: any;
@@ -95,9 +105,8 @@ export type Gltf2OcclusionTextureInfo = {
 
 export type Gltf2NormalTextureInfo = {
   index: number;
-  image?: any;
   texCoord?: number;
-  texture?: any;
+  texture?: Gltf2Texture;
   scale?: number;
   extensions?: any;
   extras?: any;
@@ -114,7 +123,7 @@ export type Gltf2PbrMetallicRoughness = {
 };
 
 export type Gltf2Material = {
-  pbrMetallicRoughness?: any;
+  pbrMetallicRoughness?: Gltf2PbrMetallicRoughness;
   normalTexture?: Gltf2NormalTextureInfo;
   occlusionTexture?: Gltf2OcclusionTextureInfo;
   emissiveTexture?: Gltf2TextureInfo;
@@ -166,26 +175,30 @@ export type Gltf2Image = {
   extras?: any;
 };
 
+export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
+
 export type Gltf2AnimationChannelTarget = {
-  node?: any;
-  nodeIndex?: number;
-  path: string;
+  nodeObject?: Gltf2Node;
+  node?: number;
+  path: PathType;
   extensions?: any;
   extras?: any;
 };
 
 export type Gltf2AnimationChannel = {
-  sampler: any;
-  samplerIndex?: number;
+  samplerObject?: Gltf2AnimationSampler;
+  sampler: number;
   target: Gltf2AnimationChannelTarget;
   extensions?: any;
   extras?: any;
 };
 
 export type Gltf2AnimationSampler = {
-  input: Gltf2Accessor;
+  inputObject?: Gltf2Accessor;
+  input: number;
+  outputObject?: Gltf2Accessor;
+  output: number;
   interpolation?: string;
-  output: Gltf2Accessor;
   extensions?: any;
   extras?: any;
 };
@@ -199,17 +212,17 @@ export type Gltf2Animation = {
 };
 
 export type Gltf2Texture = {
-  samplerObject?: Gltf2Sampler;
+  samplerObject?: Gltf2TextureSampler;
   sampler?: number;
-  source?: any;
-  sourceIndex?: number;
+  sourceObject?: Gltf2Image;
+  source?: number;
   image?: Gltf2Image;
   name?: string;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Sampler = {
+export type Gltf2TextureSampler = {
   magFilter?: number;
   minFilter?: number;
   wrapS?: number;
@@ -221,6 +234,7 @@ export type Gltf2Sampler = {
 
 export type Gltf2SparseValues = {
   bufferView: number;
+  bufferViewObject: Gltf2BufferView;
   byteOffset?: number;
   extensions?: any;
   extras?: any;
@@ -228,6 +242,7 @@ export type Gltf2SparseValues = {
 
 export type Gltf2SparseIndices = {
   bufferView: number;
+  bufferViewObject: Gltf2BufferView;
   byteOffset?: number;
   componentType: number;
   extensions?: any;
@@ -253,7 +268,7 @@ export type Gltf2Accessor = {
   type: string;
   max?: number[];
   min?: number[];
-  sparse?: any;
+  sparse?: Gltf2Sparse;
   name?: string;
   accessor?: Accessor;
   extensions?: any;
@@ -281,8 +296,8 @@ export type Gltf2Buffer = {
 };
 
 export type Gltf2BufferView = {
-  buffer: Gltf2Buffer;
-  bufferIndex?: number;
+  bufferObject?: Gltf2Buffer;
+  buffer?: number;
   byteOffset?: number;
   byteLength: number;
   byteStride?: number;
@@ -314,7 +329,7 @@ export type glTF2 = {
   images: Gltf2Image[];
   animations: Gltf2Animation[];
   textures?: Gltf2Texture[];
-  samplers: Gltf2Sampler[];
+  samplers: Gltf2TextureSampler[];
   accessors: Gltf2Accessor[];
   bufferViews: Gltf2BufferView[];
   extensionsUsed?: string[];
@@ -360,6 +375,7 @@ export type glTF1 = {
   animations: Array<{
     channels: any[];
     samplers: any[];
+    parameters: {[s: string]: any};
   }>;
 
   animationDic: {
@@ -385,11 +401,35 @@ export type glTF1 = {
   techniques: any[];
 };
 
+export type PointType = 'directional' | 'point' | 'spot';
+
+export type KHR_lights_punctual_Light = {
+  color: Array3<number>;
+  type: PointType;
+  name?: string;
+  intensity?: number;
+  range: number;
+};
+
+export type KHR_lights_punctual = {
+  lights: KHR_lights_punctual_Light[];
+};
+
 export type GltfFileBuffers = {
   [s: string]: ArrayBuffer;
   //        "foo.gltf": content of file as ArrayBuffer,
   //        "foo.bin": content of file as ArrayBuffer,
   //        "boo.png": content of file as ArrayBuffer
+};
+
+export type Gltf2Sampler = {
+  magFilter?: number;
+  minFilter?: number;
+  wrapS?: number;
+  wrapT?: number;
+  name?: string;
+  extensions?: any;
+  extras?: any;
 };
 
 export type GltfLoadOption = {

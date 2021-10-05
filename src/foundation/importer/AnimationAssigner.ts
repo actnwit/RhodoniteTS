@@ -112,8 +112,8 @@ export default class AnimationAssigner {
 
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          modelConverter._accessBinaryWithAccessor(sampler.input);
-          modelConverter._accessBinaryWithAccessor(sampler.output);
+          modelConverter._accessBinaryWithAccessor(sampler.inputObject!);
+          modelConverter._accessBinaryWithAccessor(sampler.outputObject!);
         }
       }
     }
@@ -123,27 +123,27 @@ export default class AnimationAssigner {
     if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
-          const animInputArray = channel.sampler.input.extras.typedDataArray;
-          const animOutputArray = channel.sampler.output.extras.typedDataArray;
+          const animInputArray = channel.samplerObject?.inputObject?.extras!.typedDataArray;
+          const animOutputArray = channel.samplerObject?.outputObject?.extras!.typedDataArray;
           const interpolation =
-            channel.sampler.interpolation != null
-              ? channel.sampler.interpolation
+            channel.samplerObject!.interpolation != null
+              ? channel.samplerObject!.interpolation
               : 'LINEAR';
 
-          let animationAttributeType = '';
-          if (channel.target.path === 'translation') {
+          let animationAttributeType = 'translate';
+          if (channel.target!.path === 'translation') {
             animationAttributeType = 'translate';
-          } else if (channel.target.path === 'rotation') {
+          } else if (channel.target!.path! === 'rotation') {
             animationAttributeType = 'quaternion';
           } else {
-            animationAttributeType = channel.target.path;
+            animationAttributeType = channel.target!.path;
           }
-          const node = gltfModel.nodes[channel.target.nodeIndex!];
+          const node = gltfModel.nodes[channel.target!.node!];
           const rnEntity = this.__getCorrespondingEntity(
             rootEntity,
             gltfModel,
             vrmModel,
-            channel.target.nodeIndex!,
+            channel.target!.node!,
             node.name,
             isSameSkeleton
           );
@@ -160,20 +160,20 @@ export default class AnimationAssigner {
                 animationComponent.setAnimation(
                   Is.exist(animation.name) ? animation.name! : 'Untitled',
                   animationAttributeType,
-                  animInputArray,
-                  animOutputArray,
+                  animInputArray!,
+                  animOutputArray!,
                   4, // Quaternion
                   AnimationInterpolation.fromString(interpolation)
                 );
               } else if (
                 animationAttributeType === 'translate' &&
-                this.__isHips(rootEntity, vrmModel, channel.target.nodeIndex!)
+                this.__isHips(rootEntity, vrmModel, channel.target!.node!)
               ) {
                 animationComponent.setAnimation(
                   Is.exist(animation.name) ? animation.name! : 'Untitled',
                   animationAttributeType,
-                  animInputArray,
-                  animOutputArray,
+                  animInputArray!,
+                  animOutputArray!,
                   3, // translate
                   AnimationInterpolation.fromString(interpolation)
                 );

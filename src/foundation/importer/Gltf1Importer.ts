@@ -2,11 +2,13 @@ import DataUtil from '../misc/DataUtil';
 import {
   glTF1,
   glTF2,
+  Gltf2Animation,
   Gltf2Image,
+  Gltf2Mesh,
   GltfFileBuffers,
   GltfLoadOption,
 } from '../../types/glTF';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 declare let Rn: any;
 
@@ -315,9 +317,9 @@ export default class Gltf1Importer {
       const scene = (gltfJson.sceneDic as any)[sceneName];
       scene.nodeNames = scene.nodes;
       scene.nodes = [];
-      scene.nodesIndices = [];
+      scene.nodesObjects = [];
       for (const name of scene.nodeNames) {
-        scene.nodes.push((gltfJson.nodeDic as any)[name]);
+        scene.nodesObjects.push((gltfJson.nodeDic as any)[name]);
 
         // calc index of 'name' in gltfJson.nodeDic enumerate
         let count = 0;
@@ -327,7 +329,7 @@ export default class Gltf1Importer {
           }
           count++;
         }
-        scene.nodesIndices.push(count);
+        scene.nodes.push(count);
       }
     }
   }
@@ -336,7 +338,7 @@ export default class Gltf1Importer {
     for (const node of gltfJson.nodes) {
       //const node = (gltfJson.nodeDic as any)[nodeName];
       // Hierarchy
-      if (node.children) {
+      if (Is.exist(node.children)) {
         node.childrenNames = node.children.concat();
         node.children = [];
         node.childrenIndices = [];
@@ -355,10 +357,10 @@ export default class Gltf1Importer {
         for (const name of node.meshNames) {
           node.meshes.push((gltfJson.meshDic as any)[name]);
         }
-        node.mesh = node.meshes[1];
+        node.meshObject = node.meshes[1];
 
         if (node.meshes == null || node.meshes.length === 0) {
-          node.mesh = node.meshes[0];
+          node.meshObject = node.meshes[0];
         } else {
           const mergedMesh = {
             name: '',
@@ -372,7 +374,7 @@ export default class Gltf1Importer {
             );
           }
           mergedMesh.name += '_merged';
-          node.mesh = mergedMesh;
+          node.meshObject = mergedMesh;
           node.meshes = void 0;
         }
       }
@@ -440,7 +442,7 @@ export default class Gltf1Importer {
 
         if (primitive.indices !== void 0) {
           primitive.indicesName = primitive.indices;
-          primitive.indices = (gltfJson.accessorDic as any)[
+          primitive.indicesObject = (gltfJson.accessorDic as any)[
             primitive.indicesName
           ];
         }
@@ -585,33 +587,33 @@ export default class Gltf1Importer {
   _loadDependenciesOfAnimations(gltfJson: glTF1) {
     if (gltfJson.animations) {
       for (const animationName in gltfJson.animationDic) {
-        const animation = (gltfJson.animationDic as any)[animationName];
-        animation.samplerDic = animation.samplers;
+        const animation = (gltfJson.animationDic as any)[
+          animationName
+        ] as Gltf2Animation;
+        const samplerDic = animation.samplers;
         animation.samplers = [];
         for (const channel of animation.channels) {
-          channel.sampler = animation.samplerDic[channel.sampler];
+          channel.samplerObject = samplerDic[channel.sampler];
 
-          channel.target.node = (gltfJson.nodeDic as any)[channel.target.id];
-          channel.target.nodeIndex = channel.target.node._index;
+          channel.target!.nodeObject = (gltfJson.nodeDic as any)[
+            (channel.target as any)!.id
+          ];
 
-          channel.sampler.input =
-            gltfJson.accessors[animation.parameters['TIME']];
-          channel.sampler.output =
-            gltfJson.accessors[animation.parameters[channel.target.path]];
+          channel.samplerObject.inputObject =
+            gltfJson.accessors[(animation as any).parameters['TIME']];
+          channel.samplerObject.outputObject =
+            gltfJson.accessors[
+              (animation as any).parameters[channel.target!.path]
+            ];
 
-          animation.samplers.push(channel.sampler);
+          animation.samplers.push(channel.samplerObject);
 
-          if (channel.target.path === 'rotation') {
-            if (channel.sampler.output.extras === void 0) {
-              channel.sampler.output.extras = {};
+          if (channel.target!.path === 'rotation') {
+            if (channel.samplerObject!.outputObject!.extras === void 0) {
+              channel.samplerObject!.outputObject!.extras = {} as any;
             }
-            channel.sampler.output.extras.quaternionIfVec4 = true;
+            channel.samplerObject!.outputObject!.extras!.quaternionIfVec4 = true;
           }
-        }
-        animation.channelDic = animation.channels;
-        animation.channels = [];
-        for (const channel of animation.channelDic) {
-          animation.channels.push(channel);
         }
       }
     }
@@ -636,7 +638,9 @@ export default class Gltf1Importer {
       const bufferView = (gltfJson.bufferViewDic as any)[bufferViewName];
       if (bufferView.buffer !== void 0) {
         bufferView.bufferName = bufferView.buffer;
-        bufferView.buffer = (gltfJson.bufferDic as any)[bufferView.bufferName];
+        bufferView.bufferObject = (gltfJson.bufferDic as any)[
+          bufferView.bufferName
+        ];
         let bufferIdx = 0;
         for (const bufferName in gltfJson.bufferDic) {
           if (bufferName === bufferView.bufferName) {

@@ -1,5 +1,5 @@
 import Material from '../materials/core/Material';
-import {glTF2, Gltf2Material, Gltf2Sampler} from '../../types/glTF';
+import {glTF2, Gltf2Material, Gltf2TextureSampler} from '../../types/glTF';
 import Entity from '../core/Entity';
 
 export default interface ILoaderExtension {
@@ -11,6 +11,9 @@ export default interface ILoaderExtension {
     materialJson: Gltf2Material,
     material: Material
   ): void;
-  setUVTransformToTexture?(material: Material, samplerJson: Gltf2Sampler): void;
+  setUVTransformToTexture?(
+    material: Material,
+    samplerJson: Gltf2TextureSampler
+  ): void;
   loadExtensionInfoAndSetToRootGroup?(rootGroup: Entity, json: glTF2): void;
 }

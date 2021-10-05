@@ -5,6 +5,7 @@ import AbstractTexture from '../textures/AbstractTexture';
 import {
   glTF2,
   Gltf2Attributes,
+  Gltf2AttributesObject,
   Gltf2Mesh,
   Gltf2Primitive,
 } from '../../types/glTF';
@@ -186,7 +187,7 @@ export default class Gltf2Exporter {
           }
 
           const attributeAccessors = rnPrimitive.attributeAccessors;
-          primitive.attributes = {} as unknown as Gltf2Attributes;
+          primitive.attributes = {};
           const attributes = primitive.attributes;
           for (let k = 0; k < attributeAccessors.length; k++) {
             const attributeAccessor = attributeAccessors[k];
