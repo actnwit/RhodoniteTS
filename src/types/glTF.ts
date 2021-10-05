@@ -22,14 +22,14 @@ export type Gltf2Attributes = {
   [s: string]: number;
 };
 
-export type Gltf2Attribute = Map<string, number>;
-export type Gltf2AttributeAccessor = Map<string, Gltf2Accessor>;
+export type Gltf2Attribute = {[s: string]: number};
+export type Gltf2AttributeAccessor = {[s: string]: Gltf2Accessor};
 export type Gltf2AttributeBlendShape = Gltf2Attribute;
 export type Gltf2AttributeBlendShapeAccessor = Gltf2AttributeAccessor;
 
 export type Gltf2Primitive = {
   attributesObjects?: Gltf2AttributeAccessor;
-  attributes?: {[s: string]: number};
+  attributes?: Gltf2Attribute;
   indicesObject?: Gltf2Accessor;
   indices?: number;
   materialObject?: Gltf2Material;
@@ -184,8 +184,7 @@ export type Gltf2AnimationChannelTarget = {
 export type Gltf2AnimationChannel = {
   samplerObject?: Gltf2AnimationSampler;
   sampler: number;
-  targetObject?: Gltf2AnimationChannelTarget;
-  target: number;
+  target: Gltf2AnimationChannelTarget;
   extensions?: any;
   extras?: any;
 };

@@ -357,7 +357,7 @@ export default class DrcPointCloudImporter {
             toGetAsTypedArray: true,
             attributeName: attributeName,
           };
-          primitive.attributesObjects!.set(attributeName, accessor);
+          primitive.attributesObjects![attributeName] = accessor;
         }
 
         if (primitive.indices != null) {
@@ -365,14 +365,15 @@ export default class DrcPointCloudImporter {
         }
 
         if (primitive.targets != null) {
-          primitive.targetsObjects = new Map();
-          for (const [attributeName, targetId] of primitive.targets) {
+          primitive.targetsObjects = {};
+          for (const attributeName in primitive.targets) {
+            const targetId = primitive.targets[attributeName];
             const accessor = gltfJson.accessors[targetId];
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName,
             };
-            primitive.targetsObjects.set(attributeName, accessor);
+            primitive.targetsObjects[attributeName] = accessor;
           }
         }
       }
@@ -483,8 +484,7 @@ export default class DrcPointCloudImporter {
         for (const channel of animation.channels) {
           channel.samplerObject = animation.samplers[channel.sampler];
 
-          channel.targetObject!.nodeObject =
-            gltfJson.nodes[channel.targetObject!.node!];
+          channel.target!.nodeObject = gltfJson.nodes[channel.target!.node!];
         }
         for (const channel of animation.channels) {
           if (Is.defined(channel.samplerObject)) {
@@ -495,10 +495,10 @@ export default class DrcPointCloudImporter {
             if (channel.samplerObject.outputObject.extras === void 0) {
               channel.samplerObject.outputObject.extras = {} as any;
             }
-            if (channel.targetObject!.path === 'rotation') {
+            if (channel.target!.path === 'rotation') {
               channel.samplerObject.outputObject.extras!.quaternionIfVec4 = true;
             }
-            if (channel.targetObject!.path === 'weights') {
+            if (channel.target!.path === 'weights') {
               const weightsArrayLength =
                 channel.samplerObject.outputObject.count / channel.samplerObject.inputObject.count;
               channel.samplerObject.outputObject.extras!.weightsArrayLength = weightsArrayLength;

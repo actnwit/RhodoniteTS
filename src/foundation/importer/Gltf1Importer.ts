@@ -414,7 +414,7 @@ export default class Gltf1Importer {
         }
 
         primitive.attributeNames = Object.assign({}, primitive.attributes);
-        primitive.attributes = [];
+        primitive.attributesObjects = {};
         for (let attributeName in primitive.attributeNames) {
           if (primitive.attributeNames[attributeName] != null) {
             const accessorName = primitive.attributeNames[attributeName];
@@ -432,7 +432,7 @@ export default class Gltf1Importer {
               toGetAsTypedArray: true,
               attributeName: attributeName,
             };
-            primitive.attributes.push(accessor);
+            primitive.attributesObjects[attributeName] = accessor;
           } else {
             //primitive.attributes[attributeName] = void 0;
           }
@@ -440,7 +440,7 @@ export default class Gltf1Importer {
 
         if (primitive.indices !== void 0) {
           primitive.indicesName = primitive.indices;
-          primitive.indices = (gltfJson.accessorDic as any).indexof(
+          primitive.indices = Object.keys(gltfJson.accessorDic as any).indexOf(
             primitive.indicesName
           );
           primitive.indicesObject = (gltfJson.accessorDic as any)[
@@ -589,24 +589,27 @@ export default class Gltf1Importer {
         const animation = (gltfJson.animationDic as any)[
           animationName
         ] as Gltf2Animation;
+        (animation as any).samplerDic = animation.samplers;
+        animation.samplers = [];
         for (const channel of animation.channels) {
-          channel.samplerObject = animation.samplers[channel.sampler];
+          channel.samplerObject = (animation as any).samplerDic[
+            channel.sampler
+          ];
 
-          channel.targetObject!.nodeObject = (gltfJson.nodeDic as any)[
+          channel.target!.nodeObject = (gltfJson.nodeDic as any)[
             (channel.target as any)!.id
           ];
-          channel.targetObject!.node = (channel.target! as any).node!._index;
 
-          channel.samplerObject.inputObject =
+          channel.samplerObject!.inputObject =
             gltfJson.accessors[(animation as any).parameters['TIME']];
-          channel.samplerObject.outputObject =
+          channel.samplerObject!.outputObject =
             gltfJson.accessors[
-              (animation as any).parameters[channel.targetObject!.path]
+              (animation as any).parameters[channel.target!.path]
             ];
 
-          animation.samplers.push(channel.samplerObject);
+          animation.samplers.push(channel.samplerObject!);
 
-          if (channel.targetObject!.path === 'rotation') {
+          if (channel.target!.path === 'rotation') {
             if (channel.samplerObject!.outputObject!.extras === void 0) {
               channel.samplerObject!.outputObject!.extras = {} as any;
             }
@@ -623,7 +626,7 @@ export default class Gltf1Importer {
       const accessor = (gltfJson.accessorDic as any)[accessorName];
       if (accessor.bufferView !== void 0) {
         accessor.bufferViewName = accessor.bufferView;
-        accessor.bufferView = (gltfJson.bufferViewDic as any)[
+        accessor.bufferViewObject = (gltfJson.bufferViewDic as any)[
           accessor.bufferViewName
         ];
       }
@@ -636,11 +639,11 @@ export default class Gltf1Importer {
       const bufferView = (gltfJson.bufferViewDic as any)[bufferViewName];
       if (bufferView.buffer !== void 0) {
         bufferView.bufferName = bufferView.buffer;
-        bufferView.buffer = (gltfJson.bufferDic as any)[bufferView.bufferName];
+        bufferView.bufferObject = (gltfJson.bufferDic as any)[bufferView.bufferName];
         let bufferIdx = 0;
         for (const bufferName in gltfJson.bufferDic) {
           if (bufferName === bufferView.bufferName) {
-            bufferView.bufferIndex = bufferIdx;
+            bufferView.buffer = bufferIdx;
           }
           bufferIdx++;
         }

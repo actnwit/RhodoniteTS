@@ -344,12 +344,11 @@ export default class Gltf2Importer {
     // Mesh
     for (const mesh of gltfJson.meshes) {
       for (const primitive of mesh.primitives) {
-
         if (primitive.material !== void 0) {
           primitive.materialObject = gltfJson.materials[primitive.material];
         }
 
-        primitive.attributesObjects = new Map();
+        primitive.attributesObjects = {};
         for (const attributeName in primitive.attributes) {
           const accessorId = primitive.attributes[attributeName];
           const accessor = gltfJson.accessors[accessorId!];
@@ -357,7 +356,7 @@ export default class Gltf2Importer {
             toGetAsTypedArray: true,
             attributeName: attributeName,
           };
-          primitive.attributesObjects.set(attributeName, accessor);
+          primitive.attributesObjects[attributeName] = accessor;
         }
 
         if (primitive.indices != null) {
@@ -365,14 +364,15 @@ export default class Gltf2Importer {
         }
 
         if (primitive.targets != null) {
-          primitive.targetsObjects = new Map();
-          for (const [attributeName, accessorId] of primitive.targets) {
+          primitive.targetsObjects = {};
+          for (const attributeName in primitive.targets) {
+            const accessorId = primitive.targets[attributeName];
             const accessor = gltfJson.accessors[accessorId];
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName,
             };
-            primitive.targetsObjects.set(attributeName, accessor);
+            primitive.targetsObjects[attributeName] = accessor;
           }
         }
       }
@@ -486,7 +486,7 @@ export default class Gltf2Importer {
         for (const channel of animation.channels) {
           if (Is.defined(channel.sampler)) {
             channel.samplerObject = animation.samplers[channel.sampler];
-            channel.targetObject!.nodeObject = gltfJson.nodes[channel.targetObject!.node!];
+            channel.target!.nodeObject = gltfJson.nodes[channel.target!.node!];
             channel.samplerObject.inputObject =
               gltfJson.accessors[channel.samplerObject.input!];
             channel.samplerObject.outputObject =
@@ -494,7 +494,7 @@ export default class Gltf2Importer {
             if (Is.undefined(channel.samplerObject.outputObject.extras)) {
               channel.samplerObject.outputObject.extras = {} as any;
             }
-            if (channel.targetObject!.path === 'weights') {
+            if (channel.target!.path === 'weights') {
               let weightsArrayLength =
                 channel.samplerObject.outputObject.count /
                 channel.samplerObject.inputObject.count;
@@ -508,7 +508,7 @@ export default class Gltf2Importer {
               channel.samplerObject.outputObject.extras!.weightsArrayLength =
                 weightsArrayLength;
             }
-            if (channel.targetObject!.path === 'rotation') {
+            if (channel.target!.path === 'rotation') {
               channel.samplerObject.outputObject.extras!.quaternionIfVec4 =
                 true;
             }

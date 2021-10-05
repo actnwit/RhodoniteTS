@@ -196,10 +196,8 @@ export default class ModelConverter {
     rootGroup.tryToSetUniqueName('FileRoot', true);
     rootGroup.tryToSetTag({tag: 'ObjectType', value: 'top'});
     if (gltfModel.scenes[0].nodes) {
-      for (const nodesIndex of gltfModel.scenes[0].nodes) {
-        rootGroup
-          .getSceneGraph()
-          .addChild(rnEntities[nodesIndex].getSceneGraph());
+      for (let i = 0; i < gltfModel.scenes[0].nodes.length; i++) {
+        rootGroup.getSceneGraph().addChild(rnEntities[i].getSceneGraph());
       }
     }
 
@@ -319,16 +317,16 @@ export default class ModelConverter {
               channel.samplerObject.interpolation ?? 'LINEAR';
 
             let animationAttributeType: AnimationAttributeType = 'undefined';
-            if (channel.targetObject!.path === 'translation') {
+            if (channel.target!.path === 'translation') {
               animationAttributeType = 'translate';
-            } else if (channel.targetObject!.path === 'rotation') {
+            } else if (channel.target!.path === 'rotation') {
               animationAttributeType = 'quaternion';
             } else {
-              animationAttributeType = channel.targetObject!
+              animationAttributeType = channel.target!
                 .path as AnimationAttributeType;
             }
 
-            const rnEntity = rnEntities[channel.targetObject!.node!];
+            const rnEntity = rnEntities[channel.target!.node!];
             if (rnEntity) {
               entityRepository.addComponentsToEntity(
                 [AnimationComponent],
@@ -674,10 +672,8 @@ export default class ModelConverter {
             );
           }
 
-          for (const [
-            attributeName,
-            attributeAccessor,
-          ] of primitive.attributesObjects!) {
+          for (const attributeName in primitive.attributesObjects!) {
+            const attributeAccessor = primitive.attributesObjects[attributeName];
             const attributeRnAccessor = this.__getRnAccessor(
               attributeAccessor,
               rnBuffers[
@@ -710,10 +706,8 @@ export default class ModelConverter {
 
           const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
           let count = 0;
-          for (const [
-            attributeName,
-            targetAccessor,
-          ] of primitive.targetsObjects!) {
+          for (const targetId in primitive.targetsObjects!) {
+            const targetAccessor = primitive.targetsObjects[targetId];
             if (count++ >= maxMorphTargetNumber) {
               break;
             }
@@ -2143,7 +2137,7 @@ export default class ModelConverter {
         ];
 
       const attributeGltf2Accessor =
-        primitive.attributesObjects?.get(attributeName);
+        primitive.attributesObjects?.[attributeName];
       let attributeRnAccessor: Accessor | undefined = undefined;
 
       if (Is.not.exist(dracoAttributeId)) {
