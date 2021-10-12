@@ -22,8 +22,8 @@ jobs:
         run: npm ci
       # - name: Check
         # run: npm run prettier-check
-      - name: Build
-        run: npm run publish
+      # - name: Build
+      #   run: npm run publish
       - name: Test Fetching Artifact
         run: |
           GITHUB_ACTION_REPOSITORY=Fresa/release-notes-generator \
