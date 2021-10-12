@@ -7,12 +7,17 @@ const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
 
+interface Gltf2ExporterArguments {
+  entities: Entity[]
+}
+
 /**
  * The glTF2 format Exporter class.
  */
 export default class Gltf2Exporter {
   private static __instance: Gltf2Exporter;
   private static __entityRepository = EntityRepository.getInstance();
+
 
   private constructor() {}
 
@@ -27,8 +32,20 @@ export default class Gltf2Exporter {
    * Exports All scene data in the rhodonite system as glTF2 format.
    * @param filename
    */
-  export(filename: string) {
-    const entities = Gltf2Exporter.__entityRepository._getEntities();
+  export(filename: string, option?: Gltf2ExporterArguments) {
+    let entities = Gltf2Exporter.__entityRepository._getEntities();
+    if (Is.exist(option) && option.entities.length > 0) {
+      const collectChildren = (entity: Entity): Entity[] => {
+        const sg = entity.getSceneGraph();
+        let array = [entity];
+        for (let i = 0; i < sg.children.length; i++) {
+          const child = sg.children[i];
+          array = array.concat(collectChildren(child.entity));
+        }
+        return array;
+      };
+      entities = option.entities.flatMap(e => collectChildren(e));
+    }
     const json: any = {
       asset: {
         version: '2.0',
