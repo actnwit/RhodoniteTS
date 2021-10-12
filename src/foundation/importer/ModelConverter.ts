@@ -1498,7 +1498,7 @@ export default class ModelConverter {
     const width = image.width;
     const height = image.height;
 
-    if ((width & (width - 1)) == 0 && (height & (height - 1)) == 0) {
+    if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
       return true;
     } else {
       return false;
@@ -2017,7 +2017,7 @@ export default class ModelConverter {
 
     dracoGeometry.geometryType = geometryType; // store
 
-    if (!decodingStatus.ok() || dracoGeometry.ptr == 0) {
+    if (!decodingStatus.ok() || dracoGeometry.ptr === 0) {
       let errorMsg = 'Decoding failed: ';
       errorMsg += decodingStatus.error_msg();
       console.error(errorMsg);
