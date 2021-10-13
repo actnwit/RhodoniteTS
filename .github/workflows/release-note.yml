@@ -24,13 +24,13 @@ jobs:
         # run: npm run prettier-check
       # - name: Build
       #   run: npm run publish
-      - name: Test Fetching Artifact
-        run: |
-          GITHUB_ACTION_REPOSITORY=Fresa/release-notes-generator \
-          GITHUB_ACTION_REF=vTEST \
-          node fetch_artifact.js
-      - name: Assert Artifact Downloaded
-        run: ls -d $GITHUB_WORKSPACE/dist/index.js
+      # - name: Test Fetching Artifact
+      #   run: |
+      #     GITHUB_ACTION_REPOSITORY=Fresa/release-notes-generator \
+      #     GITHUB_ACTION_REF=vTEST \
+      #     node fetch_artifact.js
+      # - name: Assert Artifact Downloaded
+      #   run: ls -d $GITHUB_WORKSPACE/dist/index.js
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.7
         with:
