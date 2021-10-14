@@ -2,6 +2,7 @@ mode: ContinuousDelivery
 # Conventional Commits https://www.conventionalcommits.org/en/v1.0.0/
 # https://regex101.com/r/Ms7Vx6/2
 # major-version-bump-message: "(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z]+\\))?(!: .+|: (.+\\n\\n)+BREAKING CHANGE: .+)"
+major-version-bump-message: ""
 # https://regex101.com/r/Oqhi2m/1
 minor-version-bump-message: "(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z]+\\))?(!: .+|: (.+\\n\\n)+BREAKING CHANGE: .+)"
 # https://regex101.com/r/f5C4fP/1
