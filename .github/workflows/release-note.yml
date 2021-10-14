@@ -69,7 +69,7 @@ jobs:
             });
       - name: Generate Release Notes
         id: release_notes
-        uses: ./.github/release_config/
+        uses: .github/release_config/
         with:
           version: ${{ steps.release.outputs.tag }}
           from_ref_exclusive: ${{ steps.release.outputs.from_ref_exclusive }}
