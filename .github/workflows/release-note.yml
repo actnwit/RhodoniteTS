@@ -69,13 +69,13 @@ jobs:
             });
       - name: Generate Release Notes
         id: release_notes
-        uses: ./
+        uses: .github/release-action.yml
         with:
           version: ${{ steps.release.outputs.tag }}
           from_ref_exclusive: ${{ steps.release.outputs.from_ref_exclusive }}
           to_ref_inclusive: ${{ steps.release.outputs.tag }}
-      - name: Package
-        run: zip -rj artifacts.zip dist
+      # - name: Package
+      #   run: zip -rj artifacts.zip dist
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
