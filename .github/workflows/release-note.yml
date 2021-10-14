@@ -14,5 +14,5 @@ jobs:
         with:
           version: v0.5.0
           from_ref_exclusive: v0.4.1
-          to_ref_inclusive: v0.5.0
+          to_ref_inclusive: master
       - run: echo "${{ steps.release_notes.outputs.release_notes }}"
