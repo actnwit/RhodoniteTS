@@ -22,7 +22,7 @@ import MutableVector3 from '../math/MutableVector3';
 import MutableVector4 from '../math/MutableVector4';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -51,10 +51,8 @@ export default abstract class AbstractTexture extends RnObject {
   protected __canvasContext?: CanvasRenderingContext2D;
   protected __uri?: string;
   protected __name = 'untitled';
-  protected static __textureMap: Map<
-    CGAPIResourceHandle,
-    AbstractTexture
-  > = new Map();
+  protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> =
+    new Map();
 
   constructor() {
     super();
@@ -96,10 +94,10 @@ export default abstract class AbstractTexture extends RnObject {
   get htmlCanvasElement() {
     const canvas = document.createElement('canvas');
     const ctx = canvas?.getContext('2d');
-    if (Is.not.exist(this.__htmlCanvasElement)) {
-      this.__htmlCanvasElement = canvas;
-    }
+    this.__htmlCanvasElement = canvas;
     if (Is.exist(ctx) && Is.exist(this.__htmlImageElement)) {
+      canvas.width = this.__htmlImageElement.width;
+      canvas.height = this.__htmlImageElement.height;
       ctx.drawImage(
         this.__htmlImageElement,
         0,
@@ -154,9 +152,13 @@ export default abstract class AbstractTexture extends RnObject {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     if (typeClass.compositionType === CompositionType.Vec4) {
-      return new (typeClass as any)(data[0], data[1], data[2], data[3]);
+      return new (typeClass as any)(
+        new Float32Array([data[0], data[1], data[2], data[3]])
+      );
     } else {
-      return new (typeClass as any)(data[0], data[1], data[2]);
+      return new (typeClass as any)(
+        new Float32Array([data[0], data[1], data[2]])
+      );
     }
   }
 
@@ -178,11 +180,12 @@ export default abstract class AbstractTexture extends RnObject {
   ) {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
-    const classOfValue = (value.constructor as unknown) as {
+    const classOfValue = value.constructor as unknown as {
       compositionType: CompositionTypeEnum; // value.constructor needs to have compositionType only
     };
 
-    const numberOfComponents = classOfValue.compositionType.getNumberOfComponents();
+    const numberOfComponents =
+      classOfValue.compositionType.getNumberOfComponents();
     for (let i = 0; i < numberOfComponents; i++) {
       data[i] = value.at(i);
     }

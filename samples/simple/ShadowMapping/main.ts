@@ -12,7 +12,7 @@ declare const Rn: typeof _Rn;
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
 
-  const lightPosition = new Rn.MutableVector3(0.0, 3.0, 5.0);
+  const lightPosition = Rn.MutableVector3.fromCopyArray([0.0, 3.0, 5.0]);
   const zFarDepthCamera = 10.0;
 
   const resolutionDepthCamera = 512;
@@ -42,17 +42,17 @@ declare const Rn: typeof _Rn;
   const entitySmallBoard = createEntityBoardWithEmptyMaterial();
   setTransformParameterToEntity(
     entitySmallBoard,
-    new Rn.Vector3(0.2, 0.2, 0.2),
-    new Rn.Vector3(0.0, 0.0, -1.0),
-    new Rn.Vector3(Math.PI / 2, 0, 0)
+    Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]),
+    Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]),
+    Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0])
   );
 
   const entityLargeBoard = createEntityBoardWithEmptyMaterial();
   setTransformParameterToEntity(
     entityLargeBoard,
-    new Rn.Vector3(1.0, 1.0, 1.0),
-    new Rn.Vector3(0.0, 0.0, -1.5),
-    new Rn.Vector3(Math.PI / 2, 0, 0)
+    Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]),
+    Rn.Vector3.fromCopyArray([0.0, 0.0, -1.5]),
+    Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0])
   );
 
   const entitiesRenderTarget = [entitySmallBoard, entityLargeBoard];
@@ -62,9 +62,8 @@ declare const Rn: typeof _Rn;
     lightPosition,
     -1
   ).normalize();
-  const cameraComponentDepth = createEntityDepthCamera(
-    directionLight
-  ).getCamera();
+  const cameraComponentDepth =
+    createEntityDepthCamera(directionLight).getCamera();
   const cameraComponentMain = createEntityMainCamera().getCamera();
   const cameraControllerComponent = cameraComponentMain.entity.getCameraController();
   const controller = cameraControllerComponent.controller;

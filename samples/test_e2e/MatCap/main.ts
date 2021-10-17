@@ -54,7 +54,7 @@ declare const Rn: typeof _Rn;
     ]);
 
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = new Rn.Vector3(-0.1, -0.1, 10.0);
+    transformCamera.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.setFovyAndChangeFocalLength(90);
@@ -81,16 +81,16 @@ declare const Rn: typeof _Rn;
     });
 
     const entitySmallSphere = createEntityMatCapSphere(textureMatCap);
-    entitySmallSphere.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
+    entitySmallSphere.getTransform().scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
 
     const entityLargeSphere = createEntityMatCapSphere(textureMatCap);
-    entityLargeSphere.getTransform().translate = new Rn.Vector3(15, 15, -20);
+    entityLargeSphere.getTransform().translate = Rn.Vector3.fromCopyArray([15, 15, -20]);
 
     const entityBoard = createEntityMatCapBoard(textureMatCap);
     const transformBoard = entityBoard.getTransform();
-    transformBoard.scale = new Rn.Vector3(0.6, 0.6, 0.6);
-    transformBoard.rotate = new Rn.Vector3(Math.PI / 2 + 0.3, 0.3, 0);
-    transformBoard.translate = new Rn.Vector3(10, -10, -10);
+    transformBoard.scale = Rn.Vector3.fromCopyArray([0.6, 0.6, 0.6]);
+    transformBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2 + 0.3, 0.3, 0]);
+    transformBoard.translate = Rn.Vector3.fromCopyArray([10, -10, -10]);
 
     renderPass.addEntities([entitySmallSphere, entityLargeSphere, entityBoard]);
     return renderPass;

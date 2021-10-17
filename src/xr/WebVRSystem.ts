@@ -21,7 +21,7 @@ export default class WebVRSystem {
   private __requestedToEnterWebVR = false;
   private __isReadyForWebVR = false;
   private __vrDisplay?: VRDisplay;
-  private __defaultUserSittingPositionInVR = new Vector3(0.0, 1.1, 1.5);
+  private __defaultUserSittingPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 1.5]);
   private __invertSittingToStandingTransform: IMatrix44 = Matrix44.identity();
   private __minRenderWidthFromUser = 0;
   private __minRenderHeightFromUser = 0;
@@ -333,7 +333,7 @@ export default class WebVRSystem {
     const pos = this.__webvrDisplay?.getPose()?.position;
     if (pos != null) {
       console.log(pos);
-      return new Vector3(pos);
+      return Vector3.fromFloat32Array(pos);
     } else {
       return Vector3.zero();
     }

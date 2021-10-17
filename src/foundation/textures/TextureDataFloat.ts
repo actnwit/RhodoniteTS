@@ -1,4 +1,11 @@
-import {Size, Index, FloatTypedArrayConstructor, TypedArrayConstructor} from '../../types/CommonTypes';
+import {
+  Size,
+  Index,
+  FloatTypedArrayConstructor,
+  TypedArrayConstructor,
+} from '../../types/CommonTypes';
+import ColorRgb from '../math/ColorRgb';
+import ColorRgba from '../math/ColorRgba';
 
 export default class TextureDataFloat {
   private __data: Float32Array;
@@ -49,33 +56,42 @@ export default class TextureDataFloat {
     ];
   }
 
-  getPixelAs(x: Index, y: Index, channels: Size, typeClass: any) {
+  getPixelAs(
+    x: Index,
+    y: Index,
+    channels: Size,
+    typeClass: typeof ColorRgb | typeof ColorRgba
+  ) {
     if (channels === 3) {
       return new (typeClass as any)(
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + 0
-        ],
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + 1
-        ],
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + 2
-        ]
+        new Float32Array([
+          this.__data[
+            y * this.__width * this.__channels + x * this.__channels + 0
+          ],
+          this.__data[
+            y * this.__width * this.__channels + x * this.__channels + 1
+          ],
+          this.__data[
+            y * this.__width * this.__channels + x * this.__channels + 2
+          ],
+        ])
       );
     } else if (channels === 4) {
       return new (typeClass as any)(
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + 0
-        ],
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + 1
-        ],
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + 2
-        ],
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + 3
-        ]
+        new Float32Array([
+          this.__data[
+            y * this.__width * this.__channels + x * this.__channels + 0
+          ],
+          this.__data[
+            y * this.__width * this.__channels + x * this.__channels + 1
+          ],
+          this.__data[
+            y * this.__width * this.__channels + x * this.__channels + 2
+          ],
+          this.__data[
+            y * this.__width * this.__channels + x * this.__channels + 3
+          ],
+        ])
       );
     }
   }

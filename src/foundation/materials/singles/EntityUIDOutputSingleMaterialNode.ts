@@ -68,7 +68,7 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
       //   max: Number.MAX_VALUE,
       //   isSystem: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-      //   initialValue: new Vector3(0, 0, 0),
+      //   initialValue: Vector3.fromCopyArray([0, 0, 0]),
       //   soloDatum: true
       // },
       {
@@ -91,7 +91,7 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
-        initialValue: new Vector3(0.0, 0.1, 0.01),
+        initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
         min: 0,
         max: 1,
       },

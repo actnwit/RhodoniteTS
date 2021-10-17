@@ -2,9 +2,14 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
+import { Is } from '../misc/Is';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
+
+interface Gltf2ExporterArguments {
+  entities: Entity[]
+}
 
 /**
  * The glTF2 format Exporter class.
@@ -12,6 +17,7 @@ declare let window: any;
 export default class Gltf2Exporter {
   private static __instance: Gltf2Exporter;
   private static __entityRepository = EntityRepository.getInstance();
+
 
   private constructor() {}
 
@@ -26,8 +32,20 @@ export default class Gltf2Exporter {
    * Exports All scene data in the rhodonite system as glTF2 format.
    * @param filename
    */
-  export(filename: string) {
-    const entities = Gltf2Exporter.__entityRepository._getEntities();
+  export(filename: string, option?: Gltf2ExporterArguments) {
+    let entities = Gltf2Exporter.__entityRepository._getEntities();
+    if (Is.exist(option) && option.entities.length > 0) {
+      const collectChildren = (entity: Entity): Entity[] => {
+        const sg = entity.getSceneGraph();
+        let array = [entity];
+        for (let i = 0; i < sg.children.length; i++) {
+          const child = sg.children[i];
+          array = array.concat(collectChildren(child.entity));
+        }
+        return array;
+      };
+      entities = option.entities.flatMap(e => collectChildren(e));
+    }
     const json: any = {
       asset: {
         version: '2.0',
@@ -167,9 +185,9 @@ export default class Gltf2Exporter {
           const attributes = primitive.attributes;
           for (let k = 0; k < attributeAccessors.length; k++) {
             const attributeAccessor = attributeAccessors[k];
-            attributes[
-              rnPrimitive.attributeSemantics[k].str
-            ] = (attributeAccessor as any).gltfAccessorIndex;
+            attributes[rnPrimitive.attributeSemantics[k].str] = (
+              attributeAccessor as any
+            ).gltfAccessorIndex;
           }
           primitive.material = 0;
         }
@@ -232,15 +250,16 @@ export default class Gltf2Exporter {
           }
 
           if (colorParam) {
-            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(
-              colorParam._v
-            );
+            material.pbrMetallicRoughness.baseColorFactor =
+              Array.prototype.slice.call(colorParam._v);
           }
           material.pbrMetallicRoughness.metallicFactor = metallic;
           material.pbrMetallicRoughness.roughnessFactor = roughness;
 
           if (rnMaterial) {
             material.alphaMode = rnMaterial.alphaMode.str;
+
+            const existedImages: string[] = [];
 
             const processTexture = (rnTexture: AbstractTexture) => {
               if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
@@ -255,17 +274,27 @@ export default class Gltf2Exporter {
                 }
                 if (!match) {
                   const imageJson = {
-                    uri:
-                      (rnTexture.name ? rnTexture.name : rnTexture.uniqueName) +
-                      '.png',
+                    uri: rnTexture.name,
                   };
+
+                  if (existedImages.indexOf(rnTexture.name) !== -1) {
+                    imageJson.uri += '_' + rnTexture.textureUID;
+                  }
+
+                  existedImages.push(imageJson.uri);
+
+                  if (Is.not.exist(imageJson.uri.match(/\.(png|jpg|jpeg)/))) {
+                    imageJson.uri += '.png';
+                  }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
-                    const blob = htmlCanvasElement.toBlob(blob => {
+                    htmlCanvasElement.toBlob(blob => {
                       setTimeout(() => {
                         const a = document.createElement('a');
-                        const e = document.createEvent('MouseEvent');
-                        (e as any).initEvent(
+                        const e = document.createEvent(
+                          'MouseEvent'
+                        ) as MouseEvent;
+                        e.initMouseEvent(
                           'click',
                           true,
                           true,
@@ -534,7 +563,7 @@ export default class Gltf2Exporter {
     a.download = filename + '.gltf';
     a.href =
       'data:application/octet-stream,' +
-      encodeURIComponent(JSON.stringify(json));
+      encodeURIComponent(JSON.stringify(json, null, 2));
 
     (e as any).initEvent(
       'click',

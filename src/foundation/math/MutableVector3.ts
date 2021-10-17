@@ -5,13 +5,18 @@ import {
   IMutableVector,
   IMutableVector3,
 } from './IVector';
-import {TypedArray, FloatTypedArrayConstructor} from '../../types/CommonTypes';
-import {Vector3_} from './Vector3';
+import {
+  TypedArray,
+  FloatTypedArrayConstructor,
+  Array3,
+} from '../../types/CommonTypes';
+import {Vector3d, Vector3_} from './Vector3';
 import {IQuaternion} from './IQuaternion';
 
 export class MutableVector3_<T extends FloatTypedArrayConstructor>
   extends Vector3_<T>
-  implements IMutableVector, IMutableVector3 {
+  implements IMutableVector, IMutableVector3
+{
   constructor(
     x:
       | number
@@ -222,14 +227,10 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
       | IVector4
       | Array<number>
       | null,
-    y?: number,
-    z?: number
+    y: number,
+    z: number
   ) {
-    super(x, y!, z!, {type: Float32Array});
-  }
-
-  static identity() {
-    return new this(0, 0, 0);
+    super(x, y, z, {type: Float32Array});
   }
 
   static zero() {
@@ -284,6 +285,22 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     return 'MutableVector3';
   }
 
+  static fromCopyArray(array: Array3<number>): MutableVector3 {
+    return new MutableVector3(new Float32Array(array), 0, 0);
+  }
+
+  static fromFloat32Array(float32Array: Float32Array): MutableVector3 {
+    return new MutableVector3(float32Array, 0, 0);
+  }
+
+  static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3 {
+    return new MutableVector3(
+      new Float32Array(float32Array.buffer.slice(0)),
+      0,
+      0
+    );
+  }
+
   clone() {
     return super.clone() as MutableVector3;
   }
@@ -303,10 +320,6 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
     z?: number
   ) {
     super(x, y!, z!, {type: Float64Array});
-  }
-
-  static identity() {
-    return new this(0, 0, 0);
   }
 
   static zero() {
@@ -359,6 +372,10 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
       vec,
       Float64Array
     ) as MutableVector3d;
+  }
+
+  static fromCopyArray(array: Array3<number>): MutableVector3d {
+    return new MutableVector3d(new Float64Array(array));
   }
 
   clone() {

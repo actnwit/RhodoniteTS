@@ -109,10 +109,10 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = new Rn.Vector3(
+  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
     Math.PI / 2,
     0,
-    Math.PI / 3
+    Math.PI / 3]
   );
   const sphereEntity = entityRepository.createEntity([
     Rn.TransformComponent,
@@ -161,7 +161,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller = cameraControllerComponent.controller as OrbitCameraController;
@@ -208,7 +208,7 @@ function setupRenderPassFxaa(
   const meshFxaa = new Rn.Mesh();
   meshFxaa.addPrimitive(primitiveFxaa);
   meshComponentFxaa.setMesh(meshFxaa);
-  entityFxaa.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+  entityFxaa.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
   renderPassFxaa.addEntities([entityFxaa]);
   const cameraEntityFxaa = entityRepository.createEntity([
     Rn.TransformComponent,
@@ -216,7 +216,7 @@ function setupRenderPassFxaa(
     Rn.CameraComponent,
   ]);
   const cameraComponentFxaa = cameraEntityFxaa.getCamera() as CameraComponent;
-  cameraEntityFxaa.getTransform().translate = new Rn.Vector3(0.0, 0.0, 1.0);
+  cameraEntityFxaa.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 1.0]);
   cameraComponentFxaa.type = Rn.CameraType.Orthographic;
   renderPassFxaa.cameraComponent = cameraComponentFxaa;
 

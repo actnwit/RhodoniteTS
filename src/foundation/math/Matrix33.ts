@@ -519,10 +519,10 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   getScale() {
-    return new Vector3(
+    return Vector3.fromCopyArray([
       Math.hypot(this._v[0], this._v[3], this._v[6]),
       Math.hypot(this._v[1], this._v[4], this._v[7]),
-      Math.hypot(this._v[2], this._v[5], this._v[8])
+      Math.hypot(this._v[2], this._v[5], this._v[8])]
     );
   }
 

@@ -6,12 +6,8 @@ import {TypedArray} from '../../types/CommonTypes';
 export default class MutableColorRgb
   extends MutableVector3
   implements IMutableVector3, IMutableColorRgb {
-  constructor(
-    r: number | TypedArray | IVector3 | IVector4 | Array<number> | null,
-    g?: number,
-    b?: number
-  ) {
-    super(r, g, b);
+  constructor(r: Float32Array) {
+    super(r, 0, 0);
   }
 
   get x() {

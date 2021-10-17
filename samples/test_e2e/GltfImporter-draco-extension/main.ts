@@ -64,8 +64,8 @@ document.body.appendChild(p);
 
   const rootGroup = mainRenderPass.sceneTopLevelGraphComponents[0].entity;
   const rootTransFormComponent = rootGroup.getTransform();
-  rootTransFormComponent.rotate = new Rn.Vector3(0, Math.PI / 2.0, 0.0);
-  rootTransFormComponent.translate = new Rn.Vector3(0, -0.13, -1.5);
+  rootTransFormComponent.rotate = Rn.Vector3.fromCopyArray([0, Math.PI / 2.0, 0.0]);
+  rootTransFormComponent.translate = Rn.Vector3.fromCopyArray([0, -0.13, -1.5]);
 
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
@@ -92,8 +92,8 @@ document.body.appendChild(p);
   ]);
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
-  lightComponent.intensity = new Rn.Vector3(0.5, 0.5, 0.5);
-  lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
+  lightComponent.intensity = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
 
   let count = 0;
 
@@ -130,8 +130,8 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-  boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

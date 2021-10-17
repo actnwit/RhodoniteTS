@@ -100,7 +100,7 @@ declare const Rn: typeof _Rn;
     ]);
 
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = new Rn.Vector3(10.0, 15.0, 20.0);
+    transformCamera.translate = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.setFovyAndChangeFocalLength(120);
@@ -131,7 +131,7 @@ declare const Rn: typeof _Rn;
     ]);
 
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = new Rn.Vector3(-0.1, -0.1, 10.0);
+    transformCamera.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
     return entityCamera;
   }
@@ -268,9 +268,9 @@ declare const Rn: typeof _Rn;
     meshComponent.setMesh(mesh);
 
     const transform = entity.getTransform();
-    transform.scale = new Rn.Vector3(0.1, 0.1, 0.1);
-    transform.translate = new Rn.Vector3(0.0, 0.0, 5.0);
-    transform.rotate = new Rn.Vector3(0.0, 0.0, 0.0);
+    transform.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
+    transform.translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 5.0]);
+    transform.rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, 0.0]);
 
     return entity;
   }
@@ -293,9 +293,9 @@ declare const Rn: typeof _Rn;
     meshComponent.setMesh(mesh);
 
     const transform = entity.getTransform();
-    transform.scale = new Rn.Vector3(1.0, 1.0, 1.0);
-    transform.translate = new Rn.Vector3(0.0, 0.0, -1.5);
-    transform.rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    transform.scale = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
+    transform.translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.5]);
+    transform.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
     return entity;
   }
@@ -378,8 +378,8 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0.0, 0.0);
-    boardEntity.getTransform().translate = new Rn.Vector3(0.0, 0.0, -0.5);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

@@ -39,7 +39,15 @@ import Mesh from '../geometry/Mesh';
 import MutableVector4 from '../math/MutableVector4';
 import LightComponent from '../components/LightComponent';
 import {LightType} from '../definitions/LightType';
-import {Count, Byte, Size, Index} from '../../types/CommonTypes';
+import {
+  Count,
+  Byte,
+  Size,
+  Index,
+  TypedArray,
+  AnimationAttributeType,
+  TypedArrayConstructor,
+} from '../../types/CommonTypes';
 import {
   GltfLoadOption,
   glTF2,
@@ -60,7 +68,8 @@ import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleM
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
+import DataUtil from '../misc/DataUtil';
 
 declare let DracoDecoderModule: any;
 
@@ -236,18 +245,18 @@ export default class ModelConverter {
       const nodeJson = gltfModel.nodes[node_i];
 
       if (nodeJson.translation) {
-        group.getTransform().translate = new Vector3(
+        group.getTransform().translate = Vector3.fromCopyArray([
           nodeJson.translation[0],
           nodeJson.translation[1],
-          nodeJson.translation[2]
-        );
+          nodeJson.translation[2],
+        ]);
       }
       if (nodeJson.scale) {
-        group.getTransform().scale = new Vector3(
+        group.getTransform().scale = Vector3.fromCopyArray([
           nodeJson.scale[0],
           nodeJson.scale[1],
-          nodeJson.scale[2]
-        );
+          nodeJson.scale[2],
+        ]);
       }
       if (nodeJson.rotation) {
         group.getTransform().quaternion = new Quaternion(
@@ -299,17 +308,18 @@ export default class ModelConverter {
     if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
-          const animInputArray = channel.sampler.input.extras.typedDataArray;
-          const animOutputArray = channel.sampler.output.extras.typedDataArray;
+          const animInputArray = channel.sampler.input.extras!.typedDataArray;
+          const animOutputArray = channel.sampler.output.extras!.typedDataArray;
           const interpolation = channel.sampler.interpolation ?? 'LINEAR';
 
-          let animationAttributeName = '';
+          let animationAttributeType: AnimationAttributeType = 'undefined';
           if (channel.target.path === 'translation') {
-            animationAttributeName = 'translate';
+            animationAttributeType = 'translate';
           } else if (channel.target.path === 'rotation') {
-            animationAttributeName = 'quaternion';
+            animationAttributeType = 'quaternion';
           } else {
-            animationAttributeName = channel.target.path;
+            animationAttributeType = channel.target
+              .path as AnimationAttributeType;
           }
 
           const rnEntity = rnEntities[channel.target.nodeIndex!];
@@ -322,11 +332,14 @@ export default class ModelConverter {
               AnimationComponent
             ) as AnimationComponent;
             if (animationComponent) {
+              const outputComponentN =
+                channel.sampler.output.extras!.componentN!;
               animationComponent.setAnimation(
                 Is.exist(animation.name) ? animation.name! : 'Untitled',
-                animationAttributeName,
+                animationAttributeType,
                 animInputArray,
                 animOutputArray,
+                outputComponentN,
                 AnimationInterpolation.fromString(interpolation)
               );
             }
@@ -397,9 +410,8 @@ export default class ModelConverter {
           }
           skeletalComponent!.joints = joints;
           if (node.skin.skeletonIndex != null) {
-            skeletalComponent!.jointsHierarchy = rnEntities[
-              node.skin.skeletonIndex
-            ].getSceneGraph();
+            skeletalComponent!.jointsHierarchy =
+              rnEntities[node.skin.skeletonIndex].getSceneGraph();
           } else {
             skeletalComponent!.jointsHierarchy = joints[0];
           }
@@ -413,8 +425,20 @@ export default class ModelConverter {
         }
       }
       if (node.skin?.inverseBindMatrices != null) {
-        skeletalComponent!._inverseBindMatrices =
-          node.skin.inverseBindMatrices.extras.typedDataArray;
+        const matrixN = (node.skin.inverseBindMatrices.extras.typedDataArray
+          .length / 16) as number;
+        const matrices = new Array(matrixN);
+        for (let i = 0; i < matrixN; i++) {
+          matrices[i] = new Matrix44(
+            node.skin.inverseBindMatrices.extras.typedDataArray.subarray(
+              16 * i,
+              16 * (i + 1)
+            ),
+            true,
+            true
+          );
+        }
+        skeletalComponent!._inverseBindMatrices = matrices;
       }
     }
   }
@@ -503,8 +527,9 @@ export default class ModelConverter {
   }
 
   private __isMorphing(node: any, gltfModel: glTF2) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions
-      ?.defaultMaterialHelperArgumentArray![0];
+    const argument =
+      gltfModel?.asset?.extras?.rnLoaderOptions
+        ?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isMorphing === false) {
       return false;
     } else {
@@ -520,10 +545,10 @@ export default class ModelConverter {
     if (light.name != null) {
       lightComponent.tryToSetUniqueName(light.name, true);
       lightComponent.type = LightType.fromString(light.type);
-      let color = new Vector3(1, 1, 1);
+      let color = Vector3.fromCopyArray3([1, 1, 1]);
       let intensity = 1;
       if (light.color != null) {
-        color = new Vector3(light.color);
+        color = Vector3.fromCopyArray3(light.color);
       }
       if (light.intensity != null) {
         intensity = light.intensity;
@@ -541,16 +566,16 @@ export default class ModelConverter {
     const cameraComponent = cameraEntity.getComponent(
       CameraComponent
     )! as CameraComponent;
-    cameraComponent.direction = new Vector3(0, 0, -1);
+    cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (
       gltfModel.asset &&
       (gltfModel.asset as any).LastSaved_ApplicationVendor
     ) {
       // For an old exporter compatibility
-      cameraComponent.direction = new Vector3(1, 0, 0);
-      cameraComponent.directionInner = new Vector3(1, 0, 0);
+      cameraComponent.direction = Vector3.fromCopyArray([1, 0, 0]);
+      cameraComponent.directionInner = Vector3.fromCopyArray([1, 0, 0]);
     }
-    cameraComponent.up = new Vector3(0, 1, 0);
+    cameraComponent.up = Vector3.fromCopyArray([0, 1, 0]);
     cameraComponent.type = CameraType.fromString(camera.type);
     if (cameraComponent.type === CameraType.Perspective) {
       cameraComponent.aspect = camera.perspective.aspectRatio
@@ -641,8 +666,10 @@ export default class ModelConverter {
             indicesRnAccessor = this.__getRnAccessor(
               primitive.indices,
               rnBuffers[
-                ((primitive.indices as Gltf2Accessor)
-                  .bufferView as Gltf2BufferView).bufferIndex!
+                (
+                  (primitive.indices as Gltf2Accessor)
+                    .bufferView as Gltf2BufferView
+                ).bufferIndex!
               ]
             );
           }
@@ -664,7 +691,7 @@ export default class ModelConverter {
 
             map.set(
               VertexAttribute.fromString(
-                attributeAccessor.extras.attributeName
+                attributeAccessor.extras!.attributeName
               ),
               attributeRnAccessor
             );
@@ -698,9 +725,8 @@ export default class ModelConverter {
                 ]
               );
               // targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
-              const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferView(
-                attributeRnAccessor
-              );
+              const attributeRnAccessorInGPUVertexData =
+                this.__copyRnAccessorAndBufferView(attributeRnAccessor);
               targetMap.set(
                 VertexAttribute.fromString(attributeName),
                 attributeRnAccessorInGPUVertexData
@@ -722,9 +748,8 @@ export default class ModelConverter {
 
     meshComponent.setMesh(rnMesh);
 
-    (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[
-      meshIndex
-    ] = originalRnMesh;
+    (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] =
+      originalRnMesh;
 
     return meshEntity;
   }
@@ -831,9 +856,10 @@ export default class ModelConverter {
 
       const image = textureInfo.image;
       if (image?.image) {
-        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper
-          ?.isWebGL2;
+        const webglResourceRepository =
+          CGAPIResourceRepository.getWebGLResourceRepository();
+        const isWebGL1 =
+          !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
 
         if (
           isWebGL1 &&
@@ -873,7 +899,8 @@ export default class ModelConverter {
     const shaderName = materialProperties.shader;
     if (shaderName === 'VRM/MToon') {
       // argument
-      const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
+      const defaultMaterialHelperArgument =
+        rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
       const additionalName = defaultMaterialHelperArgument.additionalName;
       const isMorphing = this.__isMorphing(node, gltfModel);
@@ -1003,7 +1030,7 @@ export default class ModelConverter {
     );
     const additionalName =
       node.skin != null ? `skin${node.skinIndex ?? node.skinName}` : void 0;
-    if (parseFloat(gltfModel.asset?.version!) >= 2) {
+    if (parseFloat(gltfModel.asset?.version) >= 2) {
       const useTangentAttribute = this.__useTangentAttribute(
         gltfModel,
         primitive
@@ -1033,8 +1060,9 @@ export default class ModelConverter {
   }
 
   private __isLighting(gltfModel: glTF2, materialJson?: Gltf2Material) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions
-      ?.defaultMaterialHelperArgumentArray![0];
+    const argument =
+      gltfModel?.asset?.extras?.rnLoaderOptions
+        ?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isLighting != null) {
       return argument.isLighting as boolean;
     } else {
@@ -1045,8 +1073,9 @@ export default class ModelConverter {
   }
 
   private __isSkinning(node: Gltf2Node, gltfModel: glTF2) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions
-      ?.defaultMaterialHelperArgumentArray![0];
+    const argument =
+      gltfModel?.asset?.extras?.rnLoaderOptions
+        ?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isSkinning === false) {
       return false;
     } else {
@@ -1081,8 +1110,9 @@ export default class ModelConverter {
   }
 
   private __useNormalTexture(gltfModel: glTF2) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions
-      ?.defaultMaterialHelperArgumentArray![0];
+    const argument =
+      gltfModel?.asset?.extras?.rnLoaderOptions
+        ?.defaultMaterialHelperArgumentArray![0];
     if (argument?.useNormalTexture === false) {
       return false;
     } else {
@@ -1093,8 +1123,9 @@ export default class ModelConverter {
   }
 
   private __makeOutputSrgb(gltfModel: glTF2) {
-    const argument = gltfModel?.asset?.extras?.rnLoaderOptions
-      ?.defaultMaterialHelperArgumentArray![0];
+    const argument =
+      gltfModel?.asset?.extras?.rnLoaderOptions
+        ?.defaultMaterialHelperArgumentArray![0];
     return argument?.makeOutputSrgb as boolean | undefined;
   }
 
@@ -1278,7 +1309,7 @@ export default class ModelConverter {
       );
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
       if (
-        parseFloat(gltfModel.asset?.version!) >= 2 &&
+        parseFloat(gltfModel.asset?.version) >= 2 &&
         emissiveTexture.texCoord != null
       ) {
         material.setParameter(
@@ -1353,7 +1384,7 @@ export default class ModelConverter {
     if (normalTexture != null) {
       const rnTexture = ModelConverter._createTexture(normalTexture, gltfModel);
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
-      if (parseFloat(gltfModel.asset?.version!) >= 2) {
+      if (parseFloat(gltfModel.asset?.version) >= 2) {
         if (normalTexture.texCoord != null) {
           material.setParameter(
             PbrShadingSingleMaterialNode.NormalTexcoordIndex,
@@ -1420,9 +1451,10 @@ export default class ModelConverter {
     const image = texture.image as Gltf2Image;
     if (image.image) {
       const imageElem = image.image as HTMLImageElement;
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper
-        ?.isWebGL2;
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
+      const isWebGL1 =
+        !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
 
       if (
         isWebGL1 &&
@@ -1466,7 +1498,7 @@ export default class ModelConverter {
     const width = image.width;
     const height = image.height;
 
-    if ((width & (width - 1)) == 0 && (height & (height - 1)) == 0) {
+    if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
       return true;
     } else {
       return false;
@@ -1497,26 +1529,17 @@ export default class ModelConverter {
     }
   }
 
-  _adjustByteAlign(
-    typedArrayClass: any,
+  private __rewrapWithTypedArray(
+    typedArrayClass: TypedArrayConstructor,
     uint8Array: Uint8Array,
-    alignSize: Size,
     byteOffset: Byte,
     length: Size
   ) {
-    if (byteOffset % alignSize != 0) {
-      return new typedArrayClass(
-        uint8Array.buffer.slice(byteOffset + uint8Array.byteOffset),
-        0,
-        length
-      );
-    } else {
-      return new typedArrayClass(
-        uint8Array.buffer,
-        byteOffset + uint8Array.byteOffset,
-        length
-      );
-    }
+    return new typedArrayClass(
+      uint8Array.buffer,
+      byteOffset + uint8Array.byteOffset,
+      length
+    );
   }
 
   _checkBytesPerComponent(accessor: any) {
@@ -1606,9 +1629,9 @@ export default class ModelConverter {
     return !!new Uint8Array(new Uint16Array([0x00ff]).buffer)[0];
   }
 
-  _accessBinaryWithAccessor(accessor: Gltf2Accessor) {
+  _accessBinaryWithAccessor(accessor: Gltf2Accessor): Float32Array {
     const bufferView = accessor.bufferView;
-    const byteOffset: number =
+    const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.buffer;
     const uint8Array: Uint8Array = buffer.buffer;
@@ -1616,229 +1639,261 @@ export default class ModelConverter {
     const componentN = this._checkComponentNumber(accessor);
     const componentBytes = this._checkBytesPerComponent(accessor);
     const dataViewMethod = this._checkDataViewMethod(accessor);
-    if (accessor.extras === void 0) {
-      accessor.extras = {};
+    if (Is.not.exist(accessor.extras)) {
+      accessor.extras = {
+        attributeName: '',
+        toGetAsTypedArray: true,
+        typedDataArray: new Float32Array(),
+        componentN: 0,
+        componentBytes: 4,
+        dataViewMethod: '',
+      };
     }
 
-    accessor.extras.componentN = componentN;
+    // for weights animation accessor, set componentN as weightsArrayLength
+    accessor.extras.componentN = Is.exist(accessor.extras?.weightsArrayLength)
+      ? accessor.extras!.weightsArrayLength
+      : componentN;
     accessor.extras.componentBytes = componentBytes;
     accessor.extras.dataViewMethod = dataViewMethod;
 
     const byteLength = componentBytes * componentN * accessor.count;
 
-    let typedDataArray: any = [];
+    let float32Array = new Float32Array();
+    const numberArray: number[] = [];
 
-    if (accessor.extras?.toGetAsTypedArray) {
-      if (ModelConverter._isSystemLittleEndian()) {
-        if (dataViewMethod === 'getFloat32') {
-          typedDataArray = this._adjustByteAlign(
-            Float32Array,
-            uint8Array,
-            4,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getInt8') {
-          typedDataArray = new Int8Array(
-            uint8Array,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getUint8') {
-          typedDataArray = new Uint8Array(
-            uint8Array,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getInt16') {
-          typedDataArray = this._adjustByteAlign(
-            Int16Array,
-            uint8Array,
-            2,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getUint16') {
-          typedDataArray = this._adjustByteAlign(
-            Uint16Array,
-            uint8Array,
-            2,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getInt32') {
-          typedDataArray = this._adjustByteAlign(
-            Int32Array,
-            uint8Array,
-            4,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        } else if (dataViewMethod === 'getUint32') {
-          typedDataArray = this._adjustByteAlign(
-            Uint32Array,
-            uint8Array,
-            4,
-            byteOffset,
-            byteLength / componentBytes
-          );
-        }
-      } else {
-        const dataView: any = new DataView(
-          uint8Array.buffer,
-          byteOffset + uint8Array.byteOffset,
-          byteLength
+    // if (accessor.extras?.toGetAsTypedArray) {
+    // if (true) {
+    if (ModelConverter._isSystemLittleEndian()) {
+      let typedDataArray: TypedArray = new Float32Array();
+      if (dataViewMethod === 'getFloat32') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Float32Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
-        const byteDelta = componentBytes * componentN;
-        const littleEndian = true;
-        for (let pos = 0; pos < byteLength; pos += byteDelta) {
-          switch (accessor.type) {
-            case 'SCALAR':
-              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
-              break;
-            case 'VEC2':
-              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
-              typedDataArray.push(
-                dataView[dataViewMethod](pos + componentBytes, littleEndian)
-              );
-              break;
-            case 'VEC3':
-              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
-              typedDataArray.push(
-                dataView[dataViewMethod](pos + componentBytes, littleEndian)
-              );
-              typedDataArray.push(
-                dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
-              );
-              break;
-            case 'VEC4':
-              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
-              typedDataArray.push(
-                dataView[dataViewMethod](pos + componentBytes, littleEndian)
-              );
-              typedDataArray.push(
-                dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
-              );
-              typedDataArray.push(
-                dataView[dataViewMethod](pos + componentBytes * 3, littleEndian)
-              );
-              break;
-          }
-        }
-        if (dataViewMethod === 'getInt8') {
-          typedDataArray = new Int8Array(typedDataArray);
-        } else if (dataViewMethod === 'getUint8') {
-          typedDataArray = new Uint8Array(typedDataArray);
-        } else if (dataViewMethod === 'getInt16') {
-          typedDataArray = new Int16Array(typedDataArray);
-        } else if (dataViewMethod === 'getUint16') {
-          typedDataArray = new Uint16Array(typedDataArray);
-        } else if (dataViewMethod === 'getInt32') {
-          typedDataArray = new Int32Array(typedDataArray);
-        } else if (dataViewMethod === 'getUint32') {
-          typedDataArray = new Uint32Array(typedDataArray);
-        } else if (dataViewMethod === 'getFloat32') {
-          typedDataArray = new Float32Array(typedDataArray);
-        }
+      } else if (dataViewMethod === 'getInt8') {
+        typedDataArray = new Int8Array(
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getUint8') {
+        typedDataArray = new Uint8Array(
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getInt16') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Int16Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getUint16') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Uint16Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getInt32') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Int32Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
+      } else if (dataViewMethod === 'getUint32') {
+        typedDataArray = this.__rewrapWithTypedArray(
+          Uint32Array,
+          uint8Array,
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
+        );
       }
+      float32Array = this.__arrayToFloat32Array(dataViewMethod, typedDataArray);
     } else {
+      // for BigEndian process
       const dataView: any = new DataView(
         uint8Array.buffer,
-        byteOffset + uint8Array.byteOffset,
+        byteOffsetFromBuffer + uint8Array.byteOffset,
         byteLength
       );
-      let byteDelta = componentBytes * componentN;
-      if (accessor.extras?.weightCount) {
-        byteDelta = componentBytes * componentN * accessor.extras.weightCount;
-      }
+      const byteDelta = componentBytes * componentN;
       const littleEndian = true;
       for (let pos = 0; pos < byteLength; pos += byteDelta) {
         switch (accessor.type) {
           case 'SCALAR':
-            if (accessor.extras?.weightCount) {
-              const array = [];
-              for (let i = 0; i < accessor.extras.weightCount; i++) {
-                array.push(
-                  dataView[dataViewMethod](
-                    pos + componentBytes * i,
-                    littleEndian
-                  )
-                );
-              }
-              typedDataArray.push(array);
-            } else {
-              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
-            }
+            numberArray.push(dataView[dataViewMethod](pos, littleEndian));
             break;
           case 'VEC2':
-            typedDataArray.push(
-              new Vector2(
-                dataView[dataViewMethod](pos, littleEndian),
-                dataView[dataViewMethod](pos + componentBytes, littleEndian)
-              )
+            numberArray.push(dataView[dataViewMethod](pos, littleEndian));
+            numberArray.push(
+              dataView[dataViewMethod](pos + componentBytes, littleEndian)
             );
             break;
           case 'VEC3':
-            typedDataArray.push(
-              new Vector3(
-                dataView[dataViewMethod](pos, littleEndian),
-                dataView[dataViewMethod](pos + componentBytes, littleEndian),
-                dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
-              )
+            numberArray.push(dataView[dataViewMethod](pos, littleEndian));
+            numberArray.push(
+              dataView[dataViewMethod](pos + componentBytes, littleEndian)
+            );
+            numberArray.push(
+              dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
             );
             break;
           case 'VEC4':
-            if (accessor.extras?.quaternionIfVec4) {
-              typedDataArray.push(
-                new Quaternion(
-                  dataView[dataViewMethod](pos, littleEndian),
-                  dataView[dataViewMethod](pos + componentBytes, littleEndian),
-                  dataView[dataViewMethod](
-                    pos + componentBytes * 2,
-                    littleEndian
-                  ),
-                  dataView[dataViewMethod](
-                    pos + componentBytes * 3,
-                    littleEndian
-                  )
-                )
-              );
-            } else {
-              typedDataArray.push(
-                Vector4.fromCopyArray([
-                  dataView[dataViewMethod](pos, littleEndian),
-                  dataView[dataViewMethod](pos + componentBytes, littleEndian),
-                  dataView[dataViewMethod](
-                    pos + componentBytes * 2,
-                    littleEndian
-                  ),
-                  dataView[dataViewMethod](
-                    pos + componentBytes * 3,
-                    littleEndian
-                  )
-                ])
+            for (let i = 0; i < 4; i++) {
+              numberArray.push(
+                dataView[dataViewMethod](pos + componentBytes * i, littleEndian)
               );
             }
             break;
           case 'MAT4':
-            {
-              const matrixComponents = [];
-              for (let i = 0; i < 16; i++) {
-                matrixComponents[i] = dataView[dataViewMethod](
-                  pos + componentBytes * i,
-                  littleEndian
-                );
-              }
-              typedDataArray.push(new Matrix44(matrixComponents, true));
+            for (let i = 0; i < 16; i++) {
+              numberArray.push(
+                dataView[dataViewMethod](pos + componentBytes * i, littleEndian)
+              );
             }
             break;
         }
       }
+      float32Array = this.__arrayToFloat32Array(dataViewMethod, numberArray);
     }
+    // } else {
+    //   // for  (accessor.extras?.toGetAsTypedArray) was false
+    //   const typedDataArray: any[] = [];
+    //   const dataView: any = new DataView(
+    //     uint8Array.buffer,
+    //     byteOffsetFromBuffer + uint8Array.byteOffset,
+    //     byteLength
+    //   );
+    //   const byteDelta = componentBytes * componentN;
+    //   const littleEndian = true; // need to access in littleEndian for glTF
+    //   for (let pos = 0; pos < byteLength; pos += byteDelta) {
+    //     switch (accessor.type) {
+    //       case 'SCALAR':
+    //         if (accessor.extras?.weightsArrayLength) {
+    //           const array = [];
+    //           for (let i = 0; i < accessor.extras.weightsArrayLength; i++) {
+    //             array.push(
+    //               dataView[dataViewMethod](
+    //                 pos + componentBytes * i,
+    //                 littleEndian
+    //               )
+    //             );
+    //           }
+    //           typedDataArray.push(array);
+    //         } else {
+    //           typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+    //         }
+    //         break;
+    //       case 'VEC2':
+    //         numberArray.push(dataView[dataViewMethod](pos, littleEndian));
+    //         numberArray.push(
+    //           dataView[dataViewMethod](pos + componentBytes, littleEndian)
+    //         );
+    //         break;
+    //       case 'VEC3':
+    //         numberArray.push(dataView[dataViewMethod](pos, littleEndian));
+    //         numberArray.push(
+    //           dataView[dataViewMethod](pos + componentBytes, littleEndian)
+    //         );
+    //         numberArray.push(
+    //           dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
+    //         );
+    //         break;
+    //       case 'VEC4':
+    //         if (accessor.extras?.quaternionIfVec4) {
+    //           typedDataArray.push(
+    //             new Quaternion(
+    //               dataView[dataViewMethod](pos, littleEndian),
+    //               dataView[dataViewMethod](pos + componentBytes, littleEndian),
+    //               dataView[dataViewMethod](
+    //                 pos + componentBytes * 2,
+    //                 littleEndian
+    //               ),
+    //               dataView[dataViewMethod](
+    //                 pos + componentBytes * 3,
+    //                 littleEndian
+    //               )
+    //             )
+    //           );
+    //         } else {
+    //           typedDataArray.push(
+    //             Vector4.fromCopyArray([
+    //               dataView[dataViewMethod](pos, littleEndian),
+    //               dataView[dataViewMethod](pos + componentBytes, littleEndian),
+    //               dataView[dataViewMethod](
+    //                 pos + componentBytes * 2,
+    //                 littleEndian
+    //               ),
+    //               dataView[dataViewMethod](
+    //                 pos + componentBytes * 3,
+    //                 littleEndian
+    //               ),
+    //             ])
+    //           );
+    //         }
+    //         break;
+    //       case 'MAT4':
+    //         {
+    //           const matrixComponents = [];
+    //           for (let i = 0; i < 16; i++) {
+    //             matrixComponents[i] = dataView[dataViewMethod](
+    //               pos + componentBytes * i,
+    //               littleEndian
+    //             );
+    //           }
+    //           typedDataArray.push(new Matrix44(matrixComponents, true));
+    //         }
+    //         break;
+    //     }
+    //   }
+    //   float32Array = this.__arrayToFloat32Array(dataViewMethod, numberArray);
+    // }
 
-    accessor.extras.typedDataArray = typedDataArray;
+    accessor.extras!.typedDataArray = float32Array;
 
-    return typedDataArray;
+    return float32Array;
+  }
+
+  private __arrayToFloat32Array(
+    dataViewMethod: string,
+    numberArray: number[] | TypedArray
+  ): Float32Array {
+    if (dataViewMethod === 'getInt8') {
+      return DataUtil.normalizedInt8ArrayToFloat32Array(
+        numberArray as unknown as Int8Array
+      );
+    } else if (dataViewMethod === 'getUint8') {
+      return DataUtil.normalizedUint8ArrayToFloat32Array(
+        numberArray as unknown as Uint8Array
+      );
+    } else if (dataViewMethod === 'getInt16') {
+      return DataUtil.normalizedInt16ArrayToFloat32Array(
+        numberArray as unknown as Int16Array
+      );
+    } else if (dataViewMethod === 'getUint16') {
+      return DataUtil.normalizedUint16ArrayToFloat32Array(
+        numberArray as unknown as Uint16Array
+      );
+    } else if (dataViewMethod === 'getInt32') {
+      // typedDataArray = new Int32Array(numberArray);
+      console.error('Not considered');
+      return new Float32Array();
+    } else if (dataViewMethod === 'getUint32') {
+      // typedDataArray = new Uint32Array(numberArray);
+      console.error('Not considered');
+      return new Float32Array();
+    } else if (dataViewMethod === 'getFloat32') {
+      return new Float32Array(numberArray);
+    } else {
+      console.error('Not considered');
+      return new Float32Array();
+    }
   }
 
   private __addOffsetToIndices(meshComponent: MeshComponent) {
@@ -1952,7 +2007,7 @@ export default class ModelConverter {
     if (geometryType === draco.TRIANGULAR_MESH) {
       dracoGeometry = new draco.Mesh();
       decodingStatus = decoder.DecodeBufferToMesh(buffer, dracoGeometry);
-    } else if (geometryType == draco.POINT_CLOUD) {
+    } else if (geometryType === draco.POINT_CLOUD) {
       dracoGeometry = new draco.PointCloud();
       decodingStatus = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
     } else {
@@ -1962,7 +2017,7 @@ export default class ModelConverter {
 
     dracoGeometry.geometryType = geometryType; // store
 
-    if (!decodingStatus.ok() || dracoGeometry.ptr == 0) {
+    if (!decodingStatus.ok() || dracoGeometry.ptr === 0) {
       let errorMsg = 'Decoding failed: ';
       errorMsg += decodingStatus.error_msg();
       console.error(errorMsg);
@@ -2161,7 +2216,9 @@ export default class ModelConverter {
       }
 
       map.set(
-        VertexAttribute.fromString(attributeGltf2Accessor.extras.attributeName),
+        VertexAttribute.fromString(
+          attributeGltf2Accessor.extras!.attributeName
+        ),
         attributeRnAccessor
       );
     }

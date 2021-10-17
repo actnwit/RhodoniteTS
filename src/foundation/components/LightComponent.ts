@@ -15,9 +15,9 @@ import VectorN from '../math/VectorN';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;
-  private __intensity = new Vector3(1, 1, 1);
-  private readonly __initialdirection = new Vector3(0, 1, 0);
-  private __direction = new Vector3(0, 1, 0);
+  private __intensity = Vector3.fromCopyArray([1, 1, 1]);
+  private readonly __initialdirection = Vector3.fromCopyArray([0, 1, 0]);
+  private __direction = Vector3.fromCopyArray([0, 1, 0]);
   public spotExponent = 1.0;
   public spotCutoff = 30; // in degree
   public range = -1;
