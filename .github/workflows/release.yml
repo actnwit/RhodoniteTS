@@ -1,4 +1,4 @@
-name: Rhodonite Test
+name: Rhodonite Release
 
 on: [push]
 
@@ -19,3 +19,9 @@ jobs:
         path: dist
     - run: npm run build-samples
     - run: npm run test
+    - uses: actnwit/release-notes-generator@actnwit/supports-v0.x.x
+      with:
+        version: v0.4.2
+        from_ref_exclusive: v0.4.1
+        to_ref_inclusive: master
+    - run: echo "${{ steps.release_notes.outputs.release_notes }}"
