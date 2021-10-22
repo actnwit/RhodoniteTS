@@ -19,52 +19,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
   implements IVector, IVector3
 {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y: number,
-    z: number,
-    {type}: {type: T}
-  ) {
+  constructor(v: TypedArray, {type}: {type: T}) {
     super();
-    if (ArrayBuffer.isView(x)) {
-      this._v = x as TypedArray;
-      return;
-    } else if (x == null) {
-      this._v = new type(0);
-      return;
-    } else {
-      this._v = new type(3);
-    }
-
-    if (Array.isArray(x)) {
-      this._v[0] = x[0];
-      this._v[1] = x[1];
-      this._v[2] = x[2];
-    } else if (typeof x === 'number') {
-      this._v[0] = x;
-      this._v[1] = y;
-      this._v[2] = z;
-    } else {
-      if (typeof x._v[2] === 'undefined') {
-        // IVector2
-        this._v[0] = x._v[0];
-        this._v[1] = x._v[1];
-        this._v[2] = 0;
-      } else {
-        // IVector3 or IVector4
-        this._v[0] = x._v[0];
-        this._v[1] = x._v[1];
-        this._v[2] = x._v[2];
-      }
-    }
-    // this._v = x;
+    this._v = v;
   }
 
   get x() {
@@ -131,7 +88,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   }
 
   static _dummy(type: FloatTypedArrayConstructor) {
-    return new this(new type([]), 0, 0, {type});
+    return new this(new type([]), {type});
   }
 
   /**
@@ -521,7 +478,11 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
 
   clone() {
     return new (this.constructor as any)(
-      new (this._v.constructor as any)([this._v[0], this._v[1], this._v[2]], 0, 0)
+      new (this._v.constructor as any)(
+        [this._v[0], this._v[1], this._v[2]],
+        0,
+        0
+      )
     );
   }
 
@@ -537,8 +498,6 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
         lhs._v[1] * ratio + rhs._v[1] * (1 - ratio),
         lhs._v[2] * ratio + rhs._v[2] * (1 - ratio),
       ]),
-      0,
-      0,
       {type}
     );
   }
@@ -547,32 +506,32 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     array: Array3<number>,
     type: FloatTypedArrayConstructor
   ) {
-    return new this(new type(array), 0, 0, {type});
+    return new this(new type(array), {type});
   }
 
   static _fromCopyArray(
     array: Array<number>,
     type: FloatTypedArrayConstructor
   ) {
-    return new this(new type(array.slice(0, 3)), 0, 0, {type});
+    return new this(new type(array.slice(0, 3)), {type});
   }
 
   static _fromCopyVector3(vec3: IVector3, type: FloatTypedArrayConstructor) {
-    const vec = new this(new type([vec3._v[0], vec3._v[1], vec3._v[2]]), 0, 0, {
+    const vec = new this(new type([vec3._v[0], vec3._v[1], vec3._v[2]]), {
       type,
     });
     return vec;
   }
 
   static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor) {
-    const vec = new this(new type([vec4._v[0], vec4._v[1], vec4._v[2]]), 0, 0, {
+    const vec = new this(new type([vec4._v[0], vec4._v[1], vec4._v[2]]), {
       type,
     });
     return vec;
   }
 
   static _fromVector2(vec2: IVector2, type: FloatTypedArrayConstructor) {
-    const vec = new this(new type([vec2._v[0], vec2._v[1], 0]), 0, 0, {
+    const vec = new this(new type([vec2._v[0], vec2._v[1], 0]), {
       type,
     });
     return vec;
@@ -580,19 +539,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
 }
 
 export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y: number,
-    z: number
-  ) {
-    super(x, y, z, {type: Float32Array});
+  constructor(v: TypedArray) {
+    super(v, {type: Float32Array});
   }
 
   static fromCopyArray3(array: Array3<number>): Vector3 {
@@ -612,15 +560,15 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
   }
 
   static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector3 {
-    return new Vector3(new Float32Array(arrayBuffer), 0, 0);
+    return new Vector3(new Float32Array(arrayBuffer));
   }
 
   static fromFloat32Array(float32Array: Float32Array): Vector3 {
-    return new Vector3(float32Array, 0, 0);
+    return new Vector3(float32Array);
   }
 
   static fromCopyFloat32Array(float32Array: Float32Array): Vector3 {
-    return new Vector3(float32Array.slice(0), 0, 0);
+    return new Vector3(float32Array.slice(0));
   }
 
   static zero(): Vector3 {
@@ -677,19 +625,8 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
 }
 
 export class Vector3d extends Vector3_<Float64ArrayConstructor> {
-  private constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y: number,
-    z: number
-  ) {
-    super(x, y, z, {type: Float64Array});
+  private constructor(v: TypedArray) {
+    super(v, {type: Float64Array});
   }
 
   static fromCopyArray3(array: Array3<number>): Vector3d {
@@ -701,11 +638,11 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
   }
 
   static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector3d {
-    return new Vector3d(new Float64Array(arrayBuffer), 0, 0);
+    return new Vector3d(new Float64Array(arrayBuffer));
   }
 
   static fromFloat64Array(float64Array: Float64Array): Vector3d {
-    return new Vector3d(float64Array, 0, 0);
+    return new Vector3d(float64Array);
   }
 
   static zero(): Vector3d {

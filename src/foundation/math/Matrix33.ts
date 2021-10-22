@@ -505,7 +505,7 @@ export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
     const x = this._v[0] * vec._v[0] + this._v[3] * vec._v[1] + this._v[6] * vec._v[2];
     const y = this._v[1] * vec._v[0] + this._v[4] * vec._v[1] + this._v[7] * vec._v[2];
     const z = this._v[2] * vec._v[0] + this._v[5] * vec._v[1] + this._v[8] * vec._v[2];
-    return new (vec.constructor as any)(x, y, z);
+    return new (vec.constructor as any)(new Float32Array([x, y, z]));
   }
 
   multiplyVectorTo(vec: IVector3, outVec: IMutableVector3) {
