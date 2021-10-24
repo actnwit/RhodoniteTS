@@ -73,7 +73,7 @@ declare const Rn: typeof _Rn;
   setParameterForMeshComponents(
     fxaaRenderPass.meshComponents,
     Rn.ShaderSemantics.ScreenInfo,
-    new Rn.Vector2(displayResolution, displayResolution)
+    Rn.Vector2.fromCopyArray2([displayResolution, displayResolution])
   );
   setTextureParameterForMeshComponents(
     fxaaRenderPass.meshComponents,
@@ -234,7 +234,7 @@ function setAnisotropy(baseAnisotropy, clearcoatAnisotropy) {
   for (const material of materials) {
     material.setParameter(
       Rn.ShaderSemantics.Anisotropy,
-      new Rn.Vector2(baseAnisotropy, clearcoatAnisotropy)
+      Rn.Vector2.fromCopyArray2([baseAnisotropy, clearcoatAnisotropy])
     );
   }
 }
@@ -244,7 +244,7 @@ function setClearCoat(factor, roughness) {
   for (const material of materials) {
     material.setParameter(
       Rn.ShaderSemantics.ClearCoatParameter,
-      new Rn.Vector2(factor, roughness)
+      Rn.Vector2.fromCopyArray2([factor, roughness])
     );
   }
 }
@@ -254,7 +254,7 @@ function setSheen(sheenColor, sheenSubsurfaceColor) {
   for (const material of materials) {
     material.setParameter(
       Rn.ShaderSemantics.SheenParameter,
-      new Rn.Vector2(sheenColor, sheenSubsurfaceColor)
+      Rn.Vector2.fromCopyArray2([sheenColor, sheenSubsurfaceColor])
     );
   }
 }

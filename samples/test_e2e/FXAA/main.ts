@@ -202,7 +202,7 @@ function setupRenderPassFxaa(
   );
   primitiveFxaa.material.setParameter(
     Rn.ShaderSemantics.ScreenInfo,
-    new Rn.Vector2(width, height)
+    Rn.Vector2.fromCopyArray2([width, height])
   );
   const meshComponentFxaa = entityFxaa.getMesh() as MeshComponent;
   const meshFxaa = new Rn.Mesh();
