@@ -17,20 +17,8 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
   extends Vector3_<T>
   implements IMutableVector, IMutableVector3
 {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y: number,
-    z: number,
-    {type}: {type: T}
-  ) {
-    super(x, y, z, {type});
+  constructor(v: TypedArray, {type}: {type: T}) {
+    super(v, {type});
   }
 
   set x(x: number) {
@@ -218,19 +206,8 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
 }
 
 export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y: number,
-    z: number
-  ) {
-    super(x, y, z, {type: Float32Array});
+  constructor(v: TypedArray) {
+    super(v, {type: Float32Array});
   }
 
   static zero() {
@@ -286,19 +263,15 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
   }
 
   static fromCopyArray(array: Array3<number>): MutableVector3 {
-    return new MutableVector3(new Float32Array(array), 0, 0);
+    return new MutableVector3(new Float32Array(array));
   }
 
   static fromFloat32Array(float32Array: Float32Array): MutableVector3 {
-    return new MutableVector3(float32Array, 0, 0);
+    return new MutableVector3(float32Array);
   }
 
   static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3 {
-    return new MutableVector3(
-      new Float32Array(float32Array.buffer.slice(0)),
-      0,
-      0
-    );
+    return new MutableVector3(new Float32Array(float32Array.buffer.slice(0)));
   }
 
   clone() {
@@ -307,19 +280,8 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
 }
 
 export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y?: number,
-    z?: number
-  ) {
-    super(x, y!, z!, {type: Float64Array});
+  constructor(x: TypedArray) {
+    super(x, {type: Float64Array});
   }
 
   static zero() {

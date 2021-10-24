@@ -1253,7 +1253,7 @@ export default class ModelConverter {
       roughnessFactor = roughnessFactor ?? 1;
       material.setParameter(
         ShaderSemantics.MetallicRoughnessFactor,
-        new Vector2(metallicFactor, roughnessFactor)
+        Vector2.fromCopyArray2([metallicFactor, roughnessFactor])
       );
 
       const metallicRoughnessTexture =

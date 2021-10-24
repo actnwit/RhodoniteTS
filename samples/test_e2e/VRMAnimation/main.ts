@@ -137,7 +137,7 @@ declare const Rn: typeof _Rn;
   const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
   fxaaMaterial.setParameter(
     Rn.ShaderSemantics.ScreenInfo,
-    new Rn.Vector2(displayResolution, displayResolution)
+    Rn.Vector2.fromCopyArray2([displayResolution, displayResolution])
   );
   fxaaMaterial.setTextureParameter(
     Rn.ShaderSemantics.BaseColorTexture,

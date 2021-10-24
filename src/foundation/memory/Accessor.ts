@@ -501,10 +501,10 @@ export default class Accessor {
       index = indicesAccessor.getScalar(i, {});
     }
     const byteSize = this.componentSizeInBytes;
-    return new Vector2(
+    return Vector2.fromCopyArray2([
       this.__dataViewGetter(this.__byteStride * index, endian),
-      this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian)
-    );
+      this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
+    ]);
   }
 
   getVec3(

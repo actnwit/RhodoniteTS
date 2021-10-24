@@ -1,29 +1,12 @@
 import {Vector2_} from './Vector2';
-import {
-  IVector2,
-  IVector3,
-  IVector4,
-  IMutableVector,
-  IMutableVector2,
-} from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+import {IVector2, IMutableVector, IMutableVector2} from './IVector';
+import {TypedArray, FloatTypedArrayConstructor, Array2} from '../../types/CommonTypes';
 
 export class MutableVector2_<
-  T extends TypedArrayConstructor
+  T extends FloatTypedArrayConstructor
 > extends Vector2_<T> {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y: number,
-    {type}: {type: T}
-  ) {
-    super(x, y, {type});
+  constructor(x: TypedArray, {type}: {type: T}) {
+    super(x, {type});
   }
 
   set x(x: number) {
@@ -152,19 +135,26 @@ export class MutableVector2_<
 
 export default class MutableVector2
   extends MutableVector2_<Float32ArrayConstructor>
-  implements IMutableVector, IMutableVector2 {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y?: number
-  ) {
-    super(x, y!, {type: Float32Array});
+  implements IMutableVector, IMutableVector2
+{
+  constructor(x: TypedArray) {
+    super(x, {type: Float32Array});
+  }
+
+  static fromCopyArray2(array: Array2<number>): MutableVector2 {
+    return new MutableVector2(new Float32Array(array));
+  }
+
+  static fromCopyArray(array: Array2<number>): MutableVector2 {
+    return new MutableVector2(new Float32Array(array.slice(0, 2)));
+  }
+
+  static fromFloat32Array(float32Array: Float32Array): MutableVector2 {
+    return new MutableVector2(float32Array);
+  }
+
+  static fromCopyFloat32Array(float32Array: Float32Array): MutableVector2 {
+    return new MutableVector2(new Float32Array(float32Array.buffer.slice(0)));
   }
 
   static zero() {
@@ -217,18 +207,12 @@ export default class MutableVector2
 }
 
 export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector2
-      | IVector3
-      | IVector4
-      | Array<number>
-      | null,
-    y?: number
-  ) {
-    super(x, y!, {type: Float64Array});
+  constructor(x: TypedArray) {
+    super(x, {type: Float64Array});
+  }
+
+  static fromCopyArray(array: Array2<number>): MutableVector2d {
+    return new MutableVector2d(new Float64Array(array));
   }
 
   static zero() {

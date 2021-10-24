@@ -5,7 +5,7 @@ import {TypedArray} from '../../types/CommonTypes';
 
 export default class ColorRgb extends Vector3 implements IVector3, IColorRgb {
   constructor(r: Float32Array) {
-    super(r, 0, 0);
+    super(r);
   }
 
   get x() {
