@@ -35,7 +35,7 @@ export default class MathClassUtil {
       } else if (typeof element[2] !== 'undefined') {
         return Vector3.fromCopyArray([element[0], element[1], element[2]]);
       } else {
-        return new Vector2(element[0], element[1]);
+        return Vector2.fromCopyArray2([element[0], element[1]]);
       }
     } else {
       return element;
@@ -58,7 +58,7 @@ export default class MathClassUtil {
       } else if (typeof element[2] !== 'undefined') {
         return Vector3.fromCopyArray([element[0], element[1], element[2]]);
       } else {
-        return new Vector2(element[0], element[1]);
+        return Vector2.fromCopyArray2([element[0], element[1]]);
       }
     } else {
       return element;
@@ -333,7 +333,7 @@ export default class MathClassUtil {
       // number?
       return val;
     } else if (objForDetectType instanceof Vector2) {
-      return new Vector2(val, val);
+      return Vector2.fromCopyArray2([val, val]);
     } else if (objForDetectType instanceof Vector3) {
       return Vector3.fromCopyArray([val, val, val]);
     } else if (objForDetectType instanceof Vector4) {

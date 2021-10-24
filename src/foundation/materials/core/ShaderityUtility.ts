@@ -256,10 +256,11 @@ export default class ShaderityUtility {
                   ];
                 } else {
                   checkCompositionNumber(CompositionType.Vec2);
-                  shaderSemanticsInfo.initialValue = new MutableVector2(
-                    parseFloat(split[0]),
-                    parseFloat(split[1])
-                  );
+                  shaderSemanticsInfo.initialValue =
+                    MutableVector2.fromCopyArray([
+                      parseFloat(split[0]),
+                      parseFloat(split[1]),
+                    ]);
                 }
                 break;
               case 3:

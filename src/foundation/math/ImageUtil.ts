@@ -127,9 +127,9 @@ function decorrelateColorSpace(
 
   // Compute ranges of the new color space
   const colorSpaceRanges: MutableVector2[] = [
-    new MutableVector2(Number.MAX_VALUE, -Number.MAX_VALUE),
-    new MutableVector2(Number.MAX_VALUE, -Number.MAX_VALUE),
-    new MutableVector2(Number.MAX_VALUE, -Number.MAX_VALUE),
+    MutableVector2.fromCopyArray2([Number.MAX_VALUE, -Number.MAX_VALUE]),
+    MutableVector2.fromCopyArray2([Number.MAX_VALUE, -Number.MAX_VALUE]),
+    MutableVector2.fromCopyArray2([Number.MAX_VALUE, -Number.MAX_VALUE]),
   ];
   for (let y = 0; y < input.height; y++) {
     for (let x = 0; x < input.width; x++) {

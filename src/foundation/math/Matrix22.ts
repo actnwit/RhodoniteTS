@@ -2,7 +2,6 @@ import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
 import {IMatrix, IMatrix22} from './IMatrix';
 import {CompositionType} from '../definitions/CompositionType';
-import {TypedArray} from '../../types/CommonTypes';
 import Vector2 from './Vector2';
 import MutableMatrix22 from './MutableMatrix22';
 import {MathUtil} from './MathUtil';
@@ -319,7 +318,7 @@ export default class Matrix22 extends AbstractMatrix implements IMatrix22 {
   multiplyVector(vec: Vector2) {
     const x = this._v[0] * vec._v[0] + this._v[2] * vec._v[1];
     const y = this._v[1] * vec._v[0] + this._v[3] * vec._v[1];
-    return new (vec.constructor as any)(x, y);
+    return Vector2.fromCopyArray2([x, y]);
   }
 
   multiplyVectorTo(vec: Vector2, outVec: MutableVector2) {
@@ -331,10 +330,10 @@ export default class Matrix22 extends AbstractMatrix implements IMatrix22 {
   }
 
   getScale() {
-    return new Vector2(
+    return Vector2.fromCopyArray2([
       Math.hypot(this.m00, this.m01),
-      Math.hypot(this.m10, this.m11)
-    );
+      Math.hypot(this.m10, this.m11),
+    ]);
   }
 
   getScaleTo(outVec: MutableVector2) {

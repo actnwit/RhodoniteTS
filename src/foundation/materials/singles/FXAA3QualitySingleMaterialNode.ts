@@ -44,7 +44,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
-        initialValue: new Vector2(0, 0),
+        initialValue: Vector2.fromCopyArray2([0, 0]),
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
