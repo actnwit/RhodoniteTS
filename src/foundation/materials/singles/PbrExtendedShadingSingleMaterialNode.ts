@@ -149,7 +149,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -1,
         max: 1,
         isSystem: false,
-        initialValue: new Vector2(0, 0),
+        initialValue: Vector2.fromCopyArray2([0, 0]),
       },
       {
         semantic: ShaderSemantics.ClearCoatParameter,
@@ -159,7 +159,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: 0,
         max: 1,
         isSystem: false,
-        initialValue: new Vector2(0.0, 0.5),
+        initialValue: Vector2.fromCopyArray2([0.0, 0.5]),
       },
       {
         semantic: ShaderSemantics.SheenParameter,
@@ -305,7 +305,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         max: 5,
         isSystem: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: new Vector2(0, 0),
+        initialValue: Vector2.fromCopyArray2([0, 0]),
       },
       // {
       //   semantic: ShaderSemantics.BrdfLutTexture,

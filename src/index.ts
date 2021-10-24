@@ -11,6 +11,7 @@ import _Scalar from './foundation/math/Scalar';
 import _Vector2 from './foundation/math/Vector2';
 import _Vector3 from './foundation/math/Vector3';
 import _Vector4 from './foundation/math/Vector4';
+import _MutableScalar from './foundation/math/MutableScalar';
 import _MutableVector2 from './foundation/math/MutableVector2';
 import _MutableVector3 from './foundation/math/MutableVector3';
 import _MutableVector4 from './foundation/math/MutableVector4';
@@ -205,6 +206,7 @@ export default {
   Vector2: _Vector2,
   Vector3: _Vector3,
   Vector4: _Vector4,
+  MutableScalar: _MutableScalar,
   MutableVector2: _MutableVector2,
   MutableVector3: _MutableVector3,
   MutableVector4: _MutableVector4,

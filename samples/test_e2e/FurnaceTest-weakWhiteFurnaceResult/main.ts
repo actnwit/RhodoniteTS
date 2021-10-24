@@ -82,7 +82,7 @@ declare global {
     material.setParameter(Rn.FurnaceTestSingleMaterialNode.debugView, 1); // weakWhiteFurnaceResult
     material.setParameter(
       Rn.ShaderSemantics.ScreenInfo,
-      new Rn.Vector2(512, 512)
+      Rn.Vector2.fromCopyArray2([512, 512])
     );
     window.material = material;
 

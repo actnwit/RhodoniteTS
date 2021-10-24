@@ -112,7 +112,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 2,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector2(1, 1),
+        initialValue: Vector2.fromCopyArray2([1, 1]),
       },
       {
         semantic: ShaderSemantics.MetallicRoughnessTexture,
@@ -227,7 +227,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 5,
         isSystem: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector2(0, 0),
+        initialValue: Vector2.fromCopyArray2([0, 0]),
       },
       // {
       //   semantic: ShaderSemantics.LightNumber,

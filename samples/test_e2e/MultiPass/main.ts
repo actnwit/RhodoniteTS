@@ -167,7 +167,7 @@ declare const Stats: any;
     );
     primitive_fxaa.material.setParameter(
       Rn.ShaderSemantics.ScreenInfo,
-      new Rn.Vector2(600, 600)
+      Rn.Vector2.fromCopyArray2([600, 600])
     );
     primitive_fxaa.generate({
       width: 2,
@@ -183,7 +183,7 @@ declare const Stats: any;
     );
     primitive_fxaa.material.setParameter(
       Rn.ShaderSemantics.ScreenInfo,
-      new Rn.Vector2(600, 600)
+      Rn.Vector2.fromCopyArray2([600, 600])
     );
     const meshComponent_fxaa = entity_fxaa.getMesh();
     const mesh_fxaa = new Rn.Mesh();
