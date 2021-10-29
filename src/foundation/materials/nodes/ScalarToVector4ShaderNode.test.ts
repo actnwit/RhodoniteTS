@@ -16,22 +16,22 @@ test('ScalarToVector4 works correctly 1', async () => {
     CompositionType.Scalar,
     ComponentType.Float
   );
-  constant1.setDefaultInputValue('value', new Scalar(1));
+  constant1.setDefaultInputValue('value', Scalar.fromCopyNumber(1));
   const constant2 = new ConstantVariableShaderNode(
     CompositionType.Scalar,
     ComponentType.Float
   );
-  constant2.setDefaultInputValue('value', new Scalar(2));
+  constant2.setDefaultInputValue('value', Scalar.fromCopyNumber(2));
   const constant3 = new ConstantVariableShaderNode(
     CompositionType.Scalar,
     ComponentType.Float
   );
-  constant3.setDefaultInputValue('value', new Scalar(3));
+  constant3.setDefaultInputValue('value', Scalar.fromCopyNumber(3));
   const constant4 = new ConstantVariableShaderNode(
     CompositionType.Scalar,
     ComponentType.Float
   );
-  constant4.setDefaultInputValue('value', new Scalar(4));
+  constant4.setDefaultInputValue('value', Scalar.fromCopyNumber(4));
 
   const scalarToVector4MaterialNode = new ScalarToVector4MaterialNode();
   scalarToVector4MaterialNode.addInputConnection(constant1, 'outValue', 'x');

@@ -151,7 +151,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           compositionType: CompositionType.Scalar,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
-          initialValue: new Scalar(30.0),
+          initialValue: Scalar.fromCopyNumber(30.0),
           min: 0,
           max: Number.MAX_VALUE,
           isSystem: false,

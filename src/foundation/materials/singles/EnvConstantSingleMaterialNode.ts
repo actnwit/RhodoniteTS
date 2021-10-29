@@ -38,7 +38,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
         min: 0,
         max: 5,
       },
@@ -50,7 +50,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
         min: -Math.PI,
         max: Math.PI,
       },
@@ -86,7 +86,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(makeOutputSrgb ? 1 : 0),
+        initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
       },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

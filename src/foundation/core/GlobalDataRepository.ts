@@ -204,7 +204,7 @@ export default class GlobalDataRepository {
       max: 1,
       isSystem: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: new Scalar(-1),
+      initialValue: Scalar.fromCopyNumber(-1),
     };
     if (Config.boneDataType === BoneDataType.Mat44x1) {
       this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
@@ -285,7 +285,7 @@ export default class GlobalDataRepository {
       max: Number.MAX_SAFE_INTEGER,
       isSystem: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-      initialValue: new Scalar(0),
+      initialValue: Scalar.fromCopyNumber(0),
     };
     this.registerProperty(lightNumberInfo, 1);
     this.takeOne(ShaderSemantics.LightNumber);

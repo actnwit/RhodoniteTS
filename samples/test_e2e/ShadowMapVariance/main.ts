@@ -197,10 +197,11 @@ declare const Rn: typeof _Rn;
     renderPass.addEntities([entitySphere, entityBoard]);
 
     // set variance shadow material for sphere primitive in this render pass
-    const materialSphere = Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
-      {depthCameraComponent: cameraComponentDepth},
-      [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
-    );
+    const materialSphere =
+      Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
+        {depthCameraComponent: cameraComponentDepth},
+        [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
+      );
     materialSphere.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
@@ -211,16 +212,17 @@ declare const Rn: typeof _Rn;
     );
     materialSphere.setParameter(
       Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.MinimumVariance,
-      new Rn.Scalar(0.01)
+      Rn.Scalar.fromCopyNumber(0.01)
     );
     const primitiveSphere = entitySphere.getMesh().mesh.primitives[0];
     renderPass.setMaterialForPrimitive(materialSphere, primitiveSphere);
 
     // set variance shadow material for board primitive in this render pass
-    const materialBoard = Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
-      {depthCameraComponent: cameraComponentDepth},
-      [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
-    );
+    const materialBoard =
+      Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
+        {depthCameraComponent: cameraComponentDepth},
+        [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
+      );
     materialBoard.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
@@ -231,7 +233,7 @@ declare const Rn: typeof _Rn;
     );
     materialBoard.setParameter(
       Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.MinimumVariance,
-      new Rn.Scalar(0.01)
+      Rn.Scalar.fromCopyNumber(0.01)
     );
     const primitiveBoard = entityBoard.getMesh().mesh.primitives[0];
     renderPass.setMaterialForPrimitive(materialBoard, primitiveBoard);
@@ -332,14 +334,14 @@ declare const Rn: typeof _Rn;
     renderPassBlurTarget: RenderPass,
     isHorizontal: boolean
   ) {
-    const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
+    const material =
+      Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
 
-    const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne(
-      {
+    const gaussianDistributionRatio =
+      Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
         kernelSize: gaussianKernelSize,
         variance: gaussianVariance,
-      }
-    );
+      });
     material.setParameter(
       Rn.GaussianBlurForEncodedDepthSingleMaterialNode.GaussianKernelSize,
       gaussianKernelSize
@@ -378,8 +380,14 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0.0,
+      0.0,
+    ]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0.0, -0.5,
+    ]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

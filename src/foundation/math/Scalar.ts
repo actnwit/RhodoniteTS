@@ -1,22 +1,16 @@
 import {IScalar} from './IVector';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+import {
+  FloatTypedArrayConstructor,
+  TypedArray,
+  TypedArrayConstructor,
+} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import AbstractVector from './AbstractVector';
 
 export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
-  constructor(x: number | TypedArray | null, {type}: {type: T}) {
+  constructor(v: TypedArray, {type}: {type: T}) {
     super();
-    if (ArrayBuffer.isView(x)) {
-      this._v = (x as any) as TypedArray;
-      return;
-    } else if (x == null) {
-      this._v = new type(0);
-      return;
-    } else {
-      this._v = new type(1);
-    }
-
-    this._v[0] = (x as any) as number;
+    this._v = v;
   }
 
   getValue() {
@@ -58,25 +52,39 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   get glslStrAsInt() {
     return `${Math.floor(this.x)}`;
   }
+
+  static _fromCopyNumber(value: number, type: FloatTypedArrayConstructor) {
+    return new this(new type([value]), {type});
+  }
+
+  static _dummy(type: FloatTypedArrayConstructor) {
+    return new this(new type(), {type});
+  }
+
 }
 
 export default class Scalar
   extends Scalar_<Float32ArrayConstructor>
-  implements IScalar {
-  constructor(x: number | TypedArray | null) {
+  implements IScalar
+{
+  constructor(x: TypedArray) {
     super(x, {type: Float32Array});
   }
 
-  static zero() {
-    return new Scalar(0);
+  static fromCopyNumber(value: number): Scalar {
+    return super._fromCopyNumber(value, Float32Array) as Scalar;
   }
 
-  static one() {
-    return new Scalar(1);
+  static zero(): Scalar {
+    return Scalar.fromCopyNumber(0);
   }
 
-  static dummy() {
-    return new Scalar(null);
+  static one(): Scalar {
+    return Scalar.fromCopyNumber(1);
+  }
+
+  static dummy(): Scalar {
+    return super._dummy(Float32Array) as Scalar;
   }
 
   get className() {
@@ -90,30 +98,34 @@ export default class Scalar
     return '(' + this._v[0] + ')';
   }
 
-  clone() {
-    return new Scalar(this.x);
+  clone(): Scalar {
+    return new Scalar(this._v) as Scalar;
   }
 }
 
 export class Scalard extends Scalar_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | null) {
+  constructor(x: TypedArray) {
     super(x, {type: Float64Array});
   }
 
-  static zero() {
-    return new Scalard(0);
+  static fromCopyNumber(value: number): Scalard {
+    return super._fromCopyNumber(value, Float64Array) as Scalard;
   }
 
-  static one() {
-    return new Scalard(1);
+  static zero(): Scalard {
+    return Scalard.fromCopyNumber(0);
   }
 
-  static dummy() {
-    return new Scalard(null);
+  static one(): Scalard {
+    return Scalard.fromCopyNumber(1);
   }
 
-  clone() {
-    return new Scalard(this.x);
+  static dummy(): Scalard {
+    return super._dummy(Float64Array) as Scalard;
+  }
+
+  clone(): Scalard {
+    return new Scalard(this._v) as Scalard;
   }
 }
 

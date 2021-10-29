@@ -209,7 +209,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -Math.PI,
         max: Math.PI,
         isSystem: false,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: PbrExtendedShadingSingleMaterialNode.normalTextureTransform,
@@ -229,7 +229,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -Math.PI,
         max: Math.PI,
         isSystem: false,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic:
@@ -251,7 +251,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -Math.PI,
         max: Math.PI,
         isSystem: false,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic:
@@ -273,7 +273,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: -Math.PI,
         max: Math.PI,
         isSystem: false,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: PbrExtendedShadingSingleMaterialNode.debugDisplay,
@@ -283,7 +283,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
         min: 0,
         max: 20,
         isSystem: false,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: ShaderSemantics.IBLParameter,
@@ -327,7 +327,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
       //   max: Number.MAX_SAFE_INTEGER,
       //   isSystem: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-      //   initialValue: new Scalar(0),
+      //   initialValue: Scalar.fromCopyNumber(0),
       //   soloDatum: true,
       // },
       // {
@@ -431,7 +431,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
+      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: Scalar.fromCopyNumber(0) });
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
