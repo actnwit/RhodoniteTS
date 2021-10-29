@@ -50,7 +50,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Scalar(ShadingModel.Constant.index),
+        initialValue: Scalar.fromCopyNumber(ShadingModel.Constant.index),
         min: 0,
         max: 3,
       },
@@ -62,7 +62,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Scalar(5),
+        initialValue: Scalar.fromCopyNumber(5),
         min: 0,
         max: Number.MAX_VALUE,
       },
@@ -111,7 +111,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
-        initialValue: new Scalar(30.0),
+        initialValue: Scalar.fromCopyNumber(30.0),
         min: 0,
         max: 100,
       },
@@ -147,7 +147,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       max: 1.0,
       isSystem: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: new Scalar(0.01),
+      initialValue: Scalar.fromCopyNumber(0.01),
     });
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

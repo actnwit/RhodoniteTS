@@ -86,7 +86,7 @@ export default class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: new Scalar(synthesizeTextures[0].width),
+        initialValue: Scalar.fromCopyNumber(synthesizeTextures[0].width),
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

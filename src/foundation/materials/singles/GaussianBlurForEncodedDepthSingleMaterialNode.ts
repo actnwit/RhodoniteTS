@@ -58,7 +58,7 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
-        initialValue: new Scalar(1), //true
+        initialValue: Scalar.fromCopyNumber(1), //true
         min: 0,
         max: 1,
       },
@@ -84,7 +84,7 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
-        initialValue: new Scalar(1),
+        initialValue: Scalar.fromCopyNumber(1),
         min: 1,
         max: 30,
       },
@@ -96,7 +96,7 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
-        initialValue: new Scalar(1),
+        initialValue: Scalar.fromCopyNumber(1),
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

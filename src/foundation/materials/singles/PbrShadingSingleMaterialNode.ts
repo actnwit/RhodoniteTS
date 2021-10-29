@@ -187,7 +187,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: ShaderSemantics.MakeOutputSrgb,
@@ -198,7 +198,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(makeOutputSrgb ? 1 : 0),
+        initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
       },
       {
         semantic: ShaderSemantics.IBLParameter,
@@ -264,7 +264,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Math.PI,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic:
@@ -287,7 +287,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Math.PI,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
 
       {
@@ -299,7 +299,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: PbrShadingSingleMaterialNode.MetallicRoughnessTexcoordIndex,
@@ -310,7 +310,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: PbrShadingSingleMaterialNode.OcclusionTexcoordIndex,
@@ -321,7 +321,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: PbrShadingSingleMaterialNode.EmissiveTexcoordIndex,
@@ -332,7 +332,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
 
       {
@@ -344,7 +344,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(1),
+        initialValue: Scalar.fromCopyNumber(1),
       },
     ];
 
@@ -357,7 +357,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
-        initialValue: new Scalar(30.0),
+        initialValue: Scalar.fromCopyNumber(30.0),
         min: 0,
         max: 100,
       },
@@ -394,7 +394,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.VertexShader,
           isSystem: true,
           soloDatum: true,
-          initialValue: new Scalar(0),
+          initialValue: Scalar.fromCopyNumber(0),
           min: 0,
           max: Config.maxVertexMorphNumberInShader,
           needUniformInFastest: true,
@@ -471,7 +471,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           max: Math.PI,
           isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Scalar(0),
+          initialValue: Scalar.fromCopyNumber(0),
         },
         {
           semantic: PbrShadingSingleMaterialNode.NormalTexcoordIndex,
@@ -482,7 +482,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           max: 1,
           isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Scalar(0),
+          initialValue: Scalar.fromCopyNumber(0),
         },
         {
           semantic: PbrShadingSingleMaterialNode.NormalScale,
@@ -493,7 +493,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           max: Number.MAX_SAFE_INTEGER,
           isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Scalar(1),
+          initialValue: Scalar.fromCopyNumber(1),
         }
       );
     }
@@ -509,7 +509,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: 1.0,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: new Scalar(0.01),
+        initialValue: Scalar.fromCopyNumber(0.01),
       });
     }
 

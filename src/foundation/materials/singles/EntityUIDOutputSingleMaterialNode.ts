@@ -79,7 +79,7 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
-        initialValue: new Scalar(30.0),
+        initialValue: Scalar.fromCopyNumber(30.0),
         min: 0,
         max: 100,
       },

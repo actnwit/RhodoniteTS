@@ -193,7 +193,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: 1,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       // {
       //   semantic: ShaderSemantics.ViewPosition,
@@ -238,7 +238,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
       //   max: Number.MAX_SAFE_INTEGER,
       //   isSystem: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-      //   initialValue: new Scalar(0),
+      //   initialValue: Scalar.fromCopyNumber(0),
       //   soloDatum: true
       // },
       {
@@ -283,7 +283,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: Math.PI,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic: SkinPbrShadingSingleMaterialNode.normalTextureTransform,
@@ -305,7 +305,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: Math.PI,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic:
@@ -329,7 +329,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         max: Math.PI,
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
+        initialValue: Scalar.fromCopyNumber(0),
       },
     ];
 
@@ -342,7 +342,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
-        initialValue: new Scalar(100.0),
+        initialValue: Scalar.fromCopyNumber(100.0),
         min: 0,
         max: 100,
       },
@@ -425,7 +425,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))});
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(-1) });
+      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Scalar.fromCopyNumber(-1) });
     }
 
     if (isMorphing) {
@@ -439,7 +439,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
           stage: ShaderType.VertexShader,
           isSystem: true,
           soloDatum: true,
-          initialValue: new Scalar(0),
+          initialValue: Scalar.fromCopyNumber(0),
           min: 0,
           max: Config.maxVertexMorphNumberInShader,
           needUniformInFastest: true,

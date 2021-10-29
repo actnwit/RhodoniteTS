@@ -1297,7 +1297,7 @@ export default class ModelConverter {
             param = ShadingModel.Phong.index;
             break;
         }
-        material.setParameter(ShaderSemantics.ShadingModel, new Scalar(param));
+        material.setParameter(ShaderSemantics.ShadingModel, Scalar.fromCopyNumber(param));
       }
     }
 
@@ -1333,7 +1333,7 @@ export default class ModelConverter {
       ) {
         material.setParameter(
           ShaderSemantics.AlphaCutoff,
-          new Scalar(materialJson.alphaCutoff ?? 0.5)
+          Scalar.fromCopyNumber(materialJson.alphaCutoff ?? 0.5)
         );
       }
     }
