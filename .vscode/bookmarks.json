@@ -1,0 +1,54 @@
+{
+	"files": [
+		{
+			"path": "src/foundation/gizmos/AABBGizmo.ts",
+			"bookmarks": [
+				{
+					"line": 14,
+					"column": 19,
+					"label": ""
+				},
+				{
+					"line": 22,
+					"column": 15,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "src/foundation/geometry/Mesh.ts",
+			"bookmarks": [
+				{
+					"line": 20,
+					"column": 15,
+					"label": ""
+				},
+				{
+					"line": 76,
+					"column": 15,
+					"label": ""
+				},
+				{
+					"line": 84,
+					"column": 20,
+					"label": ""
+				},
+				{
+					"line": 295,
+					"column": 29,
+					"label": ""
+				},
+				{
+					"line": 410,
+					"column": 15,
+					"label": ""
+				},
+				{
+					"line": 487,
+					"column": 19,
+					"label": ""
+				}
+			]
+		}
+	]
+}
