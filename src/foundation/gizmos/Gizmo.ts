@@ -5,10 +5,17 @@ import Entity from '../core/Entity';
 
 export default abstract class Gizmo extends RnObject {
   protected __entityRepository = EntityRepository.getInstance();
+
+  /// the top entity of this gizmo group
   protected __topEntity?: Entity;
+  /// the object which this gizmo belong to
   protected __substance: RnObject;
   protected __isVisible = false;
 
+  /**
+   * Constructor
+   * @param substance the object which this gizmo belong to
+   */
   constructor(substance: RnObject) {
     super();
     this.__substance = substance;
