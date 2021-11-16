@@ -73,26 +73,20 @@ export default class Mesh {
   private static __tmpReturnVec3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpReturnVec3_2: MutableVector3 = MutableVector3.zero();
 
+  /**
+   * Constructor
+   */
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
   }
 
-  /**
-   * Gets original (Non instanced) meshes.
-   */
-  static get originalMeshes(): Mesh[] {
-    return this.__originalMeshes;
-  }
+  ///
+  ///
+  /// Public Members
+  ///
+  ///
 
-  get variationVBOUid(): CGAPIResourceHandle {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.variationVBOUid;
-    } else {
-      return this.__variationVBOUid;
-    }
-  }
-
-  getVaoUids(index: Index): CGAPIResourceHandle {
+  public getVaoUids(index: Index): CGAPIResourceHandle {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.getVaoUids(index);
     } else {
@@ -101,20 +95,10 @@ export default class Mesh {
   }
 
   /**
-   * @private
-   * Adds the other mesh to this mesh as instanced meshes.
-   * @param mesh The other mesh.
-   */
-  _addMeshToInstanceArray(mesh: Mesh) {
-    this.__instances.push(mesh);
-    this.__instancesDirty = true;
-  }
-
-  /**
    * Adds primitive.
    * @param primitive The primitive object.
    */
-  addPrimitive(primitive: Primitive) {
+  public addPrimitive(primitive: Primitive) {
     if (this.isInstanceMesh()) {
       // De-instancing
       this.__instanceOf!.__instances = this.__instanceOf!.__instances.filter(
@@ -156,7 +140,7 @@ export default class Mesh {
    * Sets mesh.
    * @param mesh The mesh.
    */
-  setOriginalMesh(mesh: Mesh) {
+  public setOriginalMesh(mesh: Mesh) {
     if (mesh.isInstanceMesh()) {
       console.error("Don't set InstanceMesh.");
       return false;
@@ -179,7 +163,7 @@ export default class Mesh {
   /**
    * Gets true if these primitives are all 'Blend' type
    */
-  isAllBlend(): boolean {
+  public isAllBlend(): boolean {
     if (
       this.__transparentPrimitives.length > 0 &&
       this.__opaquePrimitives.length === 0
@@ -193,7 +177,7 @@ export default class Mesh {
   /**
    * Gets true if some primitives are 'Blend' type
    */
-  isBlendPartially(): boolean {
+  public isBlendPartially(): boolean {
     if (
       this.__transparentPrimitives.length > 0 &&
       this.__opaquePrimitives.length > 0
@@ -207,7 +191,7 @@ export default class Mesh {
   /**
    * Gets true if these primitives are all 'Opaque' type
    */
-  isOpaque(): boolean {
+  public isOpaque(): boolean {
     if (
       this.__transparentPrimitives.length === 0 &&
       this.__opaquePrimitives.length > 0
@@ -218,7 +202,7 @@ export default class Mesh {
     }
   }
 
-  isFirstOpaquePrimitiveAt(index: Index): boolean {
+  public isFirstOpaquePrimitiveAt(index: Index): boolean {
     if (this.isFirstOpaquePrimitiveAt(index)) {
       return this.__instanceOf!.isFirstOpaquePrimitiveAt(index);
     } else {
@@ -234,7 +218,7 @@ export default class Mesh {
     }
   }
 
-  isFirstTransparentPrimitiveAt(index: Index): boolean {
+  public isFirstTransparentPrimitiveAt(index: Index): boolean {
     if (this.isFirstOpaquePrimitiveAt(index)) {
       return this.__instanceOf!.isFirstTransparentPrimitiveAt(index);
     } else {
@@ -250,7 +234,297 @@ export default class Mesh {
     }
   }
 
-  __calcTangents() {
+  public getPrimitiveAt(i: number): Primitive {
+    // if (this.weights.length > 0) {
+    // return this.__morphPrimitives[i];
+    // } else {
+    return this.__primitives[i];
+    // }
+  }
+
+  public getPrimitiveNumber(): number {
+    return this.__primitives.length;
+  }
+
+  public isInstanceMesh() {
+    if (this.__instanceOf != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public isOriginalMesh() {
+    return !this.isInstanceMesh();
+  }
+
+  public updateVariationVBO(): boolean {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVariationVBO();
+    } else {
+      if (!this.__instancesDirty) {
+        return false;
+      }
+
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
+
+      if (
+        this.__variationVBOUid !==
+        CGAPIResourceRepository.InvalidCGAPIResourceUid
+      ) {
+        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+      }
+
+      const instanceNum = this.__instances.length;
+      const entityUIDs = new Float32Array(instanceNum + 1); // instances and original
+      entityUIDs[0] = this._attachedEntityUID;
+      for (let i = 0; i < instanceNum; i++) {
+        entityUIDs[i + 1] = this.__instances[i]._attachedEntityUID;
+      }
+
+      this.__variationVBOUid =
+        webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
+
+      this.__instancesDirty = false;
+
+      return true;
+    }
+  }
+
+  ///
+  /// Public WebGL-related Methods
+  ///
+
+  public deleteVariationVBO(): boolean {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.deleteVariationVBO();
+    } else {
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
+      if (
+        this.__variationVBOUid !==
+        CGAPIResourceRepository.InvalidCGAPIResourceUid
+      ) {
+        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+        this.__variationVBOUid =
+          CGAPIResourceRepository.InvalidCGAPIResourceUid;
+
+        this.__instancesDirty = true;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public updateVAO(): void {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVAO();
+    }
+
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+
+    // create and update VAO
+    for (let i = 0; i < this.__primitives.length; i++) {
+      const primitive = this.__primitives[i];
+      const vertexHandles = primitive.vertexHandles as VertexHandles;
+      if (is.undefined(vertexHandles)) {
+        console.warn('Need to create 3DAPIVertexData before update VAO');
+        continue;
+      }
+
+      if (
+        isNaN(this.__vaoUids[i]) ||
+        this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
+        vertexHandles.vaoHandle ===
+          CGAPIResourceRepository.InvalidCGAPIResourceUid
+      ) {
+        this.__vaoUids[i] = webglResourceRepository.createVertexArray()!;
+        vertexHandles.vaoHandle = this.__vaoUids[i];
+      }
+
+      webglResourceRepository.setVertexDataToPipeline(
+        vertexHandles,
+        primitive,
+        this.__variationVBOUid
+      );
+    }
+
+    // remove useless VAO
+    for (let i = this.__primitives.length; i < this.__vaoUids.length; i++) {
+      if (this.__vaoUids[i]) {
+        webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
+        this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+    }
+  }
+
+  public deleteVAO() {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVAO();
+    }
+
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    for (let i = 0; i < this.__vaoUids.length; i++) {
+      webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
+      this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+  }
+
+  public castRay(
+    srcPointInLocal: IVector3,
+    directionInLocal: IVector3,
+    dotThreshold = 0
+  ) {
+    let finalShortestIntersectedPosVec3: Vector3 | undefined;
+    let finalShortestT = Number.MAX_VALUE;
+    for (const primitive of this.__primitives) {
+      const {currentShortestIntersectedPosVec3, currentShortestT} =
+        primitive.castRay(
+          srcPointInLocal,
+          directionInLocal,
+          true,
+          true,
+          dotThreshold,
+          this.__hasFaceNormal
+        );
+      if (currentShortestT != null && currentShortestT < finalShortestT) {
+        finalShortestT = currentShortestT;
+        finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;
+      }
+    }
+
+    if (finalShortestT === Number.MAX_VALUE) {
+      finalShortestT === -1;
+    }
+
+    return {
+      t: finalShortestT,
+      intersectedPosition: finalShortestIntersectedPosVec3,
+    };
+  }
+
+  ///
+  ///
+  /// Accessors
+  ///
+  ///
+
+  get primitives() {
+    return Array.from(this.__primitives);
+  }
+
+  get meshUID() {
+    return this.__meshUID;
+  }
+
+  get instanceCountIncludeOriginal() {
+    return this.__instances.length + 1;
+  }
+
+  /**
+   * Gets AABB in local space.
+   */
+  get AABB(): AABB {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.AABB;
+    }
+
+    for (const primitive of this.__primitives) {
+      if (primitive.isPositionAccessorUpdated) {
+        this.__localAABB.initialize();
+        break;
+      }
+    }
+
+    if (this.__localAABB.isVanilla()) {
+      for (const primitive of this.__primitives) {
+        this.__localAABB.mergeAABB(primitive.AABB);
+      }
+    }
+
+    return this.__localAABB;
+  }
+
+  get instanceIndex() {
+    return this.__instanceIdx;
+  }
+
+  ///
+  ///
+  // Friend Members
+  ///
+  ///
+
+  /**
+   * @private
+   * Adds the other mesh to this mesh as instanced meshes.
+   * @param mesh The other mesh.
+   */
+  _addMeshToInstanceArray(mesh: Mesh) {
+    this.__instances.push(mesh);
+    this.__instancesDirty = true;
+  }
+
+  /**
+   * @private
+   */
+  _calcArenbergInverseMatrices() {
+    if (this.isInstanceMesh()) {
+      return;
+    }
+
+    if (this.isPreComputeForRayCastPickingEnable) {
+      for (const primitive of this.__primitives) {
+        primitive._calcArenbergInverseMatrices();
+      }
+    }
+  }
+
+  ///
+  ///
+  /// Private Members
+  ///
+  ///
+
+  private __calcMorphPrimitives() {
+    if (this.weights.length === 0 || this.isInstanceMesh()) {
+      return;
+    }
+
+    for (let i = 0; i < this.__primitives.length; i++) {
+      const morphPrimitive = this.__morphPrimitives[i];
+      const primitive = this.__primitives[i];
+      const target0Attributes = primitive.targets[0];
+      target0Attributes.forEach((accessor, semantic) => {
+        const morphAccessor = morphPrimitive.getAttribute(semantic)!;
+        const elementCount = morphAccessor.elementCount;
+        for (let j = 0; j < elementCount; j++) {
+          morphAccessor.setElementFromSameCompositionAccessor(
+            j,
+            primitive.getAttribute(semantic)!
+          );
+        }
+      });
+
+      // primitive.targets.forEach((targetAttributes, k)=>{
+      //   targetAttributes.forEach((accessor, semantic) => {
+      //     const morphAccessor = morphPrimitive.getAttribute(semantic)!;
+      //     const elementCount = morphAccessor.elementCount;
+      //     for (let j = 0; j < elementCount; j++) {
+      //       morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
+      //     }
+      //   });
+      // });
+    }
+  }
+
+  /**
+   * @private
+   */
+  _calcTangents() {
     if (!this.__usePreCalculatedTangent()) {
       return;
     }
@@ -327,6 +601,9 @@ export default class Mesh {
     }
   }
 
+  /**
+   * @private
+   */
   private __calcTangentFor3Vertices(
     i: Index,
     pos0: Vector3,
@@ -448,23 +725,65 @@ export default class Mesh {
     }
   }
 
-  getPrimitiveAt(i: number): Primitive {
-    // if (this.weights.length > 0) {
-    // return this.__morphPrimitives[i];
-    // } else {
-    return this.__primitives[i];
-    // }
+  /**
+   * @private
+   */
+  _calcBaryCentricCoord() {
+    if (this.isInstanceMesh()) {
+      return;
+    }
+
+    for (const primitive of this.__primitives) {
+      const BaryCentricCoordId = primitive.attributeSemantics.indexOf(
+        VertexAttribute.BaryCentricCoord
+      );
+      if (BaryCentricCoordId !== -1) {
+        return;
+      }
+
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(
+        BufferUse.CPUGeneric
+      );
+      const positionIdx = primitive.attributeSemantics.indexOf(
+        VertexAttribute.Position
+      );
+      const positionAccessor = primitive.attributeAccessors[positionIdx];
+      const vertexNum = positionAccessor.elementCount;
+      const num = vertexNum;
+
+      const baryCentricCoordAttributeByteSize =
+        num * 4 /* vec4 */ * 4; /* bytes */
+      const baryCentricCoordBufferView = buffer.takeBufferView({
+        byteLengthToNeed: baryCentricCoordAttributeByteSize,
+        byteStride: 0,
+      });
+      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        count: num,
+      });
+
+      for (let ver_i = 0; ver_i < num; ver_i++) {
+        baryCentricCoordAccessor.setVec4(
+          ver_i,
+          ver_i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
+          ver_i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
+          ver_i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1,
+          ver_i,
+          {}
+        );
+      }
+      primitive.setVertexAttribute(
+        baryCentricCoordAccessor,
+        VertexAttribute.BaryCentricCoord
+      );
+    }
   }
 
-  getPrimitiveNumber(): number {
-    return this.__primitives.length;
-  }
-
-  get primitives() {
-    return Array.from(this.__primitives);
-  }
-
-  __calcFaceNormalsIfNonNormal() {
+  /**
+   * @private
+   */
+  _calcFaceNormalsIfNonNormal() {
     if (this.isInstanceMesh()) {
       return;
     }
@@ -526,7 +845,7 @@ export default class Mesh {
     }
   }
 
-  __calcFaceNormalFor3Vertices(
+  private __calcFaceNormalFor3Vertices(
     i: Index,
     pos0: Vector3,
     pos1: Vector3,
@@ -596,58 +915,6 @@ export default class Mesh {
   //   }
   // }
 
-  __calcBaryCentricCoord() {
-    if (this.isInstanceMesh()) {
-      return;
-    }
-
-    for (const primitive of this.__primitives) {
-      const BaryCentricCoordId = primitive.attributeSemantics.indexOf(
-        VertexAttribute.BaryCentricCoord
-      );
-      if (BaryCentricCoordId !== -1) {
-        return;
-      }
-
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(
-        BufferUse.CPUGeneric
-      );
-      const positionIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Position
-      );
-      const positionAccessor = primitive.attributeAccessors[positionIdx];
-      const vertexNum = positionAccessor.elementCount;
-      const num = vertexNum;
-
-      const baryCentricCoordAttributeByteSize =
-        num * 4 /* vec4 */ * 4; /* bytes */
-      const baryCentricCoordBufferView = buffer.takeBufferView({
-        byteLengthToNeed: baryCentricCoordAttributeByteSize,
-        byteStride: 0,
-      });
-      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        count: num,
-      });
-
-      for (let ver_i = 0; ver_i < num; ver_i++) {
-        baryCentricCoordAccessor.setVec4(
-          ver_i,
-          ver_i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
-          ver_i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
-          ver_i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1,
-          ver_i,
-          {}
-        );
-      }
-      primitive.setVertexAttribute(
-        baryCentricCoordAccessor,
-        VertexAttribute.BaryCentricCoord
-      );
-    }
-  }
-
   // __initMorphPrimitives() {
   //   if (this.weights.length === 0) {
   //     return;
@@ -671,240 +938,4 @@ export default class Mesh {
   //     }
   //   }
   // }
-
-  __calcMorphPrimitives() {
-    if (this.weights.length === 0 || this.isInstanceMesh()) {
-      return;
-    }
-
-    for (let i = 0; i < this.__primitives.length; i++) {
-      const morphPrimitive = this.__morphPrimitives[i];
-      const primitive = this.__primitives[i];
-      const target0Attributes = primitive.targets[0];
-      target0Attributes.forEach((accessor, semantic) => {
-        const morphAccessor = morphPrimitive.getAttribute(semantic)!;
-        const elementCount = morphAccessor.elementCount;
-        for (let j = 0; j < elementCount; j++) {
-          morphAccessor.setElementFromSameCompositionAccessor(
-            j,
-            primitive.getAttribute(semantic)!
-          );
-        }
-      });
-
-      // primitive.targets.forEach((targetAttributes, k)=>{
-      //   targetAttributes.forEach((accessor, semantic) => {
-      //     const morphAccessor = morphPrimitive.getAttribute(semantic)!;
-      //     const elementCount = morphAccessor.elementCount;
-      //     for (let j = 0; j < elementCount; j++) {
-      //       morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
-      //     }
-      //   });
-      // });
-    }
-  }
-
-  /**
-   * Gets AABB in local space.
-   */
-  get AABB(): AABB {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.AABB;
-    }
-
-    for (const primitive of this.__primitives) {
-      if (primitive.isPositionAccessorUpdated) {
-        this.__localAABB.initialize();
-        break;
-      }
-    }
-
-    if (this.__localAABB.isVanilla()) {
-      for (const primitive of this.__primitives) {
-        this.__localAABB.mergeAABB(primitive.AABB);
-      }
-    }
-
-    return this.__localAABB;
-  }
-
-  get instanceIndex() {
-    return this.__instanceIdx;
-  }
-
-  isInstanceMesh() {
-    if (this.__instanceOf != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  isOriginalMesh() {
-    return !this.isInstanceMesh();
-  }
-
-  get meshUID() {
-    return this.__meshUID;
-  }
-
-  updateVariationVBO(): boolean {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.updateVariationVBO();
-    } else {
-      if (!this.__instancesDirty) {
-        return false;
-      }
-
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-
-      if (
-        this.__variationVBOUid !==
-        CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
-        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-      }
-
-      const instanceNum = this.__instances.length;
-      const entityUIDs = new Float32Array(instanceNum + 1); // instances and original
-      entityUIDs[0] = this._attachedEntityUID;
-      for (let i = 0; i < instanceNum; i++) {
-        entityUIDs[i + 1] = this.__instances[i]._attachedEntityUID;
-      }
-
-      this.__variationVBOUid =
-        webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
-
-      this.__instancesDirty = false;
-
-      return true;
-    }
-  }
-
-  deleteVariationVBO(): boolean {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.deleteVariationVBO();
-    } else {
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-      if (
-        this.__variationVBOUid !==
-        CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
-        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-        this.__variationVBOUid =
-          CGAPIResourceRepository.InvalidCGAPIResourceUid;
-
-        this.__instancesDirty = true;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  updateVAO(): void {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.updateVAO();
-    }
-
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-
-    // create and update VAO
-    for (let i = 0; i < this.__primitives.length; i++) {
-      const primitive = this.__primitives[i];
-      const vertexHandles = primitive.vertexHandles as VertexHandles;
-      if (is.undefined(vertexHandles)) {
-        console.warn('Need to create 3DAPIVertexData before update VAO');
-        continue;
-      }
-
-      if (
-        isNaN(this.__vaoUids[i]) ||
-        this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
-        vertexHandles.vaoHandle ===
-          CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
-        this.__vaoUids[i] = webglResourceRepository.createVertexArray()!;
-        vertexHandles.vaoHandle = this.__vaoUids[i];
-      }
-
-      webglResourceRepository.setVertexDataToPipeline(
-        vertexHandles,
-        primitive,
-        this.__variationVBOUid
-      );
-    }
-
-    // remove useless VAO
-    for (let i = this.__primitives.length; i < this.__vaoUids.length; i++) {
-      if (this.__vaoUids[i]) {
-        webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
-        this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-      }
-    }
-  }
-
-  deleteVAO() {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.updateVAO();
-    }
-
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    for (let i = 0; i < this.__vaoUids.length; i++) {
-      webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
-      this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    }
-  }
-
-  get instanceCountIncludeOriginal() {
-    return this.__instances.length + 1;
-  }
-
-  castRay(
-    srcPointInLocal: IVector3,
-    directionInLocal: IVector3,
-    dotThreshold = 0
-  ) {
-    let finalShortestIntersectedPosVec3: Vector3 | undefined;
-    let finalShortestT = Number.MAX_VALUE;
-    for (const primitive of this.__primitives) {
-      const {currentShortestIntersectedPosVec3, currentShortestT} =
-        primitive.castRay(
-          srcPointInLocal,
-          directionInLocal,
-          true,
-          true,
-          dotThreshold,
-          this.__hasFaceNormal
-        );
-      if (currentShortestT != null && currentShortestT < finalShortestT) {
-        finalShortestT = currentShortestT;
-        finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;
-      }
-    }
-
-    if (finalShortestT === Number.MAX_VALUE) {
-      finalShortestT === -1;
-    }
-
-    return {
-      t: finalShortestT,
-      intersectedPosition: finalShortestIntersectedPosVec3,
-    };
-  }
-
-  _calcArenbergInverseMatrices() {
-    if (this.isInstanceMesh()) {
-      return;
-    }
-
-    if (this.isPreComputeForRayCastPickingEnable) {
-      for (const primitive of this.__primitives) {
-        primitive._calcArenbergInverseMatrices();
-      }
-    }
-  }
 }
