@@ -59,5 +59,6 @@
         "ZSTD",
         "zstddec"
     ],
-    "eslint.format.enable": true
+    "eslint.format.enable": true,
+    "bookmarks.saveBookmarksInProject": true
 }
