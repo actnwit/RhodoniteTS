@@ -43,22 +43,7 @@ export default class SceneGraphComponent extends Component {
   public jointIndex = -1;
 
   private static invertedMatrix44 = new MutableMatrix44([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 
   constructor(
@@ -231,9 +216,8 @@ export default class SceneGraphComponent extends Component {
       return transform.matrixInner;
     }
 
-    const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(
-      isJointMode
-    );
+    const matrixFromAncestorToParent =
+      this.__parent.calcWorldMatrixRecursively(isJointMode);
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
       transform.matrixInner,
@@ -336,7 +320,16 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
-  castRay(
+  /**
+   * castRay Methods
+   *
+   * @param srcPointInWorld a source position in world space
+   * @param directionInWorld a direction vector in world space
+   * @param dotThreshold threshold of the intersected triangle and the ray
+   * @param ignoreMeshComponents mesh components to ignore
+   * @returns information of intersection in world space
+   */
+  public castRay(
     srcPointInWorld: Vector3,
     directionInWorld: Vector3,
     dotThreshold = 0,
@@ -355,7 +348,7 @@ export default class SceneGraphComponent extends Component {
     }
 
     let rayDistance = Number.MAX_VALUE;
-    const intersectedPosition = null;
+    let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
       if (!meshComponent.entity.getSceneGraph().isVisible) {
@@ -367,14 +360,14 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      let {t, intersectedPositionInWorld} = meshComponent.castRay(
+      const {t, intersectedPositionInWorld} = meshComponent.castRay(
         srcPointInWorld,
         directionInWorld,
         dotThreshold
       );
       if (t < rayDistance) {
         rayDistance = t;
-        intersectedPositionInWorld = intersectedPositionInWorld;
+        intersectedPosition = intersectedPositionInWorld;
         selectedMeshComponent = meshComponent;
       }
     }
@@ -386,6 +379,17 @@ export default class SceneGraphComponent extends Component {
     return {intersectedPosition, rayDistance, selectedMeshComponent};
   }
 
+  /**
+   * castRayFromScreen Methods
+   *
+   * @param x x position of screen
+   * @param y y position of screen
+   * @param camera a camera component
+   * @param viewport a viewport vector4
+   * @param dotThreshold threshold of the intersected triangle and the ray
+   * @param ignoreMeshComponents mesh components to ignore
+   * @returns information of intersection in world space
+   */
   castRayFromScreen(
     x: number,
     y: number,
