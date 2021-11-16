@@ -1,6 +1,41 @@
 {
 	"files": [
 		{
+			"path": "src/foundation/gizmos/LocatorGizmo.ts",
+			"bookmarks": [
+				{
+					"line": 14,
+					"column": 17,
+					"label": ""
+				},
+				{
+					"line": 20,
+					"column": 15,
+					"label": ""
+				},
+				{
+					"line": 29,
+					"column": 16,
+					"label": ""
+				},
+				{
+					"line": 55,
+					"column": 14,
+					"label": ""
+				},
+				{
+					"line": 69,
+					"column": 17,
+					"label": ""
+				},
+				{
+					"line": 89,
+					"column": 25,
+					"label": ""
+				}
+			]
+		},
+		{
 			"path": "src/foundation/gizmos/AABBGizmo.ts",
 			"bookmarks": [
 				{

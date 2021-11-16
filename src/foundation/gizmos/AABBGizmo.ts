@@ -60,7 +60,7 @@ export default class AABBGizmo extends Gizmo {
 
     // if (AABBGizmo.__aabbMesh == null) {
     AABBGizmo.__mesh = new Mesh();
-    AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
+    AABBGizmo.__mesh.addPrimitive(AABBGizmo.__generatePrimitive());
     meshComponent.setMesh(AABBGizmo.__mesh);
     // } else {
     //   const mesh = new Mesh();
@@ -91,7 +91,7 @@ export default class AABBGizmo extends Gizmo {
   ///
   ///
 
-  private static generatePrimitive(): Primitive {
+  private static __generatePrimitive(): Primitive {
     const indices = new Uint32Array([
       0, 1, 2, 3, 4, 5, 6, 7, 3, 0, 4, 7, 2, 1, 5, 6, 3, 2, 6, 7, 0, 1, 5, 4,
     ]);

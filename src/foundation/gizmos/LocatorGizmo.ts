@@ -19,21 +19,19 @@ export default class LocatorGizmo extends Gizmo {
 
   /**
    * Constructor
-   * @param substance
+   * @param substance the object which this gizmo belong to
    */
   constructor(substance: RnObject) {
     super(substance);
   }
 
-  get isSetup() {
-    if (this.__topEntity != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  ///
+  ///
+  /// Public Members
+  ///
+  ///
 
-  setup(): void {
+  public setup(): void {
     if (this.isSetup) {
       return;
     }
@@ -47,13 +45,53 @@ export default class LocatorGizmo extends Gizmo {
     const meshComponent = this.__topEntity.getMesh();
 
     LocatorGizmo.__mesh = new Mesh();
-    LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.generatePrimitive());
+    LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
     meshComponent.setMesh(LocatorGizmo.__mesh);
 
     this.setGizmoTag();
   }
 
-  private static generatePrimitive() {
+  ///
+  ///
+  /// Accesssors
+  ///
+  ///
+
+  get isSetup(): boolean {
+    if (this.__topEntity != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  ///
+  ///
+  /// Public Members
+  ///
+  ///
+
+  public update(): void {
+    if (this.__topEntity == null) {
+      return;
+    }
+    const sg = this.__substance as unknown as SceneGraphComponent;
+    const aabb = sg.worldAABB;
+    this.__topEntity.getTransform().translate = aabb.centerPoint;
+    this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
+      aabb.sizeX / 2,
+      aabb.sizeY / 2,
+      aabb.sizeZ / 2,
+    ]);
+  }
+
+  ///
+  ///
+  /// Private Static Members
+  ///
+  ///
+
+  private static __generatePrimitive(): Primitive {
     const length = 1;
     const positions = new Float32Array([
       // X axis
@@ -89,19 +127,5 @@ export default class LocatorGizmo extends Gizmo {
     });
 
     return primitive;
-  }
-
-  update(): void {
-    if (this.__topEntity == null) {
-      return;
-    }
-    const sg = this.__substance as unknown as SceneGraphComponent;
-    const aabb = sg.worldAABB;
-    this.__topEntity.getTransform().translate = aabb.centerPoint;
-    this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
-      aabb.sizeX / 2,
-      aabb.sizeY / 2,
-      aabb.sizeZ / 2,
-    ]);
   }
 }
