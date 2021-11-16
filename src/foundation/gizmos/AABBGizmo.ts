@@ -12,7 +12,7 @@ import Vector3 from '../math/Vector3';
 import Mesh from '../geometry/Mesh';
 
 export default class AABBGizmo extends Gizmo {
-  private static __aabbMesh?: Mesh;
+  private static __mesh?: Mesh;
 
   /**
    * Constructor
@@ -44,9 +44,9 @@ export default class AABBGizmo extends Gizmo {
     const meshComponent = this.__topEntity.getMesh();
 
     // if (AABBGizmo.__aabbMesh == null) {
-    AABBGizmo.__aabbMesh = new Mesh();
-    AABBGizmo.__aabbMesh.addPrimitive(AABBGizmo.generatePrimitive());
-    meshComponent.setMesh(AABBGizmo.__aabbMesh);
+    AABBGizmo.__mesh = new Mesh();
+    AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
+    meshComponent.setMesh(AABBGizmo.__mesh);
     // } else {
     //   const mesh = new Mesh();
     //   mesh.setOriginalMesh(AABBGizmo.__aabbMesh);
