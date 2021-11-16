@@ -17,6 +17,7 @@ import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import AABBGizmo from '../gizmos/AABBGizmo';
+import LocatorGizmo from '../gizmos/LocatorGizmo';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -36,6 +37,7 @@ export default class SceneGraphComponent extends Component {
   public isVisible = true;
   private __animationComponent?: AnimationComponent;
   private __AABBGizmo = new AABBGizmo(this);
+  private __locatorGizmo = new LocatorGizmo(this);
   private static isJointAABBShouldBeCalculated = false;
 
   // Skeletal
