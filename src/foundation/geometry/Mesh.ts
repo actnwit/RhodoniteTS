@@ -98,7 +98,7 @@ export default class Mesh {
    * Adds primitive.
    * @param primitive The primitive object.
    */
-  public addPrimitive(primitive: Primitive) {
+  public addPrimitive(primitive: Primitive): void {
     if (this.isInstanceMesh()) {
       // De-instancing
       this.__instanceOf!.__instances = this.__instanceOf!.__instances.filter(
@@ -258,7 +258,11 @@ export default class Mesh {
     return !this.isInstanceMesh();
   }
 
-  public updateVariationVBO(): boolean {
+  /**
+   * @private
+   * @returns true: updated, false: not changed (not dirty)
+   */
+  updateVariationVBO(): boolean {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.updateVariationVBO();
     } else {
@@ -296,7 +300,11 @@ export default class Mesh {
   /// Public WebGL-related Methods
   ///
 
-  public deleteVariationVBO(): boolean {
+  /**
+   * @private
+   * @returns true: updated, false: not changed (not dirty)
+   */
+  deleteVariationVBO(): boolean {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.deleteVariationVBO();
     } else {
@@ -422,6 +430,17 @@ export default class Mesh {
 
   get instanceCountIncludeOriginal() {
     return this.__instances.length + 1;
+  }
+
+  /**
+   * @private
+   */
+  get _variationVBOUid(): CGAPIResourceHandle {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!._variationVBOUid;
+    } else {
+      return this.__variationVBOUid;
+    }
   }
 
   /**

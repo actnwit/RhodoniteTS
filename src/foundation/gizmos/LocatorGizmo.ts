@@ -11,9 +11,16 @@ import Primitive from '../geometry/Primitive';
 import Vector3 from '../math/Vector3';
 import Gizmo from './Gizmo';
 
+/**
+ * Locator Gizmo class
+ */
 export default class LocatorGizmo extends Gizmo {
   private static __mesh: Mesh;
 
+  /**
+   * Constructor
+   * @param substance
+   */
   constructor(substance: RnObject) {
     super(substance);
   }

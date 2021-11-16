@@ -11,6 +11,9 @@ import RnObject from '../core/RnObject';
 import Vector3 from '../math/Vector3';
 import Mesh from '../geometry/Mesh';
 
+/**
+ * AABB Gizmo class
+ */
 export default class AABBGizmo extends Gizmo {
   private static __mesh?: Mesh;
 
@@ -22,15 +25,27 @@ export default class AABBGizmo extends Gizmo {
     super(substance);
   }
 
-  get isSetup() {
-    if (this.__topEntity != null) {
-      return true;
-    } else {
-      return false;
+  ///
+  ///
+  /// Public Members
+  ///
+  ///
+
+  public update(): void {
+    if (this.__topEntity == null) {
+      return;
     }
+    const sg = this.__substance as unknown as SceneGraphComponent;
+    const aabb = sg.worldAABB;
+    this.__topEntity.getTransform().translate = aabb.centerPoint;
+    this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
+      aabb.sizeX / 2,
+      aabb.sizeY / 2,
+      aabb.sizeZ / 2,
+    ]);
   }
 
-  setup(): void {
+  public setup(): void {
     if (this.isSetup) {
       return;
     }
@@ -56,7 +71,27 @@ export default class AABBGizmo extends Gizmo {
     this.setGizmoTag();
   }
 
-  private static generatePrimitive() {
+  ///
+  ///
+  /// Accesssors
+  ///
+  ///
+
+  get isSetup(): boolean {
+    if (this.__topEntity != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  ///
+  ///
+  /// Private Static Members
+  ///
+  ///
+
+  private static generatePrimitive(): Primitive {
     const indices = new Uint32Array([
       0, 1, 2, 3, 4, 5, 6, 7, 3, 0, 4, 7, 2, 1, 5, 6, 3, 2, 6, 7, 0, 1, 5, 4,
     ]);
@@ -99,19 +134,5 @@ export default class AABBGizmo extends Gizmo {
     });
 
     return primitive;
-  }
-
-  update(): void {
-    if (this.__topEntity == null) {
-      return;
-    }
-    const sg = (this.__substance as any) as SceneGraphComponent;
-    const aabb = sg.worldAABB;
-    this.__topEntity.getTransform().translate = aabb.centerPoint;
-    this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
-      aabb.sizeX / 2,
-      aabb.sizeY / 2,
-      aabb.sizeZ / 2]
-    );
   }
 }
