@@ -88,6 +88,17 @@ export default class SceneGraphComponent extends Component {
     return this.__aabbGizmo.isVisible;
   }
 
+  set isLocatorGizmoVisible(flg: boolean) {
+    if (flg) {
+      this.__locatorGizmo.setup();
+    }
+    this.__locatorGizmo.isVisible = flg;
+  }
+
+  get isLocatorGizmoVisible() {
+    return this.__locatorGizmo.isVisible;
+  }
+
   static getTopLevelComponents(): SceneGraphComponent[] {
     return SceneGraphComponent.__sceneGraphs.filter(
       (sg: SceneGraphComponent) => {
