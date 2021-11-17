@@ -54,56 +54,65 @@ export default class AABBGizmo extends Gizmo {
 
   private static generatePrimitive() {
     const indices = new Uint32Array([
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      3,
-      0,
-      4,
-      7,
-      2,
-      1,
-      5,
-      6,
-      3,
-      2,
-      6,
-      7,
-      0,
-      1,
-      5,
-      4,
+      // XY Plane on -Z
+      0, 1, 1, 2, 2, 3, 3, 0,
+
+      // XY Plane on +Z
+      4, 5, 5, 6, 6, 7, 7, 4,
+
+      // YZ Plane on -X
+      0, 3, 3, 7, 7, 4, 4, 0,
+
+      // YZ Plane on +X
+      1, 2, 2, 6, 6, 5, 5, 1,
+
+      // XZ Plane on -Y
+      0, 1, 1, 5, 5, 4, 4, 0,
+
+      // XZ Plane on +Y
+      3, 2, 2, 6, 6, 7, 7, 3,
     ]);
 
     const length = 1;
     const positions = new Float32Array([
+      /// -Z
+      // 0
       -length,
       -length,
       -length,
+
+      // 1
       length,
       -length,
       -length,
+
+      // 2
       length,
       length,
       -length,
+
+      // 3
       -length,
       length,
       -length,
 
+      /// +Z
+      // 4
       -length,
       -length,
       length,
+
+      // 5
       length,
       -length,
       length,
+
+      // 6
       length,
       length,
       length,
+
+      // 7
       -length,
       length,
       length,
@@ -114,7 +123,7 @@ export default class AABBGizmo extends Gizmo {
       attributeCompositionTypes: [CompositionType.Vec3],
       attributeSemantics: [VertexAttribute.Position],
       attributes: [positions],
-      primitiveMode: PrimitiveMode.LineLoop,
+      primitiveMode: PrimitiveMode.Lines,
     });
 
     return primitive;
@@ -124,13 +133,13 @@ export default class AABBGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
-    const sg = (this.__substance as any) as SceneGraphComponent;
+    const sg = this.__substance as unknown as SceneGraphComponent;
     const aabb = sg.worldAABB;
     this.__topEntity.getTransform().translate = aabb.centerPoint;
     this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
       aabb.sizeX / 2,
       aabb.sizeY / 2,
-      aabb.sizeZ / 2]
-    );
+      aabb.sizeZ / 2,
+    ]);
   }
 }
