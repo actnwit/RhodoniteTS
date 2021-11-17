@@ -14,8 +14,8 @@ import {HdriFormat} from '../../definitions/HdriFormat';
 import MeshComponent from '../../components/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShapeComponent';
 import {ShaderityObject} from 'shaderity';
-import ShaderityUtility from '../core/ShaderityUtility';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
+import NewShaderityUtility from '../core/NewShaderityUtility';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
@@ -38,7 +38,6 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   static MetallicRoughnessTextureRotation = new ShaderSemanticsClass({
     str: 'metallicRoughnessTextureRotation',
   });
-  private static __shaderityUtility: ShaderityUtility = ShaderityUtility.getInstance();
 
   constructor({
     name,
@@ -68,11 +67,11 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       {isMorphing, isSkinning, isLighting}
     );
 
-    const vertexShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(
+    const vertexShaderData = NewShaderityUtility.getShaderDataRefection(
       vertexShader,
       AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
     );
-    const pixelShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(
+    const pixelShaderData = NewShaderityUtility.getShaderDataRefection(
       pixelShader,
       AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
     );
