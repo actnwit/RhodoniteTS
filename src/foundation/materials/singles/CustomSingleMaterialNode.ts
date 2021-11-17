@@ -15,7 +15,7 @@ import MeshComponent from '../../components/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShapeComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
-import NewShaderityUtility from '../core/NewShaderityUtility';
+import ShaderityUtility from '../core/ShaderityUtility';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
@@ -67,11 +67,11 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       {isMorphing, isSkinning, isLighting}
     );
 
-    const vertexShaderData = NewShaderityUtility.getShaderDataRefection(
+    const vertexShaderData = ShaderityUtility.getShaderDataRefection(
       vertexShader,
       AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
     );
-    const pixelShaderData = NewShaderityUtility.getShaderDataRefection(
+    const pixelShaderData = ShaderityUtility.getShaderDataRefection(
       pixelShader,
       AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
     );

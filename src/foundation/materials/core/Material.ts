@@ -32,7 +32,7 @@ import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
-import NewShaderityUtility from './NewShaderityUtility';
+import ShaderityUtility from './ShaderityUtility';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -655,7 +655,7 @@ export default class Material extends RnObject {
     let vertexShaderBody = '';
     let pixelShaderBody = '';
 
-    const vertexShaderityObject = NewShaderityUtility.fillTemplate(
+    const vertexShaderityObject = ShaderityUtility.fillTemplate(
       materialNode.vertexShaderityObject!,
       {
         getters: vertexPropertiesStr,
@@ -666,12 +666,12 @@ export default class Material extends RnObject {
         matricesGetters: vertexShaderMethodDefinitions_uniform,
       }
     );
-    vertexShaderBody = NewShaderityUtility.transformWebGLVersion(
+    vertexShaderBody = ShaderityUtility.transformWebGLVersion(
       vertexShaderityObject,
       isWebGL2
     ).code;
 
-    const pixelShaderityObject = NewShaderityUtility.fillTemplate(
+    const pixelShaderityObject = ShaderityUtility.fillTemplate(
       materialNode.pixelShaderityObject!,
       {
         getters: pixelPropertiesStr,
@@ -681,7 +681,7 @@ export default class Material extends RnObject {
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
       }
     );
-    pixelShaderBody = NewShaderityUtility.transformWebGLVersion(
+    pixelShaderBody = ShaderityUtility.transformWebGLVersion(
       pixelShaderityObject,
       isWebGL2
     ).code;
@@ -692,7 +692,7 @@ export default class Material extends RnObject {
     let attributeNames;
     let attributeSemantics;
     if (materialNode.vertexShaderityObject != null) {
-      const reflection = NewShaderityUtility.getReflection(
+      const reflection = ShaderityUtility.getReflection(
         materialNode.vertexShaderityObject
       );
       attributeNames = reflection.names;
