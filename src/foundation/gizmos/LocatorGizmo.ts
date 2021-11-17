@@ -119,10 +119,21 @@ export default class LocatorGizmo extends Gizmo {
       length,
     ]);
 
+    const color = new Float32Array([
+      // X axis as Red
+      1, 0, 0, 1, 0, 0,
+
+      // Y axis as Green
+      0, 1, 0, 0, 1, 0,
+
+      // Z axis as Blue
+      0, 0, 1, 0, 0, 1,
+    ]);
+
     const primitive = Primitive.createPrimitive({
-      attributeCompositionTypes: [CompositionType.Vec3],
-      attributeSemantics: [VertexAttribute.Position],
-      attributes: [positions],
+      attributeCompositionTypes: [CompositionType.Vec3, CompositionType.Vec3],
+      attributeSemantics: [VertexAttribute.Position, VertexAttribute.Color0],
+      attributes: [positions, color],
       primitiveMode: PrimitiveMode.Lines,
     });
 
