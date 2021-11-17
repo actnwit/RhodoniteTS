@@ -53,7 +53,7 @@ export default class LocatorGizmo extends Gizmo {
 
   ///
   ///
-  /// Accesssors
+  /// Accessors
   ///
   ///
 
