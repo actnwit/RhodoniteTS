@@ -70,8 +70,7 @@ export default class ShaderityUtility {
     }
   }
 
-  // getAttributeReflection
-  public static getReflection(
+  public static getAttributeReflection(
     shaderityObject: ShaderityObject
   ): VertexAttributesLayout {
     const reflection = Shaderity.createReflectionObject(shaderityObject);

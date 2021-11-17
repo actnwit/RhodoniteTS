@@ -652,8 +652,6 @@ export default class Material extends RnObject {
     // Shader Construction
     let vertexShader = this.__setupGlobalShaderDefinition();
     let pixelShader = this.__setupGlobalShaderDefinition();
-    let vertexShaderBody = '';
-    let pixelShaderBody = '';
 
     const vertexShaderityObject = ShaderityUtility.fillTemplate(
       materialNode.vertexShaderityObject!,
@@ -666,7 +664,7 @@ export default class Material extends RnObject {
         matricesGetters: vertexShaderMethodDefinitions_uniform,
       }
     );
-    vertexShaderBody = ShaderityUtility.transformWebGLVersion(
+    const vertexShaderBody = ShaderityUtility.transformWebGLVersion(
       vertexShaderityObject,
       isWebGL2
     ).code;
@@ -681,7 +679,7 @@ export default class Material extends RnObject {
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
       }
     );
-    pixelShaderBody = ShaderityUtility.transformWebGLVersion(
+    const pixelShaderBody = ShaderityUtility.transformWebGLVersion(
       pixelShaderityObject,
       isWebGL2
     ).code;
@@ -692,7 +690,7 @@ export default class Material extends RnObject {
     let attributeNames;
     let attributeSemantics;
     if (materialNode.vertexShaderityObject != null) {
-      const reflection = ShaderityUtility.getReflection(
+      const reflection = ShaderityUtility.getAttributeReflection(
         materialNode.vertexShaderityObject
       );
       attributeNames = reflection.names;
