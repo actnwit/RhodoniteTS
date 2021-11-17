@@ -465,12 +465,7 @@ export default class SceneGraphComponent extends Component {
   $logic() {
     this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));
 
-    if (this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
-      this.__aabbGizmo.update();
-    }
-    // if (this.parent == null) {
-    // this.calcWorldAABB();
-    // }
+    this.__updateGizmos();
 
     const mesh = this.entity.getMesh()?.mesh;
     if (mesh) {
@@ -482,6 +477,15 @@ export default class SceneGraphComponent extends Component {
           break;
         }
       }
+    }
+  }
+
+  private __updateGizmos() {
+    if (this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
+      this.__aabbGizmo.update();
+    }
+    if (this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
+      this.__locatorGizmo.update();
     }
   }
 }
