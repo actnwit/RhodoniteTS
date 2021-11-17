@@ -24,6 +24,17 @@ export default class NewShaderityUtility {
   // }
 
   public static transformWebGLVersionTo() {}
+  // public static transformWebGLVersion(
+  //   shaderityObject: ShaderityObject,
+  //   isWebGL2: boolean
+  // ): ShaderityObject {
+  //   if (isWebGL2) {
+  //     return Shaderity.transformToGLSLES3(shaderityObject);
+  //   } else {
+  //     return Shaderity.transformToGLSLES1(shaderityObject, true);
+  //   }
+  // }
+
   public static getReflection() {}
   public static getShaderDataRefection() {}
 }
