@@ -36,7 +36,7 @@ export default class SceneGraphComponent extends Component {
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
   private __animationComponent?: AnimationComponent;
-  private __AABBGizmo = new AABBGizmo(this);
+  private __aabbGizmo = new AABBGizmo(this);
   private __locatorGizmo = new LocatorGizmo(this);
   private static isJointAABBShouldBeCalculated = false;
 
@@ -79,15 +79,15 @@ export default class SceneGraphComponent extends Component {
     this.submitToAllocation(this.maxNumberOfComponent);
   }
 
-  set isGizmoVisible(flg: boolean) {
+  set isAABBGizmoVisible(flg: boolean) {
     if (flg) {
-      this.__AABBGizmo.setup();
+      this.__aabbGizmo.setup();
     }
-    this.__AABBGizmo.isVisible = flg;
+    this.__aabbGizmo.isVisible = flg;
   }
 
-  get isGizmoVisible() {
-    return this.__AABBGizmo.isVisible;
+  get isAABBGizmoVisible() {
+    return this.__aabbGizmo.isVisible;
   }
 
   static getTopLevelComponents(): SceneGraphComponent[] {
@@ -456,8 +456,8 @@ export default class SceneGraphComponent extends Component {
   $logic() {
     this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));
 
-    if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
-      this.__AABBGizmo.update();
+    if (this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
+      this.__aabbGizmo.update();
     }
     // if (this.parent == null) {
     // this.calcWorldAABB();
