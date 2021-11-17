@@ -55,8 +55,6 @@ export default class SceneGraphComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository);
 
-    const thisClass = SceneGraphComponent;
-
     SceneGraphComponent.__sceneGraphs.push(this);
 
     this.isAbleToBeParent = false;
