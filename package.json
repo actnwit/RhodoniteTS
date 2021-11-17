@@ -91,8 +91,5 @@
   "homepage": "https://github.com/actnwit/RhodoniteTS#readme",
   "directories": {
     "doc": "docs"
-  },
-  "engines": {
-    "node": "16.x"
   }
 }
