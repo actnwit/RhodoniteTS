@@ -32,6 +32,8 @@ import PbrExtendedShadingSingleMaterialNode from '../materials/singles/PbrExtend
 import Texture from '../textures/Texture';
 import {CameraComponent} from '../..';
 import {Count} from '../../types/CommonTypes';
+import {ShaderityObject} from 'shaderity';
+import ShaderitySingleMaterialNode from '../materials/singles/ShaderitySingleMaterialNode';
 
 function createMaterial(
   materialName: string,
@@ -686,6 +688,29 @@ function recreateCustomMaterial(
   return material;
 }
 
+// create or update shaderity material
+function recreateShaderityMaterial(
+  vertexShaderityObj: ShaderityObject,
+  pixelShaderityObj: ShaderityObject,
+  {
+    additionalName = '',
+    maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  } = {}
+) {
+  const name = `Shaderity_${additionalName}`;
+
+  const materialNode = new ShaderitySingleMaterialNode({
+    name,
+    vertexShaderityObj,
+    pixelShaderityObj,
+  });
+
+  materialNode.isSingleOperation = true;
+  const material = recreateMaterial(name, [materialNode], maxInstancesNumber);
+
+  return material;
+}
+
 function changeMaterial(
   entity: Entity,
   primitive: Primitive,
@@ -700,6 +725,7 @@ export default Object.freeze({
   createMaterial,
   recreateMaterial,
   recreateCustomMaterial,
+  recreateShaderityMaterial,
   createEmptyMaterial,
   createClassicUberMaterial,
   createPbrUberMaterial,
