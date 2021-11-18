@@ -10,6 +10,18 @@ declare const Rn: typeof _Rn;
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
+
+  Rn.Config.maxEntityNumber = 200;
+  Rn.Config.maxLightNumberInShader = 1;
+  Rn.Config.maxVertexMorphNumberInShader = 1;
+  Rn.Config.maxMaterialInstanceForEachType = 30;
+  Rn.Config.maxCameraNumber = 3;
+  Rn.Config.maxSkeletalBoneNumber = 50;
+  Rn.Config.dataTextureWidth = 2 ** 9;
+  Rn.Config.dataTextureHeight = 2 ** 10;
+  Rn.Config.maxMorphTargetNumber = 1;
+  Rn.Config.isUboEnabled = false;
+
   system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.FastestWebGL1,
     document.getElementById('world') as HTMLCanvasElement
@@ -49,7 +61,7 @@ declare const Rn: typeof _Rn;
       defaultMaterialHelperArgumentArray: [
         {
           isSkinning: true,
-          isMorphing: true,
+          isMorphing: false,
           makeOutputSrgb: true,
         },
       ],
