@@ -29,10 +29,10 @@ import DataUtil from '../../misc/DataUtil';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import System from '../../system/System';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
-import ShaderityUtility from './ShaderityUtility';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
+import ShaderityUtility from './ShaderityUtility';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -652,9 +652,8 @@ export default class Material extends RnObject {
     // Shader Construction
     let vertexShader = this.__setupGlobalShaderDefinition();
     let pixelShader = this.__setupGlobalShaderDefinition();
-    let vertexShaderBody = '';
-    let pixelShaderBody = '';
-    vertexShaderBody = ShaderityUtility.getInstance().getVertexShaderBody(
+
+    const vertexShaderityObject = ShaderityUtility.fillTemplate(
       materialNode.vertexShaderityObject!,
       {
         getters: vertexPropertiesStr,
@@ -665,7 +664,12 @@ export default class Material extends RnObject {
         matricesGetters: vertexShaderMethodDefinitions_uniform,
       }
     );
-    pixelShaderBody = ShaderityUtility.getInstance().getPixelShaderBody(
+    const vertexShaderBody = ShaderityUtility.transformWebGLVersion(
+      vertexShaderityObject,
+      isWebGL2
+    ).code;
+
+    const pixelShaderityObject = ShaderityUtility.fillTemplate(
       materialNode.pixelShaderityObject!,
       {
         getters: pixelPropertiesStr,
@@ -675,14 +679,18 @@ export default class Material extends RnObject {
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
       }
     );
+    const pixelShaderBody = ShaderityUtility.transformWebGLVersion(
+      pixelShaderityObject,
+      isWebGL2
+    ).code;
 
-    vertexShader += vertexShaderBody.replace(/#version\s+300\s+es/, '');
-    pixelShader += pixelShaderBody.replace(/#version\s+300\s+es/, '');
+    vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
+    pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
 
     let attributeNames;
     let attributeSemantics;
     if (materialNode.vertexShaderityObject != null) {
-      const reflection = ShaderityUtility.getInstance().getReflection(
+      const reflection = ShaderityUtility.getAttributeReflection(
         materialNode.vertexShaderityObject
       );
       attributeNames = reflection.names;

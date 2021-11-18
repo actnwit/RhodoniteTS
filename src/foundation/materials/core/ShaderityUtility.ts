@@ -1,35 +1,40 @@
-import Shaderity, {ShaderityObject} from 'shaderity';
-import {CompositionTypeEnum} from '../../definitions/CompositionType';
+import Shaderity, {
+  Reflection,
+  ShaderityObject,
+  TemplateObject,
+} from 'shaderity';
 import {
-  VertexAttributeEnum,
+  ComponentType,
+  ComponentTypeEnum,
+} from '../../definitions/ComponentType';
+import {
+  CompositionType,
+  CompositionTypeEnum,
+} from '../../definitions/CompositionType';
+import {
   VertexAttribute,
+  VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import {CompositionType} from '../../definitions/CompositionType';
+import MemoryManager from '../../core/MemoryManager';
 import {WellKnownComponentTIDs} from '../../components/WellKnownComponentTIDs';
-import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Config from '../../core/Config';
-import {ComponentType} from '../../definitions/ComponentType';
 import {
   ShaderSemantics,
   ShaderSemanticsClass,
   ShaderSemanticsInfo,
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
+import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
+import AbstractMaterialNode from './AbstractMaterialNode';
 import MutableVector2 from '../../math/MutableVector2';
 import MutableVector3 from '../../math/MutableVector3';
 import MutableVector4 from '../../math/MutableVector4';
-import MutableScalar from '../../math/MutableScalar';
 import MutableMatrix33 from '../../math/MutableMatrix33';
 import MutableMatrix44 from '../../math/MutableMatrix44';
-import AbstractMaterialNode from './AbstractMaterialNode';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import MemoryManager from '../../core/MemoryManager';
-import {ComponentTypeEnum} from '../../..';
+import MutableScalar from '../../math/MutableScalar';
 
 export type FillArgsObject = {
-  [s: string]: string;
-  WellKnownComponentTIDs?: any;
-  Config?: any;
+  [key: string]: string;
 };
 
 export type VertexAttributesLayout = {
@@ -40,102 +45,74 @@ export type VertexAttributesLayout = {
 };
 
 export default class ShaderityUtility {
-  static __instance: ShaderityUtility;
-  private __shaderity = Shaderity.getInstance();
-  private __webglResourceRepository?: WebGLResourceRepository =
-    WebGLResourceRepository.getInstance();
+  public static fillTemplate(
+    shaderityObject: ShaderityObject,
+    args: FillArgsObject
+  ): ShaderityObject {
+    const templateObject = Object.assign(args, {
+      WellKnownComponentTIDs,
+      widthOfDataTexture: `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`,
+      heightOfDataTexture: `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`,
+      Config,
+    }) as TemplateObject;
 
-  private constructor() {
-    const attributeSemanticsMap = new Map();
-    attributeSemanticsMap.set('instanceid', 'INSTANCE');
-    attributeSemanticsMap.set('barycentriccoord', 'BARY_CENTRIC_COORD');
-    this.__shaderity.addAttributeSemanticsMap(attributeSemanticsMap);
+    return Shaderity.fillTemplate(shaderityObject, templateObject);
   }
 
-  static getInstance(): ShaderityUtility {
-    if (!this.__instance) {
-      this.__instance = new ShaderityUtility();
+  public static transformWebGLVersion(
+    shaderityObject: ShaderityObject,
+    isWebGL2: boolean
+  ): ShaderityObject {
+    if (isWebGL2) {
+      return Shaderity.transformToGLSLES3(shaderityObject);
+    } else {
+      return Shaderity.transformToGLSLES1(shaderityObject, true);
     }
-    return this.__instance;
   }
 
-  private __removeNonStringProperties(args: FillArgsObject): FillArgsObject {
-    Object.keys(args).forEach(key => {
-      if (typeof args[key] !== 'string') {
-        args[key] = '';
-      }
-    });
+  public static getAttributeReflection(
+    shaderityObject: ShaderityObject
+  ): VertexAttributesLayout {
+    const reflection = Shaderity.createReflectionObject(shaderityObject);
+    this.__setDefaultAttributeSemanticMap(reflection);
 
-    return args;
-  }
+    reflection.reflect();
 
-  getVertexShaderBody(shaderityObject: ShaderityObject, args: FillArgsObject) {
-    const _args = this.__removeNonStringProperties(args);
-    _args.WellKnownComponentTIDs = WellKnownComponentTIDs;
-    _args.widthOfDataTexture = `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`;
-    _args.heightOfDataTexture = `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`;
-    const obj = this.__shaderity.fillTemplate(shaderityObject, _args);
-    const isWebGL2 =
-      this.__webglResourceRepository?.currentWebGLContextWrapper?.isWebGL2;
-    const code = this.__shaderity.transformTo(
-      isWebGL2 ? 'WebGL2' : 'WebGL1',
-      obj
-    ).code;
-
-    return code;
-  }
-
-  getPixelShaderBody(shaderityObject: ShaderityObject, args: FillArgsObject) {
-    const _args = this.__removeNonStringProperties(args);
-    _args.WellKnownComponentTIDs = WellKnownComponentTIDs;
-    _args.widthOfDataTexture = `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`;
-    _args.heightOfDataTexture = `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`;
-    _args.Config = Config;
-    const obj = this.__shaderity.fillTemplate(shaderityObject, _args);
-    const isWebGL2 =
-      this.__webglResourceRepository?.currentWebGLContextWrapper?.isWebGL2;
-    const code = this.__shaderity.transformTo(
-      isWebGL2 ? 'WebGL2' : 'WebGL1',
-      obj
-    ).code;
-
-    return code;
-  }
-
-  getReflection(shaderityObject: ShaderityObject): VertexAttributesLayout {
-    const reflection = this.__shaderity.reflect(shaderityObject);
-    const reflectionSoA: any = {};
-    reflectionSoA.names = reflection.attributesNames;
-    reflectionSoA.semantics = reflection.attributesSemantics.map(semantic => {
+    const names = reflection.attributesNames;
+    const semantics = reflection.attributesSemantics.map(semantic => {
       return VertexAttribute.fromString(semantic);
     });
-    reflectionSoA.compositions = reflection.attributesTypes.map(type => {
+    const compositions = reflection.attributesTypes.map(type => {
       return CompositionType.fromGlslString(type);
     });
-    reflectionSoA.components = reflection.attributesTypes.map(type => {
+    const components = reflection.attributesTypes.map(type => {
       return ComponentType.fromGlslString(type);
     });
 
-    return reflectionSoA;
-  }
-
-  copyShaderityObject(obj: ShaderityObject) {
-    const copiedObj: ShaderityObject = {
-      code: obj.code,
-      shaderStage: obj.shaderStage,
+    return {
+      names,
+      semantics,
+      compositions,
+      components,
     };
-
-    return copiedObj;
   }
 
-  getShaderDataRefection(
+  private static __setDefaultAttributeSemanticMap(reflection: Reflection) {
+    const attributeSemanticsMap = new Map();
+    attributeSemanticsMap.set('instanceid', 'INSTANCE');
+    attributeSemanticsMap.set('barycentriccoord', 'BARY_CENTRIC_COORD');
+
+    reflection.addAttributeSemanticsMap(attributeSemanticsMap);
+  }
+
+  public static getShaderDataRefection(
     shaderityObject: ShaderityObject,
     existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
   ): {
     shaderSemanticsInfoArray: ShaderSemanticsInfo[];
     shaderityObject: ShaderityObject;
   } {
-    const copiedShaderityObject = this.copyShaderityObject(shaderityObject);
+    const copiedShaderityObject = this.__copyShaderityObject(shaderityObject);
 
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
     const uniformOmittedShaderRows = [];
@@ -143,7 +120,7 @@ export default class ShaderityUtility {
     const shaderSemanticsInfoArray = [];
     for (const row of splitCode) {
       const reg =
-        /^(?![\/])[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
+        /^(?![/])[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const match = row.match(reg);
 
       if (match) {
@@ -161,7 +138,7 @@ export default class ShaderityUtility {
 
         const skipProcess = info.match(/skipProcess[\t ]*=[\t ]*(\w+)[,\t ]*/);
         if (skipProcess) {
-          if (skipProcess[1] == 'true') {
+          if (skipProcess[1] === 'true') {
             uniformOmittedShaderRows.push(row);
             continue;
           }
@@ -379,5 +356,15 @@ export default class ShaderityUtility {
       shaderSemanticsInfoArray: shaderSemanticsInfoArray,
       shaderityObject: copiedShaderityObject,
     };
+  }
+
+  private static __copyShaderityObject(obj: ShaderityObject) {
+    const copiedObj: ShaderityObject = {
+      code: obj.code,
+      shaderStage: obj.shaderStage,
+      isFragmentShader: obj.shaderStage === 'fragment',
+    };
+
+    return copiedObj;
   }
 }

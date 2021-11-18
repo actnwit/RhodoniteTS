@@ -665,8 +665,16 @@ function recreateCustomMaterial(
     isLighting,
     isMorphing,
     alphaMode,
-    vertexShader: {code: vertexShaderStr, shaderStage: 'vertex'},
-    pixelShader: {code: pixelShaderStr, shaderStage: 'fragment'},
+    vertexShader: {
+      code: vertexShaderStr,
+      shaderStage: 'vertex',
+      isFragmentShader: false,
+    },
+    pixelShader: {
+      code: pixelShaderStr,
+      shaderStage: 'fragment',
+      isFragmentShader: true,
+    },
   });
   materialNode.isSingleOperation = true;
   const material = recreateMaterial(
