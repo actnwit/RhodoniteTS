@@ -8,22 +8,17 @@ export type FillArgsObject = {
 };
 
 export default class NewShaderityUtility {
-  private static __defaultTemplate = {
-    WellKnownComponentTIDs,
-    widthOfDataTexture: `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`,
-    heightOfDataTexture: `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`,
-    Config,
-  };
-
   public static fillTemplate() {}
   // public static fillTemplate(
   //   shaderityObject: ShaderityObject,
   //   args: FillArgsObject
   // ): ShaderityObject {
-  //   const templateObject = Object.assign(
-  //     args,
-  //     this.__defaultTemplate
-  //   ) as TemplateObject;
+  //   const templateObject = Object.assign(args, {
+  //     WellKnownComponentTIDs,
+  //     widthOfDataTexture: `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`,
+  //     heightOfDataTexture: `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`,
+  //     Config,
+  //   }) as TemplateObject;
 
   //   return Shaderity.fillTemplate(shaderityObject, templateObject);
   // }
