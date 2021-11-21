@@ -16,7 +16,7 @@ import Gizmo from './Gizmo';
  */
 export default class LocatorGizmo extends Gizmo {
   private static __mesh: Mesh;
-
+  private static __length = 1;
   /**
    * Constructor
    * @param substance the object which this gizmo belong to
@@ -65,6 +65,14 @@ export default class LocatorGizmo extends Gizmo {
     }
   }
 
+  set length(val: number) {
+    LocatorGizmo.__length = val;
+  }
+
+  get length(): number {
+    return LocatorGizmo.__length;
+  }
+
   ///
   ///
   /// Public Members
@@ -92,13 +100,12 @@ export default class LocatorGizmo extends Gizmo {
   ///
 
   private static __generatePrimitive(): Primitive {
-    const length = 1;
     const positions = new Float32Array([
       // X axis
       0,
       0,
       0,
-      length,
+      this.__length,
       0,
       0,
 
@@ -107,7 +114,7 @@ export default class LocatorGizmo extends Gizmo {
       0,
       0,
       0,
-      length,
+      this.__length,
       0,
 
       // Z axis
@@ -116,7 +123,7 @@ export default class LocatorGizmo extends Gizmo {
       0,
       0,
       0,
-      length,
+      this.__length,
     ]);
 
     const color = new Float32Array([
