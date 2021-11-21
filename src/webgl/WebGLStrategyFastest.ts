@@ -821,7 +821,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__webglResourceRepository.setVertexDataToPipeline(
         vertexHandles,
         primitive,
-        mesh.variationVBOUid
+        mesh._variationVBOUid
       );
       const ibo = this.__webglResourceRepository.getWebGLResource(
         vertexHandles.iboHandle!
@@ -978,7 +978,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             primitive,
             i,
             glw,
-            mesh.variationVBOUid
+            mesh._variationVBOUid
           );
           if (shaderProgramUid !== this.__lastShader) {
             const shaderProgram = this.__webglResourceRepository.getWebGLResource(

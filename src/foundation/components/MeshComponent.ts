@@ -262,15 +262,15 @@ export default class MeshComponent extends Component {
       return;
     }
     //    this.__mesh!.makeVerticesSeparated();
-    this.__mesh.__calcTangents();
+    this.__mesh._calcTangents();
     this.__mesh._calcArenbergInverseMatrices();
     // this.__mesh.__initMorphPrimitives();
-    this.__mesh!.__calcFaceNormalsIfNonNormal();
+    this.__mesh!._calcFaceNormalsIfNonNormal();
     if (
       this.__blendShapeComponent &&
       this.__blendShapeComponent.weights.length > 0
     ) {
-      this.__mesh!.__calcBaryCentricCoord();
+      this.__mesh!._calcBaryCentricCoord();
     }
     this.moveStageTo(ProcessStage.Logic);
   }

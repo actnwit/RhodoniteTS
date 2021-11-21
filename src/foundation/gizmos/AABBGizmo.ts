@@ -7,13 +7,17 @@ import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {CompositionType} from '../definitions/CompositionType';
 import Primitive from '../geometry/Primitive';
-import AABB from '../math/AABB';
 import RnObject from '../core/RnObject';
 import Vector3 from '../math/Vector3';
 import Mesh from '../geometry/Mesh';
 
 export default class AABBGizmo extends Gizmo {
-  private static __aabbMesh?: Mesh;
+  private static __mesh?: Mesh;
+
+  /**
+   * Constructor
+   * @param substance the object which this gizmo belong to
+   */
   constructor(substance: RnObject) {
     super(substance);
   }
@@ -40,9 +44,9 @@ export default class AABBGizmo extends Gizmo {
     const meshComponent = this.__topEntity.getMesh();
 
     // if (AABBGizmo.__aabbMesh == null) {
-    AABBGizmo.__aabbMesh = new Mesh();
-    AABBGizmo.__aabbMesh.addPrimitive(AABBGizmo.generatePrimitive());
-    meshComponent.setMesh(AABBGizmo.__aabbMesh);
+    AABBGizmo.__mesh = new Mesh();
+    AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
+    meshComponent.setMesh(AABBGizmo.__mesh);
     // } else {
     //   const mesh = new Mesh();
     //   mesh.setOriginalMesh(AABBGizmo.__aabbMesh);
