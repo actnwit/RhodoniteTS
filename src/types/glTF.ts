@@ -16,19 +16,12 @@ export type Gltf2Scene = {
   extras?: any;
 };
 
-export type Gltf2Attribute = {
-  POSITION: number;
-  NORMAL?: number;
-  TANGENT?: number;
-  TEXCOORD_0?: number;
-  TEXCOORD_1?: number;
-  COLOR_0?: number;
-  JOINTS_0?: number;
-  WEIGHTS_0?: number;
+export type Gltf2Attributes = {
+  [s: string]: number;
 };
 
 export type Gltf2Primitive = {
-  attributes: Gltf2Attribute;
+  attributes: Gltf2Attributes;
   attributesIndex?: any;
   indices?: any;
   indicesIndex?: number;
