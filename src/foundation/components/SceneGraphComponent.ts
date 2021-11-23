@@ -178,7 +178,7 @@ export default class SceneGraphComponent extends Component {
 
   get worldMatrixInner() {
     if (!this.__isWorldMatrixUpToDate) {
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false)); //this.isJoint()));
+      this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
     }
 
@@ -227,7 +227,7 @@ export default class SceneGraphComponent extends Component {
     return false;
   }
 
-  calcWorldMatrixRecursively(isJointMode: boolean): MutableMatrix44 {
+  private __calcWorldMatrixRecursively(): MutableMatrix44 {
     if (this.__isWorldMatrixUpToDate) {
       return this._worldMatrix;
     }
@@ -235,12 +235,12 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.__parent == null || (isJointMode && this.__parent?.isJoint())) {
+    if (this.__parent == null) {
       return transform.matrixInner;
     }
 
     const matrixFromAncestorToParent =
-      this.__parent.calcWorldMatrixRecursively(isJointMode);
+      this.__parent.__calcWorldMatrixRecursively();
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
       transform.matrixInner,
@@ -472,7 +472,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   $logic() {
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));
+    this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
 
     this.__updateGizmos();
 
