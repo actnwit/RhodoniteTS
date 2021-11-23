@@ -3,33 +3,61 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 
+/**
+ * Abstract Gizmo class
+ */
 export default abstract class Gizmo extends RnObject {
   protected __entityRepository = EntityRepository.getInstance();
 
-  /// the top entity of this gizmo group
+  /**
+   * The top entity of this gizmo group.
+   * A programmer who implements a gizmo class has to make this entity
+   * a child of the target entity's scene graph component
+   * that the gizmo will belong to manually.
+   */
   protected __topEntity?: Entity;
-  /// the object which this gizmo belong to
-  protected __substance: RnObject;
+  /** the target entity which this gizmo belong to */
+  protected __target: Entity;
+
   protected __isVisible = false;
 
   /**
    * Constructor
-   * @param substance the object which this gizmo belong to
+   * @param entity the object which this gizmo belong to
    */
-  constructor(substance: RnObject) {
+  constructor(target: Entity) {
     super();
-    this.__substance = substance;
+    this.__target = target;
     this.setGizmoTag();
   }
 
+  /**
+   * setup entities of Gizmo if not done yet
+   */
   abstract setup(): void;
 
   abstract isSetup: boolean;
 
+  /**
+   * update the transform and etc of the gizmo
+   */
   abstract update(): void;
+
+  protected __toSkipSetup(): boolean {
+    if (this.isSetup) {
+      return true;
+    }
+    if (this.__target.matchTag('Being', 'gizmo')) {
+      return true;
+    }
+    return false;
+  }
 
   protected setGizmoTag() {
     if (this.__topEntity) {
+      this.__topEntity.tryToSetTag({tag: 'Being', value: 'gizmo'});
+      this.__topEntity.tryToSetTag({tag: 'Gizmo', value: 'top'});
+
       const sceneGraphs = SceneGraphComponent.flattenHierarchy(
         this.__topEntity.getSceneGraph(),
         false

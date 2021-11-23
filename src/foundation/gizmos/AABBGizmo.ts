@@ -10,16 +10,20 @@ import Primitive from '../geometry/Primitive';
 import RnObject from '../core/RnObject';
 import Vector3 from '../math/Vector3';
 import Mesh from '../geometry/Mesh';
+import Entity from '../core/Entity';
 
+/**
+ * AABB Gizmo class
+ */
 export default class AABBGizmo extends Gizmo {
   private static __mesh?: Mesh;
 
   /**
    * Constructor
-   * @param substance the object which this gizmo belong to
+   * @param target the object which this gizmo belong to
    */
-  constructor(substance: RnObject) {
-    super(substance);
+  constructor(target: Entity) {
+    super(target);
   }
 
   get isSetup() {
@@ -31,7 +35,7 @@ export default class AABBGizmo extends Gizmo {
   }
 
   setup(): void {
-    if (this.isSetup) {
+    if (this.__toSkipSetup()) {
       return;
     }
 
@@ -41,21 +45,20 @@ export default class AABBGizmo extends Gizmo {
       MeshComponent,
       MeshRendererComponent,
     ]);
-    const meshComponent = this.__topEntity.getMesh();
+    this.__topEntity.tryToSetUniqueName(`AABBGizmo_of_${this.__target.uniqueName}`, true);
 
-    // if (AABBGizmo.__aabbMesh == null) {
+    const meshComponent = this.__topEntity.getMesh();
     AABBGizmo.__mesh = new Mesh();
     AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
     meshComponent.setMesh(AABBGizmo.__mesh);
-    // } else {
-    //   const mesh = new Mesh();
-    //   mesh.setOriginalMesh(AABBGizmo.__aabbMesh);
-    //   meshComponent.setMesh(mesh);
-    // }
 
     this.setGizmoTag();
   }
 
+  /**
+   * generate the primitive of the gizmo
+   * @returns a primitive of the gizmo
+   */
   private static generatePrimitive() {
     const indices = new Uint32Array([
       // XY Plane on -Z
@@ -137,7 +140,7 @@ export default class AABBGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
-    const sg = this.__substance as unknown as SceneGraphComponent;
+    const sg = this.__target.getSceneGraph();
     const aabb = sg.worldAABB;
     this.__topEntity.getTransform().translate = aabb.centerPoint;
     this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
