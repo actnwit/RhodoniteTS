@@ -28,38 +28,6 @@ export default class LocatorGizmo extends Gizmo {
 
   ///
   ///
-  /// Public Members
-  ///
-  ///
-
-  /**
-   * setup entities of Gizmo if not done yet
-   */
-  public setup(): void {
-    if (this.__toSkipSetup()) {
-      return;
-    }
-
-    this.__topEntity = this.__entityRepository.createEntity([
-      TransformComponent,
-      SceneGraphComponent,
-      MeshComponent,
-      MeshRendererComponent,
-    ]);
-    this.__topEntity.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
-    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    this.__target.getSceneGraph().addChild(this.__topEntity.getSceneGraph());
-
-    const meshComponent = this.__topEntity.getMesh();
-    LocatorGizmo.__mesh = new Mesh();
-    LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
-    meshComponent.setMesh(LocatorGizmo.__mesh);
-
-    this.setGizmoTag();
-  }
-
-  ///
-  ///
   /// Accessors
   ///
   ///
@@ -82,11 +50,42 @@ export default class LocatorGizmo extends Gizmo {
 
   ///
   ///
-  /// Public Members
+  /// Friends Members
   ///
   ///
 
-  public update(): void {
+  /**
+   * @private
+   * setup entities of Gizmo if not done yet
+   */
+  _setup(): void {
+    if (this.__toSkipSetup()) {
+      return;
+    }
+
+    this.__topEntity = this.__entityRepository.createEntity([
+      TransformComponent,
+      SceneGraphComponent,
+      MeshComponent,
+      MeshRendererComponent,
+    ]);
+    this.__topEntity.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
+    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
+    this.__target.getSceneGraph().addChild(this.__topEntity.getSceneGraph());
+
+    const meshComponent = this.__topEntity.getMesh();
+    LocatorGizmo.__mesh = new Mesh();
+    LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
+    meshComponent.setMesh(LocatorGizmo.__mesh);
+
+    this.setGizmoTag();
+  }
+
+  /**
+   * @private
+   * update the transform and etc of the gizmo
+   */
+  _update(): void {
     if (this.__topEntity == null) {
       return;
     }
