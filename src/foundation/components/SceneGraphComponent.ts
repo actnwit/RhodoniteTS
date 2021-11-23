@@ -37,6 +37,7 @@ export default class SceneGraphComponent extends Component {
   private __aabbGizmo?: AABBGizmo;
   private __locatorGizmo?: LocatorGizmo = new LocatorGizmo(this.entity);
   private static isJointAABBShouldBeCalculated = false;
+  public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
   // Skeletal
   public isRootJoint = false;
@@ -235,7 +236,7 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.__parent == null) {
+    if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return transform.matrixInner;
     }
 

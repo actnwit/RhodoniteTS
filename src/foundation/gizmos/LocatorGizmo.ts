@@ -47,9 +47,9 @@ export default class LocatorGizmo extends Gizmo {
       MeshRendererComponent,
     ]);
     this.__topEntity.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
-    const meshComponent = this.__topEntity.getMesh();
     this.__target.getSceneGraph().addChild(this.__topEntity.getSceneGraph());
 
+    const meshComponent = this.__topEntity.getMesh();
     LocatorGizmo.__mesh = new Mesh();
     LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
     meshComponent.setMesh(LocatorGizmo.__mesh);
