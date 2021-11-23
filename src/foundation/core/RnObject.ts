@@ -25,7 +25,7 @@ export default class RnObject {
     this.__objectUid = RnObject.currentMaxObjectCount++;
     RnObject.__objects[this.__objectUid] = this;
 
-    this.__uniqueName = 'entity_of_uid_' + this.__objectUid;
+    this.__uniqueName = `${this.constructor.name}__uid_${this.__objectUid}`;
     RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
     RnObject.__objectsByNameMap.set(this.__uniqueName, this);
   }
@@ -71,7 +71,7 @@ export default class RnObject {
     if (RnObject.__uniqueNames.indexOf(name) !== -1) {
       // Conflict
       if (toAddNameIfConflict) {
-        const newName = name + '_(' + this.__uniqueName + ')';
+        const newName = name + '_(' + this.__objectUid + ')';
         if (RnObject.__uniqueNames.indexOf(newName) === -1) {
           this.__uniqueName = newName;
           RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
