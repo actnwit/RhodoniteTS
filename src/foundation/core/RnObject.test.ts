@@ -16,10 +16,10 @@ test('ObjectUID count up correctly', () => {
   expect(obj1.objectUID).toBe(1);
 });
 
-test('A instance of RnObject is named as "entity_of_uid_***" automatically.', () => {
+test('A instance of RnObject is named as "RnObject_of_uid_***" automatically.', () => {
   const obj0 = new RnObject();
 
-  expect(obj0.uniqueName).toBe('entity_of_uid_0');
+  expect(obj0.uniqueName).toBe('RnObject__uid_0');
 });
 
 test('Try to set unique name', () => {
@@ -34,8 +34,8 @@ test('Try to set unique name', () => {
 
   const obj2 = new RnObject();
   obj2.tryToSetUniqueName('Foo', false);
-  expect(obj2.uniqueName).toBe('entity_of_uid_2');
+  expect(obj2.uniqueName).toBe('RnObject__uid_2');
 
   obj2.tryToSetUniqueName('Foo', true);
-  expect(obj2.uniqueName).toBe('Foo_(entity_of_uid_2)');
+  expect(obj2.uniqueName).toBe('Foo_(2)');
 });

@@ -2,6 +2,7 @@ import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import TransformComponent from '../components/TransformComponent';
+import Entity from '../core/Entity';
 import RnObject from '../core/RnObject';
 import {CompositionType} from '../definitions/CompositionType';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
@@ -19,10 +20,10 @@ export default class LocatorGizmo extends Gizmo {
   private static __length = 1;
   /**
    * Constructor
-   * @param substance the object which this gizmo belong to
+   * @param target the object which this gizmo belong to
    */
-  constructor(substance: RnObject) {
-    super(substance);
+  constructor(target: Entity) {
+    super(target);
   }
 
   ///
@@ -31,8 +32,11 @@ export default class LocatorGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * setup entities of Gizmo if not done yet
+   */
   public setup(): void {
-    if (this.isSetup) {
+    if (this.__toSkipSetup()) {
       return;
     }
 
@@ -42,8 +46,10 @@ export default class LocatorGizmo extends Gizmo {
       MeshComponent,
       MeshRendererComponent,
     ]);
-    const meshComponent = this.__topEntity.getMesh();
+    this.__topEntity.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
+    this.__target.getSceneGraph().addChild(this.__topEntity.getSceneGraph());
 
+    const meshComponent = this.__topEntity.getMesh();
     LocatorGizmo.__mesh = new Mesh();
     LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
     meshComponent.setMesh(LocatorGizmo.__mesh);
@@ -83,14 +89,17 @@ export default class LocatorGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
-    const sg = this.__substance as unknown as SceneGraphComponent;
+    const sg = this.__target.getSceneGraph();
     const aabb = sg.worldAABB;
-    this.__topEntity.getTransform().translate = aabb.centerPoint;
-    this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
-      Math.max(1, aabb.sizeX / 2),
-      Math.max(1, aabb.sizeY / 2),
-      Math.max(1, aabb.sizeZ / 2),
-    ]);
+    // this.__topEntity.getTransform().translate = aabb.centerPoint;
+    // this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
+    //   Math.max(1, aabb.sizeX / 2),
+    //   Math.max(1, aabb.sizeY / 2),
+    //   Math.max(1, aabb.sizeZ / 2),
+    // ]);
+
+    // this.__topEntity.getTransform().quaternion =
+    // sg.entity.getTransform().quaternion;
   }
 
   ///

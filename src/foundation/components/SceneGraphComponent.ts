@@ -12,12 +12,12 @@ import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
-import AnimationComponent from './AnimationComponent';
 import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import AABBGizmo from '../gizmos/AABBGizmo';
 import LocatorGizmo from '../gizmos/LocatorGizmo';
+import { Is } from '../misc/Is';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -29,16 +29,15 @@ export default class SceneGraphComponent extends Component {
   private __isWorldMatrixUpToDate = false;
   private __isNormalMatrixUpToDate = false;
   private __tmpMatrix = MutableMatrix44.identity();
-  private static _isAllUpdate = false;
   private __worldAABB = new AABB();
   private __isWorldAABBDirty = true;
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
-  private __animationComponent?: AnimationComponent;
-  private __aabbGizmo = new AABBGizmo(this);
-  private __locatorGizmo = new LocatorGizmo(this);
+  private __aabbGizmo?: AABBGizmo;
+  private __locatorGizmo?: LocatorGizmo = new LocatorGizmo(this.entity);
   private static isJointAABBShouldBeCalculated = false;
+  public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
   // Skeletal
   public isRootJoint = false;
@@ -79,24 +78,38 @@ export default class SceneGraphComponent extends Component {
 
   set isAABBGizmoVisible(flg: boolean) {
     if (flg) {
+      if (Is.not.defined(this.__aabbGizmo)) {
+        this.__aabbGizmo = new AABBGizmo(this.entity);
+      }
       this.__aabbGizmo.setup();
+      this.__aabbGizmo.isVisible = flg;
     }
-    this.__aabbGizmo.isVisible = flg;
   }
 
   get isAABBGizmoVisible() {
-    return this.__aabbGizmo.isVisible;
+    if (Is.defined(this.__aabbGizmo)) {
+      return this.__aabbGizmo.isVisible;
+    } else {
+      return false;
+    }
   }
 
   set isLocatorGizmoVisible(flg: boolean) {
     if (flg) {
+      if (Is.not.defined(this.__locatorGizmo)) {
+        this.__locatorGizmo = new LocatorGizmo(this.entity);
+      }
       this.__locatorGizmo.setup();
+      this.__locatorGizmo.isVisible = flg;
     }
-    this.__locatorGizmo.isVisible = flg;
   }
 
   get isLocatorGizmoVisible() {
-    return this.__locatorGizmo.isVisible;
+    if (Is.defined(this.__locatorGizmo)) {
+      return this.__locatorGizmo.isVisible;
+    } else {
+      return false;
+    }
   }
 
   static getTopLevelComponents(): SceneGraphComponent[] {
@@ -166,7 +179,7 @@ export default class SceneGraphComponent extends Component {
 
   get worldMatrixInner() {
     if (!this.__isWorldMatrixUpToDate) {
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false)); //this.isJoint()));
+      this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
     }
 
@@ -215,7 +228,7 @@ export default class SceneGraphComponent extends Component {
     return false;
   }
 
-  calcWorldMatrixRecursively(isJointMode: boolean): MutableMatrix44 {
+  private __calcWorldMatrixRecursively(): MutableMatrix44 {
     if (this.__isWorldMatrixUpToDate) {
       return this._worldMatrix;
     }
@@ -223,12 +236,12 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.__parent == null || (isJointMode && this.__parent?.isJoint())) {
+    if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return transform.matrixInner;
     }
 
     const matrixFromAncestorToParent =
-      this.__parent.calcWorldMatrixRecursively(isJointMode);
+      this.__parent.__calcWorldMatrixRecursively();
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
       transform.matrixInner,
@@ -456,14 +469,11 @@ export default class SceneGraphComponent extends Component {
   }
 
   $create() {
-    this.__animationComponent = this.entity.getComponent(
-      AnimationComponent
-    ) as AnimationComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));
+    this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
 
     this.__updateGizmos();
 
@@ -481,10 +491,10 @@ export default class SceneGraphComponent extends Component {
   }
 
   private __updateGizmos() {
-    if (this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
+    if (Is.defined(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
       this.__aabbGizmo.update();
     }
-    if (this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
+    if (Is.defined(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
       this.__locatorGizmo.update();
     }
   }
