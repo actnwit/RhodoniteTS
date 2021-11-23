@@ -31,17 +31,36 @@ export default abstract class Gizmo extends RnObject {
     this.setGizmoTag();
   }
 
-  /**
-   * setup entities of Gizmo if not done yet
-   */
-  abstract setup(): void;
+  ///
+  ///
+  /// Accessors
+  ///
+  ///
+
+  set isVisible(flg: boolean) {
+    this.__isVisible = flg;
+    if (this.__topEntity) {
+      this.__topEntity.getSceneGraph().setVisibilityRecursively(flg);
+    }
+  }
+
+  get isVisible() {
+    return this.__isVisible;
+  }
 
   abstract isSetup: boolean;
 
   /**
+   * @private
+   * setup entities of Gizmo if not done yet
+   */
+  abstract _setup(): void;
+
+  /**
+   * @private
    * update the transform and etc of the gizmo
    */
-  abstract update(): void;
+  abstract _update(): void;
 
   protected __toSkipSetup(): boolean {
     if (this.isSetup) {
@@ -66,16 +85,5 @@ export default abstract class Gizmo extends RnObject {
         sg.entity.tryToSetTag({tag: 'Being', value: 'gizmo'});
       }
     }
-  }
-
-  set isVisible(flg: boolean) {
-    this.__isVisible = flg;
-    if (this.__topEntity) {
-      this.__topEntity.getSceneGraph().setVisibilityRecursively(flg);
-    }
-  }
-
-  get isVisible() {
-    return this.__isVisible;
   }
 }

@@ -81,7 +81,7 @@ export default class SceneGraphComponent extends Component {
       if (Is.not.defined(this.__aabbGizmo)) {
         this.__aabbGizmo = new AABBGizmo(this.entity);
       }
-      this.__aabbGizmo.setup();
+      this.__aabbGizmo._setup();
       this.__aabbGizmo.isVisible = flg;
     }
   }
@@ -99,7 +99,7 @@ export default class SceneGraphComponent extends Component {
       if (Is.not.defined(this.__locatorGizmo)) {
         this.__locatorGizmo = new LocatorGizmo(this.entity);
       }
-      this.__locatorGizmo.setup();
+      this.__locatorGizmo._setup();
       this.__locatorGizmo.isVisible = flg;
     }
   }
@@ -492,10 +492,10 @@ export default class SceneGraphComponent extends Component {
 
   private __updateGizmos() {
     if (Is.defined(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
-      this.__aabbGizmo.update();
+      this.__aabbGizmo._update();
     }
     if (Is.defined(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
-      this.__locatorGizmo.update();
+      this.__locatorGizmo._update();
     }
   }
 }

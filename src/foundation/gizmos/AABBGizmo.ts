@@ -26,6 +26,12 @@ export default class AABBGizmo extends Gizmo {
     super(target);
   }
 
+  ///
+  ///
+  /// Accessors
+  ///
+  ///
+
   get isSetup() {
     if (this.__topEntity != null) {
       return true;
@@ -34,7 +40,17 @@ export default class AABBGizmo extends Gizmo {
     }
   }
 
-  setup(): void {
+  ///
+  ///
+  /// Friends Members
+  ///
+  ///
+
+  /**
+   * @private
+   * setup entities of Gizmo if not done yet
+   */
+  _setup(): void {
     if (this.__toSkipSetup()) {
       return;
     }
@@ -138,7 +154,11 @@ export default class AABBGizmo extends Gizmo {
     return primitive;
   }
 
-  update(): void {
+  /**
+   * @private
+   * update the transform and etc of the gizmo
+   */
+  _update(): void {
     if (this.__topEntity == null) {
       return;
     }
