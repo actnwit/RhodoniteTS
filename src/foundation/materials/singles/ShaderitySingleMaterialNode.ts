@@ -7,8 +7,13 @@ import Material from '../core/Material';
 import {ShaderityObject} from 'shaderity';
 import ShaderityUtility from '../core/ShaderityUtility';
 import {ShaderType} from '../../definitions/ShaderType';
+import ComponentRepository from '../../core/ComponentRepository';
+import CameraComponent from '../../components/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
+import MeshComponent from '../../components/MeshComponent';
+import BlendShapeComponent from '../../components/BlendShapeComponent';
 
+// TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
   constructor({
     name,
@@ -65,7 +70,53 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
     shaderProgram: WebGLProgram;
     firstTime: boolean;
     args?: any;
-  }) {}
+  }) {
+    if (args.setUniform) {
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
+
+      if (firstTime || args.isVr) {
+        let cameraComponent = args.renderPass.cameraComponent;
+        if (cameraComponent == null) {
+          cameraComponent = ComponentRepository.getInstance().getComponent(
+            CameraComponent,
+            CameraComponent.main
+          ) as CameraComponent;
+        }
+        this.setViewInfo(
+          shaderProgram,
+          cameraComponent,
+          args.isVr,
+          args.displayIdx
+        );
+        this.setProjection(
+          shaderProgram,
+          cameraComponent,
+          args.isVr,
+          args.displayIdx
+        );
+      }
+
+      if (firstTime) {
+        this.setLightsInfo(
+          shaderProgram,
+          args.lightComponents,
+          material,
+          args.setUniform
+        );
+      }
+
+      const skeletalComponent = args.entity.getSkeletal();
+      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    }
+
+    this.setMorphInfo(
+      shaderProgram,
+      args.entity.getComponent(MeshComponent),
+      args.entity.getComponent(BlendShapeComponent),
+      args.primitive
+    );
+  }
 
   private static __removeUselessShaderSemantics(
     shaderSemanticsInfoArray: ShaderSemanticsInfo[]
