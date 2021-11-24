@@ -208,23 +208,26 @@ export default class ShaderityUtility {
     shaderSemanticsInfo.componentType = ComponentType.fromGlslString(type);
     shaderSemanticsInfo.compositionType = CompositionType.fromGlslString(type);
 
+    this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);
+
+    return shaderSemanticsInfo;
+  }
+
+  private static __setRhodoniteOriginalParametersTo(
+    shaderSemanticsInfo: ShaderSemanticsInfo,
+    info: string
+  ) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
-    let bool = false;
-    if (soloDatum) {
-      const soloDatumText = soloDatum[1];
-      if (soloDatumText === 'true') {
-        bool = true;
-      }
+    let isSoloDatumFlg = false;
+    if (soloDatum?.[1] === 'true') {
+      isSoloDatumFlg = true;
     }
-    shaderSemanticsInfo.soloDatum = bool;
+    shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
     const isSystem = info.match(/isSystem[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSystemFlg = false;
-    if (isSystem) {
-      const isSystemText = isSystem[1];
-      if (isSystemText === 'true') {
-        isSystemFlg = true;
-      }
+    if (isSystem?.[1] === 'true') {
+      isSystemFlg = true;
     }
     shaderSemanticsInfo.isSystem = isSystemFlg;
 
@@ -232,11 +235,8 @@ export default class ShaderityUtility {
       /updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/
     );
     let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;
-    if (updateInterval) {
-      const updateIntervalText = updateInterval[1];
-      if (updateIntervalText.toLowerCase() === 'everytime') {
-        updateIntervalObj = ShaderVariableUpdateInterval.EveryTime;
-      }
+    if (updateInterval?.[1]?.toLowerCase() === 'everytime') {
+      updateIntervalObj = ShaderVariableUpdateInterval.EveryTime;
     }
     shaderSemanticsInfo.updateInterval = updateIntervalObj;
 
@@ -251,8 +251,6 @@ export default class ShaderityUtility {
       shaderSemanticsInfo.initialValue =
         this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
-
-    return shaderSemanticsInfo;
   }
 
   private static __getInitialValueFromText(
