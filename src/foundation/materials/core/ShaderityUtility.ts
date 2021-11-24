@@ -33,6 +33,7 @@ import MutableMatrix33 from '../../math/MutableMatrix33';
 import MutableMatrix44 from '../../math/MutableMatrix44';
 import MutableScalar from '../../math/MutableScalar';
 import MutableMatrix22 from '../../math/MutableMatrix22';
+import {ShaderType} from '../../definitions/ShaderType';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -138,6 +139,7 @@ export default class ShaderityUtility {
           type,
           variableName,
           info,
+          shaderityObject.isFragmentShader,
           existingShaderInfoMap
         );
 
@@ -177,36 +179,42 @@ export default class ShaderityUtility {
     type: string,
     variableName: string,
     info: string,
+    isFragmentShader: boolean,
     existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
   ): ShaderSemanticsInfo {
-    const shaderSemanticsInfo: any = {};
+    const componentType = ComponentType.fromGlslString(type);
+    const compositionType = CompositionType.fromGlslString(type);
+    const stage = isFragmentShader
+      ? ShaderType.PixelShader
+      : ShaderType.VertexShader;
+
+    let none_u_prefix = true;
     const u_prefixedName = variableName.match(/u_(\w+)/);
     if (u_prefixedName) {
       variableName = u_prefixedName[1];
-      shaderSemanticsInfo.none_u_prefix = false;
-    } else {
-      shaderSemanticsInfo.none_u_prefix = true;
+      none_u_prefix = false;
     }
 
-    const systemSemantic =
-      ShaderSemantics.fromStringCaseSensitively(variableName);
-    shaderSemanticsInfo.semantic = systemSemantic;
-    if (systemSemantic == null) {
-      if (existingShaderInfoMap) {
-        const semanticInfo = existingShaderInfoMap.get(variableName);
-        if (semanticInfo != null) {
-          shaderSemanticsInfo.semantic = semanticInfo.semantic;
-        } else {
-          const semantic = new ShaderSemanticsClass({str: variableName});
-          shaderSemanticsInfo.semantic = semantic;
-        }
+    let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
+    if (semantic == null) {
+      const semanticInfo = existingShaderInfoMap?.get(variableName);
+      if (semanticInfo != null) {
+        semantic = semanticInfo.semantic;
       } else {
-        const semantic = new ShaderSemanticsClass({str: variableName});
-        shaderSemanticsInfo.semantic = semantic;
+        semantic = new ShaderSemanticsClass({str: variableName});
       }
     }
-    shaderSemanticsInfo.componentType = ComponentType.fromGlslString(type);
-    shaderSemanticsInfo.compositionType = CompositionType.fromGlslString(type);
+
+    const shaderSemanticsInfo: ShaderSemanticsInfo = {
+      semantic,
+      compositionType,
+      componentType,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: false,
+      stage,
+      none_u_prefix,
+    };
 
     this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);
 
