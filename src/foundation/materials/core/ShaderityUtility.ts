@@ -32,6 +32,7 @@ import MutableVector4 from '../../math/MutableVector4';
 import MutableMatrix33 from '../../math/MutableMatrix33';
 import MutableMatrix44 from '../../math/MutableMatrix44';
 import MutableScalar from '../../math/MutableScalar';
+import MutableMatrix22 from '../../math/MutableMatrix22';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -369,6 +370,8 @@ export default class ShaderityUtility {
       return MutableVector3.zero();
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
       return MutableVector4.zero();
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat2) {
+      return MutableMatrix22.identity();
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
       return MutableMatrix33.identity();
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
