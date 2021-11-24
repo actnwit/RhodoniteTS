@@ -128,12 +128,9 @@ export default class ShaderityUtility {
         const variableName = matchUniformDeclaration[2];
         const info = matchUniformDeclaration[4];
 
-        const skipProcess = info.match(/skipProcess[\t ]*=[\t ]*(\w+)[,\t ]*/);
-        if (skipProcess) {
-          if (skipProcess[1] === 'true') {
-            uniformOmittedShaderRows.push(row);
-            continue;
-          }
+        if (this.__ignoreThisUniformDeclaration(info)) {
+          uniformOmittedShaderRows.push(row);
+          continue;
         }
 
         const shaderSemanticsInfo = this.__createShaderSemanticsInfo(
@@ -165,6 +162,14 @@ export default class ShaderityUtility {
     };
 
     return copiedObj;
+  }
+
+  private static __ignoreThisUniformDeclaration(info: string) {
+    const skipProcess = info.match(/skipProcess[\t ]*=[\t ]*(\w+)[,\t ]*/);
+    if (skipProcess?.[1] === 'true') {
+      return true;
+    }
+    return false;
   }
 
   private static __createShaderSemanticsInfo(
