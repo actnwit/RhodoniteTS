@@ -44,6 +44,23 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
       }
     }
 
+    const globalPropertyStructs =
+      GlobalDataRepository.getInstance().getGlobalProperties();
+    for (const globalPropertyStruct of globalPropertyStructs) {
+      const globalShaderSemanticsInfo =
+        globalPropertyStruct.shaderSemanticsInfo;
+
+      const duplicateElemId = shaderSemanticsInfoArray.findIndex(
+        shaderSemanticsInfo =>
+          shaderSemanticsInfo.semantic.str ===
+          globalShaderSemanticsInfo.semantic.str
+      );
+
+      if (duplicateElemId !== -1) {
+        shaderSemanticsInfoArray.splice(duplicateElemId, 1);
+      }
+    }
+
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
