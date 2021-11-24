@@ -242,135 +242,148 @@ export default class ShaderityUtility {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
-      const checkCompositionNumber = (expected: CompositionTypeEnum) => {
-        if (shaderSemanticsInfo.compositionType !== expected) {
-          console.error('component number of initialValue is invalid!');
-        }
-      };
-      if (tuple) {
-        const text = tuple[1];
-        const split = text.split(',');
-        switch (split.length) {
-          case 2:
-            if (
-              shaderSemanticsInfo.compositionType === CompositionType.Texture2D
-            ) {
-              const color =
-                split[1].charAt(0).toUpperCase() + split[1].slice(1);
-              shaderSemanticsInfo.initialValue = [
-                parseInt(split[0]),
-                (AbstractMaterialNode as any)[`dummy${color}Texture`],
-              ];
-            } else if (
-              shaderSemanticsInfo.compositionType ===
-              CompositionType.TextureCube
-            ) {
-              const color =
-                split[1].charAt(0).toUpperCase() + split[1].slice(1);
-              shaderSemanticsInfo.initialValue = [
-                parseInt(split[0]),
-                (AbstractMaterialNode as any)[`dummy${color}CubeTexture`],
-              ];
-            } else {
-              checkCompositionNumber(CompositionType.Vec2);
-              shaderSemanticsInfo.initialValue = MutableVector2.fromCopyArray([
-                parseFloat(split[0]),
-                parseFloat(split[1]),
-              ]);
-            }
-            break;
-          case 3:
-            checkCompositionNumber(CompositionType.Vec3);
-            shaderSemanticsInfo.initialValue = MutableVector3.fromCopyArray([
-              parseFloat(split[0]),
-              parseFloat(split[1]),
-              parseFloat(split[2]),
-            ]);
-            break;
-          case 4:
-            checkCompositionNumber(CompositionType.Vec4);
-            shaderSemanticsInfo.initialValue = MutableVector4.fromCopyArray([
-              parseFloat(split[0]),
-              parseFloat(split[1]),
-              parseFloat(split[2]),
-              parseFloat(split[3]),
-            ]);
-            break;
-          case 9:
-            checkCompositionNumber(CompositionType.Mat3);
-            shaderSemanticsInfo.initialValue = new MutableMatrix33(
-              parseFloat(split[0]),
-              parseFloat(split[1]),
-              parseFloat(split[2]),
-              parseFloat(split[3]),
-              parseFloat(split[4]),
-              parseFloat(split[5]),
-              parseFloat(split[6]),
-              parseFloat(split[7]),
-              parseFloat(split[8])
-            );
-            break;
-          case 16:
-            checkCompositionNumber(CompositionType.Mat4);
-            shaderSemanticsInfo.initialValue = new MutableMatrix44(
-              parseFloat(split[0]),
-              parseFloat(split[1]),
-              parseFloat(split[2]),
-              parseFloat(split[3]),
-              parseFloat(split[4]),
-              parseFloat(split[5]),
-              parseFloat(split[6]),
-              parseFloat(split[7]),
-              parseFloat(split[8]),
-              parseFloat(split[9]),
-              parseFloat(split[10]),
-              parseFloat(split[11]),
-              parseFloat(split[12]),
-              parseFloat(split[13]),
-              parseFloat(split[14]),
-              parseFloat(split[15])
-            );
-            break;
-          default:
-            console.error('Invalid format');
-        }
-      } else {
-        checkCompositionNumber(CompositionType.Scalar);
-        shaderSemanticsInfo.initialValue = new MutableScalar(
-          parseFloat(initialValueText)
-        );
-      }
+      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(
+        shaderSemanticsInfo,
+        initialValueText
+      );
     } else {
-      if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
-        shaderSemanticsInfo.initialValue = new MutableScalar(0);
-      } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
-        shaderSemanticsInfo.initialValue = MutableVector2.zero();
-      } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
-        shaderSemanticsInfo.initialValue = MutableVector3.zero();
-      } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
-        shaderSemanticsInfo.initialValue = MutableVector4.zero();
-      } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
-        shaderSemanticsInfo.initialValue = MutableMatrix33.identity();
-      } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
-        shaderSemanticsInfo.initialValue = MutableMatrix44.identity();
-      } else if (
-        shaderSemanticsInfo.compositionType === CompositionType.Texture2D
-      ) {
-        shaderSemanticsInfo.initialValue = [
-          0,
-          AbstractMaterialNode.dummyWhiteTexture,
-        ];
-      } else if (
-        shaderSemanticsInfo.compositionType === CompositionType.TextureCube
-      ) {
-        shaderSemanticsInfo.initialValue = [
-          0,
-          AbstractMaterialNode.dummyBlackTexture,
-        ];
-      }
+      shaderSemanticsInfo.initialValue =
+        this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
 
     return shaderSemanticsInfo;
+  }
+
+  private static __getInitialValueFromText(
+    shaderSemanticsInfo: ShaderSemanticsInfo,
+    initialValueText: string
+  ) {
+    const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
+    const checkCompositionNumber = (expected: CompositionTypeEnum) => {
+      if (shaderSemanticsInfo.compositionType !== expected) {
+        console.error('component number of initialValue is invalid!');
+      }
+    };
+
+    let initialValue;
+    if (tuple) {
+      const text = tuple[1];
+      const split = text.split(',');
+      switch (split.length) {
+        case 2:
+          if (
+            shaderSemanticsInfo.compositionType === CompositionType.Texture2D
+          ) {
+            const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
+            initialValue = [
+              parseInt(split[0]),
+              (AbstractMaterialNode as any)[`dummy${color}Texture`],
+            ];
+          } else if (
+            shaderSemanticsInfo.compositionType === CompositionType.TextureCube
+          ) {
+            const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
+            initialValue = [
+              parseInt(split[0]),
+              (AbstractMaterialNode as any)[`dummy${color}CubeTexture`],
+            ];
+          } else {
+            checkCompositionNumber(CompositionType.Vec2);
+            initialValue = MutableVector2.fromCopyArray([
+              parseFloat(split[0]),
+              parseFloat(split[1]),
+            ]);
+          }
+          break;
+        case 3:
+          checkCompositionNumber(CompositionType.Vec3);
+          initialValue = MutableVector3.fromCopyArray([
+            parseFloat(split[0]),
+            parseFloat(split[1]),
+            parseFloat(split[2]),
+          ]);
+          break;
+        case 4:
+          checkCompositionNumber(CompositionType.Vec4);
+          initialValue = MutableVector4.fromCopyArray([
+            parseFloat(split[0]),
+            parseFloat(split[1]),
+            parseFloat(split[2]),
+            parseFloat(split[3]),
+          ]);
+          break;
+        case 9:
+          checkCompositionNumber(CompositionType.Mat3);
+          initialValue = new MutableMatrix33(
+            parseFloat(split[0]),
+            parseFloat(split[1]),
+            parseFloat(split[2]),
+            parseFloat(split[3]),
+            parseFloat(split[4]),
+            parseFloat(split[5]),
+            parseFloat(split[6]),
+            parseFloat(split[7]),
+            parseFloat(split[8])
+          );
+          break;
+        case 16:
+          checkCompositionNumber(CompositionType.Mat4);
+          initialValue = new MutableMatrix44(
+            parseFloat(split[0]),
+            parseFloat(split[1]),
+            parseFloat(split[2]),
+            parseFloat(split[3]),
+            parseFloat(split[4]),
+            parseFloat(split[5]),
+            parseFloat(split[6]),
+            parseFloat(split[7]),
+            parseFloat(split[8]),
+            parseFloat(split[9]),
+            parseFloat(split[10]),
+            parseFloat(split[11]),
+            parseFloat(split[12]),
+            parseFloat(split[13]),
+            parseFloat(split[14]),
+            parseFloat(split[15])
+          );
+          break;
+        default:
+          console.error('Invalid format');
+      }
+    } else {
+      checkCompositionNumber(CompositionType.Scalar);
+      initialValue = new MutableScalar(parseFloat(initialValueText));
+    }
+
+    return initialValue;
+  }
+
+  private static __getDefaultInitialValue(
+    shaderSemanticsInfo: ShaderSemanticsInfo
+  ) {
+    if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
+      return new MutableScalar(0);
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
+      return MutableVector2.zero();
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
+      return MutableVector3.zero();
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
+      return MutableVector4.zero();
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
+      return MutableMatrix33.identity();
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
+      return MutableMatrix44.identity();
+    } else if (
+      shaderSemanticsInfo.compositionType === CompositionType.Texture2D
+    ) {
+      return [0, AbstractMaterialNode.dummyWhiteTexture];
+    } else if (
+      shaderSemanticsInfo.compositionType === CompositionType.TextureCube
+    ) {
+      return [0, AbstractMaterialNode.dummyBlackTexture];
+    }
+
+    console.warn('initial value is not found');
+    return;
   }
 }
