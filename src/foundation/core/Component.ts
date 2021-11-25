@@ -524,11 +524,29 @@ export default class Component extends RnObject {
    * Allocate memory of self member fields
    * @param count a number of entities to need allocate
    */
-  submitToAllocation(count: Count) {
+  submitToAllocation(count: Count): void {
     const componentClass = this.constructor;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
+    // Do this only for the first entity of the component
     if (this._component_sid === 0) {
+      getBufferViewsAndAccessors(this);
+    }
+
+    const member = Component.__members.get(componentClass)!;
+
+    // take a field value allocation for each entity for each member field
+    for (const bufferUse of member.keys()) {
+      const infoArray = member.get(bufferUse)!;
+      infoArray.forEach(info => {
+        this.takeOne(info.memberName, info.dataClassType, info.initValues);
+      });
+    }
+
+    return;
+
+    // inner function
+    function getBufferViewsAndAccessors(that: Component) {
       if (!Component.__members.has(componentClass)) {
         Component.__members.set(componentClass, new Map());
       }
@@ -546,9 +564,7 @@ export default class Component extends RnObject {
         if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
           Component.__byteLengthSumOfMembers.set(componentClass, new Map());
         }
-        const byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(
-          componentClass
-        )!;
+        const byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass)!;
         if (!byteLengthSumOfMembers.has(bufferUse)) {
           byteLengthSumOfMembers.set(bufferUse, 0);
         }
@@ -556,8 +572,8 @@ export default class Component extends RnObject {
           byteLengthSumOfMembers.set(
             bufferUse,
             byteLengthSumOfMembers.get(bufferUse)! +
-              info.compositionType.getNumberOfComponents() *
-                info.componentType.getSizeInBytes()
+            info.compositionType.getNumberOfComponents() *
+            info.componentType.getSizeInBytes()
           );
         });
         if (infoArray.length > 0) {
@@ -567,7 +583,7 @@ export default class Component extends RnObject {
             byteLengthSumOfMembers.get(bufferUse)!,
             count
           );
-          this.__byteOffsetOfThisComponent = bufferView!.byteOffsetInBuffer;
+          that.__byteOffsetOfThisComponent = bufferView!.byteOffsetInBuffer;
         }
       }
 
@@ -583,24 +599,12 @@ export default class Component extends RnObject {
             info.componentType,
             count
           );
-          (this as any)[
-            '_byteOffsetOfAccessorInBuffer_' + info.memberName
-          ] = accessor!.byteOffsetInBuffer;
-          (this as any)[
-            '_byteOffsetOfAccessorInComponent_' + info.memberName
-          ] = accessor!.byteOffsetInBufferView;
+          (that as any)['_byteOffsetOfAccessorInBuffer_' + info.memberName] =
+            accessor!.byteOffsetInBuffer;
+          (that as any)['_byteOffsetOfAccessorInComponent_' + info.memberName] =
+            accessor!.byteOffsetInBufferView;
         });
       }
-    }
-
-    const member = Component.__members.get(componentClass)!;
-
-    // take a field value allocation for each entity for each member field
-    for (const bufferUse of member.keys()) {
-      const infoArray = member.get(bufferUse)!;
-      infoArray.forEach(info => {
-        this.takeOne(info.memberName, info.dataClassType, info.initValues);
-      });
     }
   }
 
