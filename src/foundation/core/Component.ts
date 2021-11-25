@@ -540,7 +540,7 @@ export default class Component extends RnObject {
         member.get(info.bufferUse)!.push(info);
       });
 
-      // take a BufferView for all entities for each member fields.
+      // for each member field, take a BufferView for all entities' the member field.
       for (const bufferUse of member.keys()) {
         const infoArray = member.get(bufferUse)!;
         if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
