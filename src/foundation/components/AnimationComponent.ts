@@ -23,7 +23,7 @@ import {
   Array3,
 } from '../../types/CommonTypes';
 import {
-  defaultValue,
+  valueWithDefault,
   greaterThan,
   lessThan,
   valueWithCompensation,
@@ -151,10 +151,10 @@ export default class AnimationComponent extends Component {
     if (makeThisActiveAnimation) {
       this.__currentActiveAnimationName = animationName;
     } else {
-      this.__currentActiveAnimationName = defaultValue(
-        animationName,
-        this.__currentActiveAnimationName
-      );
+      this.__currentActiveAnimationName = valueWithDefault({
+        value: this.__currentActiveAnimationName,
+        defaultValue: animationName,
+      });
     }
 
     const line: AnimationLine = {
@@ -183,10 +183,10 @@ export default class AnimationComponent extends Component {
     const newMaxEndInputTime =
       animationInputArray[animationInputArray.length - 1];
 
-    const existingAnimationInfo = defaultValue<AnimationInfo>(
-      defaultAnimationInfo,
-      AnimationComponent.__animationInfo.get(animationName)
-    );
+    const existingAnimationInfo = valueWithDefault<AnimationInfo>({
+      value: AnimationComponent.__animationInfo.get(animationName),
+      defaultValue: defaultAnimationInfo,
+    });
     const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
     const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
 
@@ -566,10 +566,10 @@ export default class AnimationComponent extends Component {
       const firstAnimationInfo = array[0] as unknown as AnimationInfo;
       return firstAnimationInfo.maxEndInputTime;
     }
-    const maxStartInputTime = defaultValue<AnimationInfo>(
-      defaultAnimationInfo,
-      AnimationComponent.__animationInfo.get(name)
-    ).maxStartInputTime;
+    const maxStartInputTime = valueWithDefault<AnimationInfo>({
+      value: AnimationComponent.__animationInfo.get(name),
+      defaultValue: defaultAnimationInfo,
+    }).maxStartInputTime;
 
     return maxStartInputTime;
   }
@@ -585,10 +585,10 @@ export default class AnimationComponent extends Component {
       const firstAnimationInfo = array[0] as unknown as AnimationInfo;
       return firstAnimationInfo.maxEndInputTime;
     }
-    const maxEndInputTime = defaultValue<AnimationInfo>(
-      defaultAnimationInfo,
-      AnimationComponent.__animationInfo.get(name)
-    ).maxEndInputTime;
+    const maxEndInputTime = valueWithDefault<AnimationInfo>({
+      value: AnimationComponent.__animationInfo.get(name),
+      defaultValue: defaultAnimationInfo,
+    }).maxEndInputTime;
 
     return maxEndInputTime;
   }
