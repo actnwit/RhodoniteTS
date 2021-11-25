@@ -62,11 +62,10 @@ export default class ComponentRepository {
   ) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
-    if (componentClass != null) {
-      let component_sid_count = this.__component_sid_count_map.get(
-        componentTid
-      );
-      if (!Is.exist(component_sid_count)) {
+    if (Is.exist(componentClass)) {
+      let component_sid_count =
+        this.__component_sid_count_map.get(componentTid);
+      if (Is.not.exist(component_sid_count)) {
         this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = Component.invalidComponentSID;
       }
@@ -86,6 +85,8 @@ export default class ComponentRepository {
         array[component.componentSID] = component;
         return component;
       }
+    } else {
+      console.error('The Component Class object is invalid.');
     }
     return null;
   }
