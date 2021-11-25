@@ -398,6 +398,10 @@ export default class GlobalDataRepository {
     return this.__fields.get(propertyIndex);
   }
 
+  getGlobalProperties() {
+    return Array.from(this.__fields.values());
+  }
+
   setUniformLocations(
     shaderProgramUid: CGAPIResourceHandle,
     isUniformOnlyMode: boolean

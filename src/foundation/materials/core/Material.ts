@@ -396,6 +396,38 @@ export default class Material extends RnObject {
     });
   }
 
+  // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
+  //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
+  setParameterByUniformName(uniformName: string, value: any, index?: Index) {
+    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
+    if (targetShaderSemantics != null) {
+      this.setParameter(targetShaderSemantics, value, index);
+    }
+  }
+
+  setTextureParameterByUniformName(uniformName: string, value: any) {
+    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
+    if (targetShaderSemantics != null) {
+      this.setTextureParameter(targetShaderSemantics, value);
+    }
+  }
+
+  private __getTargetShaderSemantics(uniformName: string) {
+    const targetFieldsInfo = this.fieldsInfoArray.find(fieldsInfo => {
+      const prefix = fieldsInfo.none_u_prefix ? '' : 'u_';
+      return prefix + fieldsInfo.semantic.str === uniformName;
+    });
+
+    if (targetFieldsInfo == null) {
+      console.error(
+        `Material.__getTargetShaderSemantics: uniform ${uniformName} is not found`
+      );
+      return;
+    }
+
+    return targetFieldsInfo.semantic;
+  }
+
   setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
     const info = this.__fieldsInfo.get(propertyIndex);
