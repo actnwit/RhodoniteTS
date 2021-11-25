@@ -11,7 +11,7 @@ import Quaternion from '../foundation/math/Quaternion';
 import Vector3 from '../foundation/math/Vector3';
 import { IMutableScalar, IMutableVector3 } from '../foundation/math/IVector';
 import WebXRSystem from './WebXRSystem';
-import { defaultValue } from '../foundation/misc/MiscUtil';
+import { valueWithDefault } from '../foundation/misc/MiscUtil';
 import { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import Matrix33 from '../foundation/math/Matrix33';
 import Matrix44 from '../foundation/math/Matrix44';
@@ -159,12 +159,19 @@ function processTriggerInput(triggerComponent: Component, handed: string, viewer
   const componentName = wellKnownMapping.get(triggerComponent.rootNodeName);
   if (triggerComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, triggerComponent.values.button, handed);
-    value = defaultValue(0, triggerComponent.values.button) * deltaSec;
+    value =
+      valueWithDefault({
+        value: triggerComponent.values.button,
+        defaultValue: 0,
+      }) * deltaSec;
     // Fire ray gun
   } else if (triggerComponent.values.state === Constants.ComponentState.TOUCHED) {
-    const chargeLevel = triggerComponent.values.button;
     console.log(componentName, triggerComponent.values.button, handed);
-    value = defaultValue(0, triggerComponent.values.button) * deltaSec;
+    value =
+      valueWithDefault({
+        value: triggerComponent.values.button,
+        defaultValue: 0,
+      }) * deltaSec;
     // Show ray gun charging up
   }
   if (handed === 'right') {
@@ -188,7 +195,6 @@ function processSqueezeInput(squeezeComponent: Component, handed: string, viewer
     console.log(componentName, squeezeComponent.values.button, handed);
     // Fire ray gun
   } else if (squeezeComponent.values.state === Constants.ComponentState.TOUCHED) {
-    const chargeLevel = squeezeComponent.values.button;
     console.log(componentName, squeezeComponent.values.button, handed);
     // Show ray gun charging up
   }
@@ -203,12 +209,28 @@ function processThumbstickInput(thumbstickComponent: Component, handed: string, 
   const deltaScaleAzimuthAngle = 0.15;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, thumbstickComponent.values.button, thumbstickComponent.values.state, handed);
-    xAxis = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
-    yAxis = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
+    xAxis =
+      valueWithDefault({
+        value: thumbstickComponent.values.xAxis,
+        defaultValue: 0,
+      }) * deltaSec;
+    yAxis =
+      valueWithDefault({
+        value: thumbstickComponent.values.yAxis,
+        defaultValue: 0,
+      }) * deltaSec;
     // Align the world orientation to the user's current orientation
   } else if (thumbstickComponent.values.state === Constants.ComponentState.TOUCHED) {
-    xAxis = defaultValue(0, thumbstickComponent.values.xAxis) * deltaSec;
-    yAxis = defaultValue(0, thumbstickComponent.values.yAxis) * deltaSec;
+    xAxis =
+      valueWithDefault({
+        value: thumbstickComponent.values.xAxis,
+        defaultValue: 0,
+      }) * deltaSec;
+    yAxis =
+      valueWithDefault({
+        value: thumbstickComponent.values.yAxis,
+        defaultValue: 0,
+      }) * deltaSec;
   }
   xAxis = Math.min(xAxis, 1);
   yAxis = Math.min(yAxis, 1);
