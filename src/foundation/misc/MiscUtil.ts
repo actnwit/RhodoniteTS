@@ -164,10 +164,16 @@ export const defaultValue = <T>(defaultValue: T, value?: T): T => {
   return value;
 };
 
-export const defaultValueWithCallback = <T>(callback: () => T, value?: T) => {
+export const valueWithCompensation = <T>({
+  value,
+  compensation,
+}: {
+  value?: T;
+  compensation: () => T;
+}) => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
-    return callback();
+    return compensation();
   }
   return value;
 };

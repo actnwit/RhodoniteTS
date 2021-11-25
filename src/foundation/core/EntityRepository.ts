@@ -2,7 +2,8 @@ import Entity from './Entity';
 import Component from './Component';
 import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
-
+import {Is} from '../misc/Is';
+import {valueWithCompensation} from '../misc/MiscUtil';
 /**
  * The class that generates and manages entities.
  */
@@ -56,12 +57,16 @@ export default class EntityRepository {
         entityUid,
         this
       );
-      let map = this._components[entity.entityUID];
-      if (map == null) {
-        map = new Map();
-        this._components[entity.entityUID] = map;
-      }
-      if (component != null) {
+      const map = valueWithCompensation({
+        value: this._components[entity.entityUID],
+        compensation: () => {
+          const map = new Map();
+          this._components[entity.entityUID] = map;
+          return map;
+        },
+      });
+
+      if (Is.exist(component)) {
         map.set(componentClass.componentTID, component);
         entity._setComponent(component);
       }
