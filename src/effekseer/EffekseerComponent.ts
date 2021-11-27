@@ -16,7 +16,7 @@ import {
 import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
-import { IVector3 } from '../foundation/math/IVector';
+import {IVector3} from '../foundation/math/IVector';
 
 declare let effekseer: any;
 
@@ -27,6 +27,7 @@ export default class EffekseerComponent extends Component {
   public isPause = false;
   public static wasmModuleUri = undefined;
   public randomSeed = -1;
+  public isImageLoadWithCredential = false;
   private __effect?: any;
   private __context: any;
   private __handle?: any;
@@ -179,6 +180,9 @@ export default class EffekseerComponent extends Component {
   }
 
   private __createEffekseerContext() {
+    effekseer.setImageCrossOrigin(
+      this.isImageLoadWithCredential ? 'use-credentials' : ''
+    );
     this.__context = effekseer.createContext();
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
