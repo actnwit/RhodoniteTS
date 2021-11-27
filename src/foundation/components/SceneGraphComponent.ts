@@ -35,7 +35,7 @@ export default class SceneGraphComponent extends Component {
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
   private __aabbGizmo?: AABBGizmo;
-  private __locatorGizmo?: LocatorGizmo = new LocatorGizmo(this.entity);
+  private __locatorGizmo?: LocatorGizmo;
   private static isJointAABBShouldBeCalculated = false;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
