@@ -306,6 +306,7 @@ export default {
   ImageUtil: _ImageUtil,
   GetComponentFromEntities: _GetComponentFromEntities,
   enhanceArray: _enhanceArray,
+  EffekseerComponent: Effekseer.EffekseerComponent,
   FileType: _FileType,
   VERSION: _VERSION,
 

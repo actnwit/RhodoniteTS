@@ -57,16 +57,16 @@ export default class EntityRepository {
         entityUid,
         this
       );
-      const map = valueWithCompensation({
-        value: this._components[entity.entityUID],
-        compensation: () => {
-          const map = new Map();
-          this._components[entity.entityUID] = map;
-          return map;
-        },
-      });
 
       if (Is.exist(component)) {
+        const map = valueWithCompensation({
+          value: this._components[entity.entityUID],
+          compensation: () => {
+            const map = new Map();
+            this._components[entity.entityUID] = map;
+            return map;
+          },
+        });
         map.set(componentClass.componentTID, component);
         entity._setComponent(component);
       }
