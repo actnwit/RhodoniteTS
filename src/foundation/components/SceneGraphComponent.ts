@@ -35,7 +35,7 @@ export default class SceneGraphComponent extends Component {
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
   private __aabbGizmo?: AABBGizmo;
-  private __locatorGizmo?: LocatorGizmo = new LocatorGizmo(this.entity);
+  private __locatorGizmo?: LocatorGizmo;
   private static isJointAABBShouldBeCalculated = false;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
@@ -80,9 +80,13 @@ export default class SceneGraphComponent extends Component {
     if (flg) {
       if (Is.not.defined(this.__aabbGizmo)) {
         this.__aabbGizmo = new AABBGizmo(this.entity);
+        this.__aabbGizmo._setup();
       }
-      this.__aabbGizmo._setup();
-      this.__aabbGizmo.isVisible = flg;
+      this.__aabbGizmo.isVisible = true;
+    } else {
+      if (Is.defined(this.__aabbGizmo)) {
+        this.__aabbGizmo.isVisible = false;
+      }
     }
   }
 
@@ -98,9 +102,13 @@ export default class SceneGraphComponent extends Component {
     if (flg) {
       if (Is.not.defined(this.__locatorGizmo)) {
         this.__locatorGizmo = new LocatorGizmo(this.entity);
+        this.__locatorGizmo._setup();
       }
-      this.__locatorGizmo._setup();
-      this.__locatorGizmo.isVisible = flg;
+      this.__locatorGizmo.isVisible = true;
+    } else {
+      if (Is.defined(this.__locatorGizmo)) {
+        this.__locatorGizmo.isVisible = false;
+      }
     }
   }
 
