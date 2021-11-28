@@ -1,3 +1,4 @@
+/// <reference path="../../vendor/effekseer.d.ts" />
 import Component from '../foundation/core/Component';
 import EntityRepository from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
@@ -18,8 +19,6 @@ import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
 import {IVector3} from '../foundation/math/IVector';
 
-declare let effekseer: any;
-
 export default class EffekseerComponent extends Component {
   public uri?: string;
   public playJustAfterLoaded = false;
@@ -28,16 +27,18 @@ export default class EffekseerComponent extends Component {
   public static wasmModuleUri = undefined;
   public randomSeed = -1;
   public isImageLoadWithCredential = false;
-  private __effect?: any;
-  private __context: any;
-  private __handle?: any;
+  private __effect?: effekseer.EffekseerEffect;
+  private __context?: effekseer.EffekseerContext;
+  private __handle?: effekseer.EffekseerHandle;
   private __speed = 1;
   private __timer?: unknown;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
-  private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
-  private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
+  private static __tmp_identityMatrix_0: MutableMatrix44 =
+    MutableMatrix44.identity();
+  private static __tmp_identityMatrix_1: MutableMatrix44 =
+    MutableMatrix44.identity();
 
   private isLoadEffect = false;
 
@@ -67,7 +68,7 @@ export default class EffekseerComponent extends Component {
       console.warn('No Effekseer context yet');
       return false;
     }
-    if (Is.not.exist(this.__context)) {
+    if (Is.not.exist(this.__effect)) {
       console.warn('No Effekseer effect yet');
       return false;
     }
@@ -75,7 +76,7 @@ export default class EffekseerComponent extends Component {
     this.stop();
     this.isPause = false;
 
-    this.__handle = this.__context?.play(this.__effect);
+    this.__handle = this.__context?.play(this.__effect, 0, 0, 0);
     if (this.randomSeed > 0) {
       this.__handle?.setRandomSeed(this.randomSeed);
     }
@@ -112,6 +113,9 @@ export default class EffekseerComponent extends Component {
 
   setTime(targetSec: Second) {
     if (!this.play()) {
+      return false;
+    }
+    if (Is.not.exist(this.__context)) {
       return false;
     }
 
@@ -180,11 +184,16 @@ export default class EffekseerComponent extends Component {
   }
 
   private __createEffekseerContext() {
+    if (Is.not.exist(this.uri)) {
+      console.error('Effekseer file not found.');
+      return;
+    }
     effekseer.setImageCrossOrigin(
       this.isImageLoadWithCredential ? 'use-credentials' : ''
     );
     this.__context = effekseer.createContext();
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     EffekseerComponent.__isInitialized = true;
     const gl = glw!.getRawContext();
@@ -210,10 +219,16 @@ export default class EffekseerComponent extends Component {
     if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
       const useWASM = Is.exist(EffekseerComponent.wasmModuleUri);
       if (useWASM) {
-        effekseer.initRuntime(EffekseerComponent.wasmModuleUri, () => {
-          this.__createEffekseerContext();
-          this.moveStageTo(ProcessStage.Logic);
-        });
+        effekseer.initRuntime(
+          EffekseerComponent.wasmModuleUri!,
+          () => {
+            this.__createEffekseerContext();
+            this.moveStageTo(ProcessStage.Logic);
+          },
+          () => {
+            console.error('Failed to initialize Effekseer');
+          }
+        );
       } else {
         this.__createEffekseerContext();
         this.moveStageTo(ProcessStage.Logic);
@@ -224,18 +239,21 @@ export default class EffekseerComponent extends Component {
   $logic() {
     if (!this.isPause) {
       // Playing ...
-      this.__context.update();
+      if (Is.exist(this.__context)) {
+        this.__context.update();
+      }
     }
 
     if (this.__handle != null) {
-      const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
-        this.__sceneGraphComponent!.worldMatrixInner
-      );
+      const worldMatrix =
+        EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
+          this.__sceneGraphComponent!.worldMatrixInner
+        );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
     }
 
-    if(this.isPause) {
+    if (this.isPause) {
       // If Pause mode...
       this.moveStageTo(ProcessStage.Render);
       return;
@@ -265,9 +283,11 @@ export default class EffekseerComponent extends Component {
       viewMatrix.identity();
       projectionMatrix.identity();
     }
-    this.__context.setProjectionMatrix(projectionMatrix._v);
-    this.__context.setCameraMatrix(viewMatrix._v);
-    this.__context.draw();
+    if (Is.exist(this.__context)) {
+      this.__context.setProjectionMatrix(projectionMatrix._v);
+      this.__context.setCameraMatrix(viewMatrix._v);
+      this.__context.draw();
+    }
 
     this.moveStageTo(ProcessStage.Logic);
   }
