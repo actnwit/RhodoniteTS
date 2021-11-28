@@ -81,6 +81,7 @@ VERSION-FILE
 samples/**/main.js*
 samples/**/types.js*
 docs/api/
+!vendor/effekseer.d.ts
 
 # VSCode
 !**/.vscode/tasks.json
