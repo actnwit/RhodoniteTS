@@ -24,6 +24,7 @@ export default class SceneGraphComponent extends Component {
   private static __sceneGraphs: SceneGraphComponent[] = [];
   public isAbleToBeParent: boolean;
   private __children: Array<SceneGraphComponent> = [];
+  private __gizmoChildren: Array<SceneGraphComponent> = [];
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate = false;
@@ -164,13 +165,22 @@ export default class SceneGraphComponent extends Component {
     this.parent?.setWorldAABBDirtyParentRecursively();
   }
 
-  addChild(sg: SceneGraphComponent) {
-    if (this.__children != null) {
-      sg.__parent = this;
-      this.__children.push(sg);
-    } else {
-      console.error('This is not allowed to have children.');
-    }
+  /**
+   * add a SceneGraph component as a child of this
+   * @param sg a SceneGraph component of Gizmo
+   */
+  public addChild(sg: SceneGraphComponent): void {
+    sg.__parent = this;
+    this.__children.push(sg);
+  }
+
+  /**
+   * add a SceneGraph component as a child of this (But Gizmo only)
+   * @param sg a SceneGraph component of Gizmo
+   */
+  _addGizmoChild(sg: SceneGraphComponent): void {
+    sg.__parent = this;
+    this.__gizmoChildren.push(sg);
   }
 
   get isTopLevel() {

@@ -63,7 +63,7 @@ export default class AABBGizmo extends Gizmo {
     ]);
     this.__topEntity.tryToSetUniqueName(`AABBGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    this.__target.getSceneGraph().addChild(this.__topEntity.getSceneGraph());
+    this.__target.getSceneGraph()._addGizmoChild(this.__topEntity.getSceneGraph());
 
     const meshComponent = this.__topEntity.getMesh();
     AABBGizmo.__mesh = new Mesh();
