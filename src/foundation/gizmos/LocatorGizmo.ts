@@ -71,7 +71,7 @@ export default class LocatorGizmo extends Gizmo {
     ]);
     this.__topEntity.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    this.__target.getSceneGraph().addChild(this.__topEntity.getSceneGraph());
+    this.__target.getSceneGraph()._addGizmoChild(this.__topEntity.getSceneGraph());
 
     const meshComponent = this.__topEntity.getMesh();
     LocatorGizmo.__mesh = new Mesh();
