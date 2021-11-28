@@ -11,7 +11,7 @@ import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
 import {Size} from '../../types/CommonTypes';
 
-export type PlaneDescripter = {
+export type PlaneDescriptor = {
   width: Size;
   height: Size;
   uSpan: Size;
@@ -21,6 +21,10 @@ export type PlaneDescripter = {
   material?: Material;
 };
 
+/**
+ * Plane class
+ *
+ */
 export default class Plane extends Primitive {
   constructor() {
     super();
@@ -36,7 +40,7 @@ export default class Plane extends Primitive {
    * @param flipTextureCoordinateY draw textures by flipping on the V(Y)-axis
    * @param material attach a rhodonite material to this plane(the default material is the classicUberMaterial)
    */
-  generate(desc: PlaneDescripter) {
+  generate(desc: PlaneDescriptor) {
     const positions = [];
 
     for (let i = 0; i <= desc.vSpan; i++) {

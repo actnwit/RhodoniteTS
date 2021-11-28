@@ -7,7 +7,7 @@ import Material from '../foundation/materials/core/Material';
 import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
-import {GltfLoadOption} from '..';
+import {GltfLoadOption} from '../types/glTF';
 
 export type RnM2Scene = {
   name?: string;
