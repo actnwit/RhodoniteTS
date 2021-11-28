@@ -165,13 +165,14 @@ export default class SceneGraphComponent extends Component {
     this.parent?.setWorldAABBDirtyParentRecursively();
   }
 
-  addChild(sg: SceneGraphComponent) {
-    if (this.__children != null) {
-      sg.__parent = this;
-      this.__children.push(sg);
-    } else {
-      console.error('This is not allowed to have children.');
-    }
+  /**
+   * add a SceneGraph component as a child of this
+   * @param sg a SceneGraph component of Gizmo
+   */
+  public addChild(sg: SceneGraphComponent): void {
+    sg.__parent = this;
+    this.__children.push(sg);
+  }
 
   /**
    * add a SceneGraph component as a child of this (But Gizmo only)
