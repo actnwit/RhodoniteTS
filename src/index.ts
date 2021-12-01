@@ -346,6 +346,7 @@ export type Scalar = _Scalar;
 export type Vector2 = _Vector2;
 export type Vector3 = _Vector3;
 export type Vector4 = _Vector4;
+export type MutableScalar = _MutableScalar;
 export type MutableVector2 = _MutableVector2;
 export type MutableVector3 = _MutableVector3;
 export type MutableVector4 = _MutableVector4;
