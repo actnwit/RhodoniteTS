@@ -293,7 +293,7 @@ export default class Gltf2Exporter {
                   }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
-                    htmlCanvasElement.toBlob((blob: blob | MediaSource) => {
+                    htmlCanvasElement.toBlob((blob: Blob | null) => {
                       setTimeout(() => {
                         const a = document.createElement('a');
                         const e = document.createEvent(
