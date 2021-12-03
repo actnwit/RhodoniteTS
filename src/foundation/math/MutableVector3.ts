@@ -339,8 +339,12 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
     ) as MutableVector3d;
   }
 
-  static fromCopyArray(array: Array3<number>): MutableVector3d {
+  static fromCopyArray3(array: Array3<number>): MutableVector3d {
     return new MutableVector3d(new Float64Array(array));
+  }
+
+  static fromCopyArray(array: Array<number>): MutableVector3d {
+    return new MutableVector3d(new Float64Array(array.slice(0, 3)));
   }
 
   clone() {
