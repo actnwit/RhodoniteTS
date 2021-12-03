@@ -195,7 +195,12 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     super(x, {type: Float32Array});
   }
 
+
   static fromCopyArray(array: Array4<number>): MutableVector4 {
+    return new MutableVector4(new Float32Array(array).slice(0, 4));
+  }
+
+  static fromCopyArray4(array: Array4<number>): MutableVector4 {
     return new MutableVector4(new Float32Array(array));
   }
 

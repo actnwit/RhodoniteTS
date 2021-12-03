@@ -145,7 +145,7 @@ export default class MutableVector2
     return new MutableVector2(new Float32Array(array));
   }
 
-  static fromCopyArray(array: Array2<number>): MutableVector2 {
+  static fromCopyArray(array: Array<number>): MutableVector2 {
     return new MutableVector2(new Float32Array(array.slice(0, 2)));
   }
 

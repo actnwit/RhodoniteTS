@@ -262,8 +262,11 @@ export default class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     return 'MutableVector3';
   }
 
-  static fromCopyArray(array: Array3<number>): MutableVector3 {
+  static fromCopyArray3(array: Array3<number>): MutableVector3 {
     return new MutableVector3(new Float32Array(array));
+  }
+  static fromCopyArray(array: Array<number>): MutableVector3 {
+    return new MutableVector3(new Float32Array(array.slice(0, 3)));
   }
 
   static fromFloat32Array(float32Array: Float32Array): MutableVector3 {
