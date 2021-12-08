@@ -21,6 +21,7 @@ import {IVector3} from '../foundation/math/IVector';
 
 export default class EffekseerComponent extends Component {
   public uri?: string;
+  public arrayBuffer?: ArrayBuffer;
   public playJustAfterLoaded = false;
   public isLoop = false;
   public isPause = false;
@@ -184,8 +185,8 @@ export default class EffekseerComponent extends Component {
   }
 
   private __createEffekseerContext() {
-    if (Is.not.exist(this.uri)) {
-      console.error('Effekseer file not found.');
+    if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
+      console.error('Effekseer data not found.');
       return;
     }
     effekseer.setImageCrossOrigin(
@@ -198,18 +199,20 @@ export default class EffekseerComponent extends Component {
     EffekseerComponent.__isInitialized = true;
     const gl = glw!.getRawContext();
     this.__context.init(gl);
-    this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
-      if (this.playJustAfterLoaded) {
-        if (this.isLoop) {
-          this.__timer = setInterval(() => {
+
+    const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;
+      this.__effect = this.__context.loadEffect(data as any, 1.0, () => {
+        if (this.playJustAfterLoaded) {
+          if (this.isLoop) {
+            this.__timer = setInterval(() => {
+              this.play();
+            }, 500);
+          } else {
             this.play();
-          }, 500);
-        } else {
-          this.play();
+          }
+          this.moveStageTo(ProcessStage.Logic);
         }
-        this.moveStageTo(ProcessStage.Logic);
-      }
-    });
+      });
   }
 
   $load() {
