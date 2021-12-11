@@ -115,13 +115,24 @@ declare namespace effekseer {
 
   /**
    * Load the effect data file (and resources).
-   * @param {string} path A URL of effect file (*.efk)
+   * @param {string|ArrayBuffer} data A URL/ArrayBuffer of effect file (*.efk)
    * @param {number} scale A magnification rate for the effect. The effect is loaded magnificating with this specified number.
    * @param {function=} onload A function that is called at loading complete
    * @param {function=} onerror A function that is called at loading error. First argument is a message. Second argument is an url.
    * @returns {EffekseerEffect} The effect data
    */
-  export function loadEffect(path: string, scale?: number, onload?: () => void, onerror?: (reason: string, path: string) => void): EffekseerEffect;
+  export function loadEffect(data: string|ArrayBuffer, scale?: number, onload?: () => void, onerror?: (reason: string, path: string) => void): EffekseerEffect;
+
+  /**
+   * Load the effect package file (resources included in the package).
+   * @param {string|ArrayBuffer} data A URL/ArrayBuffer of effect file (*.efk)
+   * @param {number} scale A magnification rate for the effect. The effect is loaded magnificating with this specified number.
+   * @param {function=} onload A function that is called at loading complete
+   * @param {function=} onerror A function that is called at loading error. First argument is a message. Second argument is an url.
+   * @param {Object} Unzip An Unzip object.
+   * @returns {EffekseerEffect} The effect data
+   */
+  export function loadEffectPackage(data: string|ArrayBuffer, scale?: number, onload?: () => void, onerror?: (reason: string, path: string) => void, Unzip: Object): EffekseerEffect;
 
   /**
   * Release the specified effect. Don't touch the instance of effect after released.
@@ -238,14 +249,25 @@ declare namespace effekseer {
 
       /**
        * Load the effect data file (and resources).
-       * @param {string} path A URL of effect file (*.efk)
+       * @param {string|ArrayBuffer} data A URL/ArrayBuffer of effect file (*.efk)
        * @param {number} scale A magnification rate for the effect. The effect is loaded magnificating with this specified number.
        * @param {function=} onload A function that is called at loading complete
        * @param {function=} onerror A function that is called at loading error. First argument is a message. Second argument is an url.
        * @param {function=} redirect A function to redirect a path. First argument is an url and return redirected url.
        * @returns {EffekseerEffect} The effect data
        */
-      loadEffect(path: string, scale?: number, onload?: () => void, onerror?: (reason: string, path: string) => void, redirect?: (path: string) => string): EffekseerEffect;
+      loadEffect(data: string|ArrayBuffer, scale?: number, onload?: () => void, onerror?: (reason: string, path: string) => void, redirect?: (path: string) => string): EffekseerEffect;
+
+      /**
+       * Load the effect package file (resources included in the package).
+       * @param {string|ArrayBuffer} data A URL/ArrayBuffer of effect file (*.efk)
+       * @param {number} scale A magnification rate for the effect. The effect is loaded magnificating with this specified number.
+       * @param {function=} onload A function that is called at loading complete
+       * @param {function=} onerror A function that is called at loading error. First argument is a message. Second argument is an url.
+       * @param {Object} Unzip An Unzip object.
+       * @returns {EffekseerEffect} The effect data
+       */
+      loadEffectPackage(data: string|ArrayBuffer, scale?: number, onload?: () => void, onerror?: (reason: string, path: string) => void, Unzip: Object): EffekseerEffect;
 
       /**
       * Release the specified effect. Don't touch the instance of effect after released.
