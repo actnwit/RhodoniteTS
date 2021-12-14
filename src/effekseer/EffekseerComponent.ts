@@ -187,10 +187,10 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  private __createEffekseerContext() {
+  private __createEffekseerContext(): boolean {
     if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
       console.error('Effekseer data not found.');
-      return;
+      return false;
     }
     effekseer.setImageCrossOrigin(
       this.isImageLoadWithCredential ? 'use-credentials' : ''
@@ -198,7 +198,7 @@ export default class EffekseerComponent extends Component {
     this.__context = effekseer.createContext();
     if (Is.not.exist(this.__context)) {
       console.error('Effekseer context creation fails');
-      return;
+      return false;
     }
     const webGLResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
@@ -224,7 +224,7 @@ export default class EffekseerComponent extends Component {
     if (this.type === 'efkpkg') {
       if (Is.not.exist(EffekseerComponent.Unzip)) {
         console.error('Please Set an Unzip object to EffekseerComponent.Unzip');
-        return;
+        return false;
       }
       this.__effect = this.__context.loadEffectPackage(
         data as any,
@@ -241,6 +241,8 @@ export default class EffekseerComponent extends Component {
         onError.bind(this)
       );
     }
+
+    return true;
   }
 
   $load() {
@@ -253,16 +255,20 @@ export default class EffekseerComponent extends Component {
         effekseer.initRuntime(
           EffekseerComponent.wasmModuleUri!,
           () => {
-            this.__createEffekseerContext();
-            this.moveStageTo(ProcessStage.Logic);
+            const succeed = this.__createEffekseerContext();
+            if (succeed) {
+              this.moveStageTo(ProcessStage.Logic);
+            }
           },
           () => {
             console.error('Failed to initialize Effekseer');
           }
         );
       } else {
-        this.__createEffekseerContext();
-        this.moveStageTo(ProcessStage.Logic);
+        const succeed = this.__createEffekseerContext();
+        if (succeed) {
+          this.moveStageTo(ProcessStage.Logic);
+        }
       }
     }
   }
