@@ -7,8 +7,8 @@ export class Cache<K, V> {
 
   /**
    * set key and value
-   * @param key a key
-   * @param value a value
+   * @param key the key for access
+   * @param value the value as a cache item
    * @returns true: succeed to set value, false: not set (already exists)
    */
   public set(key: K, value: V): boolean {
@@ -25,7 +25,7 @@ export class Cache<K, V> {
 
   /**
    * return the boolean value whether it have the key or not
-   * @param key
+   * @param key the key for access
    * @returns Whether it have the key or not.
    */
   public has(key: K): boolean {
@@ -46,9 +46,9 @@ export class Cache<K, V> {
   }
 
   /**
-   *
-   * @param key
-   * @returns the value
+   * return the value in the cache by the key
+   * @param key the key for access
+   * @returns the value in the cache by the key
    */
   public get(key: K): V | undefined {
     const keyObj = this.__map.get(key);
