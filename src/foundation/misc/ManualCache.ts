@@ -1,6 +1,6 @@
 import {Is} from './Is';
 
-export class Cache<K, V> {
+export class ManualCache<K, V> {
   private __map: Map<K, {key: K}> = new Map();
   private __weakMap: WeakMap<{key: K}, V> = new WeakMap();
   constructor() {}
@@ -56,6 +56,15 @@ export class Cache<K, V> {
       return undefined;
     }
     const val = this.__weakMap.get(keyObj);
+    return val;
+  }
+
+  public delete(key: K): boolean {
+    const keyObj = this.__map.get(key);
+    if (Is.not.exist(keyObj)) {
+      return false;
+    }
+    const val = this.__weakMap.delete(keyObj);
     return val;
   }
 }
