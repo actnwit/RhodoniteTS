@@ -1,7 +1,7 @@
 import {Is} from './Is';
 
 export class Cache<K, V> {
-  private __set: Set<K> = new Set();
+  private __map: Map<K, {key: K}> = new Map();
   private __weakMap: WeakMap<{key: K}, V> = new WeakMap();
   constructor() {}
 
@@ -12,13 +12,13 @@ export class Cache<K, V> {
    * @returns true: succeed to set value, false: not set (already exists)
    */
   public set(key: K, value: V): boolean {
-    const isExist = this.__set.has(key);
+    const isExist = this.__map.has(key);
     if (isExist) {
       return false;
     } else {
-      this.__set.add(key);
-      const newKeyObject = {key};
-      this.__weakMap.set(newKeyObject, value);
+      const keyObj = {key};
+      this.__map.set(key, keyObj);
+      this.__weakMap.set(keyObj, value);
       return true;
     }
   }
@@ -29,7 +29,7 @@ export class Cache<K, V> {
    * @returns Whether it have the key or not.
    */
   public has(key: K): boolean {
-    const isExist = this.__set.has(key);
+    const isExist = this.__map.has(key);
     if (isExist) {
       return true;
     } else {
@@ -37,7 +37,25 @@ export class Cache<K, V> {
     }
   }
 
+  /**
+   * return the number of this cache items
+   * @returns the number of this cache items
+   */
   public size(): number {
-    return this.__set.size;
+    return this.__map.size;
+  }
+
+  /**
+   *
+   * @param key
+   * @returns the value
+   */
+  public get(key: K): V | undefined {
+    const keyObj = this.__map.get(key);
+    if (Is.not.exist(keyObj)) {
+      return undefined;
+    }
+    const val = this.__weakMap.get(keyObj);
+    return val;
   }
 }
