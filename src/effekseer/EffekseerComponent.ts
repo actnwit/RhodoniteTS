@@ -24,7 +24,7 @@ export default class EffekseerComponent extends Component {
   public static Unzip?: Unzip;
   public uri?: string;
   public arrayBuffer?: ArrayBuffer;
-  public type = 'efkpkg';
+  public type = 'efk';
   public playJustAfterLoaded = false;
   public isLoop = false;
   public isPause = false;
