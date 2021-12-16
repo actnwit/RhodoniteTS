@@ -18,9 +18,13 @@ import Config from '../foundation/core/Config';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
 import {IVector3} from '../foundation/math/IVector';
+import type {Unzip} from 'zlib';
 
 export default class EffekseerComponent extends Component {
+  public static Unzip?: Unzip;
   public uri?: string;
+  public arrayBuffer?: ArrayBuffer;
+  public type = 'efk';
   public playJustAfterLoaded = false;
   public isLoop = false;
   public isPause = false;
@@ -183,22 +187,28 @@ export default class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  private __createEffekseerContext() {
-    if (Is.not.exist(this.uri)) {
-      console.error('Effekseer file not found.');
-      return;
+  private __createEffekseerContext(): boolean {
+    if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
+      console.error('Effekseer data not found.');
+      return false;
     }
     effekseer.setImageCrossOrigin(
       this.isImageLoadWithCredential ? 'use-credentials' : ''
     );
     this.__context = effekseer.createContext();
+    if (Is.not.exist(this.__context)) {
+      console.error('Effekseer context creation fails');
+      return false;
+    }
     const webGLResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     EffekseerComponent.__isInitialized = true;
     const gl = glw!.getRawContext();
+    const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;
     this.__context.init(gl);
-    this.__effect = this.__context.loadEffect(this.uri, 1.0, () => {
+
+    const onLoad = () => {
       if (this.playJustAfterLoaded) {
         if (this.isLoop) {
           this.__timer = setInterval(() => {
@@ -209,7 +219,30 @@ export default class EffekseerComponent extends Component {
         }
         this.moveStageTo(ProcessStage.Logic);
       }
-    });
+    };
+    const onError = () => {};
+    if (this.type === 'efkpkg') {
+      if (Is.not.exist(EffekseerComponent.Unzip)) {
+        console.error('Please Set an Unzip object to EffekseerComponent.Unzip');
+        return false;
+      }
+      this.__effect = this.__context.loadEffectPackage(
+        data as any,
+        EffekseerComponent.Unzip,
+        1.0,
+        onLoad.bind(this),
+        onError.bind(this)
+      );
+    } else {
+      this.__effect = this.__context.loadEffect(
+        data as any,
+        1.0,
+        onLoad.bind(this),
+        onError.bind(this)
+      );
+    }
+
+    return true;
   }
 
   $load() {
@@ -222,16 +255,20 @@ export default class EffekseerComponent extends Component {
         effekseer.initRuntime(
           EffekseerComponent.wasmModuleUri!,
           () => {
-            this.__createEffekseerContext();
-            this.moveStageTo(ProcessStage.Logic);
+            const succeed = this.__createEffekseerContext();
+            if (succeed) {
+              this.moveStageTo(ProcessStage.Logic);
+            }
           },
           () => {
             console.error('Failed to initialize Effekseer');
           }
         );
       } else {
-        this.__createEffekseerContext();
-        this.moveStageTo(ProcessStage.Logic);
+        const succeed = this.__createEffekseerContext();
+        if (succeed) {
+          this.moveStageTo(ProcessStage.Logic);
+        }
       }
     }
   }
