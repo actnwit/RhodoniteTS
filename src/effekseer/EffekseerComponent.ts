@@ -228,10 +228,10 @@ export default class EffekseerComponent extends Component {
       }
       this.__effect = this.__context.loadEffectPackage(
         data as any,
+        EffekseerComponent.Unzip,
         1.0,
         onLoad.bind(this),
-        onError.bind(this),
-        EffekseerComponent.Unzip
+        onError.bind(this)
       );
     } else {
       this.__effect = this.__context.loadEffect(
