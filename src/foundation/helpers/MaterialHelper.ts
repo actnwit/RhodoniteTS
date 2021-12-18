@@ -30,8 +30,10 @@ import VarianceShadowMapDecodeClassicSingleMaterialNode from '../materials/singl
 import SkinPbrShadingSingleMaterialNode from '../materials/singles/SkinPbrShadingSingleMaterialNode';
 import PbrExtendedShadingSingleMaterialNode from '../materials/singles/PbrExtendedShadingSingleMaterialNode';
 import Texture from '../textures/Texture';
-import {CameraComponent} from '../..';
+import CameraComponent from '../../foundation/components/CameraComponent';
 import {Count} from '../../types/CommonTypes';
+import {ShaderityObject} from 'shaderity';
+import ShaderitySingleMaterialNode from '../materials/singles/ShaderitySingleMaterialNode';
 
 function createMaterial(
   materialName: string,
@@ -665,8 +667,16 @@ function recreateCustomMaterial(
     isLighting,
     isMorphing,
     alphaMode,
-    vertexShader: {code: vertexShaderStr, shaderStage: 'vertex'},
-    pixelShader: {code: pixelShaderStr, shaderStage: 'fragment'},
+    vertexShader: {
+      code: vertexShaderStr,
+      shaderStage: 'vertex',
+      isFragmentShader: false,
+    },
+    pixelShader: {
+      code: pixelShaderStr,
+      shaderStage: 'fragment',
+      isFragmentShader: true,
+    },
   });
   materialNode.isSingleOperation = true;
   const material = recreateMaterial(
@@ -674,6 +684,29 @@ function recreateCustomMaterial(
     [materialNode],
     maxInstancesNumber
   );
+
+  return material;
+}
+
+// create or update shaderity material
+function recreateShaderityMaterial(
+  vertexShaderityObj: ShaderityObject,
+  pixelShaderityObj: ShaderityObject,
+  {
+    additionalName = '',
+    maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  } = {}
+) {
+  const name = `Shaderity_${additionalName}`;
+
+  const materialNode = new ShaderitySingleMaterialNode({
+    name,
+    vertexShaderityObj,
+    pixelShaderityObj,
+  });
+
+  materialNode.isSingleOperation = true;
+  const material = recreateMaterial(name, [materialNode], maxInstancesNumber);
 
   return material;
 }
@@ -692,6 +725,7 @@ export default Object.freeze({
   createMaterial,
   recreateMaterial,
   recreateCustomMaterial,
+  recreateShaderityMaterial,
   createEmptyMaterial,
   createClassicUberMaterial,
   createPbrUberMaterial,

@@ -66,7 +66,7 @@ import _AnimationAssigner from './foundation/importer/AnimationAssigner';
 import {MiscUtil as _MiscUtil} from './foundation/misc/MiscUtil';
 import {MathUtil as _MathUtil} from './foundation/math/MathUtil';
 import {MeshHelper as _MeshHelper} from './foundation/helpers/MeshHelper';
-import type {PlaneDescripter as _PlaneDescripter} from './foundation/geometry/Plane';
+import type {PlaneDescriptor as _PlaneDescriptor} from './foundation/geometry/Plane';
 import _OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import _WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
 import _ShaderityUtility from './foundation/materials/core/ShaderityUtility';
@@ -306,6 +306,7 @@ export default {
   ImageUtil: _ImageUtil,
   GetComponentFromEntities: _GetComponentFromEntities,
   enhanceArray: _enhanceArray,
+  EffekseerComponent: Effekseer.EffekseerComponent,
   FileType: _FileType,
   VERSION: _VERSION,
 
@@ -345,6 +346,7 @@ export type Scalar = _Scalar;
 export type Vector2 = _Vector2;
 export type Vector3 = _Vector3;
 export type Vector4 = _Vector4;
+export type MutableScalar = _MutableScalar;
 export type MutableVector2 = _MutableVector2;
 export type MutableVector3 = _MutableVector3;
 export type MutableVector4 = _MutableVector4;
@@ -381,7 +383,7 @@ export type Sphere = _Sphere;
 export type Material = _Material;
 export type MaterialHelper = typeof _MaterialHelper;
 export type MeshHelper = typeof _MeshHelper;
-export type PlaneDescripter = _PlaneDescripter;
+export type PlaneDescriptor = _PlaneDescriptor;
 export type RenderPass = _RenderPass;
 export type FrameBuffer = _FrameBuffer;
 export type Expression = _Expression;

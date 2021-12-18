@@ -12,53 +12,40 @@ import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
-import AnimationComponent from './AnimationComponent';
 import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import AABBGizmo from '../gizmos/AABBGizmo';
+import LocatorGizmo from '../gizmos/LocatorGizmo';
+import { Is } from '../misc/Is';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
   private static __sceneGraphs: SceneGraphComponent[] = [];
   public isAbleToBeParent: boolean;
   private __children: Array<SceneGraphComponent> = [];
+  private __gizmoChildren: Array<SceneGraphComponent> = [];
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate = false;
   private __isNormalMatrixUpToDate = false;
   private __tmpMatrix = MutableMatrix44.identity();
-  private static _isAllUpdate = false;
   private __worldAABB = new AABB();
   private __isWorldAABBDirty = true;
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
-  private __animationComponent?: AnimationComponent;
-  private __AABBGizmo = new AABBGizmo(this);
+  private __aabbGizmo?: AABBGizmo;
+  private __locatorGizmo?: LocatorGizmo;
   private static isJointAABBShouldBeCalculated = false;
+  public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
   // Skeletal
   public isRootJoint = false;
   public jointIndex = -1;
 
   private static invertedMatrix44 = new MutableMatrix44([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 
   constructor(
@@ -67,8 +54,6 @@ export default class SceneGraphComponent extends Component {
     entityRepository: EntityRepository
   ) {
     super(entityUid, componentSid, entityRepository);
-
-    const thisClass = SceneGraphComponent;
 
     SceneGraphComponent.__sceneGraphs.push(this);
 
@@ -92,15 +77,48 @@ export default class SceneGraphComponent extends Component {
     this.submitToAllocation(this.maxNumberOfComponent);
   }
 
-  set isGizmoVisible(flg: boolean) {
+  set isAABBGizmoVisible(flg: boolean) {
     if (flg) {
-      this.__AABBGizmo.setup();
+      if (Is.not.defined(this.__aabbGizmo)) {
+        this.__aabbGizmo = new AABBGizmo(this.entity);
+        this.__aabbGizmo._setup();
+      }
+      this.__aabbGizmo.isVisible = true;
+    } else {
+      if (Is.defined(this.__aabbGizmo)) {
+        this.__aabbGizmo.isVisible = false;
+      }
     }
-    this.__AABBGizmo.isVisible = flg;
   }
 
-  get isGizmoVisible() {
-    return this.__AABBGizmo.isVisible;
+  get isAABBGizmoVisible() {
+    if (Is.defined(this.__aabbGizmo)) {
+      return this.__aabbGizmo.isVisible;
+    } else {
+      return false;
+    }
+  }
+
+  set isLocatorGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__locatorGizmo)) {
+        this.__locatorGizmo = new LocatorGizmo(this.entity);
+        this.__locatorGizmo._setup();
+      }
+      this.__locatorGizmo.isVisible = true;
+    } else {
+      if (Is.defined(this.__locatorGizmo)) {
+        this.__locatorGizmo.isVisible = false;
+      }
+    }
+  }
+
+  get isLocatorGizmoVisible() {
+    if (Is.defined(this.__locatorGizmo)) {
+      return this.__locatorGizmo.isVisible;
+    } else {
+      return false;
+    }
   }
 
   static getTopLevelComponents(): SceneGraphComponent[] {
@@ -147,13 +165,22 @@ export default class SceneGraphComponent extends Component {
     this.parent?.setWorldAABBDirtyParentRecursively();
   }
 
-  addChild(sg: SceneGraphComponent) {
-    if (this.__children != null) {
-      sg.__parent = this;
-      this.__children.push(sg);
-    } else {
-      console.error('This is not allowed to have children.');
-    }
+  /**
+   * add a SceneGraph component as a child of this
+   * @param sg a SceneGraph component of Gizmo
+   */
+  public addChild(sg: SceneGraphComponent): void {
+    sg.__parent = this;
+    this.__children.push(sg);
+  }
+
+  /**
+   * add a SceneGraph component as a child of this (But Gizmo only)
+   * @param sg a SceneGraph component of Gizmo
+   */
+  _addGizmoChild(sg: SceneGraphComponent): void {
+    sg.__parent = this;
+    this.__gizmoChildren.push(sg);
   }
 
   get isTopLevel() {
@@ -170,7 +197,7 @@ export default class SceneGraphComponent extends Component {
 
   get worldMatrixInner() {
     if (!this.__isWorldMatrixUpToDate) {
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false)); //this.isJoint()));
+      this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
     }
 
@@ -219,7 +246,7 @@ export default class SceneGraphComponent extends Component {
     return false;
   }
 
-  calcWorldMatrixRecursively(isJointMode: boolean): MutableMatrix44 {
+  private __calcWorldMatrixRecursively(): MutableMatrix44 {
     if (this.__isWorldMatrixUpToDate) {
       return this._worldMatrix;
     }
@@ -227,13 +254,12 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.__parent == null || (isJointMode && this.__parent?.isJoint())) {
+    if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return transform.matrixInner;
     }
 
-    const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(
-      isJointMode
-    );
+    const matrixFromAncestorToParent =
+      this.__parent.__calcWorldMatrixRecursively();
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
       transform.matrixInner,
@@ -336,7 +362,16 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
-  castRay(
+  /**
+   * castRay Methods
+   *
+   * @param srcPointInWorld a source position in world space
+   * @param directionInWorld a direction vector in world space
+   * @param dotThreshold threshold of the intersected triangle and the ray
+   * @param ignoreMeshComponents mesh components to ignore
+   * @returns information of intersection in world space
+   */
+  public castRay(
     srcPointInWorld: Vector3,
     directionInWorld: Vector3,
     dotThreshold = 0,
@@ -355,7 +390,7 @@ export default class SceneGraphComponent extends Component {
     }
 
     let rayDistance = Number.MAX_VALUE;
-    const intersectedPosition = null;
+    let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
       if (!meshComponent.entity.getSceneGraph().isVisible) {
@@ -367,14 +402,14 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      let {t, intersectedPositionInWorld} = meshComponent.castRay(
+      const {t, intersectedPositionInWorld} = meshComponent.castRay(
         srcPointInWorld,
         directionInWorld,
         dotThreshold
       );
       if (t < rayDistance) {
         rayDistance = t;
-        intersectedPositionInWorld = intersectedPositionInWorld;
+        intersectedPosition = intersectedPositionInWorld;
         selectedMeshComponent = meshComponent;
       }
     }
@@ -386,6 +421,17 @@ export default class SceneGraphComponent extends Component {
     return {intersectedPosition, rayDistance, selectedMeshComponent};
   }
 
+  /**
+   * castRayFromScreen Methods
+   *
+   * @param x x position of screen
+   * @param y y position of screen
+   * @param camera a camera component
+   * @param viewport a viewport vector4
+   * @param dotThreshold threshold of the intersected triangle and the ray
+   * @param ignoreMeshComponents mesh components to ignore
+   * @returns information of intersection in world space
+   */
   castRayFromScreen(
     x: number,
     y: number,
@@ -441,21 +487,13 @@ export default class SceneGraphComponent extends Component {
   }
 
   $create() {
-    this.__animationComponent = this.entity.getComponent(
-      AnimationComponent
-    ) as AnimationComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));
+    this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
 
-    if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
-      this.__AABBGizmo.update();
-    }
-    // if (this.parent == null) {
-    // this.calcWorldAABB();
-    // }
+    this.__updateGizmos();
 
     const mesh = this.entity.getMesh()?.mesh;
     if (mesh) {
@@ -467,6 +505,15 @@ export default class SceneGraphComponent extends Component {
           break;
         }
       }
+    }
+  }
+
+  private __updateGizmos() {
+    if (Is.defined(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
+      this.__aabbGizmo._update();
+    }
+    if (Is.defined(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
+      this.__locatorGizmo._update();
     }
   }
 }

@@ -10,6 +10,7 @@ import ICameraController from './ICameraController';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import AABB from '../math/AABB';
 import AbstractCameraController from './AbstractCameraController';
+import { Is } from '../misc/Is';
 
 declare let window: any;
 
@@ -23,7 +24,9 @@ export default class OrbitCameraController
   public moveSpeed = 1;
   public followTargetAABB = false;
 
-  private __isKeyUp = true;
+  private __isMouseDown = false;
+  private __lastMouseDownTimeStamp: number = 0;
+  private __lastMouseUpTimeStamp: number = 0;
   private __originalY = -1;
   private __originalX = -1;
   private __buttonNumber = 0;
@@ -123,7 +126,7 @@ export default class OrbitCameraController
 
   __mouseDown(e: MouseEvent) {
     this.__tryToPreventDefault(e);
-    if (!this.__isKeyUp) return;
+    if (this.isMouseDown) return;
     if (this.__isPressingCtrl) return;
 
     this.__originalX = e.clientX;
@@ -131,16 +134,13 @@ export default class OrbitCameraController
     this.__rot_bgn_x = this.__rot_x;
     this.__rot_bgn_y = this.__rot_y;
 
-    this.__isKeyUp = false;
-
-    // if (typeof e.buttons !== "undefined") {
-    //        this.updateCamera();
-    // }
+    this.__isMouseDown = true;
+    this.__lastMouseDownTimeStamp = e.timeStamp;
   }
 
   __mouseMove(e: MouseEvent) {
     this.__tryToPreventDefault(e);
-    if (this.__isKeyUp) return;
+    if (Is.false(this.isMouseDown)) return;
     if (this.__isPressingCtrl) return;
 
     if (this.__buttonNumber === 0) {
@@ -192,7 +192,8 @@ export default class OrbitCameraController
     this.__originalX = -1;
     this.__originalY = -1;
 
-    this.__isKeyUp = true;
+    this.__isMouseDown = false;
+    this.__lastMouseUpTimeStamp = e.timeStamp;
   }
 
   __touchDown(e: TouchEvent) {
@@ -208,12 +209,13 @@ export default class OrbitCameraController
       this.__originalY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
     }
 
-    this.__isKeyUp = false;
+    this.__isMouseDown = true;
+    this.__lastMouseDownTimeStamp = e.timeStamp;
   }
 
   __touchMove(e: TouchEvent) {
     this.__tryToPreventDefault(e);
-    if (this.__isKeyUp) return;
+    if (Is.false(this.isMouseDown)) return;
 
     let currentTouchX = e.touches[0].clientX;
     let currentTouchY = e.touches[0].clientY;
@@ -248,7 +250,6 @@ export default class OrbitCameraController
     if (touchNumber === 0) {
       this.__originalX = -1;
       this.__originalY = -1;
-      this.__isKeyUp = true;
     } else if (touchNumber === 1) {
       this.__originalX = e.touches[0].clientX;
       this.__originalY = e.touches[0].clientY;
@@ -258,6 +259,8 @@ export default class OrbitCameraController
       this.__originalX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
       this.__originalY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
     }
+    this.__isMouseDown = false;
+    this.__lastMouseUpTimeStamp = e.timeStamp;
   }
 
   set rotX(value: number) {
@@ -787,5 +790,17 @@ export default class OrbitCameraController
 
   get scaleOfZNearAndZFar() {
     return this.__scaleOfZNearAndZFar;
+  }
+
+  get isMouseDown(): boolean {
+    return this.__isMouseDown;
+  }
+
+  get lastMouseDownTimeStamp(): number {
+    return this.__lastMouseDownTimeStamp;
+  }
+
+  get lastMouseUpTimeStamp(): number {
+    return this.__lastMouseUpTimeStamp;
   }
 }

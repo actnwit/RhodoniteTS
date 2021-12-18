@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - VARIANT=14
+        - VARIANT=16
     working_dir: /node
     volumes:
       - type: bind

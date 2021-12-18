@@ -3,35 +3,39 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 
+/**
+ * Abstract Gizmo class
+ */
 export default abstract class Gizmo extends RnObject {
   protected __entityRepository = EntityRepository.getInstance();
+
+  /**
+   * The top entity of this gizmo group.
+   * A programmer who implements a gizmo class has to make this entity
+   * a child of the target entity's scene graph component
+   * that the gizmo will belong to manually.
+   */
   protected __topEntity?: Entity;
-  protected __substance: RnObject;
+  /** the target entity which this gizmo belong to */
+  protected __target: Entity;
+
   protected __isVisible = false;
 
-  constructor(substance: RnObject) {
+  /**
+   * Constructor
+   * @param entity the object which this gizmo belong to
+   */
+  constructor(target: Entity) {
     super();
-    this.__substance = substance;
+    this.__target = target;
     this.setGizmoTag();
   }
 
-  abstract setup(): void;
-
-  abstract isSetup: boolean;
-
-  abstract update(): void;
-
-  protected setGizmoTag() {
-    if (this.__topEntity) {
-      const sceneGraphs = SceneGraphComponent.flattenHierarchy(
-        this.__topEntity.getSceneGraph(),
-        false
-      );
-      for (const sg of sceneGraphs) {
-        sg.entity.tryToSetTag({tag: 'Being', value: 'gizmo'});
-      }
-    }
-  }
+  ///
+  ///
+  /// Accessors
+  ///
+  ///
 
   set isVisible(flg: boolean) {
     this.__isVisible = flg;
@@ -42,5 +46,44 @@ export default abstract class Gizmo extends RnObject {
 
   get isVisible() {
     return this.__isVisible;
+  }
+
+  abstract isSetup: boolean;
+
+  /**
+   * @private
+   * setup entities of Gizmo if not done yet
+   */
+  abstract _setup(): void;
+
+  /**
+   * @private
+   * update the transform and etc of the gizmo
+   */
+  abstract _update(): void;
+
+  protected __toSkipSetup(): boolean {
+    if (this.isSetup) {
+      return true;
+    }
+    if (this.__target.matchTag('Being', 'gizmo')) {
+      return true;
+    }
+    return false;
+  }
+
+  protected setGizmoTag() {
+    if (this.__topEntity) {
+      this.__topEntity.tryToSetTag({tag: 'Being', value: 'gizmo'});
+      this.__topEntity.tryToSetTag({tag: 'Gizmo', value: 'top'});
+
+      const sceneGraphs = SceneGraphComponent.flattenHierarchy(
+        this.__topEntity.getSceneGraph(),
+        false
+      );
+      for (const sg of sceneGraphs) {
+        sg.entity.tryToSetTag({tag: 'Being', value: 'gizmo'});
+      }
+    }
   }
 }

@@ -29,7 +29,7 @@ import Vector3 from '../math/Vector3';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import {BoneDataType} from '../definitions/BoneDataType';
-import { ProcessApproachEnum } from '../..';
+import {ProcessApproachEnum} from '../../foundation/definitions/ProcessApproach';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -396,6 +396,10 @@ export default class GlobalDataRepository {
 
   getGlobalPropertyStruct(propertyIndex: Index) {
     return this.__fields.get(propertyIndex);
+  }
+
+  getGlobalProperties() {
+    return Array.from(this.__fields.values());
   }
 
   setUniformLocations(

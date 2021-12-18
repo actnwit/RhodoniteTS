@@ -3,11 +3,11 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';
-import Plane, {PlaneDescripter} from '../geometry/Plane';
+import Plane, {PlaneDescriptor} from '../geometry/Plane';
 import Mesh from '../geometry/Mesh';
 
 const createPlane = (
-  desc: PlaneDescripter = {
+  desc: PlaneDescriptor = {
     width: 1,
     height: 1,
     uSpan: 1,

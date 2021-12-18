@@ -195,7 +195,11 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     super(x, {type: Float32Array});
   }
 
-  static fromCopyArray(array: Array4<number>): MutableVector4 {
+  static fromCopyArray(array: Array<number>): MutableVector4 {
+    return new MutableVector4(new Float32Array(array).slice(0, 4));
+  }
+
+  static fromCopyArray4(array: Array4<number>): MutableVector4 {
     return new MutableVector4(new Float32Array(array));
   }
 
@@ -300,8 +304,12 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
     return super._divideVector(l_vec, r_vec, Float64Array) as MutableVector4d;
   }
 
-  static fromCopyArray(array: Array4<number>): MutableVector4d {
+  static fromCopyArray4(array: Array4<number>): MutableVector4d {
     return new MutableVector4d(new Float64Array(array));
+  }
+
+  static fromCopyArray(array: Array<number>): MutableVector4d {
+    return new MutableVector4d(new Float64Array(array.slice(0, 4)));
   }
 
   clone() {

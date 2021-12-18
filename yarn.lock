@@ -5501,22 +5501,22 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
-shaderity-loader@0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/shaderity-loader/-/shaderity-loader-0.0.15.tgz#668f74db97cd7f102d1497ed2ac57933fbbc3a1d"
-  integrity sha512-wGXFTEdBa4RiB1pxbvRHBRAsKAPUGACregbHP7XnnWDzP8eJ8jVgOAXwLtvR5ZBCUhL/O6b1hcMk38YznfgkGw==
+shaderity-loader@^0.0.16:
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/shaderity-loader/-/shaderity-loader-0.0.16.tgz#96fabf850164c8d1ae49870a6498694fe36a03fa"
+  integrity sha512-rYZColjslGVYkQFPhs0YUPKCSaDZBIOBSfkYe9aW8ZxHGfMmZbIl5yQ/FlRdQ+30XziXIPA/gAKvMxsBPushNA==
   dependencies:
-    shaderity-node "0.0.5"
+    shaderity-node "0.0.6"
 
-shaderity-node@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/shaderity-node/-/shaderity-node-0.0.5.tgz#5ce9e1adb3d1357a67ae63c7494659351ee367dd"
-  integrity sha512-xAu9TxoprgfikPm5HKpsaG5M/EP0xeHWUOepOaIbDxwRyBhnDRj6VdlLH8bYVOOWh9CbsXz37aKgteCw+h2H4A==
+shaderity-node@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/shaderity-node/-/shaderity-node-0.0.6.tgz#4da236be537978442c77898116c2a06c5ffc1dda"
+  integrity sha512-SBN7sLsDPzq/IGna/d8PFuOU8PxfSIgmue9q6B5OxZUQCmOKkEFReMFadD7QtCWaaoizLGlsFeoVIHWvtOm6kw==
 
-shaderity@0.1.28:
-  version "0.1.28"
-  resolved "https://registry.yarnpkg.com/shaderity/-/shaderity-0.1.28.tgz#a0d8d117ca97d5353a17b788b8f1c30ce644b814"
-  integrity sha512-Sw3fWOg8Gpkf4kLJw8CvmJYGdy3peLQ7BMUknyLcGkqO3J3nnbJsHZbEavs9O2jJQbO+DIOFfZW0noDj+hzz5g==
+shaderity@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/shaderity/-/shaderity-0.2.2.tgz#0963594287a66565f1a72c0828bb4f91c5dcde18"
+  integrity sha512-bP/6jRaEjnOjTkI9q/zzRrnubvJ0NBXAUadwwBeIL5UxL2tvqT64CEnIlG+sJi8xNMg6lhkSXniCC+BdFWxkPg==
 
 shallow-clone@^0.1.2:
   version "0.1.2"

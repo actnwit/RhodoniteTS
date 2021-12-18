@@ -193,7 +193,7 @@ function updateVBOAndVAO(mesh: Mesh) {
 
 function isMeshSetup(mesh: Mesh) {
   if (
-    mesh.variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
+    mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
   ) {
     return false;
   }
@@ -214,7 +214,7 @@ function isMeshSetup(mesh: Mesh) {
 
 function isMaterialsSetup(meshComponent: MeshComponent) {
   if (
-    meshComponent.mesh!.variationVBOUid !==
+    meshComponent.mesh!._variationVBOUid !==
     CGAPIResourceRepository.InvalidCGAPIResourceUid
   ) {
     const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
