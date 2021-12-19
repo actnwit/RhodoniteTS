@@ -54,6 +54,7 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
+import { CompositionTypeEnum } from '..';
 
 declare let HDRImage: any;
 
@@ -287,19 +288,32 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  /**
+   * bind the Texture2D
+   * @param textureSlotIndex
+   * @param textureUid
+   */
   bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTexture2D(textureSlotIndex, texture);
   }
 
+  /**
+   * bind the TextureCube
+   * @param textureSlotIndex
+   * @param textureUid
+   */
   bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTextureCube(textureSlotIndex, texture);
   }
 
+  /**
+   * create a VertexBuffer and IndexBuffer
+   * @param primitive
+   * @returns
+   */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
-    const gl = this.__glw!.getRawContext();
-
     let iboHandle;
     if (primitive.hasIndices()) {
       iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
@@ -326,6 +340,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     };
   }
 
+  /**
+   * update the VertexBuffer and IndexBuffer
+   * @param primitive
+   * @param vertexHandles
+   */
   updateVertexBufferAndIndexBuffer(
     primitive: Primitive,
     vertexHandles: VertexHandles
@@ -346,6 +365,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  /**
+   * create a shader program
+   * @param param0
+   * @returns
+   */
   createShaderProgram({
     materialTypeName,
     vertexShaderStr,
@@ -468,6 +492,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  /**
+   * setup the uniform locations
+   * @param shaderProgramUid
+   * @param infoArray
+   * @param isUniformOnlyMode
+   * @returns
+   */
   setupUniformLocations(
     shaderProgramUid: WebGLResourceHandle,
     infoArray: ShaderSemanticsInfo[],
@@ -605,29 +636,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return result;
   }
 
+  /**
+   * set an uniform value
+   */
   setUniformValue(
-    shaderProgram: WebGLProgram,
+    shaderProgram_: WebGLProgram,
     semanticStr: string,
     firstTime: boolean,
     value: any,
     index?: Index
   ) {
-    const info = (shaderProgram as any)._shaderSemanticsInfoMap.get(
-      semanticStr
-    );
-    if (info == null) {
+    const shaderProgram = shaderProgram_ as WebGLProgramEX;
+    const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
+    if (Is.not.exist(info)) {
       return false;
     }
-
-    // if (!firstTime) {
-    //   const updateInterval = info.updateInterval!;
-    //   if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
-    //     return false;
-    //   }
-    //   // if (!this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
-    //   //   return false;
-    //   // }
-    // }
 
     let setAsMatrix = false;
     let componentNumber = 0;
@@ -641,106 +664,99 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       componentNumber = info.compositionType!.getNumberOfComponents();
     }
 
-    const key = semanticStr;
-    let updated = false;
-    if (
+    const isCompositionTypeArray =
+      info.compositionType === CompositionType.ScalarArray ||
+      info.compositionType === CompositionType.Vec4Array ||
+      info.compositionType === CompositionType.Vec3Array ||
+      info.compositionType === CompositionType.Vec2Array;
+    const isCompositionTypeTexture =
       info.compositionType === CompositionType.Texture2D ||
-      info.compositionType === CompositionType.TextureCube
-    ) {
+      info.compositionType === CompositionType.TextureCube;
+    const key = semanticStr;
+
+    let updated = false;
+    if (isCompositionTypeTexture) {
       updated = this.setUniformValueInner(
-        shaderProgram,
+        shaderProgram_,
         key,
         info,
         setAsMatrix,
         componentNumber,
         false,
         {x: value[0]},
-        {firstTime: firstTime},
         index
       );
       this.bindTexture(info, value);
-    } else if (
-      index == null &&
-      (info.compositionType === CompositionType.ScalarArray ||
-        info.compositionType === CompositionType.Vec4Array ||
-        info.compositionType === CompositionType.Vec3Array ||
-        info.compositionType === CompositionType.Vec2Array)
-    ) {
+    } else if (Is.not.exist(index) && isCompositionTypeArray) {
       if (value._v == null) {
         updated = this.setUniformValueInner(
-          shaderProgram,
+          shaderProgram_,
           key,
           info,
           setAsMatrix,
           componentNumber,
           true,
           {x: value},
-          {firstTime: firstTime},
           index
         );
       } else {
         updated = this.setUniformValueInner(
-          shaderProgram,
+          shaderProgram_,
           key,
           info,
           setAsMatrix,
           componentNumber,
           true,
           {x: value._v},
-          {firstTime: firstTime},
           index
         );
       }
-    } else if (info.compositionType !== CompositionType.Scalar) {
+    } else if (info.compositionType === CompositionType.Scalar) {
       if (value._v == null) {
         updated = this.setUniformValueInner(
-          shaderProgram,
+          shaderProgram_,
+          key,
+          info,
+          setAsMatrix,
+          componentNumber,
+          false,
+          {x: value},
+          index
+        );
+      } else {
+        updated = this.setUniformValueInner(
+          shaderProgram_,
+          key,
+          info,
+          setAsMatrix,
+          componentNumber,
+          true,
+          {x: value._v},
+          index
+        );
+      }
+    } else {
+      // if CompositionType.Vec*|Mat*, then...
+      if (value._v == null) {
+        updated = this.setUniformValueInner(
+          shaderProgram_,
           key,
           info,
           setAsMatrix,
           componentNumber,
           false,
           value,
-          {firstTime: firstTime},
           index
         );
       } else {
         updated = this.setUniformValueInner(
-          shaderProgram,
+          shaderProgram_,
           key,
           info,
           setAsMatrix,
           componentNumber,
           true,
           {x: value._v},
-          {firstTime: firstTime},
-          index
-        );
-      }
-    } else {
-      // if CompositionType.Scalar, then...
-      if (value._v == null) {
-        updated = this.setUniformValueInner(
-          shaderProgram,
-          key,
-          info,
-          setAsMatrix,
-          componentNumber,
-          false,
-          {x: value},
-          {firstTime: firstTime},
-          index
-        );
-      } else {
-        updated = this.setUniformValueInner(
-          shaderProgram,
-          key,
-          info,
-          setAsMatrix,
-          componentNumber,
-          true,
-          {x: value._v},
-          {firstTime: firstTime},
           index
         );
       }
@@ -749,7 +765,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return updated;
   }
 
-  bindTexture(info: any, value: any) {
+  /**
+   * bind the texture
+   * @param info
+   * @param value
+   */
+  bindTexture(info: ShaderSemanticsInfo, value: any) {
     if (info.compositionType === CompositionType.Texture2D) {
       this.bindTexture2D(
         value[0],
@@ -767,6 +788,18 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  /**
+   * set the uniform value
+   * @param shaderProgram
+   * @param semanticStr
+   * @param info
+   * @param isMatrix
+   * @param componentNumber
+   * @param isVector
+   * @param param6
+   * @param index
+   * @returns
+   */
   setUniformValueInner(
     shaderProgram: WebGLProgram,
     semanticStr: string,
@@ -785,7 +818,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       z?: number | boolean;
       w?: number | boolean;
     },
-    {firstTime = true, delta}: {firstTime?: boolean; delta?: number},
     index?: Count
   ) {
     const identifier = semanticStr;
@@ -873,6 +905,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return true;
   }
 
+  /**
+   * set the VertexData to the Pipeline
+   */
   setVertexDataToPipeline(
     {
       vaoHandle,
@@ -957,6 +992,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
+  /**
+   * create a Texture
+   * @param data
+   * @param param1
+   * @returns
+   */
   createTexture(
     data: DirectTextureData,
     {
@@ -1191,6 +1232,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  /**
+   * create CompressedTextureFromBasis
+   * @param basisFile
+   * @param param1
+   * @returns
+   */
   createCompressedTextureFromBasis(
     basisFile: BasisFile,
     {
@@ -1312,6 +1359,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  /**
+   * decode the BasisImage
+   * @param basisFile
+   * @param basisCompressionType
+   * @param imageIndex
+   * @param levelIndex
+   * @returns
+   */
   private decodeBasisImage(
     basisFile: BasisFile,
     basisCompressionType: BasisCompressionTypeEnum,
@@ -1339,6 +1394,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return textureSource;
   }
 
+  /**
+   * create a FrameBufferObject
+   * @returns
+   */
   createFrameBufferObject() {
     const gl = this.__glw!.getRawContext();
     const fbo = gl.createFramebuffer();
@@ -1348,6 +1407,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a ColorBuffer
+   */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
     index: Index,
@@ -1387,6 +1451,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
+  /**
+   * attach the DepthBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a DepthBuffer
+   */
   attachDepthBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
     renderable: IRenderable
@@ -1398,6 +1467,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     ); // gl.DEPTH_ATTACHMENT
   }
 
+  /**
+   * attach the StencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a StencilBuffer
+   */
   attachStencilBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
     renderable: IRenderable
@@ -1409,6 +1483,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     ); // gl.STENCIL_ATTACHMENT
   }
 
+  /**
+   * attach the depthStencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a depthStencilBuffer
+   */
   attachDepthStencilBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
     renderable: IRenderable
@@ -1458,6 +1537,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
+  /**
+   * create Renderbuffer
+   */
   createRenderBuffer(
     width: Size,
     height: Size,
@@ -1496,6 +1578,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  /**
+   * set drawTargets
+   * @param framebuffer
+   */
   setDrawTargets(framebuffer?: FrameBuffer) {
     if (framebuffer) {
       this.__glw!.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
@@ -1504,6 +1590,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  /**
+   * bind Framebuffer
+   * @param framebuffer
+   */
   bindFramebuffer(framebuffer?: FrameBuffer) {
     const gl = this.__glw!.getRawContext();
     if (framebuffer) {
@@ -1515,11 +1605,19 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  /**
+   * unbind Framebuffer
+   */
   unbindFramebuffer() {
     const gl = this.__glw!.getRawContext();
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
+  /**
+   * create a RenderTargetTexture
+   * @param param0
+   * @returns
+   */
   createRenderTargetTexture({
     width,
     height,
@@ -1601,6 +1699,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  /**
+   * create a CubeTexture
+   *
+   * @param mipLevelCount
+   * @param images
+   * @param width
+   * @param height
+   * @returns resource handle
+   */
   createCubeTexture(
     mipLevelCount: Count,
     images: Array<{
@@ -2510,7 +2617,4 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       gl.disable(gl.DEPTH_TEST);
     }
   }
-}
-function getShaderParameter(shader: WebGLShader, COMPILE_STATUS: number) {
-  throw new Error('Function not implemented.');
 }
