@@ -34,6 +34,8 @@ export type FloatTypedArrayConstructor =
 
 export type Array16<T> = [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T];
 export type Array9<T> = [T, T, T, T, T, T, T, T, T];
+export type primitives = number | string | boolean | null | undefined;
+
 export type Array4<T> = [T, T, T, T];
 export type Array3<T> = [T, T, T];
 export type Array2<T> = [T, T];
