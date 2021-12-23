@@ -575,67 +575,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return shaderProgram;
   }
 
-  private __isUniformValueDirty(
-    isVector: boolean,
-    shaderProgram: WebGLProgram,
-    identifier: string,
-    {
-      x,
-      y,
-      z,
-      w,
-    }: {
-      x: number | TypedArray | Array<number> | Array<boolean> | boolean;
-      y?: number | boolean;
-      z?: number | boolean;
-      w?: number | boolean;
-    },
-    delta: number = Number.EPSILON
-  ) {
-    const valueIdentifier = identifier + '_value';
-    const value = (shaderProgram as any)[valueIdentifier];
-
-    if (value == null) {
-      return true;
-    }
-
-    let result = false;
-
-    if (isVector) {
-      const length = (x as any).length;
-      if (length > 4) {
-        return true;
-      }
-      for (let i = 0; i < length; i++) {
-        if (Math.abs((x as any)[i] - value[i]) >= delta) {
-          result = true;
-          break;
-        }
-      }
-      (shaderProgram as any)[valueIdentifier] = x;
-    } else {
-      const compare = () => {
-        if (x != null && Math.abs((x as number) - value[0]) >= delta) {
-          return true;
-        }
-        if (y != null && Math.abs((y as number) - value[1]) >= delta) {
-          return true;
-        }
-        if (z != null && Math.abs((z as number) - value[2]) >= delta) {
-          return true;
-        }
-        if (w != null && Math.abs((w as number) - value[3]) >= delta) {
-          return true;
-        }
-        return false;
-      };
-      result = compare();
-      (shaderProgram as any)[valueIdentifier] = [x, y, z, w];
-    }
-
-    return result;
-  }
-
   /**
    * set an uniform value
    */
