@@ -247,30 +247,19 @@ mat3 get_normalMatrix(float instanceId) {
       ShaderSemantics.getShaderProperty,
       glw.isWebGL2
     );
-    webglResourceRepository.setupUniformLocations(
-      material._shaderProgramUid,
-      infoArray,
-      true
-    );
-    material.setUniformLocationsOfMaterialNodes(
-      material._shaderProgramUid,
-      true
-    );
+
+    material.setupBasicUniformsLocations();
+
     WebGLStrategyUniform.__globalDataRepository.setUniformLocationsForUniformModeOnly(
       material._shaderProgramUid
     );
 
-    const shaderProgram = webglResourceRepository.getWebGLResource(
-      material._shaderProgramUid
-    )! as WebGLProgram;
-    (shaderProgram as any).dataTexture = gl.getUniformLocation(
-      shaderProgram,
-      'u_dataTexture'
+    material.setUniformLocationsOfMaterialNodes(
+      material._shaderProgramUid,
+      true
     );
-    (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(
-      shaderProgram,
-      'u_currentComponentSIDs'
-    );
+
+    material.setupAdditionalUniformLocations(infoArray, true);
   }
 
   $load(meshComponent: MeshComponent) {

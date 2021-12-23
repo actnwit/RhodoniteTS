@@ -154,10 +154,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
         continue;
       }
 
-      if (
-        material._shaderProgramUid !==
-        CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
+      if (material.isShaderProgramReady()) {
         continue;
       }
 
@@ -189,9 +186,15 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       glw.isWebGL2
     );
 
+    material.setupBasicUniformsLocations();
+
+    material.setUniformLocationsOfMaterialNodes(
+      material._shaderProgramUid,
+      false
+    );
+
     if (isPointSprite) {
-      this.__webglResourceRepository.setupUniformLocations(
-        material._shaderProgramUid,
+      material.setupAdditionalUniformLocations(
         [
           {
             semantic: ShaderSemantics.PointSize,
@@ -219,25 +222,6 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
         false
       );
     }
-
-    material.setUniformLocationsOfMaterialNodes(
-      material._shaderProgramUid,
-      false
-    );
-
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-      material._shaderProgramUid
-    )! as WebGLProgram;
-
-    const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
-    (shaderProgram as any).dataTexture = gl.getUniformLocation(
-      shaderProgram,
-      'u_dataTexture'
-    );
-    (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(
-      shaderProgram,
-      'u_currentComponentSIDs'
-    );
   }
 
   private static __getVec4SizeOfShaderSemanticsInfo16BytesAligned(
