@@ -220,7 +220,10 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       );
     }
 
-    material.setUniformLocations(material._shaderProgramUid, false);
+    material.setUniformLocationsOfMaterialNodes(
+      material._shaderProgramUid,
+      false
+    );
 
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(
       material._shaderProgramUid

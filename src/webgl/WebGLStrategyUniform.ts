@@ -252,7 +252,10 @@ mat3 get_normalMatrix(float instanceId) {
       infoArray,
       true
     );
-    material.setUniformLocations(material._shaderProgramUid, true);
+    material.setUniformLocationsOfMaterialNodes(
+      material._shaderProgramUid,
+      true
+    );
     WebGLStrategyUniform.__globalDataRepository.setUniformLocationsForUniformModeOnly(
       material._shaderProgramUid
     );
