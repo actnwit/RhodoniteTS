@@ -54,7 +54,7 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
-import { CompositionTypeEnum } from '..';
+import Material from '../foundation/materials/core/Material';
 
 declare let HDRImage: any;
 
@@ -90,6 +90,7 @@ export type WebGLResource =
 
 interface WebGLProgramEX extends WebGLProgram {
   _shaderSemanticsInfoMap: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
+  _material: Material;
 }
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -573,6 +574,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     return shaderProgram;
+  }
+
+  setupBasicUniformLocations(shaderProgramUid: WebGLResourceHandle) {
+    const shaderProgram = this.getWebGLResource(
+      shaderProgramUid
+    ) as WebGLProgramEX;
+    const gl = this.currentWebGLContextWrapper!.getRawContext();
+    (shaderProgram as any).dataTexture = gl.getUniformLocation(
+      shaderProgram,
+      'u_dataTexture'
+    );
+    (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(
+      shaderProgram,
+      'u_currentComponentSIDs'
+    );
   }
 
   /**
@@ -2545,7 +2561,9 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     this.__glw!.height = height;
     this.__glw!.canvas.width = width;
     this.__glw!.canvas.height = height;
-    this.__glw!.setViewportAsVector4(Vector4.fromCopyArray([0, 0, width, height]));
+    this.__glw!.setViewportAsVector4(
+      Vector4.fromCopyArray([0, 0, width, height])
+    );
   }
 
   switchDepthTest(flag: boolean) {
