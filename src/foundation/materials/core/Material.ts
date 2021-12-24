@@ -505,6 +505,16 @@ export default class Material extends RnObject {
   }
 
   /**
+   * return whether the shader program ready or not
+   * @returns is shader program ready or not
+   */
+  public isShaderProgramReady() {
+    return (
+      this._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
+    );
+  }
+
+  /**
    * @private
    */
   _setParametersForGPU({
@@ -951,6 +961,25 @@ export default class Material extends RnObject {
       return materialNode.getShaderSemanticInfoFromName(name);
     }
     return void 0;
+  }
+
+  setupAdditionalUniformLocations(
+    shaderSemantics: ShaderSemanticsInfo[],
+    isUniformOnlyMode: boolean
+  ) {
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    return webglResourceRepository.setupUniformLocations(
+      this._shaderProgramUid,
+      shaderSemantics,
+      isUniformOnlyMode
+    );
+  }
+
+  setupBasicUniformsLocations() {
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
   }
 
   /**
