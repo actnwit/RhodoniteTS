@@ -47,14 +47,14 @@ import CubeTexture from '../foundation/textures/CubeTexture';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
-import Vector4 from '../foundation/math/Vector4';
 import {Is as is} from '../foundation/misc/Is';
 import Scalar from '../foundation/math/Scalar';
 import Vector3 from '../foundation/math/Vector3';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
-  private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  private __webglResourceRepository: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __dataUBOUid: CGAPIResourceHandle =
@@ -140,7 +140,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   `;
   }
 
-  setupShaderProgram(meshComponent: MeshComponent): void {
+  setupShaderProgramForMeshComponent(meshComponent: MeshComponent): void {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
@@ -163,20 +163,22 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
       try {
-        this.setupDefaultShaderSemantics(material, isPointSprite);
+        this.setupShaderForMaterial(material, isPointSprite);
         primitive._backupMaterial();
       } catch (e) {
         console.log(e);
         primitive._restoreMaterial();
-        this.setupDefaultShaderSemantics(
-          primitive._prevMaterial,
-          isPointSprite
-        );
+        this.setupShaderForMaterial(primitive._prevMaterial, isPointSprite);
       }
     }
   }
 
-  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
+  /**
+   * setup shader program for the material in this WebGL strategy
+   * @param material
+   * @param isPointSprite
+   */
+  setupShaderForMaterial(material: Material, isPointSprite: boolean) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
@@ -311,18 +313,20 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     }
 
     // inner contents of 'get_' shader function
-    const vec4SizeOfProperty: IndexOf4Bytes = WebGLStrategyFastest.__getVec4SizeOfShaderSemanticsInfo16BytesAligned(
-      info
-    );
+    const vec4SizeOfProperty: IndexOf4Bytes =
+      WebGLStrategyFastest.__getVec4SizeOfShaderSemanticsInfo16BytesAligned(
+        info
+      );
     if (propertyIndex < 0) {
       // if the ShaderSemanticsInfo of the property has `index` property
       if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
         return '';
       }
-      const index: IndexOf16Bytes = Material.getLocationOffsetOfMemberOfMaterial(
-        materialTypeName,
-        propertyIndex
-      )!;
+      const index: IndexOf16Bytes =
+        Material.getLocationOffsetOfMemberOfMaterial(
+          materialTypeName,
+          propertyIndex
+        )!;
       if (isWebGL2) {
         indexStr = `
           int vec4_idx = ${index} + ${vec4SizeOfProperty} * instanceId;
@@ -348,7 +352,8 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       }
     } else {
       // for non-`index` property (this is general case)
-      const scalarSizeOfProperty: IndexOf4Bytes = WebGLStrategyFastest.__getScalarSizeOfShaderSemanticsInfo4BytesAligned(
+      const scalarSizeOfProperty: IndexOf4Bytes =
+        WebGLStrategyFastest.__getScalarSizeOfShaderSemanticsInfo4BytesAligned(
           info
         );
       let dataBeginPos: IndexOf16Bytes = -1;
@@ -489,13 +494,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    WebGLStrategyFastest.__currentComponentSIDs = WebGLStrategyFastest.__globalDataRepository.getValue(
-      ShaderSemantics.CurrentComponentSIDs,
-      0
-    );
+    WebGLStrategyFastest.__currentComponentSIDs =
+      WebGLStrategyFastest.__globalDataRepository.getValue(
+        ShaderSemantics.CurrentComponentSIDs,
+        0
+      );
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgram(meshComponent);
+      this.setupShaderProgramForMeshComponent(meshComponent);
     }
 
     if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
@@ -727,9 +733,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (
         this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
-        this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea(
-          new Float32Array(buffer!.getArrayBuffer())
-        );
+        this.__dataUBOUid =
+          this.__webglResourceRepository.setupUniformBufferDataArea(
+            new Float32Array(buffer!.getArrayBuffer())
+          );
       } else {
         this.__webglResourceRepository.updateUniformBuffer(
           this.__dataUBOUid,
@@ -909,9 +916,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const gl = glw.getRawContext();
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(
-      isVRMainPass
-    );
+    const displayNumber =
+      WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
 
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVRMainPass) {
@@ -968,9 +974,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             mesh._variationVBOUid
           );
           if (shaderProgramUid !== this.__lastShader) {
-            const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-              shaderProgramUid
-            )! as WebGLProgram;
+            const shaderProgram =
+              this.__webglResourceRepository.getWebGLResource(
+                shaderProgramUid
+              )! as WebGLProgram;
             gl.useProgram(shaderProgram);
 
             gl.uniform1i((shaderProgram as any).dataTexture, 7);
