@@ -52,4 +52,5 @@ export default interface WebGLStrategy {
   ): void;
   //setupShaderProgram(meshComponent: MeshComponent): void;
   attachShaderProgram(material: Material): void;
+  setupShaderForMaterial(material: Material, isPointSprite: boolean): void;
 }

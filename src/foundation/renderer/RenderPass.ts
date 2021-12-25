@@ -14,6 +14,8 @@ import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import Primitive from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
 import { IVector4 } from '../math/IVector';
+import WebGLStrategyFastest from '../../webgl/WebGLStrategyFastest';
+import { formatWithOptions } from 'util';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -264,13 +266,11 @@ export default class RenderPass extends RnObject {
   private __setupMaterial(material: Material, isPointSprite = false) {
     if (material.isEmptyMaterial()) return;
 
-    if (this.__webglRenderingStrategy == null) {
-      this.__setWebglRenderingStrategy();
-    }
-    (this.__webglRenderingStrategy as any).setupDefaultShaderSemantics(
-      material,
-      isPointSprite
+    const webglRenderingStrategy = this.__setWebglRenderingStrategyIfNotYet(
+      this.__webglRenderingStrategy
     );
+
+    webglRenderingStrategy.setupShaderForMaterial(material, isPointSprite);
   }
 
   /**
@@ -307,15 +307,23 @@ export default class RenderPass extends RnObject {
     return this.__material;
   }
 
-  private __setWebglRenderingStrategy() {
+  private __setWebglRenderingStrategyIfNotYet(
+    webglRenderingStrategy?: WebGLStrategy
+  ): WebGLStrategy {
+    if (webglRenderingStrategy != null) {
+      return webglRenderingStrategy;
+    }
     const system = System.getInstance();
     const processApproach = system.processApproach;
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    this.__webglRenderingStrategy =
+    const newWebglRenderingStrategyRef =
       webglModule.getRenderingStrategy(processApproach);
+    this.__webglRenderingStrategy = newWebglRenderingStrategyRef;
+
+    return newWebglRenderingStrategyRef;
   }
 
   private __getMaterialOf(primitive: Primitive) {

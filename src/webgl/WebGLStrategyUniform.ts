@@ -99,17 +99,22 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
       try {
-        this.setupDefaultShaderSemantics(material, isPointSprite);
+        this.setupShaderForMaterial(material, isPointSprite);
         primitive._backupMaterial();
       } catch (e) {
         console.log(e);
         primitive._restoreMaterial();
-        this.setupDefaultShaderSemantics(primitive.material, isPointSprite);
+        this.setupShaderForMaterial(primitive.material, isPointSprite);
       }
     }
   }
 
-  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
+  /**
+   * setup shader program for the material in this WebGL strategy
+   * @param material
+   * @param isPointSprite
+   */
+  setupShaderForMaterial(material: Material, isPointSprite: boolean) {
     // Shader Setup
     const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
       {
@@ -241,7 +246,6 @@ mat3 get_normalMatrix(float instanceId) {
 
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
     material.createProgram(
       WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
       ShaderSemantics.getShaderProperty,
