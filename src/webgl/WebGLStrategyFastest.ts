@@ -178,7 +178,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
    * @param material
    * @param isPointSprite
    */
-  setupShaderForMaterial(material: Material, isPointSprite: boolean) {
+  public setupShaderForMaterial(material: Material, isPointSprite: boolean) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
@@ -195,35 +195,12 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       false
     );
 
-    if (isPointSprite) {
-      material.setupAdditionalUniformLocations(
-        [
-          {
-            semantic: ShaderSemantics.PointSize,
-            compositionType: CompositionType.Scalar,
-            componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader,
-            initialValue: Scalar.fromCopyNumber(30.0),
-            min: 0,
-            max: Number.MAX_VALUE,
-            isSystem: false,
-            updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          },
-          {
-            semantic: ShaderSemantics.PointDistanceAttenuation,
-            compositionType: CompositionType.Vec3,
-            componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader,
-            initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
-            min: 0,
-            max: 1,
-            isSystem: false,
-            updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          },
-        ],
-        false
-      );
-    }
+    material.setupAdditionalUniformLocations(
+      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(
+        isPointSprite
+      ),
+      false
+    );
   }
 
   private static __getVec4SizeOfShaderSemanticsInfo16BytesAligned(

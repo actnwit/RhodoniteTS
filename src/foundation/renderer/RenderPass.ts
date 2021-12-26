@@ -13,9 +13,7 @@ import ModuleManager from '../system/ModuleManager';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import Primitive from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
-import { IVector4 } from '../math/IVector';
-import WebGLStrategyFastest from '../../webgl/WebGLStrategyFastest';
-import { formatWithOptions } from 'util';
+import {IVector4} from '../math/IVector';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
