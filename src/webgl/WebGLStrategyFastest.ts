@@ -159,12 +159,12 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
       try {
-        this.setupShaderForMaterial(material, isPointSprite);
+        this.setupShaderForMaterial(material);
         primitive._backupMaterial();
       } catch (e) {
         console.log(e);
         primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive._prevMaterial, isPointSprite);
+        this.setupShaderForMaterial(primitive._prevMaterial);
       }
     }
   }
@@ -174,7 +174,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
    * @param material
    * @param isPointSprite
    */
-  public setupShaderForMaterial(material: Material, isPointSprite: boolean) {
+  public setupShaderForMaterial(material: Material) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
@@ -192,9 +192,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     );
 
     material.setupAdditionalUniformLocations(
-      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(
-        isPointSprite
-      ),
+      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
       false
     );
   }

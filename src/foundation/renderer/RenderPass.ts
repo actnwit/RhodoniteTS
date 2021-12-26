@@ -261,14 +261,14 @@ export default class RenderPass extends RnObject {
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
   }
 
-  private __setupMaterial(material: Material, isPointSprite = false) {
+  private __setupMaterial(material: Material) {
     if (material.isEmptyMaterial()) return;
 
     const webglRenderingStrategy = this.__setWebglRenderingStrategyIfNotYet(
       this.__webglRenderingStrategy
     );
 
-    webglRenderingStrategy.setupShaderForMaterial(material, isPointSprite);
+    webglRenderingStrategy.setupShaderForMaterial(material);
   }
 
   /**
@@ -276,16 +276,11 @@ export default class RenderPass extends RnObject {
    * If Rhodonite draw the primitive using this render pass, Rhodonite uses this material instead of the material on the primitive.
    * @param material A material attaching to the primitive
    * @param primitive A target primitive
-   * @param isPointSprite Set true, if the primitive is a point sprite
    */
-  setMaterialForPrimitive(
-    material: Material,
-    primitive: Primitive,
-    isPointSprite = false
-  ) {
+  setMaterialForPrimitive(material: Material, primitive: Primitive) {
     this.__primitiveMaterial.set(primitive, material);
 
-    this.__setupMaterial(material, isPointSprite);
+    this.__setupMaterial(material);
   }
 
   /**
@@ -293,12 +288,11 @@ export default class RenderPass extends RnObject {
    * For all the primitive, Rhodonite uses this material instead of the material on the primitive.
    * Where if this render pass has a map between primitive and material by setMaterialForPrimitive, Rhodonite uses the material mapped by primitive.
    * @param material A material attaching to the primitive
-   * @param isPointSprite Set true, if the primitive is a point sprite
    */
-  setMaterial(material: Material, isPointSprite = false) {
+  setMaterial(material: Material) {
     this.__material = material;
 
-    this.__setupMaterial(material, isPointSprite);
+    this.__setupMaterial(material);
   }
 
   get material() {

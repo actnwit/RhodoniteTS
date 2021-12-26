@@ -187,12 +187,12 @@ mat3 get_normalMatrix(float instanceId) {
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
       try {
-        this.setupShaderForMaterial(material, isPointSprite);
+        this.setupShaderForMaterial(material);
         primitive._backupMaterial();
       } catch (e) {
         console.log(e);
         primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive.material, isPointSprite);
+        this.setupShaderForMaterial(primitive.material);
       }
     }
   }
@@ -202,7 +202,7 @@ mat3 get_normalMatrix(float instanceId) {
    * @param material
    * @param isPointSprite
    */
-  public setupShaderForMaterial(material: Material, isPointSprite: boolean) {
+  public setupShaderForMaterial(material: Material) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
@@ -221,9 +221,7 @@ mat3 get_normalMatrix(float instanceId) {
 
     const shaderSemanticsInfos = this.componentMatrices;
     const shaderSemanticsInfosPointSprite =
-      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(
-        isPointSprite
-      );
+      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
     material.setupAdditionalUniformLocations(
       shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),

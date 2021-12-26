@@ -111,8 +111,8 @@ function differentWithLastBlendEquation(
   equationModeAlpha: number
 ) {
   const result =
-    lastBlendEquationMode != equationMode ||
-    lastBlendEquationModeAlpha != equationModeAlpha;
+    lastBlendEquationMode !== equationMode ||
+    lastBlendEquationModeAlpha !== equationModeAlpha;
   return result;
 }
 
@@ -150,10 +150,10 @@ function differentWithLastBlendFuncFactor(
   alphaDstFactor: number
 ): boolean {
   const result =
-    lastBlendFuncSrcFactor != srcFactor ||
-    lastBlendFuncDstFactor != dstFactor ||
-    lastBlendFuncAlphaSrcFactor != alphaSrcFactor ||
-    lastBlendFuncAlphaDstFactor != alphaDstFactor;
+    lastBlendFuncSrcFactor !== srcFactor ||
+    lastBlendFuncDstFactor !== dstFactor ||
+    lastBlendFuncAlphaSrcFactor !== alphaSrcFactor ||
+    lastBlendFuncAlphaDstFactor !== alphaDstFactor;
   return result;
 }
 
@@ -319,35 +319,31 @@ function getLocationOffsetOfProperty(
   }
 }
 
-function getPointSpriteShaderSemanticsInfoArray(isPointSprite: boolean) {
-  if (isPointSprite) {
-    return [
-      {
-        semantic: ShaderSemantics.PointSize,
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(30.0),
-        min: 0,
-        max: Number.MAX_VALUE,
-        isSystem: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      },
-      {
-        semantic: ShaderSemantics.PointDistanceAttenuation,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
-        min: 0,
-        max: 1,
-        isSystem: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      },
-    ];
-  }
-
-  return [];
+function getPointSpriteShaderSemanticsInfoArray() {
+  return [
+    {
+      semantic: ShaderSemantics.PointSize,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(30.0),
+      min: 0,
+      max: Number.MAX_VALUE,
+      isSystem: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
+    {
+      semantic: ShaderSemantics.PointDistanceAttenuation,
+      compositionType: CompositionType.Vec3,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
+      min: 0,
+      max: 1,
+      isSystem: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
+  ];
 }
 
 export default Object.freeze({
