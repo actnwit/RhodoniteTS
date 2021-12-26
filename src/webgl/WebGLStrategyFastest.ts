@@ -23,7 +23,6 @@ import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
 import Mesh from '../foundation/geometry/Mesh';
 import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
-import {ShaderType} from '../foundation/definitions/ShaderType';
 import LightComponent from '../foundation/components/LightComponent';
 import Config from '../foundation/core/Config';
 import RenderPass from '../foundation/renderer/RenderPass';
@@ -44,12 +43,9 @@ import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import Matrix33 from '../foundation/math/Matrix33';
 import CubeTexture from '../foundation/textures/CubeTexture';
-import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is as is} from '../foundation/misc/Is';
-import Scalar from '../foundation/math/Scalar';
-import Vector3 from '../foundation/math/Vector3';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -201,34 +197,6 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       ),
       false
     );
-  }
-
-  private static __getScalarSizeOfShaderSemanticsInfo4BytesAligned(
-    info: ShaderSemanticsInfo
-  ): IndexOf4Bytes {
-    let offset = 1;
-    switch (info.compositionType) {
-      case CompositionType.Mat4:
-      case CompositionType.Mat4Array:
-        offset = 16;
-        break;
-      case CompositionType.Mat3:
-      case CompositionType.Mat3Array:
-        offset = 9;
-        break;
-      case CompositionType.Mat2:
-      case CompositionType.Mat2Array:
-        offset = 4;
-        break;
-      case CompositionType.Scalar:
-      case CompositionType.ScalarArray:
-        offset = 1;
-        break;
-      default:
-      // console.error('unknown composition type', info.compositionType.str, memberName);
-      // return '';
-    }
-    return offset;
   }
 
   private __getShaderProperty(

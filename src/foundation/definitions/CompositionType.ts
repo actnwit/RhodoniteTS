@@ -1,5 +1,5 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {Count, IndexOf16Bytes, IndexOf4Bytes} from '../../types/CommonTypes';
+import {Count, IndexOf16Bytes} from '../../types/CommonTypes';
 import type {ComponentTypeEnum} from './ComponentType';
 
 export interface CompositionTypeEnum extends EnumIO {
