@@ -203,34 +203,6 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     );
   }
 
-  private static __getVec4SizeOfShaderSemanticsInfo16BytesAligned(
-    info: ShaderSemanticsInfo
-  ): IndexOf16Bytes {
-    let offset = 1;
-    switch (info.compositionType) {
-      case CompositionType.Mat4:
-      case CompositionType.Mat4Array:
-        offset = 4;
-        break;
-      case CompositionType.Mat3:
-      case CompositionType.Mat3Array:
-        offset = 3;
-        break;
-      case CompositionType.Mat2:
-      case CompositionType.Mat2Array:
-        offset = 2;
-        break;
-      case CompositionType.Scalar:
-      case CompositionType.ScalarArray:
-        offset = 1;
-        break;
-      default:
-      //console.error('unknown composition type', info.compositionType.str, memberName);
-      // return '';
-    }
-    return offset;
-  }
-
   private static __getScalarSizeOfShaderSemanticsInfo4BytesAligned(
     info: ShaderSemanticsInfo
   ): IndexOf4Bytes {
@@ -291,9 +263,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
 
     // inner contents of 'get_' shader function
     const vec4SizeOfProperty: IndexOf4Bytes =
-      WebGLStrategyFastest.__getVec4SizeOfShaderSemanticsInfo16BytesAligned(
-        info
-      );
+      info.compositionType.getVec4SizeOfProperty();
     if (propertyIndex < 0) {
       // if the ShaderSemanticsInfo of the property has `index` property
       if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
