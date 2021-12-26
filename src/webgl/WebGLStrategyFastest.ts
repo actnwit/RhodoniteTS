@@ -174,11 +174,11 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
    * @param material
    * @param isPointSprite
    */
-  public setupShaderForMaterial(material: Material) {
+  public setupShaderForMaterial(material: Material): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    material.createProgram(
+    const programUid = material.createProgram(
       this.vertexShaderMethodDefinitions_dataTexture,
       this.__getShaderProperty,
       glw.isWebGL2
@@ -195,6 +195,8 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
       false
     );
+
+    return programUid;
   }
 
   private __getShaderProperty(

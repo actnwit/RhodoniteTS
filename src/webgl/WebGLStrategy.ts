@@ -13,6 +13,7 @@ import {
   Index,
   Count,
   ComponentSID,
+  CGAPIResourceHandle,
 } from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
 
@@ -52,5 +53,5 @@ export default interface WebGLStrategy {
   ): void;
   //setupShaderProgram(meshComponent: MeshComponent): void;
   attachShaderProgram(material: Material): void;
-  setupShaderForMaterial(material: Material): void;
+  setupShaderForMaterial(material: Material): CGAPIResourceHandle;
 }

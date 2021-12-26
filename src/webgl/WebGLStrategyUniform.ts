@@ -202,11 +202,11 @@ mat3 get_normalMatrix(float instanceId) {
    * @param material
    * @param isPointSprite
    */
-  public setupShaderForMaterial(material: Material) {
+  public setupShaderForMaterial(material: Material): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    material.createProgram(
+    const programUid = material.createProgram(
       WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
       ShaderSemantics.getShaderProperty,
       glw.isWebGL2
@@ -231,6 +231,8 @@ mat3 get_normalMatrix(float instanceId) {
     WebGLStrategyUniform.__globalDataRepository.setUniformLocationsForUniformModeOnly(
       material._shaderProgramUid
     );
+
+    return programUid;
   }
 
   $load(meshComponent: MeshComponent) {

@@ -55,6 +55,8 @@ import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
 import Material from '../foundation/materials/core/Material';
+import System from '../foundation/system/System';
+import getRenderingStrategy from './getRenderingStrategy';
 
 declare let HDRImage: any;
 
@@ -87,11 +89,6 @@ export type WebGLResource =
   | WebGLRenderbuffer
   | WebGLTexture
   | WebGLTransformFeedback;
-
-interface WebGLProgramEX extends WebGLProgram {
-  _shaderSemanticsInfoMap: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
-  _material: Material;
-}
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance: WebGLResourceRepository;
@@ -418,6 +415,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     shaderProgram._materialTypeName = materialTypeName;
     shaderProgram._vertexShaderStr = vertexShaderStr;
     shaderProgram._fragmentShaderStr = fragmentShaderStr;
+    shaderProgram.__SPECTOR_rebuildProgram = this.rebuildProgram.bind(this);
+
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
 
@@ -509,7 +508,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = glw.getRawContext();
     const shaderProgram = this.getWebGLResource(
       shaderProgramUid
-    ) as WebGLProgramEX;
+    ) as RnWebGLProgram;
 
     const infoArrayLen = infoArray.length;
     const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
@@ -579,7 +578,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   setupBasicUniformLocations(shaderProgramUid: WebGLResourceHandle) {
     const shaderProgram = this.getWebGLResource(
       shaderProgramUid
-    ) as WebGLProgramEX;
+    ) as RnWebGLProgram;
     const gl = this.currentWebGLContextWrapper!.getRawContext();
     (shaderProgram as any).dataTexture = gl.getUniformLocation(
       shaderProgram,
@@ -601,7 +600,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     value: any,
     index?: Index
   ) {
-    const shaderProgram = shaderProgram_ as WebGLProgramEX;
+    const shaderProgram = shaderProgram_ as RnWebGLProgram;
     const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
     if (Is.not.exist(info)) {
       return false;
@@ -2573,5 +2572,41 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     } else {
       gl.disable(gl.DEPTH_TEST);
     }
+  }
+
+  rebuildProgram(
+    updatedVertexSourceCode: string, // The new vertex shader source
+    updatedFragmentSourceCode: string, // The new fragment shader source
+    onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
+    onError: (message: string) => void
+  ): boolean {
+    // Callback triggered by your engine in case of error. It needs to send the WebGL error to allow the editor to display the error in the gutter.
+
+    const match = updatedVertexSourceCode.match(
+      /#define\s+RN_MATERIAL_SID\s+(\d+)/
+    );
+    if (Is.not.exist(match)) {
+      const warn = 'Not found MaterialUid.';
+      console.warn(warn);
+      onError(warn);
+      return false;
+    }
+    const uid = parseInt(match[1]);
+
+    const material = Material.getMaterialByMaterialUid(uid);
+    if (Is.not.exist(material)) {
+      const warn = 'Material Not found';
+      console.warn(warn);
+      onError(warn);
+      return false;
+    }
+    const processApproach = System.getInstance().processApproach;
+    const renderingStrategy = getRenderingStrategy(processApproach);
+
+    const programUid = renderingStrategy.setupShaderForMaterial(material);
+    const program = this.getWebGLResource(programUid) as RnWebGLProgram;
+    onCompiled(program);
+
+    return true;
   }
 }
