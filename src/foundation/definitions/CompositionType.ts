@@ -10,11 +10,11 @@ export interface CompositionTypeEnum extends EnumIO {
 }
 
 class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
-  readonly __numberOfComponents: number = 0;
+  readonly __numberOfComponents: number;
   readonly __glslStr: string;
   readonly __hlslStr: string;
   readonly __isArray: boolean;
-  readonly __vec4SizeOfProperty: number = 0;
+  readonly __vec4SizeOfProperty: IndexOf16Bytes;
   constructor({
     index,
     str,
@@ -29,7 +29,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     glslStr: string;
     hlslStr: string;
     numberOfComponents: number;
-    vec4SizeOfProperty: number;
+    vec4SizeOfProperty: IndexOf16Bytes;
     isArray?: boolean;
   }) {
     super({index, str});

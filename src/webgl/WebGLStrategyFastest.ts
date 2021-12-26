@@ -262,7 +262,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     }
 
     // inner contents of 'get_' shader function
-    const vec4SizeOfProperty: IndexOf4Bytes =
+    const vec4SizeOfProperty: IndexOf16Bytes =
       info.compositionType.getVec4SizeOfProperty();
     if (propertyIndex < 0) {
       // if the ShaderSemanticsInfo of the property has `index` property
@@ -300,9 +300,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
     } else {
       // for non-`index` property (this is general case)
       const scalarSizeOfProperty: IndexOf4Bytes =
-        WebGLStrategyFastest.__getScalarSizeOfShaderSemanticsInfo4BytesAligned(
-          info
-        );
+        info.compositionType.getNumberOfComponents();
       let dataBeginPos: IndexOf16Bytes = -1;
       if (isGlobalData) {
         dataBeginPos =
