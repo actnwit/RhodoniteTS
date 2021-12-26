@@ -192,12 +192,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = glw?.getRawContext() as
       | WebGLRenderingContext
       | WebGL2RenderingContext;
-    if (!Is.exist(gl)) {
+    if (Is.not.exist(gl)) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
 
     const ibo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
-    if (!Is.exist(ibo)) {
+    if (Is.not.exist(ibo)) {
       throw new Error('Not found VBO.');
     }
 
