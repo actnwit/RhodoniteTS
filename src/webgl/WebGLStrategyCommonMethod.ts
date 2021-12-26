@@ -12,12 +12,12 @@ import WebGLResourceRepository from './WebGLResourceRepository';
 import {RnXR} from '../xr/main';
 import Vector4 from '../foundation/math/Vector4';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import { ShaderType } from '../foundation/definitions/ShaderType';
+import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
+import {CompositionType} from '../foundation/definitions/CompositionType';
+import {ComponentType} from '../foundation/definitions/ComponentType';
+import {ShaderType} from '../foundation/definitions/ShaderType';
 import Scalar from '../foundation/math/Scalar';
-import { ShaderVariableUpdateInterval } from '../foundation/definitions/ShaderVariableUpdateInterval';
+import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Vector3 from '../foundation/math/Vector3';
 
 let lastIsTransparentMode: boolean;
@@ -257,17 +257,19 @@ function isSkipDrawing(material: Material, idx: Index) {
 }
 
 function getViewport(renderPass: RenderPass) {
-  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  const webglResourceRepository: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
   let viewport = renderPass.getViewport() as Vector4;
   if (viewport == null) {
-    viewport = webglResourceRepository.currentWebGLContextWrapper!
-      .defaultViewport;
+    viewport =
+      webglResourceRepository.currentWebGLContextWrapper!.defaultViewport;
   }
   return viewport!;
 }
 
 function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
-  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  const webglResourceRepository: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const webxrSystem = rnXRModule.WebXRSystem.getInstance();
   if (webxrSystem.isWebXRMode) {
