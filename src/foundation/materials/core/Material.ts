@@ -39,6 +39,7 @@ type ShaderVariable = {
   value: any;
   info: ShaderSemanticsInfo;
 };
+type MaterialSID = Index;
 
 /**
  * The material class.
@@ -63,7 +64,7 @@ export default class Material extends RnObject {
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> =
     new Map();
-  private static __materials: Material[] = [];
+  private static __materialMap: Map<MaterialSID, Material> = new Map();
   private static __instancesByTypes: Map<MaterialTypeName, Material> =
     new Map();
   private __materialTid: Index;
@@ -107,10 +108,10 @@ export default class Material extends RnObject {
     this.__materialTid = materialTid;
     this.__materialTypeName = materialTypeName;
 
-    Material.__materials.push(this);
     Material.__instancesByTypes.set(materialTypeName, this);
     this.tryToSetUniqueName(materialTypeName, true);
     this.initialize();
+    Material.__materialMap.set(this.__materialSid, this);
   }
 
   get materialTypeName() {
@@ -311,7 +312,7 @@ export default class Material extends RnObject {
   }
 
   static getAllMaterials() {
-    return Material.__materials;
+    return Array.from(Material.__materialMap.values());
   }
 
   setMaterialNodes(materialNodes: AbstractMaterialNode[]) {
