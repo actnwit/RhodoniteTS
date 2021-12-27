@@ -5,7 +5,7 @@ import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
 import {BufferUse} from '../foundation/definitions/BufferUse';
-import WebGLStrategy from './WebGLStrategy';
+import WebGLStrategy, { ShaderSources } from './WebGLStrategy';
 import MeshComponent from '../foundation/components/MeshComponent';
 import Primitive from '../foundation/geometry/Primitive';
 import WebGLContextWrapper from './WebGLContextWrapper';
@@ -45,7 +45,8 @@ import Matrix33 from '../foundation/math/Matrix33';
 import CubeTexture from '../foundation/textures/CubeTexture';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
-import {Is as is} from '../foundation/misc/Is';
+import {Is, Is as is} from '../foundation/misc/Is';
+import WebGLStrategyUniform from './WebGLStrategyUniform';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -174,15 +175,23 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
    * @param material
    * @param isPointSprite
    */
-  public setupShaderForMaterial(material: Material): CGAPIResourceHandle {
+  public setupShaderForMaterial(
+    material: Material,
+    updatedShaderSources?: ShaderSources
+  ): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    const programUid = material.createProgram(
-      this.vertexShaderMethodDefinitions_dataTexture,
-      this.__getShaderProperty,
-      glw.isWebGL2
-    );
+    let programUid;
+    if (Is.not.exist(updatedShaderSources)) {
+      programUid = material.createProgram(
+        this.vertexShaderMethodDefinitions_dataTexture,
+        this.__getShaderProperty,
+        glw.isWebGL2
+      );
+    } else {
+      programUid = material.createProgramByUpdatedSources(updatedShaderSources);
+    }
 
     material.setupBasicUniformsLocations();
 

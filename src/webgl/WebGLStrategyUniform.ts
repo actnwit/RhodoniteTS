@@ -1,5 +1,5 @@
 import WebGLResourceRepository from './WebGLResourceRepository';
-import WebGLStrategy from './WebGLStrategy';
+import WebGLStrategy, { ShaderSources } from './WebGLStrategy';
 import MeshComponent from '../foundation/components/MeshComponent';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import Primitive from '../foundation/geometry/Primitive';
@@ -40,7 +40,7 @@ import Buffer from '../foundation/memory/Buffer';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import {Is as is} from '../foundation/misc/Is';
+import {Is, Is as is} from '../foundation/misc/Is';
 import Scalar from '../foundation/math/Scalar';
 import Vector3 from '../foundation/math/Vector3';
 
@@ -202,15 +202,23 @@ mat3 get_normalMatrix(float instanceId) {
    * @param material
    * @param isPointSprite
    */
-  public setupShaderForMaterial(material: Material): CGAPIResourceHandle {
+  public setupShaderForMaterial(
+    material: Material,
+    updatedShaderSources?: ShaderSources
+  ): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    const programUid = material.createProgram(
-      WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
-      ShaderSemantics.getShaderProperty,
-      glw.isWebGL2
-    );
+    let programUid;
+    if (Is.not.exist(updatedShaderSources)) {
+      programUid = material.createProgram(
+        WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
+        ShaderSemantics.getShaderProperty,
+        glw.isWebGL2
+      );
+    } else {
+      programUid = material.createProgramByUpdatedSources(updatedShaderSources);
+    }
 
     material.setupBasicUniformsLocations();
 

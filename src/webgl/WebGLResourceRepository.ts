@@ -2576,19 +2576,6 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   ): boolean {
     // Callback triggered by your engine in case of error. It needs to send the WebGL error to allow the editor to display the error in the gutter.
 
-    // const match = updatedVertexSourceCode.match(
-    //   /#define\s+RN_MATERIAL_SID\s+(\d+)/
-    // );
-    // if (Is.not.exist(match)) {
-    //   const warn = 'Not found MaterialUid.';
-    //   console.warn(warn);
-    //   onError(warn);
-    //   return false;
-    // }
-
-    // const uid = parseInt(match[1]);
-
-    // const material = Material.getMaterialByMaterialUid(uid);
     const material = this._material;
     if (Is.not.exist(material)) {
       const warn = 'Material Not found';
@@ -2597,12 +2584,22 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       return false;
     }
 
-    console.log('Super');
-
     const processApproach = System.getInstance().processApproach;
     const renderingStrategy = getRenderingStrategy(processApproach);
 
-    const programUid = renderingStrategy.setupShaderForMaterial(material);
+    const modifiedVertexSourceCode = updatedVertexSourceCode.replace(
+      /! =/g,
+      '!='
+    );
+    const modifiedPixelSourceCode = updatedFragmentSourceCode.replace(
+      /! =/g,
+      '!='
+    );
+
+    const programUid = renderingStrategy.setupShaderForMaterial(material, {
+      vertex: modifiedVertexSourceCode,
+      pixel: modifiedPixelSourceCode,
+    });
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const program = webglResourceRepository.getWebGLResource(
       programUid
