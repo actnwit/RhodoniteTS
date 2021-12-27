@@ -22,7 +22,6 @@ import {MathUtil} from '../foundation/math/MathUtil';
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
-  ShaderSemanticsName,
 } from '../foundation/definitions/ShaderSemantics';
 import AbstractTexture from '../foundation/textures/AbstractTexture';
 import RenderTargetTexture from '../foundation/textures/RenderTargetTexture';
@@ -369,13 +368,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
    * @returns
    */
   createShaderProgram({
-    materialTypeName,
+    material,
     vertexShaderStr,
     fragmentShaderStr,
     attributeNames,
     attributeSemantics,
   }: {
-    materialTypeName: string;
+    material: Material;
     vertexShaderStr: string;
     fragmentShaderStr: string;
     attributeNames: AttributeNames;
@@ -393,7 +392,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.compileShader(vertexShader);
     if (isDebugMode) {
       this.__checkShaderCompileStatus(
-        materialTypeName,
+        material.materialTypeName,
         vertexShader,
         vertexShaderStr
       );
@@ -404,7 +403,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.compileShader(fragmentShader);
     if (isDebugMode) {
       this.__checkShaderCompileStatus(
-        materialTypeName,
+        material.materialTypeName,
         fragmentShader,
         fragmentShaderStr
       );
@@ -412,10 +411,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const shaderProgram = gl.createProgram()! as RnWebGLProgram;
     shaderProgram._gl = gl;
-    shaderProgram._materialTypeName = materialTypeName;
+    shaderProgram._materialTypeName = material.materialTypeName;
     shaderProgram._vertexShaderStr = vertexShaderStr;
     shaderProgram._fragmentShaderStr = fragmentShaderStr;
     shaderProgram._shaderSemanticsInfoMap = new Map();
+    shaderProgram._material = material;
 
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
@@ -429,11 +429,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
 
     gl.linkProgram(shaderProgram);
-    // shaderProgram.__SPECTOR_rebuildProgram = this.rebuildProgram.bind(this);
+    shaderProgram.__SPECTOR_rebuildProgram =
+      this.rebuildProgram.bind(shaderProgram);
 
     if (isDebugMode) {
       this.__checkShaderProgramLinkStatus(
-        materialTypeName,
+        material.materialTypeName,
         shaderProgram,
         vertexShaderStr,
         fragmentShaderStr
@@ -1279,7 +1280,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       );
     }
 
-    if (mipmapDepth == 0) {
+    if (mipmapDepth === 0) {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
       let minFilter_ = minFilter;
       if (minFilter === TextureParameter.LinearMipmapLinear) {
@@ -2566,39 +2567,48 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
-  // rebuildProgram(
-  //   updatedVertexSourceCode: string, // The new vertex shader source
-  //   updatedFragmentSourceCode: string, // The new fragment shader source
-  //   onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
-  //   onError: (message: string) => void
-  // ): boolean {
-  //   // Callback triggered by your engine in case of error. It needs to send the WebGL error to allow the editor to display the error in the gutter.
+  rebuildProgram(
+    this: RnWebGLProgram,
+    updatedVertexSourceCode: string, // The new vertex shader source
+    updatedFragmentSourceCode: string, // The new fragment shader source
+    onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
+    onError: (message: string) => void
+  ): boolean {
+    // Callback triggered by your engine in case of error. It needs to send the WebGL error to allow the editor to display the error in the gutter.
 
-  //   const match = updatedVertexSourceCode.match(
-  //     /#define\s+RN_MATERIAL_SID\s+(\d+)/
-  //   );
-  //   if (Is.not.exist(match)) {
-  //     const warn = 'Not found MaterialUid.';
-  //     console.warn(warn);
-  //     onError(warn);
-  //     return false;
-  //   }
-  //   const uid = parseInt(match[1]);
+    // const match = updatedVertexSourceCode.match(
+    //   /#define\s+RN_MATERIAL_SID\s+(\d+)/
+    // );
+    // if (Is.not.exist(match)) {
+    //   const warn = 'Not found MaterialUid.';
+    //   console.warn(warn);
+    //   onError(warn);
+    //   return false;
+    // }
 
-  //   const material = Material.getMaterialByMaterialUid(uid);
-  //   if (Is.not.exist(material)) {
-  //     const warn = 'Material Not found';
-  //     console.warn(warn);
-  //     onError(warn);
-  //     return false;
-  //   }
-  //   const processApproach = System.getInstance().processApproach;
-  //   const renderingStrategy = getRenderingStrategy(processApproach);
+    // const uid = parseInt(match[1]);
 
-  //   const programUid = renderingStrategy.setupShaderForMaterial(material);
-  //   const program = this.getWebGLResource(programUid) as RnWebGLProgram;
-  //   onCompiled(program);
+    // const material = Material.getMaterialByMaterialUid(uid);
+    const material = this._material;
+    if (Is.not.exist(material)) {
+      const warn = 'Material Not found';
+      console.warn(warn);
+      onError(warn);
+      return false;
+    }
 
-  //   return true;
-  // }
+    console.log('Super');
+
+    const processApproach = System.getInstance().processApproach;
+    const renderingStrategy = getRenderingStrategy(processApproach);
+
+    const programUid = renderingStrategy.setupShaderForMaterial(material);
+    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const program = webglResourceRepository.getWebGLResource(
+      programUid
+    ) as RnWebGLProgram;
+    onCompiled(program);
+
+    return true;
+  }
 }

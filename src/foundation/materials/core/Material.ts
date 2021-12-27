@@ -33,6 +33,7 @@ import {BoneDataType} from '../../definitions/BoneDataType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import ShaderityUtility from './ShaderityUtility';
+import { Is } from '../../misc/Is';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -66,6 +67,10 @@ export default class Material extends RnObject {
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> =
     new Map();
   private static __materialMap: Map<MaterialUID, Material> = new Map();
+  private static __instances: Map<
+    MaterialTypeName,
+    Map<MaterialSID, Material>
+  > = new Map();
   private static __instancesByTypes: Map<MaterialTypeName, Material> =
     new Map();
   private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
@@ -80,7 +85,7 @@ export default class Material extends RnObject {
     MaterialTypeName,
     AbstractMaterialNode[]
   > = new Map();
-  private static __maxInstances: Map<MaterialTypeName, number> = new Map();
+  private static __maxInstances: Map<MaterialTypeName, MaterialSID> = new Map();
   private __materialTypeName: MaterialTypeName;
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
   private static __accessors: Map<
@@ -376,6 +381,12 @@ export default class Material extends RnObject {
       this.__materialTypeName
     ) as number;
     this.__materialSid = countOfThisType++;
+    let map = Material.__instances.get(this.__materialTypeName);
+    if (Is.not.exist(map)) {
+      map = new Map();
+      Material.__instances.set(this.__materialTypeName, map);
+    }
+    map.set(this.__materialSid, this);
     Material.__materialInstanceCountOfType.set(
       this.__materialTypeName,
       countOfThisType
@@ -657,13 +668,13 @@ export default class Material extends RnObject {
         definitions += '#define RN_IS_UBO_ENABLED\n';
       }
     }
-    // definitions += `#define RN_MATERIAL_UID ${this.materialUID}\n`;
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
-    // definitions += `#define RN_MATERIAL_SID ${this.materialSID}\n`;
     if (
       ProcessApproach.isFastestApproach(System.getInstance().processApproach)
     ) {
       definitions += '#define RN_IS_FASTEST_MODE\n';
+    } else {
+      definitions += '#define RN_IS_UNIFORM_MODE\n';
     }
     if (glw.webgl1ExtSTL) {
       definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
@@ -776,7 +787,7 @@ export default class Material extends RnObject {
       return this._shaderProgramUid;
     } else {
       this._shaderProgramUid = webglResourceRepository.createShaderProgram({
-        materialTypeName: this.__materialTypeName,
+        material: this,
         vertexShaderStr: vertexShader,
         fragmentShaderStr: pixelShader,
         attributeNames: attributeNames,
