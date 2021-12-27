@@ -110,10 +110,7 @@ export default class Material extends RnObject {
     this.__materialTid = materialTid;
     this.__materialTypeName = materialTypeName;
 
-    Material.__instancesByTypes.set(materialTypeName, this);
-    this.tryToSetUniqueName(materialTypeName, true);
     this.initialize();
-    Material.__materialMap.set(this.__materialSid, this);
   }
 
   get materialTypeName() {
@@ -372,6 +369,9 @@ export default class Material extends RnObject {
 
   initialize() {
     this.__materialUid = ++Material.__materialUidCount;
+    Material.__materialMap.set(this.__materialUid, this);
+    Material.__instancesByTypes.set(this.__materialTypeName, this);
+    this.tryToSetUniqueName(this.__materialTypeName, true);
     let countOfThisType = Material.__materialInstanceCountOfType.get(
       this.__materialTypeName
     ) as number;
@@ -657,7 +657,9 @@ export default class Material extends RnObject {
         definitions += '#define RN_IS_UBO_ENABLED\n';
       }
     }
+    // definitions += `#define RN_MATERIAL_UID ${this.materialUID}\n`;
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
+    // definitions += `#define RN_MATERIAL_SID ${this.materialSID}\n`;
     if (
       ProcessApproach.isFastestApproach(System.getInstance().processApproach)
     ) {
