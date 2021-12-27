@@ -24,6 +24,7 @@ import {
   CGAPIResourceHandle,
   Count,
   IndexOf16Bytes,
+  PrimitiveUID,
 } from '../../../types/CommonTypes';
 import DataUtil from '../../misc/DataUtil';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
@@ -33,12 +34,12 @@ import {BoneDataType} from '../../definitions/BoneDataType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import ShaderityUtility from './ShaderityUtility';
-import { Is } from '../../misc/Is';
-import { VertexAttributeEnum } from '../../..';
+import {Is} from '../../misc/Is';
+import {VertexAttributeEnum} from '../../..';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';
-import { AttributeNames } from '../../../webgl/main';
-import { AttributeSemantics } from 'shaderity/dist/esm/types/type';
-import { ShaderSources } from '../../../webgl/WebGLStrategy';
+import {AttributeNames} from '../../../webgl/main';
+import {ShaderSources} from '../../../webgl/WebGLStrategy';
+import Primitive from '../../geometry/Primitive';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -97,6 +98,9 @@ export default class Material extends RnObject {
     MaterialTypeName,
     Map<ShaderSemanticsIndex, Accessor>
   > = new Map();
+  private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
+
+  private __updatedShaderSources?: ShaderSources;
 
   public cullFace = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW = true;
@@ -129,6 +133,18 @@ export default class Material extends RnObject {
 
   public static getMaterialByMaterialUid(materialUid: MaterialSID) {
     return this.__materialMap.get(materialUid);
+  }
+
+  /**
+   * @private
+   * @param primitive
+   */
+  _addBelongPrimitive(primitive: Primitive) {
+    this.__belongPrimitives.set(primitive.primitiveUid, primitive);
+  }
+
+  _belongPrimitives() {
+    return Array.from(this.__belongPrimitives.values());
   }
 
   /**
@@ -920,6 +936,10 @@ export default class Material extends RnObject {
   ): CGAPIResourceHandle {
     const programUid =
       this.createProgramAsSingleOperationByUpdatedSources(updatedShaderSources);
+
+    if (programUid > 0) {
+      this.__updatedShaderSources = updatedShaderSources;
+    }
 
     return programUid;
   }

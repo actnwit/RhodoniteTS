@@ -49,6 +49,7 @@ export default class Primitive extends RnObject {
 
   set material(mat: Material) {
     this.__material = mat;
+    mat._addBelongPrimitive(this);
   }
 
   get material() {
