@@ -512,10 +512,7 @@ export default class Material extends RnObject {
     return void 0;
   }
 
-  setUniformLocationsOfMaterialNodes(
-    shaderProgramUid: CGAPIResourceHandle,
-    isUniformOnlyMode: boolean
-  ) {
+  setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
 
@@ -526,7 +523,7 @@ export default class Material extends RnObject {
     });
 
     webglResourceRepository.setupUniformLocations(
-      shaderProgramUid,
+      this._shaderProgramUid,
       array,
       isUniformOnlyMode
     );
