@@ -415,7 +415,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     shaderProgram._materialTypeName = materialTypeName;
     shaderProgram._vertexShaderStr = vertexShaderStr;
     shaderProgram._fragmentShaderStr = fragmentShaderStr;
-    shaderProgram.__SPECTOR_rebuildProgram = this.rebuildProgram.bind(this);
+    shaderProgram._shaderSemanticsInfoMap = new Map();
 
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
@@ -429,6 +429,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
 
     gl.linkProgram(shaderProgram);
+    // shaderProgram.__SPECTOR_rebuildProgram = this.rebuildProgram.bind(this);
+
     if (isDebugMode) {
       this.__checkShaderProgramLinkStatus(
         materialTypeName,
@@ -511,10 +513,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     ) as RnWebGLProgram;
 
     const infoArrayLen = infoArray.length;
-    const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
     for (let i = 0; i < infoArrayLen; i++) {
       const info = infoArray[i];
-      shaderSemanticsInfoMap.set(info.semantic.str, info);
+      shaderProgram._shaderSemanticsInfoMap.set(info.semantic.str, info);
     }
 
     for (let i = 0; i < infoArrayLen; i++) {
@@ -561,15 +562,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           );
         }
       }
-    }
-
-    if (shaderProgram._shaderSemanticsInfoMap != null) {
-      shaderProgram._shaderSemanticsInfoMap = new Map([
-        ...shaderProgram._shaderSemanticsInfoMap,
-        ...shaderSemanticsInfoMap,
-      ]);
-    } else {
-      shaderProgram._shaderSemanticsInfoMap = shaderSemanticsInfoMap;
     }
 
     return shaderProgram;
@@ -2574,39 +2566,39 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
-  rebuildProgram(
-    updatedVertexSourceCode: string, // The new vertex shader source
-    updatedFragmentSourceCode: string, // The new fragment shader source
-    onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
-    onError: (message: string) => void
-  ): boolean {
-    // Callback triggered by your engine in case of error. It needs to send the WebGL error to allow the editor to display the error in the gutter.
+  // rebuildProgram(
+  //   updatedVertexSourceCode: string, // The new vertex shader source
+  //   updatedFragmentSourceCode: string, // The new fragment shader source
+  //   onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
+  //   onError: (message: string) => void
+  // ): boolean {
+  //   // Callback triggered by your engine in case of error. It needs to send the WebGL error to allow the editor to display the error in the gutter.
 
-    const match = updatedVertexSourceCode.match(
-      /#define\s+RN_MATERIAL_SID\s+(\d+)/
-    );
-    if (Is.not.exist(match)) {
-      const warn = 'Not found MaterialUid.';
-      console.warn(warn);
-      onError(warn);
-      return false;
-    }
-    const uid = parseInt(match[1]);
+  //   const match = updatedVertexSourceCode.match(
+  //     /#define\s+RN_MATERIAL_SID\s+(\d+)/
+  //   );
+  //   if (Is.not.exist(match)) {
+  //     const warn = 'Not found MaterialUid.';
+  //     console.warn(warn);
+  //     onError(warn);
+  //     return false;
+  //   }
+  //   const uid = parseInt(match[1]);
 
-    const material = Material.getMaterialByMaterialUid(uid);
-    if (Is.not.exist(material)) {
-      const warn = 'Material Not found';
-      console.warn(warn);
-      onError(warn);
-      return false;
-    }
-    const processApproach = System.getInstance().processApproach;
-    const renderingStrategy = getRenderingStrategy(processApproach);
+  //   const material = Material.getMaterialByMaterialUid(uid);
+  //   if (Is.not.exist(material)) {
+  //     const warn = 'Material Not found';
+  //     console.warn(warn);
+  //     onError(warn);
+  //     return false;
+  //   }
+  //   const processApproach = System.getInstance().processApproach;
+  //   const renderingStrategy = getRenderingStrategy(processApproach);
 
-    const programUid = renderingStrategy.setupShaderForMaterial(material);
-    const program = this.getWebGLResource(programUid) as RnWebGLProgram;
-    onCompiled(program);
+  //   const programUid = renderingStrategy.setupShaderForMaterial(material);
+  //   const program = this.getWebGLResource(programUid) as RnWebGLProgram;
+  //   onCompiled(program);
 
-    return true;
-  }
+  //   return true;
+  // }
 }
