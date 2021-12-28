@@ -12,6 +12,13 @@ import WebGLResourceRepository from './WebGLResourceRepository';
 import {RnXR} from '../xr/main';
 import Vector4 from '../foundation/math/Vector4';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
+import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
+import {CompositionType} from '../foundation/definitions/CompositionType';
+import {ComponentType} from '../foundation/definitions/ComponentType';
+import {ShaderType} from '../foundation/definitions/ShaderType';
+import Scalar from '../foundation/math/Scalar';
+import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
+import Vector3 from '../foundation/math/Vector3';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -104,8 +111,8 @@ function differentWithLastBlendEquation(
   equationModeAlpha: number
 ) {
   const result =
-    lastBlendEquationMode != equationMode ||
-    lastBlendEquationModeAlpha != equationModeAlpha;
+    lastBlendEquationMode !== equationMode ||
+    lastBlendEquationModeAlpha !== equationModeAlpha;
   return result;
 }
 
@@ -143,10 +150,10 @@ function differentWithLastBlendFuncFactor(
   alphaDstFactor: number
 ): boolean {
   const result =
-    lastBlendFuncSrcFactor != srcFactor ||
-    lastBlendFuncDstFactor != dstFactor ||
-    lastBlendFuncAlphaSrcFactor != alphaSrcFactor ||
-    lastBlendFuncAlphaDstFactor != alphaDstFactor;
+    lastBlendFuncSrcFactor !== srcFactor ||
+    lastBlendFuncDstFactor !== dstFactor ||
+    lastBlendFuncAlphaSrcFactor !== alphaSrcFactor ||
+    lastBlendFuncAlphaDstFactor !== alphaDstFactor;
   return result;
 }
 
@@ -250,17 +257,19 @@ function isSkipDrawing(material: Material, idx: Index) {
 }
 
 function getViewport(renderPass: RenderPass) {
-  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  const webglResourceRepository: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
   let viewport = renderPass.getViewport() as Vector4;
   if (viewport == null) {
-    viewport = webglResourceRepository.currentWebGLContextWrapper!
-      .defaultViewport;
+    viewport =
+      webglResourceRepository.currentWebGLContextWrapper!.defaultViewport;
   }
   return viewport!;
 }
 
 function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
-  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  const webglResourceRepository: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const webxrSystem = rnXRModule.WebXRSystem.getInstance();
   if (webxrSystem.isWebXRMode) {
@@ -310,6 +319,33 @@ function getLocationOffsetOfProperty(
   }
 }
 
+function getPointSpriteShaderSemanticsInfoArray() {
+  return [
+    {
+      semantic: ShaderSemantics.PointSize,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(30.0),
+      min: 0,
+      max: Number.MAX_VALUE,
+      isSystem: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
+    {
+      semantic: ShaderSemantics.PointDistanceAttenuation,
+      compositionType: CompositionType.Vec3,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
+      min: 0,
+      max: 1,
+      isSystem: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
+  ];
+}
+
 export default Object.freeze({
   setWebGLParameters,
   startDepthMasking,
@@ -322,4 +358,5 @@ export default Object.freeze({
   getDisplayNumber,
   isVrMainPass,
   getLocationOffsetOfProperty,
+  getPointSpriteShaderSemanticsInfoArray,
 });

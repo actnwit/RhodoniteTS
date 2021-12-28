@@ -1,5 +1,5 @@
 import WebGLResourceRepository from './WebGLResourceRepository';
-import WebGLStrategy from './WebGLStrategy';
+import WebGLStrategy, { ShaderSources } from './WebGLStrategy';
 import MeshComponent from '../foundation/components/MeshComponent';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import Primitive from '../foundation/geometry/Primitive';
@@ -40,7 +40,7 @@ import Buffer from '../foundation/memory/Buffer';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import {Is as is} from '../foundation/misc/Is';
+import {Is, Is as is} from '../foundation/misc/Is';
 import Scalar from '../foundation/math/Scalar';
 import Vector3 from '../foundation/math/Vector3';
 
@@ -61,7 +61,8 @@ type ShaderVariableArguments = {
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
-  private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  private __webglResourceRepository: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = -1;
@@ -69,121 +70,43 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
-  private static __vertexShaderMethodDefinitions_uniform: string;
+
+  private readonly componentMatrices = [
+    {
+      semantic: ShaderSemantics.VertexAttributesExistenceArray,
+      compositionType: CompositionType.ScalarArray,
+      componentType: ComponentType.Int,
+      stage: ShaderType.VertexShader,
+      min: 0,
+      max: 1,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
+    {
+      semantic: ShaderSemantics.WorldMatrix,
+      compositionType: CompositionType.Mat4,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
+    {
+      semantic: ShaderSemantics.NormalMatrix,
+      compositionType: CompositionType.Mat3,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isSystem: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
+  ];
 
   private constructor() {}
 
-  setupShaderProgram(meshComponent: MeshComponent): void {
-    if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
-      return;
-    }
-
-    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      const material = primitive.material;
-      if (material == null || material.isEmptyMaterial()) {
-        continue;
-      }
-
-      if (
-        material._shaderProgramUid !==
-        CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
-        continue;
-      }
-
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-      try {
-        this.setupDefaultShaderSemantics(material, isPointSprite);
-        primitive._backupMaterial();
-      } catch (e) {
-        console.log(e);
-        primitive._restoreMaterial();
-        this.setupDefaultShaderSemantics(primitive.material, isPointSprite);
-      }
-    }
-  }
-
-  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
-    // Shader Setup
-    const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
-      {
-        semantic: ShaderSemantics.VertexAttributesExistenceArray,
-        compositionType: CompositionType.ScalarArray,
-        componentType: ComponentType.Int,
-        stage: ShaderType.VertexShader,
-        min: 0,
-        max: 1,
-        isSystem: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      },
-      {
-        semantic: ShaderSemantics.WorldMatrix,
-        compositionType: CompositionType.Mat4,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isSystem: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      },
-      {
-        semantic: ShaderSemantics.NormalMatrix,
-        compositionType: CompositionType.Mat3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isSystem: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      },
-    ];
-
-    if (isPointSprite) {
-      shaderSemanticsInfos.push(
-        {
-          semantic: ShaderSemantics.PointSize,
-          compositionType: CompositionType.Scalar,
-          componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader,
-          initialValue: Scalar.fromCopyNumber(30.0),
-          min: 0,
-          max: Number.MAX_VALUE,
-          isSystem: false,
-          updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        },
-        {
-          semantic: ShaderSemantics.PointDistanceAttenuation,
-          compositionType: CompositionType.Vec3,
-          componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader,
-          initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
-          min: 0,
-          max: 1,
-          isSystem: false,
-          updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        }
-      );
-    }
-
-    WebGLStrategyUniform.setupMaterial(material, shaderSemanticsInfos);
-  }
-
-  static setupMaterial(material: Material, args?: ShaderSemanticsInfo[]) {
-    let infoArray: ShaderSemanticsInfo[];
-    if (args != null) {
-      infoArray = args;
-    } else {
-      infoArray = material.fieldsInfoArray;
-    }
-
-    WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform = `
-uniform mat4 u_worldMatrix;
+  private static __vertexShaderMethodDefinitions_uniform = `uniform mat4 u_worldMatrix;
 uniform mat3 u_normalMatrix;
 
 mat4 get_worldMatrix(float instanceId) {
@@ -236,39 +159,85 @@ mat3 get_normalMatrix(float instanceId) {
     return position;
   }
 #endif
-
   `;
 
+  setupShaderProgram(meshComponent: MeshComponent): void {
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
+    for (let i = 0; i < primitiveNum; i++) {
+      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
+      const material = primitive.material;
+      if (material == null || material.isEmptyMaterial()) {
+        continue;
+      }
+
+      if (
+        material._shaderProgramUid !==
+        CGAPIResourceRepository.InvalidCGAPIResourceUid
+      ) {
+        continue;
+      }
+
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
+
+      try {
+        this.setupShaderForMaterial(material);
+        primitive._backupMaterial();
+      } catch (e) {
+        console.log(e);
+        primitive._restoreMaterial();
+        this.setupShaderForMaterial(primitive.material);
+      }
+    }
+  }
+
+  /**
+   * setup shader program for the material in this WebGL strategy
+   * @param material
+   * @param isPointSprite
+   */
+  public setupShaderForMaterial(
+    material: Material,
+    updatedShaderSources?: ShaderSources
+  ): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-    material.createProgram(
-      WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
-      ShaderSemantics.getShaderProperty,
-      glw.isWebGL2
-    );
-    webglResourceRepository.setupUniformLocations(
-      material._shaderProgramUid,
-      infoArray,
-      true
-    );
-    material.setUniformLocations(material._shaderProgramUid, true);
-    WebGLStrategyUniform.__globalDataRepository.setUniformLocations(
-      material._shaderProgramUid,
+
+    let programUid;
+    if (Is.not.exist(updatedShaderSources)) {
+      programUid = material.createProgram(
+        WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
+        ShaderSemantics.getShaderProperty,
+        glw.isWebGL2
+      );
+    } else {
+      programUid = material.createProgramByUpdatedSources(updatedShaderSources);
+    }
+
+    material.setupBasicUniformsLocations();
+
+    material.setUniformLocationsOfMaterialNodes(true);
+
+    const shaderSemanticsInfos = this.componentMatrices;
+    const shaderSemanticsInfosPointSprite =
+      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
+
+    material.setupAdditionalUniformLocations(
+      shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
       true
     );
 
-    const shaderProgram = webglResourceRepository.getWebGLResource(
+    WebGLStrategyUniform.__globalDataRepository.setUniformLocationsForUniformModeOnly(
       material._shaderProgramUid
-    )! as WebGLProgram;
-    (shaderProgram as any).dataTexture = gl.getUniformLocation(
-      shaderProgram,
-      'u_dataTexture'
     );
-    (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(
-      shaderProgram,
-      'u_currentComponentSIDs'
-    );
+
+    return programUid;
   }
 
   $load(meshComponent: MeshComponent) {
@@ -467,9 +436,8 @@ mat3 get_normalMatrix(float instanceId) {
 
     WebGLStrategyCommonMethod.startDepthMasking(idx, gl);
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(
-      isVrMainPass
-    );
+    const displayNumber =
+      WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
 
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVrMainPass) {

@@ -480,7 +480,7 @@ export default class WebGLContextWrapper {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
         const text = `The library does not support this environment because the ${extension.toString()} is not available`;
-        console.error(text);
+        console.warn(text);
       }
       this.__extensions.set(extension, extObj);
       return extObj;

@@ -13,8 +13,14 @@ import {
   Index,
   Count,
   ComponentSID,
+  CGAPIResourceHandle,
 } from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
+
+export type ShaderSources = {
+  vertex: string;
+  pixel: string;
+};
 
 export default interface WebGLStrategy {
   $load(meshComponent: MeshComponent): void;
@@ -52,4 +58,8 @@ export default interface WebGLStrategy {
   ): void;
   //setupShaderProgram(meshComponent: MeshComponent): void;
   attachShaderProgram(material: Material): void;
+  setupShaderForMaterial(
+    material: Material,
+    updatedShaderSources?: ShaderSources
+  ): CGAPIResourceHandle;
 }

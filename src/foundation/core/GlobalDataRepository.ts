@@ -402,11 +402,9 @@ export default class GlobalDataRepository {
     return Array.from(this.__fields.values());
   }
 
-  setUniformLocations(
-    shaderProgramUid: CGAPIResourceHandle,
-    isUniformOnlyMode: boolean
-  ) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle) {
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
@@ -416,7 +414,7 @@ export default class GlobalDataRepository {
     webglResourceRepository.setupUniformLocations(
       shaderProgramUid,
       semanticsInfoArray,
-      isUniformOnlyMode
+      true
     );
   }
 
