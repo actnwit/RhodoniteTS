@@ -37,6 +37,7 @@ export default {
   maxCameraNumber,
   maxSizeLimitOfNonCompressedTexture,
   maxSkeletalBoneNumber,
+  maxSkeletalBoneNumberForUniformMode,
   dataTextureWidth,
   dataTextureHeight,
   noWebGLTex2DStateCache,
