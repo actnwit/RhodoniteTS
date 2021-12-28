@@ -479,7 +479,7 @@ export default class WebGLContextWrapper {
     if (!this.__extensions.has(extension)) {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
-        const text = `The library does not support this environment because the ${extension.toString()} is not available`;
+        const text = `${extension.toString()} Not Available in this environment`;
         console.warn(text);
       }
       this.__extensions.set(extension, extObj);
@@ -499,7 +499,7 @@ export default class WebGLContextWrapper {
         gl.getExtension('WEBKIT_' + extensionName);
 
       if (extObj == null) {
-        const text = `This environment does not support the ${extension.toString()}`;
+        const text = `${extension.toString()} Not Available in this environment`;
         console.warn(text);
       } else {
         this.__extensions.set(extension, extObj);
