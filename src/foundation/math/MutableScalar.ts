@@ -4,8 +4,8 @@ import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 export class MutableScalar_<
   T extends TypedArrayConstructor
 > extends Scalar_<T> {
-  constructor(x: number | TypedArray | null, {type}: {type: T}) {
-    super(x as any, {type});
+  constructor(x: TypedArray, {type}: {type: T}) {
+    super(x, {type});
   }
 
   copyComponents(vec: Scalar_<T>) {
@@ -44,24 +44,24 @@ export class MutableScalar_<
 }
 
 export default class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
-  constructor(x: number | TypedArray | null) {
+  constructor(x: TypedArray) {
     super(x, {type: Float32Array});
   }
 
   clone() {
-    return new MutableScalar(this.x);
+    return new MutableScalar(new Float32Array([this.x]));
   }
 
   static one() {
-    return new MutableScalar(1);
+    return new MutableScalar(new Float32Array([1]));
   }
 
   static dummy() {
-    return new MutableScalar(null);
+    return new MutableScalar(new Float32Array([]));
   }
 
   static zero() {
-    return new MutableScalar(0);
+    return new MutableScalar(new Float32Array([0]));
   }
 
   get className() {
@@ -70,24 +70,24 @@ export default class MutableScalar extends MutableScalar_<Float32ArrayConstructo
 }
 
 export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
-  constructor(x: number | TypedArray | null) {
+  constructor(x: TypedArray) {
     super(x, {type: Float64Array});
   }
 
   clone() {
-    return new MutableScalard(this.x);
+    return new MutableScalard(new Float64Array([this.x]));
   }
 
   static one() {
-    return new MutableScalard(1);
+    return new MutableScalard(new Float64Array([1]));
   }
 
   static dummy() {
-    return new MutableScalard(null);
+    return new MutableScalard(new Float64Array([]));
   }
 
   static zero() {
-    return new MutableScalard(0);
+    return new MutableScalard(new Float64Array([0]));
   }
 }
 

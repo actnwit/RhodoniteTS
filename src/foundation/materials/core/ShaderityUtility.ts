@@ -359,7 +359,9 @@ export default class ShaderityUtility {
       }
     } else {
       checkCompositionNumber(CompositionType.Scalar);
-      initialValue = new MutableScalar(parseFloat(initialValueText));
+      initialValue = new MutableScalar(
+        new Float32Array([parseFloat(initialValueText)])
+      );
     }
 
     return initialValue;
@@ -369,7 +371,7 @@ export default class ShaderityUtility {
     shaderSemanticsInfo: ShaderSemanticsInfo
   ) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
-      return new MutableScalar(0);
+      return new MutableScalar(new Float32Array([0]));
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
       return MutableVector2.zero();
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
