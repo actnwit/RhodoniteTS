@@ -44,7 +44,7 @@ void main() {
   expect(array.shaderSemanticsInfoArray[1].soloDatum).toBe(false);
   expect(
     array.shaderSemanticsInfoArray[1].initialValue.isStrictEqual(
-      new Rn.MutableScalar(0)
+      Rn.MutableScalar.zero()
     )
   ).toBe(true);
   expect(array.shaderSemanticsInfoArray[1].none_u_prefix).toBe(true);
