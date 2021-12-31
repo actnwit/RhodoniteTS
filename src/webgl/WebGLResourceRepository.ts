@@ -134,7 +134,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
       if (fallback && Is.not.exist(gl)) {
         gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
-        return;
+        console.warn('WebGL2 Not Supported. Fallback to WebGL1.');
+        return gl;
       }
     } else {
       gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
