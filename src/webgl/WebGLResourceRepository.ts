@@ -56,6 +56,7 @@ import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionT
 import Material from '../foundation/materials/core/Material';
 import System from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
+import Config from '../foundation/core/Config';
 
 declare let HDRImage: any;
 
@@ -141,6 +142,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
     }
     this.addWebGLContext(gl, canvas, asCurrent, isDebug);
+
+    if (MiscUtil.isSafari()) {
+      Config.isUboEnabled = false;
+    }
 
     return gl;
   }

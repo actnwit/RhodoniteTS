@@ -18,6 +18,18 @@ const isMobile = function () {
   return isIPad();
 };
 
+const isSafari = function() {
+  const ua = ['Safari'];
+
+  for (let i = 0; i < ua.length; i++) {
+    if (navigator.userAgent.indexOf(ua[i]) > 0) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const isIOS = function () {
   const ua = [
     'iPod',
@@ -245,6 +257,7 @@ export const addLineNumberToCode = (shaderString: string) => {
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,
+  isSafari,
   preventDefaultForDesktopOnly,
   isObject,
   fillTemplate,
