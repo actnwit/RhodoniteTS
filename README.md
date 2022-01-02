@@ -5,7 +5,7 @@
 Rhodonite is a WebGL library written in TypeScript.
 
 ![npm](https://img.shields.io/npm/v/rhodonite)
-![NPM](https://img.shields.io/npm/l/rhodonite)
+![license](https://img.shields.io/npm/l/rhodonite)
 
 ## Feature
 
