@@ -7,32 +7,32 @@ export type glTF1 = {
     };
   };
   buffers: {[s: string]: object};
-  bufferDic: Object;
+  bufferDic: object;
 
   scenes: {[s: string]: object};
-  sceneDic: Object;
+  sceneDic: object;
 
   meshes: {[s: string]: object};
-  meshDic: Object;
+  meshDic: object;
 
   nodesIndices: number[];
   nodes: {[s: string]: object};
-  nodeDic: Object;
+  nodeDic: object;
 
   skins: {[s: string]: object};
-  skinDic: Object;
+  skinDic: object;
 
   materials: {[s: string]: object};
-  materialDic: Object;
+  materialDic: object;
 
   cameras: {[s: string]: object};
-  cameraDic: Object;
+  cameraDic: object;
 
   shaders: {[s: string]: object};
-  shaderDic: Object;
+  shaderDic: object;
 
   images: {[s: string]: object};
-  imageDic: Object;
+  imageDic: object;
 
   animations: Array<{
     channels: {[s: string]: object};
@@ -47,16 +47,16 @@ export type glTF1 = {
   };
 
   textures: {[s: string]: object};
-  textureDic: Object;
+  textureDic: object;
 
   samplers: {[s: string]: object};
-  samplerDic: Object;
+  samplerDic: object;
 
   accessors: {[s: string]: object};
-  accessorDic: Object;
+  accessorDic: object;
 
   bufferViews: {[s: string]: object};
-  bufferViewDic: Object;
+  bufferViewDic: object;
 
   buffer: {[s: string]: object};
   techniques: {[s: string]: object};

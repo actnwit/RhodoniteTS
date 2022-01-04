@@ -323,7 +323,7 @@ type UpdateFunc = ({
   firstTime: boolean;
   propertyName: string;
   value: any;
-  args?: Object;
+  args?: object;
 }) => void;
 
 export type ShaderSemanticsInfo = {
