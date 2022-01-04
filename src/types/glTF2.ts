@@ -267,7 +267,7 @@ export type Gltf2Accessor = {
 export type Gltf2Buffer = {
   uri?: string;
   byteLength: number;
-  buffer?: Uint8Array; // Uint8Array is needed insted of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
+  buffer?: Uint8Array; // Uint8Array is needed instead of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
   dataUri?: string;
   bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
@@ -324,32 +324,32 @@ export type glTF1 = {
     };
   };
   buffers: any[];
-  bufferDic: Object;
+  bufferDic: object;
 
   scenes: any[];
-  sceneDic: Object;
+  sceneDic: object;
 
   meshes: any[];
-  meshDic: Object;
+  meshDic: object;
 
   nodesIndices: number[];
   nodes: any[];
-  nodeDic: Object;
+  nodeDic: object;
 
   skins: any[];
-  skinDic: Object;
+  skinDic: object;
 
   materials: any[];
-  materialDic: Object;
+  materialDic: object;
 
   cameras: any[];
-  cameraDic: Object;
+  cameraDic: object;
 
   shaders: any[];
-  shaderDic: Object;
+  shaderDic: object;
 
   images: any[];
-  imageDic: Object;
+  imageDic: object;
 
   animations: Array<{
     channels: any[];
@@ -365,16 +365,16 @@ export type glTF1 = {
   };
 
   textures: any[];
-  textureDic: Object;
+  textureDic: object;
 
   samplers: any[];
-  samplerDic: Object;
+  samplerDic: object;
 
   accessors: any[];
-  accessorDic: Object;
+  accessorDic: object;
 
   bufferViews: any[];
-  bufferViewDic: Object;
+  bufferViewDic: object;
 
   buffer: any[];
   techniques: any[];
@@ -413,7 +413,7 @@ export type GltfLoadOption = {
       states: {
         enable: any[];
         // 3042,  // BLEND
-        functions: Object; //"blendFuncSeparate": [1, 0, 1, 0],
+        functions: object; //"blendFuncSeparate": [1, 0, 1, 0],
       };
       isTransparent: boolean;
       opacity: number;
