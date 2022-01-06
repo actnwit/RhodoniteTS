@@ -17,7 +17,7 @@ export type Gltf2Scene = {
 };
 
 export type Gltf2Attributes = {
-  [s: string]: number;
+  [s: string]: Gltf2Accessor;
 };
 
 export type Gltf2Primitive = {

@@ -58,9 +58,9 @@ import {
   Gltf2Primitive,
   Gltf2Material,
   Gltf2Image,
-  KHR_lights_punctual_Light,
   Gltf2Camera,
   Gltf2Texture,
+  Gltf2Mesh,
 } from '../../types/glTF';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
@@ -606,8 +606,8 @@ export default class ModelConverter {
   }
 
   private __setupMesh(
-    node: any,
-    mesh: any,
+    node: Gltf2Node,
+    mesh: Gltf2Mesh,
     meshIndex: Index,
     rnBuffers: Buffer[],
     gltfModel: glTF2
@@ -647,7 +647,7 @@ export default class ModelConverter {
           node,
           gltfModel,
           primitive,
-          primitive.materialObject!
+          primitive.material!
         );
 
         if (material.isEmptyMaterial() === false) {
@@ -682,9 +682,10 @@ export default class ModelConverter {
             );
           }
 
-          for (const attributeName in primitive.attributesObjects!) {
-            const attributeAccessor =
-              primitive.attributesObjects[attributeName];
+          for (const attributeName in primitive.attributes!) {
+            const attributeAccessor = primitive.attributes[
+              attributeName
+            ] as Gltf2Accessor;
             const attributeRnAccessor = this.__getRnAccessor(
               attributeAccessor,
               rnBuffers[
