@@ -47,6 +47,7 @@ import {
   TypedArray,
   AnimationAttributeType,
   TypedArrayConstructor,
+  Array4,
 } from '../../types/CommonTypes';
 import {
   GltfLoadOption,
@@ -57,6 +58,9 @@ import {
   Gltf2Primitive,
   Gltf2Material,
   Gltf2Image,
+  KHR_lights_punctual_Light,
+  Gltf2Camera,
+  Gltf2Texture,
 } from '../../types/glTF';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
@@ -70,6 +74,7 @@ import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
+import {Gltf2TextureInfo} from '../../types/glTF';
 
 declare let DracoDecoderModule: any;
 
@@ -642,7 +647,7 @@ export default class ModelConverter {
           node,
           gltfModel,
           primitive,
-          primitive.material
+          primitive.materialObject!
         );
 
         if (material.isEmptyMaterial() === false) {
@@ -677,10 +682,9 @@ export default class ModelConverter {
             );
           }
 
-          for (const attributeName in primitive.attributes) {
-            const attributeAccessor = primitive.attributes[
-              attributeName
-            ] as Gltf2Accessor;
+          for (const attributeName in primitive.attributesObjects!) {
+            const attributeAccessor =
+              primitive.attributesObjects[attributeName];
             const attributeRnAccessor = this.__getRnAccessor(
               attributeAccessor,
               rnBuffers[
@@ -839,18 +843,18 @@ export default class ModelConverter {
       rnTexture.autoResize = options.autoResizeTexture === true;
 
       const textureOption = {
-        magFilter:
-          TextureParameter.from(textureInfo.sampler?.magFilter) ??
-          TextureParameter.Linear,
-        minFilter:
-          TextureParameter.from(textureInfo.sampler?.minFilter) ??
-          TextureParameter.Linear,
-        wrapS:
-          TextureParameter.from(textureInfo.sampler?.wrapS) ??
-          TextureParameter.Repeat,
-        wrapT:
-          TextureParameter.from(textureInfo.sampler?.wrapT) ??
-          TextureParameter.Repeat,
+        magFilter: Is.exist(textureInfo.sampler?.magFilter)
+          ? TextureParameter.from(textureInfo.sampler!.magFilter)
+          : TextureParameter.Linear,
+        minFilter: Is.exist(textureInfo.sampler?.minFilter)
+          ? TextureParameter.from(textureInfo.sampler!.minFilter)
+          : TextureParameter.Linear,
+        wrapS: Is.exist(textureInfo.sampler?.wrapS)
+          ? TextureParameter.from(textureInfo.sampler!.wrapS)
+          : TextureParameter.Repeat,
+        wrapT: Is.exist(textureInfo.sampler?.wrapT)
+          ? TextureParameter.from(textureInfo.sampler!.wrapT)
+          : TextureParameter.Repeat,
       };
 
       const fileName = textureInfo.fileName;
@@ -1156,7 +1160,7 @@ export default class ModelConverter {
     node: any,
     gltfModel: glTF2,
     primitive: Gltf2Primitive,
-    materialJson: any
+    materialJson: Gltf2Material
   ): Material {
     const materialHash = this.__getMaterialHash(
       node,
@@ -1195,14 +1199,14 @@ export default class ModelConverter {
       if (baseColorFactor != null) {
         material.setParameter(
           ShaderSemantics.BaseColorFactor,
-          new Vector4(baseColorFactor)
+          Vector4.fromCopyArray4(baseColorFactor)
         );
       }
 
       const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
       if (baseColorTexture != null) {
         const rnTexture = ModelConverter._createTexture(
-          baseColorTexture,
+          baseColorTexture.texture!,
           gltfModel,
           {
             autoDetectTransparency: options?.autoDetectTextureTransparency,
@@ -1229,7 +1233,7 @@ export default class ModelConverter {
       const occlusionTexture = materialJson.occlusionTexture;
       if (occlusionTexture != null) {
         const rnTexture = ModelConverter._createTexture(
-          occlusionTexture,
+          occlusionTexture.texture!,
           gltfModel
         );
         material.setTextureParameter(
@@ -1263,7 +1267,7 @@ export default class ModelConverter {
         pbrMetallicRoughness.metallicRoughnessTexture;
       if (metallicRoughnessTexture != null) {
         const rnTexture = ModelConverter._createTexture(
-          metallicRoughnessTexture,
+          metallicRoughnessTexture.texture!,
           gltfModel
         );
         material.setTextureParameter(
@@ -1300,14 +1304,17 @@ export default class ModelConverter {
             param = ShadingModel.Phong.index;
             break;
         }
-        material.setParameter(ShaderSemantics.ShadingModel, Scalar.fromCopyNumber(param));
+        material.setParameter(
+          ShaderSemantics.ShadingModel,
+          Scalar.fromCopyNumber(param)
+        );
       }
     }
 
     const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null) {
       const rnTexture = ModelConverter._createTexture(
-        emissiveTexture,
+        emissiveTexture.texture!,
         gltfModel
       );
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
@@ -1347,8 +1354,9 @@ export default class ModelConverter {
     }
 
     // For glTF1.0
-    const diffuseColorTexture = materialJson.diffuseColorTexture;
-    if (diffuseColorTexture != null) {
+    if (Is.exist((materialJson as any).diffuseColorTexture)) {
+      const diffuseColorTexture = (materialJson as any)
+        .diffuseColorTexture as Gltf2Texture;
       const rnTexture = ModelConverter._createTexture(
         diffuseColorTexture,
         gltfModel,
@@ -1370,22 +1378,25 @@ export default class ModelConverter {
         if (loaderExtension.setUVTransformToTexture) {
           loaderExtension.setUVTransformToTexture(
             material,
-            diffuseColorTexture.texture.sampler
+            diffuseColorTexture.samplerObject!
           );
         }
       }
     }
-    const diffuseColorFactor = materialJson.diffuseColorFactor;
-    if (diffuseColorFactor != null) {
+    if (Is.exist((materialJson as any).diffuseColorFactor)) {
+      const diffuseColorFactor = (materialJson as any).diffuseColorFactor as Array4<number>;
       material.setParameter(
         ShaderSemantics.DiffuseColorFactor,
-        new Vector4(diffuseColorFactor)
+        Vector4.fromCopyArray4(diffuseColorFactor)
       );
     }
 
     const normalTexture = materialJson.normalTexture;
     if (normalTexture != null) {
-      const rnTexture = ModelConverter._createTexture(normalTexture, gltfModel);
+      const rnTexture = ModelConverter._createTexture(
+        normalTexture.texture!,
+        gltfModel
+      );
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
       if (parseFloat(gltfModel.asset?.version) >= 2) {
         if (normalTexture.texCoord != null) {
@@ -1425,7 +1436,7 @@ export default class ModelConverter {
   }
 
   static _createTexture(
-    textureType: any,
+    texture: Gltf2Texture,
     gltfModel: glTF2,
     {autoDetectTransparency = false} = {}
   ) {
@@ -1434,21 +1445,20 @@ export default class ModelConverter {
     const rnTexture = new Texture();
     rnTexture.autoDetectTransparency = autoDetectTransparency;
     rnTexture.autoResize = options?.autoResizeTexture === true;
-    const texture = textureType.texture;
 
     const textureOption = {
-      magFilter:
-        TextureParameter.from(texture.sampler?.magFilter) ??
-        TextureParameter.Linear,
-      minFilter:
-        TextureParameter.from(texture.sampler?.minFilter) ??
-        TextureParameter.Linear,
-      wrapS:
-        TextureParameter.from(texture.sampler?.wrapS) ??
-        TextureParameter.Repeat,
-      wrapT:
-        TextureParameter.from(texture.sampler?.wrapT) ??
-        TextureParameter.Repeat,
+      magFilter: Is.exist(texture.samplerObject?.magFilter)
+        ? TextureParameter.from(texture.samplerObject!.magFilter)
+        : TextureParameter.Linear,
+      minFilter: Is.exist(texture.samplerObject?.minFilter)
+        ? TextureParameter.from(texture.samplerObject!.minFilter)
+        : TextureParameter.Linear,
+      wrapS: Is.exist(texture.samplerObject?.wrapS)
+        ? TextureParameter.from(texture.samplerObject!.wrapS)
+        : TextureParameter.Repeat,
+      wrapT: Is.exist(texture.samplerObject?.wrapT)
+        ? TextureParameter.from(texture.samplerObject!.wrapT)
+        : TextureParameter.Repeat,
     };
 
     const image = texture.image as Gltf2Image;

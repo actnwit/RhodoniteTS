@@ -1,6 +1,6 @@
 import Entity from '../foundation/core/Entity';
 import RnPromise from '../foundation/misc/RnPromise';
-import {Index, TypedArray} from './CommonTypes';
+import {Array4, Index} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
 import CameraComponent from '../foundation/components/CameraComponent';
 import Material from '../foundation/materials/core/Material';
@@ -103,7 +103,7 @@ export type Gltf2NormalTextureInfo = {
 };
 
 export type Gltf2PbrMetallicRoughness = {
-  baseColorFactor?: number[];
+  baseColorFactor?: Array4<number>;
   baseColorTexture?: Gltf2TextureInfo;
   metallicFactor?: number;
   roughnessFactor?: number;
@@ -425,7 +425,7 @@ export type GltfLoadOption = {
       shaderSemantics: ShaderSemanticsEnum;
       fileName: string;
       image?: Gltf2Image;
-      sampler?: any;
+      sampler?: Gltf2Sampler;
     }[];
   };
   cameraComponent?: CameraComponent;

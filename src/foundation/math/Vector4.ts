@@ -460,7 +460,7 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
     super(x, {type: Float32Array});
   }
 
-  static fromCopyArray(array: Array4<number>): Vector4 {
+  static fromCopyArray(array: Array<number>): Vector4 {
     return super._fromCopyArray(array, Float32Array);
   }
 
