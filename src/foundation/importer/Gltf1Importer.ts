@@ -6,6 +6,7 @@ import {
   GltfFileBuffers,
   GltfLoadOption,
 } from '../../types/glTF';
+import { Is } from '../misc/Is';
 
 declare let Rn: any;
 
@@ -530,7 +531,9 @@ export default class Gltf1Importer {
         const texture = (gltfJson.textureDic as any)[textureName];
         if (texture.sampler !== void 0) {
           texture.samplerName = texture.sampler;
-          texture.sampler = (gltfJson.samplerDic as any)[texture.samplerName];
+          texture.samplerObject = (gltfJson.samplerDic as any)[
+            texture.samplerName
+          ];
         }
         if (texture.source !== void 0) {
           texture.sourceName = texture.source;
