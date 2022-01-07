@@ -22,25 +22,23 @@ export type Gltf2AttributesObject = {
   [s: string]: Gltf2Accessor;
 };
 
-export type Gltf2Attributes = {
-  [s: string]: Gltf2Accessor;
-};
-
-export type Gltf2Attribute = {[s: string]: number};
-export type Gltf2AttributeAccessor = Map<string, Gltf2Accessor>;
-export type Gltf2AttributeBlendShape = Gltf2Attribute;
-export type Gltf2AttributeBlendShapeAccessor = Gltf2AttributeAccessor;
+export type Gltf2Attributes = {[s: string]: number};
+export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
+export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
+export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
 
 export type Gltf2Primitive = {
-  attributesObjects?: Gltf2AttributeAccessor;
+  attributesObjects?: Gltf2AttributeAccessors;
+  attributesNames?: {[s: string]: string};
   attributes?: {[s: string]: number};
   indicesObject?: Gltf2Accessor;
   indices?: number;
   materialObject?: Gltf2Material;
   material?: number;
+  materialName?: string;
   mode?: number;
-  targetsObjects?: Gltf2AttributeBlendShapeAccessor;
-  targets?: Gltf2AttributeBlendShape;
+  targetsObjects?: Gltf2AttributeBlendShapesAccessors;
+  targets?: Gltf2AttributeBlendShapes;
   extensions?: any;
   extras?: any;
 };
@@ -206,6 +204,7 @@ export type Gltf2AnimationSampler = {
 export type Gltf2Animation = {
   channels: Gltf2AnimationChannel[];
   samplers: Gltf2AnimationSampler[];
+  parameters: {[s: string]: any};
   name?: string;
   extensions?: any;
   extras?: any;
@@ -260,6 +259,7 @@ export type Gltf2Sparse = {
 export type Gltf2Accessor = {
   bufferViewObject?: Gltf2BufferView;
   bufferView?: number;
+  bufferViewName?: string;
   byteOffset?: number;
   byteStride?: number; // for glTF1 only
   componentType: number;
@@ -298,6 +298,7 @@ export type Gltf2Buffer = {
 export type Gltf2BufferView = {
   bufferObject?: Gltf2Buffer;
   buffer?: number;
+  bufferName?: string;
   byteOffset?: number;
   byteLength: number;
   byteStride?: number;
@@ -345,32 +346,32 @@ export type glTF1 = {
     };
   };
   buffers: any[];
-  bufferDic: object;
+  bufferDic: {[s: string]: any};
 
   scenes: any[];
-  sceneDic: object;
+  sceneDic: {[s: string]: any};
 
   meshes: any[];
-  meshDic: object;
+  meshDic: {[s: string]: any};
 
   nodesIndices: number[];
   nodes: any[];
-  nodeDic: object;
+  nodeDic: {[s: string]: any};
 
   skins: any[];
-  skinDic: object;
+  skinDic: {[s: string]: any};
 
   materials: any[];
-  materialDic: object;
+  materialDic: {[s: string]: any};
 
   cameras: any[];
-  cameraDic: object;
+  cameraDic: {[s: string]: any};
 
   shaders: any[];
-  shaderDic: object;
+  shaderDic: {[s: string]: any};
 
   images: any[];
-  imageDic: object;
+  imageDic: {[s: string]: any};
 
   animations: Array<{
     channels: any[];
@@ -386,16 +387,16 @@ export type glTF1 = {
   };
 
   textures: any[];
-  textureDic: object;
+  textureDic: {[s: string]: any};
 
   samplers: any[];
-  samplerDic: object;
+  samplerDic: {[s: string]: any};
 
   accessors: any[];
-  accessorDic: object;
+  accessorDic: {[s: string]: any};
 
   bufferViews: any[];
-  bufferViewDic: object;
+  bufferViewDic: {[s: string]: any};
 
   buffer: any[];
   techniques: any[];

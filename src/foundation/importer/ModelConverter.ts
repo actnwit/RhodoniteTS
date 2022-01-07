@@ -537,10 +537,10 @@ export default class ModelConverter {
     const argument =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
-    if (argument?.isMorphing === true) {
-      return node.meshObject!.primitives[0].targets != null;
-    } else {
+    if (argument?.isMorphing === false) {
       return false;
+    } else {
+      return node.meshObject?.primitives[0].targets != null;
     }
   }
 
@@ -711,24 +711,18 @@ export default class ModelConverter {
           }
 
           const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
-          let count = 0;
-          for (const [
-            attributeName,
-            targetAccessor,
-          ] of primitive.targetsObjects!) {
-            if (count++ >= maxMorphTargetNumber) {
+          for (let i = 0; i < primitive.targetsObjects!.length; i++) {
+            if (i >= maxMorphTargetNumber) {
               break;
             }
 
-            const target = targetAccessor;
+            const target = primitive.targetsObjects![i];
             const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
-            for (const attributeName in target) {
-              const attributeAccessor = targetAccessor;
+            for (const [attributeName, attributeAccessor] of target) {
               const attributeRnAccessor = this.__getRnAccessor(
                 attributeAccessor,
                 rnBuffers[attributeAccessor.bufferViewObject!.buffer!]
               );
-              // targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
               const attributeRnAccessorInGPUVertexData =
                 this.__copyRnAccessorAndBufferView(attributeRnAccessor);
               targetMap.set(
@@ -741,7 +735,6 @@ export default class ModelConverter {
 
           rnPrimitive.setTargets(targets);
         }
-
         rnMesh.addPrimitive(rnPrimitive);
       }
 

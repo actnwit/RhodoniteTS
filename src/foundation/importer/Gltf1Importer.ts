@@ -2,8 +2,11 @@ import DataUtil from '../misc/DataUtil';
 import {
   glTF1,
   glTF2,
+  Gltf2Accessor,
   Gltf2Animation,
+  Gltf2BufferView,
   Gltf2Image,
+  Gltf2Material,
   Gltf2Mesh,
   GltfFileBuffers,
   GltfLoadOption,
@@ -259,6 +262,7 @@ export default class Gltf1Importer {
     this.__createProperty(gltfJson, gltfJson.sceneDic, 'scenes');
 
     gltfJson.meshDic = gltfJson.meshes;
+    this.__createProperty(gltfJson, gltfJson.meshDic, 'meshes');
 
     {
       let count = 0;
@@ -267,7 +271,7 @@ export default class Gltf1Importer {
       gltfJson.nodesIndices = [];
       for (const nodeName in gltfJson.nodeDic) {
         gltfJson.nodesIndices.push(count);
-        const node = (gltfJson.nodeDic as any)[nodeName];
+        const node = gltfJson.nodeDic[nodeName];
         node._index = count++;
         gltfJson.nodes.push(node);
       }
@@ -283,7 +287,10 @@ export default class Gltf1Importer {
     this.__createProperty(gltfJson, gltfJson.animationDic, 'animations');
 
     gltfJson.accessorDic = gltfJson.accessors;
+    this.__createProperty(gltfJson, gltfJson.accessorDic, 'accessors');
+
     gltfJson.bufferViewDic = gltfJson.bufferViews;
+    this.__createProperty(gltfJson, gltfJson.bufferViewDic, 'bufferViews');
     gltfJson.cameraDic = gltfJson.cameras;
     gltfJson.imageDic = gltfJson.images;
     gltfJson.samplerDic = gltfJson.samplers;
@@ -314,12 +321,12 @@ export default class Gltf1Importer {
 
   _loadDependenciesOfScenes(gltfJson: glTF1) {
     for (const sceneName in gltfJson.sceneDic) {
-      const scene = (gltfJson.sceneDic as any)[sceneName];
+      const scene = gltfJson.sceneDic[sceneName];
       scene.nodeNames = scene.nodes;
       scene.nodes = [];
       scene.nodesObjects = [];
       for (const name of scene.nodeNames) {
-        scene.nodesObjects.push((gltfJson.nodeDic as any)[name]);
+        scene.nodesObjects.push(gltfJson.nodeDic[name]);
 
         // calc index of 'name' in gltfJson.nodeDic enumerate
         let count = 0;
@@ -376,7 +383,9 @@ export default class Gltf1Importer {
           mergedMesh.name += '_merged';
           node.meshObject = mergedMesh;
           node.meshes = void 0;
+          gltfJson.meshes.push(node.meshObject);
         }
+        node.mesh = gltfJson.meshes.indexOf(node.meshObject);
       }
 
       // Skin
@@ -403,23 +412,23 @@ export default class Gltf1Importer {
   _loadDependenciesOfMeshes(gltfJson: glTF1) {
     // Mesh
     for (const meshName in gltfJson.meshDic) {
-      const mesh = (gltfJson.meshDic as any)[meshName];
+      const mesh = gltfJson.meshDic[meshName];
       for (const primitive of mesh.primitives) {
         if (primitive.material !== void 0) {
           primitive.materialName = primitive.material;
-          primitive.material = (gltfJson.materialDic as any)[
-            primitive.materialName
-          ];
-          primitive.materialIndex = gltfJson.materials.indexOf(
-            primitive.material
+          primitive.materialObject =
+            gltfJson.materialDic[primitive.materialName!];
+          primitive.material = gltfJson.materials.indexOf(
+            primitive.materialObject
           );
         }
 
-        primitive.attributeNames = Object.assign({}, primitive.attributes);
+        primitive.attributesNames = Object.assign({}, primitive.attributes);
         primitive.attributes = [];
-        for (let attributeName in primitive.attributeNames) {
-          if (primitive.attributeNames[attributeName] != null) {
-            const accessorName = primitive.attributeNames[attributeName];
+        primitive.attributesObjects = new Map();
+        for (let attributeName in primitive.attributesNames) {
+          if (primitive.attributesNames[attributeName] != null) {
+            const accessorName = primitive.attributesNames[attributeName];
             const accessor = (gltfJson.accessorDic as any)[accessorName];
 
             if (attributeName === 'JOINT') {
@@ -434,7 +443,7 @@ export default class Gltf1Importer {
               toGetAsTypedArray: true,
               attributeName: attributeName,
             };
-            primitive.attributes.push(accessor);
+            primitive.attributesObjects!.set(attributeName, accessor);
           } else {
             //primitive.attributes[attributeName] = void 0;
           }
@@ -445,12 +454,15 @@ export default class Gltf1Importer {
           primitive.indicesObject = (gltfJson.accessorDic as any)[
             primitive.indicesName
           ];
+          primitive.indices = gltfJson.accessors.indexOf(
+            primitive.indicesObject
+          );
         }
       }
     }
   }
 
-  _isKHRMaterialsCommon(materialJson: any) {
+  _isKHRMaterialsCommon(materialJson: Gltf2Material) {
     if (
       typeof materialJson.extensions !== 'undefined' &&
       typeof materialJson.extensions.KHR_materials_common !== 'undefined'
@@ -587,7 +599,7 @@ export default class Gltf1Importer {
   _loadDependenciesOfAnimations(gltfJson: glTF1) {
     if (gltfJson.animations) {
       for (const animationName in gltfJson.animationDic) {
-        const animation = (gltfJson.animationDic as any)[
+        const animation = gltfJson.animationDic[
           animationName
         ] as Gltf2Animation;
         const samplerDic = animation.samplers;
@@ -595,14 +607,13 @@ export default class Gltf1Importer {
         for (const channel of animation.channels) {
           channel.samplerObject = samplerDic[channel.sampler];
 
-          channel.target!.nodeObject = (gltfJson.nodeDic as any)[
-            (channel.target as any)!.id
-          ];
+          channel.target!.nodeObject =
+            gltfJson.nodeDic[(channel.target as any)!.id];
 
           channel.samplerObject.inputObject =
-            gltfJson.accessors[(animation as any).parameters['TIME']];
+            gltfJson.accessorDic[animation.parameters['TIME']];
           channel.samplerObject.outputObject =
-            gltfJson.accessors[
+            gltfJson.accessorDic[
               (animation as any).parameters[channel.target!.path]
             ];
 
@@ -612,7 +623,8 @@ export default class Gltf1Importer {
             if (channel.samplerObject!.outputObject!.extras === void 0) {
               channel.samplerObject!.outputObject!.extras = {} as any;
             }
-            channel.samplerObject!.outputObject!.extras!.quaternionIfVec4 = true;
+            channel.samplerObject!.outputObject!.extras!.quaternionIfVec4 =
+              true;
           }
         }
       }
@@ -622,12 +634,11 @@ export default class Gltf1Importer {
   _loadDependenciesOfAccessors(gltfJson: glTF1) {
     // Accessor
     for (const accessorName in gltfJson.accessorDic) {
-      const accessor = (gltfJson.accessorDic as any)[accessorName];
+      const accessor = gltfJson.accessorDic[accessorName] as Gltf2Accessor;
       if (accessor.bufferView !== void 0) {
-        accessor.bufferViewName = accessor.bufferView;
-        accessor.bufferViewObject = (gltfJson.bufferViewDic as any)[
-          accessor.bufferViewName
-        ];
+        accessor.bufferViewName = accessor.bufferView as unknown as string;
+        accessor.bufferViewObject =
+          gltfJson.bufferViewDic[accessor.bufferViewName!];
       }
     }
   }
@@ -635,16 +646,16 @@ export default class Gltf1Importer {
   _loadDependenciesOfBufferViews(gltfJson: glTF1) {
     // BufferView
     for (const bufferViewName in gltfJson.bufferViewDic) {
-      const bufferView = (gltfJson.bufferViewDic as any)[bufferViewName];
+      const bufferView = gltfJson.bufferViewDic[
+        bufferViewName
+      ] as Gltf2BufferView;
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferName = bufferView.buffer;
-        bufferView.bufferObject = (gltfJson.bufferDic as any)[
-          bufferView.bufferName
-        ];
+        bufferView.bufferName = bufferView.buffer as unknown as string;
+        bufferView.bufferObject = gltfJson.bufferDic[bufferView.bufferName!];
         let bufferIdx = 0;
         for (const bufferName in gltfJson.bufferDic) {
           if (bufferName === bufferView.bufferName) {
-            bufferView.bufferIndex = bufferIdx;
+            bufferView.buffer = bufferIdx;
           }
           bufferIdx++;
         }

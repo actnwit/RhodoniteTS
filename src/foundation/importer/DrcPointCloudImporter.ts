@@ -365,18 +365,22 @@ export default class DrcPointCloudImporter {
         }
 
         if (primitive.targets != null) {
-          primitive.targetsObjects = new Map();
-          for (const attributeName in primitive.targets) {
-            const targetShapeTargetAccessorId =
-              primitive.targets[attributeName];
-            if (targetShapeTargetAccessorId >= 0) {
-              const accessor = gltfJson.accessors[targetShapeTargetAccessorId];
-              accessor.extras = {
-                toGetAsTypedArray: true,
-                attributeName: attributeName,
-              };
-              primitive.targetsObjects.set(attributeName, accessor);
+          primitive.targetsObjects = [];
+          for (const target of primitive.targets) {
+            const attributes = new Map();
+            for (const attributeName in target) {
+              const targetShapeTargetAccessorId = target[attributeName];
+              if (targetShapeTargetAccessorId >= 0) {
+                const accessor =
+                  gltfJson.accessors[targetShapeTargetAccessorId];
+                accessor.extras = {
+                  toGetAsTypedArray: true,
+                  attributeName: attributeName,
+                };
+                attributes.set(attributeName, accessor);
+              }
             }
+            primitive.targetsObjects.push(attributes);
           }
         }
       }
