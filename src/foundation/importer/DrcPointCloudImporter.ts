@@ -11,8 +11,11 @@ import {
   VertexAttributeEnum,
 } from '../definitions/VertexAttribute';
 import {TypedArray} from '../../types/CommonTypes';
-import {glTF2, GltfLoadOption, Gltf2Image} from '../../types/glTF';
+import {glTF2, GltfLoadOption, Gltf2Image, Gltf2Accessor} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
+import {Is} from '../misc/Is';
+import {ifDefinedThen} from '../misc/MiscUtil';
+import {ifUndefinedThen} from '../misc/MiscUtil';
 
 declare let DracoDecoderModule: any;
 declare let Rn: any;
@@ -286,9 +289,8 @@ export default class DrcPointCloudImporter {
 
   _loadDependenciesOfScenes(gltfJson: glTF2) {
     for (const scene of gltfJson.scenes) {
-      scene.nodesIndices = scene.nodes!.concat();
-      for (const i in scene.nodesIndices) {
-        scene.nodes![i] = gltfJson.nodes[scene.nodes![i]];
+      for (const i in scene.nodes!) {
+        scene.nodesObjects![i] = gltfJson.nodes[scene.nodes![i]];
       }
     }
   }
@@ -297,34 +299,31 @@ export default class DrcPointCloudImporter {
     for (const node of gltfJson.nodes) {
       // Hierarchy
       if (node.children) {
-        node.childrenIndices = node.children.concat();
-        node.children = [];
-        for (const i in node.childrenIndices) {
-          node.children[i] = gltfJson.nodes[node.childrenIndices[i]];
+        if (Is.not.exist(node.childrenObjects)) {
+          node.childrenObjects = [];
+        }
+        for (const i in node.children) {
+          node.childrenObjects![i] = gltfJson.nodes[node.children[i]];
         }
       }
 
       // Mesh
       if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
-        node.meshIndex = node.mesh;
-        node.mesh = gltfJson.meshes[node.meshIndex!];
+        node.meshObject = gltfJson.meshes[node.mesh!];
       }
 
       // Skin
       if (node.skin !== void 0 && gltfJson.skins !== void 0) {
-        node.skinIndex = node.skin;
-        node.skin = gltfJson.skins[node.skinIndex];
-        if (node.mesh.extras === void 0) {
-          node.mesh.extras = {};
+        node.skinObject = gltfJson.skins[node.skin];
+        if (node.meshObject!.extras === void 0) {
+          node.meshObject!.extras = {};
         }
-
-        node.mesh.extras._skin = node.skin;
+        node.meshObject!.extras._skin = node.skin;
       }
 
       // Camera
       if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
-        node.cameraIndex = node.camera;
-        node.camera = gltfJson.cameras[node.cameraIndex!];
+        node.cameraObject = gltfJson.cameras[node.camera];
       }
 
       // Lights
@@ -348,48 +347,40 @@ export default class DrcPointCloudImporter {
     for (const mesh of gltfJson.meshes) {
       for (const primitive of mesh.primitives) {
         if (primitive.material !== void 0) {
-          primitive.materialIndex = primitive.material;
-          primitive.material = gltfJson.materials[primitive.materialIndex!];
+          primitive.materialObject = gltfJson.materials[primitive.material];
         }
 
-        primitive.attributesIndex = Object.assign({}, primitive.attributes);
-        for (const attributeName in primitive.attributesIndex) {
-          if (primitive.attributesIndex[attributeName] >= 0) {
-            const accessor =
-              gltfJson.accessors[primitive.attributesIndex[attributeName]];
-            accessor.extras = {
-              toGetAsTypedArray: true,
-              attributeName: attributeName,
-            };
-            (primitive.attributes as any)[attributeName] = accessor;
-          } else {
-            (primitive.attributes as any)[attributeName] = void 0;
-          }
+        for (const attributeName in primitive.attributes!) {
+          const accessorId = primitive.attributes[attributeName];
+          const accessor = gltfJson.accessors[accessorId];
+          accessor.extras = {
+            toGetAsTypedArray: true,
+            attributeName: attributeName,
+          };
+          primitive.attributesObjects![attributeName] = accessor;
         }
 
         if (primitive.indices != null) {
-          primitive.indicesIndex = primitive.indices;
-          primitive.indices = gltfJson.accessors[primitive.indicesIndex!];
+          primitive.indicesObject = gltfJson.accessors[primitive.indices];
         }
 
         if (primitive.targets != null) {
-          primitive.targetIndices = primitive.targets;
-          primitive.targets = [];
-          for (const target of primitive.targetIndices) {
-            const attributes = {};
+          primitive.targetsObjects = [];
+          for (const target of primitive.targets) {
+            const attributes = {} as unknown as {[s: string]: Gltf2Accessor};
             for (const attributeName in target) {
-              if (target[attributeName] >= 0) {
-                const accessor = gltfJson.accessors[target[attributeName]];
+              const targetShapeTargetAccessorId = target[attributeName];
+              if (targetShapeTargetAccessorId >= 0) {
+                const accessor =
+                  gltfJson.accessors[targetShapeTargetAccessorId];
                 accessor.extras = {
                   toGetAsTypedArray: true,
                   attributeName: attributeName,
                 };
-                (attributes as any)[attributeName] = accessor;
-              } else {
-                (attributes as any)[attributeName] = void 0;
+                attributes[attributeName] = accessor;
               }
             }
-            primitive.targets.push(attributes);
+            primitive.targetsObjects.push(attributes);
           }
         }
       }
@@ -458,13 +449,12 @@ export default class DrcPointCloudImporter {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
-        if (texture.sampler !== void 0) {
-          texture.samplerIndex = texture.sampler;
-          texture.sampler = gltfJson.samplers[texture.samplerIndex!];
-        }
+        ifDefinedThen(v => {
+          texture.samplerObject = gltfJson.samplers[v];
+        }, texture.sampler);
+
         if (texture.source !== void 0) {
-          texture.sourceIndex = texture.source;
-          texture.image = gltfJson.images[texture.sourceIndex!];
+          texture.image = gltfJson.images[texture.source];
         }
       }
     }
@@ -473,22 +463,23 @@ export default class DrcPointCloudImporter {
   _loadDependenciesOfJoints(gltfJson: glTF2) {
     if (gltfJson.skins) {
       for (const skin of gltfJson.skins) {
-        skin.skeletonIndex = skin.skeleton;
-        skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
+        if (Is.exist(skin.skeleton)) {
+          skin.skeletonObject = gltfJson.nodes[skin.skeleton];
 
-        skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
-        skin.inverseBindMatrices =
-          gltfJson.accessors[skin.inverseBindMatricesIndex!];
+          ifDefinedThen(
+            v => (skin.inverseBindMatricesObject = gltfJson.accessors[v]),
+            skin.inverseBindMatrices
+          );
 
-        if (skin.skeleton == null) {
-          skin.skeletonIndex = skin.joints[0];
-          skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
-        }
+          ifUndefinedThen(
+            () => (skin.skeletonObject = gltfJson.nodes[skin.joints[0]]),
+            skin.skeleton
+          );
 
-        skin.jointsIndices = skin.joints;
-        skin.joints = [];
-        for (const jointIndex of skin.jointsIndices) {
-          skin.joints.push(gltfJson.nodes[jointIndex]);
+          skin.jointsObjects = [];
+          for (const jointIndex of skin.joints) {
+            skin.jointsObjects.push(gltfJson.nodes[jointIndex]);
+          }
         }
       }
     }
@@ -498,29 +489,28 @@ export default class DrcPointCloudImporter {
     if (gltfJson.animations) {
       for (const animation of gltfJson.animations) {
         for (const channel of animation.channels) {
-          channel.samplerIndex = channel.sampler;
-          channel.sampler = animation.samplers[channel.samplerIndex!];
+          channel.samplerObject = animation.samplers[channel.sampler];
 
-          channel.target.nodeIndex = channel.target.node;
-          channel.target.node = gltfJson.nodes[channel.target.nodeIndex!];
+          channel.target!.nodeObject =
+            gltfJson.nodes[channel.target!.node!];
         }
         for (const channel of animation.channels) {
-          channel.sampler.inputIndex = channel.sampler.input;
-          channel.sampler.outputIndex = channel.sampler.output;
-          channel.sampler.input =
-            gltfJson.accessors[channel.sampler.inputIndex];
-          channel.sampler.output =
-            gltfJson.accessors[channel.sampler.outputIndex];
-          if (channel.sampler.output.extras === void 0) {
-            channel.sampler.output.extras = {};
-          }
-          if (channel.target.path === 'rotation') {
-            channel.sampler.output.extras.quaternionIfVec4 = true;
-          }
-          if (channel.target.path === 'weights') {
-            const weightsArrayLength =
-              channel.sampler.output.count / channel.sampler.input.count;
-            channel.sampler.output.extras.weightsArrayLength = weightsArrayLength;
+          if (Is.defined(channel.samplerObject)) {
+            channel.samplerObject.inputObject =
+              gltfJson.accessors[channel.samplerObject.input];
+            channel.samplerObject.outputObject =
+              gltfJson.accessors[channel.samplerObject.output];
+            if (channel.samplerObject.outputObject.extras === void 0) {
+              channel.samplerObject.outputObject.extras = {} as any;
+            }
+            if (channel.target!.path === 'rotation') {
+              channel.samplerObject.outputObject.extras!.quaternionIfVec4 = true;
+            }
+            if (channel.target!.path === 'weights') {
+              const weightsArrayLength =
+                channel.samplerObject.outputObject.count / channel.samplerObject.inputObject.count;
+              channel.samplerObject.outputObject.extras!.weightsArrayLength = weightsArrayLength;
+            }
           }
         }
       }
@@ -533,17 +523,14 @@ export default class DrcPointCloudImporter {
       if (accessor.bufferView == null) {
         accessor.bufferView = 0;
       }
-      accessor.bufferViewIndex = accessor.bufferView;
-      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex!];
+      accessor.bufferViewObject = gltfJson.bufferViews[accessor.bufferView];
 
       if (accessor.sparse != null) {
         const sparse = accessor.sparse;
-        sparse.indices.indicesIndex = sparse.indices.bufferView;
-        sparse.indices.bufferView =
-          gltfJson.bufferViews[sparse.indices.indicesIndex];
-        sparse.values.valuesIndex = sparse.values.bufferView;
-        sparse.values.bufferView =
-          gltfJson.bufferViews[sparse.values.valuesIndex];
+        sparse.indices!.bufferViewObject =
+          gltfJson.bufferViews[sparse.indices!.bufferView];
+        sparse.values!.bufferViewObject =
+          gltfJson.bufferViews[sparse.values!.bufferView];
       }
     }
   }
@@ -552,8 +539,7 @@ export default class DrcPointCloudImporter {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferIndex = bufferView.buffer as any as number;
-        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
+        bufferView.bufferObject = gltfJson.buffers[bufferView.buffer!];
       }
     }
   }
@@ -565,10 +551,8 @@ export default class DrcPointCloudImporter {
       extendedJson = JSON.parse(extendedJsonStr);
     } else if (typeof extendedData === 'string') {
       extendedJson = JSON.parse(extendedData);
-      extendedJson = extendedJson;
     } else if (typeof extendedData === 'object') {
       extendedJson = extendedData;
-    } else {
     }
 
     Object.assign(gltfJson, extendedJson);
@@ -702,7 +686,7 @@ export default class DrcPointCloudImporter {
         let arrayBuffer = uint8Array;
         if (uint8Array == null) {
           const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
-          arrayBuffer = bufferView.buffer.buffer!;
+          arrayBuffer = bufferView.bufferObject!.buffer!;
         }
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
           gltfJson,

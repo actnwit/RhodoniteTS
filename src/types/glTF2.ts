@@ -26,17 +26,17 @@ export type AttributeName =
   | 'JOINTS_0'
   | 'WEIGHTS_0';
 
-export type Gltf2Attribute = {[s: string]: number};
-export type Gltf2AttributeAccessor = {[s: string]: Gltf2Accessor};
-export type Gltf2AttributeBlendShape = Gltf2Attribute;
-export type Gltf2AttributeBlendShapeAccessor = Gltf2AttributeAccessor;
+export type Gltf2Attributes = {[s: string]: number};
+export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
+export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
+export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
 
 export type Gltf2Primitive = {
-  attributes?: Gltf2Attribute;
+  attributes?: Gltf2Attributes;
   indices?: number;
   material?: number;
   mode?: number;
-  targets?: Gltf2AttributeBlendShape;
+  targets?: Gltf2AttributeBlendShapes;
   extensions?: any;
   extras?: any;
 };

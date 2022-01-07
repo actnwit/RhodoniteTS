@@ -1,5 +1,6 @@
 import {off} from 'process';
 import {Byte, Size} from '../../types/CommonTypes';
+import { Is } from './Is';
 
 const isMobile = function () {
   const ua = [
@@ -175,6 +176,93 @@ export const valueWithDefault = <T>({
   value?: T;
   defaultValue: T;
 }): T => {
+  // eslint-disable-next-line eqeqeq
+  if (value == null) {
+    return defaultValue;
+  }
+  return value;
+};
+
+export const ifExistsThen = <T>(
+  callback: (value: T) => void,
+  value?: T
+): value is T => {
+  if (Is.exist(value)) {
+    callback(value);
+    return true;
+  }
+  return false;
+};
+
+export const ifExistsThenWithReturn = <T>(
+  callback: (value: T) => T,
+  value?: T
+): T | undefined => {
+  if (Is.exist(value)) {
+    return callback(value);
+  }
+  return value;
+};
+
+export const ifDefinedThen = <T>(
+  callback: (value: T) => void,
+  value?: T
+): value is T => {
+  if (Is.defined(value)) {
+    callback(value);
+    return true;
+  }
+  return false;
+};
+
+export const ifDefinedThenWithReturn = <T>(
+  callback: (value: T) => T,
+  value?: T
+): T | undefined => {
+  if (Is.defined(value)) {
+    return callback(value);
+  }
+  return value;
+};
+
+export const ifUndefinedThen = <T>(
+  callback: () => void,
+  value?: T
+): value is T => {
+  if (Is.undefined(value)) {
+    callback();
+    return false;
+  }
+  return true;
+};
+
+export const ifUndefinedThenWithReturn = <T>(
+  callback: () => T,
+  value?: T
+): T => {
+  if (Is.undefined(value)) {
+    return callback();
+  }
+  return value;
+};
+
+export const ifNotExistsThen = <T>(callback: () => void, value?: T): void => {
+  if (Is.undefined(value)) {
+    callback();
+  }
+};
+
+export const ifNotExistsThenWithReturn = <T>(
+  callback: () => T,
+  value?: T
+): T => {
+  if (Is.undefined(value)) {
+    return callback();
+  }
+  return value;
+};
+
+export const defaultValue = <T>(defaultValue: T, value?: T): T => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return defaultValue;

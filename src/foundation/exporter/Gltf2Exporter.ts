@@ -2,13 +2,14 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
-import {Is} from '../misc/Is';
 import {
   glTF2,
   Gltf2Attributes,
+  Gltf2AttributesObject,
   Gltf2Mesh,
   Gltf2Primitive,
 } from '../../types/glTF';
+import { Is } from '../misc/Is';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
@@ -97,13 +98,13 @@ export default class Gltf2Exporter {
 
     for (let i = 0; i < json.accessors.length; i++) {
       const accessor = json.accessors[i];
-      const rnAccessor = accessor.accessor;
+      const rnAccessor = accessor.accessor!;
       const compositionType = rnAccessor.compositionType;
       const componentType = rnAccessor.componentType;
       const dataViewSetter = rnAccessor.getDataViewSetter(componentType)!;
       const attributeCount = accessor.count;
-      const bufferview = json.bufferViews[accessor.bufferView];
-      const bufferViewByteOffset = bufferview.byteOffset;
+      const bufferview = json.bufferViews[accessor.bufferView!];
+      const bufferViewByteOffset = bufferview.byteOffset!;
       for (let k = 0; k < attributeCount; k++) {
         if (compositionType.getNumberOfComponents() === 1) {
           const byteIndex = componentType.getSizeInBytes() * k;
@@ -186,7 +187,7 @@ export default class Gltf2Exporter {
           }
 
           const attributeAccessors = rnPrimitive.attributeAccessors;
-          primitive.attributes = {} as unknown as Gltf2Attributes;
+          primitive.attributes = {};
           const attributes = primitive.attributes;
           for (let k = 0; k < attributeAccessors.length; k++) {
             const attributeAccessor = attributeAccessors[k];
