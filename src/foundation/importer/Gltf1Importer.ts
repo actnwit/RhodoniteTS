@@ -425,7 +425,7 @@ export default class Gltf1Importer {
 
         primitive.attributesNames = Object.assign({}, primitive.attributes);
         primitive.attributes = [];
-        primitive.attributesObjects = new Map();
+        primitive.attributesObjects = {};
         for (let attributeName in primitive.attributesNames) {
           if (primitive.attributesNames[attributeName] != null) {
             const accessorName = primitive.attributesNames[attributeName];
@@ -443,7 +443,7 @@ export default class Gltf1Importer {
               toGetAsTypedArray: true,
               attributeName: attributeName,
             };
-            primitive.attributesObjects!.set(attributeName, accessor);
+            primitive.attributesObjects![attributeName] = accessor;
           } else {
             //primitive.attributes[attributeName] = void 0;
           }

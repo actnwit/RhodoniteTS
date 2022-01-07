@@ -11,7 +11,7 @@ import {
   VertexAttributeEnum,
 } from '../definitions/VertexAttribute';
 import {TypedArray} from '../../types/CommonTypes';
-import {glTF2, GltfLoadOption, Gltf2Image} from '../../types/glTF';
+import {glTF2, GltfLoadOption, Gltf2Image, Gltf2Accessor} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
@@ -357,7 +357,7 @@ export default class DrcPointCloudImporter {
             toGetAsTypedArray: true,
             attributeName: attributeName,
           };
-          primitive.attributesObjects!.set(attributeName, accessor);
+          primitive.attributesObjects![attributeName] = accessor;
         }
 
         if (primitive.indices != null) {
@@ -367,7 +367,7 @@ export default class DrcPointCloudImporter {
         if (primitive.targets != null) {
           primitive.targetsObjects = [];
           for (const target of primitive.targets) {
-            const attributes = new Map();
+            const attributes = {} as unknown as {[s: string]: Gltf2Accessor};
             for (const attributeName in target) {
               const targetShapeTargetAccessorId = target[attributeName];
               if (targetShapeTargetAccessorId >= 0) {
@@ -377,7 +377,7 @@ export default class DrcPointCloudImporter {
                   toGetAsTypedArray: true,
                   attributeName: attributeName,
                 };
-                attributes.set(attributeName, accessor);
+                attributes[attributeName] = accessor;
               }
             }
             primitive.targetsObjects.push(attributes);

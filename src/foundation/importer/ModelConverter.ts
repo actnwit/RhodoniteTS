@@ -676,10 +676,9 @@ export default class ModelConverter {
             );
           }
 
-          for (const [
-            attributeName,
-            attributeAccessor,
-          ] of primitive.attributesObjects!) {
+          for (const attributeName in primitive.attributesObjects!) {
+            const attributeAccessor =
+              primitive.attributesObjects![attributeName];
             const attributeRnAccessor = this.__getRnAccessor(
               attributeAccessor,
               rnBuffers[
@@ -718,7 +717,8 @@ export default class ModelConverter {
 
             const target = primitive.targetsObjects![i];
             const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
-            for (const [attributeName, attributeAccessor] of target) {
+            for (const attributeName in target) {
+              const attributeAccessor = target[attributeName];
               const attributeRnAccessor = this.__getRnAccessor(
                 attributeAccessor,
                 rnBuffers[attributeAccessor.bufferViewObject!.buffer!]
@@ -2139,7 +2139,7 @@ export default class ModelConverter {
         ];
 
       const attributeGltf2Accessor =
-        primitive.attributesObjects?.get(attributeName);
+        primitive.attributesObjects![attributeName];
       let attributeRnAccessor: Accessor | undefined = undefined;
 
       if (Is.not.exist(dracoAttributeId)) {
@@ -2276,7 +2276,7 @@ export default class ModelConverter {
         continue;
       }
 
-      const accessor = primitive.attributesObjects!.get(attributeName);
+      const accessor = primitive.attributesObjects![attributeName];
       const compositionNum = CompositionType.fromString(
         accessor!.type
       ).getNumberOfComponents();

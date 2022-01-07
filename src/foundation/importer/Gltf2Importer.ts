@@ -4,6 +4,7 @@ import {
   GltfLoadOption,
   Gltf2Image,
   GltfFileBuffers,
+  Gltf2Accessor,
 } from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
@@ -348,7 +349,9 @@ export default class Gltf2Importer {
           primitive.materialObject = gltfJson.materials[primitive.material];
         }
 
-        primitive.attributesObjects = new Map();
+        primitive.attributesObjects = {} as unknown as {
+          [s: string]: Gltf2Accessor;
+        };
         for (const attributeName in primitive.attributes) {
           const accessorId = primitive.attributes[attributeName];
           const accessor = gltfJson.accessors[accessorId!];
@@ -356,7 +359,7 @@ export default class Gltf2Importer {
             toGetAsTypedArray: true,
             attributeName: attributeName,
           };
-          primitive.attributesObjects.set(attributeName, accessor);
+          primitive.attributesObjects[attributeName] = accessor;
         }
 
         if (primitive.indices != null) {
@@ -366,7 +369,7 @@ export default class Gltf2Importer {
         if (primitive.targets != null) {
           primitive.targetsObjects = [];
           for (const target of primitive.targets) {
-            const attributes = new Map();
+            const attributes = {} as unknown as {[s: string]: Gltf2Accessor};
             for (const attributeName in target) {
               const targetShapeTargetAccessorId = target[attributeName];
               if (targetShapeTargetAccessorId >= 0) {
@@ -376,7 +379,7 @@ export default class Gltf2Importer {
                   toGetAsTypedArray: true,
                   attributeName: attributeName,
                 };
-                attributes.set(attributeName, accessor);
+                attributes[attributeName] = accessor;
               }
             }
             primitive.targetsObjects.push(attributes);

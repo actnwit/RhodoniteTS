@@ -23,7 +23,7 @@ export type Gltf2AttributesObject = {
 };
 
 export type Gltf2Attributes = {[s: string]: number};
-export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
+export type Gltf2AttributeAccessors = {[s: string]: Gltf2Accessor};
 export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
 export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
 
