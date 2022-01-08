@@ -1125,7 +1125,7 @@ export default class Accessor {
     return this.__bufferView;
   }
 
-  get min() {
+  get min(): number[] {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [
@@ -1143,7 +1143,7 @@ export default class Accessor {
     }
   }
 
-  get max() {
+  get max(): number[] {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [
