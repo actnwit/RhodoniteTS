@@ -187,7 +187,7 @@ export default class Gltf2Importer {
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = {fileType: 'glTF', version: '2'};
     }
-    this._mergeExtendedJson(gltfJson, options.extendedJson);
+    this._mergeExtendedJson(gltfJson, options.extendedJson!);
     gltfJson.asset.extras.rnLoaderOptions = options;
 
     try {
@@ -212,7 +212,7 @@ export default class Gltf2Importer {
     const defaultOptions = DataUtil.createDefaultGltfOptions();
     options = this._getOptions(defaultOptions, gltfJson, options);
 
-    this._mergeExtendedJson(gltfJson, options.extendedJson);
+    this._mergeExtendedJson(gltfJson, options.extendedJson!);
     gltfJson.asset.extras.rnLoaderOptions = options;
 
     try {
@@ -595,7 +595,6 @@ export default class Gltf2Importer {
     // Buffers Async load
     let rnpArrayBuffer: RnPromise<ArrayBuffer>;
     for (const bufferInfo of gltfJson.buffers) {
-
       let filename = '';
       if (bufferInfo.uri) {
         const splitUri = bufferInfo.uri.split('/');
@@ -629,9 +628,9 @@ export default class Gltf2Importer {
               bufferInfo.buffer = new Uint8Array(response);
               resolve(response);
             },
-            (reject: () => {
-
-            }, error: any) => {}
+            (reject: Function, error: number) => {
+              reject('HTTP Error Status:' + error);
+            }
           )
         );
       }
