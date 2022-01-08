@@ -14,9 +14,8 @@ export interface IResult<T, E> {
     Err: (value: E) => void;
     Finally?: () => void;
   }): void;
-  then(f: (value: T) => void): IResult<undefined, undefined>;
-  catch(f: (value: E) => void): IResult<undefined, undefined>;
-  finally(f: () => void): void;
+  then(f: (value: T) => void): Finalizer | void;
+  catch(f: (value: E) => void): Finalizer | void;
   getBoolean(): boolean;
   name(): string;
 }
@@ -53,22 +52,12 @@ export class Ok<T, E> extends Result<T, E> implements IResult<T, E> {
    * This method is essentially same to the Ok::and_then() in Rust language
    * @param f
    */
-  then(f: (value: T) => void): IResult<undefined, undefined> {
+  then(f: (value: T) => void): Finalizer {
     f(this.val as T);
-    return new Done(undefined);
+    return new Finalizer();
   }
 
-  catch(f: (value: E) => void): IResult<undefined, undefined> {
-    throw new Error(
-      'Error due to calling the "catch" method from an Ok object!'
-    );
-  }
-
-  finally(f: () => void): void {
-    throw new Error(
-      'Error due to calling the "finally" method from an Ok object!'
-    );
-  }
+  catch(f: (value: E) => void): void {}
 
   true(): true {
     return true;
@@ -90,21 +79,11 @@ export class Err<T, E> extends Result<T, E> implements IResult<T, E> {
   constructor(val: E) {
     super(val);
   }
-  then(f: (value: never) => void): IResult<never, never> {
-    throw new Error(
-      'Error due to calling the "then" method from an Err object!'
-    );
-  }
+  then(f: (value: never) => void): void {}
 
-  catch(f: (value: E) => void): IResult<undefined, undefined> {
+  catch(f: (value: E) => void): Finalizer {
     f(this.val as E);
-    return new Done(undefined);
-  }
-
-  finally(f: () => void): void {
-    throw new Error(
-      'Error due to calling the "finally" method from an Err object!'
-    );
+    return new Finalizer();
   }
 
   false(): false {
@@ -120,37 +99,8 @@ export class Err<T, E> extends Result<T, E> implements IResult<T, E> {
   }
 }
 
-export class Done
-  extends Result<undefined, undefined>
-  implements IResult<undefined, undefined>
-{
-  then(f: (value: never) => void): IResult<undefined, undefined> {
-    throw new Error(
-      'Error due to calling the "then" method from an Err object!'
-    );
-  }
-
-  catch(f: (value: never) => void): IResult<undefined, undefined> {
-    throw new Error(
-      'Error due to calling the "catch" method from an Err object!'
-    );
-  }
-
+export class Finalizer {
   finally(f: () => void): void {
     f();
-  }
-
-  false(): false {
-    return false;
-  }
-
-  getBoolean(): false {
-    return false;
-  }
-
-  get(): undefined {
-    throw new Error(
-      'Error due to calling the "get" method from an Done object!'
-    );
   }
 }
