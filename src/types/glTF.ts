@@ -304,6 +304,7 @@ export type Gltf2BufferView = {
   byteStride?: number;
   target: number;
   name?: string;
+  rnAccessor?: Accessor;
   extensions?: any;
   extras?: any;
 };
