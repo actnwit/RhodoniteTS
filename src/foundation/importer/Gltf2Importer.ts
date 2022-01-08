@@ -245,7 +245,7 @@ export default class Gltf2Importer {
 
     // Parse glTF JSON
     promises.push(
-      new Promise((resolve, reject) => {
+      new Promise(resolve => {
         this._loadJsonContent(gltfJson);
         resolve();
       }) as Promise<void>
@@ -602,18 +602,18 @@ export default class Gltf2Importer {
       }
 
       if (typeof bufferInfo.uri === 'undefined') {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           bufferInfo.buffer = uint8Array;
           resolve(uint8Array);
         });
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
       } else if (files && this.__containsFileName(files, filename)) {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           const fullPath = this.__getFullPathOfFileName(files, filename);
           const arrayBuffer = files[fullPath!];
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
