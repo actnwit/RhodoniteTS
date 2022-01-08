@@ -4,10 +4,10 @@ import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {
   RnM2,
-  Gltf2Accessor,
-  Gltf2BufferView,
-  Gltf2Mesh,
-  Gltf2Primitive,
+  RnM2Accessor,
+  RnM2BufferView,
+  RnM2Mesh,
+  RnM2Primitive,
 } from '../../types/glTF';
 import {Is} from '../misc/Is';
 import {Index} from '../../types/CommonTypes';
@@ -164,12 +164,12 @@ export default class Gltf2Exporter {
       const entity = entities[i];
       const meshComponent = entity.getMesh();
       if (meshComponent && meshComponent.mesh) {
-        json.meshes[count] = {} as unknown as Gltf2Mesh;
+        json.meshes[count] = {} as unknown as RnM2Mesh;
         const mesh = json.meshes[count];
         mesh.primitives = [];
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
         for (let j = 0; j < primitiveCount; j++) {
-          mesh.primitives[j] = {} as unknown as Gltf2Primitive;
+          mesh.primitives[j] = {} as unknown as RnM2Primitive;
           const primitive = mesh.primitives[j];
           const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
           const indicesAccessor = rnPrimitive.indicesAccessor;
@@ -559,7 +559,7 @@ export default class Gltf2Exporter {
       }
     }
 
-    json.bufferViews.forEach((bufferView: Gltf2BufferView) => {
+    json.bufferViews.forEach((bufferView: RnM2BufferView) => {
       bufferView.rnAccessor = void 0;
     });
 

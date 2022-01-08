@@ -1,19 +1,19 @@
 import Material from '../materials/core/Material';
-import {RnM2, Gltf2Material, Gltf2TextureSampler} from '../../types/glTF';
+import {RnM2, RnM2Material, RnM2TextureSampler} from '../../types/glTF';
 import Entity from '../core/Entity';
 
 export default interface ILoaderExtension {
-  generateMaterial?(materialJson: Gltf2Material): Material;
+  generateMaterial?(materialJson: RnM2Material): Material;
   isNeededToUseThisMaterial?(gltfJson: RnM2): boolean;
-  setTextures?(gltfJson: RnM2, materialJson: Gltf2Material): void;
+  setTextures?(gltfJson: RnM2, materialJson: RnM2Material): void;
   setupMaterial?(
     gltfJson: RnM2,
-    materialJson: Gltf2Material,
+    materialJson: RnM2Material,
     material: Material
   ): void;
   setUVTransformToTexture?(
     material: Material,
-    samplerJson: Gltf2TextureSampler
+    samplerJson: RnM2TextureSampler
   ): void;
   loadExtensionInfoAndSetToRootGroup?(rootGroup: Entity, json: RnM2): void;
 }

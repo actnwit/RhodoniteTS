@@ -2,12 +2,12 @@ import DataUtil from '../misc/DataUtil';
 import {
   glTF1,
   RnM2,
-  Gltf2Accessor,
-  Gltf2Animation,
-  Gltf2BufferView,
-  Gltf2Image,
-  Gltf2Material,
-  Gltf2Mesh,
+  RnM2Accessor,
+  RnM2Animation,
+  RnM2BufferView,
+  RnM2Image,
+  RnM2Material,
+  RnM2Mesh,
   GltfFileBuffers,
   GltfLoadOption,
 } from '../../types/glTF';
@@ -462,7 +462,7 @@ export default class Gltf1Importer {
     }
   }
 
-  _isKHRMaterialsCommon(materialJson: Gltf2Material) {
+  _isKHRMaterialsCommon(materialJson: RnM2Material) {
     if (
       typeof materialJson.extensions !== 'undefined' &&
       typeof materialJson.extensions.KHR_materials_common !== 'undefined'
@@ -601,7 +601,7 @@ export default class Gltf1Importer {
       for (const animationName in gltfJson.animationDic) {
         const animation = gltfJson.animationDic[
           animationName
-        ] as Gltf2Animation;
+        ] as RnM2Animation;
         const samplerDic = animation.samplers;
         animation.samplers = [];
         for (const channel of animation.channels) {
@@ -634,7 +634,7 @@ export default class Gltf1Importer {
   _loadDependenciesOfAccessors(gltfJson: glTF1) {
     // Accessor
     for (const accessorName in gltfJson.accessorDic) {
-      const accessor = gltfJson.accessorDic[accessorName] as Gltf2Accessor;
+      const accessor = gltfJson.accessorDic[accessorName] as RnM2Accessor;
       if (accessor.bufferView !== void 0) {
         accessor.bufferViewName = accessor.bufferView as unknown as string;
         accessor.bufferViewObject =
@@ -648,7 +648,7 @@ export default class Gltf1Importer {
     for (const bufferViewName in gltfJson.bufferViewDic) {
       const bufferView = gltfJson.bufferViewDic[
         bufferViewName
-      ] as Gltf2BufferView;
+      ] as RnM2BufferView;
       if (bufferView.buffer !== void 0) {
         bufferView.bufferName = bufferView.buffer as unknown as string;
         bufferView.bufferObject = gltfJson.bufferDic[bufferView.bufferName!];
@@ -850,7 +850,7 @@ export default class Gltf1Importer {
 
   private __loadImageUri(
     imageUri: string,
-    imageJson: Gltf2Image,
+    imageJson: RnM2Image,
     files: GltfFileBuffers
   ) {
     let loadImagePromise: Promise<void>;

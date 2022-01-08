@@ -11,7 +11,7 @@ import {
   VertexAttributeEnum,
 } from '../definitions/VertexAttribute';
 import {TypedArray} from '../../types/CommonTypes';
-import {RnM2, GltfLoadOption, Gltf2Image, Gltf2Accessor} from '../../types/glTF';
+import {RnM2, GltfLoadOption, RnM2Image, RnM2Accessor} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
@@ -367,7 +367,7 @@ export default class DrcPointCloudImporter {
         if (primitive.targets != null) {
           primitive.targetsObjects = [];
           for (const target of primitive.targets) {
-            const attributes = {} as unknown as {[s: string]: Gltf2Accessor};
+            const attributes = {} as unknown as {[s: string]: RnM2Accessor};
             for (const attributeName in target) {
               const targetShapeTargetAccessorId = target[attributeName];
               if (targetShapeTargetAccessorId >= 0) {
@@ -676,7 +676,7 @@ export default class DrcPointCloudImporter {
     // Textures Async load
     for (const _i in gltfJson.images) {
       const i = _i as any as number;
-      const imageJson = gltfJson.images[i] as Gltf2Image;
+      const imageJson = gltfJson.images[i] as RnM2Image;
       //let imageJson = gltfJson.images[textureJson.source];
       //let samplerJson = gltfJson.samplers[textureJson.sampler];
 

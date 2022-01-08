@@ -52,18 +52,18 @@ import {
 import {
   GltfLoadOption,
   RnM2,
-  Gltf2Node,
-  Gltf2Accessor,
-  Gltf2BufferView,
-  Gltf2Primitive,
-  Gltf2Material,
-  Gltf2Image,
-  Gltf2Camera,
-  Gltf2Texture,
-  Gltf2Mesh,
+  RnM2Node,
+  RnM2Accessor,
+  RnM2BufferView,
+  RnM2Primitive,
+  RnM2Material,
+  RnM2Image,
+  RnM2Camera,
+  RnM2Texture,
+  RnM2Mesh,
   KHR_lights_punctual_Light,
-  Gltf2TextureInfo,
-  Gltf2SparseIndices,
+  RnM2TextureInfo,
+  RnM2SparseIndices,
 } from '../../types/glTF';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
@@ -463,7 +463,7 @@ export default class ModelConverter {
     const rnEntitiesByNames: Map<String, Entity> = new Map();
 
     for (const node_i in gltfModel.nodes) {
-      const node = gltfModel.nodes[parseInt(node_i)] as Gltf2Node;
+      const node = gltfModel.nodes[parseInt(node_i)] as RnM2Node;
       let entity;
       if (node.mesh != null) {
         const meshIdx = node.mesh;
@@ -533,7 +533,7 @@ export default class ModelConverter {
     return {rnEntities, rnEntitiesByNames};
   }
 
-  private __isMorphing(node: Gltf2Node, gltfModel: RnM2) {
+  private __isMorphing(node: RnM2Node, gltfModel: RnM2) {
     const argument =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -568,7 +568,7 @@ export default class ModelConverter {
     return lightEntity;
   }
 
-  private __setupCamera(camera: Gltf2Camera, gltfModel: RnM2) {
+  private __setupCamera(camera: RnM2Camera, gltfModel: RnM2) {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getComponent(
       CameraComponent
@@ -605,8 +605,8 @@ export default class ModelConverter {
   }
 
   private __setupMesh(
-    node: Gltf2Node,
-    mesh: Gltf2Mesh,
+    node: RnM2Node,
+    mesh: RnM2Mesh,
     meshIndex: Index,
     rnBuffers: Buffer[],
     gltfModel: RnM2
@@ -635,7 +635,7 @@ export default class ModelConverter {
       originalRnMesh = existingRnMesh;
     } else {
       for (const i in mesh.primitives) {
-        const primitive = mesh.primitives[i] as Gltf2Primitive;
+        const primitive = mesh.primitives[i] as RnM2Primitive;
         if (primitive.mode != null) {
           rnPrimitiveMode = PrimitiveMode.from(primitive.mode)!;
         }
@@ -682,7 +682,7 @@ export default class ModelConverter {
             const attributeRnAccessor = this.__getRnAccessor(
               attributeAccessor,
               rnBuffers[
-                (attributeAccessor.bufferViewObject as Gltf2BufferView).buffer!
+                (attributeAccessor.bufferViewObject as RnM2BufferView).buffer!
               ]
             );
 
@@ -751,7 +751,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  setSparseAccessor(accessor: Gltf2Accessor, rnAccessor: Accessor) {
+  setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor) {
     const uint8Array: Uint8Array =
       accessor.bufferViewObject!.bufferObject!.buffer!;
     const count = accessor.sparse!.count;
@@ -884,10 +884,10 @@ export default class ModelConverter {
 
   private __setVRMMaterial(
     rnPrimitive: Primitive,
-    node: Gltf2Node,
+    node: RnM2Node,
     gltfModel: RnM2,
-    primitive: Gltf2Primitive,
-    materialJson: Gltf2Material,
+    primitive: RnM2Primitive,
+    materialJson: RnM2Material,
     rnLoaderOptions: GltfLoadOption
   ): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
@@ -973,10 +973,10 @@ export default class ModelConverter {
 
   private __generateAppropriateMaterial(
     rnPrimitive: Primitive,
-    node: Gltf2Node,
+    node: RnM2Node,
     gltfModel: RnM2,
-    primitive: Gltf2Primitive,
-    materialJson: Gltf2Material
+    primitive: RnM2Primitive,
+    materialJson: RnM2Material
   ): Material {
     if (gltfModel.asset.extras?.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -1057,7 +1057,7 @@ export default class ModelConverter {
     }
   }
 
-  private __isLighting(gltfModel: RnM2, materialJson?: Gltf2Material) {
+  private __isLighting(gltfModel: RnM2, materialJson?: RnM2Material) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1070,7 +1070,7 @@ export default class ModelConverter {
     }
   }
 
-  private __isSkinning(node: Gltf2Node, gltfModel: RnM2) {
+  private __isSkinning(node: RnM2Node, gltfModel: RnM2) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1081,7 +1081,7 @@ export default class ModelConverter {
     }
   }
 
-  private __useTangentAttribute(gltfModel: RnM2, primitive: Gltf2Primitive) {
+  private __useTangentAttribute(gltfModel: RnM2, primitive: RnM2Primitive) {
     const tangentCalculationMode =
       gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode;
 
@@ -1128,10 +1128,10 @@ export default class ModelConverter {
   }
 
   private __getMaterialHash(
-    node: Gltf2Node,
+    node: RnM2Node,
     gltfModel: RnM2,
-    primitive: Gltf2Primitive,
-    materialJson: Gltf2Material
+    primitive: RnM2Primitive,
+    materialJson: RnM2Material
   ) {
     return (
       primitive.material! +
@@ -1148,10 +1148,10 @@ export default class ModelConverter {
 
   private __setupMaterial(
     rnPrimitive: Primitive,
-    node: Gltf2Node,
+    node: RnM2Node,
     gltfModel: RnM2,
-    primitive: Gltf2Primitive,
-    materialJson: Gltf2Material
+    primitive: RnM2Primitive,
+    materialJson: RnM2Material
   ): Material {
     const materialHash = this.__getMaterialHash(
       node,
@@ -1347,7 +1347,7 @@ export default class ModelConverter {
     // For glTF1.0
     if (Is.exist((materialJson as any).diffuseColorTexture)) {
       const diffuseColorTexture = (materialJson as any)
-        .diffuseColorTexture as Gltf2Texture;
+        .diffuseColorTexture as RnM2Texture;
       const rnTexture = ModelConverter._createTexture(
         diffuseColorTexture,
         gltfModel,
@@ -1427,7 +1427,7 @@ export default class ModelConverter {
   }
 
   static _createTexture(
-    texture: Gltf2Texture,
+    texture: RnM2Texture,
     gltfModel: RnM2,
     {autoDetectTransparency = false} = {}
   ) {
@@ -1452,7 +1452,7 @@ export default class ModelConverter {
         : TextureParameter.Repeat,
     };
 
-    const image = texture.image as Gltf2Image;
+    const image = texture.image as RnM2Image;
     if (image.image) {
       const imageElem = image.image as HTMLImageElement;
       const webglResourceRepository =
@@ -1510,7 +1510,7 @@ export default class ModelConverter {
   }
 
   private __needParameterInitialization(
-    materialJson: Gltf2Material,
+    materialJson: RnM2Material,
     materialTypeName: string
   ): boolean {
     if (materialJson == null) return false;
@@ -1546,7 +1546,7 @@ export default class ModelConverter {
     );
   }
 
-  _checkBytesPerComponent(accessor: Gltf2Accessor | Gltf2SparseIndices) {
+  _checkBytesPerComponent(accessor: RnM2Accessor | RnM2SparseIndices) {
     let bytesPerComponent = 0;
     switch (accessor.componentType) {
       case 5120: // gl.BYTE
@@ -1576,7 +1576,7 @@ export default class ModelConverter {
     return bytesPerComponent;
   }
 
-  _checkComponentNumber(accessor: Gltf2Accessor) {
+  _checkComponentNumber(accessor: RnM2Accessor) {
     let componentN = 0;
     switch (accessor.type) {
       case 'SCALAR':
@@ -1599,7 +1599,7 @@ export default class ModelConverter {
     return componentN;
   }
 
-  _checkDataViewMethod(accessor: Gltf2Accessor | Gltf2SparseIndices) {
+  _checkDataViewMethod(accessor: RnM2Accessor | RnM2SparseIndices) {
     let dataViewMethod = '';
     switch (accessor.componentType) {
       case 5120: // gl.BYTE
@@ -1633,7 +1633,7 @@ export default class ModelConverter {
     return !!new Uint8Array(new Uint16Array([0x00ff]).buffer)[0];
   }
 
-  _accessBinaryWithAccessor(accessor: Gltf2Accessor): Float32Array {
+  _accessBinaryWithAccessor(accessor: RnM2Accessor): Float32Array {
     const bufferView = accessor.bufferViewObject!;
     const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
@@ -1915,7 +1915,7 @@ export default class ModelConverter {
     }
   }
 
-  private __getRnAccessor(accessor: Gltf2Accessor, rnBuffer: Buffer) {
+  private __getRnAccessor(accessor: RnM2Accessor, rnBuffer: Buffer) {
     const bufferView = accessor.bufferViewObject!;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
@@ -1962,7 +1962,7 @@ export default class ModelConverter {
   }
 
   private __createRnAccessor(
-    accessor: Gltf2Accessor,
+    accessor: RnM2Accessor,
     numOfAttributes: Count,
     compositionNum: Count,
     rnBuffer: Buffer
@@ -1986,7 +1986,7 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __getRnBufferView(bufferView: Gltf2BufferView, rnBuffer: Buffer) {
+  private __getRnBufferView(bufferView: RnM2BufferView, rnBuffer: Buffer) {
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
       byteStride: bufferView.byteStride ?? 0,
@@ -2073,7 +2073,7 @@ export default class ModelConverter {
   }
 
   private __decodeDraco(
-    primitive: Gltf2Primitive,
+    primitive: RnM2Primitive,
     rnBuffers: Buffer[],
     gltfModel: RnM2,
     map: Map<VertexAttributeEnum, Accessor>
@@ -2229,7 +2229,7 @@ export default class ModelConverter {
   }
 
   static _setupTextureTransform(
-    textureJson: Gltf2TextureInfo,
+    textureJson: RnM2TextureInfo,
     rnMaterial: Material,
     textureTransformShaderSemantic: ShaderSemanticsEnum,
     textureRotationShaderSemantic: ShaderSemanticsEnum
@@ -2257,7 +2257,7 @@ export default class ModelConverter {
   }
 
   private __createBufferForDecompressedData(
-    primitive: Gltf2Primitive,
+    primitive: RnM2Primitive,
     numPoints: number
   ): Buffer {
     let byteLengthOfBufferForDraco = 0;

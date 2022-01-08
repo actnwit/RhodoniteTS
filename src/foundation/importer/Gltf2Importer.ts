@@ -2,9 +2,9 @@ import DataUtil from '../misc/DataUtil';
 import {
   RnM2,
   GltfLoadOption,
-  Gltf2Image,
+  RnM2Image,
   GltfFileBuffers,
-  Gltf2Accessor,
+  RnM2Accessor,
 } from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
@@ -350,7 +350,7 @@ export default class Gltf2Importer {
         }
 
         primitive.attributesObjects = {} as unknown as {
-          [s: string]: Gltf2Accessor;
+          [s: string]: RnM2Accessor;
         };
         for (const attributeName in primitive.attributes) {
           const accessorId = primitive.attributes[attributeName];
@@ -369,7 +369,7 @@ export default class Gltf2Importer {
         if (primitive.targets != null) {
           primitive.targetsObjects = [];
           for (const target of primitive.targets) {
-            const attributes = {} as unknown as {[s: string]: Gltf2Accessor};
+            const attributes = {} as unknown as {[s: string]: RnM2Accessor};
             for (const attributeName in target) {
               const targetShapeTargetAccessorId = target[attributeName];
               if (targetShapeTargetAccessorId >= 0) {
@@ -764,7 +764,7 @@ export default class Gltf2Importer {
 
   private __loadImageUri(
     imageUri: string,
-    imageJson: Gltf2Image,
+    imageJson: RnM2Image,
     files: GltfFileBuffers
   ) {
     let loadImagePromise: Promise<void>;
