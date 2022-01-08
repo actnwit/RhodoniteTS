@@ -9,7 +9,7 @@ module.exports = {
     headless: true,
     devtools: false,
     // dumpio: true,
-    executablePath: "/Applications/Chromium.app/Contents/MacOS/Chromium", // Try this if you got error in Mac
+    // executablePath: "/Applications/Chromium.app/Contents/MacOS/Chromium", // Try this if you got error in Mac
     // You can get Chromium for MacOS on the following:
     // - https://chromium.woolyss.com/download/#mac
     // - https://github.com/macchrome/macstable/releases
