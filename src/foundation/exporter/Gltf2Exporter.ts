@@ -2,13 +2,7 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
-import {
-  RnM2,
-  RnM2Accessor,
-  RnM2BufferView,
-  RnM2Mesh,
-  RnM2Primitive,
-} from '../../types/glTF';
+import {RnM2, RnM2BufferView, RnM2Mesh, RnM2Primitive} from '../../types/glTF';
 import {Is} from '../misc/Is';
 import {Index} from '../../types/CommonTypes';
 const _VERSION = require('./../../../VERSION-FILE').default;
@@ -30,7 +24,7 @@ export default class Gltf2Exporter {
 
   /**
    * Exports scene data in the rhodonite system in glTF2 format.
-   * @param filename
+   * @param filename the target output path
    * @param option a option config
    */
   static export(filename: string, option?: Gltf2ExporterArguments) {
@@ -39,7 +33,7 @@ export default class Gltf2Exporter {
     const {json, fileName}: {json: RnM2; fileName: string} =
       this.__createJsonBase(filename);
 
-    this.__createMeshBinaryMetaData(json, entities);
+    this.__createBufferViewsAndAccessors(json, entities);
 
     const indicesOfGltfMeshes = this.__createMeshes(json, entities);
 
@@ -52,6 +46,11 @@ export default class Gltf2Exporter {
     this.__download(json, fileName, arraybuffer);
   }
 
+  /**
+   * collect target entities. This exporter includes their descendants for the output.
+   * @param option an option config
+   * @returns target entities
+   */
   private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
     let entities = Gltf2Exporter.__entityRepository._getEntities();
     if (Is.exist(option) && option.entities.length > 0) {
@@ -69,6 +68,11 @@ export default class Gltf2Exporter {
     return entities;
   }
 
+  /**
+   * create the base of glTF2 JSON
+   * @param filename target output path
+   * @returns the json and fileName in a object
+   */
   private static __createJsonBase(filename: string) {
     const fileName = filename ? filename : 'Rhodonite_' + new Date().getTime();
     const json: any = {
@@ -92,14 +96,17 @@ export default class Gltf2Exporter {
   }
 
   /**
-   * create binary
-   * @param json
+   * create the arraybuffer of the glTF2 .bin file and write all accessors data to the arraybuffer
+   * @param json a RnM2 JSON
    * @returns A arraybuffer
    */
   private static __createBinary(json: RnM2) {
+    // get the total byte length
     const buffer = new ArrayBuffer(json.buffers[0].byteLength);
+    // get DataView of all data
     const dataView = new DataView(buffer);
 
+    // write all data of accessors to the DataView (total data area)
     for (let i = 0; i < json.accessors.length; i++) {
       const accessor = json.accessors[i];
       const rnAccessor = accessor.accessor!;
@@ -156,6 +163,12 @@ export default class Gltf2Exporter {
     return buffer;
   }
 
+  /**
+   * create Gltf2Meshes and their Gltf2Primitives for the output glTF JSON
+   * @param json a RnM2 JSON
+   * @param entities all target entities
+   * @returns the indices of glTF meshes
+   */
   static __createMeshes(json: RnM2, entities: Entity[]): Index[] {
     let count = 0;
     json.meshes = [];
@@ -200,6 +213,11 @@ export default class Gltf2Exporter {
     return gltfMeshesIndices;
   }
 
+  /**
+   * create Gltf2Materials and set them to Gltf2Primitives for the output glTF2 JSON
+   * @param json a RnM2 JSON
+   * @param entities all target entities
+   */
   static __createMaterials(json: RnM2, entities: Entity[]) {
     let countMesh = 0;
     let countMaterial = 0;
@@ -415,6 +433,12 @@ export default class Gltf2Exporter {
     }
   }
 
+  /**
+   * create Gltf2Nodes for the output glTF2 JSON
+   * @param json a RnM2 JSON
+   * @param entities all target entities
+   * @param indicesOfGltfMeshes the indices of Gltf2Meshes
+   */
   static __createNodes(
     json: RnM2,
     entities: Entity[],
@@ -463,7 +487,12 @@ export default class Gltf2Exporter {
     }
   }
 
-  static __createMeshBinaryMetaData(json: RnM2, entities: Entity[]) {
+  /**
+   * create Gltf2BufferViews and Gltf2Accessors for the output glTF2 JSON
+   * @param json
+   * @param entities
+   */
+  static __createBufferViewsAndAccessors(json: RnM2, entities: Entity[]) {
     let count = 0;
     let bufferByteLength = 0;
 
@@ -488,6 +517,7 @@ export default class Gltf2Exporter {
             }
 
             if (!match) {
+              // create a Gltf2BufferView
               json.bufferViews[count] = {
                 rnAccessor: indicesAccessor,
                 buffer: 0,
@@ -496,7 +526,7 @@ export default class Gltf2Exporter {
                 target: 34963,
               };
 
-              // Accessor
+              // create a Gltf2Accessor
               indicesAccessor.calcMinMax();
               (indicesAccessor as any).gltfAccessorIndex = count;
               json.accessors[count] = {
@@ -527,7 +557,7 @@ export default class Gltf2Exporter {
               }
             }
             if (!match) {
-              // BufferView
+              // create a Gltf2BufferView
               json.bufferViews[count] = {
                 rnAccessor: attributeAccessor,
                 buffer: 0,
@@ -536,7 +566,7 @@ export default class Gltf2Exporter {
                 target: 34962,
               };
 
-              // Accessor
+              // create a Gltf2Accessor
               attributeAccessor.calcMinMax();
               const max = Array.prototype.slice.call(attributeAccessor.max);
               const min = Array.prototype.slice.call(attributeAccessor.min);
@@ -567,6 +597,12 @@ export default class Gltf2Exporter {
     buffer.byteLength = bufferByteLength;
   }
 
+  /**
+   * download the glTF2 files
+   * @param json a RnM2 JSON
+   * @param filename target output path
+   * @param arraybuffer an ArrayBuffer of the .bin file
+   */
   static __download(json: RnM2, filename: string, arraybuffer: ArrayBuffer) {
     let a = document.createElement('a');
     let e = document.createEvent('MouseEvent');
