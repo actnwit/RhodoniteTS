@@ -1,17 +1,12 @@
-import {IResult, Ok, Err, Finalizer} from './Result';
+import {IResult, Ok, Err, Finalizer, RnError, RnException} from './Result';
 
-type ErrorObj = {
-  code: string;
-  val: number;
-};
-
-function succeedIfValueEven(val: number): IResult<number, ErrorObj> {
+function succeedIfValueEven(val: number): IResult<number, number> {
   if (val % 2 === 0) {
     return new Ok(val);
   } else {
     return new Err({
-      code: 'Error',
-      val,
+      message: 'Error',
+      error: val,
     });
   }
 }
@@ -25,7 +20,7 @@ test(`Result.${Ok.prototype.match.name}`, () => {
       expect(val).toBe(0);
       result = result0.name();
     },
-    Err: (err: ErrorObj) => {
+    Err: (err: RnError<number>) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       result = result0.name();
     },
@@ -39,14 +34,50 @@ test(`Result.${Ok.prototype.match.name}`, () => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       result = result1.name();
     },
-    Err: (err: ErrorObj) => {
-      expect(err.code).toBe('Error');
+    Err: (err: RnError<number>) => {
+      expect(err.message).toBe('Error');
       result = result1.name();
     },
     Finally: () => {
       expect(result).toBe('Err');
     },
   });
+});
+
+test(`Result.${Ok.prototype.unwrap.name}`, () => {
+  const result0 = succeedIfValueEven(0);
+  expect(
+    result0.unwrap((err: RnError<number>) => {
+      expect(true).toBe(false); // If here come, this is wrong behavior.
+    })
+  ).toBe(0);
+  const result1 = succeedIfValueEven(1);
+  expect(
+    result1.unwrap((err: RnError<number>) => {
+      expect(err.message).toBe('Error');
+    })
+  ).toBeUndefined();
+});
+
+test(`Result.${Ok.prototype.unwrapForce.name}`, () => {
+  const result0 = succeedIfValueEven(0);
+  expect(result0.unwrapForce()).toBe(0);
+
+  const result1 = succeedIfValueEven(1);
+  expect(() => {
+    result1.unwrapForce();
+  }).toThrowError();
+
+  try {
+    result1.unwrapForce();
+  } catch (err) {
+    expect(err.message).toBe('Error');
+    expect(err.name).toBe(RnException._prefix);
+    expect(err.getRnError()).toStrictEqual({
+      message: 'Error',
+      error: 1,
+    });
+  }
 });
 
 test(`Result.${Ok.prototype.getBoolean.name}`, () => {
@@ -60,7 +91,7 @@ test(`${Ok.name}.${Ok.prototype.then.name}, ${Ok.name}.${Ok.prototype.catch.name
     const finalizerOfThen = result0.then((val: number) => {
       expect(val).toBe(0);
     }) as Finalizer;
-    const finalizerOfCatch = result0.catch((err: ErrorObj) => {
+    const finalizerOfCatch = result0.catch((err: RnError<number>) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
     }) as Finalizer;
 
@@ -76,8 +107,8 @@ test(`${Ok.name}.${Ok.prototype.then.name}, ${Ok.name}.${Ok.prototype.catch.name
     const finalizerOfThen = result1.then((val: number) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
     }) as Finalizer;
-    const finalizerOfCatch = result1.catch((err: ErrorObj) => {
-      expect(err.code).toBe('Error');
+    const finalizerOfCatch = result1.catch((err: RnError<number>) => {
+      expect(err.message).toBe('Error');
     }) as Finalizer;
 
     expect(finalizerOfThen).toBeUndefined();
