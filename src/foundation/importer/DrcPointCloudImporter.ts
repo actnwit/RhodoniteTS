@@ -11,7 +11,7 @@ import {
   VertexAttributeEnum,
 } from '../definitions/VertexAttribute';
 import {TypedArray} from '../../types/CommonTypes';
-import {glTF2, GltfLoadOption, Gltf2Image, Gltf2Accessor} from '../../types/glTF';
+import {RnM2, GltfLoadOption, Gltf2Image, Gltf2Accessor} from '../../types/glTF';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
@@ -38,7 +38,7 @@ export default class DrcPointCloudImporter {
   async importPointCloud(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<void | glTF2> {
+  ): Promise<void | RnM2> {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
 
@@ -134,7 +134,7 @@ export default class DrcPointCloudImporter {
     return result;
   }
 
-  _getOptions(defaultOptions: any, json: glTF2, options: any): GltfLoadOption {
+  _getOptions(defaultOptions: any, json: RnM2, options: any): GltfLoadOption {
     if (json.asset && json.asset.extras && json.asset.extras.rnLoaderOptions) {
       for (const optionName in json.asset.extras.rnLoaderOptions) {
         defaultOptions[optionName] = (json.asset.extras.rnLoaderOptions as any)[
@@ -206,7 +206,7 @@ export default class DrcPointCloudImporter {
   }
 
   async _loadAsTextJson(
-    gltfJson: glTF2,
+    gltfJson: RnM2,
     options: GltfLoadOption,
     defaultOptions: GltfLoadOption,
     basePath: string
@@ -231,7 +231,7 @@ export default class DrcPointCloudImporter {
   _loadInner(
     uint8array: Uint8Array | undefined,
     basePath: string,
-    gltfJson: glTF2,
+    gltfJson: RnM2,
     options: GltfLoadOption
   ) {
     const promises = [];
@@ -254,7 +254,7 @@ export default class DrcPointCloudImporter {
     return Promise.all(promises);
   }
 
-  _loadJsonContent(gltfJson: glTF2, options: GltfLoadOption) {
+  _loadJsonContent(gltfJson: RnM2, options: GltfLoadOption) {
     // Scene
     this._loadDependenciesOfScenes(gltfJson);
 
@@ -287,7 +287,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfScenes(gltfJson: glTF2) {
+  _loadDependenciesOfScenes(gltfJson: RnM2) {
     for (const scene of gltfJson.scenes) {
       for (const i in scene.nodes!) {
         scene.nodesObjects![i] = gltfJson.nodes[scene.nodes![i]];
@@ -295,7 +295,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfNodes(gltfJson: glTF2) {
+  _loadDependenciesOfNodes(gltfJson: RnM2) {
     for (const node of gltfJson.nodes) {
       // Hierarchy
       if (node.children) {
@@ -342,7 +342,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfMeshes(gltfJson: glTF2) {
+  _loadDependenciesOfMeshes(gltfJson: RnM2) {
     // Mesh
     for (const mesh of gltfJson.meshes) {
       for (const primitive of mesh.primitives) {
@@ -387,7 +387,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
+  private _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
     if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
       return true;
     } else {
@@ -395,7 +395,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfMaterials(gltfJson: glTF2) {
+  _loadDependenciesOfMaterials(gltfJson: RnM2) {
     if (!gltfJson.textures) gltfJson.textures = [];
 
     // Material
@@ -445,7 +445,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfTextures(gltfJson: glTF2) {
+  _loadDependenciesOfTextures(gltfJson: RnM2) {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
@@ -460,7 +460,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfJoints(gltfJson: glTF2) {
+  _loadDependenciesOfJoints(gltfJson: RnM2) {
     if (gltfJson.skins) {
       for (const skin of gltfJson.skins) {
         if (Is.exist(skin.skeleton)) {
@@ -485,7 +485,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfAnimations(gltfJson: glTF2) {
+  _loadDependenciesOfAnimations(gltfJson: RnM2) {
     if (gltfJson.animations) {
       for (const animation of gltfJson.animations) {
         for (const channel of animation.channels) {
@@ -517,7 +517,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfAccessors(gltfJson: glTF2) {
+  _loadDependenciesOfAccessors(gltfJson: RnM2) {
     // Accessor
     for (const accessor of gltfJson.accessors) {
       if (accessor.bufferView == null) {
@@ -535,7 +535,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _loadDependenciesOfBufferViews(gltfJson: glTF2) {
+  _loadDependenciesOfBufferViews(gltfJson: RnM2) {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
@@ -544,7 +544,7 @@ export default class DrcPointCloudImporter {
     }
   }
 
-  _mergeExtendedJson(gltfJson: glTF2, extendedData: any) {
+  _mergeExtendedJson(gltfJson: RnM2, extendedData: any) {
     let extendedJson = null;
     if (extendedData instanceof ArrayBuffer) {
       const extendedJsonStr = DataUtil.arrayBufferToString(extendedData);
@@ -561,7 +561,7 @@ export default class DrcPointCloudImporter {
   _loadResources(
     uint8Array: Uint8Array,
     basePath: string,
-    gltfJson: glTF2,
+    gltfJson: RnM2,
     options: GltfLoadOption,
     resources: {
       shaders: any[];

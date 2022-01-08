@@ -1,5 +1,5 @@
 import Entity from '../core/Entity';
-import {glTF2} from '../../types/glTF';
+import {RnM2} from '../../types/glTF';
 import ModelConverter from './ModelConverter';
 import EntityRepository from '../core/EntityRepository';
 import AnimationComponent from '../components/AnimationComponent';
@@ -13,7 +13,7 @@ export default class AnimationAssigner {
 
   assignAnimation(
     rootEntity: Entity,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     vrmModel: VRM,
     isSameSkeleton = false
   ) {
@@ -42,7 +42,7 @@ export default class AnimationAssigner {
 
   private __getCorrespondingEntity(
     rootEntity: Entity,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     vrmModel: VRM,
     nodeIndex: Index,
     nodeName: string | undefined,
@@ -103,7 +103,7 @@ export default class AnimationAssigner {
 
   private __setupAnimationForSameSkeleton(
     rootEntity: Entity,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     vrmModel: VRM,
     isSameSkeleton: boolean
   ) {

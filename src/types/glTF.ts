@@ -8,7 +8,7 @@ import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 
-export type glTF2 = {
+export type RnM2 = {
   asset: Gltf2Asset;
   buffers: Gltf2Buffer[];
   scenes: Gltf2Scene[];

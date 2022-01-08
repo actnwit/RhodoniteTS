@@ -51,7 +51,7 @@ import {
 } from '../../types/CommonTypes';
 import {
   GltfLoadOption,
-  glTF2,
+  RnM2,
   Gltf2Node,
   Gltf2Accessor,
   Gltf2BufferView,
@@ -115,7 +115,7 @@ export default class ModelConverter {
 
   private __generateEntity(
     components: typeof Component[],
-    gltfModel: glTF2
+    gltfModel: RnM2
   ): Entity {
     const repo = EntityRepository.getInstance();
     const entity = repo.createEntity(components);
@@ -131,7 +131,7 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateGroupEntity(gltfModel: glTF2): Entity {
+  private __generateGroupEntity(gltfModel: RnM2): Entity {
     const entity = this.__generateEntity(
       [TransformComponent, SceneGraphComponent],
       gltfModel
@@ -139,7 +139,7 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateMeshEntity(gltfModel: glTF2): Entity {
+  private __generateMeshEntity(gltfModel: RnM2): Entity {
     const entity = this.__generateEntity(
       [
         TransformComponent,
@@ -152,7 +152,7 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateCameraEntity(gltfModel: glTF2): Entity {
+  private __generateCameraEntity(gltfModel: RnM2): Entity {
     const entity = this.__generateEntity(
       [TransformComponent, SceneGraphComponent, CameraComponent],
       gltfModel
@@ -160,7 +160,7 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateLightEntity(gltfModel: glTF2): Entity {
+  private __generateLightEntity(gltfModel: RnM2): Entity {
     const entity = this.__generateEntity(
       [TransformComponent, SceneGraphComponent, LightComponent],
       gltfModel
@@ -168,7 +168,7 @@ export default class ModelConverter {
     return entity;
   }
 
-  convertToRhodoniteObject(gltfModel: glTF2) {
+  convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.createRnBuffer(gltfModel);
@@ -230,9 +230,9 @@ export default class ModelConverter {
     return rootGroup;
   }
 
-  _setupCamera(gltfModel: glTF2) {}
+  _setupCamera(gltfModel: RnM2) {}
 
-  private createRnBuffer(gltfModel: glTF2): Buffer[] {
+  private createRnBuffer(gltfModel: RnM2): Buffer[] {
     const rnBuffers = [];
     for (const buffer of gltfModel.buffers) {
       const rnBuffer = new Buffer({
@@ -246,7 +246,7 @@ export default class ModelConverter {
     return rnBuffers;
   }
 
-  _setupTransform(gltfModel: glTF2, groups: Entity[]) {
+  _setupTransform(gltfModel: RnM2, groups: Entity[]) {
     for (const node_i in gltfModel.nodes) {
       const group = groups[node_i];
       const nodeJson = gltfModel.nodes[node_i];
@@ -279,7 +279,7 @@ export default class ModelConverter {
     }
   }
 
-  _setupHierarchy(gltfModel: glTF2, rnEntities: Entity[]) {
+  _setupHierarchy(gltfModel: RnM2, rnEntities: Entity[]) {
     const groupSceneComponents = rnEntities.map(group => {
       return group.getSceneGraph();
     });
@@ -300,7 +300,7 @@ export default class ModelConverter {
   /**
    * @private
    */
-  _setupAnimation(gltfModel: glTF2, rnEntities: Entity[]) {
+  _setupAnimation(gltfModel: RnM2, rnEntities: Entity[]) {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
@@ -361,7 +361,7 @@ export default class ModelConverter {
     }
   }
 
-  _setupSkeleton(gltfModel: glTF2, rnEntities: Entity[]) {
+  _setupSkeleton(gltfModel: RnM2, rnEntities: Entity[]) {
     if (gltfModel.skins == null) {
       return;
     }
@@ -458,7 +458,7 @@ export default class ModelConverter {
     }
   }
 
-  __setupObjects(gltfModel: glTF2, rnBuffers: Buffer[]) {
+  __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
     const rnEntities: Entity[] = [];
     const rnEntitiesByNames: Map<String, Entity> = new Map();
 
@@ -533,7 +533,7 @@ export default class ModelConverter {
     return {rnEntities, rnEntitiesByNames};
   }
 
-  private __isMorphing(node: Gltf2Node, gltfModel: glTF2) {
+  private __isMorphing(node: Gltf2Node, gltfModel: RnM2) {
     const argument =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -544,7 +544,7 @@ export default class ModelConverter {
     }
   }
 
-  private __setupLight(light: KHR_lights_punctual_Light, gltfModel: glTF2) {
+  private __setupLight(light: KHR_lights_punctual_Light, gltfModel: RnM2) {
     const lightEntity = this.__generateLightEntity(gltfModel);
     const lightComponent = lightEntity.getComponent(
       LightComponent
@@ -568,7 +568,7 @@ export default class ModelConverter {
     return lightEntity;
   }
 
-  private __setupCamera(camera: Gltf2Camera, gltfModel: glTF2) {
+  private __setupCamera(camera: Gltf2Camera, gltfModel: RnM2) {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getComponent(
       CameraComponent
@@ -609,7 +609,7 @@ export default class ModelConverter {
     mesh: Gltf2Mesh,
     meshIndex: Index,
     rnBuffers: Buffer[],
-    gltfModel: glTF2
+    gltfModel: RnM2
   ) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[
@@ -807,7 +807,7 @@ export default class ModelConverter {
     }
   }
 
-  static setDefaultTextures(material: Material, gltfModel: glTF2): void {
+  static setDefaultTextures(material: Material, gltfModel: RnM2): void {
     if (gltfModel.asset.extras?.rnLoaderOptions?.defaultTextures == null) {
       return;
     }
@@ -885,7 +885,7 @@ export default class ModelConverter {
   private __setVRMMaterial(
     rnPrimitive: Primitive,
     node: Gltf2Node,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     primitive: Gltf2Primitive,
     materialJson: Gltf2Material,
     rnLoaderOptions: GltfLoadOption
@@ -974,7 +974,7 @@ export default class ModelConverter {
   private __generateAppropriateMaterial(
     rnPrimitive: Primitive,
     node: Gltf2Node,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     primitive: Gltf2Primitive,
     materialJson: Gltf2Material
   ): Material {
@@ -1057,7 +1057,7 @@ export default class ModelConverter {
     }
   }
 
-  private __isLighting(gltfModel: glTF2, materialJson?: Gltf2Material) {
+  private __isLighting(gltfModel: RnM2, materialJson?: Gltf2Material) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1070,7 +1070,7 @@ export default class ModelConverter {
     }
   }
 
-  private __isSkinning(node: Gltf2Node, gltfModel: glTF2) {
+  private __isSkinning(node: Gltf2Node, gltfModel: RnM2) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1081,7 +1081,7 @@ export default class ModelConverter {
     }
   }
 
-  private __useTangentAttribute(gltfModel: glTF2, primitive: Gltf2Primitive) {
+  private __useTangentAttribute(gltfModel: RnM2, primitive: Gltf2Primitive) {
     const tangentCalculationMode =
       gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode;
 
@@ -1107,7 +1107,7 @@ export default class ModelConverter {
     return false;
   }
 
-  private __useNormalTexture(gltfModel: glTF2) {
+  private __useNormalTexture(gltfModel: RnM2) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1120,7 +1120,7 @@ export default class ModelConverter {
     }
   }
 
-  private __makeOutputSrgb(gltfModel: glTF2) {
+  private __makeOutputSrgb(gltfModel: RnM2) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1129,7 +1129,7 @@ export default class ModelConverter {
 
   private __getMaterialHash(
     node: Gltf2Node,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     primitive: Gltf2Primitive,
     materialJson: Gltf2Material
   ) {
@@ -1149,7 +1149,7 @@ export default class ModelConverter {
   private __setupMaterial(
     rnPrimitive: Primitive,
     node: Gltf2Node,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     primitive: Gltf2Primitive,
     materialJson: Gltf2Material
   ): Material {
@@ -1428,7 +1428,7 @@ export default class ModelConverter {
 
   static _createTexture(
     texture: Gltf2Texture,
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     {autoDetectTransparency = false} = {}
   ) {
     const options = gltfModel.asset.extras?.rnLoaderOptions;
@@ -1525,7 +1525,7 @@ export default class ModelConverter {
     }
   }
 
-  private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
+  private _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
     if (gltfModel.asset.extras?.rnLoaderOptions) {
       return true;
     } else {
@@ -2075,7 +2075,7 @@ export default class ModelConverter {
   private __decodeDraco(
     primitive: Gltf2Primitive,
     rnBuffers: Buffer[],
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     map: Map<VertexAttributeEnum, Accessor>
   ) {
     const bufferView =

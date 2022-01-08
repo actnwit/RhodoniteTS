@@ -1,5 +1,5 @@
 import _Rn, {Entity, Expression} from '../../../dist/esm/index';
-import {glTF2} from '../../../dist/esm/types/glTF';
+import {RnM2} from '../../../dist/esm/types/glTF';
 
 declare const Rn: typeof _Rn;
 
@@ -62,7 +62,7 @@ declare const Rn: typeof _Rn;
     const importer = Rn.DrcPointCloudImporter.getInstance();
     const gltf2JSON = (await importer.importPointCloud(
       pointCloudDrcUri
-    )) as glTF2;
+    )) as RnM2;
 
     const modelConverter = Rn.ModelConverter.getInstance();
     const rootGroup = modelConverter.convertToRhodoniteObject(gltf2JSON);

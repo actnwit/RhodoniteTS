@@ -1,6 +1,6 @@
 import DataUtil from '../misc/DataUtil';
 import {
-  glTF2,
+  RnM2,
   GltfLoadOption,
   Gltf2Image,
   GltfFileBuffers,
@@ -29,7 +29,7 @@ export default class Gltf2Importer {
   async import(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<glTF2 | undefined> {
+  ): Promise<RnM2 | undefined> {
     if (options && options.files) {
       for (const fileName in options.files) {
         const fileExtension = DataUtil.getExtension(fileName);
@@ -87,7 +87,7 @@ export default class Gltf2Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ): Promise<glTF2 | undefined> {
+  ): Promise<RnM2 | undefined> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);
@@ -119,7 +119,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _getOptions(defaultOptions: any, json: glTF2, options: any): GltfLoadOption {
+  _getOptions(defaultOptions: any, json: RnM2, options: any): GltfLoadOption {
     if (json.asset && json.asset.extras && json.asset.extras.rnLoaderOptions) {
       for (const optionName in json.asset.extras.rnLoaderOptions) {
         defaultOptions[optionName] = (json.asset.extras.rnLoaderOptions as any)[
@@ -153,7 +153,7 @@ export default class Gltf2Importer {
     arrayBuffer: ArrayBuffer,
     files: GltfFileBuffers,
     options: GltfLoadOption
-  ): Promise<glTF2> {
+  ): Promise<RnM2> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const gltfVer = dataView.getUint32(4, true);
     if (gltfVer !== 2) {
@@ -194,11 +194,11 @@ export default class Gltf2Importer {
   }
 
   async importGltf(
-    gltfJson: glTF2,
+    gltfJson: RnM2,
     fileArrayBuffers: GltfFileBuffers,
     options: GltfLoadOption,
     uri?: string
-  ): Promise<glTF2> {
+  ): Promise<RnM2> {
     const basePath = uri?.substring(0, uri?.lastIndexOf('/')) + '/'; // location of model file as basePath
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = {fileType: 'glTF', version: '2'};
@@ -225,7 +225,7 @@ export default class Gltf2Importer {
   }
 
   _loadInner(
-    gltfJson: glTF2,
+    gltfJson: RnM2,
     files: GltfFileBuffers,
     options: GltfLoadOption,
     uint8array?: Uint8Array,
@@ -249,7 +249,7 @@ export default class Gltf2Importer {
     return Promise.all(promises);
   }
 
-  _loadJsonContent(gltfJson: glTF2) {
+  _loadJsonContent(gltfJson: RnM2) {
     // Scene
     this._loadDependenciesOfScenes(gltfJson);
 
@@ -282,7 +282,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfScenes(gltfJson: glTF2) {
+  _loadDependenciesOfScenes(gltfJson: RnM2) {
     for (const scene of gltfJson.scenes) {
       if (Is.undefined(scene.nodesObjects)) {
         scene.nodesObjects = [];
@@ -293,7 +293,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfNodes(gltfJson: glTF2) {
+  _loadDependenciesOfNodes(gltfJson: RnM2) {
     for (const node of gltfJson.nodes) {
       // Hierarchy
       node.childrenObjects = node.childrenObjects ?? [];
@@ -341,7 +341,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfMeshes(gltfJson: glTF2) {
+  _loadDependenciesOfMeshes(gltfJson: RnM2) {
     // Mesh
     for (const mesh of gltfJson.meshes) {
       for (const primitive of mesh.primitives) {
@@ -389,7 +389,7 @@ export default class Gltf2Importer {
     }
   }
 
-  private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
+  private _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
     if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
       return true;
     } else {
@@ -397,7 +397,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfMaterials(gltfJson: glTF2) {
+  _loadDependenciesOfMaterials(gltfJson: RnM2) {
     if (!gltfJson.textures) gltfJson.textures = [];
 
     // Material
@@ -447,7 +447,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfTextures(gltfJson: glTF2) {
+  _loadDependenciesOfTextures(gltfJson: RnM2) {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
@@ -469,7 +469,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfJoints(gltfJson: glTF2) {
+  _loadDependenciesOfJoints(gltfJson: RnM2) {
     if (gltfJson.skins) {
       for (const skin of gltfJson.skins) {
         skin.skeletonObject = gltfJson.nodes[skin.skeleton!];
@@ -490,7 +490,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfAnimations(gltfJson: glTF2) {
+  _loadDependenciesOfAnimations(gltfJson: RnM2) {
     if (gltfJson.animations) {
       for (const animation of gltfJson.animations) {
         for (const channel of animation.channels) {
@@ -528,7 +528,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfAccessors(gltfJson: glTF2) {
+  _loadDependenciesOfAccessors(gltfJson: RnM2) {
     // Accessor
     for (const accessor of gltfJson.accessors) {
       if (accessor.bufferView == null) {
@@ -552,7 +552,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfBufferViews(gltfJson: glTF2) {
+  _loadDependenciesOfBufferViews(gltfJson: RnM2) {
     // BufferView
     for (const bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
@@ -561,7 +561,7 @@ export default class Gltf2Importer {
     }
   }
 
-  _mergeExtendedJson(gltfJson: glTF2, extendedData: any) {
+  _mergeExtendedJson(gltfJson: RnM2, extendedData: any) {
     let extendedJson = null;
     if (extendedData instanceof ArrayBuffer) {
       const extendedJsonStr = DataUtil.arrayBufferToString(extendedData);
@@ -577,7 +577,7 @@ export default class Gltf2Importer {
 
   _loadResources(
     uint8Array: Uint8Array,
-    gltfJson: glTF2,
+    gltfJson: RnM2,
     files: GltfFileBuffers,
     options: GltfLoadOption,
     basePath?: string

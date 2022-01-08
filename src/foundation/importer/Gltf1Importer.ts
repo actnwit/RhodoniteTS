@@ -1,7 +1,7 @@
 import DataUtil from '../misc/DataUtil';
 import {
   glTF1,
-  glTF2,
+  RnM2,
   Gltf2Accessor,
   Gltf2Animation,
   Gltf2BufferView,
@@ -26,7 +26,7 @@ export default class Gltf1Importer {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  async import(uri: string, options?: GltfLoadOption): Promise<glTF2> {
+  async import(uri: string, options?: GltfLoadOption): Promise<RnM2> {
     if (options && options.files) {
       for (const fileName in options.files) {
         const fileExtension = DataUtil.getExtension(fileName);
@@ -54,7 +54,7 @@ export default class Gltf1Importer {
   async importGltfOrGlbFromFile(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<glTF2 | undefined> {
+  ): Promise<RnM2 | undefined> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
     const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
@@ -81,7 +81,7 @@ export default class Gltf1Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ): Promise<glTF2> {
+  ): Promise<RnM2> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);
@@ -131,7 +131,7 @@ export default class Gltf1Importer {
     arrayBuffer: ArrayBuffer,
     files: GltfFileBuffers,
     options: GltfLoadOption
-  ): Promise<glTF2> {
+  ): Promise<RnM2> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const gltfVer = dataView.getUint32(4, true);
     if (gltfVer !== 1) {
@@ -174,7 +174,7 @@ export default class Gltf1Importer {
     files: GltfFileBuffers,
     options: GltfLoadOption,
     uri?: string
-  ): Promise<glTF2> {
+  ): Promise<RnM2> {
     const basePath = uri?.substring(0, uri?.lastIndexOf('/')) + '/'; // location of model file as basePath
     if (gltfJson.asset === undefined) {
       gltfJson.asset = {};

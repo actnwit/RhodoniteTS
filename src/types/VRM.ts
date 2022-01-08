@@ -1,4 +1,4 @@
-import {glTF2, GltfLoadOption} from './glTF';
+import {RnM2, GltfLoadOption} from './glTF';
 import Entity from '../foundation/core/Entity';
 
 export type HumanBone = {
@@ -168,4 +168,4 @@ export type VRM_Extension = {
   };
 };
 
-export type VRM = VRM_Extension & glTF2;
+export type VRM = VRM_Extension & RnM2;

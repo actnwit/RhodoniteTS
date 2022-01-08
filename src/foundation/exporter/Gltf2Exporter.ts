@@ -3,7 +3,7 @@ import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {
-  glTF2,
+  RnM2,
   Gltf2Accessor,
   Gltf2BufferView,
   Gltf2Mesh,
@@ -36,7 +36,7 @@ export default class Gltf2Exporter {
   static export(filename: string, option?: Gltf2ExporterArguments) {
     const entities = this.__collectEntities(option);
 
-    const {json, fileName}: {json: glTF2; fileName: string} =
+    const {json, fileName}: {json: RnM2; fileName: string} =
       this.__createJsonBase(filename);
 
     this.__createMeshBinaryMetaData(json, entities);
@@ -96,7 +96,7 @@ export default class Gltf2Exporter {
    * @param json
    * @returns A arraybuffer
    */
-  private static __createBinary(json: glTF2) {
+  private static __createBinary(json: RnM2) {
     const buffer = new ArrayBuffer(json.buffers[0].byteLength);
     const dataView = new DataView(buffer);
 
@@ -156,7 +156,7 @@ export default class Gltf2Exporter {
     return buffer;
   }
 
-  static __createMeshes(json: glTF2, entities: Entity[]): Index[] {
+  static __createMeshes(json: RnM2, entities: Entity[]): Index[] {
     let count = 0;
     json.meshes = [];
     const gltfMeshesIndices: Index[] = [];
@@ -200,7 +200,7 @@ export default class Gltf2Exporter {
     return gltfMeshesIndices;
   }
 
-  static __createMaterials(json: glTF2, entities: Entity[]) {
+  static __createMaterials(json: RnM2, entities: Entity[]) {
     let countMesh = 0;
     let countMaterial = 0;
     let countTexture = 0;
@@ -416,7 +416,7 @@ export default class Gltf2Exporter {
   }
 
   static __createNodes(
-    json: glTF2,
+    json: RnM2,
     entities: Entity[],
     indicesOfGltfMeshes: Index[]
   ) {
@@ -463,7 +463,7 @@ export default class Gltf2Exporter {
     }
   }
 
-  static __createMeshBinaryMetaData(json: glTF2, entities: Entity[]) {
+  static __createMeshBinaryMetaData(json: RnM2, entities: Entity[]) {
     let count = 0;
     let bufferByteLength = 0;
 
@@ -567,7 +567,7 @@ export default class Gltf2Exporter {
     buffer.byteLength = bufferByteLength;
   }
 
-  static __download(json: glTF2, filename: string, arraybuffer: ArrayBuffer) {
+  static __download(json: RnM2, filename: string, arraybuffer: ArrayBuffer) {
     let a = document.createElement('a');
     let e = document.createEvent('MouseEvent');
 
