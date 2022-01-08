@@ -96,71 +96,113 @@ export default class Gltf2Exporter {
   }
 
   /**
-   * create the arraybuffer of the glTF2 .bin file and write all accessors data to the arraybuffer
-   * @param json a RnM2 JSON
-   * @returns A arraybuffer
+   * create Gltf2BufferViews and Gltf2Accessors for the output glTF2 JSON
+   * @param json
+   * @param entities
    */
-  private static __createBinary(json: RnM2) {
-    // get the total byte length
-    const buffer = new ArrayBuffer(json.buffers[0].byteLength);
-    // get DataView of all data
-    const dataView = new DataView(buffer);
+  static __createBufferViewsAndAccessors(json: RnM2, entities: Entity[]) {
+    let count = 0;
+    let bufferByteLength = 0;
 
-    // write all data of accessors to the DataView (total data area)
-    for (let i = 0; i < json.accessors.length; i++) {
-      const accessor = json.accessors[i];
-      const rnAccessor = accessor.accessor!;
-      const compositionType = rnAccessor.compositionType;
-      const componentType = rnAccessor.componentType;
-      const dataViewSetter = rnAccessor.getDataViewSetter(componentType)!;
-      const attributeCount = accessor.count;
-      const bufferView = json.bufferViews[accessor.bufferView!];
-      const bufferViewByteOffset = bufferView.byteOffset!;
-      for (let k = 0; k < attributeCount; k++) {
-        if (compositionType.getNumberOfComponents() === 1) {
-          const byteIndex = componentType.getSizeInBytes() * k;
-          const value = rnAccessor.getScalar(k, {});
-          (dataView as any)[dataViewSetter](
-            bufferViewByteOffset + byteIndex,
-            value,
-            true
-          );
-        } else if (compositionType.getNumberOfComponents() === 2) {
-          const array = rnAccessor.getVec2AsArray(k, {});
-          for (let l = 0; l < 2; l++) {
-            (dataView as any)[dataViewSetter](
-              bufferViewByteOffset +
-                componentType.getSizeInBytes() * (k * 2 + l),
-              array[l],
-              true
-            );
+    for (let i = 0; i < entities.length; i++) {
+      const entity = entities[i];
+      const meshComponent = entity.getMesh();
+      if (meshComponent && meshComponent.mesh) {
+        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
+        for (let j = 0; j < primitiveCount; j++) {
+          const primitive = meshComponent.mesh.getPrimitiveAt(j);
+          const indicesAccessor = primitive.indicesAccessor;
+
+          if (indicesAccessor) {
+            // BufferView
+            let match = false;
+            for (let k = 0; k < json.bufferViews.length; k++) {
+              const bufferView = json.bufferViews[k];
+              if (bufferView.rnAccessor === indicesAccessor) {
+                match = true;
+                (indicesAccessor as any).gltfAccessorIndex = k;
+              }
+            }
+
+            if (!match) {
+              // create a Gltf2BufferView
+              json.bufferViews[count] = {
+                rnAccessor: indicesAccessor,
+                buffer: 0,
+                byteLength: indicesAccessor.byteLength,
+                byteOffset: bufferByteLength,
+                target: 34963,
+              };
+
+              // create a Gltf2Accessor
+              indicesAccessor.calcMinMax();
+              (indicesAccessor as any).gltfAccessorIndex = count;
+              json.accessors[count] = {
+                bufferView: count,
+                byteOffset: 0, //indicesAccessor.byteOffsetInBufferView,
+                componentType: 5123,
+                count: indicesAccessor.elementCount,
+                max: indicesAccessor.max,
+                min: indicesAccessor.min,
+                type: 'SCALAR',
+                accessor: indicesAccessor,
+              };
+              bufferByteLength += indicesAccessor.byteLength;
+              count++;
+            }
           }
-        } else if (compositionType.getNumberOfComponents() === 3) {
-          const array = rnAccessor.getVec3AsArray(k, {});
-          for (let l = 0; l < 3; l++) {
-            (dataView as any)[dataViewSetter](
-              bufferViewByteOffset +
-                componentType.getSizeInBytes() * (k * 3 + l),
-              array[l],
-              true
-            );
-          }
-        } else if (compositionType.getNumberOfComponents() === 4) {
-          const array = rnAccessor.getVec4AsArray(k, {});
-          for (let l = 0; l < 4; l++) {
-            (dataView as any)[dataViewSetter](
-              bufferViewByteOffset +
-                componentType.getSizeInBytes() * (k * 4 + l),
-              array[l],
-              true
-            );
+
+          const attributeAccessors = primitive.attributeAccessors;
+          for (let j = 0; j < attributeAccessors.length; j++) {
+            const attributeAccessor = attributeAccessors[j];
+
+            let match = false;
+            for (let k = 0; k < json.bufferViews.length; k++) {
+              const bufferview = json.bufferViews[k];
+              if (bufferview.rnAccessor === attributeAccessor) {
+                match = true;
+                (attributeAccessor as any).gltfAccessorIndex = k;
+              }
+            }
+            if (!match) {
+              // create a Gltf2BufferView
+              json.bufferViews[count] = {
+                rnAccessor: attributeAccessor,
+                buffer: 0,
+                byteLength: attributeAccessors[j].byteLength,
+                byteOffset: bufferByteLength,
+                target: 34962,
+              };
+
+              // create a Gltf2Accessor
+              attributeAccessor.calcMinMax();
+              const max = Array.prototype.slice.call(attributeAccessor.max);
+              const min = Array.prototype.slice.call(attributeAccessor.min);
+              bufferByteLength += attributeAccessor.byteLength;
+              (attributeAccessor as any).gltfAccessorIndex = count;
+              json.accessors[count] = {
+                bufferView: count,
+                byteOffset: 0, //attributeAccessor.byteOffsetInBufferView,
+                componentType: 5126,
+                count: attributeAccessor.elementCount,
+                max: max,
+                min: min,
+                type: 'VEC' + max.length,
+                accessor: attributeAccessor,
+              };
+              count++;
+            }
           }
         }
       }
-      accessor.accessor = void 0;
     }
 
-    return buffer;
+    json.bufferViews.forEach((bufferView: RnM2BufferView) => {
+      bufferView.rnAccessor = void 0;
+    });
+
+    const buffer = json.buffers[0];
+    buffer.byteLength = bufferByteLength;
   }
 
   /**
@@ -211,6 +253,60 @@ export default class Gltf2Exporter {
     }
 
     return gltfMeshesIndices;
+  }
+
+  /**
+   * create Gltf2Nodes for the output glTF2 JSON
+   * @param json a RnM2 JSON
+   * @param entities all target entities
+   * @param indicesOfGltfMeshes the indices of Gltf2Meshes
+   */
+  static __createNodes(
+    json: RnM2,
+    entities: Entity[],
+    indicesOfGltfMeshes: Index[]
+  ) {
+    json.nodes = [];
+    json.scenes = [{nodes: []}];
+    const scene = json.scenes[0];
+    const nodes = json.nodes;
+    for (let i = 0; i < entities.length; i++) {
+      const entity = entities[i];
+      (entity as any).gltfNodeIndex = i;
+    }
+
+    for (let i = 0; i < entities.length; i++) {
+      const entity = entities[i];
+      nodes[i] = {};
+      const node = nodes[i];
+
+      // node.name
+      node.name = entity.uniqueName;
+
+      // node.children
+      node.children = [];
+      const sceneGraphComponent = entity.getSceneGraph();
+      const children = sceneGraphComponent.children;
+      for (let j = 0; j < children.length; j++) {
+        const child = children[j];
+        node.children.push((child.entity as any).gltfNodeIndex);
+      }
+
+      // matrix
+      node.matrix = Array.prototype.slice.call(entity.getTransform().matrix._v);
+
+      // mesh
+      if (Is.exist(entity.getMesh())) {
+        if (indicesOfGltfMeshes[i] >= 0) {
+          node.mesh = indicesOfGltfMeshes[i];
+        }
+      }
+
+      // If the entity has no parent, it must be a top level entity in the scene graph.
+      if (Is.not.exist(sceneGraphComponent.parent)) {
+        scene.nodes!.push(i);
+      }
+    }
   }
 
   /**
@@ -434,167 +530,71 @@ export default class Gltf2Exporter {
   }
 
   /**
-   * create Gltf2Nodes for the output glTF2 JSON
+   * create the arraybuffer of the glTF2 .bin file and write all accessors data to the arraybuffer
    * @param json a RnM2 JSON
-   * @param entities all target entities
-   * @param indicesOfGltfMeshes the indices of Gltf2Meshes
+   * @returns A arraybuffer
    */
-  static __createNodes(
-    json: RnM2,
-    entities: Entity[],
-    indicesOfGltfMeshes: Index[]
-  ) {
-    json.nodes = [];
-    json.scenes = [{nodes: []}];
-    const scene = json.scenes[0];
-    const nodes = json.nodes;
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      (entity as any).gltfNodeIndex = i;
-    }
+  private static __createBinary(json: RnM2) {
+    // get the total byte length
+    const buffer = new ArrayBuffer(json.buffers[0].byteLength);
+    // get DataView of all data
+    const dataView = new DataView(buffer);
 
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      nodes[i] = {};
-      const node = nodes[i];
-
-      // node.name
-      node.name = entity.uniqueName;
-
-      // node.children
-      node.children = [];
-      const sceneGraphComponent = entity.getSceneGraph();
-      const children = sceneGraphComponent.children;
-      for (let j = 0; j < children.length; j++) {
-        const child = children[j];
-        node.children.push((child.entity as any).gltfNodeIndex);
-      }
-
-      // matrix
-      node.matrix = Array.prototype.slice.call(entity.getTransform().matrix._v);
-
-      // mesh
-      if (Is.exist(entity.getMesh())) {
-        if (indicesOfGltfMeshes[i] >= 0) {
-          node.mesh = indicesOfGltfMeshes[i];
-        }
-      }
-
-      // If the entity has no parent, it must be a top level entity in the scene graph.
-      if (Is.not.exist(sceneGraphComponent.parent)) {
-        scene.nodes!.push(i);
-      }
-    }
-  }
-
-  /**
-   * create Gltf2BufferViews and Gltf2Accessors for the output glTF2 JSON
-   * @param json
-   * @param entities
-   */
-  static __createBufferViewsAndAccessors(json: RnM2, entities: Entity[]) {
-    let count = 0;
-    let bufferByteLength = 0;
-
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      const meshComponent = entity.getMesh();
-      if (meshComponent && meshComponent.mesh) {
-        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-        for (let j = 0; j < primitiveCount; j++) {
-          const primitive = meshComponent.mesh.getPrimitiveAt(j);
-          const indicesAccessor = primitive.indicesAccessor;
-
-          if (indicesAccessor) {
-            // BufferView
-            let match = false;
-            for (let k = 0; k < json.bufferViews.length; k++) {
-              const bufferView = json.bufferViews[k];
-              if (bufferView.rnAccessor === indicesAccessor) {
-                match = true;
-                (indicesAccessor as any).gltfAccessorIndex = k;
-              }
-            }
-
-            if (!match) {
-              // create a Gltf2BufferView
-              json.bufferViews[count] = {
-                rnAccessor: indicesAccessor,
-                buffer: 0,
-                byteLength: indicesAccessor.byteLength,
-                byteOffset: bufferByteLength,
-                target: 34963,
-              };
-
-              // create a Gltf2Accessor
-              indicesAccessor.calcMinMax();
-              (indicesAccessor as any).gltfAccessorIndex = count;
-              json.accessors[count] = {
-                bufferView: count,
-                byteOffset: 0, //indicesAccessor.byteOffsetInBufferView,
-                componentType: 5123,
-                count: indicesAccessor.elementCount,
-                max: indicesAccessor.max,
-                min: indicesAccessor.min,
-                type: 'SCALAR',
-                accessor: indicesAccessor,
-              };
-              bufferByteLength += indicesAccessor.byteLength;
-              count++;
-            }
+    // write all data of accessors to the DataView (total data area)
+    for (let i = 0; i < json.accessors.length; i++) {
+      const accessor = json.accessors[i];
+      const rnAccessor = accessor.accessor!;
+      const compositionType = rnAccessor.compositionType;
+      const componentType = rnAccessor.componentType;
+      const dataViewSetter = rnAccessor.getDataViewSetter(componentType)!;
+      const attributeCount = accessor.count;
+      const bufferView = json.bufferViews[accessor.bufferView!];
+      const bufferViewByteOffset = bufferView.byteOffset!;
+      for (let k = 0; k < attributeCount; k++) {
+        if (compositionType.getNumberOfComponents() === 1) {
+          const byteIndex = componentType.getSizeInBytes() * k;
+          const value = rnAccessor.getScalar(k, {});
+          (dataView as any)[dataViewSetter](
+            bufferViewByteOffset + byteIndex,
+            value,
+            true
+          );
+        } else if (compositionType.getNumberOfComponents() === 2) {
+          const array = rnAccessor.getVec2AsArray(k, {});
+          for (let l = 0; l < 2; l++) {
+            (dataView as any)[dataViewSetter](
+              bufferViewByteOffset +
+                componentType.getSizeInBytes() * (k * 2 + l),
+              array[l],
+              true
+            );
           }
-
-          const attributeAccessors = primitive.attributeAccessors;
-          for (let j = 0; j < attributeAccessors.length; j++) {
-            const attributeAccessor = attributeAccessors[j];
-
-            let match = false;
-            for (let k = 0; k < json.bufferViews.length; k++) {
-              const bufferview = json.bufferViews[k];
-              if (bufferview.rnAccessor === attributeAccessor) {
-                match = true;
-                (attributeAccessor as any).gltfAccessorIndex = k;
-              }
-            }
-            if (!match) {
-              // create a Gltf2BufferView
-              json.bufferViews[count] = {
-                rnAccessor: attributeAccessor,
-                buffer: 0,
-                byteLength: attributeAccessors[j].byteLength,
-                byteOffset: bufferByteLength,
-                target: 34962,
-              };
-
-              // create a Gltf2Accessor
-              attributeAccessor.calcMinMax();
-              const max = Array.prototype.slice.call(attributeAccessor.max);
-              const min = Array.prototype.slice.call(attributeAccessor.min);
-              bufferByteLength += attributeAccessor.byteLength;
-              (attributeAccessor as any).gltfAccessorIndex = count;
-              json.accessors[count] = {
-                bufferView: count,
-                byteOffset: 0, //attributeAccessor.byteOffsetInBufferView,
-                componentType: 5126,
-                count: attributeAccessor.elementCount,
-                max: max,
-                min: min,
-                type: 'VEC' + max.length,
-                accessor: attributeAccessor,
-              };
-              count++;
-            }
+        } else if (compositionType.getNumberOfComponents() === 3) {
+          const array = rnAccessor.getVec3AsArray(k, {});
+          for (let l = 0; l < 3; l++) {
+            (dataView as any)[dataViewSetter](
+              bufferViewByteOffset +
+                componentType.getSizeInBytes() * (k * 3 + l),
+              array[l],
+              true
+            );
+          }
+        } else if (compositionType.getNumberOfComponents() === 4) {
+          const array = rnAccessor.getVec4AsArray(k, {});
+          for (let l = 0; l < 4; l++) {
+            (dataView as any)[dataViewSetter](
+              bufferViewByteOffset +
+                componentType.getSizeInBytes() * (k * 4 + l),
+              array[l],
+              true
+            );
           }
         }
       }
+      accessor.accessor = void 0;
     }
 
-    json.bufferViews.forEach((bufferView: RnM2BufferView) => {
-      bufferView.rnAccessor = void 0;
-    });
-
-    const buffer = json.buffers[0];
-    buffer.byteLength = bufferByteLength;
+    return buffer;
   }
 
   /**
