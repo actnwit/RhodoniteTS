@@ -1,10 +1,18 @@
 import {IResult, Ok, Err, Finalizer} from './Result';
 
-function succeedIfValueEven(val: number): IResult<number, string> {
+type ErrorObj = {
+  code: string;
+  val: number;
+};
+
+function succeedIfValueEven(val: number): IResult<number, ErrorObj> {
   if (val % 2 === 0) {
     return new Ok(val);
   } else {
-    return new Err('Error');
+    return new Err({
+      code: 'Error',
+      val,
+    });
   }
 }
 
@@ -17,7 +25,7 @@ test(`Result.${Ok.prototype.match.name}`, () => {
       expect(val).toBe(0);
       result = result0.name();
     },
-    Err: (err: string) => {
+    Err: (err: ErrorObj) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       result = result0.name();
     },
@@ -31,8 +39,8 @@ test(`Result.${Ok.prototype.match.name}`, () => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       result = result1.name();
     },
-    Err: (err: string) => {
-      expect(err).toBe('Error');
+    Err: (err: ErrorObj) => {
+      expect(err.code).toBe('Error');
       result = result1.name();
     },
     Finally: () => {
@@ -52,7 +60,7 @@ test(`${Ok.name}.${Ok.prototype.then.name}, ${Ok.name}.${Ok.prototype.catch.name
     const finalizerOfThen = result0.then((val: number) => {
       expect(val).toBe(0);
     }) as Finalizer;
-    const finalizerOfCatch = result0.catch((err: string) => {
+    const finalizerOfCatch = result0.catch((err: ErrorObj) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
     }) as Finalizer;
 
@@ -68,8 +76,8 @@ test(`${Ok.name}.${Ok.prototype.then.name}, ${Ok.name}.${Ok.prototype.catch.name
     const finalizerOfThen = result1.then((val: number) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
     }) as Finalizer;
-    const finalizerOfCatch = result1.catch((err: string) => {
-      expect(err).toBe('Error');
+    const finalizerOfCatch = result1.catch((err: ErrorObj) => {
+      expect(err.code).toBe('Error');
     }) as Finalizer;
 
     expect(finalizerOfThen).toBeUndefined();
