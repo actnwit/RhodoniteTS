@@ -80,6 +80,7 @@ export type RnM2Node = {
   children?: number[];
   skinObject?: RnM2Skin;
   skin?: number;
+  skinName?: string;
   matrix?: number[];
   meshObject?: RnM2Mesh;
   mesh?: number;
@@ -148,6 +149,8 @@ export type RnM2Material = {
   occlusionTexture?: RnM2OcclusionTextureInfo;
   emissiveTexture?: RnM2TextureInfo;
   emissiveFactor?: number[];
+  diffuseTexture?: RnM2TextureInfo;
+  diffuseColorFactor?: number[];
   alphaMode?: string;
   alphaCutoff?: number;
   doubleSided?: boolean;

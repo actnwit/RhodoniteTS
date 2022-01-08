@@ -1027,7 +1027,7 @@ export default class ModelConverter {
       materialJson?.alphaMode || 'OPAQUE'
     );
     const additionalName =
-      node.skin != null ? `skin${node.skin ?? (node as any).skinName}` : void 0;
+      node.skin != null ? `skin${node.skin ?? node.skinName ?? ''}` : void 0;
     if (parseFloat(gltfModel.asset?.version) >= 2) {
       const useTangentAttribute = this.__useTangentAttribute(
         gltfModel,
@@ -1374,8 +1374,9 @@ export default class ModelConverter {
         }
       }
     }
-    if (Is.exist((materialJson as any).diffuseColorFactor)) {
-      const diffuseColorFactor = (materialJson as any).diffuseColorFactor as Array4<number>;
+    if (Is.exist(materialJson.diffuseColorFactor)) {
+      const diffuseColorFactor =
+        materialJson.diffuseColorFactor as Array4<number>;
       material.setParameter(
         ShaderSemantics.DiffuseColorFactor,
         Vector4.fromCopyArray4(diffuseColorFactor)
