@@ -1,13 +1,38 @@
 import Entity from '../foundation/core/Entity';
 import RnPromise from '../foundation/misc/RnPromise';
-import {Array3, Index, TypedArray} from './CommonTypes';
-import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
-import CameraComponent from '../foundation/components/CameraComponent';
+import {Array3} from './CommonTypes';
 import Material from '../foundation/materials/core/Material';
-import Expression from '../foundation/renderer/Expression';
-import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 import {GltfLoadOption} from '../types/glTF';
+
+export type RnM2 = {
+  asset: {
+    extras?: {
+      rnLoaderOptions?: GltfLoadOption;
+      rnEntities?: Entity[];
+      rnMaterials?: {[s: string]: Material};
+      version?: string;
+      fileType?: string;
+    };
+    version: string;
+  };
+  buffers: RnM2Buffer[];
+  scenes: RnM2Scene[];
+  scene: number;
+  meshes: RnM2Mesh[];
+  nodes: RnM2Node[];
+  skins: RnM2Skin[];
+  materials: RnM2Material[];
+  cameras: RnM2Camera[];
+  images: RnM2Image[];
+  animations: RnM2Animation[];
+  textures?: RnM2Texture[];
+  samplers: RnM2TextureSampler[];
+  accessors: RnM2Accessor[];
+  bufferViews: RnM2BufferView[];
+  extensionsUsed?: string[];
+  extensions?: any;
+};
 
 export type RnM2Scene = {
   name?: string;
@@ -321,34 +346,6 @@ export type RnM2BufferView = {
   };
 };
 
-export type RnM2 = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: GltfLoadOption;
-      rnEntities?: Entity[];
-      rnMaterials?: {[s: string]: Material};
-      version?: string;
-      fileType?: string;
-    };
-    version: string;
-  };
-  buffers: RnM2Buffer[];
-  scenes: RnM2Scene[];
-  scene: number;
-  meshes: RnM2Mesh[];
-  nodes: RnM2Node[];
-  skins: RnM2Skin[];
-  materials: RnM2Material[];
-  cameras: RnM2Camera[];
-  images: RnM2Image[];
-  animations: RnM2Animation[];
-  textures?: RnM2Texture[];
-  samplers: RnM2TextureSampler[];
-  accessors: RnM2Accessor[];
-  bufferViews: RnM2BufferView[];
-  extensionsUsed?: string[];
-  extensions?: any;
-};
 
 export type PointType = 'directional' | 'point' | 'spot';
 

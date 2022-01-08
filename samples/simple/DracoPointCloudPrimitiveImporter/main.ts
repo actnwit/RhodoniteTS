@@ -1,5 +1,4 @@
 import _Rn, {Entity, Expression} from '../../../dist/esm/index';
-import {glTF2} from '../../../dist/esm/types/glTF';
 
 declare const Rn: typeof _Rn;
 

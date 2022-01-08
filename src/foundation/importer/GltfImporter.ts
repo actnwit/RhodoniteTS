@@ -2,7 +2,7 @@ import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
-import {GltfLoadOption, glTF2, GltfFileBuffers, glTF1} from '../../types/glTF';
+import {GltfLoadOption, RnM2, GltfFileBuffers, glTF1} from '../../types/glTF';
 import ModelConverter from './ModelConverter';
 import PhysicsComponent from '../components/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
@@ -270,8 +270,8 @@ export default class GltfImporter {
     return glbVer;
   }
 
-  private __getGltfVersion(gltfJson: glTF1 | glTF2) {
-    if ((gltfJson as glTF2).asset?.version?.charAt(0) === '2') {
+  private __getGltfVersion(gltfJson: glTF1 | RnM2) {
+    if ((gltfJson as RnM2).asset?.version?.charAt(0) === '2') {
       return 2;
     } else {
       return 1;
@@ -593,7 +593,7 @@ export default class GltfImporter {
     }
   }
 
-  _createTextures(gltfModel: glTF2): Texture[] {
+  _createTextures(gltfModel: RnM2): Texture[] {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
@@ -630,7 +630,7 @@ export default class GltfImporter {
   }
 
   _initializeMaterialProperties(
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     texturesLength: number
   ): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
@@ -644,7 +644,7 @@ export default class GltfImporter {
   }
 
   private __initializeMToonMaterialProperties(
-    gltfModel: glTF2,
+    gltfModel: RnM2,
     texturesLength: number
   ): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;

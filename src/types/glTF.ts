@@ -8,78 +8,81 @@ import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 
-export type glTF2 = {
-  asset: Gltf2Asset;
-  buffers: Gltf2Buffer[];
-  scenes: Gltf2Scene[];
+export type RnM2 = {
+  extensionsUsed: string[];
+  extensionsRequired: string[];
+  accessors: RnM2Accessor[];
+  animations: RnM2Animation[];
+  asset: RnM2Asset;
+  buffers: RnM2Buffer[];
+  bufferViews: RnM2BufferView[];
+  cameras: RnM2Camera[];
+  images: RnM2Image[];
+  materials: RnM2Material[];
+  meshes: RnM2Mesh[];
+  nodes: RnM2Node[];
+  samplers: RnM2TextureSampler[];
   scene: number;
-  meshes: Gltf2Mesh[];
-  nodes: Gltf2Node[];
-  skins: Gltf2Skin[];
-  materials: Gltf2Material[];
-  cameras: Gltf2Camera[];
-  images: Gltf2Image[];
-  animations: Gltf2Animation[];
-  textures?: Gltf2Texture[];
-  samplers: Gltf2TextureSampler[];
-  accessors: Gltf2Accessor[];
-  bufferViews: Gltf2BufferView[];
-  extensionsUsed?: string[];
-  extensions?: any;
+  scenes: RnM2Scene[];
+  skins: RnM2Skin[];
+  textures?: RnM2Texture[];
+  extensions: {[key: string]: any};
+  extras: {[key: string]: object};
 };
 
-export type Gltf2Scene = {
-  nodesObjects?: Gltf2Node[];
+export type RnM2Scene = {
+  nodesObjects?: RnM2Node[];
   name?: string;
   scene?: number;
-  sceneObject?: Gltf2Node;
+  sceneObject?: RnM2Node;
   nodes?: number[];
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2AttributesObject = {
-  [s: string]: Gltf2Accessor;
+export type RnM2AttributesObject = {
+  [s: string]: RnM2Accessor;
 };
 
-export type Gltf2Attributes = {[s: string]: number};
-export type Gltf2AttributeAccessors = {[s: string]: Gltf2Accessor};
-export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
-export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
+export type RnM2Attributes = {[s: string]: number};
+export type RnM2AttributeAccessors = {[s: string]: RnM2Accessor};
+export type RnM2AttributeBlendShapes = RnM2Attributes[];
+export type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
 
-export type Gltf2Primitive = {
-  attributesObjects?: Gltf2AttributeAccessors;
+export type RnM2Primitive = {
+  attributesObjects?: RnM2AttributeAccessors;
   attributesNames?: {[s: string]: string};
   attributes?: {[s: string]: number};
-  indicesObject?: Gltf2Accessor;
+  indicesObject?: RnM2Accessor;
   indices?: number;
-  materialObject?: Gltf2Material;
+  materialObject?: RnM2Material;
   material?: number;
   materialName?: string;
   mode?: number;
-  targetsObjects?: Gltf2AttributeBlendShapesAccessors;
-  targets?: Gltf2AttributeBlendShapes;
+  targetsObjects?: RnM2AttributeBlendShapesAccessors;
+  targets?: RnM2AttributeBlendShapes;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Mesh = {
-  primitives: Gltf2Primitive[];
+export type RnM2Mesh = {
+  primitives: RnM2Primitive[];
   weights?: number[];
   name?: string;
   extensions: any;
   extras?: any;
 };
 
-export type Gltf2Node = {
-  cameraObject?: Gltf2Camera;
+export type RnM2Node = {
+  cameraObject?: RnM2Camera;
   camera?: number;
-  childrenObjects?: Gltf2Node[];
+  childrenObjects?: RnM2Node[];
   children?: number[];
-  skinObject?: Gltf2Skin;
+  skinObject?: RnM2Skin;
   skin?: number;
+  skinName?: string;
   matrix?: number[];
-  meshObject?: Gltf2Mesh;
+  meshObject?: RnM2Mesh;
   mesh?: number;
   meshNames?: string[];
   rotation?: number[];
@@ -91,61 +94,63 @@ export type Gltf2Node = {
   extras?: any;
 };
 
-export type Gltf2Skin = {
+export type RnM2Skin = {
   inverseBindMatrices?: number;
-  inverseBindMatricesObject?: Gltf2Accessor;
+  inverseBindMatricesObject?: RnM2Accessor;
   bindShapeMatrix?: number[];
   skeleton?: number;
-  skeletonObject?: Gltf2Node;
+  skeletonObject?: RnM2Node;
   joints: number[];
-  jointsObjects: Gltf2Node[];
+  jointsObjects: RnM2Node[];
   name?: string;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2TextureInfo = {
+export type RnM2TextureInfo = {
   index: number;
   texCoord?: number;
-  texture?: Gltf2Texture;
+  texture?: RnM2Texture;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2OcclusionTextureInfo = {
+export type RnM2OcclusionTextureInfo = {
   index: number;
   texCoord?: number;
-  texture?: Gltf2Texture;
+  texture?: RnM2Texture;
   strength?: number;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2NormalTextureInfo = {
+export type RnM2NormalTextureInfo = {
   index: number;
   texCoord?: number;
-  texture?: Gltf2Texture;
+  texture?: RnM2Texture;
   scale?: number;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2PbrMetallicRoughness = {
+export type RnM2PbrMetallicRoughness = {
   baseColorFactor?: Array4<number>;
-  baseColorTexture?: Gltf2TextureInfo;
+  baseColorTexture?: RnM2TextureInfo;
   metallicFactor?: number;
   roughnessFactor?: number;
-  metallicRoughnessTexture?: Gltf2TextureInfo;
+  metallicRoughnessTexture?: RnM2TextureInfo;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Material = {
-  pbrMetallicRoughness?: Gltf2PbrMetallicRoughness;
-  normalTexture?: Gltf2NormalTextureInfo;
-  occlusionTexture?: Gltf2OcclusionTextureInfo;
-  emissiveTexture?: Gltf2TextureInfo;
+export type RnM2Material = {
+  pbrMetallicRoughness?: RnM2PbrMetallicRoughness;
+  normalTexture?: RnM2NormalTextureInfo;
+  occlusionTexture?: RnM2OcclusionTextureInfo;
+  emissiveTexture?: RnM2TextureInfo;
   emissiveFactor?: number[];
+  diffuseTexture?: RnM2TextureInfo;
+  diffuseColorFactor?: number[];
   alphaMode?: string;
   alphaCutoff?: number;
   doubleSided?: boolean;
@@ -154,7 +159,7 @@ export type Gltf2Material = {
   extras?: any;
 };
 
-export type Gltf2CameraOrthographic = {
+export type RnM2CameraOrthographic = {
   xmag: number;
   ymag: number;
   zfar: number;
@@ -163,7 +168,7 @@ export type Gltf2CameraOrthographic = {
   extras?: any;
 };
 
-export type Gltf2CameraPerspective = {
+export type RnM2CameraPerspective = {
   aspectRatio?: number;
   yfov: number;
   zfar?: number;
@@ -172,16 +177,16 @@ export type Gltf2CameraPerspective = {
   extras?: any;
 };
 
-export type Gltf2Camera = {
-  orthographic?: Gltf2CameraOrthographic;
-  perspective?: Gltf2CameraPerspective;
+export type RnM2Camera = {
+  orthographic?: RnM2CameraOrthographic;
+  perspective?: RnM2CameraPerspective;
   type: string;
   name?: string;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Image = {
+export type RnM2Image = {
   uri?: string;
   mimeType?: string;
   bufferView?: number;
@@ -195,53 +200,53 @@ export type Gltf2Image = {
 
 export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
 
-export type Gltf2AnimationChannelTarget = {
-  nodeObject?: Gltf2Node;
+export type RnM2AnimationChannelTarget = {
+  nodeObject?: RnM2Node;
   node?: number;
   path: PathType;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2AnimationChannel = {
-  samplerObject?: Gltf2AnimationSampler;
+export type RnM2AnimationChannel = {
+  samplerObject?: RnM2AnimationSampler;
   sampler: number;
-  target: Gltf2AnimationChannelTarget;
+  target: RnM2AnimationChannelTarget;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2AnimationSampler = {
-  inputObject?: Gltf2Accessor;
+export type RnM2AnimationSampler = {
+  inputObject?: RnM2Accessor;
   input: number;
-  outputObject?: Gltf2Accessor;
+  outputObject?: RnM2Accessor;
   output: number;
   interpolation?: string;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Animation = {
-  channels: Gltf2AnimationChannel[];
-  samplers: Gltf2AnimationSampler[];
+export type RnM2Animation = {
+  channels: RnM2AnimationChannel[];
+  samplers: RnM2AnimationSampler[];
   parameters: {[s: string]: any};
   name?: string;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Texture = {
-  samplerObject?: Gltf2TextureSampler;
+export type RnM2Texture = {
+  samplerObject?: RnM2TextureSampler;
   sampler?: number;
-  sourceObject?: Gltf2Image;
+  sourceObject?: RnM2Image;
   source?: number;
-  image?: Gltf2Image;
+  image?: RnM2Image;
   name?: string;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2TextureSampler = {
+export type RnM2TextureSampler = {
   magFilter?: number;
   minFilter?: number;
   wrapS?: number;
@@ -251,33 +256,33 @@ export type Gltf2TextureSampler = {
   extras?: any;
 };
 
-export type Gltf2SparseValues = {
+export type RnM2SparseValues = {
   bufferView: number;
-  bufferViewObject: Gltf2BufferView;
+  bufferViewObject: RnM2BufferView;
   byteOffset?: number;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2SparseIndices = {
+export type RnM2SparseIndices = {
   bufferView: number;
-  bufferViewObject: Gltf2BufferView;
+  bufferViewObject: RnM2BufferView;
   byteOffset?: number;
   componentType: number;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Sparse = {
+export type RnM2Sparse = {
   count: number;
-  indices?: Gltf2SparseIndices;
-  values?: Gltf2SparseValues;
+  indices?: RnM2SparseIndices;
+  values?: RnM2SparseValues;
   extensions?: any;
   extras?: any;
 };
 
-export type Gltf2Accessor = {
-  bufferViewObject?: Gltf2BufferView;
+export type RnM2Accessor = {
+  bufferViewObject?: RnM2BufferView;
   bufferView?: number;
   bufferViewName?: string;
   byteOffset?: number;
@@ -288,7 +293,7 @@ export type Gltf2Accessor = {
   type: string;
   max?: number[];
   min?: number[];
-  sparse?: Gltf2Sparse;
+  sparse?: RnM2Sparse;
   name?: string;
   accessor?: Accessor;
   extensions?: any;
@@ -304,7 +309,7 @@ export type Gltf2Accessor = {
   };
 };
 
-export type Gltf2Buffer = {
+export type RnM2Buffer = {
   uri?: string;
   byteLength: number;
   buffer?: Uint8Array; // Uint8Array is needed insted of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
@@ -315,8 +320,8 @@ export type Gltf2Buffer = {
   extras?: any;
 };
 
-export type Gltf2BufferView = {
-  bufferObject?: Gltf2Buffer;
+export type RnM2BufferView = {
+  bufferObject?: RnM2Buffer;
   buffer?: number;
   bufferName?: string;
   byteOffset?: number;
@@ -329,7 +334,7 @@ export type Gltf2BufferView = {
   extras?: any;
 };
 
-export type Gltf2Asset = {
+export type RnM2Asset = {
   copyright?: string;
   generator?: string;
   version: string;
@@ -343,7 +348,6 @@ export type Gltf2Asset = {
     fileType?: string;
   };
 };
-
 
 export type glTF1 = {
   asset: {
@@ -431,7 +435,7 @@ export type GltfFileBuffers = {
   //        "boo.png": content of file as ArrayBuffer
 };
 
-export type Gltf2Sampler = {
+export type RnM2Sampler = {
   magFilter?: number;
   minFilter?: number;
   wrapS?: number;
@@ -474,8 +478,8 @@ export type GltfLoadOption = {
     textureInfos: {
       shaderSemantics: ShaderSemanticsEnum;
       fileName: string;
-      image?: Gltf2Image;
-      sampler?: Gltf2Sampler;
+      image?: RnM2Image;
+      sampler?: RnM2Sampler;
     }[];
   };
   cameraComponent?: CameraComponent;
