@@ -14,7 +14,7 @@ export type Gltf2Scene = {
   scene?: number;
   sceneObject?: Gltf2Node;
   nodes?: number[];
-  extensions: any;
+  extensions?: any;
   extras?: any;
 };
 

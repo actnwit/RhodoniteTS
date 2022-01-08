@@ -4,9 +4,11 @@ import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {glTF2, Gltf2Mesh, Gltf2Primitive} from '../../types/glTF';
 import {Is} from '../misc/Is';
+import {Index} from '../../types/CommonTypes';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
+declare let URL: any;
 
 interface Gltf2ExporterArguments {
   entities: Entity[]; // The target entities. This exporter includes their descendants for the output.
@@ -26,6 +28,25 @@ export default class Gltf2Exporter {
    * @param option a option config
    */
   static export(filename: string, option?: Gltf2ExporterArguments) {
+    const entities = this.__collectEntities(option);
+
+    const {json, fileName}: {json: any; fileName: string} =
+      this.__createJsonBase(filename);
+
+    this.__createMeshBinaryMetaData(json, entities);
+
+    const indicesOfGltfMeshes = this.__createMeshes(json, entities);
+
+    this.__createNodes(json, entities, indicesOfGltfMeshes);
+
+    this.__createMaterials(json, entities);
+
+    const arraybuffer = this.__createBinary(json);
+
+    this.__download(json, fileName, arraybuffer);
+  }
+
+  private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
     let entities = Gltf2Exporter.__entityRepository._getEntities();
     if (Is.exist(option) && option.entities.length > 0) {
       const collectChildren = (entity: Entity): Entity[] => {
@@ -39,6 +60,10 @@ export default class Gltf2Exporter {
       };
       entities = option.entities.flatMap(e => collectChildren(e));
     }
+    return entities;
+  }
+
+  private static __createJsonBase(filename: string) {
     const json: any = {
       asset: {
         version: '2.0',
@@ -53,6 +78,7 @@ export default class Gltf2Exporter {
         uri: fileName + '.bin',
       },
     ];
+
     json.bufferViews = [];
     json.accessors = [];
 
@@ -63,20 +89,7 @@ export default class Gltf2Exporter {
         },
       },
     ];
-
-    this.__countMeshes(json, entities);
-
-    this.__createNodes(json, entities);
-
-    this.__createMeshBinaryMetaData(json, entities);
-
-    this.__createMeshes(json, entities);
-
-    this.__createMaterials(json, entities);
-
-    const arraybuffer = this.__createBinary(json);
-
-    this.__download(json, fileName, arraybuffer);
+    return {json, fileName};
   }
 
   /**
@@ -144,21 +157,10 @@ export default class Gltf2Exporter {
     return buffer;
   }
 
-  static __countMeshes(json: glTF2, entities: Entity[]) {
+  static __createMeshes(json: glTF2, entities: Entity[]): Index[] {
     let count = 0;
     json.meshes = [];
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      const meshComponent = entity.getMesh();
-      if (meshComponent) {
-        (entity as any).gltfMeshIndex = count++;
-      }
-    }
-  }
-
-  static __createMeshes(json: glTF2, entities: Entity[]) {
-    let count = 0;
-    json.meshes = [];
+    const gltfMeshesIndices: Index[] = [];
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getMesh();
@@ -190,9 +192,13 @@ export default class Gltf2Exporter {
           primitive.material = 0;
         }
 
-        (entity as any).gltfMeshIndex = count++;
+        gltfMeshesIndices[i] = count++;
+      } else {
+        gltfMeshesIndices[i] = -1;
       }
     }
+
+    return gltfMeshesIndices;
   }
 
   static __createMaterials(json: glTF2, entities: Entity[]) {
@@ -309,7 +315,7 @@ export default class Gltf2Exporter {
                           0,
                           null
                         );
-                        a.href = URL.createObjectURL(blob);
+                        a.href = URL.createObjectURL(blob!);
                         a.download = imageJson.uri;
                         a.dispatchEvent(e);
                       }, Math.random() * 10000);
@@ -410,7 +416,11 @@ export default class Gltf2Exporter {
     }
   }
 
-  static __createNodes(json: any, entities: Entity[]) {
+  static __createNodes(
+    json: glTF2,
+    entities: Entity[],
+    indicesOfGltfMeshes: Index[]
+  ) {
     json.nodes = [];
     json.scenes = [{nodes: []}];
     const scene = json.scenes[0];
@@ -441,10 +451,15 @@ export default class Gltf2Exporter {
       node.matrix = Array.prototype.slice.call(entity.getTransform().matrix._v);
 
       // mesh
-      node.mesh = (entity as any).gltfMeshIndex;
+      if (Is.exist(entity.getMesh())) {
+        if (indicesOfGltfMeshes[i] >= 0) {
+          node.mesh = indicesOfGltfMeshes[i];
+        }
+      }
 
-      if (sceneGraphComponent.parent == null) {
-        scene.nodes.push(i);
+      // If the entity has no parent, it must be a top level entity in the scene graph.
+      if (Is.not.exist(sceneGraphComponent.parent)) {
+        scene.nodes!.push(i);
       }
     }
   }

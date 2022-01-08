@@ -1,0 +1,24 @@
+{
+	"files": [
+		{
+			"path": "src/foundation/exporter/Gltf2Exporter.ts",
+			"bookmarks": [
+				{
+					"line": 28,
+					"column": 13,
+					"label": ""
+				},
+				{
+					"line": 98,
+					"column": 19,
+					"label": ""
+				},
+				{
+					"line": 202,
+					"column": 11,
+					"label": ""
+				}
+			]
+		}
+	]
+}
