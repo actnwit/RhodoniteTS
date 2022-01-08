@@ -2,7 +2,13 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
-import {glTF2, Gltf2Accessor, Gltf2BufferView, Gltf2Mesh, Gltf2Primitive} from '../../types/glTF';
+import {
+  glTF2,
+  Gltf2Accessor,
+  Gltf2BufferView,
+  Gltf2Mesh,
+  Gltf2Primitive,
+} from '../../types/glTF';
 import {Is} from '../misc/Is';
 import {Index} from '../../types/CommonTypes';
 const _VERSION = require('./../../../VERSION-FILE').default;
@@ -30,7 +36,7 @@ export default class Gltf2Exporter {
   static export(filename: string, option?: Gltf2ExporterArguments) {
     const entities = this.__collectEntities(option);
 
-    const {json, fileName}: {json: any; fileName: string} =
+    const {json, fileName}: {json: glTF2; fileName: string} =
       this.__createJsonBase(filename);
 
     this.__createMeshBinaryMetaData(json, entities);
@@ -64,31 +70,24 @@ export default class Gltf2Exporter {
   }
 
   private static __createJsonBase(filename: string) {
+    const fileName = filename ? filename : 'Rhodonite_' + new Date().getTime();
     const json: any = {
       asset: {
         version: '2.0',
         generator: `Rhodonite (${_VERSION.version})`,
       },
+      buffers: [{uri: fileName + '.bin', byteLength: 0}],
+      bufferViews: [],
+      accessors: [],
+      materials: [
+        {
+          pbrMetallicRoughness: {
+            baseColorFactor: [1.0, 1.0, 1.0, 1.0],
+          },
+        },
+      ],
     };
 
-    const fileName = filename ? filename : 'Rhodonite_' + new Date().getTime();
-
-    json.buffers = [
-      {
-        uri: fileName + '.bin',
-      },
-    ];
-
-    json.bufferViews = [];
-    json.accessors = [];
-
-    json.materials = [
-      {
-        pbrMetallicRoughness: {
-          baseColorFactor: [1.0, 1.0, 1.0, 1.0],
-        },
-      },
-    ];
     return {json, fileName};
   }
 
@@ -560,7 +559,7 @@ export default class Gltf2Exporter {
       }
     }
 
-    json.bufferViews.forEach((bufferView: any) => {
+    json.bufferViews.forEach((bufferView: Gltf2BufferView) => {
       bufferView.rnAccessor = void 0;
     });
 

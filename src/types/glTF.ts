@@ -8,6 +8,26 @@ import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 
+export type glTF2 = {
+  asset: Gltf2Asset;
+  buffers: Gltf2Buffer[];
+  scenes: Gltf2Scene[];
+  scene: number;
+  meshes: Gltf2Mesh[];
+  nodes: Gltf2Node[];
+  skins: Gltf2Skin[];
+  materials: Gltf2Material[];
+  cameras: Gltf2Camera[];
+  images: Gltf2Image[];
+  animations: Gltf2Animation[];
+  textures?: Gltf2Texture[];
+  samplers: Gltf2TextureSampler[];
+  accessors: Gltf2Accessor[];
+  bufferViews: Gltf2BufferView[];
+  extensionsUsed?: string[];
+  extensions?: any;
+};
+
 export type Gltf2Scene = {
   nodesObjects?: Gltf2Node[];
   name?: string;
@@ -309,34 +329,21 @@ export type Gltf2BufferView = {
   extras?: any;
 };
 
-export type glTF2 = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: GltfLoadOption;
-      rnEntities?: Entity[];
-      rnMaterials?: {[s: string]: Material};
-      version?: string;
-      fileType?: string;
-    };
-    version: string;
+export type Gltf2Asset = {
+  copyright?: string;
+  generator?: string;
+  version: string;
+  minVersion?: string;
+  extensions?: object;
+  extras?: {
+    rnLoaderOptions?: GltfLoadOption;
+    rnEntities?: Entity[];
+    rnMaterials?: {[s: string]: Material};
+    version?: string;
+    fileType?: string;
   };
-  buffers: Gltf2Buffer[];
-  scenes: Gltf2Scene[];
-  scene: number;
-  meshes: Gltf2Mesh[];
-  nodes: Gltf2Node[];
-  skins: Gltf2Skin[];
-  materials: Gltf2Material[];
-  cameras: Gltf2Camera[];
-  images: Gltf2Image[];
-  animations: Gltf2Animation[];
-  textures?: Gltf2Texture[];
-  samplers: Gltf2TextureSampler[];
-  accessors: Gltf2Accessor[];
-  bufferViews: Gltf2BufferView[];
-  extensionsUsed?: string[];
-  extensions?: any;
 };
+
 
 export type glTF1 = {
   asset: {
