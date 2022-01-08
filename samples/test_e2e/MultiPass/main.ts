@@ -243,6 +243,6 @@ declare const Stats: any;
 
 window.exportGltf2 = function () {
 
-  const exporter = Rn.Gltf2Exporter.getInstance();
-  exporter.export('Rhodonite');
+
+  Rn.Gltf2Exporter.export('Rhodonite');
 };
