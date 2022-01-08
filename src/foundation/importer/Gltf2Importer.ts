@@ -36,7 +36,7 @@ export default class Gltf2Importer {
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
           return await this.importGltfOrGlbFromArrayBuffers(
-            (options.files as any)[fileName],
+            (options.files as GltfFileBuffers)[fileName],
             options.files,
             options,
             uri
@@ -119,17 +119,22 @@ export default class Gltf2Importer {
     }
   }
 
-  _getOptions(defaultOptions: any, json: RnM2, options: any): GltfLoadOption {
-    if (json.asset && json.asset.extras && json.asset.extras.rnLoaderOptions) {
+  _getOptions(
+    defaultOptions: GltfLoadOption,
+    json: RnM2,
+    options: GltfLoadOption
+  ): GltfLoadOption {
+    if (json.asset?.extras?.rnLoaderOptions != null) {
       for (const optionName in json.asset.extras.rnLoaderOptions) {
-        defaultOptions[optionName] = (json.asset.extras.rnLoaderOptions as any)[
-          optionName
-        ];
+        defaultOptions[optionName as keyof GltfLoadOption] = json.asset.extras
+          .rnLoaderOptions[optionName as keyof GltfLoadOption] as any;
       }
     }
 
     for (const optionName in options) {
-      defaultOptions[optionName] = options[optionName];
+      defaultOptions[optionName as keyof GltfLoadOption] = options[
+        optionName as keyof GltfLoadOption
+      ] as any;
     }
 
     if (
@@ -561,7 +566,10 @@ export default class Gltf2Importer {
     }
   }
 
-  _mergeExtendedJson(gltfJson: RnM2, extendedData: any) {
+  _mergeExtendedJson(
+    gltfJson: RnM2,
+    extendedData: ArrayBuffer | string | object
+  ) {
     let extendedJson = null;
     if (extendedData instanceof ArrayBuffer) {
       const extendedJsonStr = DataUtil.arrayBufferToString(extendedData);
@@ -621,7 +629,9 @@ export default class Gltf2Importer {
               bufferInfo.buffer = new Uint8Array(response);
               resolve(response);
             },
-            (reject: Function, error: any) => {}
+            (reject: () => {
+
+            }, error: any) => {}
           )
         );
       }
