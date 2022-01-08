@@ -2,43 +2,30 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
-import {
-  glTF2,
-  Gltf2Attributes,
-  Gltf2AttributesObject,
-  Gltf2Mesh,
-  Gltf2Primitive,
-} from '../../types/glTF';
-import { Is } from '../misc/Is';
+import {glTF2, Gltf2Mesh, Gltf2Primitive} from '../../types/glTF';
+import {Is} from '../misc/Is';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
 
 interface Gltf2ExporterArguments {
-  entities: Entity[]
+  entities: Entity[]; // The target entities. This exporter includes their descendants for the output.
 }
 
 /**
  * The glTF2 format Exporter class.
  */
 export default class Gltf2Exporter {
-  private static __instance: Gltf2Exporter;
   private static __entityRepository = EntityRepository.getInstance();
 
   private constructor() {}
 
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new Gltf2Exporter();
-    }
-    return this.__instance;
-  }
-
   /**
-   * Exports All scene data in the rhodonite system as glTF2 format.
+   * Exports scene data in the rhodonite system in glTF2 format.
    * @param filename
+   * @param option a option config
    */
-  export(filename: string, option?: Gltf2ExporterArguments) {
+  static export(filename: string, option?: Gltf2ExporterArguments) {
     let entities = Gltf2Exporter.__entityRepository._getEntities();
     if (Is.exist(option) && option.entities.length > 0) {
       const collectChildren = (entity: Entity): Entity[] => {
@@ -77,22 +64,27 @@ export default class Gltf2Exporter {
       },
     ];
 
-    this.countMeshes(json, entities);
+    this.__countMeshes(json, entities);
 
-    this.createNodes(json, entities);
+    this.__createNodes(json, entities);
 
-    this.createMeshBinaryMetaData(json, entities);
+    this.__createMeshBinaryMetaData(json, entities);
 
-    this.createMeshes(json, entities);
+    this.__createMeshes(json, entities);
 
-    this.createMaterials(json, entities);
+    this.__createMaterials(json, entities);
 
-    const arraybuffer = this.__createWriteBinary(json);
+    const arraybuffer = this.__createBinary(json);
 
-    this.download(json, fileName, arraybuffer);
+    this.__download(json, fileName, arraybuffer);
   }
 
-  private __createWriteBinary(json: any) {
+  /**
+   * create binary
+   * @param json
+   * @returns A arraybuffer
+   */
+  private static __createBinary(json: glTF2) {
     const buffer = new ArrayBuffer(json.buffers[0].byteLength);
     const dataView = new DataView(buffer);
 
@@ -103,8 +95,8 @@ export default class Gltf2Exporter {
       const componentType = rnAccessor.componentType;
       const dataViewSetter = rnAccessor.getDataViewSetter(componentType)!;
       const attributeCount = accessor.count;
-      const bufferview = json.bufferViews[accessor.bufferView!];
-      const bufferViewByteOffset = bufferview.byteOffset!;
+      const bufferView = json.bufferViews[accessor.bufferView!];
+      const bufferViewByteOffset = bufferView.byteOffset!;
       for (let k = 0; k < attributeCount; k++) {
         if (compositionType.getNumberOfComponents() === 1) {
           const byteIndex = componentType.getSizeInBytes() * k;
@@ -152,7 +144,7 @@ export default class Gltf2Exporter {
     return buffer;
   }
 
-  countMeshes(json: glTF2, entities: Entity[]) {
+  static __countMeshes(json: glTF2, entities: Entity[]) {
     let count = 0;
     json.meshes = [];
     for (let i = 0; i < entities.length; i++) {
@@ -164,7 +156,7 @@ export default class Gltf2Exporter {
     }
   }
 
-  createMeshes(json: glTF2, entities: Entity[]) {
+  static __createMeshes(json: glTF2, entities: Entity[]) {
     let count = 0;
     json.meshes = [];
     for (let i = 0; i < entities.length; i++) {
@@ -203,7 +195,7 @@ export default class Gltf2Exporter {
     }
   }
 
-  createMaterials(json: glTF2, entities: Entity[]) {
+  static __createMaterials(json: glTF2, entities: Entity[]) {
     let countMesh = 0;
     let countMaterial = 0;
     let countTexture = 0;
@@ -418,7 +410,7 @@ export default class Gltf2Exporter {
     }
   }
 
-  createNodes(json: any, entities: Entity[]) {
+  static __createNodes(json: any, entities: Entity[]) {
     json.nodes = [];
     json.scenes = [{nodes: []}];
     const scene = json.scenes[0];
@@ -457,7 +449,7 @@ export default class Gltf2Exporter {
     }
   }
 
-  createMeshBinaryMetaData(json: any, entities: Entity[]) {
+  static __createMeshBinaryMetaData(json: any, entities: Entity[]) {
     let count = 0;
     let bufferByteLength = 0;
 
@@ -562,7 +554,7 @@ export default class Gltf2Exporter {
     buffer.byteLength = bufferByteLength;
   }
 
-  download(json: glTF2, filename: string, arraybuffer: ArrayBuffer) {
+  static __download(json: glTF2, filename: string, arraybuffer: ArrayBuffer) {
     let a = document.createElement('a');
     let e = document.createEvent('MouseEvent');
 
