@@ -80,9 +80,9 @@ test(`Result.${Ok.prototype.unwrapForce.name}`, () => {
   }
 });
 
-test(`Result.${Ok.prototype.getBoolean.name}`, () => {
+test(`Result.${Ok.prototype.isOk.name}`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(result0.getBoolean()).toBe(true);
+  expect(result0.isOk()).toBe(true);
 });
 
 test(`${Ok.name}.${Ok.prototype.then.name}, ${Ok.name}.${Ok.prototype.catch.name}, ${Finalizer.name}.${Finalizer.prototype.finally.name}`, () => {

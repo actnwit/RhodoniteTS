@@ -23,7 +23,7 @@ export interface IResult<T, ErrObj> {
   catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
   unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
   unwrapForce(): T;
-  getBoolean(): boolean;
+  isOk(): boolean;
   name(): string;
 }
 
@@ -81,7 +81,7 @@ export class Ok<T, ErrObj>
     return true;
   }
 
-  getBoolean(): true {
+  isOk(): true {
     return true;
   }
 
@@ -119,7 +119,7 @@ export class Err<T, ErrObj>
     return false;
   }
 
-  getBoolean(): false {
+  isOk(): false {
     return false;
   }
 
