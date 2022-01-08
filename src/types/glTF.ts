@@ -9,23 +9,25 @@ import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 
 export type RnM2 = {
+  extensionsUsed: string[];
+  extensionsRequired: string[];
+  accessors: Gltf2Accessor[];
+  animations: Gltf2Animation[];
   asset: Gltf2Asset;
   buffers: Gltf2Buffer[];
-  scenes: Gltf2Scene[];
-  scene: number;
-  meshes: Gltf2Mesh[];
-  nodes: Gltf2Node[];
-  skins: Gltf2Skin[];
-  materials: Gltf2Material[];
+  bufferViews: Gltf2BufferView[];
   cameras: Gltf2Camera[];
   images: Gltf2Image[];
-  animations: Gltf2Animation[];
-  textures?: Gltf2Texture[];
+  materials: Gltf2Material[];
+  meshes: Gltf2Mesh[];
+  nodes: Gltf2Node[];
   samplers: Gltf2TextureSampler[];
-  accessors: Gltf2Accessor[];
-  bufferViews: Gltf2BufferView[];
-  extensionsUsed?: string[];
-  extensions?: any;
+  scene: number;
+  scenes: Gltf2Scene[];
+  skins: Gltf2Skin[];
+  textures?: Gltf2Texture[];
+  extensions: {[key: string]: any};
+  extras: {[key: string]: object};
 };
 
 export type Gltf2Scene = {

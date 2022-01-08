@@ -56,9 +56,8 @@ export default class VRMImporter {
       if (Is.exist(defaultMaterialHelperArgumentArray)) {
         defaultMaterialHelperArgumentArray[0].isOutline = true;
       }
-      const rootGroupOutline = modelConverter.convertToRhodoniteObject(
-        gltfModel
-      );
+      const rootGroupOutline =
+        modelConverter.convertToRhodoniteObject(gltfModel);
 
       rootGroups = [rootGroupMain, rootGroupOutline];
     } else {
