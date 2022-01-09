@@ -13,6 +13,7 @@ import PhysicsComponent from '../components/PhysicsComponent';
 import CameraControllerComponent from '../components/CameraControllerComponent';
 import LightComponent from '../components/LightComponent';
 import { Is } from '../misc/Is';
+import AnimationComponent from '../components/AnimationComponent';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
@@ -22,7 +23,6 @@ export default class Entity extends RnObject {
   private readonly __entity_uid: number;
   static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;
-  private static __instance: Entity;
 
   private __components: Component[] = []; // index is ComponentTID
 
@@ -36,6 +36,7 @@ export default class Entity extends RnObject {
   private __blendShapeComponent?: BlendShapeComponent;
   private __physicsComponent?: PhysicsComponent;
   private __lightComponent?: LightComponent;
+  private __animationComponent?: AnimationComponent;
 
   /**
    * The constructor of the Entity class.
@@ -181,8 +182,19 @@ export default class Entity extends RnObject {
     return this.__lightComponent;
   }
 
+  getAnimation(): AnimationComponent {
+    if (this.__animationComponent == null) {
+      this.__animationComponent = this.getComponentByComponentTID(
+        WellKnownComponentTIDs.AnimationComponentTID
+      ) as AnimationComponent;
+    }
+    return this.__animationComponent;
+  }
+
   get worldMatrixInner() {
-    const skeletalComponent = this.getSkeletal() as SkeletalComponent|undefined;
+    const skeletalComponent = this.getSkeletal() as
+      | SkeletalComponent
+      | undefined;
     if (Is.exist(skeletalComponent) && skeletalComponent.isWorldMatrixUpdated) {
       return skeletalComponent.worldMatrixInner;
     } else {
@@ -206,6 +218,6 @@ export default class Entity extends RnObject {
         return child.entity;
       }
     }
-    return undefined
+    return undefined;
   }
 }
