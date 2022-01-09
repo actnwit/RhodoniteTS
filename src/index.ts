@@ -185,7 +185,7 @@ import {
   AnimationInterpolation as _AnimationInterpolation,
   AnimationInterpolationEnum as _AnimationInterpolationEnum,
 } from './foundation/definitions/AnimationInterpolation';
-import {GltfLoadOption as _GltfLoadOption} from './types/glTF';
+import {GltfLoadOption as _GltfLoadOption} from './types/RnM2';
 import {
   CompressionTextureType as _CompressionTextureType,
   CompressionTextureTypeEnum as _CompressionTextureTypeEnum,

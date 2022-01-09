@@ -9,7 +9,7 @@ import {
   RnM2Material,
   GltfFileBuffers,
   GltfLoadOption,
-} from '../../types/glTF';
+} from '../../types/RnM2';
 import {Is} from '../misc/Is';
 
 declare let Rn: any;

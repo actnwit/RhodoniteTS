@@ -1,4 +1,4 @@
-import {RnM2, GltfLoadOption} from './glTF';
+import {RnM2, GltfLoadOption} from './RnM2';
 import Entity from '../foundation/core/Entity';
 
 export type HumanBone = {

@@ -2,7 +2,7 @@ import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
-import {RnM2, RnM2BufferView, RnM2Mesh, RnM2Primitive} from '../../types/glTF';
+import {RnM2, RnM2BufferView, RnM2Mesh, RnM2Primitive} from '../../types/RnM2';
 import {Is} from '../misc/Is';
 import {Index} from '../../types/CommonTypes';
 const _VERSION = require('./../../../VERSION-FILE').default;
@@ -217,7 +217,7 @@ export default class Gltf2Exporter {
       const entity = entities[i];
       const animationComponent = entity.getAnimation();
       if (Is.exist(animationComponent)) {
-
+        // const animation =
       }
     }
   }

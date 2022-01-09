@@ -64,7 +64,7 @@ import {
   KHR_lights_punctual_Light,
   RnM2TextureInfo,
   RnM2SparseIndices,
-} from '../../types/glTF';
+} from '../../types/RnM2';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import MemoryManager from '../core/MemoryManager';

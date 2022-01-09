@@ -2,7 +2,7 @@ import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
-import {GltfLoadOption, RnM2, GltfFileBuffers, glTF1} from '../../types/glTF';
+import {GltfLoadOption, RnM2, GltfFileBuffers, glTF1} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';
 import PhysicsComponent from '../components/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
