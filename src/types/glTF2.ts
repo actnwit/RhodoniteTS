@@ -209,10 +209,15 @@ export type Gltf2AnimationChannel = {
   extras?: any;
 };
 
+export type Gltf2AnimationSamplerInterpolation =
+  | 'LINEAR'
+  | 'STEP'
+  | 'CUBICSPLINE';
+
 export type Gltf2AnimationSampler = {
   input: number;
   output: number;
-  interpolation?: string;
+  interpolation?: Gltf2AnimationSamplerInterpolation;
   extensions?: any;
   extras?: any;
 };

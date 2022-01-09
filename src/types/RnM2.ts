@@ -7,7 +7,9 @@ import Material from '../foundation/materials/core/Material';
 import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
+import { Gltf2AnimationSamplerInterpolation } from './glTF2';
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {
   extensionsUsed: string[];
   extensionsRequired: string[];
@@ -30,6 +32,7 @@ export type RnM2 = {
   extras: {[key: string]: object};
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
 export type RnM2Scene = {
   nodesObjects?: RnM2Node[];
   name?: string;
@@ -49,6 +52,7 @@ export type RnM2AttributeAccessors = {[s: string]: RnM2Accessor};
 export type RnM2AttributeBlendShapes = RnM2Attributes[];
 export type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
 export type RnM2Primitive = {
   attributesObjects?: RnM2AttributeAccessors;
   attributesNames?: {[s: string]: string};
@@ -65,6 +69,7 @@ export type RnM2Primitive = {
   extras?: any;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh
 export type RnM2Mesh = {
   primitives: RnM2Primitive[];
   weights?: number[];
@@ -73,6 +78,7 @@ export type RnM2Mesh = {
   extras?: any;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-node
 export type RnM2Node = {
   cameraObject?: RnM2Camera;
   camera?: number;
@@ -209,30 +215,36 @@ export type RnM2AnimationChannelTarget = {
 };
 
 export type RnM2AnimationChannel = {
-  samplerObject?: RnM2AnimationSampler;
   sampler: number;
   target: RnM2AnimationChannelTarget;
   extensions?: any;
   extras?: any;
+
+  // RnM2 Properties
+  samplerObject?: RnM2AnimationSampler;
 };
 
 export type RnM2AnimationSampler = {
-  inputObject?: RnM2Accessor;
   input: number;
-  outputObject?: RnM2Accessor;
   output: number;
-  interpolation?: string;
+  interpolation?: Gltf2AnimationSamplerInterpolation;
   extensions?: any;
   extras?: any;
+
+  // RnM2 Properties
+  inputObject?: RnM2Accessor;
+  outputObject?: RnM2Accessor;
 };
 
 export type RnM2Animation = {
   channels: RnM2AnimationChannel[];
   samplers: RnM2AnimationSampler[];
-  parameters: {[s: string]: any};
   name?: string;
   extensions?: any;
   extras?: any;
+
+  // RnM2 Properties
+  parameters: {[s: string]: any};
 };
 
 export type RnM2Texture = {
