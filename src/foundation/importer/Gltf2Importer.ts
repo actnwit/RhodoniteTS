@@ -501,7 +501,7 @@ export default class Gltf2Importer {
         for (const channel of animation.channels) {
           if (Is.defined(channel.sampler)) {
             channel.samplerObject = animation.samplers[channel.sampler];
-            channel.target!.nodeObject = gltfJson.nodes[channel.target!.node!];
+            channel.target.nodeObject = gltfJson.nodes[channel.target.node!];
             channel.samplerObject.inputObject =
               gltfJson.accessors[channel.samplerObject.input!];
             channel.samplerObject.outputObject =
@@ -509,7 +509,7 @@ export default class Gltf2Importer {
             if (Is.undefined(channel.samplerObject.outputObject.extras)) {
               channel.samplerObject.outputObject.extras = {} as any;
             }
-            if (channel.target!.path === 'weights') {
+            if (channel.target.path === 'weights') {
               let weightsArrayLength =
                 channel.samplerObject.outputObject.count /
                 channel.samplerObject.inputObject.count;
@@ -523,7 +523,7 @@ export default class Gltf2Importer {
               channel.samplerObject.outputObject.extras!.weightsArrayLength =
                 weightsArrayLength;
             }
-            if (channel.target!.path === 'rotation') {
+            if (channel.target.path === 'rotation') {
               channel.samplerObject.outputObject.extras!.quaternionIfVec4 =
                 true;
             }
