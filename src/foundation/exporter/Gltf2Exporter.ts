@@ -206,6 +206,23 @@ export default class Gltf2Exporter {
   }
 
   /**
+   * create Gltf2Animations for the output glTF JSON
+   * @param json a RnM2 JSON
+   * @param entities all target entities
+   * @returns the indices of glTF meshes
+   */
+  static __createAnimations(json: RnM2, entities: Entity[]): void {
+    json.meshes = [];
+    for (let i = 0; i < entities.length; i++) {
+      const entity = entities[i];
+      const animationComponent = entity.getAnimation();
+      if (Is.exist(animationComponent)) {
+
+      }
+    }
+  }
+
+  /**
    * create Gltf2Meshes and their Gltf2Primitives for the output glTF JSON
    * @param json a RnM2 JSON
    * @param entities all target entities
