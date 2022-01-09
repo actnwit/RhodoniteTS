@@ -514,7 +514,9 @@ export default class Gltf2Importer {
                 channel.samplerObject.outputObject.count /
                 channel.samplerObject.inputObject.count;
               if (channel.samplerObject.interpolation === 'CUBICSPLINE') {
-                // divided by 3, because in glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+                // divided by 3, because in glTF CUBICSPLINE interpolation,
+                //   tangents (ak, bk) and values (vk) are grouped
+                //       within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
                 weightsArrayLength =
                   channel.samplerObject.outputObject.count /
                   channel.samplerObject.inputObject.count /
