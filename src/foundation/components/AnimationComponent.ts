@@ -86,13 +86,17 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 type AnimationComponentEventType = symbol;
 
 export default class AnimationComponent extends Component {
+  public static globalTime = 0;
+  public static readonly Event = {
+    ChangeAnimationInfo,
+    PlayEnd,
+  };
   private __backupDefaultValues: Map<
     AnimationAttributeType,
     IVector | IQuaternion | number[]
   > = new Map();
   private __currentActiveAnimationName?: AnimationName;
   private __animationData: Map<AnimationName, AnimationSet> = new Map();
-  public static globalTime = 0;
   private __isAnimating = true;
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
@@ -100,10 +104,6 @@ export default class AnimationComponent extends Component {
     ComponentRepository.getInstance();
   private static __animationInfo: Map<AnimationName, AnimationInfo> = new Map();
   private static __pubsub = new EventPubSub();
-  static Event = {
-    ChangeAnimationInfo,
-    PlayEnd,
-  };
 
   constructor(
     entityUid: EntityUID,
