@@ -23,23 +23,6 @@ export interface AnimationInfo {
 }
 
 /**
- * this includes both data of
- * [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
- * and
- * [Animation.Sampler](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-sampler)
- * in glTF2
- */
-export interface AnimationChannelSampler {
-  input: Float32Array;
-  output: Float32Array;
-  outputChannelName: AnimationPathName;
-  outputComponentN: number;
-  interpolationMethod: AnimationInterpolationEnum;
-  targetEntityUid?: EntityUID;
-  belongTrackName: AnimationTrackName;
-}
-
-/**
  * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
  */
 export interface AnimationChannel {
@@ -52,8 +35,8 @@ export interface AnimationChannel {
  * Similar to [Animation.Channel.Target](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel-target)
  */
 export interface AnimationChannelTarget {
-  targetPathName: AnimationPathName;
-  targetEntity: Entity;
+  pathName: AnimationPathName;
+  entity: Entity;
 }
 
 /**
@@ -66,7 +49,7 @@ export interface AnimationSampler {
   interpolationMethod: AnimationInterpolationEnum;
 }
 
-export type AnimationChannels = Map<AnimationPathName, AnimationChannelSampler>;
+export type AnimationChannels = Map<AnimationPathName, AnimationChannel>;
 export type AnimationTracks = Map<AnimationTrackName, AnimationChannels>;
 
 export interface ChangeAnimationInfoEvent {
