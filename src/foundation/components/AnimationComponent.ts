@@ -411,11 +411,11 @@ export default class AnimationComponent extends Component {
     this.backupDefaultValues();
   }
 
-  static getAnimationList() {
+  static getAnimationList(): string[] {
     return Array.from(this.__animationInfo.keys());
   }
 
-  getStartInputValueOfAnimation(animationName?: string) {
+  public getStartInputValueOfAnimation(animationName?: string): number {
     const name = animationName ?? this.__currentActiveAnimationName;
     if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationInfo.values());
@@ -433,7 +433,7 @@ export default class AnimationComponent extends Component {
     return maxStartInputTime;
   }
 
-  getEndInputValueOfAnimation(animationName?: string) {
+  public getEndInputValueOfAnimation(animationName?: string): number {
     const name = animationName ?? this.__currentActiveAnimationName;
 
     if (name === undefined) {
@@ -452,7 +452,7 @@ export default class AnimationComponent extends Component {
     return maxEndInputTime;
   }
 
-  static getAnimationInfo() {
+  static getAnimationInfo(): Map<string, AnimationInfo> {
     return new Map(this.__animationInfo);
   }
 
