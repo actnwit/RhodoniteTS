@@ -456,6 +456,14 @@ export default class AnimationComponent extends Component {
   }
 
   /**
+   * get animation track names of this component
+   * @returns an array of animation track name
+   */
+  public getAnimationTrackNames(): AnimationTrackName[] {
+    return Array.from(this.__animationTracks.keys());
+  }
+
+  /**
    * get the animation channels of the animation track
    * @param animationTrackName the name of animation track to get
    * @returns the channel maps of the animation track
