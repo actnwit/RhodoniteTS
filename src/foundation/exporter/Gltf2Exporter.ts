@@ -102,12 +102,14 @@ export default class Gltf2Exporter {
    * @param entities
    */
   static __createBufferViewsAndAccessors(json: RnM2, entities: Entity[]) {
-    let count = 0;
-    let bufferByteLength = 0;
+    let bufferViewCount = 0;
+    let accessorCount = 0;
+    let bufferByteLengthAccumulated = 0;
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
-      ({ count, bufferByteLength } = createBufferViewAndAccessorsOfMesh(entity, json, count, bufferByteLength));
+      ({bufferViewCount, accessorCount, bufferByteLengthAccumulated} =
+        createBufferViewAndAccessorsOfMesh(entity, json, bufferByteLengthAccumulated, bufferViewCount, accessorCount));
     }
 
     json.bufferViews.forEach((bufferView: RnM2BufferView) => {
@@ -115,7 +117,7 @@ export default class Gltf2Exporter {
     });
 
     const buffer = json.buffers[0];
-    buffer.byteLength = bufferByteLength;
+    buffer.byteLength = bufferByteLengthAccumulated;
   }
 
   /**
@@ -618,7 +620,7 @@ export default class Gltf2Exporter {
     a.dispatchEvent(e);
   }
 }
-function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, count: number, bufferByteLength: number) {
+function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, bufferByteLengthAccumulated: number, bufferViewCount: number, accessorCount: number) {
   const meshComponent = entity.getMesh();
   if (meshComponent && meshComponent.mesh) {
     const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
@@ -640,19 +642,19 @@ function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, count: n
 
         if (!match) {
           // create a Gltf2BufferView
-          json.bufferViews[count] = {
+          json.bufferViews[accessorCount] = {
             rnAccessor: indicesAccessor,
             buffer: 0,
             byteLength: indicesAccessor.byteLength,
-            byteOffset: bufferByteLength,
+            byteOffset: bufferByteLengthAccumulated,
             target: 34963,
           };
 
           // create a Gltf2Accessor
           indicesAccessor.calcMinMax();
-          (indicesAccessor as any).gltfAccessorIndex = count;
-          json.accessors[count] = {
-            bufferView: count,
+          (indicesAccessor as any).gltfAccessorIndex = accessorCount;
+          json.accessors[accessorCount] = {
+            bufferView: accessorCount,
             byteOffset: 0,
             componentType: 5123,
             count: indicesAccessor.elementCount,
@@ -661,8 +663,8 @@ function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, count: n
             type: 'SCALAR',
             accessor: indicesAccessor,
           };
-          bufferByteLength += indicesAccessor.byteLength;
-          count++;
+          bufferByteLengthAccumulated += indicesAccessor.byteLength;
+          accessorCount++;
         }
       }
 
@@ -681,11 +683,11 @@ function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, count: n
         }
         if (!match) {
           // create a Gltf2BufferView
-          json.bufferViews[count] = {
+          json.bufferViews[accessorCount] = {
             rnAccessor: attributeAccessor,
             buffer: 0,
             byteLength: attributeAccessors[j].byteLength,
-            byteOffset: bufferByteLength,
+            byteOffset: bufferByteLengthAccumulated,
             target: 34962,
           };
 
@@ -693,10 +695,10 @@ function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, count: n
           attributeAccessor.calcMinMax();
           const max = Array.prototype.slice.call(attributeAccessor.max);
           const min = Array.prototype.slice.call(attributeAccessor.min);
-          bufferByteLength += attributeAccessor.byteLength;
-          (attributeAccessor as any).gltfAccessorIndex = count;
-          json.accessors[count] = {
-            bufferView: count,
+          bufferByteLengthAccumulated += attributeAccessor.byteLength;
+          (attributeAccessor as any).gltfAccessorIndex = accessorCount;
+          json.accessors[accessorCount] = {
+            bufferView: accessorCount,
             byteOffset: 0,
             componentType: 5126,
             count: attributeAccessor.elementCount,
@@ -705,11 +707,11 @@ function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, count: n
             type: 'VEC' + max.length,
             accessor: attributeAccessor,
           };
-          count++;
+          accessorCount++;
         }
       }
     }
   }
-  return { count, bufferByteLength };
+  return { bufferViewCount, accessorCount, bufferByteLengthAccumulated };
 }
 
