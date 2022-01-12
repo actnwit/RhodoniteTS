@@ -5,7 +5,7 @@ import AbstractTexture from '../textures/AbstractTexture';
 import {RnM2, RnM2Accessor, RnM2Animation, RnM2BufferView, RnM2Mesh, RnM2Primitive} from '../../types/RnM2';
 import {Is} from '../misc/Is';
 import {Index} from '../../types/CommonTypes';
-import { Gltf2AnimationChannel, PathType } from '../../types/glTF2';
+import { Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationSampler, PathType } from '../../types/glTF2';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
@@ -218,28 +218,36 @@ export default class Gltf2Exporter {
       const entity = entities[i];
       const animationComponent = entity.getAnimation();
       if (Is.exist(animationComponent)) {
-        const animation: RnM2Animation = {
+        const animation: Gltf2Animation = {
           channels: [],
           samplers: [],
-          parameters: {},
         };
 
         const trackNames = animationComponent.getAnimationTrackNames();
         for (let trackName of trackNames) {
           const channelsOfTrack = animationComponent.getAnimationChannelsOfTrack(trackName);
           if (Is.exist(channelsOfTrack)) {
+            let i_ch = 0;
             for (let [channelName, channel] of channelsOfTrack) {
               const pathName = channel.target.pathName as PathType;
+
               const channelJson: Gltf2AnimationChannel = {
-                sampler: -1,
+                sampler: i_ch++,
                 target: {
                   path: pathName,
                   node: i,
                 }
               }
+
+              // const samplerJson: Gltf2AnimationSampler = {
+
+              // }
+              animation.channels.push(channelJson);
+              animation.samplers.push()
             }
           }
         }
+
       }
     }
   }

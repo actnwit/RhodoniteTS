@@ -55,6 +55,8 @@ export type AttributeName =
   | 'JOINTS_0'
   | 'WEIGHTS_0';
 
+export type Gltf2AccessorIndex = number;
+
 export type Gltf2Attributes = {[s: string]: number};
 export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
 export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
@@ -217,8 +219,8 @@ export type Gltf2AnimationSamplerInterpolation =
   | 'CUBICSPLINE';
 
 export type Gltf2AnimationSampler = {
-  input: number;
-  output: number;
+  input: Gltf2AccessorIndex;
+  output: Gltf2AccessorIndex;
   interpolation?: Gltf2AnimationSamplerInterpolation;
   extensions?: any;
   extras?: any;
