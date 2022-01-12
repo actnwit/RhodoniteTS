@@ -15,11 +15,13 @@ import {
   ComponentSID,
   EntityUID,
   Index,
-  AnimationChannelType as AnimationChannelName,
   Array4,
   Array3,
-  Second,
 } from '../../types/CommonTypes';
+import {
+  AnimationChannel,
+  AnimationChannelName, AnimationChannels, AnimationComponentEventType, AnimationInfo, AnimationTrackName
+} from '../../types/AnimationTypes';
 import {
   valueWithDefault,
   greaterThan,
@@ -47,31 +49,6 @@ import {
 } from '../math/raw/raw_extension';
 import Vector3 from '../math/Vector3';
 
-export type AnimationTrackName = string;
-
-export interface AnimationInfo {
-  name: AnimationTrackName;
-  maxStartInputTime: Second;
-  maxEndInputTime: Second;
-}
-
-interface AnimationChannel {
-  input: Float32Array;
-  output: Float32Array;
-  outputChannelName: AnimationChannelName;
-  outputComponentN: number;
-  interpolationMethod: AnimationInterpolationEnum;
-  targetEntityUid?: EntityUID;
-  belongTrackName: AnimationTrackName;
-}
-
-type AnimationChannels = Map<AnimationChannelName, AnimationChannel>;
-type AnimationTracks = Map<AnimationTrackName, AnimationChannels>;
-
-export interface ChangeAnimationInfoEvent {
-  infoMap: Map<AnimationTrackName, AnimationInfo>;
-}
-
 const defaultAnimationInfo = {
   name: '',
   maxStartInputTime: 0,
@@ -82,7 +59,6 @@ const ChangeAnimationInfo = Symbol(
   'AnimationComponentEventChangeAnimationInfo'
 );
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
-type AnimationComponentEventType = symbol;
 
 export default class AnimationComponent extends Component {
 /// inner states ///
@@ -108,6 +84,8 @@ export default class AnimationComponent extends Component {
 
   // Global animation time in Rhodonite
   public static globalTime = 0;
+
+  // Event for pubsub of notifications
   public static readonly Event = {
     ChangeAnimationInfo,
     PlayEnd,

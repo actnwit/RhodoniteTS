@@ -45,7 +45,6 @@ import {
   Size,
   Index,
   TypedArray,
-  AnimationChannelType,
   TypedArrayConstructor,
   Array4,
 } from '../../types/CommonTypes';
@@ -77,6 +76,7 @@ import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
+import { AnimationChannelName } from '../../types/AnimationTypes';
 
 declare let DracoDecoderModule: any;
 
@@ -323,14 +323,14 @@ export default class ModelConverter {
             const interpolation =
               channel.samplerObject.interpolation ?? 'LINEAR';
 
-            let animationAttributeType: AnimationChannelType = 'undefined';
+            let animationAttributeType: AnimationChannelName = 'undefined';
             if (channel.target!.path === 'translation') {
               animationAttributeType = 'translate';
             } else if (channel.target!.path === 'rotation') {
               animationAttributeType = 'quaternion';
             } else {
               animationAttributeType = channel.target!
-                .path as AnimationChannelType;
+                .path as AnimationChannelName;
             }
 
             const rnEntity = rnEntities[channel.target!.node!];

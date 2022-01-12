@@ -223,6 +223,7 @@ export default class Gltf2Exporter {
           parameters: {},
         };
 
+        // const map = animationComponent.getAnimationInfo()
       }
     }
   }

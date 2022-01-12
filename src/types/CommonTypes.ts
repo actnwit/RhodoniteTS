@@ -60,15 +60,3 @@ export type WebGLResourceHandle = number;
 export type CGAPIResourceHandle = WebGLResourceHandle;
 
 export type RnTags = {[s: string]: string};
-
-/**
- * animation channel name
- * animation.channels in glTF2
- * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
- */
-export type AnimationChannelType =
-  | 'undefined'
-  | 'translate'
-  | 'quaternion'
-  | 'scale'
-  | 'weights';
