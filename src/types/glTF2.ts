@@ -17,6 +17,7 @@ export type glTF2 = {
       version?: string;
       fileType?: string;
     };
+    generator: string;
     version: string;
   };
   buffers?: Gltf2Buffer[];
@@ -41,7 +42,7 @@ export type Gltf2Scene = {
   name?: string;
   scene?: number;
   nodes?: number[];
-  extensions: any;
+  extensions?: any;
   extras?: any;
 };
 
