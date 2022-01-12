@@ -202,8 +202,10 @@ export type Gltf2AnimationChannelTarget = {
   extras?: any;
 };
 
+type Gltf2AnimationSamplerIndex = number;
+
 export type Gltf2AnimationChannel = {
-  sampler: number;
+  sampler: Gltf2AnimationSamplerIndex;
   target: Gltf2AnimationChannelTarget;
   extensions?: any;
   extras?: any;

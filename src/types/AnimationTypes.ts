@@ -21,6 +21,13 @@ export interface AnimationInfo {
   maxEndInputTime: Second;
 }
 
+/**
+ * this includes both data of
+ * [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
+ * and
+ * [Animation.Sampler](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-sampler)
+ * in glTF2
+ */
 export interface AnimationChannel {
   input: Float32Array;
   output: Float32Array;

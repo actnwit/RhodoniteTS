@@ -5,6 +5,7 @@ import AbstractTexture from '../textures/AbstractTexture';
 import {RnM2, RnM2Accessor, RnM2Animation, RnM2BufferView, RnM2Mesh, RnM2Primitive} from '../../types/RnM2';
 import {Is} from '../misc/Is';
 import {Index} from '../../types/CommonTypes';
+import { Gltf2AnimationChannel, PathType } from '../../types/glTF2';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 declare let window: any;
@@ -223,7 +224,22 @@ export default class Gltf2Exporter {
           parameters: {},
         };
 
-        // const map = animationComponent.getAnimationInfo()
+        const trackNames = animationComponent.getAnimationTrackNames();
+        for (let trackName of trackNames) {
+          const channelsOfTrack = animationComponent.getAnimationChannelsOfTrack(trackName);
+          if (Is.exist(channelsOfTrack)) {
+            for (let [channelName, channel] of channelsOfTrack) {
+              const pathName = channel.outputChannelName as PathType;
+              const channelJson: Gltf2AnimationChannel = {
+                sampler: -1,
+                target: {
+                  path: pathName,
+                  node: i,
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -281,7 +297,7 @@ export default class Gltf2Exporter {
   /**
    * create Gltf2Nodes for the output glTF2 JSON
    * @param json a RnM2 JSON
-   * @param entities all target entities
+   * @param entities target entities
    * @param indicesOfGltfMeshes the indices of Gltf2Meshes
    */
   static __createNodes(
@@ -292,7 +308,6 @@ export default class Gltf2Exporter {
     json.nodes = [];
     json.scenes = [{nodes: []}];
     const scene = json.scenes[0];
-    const nodes = json.nodes;
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       (entity as any).gltfNodeIndex = i;
@@ -300,8 +315,10 @@ export default class Gltf2Exporter {
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
-      nodes[i] = {};
-      const node = nodes[i];
+
+      // node ids of the output glTF2 data will be the indices of entities (specified target entities)
+      json.nodes[i] = {};
+      const node = json.nodes[i];
 
       // node.name
       node.name = entity.uniqueName;
