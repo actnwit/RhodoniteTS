@@ -107,95 +107,7 @@ export default class Gltf2Exporter {
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
-      const meshComponent = entity.getMesh();
-      if (meshComponent && meshComponent.mesh) {
-        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-        for (let j = 0; j < primitiveCount; j++) {
-          const primitive = meshComponent.mesh.getPrimitiveAt(j);
-          const indicesAccessor = primitive.indicesAccessor;
-
-          if (indicesAccessor) {
-            // BufferView
-            let match = false;
-            for (let k = 0; k < json.bufferViews.length; k++) {
-              const bufferView = json.bufferViews[k];
-              if (bufferView.rnAccessor === indicesAccessor) {
-                match = true;
-                (indicesAccessor as any).gltfAccessorIndex = k;
-              }
-            }
-
-            if (!match) {
-              // create a Gltf2BufferView
-              json.bufferViews[count] = {
-                rnAccessor: indicesAccessor,
-                buffer: 0,
-                byteLength: indicesAccessor.byteLength,
-                byteOffset: bufferByteLength,
-                target: 34963,
-              };
-
-              // create a Gltf2Accessor
-              indicesAccessor.calcMinMax();
-              (indicesAccessor as any).gltfAccessorIndex = count;
-              json.accessors[count] = {
-                bufferView: count,
-                byteOffset: 0, //indicesAccessor.byteOffsetInBufferView,
-                componentType: 5123,
-                count: indicesAccessor.elementCount,
-                max: indicesAccessor.max,
-                min: indicesAccessor.min,
-                type: 'SCALAR',
-                accessor: indicesAccessor,
-              };
-              bufferByteLength += indicesAccessor.byteLength;
-              count++;
-            }
-          }
-
-          const attributeAccessors = primitive.attributeAccessors;
-          for (let j = 0; j < attributeAccessors.length; j++) {
-            const attributeAccessor = attributeAccessors[j];
-
-            let match = false;
-            for (let k = 0; k < json.bufferViews.length; k++) {
-              const bufferview = json.bufferViews[k];
-              if (bufferview.rnAccessor === attributeAccessor) {
-                match = true;
-                (attributeAccessor as any).gltfAccessorIndex = k;
-              }
-            }
-            if (!match) {
-              // create a Gltf2BufferView
-              json.bufferViews[count] = {
-                rnAccessor: attributeAccessor,
-                buffer: 0,
-                byteLength: attributeAccessors[j].byteLength,
-                byteOffset: bufferByteLength,
-                target: 34962,
-              };
-
-              // create a Gltf2Accessor
-              attributeAccessor.calcMinMax();
-              const max = Array.prototype.slice.call(attributeAccessor.max);
-              const min = Array.prototype.slice.call(attributeAccessor.min);
-              bufferByteLength += attributeAccessor.byteLength;
-              (attributeAccessor as any).gltfAccessorIndex = count;
-              json.accessors[count] = {
-                bufferView: count,
-                byteOffset: 0, //attributeAccessor.byteOffsetInBufferView,
-                componentType: 5126,
-                count: attributeAccessor.elementCount,
-                max: max,
-                min: min,
-                type: 'VEC' + max.length,
-                accessor: attributeAccessor,
-              };
-              count++;
-            }
-          }
-        }
-      }
+      ({ count, bufferByteLength } = createBufferViewAndAccessorsOfMesh(entity, json, count, bufferByteLength));
     }
 
     json.bufferViews.forEach((bufferView: RnM2BufferView) => {
@@ -706,3 +618,98 @@ export default class Gltf2Exporter {
     a.dispatchEvent(e);
   }
 }
+function createBufferViewAndAccessorsOfMesh(entity: Entity, json: RnM2, count: number, bufferByteLength: number) {
+  const meshComponent = entity.getMesh();
+  if (meshComponent && meshComponent.mesh) {
+    const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
+    for (let j = 0; j < primitiveCount; j++) {
+      const primitive = meshComponent.mesh.getPrimitiveAt(j);
+      const indicesAccessor = primitive.indicesAccessor;
+
+      // For indices accessor
+      if (indicesAccessor) {
+        // BufferView
+        let match = false;
+        for (let k = 0; k < json.bufferViews.length; k++) {
+          const bufferView = json.bufferViews[k];
+          if (bufferView.rnAccessor === indicesAccessor) {
+            match = true;
+            (indicesAccessor as any).gltfAccessorIndex = k;
+          }
+        }
+
+        if (!match) {
+          // create a Gltf2BufferView
+          json.bufferViews[count] = {
+            rnAccessor: indicesAccessor,
+            buffer: 0,
+            byteLength: indicesAccessor.byteLength,
+            byteOffset: bufferByteLength,
+            target: 34963,
+          };
+
+          // create a Gltf2Accessor
+          indicesAccessor.calcMinMax();
+          (indicesAccessor as any).gltfAccessorIndex = count;
+          json.accessors[count] = {
+            bufferView: count,
+            byteOffset: 0,
+            componentType: 5123,
+            count: indicesAccessor.elementCount,
+            max: indicesAccessor.max,
+            min: indicesAccessor.min,
+            type: 'SCALAR',
+            accessor: indicesAccessor,
+          };
+          bufferByteLength += indicesAccessor.byteLength;
+          count++;
+        }
+      }
+
+      // For each attribute accessor
+      const attributeAccessors = primitive.attributeAccessors;
+      for (let j = 0; j < attributeAccessors.length; j++) {
+        const attributeAccessor = attributeAccessors[j];
+
+        let match = false;
+        for (let k = 0; k < json.bufferViews.length; k++) {
+          const bufferView = json.bufferViews[k];
+          if (bufferView.rnAccessor === attributeAccessor) {
+            match = true;
+            (attributeAccessor as any).gltfAccessorIndex = k;
+          }
+        }
+        if (!match) {
+          // create a Gltf2BufferView
+          json.bufferViews[count] = {
+            rnAccessor: attributeAccessor,
+            buffer: 0,
+            byteLength: attributeAccessors[j].byteLength,
+            byteOffset: bufferByteLength,
+            target: 34962,
+          };
+
+          // create a Gltf2Accessor
+          attributeAccessor.calcMinMax();
+          const max = Array.prototype.slice.call(attributeAccessor.max);
+          const min = Array.prototype.slice.call(attributeAccessor.min);
+          bufferByteLength += attributeAccessor.byteLength;
+          (attributeAccessor as any).gltfAccessorIndex = count;
+          json.accessors[count] = {
+            bufferView: count,
+            byteOffset: 0,
+            componentType: 5126,
+            count: attributeAccessor.elementCount,
+            max: max,
+            min: min,
+            type: 'VEC' + max.length,
+            accessor: attributeAccessor,
+          };
+          count++;
+        }
+      }
+    }
+  }
+  return { count, bufferByteLength };
+}
+

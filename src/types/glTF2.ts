@@ -221,7 +221,7 @@ export type Gltf2AnimationSamplerInterpolation =
 export type Gltf2AnimationSampler = {
   input: Gltf2AccessorIndex;
   output: Gltf2AccessorIndex;
-  interpolation?: Gltf2AnimationSamplerInterpolation;
+  interpolation: Gltf2AnimationSamplerInterpolation;
   extensions?: any;
   extras?: any;
 };
