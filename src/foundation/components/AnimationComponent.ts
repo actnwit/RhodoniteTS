@@ -65,7 +65,8 @@ interface AnimationChannel {
   belongTrackName: AnimationTrackName;
 }
 
-type AnimationChannelMap = Map<AnimationChannelName, AnimationChannel>;
+type AnimationChannels = Map<AnimationChannelName, AnimationChannel>;
+type AnimationTracks = Map<AnimationTrackName, AnimationChannels>;
 
 export interface ChangeAnimationInfoEvent {
   infoMap: Map<AnimationTrackName, AnimationInfo>;
@@ -94,7 +95,7 @@ export default class AnimationComponent extends Component {
   private __currentActiveAnimationTrackName?: AnimationTrackName;
 
   // Animation Data of each AnimationComponent
-  private __animationTracks: Map<AnimationTrackName, AnimationChannelMap> = new Map();
+  private __animationTracks: Map<AnimationTrackName, AnimationChannels> = new Map();
 
   /// cache references of other components
   private __transformComponent?: TransformComponent;
@@ -461,8 +462,8 @@ export default class AnimationComponent extends Component {
   }
 
   /**
-   * get the Array of Animation Channel Name
-   * @returns Array of Animation Channel Name
+   * get the Array of Animation Track Name
+   * @returns Array of Animation Track Name
    */
   static getAnimationList(): AnimationTrackName[] {
     return Array.from(this.__animationGlobalInfo.keys());
@@ -474,6 +475,15 @@ export default class AnimationComponent extends Component {
    */
   static getAnimationInfo(): Map<AnimationTrackName, AnimationInfo> {
     return new Map(this.__animationGlobalInfo);
+  }
+
+  /**
+   * get the animation channels of the animation track
+   * @param animationTrackName the name of animation track to get
+   * @returns the channel maps of the animation track
+   */
+  public getAnimationChannelsOfTrack(animationTrackName: AnimationTrackName): AnimationChannels | undefined {
+    return this.__animationTracks.get(animationTrackName);
   }
 
   get isAnimating() {
