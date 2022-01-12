@@ -43,9 +43,9 @@
     "yarn-pack": "npx yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",
-    "gts-lint": "gts lint ./src ./samples",
-    "gts-clean": "gts clean ./src ./samples",
-    "gts-fix": "gts fix ./src ./samples"
+    "lint": "eslint ./src ./samples",
+    "clean": "gts clean ./src ./samples",
+    "fix": "eslint --fix ./src ./samples"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
@@ -58,6 +58,8 @@
     "@types/webxr": "^0.2.1",
     "@typescript-eslint/parser": "4.15.1",
     "cross-env": "^7.0.3",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "express": "^4.17.1",
     "gts": "^3.1.0",
     "jest": "^26.6.3",
