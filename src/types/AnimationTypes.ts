@@ -1,3 +1,4 @@
+import Entity from "../foundation/core/Entity";
 import { AnimationInterpolationEnum } from "../foundation/definitions/AnimationInterpolation";
 import { EntityUID, Second } from "./CommonTypes";
 
@@ -39,11 +40,20 @@ export interface AnimationChannelSampler {
 }
 
 /**
- * See: [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
+ * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
  */
 export interface AnimationChannel {
-  sampler: AnimationSampler,
-  targetPathName: AnimationPathName,
+  sampler: AnimationSampler;
+  target: AnimationChannelTarget;
+  belongTrackName: AnimationTrackName;
+}
+
+/**
+ * Similar to [Animation.Channel.Target](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel-target)
+ */
+export interface AnimationChannelTarget {
+  targetPathName: AnimationPathName;
+  targetEntity: Entity;
 }
 
 /**
@@ -52,6 +62,7 @@ export interface AnimationChannel {
 export interface AnimationSampler {
   input: Float32Array;
   output: Float32Array;
+  outputComponentN: number;
   interpolationMethod: AnimationInterpolationEnum;
 }
 
