@@ -55,17 +55,17 @@ export interface AnimationInfo {
   maxEndInputTime: Second;
 }
 
-interface AnimationLine {
-  name: AnimationTrackName;
+interface AnimationChannel {
   input: Float32Array;
   output: Float32Array;
   outputChannelName: AnimationChannelName;
   outputComponentN: number;
   interpolationMethod: AnimationInterpolationEnum;
   targetEntityUid?: EntityUID;
+  belongTrackName: AnimationTrackName;
 }
 
-type AnimationSet = Map<AnimationChannelName, AnimationLine>;
+type AnimationChannelMap = Map<AnimationChannelName, AnimationChannel>;
 
 export interface ChangeAnimationInfoEvent {
   infoMap: Map<AnimationTrackName, AnimationInfo>;
@@ -84,22 +84,34 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 type AnimationComponentEventType = symbol;
 
 export default class AnimationComponent extends Component {
+/// inner states ///
+  private __backupDefaultValues: Map<
+    AnimationChannelName,
+    IVector | IQuaternion | number[]
+  > = new Map();
+
+  //
+  private __currentActiveAnimationTrackName?: AnimationTrackName;
+
+  // Animation Data of each AnimationComponent
+  private __animationTracks: Map<AnimationTrackName, AnimationChannelMap> = new Map();
+
+  /// cache references of other components
+  private __transformComponent?: TransformComponent;
+  private __meshComponent?: MeshComponent;
+
+/// flags ///
+  private __isAnimating = true;
+
+/// Static Members ///
+
+  // Global animation time in Rhodonite
   public static globalTime = 0;
   public static readonly Event = {
     ChangeAnimationInfo,
     PlayEnd,
   };
-  private __backupDefaultValues: Map<
-    AnimationChannelName,
-    IVector | IQuaternion | number[]
-  > = new Map();
-  private __currentActiveAnimationName?: AnimationTrackName;
-  private __animationData: Map<AnimationTrackName, AnimationSet> = new Map();
-  private __isAnimating = true;
-  private __transformComponent?: TransformComponent;
-  private __meshComponent?: MeshComponent;
-
-  // Static Members
+  // TODO: fix the conflict possibilities of AnimationTrackNames btw components
   private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
   private static __pubsub = new EventPubSub();
   private static __componentRepository: ComponentRepository =
@@ -115,7 +127,7 @@ export default class AnimationComponent extends Component {
     this.__currentProcessStage = ProcessStage.Create;
   }
 
-  /// LifeCycle Methods
+/// LifeCycle Methods ///
 
   $create() {
     this.__transformComponent = this.__entityRepository.getComponentOfEntity(
@@ -130,9 +142,9 @@ export default class AnimationComponent extends Component {
   }
 
   $logic() {
-    if (this.isAnimating && this.__currentActiveAnimationName !== undefined) {
-      const animationSet = this.__animationData.get(
-        this.__currentActiveAnimationName
+    if (this.isAnimating && this.__currentActiveAnimationTrackName !== undefined) {
+      const animationSet = this.__animationTracks.get(
+        this.__currentActiveAnimationTrackName
       );
       if (animationSet !== undefined) {
         for (const [attributeName, line] of animationSet) {
@@ -324,11 +336,11 @@ export default class AnimationComponent extends Component {
   }
 
   setActiveAnimation(animationName: AnimationTrackName) {
-    if (this.__animationData.has(animationName)) {
-      this.__currentActiveAnimationName = animationName;
+    if (this.__animationTracks.has(animationName)) {
+      this.__currentActiveAnimationTrackName = animationName;
       return true;
     } else {
-      this.__currentActiveAnimationName = undefined;
+      this.__currentActiveAnimationTrackName = undefined;
       return false;
     }
   }
@@ -343,16 +355,16 @@ export default class AnimationComponent extends Component {
     makeThisActiveAnimation = true
   ) {
     if (makeThisActiveAnimation) {
-      this.__currentActiveAnimationName = animationName;
+      this.__currentActiveAnimationTrackName = animationName;
     } else {
-      this.__currentActiveAnimationName = valueWithDefault({
-        value: this.__currentActiveAnimationName,
+      this.__currentActiveAnimationTrackName = valueWithDefault({
+        value: this.__currentActiveAnimationTrackName,
         defaultValue: animationName,
       });
     }
 
-    const line: AnimationLine = {
-      name: animationName,
+    const line: AnimationChannel = {
+      belongTrackName: animationName,
       input: animationInputArray,
       output: animationOutputArray,
       outputComponentN: outputComponentN,
@@ -362,10 +374,10 @@ export default class AnimationComponent extends Component {
 
     // set AnimationSet
     const animationSet = valueWithCompensation({
-      value: this.__animationData.get(animationName),
+      value: this.__animationTracks.get(animationName),
       compensation: () => {
         const map = new Map();
-        this.__animationData.set(animationName, map);
+        this.__animationTracks.set(animationName, map);
         return map;
       },
     });
@@ -411,8 +423,8 @@ export default class AnimationComponent extends Component {
     this.backupDefaultValues();
   }
 
-  public getStartInputValueOfAnimation(animationName?: string): number {
-    const name = animationName ?? this.__currentActiveAnimationName;
+  public getStartInputValueOfAnimation(animationTrackName?: string): number {
+    const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
     if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
       if (array.length === 0) {
@@ -429,8 +441,8 @@ export default class AnimationComponent extends Component {
     return maxStartInputTime;
   }
 
-  public getEndInputValueOfAnimation(animationName?: string): number {
-    const name = animationName ?? this.__currentActiveAnimationName;
+  public getEndInputValueOfAnimation(animationTrackName?: string): number {
+    const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
 
     if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
@@ -587,7 +599,7 @@ export default class AnimationComponent extends Component {
 
   private static __getOutputValue(
     keyFrameId: Index,
-    line: AnimationLine,
+    line: AnimationChannel,
     array_: Float32Array
   ) {
     const array = array_ as globalThis.Float32Array;
@@ -670,7 +682,7 @@ export default class AnimationComponent extends Component {
   }
 
   private static __interpolate(
-    line: AnimationLine,
+    line: AnimationChannel,
     currentTime: number,
     animationAttributeIndex: Index
   ): Array<number> {
