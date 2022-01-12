@@ -590,7 +590,7 @@ export default class WebXRSystem {
 
   private __updateInputSources(xrFrame: XRFrame) {
     this.__xrInputSources.forEach((input, i) => {
-      if (Is.defined(input.gripSpace)) {
+      if (Is.exist(input.gripSpace)) {
         const xrPose = xrFrame.getPose(input.gripSpace, this.__xrReferenceSpace!);
         if (Is.exist(xrPose)) {
           const hand = this.__controllerEntities[i];

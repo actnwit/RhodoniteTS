@@ -76,7 +76,7 @@ import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
-import { AnimationChannelName } from '../../types/AnimationTypes';
+import {AnimationPathName} from '../../types/AnimationTypes';
 
 declare let DracoDecoderModule: any;
 
@@ -315,7 +315,7 @@ export default class ModelConverter {
     if (Is.exist(gltfModel.animations) && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
-          if (Is.defined(channel.samplerObject)) {
+          if (Is.exist(channel.samplerObject)) {
             const animInputArray =
               channel.samplerObject.inputObject!.extras!.typedDataArray!;
             const animOutputArray =
@@ -323,14 +323,14 @@ export default class ModelConverter {
             const interpolation =
               channel.samplerObject.interpolation ?? 'LINEAR';
 
-            let animationAttributeType: AnimationChannelName = 'undefined';
+            let animationAttributeType: AnimationPathName = 'undefined';
             if (channel.target!.path === 'translation') {
               animationAttributeType = 'translate';
             } else if (channel.target!.path === 'rotation') {
               animationAttributeType = 'quaternion';
             } else {
               animationAttributeType = channel.target!
-                .path as AnimationChannelName;
+                .path as AnimationPathName;
             }
 
             const rnEntity = rnEntities[channel.target!.node!];

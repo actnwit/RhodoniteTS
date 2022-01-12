@@ -2,11 +2,11 @@ import { AnimationInterpolationEnum } from "../foundation/definitions/AnimationI
 import { EntityUID, Second } from "./CommonTypes";
 
 /**
- * animation channel name
- * animation.channels in glTF2
+ * animation path name
+ * type of animation.channel.target.path in glTF2
  * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
  */
-export type AnimationChannelName =
+export type AnimationPathName =
 | 'undefined'
 | 'translate'
 | 'quaternion'
@@ -28,17 +28,34 @@ export interface AnimationInfo {
  * [Animation.Sampler](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-sampler)
  * in glTF2
  */
-export interface AnimationChannel {
+export interface AnimationChannelSampler {
   input: Float32Array;
   output: Float32Array;
-  outputChannelName: AnimationChannelName;
+  outputChannelName: AnimationPathName;
   outputComponentN: number;
   interpolationMethod: AnimationInterpolationEnum;
   targetEntityUid?: EntityUID;
   belongTrackName: AnimationTrackName;
 }
 
-export type AnimationChannels = Map<AnimationChannelName, AnimationChannel>;
+/**
+ * See: [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
+ */
+export interface AnimationChannel {
+  sampler: AnimationSampler,
+  targetPathName: AnimationPathName,
+}
+
+/**
+ * Similar to [Animation.Sampler](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-sampler)
+ */
+export interface AnimationSampler {
+  input: Float32Array;
+  output: Float32Array;
+  interpolationMethod: AnimationInterpolationEnum;
+}
+
+export type AnimationChannels = Map<AnimationPathName, AnimationChannelSampler>;
 export type AnimationTracks = Map<AnimationTrackName, AnimationChannels>;
 
 export interface ChangeAnimationInfoEvent {

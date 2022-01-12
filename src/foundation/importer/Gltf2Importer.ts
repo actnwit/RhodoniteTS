@@ -499,7 +499,7 @@ export default class Gltf2Importer {
     if (gltfJson.animations) {
       for (const animation of gltfJson.animations) {
         for (const channel of animation.channels) {
-          if (Is.defined(channel.sampler)) {
+          if (Is.exist(channel.sampler)) {
             channel.samplerObject = animation.samplers[channel.sampler];
             channel.target.nodeObject = gltfJson.nodes[channel.target.node!];
             channel.samplerObject.inputObject =

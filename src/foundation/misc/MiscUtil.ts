@@ -208,7 +208,7 @@ export const ifDefinedThen = <T>(
   callback: (value: T) => void,
   value?: T
 ): value is T => {
-  if (Is.defined(value)) {
+  if (Is.exist(value)) {
     callback(value);
     return true;
   }
@@ -219,7 +219,7 @@ export const ifDefinedThenWithReturn = <T>(
   callback: (value: T) => T,
   value?: T
 ): T | undefined => {
-  if (Is.defined(value)) {
+  if (Is.exist(value)) {
     return callback(value);
   }
   return value;

@@ -19,8 +19,7 @@ import {
   Array3,
 } from '../../types/CommonTypes';
 import {
-  AnimationChannel,
-  AnimationChannelName, AnimationChannels, AnimationComponentEventType, AnimationInfo, AnimationTrackName
+  AnimationChannelSampler, AnimationChannels, AnimationComponentEventType, AnimationInfo, AnimationTrackName, AnimationPathName
 } from '../../types/AnimationTypes';
 import {
   valueWithDefault,
@@ -63,7 +62,7 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 export default class AnimationComponent extends Component {
 /// inner states ///
   private __backupDefaultValues: Map<
-    AnimationChannelName,
+    AnimationPathName,
     IVector | IQuaternion | number[]
   > = new Map();
 
@@ -251,38 +250,38 @@ export default class AnimationComponent extends Component {
 
   private restoreDefaultValues() {
     this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
-      AnimationAttribute.Quaternion.str as AnimationChannelName
+      AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion;
 
     this.__transformComponent!.translate = this.__backupDefaultValues.get(
-      AnimationAttribute.Translate.str as AnimationChannelName
+      AnimationAttribute.Translate.str as AnimationPathName
     ) as IVector3;
     this.__transformComponent!.scale = this.__backupDefaultValues.get(
-      AnimationAttribute.Scale.str as AnimationChannelName
+      AnimationAttribute.Scale.str as AnimationPathName
     ) as IVector3;
     if (this.__meshComponent != null) {
       this.__meshComponent!.weights = this.__backupDefaultValues.get(
-        AnimationAttribute.Weights.str as AnimationChannelName
+        AnimationAttribute.Weights.str as AnimationPathName
       ) as number[];
     }
   }
 
   private backupDefaultValues() {
     this.__backupDefaultValues.set(
-      AnimationAttribute.Quaternion.str as AnimationChannelName,
+      AnimationAttribute.Quaternion.str as AnimationPathName,
       this.__transformComponent!.quaternion
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Translate.str as AnimationChannelName,
+      AnimationAttribute.Translate.str as AnimationPathName,
       this.__transformComponent!.translate
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Scale.str as AnimationChannelName,
+      AnimationAttribute.Scale.str as AnimationPathName,
       this.__transformComponent!.scale
     );
     if (this.__meshComponent != null) {
       this.__backupDefaultValues.set(
-        AnimationAttribute.Weights.str as AnimationChannelName,
+        AnimationAttribute.Weights.str as AnimationPathName,
         this.__meshComponent?.weights
       );
     }
@@ -326,7 +325,7 @@ export default class AnimationComponent extends Component {
 
   setAnimation(
     animationName: string,
-    attributeName: AnimationChannelName,
+    attributeName: AnimationPathName,
     animationInputArray: Float32Array,
     animationOutputArray: Float32Array,
     outputComponentN: number,
@@ -342,7 +341,7 @@ export default class AnimationComponent extends Component {
       });
     }
 
-    const line: AnimationChannel = {
+    const line: AnimationChannelSampler = {
       belongTrackName: animationName,
       input: animationInputArray,
       output: animationOutputArray,
@@ -595,7 +594,7 @@ export default class AnimationComponent extends Component {
 
   private static __getOutputValue(
     keyFrameId: Index,
-    line: AnimationChannel,
+    line: AnimationChannelSampler,
     array_: Float32Array
   ) {
     const array = array_ as globalThis.Float32Array;
@@ -678,7 +677,7 @@ export default class AnimationComponent extends Component {
   }
 
   private static __interpolate(
-    line: AnimationChannel,
+    line: AnimationChannelSampler,
     currentTime: number,
     animationAttributeIndex: Index
   ): Array<number> {
