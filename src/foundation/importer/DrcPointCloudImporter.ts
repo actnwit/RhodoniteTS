@@ -495,7 +495,7 @@ export default class DrcPointCloudImporter {
             gltfJson.nodes[channel.target!.node!];
         }
         for (const channel of animation.channels) {
-          if (Is.defined(channel.samplerObject)) {
+          if (Is.exist(channel.samplerObject)) {
             channel.samplerObject.inputObject =
               gltfJson.accessors[channel.samplerObject.input];
             channel.samplerObject.outputObject =

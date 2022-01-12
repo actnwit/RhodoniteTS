@@ -85,14 +85,14 @@ export default class SceneGraphComponent extends Component {
       }
       this.__aabbGizmo.isVisible = true;
     } else {
-      if (Is.defined(this.__aabbGizmo)) {
+      if (Is.exist(this.__aabbGizmo)) {
         this.__aabbGizmo.isVisible = false;
       }
     }
   }
 
   get isAABBGizmoVisible() {
-    if (Is.defined(this.__aabbGizmo)) {
+    if (Is.exist(this.__aabbGizmo)) {
       return this.__aabbGizmo.isVisible;
     } else {
       return false;
@@ -107,14 +107,14 @@ export default class SceneGraphComponent extends Component {
       }
       this.__locatorGizmo.isVisible = true;
     } else {
-      if (Is.defined(this.__locatorGizmo)) {
+      if (Is.exist(this.__locatorGizmo)) {
         this.__locatorGizmo.isVisible = false;
       }
     }
   }
 
   get isLocatorGizmoVisible() {
-    if (Is.defined(this.__locatorGizmo)) {
+    if (Is.exist(this.__locatorGizmo)) {
       return this.__locatorGizmo.isVisible;
     } else {
       return false;
@@ -509,10 +509,10 @@ export default class SceneGraphComponent extends Component {
   }
 
   private __updateGizmos() {
-    if (Is.defined(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
+    if (Is.exist(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
       this.__aabbGizmo._update();
     }
-    if (Is.defined(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
+    if (Is.exist(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
       this.__locatorGizmo._update();
     }
   }

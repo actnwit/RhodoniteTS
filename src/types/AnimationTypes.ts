@@ -1,12 +1,13 @@
+import Entity from "../foundation/core/Entity";
 import { AnimationInterpolationEnum } from "../foundation/definitions/AnimationInterpolation";
 import { EntityUID, Second } from "./CommonTypes";
 
 /**
- * animation channel name
- * animation.channels in glTF2
+ * animation path name
+ * type of animation.channel.target.path in glTF2
  * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
  */
-export type AnimationChannelName =
+export type AnimationPathName =
 | 'undefined'
 | 'translate'
 | 'quaternion'
@@ -22,23 +23,33 @@ export interface AnimationInfo {
 }
 
 /**
- * this includes both data of
- * [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
- * and
- * [Animation.Sampler](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-sampler)
- * in glTF2
+ * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
  */
 export interface AnimationChannel {
-  input: Float32Array;
-  output: Float32Array;
-  outputChannelName: AnimationChannelName;
-  outputComponentN: number;
-  interpolationMethod: AnimationInterpolationEnum;
-  targetEntityUid?: EntityUID;
+  sampler: AnimationSampler;
+  target: AnimationChannelTarget;
   belongTrackName: AnimationTrackName;
 }
 
-export type AnimationChannels = Map<AnimationChannelName, AnimationChannel>;
+/**
+ * Similar to [Animation.Channel.Target](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel-target)
+ */
+export interface AnimationChannelTarget {
+  pathName: AnimationPathName;
+  entity: Entity;
+}
+
+/**
+ * Similar to [Animation.Sampler](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-sampler)
+ */
+export interface AnimationSampler {
+  input: Float32Array;
+  output: Float32Array;
+  outputComponentN: number;
+  interpolationMethod: AnimationInterpolationEnum;
+}
+
+export type AnimationChannels = Map<AnimationPathName, AnimationChannel>;
 export type AnimationTracks = Map<AnimationTrackName, AnimationChannels>;
 
 export interface ChangeAnimationInfoEvent {

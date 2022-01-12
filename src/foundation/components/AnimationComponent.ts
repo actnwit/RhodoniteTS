@@ -19,8 +19,7 @@ import {
   Array3,
 } from '../../types/CommonTypes';
 import {
-  AnimationChannel,
-  AnimationChannelName, AnimationChannels, AnimationComponentEventType, AnimationInfo, AnimationTrackName
+  AnimationPathName, AnimationChannels, AnimationComponentEventType, AnimationInfo, AnimationTrackName, AnimationChannel
 } from '../../types/AnimationTypes';
 import {
   valueWithDefault,
@@ -63,7 +62,7 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 export default class AnimationComponent extends Component {
 /// inner states ///
   private __backupDefaultValues: Map<
-    AnimationChannelName,
+    AnimationPathName,
     IVector | IQuaternion | number[]
   > = new Map();
 
@@ -126,10 +125,10 @@ export default class AnimationComponent extends Component {
         this.__currentActiveAnimationTrackName
       );
       if (animationSet !== undefined) {
-        for (const [attributeName, line] of animationSet) {
+        for (const [attributeName, channel] of animationSet) {
           const i = AnimationAttribute.fromString(attributeName).index;
           const value = AnimationComponent.__interpolate(
-            line,
+            channel,
             AnimationComponent.globalTime,
             i
           );
@@ -251,38 +250,38 @@ export default class AnimationComponent extends Component {
 
   private restoreDefaultValues() {
     this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
-      AnimationAttribute.Quaternion.str as AnimationChannelName
+      AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion;
 
     this.__transformComponent!.translate = this.__backupDefaultValues.get(
-      AnimationAttribute.Translate.str as AnimationChannelName
+      AnimationAttribute.Translate.str as AnimationPathName
     ) as IVector3;
     this.__transformComponent!.scale = this.__backupDefaultValues.get(
-      AnimationAttribute.Scale.str as AnimationChannelName
+      AnimationAttribute.Scale.str as AnimationPathName
     ) as IVector3;
     if (this.__meshComponent != null) {
       this.__meshComponent!.weights = this.__backupDefaultValues.get(
-        AnimationAttribute.Weights.str as AnimationChannelName
+        AnimationAttribute.Weights.str as AnimationPathName
       ) as number[];
     }
   }
 
   private backupDefaultValues() {
     this.__backupDefaultValues.set(
-      AnimationAttribute.Quaternion.str as AnimationChannelName,
+      AnimationAttribute.Quaternion.str as AnimationPathName,
       this.__transformComponent!.quaternion
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Translate.str as AnimationChannelName,
+      AnimationAttribute.Translate.str as AnimationPathName,
       this.__transformComponent!.translate
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Scale.str as AnimationChannelName,
+      AnimationAttribute.Scale.str as AnimationPathName,
       this.__transformComponent!.scale
     );
     if (this.__meshComponent != null) {
       this.__backupDefaultValues.set(
-        AnimationAttribute.Weights.str as AnimationChannelName,
+        AnimationAttribute.Weights.str as AnimationPathName,
         this.__meshComponent?.weights
       );
     }
@@ -325,51 +324,57 @@ export default class AnimationComponent extends Component {
   }
 
   setAnimation(
-    animationName: string,
-    attributeName: AnimationChannelName,
-    animationInputArray: Float32Array,
-    animationOutputArray: Float32Array,
+    trackName: AnimationTrackName,
+    pathName: AnimationPathName,
+    inputArray: Float32Array,
+    outputArray: Float32Array,
     outputComponentN: number,
     interpolation: AnimationInterpolationEnum,
     makeThisActiveAnimation = true
   ) {
     if (makeThisActiveAnimation) {
-      this.__currentActiveAnimationTrackName = animationName;
+      this.__currentActiveAnimationTrackName = trackName;
     } else {
       this.__currentActiveAnimationTrackName = valueWithDefault({
         value: this.__currentActiveAnimationTrackName,
-        defaultValue: animationName,
+        defaultValue: trackName,
       });
     }
 
-    const line: AnimationChannel = {
-      belongTrackName: animationName,
-      input: animationInputArray,
-      output: animationOutputArray,
-      outputComponentN: outputComponentN,
-      outputChannelName: attributeName,
-      interpolationMethod: interpolation,
+    const that = this;
+    const channel: AnimationChannel = {
+      sampler: {
+        input: inputArray,
+        output: outputArray,
+        outputComponentN: outputComponentN,
+        interpolationMethod: interpolation,
+      },
+      target: {
+        pathName: pathName,
+        entity: that.entity,
+      },
+      belongTrackName: trackName,
     };
 
     // set AnimationSet
     const animationSet = valueWithCompensation({
-      value: this.__animationTracks.get(animationName),
+      value: this.__animationTracks.get(trackName),
       compensation: () => {
-        const map = new Map();
-        this.__animationTracks.set(animationName, map);
+        const map: Map<AnimationPathName, AnimationChannel> = new Map();
+        this.__animationTracks.set(trackName, map);
         return map;
       },
     });
 
-    animationSet.set(attributeName, line);
+    animationSet.set(pathName, channel);
 
     // set AnimationInfo
-    const newMaxStartInputTime = animationInputArray[0];
+    const newMaxStartInputTime = inputArray[0];
     const newMaxEndInputTime =
-      animationInputArray[animationInputArray.length - 1];
+      inputArray[inputArray.length - 1];
 
     const existingAnimationInfo = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationGlobalInfo.get(animationName),
+      value: AnimationComponent.__animationGlobalInfo.get(trackName),
       defaultValue: defaultAnimationInfo,
     });
     const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
@@ -380,11 +385,11 @@ export default class AnimationComponent extends Component {
     const endResult = greaterThan(newMaxEndInputTime, existingMaxEndInputTime);
     if (startResult.result || endResult.result) {
       const info = {
-        name: animationName,
+        name: trackName,
         maxStartInputTime: startResult.less,
         maxEndInputTime: endResult.greater,
       };
-      AnimationComponent.__animationGlobalInfo.set(animationName, info);
+      AnimationComponent.__animationGlobalInfo.set(trackName, info);
       AnimationComponent.__pubsub.publishAsync(
         AnimationComponent.Event.ChangeAnimationInfo,
         {infoMap: new Map(AnimationComponent.__animationGlobalInfo)}
@@ -595,40 +600,40 @@ export default class AnimationComponent extends Component {
 
   private static __getOutputValue(
     keyFrameId: Index,
-    line: AnimationChannel,
+    channel: AnimationChannel,
     array_: Float32Array
   ) {
     const array = array_ as globalThis.Float32Array;
-    if (line.interpolationMethod === AnimationInterpolation.CubicSpline) {
+    if (channel.sampler.interpolationMethod === AnimationInterpolation.CubicSpline) {
       // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
-      if (line.outputComponentN === 4) {
+      if (channel.sampler.outputComponentN === 4) {
         // Quaternion/weights
         const value = array[get4_offset](
-          line.outputComponentN * 3 * keyFrameId + line.outputComponentN
+          channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
         ) as Array4<number>;
         return value;
-      } else if (line.outputComponentN === 3) {
+      } else if (channel.sampler.outputComponentN === 3) {
         // Translate/Scale/weights
         const value = array[get3_offset](
-          line.outputComponentN * 3 * keyFrameId + line.outputComponentN
+          channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
         ) as Array3<number>;
         return value;
       } else {
         // weights
         const value = array[getN_offset](
-          line.outputComponentN * 3 * keyFrameId + line.outputComponentN,
-          line.outputComponentN
+          channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN,
+          channel.sampler.outputComponentN
         ) as Array<number>;
         return value;
       }
     } else {
-      if (line.outputComponentN === 4) {
+      if (channel.sampler.outputComponentN === 4) {
         // Quaternion/weights
         const value = array[get4_offsetAsComposition](
           keyFrameId
         ) as Array4<number>;
         return value;
-      } else if (line.outputComponentN === 3) {
+      } else if (channel.sampler.outputComponentN === 3) {
         // Translate/Scale/weights
         const value = array[get3_offsetAsComposition](
           keyFrameId
@@ -638,7 +643,7 @@ export default class AnimationComponent extends Component {
         // weights
         const value = array[getN_offsetAsComposition](
           keyFrameId,
-          line.outputComponentN
+          channel.sampler.outputComponentN
         ) as Array<number>;
         return value;
       }
@@ -678,22 +683,22 @@ export default class AnimationComponent extends Component {
   }
 
   private static __interpolate(
-    line: AnimationChannel,
+    channel: AnimationChannel,
     currentTime: number,
     animationAttributeIndex: Index
   ): Array<number> {
-    const inputArray = line.input;
-    const outputArray = line.output;
-    const method = line.interpolationMethod ?? AnimationInterpolation.Linear;
+    const inputArray = channel.sampler.input;
+    const outputArray = channel.sampler.output;
+    const method = channel.sampler.interpolationMethod ?? AnimationInterpolation.Linear;
 
     // out of range
     if (currentTime <= inputArray[0]) {
-      const outputOfZeroFrame = this.__getOutputValue(0, line, outputArray);
+      const outputOfZeroFrame = this.__getOutputValue(0, channel, outputArray);
       return outputOfZeroFrame;
     } else if (inputArray[inputArray.length - 1] <= currentTime) {
       const outputOfEndFrame = this.__getOutputValue(
         inputArray.length - 1,
-        line,
+        channel,
         outputArray
       );
       return outputOfEndFrame;
@@ -707,7 +712,7 @@ export default class AnimationComponent extends Component {
       const {p_0, p_1, m_0, m_1} = this.__prepareVariablesForCubicSpline(
         outputArray,
         i,
-        line.outputComponentN,
+        channel.sampler.outputComponentN,
         t_diff
       );
       const ret = this.cubicSpline(
@@ -730,19 +735,19 @@ export default class AnimationComponent extends Component {
         ratio,
         animationAttributeIndex,
         i,
-        line.outputComponentN
+        channel.sampler.outputComponentN
       );
       return ret as Array<number>;
     } else if (method === AnimationInterpolation.Step) {
       for (let i = 0; i < inputArray.length - 1; i++) {
         if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
-          const output_frame_i = this.__getOutputValue(i, line, outputArray);
+          const output_frame_i = this.__getOutputValue(i, channel, outputArray);
           return output_frame_i;
         }
       }
       const outputOfEndFrame = this.__getOutputValue(
         inputArray.length - 1,
-        line,
+        channel,
         outputArray
       );
       return outputOfEndFrame;

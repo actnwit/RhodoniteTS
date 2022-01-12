@@ -229,7 +229,7 @@ export default class Gltf2Exporter {
           const channelsOfTrack = animationComponent.getAnimationChannelsOfTrack(trackName);
           if (Is.exist(channelsOfTrack)) {
             for (let [channelName, channel] of channelsOfTrack) {
-              const pathName = channel.outputChannelName as PathType;
+              const pathName = channel.target.pathName as PathType;
               const channelJson: Gltf2AnimationChannel = {
                 sampler: -1,
                 target: {
