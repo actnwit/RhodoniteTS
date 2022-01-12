@@ -32,6 +32,7 @@
         "lerp",
         "mipmaps",
         "MSAA",
+        "Phong",
         "preoutput",
         "PVRTC",
         "qlerp",
