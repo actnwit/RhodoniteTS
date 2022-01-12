@@ -30,10 +30,11 @@ import _ModelConverter from './foundation/importer/ModelConverter';
 import _ModuleManager from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
 import _CameraComponent from './foundation/components/CameraComponent';
-import _AnimationComponent, {
+import _AnimationComponent from './foundation/components/AnimationComponent';
+import {
   AnimationInfo as _AnimationInfo,
   ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent,
-} from './foundation/components/AnimationComponent';
+} from './types/AnimationTypes';
 import _LightComponent from './foundation/components/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
 import _CameraControllerComponent from './foundation/components/CameraControllerComponent';
@@ -185,7 +186,7 @@ import {
   AnimationInterpolation as _AnimationInterpolation,
   AnimationInterpolationEnum as _AnimationInterpolationEnum,
 } from './foundation/definitions/AnimationInterpolation';
-import {GltfLoadOption as _GltfLoadOption} from './types/glTF';
+import {GltfLoadOption as _GltfLoadOption} from './types/RnM2';
 import {
   CompressionTextureType as _CompressionTextureType,
   CompressionTextureTypeEnum as _CompressionTextureTypeEnum,

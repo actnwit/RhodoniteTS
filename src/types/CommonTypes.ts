@@ -60,10 +60,3 @@ export type WebGLResourceHandle = number;
 export type CGAPIResourceHandle = WebGLResourceHandle;
 
 export type RnTags = {[s: string]: string};
-
-export type AnimationAttributeType =
-  | 'undefined'
-  | 'translate'
-  | 'quaternion'
-  | 'scale'
-  | 'weights';

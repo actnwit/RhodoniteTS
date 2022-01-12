@@ -1,80 +1,75 @@
 import Entity from '../foundation/core/Entity';
 import RnPromise from '../foundation/misc/RnPromise';
-import {Array3} from './CommonTypes';
+import {Array3, Array4, Index} from './CommonTypes';
+import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
+import CameraComponent from '../foundation/components/CameraComponent';
 import Material from '../foundation/materials/core/Material';
+import Expression from '../foundation/renderer/Expression';
+import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
-import {GltfLoadOption} from '../types/glTF';
+import { Gltf2AnimationSamplerInterpolation } from './glTF2';
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: GltfLoadOption;
-      rnEntities?: Entity[];
-      rnMaterials?: {[s: string]: Material};
-      version?: string;
-      fileType?: string;
-    };
-    version: string;
-  };
+  extensionsUsed: string[];
+  extensionsRequired: string[];
+  accessors: RnM2Accessor[];
+  animations: RnM2Animation[];
+  asset: RnM2Asset;
   buffers: RnM2Buffer[];
-  scenes: RnM2Scene[];
-  scene: number;
-  meshes: RnM2Mesh[];
-  nodes: RnM2Node[];
-  skins: RnM2Skin[];
-  materials: RnM2Material[];
+  bufferViews: RnM2BufferView[];
   cameras: RnM2Camera[];
   images: RnM2Image[];
-  animations: RnM2Animation[];
-  textures?: RnM2Texture[];
+  materials: RnM2Material[];
+  meshes: RnM2Mesh[];
+  nodes: RnM2Node[];
   samplers: RnM2TextureSampler[];
-  accessors: RnM2Accessor[];
-  bufferViews: RnM2BufferView[];
-  extensionsUsed?: string[];
-  extensions?: any;
+  scene: number;
+  scenes: RnM2Scene[];
+  skins: RnM2Skin[];
+  textures?: RnM2Texture[];
+  extensions: {[key: string]: any};
+  extras: {[key: string]: object};
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
 export type RnM2Scene = {
+  nodesObjects?: RnM2Node[];
   name?: string;
   scene?: number;
+  sceneObject?: RnM2Node;
   nodes?: number[];
-  extensions: any;
-  extras: {
-    nodes: RnM2Node[];
-    scene: RnM2Node;
-  };
-};
-
-export type AttributeName =
-  | 'POSITION'
-  | 'NORMAL'
-  | 'TANGENT'
-  | 'TEXCOORD_0'
-  | 'TEXCOORD_1'
-  | 'COLOR_0'
-  | 'JOINTS_0'
-  | 'WEIGHTS_0';
-
-export type RnM2Attribute = {[s: string]: number};
-export type RnM2AttributeAccessor = {[s: string]: RnM2Accessor};
-export type RnM2AttributeBlendShape = RnM2Attribute;
-export type RnM2AttributeBlendShapeAccessor = RnM2AttributeAccessor;
-
-export type RnM2Primitive = {
-  attributes?: RnM2Attribute;
-  indices?: number;
-  material?: number;
-  mode?: number;
-  targets?: RnM2AttributeBlendShape;
   extensions?: any;
-  extras: {
-    attributes: RnM2AttributeAccessor;
-    indices: RnM2Accessor;
-    material: RnM2Material;
-    targets: RnM2AttributeBlendShapeAccessor;
-  };
+  extras?: any;
 };
 
+export type RnM2AttributesObject = {
+  [s: string]: RnM2Accessor;
+};
+
+export type RnM2Attributes = {[s: string]: number};
+export type RnM2AttributeAccessors = {[s: string]: RnM2Accessor};
+export type RnM2AttributeBlendShapes = RnM2Attributes[];
+export type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
+export type RnM2Primitive = {
+  attributesObjects?: RnM2AttributeAccessors;
+  attributesNames?: {[s: string]: string};
+  attributes?: {[s: string]: number};
+  indicesObject?: RnM2Accessor;
+  indices?: number;
+  materialObject?: RnM2Material;
+  material?: number;
+  materialName?: string;
+  mode?: number;
+  targetsObjects?: RnM2AttributeBlendShapesAccessors;
+  targets?: RnM2AttributeBlendShapes;
+  extensions?: any;
+  extras?: any;
+};
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh
 export type RnM2Mesh = {
   primitives: RnM2Primitive[];
   weights?: number[];
@@ -83,11 +78,17 @@ export type RnM2Mesh = {
   extras?: any;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-node
 export type RnM2Node = {
+  cameraObject?: RnM2Camera;
   camera?: number;
+  childrenObjects?: RnM2Node[];
   children?: number[];
+  skinObject?: RnM2Skin;
   skin?: number;
+  skinName?: string;
   matrix?: number[];
+  meshObject?: RnM2Mesh;
   mesh?: number;
   meshNames?: string[];
   rotation?: number[];
@@ -96,26 +97,20 @@ export type RnM2Node = {
   weights?: number[];
   name?: string;
   extensions?: any;
-  extras: {
-    camera: RnM2Camera;
-    children: RnM2Node[];
-    skin: RnM2Skin;
-    mesh: RnM2Mesh;
-  };
+  extras?: any;
 };
 
 export type RnM2Skin = {
   inverseBindMatrices?: number;
+  inverseBindMatricesObject?: RnM2Accessor;
   bindShapeMatrix?: number[];
   skeleton?: number;
+  skeletonObject?: RnM2Node;
   joints: number[];
+  jointsObjects: RnM2Node[];
   name?: string;
   extensions?: any;
-  extras: {
-    inverseBindMatrices: RnM2Accessor;
-    skeleton?: RnM2Node;
-    joints: RnM2Node[];
-  };
+  extras?: any;
 };
 
 export type RnM2TextureInfo = {
@@ -145,7 +140,7 @@ export type RnM2NormalTextureInfo = {
 };
 
 export type RnM2PbrMetallicRoughness = {
-  baseColorFactor?: number[];
+  baseColorFactor?: Array4<number>;
   baseColorTexture?: RnM2TextureInfo;
   metallicFactor?: number;
   roughnessFactor?: number;
@@ -160,6 +155,8 @@ export type RnM2Material = {
   occlusionTexture?: RnM2OcclusionTextureInfo;
   emissiveTexture?: RnM2TextureInfo;
   emissiveFactor?: number[];
+  diffuseTexture?: RnM2TextureInfo;
+  diffuseColorFactor?: number[];
   alphaMode?: string;
   alphaCutoff?: number;
   doubleSided?: boolean;
@@ -210,32 +207,33 @@ export type RnM2Image = {
 export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
 
 export type RnM2AnimationChannelTarget = {
+  nodeObject?: RnM2Node;
   node?: number;
   path: PathType;
   extensions?: any;
-  extras: {
-    node?: RnM2Node;
-  };
+  extras?: any;
 };
 
 export type RnM2AnimationChannel = {
   sampler: number;
   target: RnM2AnimationChannelTarget;
   extensions?: any;
-  extras: {
-    sampler: RnM2AnimationSampler;
-  };
+  extras?: any;
+
+  // RnM2 Properties
+  samplerObject?: RnM2AnimationSampler;
 };
 
 export type RnM2AnimationSampler = {
   input: number;
   output: number;
-  interpolation?: string;
+  interpolation?: Gltf2AnimationSamplerInterpolation;
   extensions?: any;
-  extras: {
-    input: RnM2Accessor;
-    output: RnM2Accessor;
-  };
+  extras?: any;
+
+  // RnM2 Properties
+  inputObject?: RnM2Accessor;
+  outputObject?: RnM2Accessor;
 };
 
 export type RnM2Animation = {
@@ -244,18 +242,20 @@ export type RnM2Animation = {
   name?: string;
   extensions?: any;
   extras?: any;
+
+  // RnM2 Properties
+  parameters: {[s: string]: any};
 };
 
 export type RnM2Texture = {
+  samplerObject?: RnM2TextureSampler;
   sampler?: number;
+  sourceObject?: RnM2Image;
   source?: number;
   image?: RnM2Image;
   name?: string;
   extensions?: any;
-  extras: {
-    sampler: RnM2TextureSampler;
-    source: RnM2Image;
-  };
+  extras?: any;
 };
 
 export type RnM2TextureSampler = {
@@ -270,21 +270,19 @@ export type RnM2TextureSampler = {
 
 export type RnM2SparseValues = {
   bufferView: number;
+  bufferViewObject: RnM2BufferView;
   byteOffset?: number;
   extensions?: any;
-  extras: {
-    bufferView: RnM2BufferView;
-  };
+  extras?: any;
 };
 
 export type RnM2SparseIndices = {
   bufferView: number;
+  bufferViewObject: RnM2BufferView;
   byteOffset?: number;
   componentType: number;
   extensions?: any;
-  extras: {
-    bufferView: RnM2BufferView;
-  };
+  extras?: any;
 };
 
 export type RnM2Sparse = {
@@ -296,7 +294,9 @@ export type RnM2Sparse = {
 };
 
 export type RnM2Accessor = {
+  bufferViewObject?: RnM2BufferView;
   bufferView?: number;
+  bufferViewName?: string;
   byteOffset?: number;
   byteStride?: number; // for glTF1 only
   componentType: number;
@@ -310,7 +310,6 @@ export type RnM2Accessor = {
   accessor?: Accessor;
   extensions?: any;
   extras?: {
-    bufferView?: RnM2BufferView;
     attributeName: string;
     toGetAsTypedArray: boolean;
     typedDataArray?: Float32Array;
@@ -334,18 +333,98 @@ export type RnM2Buffer = {
 };
 
 export type RnM2BufferView = {
+  bufferObject?: RnM2Buffer;
   buffer?: number;
+  bufferName?: string;
   byteOffset?: number;
   byteLength: number;
   byteStride?: number;
   target: number;
   name?: string;
+  rnAccessor?: Accessor;
   extensions?: any;
-  extras: {
-    buffer?: RnM2Buffer;
+  extras?: any;
+};
+
+export type RnM2Asset = {
+  copyright?: string;
+  generator?: string;
+  version: string;
+  minVersion?: string;
+  extensions?: object;
+  extras?: {
+    rnLoaderOptions?: GltfLoadOption;
+    rnEntities?: Entity[];
+    rnMaterials?: {[s: string]: Material};
+    version?: string;
+    fileType?: string;
   };
 };
 
+export type glTF1 = {
+  asset: {
+    extras?: {
+      rnLoaderOptions?: {[s: string]: any};
+      version?: string;
+      fileType?: string;
+    };
+  };
+  buffers: any[];
+  bufferDic: {[s: string]: any};
+
+  scenes: any[];
+  sceneDic: {[s: string]: any};
+
+  meshes: any[];
+  meshDic: {[s: string]: any};
+
+  nodesIndices: number[];
+  nodes: any[];
+  nodeDic: {[s: string]: any};
+
+  skins: any[];
+  skinDic: {[s: string]: any};
+
+  materials: any[];
+  materialDic: {[s: string]: any};
+
+  cameras: any[];
+  cameraDic: {[s: string]: any};
+
+  shaders: any[];
+  shaderDic: {[s: string]: any};
+
+  images: any[];
+  imageDic: {[s: string]: any};
+
+  animations: Array<{
+    channels: any[];
+    samplers: any[];
+    parameters: {[s: string]: any};
+  }>;
+
+  animationDic: {
+    [s: string]: {
+      channels: any[];
+      samplers: any[];
+    };
+  };
+
+  textures: any[];
+  textureDic: {[s: string]: any};
+
+  samplers: any[];
+  samplerDic: {[s: string]: any};
+
+  accessors: any[];
+  accessorDic: {[s: string]: any};
+
+  bufferViews: any[];
+  bufferViewDic: {[s: string]: any};
+
+  buffer: any[];
+  techniques: any[];
+};
 
 export type PointType = 'directional' | 'point' | 'spot';
 
@@ -366,4 +445,56 @@ export type GltfFileBuffers = {
   //        "foo.gltf": content of file as ArrayBuffer,
   //        "foo.bin": content of file as ArrayBuffer,
   //        "boo.png": content of file as ArrayBuffer
+};
+
+export type RnM2Sampler = {
+  magFilter?: number;
+  minFilter?: number;
+  wrapS?: number;
+  wrapT?: number;
+  name?: string;
+  extensions?: any;
+  extras?: any;
+};
+
+export type GltfLoadOption = {
+  files?: GltfFileBuffers;
+  loaderExtensionName?: string;
+  loaderExtension?: ILoaderExtension;
+  defaultMaterialHelperName?: string;
+  defaultMaterialHelperArgumentArray?: any[];
+  statesOfElements?: [
+    {
+      targets: any[]; //["name_foo", "name_boo"],
+      states: {
+        enable: any[];
+        // 3042,  // BLEND
+        functions: object; //"blendFuncSeparate": [1, 0, 1, 0],
+      };
+      isTransparent: boolean;
+      opacity: number;
+      isTextureImageToLoadPreMultipliedAlpha: boolean;
+    }
+  ];
+  alphaMode?: string;
+  ignoreLists?: [];
+  autoDetectTextureTransparency?: boolean;
+  autoResizeTexture?: boolean;
+  tangentCalculationMode?: Index;
+  isPreComputeForRayCastPickingEnable?: boolean;
+  extendedJson?: string | Object | ArrayBuffer; //   URI string / JSON Object / ArrayBuffer
+  isImportVRM?: boolean;
+  maxMorphTargetNumber?: number;
+  defaultTextures?: {
+    basePath: string; // e.g. "./assets/jpg/"
+    textureInfos: {
+      shaderSemantics: ShaderSemanticsEnum;
+      fileName: string;
+      image?: RnM2Image;
+      sampler?: RnM2Sampler;
+    }[];
+  };
+  cameraComponent?: CameraComponent;
+  fileType?: string;
+  expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
 };

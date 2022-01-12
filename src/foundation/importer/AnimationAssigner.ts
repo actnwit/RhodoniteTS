@@ -1,5 +1,5 @@
 import Entity from '../core/Entity';
-import {RnM2} from '../../types/glTF';
+import {RnM2} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';
 import EntityRepository from '../core/EntityRepository';
 import AnimationComponent from '../components/AnimationComponent';

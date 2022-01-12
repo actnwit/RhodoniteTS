@@ -5,7 +5,7 @@ import {
   RnM2Image,
   GltfFileBuffers,
   RnM2Accessor,
-} from '../../types/glTF';
+} from '../../types/RnM2';
 import RnPromise from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
@@ -501,7 +501,7 @@ export default class Gltf2Importer {
         for (const channel of animation.channels) {
           if (Is.defined(channel.sampler)) {
             channel.samplerObject = animation.samplers[channel.sampler];
-            channel.target!.nodeObject = gltfJson.nodes[channel.target!.node!];
+            channel.target.nodeObject = gltfJson.nodes[channel.target.node!];
             channel.samplerObject.inputObject =
               gltfJson.accessors[channel.samplerObject.input!];
             channel.samplerObject.outputObject =
@@ -509,12 +509,14 @@ export default class Gltf2Importer {
             if (Is.undefined(channel.samplerObject.outputObject.extras)) {
               channel.samplerObject.outputObject.extras = {} as any;
             }
-            if (channel.target!.path === 'weights') {
+            if (channel.target.path === 'weights') {
               let weightsArrayLength =
                 channel.samplerObject.outputObject.count /
                 channel.samplerObject.inputObject.count;
               if (channel.samplerObject.interpolation === 'CUBICSPLINE') {
-                // divided by 3, because in glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+                // divided by 3, because in glTF CUBICSPLINE interpolation,
+                //   tangents (ak, bk) and values (vk) are grouped
+                //       within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
                 weightsArrayLength =
                   channel.samplerObject.outputObject.count /
                   channel.samplerObject.inputObject.count /
@@ -523,7 +525,7 @@ export default class Gltf2Importer {
               channel.samplerObject.outputObject.extras!.weightsArrayLength =
                 weightsArrayLength;
             }
-            if (channel.target!.path === 'rotation') {
+            if (channel.target.path === 'rotation') {
               channel.samplerObject.outputObject.extras!.quaternionIfVec4 =
                 true;
             }

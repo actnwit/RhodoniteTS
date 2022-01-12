@@ -1,5 +1,5 @@
 import {Byte, Size} from '../../types/CommonTypes';
-import {glTF1, RnM2, GltfLoadOption} from '../../types/glTF';
+import {glTF1, RnM2, GltfLoadOption} from '../../types/RnM2';
 
 declare const URL: any;
 
