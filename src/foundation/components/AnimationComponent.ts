@@ -9,17 +9,16 @@ import {
 import {AnimationAttribute} from '../definitions/AnimationAttribute';
 import TransformComponent from './TransformComponent';
 import {ProcessStage} from '../definitions/ProcessStage';
-import MutableVector3 from '../math/MutableVector3';
-import MutableQuaternion from '../math/MutableQuaternion';
 import MeshComponent from './MeshComponent';
 import {
   ComponentTID,
   ComponentSID,
   EntityUID,
   Index,
-  AnimationAttributeType,
+  AnimationChannelType as AnimationChannelName,
   Array4,
   Array3,
+  Second,
 } from '../../types/CommonTypes';
 import {
   valueWithDefault,
@@ -48,29 +47,28 @@ import {
 } from '../math/raw/raw_extension';
 import Vector3 from '../math/Vector3';
 
-export type AnimationName = string;
-type TimeInSec = number;
+export type AnimationTrackName = string;
 
 export interface AnimationInfo {
-  name: AnimationName;
-  maxStartInputTime: TimeInSec;
-  maxEndInputTime: TimeInSec;
+  name: AnimationTrackName;
+  maxStartInputTime: Second;
+  maxEndInputTime: Second;
 }
 
 interface AnimationLine {
-  name: AnimationName;
+  name: AnimationTrackName;
   input: Float32Array;
   output: Float32Array;
-  outputAttributeName: AnimationAttributeType;
+  outputChannelName: AnimationChannelName;
   outputComponentN: number;
   interpolationMethod: AnimationInterpolationEnum;
   targetEntityUid?: EntityUID;
 }
 
-type AnimationSet = Map<AnimationAttributeType, AnimationLine>;
+type AnimationSet = Map<AnimationChannelName, AnimationLine>;
 
 export interface ChangeAnimationInfoEvent {
-  infoMap: Map<AnimationName, AnimationInfo>;
+  infoMap: Map<AnimationTrackName, AnimationInfo>;
 }
 
 const defaultAnimationInfo = {
@@ -92,18 +90,20 @@ export default class AnimationComponent extends Component {
     PlayEnd,
   };
   private __backupDefaultValues: Map<
-    AnimationAttributeType,
+    AnimationChannelName,
     IVector | IQuaternion | number[]
   > = new Map();
-  private __currentActiveAnimationName?: AnimationName;
-  private __animationData: Map<AnimationName, AnimationSet> = new Map();
+  private __currentActiveAnimationName?: AnimationTrackName;
+  private __animationData: Map<AnimationTrackName, AnimationSet> = new Map();
   private __isAnimating = true;
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
+
+  // Static Members
+  private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
+  private static __pubsub = new EventPubSub();
   private static __componentRepository: ComponentRepository =
     ComponentRepository.getInstance();
-  private static __animationInfo: Map<AnimationName, AnimationInfo> = new Map();
-  private static __pubsub = new EventPubSub();
 
   constructor(
     entityUid: EntityUID,
@@ -260,38 +260,38 @@ export default class AnimationComponent extends Component {
 
   private restoreDefaultValues() {
     this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
-      AnimationAttribute.Quaternion.str as AnimationAttributeType
+      AnimationAttribute.Quaternion.str as AnimationChannelName
     ) as Quaternion;
 
     this.__transformComponent!.translate = this.__backupDefaultValues.get(
-      AnimationAttribute.Translate.str as AnimationAttributeType
+      AnimationAttribute.Translate.str as AnimationChannelName
     ) as IVector3;
     this.__transformComponent!.scale = this.__backupDefaultValues.get(
-      AnimationAttribute.Scale.str as AnimationAttributeType
+      AnimationAttribute.Scale.str as AnimationChannelName
     ) as IVector3;
     if (this.__meshComponent != null) {
       this.__meshComponent!.weights = this.__backupDefaultValues.get(
-        AnimationAttribute.Weights.str as AnimationAttributeType
+        AnimationAttribute.Weights.str as AnimationChannelName
       ) as number[];
     }
   }
 
   private backupDefaultValues() {
     this.__backupDefaultValues.set(
-      AnimationAttribute.Quaternion.str as AnimationAttributeType,
+      AnimationAttribute.Quaternion.str as AnimationChannelName,
       this.__transformComponent!.quaternion
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Translate.str as AnimationAttributeType,
+      AnimationAttribute.Translate.str as AnimationChannelName,
       this.__transformComponent!.translate
     );
     this.__backupDefaultValues.set(
-      AnimationAttribute.Scale.str as AnimationAttributeType,
+      AnimationAttribute.Scale.str as AnimationChannelName,
       this.__transformComponent!.scale
     );
     if (this.__meshComponent != null) {
       this.__backupDefaultValues.set(
-        AnimationAttribute.Weights.str as AnimationAttributeType,
+        AnimationAttribute.Weights.str as AnimationChannelName,
         this.__meshComponent?.weights
       );
     }
@@ -314,7 +314,7 @@ export default class AnimationComponent extends Component {
     }
   }
 
-  static setActiveAnimationForAll(animationName: AnimationName) {
+  static setActiveAnimationForAll(animationName: AnimationTrackName) {
     const components = ComponentRepository.getInstance().getComponentsWithType(
       AnimationComponent
     ) as AnimationComponent[];
@@ -323,7 +323,7 @@ export default class AnimationComponent extends Component {
     }
   }
 
-  setActiveAnimation(animationName: AnimationName) {
+  setActiveAnimation(animationName: AnimationTrackName) {
     if (this.__animationData.has(animationName)) {
       this.__currentActiveAnimationName = animationName;
       return true;
@@ -335,7 +335,7 @@ export default class AnimationComponent extends Component {
 
   setAnimation(
     animationName: string,
-    attributeName: AnimationAttributeType,
+    attributeName: AnimationChannelName,
     animationInputArray: Float32Array,
     animationOutputArray: Float32Array,
     outputComponentN: number,
@@ -356,7 +356,7 @@ export default class AnimationComponent extends Component {
       input: animationInputArray,
       output: animationOutputArray,
       outputComponentN: outputComponentN,
-      outputAttributeName: attributeName,
+      outputChannelName: attributeName,
       interpolationMethod: interpolation,
     };
 
@@ -378,7 +378,7 @@ export default class AnimationComponent extends Component {
       animationInputArray[animationInputArray.length - 1];
 
     const existingAnimationInfo = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationInfo.get(animationName),
+      value: AnimationComponent.__animationGlobalInfo.get(animationName),
       defaultValue: defaultAnimationInfo,
     });
     const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
@@ -393,10 +393,10 @@ export default class AnimationComponent extends Component {
         maxStartInputTime: startResult.less,
         maxEndInputTime: endResult.greater,
       };
-      AnimationComponent.__animationInfo.set(animationName, info);
+      AnimationComponent.__animationGlobalInfo.set(animationName, info);
       AnimationComponent.__pubsub.publishAsync(
         AnimationComponent.Event.ChangeAnimationInfo,
-        {infoMap: new Map(AnimationComponent.__animationInfo)}
+        {infoMap: new Map(AnimationComponent.__animationGlobalInfo)}
       );
     }
 
@@ -411,14 +411,10 @@ export default class AnimationComponent extends Component {
     this.backupDefaultValues();
   }
 
-  static getAnimationList(): string[] {
-    return Array.from(this.__animationInfo.keys());
-  }
-
   public getStartInputValueOfAnimation(animationName?: string): number {
     const name = animationName ?? this.__currentActiveAnimationName;
     if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationInfo.values());
+      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
       if (array.length === 0) {
         return 0;
       }
@@ -426,7 +422,7 @@ export default class AnimationComponent extends Component {
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxStartInputTime = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationInfo.get(name),
+      value: AnimationComponent.__animationGlobalInfo.get(name),
       defaultValue: defaultAnimationInfo,
     }).maxStartInputTime;
 
@@ -437,7 +433,7 @@ export default class AnimationComponent extends Component {
     const name = animationName ?? this.__currentActiveAnimationName;
 
     if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationInfo.values());
+      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
       if (array.length === 0) {
         return 0;
       }
@@ -445,15 +441,27 @@ export default class AnimationComponent extends Component {
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxEndInputTime = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationInfo.get(name),
+      value: AnimationComponent.__animationGlobalInfo.get(name),
       defaultValue: defaultAnimationInfo,
     }).maxEndInputTime;
 
     return maxEndInputTime;
   }
 
-  static getAnimationInfo(): Map<string, AnimationInfo> {
-    return new Map(this.__animationInfo);
+  /**
+   * get the Array of Animation Channel Name
+   * @returns Array of Animation Channel Name
+   */
+  static getAnimationList(): AnimationTrackName[] {
+    return Array.from(this.__animationGlobalInfo.keys());
+  }
+
+  /**
+   * get the AnimationInfo of the Component
+   * @returns the map of
+   */
+  static getAnimationInfo(): Map<AnimationTrackName, AnimationInfo> {
+    return new Map(this.__animationGlobalInfo);
   }
 
   get isAnimating() {
@@ -467,7 +475,7 @@ export default class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     } else {
-      const infoArray = Array.from(this.__animationInfo.values());
+      const infoArray = Array.from(this.__animationGlobalInfo.values());
       const lastInfo = infoArray[infoArray.length - 1];
       return lastInfo.maxStartInputTime;
     }
@@ -480,7 +488,7 @@ export default class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     } else {
-      const infoArray = Array.from(this.__animationInfo.values());
+      const infoArray = Array.from(this.__animationGlobalInfo.values());
       const lastInfo = infoArray[infoArray.length - 1];
       return lastInfo.maxEndInputTime;
     }

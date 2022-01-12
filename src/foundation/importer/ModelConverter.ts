@@ -45,7 +45,7 @@ import {
   Size,
   Index,
   TypedArray,
-  AnimationAttributeType,
+  AnimationChannelType,
   TypedArrayConstructor,
   Array4,
 } from '../../types/CommonTypes';
@@ -323,14 +323,14 @@ export default class ModelConverter {
             const interpolation =
               channel.samplerObject.interpolation ?? 'LINEAR';
 
-            let animationAttributeType: AnimationAttributeType = 'undefined';
+            let animationAttributeType: AnimationChannelType = 'undefined';
             if (channel.target!.path === 'translation') {
               animationAttributeType = 'translate';
             } else if (channel.target!.path === 'rotation') {
               animationAttributeType = 'quaternion';
             } else {
               animationAttributeType = channel.target!
-                .path as AnimationAttributeType;
+                .path as AnimationChannelType;
             }
 
             const rnEntity = rnEntities[channel.target!.node!];
