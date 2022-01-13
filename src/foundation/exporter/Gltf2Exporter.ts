@@ -108,7 +108,10 @@ export default class Gltf2Exporter {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       ({bufferViewCount, accessorCount, bufferViewByteLengthAccumulated} =
-        createBufferViewAndAccessorsOfMesh(entity, json, bufferViewByteLengthAccumulated, bufferViewCount, accessorCount));
+        createBufferViewsAndAccessorsOfMesh(entity, json, bufferViewByteLengthAccumulated, bufferViewCount, accessorCount));
+      
+      ({bufferViewCount, accessorCount, bufferViewByteLengthAccumulated} =
+        createBufferViewsAndAccessorsOfAnimation(entity, json, bufferViewByteLengthAccumulated, bufferViewCount, accessorCount));
     }
 
     if (bufferViewByteLengthAccumulated > 0) {
@@ -621,7 +624,17 @@ export default class Gltf2Exporter {
     a.dispatchEvent(e);
   }
 }
-function createBufferViewAndAccessorsOfMesh(entity: Entity, json: glTF2, bufferViewByteLengthAccumulated: number, bufferViewCount: number, accessorCount: number) {
+
+/**
+ * create BufferViews and Accessors of mesh
+ * @param entity 
+ * @param json 
+ * @param bufferViewByteLengthAccumulated 
+ * @param bufferViewCount 
+ * @param accessorCount 
+ * @returns 
+ */
+function createBufferViewsAndAccessorsOfMesh(entity: Entity, json: glTF2, bufferViewByteLengthAccumulated: number, bufferViewCount: number, accessorCount: number) {
   const meshComponent = entity.getMesh();
 
   if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
@@ -704,3 +717,23 @@ function createBufferViewAndAccessorsOfMesh(entity: Entity, json: glTF2, bufferV
   return { bufferViewCount, accessorCount, bufferViewByteLengthAccumulated };
 }
 
+
+/**
+ * create BufferViews and Accessors of animation
+ * @param entity 
+ * @param json 
+ * @param bufferViewByteLengthAccumulated 
+ * @param bufferViewCount 
+ * @param accessorCount 
+ * @returns 
+ */
+function createBufferViewsAndAccessorsOfAnimation(
+  entity: Entity, json: glTF2, bufferViewByteLengthAccumulated: number,
+  bufferViewCount: number, accessorCount: number) {
+  if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
+    console.warn('json.bufferViews or json.accessors are undefined.');
+    return {bufferViewCount: 0, accessorCount: 0, bufferViewByteLengthAccumulated: 0};
+  }
+
+  return { bufferViewCount, accessorCount, bufferViewByteLengthAccumulated };
+}
