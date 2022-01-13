@@ -138,11 +138,12 @@ export default class Gltf2Exporter {
         };
 
         const trackNames = animationComponent.getAnimationTrackNames();
-        for (let trackName of trackNames) {
-          const channelsOfTrack = animationComponent.getAnimationChannelsOfTrack(trackName);
+        for (const trackName of trackNames) {
+          const channelsOfTrack =
+            animationComponent.getAnimationChannelsOfTrack(trackName);
           if (Is.exist(channelsOfTrack)) {
             let i_ch = 0;
-            for (let [channelName, channel] of channelsOfTrack) {
+            for (const [channelName, channel] of channelsOfTrack) {
               const pathName = channel.target.pathName as PathType;
 
               const channelJson: Gltf2AnimationChannel = {
@@ -150,14 +151,14 @@ export default class Gltf2Exporter {
                 target: {
                   path: pathName,
                   node: i,
-                }
-              }
+                },
+              };
 
               // const samplerJson: Gltf2AnimationSampler = {
 
               // }
               animation.channels.push(channelJson);
-              animation.samplers.push()
+              // animation.samplers.push()
             }
           }
         }
