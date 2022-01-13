@@ -77,3 +77,8 @@ document.body.appendChild(p);
 
   draw();
 })();
+
+window.exportGltf2 = function () {
+
+  Rn.Gltf2Exporter.export('Rhodonite');
+};
