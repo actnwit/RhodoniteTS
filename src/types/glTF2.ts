@@ -319,7 +319,7 @@ export type Gltf2BufferView = {
   byteOffset?: number;
   byteLength: number;
   byteStride?: number;
-  target: number;
+  target?: number;
   name?: string;
   extensions?: any;
   extras?: any;

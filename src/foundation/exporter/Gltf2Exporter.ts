@@ -155,14 +155,13 @@ export default class Gltf2Exporter {
               };
 
               // const samplerJson: Gltf2AnimationSampler = {
-
-              // }
+              //   input: 
+              // };
               animation.channels.push(channelJson);
               // animation.samplers.push()
             }
           }
         }
-
       }
     }
   }
@@ -635,15 +634,24 @@ export default class Gltf2Exporter {
  * @param accessorCount 
  * @returns 
  */
-function createBufferViewsAndAccessorsOfMesh(entity: Entity, json: glTF2, bufferViewByteLengthAccumulated: number, bufferViewCount: number, accessorCount: number) {
-  const meshComponent = entity.getMesh();
-
+function createBufferViewsAndAccessorsOfMesh(
+  entity: Entity,
+  json: glTF2,
+  bufferViewByteLengthAccumulated: number,
+  bufferViewCount: number,
+  accessorCount: number
+) {
   if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
     console.warn('json.bufferViews or json.accessors are undefined.');
-    return {bufferViewCount: 0, accessorCount: 0, bufferViewByteLengthAccumulated: 0};
+    return {
+      bufferViewCount: 0,
+      accessorCount: 0,
+      bufferViewByteLengthAccumulated: 0,
+    };
   }
 
-  if (meshComponent && meshComponent.mesh) {
+  const meshComponent = entity.getMesh();
+  if (Is.exist(meshComponent) && meshComponent.mesh) {
     const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
     for (let j = 0; j < primitiveCount; j++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(j);
@@ -677,7 +685,6 @@ function createBufferViewsAndAccessorsOfMesh(entity: Entity, json: glTF2, buffer
         bufferViewCount++;
         accessorCount++;
       }
-    
 
       // Vertex Attributes
       let sumOfAccessorByteLength = 0;
@@ -715,9 +722,8 @@ function createBufferViewsAndAccessorsOfMesh(entity: Entity, json: glTF2, buffer
       bufferViewByteLengthAccumulated += bufferViewJson.byteLength;
     }
   }
-  return { bufferViewCount, accessorCount, bufferViewByteLengthAccumulated };
+  return {bufferViewCount, accessorCount, bufferViewByteLengthAccumulated};
 }
-
 
 /**
  * create BufferViews and Accessors of animation
@@ -729,12 +735,72 @@ function createBufferViewsAndAccessorsOfMesh(entity: Entity, json: glTF2, buffer
  * @returns 
  */
 function createBufferViewsAndAccessorsOfAnimation(
-  entity: Entity, json: glTF2, bufferViewByteLengthAccumulated: number,
-  bufferViewCount: number, accessorCount: number) {
+  entity: Entity,
+  json: glTF2,
+  bufferViewByteLengthAccumulated: number,
+  bufferViewCount: number,
+  accessorCount: number
+) {
   if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
     console.warn('json.bufferViews or json.accessors are undefined.');
-    return {bufferViewCount: 0, accessorCount: 0, bufferViewByteLengthAccumulated: 0};
+    return {
+      bufferViewCount: 0,
+      accessorCount: 0,
+      bufferViewByteLengthAccumulated: 0,
+    };
   }
 
-  return { bufferViewCount, accessorCount, bufferViewByteLengthAccumulated };
+  const animationComponent = entity.getAnimation();
+  if (Is.exist(animationComponent)) {
+    const trackNames = animationComponent.getAnimationTrackNames();
+    for (const trackName of trackNames) {
+      const channels = animationComponent.getAnimationChannelsOfTrack(trackName);
+      if (Is.not.exist(channels)) {
+        break;
+      }
+      for (const [channelName, channel] of channels) {
+        // Channel Sampler Input
+        // create a Gltf2BufferView
+        json.bufferViews[bufferViewCount] = {
+          buffer: 0,
+          byteLength: channel.sampler.input.byteLength,
+          byteOffset: bufferViewByteLengthAccumulated,
+        };
+        
+        // create a Gltf2Accessor
+        json.accessors[accessorCount] = {
+          bufferView: bufferViewCount,
+          byteOffset: 0,
+          componentType: 5126, // FLOAT
+          count: channel.sampler.input.length,
+          type: 'SCALAR',
+        };
+
+        bufferViewCount++;
+        accessorCount++;
+
+        // Channel Sampler Output
+        // create a Gltf2BufferView
+        json.bufferViews[bufferViewCount] = {
+          buffer: 0,
+          byteLength: channel.sampler.input.byteLength,
+          byteOffset: bufferViewByteLengthAccumulated,
+        };
+        
+        // create a Gltf2Accessor
+        json.accessors[accessorCount] = {
+          bufferView: bufferViewCount,
+          byteOffset: channel.sampler.output.byteLength,
+          componentType: 5126, // FLOAT
+          count: channel.sampler.output.length / channel.sampler.outputComponentN,
+          type: 'VEC' + channel.sampler.outputComponentN,
+        };
+
+        bufferViewCount++;
+        accessorCount++;
+      }
+    }
+  }
+
+  return {bufferViewCount, accessorCount, bufferViewByteLengthAccumulated};
 }

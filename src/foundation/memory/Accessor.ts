@@ -47,7 +47,7 @@ export default class Accessor {
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
-    -Number.MAX_VALUE]
+    -Number.MAX_VALUE,]
   );
   private __min: MutableVector4 = MutableVector4.fromCopyArray([
     Number.MAX_VALUE,
