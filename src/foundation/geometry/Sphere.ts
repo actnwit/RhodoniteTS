@@ -1,4 +1,4 @@
-import Primitive from './Primitive';
+import {Primitive} from './Primitive';
 import {CompositionType} from '../definitions/CompositionType';
 import {
   VertexAttribute,
@@ -12,7 +12,7 @@ import Material from '../materials/core/Material';
 import Vector3 from '../math/Vector3';
 import {Size} from '../../types/CommonTypes';
 
-export default class Sphere extends Primitive {
+export class Sphere extends Primitive {
   constructor() {
     super();
   }

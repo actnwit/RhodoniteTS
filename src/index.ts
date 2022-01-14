@@ -5,7 +5,7 @@ import _TransformComponent from './foundation/components/TransformComponent';
 import _SceneGraphComponent from './foundation/components/SceneGraphComponent';
 import _MeshComponent from './foundation/components/MeshComponent';
 import _MeshRendererComponent from './foundation/components/MeshRendererComponent';
-import _Primitive from './foundation/geometry/Primitive';
+import {Primitive as _Primitive} from './foundation/geometry/Primitive';
 import _System from './foundation/system/System';
 import _Scalar from './foundation/math/Scalar';
 import _Vector2 from './foundation/math/Vector2';
@@ -41,8 +41,8 @@ import _CameraControllerComponent from './foundation/components/CameraController
 import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';
 import {detectFormatByUri as _detectFormatByUri} from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';
-import _Plane from './foundation/geometry/Plane';
-import _Sphere from './foundation/geometry/Sphere';
+import {Plane as _Plane} from './foundation/geometry/Plane';
+import {Sphere as _Sphere} from './foundation/geometry/Sphere';
 import _Material from './foundation/materials/core/Material';
 import _MaterialHelper from './foundation/helpers/MaterialHelper';
 import _RenderPass from './foundation/renderer/RenderPass';
@@ -465,6 +465,7 @@ export type EffekseerComponent = typeof Effekseer.EffekseerComponent;
 // Definition Enums
 export type CompositionTypeEnum = _CompositionTypeEnum;
 export type ComponentTypeEnum = _ComponentTypeEnum;
+export type CameraControllerTypeEnum = _CameraControllerTypeEnum;
 export type VertexAttributeEnum = _VertexAttributeEnum;
 export type PrimitiveModeEnum = _PrimitiveModeEnum;
 export type ShaderSemanticsEnum = _ShaderSemanticsEnum;

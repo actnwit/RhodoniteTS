@@ -1,4 +1,4 @@
-import Primitive from './Primitive';
+import {Primitive} from './Primitive';
 import {CompositionType} from '../definitions/CompositionType';
 import {
   VertexAttribute,
@@ -11,7 +11,7 @@ import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
 import {Size} from '../../types/CommonTypes';
 
-export type PlaneDescriptor = {
+export interface PlaneDescriptor {
   /** the length of U(X)-axis direction */
   width: Size;
   /** the length of V(Y)-axis direction */
@@ -26,13 +26,13 @@ export type PlaneDescriptor = {
   flipTextureCoordinateY?: boolean;
   /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
   material?: Material;
-};
+}
 
 /**
  * Plane class
  *
  */
-export default class Plane extends Primitive {
+export class Plane extends Primitive {
   /**
    * Generates a plane object
    * @param desc a descriptor object of a Plane

@@ -1,4 +1,4 @@
-import Primitive from './Primitive';
+import {Primitive} from './Primitive';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import MemoryManager from '../core/MemoryManager';

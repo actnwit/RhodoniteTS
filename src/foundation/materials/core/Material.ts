@@ -39,7 +39,7 @@ import {VertexAttributeEnum} from '../../..';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';
 import {AttributeNames} from '../../../webgl/main';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
-import Primitive from '../../geometry/Primitive';
+import {Primitive} from '../../geometry/Primitive';
 
 type MaterialTypeName = string;
 type ShaderVariable = {

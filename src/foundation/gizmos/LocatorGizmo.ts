@@ -3,12 +3,11 @@ import MeshRendererComponent from '../components/MeshRendererComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import TransformComponent from '../components/TransformComponent';
 import Entity from '../core/Entity';
-import RnObject from '../core/RnObject';
 import {CompositionType} from '../definitions/CompositionType';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import Mesh from '../geometry/Mesh';
-import Primitive from '../geometry/Primitive';
+import {Primitive} from '../geometry/Primitive';
 import Vector3 from '../math/Vector3';
 import Gizmo from './Gizmo';
 

@@ -1,6 +1,6 @@
 import Accessor from '../foundation/memory/Accessor';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import Primitive from '../foundation/geometry/Primitive';
+import {Primitive} from '../foundation/geometry/Primitive';
 import {AttributeNames} from './shaders/GLSLShader';
 import {
   VertexAttributeEnum,
@@ -327,7 +327,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       attributesFlags[i] = false;
     }
     const vboHandles: Array<WebGLResourceHandle> = [];
-    primitive.attributeAccessors.forEach((accessor, i) => {
+    primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
       const vboHandle = this.createVertexBuffer(accessor);
       const slotIdx = primitive.attributeSemantics[i].getAttributeSlot();
       attributesFlags[slotIdx] = true;
