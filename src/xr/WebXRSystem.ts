@@ -78,8 +78,12 @@ export default class WebXRSystem {
       SceneGraphComponent,
       CameraComponent,
     ]);
-    this.__viewerEntity.getSceneGraph().addChild(this.__leftCameraEntity.getSceneGraph());
-    this.__viewerEntity.getSceneGraph().addChild(this.__rightCameraEntity.getSceneGraph());
+    this.__viewerEntity
+      .getSceneGraph()
+      .addChild(this.__leftCameraEntity.getSceneGraph());
+    this.__viewerEntity
+      .getSceneGraph()
+      .addChild(this.__rightCameraEntity.getSceneGraph());
   }
 
   /// Public Methods
@@ -94,8 +98,9 @@ export default class WebXRSystem {
     this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
-    const glw = CGAPIResourceRepository.getWebGLResourceRepository()
-      .currentWebGLContextWrapper;
+    const glw =
+      CGAPIResourceRepository.getWebGLResourceRepository()
+        .currentWebGLContextWrapper;
     if (glw == null) {
       console.error('WebGL Context is not ready yet.');
       return [];
@@ -136,13 +141,14 @@ export default class WebXRSystem {
   async enterWebXR({
     initialUserPosition,
     callbackOnXrSessionEnd = () => {},
-    profilePriorities = []
+    profilePriorities = [],
   }: {
     initialUserPosition?: Vector3;
     callbackOnXrSessionEnd: Function;
-    profilePriorities: string[]
+    profilePriorities: string[];
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
     if (this.__xrSession != null) {
@@ -174,21 +180,28 @@ export default class WebXRSystem {
         callbackOnXrSessionEnd();
       });
 
-      const that = this;
       const promiseFn = (resolve: (entities: Entity[]) => void) => {
-        session.addEventListener('inputsourceschange', (e: Event) => { that.__onInputSourcesChange(e as XRInputSourceChangeEvent, resolve, profilePriorities) });
+        session.addEventListener('inputsourceschange', e => {
+          this.__onInputSourcesChange(
+            e as XRInputSourceChangeEvent,
+            resolve,
+            profilePriorities
+          );
+        });
       };
       const promise = new Promise(promiseFn);
 
       try {
         referenceSpace = await session.requestReferenceSpace('local-floor');
         this.__spaceType = 'local-floor';
-        this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? Vector3.zero();
+        this.__defaultPositionInLocalSpaceMode =
+          initialUserPosition ?? Vector3.zero();
       } catch (err) {
         console.error(`Failed to start XRSession: ${err}`);
         referenceSpace = await session.requestReferenceSpace('local');
         this.__spaceType = 'local';
-        this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
+        this.__defaultPositionInLocalSpaceMode =
+          initialUserPosition ?? defaultUserPositionInVR;
       }
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session);
@@ -368,8 +381,10 @@ export default class WebXRSystem {
   }
 
   _setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
+    this.__leftCameraEntity.getCamera().projectionMatrix =
+      this.leftProjectionMatrix;
+    this.__rightCameraEntity.getCamera().projectionMatrix =
+      this.rightProjectionMatrix;
     this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
     this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
   }
@@ -428,7 +443,7 @@ export default class WebXRSystem {
         viewerScale: this.__viewerScale,
         viewerOrientation: this.__viewerOrientation,
         viewerAzimuthAngle: this.__viewerAzimuthAngle,
-      } );
+      });
     }
   }
 
@@ -452,22 +467,28 @@ export default class WebXRSystem {
     event: XRInputSourceChangeEvent,
     resolve: (entities: Entity[]) => void,
     profilePriorities: string[]
-    ) {
+  ) {
     this.__xrInputSources.length = 0;
-    for (let xrInputSource of event.added) {
+    for (const xrInputSource of event.added) {
       this.__xrInputSources.push(xrInputSource);
-      const controller = await createMotionController(xrInputSource, this.__basePath as string, profilePriorities);
+      const controller = await createMotionController(
+        xrInputSource,
+        this.__basePath as string,
+        profilePriorities
+      );
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
-        this.__viewerEntity.getSceneGraph().addChild(controller.getSceneGraph());
+        this.__viewerEntity
+          .getSceneGraph()
+          .addChild(controller.getSceneGraph());
       }
-    };
+    }
     resolve(this.__controllerEntities);
   }
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
-      console.warn('xrViewerPose not exist')
+      console.warn('xrViewerPose not exist');
       return;
     }
     const xrViewLeft = xrViewerPose.views[0];
@@ -569,7 +590,8 @@ export default class WebXRSystem {
         depthNear: 0.1,
         depthFar: 10000,
       });
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
       console.log(this.__canvasWidthForVR);
@@ -591,12 +613,18 @@ export default class WebXRSystem {
   private __updateInputSources(xrFrame: XRFrame) {
     this.__xrInputSources.forEach((input, i) => {
       if (Is.exist(input.gripSpace)) {
-        const xrPose = xrFrame.getPose(input.gripSpace, this.__xrReferenceSpace!);
+        const xrPose = xrFrame.getPose(
+          input.gripSpace,
+          this.__xrReferenceSpace!
+        );
         if (Is.exist(xrPose)) {
           const hand = this.__controllerEntities[i];
           if (Is.exist(hand)) {
             // update the transform of the controller itself
-            const handWorldMatrix = new MutableMatrix44(xrPose.transform.matrix, true);
+            const handWorldMatrix = new MutableMatrix44(
+              xrPose.transform.matrix,
+              true
+            );
             const rotateMat = new MutableMatrix44(handWorldMatrix);
             rotateMat.translateY += this.__defaultPositionInLocalSpaceMode.y;
             rotateMat.translateY += this.__viewerTranslate.y;
