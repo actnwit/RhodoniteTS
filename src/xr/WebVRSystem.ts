@@ -21,7 +21,9 @@ export default class WebVRSystem {
   private __requestedToEnterWebVR = false;
   private __isReadyForWebVR = false;
   private __vrDisplay?: VRDisplay;
-  private __defaultUserSittingPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 1.5]);
+  private __defaultUserSittingPositionInVR = Vector3.fromCopyArray([
+    0.0, 1.1, 1.5,
+  ]);
   private __invertSittingToStandingTransform: IMatrix44 = Matrix44.identity();
   private __minRenderWidthFromUser = 0;
   private __minRenderHeightFromUser = 0;
@@ -81,7 +83,8 @@ export default class WebVRSystem {
     minRenderHeight?: number
   ) {
     return new Promise((resolve, reject) => {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
       const glw = webglResourceRepository.currentWebGLContextWrapper;
       if (
         glw != null &&
@@ -89,7 +92,8 @@ export default class WebVRSystem {
         !this.__webvrDisplay.isPresenting
       ) {
         if (initialUserSittingPositionIfStageParametersDoNotExist != null) {
-          this.__defaultUserSittingPositionInVR = initialUserSittingPositionIfStageParametersDoNotExist;
+          this.__defaultUserSittingPositionInVR =
+            initialUserSittingPositionIfStageParametersDoNotExist;
         }
         if (minRenderWidth != null) {
           this.__minRenderWidthFromUser = minRenderWidth;
@@ -143,8 +147,9 @@ export default class WebVRSystem {
 
   async readyForWebVR(requestButtonDom: HTMLElement) {
     return new Promise((resolve, reject) => {
-      const glw = CGAPIResourceRepository.getWebGLResourceRepository()
-        .currentWebGLContextWrapper;
+      const glw =
+        CGAPIResourceRepository.getWebGLResourceRepository()
+          .currentWebGLContextWrapper;
       if (glw == null) {
         reject('WebGL Context is not ready yet.');
         return;
@@ -219,7 +224,8 @@ export default class WebVRSystem {
     if (this.__webvrDisplay && this.__webvrDisplay.isPresenting) {
       await this.__webvrDisplay.exitPresent();
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.resizeCanvas(
       this.__canvasWidthBackup,
       this.__canvasHeightBackup
@@ -292,8 +298,8 @@ export default class WebVRSystem {
       0,
       0,
       this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR]
-    );
+      this.__canvasHeightForVR,
+    ]);
   }
 
   getRightViewport(originalViewport: Vector4) {
