@@ -183,27 +183,30 @@ export class Cube extends Primitive {
     const attributeCompositionTypes = [
       CompositionType.Vec3,
       CompositionType.Vec3,
-      CompositionType.Vec3,
       CompositionType.Vec2,
     ];
     const attributeSemantics = [
       VertexAttribute.Position,
       VertexAttribute.Normal,
-      VertexAttribute.Color0,
       VertexAttribute.Texcoord0,
     ];
-    const primitiveMode = PrimitiveMode.TriangleStrip;
     const attributes = [
       new Float32Array(positions),
       new Float32Array(normals),
-      new Float32Array(colors),
       new Float32Array(texcoords),
     ];
+    if (Is.exist(desc.color)) {
+      attributeCompositionTypes.push(CompositionType.Vec3);
+      attributeSemantics.push(VertexAttribute.Color0);
+      attributes.push(new Float32Array(colors));
+    }
+    const primitiveMode = PrimitiveMode.Triangles;
     let sumOfAttributesByteSize = 0;
     attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
     });
-    const indexSizeInByte = indices.length * 2;
+    const indexSizeInByte =
+      indices.length * ComponentType.UnsignedShort.getSizeInBytes();
 
     /// Create a Rhodonite Buffer object ///
     const buffer = MemoryManager.getInstance().createBufferOnDemand(
