@@ -3,8 +3,8 @@ import {ProcessApproach} from '../../foundation/definitions/ProcessApproach';
 import {ShaderAttributeOrSemanticsOrString} from '../../foundation/materials/core/AbstractMaterialNode';
 import {ShaderSemanticsClass} from '../../foundation/definitions/ShaderSemantics';
 import {
+  VertexAttribute,
   VertexAttributeEnum,
-  VertexAttributeClass,
 } from '../../foundation/definitions/VertexAttribute';
 import WebGLResourceRepository from '../WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
@@ -1064,7 +1064,7 @@ vec4 texture2DSeamless(vec2 uv, vec4 scaleTranslate) {
   ): string {
     if (data instanceof ShaderSemanticsClass) {
       return 'u_' + data.str;
-    } else if (data instanceof VertexAttributeClass) {
+    } else if (VertexAttribute.isInstanceOfVertexAttributeClass(data)) {
       return data.shaderStr;
     } else {
       return data as string;
