@@ -26,6 +26,15 @@ import {IVector3} from '../math/IVector';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
+export interface PrimitiveDescriptor {
+  attributes: Array<TypedArray>;
+  attributeCompositionTypes: Array<CompositionTypeEnum>;
+  attributeSemantics: Array<VertexAttributeEnum>;
+  primitiveMode: PrimitiveModeEnum;
+  indices?: TypedArray;
+  material?: Material;
+}
+
 export class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   private __material: Material = MaterialHelper.createEmptyMaterial();
@@ -129,21 +138,14 @@ export class Primitive extends RnObject {
     return this.__headerAccessor;
   }
 
-  static createPrimitive({
-    indices,
+  copyVertexData({
+    attributes,
     attributeCompositionTypes,
     attributeSemantics,
-    attributes,
-    material,
     primitiveMode,
-  }: {
-    indices?: TypedArray;
-    attributeCompositionTypes: Array<CompositionTypeEnum>;
-    attributeSemantics: Array<VertexAttributeEnum>;
-    attributes: Array<TypedArray>;
-    primitiveMode: PrimitiveModeEnum;
-    material?: Material;
-  }) {
+    indices,
+    material,
+  }: PrimitiveDescriptor) {
     let sumOfAttributesByteSize = 0;
     attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
@@ -154,10 +156,9 @@ export class Primitive extends RnObject {
       bufferSize += indices.byteLength;
     }
 
-    const primitive = new Primitive();
     const buffer = MemoryManager.getInstance().createBufferOnDemand(
       bufferSize,
-      primitive,
+      this,
       4
     );
 
@@ -193,17 +194,17 @@ export class Primitive extends RnObject {
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
 
-    attributes.forEach((attribute, i) => {
+    attributes.forEach((typedArray, i) => {
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
       const accessor: Accessor = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count:
-          attribute.byteLength /
+          typedArray.byteLength /
           attributeCompositionTypes[i].getNumberOfComponents() /
           attributeComponentTypes[i].getSizeInBytes(),
       });
-      accessor.copyFromTypedArray(attribute);
+      accessor.copyFromTypedArray(typedArray);
       attributeAccessors.push(accessor);
     });
 
@@ -212,7 +213,12 @@ export class Primitive extends RnObject {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
-    primitive.setData(attributeMap, primitiveMode, material, indicesAccessor);
+    this.setData(attributeMap, primitiveMode, material, indicesAccessor);
+  }
+
+  static createPrimitive(desc: PrimitiveDescriptor) {
+    const primitive = new Primitive();
+    primitive.copyVertexData(desc);
     return primitive;
   }
 
