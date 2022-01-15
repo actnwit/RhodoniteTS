@@ -16,7 +16,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';
 import MutableVector3 from '../math/MutableVector3';
 import {ProcessApproachEnum} from '../definitions/ProcessApproach';
-import {Is as is} from '../misc/Is';
+import {Is} from '../misc/Is';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -241,7 +241,7 @@ export default class MeshComponent extends Component {
     ) as MeshComponent[];
     for (const meshComponent of meshComponents) {
       const mesh = meshComponent.mesh as Mesh;
-      if (!is.exist(mesh)) {
+      if (!Is.exist(mesh)) {
         continue;
       }
 

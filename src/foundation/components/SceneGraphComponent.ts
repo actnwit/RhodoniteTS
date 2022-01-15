@@ -17,7 +17,7 @@ import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import AABBGizmo from '../gizmos/AABBGizmo';
 import LocatorGizmo from '../gizmos/LocatorGizmo';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
