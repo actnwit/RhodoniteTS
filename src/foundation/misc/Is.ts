@@ -1,37 +1,11 @@
+/* eslint-disable prefer-spread */
 /* eslint-disable prefer-rest-params */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // Inspired by https://github.com/enricomarino/is
 
 type FnType = (val: unknown) => boolean;
 
-const IsSubImpl = {
-  not(fn: FnType) {
-    return function () {
-      /* eslint-disable prefer-spread */
-      return fn.apply(null, [...arguments] as never);
-    };
-  },
-
-  all(fn: FnType) {
-    return function () {
-      if (Array.isArray(arguments[0])) {
-        return arguments[0].every(fn);
-      }
-      return [...arguments].every(fn);
-    };
-  },
-
-  any(fn: FnType) {
-    return function () {
-      if (Array.isArray(arguments[0])) {
-        return arguments[0].some(fn);
-      }
-      return [...arguments].some(fn);
-    };
-  },
-};
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const IsImpl = {
+export const IsObj = {
   defined(val: unknown, ...args: unknown[]): val is Exclude<Object, undefined> {
     return val !== void 0;
   },
@@ -63,7 +37,33 @@ const IsImpl = {
   },
 };
 
-const IsNotImpl = {
+const Derivatives = {
+  not(fn: FnType) {
+    return function () {
+      return fn.apply(null, [...arguments] as any);
+    };
+  },
+
+  all(fn: FnType) {
+    return function () {
+      if (Array.isArray(arguments[0])) {
+        return arguments[0].every(fn);
+      }
+      return [...arguments].every(fn);
+    };
+  },
+
+  any(fn: FnType) {
+    return function () {
+      if (Array.isArray(arguments[0])) {
+        return arguments[0].some(fn);
+      }
+      return [...arguments].some(fn);
+    };
+  },
+};
+
+const NotObj = {
   defined(val: unknown, ...args: unknown[]): val is undefined {
     return val === void 0;
   },
@@ -76,12 +76,15 @@ const IsNotImpl = {
     return val !== null;
   },
 
-  exist(val?: unknown, ...args: unknown[]): val is undefined|null {
+  exist(val?: unknown, ...args: unknown[]): val is undefined | null {
     // eslint-disable-next-line eqeqeq
     return val == null;
   },
 
-  function(val: unknown, ...args: unknown[]): val is Exclude<unknown, Function> {
+  function(
+    val: unknown,
+    ...args: unknown[]
+  ): val is Exclude<unknown, Function> {
     return typeof val !== 'function';
   },
 
@@ -94,28 +97,30 @@ const IsNotImpl = {
   },
 };
 
-type IsImplType = typeof IsImpl;
+type IsImplType = typeof IsObj;
+// interface IsImplType {
+//   [s: string]: {[s: string]: FnType};
+// }
 
 interface IsType extends IsImplType {
-  not: typeof IsNotImpl;
-  all: typeof IsImpl;
-  any: typeof IsImpl;
+  not: typeof NotObj;
+  all: typeof IsObj;
+  any: typeof IsObj;
 }
 
-for (const subFn in IsSubImpl) {
-  if (Object.prototype.hasOwnProperty.call(IsSubImpl, subFn)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (IsImpl as any)[subFn] = {} as typeof IsImpl;
-    for (const fn in IsImpl) {
-      if (Object.prototype.hasOwnProperty.call(IsImpl, fn)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Add derivatives to the IsObj
+for (const subFn in Derivatives) {
+  if (Object.prototype.hasOwnProperty.call(Derivatives, subFn)) {
+    (IsObj as any)[subFn] = {} as typeof IsObj;
+    for (const fn in IsObj) {
+      if (Object.prototype.hasOwnProperty.call(IsObj, fn)) {
         if (subFn === 'not') {
-          (IsImpl as any)[subFn][fn] = (IsSubImpl as any)[subFn](
-            (IsNotImpl as never)[fn]
+          (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn](
+            (NotObj as never)[fn]
           );
         } else {
-          (IsImpl as any)[subFn][fn] = (IsSubImpl as any)[subFn](
-            (IsImpl as never)[fn]
+          (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn](
+            (IsObj as never)[fn]
           );
         }
       }
@@ -123,4 +128,4 @@ for (const subFn in IsSubImpl) {
   }
 }
 
-export const Is = IsImpl as IsType;
+export const Is = IsObj as IsType;

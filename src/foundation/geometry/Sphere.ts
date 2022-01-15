@@ -10,8 +10,25 @@ import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
 import Vector3 from '../math/Vector3';
-import {Size} from '../../types/CommonTypes';
+import {Count} from '../../types/CommonTypes';
 
+/**
+ * The argument descriptor for Plane primitives
+ */
+export interface SphereDescriptor {
+  /** radius */
+  radius: number;
+  /** the number of segments for width direction */
+  widthSegments: Count;
+  /** the number of segments for height direction */
+  heightSegments: Count;
+  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
+  material?: Material;
+}
+
+/**
+ * Sphere class
+ */
 export class Sphere extends Primitive {
   constructor() {
     super();
@@ -22,12 +39,7 @@ export class Sphere extends Primitive {
     widthSegments,
     heightSegments,
     material,
-  }: {
-    radius: number;
-    widthSegments: Size;
-    heightSegments: Size;
-    material?: Material;
-  }) {
+  }: SphereDescriptor) {
     const positions = [];
     const texcoords = [];
     const normals = [];
