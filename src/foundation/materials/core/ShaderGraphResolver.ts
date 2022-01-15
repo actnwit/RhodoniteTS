@@ -15,9 +15,8 @@ export default class ShaderGraphResolver {
     const shaderNodes = vertexNodes.concat();
 
     // Find Start Node
-    const firstShaderNode: AbstractShaderNode = this.__findBeginNode(
-      shaderNodes
-    );
+    const firstShaderNode: AbstractShaderNode =
+      this.__findBeginNode(shaderNodes);
 
     // Topological Sorting
     const sortedShaderNodes = this.__sortTopologically(
@@ -27,7 +26,8 @@ export default class ShaderGraphResolver {
 
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     let in_ = 'attribute';
     if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
       in_ = 'in';
@@ -54,9 +54,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
-      sortedShaderNodes
-    );
+    shaderBody +=
+      ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
 
     const shader = vertexShaderPrerequisites + shaderBody;
 
@@ -67,9 +66,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     const shaderNodes = pixelNodes.concat();
 
     // Find Start Node
-    const firstShaderNode: AbstractShaderNode = this.__findBeginNode(
-      shaderNodes
-    );
+    const firstShaderNode: AbstractShaderNode =
+      this.__findBeginNode(shaderNodes);
 
     // Topological Sorting
     const sortedShaderNodes = this.__sortTopologically(
@@ -96,9 +94,8 @@ ${prerequisitesShaderityObject.code}
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
-      sortedShaderNodes
-    );
+    shaderBody +=
+      ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
 
     const shader = pixelShaderPrerequisites + shaderBody;
 
@@ -249,7 +246,8 @@ ${prerequisitesShaderityObject.code}
         for (let j = i; j < materialNodes.length; j++) {
           const targetMaterialNode = materialNodes[j];
           const prevMaterialNodeInner = materialNodes[i - 1];
-          const targetNodeInputConnections = targetMaterialNode.inputConnections;
+          const targetNodeInputConnections =
+            targetMaterialNode.inputConnections;
           for (let k = 0; k < targetNodeInputConnections.length; k++) {
             const inputConnection = targetNodeInputConnections[k];
             if (

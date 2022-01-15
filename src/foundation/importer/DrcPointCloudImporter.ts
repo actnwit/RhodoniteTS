@@ -491,8 +491,7 @@ export default class DrcPointCloudImporter {
         for (const channel of animation.channels) {
           channel.samplerObject = animation.samplers[channel.sampler];
 
-          channel.target!.nodeObject =
-            gltfJson.nodes[channel.target!.node!];
+          channel.target!.nodeObject = gltfJson.nodes[channel.target!.node!];
         }
         for (const channel of animation.channels) {
           if (Is.exist(channel.samplerObject)) {
@@ -504,12 +503,15 @@ export default class DrcPointCloudImporter {
               channel.samplerObject.outputObject.extras = {} as any;
             }
             if (channel.target!.path === 'rotation') {
-              channel.samplerObject.outputObject.extras!.quaternionIfVec4 = true;
+              channel.samplerObject.outputObject.extras!.quaternionIfVec4 =
+                true;
             }
             if (channel.target!.path === 'weights') {
               const weightsArrayLength =
-                channel.samplerObject.outputObject.count / channel.samplerObject.inputObject.count;
-              channel.samplerObject.outputObject.extras!.weightsArrayLength = weightsArrayLength;
+                channel.samplerObject.outputObject.count /
+                channel.samplerObject.inputObject.count;
+              channel.samplerObject.outputObject.extras!.weightsArrayLength =
+                weightsArrayLength;
             }
           }
         }

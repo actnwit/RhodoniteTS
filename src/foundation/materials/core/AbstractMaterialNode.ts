@@ -38,7 +38,7 @@ import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
-import { RnXR } from '../../../xr/main';
+import {RnXR} from '../../../xr/main';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -152,7 +152,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
-    this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
   }
 
@@ -611,8 +612,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
         ProcessApproach.isFastestApproach(SystemState.currentProcessApproach)
       ) {
         offset = Config.totalSizeOfGPUShaderDataStorageExceptMorphData;
-        offset2 = memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData)
-          .takenSizeInByte;
+        offset2 = memoryManager.createOrGetBuffer(
+          BufferUse.GPUInstanceData
+        ).takenSizeInByte;
       }
       return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
     });

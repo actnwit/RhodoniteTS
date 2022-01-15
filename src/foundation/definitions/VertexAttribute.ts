@@ -10,7 +10,7 @@ import {
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
 
 // prettier-ignore
-type VertexAttributeTypeName =
+export type VertexAttributeTypeName =
   'UNKNOWN' |
   'POSITION'|
   'NORMAL' |
