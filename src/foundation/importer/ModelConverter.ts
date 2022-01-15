@@ -7,7 +7,7 @@ import Vector3 from '../math/Vector3';
 import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
 import MeshRendererComponent from '../components/MeshRendererComponent';
-import Primitive from '../geometry/Primitive';
+import {Primitive} from '../geometry/Primitive';
 import Buffer from '../memory/Buffer';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {CompositionType} from '../definitions/CompositionType';

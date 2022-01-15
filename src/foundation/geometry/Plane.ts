@@ -1,4 +1,4 @@
-import Primitive from './Primitive';
+import {Primitive} from './Primitive';
 import {CompositionType} from '../definitions/CompositionType';
 import {
   VertexAttribute,
@@ -11,36 +11,33 @@ import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
 import {Size} from '../../types/CommonTypes';
 
-export type PlaneDescriptor = {
+export interface PlaneDescriptor {
+  /** the length of U(X)-axis direction */
   width: Size;
+  /** the length of V(Y)-axis direction */
   height: Size;
+  /** number of spans in U(X)-axis direction */
   uSpan: Size;
+  /** number of spans in V(Y)-axis direction */
   vSpan: Size;
+  /** draw uSpan times vSpan number of textures */
   isUVRepeat: boolean;
+  /** draw textures by flipping on the V(Y)-axis */
   flipTextureCoordinateY?: boolean;
+  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
   material?: Material;
-};
+}
 
 /**
  * Plane class
  *
  */
-export default class Plane extends Primitive {
-  constructor() {
-    super();
-  }
-
+export class Plane extends Primitive {
   /**
    * Generates a plane object
-   * @param width the length of U(X)-axis direction
-   * @param height the length of V(Y)-axis direction
-   * @param uSpan number of spans in U(X)-axis direction
-   * @param vSpan number of spans in V(Y)-axis direction
-   * @param isUVRepeat draw uSpan times vSpan number of textures
-   * @param flipTextureCoordinateY draw textures by flipping on the V(Y)-axis
-   * @param material attach a rhodonite material to this plane(the default material is the classicUberMaterial)
+   * @param desc a descriptor object of a Plane
    */
-  generate(desc: PlaneDescriptor) {
+  public generate(desc: PlaneDescriptor): void {
     const positions = [];
 
     for (let i = 0; i <= desc.vSpan; i++) {

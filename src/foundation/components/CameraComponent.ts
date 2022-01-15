@@ -13,7 +13,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import {ProcessStage} from '../definitions/ProcessStage';
 import MutableVector4 from '../math/MutableVector4';
 import MutableVector3 from '../math/MutableVector3';
-import Frustum from '../geometry/Frustum';
+import {Frustum} from '../geometry/Frustum';
 import Config from '../core/Config';
 import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
@@ -23,7 +23,6 @@ import CameraControllerComponent from './CameraControllerComponent';
 import ModuleManager from '../system/ModuleManager';
 import {RnXR} from '../../xr/main';
 import RenderPass from '../renderer/RenderPass';
-import { IMutableVector3, IVector3 } from '../math/IVector';
 
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();

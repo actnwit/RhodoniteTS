@@ -5,7 +5,7 @@ import _TransformComponent from './foundation/components/TransformComponent';
 import _SceneGraphComponent from './foundation/components/SceneGraphComponent';
 import _MeshComponent from './foundation/components/MeshComponent';
 import _MeshRendererComponent from './foundation/components/MeshRendererComponent';
-import _Primitive from './foundation/geometry/Primitive';
+import {Primitive as _Primitive} from './foundation/geometry/Primitive';
 import _System from './foundation/system/System';
 import _Scalar from './foundation/math/Scalar';
 import _Vector2 from './foundation/math/Vector2';
@@ -41,8 +41,11 @@ import _CameraControllerComponent from './foundation/components/CameraController
 import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';
 import {detectFormatByUri as _detectFormatByUri} from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';
-import _Plane from './foundation/geometry/Plane';
-import _Sphere from './foundation/geometry/Sphere';
+import {Plane as _Plane} from './foundation/geometry/Plane';
+import {Sphere as _Sphere} from './foundation/geometry/Sphere';
+import {Cube as _Cube} from './foundation/geometry/Cube';
+import type {PlaneDescriptor as _PlaneDescriptor} from './foundation/geometry/Plane';
+import type {CubeDescriptor as _CubeDescriptor} from './foundation/geometry/Cube';
 import _Material from './foundation/materials/core/Material';
 import _MaterialHelper from './foundation/helpers/MaterialHelper';
 import _RenderPass from './foundation/renderer/RenderPass';
@@ -67,7 +70,6 @@ import _AnimationAssigner from './foundation/importer/AnimationAssigner';
 import {MiscUtil as _MiscUtil} from './foundation/misc/MiscUtil';
 import {MathUtil as _MathUtil} from './foundation/math/MathUtil';
 import {MeshHelper as _MeshHelper} from './foundation/helpers/MeshHelper';
-import type {PlaneDescriptor as _PlaneDescriptor} from './foundation/geometry/Plane';
 import _OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import _WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
 import _ShaderityUtility from './foundation/materials/core/ShaderityUtility';
@@ -235,6 +237,7 @@ export default {
   Config: _Config,
   Plane: _Plane,
   Sphere: _Sphere,
+  Cube: _Cube,
   Material: _Material,
   MaterialHelper: _MaterialHelper,
   MeshHelper: _MeshHelper,
@@ -381,10 +384,12 @@ export type detectFormatByUri = typeof _detectFormatByUri;
 export type Config = typeof _Config;
 export type Plane = _Plane;
 export type Sphere = _Sphere;
+export type Cube = _Cube;
+export type PlaneDescriptor = _PlaneDescriptor;
+export type CubeDescriptor = _CubeDescriptor;
 export type Material = _Material;
 export type MaterialHelper = typeof _MaterialHelper;
 export type MeshHelper = typeof _MeshHelper;
-export type PlaneDescriptor = _PlaneDescriptor;
 export type RenderPass = _RenderPass;
 export type FrameBuffer = _FrameBuffer;
 export type Expression = _Expression;
@@ -465,6 +470,7 @@ export type EffekseerComponent = typeof Effekseer.EffekseerComponent;
 // Definition Enums
 export type CompositionTypeEnum = _CompositionTypeEnum;
 export type ComponentTypeEnum = _ComponentTypeEnum;
+export type CameraControllerTypeEnum = _CameraControllerTypeEnum;
 export type VertexAttributeEnum = _VertexAttributeEnum;
 export type PrimitiveModeEnum = _PrimitiveModeEnum;
 export type ShaderSemanticsEnum = _ShaderSemanticsEnum;

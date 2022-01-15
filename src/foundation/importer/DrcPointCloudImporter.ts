@@ -1,5 +1,5 @@
 import DataUtil from '../misc/DataUtil';
-import Primitive from '../geometry/Primitive';
+import {Primitive} from '../geometry/Primitive';
 import MaterialHelper from '../helpers/MaterialHelper';
 import {
   CompositionType,

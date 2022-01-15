@@ -9,7 +9,7 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 /**
  * The view frustum class.
  */
-export default class Frustum {
+export class Frustum {
   public top = MutableVector4.zero();
   public bottom = MutableVector4.zero();
   public right = MutableVector4.zero();

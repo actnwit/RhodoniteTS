@@ -14,7 +14,7 @@ import MToonSingleMaterialNode from '../materials/singles/MToonSingleMaterialNod
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import CustomSingleMaterialNode from '../materials/singles/CustomSingleMaterialNode';
-import Primitive from '../geometry/Primitive';
+import {Primitive} from '../geometry/Primitive';
 import Entity from '../core/Entity';
 import {ProcessStage} from '../definitions/ProcessStage';
 import {AlphaMode} from '../definitions/AlphaMode';

@@ -70,7 +70,7 @@ test(`Result.${Ok.prototype.unwrapForce.name}`, () => {
 
   try {
     result1.unwrapForce();
-  } catch (err) {
+  } catch (err: any) {
     expect(err.message).toBe('Error');
     expect(err.name).toBe(RnException._prefix);
     expect(err.getRnError()).toStrictEqual({

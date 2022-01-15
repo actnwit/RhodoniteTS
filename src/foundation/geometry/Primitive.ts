@@ -26,7 +26,7 @@ import {IVector3} from '../math/IVector';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
-export default class Primitive extends RnObject {
+export class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   private __material: Material = MaterialHelper.createEmptyMaterial();
   public _prevMaterial: Material = MaterialHelper.createEmptyMaterial();

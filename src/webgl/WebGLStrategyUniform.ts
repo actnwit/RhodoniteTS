@@ -1,16 +1,13 @@
 import WebGLResourceRepository from './WebGLResourceRepository';
-import WebGLStrategy, { ShaderSources } from './WebGLStrategy';
+import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
 import MeshComponent from '../foundation/components/MeshComponent';
 import WebGLContextWrapper from './WebGLContextWrapper';
-import Primitive from '../foundation/geometry/Primitive';
+import {Primitive} from '../foundation/geometry/Primitive';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
 import Matrix44 from '../foundation/math/Matrix44';
 import Matrix33 from '../foundation/math/Matrix33';
 import Entity from '../foundation/core/Entity';
-import {
-  ShaderSemantics,
-  ShaderSemanticsInfo,
-} from '../foundation/definitions/ShaderSemantics';
+import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import LightComponent from '../foundation/components/LightComponent';
 import Config from '../foundation/core/Config';

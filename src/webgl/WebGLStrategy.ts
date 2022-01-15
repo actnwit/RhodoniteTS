@@ -1,6 +1,6 @@
 import MeshComponent from '../foundation/components/MeshComponent';
 import WebGLContextWrapper from './WebGLContextWrapper';
-import Primitive from '../foundation/geometry/Primitive';
+import {Primitive} from '../foundation/geometry/Primitive';
 import Matrix44 from '../foundation/math/Matrix44';
 import Matrix33 from '../foundation/math/Matrix33';
 import Entity from '../foundation/core/Entity';
@@ -12,7 +12,6 @@ import {
   WebGLResourceHandle,
   Index,
   Count,
-  ComponentSID,
   CGAPIResourceHandle,
 } from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
