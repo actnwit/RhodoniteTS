@@ -2,6 +2,8 @@ import {PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
 import {
   VertexAttributeEnum,
   VertexAttribute,
+  VertexAttributeSemantic,
+  VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
 import RnObject from '../core/RnObject';
@@ -21,15 +23,14 @@ import Vector3 from '../math/Vector3';
 import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
-import {Is as is} from '../misc/Is';
+import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 
-export type Attributes = Map<VertexAttributeEnum, Accessor>;
+export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
 export interface PrimitiveDescriptor {
-  attributes: Array<TypedArray>;
-  attributeCompositionTypes: Array<CompositionTypeEnum>;
-  attributeSemantics: Array<VertexAttributeEnum>;
+  attributes: TypedArray[];
+  attributeSemantics: VertexAttributeSemantic[];
   primitiveMode: PrimitiveModeEnum;
   indices?: TypedArray;
   material?: Material;
@@ -140,7 +141,6 @@ export class Primitive extends RnObject {
 
   copyVertexData({
     attributes,
-    attributeCompositionTypes,
     attributeSemantics,
     primitiveMode,
     indices,
@@ -195,22 +195,32 @@ export class Primitive extends RnObject {
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
 
     attributes.forEach((typedArray, i) => {
+      const compositionType = CompositionType.vectorFrom(
+        attributeSemantics[i].length
+      );
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
       const accessor: Accessor = attributesBufferView.takeAccessor({
-        compositionType: attributeCompositionTypes[i],
+        compositionType,
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count:
           typedArray.byteLength /
-          attributeCompositionTypes[i].getNumberOfComponents() /
+          compositionType.getNumberOfComponents() /
           attributeComponentTypes[i].getSizeInBytes(),
       });
       accessor.copyFromTypedArray(typedArray);
       attributeAccessors.push(accessor);
     });
 
-    const attributeMap: Map<VertexAttributeEnum, Accessor> = new Map();
+    const attributeMap: Map<VertexAttributeSemanticsJoinedString, Accessor> =
+      new Map();
     for (let i = 0; i < attributeSemantics.length; i++) {
-      attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
+      const attributeSemantic = attributeSemantics[i];
+      attributeMap.set(
+        VertexAttribute.getVertexAttributeSemanticJoinedString(
+          attributeSemantic
+        ),
+        attributeAccessors[i]
+      );
     }
 
     this.setData(attributeMap, primitiveMode, material, indicesAccessor);
@@ -234,12 +244,14 @@ export class Primitive extends RnObject {
     }
   }
 
-  getVertexCountAsVerticesBased() {
-    const positionAccessor = this.__attributes.get(VertexAttribute.Position);
-    return positionAccessor!.elementCount;
+  getVertexCountAsVerticesBased(): Count {
+    for (const accessor of this.__attributes.values()) {
+      return accessor.elementCount;
+    }
+    return 0;
   }
 
-  getTriangleCountAsIndicesBased() {
+  getTriangleCountAsIndicesBased(): Count {
     if (this.indicesAccessor) {
       switch (this.__mode) {
         case PrimitiveMode.Triangles:
@@ -256,18 +268,20 @@ export class Primitive extends RnObject {
     }
   }
 
-  getTriangleCountAsVerticesBased() {
-    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
-    switch (this.__mode) {
-      case PrimitiveMode.Triangles:
-        return positionAccessor.elementCount / 3;
-      case PrimitiveMode.TriangleStrip:
-        return positionAccessor.elementCount - 2;
-      case PrimitiveMode.TriangleFan:
-        return positionAccessor.elementCount - 2;
-      default:
-        return 0;
+  getTriangleCountAsVerticesBased(): Count {
+    for (const accessor of this.__attributes.values()) {
+      switch (this.__mode) {
+        case PrimitiveMode.Triangles:
+          return accessor.elementCount / 3;
+        case PrimitiveMode.TriangleStrip:
+          return accessor.elementCount - 2;
+        case PrimitiveMode.TriangleFan:
+          return accessor.elementCount - 2;
+        default:
+          return 0;
+      }
     }
+    return 0;
   }
 
   hasIndices() {
@@ -399,7 +413,7 @@ export class Primitive extends RnObject {
 
   update3DAPIVertexData() {
     const vertexHandles = this.__vertexHandles as VertexHandles;
-    if (!is.exist(this.__vertexHandles)) {
+    if (!Is.exist(this.__vertexHandles)) {
       return false;
     }
 
@@ -440,8 +454,6 @@ export class Primitive extends RnObject {
     let currentShortestT = Number.MAX_VALUE;
     let currentShortestIntersectedPosVec3 = null;
 
-    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
-    // const positionElementNumPerVertex = this._vertices.components.position;
     let incrementNum = 3; // gl.TRIANGLES
     if (this.__mode === PrimitiveMode.TriangleStrip) {
       // gl.TRIANGLE_STRIP
@@ -483,7 +495,13 @@ export class Primitive extends RnObject {
         }
       }
     } else {
-      for (let i = 0; i < positionAccessor.elementCount; i += incrementNum) {
+      let elementCount = 0;
+      for (const accessor of this.__attributes.values()) {
+        elementCount = accessor.elementCount;
+        break;
+      }
+
+      for (let i = 0; i < elementCount; i += incrementNum) {
         const pos0IndexBase = i;
         const pos1IndexBase = i + 1;
         const pos2IndexBase = i + 2;
@@ -500,13 +518,13 @@ export class Primitive extends RnObject {
           dotThreshold,
           hasFaceNormal
         );
-        if (result === null) {
-          continue;
-        }
-        const t = result[0];
-        if (result[0] < currentShortestT) {
-          currentShortestT = t;
-          currentShortestIntersectedPosVec3 = result[1];
+
+        if (Is.exist(result)) {
+          const t = result[0];
+          if (result[0] < currentShortestT) {
+            currentShortestT = t;
+            currentShortestIntersectedPosVec3 = result[1];
+          }
         }
       }
     }

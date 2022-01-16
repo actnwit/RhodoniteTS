@@ -34,6 +34,9 @@ export const IsObj = {
   false(val: unknown, ...args: unknown[]): boolean {
     return val === false;
   },
+  stringContaining(thisStr: string, queryStr: string): boolean {
+    return thisStr.indexOf(queryStr) !== -1;
+  },
 };
 
 const Derivatives = {
