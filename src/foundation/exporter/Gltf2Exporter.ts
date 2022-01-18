@@ -4,11 +4,15 @@ import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
 import {Index} from '../../types/CommonTypes';
-import { glTF2, Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationSampler, Gltf2Mesh, Gltf2Primitive, PathType } from '../../types/glTF2';
+import {
+  glTF2,
+  Gltf2Animation,
+  Gltf2AnimationChannel,
+  Gltf2Mesh,
+  Gltf2Primitive,
+  PathType,
+} from '../../types/glTF2';
 const _VERSION = require('./../../../VERSION-FILE').default;
-
-declare let window: any;
-declare let URL: any;
 
 interface Gltf2ExporterArguments {
   entities: Entity[]; // The target entities. This exporter includes their descendants for the output.
@@ -108,10 +112,22 @@ export default class Gltf2Exporter {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       ({bufferViewCount, accessorCount, bufferViewByteLengthAccumulated} =
-        createBufferViewsAndAccessorsOfMesh(entity, json, bufferViewByteLengthAccumulated, bufferViewCount, accessorCount));
-      
+        createBufferViewsAndAccessorsOfMesh(
+          entity,
+          json,
+          bufferViewByteLengthAccumulated,
+          bufferViewCount,
+          accessorCount
+        ));
+
       ({bufferViewCount, accessorCount, bufferViewByteLengthAccumulated} =
-        createBufferViewsAndAccessorsOfAnimation(entity, json, bufferViewByteLengthAccumulated, bufferViewCount, accessorCount));
+        createBufferViewsAndAccessorsOfAnimation(
+          entity,
+          json,
+          bufferViewByteLengthAccumulated,
+          bufferViewCount,
+          accessorCount
+        ));
     }
 
     if (bufferViewByteLengthAccumulated > 0) {
@@ -155,7 +171,7 @@ export default class Gltf2Exporter {
               };
 
               // const samplerJson: Gltf2AnimationSampler = {
-              //   input: 
+              //   input:
               // };
               animation.channels.push(channelJson);
               // animation.samplers.push()
@@ -370,26 +386,7 @@ export default class Gltf2Exporter {
                     htmlCanvasElement.toBlob((blob: Blob | null) => {
                       setTimeout(() => {
                         const a = document.createElement('a');
-                        const e = document.createEvent(
-                          'MouseEvent'
-                        ) as MouseEvent;
-                        e.initMouseEvent(
-                          'click',
-                          true,
-                          true,
-                          window,
-                          1,
-                          0,
-                          0,
-                          0,
-                          0,
-                          false,
-                          false,
-                          false,
-                          false,
-                          0,
-                          null
-                        );
+                        const e = new MouseEvent('click');
                         a.href = URL.createObjectURL(blob!);
                         a.download = imageJson.uri;
                         a.dispatchEvent(e);
@@ -529,7 +526,8 @@ export default class Gltf2Exporter {
           const array = rnAccessor.getVec2AsArray(k, {});
           for (let l = 0; l < 2; l++) {
             (dataView as any)[dataViewSetter](
-              bufferViewByteOffset + accessorByteOffset +
+              bufferViewByteOffset +
+                accessorByteOffset +
                 componentType.getSizeInBytes() * (k * 2 + l),
               array[l],
               true
@@ -539,7 +537,8 @@ export default class Gltf2Exporter {
           const array = rnAccessor.getVec3AsArray(k, {});
           for (let l = 0; l < 3; l++) {
             (dataView as any)[dataViewSetter](
-              bufferViewByteOffset + accessorByteOffset +
+              bufferViewByteOffset +
+                accessorByteOffset +
                 componentType.getSizeInBytes() * (k * 3 + l),
               array[l],
               true
@@ -549,7 +548,8 @@ export default class Gltf2Exporter {
           const array = rnAccessor.getVec4AsArray(k, {});
           for (let l = 0; l < 4; l++) {
             (dataView as any)[dataViewSetter](
-              bufferViewByteOffset + accessorByteOffset +
+              bufferViewByteOffset +
+                accessorByteOffset +
                 componentType.getSizeInBytes() * (k * 4 + l),
               array[l],
               true
@@ -570,69 +570,37 @@ export default class Gltf2Exporter {
    * @param arraybuffer an ArrayBuffer of the .bin file
    */
   static __download(json: glTF2, filename: string, arraybuffer: ArrayBuffer) {
-    let a = document.createElement('a');
-    let e = document.createEvent('MouseEvent');
+    {
+      const a = document.createElement('a');
 
-    a.download = filename + '.gltf';
-    a.href =
-      'data:application/octet-stream,' +
-      encodeURIComponent(JSON.stringify(json, null, 2));
+      a.download = filename + '.gltf';
+      a.href =
+        'data:application/octet-stream,' +
+        encodeURIComponent(JSON.stringify(json, null, 2));
 
-    (e as any).initEvent(
-      'click',
-      true,
-      true,
-      window,
-      1,
-      0,
-      0,
-      0,
-      0,
-      false,
-      false,
-      false,
-      false,
-      0,
-      null
-    );
-
-    a.dispatchEvent(e);
-
-    a = document.createElement('a');
-    e = document.createEvent('MouseEvent');
-    (e as any).initEvent(
-      'click',
-      true,
-      true,
-      window,
-      1,
-      0,
-      0,
-      0,
-      0,
-      false,
-      false,
-      false,
-      false,
-      0,
-      null
-    );
-    const blob = new Blob([arraybuffer], {type: 'octet/stream'}),
-      url = window.URL.createObjectURL(blob);
-    a.download = filename + '.bin';
-    a.href = url;
-    a.dispatchEvent(e);
+      const e = new MouseEvent('click');
+      a.dispatchEvent(e);
+    }
+    {
+      const a = document.createElement('a');
+      const blob = new Blob([arraybuffer], {type: 'octet/stream'}),
+        url = URL.createObjectURL(blob);
+      a.download = filename + '.bin';
+      a.href = url;
+      const e = new MouseEvent('click');
+      a.dispatchEvent(e);
+    }
   }
 }
 
 /**
  * create BufferViews and Accessors of mesh
- * @param entity 
- * @param json 
- * @param bufferViewByteLengthAccumulated 
- * @param bufferViewCount 
- * @param accessorCount 
- * @returns 
+ * @param entity
+ * @param json
+ * @param bufferViewByteLengthAccumulated
+ * @param bufferViewCount
+ * @param accessorCount
+ * @returns
  */
 function createBufferViewsAndAccessorsOfMesh(
   entity: Entity,
@@ -661,12 +629,12 @@ function createBufferViewsAndAccessorsOfMesh(
       // For indices accessor
       if (Is.exist(indicesAccessor)) {
         // create a Gltf2BufferView
-        const bufferViewJson = json.bufferViews[bufferViewCount] = {
+        const bufferViewJson = (json.bufferViews[bufferViewCount] = {
           buffer: 0,
           byteLength: indicesAccessor.byteLength,
           byteOffset: bufferViewByteLengthAccumulated,
           target: 34963,
-        };
+        });
 
         // create a Gltf2Accessor
         indicesAccessor.calcMinMax();
@@ -712,12 +680,12 @@ function createBufferViewsAndAccessorsOfMesh(
       }
 
       // create a Gltf2BufferView
-      const bufferViewJson = json.bufferViews[bufferViewCount] = {
+      const bufferViewJson = (json.bufferViews[bufferViewCount] = {
         buffer: 0,
         byteLength: sumOfAccessorByteLength,
         byteOffset: bufferViewByteLengthAccumulated,
         target: 34962,
-      };
+      });
       bufferViewCount++;
       bufferViewByteLengthAccumulated += bufferViewJson.byteLength;
     }
@@ -727,12 +695,12 @@ function createBufferViewsAndAccessorsOfMesh(
 
 /**
  * create BufferViews and Accessors of animation
- * @param entity 
- * @param json 
- * @param bufferViewByteLengthAccumulated 
- * @param bufferViewCount 
- * @param accessorCount 
- * @returns 
+ * @param entity
+ * @param json
+ * @param bufferViewByteLengthAccumulated
+ * @param bufferViewCount
+ * @param accessorCount
+ * @returns
  */
 function createBufferViewsAndAccessorsOfAnimation(
   entity: Entity,
@@ -754,11 +722,12 @@ function createBufferViewsAndAccessorsOfAnimation(
   if (Is.exist(animationComponent)) {
     const trackNames = animationComponent.getAnimationTrackNames();
     for (const trackName of trackNames) {
-      const channels = animationComponent.getAnimationChannelsOfTrack(trackName);
+      const channels =
+        animationComponent.getAnimationChannelsOfTrack(trackName);
       if (Is.not.exist(channels)) {
         break;
       }
-      for (const [channelName, channel] of channels) {
+      for (const channel of channels.values()) {
         // Channel Sampler Input
         // create a Gltf2BufferView
         json.bufferViews[bufferViewCount] = {
@@ -766,7 +735,7 @@ function createBufferViewsAndAccessorsOfAnimation(
           byteLength: channel.sampler.input.byteLength,
           byteOffset: bufferViewByteLengthAccumulated,
         };
-        
+
         // create a Gltf2Accessor
         json.accessors[accessorCount] = {
           bufferView: bufferViewCount,
@@ -786,13 +755,14 @@ function createBufferViewsAndAccessorsOfAnimation(
           byteLength: channel.sampler.input.byteLength,
           byteOffset: bufferViewByteLengthAccumulated,
         };
-        
+
         // create a Gltf2Accessor
         json.accessors[accessorCount] = {
           bufferView: bufferViewCount,
           byteOffset: channel.sampler.output.byteLength,
           componentType: 5126, // FLOAT
-          count: channel.sampler.output.length / channel.sampler.outputComponentN,
+          count:
+            channel.sampler.output.length / channel.sampler.outputComponentN,
           type: 'VEC' + channel.sampler.outputComponentN,
         };
 
