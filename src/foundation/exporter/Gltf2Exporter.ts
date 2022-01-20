@@ -3,7 +3,6 @@ import Entity from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
-import {Index} from '../../types/CommonTypes';
 import {
   glTF2,
   Gltf2Animation,
@@ -40,9 +39,7 @@ export default class Gltf2Exporter {
 
     this.__createBufferViewsAndAccessors(json, entities);
 
-    const indicesOfGltfMeshes = this.__createMeshes(json, entities);
-
-    this.__createNodes(json, entities, indicesOfGltfMeshes);
+    this.__createNodes(json, entities);
 
     this.__createMaterials(json, entities);
 
@@ -88,6 +85,7 @@ export default class Gltf2Exporter {
       buffers: [{uri: fileName + '.bin', byteLength: 0}],
       bufferViews: [],
       accessors: [],
+      meshes: [],
       materials: [
         {
           pbrMetallicRoughness: {
@@ -139,66 +137,12 @@ export default class Gltf2Exporter {
   }
 
   /**
-   * create Gltf2Meshes and their Gltf2Primitives for the output glTF JSON
-   * @param json a glTF2 JSON
-   * @param entities all target entities
-   * @returns the indices of glTF meshes
-   */
-  static __createMeshes(json: glTF2, entities: Entity[]): Index[] {
-    let count = 0;
-    json.meshes = [];
-    const gltfMeshesIndices: Index[] = [];
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      const meshComponent = entity.getMesh();
-      if (meshComponent && meshComponent.mesh) {
-        json.meshes[count] = {} as unknown as Gltf2Mesh;
-        const mesh = json.meshes[count];
-        mesh.primitives = [];
-        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-        for (let j = 0; j < primitiveCount; j++) {
-          mesh.primitives[j] = {} as unknown as Gltf2Primitive;
-          const primitive = mesh.primitives[j];
-          const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
-          const indicesAccessor = rnPrimitive.indicesAccessor;
-
-          if (indicesAccessor) {
-            primitive.indices = (indicesAccessor as any).gltfAccessorIndex;
-            primitive.mode = rnPrimitive.primitiveMode.index;
-          }
-
-          const attributeAccessors = rnPrimitive.attributeAccessors;
-          primitive.attributes = {};
-          const attributes = primitive.attributes;
-          for (let k = 0; k < attributeAccessors.length; k++) {
-            const attributeAccessor = attributeAccessors[k];
-            attributes[rnPrimitive.attributeSemantics[k].str] = (
-              attributeAccessor as any
-            ).gltfAccessorIndex;
-          }
-          primitive.material = 0;
-        }
-
-        gltfMeshesIndices[i] = count++;
-      } else {
-        gltfMeshesIndices[i] = -1;
-      }
-    }
-
-    return gltfMeshesIndices;
-  }
-
-  /**
    * create Gltf2Nodes for the output glTF2 JSON
    * @param json a glTF2 JSON
    * @param entities target entities
    * @param indicesOfGltfMeshes the indices of Gltf2Meshes
    */
-  static __createNodes(
-    json: glTF2,
-    entities: Entity[],
-    indicesOfGltfMeshes: Index[]
-  ) {
+  static __createNodes(json: glTF2, entities: Entity[]) {
     json.nodes = [];
     json.scenes = [{nodes: []}];
     const scene = json.scenes![0];
@@ -207,6 +151,7 @@ export default class Gltf2Exporter {
       (entity as any).gltfNodeIndex = i;
     }
 
+    let meshCount = 0;
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
 
@@ -230,10 +175,9 @@ export default class Gltf2Exporter {
       node.matrix = Array.prototype.slice.call(entity.getTransform().matrix._v);
 
       // mesh
-      if (Is.exist(entity.getMesh())) {
-        if (indicesOfGltfMeshes[i] >= 0) {
-          node.mesh = indicesOfGltfMeshes[i];
-        }
+      const meshComponent = entity.getMesh();
+      if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
+        node.mesh = meshCount++;
       }
 
       // If the entity has no parent, it must be a top level entity in the scene graph.
@@ -576,36 +520,44 @@ function createBufferViewsAndAccessorsOfMesh(
 
   const meshComponent = entity.getMesh();
   if (Is.exist(meshComponent) && meshComponent.mesh) {
+    const mesh: Gltf2Mesh = {primitives: []};
     const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
     for (let j = 0; j < primitiveCount; j++) {
-      const primitive = meshComponent.mesh.getPrimitiveAt(j);
-      const indicesAccessor = primitive.indicesAccessor;
+      const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
+      const rnIndicesAccessor = rnPrimitive.indicesAccessor;
+      mesh.primitives[j] = {} as unknown as Gltf2Primitive;
+      const primitive = mesh.primitives[j];
+      primitive.attributes = {};
 
       // Vertex Indices
       // For indices accessor
-      if (Is.exist(indicesAccessor)) {
+      if (Is.exist(rnIndicesAccessor)) {
         // create a Gltf2BufferView
-        const bufferViewJson = (json.bufferViews[bufferViewCount] = {
+        const indicesBufferViewCount = bufferViewCount;
+        const indicesAccessorCount = accessorCount;
+        const bufferViewJson = (json.bufferViews[indicesBufferViewCount] = {
           buffer: 0,
-          byteLength: indicesAccessor.byteLength,
+          byteLength: rnIndicesAccessor.byteLength,
           byteOffset: bufferViewByteLengthAccumulated,
           target: 34963,
         });
 
         // create a Gltf2Accessor
-        indicesAccessor.calcMinMax();
-        (indicesAccessor as any).gltfAccessorIndex = accessorCount;
-        json.accessors[accessorCount] = {
-          bufferView: bufferViewCount,
+        rnIndicesAccessor.calcMinMax();
+        json.accessors[indicesAccessorCount] = {
+          bufferView: indicesBufferViewCount,
           byteOffset: 0,
           componentType: 5123,
-          count: indicesAccessor.elementCount,
-          max: indicesAccessor.max,
-          min: indicesAccessor.min,
+          count: rnIndicesAccessor.elementCount,
+          max: rnIndicesAccessor.max,
+          min: rnIndicesAccessor.min,
           type: 'SCALAR',
-          accessor: indicesAccessor,
+          accessor: rnIndicesAccessor,
         };
         bufferViewByteLengthAccumulated += bufferViewJson.byteLength;
+
+        primitive.indices = indicesAccessorCount;
+        primitive.mode = rnPrimitive.primitiveMode.index;
         bufferViewCount++;
         accessorCount++;
       }
@@ -613,16 +565,17 @@ function createBufferViewsAndAccessorsOfMesh(
       // Vertex Attributes
       let sumOfAccessorByteLength = 0;
       // For each attribute accessor
-      const attributeAccessors = primitive.attributeAccessors;
+      const attributeAccessors = rnPrimitive.attributeAccessors;
+      const attributeBufferViewCount = bufferViewCount;
       for (let j = 0; j < attributeAccessors.length; j++) {
+        const attributeAccessorCount = accessorCount;
         // create a Gltf2Accessor
         const attributeAccessor = attributeAccessors[j];
         attributeAccessor.calcMinMax();
         const max = Array.prototype.slice.call(attributeAccessor.max);
         const min = Array.prototype.slice.call(attributeAccessor.min);
-        (attributeAccessor as any).gltfAccessorIndex = accessorCount;
-        json.accessors[accessorCount] = {
-          bufferView: bufferViewCount,
+        json.accessors[attributeAccessorCount] = {
+          bufferView: attributeBufferViewCount,
           byteOffset: sumOfAccessorByteLength,
           componentType: 5126,
           count: attributeAccessor.elementCount,
@@ -631,12 +584,17 @@ function createBufferViewsAndAccessorsOfMesh(
           type: 'VEC' + max.length,
           accessor: attributeAccessor,
         };
+        const attributeEnum = rnPrimitive.attributeSemantics[j];
+        if (Is.exist(attributeEnum)) {
+          primitive.attributes[attributeEnum.str] = attributeAccessorCount;
+        }
+
         sumOfAccessorByteLength += attributeAccessor.byteLength;
         accessorCount++;
       }
 
       // create a Gltf2BufferView
-      const bufferViewJson = (json.bufferViews[bufferViewCount] = {
+      const bufferViewJson = (json.bufferViews[attributeBufferViewCount] = {
         buffer: 0,
         byteLength: sumOfAccessorByteLength,
         byteOffset: bufferViewByteLengthAccumulated,
@@ -645,6 +603,7 @@ function createBufferViewsAndAccessorsOfMesh(
       bufferViewCount++;
       bufferViewByteLengthAccumulated += bufferViewJson.byteLength;
     }
+    json.meshes!.push(mesh);
   }
   return {bufferViewCount, accessorCount, bufferViewByteLengthAccumulated};
 }
@@ -664,7 +623,7 @@ function createBufferViewsAndAccessorsOfAnimation(
   bufferViewByteLengthAccumulated: number,
   bufferViewCount: number,
   accessorCount: number,
-  entityIdx: number,
+  entityIdx: number
 ) {
   if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
     console.warn('json.bufferViews or json.accessors are undefined.');

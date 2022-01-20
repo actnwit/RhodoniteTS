@@ -77,7 +77,7 @@ export type Gltf2Mesh = {
   primitives: Gltf2Primitive[];
   weights?: number[];
   name?: string;
-  extensions: any;
+  extensions?: any;
   extras?: any;
 };
 
