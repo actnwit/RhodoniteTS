@@ -19,7 +19,12 @@ import {
   Array3,
 } from '../../types/CommonTypes';
 import {
-  AnimationPathName, AnimationChannels, AnimationComponentEventType, AnimationInfo, AnimationTrackName, AnimationChannel
+  AnimationPathName,
+  AnimationChannels,
+  AnimationComponentEventType,
+  AnimationInfo,
+  AnimationTrackName,
+  AnimationChannel,
 } from '../../types/AnimationTypes';
 import {
   valueWithDefault,
@@ -60,7 +65,7 @@ const ChangeAnimationInfo = Symbol(
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 
 export default class AnimationComponent extends Component {
-/// inner states ///
+  /// inner states ///
   private __backupDefaultValues: Map<
     AnimationPathName,
     IVector | IQuaternion | number[]
@@ -70,16 +75,17 @@ export default class AnimationComponent extends Component {
   private __currentActiveAnimationTrackName?: AnimationTrackName;
 
   // Animation Data of each AnimationComponent
-  private __animationTracks: Map<AnimationTrackName, AnimationChannels> = new Map();
+  private __animationTracks: Map<AnimationTrackName, AnimationChannels> =
+    new Map();
 
   /// cache references of other components
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
 
-/// flags ///
+  /// flags ///
   private __isAnimating = true;
 
-/// Static Members ///
+  /// Static Members ///
 
   // Global animation time in Rhodonite
   public static globalTime = 0;
@@ -90,7 +96,8 @@ export default class AnimationComponent extends Component {
     PlayEnd,
   };
   // TODO: fix the conflict possibilities of AnimationTrackNames btw components
-  private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
+  private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> =
+    new Map();
   private static __pubsub = new EventPubSub();
   private static __componentRepository: ComponentRepository =
     ComponentRepository.getInstance();
@@ -105,7 +112,7 @@ export default class AnimationComponent extends Component {
     this.__currentProcessStage = ProcessStage.Create;
   }
 
-/// LifeCycle Methods ///
+  /// LifeCycle Methods ///
 
   $create() {
     this.__transformComponent = this.__entityRepository.getComponentOfEntity(
@@ -120,7 +127,10 @@ export default class AnimationComponent extends Component {
   }
 
   $logic() {
-    if (this.isAnimating && this.__currentActiveAnimationTrackName !== undefined) {
+    if (
+      this.isAnimating &&
+      this.__currentActiveAnimationTrackName !== undefined
+    ) {
       const animationSet = this.__animationTracks.get(
         this.__currentActiveAnimationTrackName
       );
@@ -370,8 +380,7 @@ export default class AnimationComponent extends Component {
 
     // set AnimationInfo
     const newMaxStartInputTime = inputArray[0];
-    const newMaxEndInputTime =
-      inputArray[inputArray.length - 1];
+    const newMaxEndInputTime = inputArray[inputArray.length - 1];
 
     const existingAnimationInfo = valueWithDefault<AnimationInfo>({
       value: AnimationComponent.__animationGlobalInfo.get(trackName),
@@ -410,7 +419,9 @@ export default class AnimationComponent extends Component {
   public getStartInputValueOfAnimation(animationTrackName?: string): number {
     const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
     if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
+      const array = Array.from(
+        AnimationComponent.__animationGlobalInfo.values()
+      );
       if (array.length === 0) {
         return 0;
       }
@@ -429,7 +440,9 @@ export default class AnimationComponent extends Component {
     const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
 
     if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
+      const array = Array.from(
+        AnimationComponent.__animationGlobalInfo.values()
+      );
       if (array.length === 0) {
         return 0;
       }
@@ -473,7 +486,9 @@ export default class AnimationComponent extends Component {
    * @param animationTrackName the name of animation track to get
    * @returns the channel maps of the animation track
    */
-  public getAnimationChannelsOfTrack(animationTrackName: AnimationTrackName): AnimationChannels | undefined {
+  public getAnimationChannelsOfTrack(
+    animationTrackName: AnimationTrackName
+  ): AnimationChannels | undefined {
     return this.__animationTracks.get(animationTrackName);
   }
 
@@ -604,24 +619,29 @@ export default class AnimationComponent extends Component {
     array_: Float32Array
   ) {
     const array = array_ as globalThis.Float32Array;
-    if (channel.sampler.interpolationMethod === AnimationInterpolation.CubicSpline) {
+    if (
+      channel.sampler.interpolationMethod === AnimationInterpolation.CubicSpline
+    ) {
       // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
       if (channel.sampler.outputComponentN === 4) {
         // Quaternion/weights
         const value = array[get4_offset](
-          channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+          channel.sampler.outputComponentN * 3 * keyFrameId +
+            channel.sampler.outputComponentN
         ) as Array4<number>;
         return value;
       } else if (channel.sampler.outputComponentN === 3) {
         // Translate/Scale/weights
         const value = array[get3_offset](
-          channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+          channel.sampler.outputComponentN * 3 * keyFrameId +
+            channel.sampler.outputComponentN
         ) as Array3<number>;
         return value;
       } else {
         // weights
         const value = array[getN_offset](
-          channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN,
+          channel.sampler.outputComponentN * 3 * keyFrameId +
+            channel.sampler.outputComponentN,
           channel.sampler.outputComponentN
         ) as Array<number>;
         return value;
@@ -689,7 +709,8 @@ export default class AnimationComponent extends Component {
   ): Array<number> {
     const inputArray = channel.sampler.input;
     const outputArray = channel.sampler.output;
-    const method = channel.sampler.interpolationMethod ?? AnimationInterpolation.Linear;
+    const method =
+      channel.sampler.interpolationMethod ?? AnimationInterpolation.Linear;
 
     // out of range
     if (currentTime <= inputArray[0]) {
