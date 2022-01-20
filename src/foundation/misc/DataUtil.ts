@@ -568,4 +568,155 @@ export default class DataUtil {
     }
     return float32Array;
   }
+
+  /**
+   * get a copy of the src arraybuffer
+   * @param param0 copy description
+   * @returns copied memory as ArrayBuffer
+   */
+  static getCopy({
+    src,
+    srcByteOffset,
+    copyByteLength,
+    distByteOffset,
+  }: {
+    src: ArrayBuffer;
+    srcByteOffset: Byte;
+    copyByteLength: Byte;
+    distByteOffset: Byte;
+  }): ArrayBuffer {
+    const dst = new ArrayBuffer(src.byteLength);
+    const dist = new Uint8Array(dst, distByteOffset, copyByteLength);
+    dist.set(new Uint8Array(src, srcByteOffset, copyByteLength));
+
+    return dist.buffer;
+  }
+
+  /**
+   * get a copy of the src arraybuffer
+   * @param param0 copy description
+   * @returns copied memory as ArrayBuffer
+   */
+  static getCopyAs4Bytes({
+    src,
+    srcByteOffset,
+    copyByteLength,
+    distByteOffset,
+  }: {
+    src: ArrayBuffer;
+    srcByteOffset: Byte;
+    copyByteLength: Byte;
+    distByteOffset: Byte;
+  }): ArrayBuffer {
+    if (
+      srcByteOffset % 4 !== 0 ||
+      copyByteLength % 4 !== 0 ||
+      distByteOffset % 4 !== 0
+    ) {
+      throw new Error('Invalid byte align for 4bytes unit copy operation.');
+    }
+    const dst = new ArrayBuffer(src.byteLength);
+    const dist = new Int32Array(dst, distByteOffset, copyByteLength / 4);
+    dist.set(new Int32Array(src, srcByteOffset, copyByteLength / 4));
+
+    return dist.buffer;
+  }
+
+  /**
+   * get a copy of the src arraybuffer
+   * @param param0 copy description
+   * @returns copied memory as ArrayBuffer
+   */
+  static copyArrayBuffer({
+    src,
+    dist,
+    srcByteOffset,
+    copyByteLength,
+    distByteOffset = 0,
+  }: {
+    src: ArrayBuffer;
+    dist: ArrayBuffer;
+    srcByteOffset: Byte;
+    copyByteLength: Byte;
+    distByteOffset: Byte;
+  }): ArrayBuffer {
+    const dst = new Uint8Array(dist, distByteOffset, copyByteLength);
+    dst.set(new Uint8Array(src, srcByteOffset, copyByteLength));
+
+    return dst.buffer;
+  }
+
+  /**
+   * get a copy of the src arraybuffer
+   * @param param0 copy description
+   * @returns copied memory as ArrayBuffer
+   */
+  static copyArrayBufferAs4Bytes({
+    src,
+    dist,
+    srcByteOffset,
+    copyByteLength,
+    distByteOffset,
+  }: {
+    src: ArrayBuffer;
+    dist: ArrayBuffer;
+    srcByteOffset: Byte;
+    copyByteLength: Byte;
+    distByteOffset: Byte;
+  }): ArrayBuffer {
+    if (
+      srcByteOffset % 4 !== 0 ||
+      copyByteLength % 4 !== 0 ||
+      distByteOffset % 4 !== 0
+    ) {
+      throw new Error('Invalid byte align for 4bytes unit copy operation.');
+    }
+    const dst = new Int32Array(dist, distByteOffset, copyByteLength / 4);
+    dst.set(new Int32Array(src, srcByteOffset, copyByteLength / 4));
+
+    return dst.buffer;
+  }
+
+  /**
+   * get a copy of the src arraybuffer with padding to be 4bytes aligined
+   * @param param0 copy description
+   * @returns copied memory as ArrayBuffer
+   */
+  static copyArrayBufferAs4BytesWithPadding({
+    src,
+    dist,
+    srcByteOffset,
+    copyByteLength,
+    distByteOffset,
+  }: {
+    src: ArrayBuffer;
+    dist: ArrayBuffer;
+    srcByteOffset: Byte;
+    copyByteLength: Byte;
+    distByteOffset: Byte;
+  }): ArrayBuffer {
+    const srcByteOffsetAligned =
+      srcByteOffset % 4 === 0
+        ? srcByteOffset
+        : srcByteOffset + (4 - (srcByteOffset % 4));
+    const distByteOffsetAligned =
+      distByteOffset % 4 === 0
+        ? distByteOffset
+        : distByteOffset + (4 - (distByteOffset % 4));
+    const copyByteLengthAligned =
+      copyByteLength % 4 === 0
+        ? copyByteLength
+        : copyByteLength + (4 - (copyByteLength % 4));
+
+    const dst = new Int32Array(
+      dist,
+      distByteOffsetAligned,
+      copyByteLengthAligned / 4
+    );
+    dst.set(
+      new Int32Array(src, srcByteOffsetAligned, copyByteLengthAligned / 4)
+    );
+
+    return dst.buffer;
+  }
 }
