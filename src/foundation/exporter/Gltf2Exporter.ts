@@ -8,6 +8,7 @@ import {
   glTF2,
   Gltf2Animation,
   Gltf2AnimationChannel,
+  Gltf2AnimationSampler,
   Gltf2Mesh,
   Gltf2Primitive,
   PathType,
@@ -126,59 +127,14 @@ export default class Gltf2Exporter {
           json,
           bufferViewByteLengthAccumulated,
           bufferViewCount,
-          accessorCount
+          accessorCount,
+          i
         ));
     }
 
     if (bufferViewByteLengthAccumulated > 0) {
       const buffer = json.buffers![0];
       buffer.byteLength = bufferViewByteLengthAccumulated;
-    }
-  }
-
-  /**
-   * create Gltf2Animations for the output glTF JSON
-   * @param json a glTF2 JSON
-   * @param entities all target entities
-   * @returns the indices of glTF meshes
-   */
-  static __createAnimations(json: glTF2, entities: Entity[]): void {
-    json.meshes = [];
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      const animationComponent = entity.getAnimation();
-      if (Is.exist(animationComponent)) {
-        const animation: Gltf2Animation = {
-          channels: [],
-          samplers: [],
-        };
-
-        const trackNames = animationComponent.getAnimationTrackNames();
-        for (const trackName of trackNames) {
-          const channelsOfTrack =
-            animationComponent.getAnimationChannelsOfTrack(trackName);
-          if (Is.exist(channelsOfTrack)) {
-            let i_ch = 0;
-            for (const [channelName, channel] of channelsOfTrack) {
-              const pathName = channel.target.pathName as PathType;
-
-              const channelJson: Gltf2AnimationChannel = {
-                sampler: i_ch++,
-                target: {
-                  path: pathName,
-                  node: i,
-                },
-              };
-
-              // const samplerJson: Gltf2AnimationSampler = {
-              //   input:
-              // };
-              animation.channels.push(channelJson);
-              // animation.samplers.push()
-            }
-          }
-        }
-      }
     }
   }
 
@@ -707,7 +663,8 @@ function createBufferViewsAndAccessorsOfAnimation(
   json: glTF2,
   bufferViewByteLengthAccumulated: number,
   bufferViewCount: number,
-  accessorCount: number
+  accessorCount: number,
+  entityIdx: number,
 ) {
   if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
     console.warn('json.bufferViews or json.accessors are undefined.');
@@ -721,53 +678,79 @@ function createBufferViewsAndAccessorsOfAnimation(
   const animationComponent = entity.getAnimation();
   if (Is.exist(animationComponent)) {
     const trackNames = animationComponent.getAnimationTrackNames();
+    const animation: Gltf2Animation = {
+      channels: [],
+      samplers: [],
+    };
     for (const trackName of trackNames) {
-      const channels =
+      const channelsOfTrack =
         animationComponent.getAnimationChannelsOfTrack(trackName);
-      if (Is.not.exist(channels)) {
-        break;
-      }
-      for (const channel of channels.values()) {
-        // Channel Sampler Input
-        // create a Gltf2BufferView
-        json.bufferViews[bufferViewCount] = {
-          buffer: 0,
-          byteLength: channel.sampler.input.byteLength,
-          byteOffset: bufferViewByteLengthAccumulated,
-        };
+      if (Is.exist(channelsOfTrack)) {
+        let samplerIdx = 0;
+        for (const channel of channelsOfTrack.values()) {
+          // Channel Sampler Input
+          // create a Gltf2BufferView
+          const inputBufferViewCount = bufferViewCount;
+          const inputAccessorCount = accessorCount;
+          json.bufferViews[inputBufferViewCount] = {
+            buffer: 0,
+            byteLength: channel.sampler.input.byteLength,
+            byteOffset: bufferViewByteLengthAccumulated,
+          };
 
-        // create a Gltf2Accessor
-        json.accessors[accessorCount] = {
-          bufferView: bufferViewCount,
-          byteOffset: 0,
-          componentType: 5126, // FLOAT
-          count: channel.sampler.input.length,
-          type: 'SCALAR',
-        };
+          // create a Gltf2Accessor
+          json.accessors[inputAccessorCount] = {
+            bufferView: bufferViewCount,
+            byteOffset: 0,
+            componentType: 5126, // FLOAT
+            count: channel.sampler.input.length,
+            type: 'SCALAR',
+          };
 
-        bufferViewCount++;
-        accessorCount++;
+          bufferViewCount++;
+          accessorCount++;
 
-        // Channel Sampler Output
-        // create a Gltf2BufferView
-        json.bufferViews[bufferViewCount] = {
-          buffer: 0,
-          byteLength: channel.sampler.input.byteLength,
-          byteOffset: bufferViewByteLengthAccumulated,
-        };
+          // Channel Sampler Output
+          // create a Gltf2BufferView
+          const outputBufferViewCount = bufferViewCount;
+          const outputAccessorCount = accessorCount;
+          json.bufferViews[bufferViewCount] = {
+            buffer: 0,
+            byteLength: channel.sampler.input.byteLength,
+            byteOffset: bufferViewByteLengthAccumulated,
+          };
 
-        // create a Gltf2Accessor
-        json.accessors[accessorCount] = {
-          bufferView: bufferViewCount,
-          byteOffset: channel.sampler.output.byteLength,
-          componentType: 5126, // FLOAT
-          count:
-            channel.sampler.output.length / channel.sampler.outputComponentN,
-          type: 'VEC' + channel.sampler.outputComponentN,
-        };
+          // create a Gltf2Accessor
+          json.accessors[outputAccessorCount] = {
+            bufferView: outputBufferViewCount,
+            byteOffset: channel.sampler.output.byteLength,
+            componentType: 5126, // FLOAT
+            count:
+              channel.sampler.output.length / channel.sampler.outputComponentN,
+            type: 'VEC' + channel.sampler.outputComponentN,
+          };
 
-        bufferViewCount++;
-        accessorCount++;
+          const pathName = channel.target.pathName as PathType;
+
+          const channelJson: Gltf2AnimationChannel = {
+            sampler: samplerIdx++,
+            target: {
+              path: pathName,
+              node: entityIdx,
+            },
+          };
+
+          const samplerJson: Gltf2AnimationSampler = {
+            input: inputAccessorCount,
+            output: outputAccessorCount,
+            interpolation: channel.sampler.interpolationMethod.GltfString,
+          };
+          animation.channels.push(channelJson);
+          animation.samplers.push(samplerJson);
+
+          bufferViewCount++;
+          accessorCount++;
+        }
       }
     }
   }

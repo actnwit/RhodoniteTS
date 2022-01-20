@@ -1,12 +1,18 @@
+import {Gltf2AnimationSamplerInterpolation} from '../../types/glTF2';
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
 
-export type AnimationInterpolationEnum = EnumIO;
-
+export interface AnimationInterpolationEnum extends EnumIO {
+  GltfString: Gltf2AnimationSamplerInterpolation;
+}
 class AnimationInterpolationClass
   extends EnumClass
   implements AnimationInterpolationEnum {
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
+  }
+
+  get GltfString(): Gltf2AnimationSamplerInterpolation {
+    return this.str.toUpperCase() as Gltf2AnimationSamplerInterpolation;
   }
 }
 
