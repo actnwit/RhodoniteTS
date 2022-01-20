@@ -4,6 +4,7 @@ import {ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from './Accessor';
 import {Byte, Count, Size} from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
+import {throws} from 'assert';
 
 export default class BufferView {
   private __buffer: Buffer;
@@ -244,5 +245,14 @@ export default class BufferView {
     this.__accessors.push(accessor);
 
     return accessor;
+  }
+
+  isSame(rnBufferView: BufferView) {
+    return (
+      this.byteLength === rnBufferView.byteLength &&
+      this.byteOffsetInRawArrayBufferOfBuffer ===
+        rnBufferView.byteOffsetInRawArrayBufferOfBuffer &&
+      this.buffer.getArrayBuffer() === rnBufferView.buffer.getArrayBuffer()
+    );
   }
 }

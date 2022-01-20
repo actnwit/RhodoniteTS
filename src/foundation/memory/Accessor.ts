@@ -47,14 +47,14 @@ export default class Accessor {
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,
-    -Number.MAX_VALUE,]
-  );
+    -Number.MAX_VALUE,
+  ]);
   private __min: MutableVector4 = MutableVector4.fromCopyArray([
     Number.MAX_VALUE,
     Number.MAX_VALUE,
     Number.MAX_VALUE,
-    Number.MAX_VALUE]
-  );
+    Number.MAX_VALUE,
+  ]);
   private __arrayLength = 1;
   private __normalized = false;
   private __isMinMixDirty = true;
@@ -134,8 +134,10 @@ export default class Accessor {
       this.__byteStride -
       this.__compositionType.getNumberOfComponents() *
         this.__componentType.getSizeInBytes();
-    const sizeFromAccessorBeginToArrayBufferEnd = this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
-    const maxLimitSizeToAccess = this.byteStride * this.__count - maxExceededSizeOnAoS;
+    const sizeFromAccessorBeginToArrayBufferEnd =
+      this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
+    const maxLimitSizeToAccess =
+      this.byteStride * this.__count - maxExceededSizeOnAoS;
     if (sizeFromAccessorBeginToArrayBufferEnd < maxLimitSizeToAccess) {
       console.error(
         `Requesting a data size that exceeds the remaining capacity of the buffer: ${
@@ -522,7 +524,7 @@ export default class Accessor {
     return Vector3.fromCopyArray([
       this.__dataViewGetter(this.__byteStride * index, endian),
       this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
-      this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian)
+      this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
     ]);
   }
 
@@ -542,7 +544,7 @@ export default class Accessor {
       this.__dataViewGetter(this.__byteStride * index, endian),
       this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
       this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
-      this.__dataViewGetter(this.__byteStride * index + 3 * byteSize, endian)
+      this.__dataViewGetter(this.__byteStride * index + 3 * byteSize, endian),
     ]);
   }
 
@@ -1278,12 +1280,23 @@ export default class Accessor {
 
   get actualByteStride() {
     if (this.__byteStride === 0) {
-      const actualByteStride = this.__compositionType.getNumberOfComponents() *
+      const actualByteStride =
+        this.__compositionType.getNumberOfComponents() *
         this.__componentType.getSizeInBytes() *
         this.__arrayLength;
       return actualByteStride;
     } else {
       return this.__byteStride;
     }
+  }
+
+  isSame(rnAccessor: Accessor): boolean {
+    return (
+      this.byteLength === rnAccessor.byteLength &&
+      this.byteOffsetInRawArrayBufferOfBuffer ===
+        rnAccessor.byteOffsetInRawArrayBufferOfBuffer &&
+      this.bufferView.buffer.getArrayBuffer() ===
+        rnAccessor.bufferView.buffer.getArrayBuffer()
+    );
   }
 }
