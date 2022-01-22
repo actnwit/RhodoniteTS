@@ -8,6 +8,7 @@ import {
   Gltf2Animation,
   Gltf2AnimationChannel,
   Gltf2AnimationSampler,
+  Gltf2BufferView,
   Gltf2Mesh,
   Gltf2Primitive,
   PathType,
@@ -15,8 +16,9 @@ import {
 import BufferView from '../memory/BufferView';
 import DataUtil from '../misc/DataUtil';
 import Accessor from '../memory/Accessor';
-import {Byte} from '../../types/CommonTypes';
+import {Byte, Index} from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
+import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 interface Gltf2ExporterArguments {
@@ -522,32 +524,15 @@ function createBufferViewsAndAccessorsOfMesh(
       // For indices accessor
       const rnIndicesAccessor = rnPrimitive.indicesAccessor;
       if (Is.exist(rnIndicesAccessor)) {
-        const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
+        const rnBufferView = rnIndicesAccessor.bufferView;
+        const bufferViewIdxToSet = createOrReuseBufferView(
+          json.bufferViews,
+          bufferViewByteLengthAccumulatedArray,
+          existingUniqueRnBuffers,
           existingUniqueRnBufferViews,
-          rnIndicesAccessor
+          rnBufferView,
+          GL_ELEMENT_ARRAY_BUFFER
         );
-        if (bufferViewIdx === -1) {
-          const bufferIdxToSet = calcBufferIdxToSet(
-            existingUniqueRnBuffers,
-            rnIndicesAccessor
-          );
-          const bufferViewJson = {
-            buffer: bufferIdxToSet,
-            byteLength: rnIndicesAccessor.bufferView.byteLength,
-            byteOffset: rnIndicesAccessor.bufferView.byteOffsetInBuffer,
-            target: 34963,
-            extras: {
-              uint8Array: rnIndicesAccessor.bufferView.getUint8Array(),
-            },
-          };
-          existingUniqueRnBufferViews.push(rnIndicesAccessor.bufferView);
-          accmulateBufferViewByteLength(
-            bufferViewByteLengthAccumulatedArray,
-            bufferIdxToSet,
-            bufferViewJson
-          );
-          json.bufferViews[bufferViewIdxToSet] = bufferViewJson;
-        }
 
         let accessorIdxToSet = -1;
         const accessorIdx = existingUniqueRnAccessors.findIndex(accessor => {
@@ -585,31 +570,15 @@ function createBufferViewsAndAccessorsOfMesh(
         const rnAttributeAccessor = attributeAccessors[j];
         // create a Gltf2BufferView
         const rnBufferView = rnAttributeAccessor.bufferView;
-        const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
+        const bufferViewIdxToSet = createOrReuseBufferView(
+          json.bufferViews,
+          bufferViewByteLengthAccumulatedArray,
+          existingUniqueRnBuffers,
           existingUniqueRnBufferViews,
-          rnAttributeAccessor
+          rnBufferView,
+          GL_ARRAY_BUFFER
         );
-        if (bufferViewIdx === -1) {
-          const bufferIdxToSet = calcBufferIdxToSet(
-            existingUniqueRnBuffers,
-            rnAttributeAccessor
-          );
-          const bufferViewJson = (json.bufferViews[bufferViewIdxToSet] = {
-            buffer: bufferIdxToSet,
-            byteLength: rnBufferView.byteLength,
-            byteOffset: rnBufferView.byteOffsetInBuffer,
-            target: 34962,
-            extras: {
-              uint8Array: rnBufferView.getUint8Array(),
-            },
-          });
-          accmulateBufferViewByteLength(
-            bufferViewByteLengthAccumulatedArray,
-            bufferIdxToSet,
-            bufferViewJson
-          );
-          existingUniqueRnBufferViews.push(rnBufferView);
-        }
+
         const accessorIdx = existingUniqueRnAccessors.findIndex(accessor =>
           accessor.isSame(rnAttributeAccessor)
         );
@@ -647,12 +616,50 @@ function createBufferViewsAndAccessorsOfMesh(
   }
 }
 
+function createOrReuseBufferView(
+  bufferViews: Gltf2BufferView[],
+  bufferViewByteLengthAccumulatedArray: Byte[],
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  rnBufferView: BufferView,
+  target: number
+): Index {
+  const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
+    existingUniqueRnBufferViews,
+    rnBufferView
+  );
+  if (bufferViewIdx === -1) {
+    const bufferIdxToSet = calcBufferIdxToSet(
+      existingUniqueRnBuffers,
+      rnBufferView.buffer
+    );
+    const bufferViewJson = {
+      buffer: bufferIdxToSet,
+      byteLength: rnBufferView.byteLength,
+      byteOffset: rnBufferView.byteOffsetInBuffer,
+      target,
+      extras: {
+        uint8Array: rnBufferView.getUint8Array(),
+      },
+    };
+    accmulateBufferViewByteLength(
+      bufferViewByteLengthAccumulatedArray,
+      bufferIdxToSet,
+      bufferViewJson
+    );
+    existingUniqueRnBufferViews.push(rnBufferView);
+    bufferViews[bufferViewIdxToSet] = bufferViewJson;
+  }
+
+  return bufferViewIdxToSet;
+}
+
 function calcBufferViewIdxToSet(
   existingUniqueRnBufferViews: BufferView[],
-  rnAccessor: Accessor
+  rnBufferView: BufferView
 ) {
-  const bufferViewIdx = existingUniqueRnBufferViews.findIndex(rnBufferView =>
-    rnBufferView.isSame(rnAccessor.bufferView)
+  const bufferViewIdx = existingUniqueRnBufferViews.findIndex(bufferView =>
+    bufferView.isSame(rnBufferView)
   );
   let bufferViewIdxToSet = -1;
   if (bufferViewIdx !== -1) {
@@ -668,18 +675,18 @@ function calcBufferViewIdxToSet(
 
 function calcBufferIdxToSet(
   existingUniqueRnBuffers: Buffer[],
-  rnIndicesAccessor: Accessor
+  rnBuffer: Buffer
 ) {
   if (existingUniqueRnBuffers.length === 0) {
-    existingUniqueRnBuffers.push(rnIndicesAccessor.bufferView.buffer);
+    existingUniqueRnBuffers.push(rnBuffer);
   }
   const bufferIdx = existingUniqueRnBuffers.findIndex(buffer =>
-    buffer.isSame(rnIndicesAccessor.bufferView.buffer)
+    buffer.isSame(rnBuffer)
   );
   const bufferIdxToSet =
     bufferIdx === -1 ? existingUniqueRnBuffers.length : bufferIdx;
   if (bufferIdx === -1) {
-    existingUniqueRnBuffers.push(rnIndicesAccessor.bufferView.buffer);
+    existingUniqueRnBuffers.push(rnBuffer);
   }
   return bufferIdxToSet;
 }
