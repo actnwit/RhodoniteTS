@@ -20,8 +20,7 @@ export const IsObj = {
 
   // is NOT null or undefined
   exist(val?: unknown, ...args: unknown[]): val is Object {
-    // eslint-disable-next-line eqeqeq
-    return val != null;
+    return val !== null && val !== undefined;
   },
 
   function(val: unknown, ...args: unknown[]): val is Function {
@@ -77,8 +76,7 @@ const NotObj = {
   },
 
   exist(val?: unknown, ...args: unknown[]): val is undefined | null {
-    // eslint-disable-next-line eqeqeq
-    return val == null;
+    return val === null || val === undefined;
   },
 
   function(
