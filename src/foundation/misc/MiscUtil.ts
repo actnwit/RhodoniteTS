@@ -19,7 +19,7 @@ const isMobile = function () {
   return isIPad();
 };
 
-const isSafari = function() {
+const isSafari = function () {
   const ua = ['Safari'];
 
   for (let i = 0; i < ua.length; i++) {
@@ -341,6 +341,12 @@ export const addLineNumberToCode = (shaderString: string) => {
 
   return shaderTextWithLineNumber;
 };
+
+export function assertExist<T>(val: T): asserts val is NonNullable<T> {
+  if (val === undefined || val === null) {
+    throw new Error(`Expected 'val' to be existed, but received ${val}`);
+  }
+}
 
 export const MiscUtil = Object.freeze({
   isMobile,
