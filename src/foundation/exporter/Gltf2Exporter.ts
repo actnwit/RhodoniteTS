@@ -522,19 +522,11 @@ function createBufferViewsAndAccessorsOfMesh(
       // For indices accessor
       const rnIndicesAccessor = rnPrimitive.indicesAccessor;
       if (Is.exist(rnIndicesAccessor)) {
-        const bufferViewIdx = existingUniqueRnBufferViews.findIndex(
-          rnBufferView => rnBufferView.isSame(rnIndicesAccessor.bufferView)
+        const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
+          existingUniqueRnBufferViews,
+          rnIndicesAccessor
         );
-        let bufferViewIdxToSet = -1;
-        let accessorIdxToSet = -1;
-        if (bufferViewIdx !== -1) {
-          // if the Rhodonite BufferView is in existingUniqueBufferViews already,
-          //   reuse the corresponding Gltf2BufferView
-          bufferViewIdxToSet = bufferViewIdx;
-        } else {
-          // if not, create a Gltf2BufferView and put it into existingUniqueBufferViews
-          bufferViewIdxToSet = existingUniqueRnBufferViews.length;
-
+        if (bufferViewIdx === -1) {
           const bufferIdxToSet = calcBufferIdxToSet(
             existingUniqueRnBuffers,
             rnIndicesAccessor
@@ -557,6 +549,7 @@ function createBufferViewsAndAccessorsOfMesh(
           json.bufferViews[bufferViewIdxToSet] = bufferViewJson;
         }
 
+        let accessorIdxToSet = -1;
         const accessorIdx = existingUniqueRnAccessors.findIndex(accessor => {
           return accessor.isSame(rnIndicesAccessor);
         });
@@ -592,15 +585,11 @@ function createBufferViewsAndAccessorsOfMesh(
         const rnAttributeAccessor = attributeAccessors[j];
         // create a Gltf2BufferView
         const rnBufferView = rnAttributeAccessor.bufferView;
-        const bufferViewIdx = existingUniqueRnBufferViews.findIndex(
-          rnBufferView => rnBufferView.isSame(rnAttributeAccessor.bufferView)
+        const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
+          existingUniqueRnBufferViews,
+          rnAttributeAccessor
         );
-        let bufferViewIdxToSet = -1;
-        let accessorIdxToSet = -1;
-        if (bufferViewIdx !== -1) {
-          bufferViewIdxToSet = bufferViewIdx;
-        } else {
-          bufferViewIdxToSet = existingUniqueRnBufferViews.length;
+        if (bufferViewIdx === -1) {
           const bufferIdxToSet = calcBufferIdxToSet(
             existingUniqueRnBuffers,
             rnAttributeAccessor
@@ -624,6 +613,7 @@ function createBufferViewsAndAccessorsOfMesh(
         const accessorIdx = existingUniqueRnAccessors.findIndex(accessor =>
           accessor.isSame(rnAttributeAccessor)
         );
+        let accessorIdxToSet = -1;
         if (accessorIdx !== -1) {
           // if the Rhodonite RnAccessor is in existingUniqueAccessors already,
           //   reuse the corresponding Gltf2Accessor
@@ -655,6 +645,25 @@ function createBufferViewsAndAccessorsOfMesh(
     }
     json.meshes!.push(mesh);
   }
+}
+
+function calcBufferViewIdxToSet(
+  existingUniqueRnBufferViews: BufferView[],
+  rnAccessor: Accessor
+) {
+  const bufferViewIdx = existingUniqueRnBufferViews.findIndex(rnBufferView =>
+    rnBufferView.isSame(rnAccessor.bufferView)
+  );
+  let bufferViewIdxToSet = -1;
+  if (bufferViewIdx !== -1) {
+    // if the Rhodonite BufferView is in existingUniqueBufferViews already,
+    //   reuse the corresponding Gltf2BufferView
+    bufferViewIdxToSet = bufferViewIdx;
+  } else {
+    // if not, create a Gltf2BufferView and put it into existingUniqueBufferViews
+    bufferViewIdxToSet = existingUniqueRnBufferViews.length;
+  }
+  return {bufferViewIdx, bufferViewIdxToSet};
 }
 
 function calcBufferIdxToSet(
