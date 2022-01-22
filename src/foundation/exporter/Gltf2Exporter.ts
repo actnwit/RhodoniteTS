@@ -5,6 +5,7 @@ import AbstractTexture from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
 import {
   glTF2,
+  Gltf2Accessor,
   Gltf2Animation,
   Gltf2AnimationChannel,
   Gltf2AnimationSampler,
@@ -18,7 +19,10 @@ import DataUtil from '../misc/DataUtil';
 import Accessor from '../memory/Accessor';
 import {Byte, Index} from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
-import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
+import {
+  GL_ARRAY_BUFFER,
+  GL_ELEMENT_ARRAY_BUFFER,
+} from '../../types/WebGLConstants';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 interface Gltf2ExporterArguments {
@@ -534,36 +538,16 @@ function createBufferViewsAndAccessorsOfMesh(
           GL_ELEMENT_ARRAY_BUFFER
         );
 
-        let accessorIdxToSet = -1;
-        const accessorIdx = existingUniqueRnAccessors.findIndex(accessor => {
-          return accessor.isSame(rnIndicesAccessor);
-        });
-        if (accessorIdx !== -1) {
-          // if the Rhodonite RnAccessor is in existingUniqueAccessors already,
-          //   reuse the corresponding Gltf2Accessor
-          accessorIdxToSet = accessorIdx;
-        } else {
-          // if not, create a Gltf2Accessor and put it into existingUniqueAccessors
-          // if the accessor is new one...
-          accessorIdxToSet = existingUniqueRnAccessors.length;
-          // create a Gltf2Accessor
-          rnIndicesAccessor.calcMinMax();
-          json.accessors[accessorIdxToSet] = {
-            bufferView: bufferViewIdxToSet,
-            byteOffset: rnIndicesAccessor.byteOffsetInBufferView,
-            componentType: rnIndicesAccessor.componentType.index,
-            count: rnIndicesAccessor.elementCount,
-            max: rnIndicesAccessor.max,
-            min: rnIndicesAccessor.min,
-            type: 'SCALAR',
-          };
-          existingUniqueRnAccessors.push(rnIndicesAccessor);
-        }
+        const accessorIdxToSet = createOrReuseAccessor(
+          json.accessors,
+          bufferViewIdxToSet,
+          existingUniqueRnAccessors,
+          rnIndicesAccessor
+        );
         primitive.indices = accessorIdxToSet;
       }
 
       // Vertex Attributes
-      // let sumOfAccessorByteLength = 0;
       // For each attribute accessor
       const attributeAccessors = rnPrimitive.attributeAccessors;
       for (let j = 0; j < attributeAccessors.length; j++) {
@@ -579,32 +563,12 @@ function createBufferViewsAndAccessorsOfMesh(
           GL_ARRAY_BUFFER
         );
 
-        const accessorIdx = existingUniqueRnAccessors.findIndex(accessor =>
-          accessor.isSame(rnAttributeAccessor)
+        const accessorIdxToSet = createOrReuseAccessor(
+          json.accessors,
+          bufferViewIdxToSet,
+          existingUniqueRnAccessors,
+          rnAttributeAccessor
         );
-        let accessorIdxToSet = -1;
-        if (accessorIdx !== -1) {
-          // if the Rhodonite RnAccessor is in existingUniqueAccessors already,
-          //   reuse the corresponding Gltf2Accessor
-          accessorIdxToSet = accessorIdx;
-        } else {
-          // if not, create a Gltf2Accessor and put it into existingUniqueAccessors
-          accessorIdxToSet = existingUniqueRnAccessors.length;
-          // create a Gltf2Accessor
-          rnAttributeAccessor.calcMinMax();
-          const max = Array.prototype.slice.call(rnAttributeAccessor.max);
-          const min = Array.prototype.slice.call(rnAttributeAccessor.min);
-          json.accessors[accessorIdxToSet] = {
-            bufferView: bufferViewIdxToSet,
-            byteOffset: rnAttributeAccessor.byteOffsetInBufferView,
-            componentType: 5126,
-            count: rnAttributeAccessor.elementCount,
-            max: max,
-            min: min,
-            type: 'VEC' + max.length,
-          };
-          existingUniqueRnAccessors.push(rnAttributeAccessor);
-        }
         const attributeEnum = rnPrimitive.attributeSemantics[j];
         if (Is.exist(attributeEnum)) {
           primitive.attributes[attributeEnum.str] = accessorIdxToSet;
@@ -614,6 +578,54 @@ function createBufferViewsAndAccessorsOfMesh(
     }
     json.meshes!.push(mesh);
   }
+}
+
+function createOrReuseAccessor(
+  accessors: Gltf2Accessor[],
+  bufferViewIdxToSet: Index,
+  existingUniqueRnAccessors: Accessor[],
+  rnAccessor: Accessor
+): Index {
+  const {accessorIdx, accessorIdxToSet} = calcAccessorIdxToSet(
+    existingUniqueRnAccessors,
+    rnAccessor
+  );
+  if (accessorIdx === -1) {
+    // create a Gltf2Accessor
+    rnAccessor.calcMinMax();
+    accessors[accessorIdxToSet] = {
+      bufferView: bufferViewIdxToSet,
+      byteOffset: rnAccessor.byteOffsetInBufferView,
+      componentType: rnAccessor.componentType.index,
+      count: rnAccessor.elementCount,
+      max: rnAccessor.max,
+      min: rnAccessor.min,
+      type: rnAccessor.compositionType.str,
+    };
+    existingUniqueRnAccessors.push(rnAccessor);
+  }
+
+  return accessorIdxToSet;
+}
+
+function calcAccessorIdxToSet(
+  existingUniqueRnAccessors: Accessor[],
+  rnAccessor: Accessor
+) {
+  let accessorIdxToSet = -1;
+  const accessorIdx = existingUniqueRnAccessors.findIndex(accessor => {
+    return accessor.isSame(rnAccessor);
+  });
+  if (accessorIdx !== -1) {
+    // if the Rhodonite RnAccessor is in existingUniqueAccessors already,
+    //   reuse the corresponding Gltf2Accessor
+    accessorIdxToSet = accessorIdx;
+  } else {
+    // if not, create a Gltf2Accessor and put it into existingUniqueAccessors
+    // if the accessor is new one...
+    accessorIdxToSet = existingUniqueRnAccessors.length;
+  }
+  return {accessorIdx, accessorIdxToSet};
 }
 
 function createOrReuseBufferView(
