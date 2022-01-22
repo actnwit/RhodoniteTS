@@ -164,7 +164,7 @@ export default class WebXRSystem {
       )) as XRSession;
       this.__xrSession = session;
 
-      session.addEventListener('end', e => {
+      session.addEventListener('end', () => {
         this.__xrSession = undefined;
         this.__webglLayer = undefined;
         this.__xrViewerPose = undefined;

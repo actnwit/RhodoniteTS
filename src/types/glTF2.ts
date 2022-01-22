@@ -17,6 +17,7 @@ export type glTF2 = {
       version?: string;
       fileType?: string;
     };
+    generator: string;
     version: string;
   };
   buffers?: Gltf2Buffer[];
@@ -41,7 +42,7 @@ export type Gltf2Scene = {
   name?: string;
   scene?: number;
   nodes?: number[];
-  extensions: any;
+  extensions?: any;
   extras?: any;
 };
 
@@ -55,13 +56,15 @@ export type AttributeName =
   | 'JOINTS_0'
   | 'WEIGHTS_0';
 
+export type Gltf2AccessorIndex = number;
+
 export type Gltf2Attributes = {[s: string]: number};
 export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
 export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
 export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
 
 export type Gltf2Primitive = {
-  attributes?: Gltf2Attributes;
+  attributes: Gltf2Attributes;
   indices?: number;
   material?: number;
   mode?: number;
@@ -74,7 +77,7 @@ export type Gltf2Mesh = {
   primitives: Gltf2Primitive[];
   weights?: number[];
   name?: string;
-  extensions: any;
+  extensions?: any;
   extras?: any;
 };
 
@@ -217,9 +220,9 @@ export type Gltf2AnimationSamplerInterpolation =
   | 'CUBICSPLINE';
 
 export type Gltf2AnimationSampler = {
-  input: number;
-  output: number;
-  interpolation?: Gltf2AnimationSamplerInterpolation;
+  input: Gltf2AccessorIndex;
+  output: Gltf2AccessorIndex;
+  interpolation: Gltf2AnimationSamplerInterpolation;
   extensions?: any;
   extras?: any;
 };
@@ -316,7 +319,7 @@ export type Gltf2BufferView = {
   byteOffset?: number;
   byteLength: number;
   byteStride?: number;
-  target: number;
+  target?: number;
   name?: string;
   extensions?: any;
   extras?: any;

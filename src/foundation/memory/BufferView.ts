@@ -3,7 +3,6 @@ import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from './Accessor';
 import {Byte, Count, Size} from '../../types/CommonTypes';
-import {Is} from '../misc/Is';
 
 export default class BufferView {
   private __buffer: Buffer;
@@ -50,7 +49,7 @@ export default class BufferView {
   /**
    * byteOffset in Buffer (includes byteOffset of Buffer in it's inner arraybuffer)
    */
-  get byteOffsetInBuffer() {
+  get byteOffsetInBuffer(): Byte {
     return (
       this.__byteOffsetInRawArrayBufferOfBuffer -
       this.__buffer.byteOffsetInRawArrayBuffer
@@ -64,7 +63,7 @@ export default class BufferView {
     return this.__byteOffsetInRawArrayBufferOfBuffer;
   }
 
-  get buffer() {
+  get buffer(): Buffer {
     return this.__buffer;
   }
 
@@ -81,7 +80,10 @@ export default class BufferView {
     return false;
   }
 
-  getUint8Array() {
+  /**
+   * get memory buffer as Uint8Array of this BufferView memory area data
+   */
+  getUint8Array(): Uint8Array {
     return new Uint8Array(
       this.__raw,
       this.__byteOffsetInRawArrayBufferOfBuffer,
@@ -241,5 +243,14 @@ export default class BufferView {
     this.__accessors.push(accessor);
 
     return accessor;
+  }
+
+  isSame(rnBufferView: BufferView) {
+    return (
+      this.byteLength === rnBufferView.byteLength &&
+      this.byteOffsetInRawArrayBufferOfBuffer ===
+        rnBufferView.byteOffsetInRawArrayBufferOfBuffer &&
+      this.buffer.getArrayBuffer() === rnBufferView.buffer.getArrayBuffer()
+    );
   }
 }

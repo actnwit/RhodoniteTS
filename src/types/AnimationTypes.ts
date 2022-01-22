@@ -1,6 +1,6 @@
-import Entity from "../foundation/core/Entity";
-import { AnimationInterpolationEnum } from "../foundation/definitions/AnimationInterpolation";
-import { EntityUID, Second } from "./CommonTypes";
+import Entity from '../foundation/core/Entity';
+import {AnimationInterpolationEnum} from '../foundation/definitions/AnimationInterpolation';
+import {Second} from './CommonTypes';
 
 /**
  * animation path name
@@ -8,11 +8,11 @@ import { EntityUID, Second } from "./CommonTypes";
  * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
  */
 export type AnimationPathName =
-| 'undefined'
-| 'translate'
-| 'quaternion'
-| 'scale'
-| 'weights';
+  | 'undefined'
+  | 'translate'
+  | 'quaternion'
+  | 'scale'
+  | 'weights';
 
 export type AnimationTrackName = string;
 

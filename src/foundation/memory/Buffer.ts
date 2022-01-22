@@ -158,4 +158,8 @@ export default class Buffer {
 
     return ret;
   }
+
+  isSame(buffer: Buffer): boolean {
+    return this.__raw === buffer.__raw;
+  }
 }
