@@ -415,7 +415,7 @@ export default class Gltf2Exporter {
       return new ArrayBuffer(0);
     }
 
-    // get the total byte length
+    // calc total sum of BufferViews in multiple Buffers
     const byteLengthOfUniteBuffer = bufferViewByteLengthAccumulatedArray.reduce(
       (sum, val) => sum + val
     );
@@ -423,8 +423,11 @@ export default class Gltf2Exporter {
       const buffer = json.buffers![0];
       buffer.byteLength = byteLengthOfUniteBuffer;
     }
+
+    // create the ArrayBuffer of unite Buffer (consist of multiple Buffers)
     const arrayBuffer = new ArrayBuffer(json.buffers![0].byteLength);
 
+    // copy BufferViews in multiple Buffer to the Unite Buffer
     let lastCopiedByteLengthOfBufferView = 0;
     for (let i = 0; i < json.bufferViews.length; i++) {
       const bufferView = json.bufferViews[i];
@@ -447,7 +450,7 @@ export default class Gltf2Exporter {
       });
       lastCopiedByteLengthOfBufferView += uint8ArrayOfBufferView.byteLength;
       bufferView.byteOffset = distByteOffset;
-      bufferView.buffer = 0;
+      bufferView.buffer = 0; // rewrite buffer index to 0 (The Unite Buffer)
     }
 
     return arrayBuffer;
@@ -510,20 +513,20 @@ function createBufferViewsAndAccessorsOfMesh(
     const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
     for (let j = 0; j < primitiveCount; j++) {
       const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
-      const rnIndicesAccessor = rnPrimitive.indicesAccessor;
-      mesh.primitives[j] = {} as unknown as Gltf2Primitive;
-      const primitive = mesh.primitives[j];
-      primitive.attributes = {};
-      primitive.mode = rnPrimitive.primitiveMode.index;
+      const primitive: Gltf2Primitive = {
+        attributes: {},
+        mode: rnPrimitive.primitiveMode.index,
+      };
 
-      let bufferViewIdxToSet = -1;
-      let accessorIdxToSet = -1;
       // Vertex Indices
       // For indices accessor
+      const rnIndicesAccessor = rnPrimitive.indicesAccessor;
       if (Is.exist(rnIndicesAccessor)) {
         const bufferViewIdx = existingUniqueRnBufferViews.findIndex(
           rnBufferView => rnBufferView.isSame(rnIndicesAccessor.bufferView)
         );
+        let bufferViewIdxToSet = -1;
+        let accessorIdxToSet = -1;
         if (bufferViewIdx !== -1) {
           // if the Rhodonite BufferView is in existingUniqueBufferViews already,
           //   reuse the corresponding Gltf2BufferView
@@ -531,14 +534,11 @@ function createBufferViewsAndAccessorsOfMesh(
         } else {
           // if not, create a Gltf2BufferView and put it into existingUniqueBufferViews
           bufferViewIdxToSet = existingUniqueRnBufferViews.length;
-          if (existingUniqueRnBuffers.length === 0) {
-            existingUniqueRnBuffers.push(rnIndicesAccessor.bufferView.buffer);
-          }
-          const bufferIdx = existingUniqueRnBuffers.findIndex(buffer =>
-            buffer.isSame(rnIndicesAccessor.bufferView.buffer)
+
+          const bufferIdxToSet = calcBufferIdxToSet(
+            existingUniqueRnBuffers,
+            rnIndicesAccessor
           );
-          const bufferIdxToSet =
-            bufferIdx === -1 ? existingUniqueRnBuffers.length : bufferIdx;
           const bufferViewJson = {
             buffer: bufferIdxToSet,
             byteLength: rnIndicesAccessor.bufferView.byteLength,
@@ -555,9 +555,6 @@ function createBufferViewsAndAccessorsOfMesh(
             bufferViewJson
           );
           json.bufferViews[bufferViewIdxToSet] = bufferViewJson;
-          if (bufferIdx === -1) {
-            existingUniqueRnBuffers.push(rnIndicesAccessor.bufferView.buffer);
-          }
         }
 
         const accessorIdx = existingUniqueRnAccessors.findIndex(accessor => {
@@ -604,14 +601,10 @@ function createBufferViewsAndAccessorsOfMesh(
           bufferViewIdxToSet = bufferViewIdx;
         } else {
           bufferViewIdxToSet = existingUniqueRnBufferViews.length;
-          if (existingUniqueRnBuffers.length === 0) {
-            existingUniqueRnBuffers.push(rnAttributeAccessor.bufferView.buffer);
-          }
-          const bufferIdx = existingUniqueRnBuffers.findIndex(buffer =>
-            buffer.isSame(rnAttributeAccessor.bufferView.buffer)
+          const bufferIdxToSet = calcBufferIdxToSet(
+            existingUniqueRnBuffers,
+            rnAttributeAccessor
           );
-          const bufferIdxToSet =
-            bufferIdx === -1 ? existingUniqueRnBuffers.length : bufferIdx;
           const bufferViewJson = (json.bufferViews[bufferViewIdxToSet] = {
             buffer: bufferIdxToSet,
             byteLength: rnBufferView.byteLength,
@@ -626,9 +619,6 @@ function createBufferViewsAndAccessorsOfMesh(
             bufferIdxToSet,
             bufferViewJson
           );
-          if (bufferIdx === -1) {
-            existingUniqueRnBuffers.push(rnAttributeAccessor.bufferView.buffer);
-          }
           existingUniqueRnBufferViews.push(rnBufferView);
         }
         const accessorIdx = existingUniqueRnAccessors.findIndex(accessor =>
@@ -661,9 +651,28 @@ function createBufferViewsAndAccessorsOfMesh(
           primitive.attributes[attributeEnum.str] = accessorIdxToSet;
         }
       }
+      mesh.primitives[j] = primitive;
     }
     json.meshes!.push(mesh);
   }
+}
+
+function calcBufferIdxToSet(
+  existingUniqueRnBuffers: Buffer[],
+  rnIndicesAccessor: Accessor
+) {
+  if (existingUniqueRnBuffers.length === 0) {
+    existingUniqueRnBuffers.push(rnIndicesAccessor.bufferView.buffer);
+  }
+  const bufferIdx = existingUniqueRnBuffers.findIndex(buffer =>
+    buffer.isSame(rnIndicesAccessor.bufferView.buffer)
+  );
+  const bufferIdxToSet =
+    bufferIdx === -1 ? existingUniqueRnBuffers.length : bufferIdx;
+  if (bufferIdx === -1) {
+    existingUniqueRnBuffers.push(rnIndicesAccessor.bufferView.buffer);
+  }
+  return bufferIdxToSet;
 }
 
 function accmulateBufferViewByteLength(

@@ -64,7 +64,7 @@ export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
 export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
 
 export type Gltf2Primitive = {
-  attributes?: Gltf2Attributes;
+  attributes: Gltf2Attributes;
   indices?: number;
   material?: number;
   mode?: number;
