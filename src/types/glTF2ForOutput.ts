@@ -1,7 +1,7 @@
 import {
   Gltf2BufferView,
   Gltf2Accessor,
-  glTF2,
+  Gltf2,
   Gltf2Buffer,
   Gltf2Mesh,
   Gltf2Material,
@@ -21,7 +21,7 @@ export interface Gltf2AccessorEx extends Gltf2Accessor {
   };
 }
 
-export interface Gltf2Ex extends glTF2 {
+export interface Gltf2Ex extends Gltf2 {
   asset: {
     version: string;
     generator: string;

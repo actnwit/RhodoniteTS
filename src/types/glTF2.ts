@@ -12,7 +12,7 @@ export interface Gltf2AnyObject {
   [s: string]: any;
 }
 
-export type glTF2 = {
+export type Gltf2 = {
   asset: {
     extras?: {
       rnLoaderOptions?: GltfLoadOption;

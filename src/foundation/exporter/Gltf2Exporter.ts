@@ -4,7 +4,7 @@ import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
 import {
-  glTF2,
+  Gltf2,
   Gltf2Accessor,
   Gltf2Animation,
   Gltf2AnimationChannel,
@@ -164,7 +164,7 @@ export default class Gltf2Exporter {
    * @param entities target entities
    * @param indicesOfGltfMeshes the indices of Gltf2Meshes
    */
-  static __createNodes(json: glTF2, entities: Entity[]) {
+  static __createNodes(json: Gltf2, entities: Entity[]) {
     json.nodes = [];
     json.scenes = [{nodes: []}];
     const scene = json.scenes![0];
@@ -214,7 +214,7 @@ export default class Gltf2Exporter {
    * @param json a glTF2 JSON
    * @param entities all target entities
    */
-  static __createMaterials(json: glTF2, entities: Entity[]) {
+  static __createMaterials(json: Gltf2, entities: Entity[]) {
     let countMesh = 0;
     let countMaterial = 0;
     let countTexture = 0;
@@ -416,7 +416,7 @@ export default class Gltf2Exporter {
    * @returns A arraybuffer
    */
   private static __createBinary(
-    json: glTF2,
+    json: Gltf2,
     bufferViewByteLengthAccumulatedArray: Byte[]
   ) {
     // write all data of accessors to the DataView (total data area)
@@ -471,7 +471,7 @@ export default class Gltf2Exporter {
    * @param filename target output path
    * @param arraybuffer an ArrayBuffer of the .bin file
    */
-  static __download(json: glTF2, filename: string, arraybuffer: ArrayBuffer) {
+  static __download(json: Gltf2, filename: string, arraybuffer: ArrayBuffer) {
     {
       const a = document.createElement('a');
 
