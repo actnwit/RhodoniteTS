@@ -22,6 +22,13 @@ export interface AnimationInfo {
   maxEndInputTime: Second;
 }
 
+export type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;
+
+/**
+ * Similar to [Animation](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation)
+ */
+export type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
+
 /**
  * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
  */
@@ -48,9 +55,6 @@ export interface AnimationSampler {
   outputComponentN: number;
   interpolationMethod: AnimationInterpolationEnum;
 }
-
-export type AnimationChannels = Map<AnimationPathName, AnimationChannel>;
-export type AnimationTracks = Map<AnimationTrackName, AnimationChannels>;
 
 export interface ChangeAnimationInfoEvent {
   infoMap: Map<AnimationTrackName, AnimationInfo>;

@@ -20,7 +20,7 @@ import {
 } from '../../types/CommonTypes';
 import {
   AnimationPathName,
-  AnimationChannels,
+  AnimationTrack,
   AnimationComponentEventType,
   AnimationInfo,
   AnimationTrackName,
@@ -75,7 +75,7 @@ export default class AnimationComponent extends Component {
   private __currentActiveAnimationTrackName?: AnimationTrackName;
 
   // Animation Data of each AnimationComponent
-  private __animationTracks: Map<AnimationTrackName, AnimationChannels> =
+  private __animationTracks: Map<AnimationTrackName, AnimationTrack> =
     new Map();
 
   /// cache references of other components
@@ -488,7 +488,7 @@ export default class AnimationComponent extends Component {
    */
   public getAnimationChannelsOfTrack(
     animationTrackName: AnimationTrackName
-  ): AnimationChannels | undefined {
+  ): AnimationTrack | undefined {
     return this.__animationTracks.get(animationTrackName);
   }
 
