@@ -1,6 +1,5 @@
 import DataUtil from '../misc/DataUtil';
 import {
-  glTF1,
   RnM2,
   RnM2Accessor,
   RnM2Animation,
@@ -11,6 +10,7 @@ import {
   GltfLoadOption,
 } from '../../types/RnM2';
 import {Is} from '../misc/Is';
+import {glTF1} from '../../types/glTF1';
 
 declare let Rn: any;
 

@@ -1,8 +1,9 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {TypedArray, Byte, TypedArrayConstructor} from '../../types/CommonTypes';
+import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+import {Gltf2AccessorComponentTypeNumber} from '../../types/glTF2';
 
 export interface ComponentTypeEnum extends EnumIO {
-  getSizeInBytes(): Byte;
+  getSizeInBytes(): number;
   isFloatingPoint(): boolean;
   isInteger(): boolean;
 }
@@ -22,7 +23,7 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
     this.__sizeInBytes = sizeInBytes;
   }
 
-  getSizeInBytes(): Byte {
+  getSizeInBytes(): number {
     return this.__sizeInBytes;
   }
 
@@ -229,6 +230,21 @@ function fromGlslString(str_: string): ComponentTypeEnum {
   return _fromString({typeList, str}) as ComponentTypeEnum;
 }
 
+export type Gltf2AccessorComponentType =
+  | typeof Byte
+  | typeof UnsignedByte
+  | typeof Short
+  | typeof UnsignedShort
+  | typeof Int
+  | typeof UnsignedInt
+  | typeof Float;
+
+function toGltf2AccessorComponentType(
+  componentTypeForGltf2: Gltf2AccessorComponentType
+): Gltf2AccessorComponentTypeNumber {
+  return componentTypeForGltf2.index as Gltf2AccessorComponentTypeNumber;
+}
+
 export const ComponentType = Object.freeze({
   Unknown,
   Byte,
@@ -236,7 +252,7 @@ export const ComponentType = Object.freeze({
   Short,
   UnsignedShort,
   Int,
-  UnsignedInt: UnsignedInt,
+  UnsignedInt,
   Float,
   Double,
   Bool,
@@ -244,6 +260,7 @@ export const ComponentType = Object.freeze({
   from,
   fromTypedArray,
   toTypedArray,
+  toGltf2AccessorComponentType,
   fromString,
   fromGlslString,
 });

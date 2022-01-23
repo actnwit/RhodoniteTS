@@ -7,7 +7,7 @@ import Material from '../foundation/materials/core/Material';
 import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation } from './glTF2';
+import {Gltf2AnimationSamplerInterpolation, Gltf2AnyObject} from './glTF2';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {
@@ -28,8 +28,8 @@ export type RnM2 = {
   scenes: RnM2Scene[];
   skins: RnM2Skin[];
   textures?: RnM2Texture[];
-  extensions: {[key: string]: any};
-  extras: {[key: string]: object};
+  extensions: Gltf2AnyObject;
+  extras: Gltf2AnyObject;
 };
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
@@ -39,8 +39,8 @@ export type RnM2Scene = {
   scene?: number;
   sceneObject?: RnM2Node;
   nodes?: number[];
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2AttributesObject = {
@@ -65,8 +65,8 @@ export type RnM2Primitive = {
   mode?: number;
   targetsObjects?: RnM2AttributeBlendShapesAccessors;
   targets?: RnM2AttributeBlendShapes;
-  extensions?: any;
-  extras?: any;
+  extensions: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh
@@ -74,8 +74,8 @@ export type RnM2Mesh = {
   primitives: RnM2Primitive[];
   weights?: number[];
   name?: string;
-  extensions: any;
-  extras?: any;
+  extensions: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-node
@@ -96,8 +96,8 @@ export type RnM2Node = {
   translation?: number[];
   weights?: number[];
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Skin = {
@@ -109,16 +109,16 @@ export type RnM2Skin = {
   joints: number[];
   jointsObjects: RnM2Node[];
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2TextureInfo = {
   index: number;
   texCoord?: number;
   texture?: RnM2Texture;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2OcclusionTextureInfo = {
@@ -126,8 +126,8 @@ export type RnM2OcclusionTextureInfo = {
   texCoord?: number;
   texture?: RnM2Texture;
   strength?: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2NormalTextureInfo = {
@@ -135,8 +135,8 @@ export type RnM2NormalTextureInfo = {
   texCoord?: number;
   texture?: RnM2Texture;
   scale?: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2PbrMetallicRoughness = {
@@ -145,8 +145,8 @@ export type RnM2PbrMetallicRoughness = {
   metallicFactor?: number;
   roughnessFactor?: number;
   metallicRoughnessTexture?: RnM2TextureInfo;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Material = {
@@ -161,8 +161,8 @@ export type RnM2Material = {
   alphaCutoff?: number;
   doubleSided?: boolean;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2CameraOrthographic = {
@@ -170,8 +170,8 @@ export type RnM2CameraOrthographic = {
   ymag: number;
   zfar: number;
   znear: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2CameraPerspective = {
@@ -179,8 +179,8 @@ export type RnM2CameraPerspective = {
   yfov: number;
   zfar?: number;
   znear: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Camera = {
@@ -188,8 +188,8 @@ export type RnM2Camera = {
   perspective?: RnM2CameraPerspective;
   type: string;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Image = {
@@ -200,8 +200,8 @@ export type RnM2Image = {
   basis?: Uint8Array;
   ktx2?: Uint8Array;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
@@ -210,15 +210,15 @@ export type RnM2AnimationChannelTarget = {
   nodeObject?: RnM2Node;
   node?: number;
   path: PathType;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2AnimationChannel = {
   sampler: number;
   target: RnM2AnimationChannelTarget;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 
   // RnM2 Properties
   samplerObject?: RnM2AnimationSampler;
@@ -228,8 +228,8 @@ export type RnM2AnimationSampler = {
   input: number;
   output: number;
   interpolation?: Gltf2AnimationSamplerInterpolation;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 
   // RnM2 Properties
   inputObject?: RnM2Accessor;
@@ -240,8 +240,8 @@ export type RnM2Animation = {
   channels: RnM2AnimationChannel[];
   samplers: RnM2AnimationSampler[];
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 
   // RnM2 Properties
   parameters: {[s: string]: any};
@@ -254,8 +254,8 @@ export type RnM2Texture = {
   source?: number;
   image?: RnM2Image;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2TextureSampler = {
@@ -264,16 +264,16 @@ export type RnM2TextureSampler = {
   wrapS?: number;
   wrapT?: number;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2SparseValues = {
   bufferView: number;
   bufferViewObject: RnM2BufferView;
   byteOffset?: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2SparseIndices = {
@@ -281,16 +281,16 @@ export type RnM2SparseIndices = {
   bufferViewObject: RnM2BufferView;
   byteOffset?: number;
   componentType: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Sparse = {
   count: number;
   indices?: RnM2SparseIndices;
   values?: RnM2SparseValues;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Accessor = {
@@ -308,7 +308,7 @@ export type RnM2Accessor = {
   sparse?: RnM2Sparse;
   name?: string;
   accessor?: Accessor;
-  extensions?: any;
+  extensions?: Gltf2AnyObject;
   extras?: {
     attributeName: string;
     toGetAsTypedArray: boolean;
@@ -328,8 +328,8 @@ export type RnM2Buffer = {
   dataUri?: string;
   bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2BufferView = {
@@ -342,8 +342,8 @@ export type RnM2BufferView = {
   target: number;
   name?: string;
   rnAccessor?: Accessor;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Asset = {
@@ -359,71 +359,6 @@ export type RnM2Asset = {
     version?: string;
     fileType?: string;
   };
-};
-
-export type glTF1 = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: {[s: string]: any};
-      version?: string;
-      fileType?: string;
-    };
-  };
-  buffers: any[];
-  bufferDic: {[s: string]: any};
-
-  scenes: any[];
-  sceneDic: {[s: string]: any};
-
-  meshes: any[];
-  meshDic: {[s: string]: any};
-
-  nodesIndices: number[];
-  nodes: any[];
-  nodeDic: {[s: string]: any};
-
-  skins: any[];
-  skinDic: {[s: string]: any};
-
-  materials: any[];
-  materialDic: {[s: string]: any};
-
-  cameras: any[];
-  cameraDic: {[s: string]: any};
-
-  shaders: any[];
-  shaderDic: {[s: string]: any};
-
-  images: any[];
-  imageDic: {[s: string]: any};
-
-  animations: Array<{
-    channels: any[];
-    samplers: any[];
-    parameters: {[s: string]: any};
-  }>;
-
-  animationDic: {
-    [s: string]: {
-      channels: any[];
-      samplers: any[];
-    };
-  };
-
-  textures: any[];
-  textureDic: {[s: string]: any};
-
-  samplers: any[];
-  samplerDic: {[s: string]: any};
-
-  accessors: any[];
-  accessorDic: {[s: string]: any};
-
-  bufferViews: any[];
-  bufferViewDic: {[s: string]: any};
-
-  buffer: any[];
-  techniques: any[];
 };
 
 export type PointType = 'directional' | 'point' | 'spot';
@@ -453,8 +388,8 @@ export type RnM2Sampler = {
   wrapS?: number;
   wrapT?: number;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type GltfLoadOption = {

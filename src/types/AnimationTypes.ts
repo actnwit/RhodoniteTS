@@ -1,6 +1,6 @@
 import Entity from '../foundation/core/Entity';
 import {AnimationInterpolationEnum} from '../foundation/definitions/AnimationInterpolation';
-import {Second} from './CommonTypes';
+import {Second, VectorComponentN} from './CommonTypes';
 
 /**
  * animation path name
@@ -21,6 +21,13 @@ export interface AnimationInfo {
   maxStartInputTime: Second;
   maxEndInputTime: Second;
 }
+
+export type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;
+
+/**
+ * Similar to [Animation](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation)
+ */
+export type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
 
 /**
  * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
@@ -45,12 +52,9 @@ export interface AnimationChannelTarget {
 export interface AnimationSampler {
   input: Float32Array;
   output: Float32Array;
-  outputComponentN: number;
+  outputComponentN: VectorComponentN;
   interpolationMethod: AnimationInterpolationEnum;
 }
-
-export type AnimationChannels = Map<AnimationPathName, AnimationChannel>;
-export type AnimationTracks = Map<AnimationTrackName, AnimationChannels>;
 
 export interface ChangeAnimationInfoEvent {
   infoMap: Map<AnimationTrackName, AnimationInfo>;

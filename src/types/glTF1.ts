@@ -1,63 +1,68 @@
+export type Gltf1AnyObject = {
+  [s: string]: any;
+};
+
 export type glTF1 = {
   asset: {
     extras?: {
-      rnLoaderOptions?: {[s: string]: object};
+      rnLoaderOptions?: any;
       version?: string;
       fileType?: string;
     };
   };
-  buffers: {[s: string]: object};
-  bufferDic: object;
+  buffers: any[];
+  bufferDic: Gltf1AnyObject;
 
-  scenes: {[s: string]: object};
-  sceneDic: object;
+  scenes: any[];
+  sceneDic: Gltf1AnyObject;
 
-  meshes: {[s: string]: object};
-  meshDic: object;
+  meshes: any[];
+  meshDic: Gltf1AnyObject;
 
   nodesIndices: number[];
-  nodes: {[s: string]: object};
-  nodeDic: object;
+  nodes: any[];
+  nodeDic: Gltf1AnyObject;
 
-  skins: {[s: string]: object};
-  skinDic: object;
+  skins: any[];
+  skinDic: Gltf1AnyObject;
 
-  materials: {[s: string]: object};
-  materialDic: object;
+  materials: any[];
+  materialDic: Gltf1AnyObject;
 
-  cameras: {[s: string]: object};
-  cameraDic: object;
+  cameras: any[];
+  cameraDic: Gltf1AnyObject;
 
-  shaders: {[s: string]: object};
-  shaderDic: object;
+  shaders: any[];
+  shaderDic: Gltf1AnyObject;
 
-  images: {[s: string]: object};
-  imageDic: object;
+  images: any[];
+  imageDic: Gltf1AnyObject;
 
   animations: Array<{
-    channels: {[s: string]: object};
-    samplers: {[s: string]: object};
+    channels: any[];
+    samplers: any[];
+    parameters: Gltf1AnyObject;
   }>;
 
   animationDic: {
     [s: string]: {
-      channels: {[s: string]: object};
-      samplers: {[s: string]: object};
+      channels: any[];
+      samplers: any[];
     };
   };
 
-  textures: {[s: string]: object};
-  textureDic: object;
+  textures: any[];
+  textureDic: Gltf1AnyObject;
 
-  samplers: {[s: string]: object};
-  samplerDic: object;
+  samplers: any[];
+  samplerDic: Gltf1AnyObject;
 
-  accessors: {[s: string]: object};
-  accessorDic: object;
+  accessors: any[];
+  accessorDic: Gltf1AnyObject;
 
-  bufferViews: {[s: string]: object};
-  bufferViewDic: object;
+  bufferViews: any[];
+  bufferViewDic: Gltf1AnyObject;
 
-  buffer: {[s: string]: object};
-  techniques: {[s: string]: object};
+  buffer: any[];
+  techniques: any[];
 };

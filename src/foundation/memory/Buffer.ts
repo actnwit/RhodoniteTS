@@ -14,11 +14,11 @@ import DataUtil from '../misc/DataUtil';
 export default class Buffer {
   private __byteLength: Byte = 0;
   private __byteOffset: Byte = 0;
+  private __takenBytesIndex: Byte = 0;
+  private __byteAlign: Byte;
   private __raw: ArrayBuffer;
   private __name = '';
-  private __takenBytesIndex: Byte = 0;
   private __bufferViews: Array<BufferView> = [];
-  private __byteAlign: Byte;
 
   constructor({
     byteLength,
