@@ -8,6 +8,10 @@ import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 
+export interface Gltf2AnyObject {
+  [s: string]: any
+}
+
 export type glTF2 = {
   asset: {
     extras?: {
@@ -35,15 +39,15 @@ export type glTF2 = {
   accessors?: Gltf2Accessor[];
   bufferViews?: Gltf2BufferView[];
   extensionsUsed?: string[];
-  extensions?: any;
+  extensions?: Gltf2AnyObject;
 };
 
 export type Gltf2Scene = {
   name?: string;
   scene?: number;
   nodes?: number[];
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type AttributeName =
@@ -69,16 +73,16 @@ export type Gltf2Primitive = {
   material?: number;
   mode?: number;
   targets?: Gltf2AttributeBlendShapes;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Mesh = {
   primitives: Gltf2Primitive[];
   weights?: number[];
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Node = {
@@ -93,8 +97,8 @@ export type Gltf2Node = {
   translation?: number[];
   weights?: number[];
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Skin = {
@@ -103,16 +107,16 @@ export type Gltf2Skin = {
   skeleton?: number;
   joints: number[];
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2TextureInfo = {
   index: number;
   texCoord?: number;
   texture?: Gltf2Texture;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2OcclusionTextureInfo = {
@@ -120,8 +124,8 @@ export type Gltf2OcclusionTextureInfo = {
   texCoord?: number;
   texture?: Gltf2Texture;
   strength?: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2NormalTextureInfo = {
@@ -129,8 +133,8 @@ export type Gltf2NormalTextureInfo = {
   texCoord?: number;
   texture?: Gltf2Texture;
   scale?: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2PbrMetallicRoughness = {
@@ -139,8 +143,8 @@ export type Gltf2PbrMetallicRoughness = {
   metallicFactor?: number;
   roughnessFactor?: number;
   metallicRoughnessTexture?: Gltf2TextureInfo;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Material = {
@@ -153,8 +157,8 @@ export type Gltf2Material = {
   alphaCutoff?: number;
   doubleSided?: boolean;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2CameraOrthographic = {
@@ -162,8 +166,8 @@ export type Gltf2CameraOrthographic = {
   ymag: number;
   zfar: number;
   znear: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2CameraPerspective = {
@@ -171,8 +175,8 @@ export type Gltf2CameraPerspective = {
   yfov: number;
   zfar?: number;
   znear: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Camera = {
@@ -180,8 +184,8 @@ export type Gltf2Camera = {
   perspective?: Gltf2CameraPerspective;
   type: string;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Image = {
@@ -192,8 +196,8 @@ export type Gltf2Image = {
   basis?: Uint8Array;
   ktx2?: Uint8Array;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
@@ -201,8 +205,8 @@ export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
 export type Gltf2AnimationChannelTarget = {
   node?: number;
   path: PathType;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 type Gltf2AnimationSamplerIndex = number;
@@ -210,8 +214,8 @@ type Gltf2AnimationSamplerIndex = number;
 export type Gltf2AnimationChannel = {
   sampler: Gltf2AnimationSamplerIndex;
   target: Gltf2AnimationChannelTarget;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2AnimationSamplerInterpolation =
@@ -223,16 +227,16 @@ export type Gltf2AnimationSampler = {
   input: Gltf2AccessorIndex;
   output: Gltf2AccessorIndex;
   interpolation: Gltf2AnimationSamplerInterpolation;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Animation = {
   channels: Gltf2AnimationChannel[];
   samplers: Gltf2AnimationSampler[];
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Texture = {
@@ -240,8 +244,8 @@ export type Gltf2Texture = {
   source?: number;
   image?: Gltf2Image;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2TextureSampler = {
@@ -250,31 +254,31 @@ export type Gltf2TextureSampler = {
   wrapS?: number;
   wrapT?: number;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2SparseValues = {
   bufferView: number;
   byteOffset?: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2SparseIndices = {
   bufferView: number;
   byteOffset?: number;
   componentType: number;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Sparse = {
   count: number;
   indices?: Gltf2SparseIndices;
   values?: Gltf2SparseValues;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Accessor = {
@@ -290,7 +294,7 @@ export type Gltf2Accessor = {
   sparse?: Gltf2Sparse;
   name?: string;
   accessor?: Accessor;
-  extensions?: any;
+  extensions?: Gltf2AnyObject;
   extras?: {
     attributeName: string;
     toGetAsTypedArray: boolean;
@@ -300,6 +304,7 @@ export type Gltf2Accessor = {
     dataViewMethod?: string;
     weightsArrayLength?: number;
     quaternionIfVec4?: boolean;
+    int8Array?: boolean;
   };
 };
 
@@ -310,21 +315,20 @@ export type Gltf2Buffer = {
   dataUri?: string;
   bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
-  extensions?: any;
-  extras?: any;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
-export type Gltf2BufferView = {
+export interface Gltf2BufferView {
   buffer?: number;
   byteOffset?: number;
   byteLength: number;
   byteStride?: number;
   target?: number;
   name?: string;
-  extensions?: any;
-  extras?: any;
-};
-
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
 
 export type glTF1 = {
   asset: {
