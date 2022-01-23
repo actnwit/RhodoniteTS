@@ -78,7 +78,13 @@ export type Gltf2AccessorComponentTypeNumber =
   | typeof GL_DATA_UNSIGNED_INT
   | typeof GL_DATA_FLOAT;
 
-export type Gltf2AccessorCompositionType =
+export type Gltf2AnimationAccessorCompositionTypeString =
+  | 'SCALAR'
+  | 'VEC2'
+  | 'VEC3'
+  | 'VEC4';
+
+export type Gltf2AccessorCompositionTypeString =
   | 'SCALAR'
   | 'VEC2'
   | 'VEC3'
@@ -345,7 +351,7 @@ export interface Gltf2Accessor {
   componentType: Gltf2AccessorComponentTypeNumber;
   normalized?: boolean;
   count: number;
-  type: Gltf2AccessorCompositionType;
+  type: Gltf2AccessorCompositionTypeString;
   max?: number[];
   min?: number[];
   sparse?: Gltf2Sparse;

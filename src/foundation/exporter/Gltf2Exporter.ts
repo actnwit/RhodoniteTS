@@ -6,6 +6,7 @@ import {Is} from '../misc/Is';
 import {
   Gltf2,
   Gltf2Accessor,
+  Gltf2AccessorCompositionTypeString,
   Gltf2Animation,
   Gltf2AnimationChannel,
   Gltf2AnimationSampler,
@@ -604,7 +605,7 @@ function createOrReuseAccessor(
       count: rnAccessor.elementCount,
       max: rnAccessor.max,
       min: rnAccessor.min,
-      type: CompositionType.toGltf2AccessorCompositionType(
+      type: CompositionType.toGltf2AccessorCompositionTypeString(
         rnAccessor.compositionType.getNumberOfComponents() as VectorComponentN
       ),
     };
@@ -864,17 +865,16 @@ function createBufferViewsAndAccessorsOfAnimation(
   ) {
     const componentType = ComponentType.fromTypedArray(rnChannel.sampler.input);
     // create a Gltf2Accessor
-    const accessorJson: Gltf2AccessorEx = {
-      bufferView: json.bufferViews.length,
-      byteOffset: alignAccessorByteOffset(0),
-      componentType: ComponentType.toGltf2AccessorComponentType(componentType),
+    const accessorJson: Gltf2AccessorEx = createGltf2Accessor({
+      bufferViewIdx: json.bufferViews.length,
+      byteOffset: 0,
+      componentType,
       count:
         rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN,
-      type: CompositionType.toGltf2AccessorCompositionType(
+      compositionType: CompositionType.toGltf2AnimationAccessorCompositionType(
         rnChannel.sampler.outputComponentN
       ),
-      extras: {},
-    };
+    });
 
     // create a Gltf2BufferView
     const bufferViewByteLength = calcBufferViewByteLength({
@@ -1010,13 +1010,14 @@ function createGltf2Accessor({
   componentType,
   count,
   compositionType,
-}: Gltf2AccessorDesc) {
-  return {
+}: Gltf2AccessorDesc): Gltf2AccessorEx {
+  const accessor = {
     bufferView: bufferViewIdx,
     byteOffset: alignAccessorByteOffset(byteOffset),
-    componentType: componentType.index,
+    componentType: ComponentType.toGltf2AccessorComponentType(componentType),
     count,
-    type: compositionType.str,
+    type: compositionType.str as Gltf2AccessorCompositionTypeString,
     extras: {},
   };
+  return accessor;
 }
