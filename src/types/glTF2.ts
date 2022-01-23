@@ -7,6 +7,15 @@ import Material from '../foundation/materials/core/Material';
 import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
+import {
+  GL_DATA_BYTE,
+  GL_DATA_UNSIGNED_BYTE,
+  GL_DATA_SHORT,
+  GL_DATA_UNSIGNED_SHORT,
+  GL_DATA_INT,
+  GL_DATA_UNSIGNED_INT,
+  GL_DATA_FLOAT,
+} from '../types/WebGLConstants';
 
 export interface Gltf2AnyObject {
   [s: string]: any;
@@ -59,6 +68,24 @@ export type AttributeName =
   | 'COLOR_0'
   | 'JOINTS_0'
   | 'WEIGHTS_0';
+
+export type Gltf2AccessorComponentTypeNumber =
+  | typeof GL_DATA_BYTE
+  | typeof GL_DATA_UNSIGNED_BYTE
+  | typeof GL_DATA_SHORT
+  | typeof GL_DATA_UNSIGNED_SHORT
+  | typeof GL_DATA_INT
+  | typeof GL_DATA_UNSIGNED_INT
+  | typeof GL_DATA_FLOAT;
+
+export type Gltf2AccessorCompositionType =
+  | 'SCALAR'
+  | 'VEC2'
+  | 'VEC3'
+  | 'VEC4'
+  | 'MAT2'
+  | 'MAT3'
+  | 'MAT4';
 
 export type Gltf2AccessorIndex = number;
 
@@ -315,10 +342,10 @@ export interface Gltf2Accessor {
   bufferView?: number;
   byteOffset?: number;
   byteStride?: number; // for glTF1 only
-  componentType: number;
+  componentType: Gltf2AccessorComponentTypeNumber;
   normalized?: boolean;
   count: number;
-  type: string;
+  type: Gltf2AccessorCompositionType;
   max?: number[];
   min?: number[];
   sparse?: Gltf2Sparse;
@@ -330,7 +357,7 @@ export interface Gltf2Accessor {
 
 export interface Gltf2AccessorEx extends Gltf2Accessor {
   extras: {
-    uint8Array: Uint8Array;
+    uint8Array?: Uint8Array;
   };
 }
 

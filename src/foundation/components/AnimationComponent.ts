@@ -17,6 +17,7 @@ import {
   Index,
   Array4,
   Array3,
+  VectorComponentN,
 } from '../../types/CommonTypes';
 import {
   AnimationPathName,
@@ -338,7 +339,7 @@ export default class AnimationComponent extends Component {
     pathName: AnimationPathName,
     inputArray: Float32Array,
     outputArray: Float32Array,
-    outputComponentN: number,
+    outputComponentN: VectorComponentN,
     interpolation: AnimationInterpolationEnum,
     makeThisActiveAnimation = true
   ) {
@@ -351,17 +352,16 @@ export default class AnimationComponent extends Component {
       });
     }
 
-    const that = this;
     const channel: AnimationChannel = {
       sampler: {
         input: inputArray,
         output: outputArray,
-        outputComponentN: outputComponentN,
+        outputComponentN,
         interpolationMethod: interpolation,
       },
       target: {
         pathName: pathName,
-        entity: that.entity,
+        entity: this.entity,
       },
       belongTrackName: trackName,
     };
@@ -554,11 +554,11 @@ export default class AnimationComponent extends Component {
 
     if (componentN === 4) {
       const p_0 = outputArray[get4_offset](
-        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
         componentN * 3 * i + componentN
       );
       const p_1 = outputArray[get4_offset](
-        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
         componentN * 3 * (i + 1) + componentN
       );
       const m_0 = outputArray[mulArray4WithScalar_offset](
@@ -572,11 +572,11 @@ export default class AnimationComponent extends Component {
       return {p_0, p_1, m_0, m_1};
     } else if (componentN === 3) {
       const p_0 = outputArray[get3_offset](
-        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
         componentN * 3 * i + componentN
       ) as Array<number>;
       const p_1 = outputArray[get3_offset](
-        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
         componentN * 3 * (i + 1) + componentN
       ) as Array<number>;
       const m_0 = outputArray[mulArray3WithScalar_offset](
@@ -590,12 +590,12 @@ export default class AnimationComponent extends Component {
       return {p_0, p_1, m_0, m_1};
     } else {
       const p_0 = outputArray[getN_offset](
-        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
         componentN * 3 * i + componentN,
         componentN
       );
       const p_1 = outputArray[getN_offset](
-        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+        // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
         componentN * 3 * (i + 1) + componentN,
         componentN
       );
@@ -622,7 +622,7 @@ export default class AnimationComponent extends Component {
     if (
       channel.sampler.interpolationMethod === AnimationInterpolation.CubicSpline
     ) {
-      // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…​an,v1,v2,…​vn,b1,b2,…​bn
+      // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
       if (channel.sampler.outputComponentN === 4) {
         // Quaternion/weights
         const value = array[get4_offset](

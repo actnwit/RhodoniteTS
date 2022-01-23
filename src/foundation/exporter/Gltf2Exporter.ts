@@ -15,17 +15,23 @@ import {
   Gltf2Primitive,
   PathType,
 } from '../../types/glTF2';
-import {Gltf2Ex} from '../../types/glTF2ForOutput';
+import {
+  ComponentType,
+  Gltf2AccessorComponentType,
+} from '../definitions/ComponentType';
+import {Gltf2AccessorEx, Gltf2Ex} from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
 import DataUtil from '../misc/DataUtil';
 import Accessor from '../memory/Accessor';
-import {Byte, Index} from '../../types/CommonTypes';
+import {Byte, Count, Index, VectorComponentN} from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
   GL_ELEMENT_ARRAY_BUFFER,
 } from '../../types/WebGLConstants';
 import {AnimationChannel} from '../../types/AnimationTypes';
+import {CompositionType} from '../definitions/CompositionType';
+import {ComponentTypeEnum, CompositionTypeEnum} from '../..';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 interface Gltf2ExporterArguments {
@@ -108,6 +114,7 @@ export default class Gltf2Exporter {
       buffers: [{uri: fileName + '.bin', byteLength: 0}],
       bufferViews: [],
       accessors: [],
+      animations: [],
       meshes: [],
       materials: [
         {
@@ -591,11 +598,15 @@ function createOrReuseAccessor(
     accessors[accessorIdxToSet] = {
       bufferView: bufferViewIdxToSet,
       byteOffset: rnAccessor.byteOffsetInBufferView,
-      componentType: rnAccessor.componentType.index,
+      componentType: ComponentType.toGltf2AccessorComponentType(
+        rnAccessor.componentType as Gltf2AccessorComponentType
+      ),
       count: rnAccessor.elementCount,
       max: rnAccessor.max,
       min: rnAccessor.min,
-      type: rnAccessor.compositionType.str,
+      type: CompositionType.toGltf2AccessorCompositionType(
+        rnAccessor.compositionType.getNumberOfComponents() as VectorComponentN
+      ),
     };
     existingUniqueRnAccessors.push(rnAccessor);
   }
@@ -644,6 +655,7 @@ function createOrReuseBufferView(
       buffer: bufferIdxToSet,
       byteLength: rnBufferView.byteLength,
       byteOffset: rnBufferView.byteOffsetInBuffer,
+      byteStride: rnBufferView.defaultByteStride,
       target,
       extras: {
         uint8Array: rnBufferView.getUint8Array(),
@@ -732,15 +744,17 @@ function createBufferViewsAndAccessorsOfAnimation(
     if (Is.exist(animationComponent)) {
       const trackNames = animationComponent.getAnimationTrackNames();
       for (const trackName of trackNames) {
+        // AnimationTrack (Gltf2Animation)
+        let samplerIdx = 0;
         const animation: Gltf2Animation = {
           channels: [],
           samplers: [],
         };
+        json.animations.push(animation);
         // Rhodonite AnimationTrack is corresponding to Gltf2Animation
         const rnAnimationTrack =
           animationComponent.getAnimationChannelsOfTrack(trackName);
         if (Is.exist(rnAnimationTrack)) {
-          let samplerIdx = 0;
           for (const rnChannel of rnAnimationTrack.values()) {
             // create and register Gltf2BufferView and Gltf2Accessor
             //   and set Input animation data as Uint8Array to the Gltf2Accessor
@@ -822,6 +836,7 @@ function createBufferViewsAndAccessorsOfAnimation(
       buffer: bufferIdx,
       byteLength: rnChannel.sampler.input.byteLength,
       byteOffset: bufferViewByteLengthAccumulated,
+      byteStride: 0,
       extras: {
         uint8Array: new Uint8Array(rnChannel.sampler.input.buffer),
       },
@@ -830,10 +845,11 @@ function createBufferViewsAndAccessorsOfAnimation(
     bufferViewByteLengthAccumulated += bufferView.byteLength;
 
     // create a Gltf2Accessor
+    const componentType = ComponentType.fromTypedArray(rnChannel.sampler.input);
     json.accessors.push({
       bufferView: json.bufferViews.length - 1,
       byteOffset: 0,
-      componentType: 5126,
+      componentType: ComponentType.toGltf2AccessorComponentType(componentType),
       count: rnChannel.sampler.input.length,
       type: 'SCALAR',
       extras: {},
@@ -846,29 +862,161 @@ function createBufferViewsAndAccessorsOfAnimation(
     rnChannel: AnimationChannel,
     bufferIdx: Index
   ) {
+    const componentType = ComponentType.fromTypedArray(rnChannel.sampler.input);
+    // create a Gltf2Accessor
+    const accessorJson: Gltf2AccessorEx = {
+      bufferView: json.bufferViews.length,
+      byteOffset: alignAccessorByteOffset(0),
+      componentType: ComponentType.toGltf2AccessorComponentType(componentType),
+      count:
+        rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN,
+      type: CompositionType.toGltf2AccessorCompositionType(
+        rnChannel.sampler.outputComponentN
+      ),
+      extras: {},
+    };
+
     // create a Gltf2BufferView
-    const bufferView = {
+    const bufferViewByteLength = calcBufferViewByteLength({
+      accessorByteOffset: accessorJson.byteOffset!,
+      accessorCount: accessorJson.count,
+      byteStride: 0,
+      sizeOfComponent: componentType.getSizeInBytes(),
+      numberOfComponents: rnChannel.sampler.outputComponentN,
+    });
+    const bufferView: Gltf2BufferViewEx = {
       buffer: bufferIdx,
-      byteLength: rnChannel.sampler.output.byteLength,
+      byteLength: bufferViewByteLength,
       byteOffset: bufferViewByteLengthAccumulated,
+      byteStride: 0,
       extras: {
         uint8Array: new Uint8Array(rnChannel.sampler.output.buffer),
       },
     };
-    json.bufferViews.push(bufferView);
-    bufferViewByteLengthAccumulated += bufferView.byteLength;
 
-    // create a Gltf2Accessor
-    json.accessors.push({
-      bufferView: json.bufferViews.length - 1,
-      byteOffset: 0,
-      componentType: 5126,
-      count:
-        rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN,
-      type: 'VEC' + rnChannel.sampler.outputComponentN,
-      extras: {},
-    });
+    // register
+    json.bufferViews.push(bufferView);
+    json.accessors.push(accessorJson);
+    bufferViewByteLengthAccumulated += bufferView.byteLength;
     const outputAccessorIdx = json.accessors.length - 1;
     return outputAccessorIdx;
   }
+}
+
+type BufferViewByteLengthDesc = {
+  accessorByteOffset: Byte;
+  accessorCount: Count;
+  byteStride: Byte;
+  sizeOfComponent: Byte;
+  numberOfComponents: number;
+};
+
+/**
+ * calc BufferView byte length
+ *
+ *
+ *  See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
+ * @param accessorByteOffset
+ * @param accessorCount
+ * @param effectiveByteStride
+ * @param sizeOfComponent
+ * @param numberOfComponents
+ * @returns
+ */
+function calcBufferViewByteLength({
+  accessorByteOffset,
+  accessorCount,
+  byteStride,
+  sizeOfComponent,
+  numberOfComponents,
+}: BufferViewByteLengthDesc) {
+  // When byteStride of the referenced bufferView is not defined,
+  // it means that accessor elements are tightly packed,
+  //   i.e., effective stride equals the size of the element.
+  const effectiveByteStride =
+    byteStride === 0 ? sizeOfComponent * sizeOfComponent : byteStride;
+
+  // When byteStride is defined,
+  //   it MUST be a multiple of the size of the accessor’s component type.
+  if (byteStride % sizeOfComponent !== 0) {
+    throw Error(
+      'glTF2: When byteStride is defined, it MUST be a multiple of the size of the accessor’s component type.'
+    );
+  }
+
+  // MUST be 4 bytes aligned
+  const effectiveByteStrideAligned =
+    alignBufferViewByteStride(effectiveByteStride);
+
+  // calc BufferView byteLength as following,
+  //
+  //  Each accessor MUST fit its bufferView, i.e.,
+  //  ```
+  //  accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
+  //  ```
+  //   MUST be less than or equal to bufferView.length.
+  const bufferViewByteLength =
+    accessorByteOffset +
+    effectiveByteStrideAligned * (accessorCount - 1) +
+    sizeOfComponent * numberOfComponents;
+
+  return bufferViewByteLength;
+}
+
+/**
+ * fix the passed byteOffset to 4 bytes aligned
+ * For performance and compatibility reasons, each element of a vertex attribute
+ *   MUST be aligned to 4-byte boundaries inside a bufferView
+ *     (i.e., accessor.byteOffset and bufferView.byteStride MUST be multiples of 4).
+ *
+ *  See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
+ * @param byteOffset ByteOffset of Accessor, which is not algined yet
+ * @returns algined byteOffset
+ */
+function alignAccessorByteOffset(byteOffset: Byte): Byte {
+  const alignSize = 4;
+
+  return byteOffset + (alignSize - (byteOffset % alignSize));
+}
+
+/**
+ * fix the passed byteOffset to 4 bytes aligned
+ * For performance and compatibility reasons, each element of a vertex attribute
+ *   MUST be aligned to 4-byte boundaries inside a bufferView
+ *     (i.e., accessor.byteOffset and bufferView.byteStride MUST be multiples of 4).
+ *
+ *  See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
+ * @param byteOffset ByteOffset of Accessor, which is not algined yet
+ * @returns algined byteOffset
+ */
+function alignBufferViewByteStride(byteStride: Byte): Byte {
+  const alignSize = 4;
+  const byteStrideAlgined = byteStride + (alignSize - (byteStride % alignSize));
+
+  return byteStrideAlgined;
+}
+
+interface Gltf2AccessorDesc {
+  bufferViewIdx: Index;
+  byteOffset: Byte;
+  componentType: ComponentTypeEnum;
+  count: Count;
+  compositionType: CompositionTypeEnum;
+}
+
+function createGltf2Accessor({
+  bufferViewIdx,
+  byteOffset,
+  componentType,
+  count,
+  compositionType,
+}: Gltf2AccessorDesc) {
+  return {
+    bufferView: bufferViewIdx,
+    byteOffset: alignAccessorByteOffset(byteOffset),
+    componentType: componentType.index,
+    count,
+    type: compositionType.str,
+    extras: {},
+  };
 }

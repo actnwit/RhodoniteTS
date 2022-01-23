@@ -1,6 +1,7 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {Count, IndexOf16Bytes} from '../../types/CommonTypes';
+import {Count, IndexOf16Bytes, VectorComponentN} from '../../types/CommonTypes';
 import type {ComponentTypeEnum} from './ComponentType';
+import {Gltf2AccessorCompositionType} from '../../types/glTF2';
 
 export interface CompositionTypeEnum extends EnumIO {
   getNumberOfComponents(): Count;
@@ -305,6 +306,12 @@ const typeList = [
   TextureCube,
 ];
 
+export type VectorCompositionTypes =
+  | typeof Scalar
+  | typeof Vec2
+  | typeof Vec3
+  | typeof Vec4;
+
 function from(index: number): CompositionTypeEnum {
   return _from({typeList, index}) as CompositionTypeEnum;
 }
@@ -339,6 +346,23 @@ function fromGlslString(str_: string): CompositionTypeEnum {
       break;
   }
   return _fromString({typeList, str}) as CompositionTypeEnum;
+}
+
+export function toGltf2AccessorCompositionType(
+  componentN: VectorComponentN
+): Gltf2AccessorCompositionType {
+  switch (componentN) {
+    case 1:
+      return 'SCALAR';
+    case 2:
+      return 'VEC2';
+    case 3:
+      return 'VEC3';
+    case 4:
+      return 'VEC4';
+    default:
+      throw new Error('Invalid componentN');
+  }
 }
 
 function isArray(compositionType: CompositionTypeEnum) {
@@ -388,4 +412,5 @@ export const CompositionType = Object.freeze({
   fromGlslString,
   isArray,
   isTexture,
+  toGltf2AccessorCompositionType,
 });

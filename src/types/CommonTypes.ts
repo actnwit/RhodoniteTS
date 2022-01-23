@@ -36,6 +36,7 @@ export type Array3<T> = [T, T, T];
 export type Array2<T> = [T, T];
 export type Array1<T> = [T];
 export type Array1to4<T> = Array1<T> | Array2<T> | Array3<T> | Array4<T>;
+export type VectorComponentN = 1 | 2 | 3 | 4;
 export type Index = number;
 export type IndexOf16Bytes = number;
 export type IndexOf4Bytes = number;

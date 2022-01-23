@@ -47,6 +47,7 @@ import {
   TypedArray,
   TypedArrayConstructor,
   Array4,
+  VectorComponentN,
 } from '../../types/CommonTypes';
 import {
   GltfLoadOption,
@@ -350,7 +351,7 @@ export default class ModelConverter {
                   animationAttributeType,
                   animInputArray,
                   animOutputArray,
-                  outputComponentN,
+                  outputComponentN as VectorComponentN,
                   AnimationInterpolation.fromString(interpolation)
                 );
               }

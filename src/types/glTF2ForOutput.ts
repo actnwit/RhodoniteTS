@@ -5,6 +5,7 @@ import {
   Gltf2Buffer,
   Gltf2Mesh,
   Gltf2Material,
+  Gltf2Animation,
 } from './glTF2';
 
 export interface Gltf2BufferViewEx extends Gltf2BufferView {
@@ -31,4 +32,5 @@ export interface Gltf2Ex extends Gltf2 {
   accessors: Gltf2AccessorEx[];
   meshes: Gltf2Mesh[];
   materials: Gltf2Material[];
+  animations: Gltf2Animation[];
 }

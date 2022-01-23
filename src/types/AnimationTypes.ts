@@ -1,6 +1,6 @@
 import Entity from '../foundation/core/Entity';
 import {AnimationInterpolationEnum} from '../foundation/definitions/AnimationInterpolation';
-import {Second} from './CommonTypes';
+import {Second, VectorComponentN} from './CommonTypes';
 
 /**
  * animation path name
@@ -52,7 +52,7 @@ export interface AnimationChannelTarget {
 export interface AnimationSampler {
   input: Float32Array;
   output: Float32Array;
-  outputComponentN: number;
+  outputComponentN: VectorComponentN;
   interpolationMethod: AnimationInterpolationEnum;
 }
 
