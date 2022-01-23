@@ -10,10 +10,12 @@ import {
   Gltf2AnimationChannel,
   Gltf2AnimationSampler,
   Gltf2BufferView,
+  Gltf2BufferViewEx,
   Gltf2Mesh,
   Gltf2Primitive,
   PathType,
 } from '../../types/glTF2';
+import {Gltf2Ex} from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
 import DataUtil from '../misc/DataUtil';
 import Accessor from '../memory/Accessor';
@@ -23,6 +25,7 @@ import {
   GL_ARRAY_BUFFER,
   GL_ELEMENT_ARRAY_BUFFER,
 } from '../../types/WebGLConstants';
+import {AnimationChannel} from '../../types/AnimationTypes';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 interface Gltf2ExporterArguments {
@@ -45,7 +48,7 @@ export default class Gltf2Exporter {
   static export(filename: string, option?: Gltf2ExporterArguments) {
     const entities = this.__collectEntities(option);
 
-    const {json, fileName}: {json: glTF2; fileName: string} =
+    const {json, fileName}: {json: Gltf2Ex; fileName: string} =
       this.__createJsonBase(filename);
 
     const bufferViewByteLengthAccumulatedArray: Byte[] = [];
@@ -97,7 +100,7 @@ export default class Gltf2Exporter {
    */
   private static __createJsonBase(filename: string) {
     const fileName = filename ? filename : 'Rhodonite_' + new Date().getTime();
-    const json: glTF2 = {
+    const json: Gltf2Ex = {
       asset: {
         version: '2.0',
         generator: `Rhodonite (${_VERSION.version})`,
@@ -124,7 +127,7 @@ export default class Gltf2Exporter {
    * @param entities
    */
   static __createBufferViewsAndAccessors(
-    json: glTF2,
+    json: Gltf2Ex,
     entities: Entity[],
     bufferViewByteLengthAccumulatedArray: Byte[]
   ) {
@@ -437,7 +440,7 @@ export default class Gltf2Exporter {
     let lastCopiedByteLengthOfBufferView = 0;
     for (let i = 0; i < json.bufferViews.length; i++) {
       const bufferView = json.bufferViews[i];
-      const uint8ArrayOfBufferView = bufferView.extras!.uint8Array!;
+      const uint8ArrayOfBufferView = bufferView.extras!.uint8Array;
       delete bufferView.extras;
 
       const bufferIdx = bufferView.buffer!;
@@ -502,17 +505,12 @@ export default class Gltf2Exporter {
  */
 function createBufferViewsAndAccessorsOfMesh(
   entity: Entity,
-  json: glTF2,
+  json: Gltf2Ex,
   bufferViewByteLengthAccumulatedArray: Byte[],
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
   existingUniqueRnAccessors: Accessor[]
 ): void {
-  if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
-    console.warn('json.bufferViews or json.accessors are undefined.');
-    return;
-  }
-
   const meshComponent = entity.getMesh();
   if (Is.exist(meshComponent) && meshComponent.mesh) {
     const mesh: Gltf2Mesh = {primitives: []};
@@ -645,7 +643,7 @@ function createOrReuseBufferView(
       existingUniqueRnBuffers,
       rnBufferView.buffer
     );
-    const bufferViewJson = {
+    const bufferViewJson: Gltf2BufferViewEx = {
       buffer: bufferIdxToSet,
       byteLength: rnBufferView.byteLength,
       byteOffset: rnBufferView.byteOffsetInBuffer,
@@ -706,13 +704,7 @@ function calcBufferIdxToSet(
 function accmulateBufferViewByteLength(
   bufferViewByteLengthAccumulatedArray: number[],
   bufferIdxToSet: number,
-  bufferViewJson: {
-    buffer: number;
-    byteLength: number;
-    byteOffset: number;
-    target: number;
-    extras: {uint8Array: Uint8Array};
-  }
+  bufferViewJson: Gltf2BufferViewEx
 ) {
   bufferViewByteLengthAccumulatedArray[bufferIdxToSet] = Is.exist(
     bufferViewByteLengthAccumulatedArray[bufferIdxToSet]
@@ -733,10 +725,8 @@ function accmulateBufferViewByteLength(
  */
 function createBufferViewsAndAccessorsOfAnimation(
   entity: Entity,
-  json: glTF2,
+  json: Gltf2Ex,
   bufferViewByteLengthAccumulated: number,
-  bufferViewCount: number,
-  accessorCount: number,
   entityIdx: number
 ) {
   if (Is.undefined(json.bufferViews) || Is.undefined(json.accessors)) {
@@ -761,51 +751,16 @@ function createBufferViewsAndAccessorsOfAnimation(
       if (Is.exist(channelsOfTrack)) {
         let samplerIdx = 0;
         for (const channel of channelsOfTrack.values()) {
-          // Channel Sampler Input
-          // create a Gltf2BufferView
-          const inputBufferViewCount = bufferViewCount;
-          const inputAccessorCount = accessorCount;
-          json.bufferViews[inputBufferViewCount] = {
-            buffer: 0,
-            byteLength: channel.sampler.input.byteLength,
-            byteOffset: bufferViewByteLengthAccumulated,
-          };
+          // For Channel Sampler Input
+          const inputAccessorIdx =
+            createGltf2BufferViewAndGltf2AccessorForInput(channel);
 
-          // create a Gltf2Accessor
-          json.accessors[inputAccessorCount] = {
-            bufferView: bufferViewCount,
-            byteOffset: 0,
-            componentType: 5126, // FLOAT
-            count: channel.sampler.input.length,
-            type: 'SCALAR',
-            // accessor:
-          };
+          // For Channel Sampler Output
+          const outputAccessorIdx =
+            createGltf2BufferViewAndGltf2AccessorForOutput(channel);
 
-          bufferViewCount++;
-          accessorCount++;
-
-          // Channel Sampler Output
-          // create a Gltf2BufferView
-          const outputBufferViewCount = bufferViewCount;
-          const outputAccessorCount = accessorCount;
-          json.bufferViews[bufferViewCount] = {
-            buffer: 0,
-            byteLength: channel.sampler.input.byteLength,
-            byteOffset: bufferViewByteLengthAccumulated,
-          };
-
-          // create a Gltf2Accessor
-          json.accessors[outputAccessorCount] = {
-            bufferView: outputBufferViewCount,
-            byteOffset: channel.sampler.output.byteLength,
-            componentType: 5126, // FLOAT
-            count:
-              channel.sampler.output.length / channel.sampler.outputComponentN,
-            type: 'VEC' + channel.sampler.outputComponentN,
-          };
-
+          // Create Gltf2AnimationChannel
           const pathName = channel.target.pathName as PathType;
-
           const channelJson: Gltf2AnimationChannel = {
             sampler: samplerIdx++,
             target: {
@@ -814,20 +769,65 @@ function createBufferViewsAndAccessorsOfAnimation(
             },
           };
 
+          // Create Gltf2AnimationSampler
           const samplerJson: Gltf2AnimationSampler = {
-            input: inputAccessorCount,
-            output: outputAccessorCount,
+            input: inputAccessorIdx,
+            output: outputAccessorIdx,
             interpolation: channel.sampler.interpolationMethod.GltfString,
           };
           animation.channels.push(channelJson);
           animation.samplers.push(samplerJson);
-
-          bufferViewCount++;
-          accessorCount++;
         }
       }
     }
   }
 
-  return {bufferViewCount, accessorCount, bufferViewByteLengthAccumulated};
+  return {bufferViewByteLengthAccumulated};
+
+  function createGltf2BufferViewAndGltf2AccessorForOutput(
+    channel: AnimationChannel
+  ) {
+    {
+      json.bufferViews.push({
+        buffer: 0,
+        byteLength: channel.sampler.input.byteLength,
+        byteOffset: bufferViewByteLengthAccumulated,
+      });
+
+      // create a Gltf2Accessor
+      json.accessors.push({
+        bufferView: json.bufferViews.length - 1,
+        byteOffset: channel.sampler.output.byteLength,
+        componentType: 5126,
+        count: channel.sampler.output.length / channel.sampler.outputComponentN,
+        type: 'VEC' + channel.sampler.outputComponentN,
+      });
+    }
+    const outputAccessorIdx = json.accessors.length - 1;
+    return outputAccessorIdx;
+  }
+
+  function createGltf2BufferViewAndGltf2AccessorForInput(
+    channel: AnimationChannel
+  ) {
+    {
+      json.bufferViews.push({
+        buffer: 0,
+        byteLength: channel.sampler.input.byteLength,
+        byteOffset: bufferViewByteLengthAccumulated,
+      });
+
+      // create a Gltf2Accessor
+      json.accessors.push({
+        bufferView: json.bufferViews.length - 1,
+        byteOffset: 0,
+        componentType: 5126,
+        count: channel.sampler.input.length,
+        type: 'SCALAR',
+        // accessor:
+      });
+    }
+    const inputAccessorIdx = json.accessors.length - 1;
+    return inputAccessorIdx;
+  }
 }

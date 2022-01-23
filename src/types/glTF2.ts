@@ -281,33 +281,6 @@ export type Gltf2Sparse = {
   extras?: Gltf2AnyObject;
 };
 
-export type Gltf2Accessor = {
-  bufferView?: number;
-  byteOffset?: number;
-  byteStride?: number; // for glTF1 only
-  componentType: number;
-  normalized?: boolean;
-  count: number;
-  type: string;
-  max?: number[];
-  min?: number[];
-  sparse?: Gltf2Sparse;
-  name?: string;
-  accessor?: Accessor;
-  extensions?: Gltf2AnyObject;
-  extras?: {
-    attributeName: string;
-    toGetAsTypedArray: boolean;
-    typedDataArray?: Float32Array;
-    componentN?: number;
-    componentBytes?: number;
-    dataViewMethod?: string;
-    weightsArrayLength?: number;
-    quaternionIfVec4?: boolean;
-    int8Array?: boolean;
-  };
-};
-
 export type Gltf2Buffer = {
   uri?: string;
   byteLength: number;
@@ -328,6 +301,37 @@ export interface Gltf2BufferView {
   name?: string;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
+}
+
+export interface Gltf2BufferViewEx extends Gltf2BufferView {
+  buffer: number;
+  byteOffset: number;
+  extras: {
+    uint8Array: Uint8Array;
+  };
+}
+
+export interface Gltf2Accessor {
+  bufferView?: number;
+  byteOffset?: number;
+  byteStride?: number; // for glTF1 only
+  componentType: number;
+  normalized?: boolean;
+  count: number;
+  type: string;
+  max?: number[];
+  min?: number[];
+  sparse?: Gltf2Sparse;
+  name?: string;
+  accessor?: Accessor;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
+
+export interface Gltf2AccessorEx extends Gltf2Accessor {
+  extras: {
+    uint8Array: Uint8Array;
+  };
 }
 
 export type PointType = 'directional' | 'point' | 'spot';
