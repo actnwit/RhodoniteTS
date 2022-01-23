@@ -2,7 +2,7 @@ import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
-import {GltfLoadOption, RnM2, GltfFileBuffers, glTF1} from '../../types/RnM2';
+import {GltfLoadOption, RnM2, GltfFileBuffers} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';
 import PhysicsComponent from '../components/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
@@ -20,6 +20,7 @@ import {VRM} from '../../types/VRM';
 import DataUtil from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
 import {Is} from '../misc/Is';
+import {glTF1} from '../../types/glTF1';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -523,8 +524,8 @@ export default class GltfImporter {
       vrmSpringBoneGroup.gravityDir = Vector3.fromCopyArray([
         boneGroup.gravityDir.x,
         boneGroup.gravityDir.y,
-        boneGroup.gravityDir.z]
-      );
+        boneGroup.gravityDir.z,
+      ]);
       vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
       vrmSpringBoneGroup.hitRadius = boneGroup.hitRadius;
       for (const idxOfArray in boneGroup.bones) {
@@ -560,8 +561,8 @@ export default class GltfImporter {
         sphereCollider.position = Vector3.fromCopyArray([
           collider.offset.x,
           collider.offset.y,
-          collider.offset.z]
-        );
+          collider.offset.z,
+        ]);
         sphereCollider.radius = collider.radius;
         colliders.push(sphereCollider);
       }
@@ -629,10 +630,7 @@ export default class GltfImporter {
     return false;
   }
 
-  _initializeMaterialProperties(
-    gltfModel: RnM2,
-    texturesLength: number
-  ): void {
+  _initializeMaterialProperties(gltfModel: RnM2, texturesLength: number): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     for (const materialProperty of materialProperties) {

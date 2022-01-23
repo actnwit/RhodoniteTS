@@ -9,7 +9,7 @@ import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 
 export interface Gltf2AnyObject {
-  [s: string]: any
+  [s: string]: any;
 }
 
 export type glTF2 = {
@@ -329,71 +329,6 @@ export interface Gltf2BufferView {
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
 }
-
-export type glTF1 = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: {[s: string]: any};
-      version?: string;
-      fileType?: string;
-    };
-  };
-  buffers: any[];
-  bufferDic: object;
-
-  scenes: any[];
-  sceneDic: object;
-
-  meshes: any[];
-  meshDic: object;
-
-  nodesIndices: number[];
-  nodes: any[];
-  nodeDic: object;
-
-  skins: any[];
-  skinDic: object;
-
-  materials: any[];
-  materialDic: object;
-
-  cameras: any[];
-  cameraDic: object;
-
-  shaders: any[];
-  shaderDic: object;
-
-  images: any[];
-  imageDic: object;
-
-  animations: Array<{
-    channels: any[];
-    samplers: any[];
-    parameters: {[s: string]: any};
-  }>;
-
-  animationDic: {
-    [s: string]: {
-      channels: any[];
-      samplers: any[];
-    };
-  };
-
-  textures: any[];
-  textureDic: object;
-
-  samplers: any[];
-  samplerDic: object;
-
-  accessors: any[];
-  accessorDic: object;
-
-  bufferViews: any[];
-  bufferViewDic: object;
-
-  buffer: any[];
-  techniques: any[];
-};
 
 export type PointType = 'directional' | 'point' | 'spot';
 
