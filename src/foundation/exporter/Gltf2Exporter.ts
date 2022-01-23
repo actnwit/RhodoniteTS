@@ -155,12 +155,12 @@ export default class Gltf2Exporter {
       );
     }
 
-    const bufferIdx = bufferViewByteLengthAccumulatedArray.length;
-    const sumOfAnimationBufferViewByteLength =
-      createBufferViewsAndAccessorsOfAnimation(json, bufferIdx, entities);
-    bufferViewByteLengthAccumulatedArray.push(
-      sumOfAnimationBufferViewByteLength
-    );
+    // const bufferIdx = bufferViewByteLengthAccumulatedArray.length;
+    // const sumOfAnimationBufferViewByteLength =
+    //   createBufferViewsAndAccessorsOfAnimation(json, bufferIdx, entities);
+    // bufferViewByteLengthAccumulatedArray.push(
+    //   sumOfAnimationBufferViewByteLength
+    // );
   }
 
   /**
