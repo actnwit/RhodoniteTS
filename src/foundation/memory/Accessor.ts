@@ -329,6 +329,19 @@ export default class Accessor {
     return this.__typedArray!;
   }
 
+  getUint8Array(): Uint8Array {
+    if (this.__bufferView.isAoS) {
+      console.warn(
+        'Be careful. this reference bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.'
+      );
+    }
+    return new Uint8Array(
+      this.bufferView.buffer.getArrayBuffer(),
+      this.byteOffsetInRawArrayBufferOfBuffer,
+      this.byteLength
+    );
+  }
+
   get isAoS() {
     return !this.isSoA;
   }
