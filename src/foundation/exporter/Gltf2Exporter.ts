@@ -860,7 +860,6 @@ function createBufferViewsAndAccessorsOfAnimation(
     const accessorJson: Gltf2AccessorEx = createGltf2Accessor({
       bufferViewIdx: json.bufferViews.length,
       accessorByteOffset: 0,
-      bufferViewByteOffset: bufferViewByteLengthAccumulated,
       componentType,
       count: rnChannel.sampler.input.length,
       compositionType: CompositionType.Scalar,
@@ -896,10 +895,7 @@ function createBufferViewsAndAccessorsOfAnimation(
     // create a Gltf2Accessor
     const accessorJson: Gltf2AccessorEx = createGltf2Accessor({
       bufferViewIdx: json.bufferViews.length,
-      accessorByteOffset:
-        ComponentType.Float.getSizeInBytes() *
-        rnChannel.sampler.outputComponentN,
-      bufferViewByteOffset: bufferViewByteLengthAccumulated,
+      accessorByteOffset: 0,
       componentType,
       count:
         rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN,
@@ -985,7 +981,6 @@ function calcBufferViewByteLength({
   // MUST be 4 bytes aligned
   const effectiveByteStrideAligned =
     alignBufferViewByteStrideTo4Bytes(effectiveByteStride);
-
   // MUST be 4 bytes aligned
   const alignedAccessorByteOffset =
     alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
@@ -1008,12 +1003,18 @@ function calcBufferViewByteLength({
   //     MUST be a multiple of the size of the accessor’s component type.
   const valByteLength = sizeOfComponent * numberOfComponents;
   const sumByteOffset = alignedAccessorByteOffset + bufferViewByteOffset;
-  const fixedBufferViewByteOffset =
-    bufferViewByteOffset + (valByteLength - (sumByteOffset % valByteLength));
+  const paddingByte = valByteLength - (sumByteOffset % valByteLength);
+  const fixedBufferViewByteOffset = bufferViewByteOffset + paddingByte;
 
+  // MUST be 4 bytes aligned
+  const alignedBufferViewByteOffset = alignAccessorByteOffsetTo4Bytes(
+    fixedBufferViewByteOffset
+  );
+
+  const fixedBuferViewByteLength = bufferViewByteLength + paddingByte;
   return {
-    bufferViewByteLength,
-    bufferViewByteOffset: fixedBufferViewByteOffset,
+    bufferViewByteLength: fixedBuferViewByteLength,
+    bufferViewByteOffset: alignedBufferViewByteOffset,
   };
 }
 
@@ -1029,7 +1030,9 @@ function calcBufferViewByteLength({
  */
 function alignAccessorByteOffsetTo4Bytes(byteOffset: Byte): Byte {
   const alignSize = 4;
-
+  if (byteOffset % 4 === 0) {
+    return byteOffset;
+  }
   return byteOffset + (alignSize - (byteOffset % alignSize));
 }
 
@@ -1045,6 +1048,9 @@ function alignAccessorByteOffsetTo4Bytes(byteOffset: Byte): Byte {
  */
 function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
   const alignSize = 4;
+  if (byteStride % 4 === 0) {
+    return byteStride;
+  }
   const byteStrideAlgined = byteStride + (alignSize - (byteStride % alignSize));
 
   return byteStrideAlgined;
@@ -1053,7 +1059,6 @@ function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
 interface Gltf2AccessorDesc {
   bufferViewIdx: Index;
   accessorByteOffset: Byte;
-  bufferViewByteOffset: Byte;
   componentType: ComponentTypeEnum;
   count: Count;
   compositionType: CompositionTypeEnum;
@@ -1109,7 +1114,6 @@ function createGltf2BufferView({
 function createGltf2Accessor({
   bufferViewIdx,
   accessorByteOffset,
-  bufferViewByteOffset,
   componentType,
   count,
   compositionType,
@@ -1119,7 +1123,6 @@ function createGltf2Accessor({
 
   const accessor = {
     bufferView: bufferViewIdx,
-    // byteOffset: fixedAccessorByteOffset,
     byteOffset: alignedAccessorByteOffset,
     componentType: ComponentType.toGltf2AccessorComponentType(componentType),
     count,
