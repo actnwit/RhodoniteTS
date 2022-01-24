@@ -868,7 +868,7 @@ function createBufferViewsAndAccessorsOfAnimation(
     // create a Gltf2BufferView
     const bufferView: Gltf2BufferViewEx = createGltf2BufferView({
       bufferIdx,
-      bufferViewByteLengthAccumulated,
+      bufferViewByteOffset: bufferViewByteLengthAccumulated,
       accessorByteOffset: accessorJson.byteOffset!,
       accessorCount: accessorJson.count,
       bufferViewByteStride: ComponentType.Float.getSizeInBytes(),
@@ -907,7 +907,7 @@ function createBufferViewsAndAccessorsOfAnimation(
     // create a Gltf2BufferView
     const bufferView = createGltf2BufferView({
       bufferIdx,
-      bufferViewByteLengthAccumulated,
+      bufferViewByteOffset: bufferViewByteLengthAccumulated,
       accessorByteOffset: accessorJson.byteOffset!,
       accessorCount: accessorJson.count,
       bufferViewByteStride:
@@ -934,7 +934,7 @@ type BufferViewByteLengthDesc = {
   accessorByteOffset: Byte;
   accessorCount: Count;
   bufferViewByteStride: Byte;
-  bufferViewByteLengthAccumulated: Byte;
+  bufferViewByteOffset: Byte;
   sizeOfComponent: Byte;
   numberOfComponents: number;
 };
@@ -951,16 +951,16 @@ type BufferViewByteLengthDesc = {
  * @param numberOfComponents
  * @returns
  */
-function calcBufferViewByteLength({
+function calcBufferViewByteLengthAndByteOffset({
   accessorByteOffset,
   accessorCount,
   bufferViewByteStride,
-  bufferViewByteLengthAccumulated,
+  bufferViewByteOffset,
   sizeOfComponent,
   numberOfComponents,
 }: BufferViewByteLengthDesc): {
-  bufferViewByteLength: Byte;
-  bufferViewByteOffset: Byte;
+  fixedBufferViewByteLength: Byte;
+  fixedBufferViewByteOffset: Byte;
 } {
   // When byteStride of the referenced bufferView is not defined,
   // it means that accessor elements are tightly packed,
@@ -997,7 +997,6 @@ function calcBufferViewByteLength({
     effectiveByteStrideAligned * (accessorCount - 1) +
     sizeOfComponent * numberOfComponents;
 
-  const bufferViewByteOffset = bufferViewByteLengthAccumulated;
   // The offset of an accessor into a bufferView (i.e., accessor.byteOffset)
   //   and the offset of an accessor into a buffer (i.e., accessor.byteOffset + bufferView.byteOffset)
   //     MUST be a multiple of the size of the accessor’s component type.
@@ -1011,10 +1010,10 @@ function calcBufferViewByteLength({
     fixedBufferViewByteOffset
   );
 
-  const fixedBuferViewByteLength = bufferViewByteLength + paddingByte;
+  const fixedBufferViewByteLength = bufferViewByteLength + paddingByte;
   return {
-    bufferViewByteLength: fixedBuferViewByteLength,
-    bufferViewByteOffset: alignedBufferViewByteOffset,
+    fixedBufferViewByteLength,
+    fixedBufferViewByteOffset: alignedBufferViewByteOffset,
   };
 }
 
@@ -1066,7 +1065,7 @@ interface Gltf2AccessorDesc {
 
 interface Gltf2BufferViewDesc {
   bufferIdx: Index;
-  bufferViewByteLengthAccumulated: Byte;
+  bufferViewByteOffset: Byte;
   accessorByteOffset: Byte;
   accessorCount: Count;
   bufferViewByteStride: Byte;
@@ -1077,7 +1076,7 @@ interface Gltf2BufferViewDesc {
 
 function createGltf2BufferView({
   bufferIdx,
-  bufferViewByteLengthAccumulated,
+  bufferViewByteOffset,
   accessorByteOffset,
   accessorCount,
   bufferViewByteStride,
@@ -1087,21 +1086,20 @@ function createGltf2BufferView({
 }: Gltf2BufferViewDesc): Gltf2BufferViewEx {
   const alignedAccessorByteOffset =
     alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
-  const {bufferViewByteLength, bufferViewByteOffset} = calcBufferViewByteLength(
-    {
+  const {fixedBufferViewByteLength, fixedBufferViewByteOffset} =
+    calcBufferViewByteLengthAndByteOffset({
       accessorByteOffset: alignedAccessorByteOffset,
       accessorCount: accessorCount,
       bufferViewByteStride,
-      bufferViewByteLengthAccumulated,
+      bufferViewByteOffset,
       sizeOfComponent: componentType.getSizeInBytes(),
       numberOfComponents: compositionType.getNumberOfComponents(),
-    }
-  );
+    });
 
   const bufferViewEx: Gltf2BufferViewEx = {
     buffer: bufferIdx,
-    byteLength: bufferViewByteLength,
-    byteOffset: bufferViewByteOffset,
+    byteLength: fixedBufferViewByteLength,
+    byteOffset: fixedBufferViewByteOffset,
     byteStride: bufferViewByteStride,
     extras: {
       uint8Array,
