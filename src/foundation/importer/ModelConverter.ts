@@ -77,7 +77,7 @@ import {TextureParameter} from '../definitions/TextureParameter';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
-import { AnimationPathName } from '../../types/AnimationTypes';
+import {AnimationPathName} from '../../types/AnimationTypes';
 
 declare let DracoDecoderModule: any;
 

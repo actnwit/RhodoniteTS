@@ -68,9 +68,15 @@ export default class LocatorGizmo extends Gizmo {
       MeshComponent,
       MeshRendererComponent,
     ]);
-    this.__topEntity.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
-    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    this.__target.getSceneGraph()._addGizmoChild(this.__topEntity.getSceneGraph());
+    this.__topEntity.tryToSetUniqueName(
+      `LocatorGizmo_of_${this.__target.uniqueName}`,
+      true
+    );
+    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix =
+      true;
+    this.__target
+      .getSceneGraph()
+      ._addGizmoChild(this.__topEntity.getSceneGraph());
 
     const meshComponent = this.__topEntity.getMesh();
     LocatorGizmo.__mesh = new Mesh();
@@ -92,9 +98,9 @@ export default class LocatorGizmo extends Gizmo {
     const aabb = sg.worldAABB;
     this.__topEntity.getTransform().translate = aabb.centerPoint;
     this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
-      Math.min(1, aabb.isVanilla() ? 1 : (aabb.sizeX / 2)),
-      Math.min(1, aabb.isVanilla() ? 1 : (aabb.sizeY / 2)),
-      Math.min(1, aabb.isVanilla() ? 1 : (aabb.sizeZ / 2)),
+      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
+      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
+      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeZ / 2),
     ]);
   }
 

@@ -1,15 +1,9 @@
 import {Primitive} from './Primitive';
 import {CompositionType} from '../definitions/CompositionType';
-import {
-  VertexAttribute,
-  VertexAttributeEnum,
-} from '../definitions/VertexAttribute';
+import {VertexAttribute} from '../definitions/VertexAttribute';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import MemoryManager from '../core/MemoryManager';
-import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
-import Accessor from '../memory/Accessor';
-import Material from '../materials/core/Material';
 import {Size} from '../../types/CommonTypes';
+import Material from '../materials/core/Material';
 
 export interface PlaneDescriptor {
   /** the length of U(X)-axis direction */
@@ -106,61 +100,14 @@ export class Plane extends Primitive {
       new Float32Array(normals),
       new Float32Array(texcoords),
     ];
-    let sumOfAttributesByteSize = 0;
-    attributes.forEach(attribute => {
-      sumOfAttributesByteSize += attribute.byteLength;
+
+    this.copyVertexData({
+      attributes,
+      attributeCompositionTypes,
+      attributeSemantics,
+      primitiveMode,
+      indices: new Uint16Array(indices),
+      material: desc?.material,
     });
-    const indexSizeInByte = indices.length * 2;
-
-    // Create Buffer
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(
-      indexSizeInByte + sumOfAttributesByteSize,
-      this,
-      4
-    );
-
-    // Index Buffer
-    const indicesBufferView = buffer.takeBufferView({
-      byteLengthToNeed: indexSizeInByte /*byte*/,
-      byteStride: 0,
-    });
-    const indicesAccessor = indicesBufferView.takeAccessor({
-      compositionType: CompositionType.Scalar,
-      componentType: ComponentType.UnsignedShort,
-      count: indices.length,
-    });
-    for (let i = 0; i < indices.length; i++) {
-      indicesAccessor!.setScalar(i, indices![i], {});
-    }
-
-    // VertexBuffer
-    const attributesBufferView = buffer.takeBufferView({
-      byteLengthToNeed: sumOfAttributesByteSize,
-      byteStride: 0,
-    });
-
-    const attributeAccessors: Array<Accessor> = [];
-    const attributeComponentTypes: Array<ComponentTypeEnum> = [];
-
-    attributes.forEach((attribute, i) => {
-      attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor: Accessor = attributesBufferView.takeAccessor({
-        compositionType: attributeCompositionTypes[i],
-        componentType: ComponentType.fromTypedArray(attributes[i]),
-        count:
-          attribute.byteLength /
-          attributeCompositionTypes[i].getNumberOfComponents() /
-          attributeComponentTypes[i].getSizeInBytes(),
-      });
-      accessor.copyFromTypedArray(attribute);
-      attributeAccessors.push(accessor);
-    });
-
-    const attributeMap: Map<VertexAttributeEnum, Accessor> = new Map();
-    for (let i = 0; i < attributeSemantics.length; i++) {
-      attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
-    }
-
-    this.setData(attributeMap, primitiveMode, desc.material, indicesAccessor);
   }
 }

@@ -60,9 +60,15 @@ export default class AABBGizmo extends Gizmo {
       MeshComponent,
       MeshRendererComponent,
     ]);
-    this.__topEntity.tryToSetUniqueName(`AABBGizmo_of_${this.__target.uniqueName}`, true);
-    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    this.__target.getSceneGraph()._addGizmoChild(this.__topEntity.getSceneGraph());
+    this.__topEntity.tryToSetUniqueName(
+      `AABBGizmo_of_${this.__target.uniqueName}`,
+      true
+    );
+    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix =
+      true;
+    this.__target
+      .getSceneGraph()
+      ._addGizmoChild(this.__topEntity.getSceneGraph());
 
     const meshComponent = this.__topEntity.getMesh();
     AABBGizmo.__mesh = new Mesh();

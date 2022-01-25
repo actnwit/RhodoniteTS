@@ -38,7 +38,7 @@ import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
-import { RnXR } from '../../../xr/main';
+import {RnXR} from '../../../xr/main';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -152,7 +152,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
-    this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
   }
 
@@ -597,28 +598,25 @@ export default abstract class AbstractMaterialNode extends RnObject {
       return;
     }
 
-    const memoryManager = MemoryManager.getInstance();
     (shaderProgram as any)._gl.uniform1i(
       (shaderProgram as any).morphTargetNumber,
       primitive.targets.length
     );
-    const array: number[] = primitive.targets.map((target: Attributes) => {
-      const accessor = target.get(VertexAttribute.Position) as Accessor;
-      let offset = 0;
-      let offset2 = 0;
+    const dataTextureMorphOffsetPositionOfTargets: number[] =
+      primitive.targets.map((target: Attributes) => {
+        const accessor = target.get(VertexAttribute.Position) as Accessor;
+        let offset = 0;
 
-      if (
-        ProcessApproach.isFastestApproach(SystemState.currentProcessApproach)
-      ) {
-        offset = Config.totalSizeOfGPUShaderDataStorageExceptMorphData;
-        offset2 = memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData)
-          .takenSizeInByte;
-      }
-      return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
-    });
+        if (
+          ProcessApproach.isFastestApproach(SystemState.currentProcessApproach)
+        ) {
+          offset = Config.totalSizeOfGPUShaderDataStorageExceptMorphData;
+        }
+        return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
+      });
     (shaderProgram as any)._gl.uniform1iv(
       (shaderProgram as any).dataTextureMorphOffsetPosition,
-      array
+      dataTextureMorphOffsetPositionOfTargets
     );
     let weights;
     if (meshComponent.mesh!.weights.length > 0) {
