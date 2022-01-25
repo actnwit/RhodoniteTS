@@ -1203,7 +1203,7 @@ export default class DrcPointCloudImporter {
     }
 
     attributeCompositionTypes.push(CompositionType.Vec3);
-    attributeSemantics.push(VertexAttribute.Position.XYZjoined);
+    attributeSemantics.push(VertexAttribute.Position.XYZ);
     attributes.push(positions);
 
     draco.destroy(posAttributeData);
@@ -1249,7 +1249,7 @@ export default class DrcPointCloudImporter {
       }
 
       attributeCompositionTypes.push(CompositionType.Vec3);
-      attributeSemantics.push(VertexAttribute.Color0.XYZjoined);
+      attributeSemantics.push(VertexAttribute.Color0.XYZ);
       attributes.push(colors);
 
       draco.destroy(colAttributeData);
@@ -1287,7 +1287,7 @@ export default class DrcPointCloudImporter {
         normals[i] = norAttributeData.GetValue(i); // XYZ XYZ
       }
       attributeCompositionTypes.push(CompositionType.Vec3);
-      attributeSemantics.push(VertexAttribute.Normal.XYZjoined);
+      attributeSemantics.push(VertexAttribute.Normal.XYZ);
       attributes.push(normals);
 
       draco.destroy(norAttributeData);
@@ -1329,7 +1329,7 @@ export default class DrcPointCloudImporter {
         texCoords[i] = texCoordAttributeData.GetValue(i); // XYZ XYZ
       }
       attributeCompositionTypes.push(CompositionType.Vec2);
-      attributeSemantics.push(VertexAttribute.Texcoord0.XYjoined);
+      attributeSemantics.push(VertexAttribute.Texcoord0.XY);
       attributes.push(texCoords);
 
       draco.destroy(texCoordAttributeData);

@@ -182,9 +182,9 @@ export class Cube extends Primitive {
       CompositionType.Vec2,
     ];
     const attributeSemantics = [
-      VertexAttribute.Position.XYZjoined,
-      VertexAttribute.Normal.XYZjoined,
-      VertexAttribute.Texcoord0.XYjoined,
+      VertexAttribute.Position.XYZ,
+      VertexAttribute.Normal.XYZ,
+      VertexAttribute.Texcoord0.XY,
     ];
     const attributes = [
       new Float32Array(positions),
@@ -193,7 +193,7 @@ export class Cube extends Primitive {
     ];
     if (Is.exist(desc.color)) {
       attributeCompositionTypes.push(CompositionType.Vec3);
-      attributeSemantics.push(VertexAttribute.Color0.XYZjoined);
+      attributeSemantics.push(VertexAttribute.Color0.XYZ);
       attributes.push(new Float32Array(colors));
     }
     const primitiveMode = PrimitiveMode.Triangles;

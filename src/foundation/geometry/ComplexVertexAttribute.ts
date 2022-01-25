@@ -3,12 +3,7 @@ import {PrimitiveModeEnum} from '../definitions/PrimitiveMode';
 import {Attributes} from './Primitive';
 import Accessor, {IndicesAccessOption} from '../memory/Accessor';
 import {Index, Array1to4} from '../../types/CommonTypes';
-import {
-  Array1,
-  Array2,
-  Array3,
-  Array4,
-} from '../../../dist/esm/types/CommonTypes';
+import {Array1, Array2, Array3, Array4} from '../../types/CommonTypes';
 import {ISemanticVertexAttribute} from './ISemanticVertexAttribute';
 
 export class ComplexVertexAttribute implements ISemanticVertexAttribute {

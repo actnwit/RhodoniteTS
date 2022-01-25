@@ -90,9 +90,9 @@ export class Plane extends Primitive {
       CompositionType.Vec2,
     ];
     const attributeSemantics = [
-      VertexAttribute.Position.XYZjoined,
-      VertexAttribute.Normal.XYZjoined,
-      VertexAttribute.Texcoord0.XYjoined,
+      VertexAttribute.Position.XYZ,
+      VertexAttribute.Normal.XYZ,
+      VertexAttribute.Texcoord0.XY,
     ];
     const primitiveMode = PrimitiveMode.TriangleStrip;
     const attributes = [

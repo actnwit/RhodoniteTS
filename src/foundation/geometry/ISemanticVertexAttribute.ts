@@ -1,11 +1,5 @@
-import {PrimitiveModeEnum} from '../../../dist/esm/foundation/definitions/PrimitiveMode';
-import {
-  Array1,
-  Array2,
-  Array3,
-  Array4,
-  Index,
-} from '../../../dist/esm/types/CommonTypes';
+import {PrimitiveModeEnum} from '../../foundation/definitions/PrimitiveMode';
+import {Array1, Array2, Array3, Array4, Index} from '../../types/CommonTypes';
 import {IndicesAccessOption} from '../memory/Accessor';
 
 export interface ISemanticVertexAttribute {

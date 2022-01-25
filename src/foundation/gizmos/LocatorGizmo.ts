@@ -150,8 +150,8 @@ export default class LocatorGizmo extends Gizmo {
 
     const primitive = Primitive.createPrimitive({
       attributeSemantics: [
-        VertexAttribute.Position.XYZjoined,
-        VertexAttribute.Color0.XYZjoined,
+        VertexAttribute.Position.XYZ,
+        VertexAttribute.Color0.XYZ,
       ],
       attributes: [positions, color],
       primitiveMode: PrimitiveMode.Lines,

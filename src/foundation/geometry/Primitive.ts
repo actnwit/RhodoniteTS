@@ -333,7 +333,7 @@ export class Primitive extends RnObject {
 
   get isPositionAccessorUpdated(): boolean {
     const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZjoined
+      VertexAttribute.Position.XYZ
     );
     return positionAccessor?.isMinMaxDirty || false;
   }
@@ -341,7 +341,7 @@ export class Primitive extends RnObject {
   get AABB() {
     if (this.__aabb.isVanilla() || this.isPositionAccessorUpdated) {
       const positionAccessor = this.__attributes.get(
-        VertexAttribute.Position.XYZjoined
+        VertexAttribute.Position.XYZ
       )!;
 
       if (positionAccessor.isMinMaxDirty) {
@@ -550,7 +550,7 @@ export class Primitive extends RnObject {
 
     if (hasFaceNormal) {
       const normalAccessor = this.__attributes.get(
-        VertexAttribute.Normal.XYZjoined
+        VertexAttribute.Normal.XYZ
       );
       if (normalAccessor) {
         const normal = normalAccessor.getVec3(i, {});
@@ -588,7 +588,7 @@ export class Primitive extends RnObject {
     const fDat = 1.0 - u - v;
 
     const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZjoined
+      VertexAttribute.Position.XYZ
     )!;
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
@@ -611,7 +611,7 @@ export class Primitive extends RnObject {
     }
 
     const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZjoined
+      VertexAttribute.Position.XYZ
     )!;
 
     let incrementNum = 3; // gl.TRIANGLES
@@ -667,7 +667,7 @@ export class Primitive extends RnObject {
     pos2IndexBase: Index
   ) {
     const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZjoined
+      VertexAttribute.Position.XYZ
     )!;
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
