@@ -1,6 +1,5 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
 import {
-  Array1,
   Array1to4,
   Array2,
   Array3,
@@ -9,6 +8,7 @@ import {
   Index,
 } from '../../types/CommonTypes';
 import {RnException} from '../misc/Result';
+import {VectorComponentN} from '../../types/CommonTypes';
 
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
 
@@ -29,22 +29,6 @@ export type VertexAttributeTypeName =
 
 export type VertexAttributeComponent =
   `${VertexAttributeTypeName}.${ComponentChar}`;
-
-// prettier-ignore
-export type VertexAttributeSemantic =
-  Array1to4<`${VertexAttributeTypeName}.${ComponentChar}`>;
-
-export type VertexAttributeSemanticArray1 =
-  Array1<`${VertexAttributeTypeName}.${ComponentChar}`>;
-
-export type VertexAttributeSemanticArray2 =
-  Array2<`${VertexAttributeTypeName}.${ComponentChar}`>;
-
-export type VertexAttributeSemanticArray3 =
-  Array3<`${VertexAttributeTypeName}.${ComponentChar}`>;
-
-export type VertexAttributeSemanticArray4 =
-  Array4<`${VertexAttributeTypeName}.${ComponentChar}`>;
 
 // prettier-ignore
 export type VertexAttributeSemanticsJoinedString =
@@ -280,12 +264,6 @@ function isInstanceOfVertexAttributeClass(
   return obj instanceof VertexAttributeClass;
 }
 
-function getVertexAttributeSemanticJoinedString(
-  components: VertexAttributeSemantic
-): VertexAttributeSemanticsJoinedString {
-  return components.join(',') as VertexAttributeSemanticsJoinedString;
-}
-
 function from(index: number): VertexAttributeEnum {
   return _from({typeList, index}) as VertexAttributeEnum;
 }
@@ -376,6 +354,12 @@ function toAttributeSlotFromJoinedString(
   }
 }
 
+function toVectorComponentN(
+  joinedString: VertexAttributeSemanticsJoinedString
+): VectorComponentN {
+  return joinedString.split(',').length as VectorComponentN;
+}
+
 export const VertexAttribute = Object.freeze({
   Unknown,
   Position,
@@ -391,9 +375,9 @@ export const VertexAttribute = Object.freeze({
   BaryCentricCoord,
   AttributeTypeNumber,
   isInstanceOfVertexAttributeClass,
-  getVertexAttributeSemanticJoinedString,
   toVertexAttributeSemanticJoinedStringAsGltfStyle,
   toAttributeSlotFromJoinedString,
+  toVectorComponentN,
   from,
   fromString,
 });

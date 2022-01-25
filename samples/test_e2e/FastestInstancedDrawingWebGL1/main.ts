@@ -69,8 +69,8 @@ declare const Rn: typeof _Rn;
     const primitive = Rn.Primitive.createPrimitive({
       indices: indices,
       attributeSemantics: [
-        Rn.VertexAttribute.Position.XYZ,
-        Rn.VertexAttribute.Color0.XYZ,
+        Rn.VertexAttribute.Position.XYZjoined,
+        Rn.VertexAttribute.Color0.XYZjoined,
       ],
       attributes: [positions, colors],
       primitiveMode: Rn.PrimitiveMode.Triangles,

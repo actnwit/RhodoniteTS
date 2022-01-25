@@ -1,8 +1,6 @@
 import {PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
 import {
-  VertexAttributeEnum,
   VertexAttribute,
-  VertexAttributeSemantic,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
@@ -30,7 +28,7 @@ export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
 export interface PrimitiveDescriptor {
   attributes: TypedArray[];
-  attributeSemantics: VertexAttributeSemantic[];
+  attributeSemantics: VertexAttributeSemanticsJoinedString[];
   primitiveMode: PrimitiveModeEnum;
   indices?: TypedArray;
   material?: Material;
@@ -196,7 +194,7 @@ export class Primitive extends RnObject {
 
     attributes.forEach((typedArray, i) => {
       const compositionType = CompositionType.vectorFrom(
-        attributeSemantics[i].length
+        VertexAttribute.toVectorComponentN(attributeSemantics[i])
       );
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
       const accessor: Accessor = attributesBufferView.takeAccessor({
@@ -215,12 +213,7 @@ export class Primitive extends RnObject {
       new Map();
     for (let i = 0; i < attributeSemantics.length; i++) {
       const attributeSemantic = attributeSemantics[i];
-      attributeMap.set(
-        VertexAttribute.getVertexAttributeSemanticJoinedString(
-          attributeSemantic
-        ),
-        attributeAccessors[i]
-      );
+      attributeMap.set(attributeSemantic, attributeAccessors[i]);
     }
 
     this.setData(attributeMap, primitiveMode, material, indicesAccessor);

@@ -104,9 +104,9 @@ export class Sphere extends Primitive {
       CompositionType.Vec2,
     ];
     const attributeSemantics = [
-      VertexAttribute.Position.XYZ,
-      VertexAttribute.Normal.XYZ,
-      VertexAttribute.Texcoord0.XY,
+      VertexAttribute.Position.XYZjoined,
+      VertexAttribute.Normal.XYZjoined,
+      VertexAttribute.Texcoord0.XYjoined,
     ];
     const primitiveMode = PrimitiveMode.Triangles;
     const attributes = [
