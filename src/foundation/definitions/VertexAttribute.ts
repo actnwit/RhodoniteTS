@@ -44,12 +44,9 @@ export interface VertexAttributeEnum extends EnumIO {
   Y: VertexAttributeComponent;
   Z: VertexAttributeComponent;
   W: VertexAttributeComponent;
-  XY: Array2<VertexAttributeComponent>;
-  XYZ: Array3<VertexAttributeComponent>;
-  XYZW: Array4<VertexAttributeComponent>;
-  XYjoined: VertexAttributeSemanticsJoinedString;
-  XYZjoined: VertexAttributeSemanticsJoinedString;
-  XYZWjoined: VertexAttributeSemanticsJoinedString;
+  XY: VertexAttributeSemanticsJoinedString;
+  XYZ: VertexAttributeSemanticsJoinedString;
+  XYZW: VertexAttributeSemanticsJoinedString;
 }
 
 type VertexAttributeDescriptor = {
@@ -106,37 +103,19 @@ export class VertexAttributeClass
   get W(): VertexAttributeComponent {
     return `${this.attributeTypeName}.W`;
   }
-  get XY(): Array2<VertexAttributeComponent> {
-    return [`${this.attributeTypeName}.X`, `${this.attributeTypeName}.Y`];
-  }
-  get XYZ(): Array3<VertexAttributeComponent> {
-    return [
-      `${this.attributeTypeName}.X`,
-      `${this.attributeTypeName}.Y`,
-      `${this.attributeTypeName}.Z`,
-    ];
-  }
-  get XYZW(): Array4<VertexAttributeComponent> {
-    return [
-      `${this.attributeTypeName}.X`,
-      `${this.attributeTypeName}.Y`,
-      `${this.attributeTypeName}.Z`,
-      `${this.attributeTypeName}.W`,
-    ];
-  }
-  get XYjoined(): VertexAttributeSemanticsJoinedString {
+  get XY(): VertexAttributeSemanticsJoinedString {
     return `${this.attributeTypeName}.X,${this.attributeTypeName}.Y`;
   }
-  get XYZjoined(): VertexAttributeSemanticsJoinedString {
+  get XYZ(): VertexAttributeSemanticsJoinedString {
     return `${this.attributeTypeName}.X,${this.attributeTypeName}.Y,${this.attributeTypeName}.Z`;
   }
-  get XYZWjoined(): VertexAttributeSemanticsJoinedString {
+  get XYZW(): VertexAttributeSemanticsJoinedString {
     return `${this.attributeTypeName}.X,${this.attributeTypeName}.Y,${this.attributeTypeName}.Z,${this.attributeTypeName}.W`;
   }
 
-  getVertexAttributeComponentsAsGltf(): Array1to4<VertexAttributeComponent> {
+  getVertexAttributeComponentsAsGltf(): VertexAttributeSemanticsJoinedString {
     if (this.__gltfComponentN === 1) {
-      return [this.X];
+      return this.X;
     } else if (this.__gltfComponentN === 2) {
       return this.XY;
     } else if (this.__gltfComponentN === 3) {
@@ -297,27 +276,27 @@ function toVertexAttributeSemanticJoinedStringAsGltfStyle(
 ): VertexAttributeSemanticsJoinedString {
   switch (attribute) {
     case Position:
-      return attribute.XYZjoined;
+      return attribute.XYZ;
     case Color0:
-      return attribute.XYZjoined;
+      return attribute.XYZ;
     case Normal:
-      return attribute.XYZjoined;
+      return attribute.XYZ;
     case Tangent:
-      return attribute.XYZjoined;
+      return attribute.XYZ;
     case Texcoord0:
-      return attribute.XYjoined;
+      return attribute.XY;
     case Texcoord1:
-      return attribute.XYjoined;
+      return attribute.XY;
     case Joints0:
-      return attribute.XYZWjoined;
+      return attribute.XYZW;
     case Weights0:
-      return attribute.XYZWjoined;
+      return attribute.XYZW;
     case Instance:
       return attribute.X;
     case FaceNormal:
-      return attribute.XYZWjoined;
+      return attribute.XYZW;
     case BaryCentricCoord:
-      return attribute.XYZWjoined;
+      return attribute.XYZW;
     default:
       throw new Error('Invalied glTF VertexAttributeEnum');
   }
@@ -327,27 +306,27 @@ function toAttributeSlotFromJoinedString(
   str: VertexAttributeSemanticsJoinedString
 ): Index {
   switch (str) {
-    case Position.XYZjoined:
+    case Position.XYZ:
       return Position.getAttributeSlot();
-    case Color0.XYZjoined:
+    case Color0.XYZ:
       return Color0.getAttributeSlot();
-    case Normal.XYZjoined:
+    case Normal.XYZ:
       return Normal.getAttributeSlot();
-    case Tangent.XYZjoined:
+    case Tangent.XYZ:
       return Tangent.getAttributeSlot();
-    case Texcoord0.XYjoined:
+    case Texcoord0.XY:
       return Texcoord0.getAttributeSlot();
-    case Texcoord1.XYjoined:
+    case Texcoord1.XY:
       return Texcoord1.getAttributeSlot();
-    case Joints0.XYZWjoined:
+    case Joints0.XYZW:
       return Joints0.getAttributeSlot();
-    case Weights0.XYZWjoined:
+    case Weights0.XYZW:
       return Weights0.getAttributeSlot();
     case Instance.X:
       return Instance.getAttributeSlot();
-    case FaceNormal.XYZjoined:
+    case FaceNormal.XYZ:
       return FaceNormal.getAttributeSlot();
-    case BaryCentricCoord.XYZjoined:
+    case BaryCentricCoord.XYZ:
       return BaryCentricCoord.getAttributeSlot();
     default:
       throw new Error('Invalied glTF VertexAttributeEnum');

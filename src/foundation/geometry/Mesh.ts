@@ -549,20 +549,20 @@ export default class Mesh {
     }
     for (const primitive of this.__primitives) {
       const tangentIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Tangent.XYZjoined
+        VertexAttribute.Tangent.XYZ
       );
       if (tangentIdx !== -1 && this.tangentCalculationMode === 2) {
         continue;
       }
       const texcoordIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Texcoord0.XYjoined
+        VertexAttribute.Texcoord0.XY
       );
       const normalIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Normal.XYZjoined
+        VertexAttribute.Normal.XYZ
       );
       if (texcoordIdx !== -1 && normalIdx !== -1) {
         const positionIdx = primitive.attributeSemantics.indexOf(
-          VertexAttribute.Position.XYZjoined
+          VertexAttribute.Position.XYZ
         );
 
         const positionAccessor = primitive.attributeAccessors[positionIdx];
@@ -617,7 +617,7 @@ export default class Mesh {
         }
         primitive.setVertexAttribute(
           tangentAccessor,
-          VertexAttribute.Tangent.XYZjoined
+          VertexAttribute.Tangent.XYZ
         );
       }
     }
@@ -757,7 +757,7 @@ export default class Mesh {
 
     for (const primitive of this.__primitives) {
       const BaryCentricCoordId = primitive.attributeSemantics.indexOf(
-        VertexAttribute.BaryCentricCoord.XYZjoined
+        VertexAttribute.BaryCentricCoord.XYZ
       );
       if (BaryCentricCoordId !== -1) {
         return;
@@ -767,7 +767,7 @@ export default class Mesh {
         BufferUse.CPUGeneric
       );
       const positionIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Position.XYZjoined
+        VertexAttribute.Position.XYZ
       );
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const vertexNum = positionAccessor.elementCount;
@@ -797,7 +797,7 @@ export default class Mesh {
       }
       primitive.setVertexAttribute(
         baryCentricCoordAccessor,
-        VertexAttribute.BaryCentricCoord.XYZjoined
+        VertexAttribute.BaryCentricCoord.XYZ
       );
     }
   }
@@ -812,7 +812,7 @@ export default class Mesh {
 
     for (const primitive of this.__primitives) {
       const normalIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Normal.XYZjoined
+        VertexAttribute.Normal.XYZ
       );
       if (normalIdx !== -1) {
         return;
@@ -821,7 +821,7 @@ export default class Mesh {
       this.__hasFaceNormal = true;
 
       const positionIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Position.XYZjoined
+        VertexAttribute.Position.XYZ
       );
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
@@ -865,7 +865,7 @@ export default class Mesh {
       }
       primitive.setVertexAttribute(
         normalAccessor,
-        VertexAttribute.Normal.XYZjoined
+        VertexAttribute.Normal.XYZ
       );
     }
   }

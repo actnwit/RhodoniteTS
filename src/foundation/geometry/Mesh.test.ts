@@ -9,8 +9,7 @@ function generatePrimitive() {
 
   const primitive = Rn.Primitive.createPrimitive({
     indices: indices,
-    attributeCompositionTypes: [Rn.CompositionType.Vec3],
-    attributeSemantics: [Rn.VertexAttribute.Position],
+    attributeSemantics: [Rn.VertexAttribute.Position.XYZ],
     attributes: [positions],
     material: void 0,
     primitiveMode: Rn.PrimitiveMode.Triangles,
