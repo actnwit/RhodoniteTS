@@ -233,11 +233,15 @@ export type Gltf2Image = {
   extras?: Gltf2AnyObject;
 };
 
-export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
+export type Gltf2AnimationPathName =
+  | 'translation'
+  | 'rotation'
+  | 'scale'
+  | 'weights';
 
 export type Gltf2AnimationChannelTarget = {
   node?: number;
-  path: PathType;
+  path: Gltf2AnimationPathName;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
 };
