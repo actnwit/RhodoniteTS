@@ -46,7 +46,9 @@ declare const Rn: typeof _Rn;
     Rn.LightComponent,
   ]);
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.4, 0.9, 0.7]);
-  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
+  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    4.0, 0.0, 5.0,
+  ]);
 
   let count = 0;
   Rn.AnimationComponent.globalTime = 3.6;

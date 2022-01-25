@@ -323,16 +323,16 @@ function fromString(str: string): CompositionTypeEnum {
 function vectorFrom(componentN: number): CompositionTypeEnum {
   let str = '';
   switch (componentN) {
-    case 0:
+    case 1:
       str = 'scalar';
       break;
-    case 1:
+    case 2:
       str = 'vec2';
       break;
-    case 2:
+    case 3:
       str = 'vec3';
       break;
-    case 3:
+    case 4:
       str = 'vec4';
       break;
     default:

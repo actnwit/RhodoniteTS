@@ -296,12 +296,12 @@ export class Primitive extends RnObject {
     return accessors;
   }
 
-  getAttribute(semantic: VertexAttributeEnum) {
+  getAttribute(semantic: VertexAttributeSemanticsJoinedString) {
     return this.__attributes.get(semantic);
   }
 
-  get attributeSemantics(): Array<VertexAttributeEnum> {
-    const semantics: Array<VertexAttributeEnum> = [];
+  get attributeSemantics(): Array<VertexAttributeSemanticsJoinedString> {
+    const semantics: Array<VertexAttributeSemanticsJoinedString> = [];
     this.__attributes.forEach((accessor, semantic) => {
       semantics.push(semantic);
     });
@@ -339,13 +339,17 @@ export class Primitive extends RnObject {
   }
 
   get isPositionAccessorUpdated(): boolean {
-    const positionAccessor = this.__attributes.get(VertexAttribute.Position);
+    const positionAccessor = this.__attributes.get(
+      VertexAttribute.Position.XYZjoined
+    );
     return positionAccessor?.isMinMaxDirty || false;
   }
 
   get AABB() {
     if (this.__aabb.isVanilla() || this.isPositionAccessorUpdated) {
-      const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+      const positionAccessor = this.__attributes.get(
+        VertexAttribute.Position.XYZjoined
+      )!;
 
       if (positionAccessor.isMinMaxDirty) {
         positionAccessor.calcMinMax();
@@ -368,8 +372,11 @@ export class Primitive extends RnObject {
     return this.__aabb;
   }
 
-  setVertexAttribute(accessor: Accessor, vertexSemantics: VertexAttributeEnum) {
-    this.__attributes.set(vertexSemantics, accessor);
+  setVertexAttribute(
+    accessor: Accessor,
+    vertexSemantic: VertexAttributeSemanticsJoinedString
+  ) {
+    this.__attributes.set(vertexSemantic, accessor);
   }
 
   removeIndices() {
@@ -549,7 +556,9 @@ export class Primitive extends RnObject {
     }
 
     if (hasFaceNormal) {
-      const normalAccessor = this.__attributes.get(VertexAttribute.Normal);
+      const normalAccessor = this.__attributes.get(
+        VertexAttribute.Normal.XYZjoined
+      );
       if (normalAccessor) {
         const normal = normalAccessor.getVec3(i, {});
         if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
@@ -585,7 +594,9 @@ export class Primitive extends RnObject {
 
     const fDat = 1.0 - u - v;
 
-    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    const positionAccessor = this.__attributes.get(
+      VertexAttribute.Position.XYZjoined
+    )!;
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
@@ -606,7 +617,9 @@ export class Primitive extends RnObject {
       return;
     }
 
-    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    const positionAccessor = this.__attributes.get(
+      VertexAttribute.Position.XYZjoined
+    )!;
 
     let incrementNum = 3; // gl.TRIANGLES
     if (this.__mode === PrimitiveMode.TriangleStrip) {
@@ -660,7 +673,9 @@ export class Primitive extends RnObject {
     pos1IndexBase: Index,
     pos2IndexBase: Index
   ) {
-    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    const positionAccessor = this.__attributes.get(
+      VertexAttribute.Position.XYZjoined
+    )!;
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});

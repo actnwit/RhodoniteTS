@@ -58,22 +58,22 @@ export class ComplexVertexAttribute implements ISemanticVertexAttribute {
   public getVec2AsArray(i: Index, option: IndicesAccessOption): Array2<number> {
     return [
       this.__components[0].getScalarAt(i, this.__offsets[0], option),
-      this.__components[1]!.getScalarAt(i, this.__offsets[1], option),
+      this.__components[1]!.getScalarAt(i, this.__offsets[1]!, option),
     ];
   }
   public getVec3AsArray(i: Index, option: IndicesAccessOption): Array3<number> {
     return [
       this.__components[0].getScalarAt(i, this.__offsets[0], option),
-      this.__components[1]!.getScalarAt(i, this.__offsets[1], option),
-      this.__components[2]!.getScalarAt(i, this.__offsets[2], option),
+      this.__components[1]!.getScalarAt(i, this.__offsets[1]!, option),
+      this.__components[2]!.getScalarAt(i, this.__offsets[2]!, option),
     ];
   }
   public getVec4AsArray(i: Index, option: IndicesAccessOption): Array4<number> {
     return [
       this.__components[0].getScalarAt(i, this.__offsets[0], option),
-      this.__components[1]!.getScalarAt(i, this.__offsets[1], option),
-      this.__components[2]!.getScalarAt(i, this.__offsets[2], option),
-      this.__components[3]!.getScalarAt(i, this.__offsets[3], option),
+      this.__components[1]!.getScalarAt(i, this.__offsets[1]!, option),
+      this.__components[2]!.getScalarAt(i, this.__offsets[2]!, option),
+      this.__components[3]!.getScalarAt(i, this.__offsets[3]!, option),
     ];
   }
 }
