@@ -24,7 +24,7 @@ import {Gltf2AccessorEx, Gltf2Ex} from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
 import DataUtil from '../misc/DataUtil';
 import Accessor from '../memory/Accessor';
-import {Byte, Count, Index, VectorComponentN} from '../../types/CommonTypes';
+import {Array1to4, Byte, Count, Index, VectorComponentN} from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
@@ -75,7 +75,24 @@ export default class Gltf2Exporter {
       bufferViewByteLengthAccumulatedArray
     );
 
+    this.__deleteEmptyArrays(json);
+
     this.__download(json, fileName, arraybuffer);
+  }
+
+  private static __deleteEmptyArrays(json: Gltf2Ex) {
+    if (json.accessors.length === 0) {
+      delete (json as Gltf2).accessors;
+    }
+    if (json.bufferViews.length === 0) {
+      delete (json as Gltf2).bufferViews;
+    }
+    if (json.materials.length === 0) {
+      delete (json as Gltf2).materials;
+    }
+    if (json.meshes.length === 0) {
+      delete (json as Gltf2).meshes;
+    }
   }
 
   /**
@@ -190,16 +207,34 @@ export default class Gltf2Exporter {
       node.name = entity.uniqueName;
 
       // node.children
-      node.children = [];
       const sceneGraphComponent = entity.getSceneGraph();
       const children = sceneGraphComponent.children;
-      for (let j = 0; j < children.length; j++) {
-        const child = children[j];
-        node.children.push((child.entity as any).gltfNodeIndex);
+      if (children.length > 0) {
+        node.children = [];
+        for (let j = 0; j < children.length; j++) {
+          const child = children[j];
+          node.children.push((child.entity as any).gltfNodeIndex);
+        }
       }
 
       // matrix
-      node.matrix = Array.prototype.slice.call(entity.getTransform().matrix._v);
+      const transform = entity.getTransform();
+      node.rotation = [
+        transform.quaternionInner.x,
+        transform.quaternionInner.y,
+        transform.quaternionInner.z,
+        transform.quaternionInner.w,
+      ];
+      node.scale = [
+        transform.scaleInner.x,
+        transform.scaleInner.y,
+        transform.scaleInner.z,
+      ];
+      node.translation = [
+        transform.translateInner.x,
+        transform.translateInner.y,
+        transform.translateInner.z,
+      ];
 
       // mesh
       const meshComponent = entity.getMesh();
@@ -579,7 +614,8 @@ function createBufferViewsAndAccessorsOfMesh(
         );
         const attributeJoinedString = rnPrimitive.attributeSemantics[j];
         if (Is.exist(attributeJoinedString)) {
-          primitive.attributes[attributeJoinedString] = accessorIdxToSet;
+          const attribute = attributeJoinedString.split('.')[0];
+          primitive.attributes[attribute] = accessorIdxToSet;
         }
       }
       mesh.primitives[j] = primitive;
@@ -661,12 +697,15 @@ function createOrReuseBufferView(
       buffer: bufferIdxToSet,
       byteLength: rnBufferView.byteLength,
       byteOffset: rnBufferView.byteOffsetInBuffer,
-      byteStride: rnBufferView.defaultByteStride,
       target,
       extras: {
         uint8Array: rnBufferView.getUint8Array(),
       },
     };
+    if (rnBufferView.defaultByteStride !== 0) {
+      bufferViewJson.byteStride = rnBufferView.defaultByteStride;
+    }
+
     accmulateBufferViewByteLength(
       bufferViewByteLengthAccumulatedArray,
       bufferIdxToSet,
@@ -863,6 +902,8 @@ function createBufferViewsAndAccessorsOfAnimation(
       componentType,
       count: rnChannel.sampler.input.length,
       compositionType: CompositionType.Scalar,
+      min: [rnChannel.sampler.input[0]],
+      max: [rnChannel.sampler.input[rnChannel.sampler.input.length - 1]],
     });
 
     // create a Gltf2BufferView
@@ -1061,6 +1102,8 @@ interface Gltf2AccessorDesc {
   componentType: ComponentTypeEnum;
   count: Count;
   compositionType: CompositionTypeEnum;
+  min?: Array1to4<number>;
+  max?: Array1to4<number>;
 }
 
 interface Gltf2BufferViewDesc {
@@ -1115,6 +1158,8 @@ function createGltf2Accessor({
   componentType,
   count,
   compositionType,
+  min,
+  max,
 }: Gltf2AccessorDesc): Gltf2AccessorEx {
   const alignedAccessorByteOffset =
     alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
@@ -1125,6 +1170,8 @@ function createGltf2Accessor({
     componentType: ComponentType.toGltf2AccessorComponentType(componentType),
     count,
     type: compositionType.str as Gltf2AccessorCompositionTypeString,
+    min,
+    max,
     extras: {},
   };
   return accessor;
