@@ -678,12 +678,15 @@ function createOrReuseBufferView(
       buffer: bufferIdxToSet,
       byteLength: rnBufferView.byteLength,
       byteOffset: rnBufferView.byteOffsetInBuffer,
-      byteStride: rnBufferView.defaultByteStride,
       target,
       extras: {
         uint8Array: rnBufferView.getUint8Array(),
       },
     };
+    if (rnBufferView.defaultByteStride !== 0) {
+      bufferViewJson.byteStride = rnBufferView.defaultByteStride;
+    }
+
     accmulateBufferViewByteLength(
       bufferViewByteLengthAccumulatedArray,
       bufferIdxToSet,
