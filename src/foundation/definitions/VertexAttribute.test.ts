@@ -9,12 +9,9 @@ test('Vertex Attributes with Positions', async () => {
   expect(position3).toStrictEqual(['POSITION.X', 'POSITION.Y', 'POSITION.Z']);
 
   const position4 = VertexAttribute.Position.XYZW;
-  expect(position4).toStrictEqual([
-    'POSITION.X',
-    'POSITION.Y',
-    'POSITION.Z',
-    'POSITION.W',
-  ]);
+  expect(position4).toStrictEqual(
+    'POSITION.X,POSITION.Y,POSITION.Z,POSITION.W'
+  );
 });
 
 test('Custom Vertex Layout contains Positions, Normals and Texcoords', async () => {

@@ -320,6 +320,27 @@ function fromString(str: string): CompositionTypeEnum {
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
 
+function vectorFrom(componentN: number): CompositionTypeEnum {
+  let str = '';
+  switch (componentN) {
+    case 1:
+      str = 'scalar';
+      break;
+    case 2:
+      str = 'vec2';
+      break;
+    case 3:
+      str = 'vec3';
+      break;
+    case 4:
+      str = 'vec4';
+      break;
+    default:
+      console.error('not found appropreate Vectors');
+  }
+  return _fromString({typeList, str}) as CompositionTypeEnum;
+}
+
 function fromGlslString(str_: string): CompositionTypeEnum {
   let str = str_;
   switch (str_) {
@@ -441,6 +462,7 @@ export const CompositionType = Object.freeze({
   TextureCube,
   from,
   fromString,
+  vectorFrom,
   fromGlslString,
   isArray,
   isTexture,

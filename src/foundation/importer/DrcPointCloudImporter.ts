@@ -8,7 +8,7 @@ import {
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {
   VertexAttribute,
-  VertexAttributeEnum,
+  VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import {TypedArray} from '../../types/CommonTypes';
 import {RnM2, GltfLoadOption, RnM2Image, RnM2Accessor} from '../../types/RnM2';
@@ -1083,7 +1083,7 @@ export default class DrcPointCloudImporter {
     }
 
     const attributeCompositionTypes: Array<CompositionTypeEnum> = [];
-    const attributeSemantics: Array<VertexAttributeEnum> = [];
+    const attributeSemantics: Array<VertexAttributeSemanticsJoinedString> = [];
     const attributes: Array<TypedArray> = [];
 
     this.__getPositions(
@@ -1120,7 +1120,6 @@ export default class DrcPointCloudImporter {
     );
 
     const primitive = Primitive.createPrimitive({
-      attributeCompositionTypes: attributeCompositionTypes,
       attributeSemantics: attributeSemantics,
       attributes: attributes,
       material: MaterialHelper.createClassicUberMaterial({
@@ -1177,7 +1176,7 @@ export default class DrcPointCloudImporter {
     decoder: any,
     dracoGeometry: any,
     attributeCompositionTypes: Array<CompositionTypeEnum>,
-    attributeSemantics: Array<VertexAttributeEnum>,
+    attributeSemantics: Array<VertexAttributeSemanticsJoinedString>,
     attributes: Array<TypedArray>
   ) {
     const posAttId = decoder.GetAttributeId(dracoGeometry, draco.POSITION);
@@ -1204,7 +1203,7 @@ export default class DrcPointCloudImporter {
     }
 
     attributeCompositionTypes.push(CompositionType.Vec3);
-    attributeSemantics.push(VertexAttribute.Position);
+    attributeSemantics.push(VertexAttribute.Position.XYZ);
     attributes.push(positions);
 
     draco.destroy(posAttributeData);
@@ -1216,7 +1215,7 @@ export default class DrcPointCloudImporter {
     decoder: any,
     dracoGeometry: any,
     attributeCompositionTypes: Array<CompositionTypeEnum>,
-    attributeSemantics: Array<VertexAttributeEnum>,
+    attributeSemantics: Array<VertexAttributeSemanticsJoinedString>,
     attributes: Array<TypedArray>
   ) {
     // Get color attributes if exists.
@@ -1250,7 +1249,7 @@ export default class DrcPointCloudImporter {
       }
 
       attributeCompositionTypes.push(CompositionType.Vec3);
-      attributeSemantics.push(VertexAttribute.Color0);
+      attributeSemantics.push(VertexAttribute.Color0.XYZ);
       attributes.push(colors);
 
       draco.destroy(colAttributeData);
@@ -1263,7 +1262,7 @@ export default class DrcPointCloudImporter {
     decoder: any,
     dracoGeometry: any,
     attributeCompositionTypes: Array<CompositionTypeEnum>,
-    attributeSemantics: Array<VertexAttributeEnum>,
+    attributeSemantics: Array<VertexAttributeSemanticsJoinedString>,
     attributes: Array<TypedArray>
   ) {
     // Get normal attributes if exists.
@@ -1288,7 +1287,7 @@ export default class DrcPointCloudImporter {
         normals[i] = norAttributeData.GetValue(i); // XYZ XYZ
       }
       attributeCompositionTypes.push(CompositionType.Vec3);
-      attributeSemantics.push(VertexAttribute.Normal);
+      attributeSemantics.push(VertexAttribute.Normal.XYZ);
       attributes.push(normals);
 
       draco.destroy(norAttributeData);
@@ -1301,7 +1300,7 @@ export default class DrcPointCloudImporter {
     decoder: any,
     dracoGeometry: any,
     attributeCompositionTypes: Array<CompositionTypeEnum>,
-    attributeSemantics: Array<VertexAttributeEnum>,
+    attributeSemantics: Array<VertexAttributeSemanticsJoinedString>,
     attributes: Array<TypedArray>
   ) {
     // Get texture coordinate attributes if exists.
@@ -1330,7 +1329,7 @@ export default class DrcPointCloudImporter {
         texCoords[i] = texCoordAttributeData.GetValue(i); // XYZ XYZ
       }
       attributeCompositionTypes.push(CompositionType.Vec2);
-      attributeSemantics.push(VertexAttribute.Texcoord0);
+      attributeSemantics.push(VertexAttribute.Texcoord0.XY);
       attributes.push(texCoords);
 
       draco.destroy(texCoordAttributeData);

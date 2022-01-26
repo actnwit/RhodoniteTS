@@ -150,8 +150,7 @@ export default class AABBGizmo extends Gizmo {
 
     const primitive = Primitive.createPrimitive({
       indices: indices,
-      attributeCompositionTypes: [CompositionType.Vec3],
-      attributeSemantics: [VertexAttribute.Position],
+      attributeSemantics: [VertexAttribute.Position.XYZ],
       attributes: [positions],
       primitiveMode: PrimitiveMode.Lines,
     });

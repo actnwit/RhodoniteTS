@@ -577,9 +577,9 @@ function createBufferViewsAndAccessorsOfMesh(
           existingUniqueRnAccessors,
           rnAttributeAccessor
         );
-        const attributeEnum = rnPrimitive.attributeSemantics[j];
-        if (Is.exist(attributeEnum)) {
-          primitive.attributes[attributeEnum.str] = accessorIdxToSet;
+        const attributeJoinedString = rnPrimitive.attributeSemantics[j];
+        if (Is.exist(attributeJoinedString)) {
+          primitive.attributes[attributeJoinedString] = accessorIdxToSet;
         }
       }
       mesh.primitives[j] = primitive;

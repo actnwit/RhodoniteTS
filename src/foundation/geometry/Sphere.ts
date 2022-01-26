@@ -104,9 +104,9 @@ export class Sphere extends Primitive {
       CompositionType.Vec2,
     ];
     const attributeSemantics = [
-      VertexAttribute.Position,
-      VertexAttribute.Normal,
-      VertexAttribute.Texcoord0,
+      VertexAttribute.Position.XYZ,
+      VertexAttribute.Normal.XYZ,
+      VertexAttribute.Texcoord0.XY,
     ];
     const primitiveMode = PrimitiveMode.Triangles;
     const attributes = [
@@ -117,7 +117,6 @@ export class Sphere extends Primitive {
 
     this.copyVertexData({
       attributes,
-      attributeCompositionTypes,
       attributeSemantics,
       primitiveMode,
       indices: new Uint16Array(indices),

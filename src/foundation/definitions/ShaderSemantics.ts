@@ -21,7 +21,8 @@ export interface ShaderSemanticsEnum extends EnumIO {
 
 export class ShaderSemanticsClass
   extends EnumClass
-  implements ShaderSemanticsEnum {
+  implements ShaderSemanticsEnum
+{
   private static __indexCount = -1;
   static readonly _scale = 10000;
   private static __classes: ShaderSemanticsClass[] = [];
@@ -153,9 +154,8 @@ const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'generalTexture',
 });
-const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass(
-  {str: 'vertexAttributesExistenceArray'}
-);
+const VertexAttributesExistenceArray: ShaderSemanticsEnum =
+  new ShaderSemanticsClass({str: 'vertexAttributesExistenceArray'});
 const BoneQuaternion: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'boneQuaternion',
 });
@@ -216,9 +216,8 @@ const EntityUID: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const MorphTargetNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'morphTargetNumber',
 });
-const DataTextureMorphOffsetPosition: ShaderSemanticsEnum = new ShaderSemanticsClass(
-  {str: 'dataTextureMorphOffsetPosition'}
-);
+const DataTextureMorphOffsetPosition: ShaderSemanticsEnum =
+  new ShaderSemanticsClass({str: 'dataTextureMorphOffsetPosition'});
 const MorphWeights: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'morphWeights',
 });

@@ -20,6 +20,9 @@ import {
   TypedArray,
   Size,
   TypedArrayConstructor,
+  Array2,
+  Array3,
+  Array4,
 } from '../../types/CommonTypes';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
@@ -28,6 +31,11 @@ type DataViewSetter = (
   value: number,
   littleEndian?: boolean
 ) => void;
+
+export type IndicesAccessOption = {
+  indicesAccessor?: Accessor;
+  endian?: boolean;
+};
 
 export default class Accessor {
   private __bufferView: BufferView;
@@ -360,10 +368,7 @@ export default class Accessor {
 
   getScalar(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): number {
     let index = i;
     if (indicesAccessor) {
@@ -375,10 +380,7 @@ export default class Accessor {
   getScalarAt(
     i: Index,
     compositionOffset: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): number {
     let index = i;
     if (indicesAccessor) {
@@ -392,11 +394,8 @@ export default class Accessor {
 
   getVec2AsArray(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
-  ): Array<number> {
+    {indicesAccessor, endian = true}: IndicesAccessOption
+  ): Array2<number> {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -410,11 +409,8 @@ export default class Accessor {
 
   getVec3AsArray(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
-  ): Array<number> {
+    {indicesAccessor, endian = true}: IndicesAccessOption
+  ): Array3<number> {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -429,11 +425,8 @@ export default class Accessor {
 
   getVec4AsArray(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
-  ): Array<number> {
+    {indicesAccessor, endian = true}: IndicesAccessOption
+  ): Array4<number> {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -449,10 +442,7 @@ export default class Accessor {
 
   getMat3AsArray(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Array<number> {
     let index = i;
     if (indicesAccessor) {
@@ -474,10 +464,7 @@ export default class Accessor {
 
   getMat4AsArray(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Array<number> {
     let index = i;
     if (indicesAccessor) {
@@ -506,10 +493,7 @@ export default class Accessor {
 
   getVec2(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Vector2 {
     let index = i;
     if (indicesAccessor) {
@@ -524,10 +508,7 @@ export default class Accessor {
 
   getVec3(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Vector3 {
     let index = i;
     if (indicesAccessor) {
@@ -543,10 +524,7 @@ export default class Accessor {
 
   getVec4(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Vector4 {
     let index = i;
     if (indicesAccessor) {
@@ -563,10 +541,7 @@ export default class Accessor {
 
   getMat3(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Matrix33 {
     let index = i;
     if (indicesAccessor) {
@@ -588,10 +563,7 @@ export default class Accessor {
 
   getMat4(
     i: Index,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): MutableMatrix44 {
     let index = i;
     if (indicesAccessor) {
@@ -621,10 +593,7 @@ export default class Accessor {
   getVec2To(
     i: Index,
     out: MutableVector2,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Vector2 {
     let index = i;
     if (indicesAccessor) {
@@ -640,10 +609,7 @@ export default class Accessor {
   getVec3To(
     i: Index,
     out: MutableVector3,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Vector3 {
     let index = i;
     if (indicesAccessor) {
@@ -660,10 +626,7 @@ export default class Accessor {
   getVec4To(
     i: Index,
     out: MutableVector4,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): Vector4 {
     let index = i;
     if (indicesAccessor) {
@@ -707,10 +670,7 @@ export default class Accessor {
   getMat4To(
     i: Index,
     out: MutableMatrix44,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ): MutableMatrix44 {
     let index = i;
     if (indicesAccessor) {
@@ -740,10 +700,7 @@ export default class Accessor {
   setScalar(
     i: Index,
     value: number,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {
@@ -757,10 +714,7 @@ export default class Accessor {
     i: Index,
     x: number,
     y: number,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {
@@ -781,10 +735,7 @@ export default class Accessor {
     x: number,
     y: number,
     z: number,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {
@@ -811,10 +762,7 @@ export default class Accessor {
     y: number,
     z: number,
     w: number,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {
@@ -843,10 +791,7 @@ export default class Accessor {
   setVec2AsVector(
     i: Index,
     vec: Vector2,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {
@@ -865,10 +810,7 @@ export default class Accessor {
   setVec3AsVector(
     i: Index,
     vec: Vector3,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {
@@ -892,10 +834,7 @@ export default class Accessor {
   setVec4AsVector(
     i: Index,
     vec: Vector4,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {
@@ -966,10 +905,7 @@ export default class Accessor {
     i: Index,
     compositionOffset: Index,
     value: number,
-    {
-      indicesAccessor,
-      endian = true,
-    }: {indicesAccessor?: Accessor | undefined; endian?: boolean}
+    {indicesAccessor, endian = true}: IndicesAccessOption
   ) {
     let index = i;
     if (indicesAccessor) {

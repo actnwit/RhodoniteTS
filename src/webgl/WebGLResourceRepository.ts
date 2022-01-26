@@ -329,7 +329,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const vboHandles: Array<WebGLResourceHandle> = [];
     primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
       const vboHandle = this.createVertexBuffer(accessor);
-      const slotIdx = primitive.attributeSemantics[i].getAttributeSlot();
+      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
+        primitive.attributeSemantics[i]
+      );
       attributesFlags[slotIdx] = true;
       vboHandles.push(vboHandle);
     });
@@ -900,10 +902,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         throw new Error('Nothing Element Array Buffer at index ' + i);
       }
       gl.enableVertexAttribArray(
-        primitive.attributeSemantics[i].getAttributeSlot()
+        VertexAttribute.toAttributeSlotFromJoinedString(
+          primitive.attributeSemantics[i]
+        )
       );
       gl.vertexAttribPointer(
-        primitive.attributeSemantics[i].getAttributeSlot(),
+        VertexAttribute.toAttributeSlotFromJoinedString(
+          primitive.attributeSemantics[i]
+        ),
         primitive.attributeCompositionTypes[i].getNumberOfComponents(),
         primitive.attributeComponentTypes[i].index,
         primitive.attributeAccessors[i].normalized,

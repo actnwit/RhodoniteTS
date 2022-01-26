@@ -15,6 +15,7 @@ import {ComponentType} from '../definitions/ComponentType';
 import {
   VertexAttribute,
   VertexAttributeEnum,
+  VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import CameraComponent from '../components/CameraComponent';
 import {CameraType} from '../definitions/CameraType';
@@ -656,7 +657,8 @@ export default class ModelConverter {
 
         // indices
         let indicesRnAccessor;
-        const map: Map<VertexAttributeEnum, Accessor> = new Map();
+        const map: Map<VertexAttributeSemanticsJoinedString, Accessor> =
+          new Map();
         if (primitive.extensions?.KHR_draco_mesh_compression) {
           indicesRnAccessor = this.__decodeDraco(
             primitive,
@@ -691,12 +693,13 @@ export default class ModelConverter {
               this.setSparseAccessor(attributeAccessor, attributeRnAccessor);
             }
 
-            map.set(
-              VertexAttribute.fromString(
-                attributeAccessor.extras!.attributeName
-              ),
-              attributeRnAccessor
-            );
+            const joinedString =
+              VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
+                VertexAttribute.fromString(
+                  attributeAccessor.extras!.attributeName
+                )
+              );
+            map.set(joinedString, attributeRnAccessor);
           }
         }
 
@@ -710,14 +713,19 @@ export default class ModelConverter {
             maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
           }
 
-          const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
+          const targets: Array<
+            Map<VertexAttributeSemanticsJoinedString, Accessor>
+          > = [];
           for (let i = 0; i < primitive.targetsObjects!.length; i++) {
             if (i >= maxMorphTargetNumber) {
               break;
             }
 
             const target = primitive.targetsObjects![i];
-            const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
+            const targetMap: Map<
+              VertexAttributeSemanticsJoinedString,
+              Accessor
+            > = new Map();
             for (const attributeName in target) {
               const attributeAccessor = target[attributeName];
               const attributeRnAccessor = this.__getRnAccessor(
@@ -726,10 +734,12 @@ export default class ModelConverter {
               );
               const attributeRnAccessorInGPUVertexData =
                 this.__copyRnAccessorAndBufferView(attributeRnAccessor);
-              targetMap.set(
-                VertexAttribute.fromString(attributeName),
-                attributeRnAccessorInGPUVertexData
-              );
+              const vertexAttribute = VertexAttribute.fromString(attributeName);
+              const joinedString =
+                VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
+                  vertexAttribute
+                );
+              targetMap.set(joinedString, attributeRnAccessorInGPUVertexData);
             }
             targets.push(targetMap);
           }
@@ -2078,7 +2088,7 @@ export default class ModelConverter {
     primitive: RnM2Primitive,
     rnBuffers: Buffer[],
     gltfModel: RnM2,
-    map: Map<VertexAttributeEnum, Accessor>
+    map: Map<VertexAttributeSemanticsJoinedString, Accessor>
   ) {
     const bufferView =
       gltfModel.bufferViews[
@@ -2216,12 +2226,13 @@ export default class ModelConverter {
         this.setSparseAccessor(attributeGltf2Accessor!, attributeRnAccessor!);
       }
 
-      map.set(
-        VertexAttribute.fromString(
-          attributeGltf2Accessor!.extras!.attributeName
-        ),
-        attributeRnAccessor!
-      );
+      const joinedString =
+        VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
+          VertexAttribute.fromString(
+            attributeGltf2Accessor!.extras!.attributeName
+          )
+        );
+      map.set(joinedString, attributeRnAccessor!);
     }
 
     draco.destroy(dracoGeometry);
