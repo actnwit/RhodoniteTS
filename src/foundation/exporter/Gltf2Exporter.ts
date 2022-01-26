@@ -579,7 +579,8 @@ function createBufferViewsAndAccessorsOfMesh(
         );
         const attributeJoinedString = rnPrimitive.attributeSemantics[j];
         if (Is.exist(attributeJoinedString)) {
-          primitive.attributes[attributeJoinedString] = accessorIdxToSet;
+          const attribute = attributeJoinedString.split('.')[0];
+          primitive.attributes[attribute] = accessorIdxToSet;
         }
       }
       mesh.primitives[j] = primitive;
