@@ -75,7 +75,24 @@ export default class Gltf2Exporter {
       bufferViewByteLengthAccumulatedArray
     );
 
+    this.__deleteEmptyArrays(json);
+
     this.__download(json, fileName, arraybuffer);
+  }
+
+  private static __deleteEmptyArrays(json: Gltf2Ex) {
+    if (json.accessors.length === 0) {
+      delete (json as Gltf2).accessors;
+    }
+    if (json.bufferViews.length === 0) {
+      delete (json as Gltf2).bufferViews;
+    }
+    if (json.materials.length === 0) {
+      delete (json as Gltf2).materials;
+    }
+    if (json.meshes.length === 0) {
+      delete (json as Gltf2).meshes;
+    }
   }
 
   /**
@@ -190,12 +207,14 @@ export default class Gltf2Exporter {
       node.name = entity.uniqueName;
 
       // node.children
-      node.children = [];
       const sceneGraphComponent = entity.getSceneGraph();
       const children = sceneGraphComponent.children;
-      for (let j = 0; j < children.length; j++) {
-        const child = children[j];
-        node.children.push((child.entity as any).gltfNodeIndex);
+      if (children.length > 0) {
+        node.children = [];
+        for (let j = 0; j < children.length; j++) {
+          const child = children[j];
+          node.children.push((child.entity as any).gltfNodeIndex);
+        }
       }
 
       // matrix
