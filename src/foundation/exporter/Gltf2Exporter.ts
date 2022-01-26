@@ -199,7 +199,23 @@ export default class Gltf2Exporter {
       }
 
       // matrix
-      node.matrix = Array.prototype.slice.call(entity.getTransform().matrix._v);
+      const transform = entity.getTransform();
+      node.rotation = [
+        transform.quaternionInner.x,
+        transform.quaternionInner.y,
+        transform.quaternionInner.z,
+        transform.quaternionInner.w,
+      ];
+      node.scale = [
+        transform.scaleInner.x,
+        transform.scaleInner.y,
+        transform.scaleInner.z,
+      ];
+      node.translation = [
+        transform.translateInner.x,
+        transform.translateInner.y,
+        transform.translateInner.z,
+      ];
 
       // mesh
       const meshComponent = entity.getMesh();
