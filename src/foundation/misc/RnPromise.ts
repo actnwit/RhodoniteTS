@@ -13,7 +13,7 @@ export type CallbackObj = {
   pendingNum: number;
   processedPromises: any[];
 };
-export default class RnPromise<T> {
+export class RnPromise<T> {
   private __promise: Promise<T | undefined>;
   private __callback?: Function;
   public name = '';

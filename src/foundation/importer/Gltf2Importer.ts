@@ -6,7 +6,7 @@ import {
   GltfFileBuffers,
   RnM2Accessor,
 } from '../../types/RnM2';
-import RnPromise from '../misc/RnPromise';
+import {RnPromise} from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
 

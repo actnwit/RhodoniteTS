@@ -1,6 +1,6 @@
-import RnPromise, {CallbackObj} from './RnPromise';
+import {RnPromise, CallbackObj} from './RnPromise';
 
-test('Promise.', async () => {
+test('works with Promise.all', async () => {
   new Promise(resolve => {
     const p1 = RnPromise.resolve(1);
     const p2 = RnPromise.resolve(2);
@@ -73,7 +73,7 @@ test('RnPromise.resolve of rejecting rnPromise', async () => {
   }) as Promise<void>;
 });
 
-test('Promise all callback', async () => {
+test('works with Promise.all callback', async () => {
   new Promise(resolve => {
     const p1 = RnPromise.resolve(1);
     const p2 = RnPromise.resolve(2);

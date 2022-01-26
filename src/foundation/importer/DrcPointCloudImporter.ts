@@ -12,7 +12,7 @@ import {
 } from '../definitions/VertexAttribute';
 import {TypedArray} from '../../types/CommonTypes';
 import {RnM2, GltfLoadOption, RnM2Image, RnM2Accessor} from '../../types/RnM2';
-import RnPromise from '../misc/RnPromise';
+import {RnPromise} from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
 import {ifUndefinedThen} from '../misc/MiscUtil';
