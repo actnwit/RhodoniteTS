@@ -24,7 +24,7 @@ import {Gltf2AccessorEx, Gltf2Ex} from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
 import DataUtil from '../misc/DataUtil';
 import Accessor from '../memory/Accessor';
-import {Byte, Count, Index, VectorComponentN} from '../../types/CommonTypes';
+import {Array1to4, Byte, Count, Index, VectorComponentN} from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
@@ -902,6 +902,8 @@ function createBufferViewsAndAccessorsOfAnimation(
       componentType,
       count: rnChannel.sampler.input.length,
       compositionType: CompositionType.Scalar,
+      min: [rnChannel.sampler.input[0]],
+      max: [rnChannel.sampler.input[rnChannel.sampler.input.length - 1]],
     });
 
     // create a Gltf2BufferView
@@ -1100,6 +1102,8 @@ interface Gltf2AccessorDesc {
   componentType: ComponentTypeEnum;
   count: Count;
   compositionType: CompositionTypeEnum;
+  min?: Array1to4<number>;
+  max?: Array1to4<number>;
 }
 
 interface Gltf2BufferViewDesc {
@@ -1154,6 +1158,8 @@ function createGltf2Accessor({
   componentType,
   count,
   compositionType,
+  min,
+  max,
 }: Gltf2AccessorDesc): Gltf2AccessorEx {
   const alignedAccessorByteOffset =
     alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
@@ -1164,6 +1170,8 @@ function createGltf2Accessor({
     componentType: ComponentType.toGltf2AccessorComponentType(componentType),
     count,
     type: compositionType.str as Gltf2AccessorCompositionTypeString,
+    min,
+    max,
     extras: {},
   };
   return accessor;
