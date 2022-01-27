@@ -176,11 +176,6 @@ export class Cube extends Primitive {
     ];
 
     /// Check Size ///
-    const attributeCompositionTypes = [
-      CompositionType.Vec3,
-      CompositionType.Vec3,
-      CompositionType.Vec2,
-    ];
     const attributeSemantics = [
       VertexAttribute.Position.XYZ,
       VertexAttribute.Normal.XYZ,
@@ -192,7 +187,6 @@ export class Cube extends Primitive {
       new Float32Array(texcoords),
     ];
     if (Is.exist(desc.color)) {
-      attributeCompositionTypes.push(CompositionType.Vec3);
       attributeSemantics.push(VertexAttribute.Color0.XYZ);
       attributes.push(new Float32Array(colors));
     }

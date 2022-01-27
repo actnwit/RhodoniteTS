@@ -98,11 +98,6 @@ export class Sphere extends Primitive {
       }
     }
 
-    const attributeCompositionTypes = [
-      CompositionType.Vec3,
-      CompositionType.Vec3,
-      CompositionType.Vec2,
-    ];
     const attributeSemantics = [
       VertexAttribute.Position.XYZ,
       VertexAttribute.Normal.XYZ,
