@@ -1,13 +1,6 @@
 import {Primitive} from './Primitive';
-import {CompositionType} from '../definitions/CompositionType';
-import {
-  VertexAttribute,
-  VertexAttributeEnum,
-} from '../definitions/VertexAttribute';
+import {VertexAttribute} from '../definitions/VertexAttribute';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import MemoryManager from '../core/MemoryManager';
-import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
-import Accessor from '../memory/Accessor';
 import Material from '../materials/core/Material';
 import {Size} from '../../types/CommonTypes';
 
@@ -64,58 +57,21 @@ export class Axis extends Primitive {
       0, 0, 1, 0, 0, 1,
     ]);
 
-    let sumOfAttributesByteSize = 0;
     const attributes = [new Float32Array(positions), new Float32Array(colors)];
-    attributes.forEach(attribute => {
-      sumOfAttributesByteSize += attribute.byteLength;
-    });
-
-    // Create Buffer
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(
-      sumOfAttributesByteSize,
-      this,
-      4
-    );
 
     // Index Buffer
     // Check Size
-    const attributeCompositionTypes = [
-      CompositionType.Vec3,
-      CompositionType.Vec3,
-      CompositionType.Vec2,
-    ];
     const attributeSemantics = [
-      VertexAttribute.Position,
-      VertexAttribute.Normal,
-      VertexAttribute.Texcoord0,
+      VertexAttribute.Position.XYZ,
+      VertexAttribute.Normal.XYZ,
+      VertexAttribute.Texcoord0.XY,
     ];
-    // VertexBuffer
-    const attributesBufferView = buffer.takeBufferView({
-      byteLengthToNeed: sumOfAttributesByteSize,
-      byteStride: 0,
+
+    this.copyVertexData({
+      attributes,
+      attributeSemantics,
+      primitiveMode: PrimitiveMode.Lines,
+      material: desc?.material,
     });
-    const attributeAccessors: Array<Accessor> = [];
-    const attributeComponentTypes: Array<ComponentTypeEnum> = [];
-
-    attributes.forEach((attribute, i) => {
-      attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor: Accessor = attributesBufferView.takeAccessor({
-        compositionType: attributeCompositionTypes[i],
-        componentType: ComponentType.fromTypedArray(attributes[i]),
-        count:
-          attribute.byteLength /
-          attributeCompositionTypes[i].getNumberOfComponents() /
-          attributeComponentTypes[i].getSizeInBytes(),
-      });
-      accessor.copyFromTypedArray(attribute);
-      attributeAccessors.push(accessor);
-    });
-
-    const attributeMap: Map<VertexAttributeEnum, Accessor> = new Map();
-    for (let i = 0; i < attributeSemantics.length; i++) {
-      attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
-    }
-
-    this.setData(attributeMap, PrimitiveMode.Lines, desc.material);
   }
 }
