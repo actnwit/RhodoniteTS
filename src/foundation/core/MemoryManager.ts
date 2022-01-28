@@ -66,8 +66,8 @@ export default class MemoryManager {
 
     let byteAlign = 4;
     if (
-      bufferUse == BufferUse.GPUInstanceData ||
-      bufferUse == BufferUse.GPUVertexData
+      bufferUse === BufferUse.GPUInstanceData ||
+      bufferUse === BufferUse.GPUVertexData
     ) {
       byteAlign = 16;
     }
