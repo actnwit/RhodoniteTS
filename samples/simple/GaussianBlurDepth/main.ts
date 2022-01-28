@@ -223,14 +223,14 @@ declare const Rn: typeof _Rn;
     renderPassBlurTarget: RenderPass,
     isHorizontal: boolean
   ) {
-    const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
+    const material =
+      Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
 
-    const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne(
-      {
+    const gaussianDistributionRatio =
+      Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
         kernelSize: gaussianKernelSize,
         variance: gaussianVariance,
-      }
-    );
+      });
     material.setParameter(
       Rn.GaussianBlurForEncodedDepthSingleMaterialNode.GaussianKernelSize,
       gaussianKernelSize
@@ -269,8 +269,14 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0.0,
+      0.0,
+    ]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0.0, -0.5,
+    ]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

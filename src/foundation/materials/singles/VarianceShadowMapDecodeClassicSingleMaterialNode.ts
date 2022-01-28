@@ -94,10 +94,10 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     super(
       null,
       'varianceShadowMapDecodeShading' +
-      (isMorphing ? '+morphing' : '') +
-      (isSkinning ? '+skinning' : '') +
-      (isLighting ? '' : '-lighting') +
-      (isDebugging ? '' : '+debugging'),
+        (isMorphing ? '+morphing' : '') +
+        (isSkinning ? '+skinning' : '') +
+        (isLighting ? '' : '-lighting') +
+        (isDebugging ? '' : '+debugging'),
       {isMorphing, isSkinning, isLighting},
       VarianceShadowMapDecodeClassicShaderVertex,
       VarianceShadowMapDecodeClassicShaderFragment
@@ -134,7 +134,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     if (squareDepthFramebuffer) {
       squareDepthTexture =
         squareDepthFramebuffer.colorAttachments[
-        colorAttachmentsNumberSquareDepth
+          colorAttachmentsNumberSquareDepth
         ];
     } else {
       console.warn('renderPass of square depth does not have framebuffer');
@@ -529,7 +529,8 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
         VarianceShadowMapDecodeClassicSingleMaterialNode.__lastZFar =
           encodedDepthCameraComponent.zFarInner;
       }
-      const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const __webglResourceRepository =
+        CGAPIResourceRepository.getWebGLResourceRepository();
       __webglResourceRepository.setUniformValue(
         shaderProgram,
         ShaderSemantics.LightViewProjectionMatrix.str,
@@ -573,7 +574,8 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
       args.primitive
     );
 
-    const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const __webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     __webglResourceRepository.setUniformValue(
       shaderProgram,
       ShaderSemantics.LightViewProjectionMatrix.str,

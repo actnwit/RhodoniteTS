@@ -123,8 +123,10 @@ export default class AnimationAssigner {
     if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
-          const animInputArray = channel.samplerObject?.inputObject?.extras!.typedDataArray;
-          const animOutputArray = channel.samplerObject?.outputObject?.extras!.typedDataArray;
+          const animInputArray =
+            channel.samplerObject?.inputObject?.extras!.typedDataArray;
+          const animOutputArray =
+            channel.samplerObject?.outputObject?.extras!.typedDataArray;
           const interpolation =
             channel.samplerObject!.interpolation != null
               ? channel.samplerObject!.interpolation

@@ -549,9 +549,7 @@ export class Primitive extends RnObject {
     }
 
     if (hasFaceNormal) {
-      const normalAccessor = this.__attributes.get(
-        VertexAttribute.Normal.XYZ
-      );
+      const normalAccessor = this.__attributes.get(VertexAttribute.Normal.XYZ);
       if (normalAccessor) {
         const normal = normalAccessor.getVec3(i, {});
         if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {

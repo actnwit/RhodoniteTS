@@ -6,7 +6,8 @@ export interface RenderBufferTargetEnum extends EnumIO {
 
 class RenderBufferTargetClass
   extends EnumClass
-  implements RenderBufferTargetEnum {
+  implements RenderBufferTargetEnum
+{
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }

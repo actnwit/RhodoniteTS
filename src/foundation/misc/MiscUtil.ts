@@ -1,6 +1,6 @@
 import {off} from 'process';
 import {Byte, Size} from '../../types/CommonTypes';
-import { Is } from './Is';
+import {Is} from './Is';
 
 const isMobile = function () {
   const ua = [

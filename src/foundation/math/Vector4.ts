@@ -1,5 +1,9 @@
 import {IVector2, IVector3, IVector4, IMutableVector4} from './IVector';
-import {Array4, FloatTypedArray, FloatTypedArrayConstructor} from '../../types/CommonTypes';
+import {
+  Array4,
+  FloatTypedArray,
+  FloatTypedArrayConstructor,
+} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import AbstractVector from './AbstractVector';

@@ -81,15 +81,23 @@ declare const Rn: typeof _Rn;
     });
 
     const entitySmallSphere = createEntityMatCapSphere(textureMatCap);
-    entitySmallSphere.getTransform().scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
+    entitySmallSphere.getTransform().scale = Rn.Vector3.fromCopyArray([
+      0.2, 0.2, 0.2,
+    ]);
 
     const entityLargeSphere = createEntityMatCapSphere(textureMatCap);
-    entityLargeSphere.getTransform().translate = Rn.Vector3.fromCopyArray([15, 15, -20]);
+    entityLargeSphere.getTransform().translate = Rn.Vector3.fromCopyArray([
+      15, 15, -20,
+    ]);
 
     const entityBoard = createEntityMatCapBoard(textureMatCap);
     const transformBoard = entityBoard.getTransform();
     transformBoard.scale = Rn.Vector3.fromCopyArray([0.6, 0.6, 0.6]);
-    transformBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2 + 0.3, 0.3, 0]);
+    transformBoard.rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2 + 0.3,
+      0.3,
+      0,
+    ]);
     transformBoard.translate = Rn.Vector3.fromCopyArray([10, -10, -10]);
 
     renderPass.addEntities([entitySmallSphere, entityLargeSphere, entityBoard]);

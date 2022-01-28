@@ -14,7 +14,8 @@ const setupRenderPassEntityUidOutput = function (
   canvas: HTMLCanvasElement
 ) {
   const renderPass = new Rn.RenderPass();
-  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
+  const entityUidOutputMaterial =
+    Rn.MaterialHelper.createEntityUIDOutputMaterial();
 
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
@@ -52,9 +53,8 @@ const pick = function (e: any) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
-  const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(
-    0
-  );
+  const renderTargetTexture =
+    framebuffer.getColorAttachedRenderTargetTexture(0);
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
@@ -96,7 +96,9 @@ let p: any;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0, 0.5,
+  ]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
@@ -107,7 +109,9 @@ let p: any;
     Rn.SceneGraphComponent,
     Rn.LightComponent,
   ]);
-  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
+  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0.0, 10.0,
+  ]);
   (lightEntity2.getLight() as LightComponent).intensity =
     Rn.Vector3.fromCopyArray([1, 1, 1]);
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
@@ -152,7 +156,8 @@ let p: any;
   // expression.addRenderPasses([renderPassRendering]);
 
   // CameraComponent
-  const cameraControllerComponent = cameraEntity.getCameraController() as CameraControllerComponent;
+  const cameraControllerComponent =
+    cameraEntity.getCameraController() as CameraControllerComponent;
   (cameraControllerComponent.controller as OrbitCameraController).setTarget(
     rootGroup
   );
@@ -206,7 +211,5 @@ let p: any;
 })();
 
 window.exportGltf2 = function () {
-
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

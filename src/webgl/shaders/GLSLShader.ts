@@ -15,7 +15,8 @@ export type AttributeNames = Array<string>;
 
 export default abstract class GLSLShader {
   static __instance: GLSLShader;
-  __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  __webglResourceRepository?: WebGLResourceRepository =
+    WebGLResourceRepository.getInstance();
   constructor() {}
 
   get glsl_rt0() {
@@ -138,14 +139,16 @@ void main() {
   }
 
   get glsl1ShaderTextureLodExt() {
-    const ext = WebGLResourceRepository.getInstance()
-      .currentWebGLContextWrapper!.webgl1ExtSTL;
+    const ext =
+      WebGLResourceRepository.getInstance().currentWebGLContextWrapper!
+        .webgl1ExtSTL;
     return ext != null ? '#extension GL_EXT_shader_texture_lod : require' : '';
   }
 
   get glsl1ShaderDerivativeExt() {
-    const ext = WebGLResourceRepository.getInstance()
-      .currentWebGLContextWrapper!.webgl1ExtDRV;
+    const ext =
+      WebGLResourceRepository.getInstance().currentWebGLContextWrapper!
+        .webgl1ExtDRV;
     return ext != null
       ? '#extension GL_OES_standard_derivatives : require'
       : '';
@@ -406,8 +409,10 @@ bool processGeometryWithMorphingAndSkinning(
 
   get prerequisites() {
     const webGLResourceRepository = WebGLResourceRepository.getInstance();
-    const dataUboDefinition = webGLResourceRepository.getGlslDataUBODefinitionString();
-    const dataUBOVec4SizeStr = webGLResourceRepository.getGlslDataUBOVec4SizeString();
+    const dataUboDefinition =
+      webGLResourceRepository.getGlslDataUBODefinitionString();
+    const dataUBOVec4SizeStr =
+      webGLResourceRepository.getGlslDataUBOVec4SizeString();
     return `uniform float u_materialSID;
 uniform sampler2D u_dataTexture;
 const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};

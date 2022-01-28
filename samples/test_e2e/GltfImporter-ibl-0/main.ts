@@ -51,7 +51,8 @@ document.body.appendChild(p);
   // cameraController
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    mainCameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // lighting
@@ -112,7 +113,9 @@ function createEnvCubeExpression(baseuri) {
     Rn.MeshRendererComponent,
   ]);
   sphereEntity.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 20, -20]);
+  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0, 20, -20,
+  ]);
 
   const sphereMeshComponent = sphereEntity.getMesh();
   sphereMeshComponent.setMesh(sphereMesh);

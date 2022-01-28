@@ -96,7 +96,8 @@ export default class SparkGearComponent extends Component {
 
   static SPARK_BackupStatus() {
     const ThisClass = SparkGearComponent;
-    const gl = ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
+    const gl =
+      ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
 
     ThisClass.SPFX_ArrayBuffer = gl.getParameter(gl.ARRAY_BUFFER_BINDING);
     ThisClass.SPFX_ElementArrayBuffer = gl.getParameter(
@@ -129,7 +130,8 @@ export default class SparkGearComponent extends Component {
   static SPARK_RestoreStatus = function () {
     const ThisClass = SparkGearComponent;
 
-    const gl = ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
+    const gl =
+      ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
 
     gl.useProgram(ThisClass.SPFX_CurrentProgram);
     gl.bindBuffer(gl.ARRAY_BUFFER, ThisClass.SPFX_ArrayBuffer);
@@ -170,10 +172,11 @@ export default class SparkGearComponent extends Component {
       return;
     }
     ThisClass.SPFX_WebGLResourceRepository = repository;
-    window.GLctx = ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
+    window.GLctx =
+      ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!.getRawContext();
     ThisClass.SPARK_BackupStatus();
-    const glw = ThisClass.SPFX_WebGLResourceRepository
-      .currentWebGLContextWrapper!;
+    const glw =
+      ThisClass.SPFX_WebGLResourceRepository.currentWebGLContextWrapper!;
     _SPARK_InitializeFor3D(glw.width, glw.height);
     ThisClass.SPARK_RestoreStatus();
 

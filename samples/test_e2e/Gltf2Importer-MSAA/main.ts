@@ -164,7 +164,9 @@ declare const Rn: typeof _Rn;
     meshComponentSphere.setMesh(meshSphere);
 
     entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0, 300, 0,
+    ]);
 
     return entitySphere;
   }
@@ -210,8 +212,14 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0.0,
+      0.0,
+    ]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0.0, -0.5,
+    ]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 
@@ -257,9 +265,10 @@ declare const Rn: typeof _Rn;
     cubeTextureDiffuse.mipmapLevelNumber = 1;
     cubeTextureDiffuse.isNamePosNeg = true;
 
-    const meshRendererComponents = Rn.ComponentRepository.getInstance().getComponentsWithType(
-      Rn.MeshRendererComponent
-    ) as MeshRendererComponent[];
+    const meshRendererComponents =
+      Rn.ComponentRepository.getInstance().getComponentsWithType(
+        Rn.MeshRendererComponent
+      ) as MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;

@@ -46,7 +46,9 @@ document.body.appendChild(p);
     Rn.LightComponent,
   ]);
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.9, 0.9, 0.9]);
-  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 10.0, 10.0]);
+  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 10.0, 10.0,
+  ]);
 
   let count = 0;
   Rn.AnimationComponent.globalTime = 0.33;
@@ -79,6 +81,5 @@ document.body.appendChild(p);
 })();
 
 window.exportGltf2 = function () {
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

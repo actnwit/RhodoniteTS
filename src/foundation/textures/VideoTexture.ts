@@ -113,7 +113,8 @@ export default class VideoTexture extends AbstractTexture {
     this.__width = img.width;
     this.__height = img.height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createTexture(img, {
       level: level,
       internalFormat: internalFormat,
@@ -165,7 +166,8 @@ export default class VideoTexture extends AbstractTexture {
         this.__width = video.width;
         this.__height = video.height;
 
-        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository =
+          CGAPIResourceRepository.getWebGLResourceRepository();
         const texture = webGLResourceRepository.createTexture(video, {
           level: level,
           internalFormat: internalFormat,
@@ -230,7 +232,8 @@ export default class VideoTexture extends AbstractTexture {
   }
 
   updateTexture() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
       webGLResourceRepository.updateTexture(
         this.cgApiResourceUid,

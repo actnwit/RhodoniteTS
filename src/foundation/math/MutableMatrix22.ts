@@ -7,7 +7,8 @@ import Vector2 from './Vector2';
 
 export default class MutableMatrix22
   extends Matrix22
-  implements IMutableMatrix, IMutableMatrix22 {
+  implements IMutableMatrix, IMutableMatrix22
+{
   constructor(m: null);
   constructor(
     m: Float32Array,
@@ -115,7 +116,7 @@ export default class MutableMatrix22
    * Create Scale Matrix
    */
   static scale(vec: Vector2) {
-    return (super.scale(vec) as unknown) as MutableMatrix22;
+    return super.scale(vec) as unknown as MutableMatrix22;
   }
 
   /**

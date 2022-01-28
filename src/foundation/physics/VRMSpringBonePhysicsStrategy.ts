@@ -106,7 +106,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     for (const sg of sceneGraphs) {
       const physicsComponent = sg.entity.getPhysics();
       if (physicsComponent) {
-        const strategy = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
+        const strategy =
+          physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
         strategy.update(
           stiffnessForce,
           dragForce,
@@ -127,7 +128,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const children = sceneGraph.children;
 
     const physicsComponent = sceneGraph.entity.getPhysics();
-    const vrmSpringBone = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
+    const vrmSpringBone =
+      physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
     if (children.length > 0) {
       const transform = children[0].entity.getTransform();
       vrmSpringBone.initialize(
@@ -209,7 +211,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // const dist = Vector3.zero();
 
     let nextTail = Vector3.add(
-      Vector3.add(Vector3.add(currentTail, delta), (dist as any) as Vector3),
+      Vector3.add(Vector3.add(currentTail, delta), dist as any as Vector3),
       external
     );
 
@@ -231,9 +233,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // this.head.entity.getTransform().translate = this.__transform!.getLocalPositionOf(currentTail);
     if (this.head.children.length > 0) {
       // this.head.children[0].entity.getTransform().matrix = Matrix44.identity();
-      this.head.children[0].entity.getTransform().translate = this.__transform!.getLocalPositionOf(
-        nextTail
-      );
+      this.head.children[0].entity.getTransform().translate =
+        this.__transform!.getLocalPositionOf(nextTail);
       // this.head.children[0].entity.getTransform().translate = Vector3.fromCopyArray([1, 0, 0]);
       // this.head.children[0].entity.getTransform().quaternion = resultRotation;
     }
@@ -269,9 +270,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   ) {
     for (const collisionGroup of collisionGroups) {
       for (const collider of collisionGroup.colliders) {
-        const worldColiderPos = collisionGroup.baseSceneGraph!.getWorldPositionOf(
-          collider.position
-        );
+        const worldColiderPos =
+          collisionGroup.baseSceneGraph!.getWorldPositionOf(collider.position);
         const r = boneHitRadius + collider.radius;
         const delta = Vector3.subtract(nextTail, worldColiderPos);
         const deltaScalar = r - delta.length();

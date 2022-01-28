@@ -604,9 +604,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     );
     const dataTextureMorphOffsetPositionOfTargets: number[] =
       primitive.targets.map((target: Attributes) => {
-        const accessor = target.get(
-          VertexAttribute.Position.XYZ
-        ) as Accessor;
+        const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
         let offset = 0;
 
         if (

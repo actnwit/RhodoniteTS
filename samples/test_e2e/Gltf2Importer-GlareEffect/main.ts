@@ -64,10 +64,11 @@ declare const Rn: typeof _Rn;
   });
   renderPassHDR.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
-  const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMaterial(
-    {maxInstancesNumber: 1},
-    renderPassHDR
-  );
+  const materialHighLuminance =
+    Rn.MaterialHelper.createDetectHighLuminanceMaterial(
+      {maxInstancesNumber: 1},
+      renderPassHDR
+    );
   const renderPassHighLuminance = createRenderPassPostEffect(
     materialHighLuminance,
     cameraComponentPostEffect
@@ -76,11 +77,12 @@ declare const Rn: typeof _Rn;
     type: Rn.ComponentType.HalfFloat,
   });
 
-  const renderPassesBlurredHighLuminance = createRenderPassesBlurredHighLuminance(
-    renderPassHighLuminance,
-    cameraComponentPostEffect,
-    rnCanvasElement.width
-  );
+  const renderPassesBlurredHighLuminance =
+    createRenderPassesBlurredHighLuminance(
+      renderPassHighLuminance,
+      cameraComponentPostEffect,
+      rnCanvasElement.width
+    );
 
   const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
     cameraComponentMain,
@@ -187,7 +189,9 @@ declare const Rn: typeof _Rn;
     meshComponentSphere.setMesh(meshSphere);
 
     entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0, 300, 0,
+    ]);
 
     return entitySphere;
   }
@@ -263,8 +267,14 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0.0,
+      0.0,
+    ]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0.0, -0.5,
+    ]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 
@@ -381,14 +391,15 @@ declare const Rn: typeof _Rn;
       );
     }
 
-    const materialSynthesizeTextures = Rn.MaterialHelper.createSynthesizeHDRMaterial(
-      {
-        targetRegionTexture: renderPassGlareTarget.getFramebuffer()
-          .colorAttachments[0] as RenderTargetTexture,
-        maxInstancesNumber: 1,
-      },
-      texturesSynthesize
-    );
+    const materialSynthesizeTextures =
+      Rn.MaterialHelper.createSynthesizeHDRMaterial(
+        {
+          targetRegionTexture: renderPassGlareTarget.getFramebuffer()
+            .colorAttachments[0] as RenderTargetTexture,
+          maxInstancesNumber: 1,
+        },
+        texturesSynthesize
+      );
     materialSynthesizeTextures.setParameter(
       Rn.SynthesizeHDRMaterialNode.SynthesizeCoefficient,
       synthesizeCoefficient
@@ -416,12 +427,11 @@ declare const Rn: typeof _Rn;
   ) {
     const material = Rn.MaterialHelper.createGaussianBlurMaterial();
 
-    const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne(
-      {
+    const gaussianDistributionRatio =
+      Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
         kernelSize: gaussianKernelSize,
         variance: gaussianVariance,
-      }
-    );
+      });
     material.setParameter(
       Rn.GaussianBlurSingleMaterialNode.GaussianKernelSize,
       gaussianKernelSize
@@ -506,9 +516,10 @@ declare const Rn: typeof _Rn;
     cubeTextureDiffuse.mipmapLevelNumber = 1;
     cubeTextureDiffuse.isNamePosNeg = true;
 
-    const meshRendererComponents = Rn.ComponentRepository.getInstance().getComponentsWithType(
-      Rn.MeshRendererComponent
-    ) as MeshRendererComponent[];
+    const meshRendererComponents =
+      Rn.ComponentRepository.getInstance().getComponentsWithType(
+        Rn.MeshRendererComponent
+      ) as MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;

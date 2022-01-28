@@ -10,7 +10,7 @@ import ICameraController from './ICameraController';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import AABB from '../math/AABB';
 import AbstractCameraController from './AbstractCameraController';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 declare let window: any;
 
@@ -25,8 +25,8 @@ export default class OrbitCameraController
   public followTargetAABB = false;
 
   private __isMouseDown = false;
-  private __lastMouseDownTimeStamp: number = 0;
-  private __lastMouseUpTimeStamp: number = 0;
+  private __lastMouseDownTimeStamp = 0;
+  private __lastMouseUpTimeStamp = 0;
   private __originalY = -1;
   private __originalX = -1;
   private __buttonNumber = 0;
@@ -97,8 +97,10 @@ export default class OrbitCameraController
   private static __tmp_rotateM_X: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM_Y: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM: MutableMatrix33 = MutableMatrix33.identity();
-  private static __tmp_rotateM_Reset: MutableMatrix33 = MutableMatrix33.identity();
-  private static __tmp_rotateM_Revert: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM_Reset: MutableMatrix33 =
+    MutableMatrix33.identity();
+  private static __tmp_rotateM_Revert: MutableMatrix33 =
+    MutableMatrix33.identity();
 
   private static __tmpMat44_0: MutableMatrix44 = MutableMatrix44.identity();
 

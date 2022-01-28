@@ -31,9 +31,8 @@ declare const Rn: typeof _Rn;
   mainCameraComponent.aspect = 1.0;
   // mainCameraComponent.zFarInner = 3000.0;
 
-  const renderPassMain = renderPassHelperSetCameraComponent(
-    mainCameraComponent
-  );
+  const renderPassMain =
+    renderPassHelperSetCameraComponent(mainCameraComponent);
   const framebufferMain = createFramebuffer(
     renderPassMain,
     2 * displayResolution,
@@ -45,7 +44,8 @@ declare const Rn: typeof _Rn;
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionMaterial =
+    Rn.MaterialHelper.createGammaCorrectionMaterial();
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
     gammaCorrectionMaterial,
     postEffectCameraComponent
@@ -106,7 +106,11 @@ declare const Rn: typeof _Rn;
 
   for (const rootGroup of rootGroups) {
     rootGroup.getTransform().scale = rootGroupScale;
-    rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, Math.PI, 0.0]);
+    rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      0.0,
+      Math.PI,
+      0.0,
+    ]);
   }
 
   renderPassMain.addEntities(rootGroups);
@@ -142,7 +146,9 @@ declare const Rn: typeof _Rn;
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
-  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 20, -20]);
+  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0, 20, -20,
+  ]);
 
   renderPassMain.addEntities([sphereEntity]);
 
@@ -155,7 +161,11 @@ declare const Rn: typeof _Rn;
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    0.0,
+    0.0,
+    Math.PI / 8,
+  ]);
 
   // CameraControllerComponent
   const mainCameraEntityUID = mainCameraComponent.entityUID;
@@ -212,7 +222,11 @@ function rotEnv(rot) {
     meshRendererComponent.rotationOfCubeMap = rot;
   }
   // window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
-  window.sphereEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0, -rot, 0]);
+  window.sphereEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    0,
+    -rot,
+    0,
+  ]);
 }
 
 function setDiffuseCubeMapContribution(value) {
@@ -323,8 +337,14 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0.0,
+    0.0,
+  ]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0.0, -0.5,
+  ]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

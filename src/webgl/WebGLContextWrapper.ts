@@ -179,8 +179,8 @@ export default class WebGLContextWrapper {
       this.__viewport_left,
       this.__viewport_top,
       this.__viewport_width,
-      this.__viewport_height]
-    );
+      this.__viewport_height,
+    ]);
   }
 
   get defaultViewport() {
@@ -188,8 +188,8 @@ export default class WebGLContextWrapper {
       this.__default_viewport_left,
       this.__default_viewport_top,
       this.__default_viewport_width,
-      this.__default_viewport_height]
-    );
+      this.__default_viewport_height,
+    ]);
   }
 
   isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {

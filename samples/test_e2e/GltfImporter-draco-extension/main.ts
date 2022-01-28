@@ -51,12 +51,8 @@ document.body.appendChild(p);
   expressions.push(expressionPostEffect);
 
   // gamma correction
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    600,
-    600,
-    1,
-    {}
-  );
+  const gammaTargetFramebuffer =
+    Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
   const mainRenderPass = mainExpression.renderPasses[0];
   mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
   mainRenderPass.toClearColorBuffer = true;
@@ -64,13 +60,18 @@ document.body.appendChild(p);
 
   const rootGroup = mainRenderPass.sceneTopLevelGraphComponents[0].entity;
   const rootTransFormComponent = rootGroup.getTransform();
-  rootTransFormComponent.rotate = Rn.Vector3.fromCopyArray([0, Math.PI / 2.0, 0.0]);
+  rootTransFormComponent.rotate = Rn.Vector3.fromCopyArray([
+    0,
+    Math.PI / 2.0,
+    0.0,
+  ]);
   rootTransFormComponent.translate = Rn.Vector3.fromCopyArray([0, -0.13, -1.5]);
 
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionMaterial =
+    Rn.MaterialHelper.createGammaCorrectionMaterial();
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
     gammaCorrectionMaterial,
     postEffectCameraComponent
@@ -93,7 +94,11 @@ document.body.appendChild(p);
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0.0,
+    0.0,
+  ]);
 
   let count = 0;
 
@@ -130,8 +135,14 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0.0,
+    0.0,
+  ]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0.0, -0.5,
+  ]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 
@@ -186,6 +197,5 @@ function setTextureParameterForMeshComponents(
 }
 
 window.exportGltf2 = function () {
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

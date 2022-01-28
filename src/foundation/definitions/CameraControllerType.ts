@@ -4,7 +4,8 @@ export type CameraControllerTypeEnum = EnumIO;
 
 class CameraControllerTypeClass
   extends EnumClass
-  implements CameraControllerTypeEnum {
+  implements CameraControllerTypeEnum
+{
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }

@@ -96,7 +96,8 @@ declare const Rn: typeof _Rn;
   // camera controller
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
-  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getCameraController();
+  const vrmMainCameraControllerComponent =
+    vrmMainCameraEntity.getCameraController();
   const controller =
     vrmMainCameraControllerComponent.controller as OrbitCameraController;
   controller.dolly = 0.78;
@@ -113,7 +114,11 @@ declare const Rn: typeof _Rn;
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    0.0,
+    0.0,
+    Math.PI / 8,
+  ]);
 
   let count = 0;
   let startTime = Date.now();
@@ -149,7 +154,5 @@ declare const Rn: typeof _Rn;
 })();
 
 window.exportGltf2 = function () {
-
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

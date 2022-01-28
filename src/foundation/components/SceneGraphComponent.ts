@@ -509,10 +509,18 @@ export default class SceneGraphComponent extends Component {
   }
 
   private __updateGizmos() {
-    if (Is.exist(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
+    if (
+      Is.exist(this.__aabbGizmo) &&
+      this.__aabbGizmo.isSetup &&
+      this.__aabbGizmo.isVisible
+    ) {
       this.__aabbGizmo._update();
     }
-    if (Is.exist(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
+    if (
+      Is.exist(this.__locatorGizmo) &&
+      this.__locatorGizmo.isSetup &&
+      this.__locatorGizmo.isVisible
+    ) {
       this.__locatorGizmo._update();
     }
   }

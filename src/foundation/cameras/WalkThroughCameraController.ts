@@ -14,7 +14,8 @@ type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
 export default class WalkThroughCameraController
   extends AbstractCameraController
-  implements ICameraController {
+  implements ICameraController
+{
   private _horizontalSpeed: number;
   private _verticalSpeed: number;
   private _turnSpeed: number;

@@ -4,11 +4,16 @@ export const GetComponentFromEntities = Symbol();
 
 const getComponentFromEntitiesStr = 'getComponentFromEntities';
 
-function getComponentFromEntities<T extends typeof Component>(this: EnhancedArrayMethods, ComponentClass: T): InstanceType<T>[] {
+function getComponentFromEntities<T extends typeof Component>(
+  this: EnhancedArrayMethods,
+  ComponentClass: T
+): InstanceType<T>[] {
   const that = this.__raw as Array<Entity>;
   const components: InstanceType<T>[] = [];
-  that.forEach((entity: Entity)=>{
-    const component = entity.getComponentByComponentTID(ComponentClass.componentTID) as InstanceType<T>;
+  that.forEach((entity: Entity) => {
+    const component = entity.getComponentByComponentTID(
+      ComponentClass.componentTID
+    ) as InstanceType<T>;
     if (component != null) {
       components.push(component);
     }
@@ -21,31 +26,35 @@ export interface ArrayAsRn<T> {
 }
 
 export interface IEnhancedArrayMethods {
-  getComponentFromEntities: typeof getComponentFromEntities,
+  getComponentFromEntities: typeof getComponentFromEntities;
 }
 
 class EnhancedArrayMethods {
-  constructor(public __raw: unknown[]) {};
+  constructor(public __raw: unknown[]) {}
 }
 
-const enhanceInner = ()=>{
-  Object.defineProperty(EnhancedArrayMethods.prototype, getComponentFromEntitiesStr, {
-    enumerable: false,
-    writable: false,
-    configurable: true,
-    value: getComponentFromEntities
-  });
-}
+const enhanceInner = () => {
+  Object.defineProperty(
+    EnhancedArrayMethods.prototype,
+    getComponentFromEntitiesStr,
+    {
+      enumerable: false,
+      writable: false,
+      configurable: true,
+      value: getComponentFromEntities,
+    }
+  );
+};
 
 enhanceInner();
 
-export const enhanceArray = ()=>{
+export const enhanceArray = () => {
   Object.defineProperty(Array.prototype, 'Rn', {
     enumerable: false,
     configurable: false,
     get<T>(): ArrayAsRn<T> {
       const ret = new EnhancedArrayMethods(this as unknown[]);
       return ret as unknown as ArrayAsRn<T>;
-    }
+    },
   });
-}
+};

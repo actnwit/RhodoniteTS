@@ -6,7 +6,8 @@ export interface AnimationInterpolationEnum extends EnumIO {
 }
 class AnimationInterpolationClass
   extends EnumClass
-  implements AnimationInterpolationEnum {
+  implements AnimationInterpolationEnum
+{
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }

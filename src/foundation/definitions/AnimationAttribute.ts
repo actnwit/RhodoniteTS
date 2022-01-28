@@ -4,7 +4,8 @@ export type AnimationAttributeEnum = EnumIO;
 
 class AnimationAttributeClass
   extends EnumClass
-  implements AnimationAttributeEnum {
+  implements AnimationAttributeEnum
+{
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }

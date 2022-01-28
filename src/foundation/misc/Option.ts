@@ -1,11 +1,11 @@
-import { Is } from './Is';
+import {Is} from './Is';
 // Inspired from https://scleapt.com/typescript_option/
 
 /**
  * An interface for handling values whose existence is uncertain.
  */
 
-const errorStr = `The value does not exist!`;
+const errorStr = 'The value does not exist!';
 export interface IOption<T> {
   // do the "f" function for
   then<U>(f: (value: T) => IOption<U>): IOption<U>;
@@ -27,10 +27,9 @@ export class Option<T> implements IOption<T> {
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then<U>(f: (value: T) => None): None
-  then<U>(f: (value: T) => Some<U>): Some<U>
-  then<U>(f: (value: T) => IOption<U>): IOption<U>
-  {
+  then<U>(f: (value: T) => None): None;
+  then<U>(f: (value: T) => Some<U>): Some<U>;
+  then<U>(f: (value: T) => IOption<U>): IOption<U> {
     return Is.exist(this.value) ? f(this.value) : new None();
   }
 
@@ -66,14 +65,14 @@ export class Option<T> implements IOption<T> {
  * a class indicating that the included value exists.
  */
 export class Some<T> implements IOption<T> {
-  constructor(private value: T) { }
+  constructor(private value: T) {}
 
   /**
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then<U>(f: (value: T) => None): None
-  then<U>(f: (value: T) => Some<U>): Some<U>
+  then<U>(f: (value: T) => None): None;
+  then<U>(f: (value: T) => Some<U>): Some<U>;
   then<U>(f: (value: T) => IOption<U>): IOption<U> {
     return f(this.value);
   }
@@ -108,7 +107,6 @@ export class Some<T> implements IOption<T> {
   get(): T {
     return this.value;
   }
-
 }
 
 /**

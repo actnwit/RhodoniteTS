@@ -4,7 +4,8 @@ export type BasisCompressionTypeEnum = EnumIO;
 
 class BasisCompressionTypeClass
   extends EnumClass
-  implements BasisCompressionTypeEnum {
+  implements BasisCompressionTypeEnum
+{
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }

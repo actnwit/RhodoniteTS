@@ -32,7 +32,9 @@ declare const Rn: typeof _Rn;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0, 0.5,
+  ]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
@@ -46,7 +48,11 @@ declare const Rn: typeof _Rn;
   const lightComponent2 = lightEntity2.getLight();
   lightComponent2.type = Rn.LightType.Directional;
   lightComponent2.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    0.0,
+    0.0,
+    Math.PI / 8,
+  ]);
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
@@ -57,14 +63,19 @@ declare const Rn: typeof _Rn;
   //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 
   for (const rootGroup of rootGroups) {
-    rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
+    rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      0,
+      Math.PI,
+      0.0,
+    ]);
   }
 
   //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller = cameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    cameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(rootGroups[0]);
   controller.dolly = 0.75;
 
@@ -121,7 +132,5 @@ declare const Rn: typeof _Rn;
 })();
 
 window.exportGltf2 = function () {
-
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

@@ -17,10 +17,16 @@ declare const Rn: typeof _Rn;
 
   const resolutionDepthCamera = 512;
 
-  const diffuseColorFactorSmallBoard = Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1]);
-  const diffuseColorFactorLargeBoard = Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1]);
+  const diffuseColorFactorSmallBoard = Rn.Vector4.fromCopyArray([
+    0.5, 0.1, 0.4, 1,
+  ]);
+  const diffuseColorFactorLargeBoard = Rn.Vector4.fromCopyArray([
+    0.1, 0.7, 0.5, 1,
+  ]);
 
-  const shadowColorFactorLargeBoard = Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1]);
+  const shadowColorFactorLargeBoard = Rn.Vector4.fromCopyArray([
+    0.05, 0.35, 0.25, 1,
+  ]);
 
   // ---main algorithm-----------------------------------------------------------------------------------------
 
@@ -65,7 +71,8 @@ declare const Rn: typeof _Rn;
   const cameraComponentDepth =
     createEntityDepthCamera(directionLight).getCamera();
   const cameraComponentMain = createEntityMainCamera().getCamera();
-  const cameraControllerComponent = cameraComponentMain.entity.getCameraController();
+  const cameraControllerComponent =
+    cameraComponentMain.entity.getCameraController();
   const controller = cameraControllerComponent.controller;
   controller.setTarget(entityLargeBoard);
   controller.unregisterEventListeners();
@@ -167,10 +174,11 @@ declare const Rn: typeof _Rn;
     renderPass.cameraComponent = cameraComponent;
     renderPass.addEntities([entitySmallBoard, entityLargeBoard]);
 
-    const materialSmallBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-      {},
-      renderPassDepth
-    );
+    const materialSmallBoard =
+      Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
+        {},
+        renderPassDepth
+      );
     materialSmallBoard.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       diffuseColorFactorSmallBoard
@@ -181,10 +189,11 @@ declare const Rn: typeof _Rn;
     const primitiveSmallBoard = meshSmallBoard.primitives[0];
     renderPass.setMaterialForPrimitive(materialSmallBoard, primitiveSmallBoard);
 
-    const materialLargeBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-      {},
-      renderPassDepth
-    );
+    const materialLargeBoard =
+      Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
+        {},
+        renderPassDepth
+      );
     materialLargeBoard.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       diffuseColorFactorLargeBoard

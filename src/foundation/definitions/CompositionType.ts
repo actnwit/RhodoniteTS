@@ -467,5 +467,6 @@ export const CompositionType = Object.freeze({
   isArray,
   isTexture,
   toGltf2AnimationAccessorCompositionType,
-  toGltf2AccessorCompositionTypeString: toGltf2AnimationAccessorCompositionTypeString,
+  toGltf2AccessorCompositionTypeString:
+    toGltf2AnimationAccessorCompositionTypeString,
 });

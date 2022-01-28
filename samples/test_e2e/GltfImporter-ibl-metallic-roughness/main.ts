@@ -1,4 +1,8 @@
-import _Rn, {Component, Material, MeshRendererComponent} from '../../../dist/esm/index';
+import _Rn, {
+  Component,
+  Material,
+  MeshRendererComponent,
+} from '../../../dist/esm/index';
 import {
   OrbitCameraController,
   CameraComponent,
@@ -60,12 +64,8 @@ let p: any;
   expressions.push(expressionPostEffect);
 
   // gamma correction
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    600,
-    600,
-    1,
-    {}
-  );
+  const gammaTargetFramebuffer =
+    Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
   for (const renderPass of mainExpression.renderPasses) {
     renderPass.setFramebuffer(gammaTargetFramebuffer);
     renderPass.toClearColorBuffer = false;
@@ -77,7 +77,8 @@ let p: any;
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionMaterial =
+    Rn.MaterialHelper.createGammaCorrectionMaterial();
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
     gammaCorrectionMaterial,
     postEffectCameraComponent
@@ -94,7 +95,8 @@ let p: any;
   // cameraController
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    mainCameraControllerComponent.controller as OrbitCameraController;
   controller.dolly = 0.79;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
@@ -209,8 +211,14 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0.0,
+    0.0,
+  ]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0.0, -0.5,
+  ]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

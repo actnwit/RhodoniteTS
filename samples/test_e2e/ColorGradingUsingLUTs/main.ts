@@ -197,8 +197,14 @@ declare const Rn: typeof _Rn;
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = generateEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0.0,
+      0.0,
+    ]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0.0, -0.5,
+    ]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

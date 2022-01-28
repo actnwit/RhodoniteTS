@@ -24,7 +24,13 @@ import {Gltf2AccessorEx, Gltf2Ex} from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
 import DataUtil from '../misc/DataUtil';
 import Accessor from '../memory/Accessor';
-import {Array1to4, Byte, Count, Index, VectorComponentN} from '../../types/CommonTypes';
+import {
+  Array1to4,
+  Byte,
+  Count,
+  Index,
+  VectorComponentN,
+} from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,

@@ -40,7 +40,8 @@ function createMaterial(
   materialNodes?: AbstractMaterialNode[],
   maxInstancesNumber?: Count
 ): Material {
-  const isRegisteredMaterialType = Material.isRegisteredMaterialType(materialName);
+  const isRegisteredMaterialType =
+    Material.isRegisteredMaterialType(materialName);
 
   if (!isRegisteredMaterialType) {
     Material.registerMaterial(

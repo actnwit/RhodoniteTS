@@ -37,7 +37,9 @@ const Module = {
     cameraComponent.setFovyAndChangeFocalLength(90);
     cameraComponent.aspect = 1;
 
-    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 3]);
+    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0, 3,
+    ]);
 
     const importer = Rn.Gltf2Importer.getInstance();
     const modelConverter = Rn.ModelConverter.getInstance();
