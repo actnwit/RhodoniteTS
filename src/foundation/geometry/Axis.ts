@@ -16,8 +16,8 @@ export interface AxisDescriptor {
  */
 export class Axis extends Primitive {
   /**
-   * Generates a plane object
-   * @param desc a descriptor object of a Plane
+   * Generates a axis object
+   * @param desc a descriptor object of a Axis
    */
   public generate(desc: AxisDescriptor): void {
     const positions = new Float32Array([
