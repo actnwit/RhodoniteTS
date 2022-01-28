@@ -59,7 +59,6 @@ export class Axis extends Primitive {
 
     const attributes = [new Float32Array(positions), new Float32Array(colors)];
 
-    // Index Buffer
     // Check Size
     const attributeSemantics = [
       VertexAttribute.Position.XYZ,
