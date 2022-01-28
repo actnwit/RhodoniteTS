@@ -17,12 +17,12 @@ export interface CubeDescriptor {
 }
 
 /**
- * The Color Primitive class
+ * The Cube Primitive class
  */
 export class Cube extends Primitive {
   /**
-   * Generates a plane object
-   * @param desc a descriptor object of a Plane
+   * Generates a cube object
+   * @param desc a descriptor object of a Cube
    */
   public generate(desc: CubeDescriptor): void {
     // prettier-ignore
