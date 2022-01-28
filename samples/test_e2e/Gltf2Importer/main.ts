@@ -1,5 +1,3 @@
-
-
 import _Rn from '../../../dist/esm/index';
 import {
   OrbitCameraController,
@@ -11,9 +9,6 @@ import {
   FrameBuffer,
   RenderPass,
 } from '../../../dist/esm/index';
-
-
-
 
 let p: any;
 
@@ -50,7 +45,9 @@ declare const Rn: typeof _Rn;
     cameraComponent.zFar = 1000;
     cameraComponent.setFovyAndChangeFocalLength(45);
     cameraComponent.aspect = 1;
-    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0, 0.5,
+    ]);
 
     // Lights
     const lightEntity = entityRepository.createEntity([
@@ -58,10 +55,16 @@ declare const Rn: typeof _Rn;
       Rn.SceneGraphComponent,
       Rn.LightComponent,
     ]);
-    lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 1.0, 100000.0]);
+    lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      1.0, 1.0, 100000.0,
+    ]);
     lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
     lightEntity.getLight().type = Rn.LightType.Directional;
-    lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0,
+      0,
+    ]);
     //lightEntity2.getLight().type = Rn.LightType.Directional;
 
     const promise = importer.import(
@@ -130,14 +133,11 @@ declare const Rn: typeof _Rn;
       };
 
       draw();
-    //-----------------
+      //-----------------
     });
-  //---------------------
+    //---------------------
   });
-
 })();
 window.exportGltf2 = function () {
-
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

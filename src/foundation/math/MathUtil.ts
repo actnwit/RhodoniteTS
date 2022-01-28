@@ -279,7 +279,7 @@ function nearZeroToZero(value: number): number {
   return value;
 }
 
-function financial(val: number|string) {
+function financial(val: number | string) {
   const fixedStr = Number.parseFloat(val as string).toFixed(7);
   if (val >= 0) {
     return ' ' + fixedStr;
@@ -288,7 +288,7 @@ function financial(val: number|string) {
 }
 
 function roundAsFloat(value: number): number {
-  return Math.round(value*10000000) / 10000000;
+  return Math.round(value * 10000000) / 10000000;
 }
 
 /**
@@ -378,5 +378,5 @@ export const MathUtil = Object.freeze({
   computeEigenValuesAndVectors,
   computeGaussianDistributionRatioWhoseSumIsOne,
   roundAsFloat,
-  financial
+  financial,
 });

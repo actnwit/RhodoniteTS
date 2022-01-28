@@ -67,9 +67,10 @@ export default class LightComponent extends Component {
   }
 
   $load() {
-    const lightComponents = LightComponent.__componentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+    const lightComponents =
+      LightComponent.__componentRepository.getComponentsWithType(
+        LightComponent
+      ) as LightComponent[];
     const currentComponentSIDs = LightComponent.__globalDataRepository.getValue(
       ShaderSemantics.CurrentComponentSIDs,
       0
@@ -77,36 +78,37 @@ export default class LightComponent extends Component {
     currentComponentSIDs!._v[WellKnownComponentTIDs.LightComponentTID] =
       lightComponents.length;
 
-    LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightPosition,
-      0
-    );
-    LightComponent.__lightDirections = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightDirection,
-      0
-    );
-    LightComponent.__lightIntensities = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightIntensity,
-      0
-    );
+    LightComponent.__lightPositions =
+      LightComponent.__globalDataRepository.getValue(
+        ShaderSemantics.LightPosition,
+        0
+      );
+    LightComponent.__lightDirections =
+      LightComponent.__globalDataRepository.getValue(
+        ShaderSemantics.LightDirection,
+        0
+      );
+    LightComponent.__lightIntensities =
+      LightComponent.__globalDataRepository.getValue(
+        ShaderSemantics.LightIntensity,
+        0
+      );
 
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
-    this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(
-      this.__initialdirection
-    );
+    this.__direction =
+      this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(
+        this.__initialdirection
+      );
 
-    LightComponent.__lightDirections._v[
-      4 * this.componentSID + 0
-    ] = this.__direction.x;
-    LightComponent.__lightDirections._v[
-      4 * this.componentSID + 1
-    ] = this.__direction.y;
-    LightComponent.__lightDirections._v[
-      4 * this.componentSID + 2
-    ] = this.__direction.z;
+    LightComponent.__lightDirections._v[4 * this.componentSID + 0] =
+      this.__direction.x;
+    LightComponent.__lightDirections._v[4 * this.componentSID + 1] =
+      this.__direction.y;
+    LightComponent.__lightDirections._v[4 * this.componentSID + 2] =
+      this.__direction.z;
     LightComponent.__lightDirections._v[4 * this.componentSID + 3] = 0;
 
     const lightPosition = this.__sceneGraphComponent!.worldPosition;
@@ -116,19 +118,15 @@ export default class LightComponent extends Component {
       lightPosition.y;
     LightComponent.__lightPositions._v[4 * this.componentSID + 2] =
       lightPosition.z;
-    LightComponent.__lightPositions._v[
-      4 * this.componentSID + 3
-    ] = this.type.index;
+    LightComponent.__lightPositions._v[4 * this.componentSID + 3] =
+      this.type.index;
 
-    LightComponent.__lightIntensities._v[
-      4 * this.componentSID + 0
-    ] = this.__intensity.x;
-    LightComponent.__lightIntensities._v[
-      4 * this.componentSID + 1
-    ] = this.__intensity.y;
-    LightComponent.__lightIntensities._v[
-      4 * this.componentSID + 2
-    ] = this.__intensity.z;
+    LightComponent.__lightIntensities._v[4 * this.componentSID + 0] =
+      this.__intensity.x;
+    LightComponent.__lightIntensities._v[4 * this.componentSID + 1] =
+      this.__intensity.y;
+    LightComponent.__lightIntensities._v[4 * this.componentSID + 2] =
+      this.__intensity.z;
     LightComponent.__lightIntensities._v[4 * this.componentSID + 3] = 0;
   }
 }

@@ -31,7 +31,9 @@ declare const Rn: typeof _Rn;
   cameraComponent.setFovyAndChangeFocalLength(45);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0, 0.5,
+  ]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
@@ -42,10 +44,16 @@ declare const Rn: typeof _Rn;
     Rn.SceneGraphComponent,
     Rn.LightComponent,
   ]);
-  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 1.0, 100000.0]);
+  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    1.0, 1.0, 100000.0,
+  ]);
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   lightEntity.getLight().type = Rn.LightType.Directional;
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0,
+    0,
+  ]);
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
@@ -74,7 +82,8 @@ declare const Rn: typeof _Rn;
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller = cameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    cameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(rootGroup);
 
   // renderPass

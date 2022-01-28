@@ -18,7 +18,6 @@ declare const Rn: typeof _Rn;
     '../../../assets/gltf/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf';
   const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
-
   const lightPosition = Rn.Vector3.fromCopyArray([-15.0, 50.0, 30.0]);
 
   const zFarDepth = 3000;
@@ -167,16 +166,19 @@ declare const Rn: typeof _Rn;
     meshComponentSphere.setMesh(meshSphere);
 
     entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0, 300, 0,
+    ]);
 
     return entitySphere;
   }
 
   function createEntityBoard(renderPassDepth: RenderPass) {
-    const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-      {},
-      renderPassDepth
-    );
+    const material =
+      Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
+        {},
+        renderPassDepth
+      );
     material.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0])
@@ -286,9 +288,10 @@ declare const Rn: typeof _Rn;
     cubeTextureDiffuse.mipmapLevelNumber = 1;
     cubeTextureDiffuse.isNamePosNeg = true;
 
-    const meshRendererComponents = Rn.ComponentRepository.getInstance().getComponentsWithType(
-      Rn.MeshRendererComponent
-    ) as MeshRendererComponent[];
+    const meshRendererComponents =
+      Rn.ComponentRepository.getInstance().getComponentsWithType(
+        Rn.MeshRendererComponent
+      ) as MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;

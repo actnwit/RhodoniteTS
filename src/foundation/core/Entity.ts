@@ -12,7 +12,7 @@ import BlendShapeComponent from '../components/BlendShapeComponent';
 import PhysicsComponent from '../components/PhysicsComponent';
 import CameraControllerComponent from '../components/CameraControllerComponent';
 import LightComponent from '../components/LightComponent';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 import AnimationComponent from '../components/AnimationComponent';
 
 /**

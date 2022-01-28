@@ -346,7 +346,8 @@ export default class GlobalDataRepository {
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
-      const typedArray = globalPropertyStruct.accessor.takeOne() as Float32Array;
+      const typedArray =
+        globalPropertyStruct.accessor.takeOne() as Float32Array;
       const countIndex = globalPropertyStruct.values.length;
       const valueObj = MathClassUtil.initWithFloat32Array(
         semanticInfo.initialValue,
@@ -419,7 +420,8 @@ export default class GlobalDataRepository {
   }
 
   setUniformValues(shaderProgram: WebGLProgram) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       const values = globalPropertyStruct.values;

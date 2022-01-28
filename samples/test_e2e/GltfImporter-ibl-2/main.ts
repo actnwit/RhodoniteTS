@@ -63,12 +63,8 @@ document.body.appendChild(p);
 
   // gamma correction (and super sampling)
   const mainRenderPass = mainExpression.renderPasses[0];
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    600,
-    600,
-    1,
-    {}
-  );
+  const gammaTargetFramebuffer =
+    Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
   mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
   mainRenderPass.toClearColorBuffer = true;
   mainRenderPass.toClearDepthBuffer = true;
@@ -76,7 +72,8 @@ document.body.appendChild(p);
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionMaterial =
+    Rn.MaterialHelper.createGammaCorrectionMaterial();
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
     gammaCorrectionMaterial,
     postEffectCameraComponent
@@ -92,7 +89,8 @@ document.body.appendChild(p);
 
   // cameraController
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    mainCameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
   controller.dolly = 0.78;
 
@@ -162,8 +160,14 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0.0,
+    0.0,
+  ]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0.0, -0.5,
+  ]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

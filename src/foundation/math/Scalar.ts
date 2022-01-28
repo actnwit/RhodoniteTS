@@ -60,7 +60,6 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   static _dummy(type: FloatTypedArrayConstructor) {
     return new this(new type(), {type});
   }
-
 }
 
 export default class Scalar

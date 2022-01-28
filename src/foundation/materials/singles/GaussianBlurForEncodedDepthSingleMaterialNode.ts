@@ -127,7 +127,6 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
     firstTime: boolean;
     args?: any;
   }) {
-
     const baseColorTexture = material.getParameter(
       ShaderSemantics.BaseColorTexture
     )[1] as Texture;

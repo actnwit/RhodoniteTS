@@ -88,7 +88,11 @@ declare global {
 
     const entityBoard = createEntityBoard(material);
     const transformComponentBoard = entityBoard.getTransform();
-    transformComponentBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    transformComponentBoard.rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0.0,
+      0.0,
+    ]);
     window.entityBoard = entityBoard;
 
     const entitySphere = createEntitySphere(material);

@@ -51,7 +51,11 @@ declare const Rn: typeof _Rn;
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0,
+    0,
+  ]);
 
   const sphereEntity = entityRepository.createEntity([
     Rn.TransformComponent,
@@ -97,11 +101,14 @@ declare const Rn: typeof _Rn;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0, 0.5,
+  ]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller = cameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    cameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(planeEntity);
 
   // renderPass

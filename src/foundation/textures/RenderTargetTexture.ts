@@ -13,7 +13,8 @@ import Vector4 from '../math/Vector4';
 
 export default class RenderTargetTexture
   extends AbstractTexture
-  implements IRenderable {
+  implements IRenderable
+{
   private __fbo?: FrameBuffer;
 
   constructor() {
@@ -66,7 +67,8 @@ export default class RenderTargetTexture
   }
 
   private __createRenderTargetTexture() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createRenderTargetTexture({
       width: this.__width,
       height: this.__height,
@@ -93,7 +95,8 @@ export default class RenderTargetTexture
 
   destroy3DAPIResources() {
     AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -101,7 +104,8 @@ export default class RenderTargetTexture
   }
 
   getTexturePixelData() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext() as WebGLRenderingContext;
 
@@ -153,8 +157,8 @@ export default class RenderTargetTexture
       byteArray[(y * this.width + x) * 4 + 0],
       byteArray[(y * this.width + x) * 4 + 1],
       byteArray[(y * this.width + x) * 4 + 2],
-      byteArray[(y * this.width + x) * 4 + 3]]
-    );
+      byteArray[(y * this.width + x) * 4 + 3],
+    ]);
     return color;
   }
 }

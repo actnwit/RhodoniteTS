@@ -20,7 +20,7 @@ import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
 import {BoneDataType} from '../definitions/BoneDataType';
-import { IMatrix44 } from '../math/IMatrix';
+import {IMatrix44} from '../math/IMatrix';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -213,7 +213,7 @@ export default class SkeletalComponent extends Component {
         m = SkeletalComponent.__identityMat;
       }
 
-      if (i===0) {
+      if (i === 0) {
         this.__worldMatrix.copyComponents(m);
       }
       this.__isWorldMatrixVanilla = false;

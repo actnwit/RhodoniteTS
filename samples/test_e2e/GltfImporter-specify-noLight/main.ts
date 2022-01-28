@@ -64,7 +64,8 @@ let p = null;
   // cameraController
   const mainRenderPass = expression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    mainCameraControllerComponent.controller as OrbitCameraController;
   controller.dolly = 0.7;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 

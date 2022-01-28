@@ -70,7 +70,9 @@ declare const Stats: any;
       Rn.CameraComponent,
     ]);
     const cameraComponent_fxaa = cameraEntity_fxaa.getCamera();
-    cameraEntity_fxaa.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 1.0]);
+    cameraEntity_fxaa.getTransform().translate = Rn.Vector3.fromCopyArray([
+      0.0, 0.0, 1.0,
+    ]);
     cameraComponent_fxaa.type = Rn.CameraType.Orthographic;
     renderPass_fxaa.cameraComponent = cameraComponent_fxaa;
 
@@ -85,12 +87,8 @@ declare const Stats: any;
     );
     renderPass1.setFramebuffer(framebuffer);
 
-    const framebuffer_fxaatarget = Rn.RenderableHelper.createTexturesForRenderTarget(
-      600,
-      600,
-      1,
-      {}
-    );
+    const framebuffer_fxaatarget =
+      Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
     renderPass2.setFramebuffer(framebuffer_fxaatarget);
 
     const primitive = new Rn.Plane();
@@ -121,7 +119,8 @@ declare const Stats: any;
     entities.push(entity_fxaa);
 
     const cameraControllerComponent = cameraEntity.getCameraController();
-    const controller = cameraControllerComponent.controller as OrbitCameraController;
+    const controller =
+      cameraControllerComponent.controller as OrbitCameraController;
     controller.setTarget(entity);
     controller.dolly = 0.8;
 
@@ -129,7 +128,11 @@ declare const Stats: any;
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
-    entity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    entity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0,
+      0,
+    ]);
     const meshComponent2 = entity2.getMesh();
 
     const primitive2 = new Rn.Plane();
@@ -149,7 +152,11 @@ declare const Stats: any;
     const mesh2 = new Rn.Mesh();
     mesh2.addPrimitive(primitive2);
     meshComponent2.setMesh(mesh2);
-    entity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 3, 0, 0]);
+    entity2.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 3,
+      0,
+      0,
+    ]);
     entity2.getTransform().translate = Rn.Vector3.fromCopyArray([0, 0, 0]);
 
     const primitive_fxaa = new Rn.Plane();
@@ -189,7 +196,11 @@ declare const Stats: any;
     const mesh_fxaa = new Rn.Mesh();
     mesh_fxaa.addPrimitive(primitive_fxaa);
     meshComponent_fxaa.setMesh(mesh_fxaa);
-    entity_fxaa.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    entity_fxaa.getTransform().rotate = Rn.Vector3.fromCopyArray([
+      Math.PI / 2,
+      0,
+      0,
+    ]);
     entity_fxaa.getTransform().translate = Rn.Vector3.fromCopyArray([0, 0, 0]);
 
     renderPass1.addEntities([entity]);
@@ -242,7 +253,5 @@ declare const Stats: any;
 })();
 
 window.exportGltf2 = function () {
-
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

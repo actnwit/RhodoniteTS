@@ -33,7 +33,11 @@ declare const Rn: typeof _Rn;
   // params
 
   const displayResolution = 800;
-  const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0.0]);
+  const vrmModelRotation = Rn.Vector3.fromCopyArray([
+    0,
+    (3 / 4) * Math.PI,
+    0.0,
+  ]);
 
   // camera
   const cameraEntity = entityRepository.createEntity([
@@ -78,12 +82,13 @@ declare const Rn: typeof _Rn;
   expressions.push(expressionPostEffect);
 
   // gamma correction
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    displayResolution,
-    displayResolution,
-    1,
-    {}
-  );
+  const gammaTargetFramebuffer =
+    Rn.RenderableHelper.createTexturesForRenderTarget(
+      displayResolution,
+      displayResolution,
+      1,
+      {}
+    );
   for (const renderPass of vrmExpression.renderPasses) {
     renderPass.setFramebuffer(gammaTargetFramebuffer);
     renderPass.toClearColorBuffer = false;
@@ -95,7 +100,8 @@ declare const Rn: typeof _Rn;
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionMaterial =
+    Rn.MaterialHelper.createGammaCorrectionMaterial();
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
     gammaCorrectionMaterial,
     postEffectCameraComponent
@@ -108,12 +114,13 @@ declare const Rn: typeof _Rn;
   );
 
   // fxaa
-  const fxaaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    displayResolution,
-    displayResolution,
-    1,
-    {}
-  );
+  const fxaaTargetFramebuffer =
+    Rn.RenderableHelper.createTexturesForRenderTarget(
+      displayResolution,
+      displayResolution,
+      1,
+      {}
+    );
   gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);
 
   const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(
@@ -141,8 +148,10 @@ declare const Rn: typeof _Rn;
   // cameraController
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
-  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getCameraController();
-  const controller = vrmMainCameraControllerComponent.controller as OrbitCameraController;
+  const vrmMainCameraControllerComponent =
+    vrmMainCameraEntity.getCameraController();
+  const controller =
+    vrmMainCameraControllerComponent.controller as OrbitCameraController;
   controller.dolly = 0.8;
   controller.setTarget(
     vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity
@@ -157,7 +166,11 @@ declare const Rn: typeof _Rn;
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    0.0,
+    0.0,
+    Math.PI / 8,
+  ]);
 
   let count = 0;
   let startTime = Date.now();
@@ -215,8 +228,14 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = generateEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0.0,
+    0.0,
+  ]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
+    0.0, 0.0, -0.5,
+  ]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

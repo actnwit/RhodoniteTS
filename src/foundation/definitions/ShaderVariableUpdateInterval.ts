@@ -4,21 +4,19 @@ export type ShaderVariableUpdateIntervalEnum = EnumIO;
 
 class ShaderVariableUpdateIntervalClass
   extends EnumClass
-  implements ShaderVariableUpdateIntervalEnum {
+  implements ShaderVariableUpdateIntervalEnum
+{
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }
 }
 
-const FirstTimeOnly: ShaderVariableUpdateIntervalEnum = new ShaderVariableUpdateIntervalClass(
-  {index: 0, str: 'FirstTimeOnly'}
-);
-const EveryTime: ShaderVariableUpdateIntervalEnum = new ShaderVariableUpdateIntervalClass(
-  {index: 1, str: 'EveryTime'}
-);
-const RenderPass: ShaderVariableUpdateIntervalEnum = new ShaderVariableUpdateIntervalClass(
-  {index: 2, str: 'RenderPass'}
-);
+const FirstTimeOnly: ShaderVariableUpdateIntervalEnum =
+  new ShaderVariableUpdateIntervalClass({index: 0, str: 'FirstTimeOnly'});
+const EveryTime: ShaderVariableUpdateIntervalEnum =
+  new ShaderVariableUpdateIntervalClass({index: 1, str: 'EveryTime'});
+const RenderPass: ShaderVariableUpdateIntervalEnum =
+  new ShaderVariableUpdateIntervalClass({index: 2, str: 'RenderPass'});
 
 const typeList = [FirstTimeOnly, EveryTime, RenderPass];
 

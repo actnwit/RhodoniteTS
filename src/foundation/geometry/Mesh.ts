@@ -863,10 +863,7 @@ export default class Mesh {
           indicesAccessor
         );
       }
-      primitive.setVertexAttribute(
-        normalAccessor,
-        VertexAttribute.Normal.XYZ
-      );
+      primitive.setVertexAttribute(normalAccessor, VertexAttribute.Normal.XYZ);
     }
   }
 

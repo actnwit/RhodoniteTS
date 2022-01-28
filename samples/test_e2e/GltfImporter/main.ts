@@ -128,6 +128,5 @@ declare const Rn: typeof _Rn;
 })();
 
 window.exportGltf2 = function () {
-
   Rn.Gltf2Exporter.export('Rhodonite');
 };

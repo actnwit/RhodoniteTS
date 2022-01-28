@@ -79,10 +79,8 @@ export default class Component extends RnObject {
     number
   > = new Map();
   // protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean> = new Map();
-  private static __bufferViews: Map<
-    Function,
-    Map<BufferUseEnum, BufferView>
-  > = new Map();
+  private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> =
+    new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<
     Function,
@@ -255,9 +253,8 @@ export default class Component extends RnObject {
 
     const methodName = processStage.methodName;
     const array = this.__componentsOfProcessStages.get(processStage)!;
-    const components:
-      | Component[]
-      | undefined = componentRepository._getComponents(componentType);
+    const components: Component[] | undefined =
+      componentRepository._getComponents(componentType);
     for (let i = 0; i < array.length; ++i) {
       const componentSid = array[i];
       if (componentSid === Component.invalidComponentSID) {
@@ -306,9 +303,8 @@ export default class Component extends RnObject {
         }
       } else {
         let count = 0;
-        const components = componentRepository.getComponentsWithType(
-          componentClass
-        )!;
+        const components =
+          componentRepository.getComponentsWithType(componentClass)!;
         for (let i = 0; i < components.length; ++i) {
           const component = components[i];
           if (processStage === component.__currentProcessStage) {
@@ -327,9 +323,8 @@ export default class Component extends RnObject {
     bufferUse: BufferUseEnum,
     componentClass: Function
   ) {
-    const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(
-      componentClass
-    )!;
+    const byteLengthSumOfMembers =
+      this.__byteLengthSumOfMembers.get(componentClass)!;
     return byteLengthSumOfMembers.get(bufferUse)!;
   }
 
@@ -564,7 +559,8 @@ export default class Component extends RnObject {
         if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
           Component.__byteLengthSumOfMembers.set(componentClass, new Map());
         }
-        const byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass)!;
+        const byteLengthSumOfMembers =
+          Component.__byteLengthSumOfMembers.get(componentClass)!;
         if (!byteLengthSumOfMembers.has(bufferUse)) {
           byteLengthSumOfMembers.set(bufferUse, 0);
         }
@@ -572,8 +568,8 @@ export default class Component extends RnObject {
           byteLengthSumOfMembers.set(
             bufferUse,
             byteLengthSumOfMembers.get(bufferUse)! +
-            info.compositionType.getNumberOfComponents() *
-            info.componentType.getSizeInBytes()
+              info.compositionType.getNumberOfComponents() *
+                info.componentType.getSizeInBytes()
           );
         });
         if (infoArray.length > 0) {

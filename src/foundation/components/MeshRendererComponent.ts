@@ -49,7 +49,8 @@ export default class MeshRendererComponent extends Component {
   public rotationOfCubeMap = 0;
 
   private static __webglResourceRepository?: WebGLResourceRepository;
-  private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
+  private static __componentRepository: ComponentRepository =
+    ComponentRepository.getInstance();
   private static __instanceIDBufferUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webglRenderingStrategy?: WebGLStrategy;
@@ -124,9 +125,10 @@ export default class MeshRendererComponent extends Component {
       });
     }
 
-    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(
-      MeshComponent
-    );
+    const meshComponents =
+      MeshRendererComponent.__componentRepository.getComponentsWithType(
+        MeshComponent
+      );
     if (meshComponents == null) {
       return CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
@@ -186,12 +188,12 @@ export default class MeshRendererComponent extends Component {
     const webglModule = moduleManager.getModule(moduleName)! as any;
 
     // Strategy
-    MeshRendererComponent.__webglRenderingStrategy = webglModule.getRenderingStrategy(
-      processApproach
-    );
+    MeshRendererComponent.__webglRenderingStrategy =
+      webglModule.getRenderingStrategy(processApproach);
 
     // ResourceRepository
-    MeshRendererComponent.__webglResourceRepository = webglModule.WebGLResourceRepository.getInstance();
+    MeshRendererComponent.__webglResourceRepository =
+      webglModule.WebGLResourceRepository.getInstance();
 
     AbstractMaterialNode.initDefaultTextures();
   }
@@ -212,8 +214,9 @@ export default class MeshRendererComponent extends Component {
   }
 
   static common_$prerender(): CGAPIResourceHandle {
-    const gl = MeshRendererComponent.__webglResourceRepository!
-      .currentWebGLContextWrapper;
+    const gl =
+      MeshRendererComponent.__webglResourceRepository!
+        .currentWebGLContextWrapper;
 
     if (gl == null) {
       throw new Error('No WebGLRenderingContext!');
@@ -225,7 +228,8 @@ export default class MeshRendererComponent extends Component {
       return 0;
     }
 
-    MeshRendererComponent.__instanceIDBufferUid = MeshRendererComponent.__setupInstanceIDBuffer();
+    MeshRendererComponent.__instanceIDBufferUid =
+      MeshRendererComponent.__setupInstanceIDBuffer();
 
     return MeshRendererComponent.__instanceIDBufferUid;
   }
@@ -378,20 +382,20 @@ export default class MeshRendererComponent extends Component {
     }
 
     // Sort transparent meshes
-    const transparentPartiallyOrAllMeshComponents = transparentPartiallyMeshComponents.concat(
-      transparentCompletelyMeshComponents
-    );
+    const transparentPartiallyOrAllMeshComponents =
+      transparentPartiallyMeshComponents.concat(
+        transparentCompletelyMeshComponents
+      );
     transparentPartiallyOrAllMeshComponents.sort((a, b) => {
       return a.viewDepth - b.viewDepth;
     });
 
     let transparentMeshComponentSids;
     if (transparentMeshComponentSids_.length === 0) {
-      transparentMeshComponentSids = transparentPartiallyOrAllMeshComponents.map(
-        meshComponent => {
+      transparentMeshComponentSids =
+        transparentPartiallyOrAllMeshComponents.map(meshComponent => {
           return meshComponent.componentSID;
-        }
-      );
+        });
     } else {
       transparentMeshComponentSids = transparentMeshComponentSids_;
     }
@@ -400,9 +404,10 @@ export default class MeshRendererComponent extends Component {
       opaqueAndTransparentPartiallyMeshComponentSids.length;
 
     // Concat opaque and transparent meshes
-    const sortedMeshComponentSids = opaqueAndTransparentPartiallyMeshComponentSids.concat(
-      transparentMeshComponentSids
-    );
+    const sortedMeshComponentSids =
+      opaqueAndTransparentPartiallyMeshComponentSids.concat(
+        transparentMeshComponentSids
+      );
 
     MeshRendererComponent.__lastTransparentIndex =
       sortedMeshComponentSids.length - 1;
@@ -424,10 +429,11 @@ export default class MeshRendererComponent extends Component {
   }) {
     MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
     if (MeshRendererComponent.__cameraComponent == null) {
-      MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.main
-      ) as CameraComponent;
+      MeshRendererComponent.__cameraComponent =
+        MeshRendererComponent.__componentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.main
+        ) as CameraComponent;
     }
     let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;
@@ -437,12 +443,12 @@ export default class MeshRendererComponent extends Component {
         MeshRendererComponent.__cameraComponent.projectionMatrix;
     }
 
-    const meshComponentSids = Component.__componentsOfProcessStages.get(
-      processStage
-    )!;
-    const meshComponents = MeshRendererComponent.__componentRepository._getComponents(
-      MeshComponent
-    ) as MeshComponent[];
+    const meshComponentSids =
+      Component.__componentsOfProcessStages.get(processStage)!;
+    const meshComponents =
+      MeshRendererComponent.__componentRepository._getComponents(
+        MeshComponent
+      ) as MeshComponent[];
     MeshRendererComponent.__webglRenderingStrategy!.common_$render(
       meshComponentSids,
       meshComponents,

@@ -45,7 +45,8 @@ document.body.appendChild(p);
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   mainCameraControllerComponent.type = Rn.CameraControllerType.WalkThrough;
-  const controller = mainCameraControllerComponent.controller as WalkThroughCameraController;
+  const controller =
+    mainCameraControllerComponent.controller as WalkThroughCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   let count = 0;

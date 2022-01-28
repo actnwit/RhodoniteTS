@@ -656,10 +656,11 @@ export default class CameraComponent extends Component {
   }
 
   $logic({renderPass}: {renderPass: RenderPass}) {
-    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(
-      this.__entityUid,
-      CameraControllerComponent
-    ) as CameraControllerComponent;
+    const cameraControllerComponent =
+      this.__entityRepository.getComponentOfEntity(
+        this.__entityUid,
+        CameraControllerComponent
+      ) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
       this._eyeInner.copyComponents(CameraComponent._eye);
       this._directionInner.copyComponents(this._direction);

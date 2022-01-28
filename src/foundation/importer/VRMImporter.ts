@@ -2,9 +2,9 @@ import GltfImporter from './GltfImporter';
 import Gltf2Importer from './Gltf2Importer';
 import {GltfLoadOption} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 import Entity from '../core/Entity';
-import { VRM } from '../../types/VRM';
+import {VRM} from '../../types/VRM';
 
 /**
  * The VRM Importer class.
@@ -37,7 +37,8 @@ export default class VRMImporter {
 
     const textures = gltfImporter._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray =
-      gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
+      gltfModel.asset.extras?.rnLoaderOptions
+        ?.defaultMaterialHelperArgumentArray;
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures = textures;
     }

@@ -87,7 +87,8 @@ declare const Rn: typeof _Rn;
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller = cameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    cameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(rootGroup);
 
   // renderPass

@@ -4,7 +4,8 @@ export type ShaderVariableTypeEnum = EnumIO;
 
 class ShaderVariableTypeClass
   extends EnumClass
-  implements ShaderVariableTypeEnum {
+  implements ShaderVariableTypeEnum
+{
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
   }

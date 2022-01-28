@@ -52,7 +52,8 @@ document.body.appendChild(p);
   );
 
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller = cameraControllerComponent.controller as OrbitCameraController;
+  const controller =
+    cameraControllerComponent.controller as OrbitCameraController;
   const rootGroup =
     expression.renderPasses[0].sceneTopLevelGraphComponents[0].entity;
   controller.setTarget(rootGroup);

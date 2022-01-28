@@ -23,7 +23,6 @@ test('Array extensions', () => {
   const b = [0, 1, 0, 0];
   b[add3_offset]([1, 0, 0, 1], 1, 1);
   expect(b.toString()).toEqual([0, 1, 0, 1].toString());
-
 });
 
 test('Float32Array extensions', () => {

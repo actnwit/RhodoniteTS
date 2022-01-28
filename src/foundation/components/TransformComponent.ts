@@ -12,7 +12,12 @@ import MutableQuaternion from '../math/MutableQuaternion';
 import {ProcessStage} from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
-import {ComponentTID, ComponentSID, EntityUID, Array3} from '../../types/CommonTypes';
+import {
+  ComponentTID,
+  ComponentSID,
+  EntityUID,
+  Array3,
+} from '../../types/CommonTypes';
 import {IQuaternion} from '../math/IQuaternion';
 import {IMatrix44} from '../math/IMatrix';
 import {IVector3} from '../math/IVector';
@@ -40,7 +45,8 @@ export default class TransformComponent extends Component {
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
-  private static __tmpQuaternion_0: MutableQuaternion = MutableQuaternion.identity();
+  private static __tmpQuaternion_0: MutableQuaternion =
+    MutableQuaternion.identity();
 
   private __toUpdateAllTransform = true;
   private _updateCount = 0;
@@ -598,9 +604,8 @@ export default class TransformComponent extends Component {
   }
 
   set rotateMatrix44(rotateMatrix: IMatrix44) {
-    this.quaternion = TransformComponent.__tmpQuaternion_0.fromMatrix(
-      rotateMatrix
-    );
+    this.quaternion =
+      TransformComponent.__tmpQuaternion_0.fromMatrix(rotateMatrix);
   }
 
   get rotateMatrix44() {

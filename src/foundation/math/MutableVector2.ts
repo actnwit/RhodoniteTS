@@ -1,6 +1,10 @@
 import {Vector2_} from './Vector2';
 import {IVector2, IMutableVector, IMutableVector2} from './IVector';
-import {TypedArray, FloatTypedArrayConstructor, Array2} from '../../types/CommonTypes';
+import {
+  TypedArray,
+  FloatTypedArrayConstructor,
+  Array2,
+} from '../../types/CommonTypes';
 
 export class MutableVector2_<
   T extends FloatTypedArrayConstructor

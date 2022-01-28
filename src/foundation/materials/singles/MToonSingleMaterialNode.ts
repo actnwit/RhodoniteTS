@@ -258,7 +258,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(this.__floatProperties._ReceiveShadowRate),
+        initialValue: Scalar.fromCopyNumber(
+          this.__floatProperties._ReceiveShadowRate
+        ),
         min: 0,
         max: 1,
       },
@@ -270,7 +272,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(this.__floatProperties._ShadingGradeRate),
+        initialValue: Scalar.fromCopyNumber(
+          this.__floatProperties._ShadingGradeRate
+        ),
         min: 0,
         max: 1,
       },
@@ -306,7 +310,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(this.__floatProperties._LightColorAttenuation),
+        initialValue: Scalar.fromCopyNumber(
+          this.__floatProperties._LightColorAttenuation
+        ),
         min: 0,
         max: 1,
       },
@@ -349,7 +355,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(this.__floatProperties._RimLightingMix),
+        initialValue: Scalar.fromCopyNumber(
+          this.__floatProperties._RimLightingMix
+        ),
         min: 0,
         max: 1,
       },
@@ -361,7 +369,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         isSystem: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(this.__floatProperties._RimFresnelPower),
+        initialValue: Scalar.fromCopyNumber(
+          this.__floatProperties._RimFresnelPower
+        ),
         min: 0,
         max: 1,
       },
@@ -489,7 +499,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
           isSystem: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
-          initialValue: Scalar.fromCopyNumber(this.__floatProperties._OutlineWidth),
+          initialValue: Scalar.fromCopyNumber(
+            this.__floatProperties._OutlineWidth
+          ),
           min: 0,
           max: 1,
         },
@@ -792,12 +804,14 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       const blendEquationMode = 32774; // gl.FUNC_ADD
       const blendEquationModeAlpha =
         MToonSingleMaterialNode.usableBlendEquationModeAlpha;
-      const blendFuncSrcFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(
-        this.__floatProperties._SrcBlend
-      );
-      const blendFuncDstFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(
-        this.__floatProperties._DstBlend
-      );
+      const blendFuncSrcFactor =
+        MToonSingleMaterialNode.unityBlendEnumCorrespondence(
+          this.__floatProperties._SrcBlend
+        );
+      const blendFuncDstFactor =
+        MToonSingleMaterialNode.unityBlendEnumCorrespondence(
+          this.__floatProperties._DstBlend
+        );
 
       material.setBlendEquationMode(blendEquationMode, blendEquationModeAlpha);
       material.setBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor);
@@ -835,13 +849,15 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   }
 
   private static __initializeUsableBlendEquationModeAlpha() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContextAsWebGL2();
     if (glw!.isWebGL2) {
       MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.MAX;
     } else if (glw!.webgl1ExtBM) {
-      MToonSingleMaterialNode.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
+      MToonSingleMaterialNode.usableBlendEquationModeAlpha =
+        glw!.webgl1ExtBM.MAX_EXT;
     } else {
       MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.FUNC_ADD;
     }
@@ -930,7 +946,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext();
 

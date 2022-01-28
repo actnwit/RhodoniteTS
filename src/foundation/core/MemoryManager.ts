@@ -11,7 +11,6 @@ import RnObject from './RnObject';
  *   mm.assignMem(componentUID, propertyId, entityUID, isRendered)
  * );
  */
-
 export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
@@ -66,8 +65,8 @@ export default class MemoryManager {
 
     let byteAlign = 4;
     if (
-      bufferUse == BufferUse.GPUInstanceData ||
-      bufferUse == BufferUse.GPUVertexData
+      bufferUse === BufferUse.GPUInstanceData ||
+      bufferUse === BufferUse.GPUVertexData
     ) {
       byteAlign = 16;
     }
@@ -122,9 +121,8 @@ export default class MemoryManager {
 
   printMemoryUsage() {
     const cpuGeneric = this.__buffers[BufferUse.CPUGeneric.toString()];
-    const gpuInstanceData = this.__buffers[
-      BufferUse.GPUInstanceData.toString()
-    ];
+    const gpuInstanceData =
+      this.__buffers[BufferUse.GPUInstanceData.toString()];
     const gpuVertexData = this.__buffers[BufferUse.GPUVertexData.toString()];
     // const uboGeneric = this.__buffers[BufferUse.UBOGeneric.toString()];
 

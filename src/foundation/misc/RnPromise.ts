@@ -1,4 +1,4 @@
-type ResolveArg<T> = T | PromiseLike<T|undefined> | undefined;
+type ResolveArg<T> = T | PromiseLike<T | undefined> | undefined;
 type PromiseFn<T> = (
   resolve: (value: ResolveArg<T>) => void,
   reject: (reason?: any) => void

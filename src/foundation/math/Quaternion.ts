@@ -10,7 +10,8 @@ import AbstractQuaternion from './AbstractQuaternion';
 
 export default class Quaternion
   extends AbstractQuaternion
-  implements IQuaternion {
+  implements IQuaternion
+{
   private static __tmp_upVec: any = undefined;
 
   constructor(

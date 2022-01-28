@@ -6,7 +6,8 @@ import {IMatrix44} from './IMatrix';
 
 export default class MutableQuaternion
   extends Quaternion
-  implements IMutableQuaternion {
+  implements IMutableQuaternion
+{
   constructor(
     x?:
       | number
