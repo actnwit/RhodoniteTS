@@ -44,9 +44,15 @@ import _Config from './foundation/core/Config';
 import {Plane as _Plane} from './foundation/geometry/Plane';
 import {Sphere as _Sphere} from './foundation/geometry/Sphere';
 import {Cube as _Cube} from './foundation/geometry/Cube';
+import {Axis as _Axis} from './foundation/geometry/Axis';
+import {Joint as _Joint} from './foundation/geometry/Joint';
+import {Line as _Line} from './foundation/geometry/Line';
 import type {PlaneDescriptor as _PlaneDescriptor} from './foundation/geometry/Plane';
 import type {SphereDescriptor as _SphereDescriptor} from './foundation/geometry/Sphere';
 import type {CubeDescriptor as _CubeDescriptor} from './foundation/geometry/Cube';
+import type {AxisDescriptor as _AxisDescriptor} from './foundation/geometry/Axis';
+import type {JointDescriptor as _JointDescriptor} from './foundation/geometry/Joint';
+import type {LineDescriptor as _LineDescriptor} from './foundation/geometry/Line';
 import _Material from './foundation/materials/core/Material';
 import _MaterialHelper from './foundation/helpers/MaterialHelper';
 import _RenderPass from './foundation/renderer/RenderPass';
@@ -239,6 +245,9 @@ export default {
   Plane: _Plane,
   Sphere: _Sphere,
   Cube: _Cube,
+  Axis: _Axis,
+  Joint: _Joint,
+  Line: _Line,
   Material: _Material,
   MaterialHelper: _MaterialHelper,
   MeshHelper: _MeshHelper,
@@ -389,6 +398,9 @@ export type Cube = _Cube;
 export type PlaneDescriptor = _PlaneDescriptor;
 export type SphereDescriptor = _SphereDescriptor;
 export type CubeDescriptor = _CubeDescriptor;
+export type AxisDescriptor = _AxisDescriptor;
+export type JointDescriptor = _JointDescriptor;
+export type LineDescriptor = _LineDescriptor;
 export type Material = _Material;
 export type MaterialHelper = typeof _MaterialHelper;
 export type MeshHelper = typeof _MeshHelper;
