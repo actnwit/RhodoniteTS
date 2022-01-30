@@ -5,6 +5,8 @@ import MeshRendererComponent from '../components/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';
 import {Plane, PlaneDescriptor} from '../geometry/Plane';
 import Mesh from '../geometry/Mesh';
+import {AxisDescriptor} from '../geometry/Axis';
+import {Axis} from '../geometry/Axis';
 
 const createPlane = (
   desc: PlaneDescriptor = {
@@ -22,17 +24,41 @@ const createPlane = (
     MeshRendererComponent,
   ]);
 
-  const planePrimitive = new Plane();
-  planePrimitive.generate(desc);
+  const primitive = new Plane();
+  primitive.generate(desc);
 
-  const planeMeshComponent = entity.getMesh();
-  const planeMesh = new Mesh();
-  planeMesh.addPrimitive(planePrimitive);
-  planeMeshComponent.setMesh(planeMesh);
+  const meshComponent = entity.getMesh();
+  const mesh = new Mesh();
+  mesh.addPrimitive(primitive);
+  meshComponent.setMesh(mesh);
+
+  return entity;
+};
+
+const createAxis = (
+  desc: AxisDescriptor = {
+    length: 1,
+  }
+) => {
+  const entity = EntityRepository.getInstance().createEntity([
+    TransformComponent,
+    SceneGraphComponent,
+    MeshComponent,
+    MeshRendererComponent,
+  ]);
+
+  const primitive = new Axis();
+  primitive.generate(desc);
+
+  const meshComponent = entity.getMesh();
+  const mesh = new Mesh();
+  mesh.addPrimitive(primitive);
+  meshComponent.setMesh(mesh);
 
   return entity;
 };
 
 export const MeshHelper = Object.freeze({
   createPlane,
+  createAxis,
 });
