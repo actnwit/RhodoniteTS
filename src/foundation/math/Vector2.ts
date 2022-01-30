@@ -345,6 +345,10 @@ export class Vector2_<
     return new this(new type(array), {type});
   }
 
+  static _fromCopy2(x: number, y: number, type: FloatTypedArrayConstructor) {
+    return new this(new type([x, y]), {type});
+  }
+
   static _fromCopyArray(
     array: Array<number>,
     type: FloatTypedArrayConstructor
@@ -391,6 +395,10 @@ export default class Vector2
 
   static fromCopyArray2(array: Array2<number>): Vector2 {
     return super._fromCopyArray2(array, Float32Array);
+  }
+
+  static fromCopy2(x: number, y: number): Vector2 {
+    return super._fromCopy2(x, y, Float32Array);
   }
 
   static fromCopyArray(array: Array<number>): Vector2 {
@@ -463,6 +471,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
     return super._fromCopyArray2(array, Float64Array);
   }
 
+  static fromCopy2(x: number, y: number): Vector2d {
+    return super._fromCopy2(x, y, Float64Array);
+  }
+
   static fromCopyArray(array: Array<number>): Vector2d {
     return super._fromCopyArray(array, Float64Array);
   }
@@ -521,3 +533,5 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
 }
 
 export type Vector2f = Vector2;
+export const ConstVector2_1_1 = Vector2.fromCopy2(1, 1);
+export const ConstVector2_0_0 = Vector2.fromCopy2(0, 0);
