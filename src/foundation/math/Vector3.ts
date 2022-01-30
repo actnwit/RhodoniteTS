@@ -509,6 +509,15 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     return new this(new type(array), {type});
   }
 
+  static _fromCopy3(
+    x: number,
+    y: number,
+    z: number,
+    type: FloatTypedArrayConstructor
+  ) {
+    return new this(new type([x, y, z]), {type});
+  }
+
   static _fromCopyArray(
     array: Array<number>,
     type: FloatTypedArrayConstructor
@@ -545,6 +554,10 @@ export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
 
   static fromCopyArray3(array: Array3<number>): Vector3 {
     return super._fromCopyArray3(array, Float32Array);
+  }
+
+  static fromCopy3(x: number, y: number, z: number): Vector3 {
+    return super._fromCopy3(x, y, z, Float32Array);
   }
 
   static fromCopyArray(array: Array<number>): Vector3 {
@@ -633,6 +646,10 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
     return super._fromCopyArray3(array, Float64Array);
   }
 
+  static fromCopy3(x: number, y: number, z: number): Vector3d {
+    return super._fromCopy3(x, y, z, Float64Array);
+  }
+
   static fromCopyArray(array: Array<number>): Vector3d {
     return super._fromCopyArray(array, Float64Array);
   }
@@ -699,3 +716,5 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
 }
 
 export type Vector3f = Vector3;
+export const ConstVector3_1_1_1 = Vector3.fromCopy3(1, 1, 1);
+export const ConstVector3_0_0_0 = Vector3.fromCopy3(0, 0, 0);
