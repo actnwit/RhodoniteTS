@@ -1,11 +1,10 @@
-import {Primitive} from './Primitive';
-import {CompositionType} from '../definitions/CompositionType';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {Size} from '../../types/CommonTypes';
-import Material from '../materials/core/Material';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
+import {VertexAttribute} from '../../definitions/VertexAttribute';
+import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import {Size} from '../../../types/CommonTypes';
+import {IShape} from './IShape';
 
-export interface PlaneDescriptor {
+export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of U(X)-axis direction */
   width: Size;
   /** the length of V(Y)-axis direction */
@@ -18,15 +17,13 @@ export interface PlaneDescriptor {
   isUVRepeat: boolean;
   /** draw textures by flipping on the V(Y)-axis */
   flipTextureCoordinateY?: boolean;
-  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
-  material?: Material;
 }
 
 /**
  * Plane class
  *
  */
-export class Plane extends Primitive {
+export class Plane extends IShape {
   /**
    * Generates a plane object
    * @param desc a descriptor object of a Plane

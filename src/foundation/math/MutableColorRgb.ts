@@ -1,9 +1,8 @@
 import MutableVector3 from './MutableVector3';
 import {IVector3, IVector4, IMutableVector3} from './IVector';
 import {IMutableColorRgb} from './IColor';
-import {TypedArray} from '../../types/CommonTypes';
 
-export default class MutableColorRgb
+export class MutableColorRgb
   extends MutableVector3
   implements IMutableVector3, IMutableColorRgb
 {

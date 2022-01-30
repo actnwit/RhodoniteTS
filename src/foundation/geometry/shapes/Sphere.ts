@@ -1,29 +1,26 @@
-import {Primitive} from './Primitive';
-import {CompositionType} from '../definitions/CompositionType';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import Material from '../materials/core/Material';
-import Vector3 from '../math/Vector3';
-import {Count} from '../../types/CommonTypes';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
+import {VertexAttribute} from '../../definitions/VertexAttribute';
+import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import Vector3 from '../../math/Vector3';
+import {Count} from '../../../types/CommonTypes';
+import {IShape} from './IShape';
 
 /**
  * The argument descriptor for Plane primitives
  */
-export interface SphereDescriptor {
+export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
   /** radius */
   radius: number;
   /** the number of segments for width direction */
   widthSegments: Count;
   /** the number of segments for height direction */
   heightSegments: Count;
-  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
-  material?: Material;
 }
 
 /**
  * Sphere class
  */
-export class Sphere extends Primitive {
+export class Sphere extends IShape {
   constructor() {
     super();
   }

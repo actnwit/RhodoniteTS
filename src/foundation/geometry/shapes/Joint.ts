@@ -1,18 +1,15 @@
-import Vector3 from '../../foundation/math/Vector3';
-import {Primitive} from '../../foundation/geometry/Primitive';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import Material from '../materials/core/Material';
+import Vector3 from '../../math/Vector3';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
+import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import {VertexAttribute} from '../../definitions/VertexAttribute';
+import {IShape} from './IShape';
 
-export interface JointDescriptor {
-  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
-  material?: Material;
-}
+export type JointDescriptor = IAnyPrimitiveDescriptor;
 
 /**
  * the Joint class
  */
-export class Joint extends Primitive {
+export class Joint extends IShape {
   private __worldPositionOfThisJoint = Vector3.fromCopyArray3([0, 0, 1]);
   private __worldPositionOfParentJoint = Vector3.fromCopyArray3([0, 0, 0]);
   private __width = 1;

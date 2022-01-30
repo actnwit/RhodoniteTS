@@ -35,6 +35,7 @@
     "MatCap",
     "MultiPass",
     "PixelPickingTest",
+    "Primitives",
     "ShadowMap",
     "ShadowMapDebugMode",
     "ShadowMapVariance",

@@ -16,8 +16,8 @@ import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import ColorRgb from '../math/ColorRgb';
-import ColorRgba from '../math/ColorRgba';
+import {ColorRgb} from '../math/ColorRgb';
+import {ColorRgba} from '../math/ColorRgba';
 import MutableVector3 from '../math/MutableVector3';
 import MutableVector4 from '../math/MutableVector4';
 import Vector3 from '../math/Vector3';

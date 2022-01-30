@@ -11,6 +11,10 @@ import _Scalar from './foundation/math/Scalar';
 import _Vector2 from './foundation/math/Vector2';
 import _Vector3 from './foundation/math/Vector3';
 import _Vector4 from './foundation/math/Vector4';
+import {ColorRgb as _ColorRgb} from './foundation/math/ColorRgb';
+import {ColorRgba as _ColorRgba} from './foundation/math/ColorRgba';
+import {MutableColorRgb as _MutableColorRgb} from './foundation/math/MutableColorRgb';
+import {MutableColorRgba as _MutableColorRgba} from './foundation/math/MutableColorRgba';
 import _MutableScalar from './foundation/math/MutableScalar';
 import _MutableVector2 from './foundation/math/MutableVector2';
 import _MutableVector3 from './foundation/math/MutableVector3';
@@ -41,18 +45,20 @@ import _CameraControllerComponent from './foundation/components/CameraController
 import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';
 import {detectFormatByUri as _detectFormatByUri} from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';
-import {Plane as _Plane} from './foundation/geometry/Plane';
-import {Sphere as _Sphere} from './foundation/geometry/Sphere';
-import {Cube as _Cube} from './foundation/geometry/Cube';
-import {Axis as _Axis} from './foundation/geometry/Axis';
-import {Joint as _Joint} from './foundation/geometry/Joint';
-import {Line as _Line} from './foundation/geometry/Line';
-import type {PlaneDescriptor as _PlaneDescriptor} from './foundation/geometry/Plane';
-import type {SphereDescriptor as _SphereDescriptor} from './foundation/geometry/Sphere';
-import type {CubeDescriptor as _CubeDescriptor} from './foundation/geometry/Cube';
-import type {AxisDescriptor as _AxisDescriptor} from './foundation/geometry/Axis';
-import type {JointDescriptor as _JointDescriptor} from './foundation/geometry/Joint';
-import type {LineDescriptor as _LineDescriptor} from './foundation/geometry/Line';
+import {Plane as _Plane} from './foundation/geometry/shapes/Plane';
+import {Sphere as _Sphere} from './foundation/geometry/shapes/Sphere';
+import {Cube as _Cube} from './foundation/geometry/shapes/Cube';
+import {Axis as _Axis} from './foundation/geometry/shapes/Axis';
+import {Joint as _Joint} from './foundation/geometry/shapes/Joint';
+import {Line as _Line} from './foundation/geometry/shapes/Line';
+import {Grid as _Grid} from './foundation/geometry/shapes/Grid';
+import type {PlaneDescriptor as _PlaneDescriptor} from './foundation/geometry/shapes/Plane';
+import type {SphereDescriptor as _SphereDescriptor} from './foundation/geometry/shapes/Sphere';
+import type {CubeDescriptor as _CubeDescriptor} from './foundation/geometry/shapes/Cube';
+import type {AxisDescriptor as _AxisDescriptor} from './foundation/geometry/shapes/Axis';
+import type {JointDescriptor as _JointDescriptor} from './foundation/geometry/shapes/Joint';
+import type {LineDescriptor as _LineDescriptor} from './foundation/geometry/shapes/Line';
+import type {GridDescriptor as _GridDescriptor} from './foundation/geometry/shapes/Grid';
 import _Material from './foundation/materials/core/Material';
 import _MaterialHelper from './foundation/helpers/MaterialHelper';
 import _RenderPass from './foundation/renderer/RenderPass';
@@ -216,10 +222,14 @@ export default {
   Vector2: _Vector2,
   Vector3: _Vector3,
   Vector4: _Vector4,
+  ColorRgb: _ColorRgb,
+  ColorRgba: _ColorRgba,
   MutableScalar: _MutableScalar,
   MutableVector2: _MutableVector2,
   MutableVector3: _MutableVector3,
   MutableVector4: _MutableVector4,
+  MutableColorRgb: _MutableColorRgb,
+  MutableColorRgba: _MutableColorRgba,
   Matrix22: _Matrix22,
   Matrix33: _Matrix33,
   Matrix44: _Matrix44,
@@ -248,6 +258,7 @@ export default {
   Axis: _Axis,
   Joint: _Joint,
   Line: _Line,
+  Grid: _Grid,
   Material: _Material,
   MaterialHelper: _MaterialHelper,
   MeshHelper: _MeshHelper,
@@ -401,6 +412,7 @@ export type CubeDescriptor = _CubeDescriptor;
 export type AxisDescriptor = _AxisDescriptor;
 export type JointDescriptor = _JointDescriptor;
 export type LineDescriptor = _LineDescriptor;
+export type GridDescriptor = _GridDescriptor;
 export type Material = _Material;
 export type MaterialHelper = typeof _MaterialHelper;
 export type MeshHelper = typeof _MeshHelper;

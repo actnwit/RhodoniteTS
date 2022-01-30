@@ -1,9 +1,8 @@
 import Vector3 from './Vector3';
-import {IVector3, IVector4} from './IVector';
+import {IVector3} from './IVector';
 import {IColorRgb} from './IColor';
-import {TypedArray} from '../../types/CommonTypes';
 
-export default class ColorRgb extends Vector3 implements IVector3, IColorRgb {
+export class ColorRgb extends Vector3 implements IVector3, IColorRgb {
   constructor(r: Float32Array) {
     super(r);
   }

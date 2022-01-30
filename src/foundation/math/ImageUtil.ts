@@ -2,7 +2,7 @@ import Vector3 from './Vector3';
 import MutableMatrix33 from './MutableMatrix33';
 import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
-import ColorRgb from './ColorRgb';
+import {ColorRgb} from './ColorRgb';
 import {Index, Size} from '../../types/CommonTypes';
 import MutableVector2 from './MutableVector2';
 import TextureDataFloat from '../textures/TextureDataFloat';
