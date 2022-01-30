@@ -1,13 +1,9 @@
-import Vector3 from '../../foundation/math/Vector3';
-import {Primitive} from '../../foundation/geometry/Primitive';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import Material from '../materials/core/Material';
+import Vector3 from '../../math/Vector3';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
+import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import {VertexAttribute} from '../../definitions/VertexAttribute';
 
-export interface JointDescriptor {
-  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
-  material?: Material;
-}
+export type JointDescriptor = IAnyPrimitiveDescriptor;
 
 /**
  * the Joint class

@@ -1,20 +1,15 @@
-import {Primitive} from './Primitive';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import Material from '../materials/core/Material';
-import {Size} from '../../types/CommonTypes';
-import {IVector3} from '../math/IVector';
-import Vector3 from '../math/Vector3';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
+import {VertexAttribute} from '../../definitions/VertexAttribute';
+import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import {IVector3} from '../../math/IVector';
 
-export interface LineDescriptor {
+export interface LineDescriptor extends IAnyPrimitiveDescriptor {
   /** the start position */
   startPos: IVector3;
   /** the end position */
   endPos: IVector3;
   /** whether it has the terminal mark */
   hasTerminalMark: boolean;
-  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
-  material?: Material;
 }
 
 /**

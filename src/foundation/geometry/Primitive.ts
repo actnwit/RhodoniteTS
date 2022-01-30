@@ -26,12 +26,16 @@ import {IVector3} from '../math/IVector';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
-export interface PrimitiveDescriptor {
+export interface IAnyPrimitiveDescriptor {
+  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
+  material?: Material;
+}
+
+export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
   attributes: TypedArray[];
   attributeSemantics: VertexAttributeSemanticsJoinedString[];
   primitiveMode: PrimitiveModeEnum;
   indices?: TypedArray;
-  material?: Material;
 }
 
 export class Primitive extends RnObject {

@@ -1,19 +1,15 @@
-import {CompositionType} from '../definitions/CompositionType';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import Material from '../materials/core/Material';
-import {IColorRgba} from '../math/IColor';
-import {IVector3} from '../math/IVector';
-import {Is} from '../misc/Is';
-import {Primitive} from './Primitive';
+import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import {VertexAttribute} from '../../definitions/VertexAttribute';
+import {IColorRgba} from '../../math/IColor';
+import {IVector3} from '../../math/IVector';
+import {Is} from '../../misc/Is';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
 
-export interface CubeDescriptor {
+export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
   /** three width (width, height, depth) in (x, y, z) */
   widthVector: IVector3;
   /** color */
   color?: IColorRgba;
-  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
-  material?: Material;
 }
 
 /**

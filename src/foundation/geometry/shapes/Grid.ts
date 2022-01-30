@@ -1,10 +1,9 @@
-import {Primitive} from './Primitive';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import Material from '../materials/core/Material';
-import {Size} from '../../types/CommonTypes';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
+import {VertexAttribute} from '../../definitions/VertexAttribute';
+import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import {Size} from '../../../types/CommonTypes';
 
-export interface GridDescriptor {
+export interface GridDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of axis */
   length: Size;
   /** the division of grid */
@@ -15,8 +14,6 @@ export interface GridDescriptor {
   isXY: boolean;
   /** the YZ axis */
   isYZ: boolean;
-  /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
-  material?: Material;
 }
 
 /**
