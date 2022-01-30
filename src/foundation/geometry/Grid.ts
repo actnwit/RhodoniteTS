@@ -35,35 +35,29 @@ export class Grid extends Primitive {
 
       // XZ grid
       if (desc.isXZ) {
-        const pos = [];
-        pos.push(-length, 0, start + oneUnitLength * i);
-        pos.push(length, 0, start + oneUnitLength * i);
+        positions.push(-length, 0, start + oneUnitLength * i);
+        positions.push(length, 0, start + oneUnitLength * i);
 
-        pos.push(start + oneUnitLength * i, 0, -length);
-        pos.push(start + oneUnitLength * i, 0, length);
-        Array.prototype.push.apply(pos);
+        positions.push(start + oneUnitLength * i, 0, -length);
+        positions.push(start + oneUnitLength * i, 0, length);
       }
 
       // XY grid
       if (desc.isXY) {
-        const pos = [];
-        pos.push(-length, start + oneUnitLength * i, 0);
-        pos.push(length, start + oneUnitLength * i, 0);
+        positions.push(-length, start + oneUnitLength * i, 0);
+        positions.push(length, start + oneUnitLength * i, 0);
 
-        pos.push(start + oneUnitLength * i, -length, 0);
-        pos.push(start + oneUnitLength * i, length, 0);
-        Array.prototype.push.apply(pos);
+        positions.push(start + oneUnitLength * i, -length, 0);
+        positions.push(start + oneUnitLength * i, length, 0);
       }
 
       // YZ grid
       if (desc.isYZ) {
-        const pos = [];
-        pos.push(0, -length, start + oneUnitLength * i);
-        pos.push(0, length, start + oneUnitLength * i);
+        positions.push(0, -length, start + oneUnitLength * i);
+        positions.push(0, length, start + oneUnitLength * i);
 
-        pos.push(0, start + oneUnitLength * i, -length);
-        pos.push(0, start + oneUnitLength * i, length);
-        Array.prototype.push.apply(pos);
+        positions.push(0, start + oneUnitLength * i, -length);
+        positions.push(0, start + oneUnitLength * i, length);
       }
     }
 
