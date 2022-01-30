@@ -20,7 +20,7 @@ export interface GridDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * the Grid class
  */
-export class Grid extends Primitive implements IShape {
+export class Grid extends IShape {
   /**
    * Generates a grid object
    * @param desc a descriptor object of a Grid

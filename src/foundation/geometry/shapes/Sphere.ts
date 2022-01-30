@@ -20,7 +20,7 @@ export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * Sphere class
  */
-export class Sphere extends Primitive implements IShape {
+export class Sphere extends IShape {
   constructor() {
     super();
   }

@@ -9,7 +9,7 @@ export type JointDescriptor = IAnyPrimitiveDescriptor;
 /**
  * the Joint class
  */
-export class Joint extends Primitive implements IShape {
+export class Joint extends IShape {
   private __worldPositionOfThisJoint = Vector3.fromCopyArray3([0, 0, 1]);
   private __worldPositionOfParentJoint = Vector3.fromCopyArray3([0, 0, 0]);
   private __width = 1;

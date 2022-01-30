@@ -12,7 +12,7 @@ export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * the Axis class
  */
-export class Axis extends Primitive implements IShape {
+export class Axis extends IShape {
   /**
    * Generates a axis object
    * @param desc a descriptor object of a Axis

@@ -23,7 +23,7 @@ export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
  * Plane class
  *
  */
-export class Plane extends Primitive implements IShape {
+export class Plane extends IShape {
   /**
    * Generates a plane object
    * @param desc a descriptor object of a Plane

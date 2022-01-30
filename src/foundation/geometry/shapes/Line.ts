@@ -16,7 +16,7 @@ export interface LineDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * the Line class
  */
-export class Line extends Primitive implements IShape {
+export class Line extends IShape {
   /**
    * Generates a line object
    * @param desc a descriptor object of a Line

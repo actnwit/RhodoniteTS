@@ -1,5 +1,5 @@
-import {IAnyPrimitiveDescriptor} from '../Primitive';
+import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
 
-export interface IShape {
-  generate(desc: IAnyPrimitiveDescriptor): void;
+export abstract class IShape extends Primitive {
+  abstract generate(desc: IAnyPrimitiveDescriptor): void;
 }
