@@ -4,8 +4,8 @@ import {
   FloatTypedArrayConstructor,
   TypedArrayConstructor,
 } from '../../types/CommonTypes';
-import ColorRgb from '../math/ColorRgb';
-import ColorRgba from '../math/ColorRgba';
+import {ColorRgb} from '../math/ColorRgb';
+import {ColorRgba} from '../math/ColorRgba';
 
 export default class TextureDataFloat {
   private __data: Float32Array;

@@ -2,7 +2,7 @@ import MutableVector4 from './MutableVector4';
 import {IVector4, IMutableVector4} from './IVector';
 import {IMutableColorRgba} from './IColor';
 
-export default class MutableColorRgba
+export class MutableColorRgba
   extends MutableVector4
   implements IMutableVector4, IMutableColorRgba
 {

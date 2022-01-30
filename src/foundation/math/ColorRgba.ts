@@ -2,7 +2,7 @@ import Vector4 from './Vector4';
 import {IVector4} from './IVector';
 import {IColorRgba} from './IColor';
 
-export default class ColorRgba extends Vector4 implements IVector4, IColorRgba {
+export class ColorRgba extends Vector4 implements IVector4, IColorRgba {
   constructor(r: Float32Array) {
     super(r);
   }
@@ -83,3 +83,6 @@ export default class ColorRgba extends Vector4 implements IVector4, IColorRgba {
     return super.clone() as ColorRgba;
   }
 }
+
+export const ConstRgbaWhite = new ColorRgba(new Float32Array([1, 1, 1, 1]));
+export const ConstRgbaBlack = new ColorRgba(new Float32Array([0, 0, 0, 1]));
