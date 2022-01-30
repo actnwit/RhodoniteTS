@@ -1,4 +1,4 @@
-import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
+import {IAnyPrimitiveDescriptor} from '../Primitive';
 import {VertexAttribute} from '../../definitions/VertexAttribute';
 import {PrimitiveMode} from '../../definitions/PrimitiveMode';
 import {Size} from '../../../types/CommonTypes';
@@ -19,7 +19,7 @@ export class Axis extends IShape {
    */
   public generate(desc: AxisDescriptor): void {
     // prettier-ignore
-    const positions = new Float32Array([
+    const positions = [
       // X axis
       0, 0, 0,
       desc.length, 0, 0,
@@ -31,10 +31,10 @@ export class Axis extends IShape {
       // Z axis
       0, 0, 0,
       0, 0, desc.length,
-    ]);
+    ];
 
     // prettier-ignore
-    const colors = new Float32Array([
+    const colors = [
       // X axis as Red
       1, 0, 0,
       1, 0, 0,
@@ -46,15 +46,14 @@ export class Axis extends IShape {
       // Z axis as Blue
       0, 0, 1,
       0, 0, 1,
-    ]);
+    ];
 
     const attributes = [new Float32Array(positions), new Float32Array(colors)];
 
     // Check Size
     const attributeSemantics = [
       VertexAttribute.Position.XYZ,
-      VertexAttribute.Normal.XYZ,
-      VertexAttribute.Texcoord0.XY,
+      VertexAttribute.Color0.XYZ,
     ];
 
     this.copyVertexData({
