@@ -51,12 +51,14 @@ import {Cube as _Cube} from './foundation/geometry/shapes/Cube';
 import {Axis as _Axis} from './foundation/geometry/shapes/Axis';
 import {Joint as _Joint} from './foundation/geometry/shapes/Joint';
 import {Line as _Line} from './foundation/geometry/shapes/Line';
+import {Grid as _Grid} from './foundation/geometry/shapes/Grid';
 import type {PlaneDescriptor as _PlaneDescriptor} from './foundation/geometry/shapes/Plane';
 import type {SphereDescriptor as _SphereDescriptor} from './foundation/geometry/shapes/Sphere';
 import type {CubeDescriptor as _CubeDescriptor} from './foundation/geometry/shapes/Cube';
 import type {AxisDescriptor as _AxisDescriptor} from './foundation/geometry/shapes/Axis';
 import type {JointDescriptor as _JointDescriptor} from './foundation/geometry/shapes/Joint';
 import type {LineDescriptor as _LineDescriptor} from './foundation/geometry/shapes/Line';
+import type {GridDescriptor as _GridDescriptor} from './foundation/geometry/shapes/Grid';
 import _Material from './foundation/materials/core/Material';
 import _MaterialHelper from './foundation/helpers/MaterialHelper';
 import _RenderPass from './foundation/renderer/RenderPass';
@@ -256,6 +258,7 @@ export default {
   Axis: _Axis,
   Joint: _Joint,
   Line: _Line,
+  Grid: _Grid,
   Material: _Material,
   MaterialHelper: _MaterialHelper,
   MeshHelper: _MeshHelper,
@@ -409,6 +412,7 @@ export type CubeDescriptor = _CubeDescriptor;
 export type AxisDescriptor = _AxisDescriptor;
 export type JointDescriptor = _JointDescriptor;
 export type LineDescriptor = _LineDescriptor;
+export type GridDescriptor = _GridDescriptor;
 export type Material = _Material;
 export type MaterialHelper = typeof _MaterialHelper;
 export type MeshHelper = typeof _MeshHelper;
