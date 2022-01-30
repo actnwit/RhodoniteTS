@@ -2,6 +2,7 @@ import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
 import {VertexAttribute} from '../../definitions/VertexAttribute';
 import {PrimitiveMode} from '../../definitions/PrimitiveMode';
 import {IVector3} from '../../math/IVector';
+import {IShape} from './IShape';
 
 export interface LineDescriptor extends IAnyPrimitiveDescriptor {
   /** the start position */
@@ -15,7 +16,7 @@ export interface LineDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * the Line class
  */
-export class Line extends Primitive {
+export class Line extends Primitive implements IShape {
   /**
    * Generates a line object
    * @param desc a descriptor object of a Line

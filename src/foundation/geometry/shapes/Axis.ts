@@ -2,6 +2,7 @@ import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
 import {VertexAttribute} from '../../definitions/VertexAttribute';
 import {PrimitiveMode} from '../../definitions/PrimitiveMode';
 import {Size} from '../../../types/CommonTypes';
+import {IShape} from '../shapes/IShape';
 
 export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of axis */
@@ -11,7 +12,7 @@ export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * the Axis class
  */
-export class Axis extends Primitive {
+export class Axis extends Primitive implements IShape {
   /**
    * Generates a axis object
    * @param desc a descriptor object of a Axis

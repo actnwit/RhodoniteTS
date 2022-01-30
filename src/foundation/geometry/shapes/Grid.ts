@@ -2,6 +2,7 @@ import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
 import {VertexAttribute} from '../../definitions/VertexAttribute';
 import {PrimitiveMode} from '../../definitions/PrimitiveMode';
 import {Size} from '../../../types/CommonTypes';
+import {IShape} from './IShape';
 
 export interface GridDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of axis */
@@ -19,7 +20,7 @@ export interface GridDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * the Grid class
  */
-export class Grid extends Primitive {
+export class Grid extends Primitive implements IShape {
   /**
    * Generates a grid object
    * @param desc a descriptor object of a Grid

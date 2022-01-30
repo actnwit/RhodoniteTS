@@ -3,6 +3,7 @@ import {VertexAttribute} from '../../definitions/VertexAttribute';
 import {PrimitiveMode} from '../../definitions/PrimitiveMode';
 import Vector3 from '../../math/Vector3';
 import {Count} from '../../../types/CommonTypes';
+import {IShape} from './IShape';
 
 /**
  * The argument descriptor for Plane primitives
@@ -19,7 +20,7 @@ export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * Sphere class
  */
-export class Sphere extends Primitive {
+export class Sphere extends Primitive implements IShape {
   constructor() {
     super();
   }
