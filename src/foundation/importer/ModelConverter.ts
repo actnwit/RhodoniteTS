@@ -306,8 +306,8 @@ export default class ModelConverter {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          this._accessBinaryWithAccessor(sampler.inputObject!);
-          this._accessBinaryWithAccessor(sampler.outputObject!);
+          this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
+          this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
         }
       }
     }
@@ -371,7 +371,7 @@ export default class ModelConverter {
     const entityRepository = EntityRepository.getInstance();
     for (const skin of gltfModel.skins) {
       if (Is.exist(skin.inverseBindMatricesObject)) {
-        this._accessBinaryWithAccessor(skin.inverseBindMatricesObject);
+        this._readBinaryFromAccessorAndSetItToAccessorExtras(skin.inverseBindMatricesObject);
       }
     }
 
@@ -1630,7 +1630,9 @@ export default class ModelConverter {
     return !!new Uint8Array(new Uint16Array([0x00ff]).buffer)[0];
   }
 
-  _accessBinaryWithAccessor(accessor: RnM2Accessor): Float32Array {
+  _readBinaryFromAccessorAndSetItToAccessorExtras(
+    accessor: RnM2Accessor
+  ): Float32Array {
     const bufferView = accessor.bufferViewObject!;
     const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
@@ -1664,6 +1666,8 @@ export default class ModelConverter {
     const numberArray: number[] = [];
 
     if (ModelConverter._isSystemLittleEndian()) {
+      // If this platform is Little Endian System,
+      //   the uint8array can
       let typedDataArray: TypedArray = new Float32Array();
       if (dataViewMethod === 'getFloat32') {
         typedDataArray = this.__rewrapWithTypedArray(
@@ -1713,7 +1717,10 @@ export default class ModelConverter {
           byteLength / componentBytes
         );
       }
-      float32Array = this.__arrayToFloat32Array(dataViewMethod, typedDataArray);
+      float32Array = this.__normalizeTypedArrayToFloat32Array(
+        dataViewMethod,
+        typedDataArray
+      );
     } else {
       // for BigEndian process
       const dataView: any = new DataView(
@@ -1759,7 +1766,10 @@ export default class ModelConverter {
             break;
         }
       }
-      float32Array = this.__arrayToFloat32Array(dataViewMethod, numberArray);
+      float32Array = this.__normalizeTypedArrayToFloat32Array(
+        dataViewMethod,
+        numberArray
+      );
     }
 
     accessor.extras!.typedDataArray = float32Array;
@@ -1767,7 +1777,14 @@ export default class ModelConverter {
     return float32Array;
   }
 
-  private __arrayToFloat32Array(
+  /**
+   * normalize values of TypedArray to Float32Array
+   * See: the last part of 3.11.Animation at https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#animations
+   * @param dataViewMethod
+   * @param numberArray
+   * @returns
+   */
+  private __normalizeTypedArrayToFloat32Array(
     dataViewMethod: string,
     numberArray: number[] | TypedArray
   ): Float32Array {
