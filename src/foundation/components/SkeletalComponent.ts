@@ -140,6 +140,10 @@ export default class SkeletalComponent extends Component {
     }
   }
 
+  getJoints(): SceneGraphComponent[] {
+    return this.__joints.concat();
+  }
+
   get rootJointWorldMatrixInner() {
     return this.jointsHierarchy?.worldMatrixInner;
   }
@@ -376,6 +380,10 @@ export default class SkeletalComponent extends Component {
     this.__matArray[i * 16 + 13] = m._v[13];
     this.__matArray[i * 16 + 14] = m._v[14];
     this.__matArray[i * 16 + 15] = m._v[15];
+  }
+
+  getInverseBindMatrices() {
+    return this._inverseBindMatrices.concat();
   }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);
