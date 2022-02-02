@@ -1927,12 +1927,19 @@ export default class ModelConverter {
     }
   }
 
+  /**
+   * Take a Rn.BufferView and a Rn.Accessor from the Rn.Buffer
+   *  from the information of the Gltf2Buffer, Gltf2BufferView, and Gltf2Accessor.
+   * @param accessor
+   * @param rnBuffer
+   * @returns
+   */
   private __getRnAccessor(accessor: RnM2Accessor, rnBuffer: Buffer) {
-    const bufferView = accessor.bufferViewObject!;
+    const gltfBufferView = accessor.bufferViewObject!;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
-      byteLengthToNeed: bufferView.byteLength,
-      byteStride: bufferView.byteStride ?? 0,
-      byteOffset: bufferView.byteOffset ?? 0,
+      byteLengthToNeed: gltfBufferView.byteLength,
+      byteStride: gltfBufferView.byteStride ?? 0,
+      byteOffset: gltfBufferView.byteOffset ?? 0,
     });
 
     const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
