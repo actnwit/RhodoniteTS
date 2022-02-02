@@ -306,8 +306,12 @@ export default class ModelConverter {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
-          this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
+          this._readBinaryFromAccessorAndSetItToAccessorExtras(
+            sampler.inputObject!
+          );
+          this._readBinaryFromAccessorAndSetItToAccessorExtras(
+            sampler.outputObject!
+          );
         }
       }
     }
@@ -371,7 +375,9 @@ export default class ModelConverter {
     const entityRepository = EntityRepository.getInstance();
     for (const skin of gltfModel.skins) {
       if (Is.exist(skin.inverseBindMatricesObject)) {
-        this._readBinaryFromAccessorAndSetItToAccessorExtras(skin.inverseBindMatricesObject);
+        this._readBinaryFromAccessorAndSetItToAccessorExtras(
+          skin.inverseBindMatricesObject
+        );
       }
     }
 

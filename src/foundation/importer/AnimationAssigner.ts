@@ -112,8 +112,12 @@ export default class AnimationAssigner {
 
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          modelConverter._accessBinaryWithAccessor(sampler.inputObject!);
-          modelConverter._accessBinaryWithAccessor(sampler.outputObject!);
+          modelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
+            sampler.inputObject!
+          );
+          modelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
+            sampler.outputObject!
+          );
         }
       }
     }
