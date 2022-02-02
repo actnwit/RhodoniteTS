@@ -95,7 +95,7 @@ export default class SkeletalComponent extends Component {
     return WellKnownComponentTIDs.SkeletalComponentTID;
   }
 
-  set joints(joints: SceneGraphComponent[]) {
+  setJoints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
     let index = 0;
     if (this.componentSID < Config.maxSkeletonNumber) {

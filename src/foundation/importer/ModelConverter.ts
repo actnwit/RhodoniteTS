@@ -418,7 +418,7 @@ export default class ModelConverter {
             for (const i of node.skinObject.joints) {
               joints.push(rnEntities[i].getSceneGraph());
             }
-            skeletalComponent!.joints = joints;
+            skeletalComponent!.setJoints(joints);
             if (Is.exist(node.skinObject.skeleton)) {
               skeletalComponent!.jointsHierarchy =
                 rnEntities[node.skinObject.skeleton].getSceneGraph();
