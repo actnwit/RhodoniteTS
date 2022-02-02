@@ -100,6 +100,9 @@ export default class Gltf2Exporter {
     if (json.meshes.length === 0) {
       delete (json as Gltf2).meshes;
     }
+    if (json.skins.length === 0) {
+      delete (json as Gltf2).skins;
+    }
   }
 
   /**
@@ -141,6 +144,7 @@ export default class Gltf2Exporter {
       accessors: [],
       animations: [],
       meshes: [],
+      skins: [],
       materials: [
         {
           pbrMetallicRoughness: {
@@ -270,41 +274,79 @@ export default class Gltf2Exporter {
    * @param json a glTF2 JSON
    * @param entities all target entities
    */
-  // static __createSkins(
-  //   json: Gltf2Ex,
-  //   entities: Entity[],
-  //   bufferViewByteLengthAccumulatedArray: Byte[],
-  //   existingUniqueRnBuffers: Buffer[],
-  //   existingUniqueRnBufferViews: BufferView[],
-  //   existingUniqueRnAccessors: Accessor[]
-  //   ) {
-  //   for (let i = 0; i < entities.length; i++) {
-  //     const entity = entities[i];
-  //     const skeletalComponent = entity.getSkeletal();
-  //     const jointSceneComponentsOfTheEntity = skeletalComponent.getJoints();
-  //     const jointIndicesOfTheEntity: Index[] = [];
-  //     entities.forEach((entity, j) => {
-  //       for (const jointSceneComponent of jointSceneComponentsOfTheEntity) {
-  //         if (jointSceneComponent.entity === entity) {
-  //           jointIndicesOfTheEntity.push(j);
-  //         }
-  //       }
-  //     });
+  static __createSkins(
+    json: Gltf2Ex,
+    entities: Entity[],
+    bufferViewByteLengthAccumulatedArray: Byte[],
+    existingUniqueRnBuffers: Buffer[],
+    existingUniqueRnBufferViews: BufferView[],
+    existingUniqueRnAccessors: Accessor[]
+  ) {
+    for (let i = 0; i < entities.length; i++) {
+      const entity = entities[i];
+      const skeletalComponent = entity.getSkeletal();
+      const jointSceneComponentsOfTheEntity = skeletalComponent.getJoints();
+      const jointIndicesOfTheEntity: Index[] = [];
+      entities.forEach((entity, j) => {
+        for (const jointSceneComponent of jointSceneComponentsOfTheEntity) {
+          if (jointSceneComponent.entity === entity) {
+            jointIndicesOfTheEntity.push(j);
+          }
+        }
+      });
 
-  //     const inverseBindMatrices = skeletalComponent._inverseBindMatrices;
-  //     const inverseBindMatricesFloat32Array = new Float32Array(inverseBindMatrices.length * 16);
+      const inverseBindMatAccessor =
+        skeletalComponent.getInverseBindMatricesAccessor();
+      if (Is.exist(inverseBindMatAccessor)) {
+        const bufferIdxToSet = calcBufferIdxToSet(
+          existingUniqueRnBuffers,
+          inverseBindMatAccessor.bufferView.buffer
+        );
+        const gltf2BufferView = createGltf2BufferView({
+          bufferIdx: bufferIdxToSet,
+          bufferViewByteOffset:
+            inverseBindMatAccessor.bufferView.byteOffsetInBuffer,
+          accessorByteOffset: inverseBindMatAccessor.byteOffsetInBufferView,
+          accessorCount: inverseBindMatAccessor.elementCount,
+          bufferViewByteStride:
+            inverseBindMatAccessor.bufferView.defaultByteStride,
+          componentType: inverseBindMatAccessor.componentType,
+          compositionType: inverseBindMatAccessor.compositionType,
+          uint8Array: inverseBindMatAccessor.getUint8Array(),
+        });
+        const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
+          existingUniqueRnBufferViews,
+          inverseBindMatAccessor.bufferView
+        );
+        const gltf2Accessor = createGltf2Accessor({
+          bufferViewIdx: bufferViewIdxToSet,
+          accessorByteOffset: inverseBindMatAccessor.byteOffsetInBufferView,
+          componentType: inverseBindMatAccessor.componentType,
+          compositionType: inverseBindMatAccessor.compositionType,
+          count: inverseBindMatAccessor.elementCount,
+        });
+        json.bufferViews.push(gltf2BufferView);
+        json.accessors.push(gltf2Accessor);
+        const skeletonSceneComponent = skeletalComponent.topOfJointsHierarchy;
+        const bindShapeMatrix = skeletalComponent._bindShapeMatrix;
+        let skeletalIdx = -1;
+        if (Is.exist(skeletonSceneComponent)) {
+          const skeletalEntity = skeletalComponent.entity;
+          skeletalIdx = entities.indexOf(skeletalEntity);
+        } else {
+          skeletalIdx = jointIndicesOfTheEntity[0];
+        }
+        const skinJson: Gltf2Skin = {
+          joints: jointIndicesOfTheEntity,
+          inverseBindMatrices: json.accessors.length - 1,
+          skeleton: skeletalIdx >= 0 ? skeletalIdx : undefined,
+          bindShapeMatrix: bindShapeMatrix?.flattenAsArray(),
+        };
 
-  //     const bufferIdxToSet = calcBufferIdxToSet(existingUniqueRnBuffers, rnBuff)
-  //     const gltf2BufferView = createGltf2BufferView({
-  //       bufferIdx: json.buffers.length,
-
-  //     });
-  //     const skinJson: Gltf2Skin = {
-  //       joints: jointIndicesOfTheEntity,
-  //       inverseBindMatrices:
-  //     };
-  //   }
-  // }
+        json.skins.push(skinJson);
+      }
+    }
+  }
 
   /**
    * create Gltf2Materials and set them to Gltf2Primitives for the output glTF2 JSON

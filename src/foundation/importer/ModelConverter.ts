@@ -403,10 +403,10 @@ export default class ModelConverter {
             }
             skeletalComponent!.setJoints(joints);
             if (Is.exist(node.skinObject.skeleton)) {
-              skeletalComponent!.jointsHierarchy =
+              skeletalComponent!.topOfJointsHierarchy =
                 rnEntities[node.skinObject.skeleton].getSceneGraph();
             } else {
-              skeletalComponent!.jointsHierarchy = joints[0];
+              skeletalComponent!.topOfJointsHierarchy = joints[0];
             }
           }
         }

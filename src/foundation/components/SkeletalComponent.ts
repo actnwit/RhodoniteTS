@@ -29,7 +29,7 @@ export default class SkeletalComponent extends Component {
   private __inverseBindMatricesAccessor?: Accessor;
   public _bindShapeMatrix?: Matrix44;
   private __jointMatrices?: number[];
-  public jointsHierarchy?: SceneGraphComponent;
+  public topOfJointsHierarchy?: SceneGraphComponent;
   public isSkinning = true;
   public isOptimizingMode = true;
   private static __tmpVec3_0 = MutableVector3.zero();
@@ -150,7 +150,7 @@ export default class SkeletalComponent extends Component {
   }
 
   get rootJointWorldMatrixInner() {
-    return this.jointsHierarchy?.worldMatrixInner;
+    return this.topOfJointsHierarchy?.worldMatrixInner;
   }
 
   get jointMatrices() {
@@ -387,8 +387,8 @@ export default class SkeletalComponent extends Component {
     this.__matArray[i * 16 + 15] = m._v[15];
   }
 
-  // getInverseBindMatrices() {
-  //   return this._inverseBindMatrices.concat();
-  // }
+  public getInverseBindMatricesAccessor(): Accessor | undefined {
+    return this.__inverseBindMatricesAccessor;
+  }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);
