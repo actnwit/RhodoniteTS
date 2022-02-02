@@ -15,6 +15,7 @@ import {
   Gltf2Mesh,
   Gltf2Primitive,
   Gltf2AnimationPathName,
+  Gltf2Skin,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -178,12 +179,20 @@ export default class Gltf2Exporter {
       );
     }
 
-    const bufferIdx = bufferViewByteLengthAccumulatedArray.length;
+    const bufferIdx = Gltf2Exporter.getNextBufferIdx(
+      bufferViewByteLengthAccumulatedArray
+    );
     const sumOfAnimationBufferViewByteLength =
       createBufferViewsAndAccessorsOfAnimation(json, bufferIdx, entities);
     bufferViewByteLengthAccumulatedArray.push(
       sumOfAnimationBufferViewByteLength
     );
+  }
+
+  private static getNextBufferIdx(
+    bufferViewByteLengthAccumulatedArray: number[]
+  ) {
+    return bufferViewByteLengthAccumulatedArray.length;
   }
 
   /**
@@ -204,7 +213,6 @@ export default class Gltf2Exporter {
     let meshCount = 0;
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
-
       // node ids of the output glTF2 data will be the indices of entities (specified target entities)
       json.nodes[i] = {};
       const node = json.nodes[i];
@@ -248,12 +256,55 @@ export default class Gltf2Exporter {
         node.mesh = meshCount++;
       }
 
+      // skin
+
       // If the entity has no parent, it must be a top level entity in the scene graph.
       if (Is.not.exist(sceneGraphComponent.parent)) {
         scene.nodes!.push(i);
       }
     }
   }
+
+  /**
+   * create Gltf2Skins
+   * @param json a glTF2 JSON
+   * @param entities all target entities
+   */
+  // static __createSkins(
+  //   json: Gltf2Ex,
+  //   entities: Entity[],
+  //   bufferViewByteLengthAccumulatedArray: Byte[],
+  //   existingUniqueRnBuffers: Buffer[],
+  //   existingUniqueRnBufferViews: BufferView[],
+  //   existingUniqueRnAccessors: Accessor[]
+  //   ) {
+  //   for (let i = 0; i < entities.length; i++) {
+  //     const entity = entities[i];
+  //     const skeletalComponent = entity.getSkeletal();
+  //     const jointSceneComponentsOfTheEntity = skeletalComponent.getJoints();
+  //     const jointIndicesOfTheEntity: Index[] = [];
+  //     entities.forEach((entity, j) => {
+  //       for (const jointSceneComponent of jointSceneComponentsOfTheEntity) {
+  //         if (jointSceneComponent.entity === entity) {
+  //           jointIndicesOfTheEntity.push(j);
+  //         }
+  //       }
+  //     });
+
+  //     const inverseBindMatrices = skeletalComponent._inverseBindMatrices;
+  //     const inverseBindMatricesFloat32Array = new Float32Array(inverseBindMatrices.length * 16);
+
+  //     const bufferIdxToSet = calcBufferIdxToSet(existingUniqueRnBuffers, rnBuff)
+  //     const gltf2BufferView = createGltf2BufferView({
+  //       bufferIdx: json.buffers.length,
+
+  //     });
+  //     const skinJson: Gltf2Skin = {
+  //       joints: jointIndicesOfTheEntity,
+  //       inverseBindMatrices:
+  //     };
+  //   }
+  // }
 
   /**
    * create Gltf2Materials and set them to Gltf2Primitives for the output glTF2 JSON

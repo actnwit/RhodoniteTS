@@ -187,7 +187,7 @@ export default class ModelConverter {
     this._setupTransform(gltfModel, rnEntities);
 
     // Skeleton
-    this._setupSkeleton(gltfModel, rnEntities);
+    this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
 
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
@@ -367,20 +367,12 @@ export default class ModelConverter {
     }
   }
 
-  _setupSkeleton(gltfModel: RnM2, rnEntities: Entity[]) {
+  _setupSkeleton(gltfModel: RnM2, rnEntities: Entity[], rnBuffers: Buffer[]) {
     if (gltfModel.skins == null) {
       return;
     }
 
     const entityRepository = EntityRepository.getInstance();
-    for (const skin of gltfModel.skins) {
-      if (Is.exist(skin.inverseBindMatricesObject)) {
-        this._readBinaryFromAccessorAndSetItToAccessorExtras(
-          skin.inverseBindMatricesObject
-        );
-      }
-    }
-
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[node_i];
       const sg = rnEntities[node_i].getSceneGraph();
@@ -427,25 +419,14 @@ export default class ModelConverter {
 
         const inverseBindMatAccessor =
           node.skinObject.inverseBindMatricesObject;
-        if (
-          Is.exist(inverseBindMatAccessor) &&
-          Is.exist(inverseBindMatAccessor.extras) &&
-          Is.exist(inverseBindMatAccessor.extras.typedDataArray)
-        ) {
-          const matrixN = (inverseBindMatAccessor.extras.typedDataArray.length /
-            16) as number;
-          const matrices = new Array(matrixN);
-          for (let i = 0; i < matrixN; i++) {
-            matrices[i] = new Matrix44(
-              inverseBindMatAccessor.extras.typedDataArray.subarray(
-                16 * i,
-                16 * (i + 1)
-              ),
-              true,
-              true
-            );
-          }
-          skeletalComponent!._inverseBindMatrices = matrices;
+        if (Is.exist(inverseBindMatAccessor)) {
+          const rnBufferOfInverseBindMatAccessor = this.__getRnAccessor(
+            inverseBindMatAccessor,
+            rnBuffers[inverseBindMatAccessor.bufferViewObject!.buffer!]
+          );
+          skeletalComponent!.setInverseBindMatricesAccessor(
+            rnBufferOfInverseBindMatAccessor
+          );
         }
       }
     }

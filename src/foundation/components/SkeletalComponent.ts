@@ -21,11 +21,12 @@ import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
 import {BoneDataType} from '../definitions/BoneDataType';
 import {IMatrix44} from '../math/IMatrix';
+import Accessor from '../memory/Accessor';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
   private __joints: SceneGraphComponent[] = [];
-  public _inverseBindMatrices: Matrix44[] = [];
+  private __inverseBindMatricesAccessor?: Accessor;
   public _bindShapeMatrix?: Matrix44;
   private __jointMatrices?: number[];
   public jointsHierarchy?: SceneGraphComponent;
@@ -93,6 +94,10 @@ export default class SkeletalComponent extends Component {
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SkeletalComponentTID;
+  }
+
+  setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor) {
+    this.__inverseBindMatricesAccessor = inverseBindMatricesAccessor;
   }
 
   setJoints(joints: SceneGraphComponent[]) {
@@ -202,12 +207,12 @@ export default class SkeletalComponent extends Component {
       let m;
       if (joint.isVisible) {
         const globalJointTransform = joint.worldMatrixInner;
-        const inverseBindMatrix = this._inverseBindMatrices[i];
 
-        MutableMatrix44.multiplyTo(
+        MutableMatrix44.multiplyTypedArrayTo(
           globalJointTransform,
-          inverseBindMatrix,
-          SkeletalComponent.__tmp_mat4
+          this.__inverseBindMatricesAccessor!.getTypedArray(),
+          SkeletalComponent.__tmp_mat4,
+          i
         );
         if (this._bindShapeMatrix) {
           SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
@@ -382,8 +387,8 @@ export default class SkeletalComponent extends Component {
     this.__matArray[i * 16 + 15] = m._v[15];
   }
 
-  getInverseBindMatrices() {
-    return this._inverseBindMatrices.concat();
-  }
+  // getInverseBindMatrices() {
+  //   return this._inverseBindMatrices.concat();
+  // }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);
