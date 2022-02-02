@@ -1973,7 +1973,7 @@ export default class ModelConverter {
     return dstRnAccessor;
   }
 
-  private __createRnAccessor(
+  private __takeRnBufferViewAndRnAccessorForDraco(
     accessor: RnM2Accessor,
     numOfAttributes: Count,
     compositionNum: Count,
@@ -2133,7 +2133,7 @@ export default class ModelConverter {
       dracoGeometry,
       isTriangleStrip
     )!;
-    const indicesRnAccessor = this.__createRnAccessor(
+    const indicesRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
       primitive.indicesObject!,
       indices.length,
       1,
@@ -2167,7 +2167,7 @@ export default class ModelConverter {
         const compositionNum = CompositionType.fromString(
           attributeGltf2Accessor!.type
         ).getNumberOfComponents();
-        attributeRnAccessor = this.__createRnAccessor(
+        attributeRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
           attributeGltf2Accessor!,
           numPoints,
           compositionNum,
