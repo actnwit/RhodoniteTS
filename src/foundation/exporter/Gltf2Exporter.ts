@@ -671,7 +671,7 @@ function createBufferViewsAndAccessorsOfMesh(
       const rnIndicesAccessor = rnPrimitive.indicesAccessor;
       if (Is.exist(rnIndicesAccessor)) {
         const rnBufferView = rnIndicesAccessor.bufferView;
-        const bufferViewIdxToSet = createOrReuseBufferView(
+        const bufferViewIdxToSet = createOrReuseGltf2BufferView(
           json.bufferViews,
           bufferViewByteLengthAccumulatedArray,
           existingUniqueRnBuffers,
@@ -680,7 +680,7 @@ function createBufferViewsAndAccessorsOfMesh(
           GL_ELEMENT_ARRAY_BUFFER
         );
 
-        const accessorIdxToSet = createOrReuseAccessor(
+        const accessorIdxToSet = createOrReuseGltf2Accessor(
           json.accessors,
           bufferViewIdxToSet,
           existingUniqueRnAccessors,
@@ -696,7 +696,7 @@ function createBufferViewsAndAccessorsOfMesh(
         const rnAttributeAccessor = attributeAccessors[j];
         // create a Gltf2BufferView
         const rnBufferView = rnAttributeAccessor.bufferView;
-        const bufferViewIdxToSet = createOrReuseBufferView(
+        const bufferViewIdxToSet = createOrReuseGltf2BufferView(
           json.bufferViews,
           bufferViewByteLengthAccumulatedArray,
           existingUniqueRnBuffers,
@@ -705,7 +705,7 @@ function createBufferViewsAndAccessorsOfMesh(
           GL_ARRAY_BUFFER
         );
 
-        const accessorIdxToSet = createOrReuseAccessor(
+        const accessorIdxToSet = createOrReuseGltf2Accessor(
           json.accessors,
           bufferViewIdxToSet,
           existingUniqueRnAccessors,
@@ -723,7 +723,7 @@ function createBufferViewsAndAccessorsOfMesh(
   }
 }
 
-function createOrReuseAccessor(
+function createOrReuseGltf2Accessor(
   accessors: Gltf2Accessor[],
   bufferViewIdxToSet: Index,
   existingUniqueRnAccessors: Accessor[],
@@ -736,7 +736,7 @@ function createOrReuseAccessor(
   if (accessorIdx === -1) {
     // create a Gltf2Accessor
     rnAccessor.calcMinMax();
-    accessors[accessorIdxToSet] = {
+    const gltfAccessor = {
       bufferView: bufferViewIdxToSet,
       byteOffset: rnAccessor.byteOffsetInBufferView,
       componentType: ComponentType.toGltf2AccessorComponentType(
@@ -749,6 +749,7 @@ function createOrReuseAccessor(
         rnAccessor.compositionType.getNumberOfComponents() as VectorComponentN
       ),
     };
+    accessors[accessorIdxToSet] = gltfAccessor;
     existingUniqueRnAccessors.push(rnAccessor);
   }
 
@@ -775,7 +776,7 @@ function calcAccessorIdxToSet(
   return {accessorIdx, accessorIdxToSet};
 }
 
-function createOrReuseBufferView(
+function createOrReuseGltf2BufferView(
   bufferViews: Gltf2BufferView[],
   bufferViewByteLengthAccumulatedArray: Byte[],
   existingUniqueRnBuffers: Buffer[],
@@ -1238,7 +1239,7 @@ function createGltf2BufferView({
       numberOfComponents: compositionType.getNumberOfComponents(),
     });
 
-  const bufferViewEx: Gltf2BufferViewEx = {
+  const gltfBufferViewEx: Gltf2BufferViewEx = {
     buffer: bufferIdx,
     byteLength: fixedBufferViewByteLength,
     byteOffset: fixedBufferViewByteOffset,
@@ -1248,7 +1249,7 @@ function createGltf2BufferView({
     },
   };
 
-  return bufferViewEx;
+  return gltfBufferViewEx;
 }
 
 function createGltf2Accessor({
@@ -1263,7 +1264,7 @@ function createGltf2Accessor({
   const alignedAccessorByteOffset =
     alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
 
-  const accessor = {
+  const gltf2AccessorEx = {
     bufferView: bufferViewIdx,
     byteOffset: alignedAccessorByteOffset,
     componentType: ComponentType.toGltf2AccessorComponentType(componentType),
@@ -1273,5 +1274,5 @@ function createGltf2Accessor({
     max,
     extras: {},
   };
-  return accessor;
+  return gltf2AccessorEx;
 }
