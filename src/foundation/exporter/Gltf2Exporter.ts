@@ -347,7 +347,7 @@ export default class Gltf2Exporter {
           compositionType: inverseBindMatAccessor.compositionType,
           uint8Array: inverseBindMatAccessor.getUint8Array(),
         });
-        const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
+        const bufferViewIdxToSet = calcBufferViewIdxToSet(
           existingUniqueRnBufferViews,
           inverseBindMatAccessor.bufferView
         );
@@ -707,18 +707,20 @@ function createBufferViewsAndAccessorsOfMesh(
         const rnIndicesAccessor = rnPrimitive.indicesAccessor;
         if (Is.exist(rnIndicesAccessor)) {
           const rnBufferView = rnIndicesAccessor.bufferView;
-          const bufferViewIdxToSet = createOrReuseGltf2BufferView(
-            json.bufferViews,
+          const bufferViewJson = createOrReuseGltf2BufferView(
             bufferViewByteLengthAccumulatedArray,
             existingUniqueRnBuffers,
             existingUniqueRnBufferViews,
             rnBufferView,
             GL_ELEMENT_ARRAY_BUFFER
           );
+          if (Is.exist(bufferViewJson)) {
+            json.bufferViews.push(bufferViewJson);
+          }
 
           const accessorIdxToSet = createOrReuseGltf2Accessor(
             json.accessors,
-            bufferViewIdxToSet,
+            json.bufferViews.length - 1,
             existingUniqueRnAccessors,
             rnIndicesAccessor
           );
@@ -732,18 +734,20 @@ function createBufferViewsAndAccessorsOfMesh(
           const rnAttributeAccessor = attributeAccessors[j];
           // create a Gltf2BufferView
           const rnBufferView = rnAttributeAccessor.bufferView;
-          const bufferViewIdxToSet = createOrReuseGltf2BufferView(
-            json.bufferViews,
+          const bufferViewJson = createOrReuseGltf2BufferView(
             bufferViewByteLengthAccumulatedArray,
             existingUniqueRnBuffers,
             existingUniqueRnBufferViews,
             rnBufferView,
             GL_ARRAY_BUFFER
           );
+          if (Is.exist(bufferViewJson)) {
+            json.bufferViews.push(bufferViewJson);
+          }
 
           const accessorIdxToSet = createOrReuseGltf2Accessor(
             json.accessors,
-            bufferViewIdxToSet,
+            json.bufferViews.length - 1,
             existingUniqueRnAccessors,
             rnAttributeAccessor
           );
@@ -814,17 +818,13 @@ function calcAccessorIdxToSet(
 }
 
 function createOrReuseGltf2BufferView(
-  bufferViews: Gltf2BufferView[],
   bufferViewByteLengthAccumulatedArray: Byte[],
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
   rnBufferView: BufferView,
   target: number
-): Index {
-  const {bufferViewIdx, bufferViewIdxToSet} = calcBufferViewIdxToSet(
-    existingUniqueRnBufferViews,
-    rnBufferView
-  );
+) {
+  const bufferViewIdx = existingUniqueRnBufferViews.indexOf(rnBufferView);
   if (bufferViewIdx === -1) {
     const bufferIdxToSet = calcBufferIdxToSet(
       existingUniqueRnBuffers,
@@ -849,10 +849,9 @@ function createOrReuseGltf2BufferView(
       bufferViewJson
     );
     existingUniqueRnBufferViews.push(rnBufferView);
-    bufferViews[bufferViewIdxToSet] = bufferViewJson;
+    return bufferViewJson;
   }
-
-  return bufferViewIdxToSet;
+  return undefined;
 }
 
 function calcBufferViewIdxToSet(
@@ -863,15 +862,18 @@ function calcBufferViewIdxToSet(
     bufferView.isSame(rnBufferView)
   );
   let bufferViewIdxToSet = -1;
-  if (bufferViewIdx !== -1) {
+  if (bufferViewIdx >= 0) {
     // if the Rhodonite BufferView is in existingUniqueBufferViews already,
-    //   reuse the corresponding Gltf2BufferView
+    //   reuse the corresponding Gltf2BufferView,
+    //   and the bufferViewIdxToSet should be the reused bufferView's idx.
     bufferViewIdxToSet = bufferViewIdx;
   } else {
-    // if not, create a Gltf2BufferView and put it into existingUniqueBufferViews
+    // if not, create a Gltf2BufferView and
+    //   the bufferViewIdxToSet should be the new biggest idx
+    //   (put it into existingUniqueBufferViews)
     bufferViewIdxToSet = existingUniqueRnBufferViews.length;
   }
-  return {bufferViewIdx, bufferViewIdxToSet};
+  return bufferViewIdxToSet;
 }
 
 function calcBufferIdxToSet(
