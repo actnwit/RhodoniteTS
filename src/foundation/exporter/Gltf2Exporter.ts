@@ -171,31 +171,23 @@ export default class Gltf2Exporter {
     const existingUniqueRnBufferViews: BufferView[] = [];
     const existingUniqueRnAccessors: Accessor[] = [];
 
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      createBufferViewsAndAccessorsOfMesh(
-        entity,
-        json,
-        bufferViewByteLengthAccumulatedArray,
-        existingUniqueRnBuffers,
-        existingUniqueRnBufferViews,
-        existingUniqueRnAccessors
-      );
-    }
-
-    const bufferIdx = Gltf2Exporter.getNextBufferIdx(
-      bufferViewByteLengthAccumulatedArray
+    createBufferViewsAndAccessorsOfMesh(
+      json,
+      entities,
+      bufferViewByteLengthAccumulatedArray,
+      existingUniqueRnBuffers,
+      existingUniqueRnBufferViews,
+      existingUniqueRnAccessors
     );
-    const sumOfAnimationBufferViewByteLength =
-      createBufferViewsAndAccessorsOfAnimation(json, bufferIdx, entities);
-    bufferViewByteLengthAccumulatedArray.push(
-      sumOfAnimationBufferViewByteLength
+
+    createBufferViewsAndAccessorsOfAnimation(
+      json,
+      bufferViewByteLengthAccumulatedArray,
+      entities
     );
   }
 
-  private static getNextBufferIdx(
-    bufferViewByteLengthAccumulatedArray: number[]
-  ) {
+  static getNextBufferIdx(bufferViewByteLengthAccumulatedArray: number[]) {
     return bufferViewByteLengthAccumulatedArray.length;
   }
 
@@ -648,78 +640,81 @@ export default class Gltf2Exporter {
  * @returns
  */
 function createBufferViewsAndAccessorsOfMesh(
-  entity: Entity,
   json: Gltf2Ex,
+  entities: Entity[],
   bufferViewByteLengthAccumulatedArray: Byte[],
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
   existingUniqueRnAccessors: Accessor[]
 ): void {
-  const meshComponent = entity.getMesh();
-  if (Is.exist(meshComponent) && meshComponent.mesh) {
-    const mesh: Gltf2Mesh = {primitives: []};
-    const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-    for (let j = 0; j < primitiveCount; j++) {
-      const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
-      const primitive: Gltf2Primitive = {
-        attributes: {},
-        mode: rnPrimitive.primitiveMode.index,
-      };
+  for (let i = 0; i < entities.length; i++) {
+    const entity = entities[i];
+    const meshComponent = entity.getMesh();
+    if (Is.exist(meshComponent) && meshComponent.mesh) {
+      const mesh: Gltf2Mesh = {primitives: []};
+      const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
+      for (let j = 0; j < primitiveCount; j++) {
+        const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
+        const primitive: Gltf2Primitive = {
+          attributes: {},
+          mode: rnPrimitive.primitiveMode.index,
+        };
 
-      // Vertex Indices
-      // For indices accessor
-      const rnIndicesAccessor = rnPrimitive.indicesAccessor;
-      if (Is.exist(rnIndicesAccessor)) {
-        const rnBufferView = rnIndicesAccessor.bufferView;
-        const bufferViewIdxToSet = createOrReuseGltf2BufferView(
-          json.bufferViews,
-          bufferViewByteLengthAccumulatedArray,
-          existingUniqueRnBuffers,
-          existingUniqueRnBufferViews,
-          rnBufferView,
-          GL_ELEMENT_ARRAY_BUFFER
-        );
+        // Vertex Indices
+        // For indices accessor
+        const rnIndicesAccessor = rnPrimitive.indicesAccessor;
+        if (Is.exist(rnIndicesAccessor)) {
+          const rnBufferView = rnIndicesAccessor.bufferView;
+          const bufferViewIdxToSet = createOrReuseGltf2BufferView(
+            json.bufferViews,
+            bufferViewByteLengthAccumulatedArray,
+            existingUniqueRnBuffers,
+            existingUniqueRnBufferViews,
+            rnBufferView,
+            GL_ELEMENT_ARRAY_BUFFER
+          );
 
-        const accessorIdxToSet = createOrReuseGltf2Accessor(
-          json.accessors,
-          bufferViewIdxToSet,
-          existingUniqueRnAccessors,
-          rnIndicesAccessor
-        );
-        primitive.indices = accessorIdxToSet;
-      }
-
-      // Vertex Attributes
-      // For each attribute accessor
-      const attributeAccessors = rnPrimitive.attributeAccessors;
-      for (let j = 0; j < attributeAccessors.length; j++) {
-        const rnAttributeAccessor = attributeAccessors[j];
-        // create a Gltf2BufferView
-        const rnBufferView = rnAttributeAccessor.bufferView;
-        const bufferViewIdxToSet = createOrReuseGltf2BufferView(
-          json.bufferViews,
-          bufferViewByteLengthAccumulatedArray,
-          existingUniqueRnBuffers,
-          existingUniqueRnBufferViews,
-          rnBufferView,
-          GL_ARRAY_BUFFER
-        );
-
-        const accessorIdxToSet = createOrReuseGltf2Accessor(
-          json.accessors,
-          bufferViewIdxToSet,
-          existingUniqueRnAccessors,
-          rnAttributeAccessor
-        );
-        const attributeJoinedString = rnPrimitive.attributeSemantics[j];
-        if (Is.exist(attributeJoinedString)) {
-          const attribute = attributeJoinedString.split('.')[0];
-          primitive.attributes[attribute] = accessorIdxToSet;
+          const accessorIdxToSet = createOrReuseGltf2Accessor(
+            json.accessors,
+            bufferViewIdxToSet,
+            existingUniqueRnAccessors,
+            rnIndicesAccessor
+          );
+          primitive.indices = accessorIdxToSet;
         }
+
+        // Vertex Attributes
+        // For each attribute accessor
+        const attributeAccessors = rnPrimitive.attributeAccessors;
+        for (let j = 0; j < attributeAccessors.length; j++) {
+          const rnAttributeAccessor = attributeAccessors[j];
+          // create a Gltf2BufferView
+          const rnBufferView = rnAttributeAccessor.bufferView;
+          const bufferViewIdxToSet = createOrReuseGltf2BufferView(
+            json.bufferViews,
+            bufferViewByteLengthAccumulatedArray,
+            existingUniqueRnBuffers,
+            existingUniqueRnBufferViews,
+            rnBufferView,
+            GL_ARRAY_BUFFER
+          );
+
+          const accessorIdxToSet = createOrReuseGltf2Accessor(
+            json.accessors,
+            bufferViewIdxToSet,
+            existingUniqueRnAccessors,
+            rnAttributeAccessor
+          );
+          const attributeJoinedString = rnPrimitive.attributeSemantics[j];
+          if (Is.exist(attributeJoinedString)) {
+            const attribute = attributeJoinedString.split('.')[0];
+            primitive.attributes[attribute] = accessorIdxToSet;
+          }
+        }
+        mesh.primitives[j] = primitive;
       }
-      mesh.primitives[j] = primitive;
+      json.meshes!.push(mesh);
     }
-    json.meshes!.push(mesh);
   }
 }
 
@@ -870,19 +865,19 @@ function accmulateBufferViewByteLength(
 
 /**
  * create BufferViews and Accessors of animation
- * @param entity
  * @param json
- * @param bufferViewByteLengthAccumulated
- * @param bufferViewCount
- * @param accessorCount
- * @returns
+ * @param bufferViewByteLengthAccumulatedArray
+ * @param entities
  */
 function createBufferViewsAndAccessorsOfAnimation(
   json: Gltf2Ex,
-  bufferIdx: Index,
+  bufferViewByteLengthAccumulatedArray: Byte[],
   entities: Entity[]
-): Byte {
+): void {
   let bufferViewByteLengthAccumulated = 0;
+  const bufferIdx = Gltf2Exporter.getNextBufferIdx(
+    bufferViewByteLengthAccumulatedArray
+  );
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i];
     const animationComponent = entity.getAnimation();
@@ -936,9 +931,8 @@ function createBufferViewsAndAccessorsOfAnimation(
         }
       }
     }
+    bufferViewByteLengthAccumulatedArray.push(bufferViewByteLengthAccumulated);
   }
-
-  return bufferViewByteLengthAccumulated;
 
   function createGltf2AnimationSampler(
     inputAccessorIdx: number,
