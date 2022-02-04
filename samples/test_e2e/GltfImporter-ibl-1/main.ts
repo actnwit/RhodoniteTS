@@ -40,7 +40,7 @@ document.body.appendChild(p);
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
   const mainExpression = await gltfImporter.import(
-    '../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
+    '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [

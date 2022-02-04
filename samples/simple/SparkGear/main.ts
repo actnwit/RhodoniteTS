@@ -44,9 +44,9 @@ const Module = {
     const importer = Rn.Gltf2Importer.getInstance();
     const modelConverter = Rn.ModelConverter.getInstance();
     const response = await importer.import(
-      '../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf'
+      '../../../assets/gltf/glTF-Sample-Models/2.0/BrainStem/glTF/BrainStem.gltf'
     );
-    //    const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
+    //    const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
     const rootGroup = modelConverter.convertToRhodoniteObject(response);
 
     const entity = sparkgearModule.createSparkGearEntity();

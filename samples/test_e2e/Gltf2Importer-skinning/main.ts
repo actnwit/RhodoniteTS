@@ -39,7 +39,7 @@ declare const Rn: typeof _Rn;
     ]);
 
     const promise = importer.import(
-      '../../../assets/gltf/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
+      '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
     );
 
     promise.then(response => {

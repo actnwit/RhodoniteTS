@@ -34,7 +34,7 @@ document.body.appendChild(p);
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
   const mainExpression = await gltfImporter.import(
-    '../../../assets/gltf/2.0/Triangle/glTF-Embedded/Triangle.gltf',
+    '../../../assets/gltf/glTF-Sample-Models/2.0/Triangle/glTF-Embedded/Triangle.gltf',
     {
       cameraComponent: cameraComponent,
     } as any

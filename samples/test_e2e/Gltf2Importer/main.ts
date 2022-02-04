@@ -57,9 +57,9 @@ declare const Rn: typeof _Rn;
     //lightEntity2.getLight().type = Rn.LightType.Directional;
 
     const promise = importer.import(
-      '../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+      '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
     );
-    //    const promise = importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
+    //    const promise = importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');
     //---------------------------
     promise.then(response => {
       const modelConverter = Rn.ModelConverter.getInstance();

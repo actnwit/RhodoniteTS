@@ -15,7 +15,7 @@ declare const Rn: typeof _Rn;
   // ---parameters---------------------------------------------------------------------------------------------
 
   const uriGltf =
-    '../../../assets/gltf/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf';
+    '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf';
   const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
   const lightPosition = Rn.Vector3.fromCopyArray([-15.0, 50.0, 30.0]);

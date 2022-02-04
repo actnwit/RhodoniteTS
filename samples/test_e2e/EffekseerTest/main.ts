@@ -78,9 +78,9 @@ declare const Rn: typeof _Rn;
 
   // 3D Model for Test
   const response = await importer.import(
-    '../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+    '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
   );
-  //const response = await importer.import('../../../assets/gltf/1.0/BrainStem/glTF/BrainStem.gltf');
+  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
   // const sphereEntity = createSphere();
