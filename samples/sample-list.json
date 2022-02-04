@@ -8,6 +8,7 @@
     "GaussianBlur",
     "Gltf1Importer",
     "Gltf2Importer",
+    "Gltf2Importer-skinning",
     "Gltf2Importer-GlareEffect",
     "Gltf2Importer-MSAA",
     "GltfImporter",
