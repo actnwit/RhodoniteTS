@@ -9,6 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - run: git submodule update -i
     - uses: Borales/actions-yarn@v2.3.0
       with:
         cmd: install
