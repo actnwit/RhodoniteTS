@@ -1,3 +1,6 @@
 [submodule ".\\assets\\glTF-Sample-Models"]
 	path = .\\assets\\glTF-Sample-Models
 	url = https://github.com/KhronosGroup/glTF-Sample-Models.git
+[submodule "assets/gltf/glTF-Sample-Models"]
+	path = assets/gltf/glTF-Sample-Models
+	url = https://github.com/KhronosGroup/glTF-Sample-Models.git

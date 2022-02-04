@@ -19,7 +19,7 @@ declare const Rn: typeof _Rn;
   // ---parameters---------------------------------------------------------------------------------------------
 
   const uriGltf =
-    '../../../assets/gltf/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf';
+    '../../../assets/gltf/glTF-Sample-Models/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf';
   const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
   const gaussianBlurLevelHighLuminance = 3;

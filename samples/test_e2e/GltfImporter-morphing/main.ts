@@ -33,7 +33,7 @@ declare const Rn: typeof _Rn;
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
   const expression = await gltfImporter.import(
-    '../../../assets/gltf/2.0/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb',
+    '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb',
     {
       cameraComponent: cameraComponent,
     }

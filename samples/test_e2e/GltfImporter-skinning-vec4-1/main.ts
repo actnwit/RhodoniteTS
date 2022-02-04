@@ -37,7 +37,7 @@ document.body.appendChild(p);
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
   const expression = await gltfImporter.import(
-    '../../../assets/gltf/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf',
+    '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf',
     {
       cameraComponent: cameraComponent,
     }
