@@ -38,29 +38,10 @@ declare const Rn: typeof _Rn;
       0.0, 0, 0.5,
     ]);
 
-    // Lights
-    const lightEntity = entityRepository.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.LightComponent,
-    ]);
-    lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      1.0, 1.0, 100000.0,
-    ]);
-    lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-    lightEntity.getLight().type = Rn.LightType.Directional;
-    lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
-      0,
-      0,
-    ]);
-    //lightEntity2.getLight().type = Rn.LightType.Directional;
-
     const promise = importer.import(
-      '../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+      '../../../assets/gltf/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
     );
-    //    const promise = importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
-    //---------------------------
+
     promise.then(response => {
       const modelConverter = Rn.ModelConverter.getInstance();
       const rootGroup = modelConverter.convertToRhodoniteObject(response);

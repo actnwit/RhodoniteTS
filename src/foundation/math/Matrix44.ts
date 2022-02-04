@@ -11,6 +11,8 @@ import {IVector3} from './IVector';
 import {MathUtil} from './MathUtil';
 import IdentityMatrix44 from './IdentityMatrix44';
 import AbstractMatrix from './AbstractMatrix';
+import {ArrayType} from '../../types/CommonTypes';
+import {mulThatAndThisToOutAsMat44_offsetAsComposition} from './raw/raw_extension';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -580,6 +582,12 @@ export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
       m20, m21, m22, m23,
       m30, m31, m32, m33
     );
+  }
+
+  static multiplyTypedArrayTo(l_mat: IMatrix44, r_array: ArrayType, outMat: MutableMatrix44, offsetAsComposition: number) {
+    (r_array as any)[mulThatAndThisToOutAsMat44_offsetAsComposition](offsetAsComposition, l_mat._v, 0, outMat._v);
+
+    return outMat;
   }
 
   static fromQuaternionTo(quat: Quaternion, outMat: MutableMatrix44) {

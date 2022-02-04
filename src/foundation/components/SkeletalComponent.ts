@@ -21,14 +21,15 @@ import GlobalDataRepository from '../core/GlobalDataRepository';
 import Config from '../core/Config';
 import {BoneDataType} from '../definitions/BoneDataType';
 import {IMatrix44} from '../math/IMatrix';
+import Accessor from '../memory/Accessor';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
   private __joints: SceneGraphComponent[] = [];
-  public _inverseBindMatrices: Matrix44[] = [];
+  private __inverseBindMatricesAccessor?: Accessor;
   public _bindShapeMatrix?: Matrix44;
   private __jointMatrices?: number[];
-  public jointsHierarchy?: SceneGraphComponent;
+  public topOfJointsHierarchy?: SceneGraphComponent;
   public isSkinning = true;
   public isOptimizingMode = true;
   private static __tmpVec3_0 = MutableVector3.zero();
@@ -95,7 +96,11 @@ export default class SkeletalComponent extends Component {
     return WellKnownComponentTIDs.SkeletalComponentTID;
   }
 
-  set joints(joints: SceneGraphComponent[]) {
+  setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor) {
+    this.__inverseBindMatricesAccessor = inverseBindMatricesAccessor;
+  }
+
+  setJoints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
     let index = 0;
     if (this.componentSID < Config.maxSkeletonNumber) {
@@ -140,8 +145,12 @@ export default class SkeletalComponent extends Component {
     }
   }
 
+  getJoints(): SceneGraphComponent[] {
+    return this.__joints.concat();
+  }
+
   get rootJointWorldMatrixInner() {
-    return this.jointsHierarchy?.worldMatrixInner;
+    return this.topOfJointsHierarchy?.worldMatrixInner;
   }
 
   get jointMatrices() {
@@ -198,12 +207,12 @@ export default class SkeletalComponent extends Component {
       let m;
       if (joint.isVisible) {
         const globalJointTransform = joint.worldMatrixInner;
-        const inverseBindMatrix = this._inverseBindMatrices[i];
 
-        MutableMatrix44.multiplyTo(
+        MutableMatrix44.multiplyTypedArrayTo(
           globalJointTransform,
-          inverseBindMatrix,
-          SkeletalComponent.__tmp_mat4
+          this.__inverseBindMatricesAccessor!.getTypedArray(),
+          SkeletalComponent.__tmp_mat4,
+          i
         );
         if (this._bindShapeMatrix) {
           SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
@@ -376,6 +385,10 @@ export default class SkeletalComponent extends Component {
     this.__matArray[i * 16 + 13] = m._v[13];
     this.__matArray[i * 16 + 14] = m._v[14];
     this.__matArray[i * 16 + 15] = m._v[15];
+  }
+
+  public getInverseBindMatricesAccessor(): Accessor | undefined {
+    return this.__inverseBindMatricesAccessor;
   }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);

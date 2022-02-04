@@ -1,3 +1,4 @@
+import Entity from '../foundation/core/Entity';
 import {
   Gltf2BufferView,
   Gltf2Accessor,
@@ -6,6 +7,11 @@ import {
   Gltf2Mesh,
   Gltf2Material,
   Gltf2Animation,
+  Gltf2Skin,
+  Gltf2PbrMetallicRoughness,
+  Gltf2TextureInfo,
+  Gltf2Image,
+  Gltf2Texture,
 } from './glTF2';
 
 export interface Gltf2BufferViewEx extends Gltf2BufferView {
@@ -22,6 +28,14 @@ export interface Gltf2AccessorEx extends Gltf2Accessor {
   };
 }
 
+export interface Gltf2MaterialEx extends Gltf2Material {
+  pbrMetallicRoughness: Gltf2PbrMetallicRoughnessEx;
+}
+
+export interface Gltf2PbrMetallicRoughnessEx extends Gltf2PbrMetallicRoughness {
+  diffuseColorTexture?: Gltf2TextureInfo;
+}
+
 export interface Gltf2Ex extends Gltf2 {
   asset: {
     version: string;
@@ -33,4 +47,10 @@ export interface Gltf2Ex extends Gltf2 {
   meshes: Gltf2Mesh[];
   materials: Gltf2Material[];
   animations: Gltf2Animation[];
+  textures: Gltf2Texture[];
+  images: Gltf2Image[];
+  skins: Gltf2Skin[];
+  extras: {
+    rnSkins: Entity[];
+  };
 }

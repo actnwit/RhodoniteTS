@@ -49,6 +49,7 @@ export type Gltf2 = {
   bufferViews?: Gltf2BufferView[];
   extensionsUsed?: string[];
   extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
 };
 
 export type Gltf2Scene = {

@@ -1,5 +1,11 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {Count, IndexOf16Bytes, VectorComponentN} from '../../types/CommonTypes';
+import {
+  Count,
+  IndexOf16Bytes,
+  SquareMatrixComponentN,
+  VectorAndSquareMatrixComponentN,
+  VectorComponentN,
+} from '../../types/CommonTypes';
 import type {ComponentTypeEnum} from './ComponentType';
 import {Gltf2AccessorCompositionTypeString} from '../../types/glTF2';
 
@@ -369,6 +375,27 @@ function fromGlslString(str_: string): CompositionTypeEnum {
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
 
+function toGltf2AccessorCompositionTypeString(
+  componentN: VectorAndSquareMatrixComponentN
+): Gltf2AccessorCompositionTypeString {
+  switch (componentN) {
+    case 1:
+      return 'SCALAR';
+    case 2:
+      return 'VEC2';
+    case 3:
+      return 'VEC3';
+    case 4:
+      return 'VEC4';
+    case 9:
+      return 'MAT3';
+    case 16:
+      return 'MAT4';
+    default:
+      throw new Error('Invalid componentN');
+  }
+}
+
 function toGltf2AnimationAccessorCompositionTypeString(
   componentN: VectorComponentN
 ): Gltf2AccessorCompositionTypeString {
@@ -381,6 +408,21 @@ function toGltf2AnimationAccessorCompositionTypeString(
       return 'VEC3';
     case 4:
       return 'VEC4';
+    default:
+      throw new Error('Invalid componentN');
+  }
+}
+
+function toGltf2SquareMatrixAccessorCompositionTypeString(
+  componentN: SquareMatrixComponentN
+): Gltf2AccessorCompositionTypeString {
+  switch (componentN) {
+    case 4:
+      return 'VEC4';
+    case 9:
+      return 'MAT3';
+    case 16:
+      return 'MAT4';
     default:
       throw new Error('Invalid componentN');
   }
@@ -467,6 +509,7 @@ export const CompositionType = Object.freeze({
   isArray,
   isTexture,
   toGltf2AnimationAccessorCompositionType,
-  toGltf2AccessorCompositionTypeString:
-    toGltf2AnimationAccessorCompositionTypeString,
+  toGltf2AccessorCompositionTypeString,
+  toGltf2AnimationAccessorCompositionTypeString,
+  toGltf2SquareMatrixAccessorCompositionTypeString,
 });

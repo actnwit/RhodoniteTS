@@ -187,7 +187,7 @@ export default class ModelConverter {
     this._setupTransform(gltfModel, rnEntities);
 
     // Skeleton
-    this._setupSkeleton(gltfModel, rnEntities);
+    this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
 
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
@@ -306,8 +306,12 @@ export default class ModelConverter {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          this._accessBinaryWithAccessor(sampler.inputObject!);
-          this._accessBinaryWithAccessor(sampler.outputObject!);
+          this._readBinaryFromAccessorAndSetItToAccessorExtras(
+            sampler.inputObject!
+          );
+          this._readBinaryFromAccessorAndSetItToAccessorExtras(
+            sampler.outputObject!
+          );
         }
       }
     }
@@ -363,22 +367,12 @@ export default class ModelConverter {
     }
   }
 
-  _setupSkeleton(gltfModel: RnM2, rnEntities: Entity[]) {
+  _setupSkeleton(gltfModel: RnM2, rnEntities: Entity[], rnBuffers: Buffer[]) {
     if (gltfModel.skins == null) {
       return;
     }
 
-    const globalDataRepository = GlobalDataRepository.getInstance();
     const entityRepository = EntityRepository.getInstance();
-    for (const skin of gltfModel.skins) {
-      // globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
-      // globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
-
-      if (Is.exist(skin.inverseBindMatricesObject)) {
-        this._accessBinaryWithAccessor(skin.inverseBindMatricesObject);
-      }
-    }
-
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[node_i];
       const sg = rnEntities[node_i].getSceneGraph();
@@ -402,28 +396,17 @@ export default class ModelConverter {
         }
         if (node.skinObject.skeleton) {
           sg.isRootJoint = true;
-          // if (node.meshes) {
-          //   // let rnEntity = rnEntities[node_i];
-          //   // entityRepository
-          //   // for (let mesh of node.meshes) {
-          //   //   mesh
-          //   //   const entity = this.__generateMeshEntity() {
-
-          //   //   }
-          //   // }
-          //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
-          // } else
           if (Is.exist(node.mesh)) {
             const joints = [];
             for (const i of node.skinObject.joints) {
               joints.push(rnEntities[i].getSceneGraph());
             }
-            skeletalComponent!.joints = joints;
+            skeletalComponent!.setJoints(joints);
             if (Is.exist(node.skinObject.skeleton)) {
-              skeletalComponent!.jointsHierarchy =
+              skeletalComponent!.topOfJointsHierarchy =
                 rnEntities[node.skinObject.skeleton].getSceneGraph();
             } else {
-              skeletalComponent!.jointsHierarchy = joints[0];
+              skeletalComponent!.topOfJointsHierarchy = joints[0];
             }
           }
         }
@@ -436,25 +419,14 @@ export default class ModelConverter {
 
         const inverseBindMatAccessor =
           node.skinObject.inverseBindMatricesObject;
-        if (
-          Is.exist(inverseBindMatAccessor) &&
-          Is.exist(inverseBindMatAccessor.extras) &&
-          Is.exist(inverseBindMatAccessor.extras.typedDataArray)
-        ) {
-          const matrixN = (inverseBindMatAccessor.extras.typedDataArray.length /
-            16) as number;
-          const matrices = new Array(matrixN);
-          for (let i = 0; i < matrixN; i++) {
-            matrices[i] = new Matrix44(
-              inverseBindMatAccessor.extras.typedDataArray.subarray(
-                16 * i,
-                16 * (i + 1)
-              ),
-              true,
-              true
-            );
-          }
-          skeletalComponent!._inverseBindMatrices = matrices;
+        if (Is.exist(inverseBindMatAccessor)) {
+          const rnBufferOfInverseBindMatAccessor = this.__getRnAccessor(
+            inverseBindMatAccessor,
+            rnBuffers[inverseBindMatAccessor.bufferViewObject!.buffer!]
+          );
+          skeletalComponent!.setInverseBindMatricesAccessor(
+            rnBufferOfInverseBindMatAccessor
+          );
         }
       }
     }
@@ -1645,7 +1617,9 @@ export default class ModelConverter {
     return !!new Uint8Array(new Uint16Array([0x00ff]).buffer)[0];
   }
 
-  _accessBinaryWithAccessor(accessor: RnM2Accessor): Float32Array {
+  _readBinaryFromAccessorAndSetItToAccessorExtras(
+    accessor: RnM2Accessor
+  ): Float32Array {
     const bufferView = accessor.bufferViewObject!;
     const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
@@ -1679,6 +1653,8 @@ export default class ModelConverter {
     const numberArray: number[] = [];
 
     if (ModelConverter._isSystemLittleEndian()) {
+      // If this platform is Little Endian System,
+      //   the uint8array can
       let typedDataArray: TypedArray = new Float32Array();
       if (dataViewMethod === 'getFloat32') {
         typedDataArray = this.__rewrapWithTypedArray(
@@ -1728,7 +1704,10 @@ export default class ModelConverter {
           byteLength / componentBytes
         );
       }
-      float32Array = this.__arrayToFloat32Array(dataViewMethod, typedDataArray);
+      float32Array = this.__normalizeTypedArrayToFloat32Array(
+        dataViewMethod,
+        typedDataArray
+      );
     } else {
       // for BigEndian process
       const dataView: any = new DataView(
@@ -1774,107 +1753,25 @@ export default class ModelConverter {
             break;
         }
       }
-      float32Array = this.__arrayToFloat32Array(dataViewMethod, numberArray);
+      float32Array = this.__normalizeTypedArrayToFloat32Array(
+        dataViewMethod,
+        numberArray
+      );
     }
-    // } else {
-    //   // for  (accessor.extras?.toGetAsTypedArray) was false
-    //   const typedDataArray: any[] = [];
-    //   const dataView: any = new DataView(
-    //     uint8Array.buffer,
-    //     byteOffsetFromBuffer + uint8Array.byteOffset,
-    //     byteLength
-    //   );
-    //   const byteDelta = componentBytes * componentN;
-    //   const littleEndian = true; // need to access in littleEndian for glTF
-    //   for (let pos = 0; pos < byteLength; pos += byteDelta) {
-    //     switch (accessor.type) {
-    //       case 'SCALAR':
-    //         if (accessor.extras?.weightsArrayLength) {
-    //           const array = [];
-    //           for (let i = 0; i < accessor.extras.weightsArrayLength; i++) {
-    //             array.push(
-    //               dataView[dataViewMethod](
-    //                 pos + componentBytes * i,
-    //                 littleEndian
-    //               )
-    //             );
-    //           }
-    //           typedDataArray.push(array);
-    //         } else {
-    //           typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
-    //         }
-    //         break;
-    //       case 'VEC2':
-    //         numberArray.push(dataView[dataViewMethod](pos, littleEndian));
-    //         numberArray.push(
-    //           dataView[dataViewMethod](pos + componentBytes, littleEndian)
-    //         );
-    //         break;
-    //       case 'VEC3':
-    //         numberArray.push(dataView[dataViewMethod](pos, littleEndian));
-    //         numberArray.push(
-    //           dataView[dataViewMethod](pos + componentBytes, littleEndian)
-    //         );
-    //         numberArray.push(
-    //           dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
-    //         );
-    //         break;
-    //       case 'VEC4':
-    //         if (accessor.extras?.quaternionIfVec4) {
-    //           typedDataArray.push(
-    //             new Quaternion(
-    //               dataView[dataViewMethod](pos, littleEndian),
-    //               dataView[dataViewMethod](pos + componentBytes, littleEndian),
-    //               dataView[dataViewMethod](
-    //                 pos + componentBytes * 2,
-    //                 littleEndian
-    //               ),
-    //               dataView[dataViewMethod](
-    //                 pos + componentBytes * 3,
-    //                 littleEndian
-    //               )
-    //             )
-    //           );
-    //         } else {
-    //           typedDataArray.push(
-    //             Vector4.fromCopyArray([
-    //               dataView[dataViewMethod](pos, littleEndian),
-    //               dataView[dataViewMethod](pos + componentBytes, littleEndian),
-    //               dataView[dataViewMethod](
-    //                 pos + componentBytes * 2,
-    //                 littleEndian
-    //               ),
-    //               dataView[dataViewMethod](
-    //                 pos + componentBytes * 3,
-    //                 littleEndian
-    //               ),
-    //             ])
-    //           );
-    //         }
-    //         break;
-    //       case 'MAT4':
-    //         {
-    //           const matrixComponents = [];
-    //           for (let i = 0; i < 16; i++) {
-    //             matrixComponents[i] = dataView[dataViewMethod](
-    //               pos + componentBytes * i,
-    //               littleEndian
-    //             );
-    //           }
-    //           typedDataArray.push(new Matrix44(matrixComponents, true));
-    //         }
-    //         break;
-    //     }
-    //   }
-    //   float32Array = this.__arrayToFloat32Array(dataViewMethod, numberArray);
-    // }
 
     accessor.extras!.typedDataArray = float32Array;
 
     return float32Array;
   }
 
-  private __arrayToFloat32Array(
+  /**
+   * normalize values of TypedArray to Float32Array
+   * See: the last part of 3.11.Animation at https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#animations
+   * @param dataViewMethod
+   * @param numberArray
+   * @returns
+   */
+  private __normalizeTypedArrayToFloat32Array(
     dataViewMethod: string,
     numberArray: number[] | TypedArray
   ): Float32Array {
@@ -1927,12 +1824,19 @@ export default class ModelConverter {
     }
   }
 
+  /**
+   * Take a Rn.BufferView and a Rn.Accessor from the Rn.Buffer
+   *  from the information of the Gltf2Buffer, Gltf2BufferView, and Gltf2Accessor.
+   * @param accessor
+   * @param rnBuffer
+   * @returns
+   */
   private __getRnAccessor(accessor: RnM2Accessor, rnBuffer: Buffer) {
-    const bufferView = accessor.bufferViewObject!;
+    const gltfBufferView = accessor.bufferViewObject!;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
-      byteLengthToNeed: bufferView.byteLength,
-      byteStride: bufferView.byteStride ?? 0,
-      byteOffset: bufferView.byteOffset ?? 0,
+      byteLengthToNeed: gltfBufferView.byteLength,
+      byteStride: gltfBufferView.byteStride ?? 0,
+      byteOffset: gltfBufferView.byteOffset ?? 0,
     });
 
     const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
@@ -1973,7 +1877,7 @@ export default class ModelConverter {
     return dstRnAccessor;
   }
 
-  private __createRnAccessor(
+  private __takeRnBufferViewAndRnAccessorForDraco(
     accessor: RnM2Accessor,
     numOfAttributes: Count,
     compositionNum: Count,
@@ -2133,7 +2037,7 @@ export default class ModelConverter {
       dracoGeometry,
       isTriangleStrip
     )!;
-    const indicesRnAccessor = this.__createRnAccessor(
+    const indicesRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
       primitive.indicesObject!,
       indices.length,
       1,
@@ -2167,7 +2071,7 @@ export default class ModelConverter {
         const compositionNum = CompositionType.fromString(
           attributeGltf2Accessor!.type
         ).getNumberOfComponents();
-        attributeRnAccessor = this.__createRnAccessor(
+        attributeRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
           attributeGltf2Accessor!,
           numPoints,
           compositionNum,
