@@ -690,7 +690,7 @@ function createBufferViewsAndAccessorsOfMesh(
         const rnIndicesAccessor = rnPrimitive.indicesAccessor;
         if (Is.exist(rnIndicesAccessor)) {
           const rnBufferView = rnIndicesAccessor.bufferView;
-          createOrReuseGltf2BufferView(
+          const gltf2BufferView = createOrReuseGltf2BufferView(
             json,
             bufferViewByteLengthAccumulatedArray,
             existingUniqueRnBuffers,
@@ -701,7 +701,7 @@ function createBufferViewsAndAccessorsOfMesh(
 
           const gltf2Accessor = createOrReuseGltf2Accessor(
             json,
-            json.bufferViews.length - 1,
+            json.bufferViews.indexOf(gltf2BufferView),
             existingUniqueRnAccessors,
             rnIndicesAccessor
           );
@@ -716,7 +716,7 @@ function createBufferViewsAndAccessorsOfMesh(
           const rnAttributeAccessor = attributeAccessors[j];
           // create a Gltf2BufferView
           const rnBufferView = rnAttributeAccessor.bufferView;
-          createOrReuseGltf2BufferView(
+          const gltf2BufferView = createOrReuseGltf2BufferView(
             json,
             bufferViewByteLengthAccumulatedArray,
             existingUniqueRnBuffers,
@@ -727,7 +727,7 @@ function createBufferViewsAndAccessorsOfMesh(
 
           const gltf2Accessor = createOrReuseGltf2Accessor(
             json,
-            json.bufferViews.length - 1,
+            json.bufferViews.indexOf(gltf2BufferView),
             existingUniqueRnAccessors,
             rnAttributeAccessor
           );
