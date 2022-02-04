@@ -918,8 +918,6 @@ function createBufferViewsAndAccessorsOfAnimation(
   const bufferIdx = Gltf2Exporter.getNextBufferIdx(
     bufferViewByteLengthAccumulatedArray
   );
-  const inputsFloat32Arrays: Float32Array[] = [];
-  const outputsFloat32Arrays: Float32Array[] = [];
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i];
     const animationComponent = entity.getAnimation();
@@ -945,7 +943,6 @@ function createBufferViewsAndAccessorsOfAnimation(
                 rnChannel,
                 bufferIdx,
                 sumOfBufferViewByteLengthAccumulated,
-                inputsFloat32Arrays
               );
 
             sumOfBufferViewByteLengthAccumulated +=
@@ -957,7 +954,6 @@ function createBufferViewsAndAccessorsOfAnimation(
                 rnChannel,
                 bufferIdx,
                 sumOfBufferViewByteLengthAccumulated,
-                outputsFloat32Arrays
               );
             sumOfBufferViewByteLengthAccumulated +=
               outputBufferViewByteLengthAccumulated;
@@ -1039,43 +1035,37 @@ function createBufferViewsAndAccessorsOfAnimation(
   function createGltf2BufferViewAndGltf2AccessorForInput(
     rnChannel: AnimationChannel,
     bufferIdx: Index,
-    bufferViewByteLengthAccumulated: Byte,
-    inputFloat32Arrays: Float32Array[]
+    bufferViewByteLengthAccumulated: Byte
   ) {
-    // if (inputFloat32Arrays.indexOf(rnChannel.sampler.input) >= 0) {
-    //   return
-    // }
-
     const componentType = ComponentType.fromTypedArray(rnChannel.sampler.input);
-    // create a Gltf2Accessor
-    const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
-      bufferViewIdx: json.bufferViews.length,
-      accessorByteOffset: 0,
-      componentType,
-      count: rnChannel.sampler.input.length,
-      compositionType: CompositionType.Scalar,
-      min: [rnChannel.sampler.input[0]],
-      max: [rnChannel.sampler.input[rnChannel.sampler.input.length - 1]],
-    });
-
+    const accessorCount = rnChannel.sampler.input.length;
     // create a Gltf2BufferView
     const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferView({
       bufferIdx,
       bufferViewByteOffset: bufferViewByteLengthAccumulated,
-      accessorByteOffset: gltf2Accessor.byteOffset!,
-      accessorCount: gltf2Accessor.count,
+      accessorByteOffset: 0,
+      accessorCount,
       bufferViewByteStride: ComponentType.Float.getSizeInBytes(),
       componentType,
       compositionType: CompositionType.Scalar,
       uint8Array: new Uint8Array(rnChannel.sampler.input.buffer),
     });
+    json.bufferViews.push(gltf2BufferView);
 
-    inputFloat32Arrays.push(rnChannel.sampler.input);
+    // create a Gltf2Accessor
+    const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
+      bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
+      accessorByteOffset: 0,
+      componentType,
+      count: accessorCount,
+      compositionType: CompositionType.Scalar,
+      min: [rnChannel.sampler.input[0]],
+      max: [rnChannel.sampler.input[rnChannel.sampler.input.length - 1]],
+    });
 
     // register
-    json.bufferViews.push(gltf2BufferView);
     json.accessors.push(gltf2Accessor);
-    bufferViewByteLengthAccumulated = accumulateBufferViewByteLength2(
+    bufferViewByteLengthAccumulated = alignBufferViewByteLength(
       bufferViewByteLengthAccumulated,
       gltf2BufferView
     );
@@ -1089,30 +1079,19 @@ function createBufferViewsAndAccessorsOfAnimation(
   function createGltf2BufferViewAndGltf2AccessorForOutput(
     rnChannel: AnimationChannel,
     bufferIdx: Index,
-    bufferViewByteLengthAccumulated: Byte,
-    outputFloat32Arrays: Float32Array[]
+    bufferViewByteLengthAccumulated: Byte
   ) {
     const componentType = ComponentType.fromTypedArray(
       rnChannel.sampler.output
     );
-    // create a Gltf2Accessor
-    const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
-      bufferViewIdx: json.bufferViews.length,
-      accessorByteOffset: 0,
-      componentType,
-      count:
-        rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN,
-      compositionType: CompositionType.toGltf2AnimationAccessorCompositionType(
-        rnChannel.sampler.outputComponentN
-      ),
-    });
-
+    const accessorCount =
+      rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
     // create a Gltf2BufferView
     const gltf2BufferView = createGltf2BufferView({
       bufferIdx,
       bufferViewByteOffset: bufferViewByteLengthAccumulated,
-      accessorByteOffset: gltf2Accessor.byteOffset!,
-      accessorCount: gltf2Accessor.count,
+      accessorByteOffset: 0,
+      accessorCount,
       bufferViewByteStride:
         componentType.getSizeInBytes() * rnChannel.sampler.outputComponentN,
       componentType,
@@ -1121,11 +1100,22 @@ function createBufferViewsAndAccessorsOfAnimation(
       ),
       uint8Array: new Uint8Array(rnChannel.sampler.output.buffer),
     });
+    json.bufferViews.push(gltf2BufferView);
+
+    // create a Gltf2Accessor
+    const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
+      bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
+      accessorByteOffset: 0,
+      componentType,
+      count: accessorCount,
+      compositionType: CompositionType.toGltf2AnimationAccessorCompositionType(
+        rnChannel.sampler.outputComponentN
+      ),
+    });
 
     // register
-    json.bufferViews.push(gltf2BufferView);
     json.accessors.push(gltf2Accessor);
-    bufferViewByteLengthAccumulated = accumulateBufferViewByteLength2(
+    bufferViewByteLengthAccumulated = alignBufferViewByteLength(
       bufferViewByteLengthAccumulated,
       gltf2BufferView
     );
@@ -1146,11 +1136,11 @@ type BufferViewByteLengthDesc = {
   numberOfComponents: number;
 };
 
-function accumulateBufferViewByteLength2(
+function alignBufferViewByteLength(
   bufferViewByteLengthAccumulated: number,
   bufferView: Gltf2BufferViewEx
 ) {
-  bufferViewByteLengthAccumulated +=
+  bufferViewByteLengthAccumulated =
     bufferView.byteLength + DataUtil.calcPaddingBytes(bufferView.byteLength, 4);
   return bufferViewByteLengthAccumulated;
 }
