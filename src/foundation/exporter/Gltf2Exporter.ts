@@ -34,6 +34,8 @@ import {
   Byte,
   Count,
   Index,
+  SquareMatrixComponentN,
+  VectorAndSquareMatrixComponentN,
   VectorComponentN,
 } from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
@@ -107,6 +109,13 @@ export default class Gltf2Exporter {
     if (json.skins.length === 0) {
       delete (json as Gltf2).skins;
     }
+    if (json.textures.length === 0) {
+      delete (json as Gltf2).textures;
+    }
+    if (json.images.length === 0) {
+      delete (json as Gltf2).images;
+    }
+    delete (json as Gltf2).extras;
   }
 
   /**
@@ -156,6 +165,8 @@ export default class Gltf2Exporter {
           },
         },
       ],
+      textures: [],
+      images: [],
       extras: {
         rnSkins: [],
       },
@@ -193,13 +204,14 @@ export default class Gltf2Exporter {
       entities
     );
 
-    // this.__createSkins(
-    //   json,
-    //   entities,
-    //   existingUniqueRnBuffers,
-    //   existingUniqueRnBufferViews,
-    //   bufferViewByteLengthAccumulatedArray
-    // );
+    this.__createSkins(
+      json,
+      entities,
+      existingUniqueRnBuffers,
+      existingUniqueRnBufferViews,
+      existingUniqueRnAccessors,
+      bufferViewByteLengthAccumulatedArray
+    );
   }
 
   static getNextBufferIdx(bufferViewByteLengthAccumulatedArray: number[]) {
@@ -271,7 +283,7 @@ export default class Gltf2Exporter {
       const skinComponent = entity.getSkeletal();
       if (Is.exist(skinComponent)) {
         const entityIdx = json.extras.rnSkins.indexOf(skinComponent.entity);
-        if (entityIdx > 0) {
+        if (entityIdx >= 0) {
           node.skin = entityIdx;
         }
       }
@@ -293,6 +305,7 @@ export default class Gltf2Exporter {
     entities: Entity[],
     existingUniqueRnBuffers: Buffer[],
     existingUniqueRnBufferViews: BufferView[],
+    existingUniqueRnAccessors: Accessor[],
     bufferViewByteLengthAccumulatedArray: Byte[]
   ) {
     for (let i = 0; i < entities.length; i++) {
@@ -312,55 +325,25 @@ export default class Gltf2Exporter {
         }
       });
 
-      const inverseBindMatAccessor =
+      const inverseBindMatRnAccessor =
         skeletalComponent.getInverseBindMatricesAccessor();
-      if (Is.exist(inverseBindMatAccessor)) {
-        const bufferIdxToSet = calcBufferIdxToSet(
+      if (Is.exist(inverseBindMatRnAccessor)) {
+        createOrReuseGltf2BufferView(
+          json,
+          bufferViewByteLengthAccumulatedArray,
           existingUniqueRnBuffers,
-          inverseBindMatAccessor.bufferView.buffer
-        );
-        // const bufferViewIdxToSet = createOrReuseGltf2BufferView(
-        //   json.bufferViews,
-        //   bufferViewByteLengthAccumulatedArray,
-        //   existingUniqueRnBuffers,
-        //   existingUniqueRnBufferViews,
-        //   rnBufferView,
-        //   GL_ELEMENT_ARRAY_BUFFER
-        // );
-
-        // const accessorIdxToSet = createOrReuseGltf2Accessor(
-        //   json.accessors,
-        //   bufferViewIdxToSet,
-        //   existingUniqueRnAccessors,
-        //   rnIndicesAccessor
-        // );
-
-        const gltf2BufferView = createGltf2BufferView({
-          bufferIdx: bufferIdxToSet,
-          bufferViewByteOffset:
-            inverseBindMatAccessor.bufferView.byteOffsetInBuffer,
-          accessorByteOffset: inverseBindMatAccessor.byteOffsetInBufferView,
-          accessorCount: inverseBindMatAccessor.elementCount,
-          bufferViewByteStride:
-            inverseBindMatAccessor.bufferView.defaultByteStride,
-          componentType: inverseBindMatAccessor.componentType,
-          compositionType: inverseBindMatAccessor.compositionType,
-          uint8Array: inverseBindMatAccessor.getUint8Array(),
-        });
-        const bufferViewIdxToSet = calcBufferViewIdxToSet(
           existingUniqueRnBufferViews,
-          inverseBindMatAccessor.bufferView
+          inverseBindMatRnAccessor.bufferView,
+          GL_ARRAY_BUFFER
         );
-        const gltf2Accessor = createGltf2Accessor({
-          bufferViewIdx: bufferViewIdxToSet,
-          accessorByteOffset: inverseBindMatAccessor.byteOffsetInBufferView,
-          componentType: inverseBindMatAccessor.componentType,
-          compositionType: inverseBindMatAccessor.compositionType,
-          count: inverseBindMatAccessor.elementCount,
-        });
 
-        json.bufferViews.push(gltf2BufferView);
-        json.accessors.push(gltf2Accessor);
+        createOrReuseGltf2Accessor(
+          json,
+          json.bufferViews.length - 1,
+          existingUniqueRnAccessors,
+          inverseBindMatRnAccessor
+        );
+
         const skeletonSceneComponent = skeletalComponent.topOfJointsHierarchy;
         const bindShapeMatrix = skeletalComponent._bindShapeMatrix;
         let skeletalIdx = -1;
@@ -785,7 +768,7 @@ function createOrReuseGltf2Accessor(
       max: rnAccessor.max,
       min: rnAccessor.min,
       type: CompositionType.toGltf2AccessorCompositionTypeString(
-        rnAccessor.compositionType.getNumberOfComponents() as VectorComponentN
+        rnAccessor.compositionType.getNumberOfComponents() as VectorAndSquareMatrixComponentN
       ),
       extras: {
         uint8Array: undefined,
@@ -848,16 +831,19 @@ function createOrReuseGltf2BufferView(
       gltf2BufferView.byteStride = rnBufferView.defaultByteStride;
     }
 
-    accumulateBufferViewByteLength(
-      bufferViewByteLengthAccumulatedArray,
-      bufferIdxToSet,
-      gltf2BufferView
-    );
+    bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
+      accumulateBufferViewByteLength(
+        bufferViewByteLengthAccumulatedArray,
+        bufferIdxToSet,
+        gltf2BufferView
+      );
     existingUniqueRnBufferViews.push(rnBufferView);
     json.bufferViews.push(gltf2BufferView);
     return gltf2BufferView;
   }
-  return json.bufferViews[bufferViewIdx];
+
+  const gltf2BufferView = json.bufferViews[bufferViewIdx];
+  return gltf2BufferView;
 }
 
 function calcBufferViewIdxToSet(
@@ -905,12 +891,16 @@ function accumulateBufferViewByteLength(
   bufferIdxToSet: number,
   bufferViewJson: Gltf2BufferViewEx
 ) {
-  bufferViewByteLengthAccumulatedArray[bufferIdxToSet] = Is.exist(
+  const bufferViewLengthAligned = Is.exist(
     bufferViewByteLengthAccumulatedArray[bufferIdxToSet]
   )
     ? bufferViewByteLengthAccumulatedArray[bufferIdxToSet] +
+      bufferViewJson.byteLength +
       DataUtil.calcPaddingBytes(bufferViewJson.byteLength, 4)
-    : DataUtil.calcPaddingBytes(bufferViewJson.byteLength, 4);
+    : bufferViewJson.byteLength +
+      DataUtil.calcPaddingBytes(bufferViewJson.byteLength, 4);
+
+  return bufferViewLengthAligned;
 }
 
 /**
@@ -1122,8 +1112,6 @@ function createBufferViewsAndAccessorsOfAnimation(
     json.bufferViews.push(bufferView);
     json.accessors.push(accessorJson);
     bufferViewByteLengthAccumulated += bufferView.byteLength;
-    // bufferView.byteLength +
-    // DataUtil.calcPaddingBytes(bufferView.byteLength, 4);
     const outputAccessorIdx = json.accessors.length - 1;
     return {
       outputAccessorIdx,

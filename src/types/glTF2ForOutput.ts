@@ -10,6 +10,8 @@ import {
   Gltf2Skin,
   Gltf2PbrMetallicRoughness,
   Gltf2TextureInfo,
+  Gltf2Image,
+  Gltf2Texture,
 } from './glTF2';
 
 export interface Gltf2BufferViewEx extends Gltf2BufferView {
@@ -45,6 +47,8 @@ export interface Gltf2Ex extends Gltf2 {
   meshes: Gltf2Mesh[];
   materials: Gltf2Material[];
   animations: Gltf2Animation[];
+  textures: Gltf2Texture[];
+  images: Gltf2Image[];
   skins: Gltf2Skin[];
   extras: {
     rnSkins: Entity[];
