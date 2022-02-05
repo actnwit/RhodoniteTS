@@ -434,3 +434,5 @@ export type GltfLoadOption = {
   fileType?: string;
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
 };
+
+export const TagGltf2NodeIndex = 'gltf_node_index';

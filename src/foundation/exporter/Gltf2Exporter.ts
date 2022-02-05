@@ -317,13 +317,13 @@ export default class Gltf2Exporter {
       json.extras.rnSkins.push(skeletalComponent.entity);
       const jointSceneComponentsOfTheEntity = skeletalComponent.getJoints();
       const jointIndicesOfTheEntity: Index[] = [];
-      entities.forEach((entity, j) => {
-        for (const jointSceneComponent of jointSceneComponentsOfTheEntity) {
-          if (jointSceneComponent.entity === entity) {
+      for (const jointSceneComponent of jointSceneComponentsOfTheEntity) {
+        entities.forEach((entityObj, j) => {
+          if (jointSceneComponent.entity === entityObj) {
             jointIndicesOfTheEntity.push(j);
           }
-        }
-      });
+        });
+      }
 
       const inverseBindMatRnAccessor =
         skeletalComponent.getInverseBindMatricesAccessor();
@@ -333,8 +333,7 @@ export default class Gltf2Exporter {
           bufferViewByteLengthAccumulatedArray,
           existingUniqueRnBuffers,
           existingUniqueRnBufferViews,
-          inverseBindMatRnAccessor.bufferView,
-          GL_ARRAY_BUFFER
+          inverseBindMatRnAccessor.bufferView
         );
 
         createOrReuseGltf2Accessor(
@@ -343,25 +342,26 @@ export default class Gltf2Exporter {
           existingUniqueRnAccessors,
           inverseBindMatRnAccessor
         );
-
-        const skeletonSceneComponent = skeletalComponent.topOfJointsHierarchy;
-        const bindShapeMatrix = skeletalComponent._bindShapeMatrix;
-        let skeletalIdx = -1;
-        if (Is.exist(skeletonSceneComponent)) {
-          const skeletalEntity = skeletalComponent.entity;
-          skeletalIdx = entities.indexOf(skeletalEntity);
-        } else {
-          skeletalIdx = jointIndicesOfTheEntity[0];
-        }
-        const skinJson: Gltf2Skin = {
-          joints: jointIndicesOfTheEntity,
-          inverseBindMatrices: json.accessors.length - 1,
-          skeleton: skeletalIdx >= 0 ? skeletalIdx : undefined,
-          bindShapeMatrix: bindShapeMatrix?.flattenAsArray(),
-        };
-
-        json.skins.push(skinJson);
       }
+
+      const topOfJointsSkeletonSceneComponent =
+        skeletalComponent.topOfJointsHierarchy;
+      const bindShapeMatrix = skeletalComponent._bindShapeMatrix;
+      let skeletalIdx = -1;
+      if (Is.exist(topOfJointsSkeletonSceneComponent)) {
+        const skeletalEntity = topOfJointsSkeletonSceneComponent.entity;
+        skeletalIdx = entities.indexOf(skeletalEntity);
+      } else {
+        skeletalIdx = jointIndicesOfTheEntity[0];
+      }
+      const skinJson: Gltf2Skin = {
+        joints: jointIndicesOfTheEntity,
+        inverseBindMatrices: json.accessors.length - 1,
+        skeleton: skeletalIdx >= 0 ? skeletalIdx : undefined,
+        bindShapeMatrix: bindShapeMatrix?.flattenAsArray(),
+      };
+
+      json.skins.push(skinJson);
     }
   }
 
@@ -765,8 +765,6 @@ function createOrReuseGltf2Accessor(
         rnAccessor.componentType as Gltf2AccessorComponentType
       ),
       count: rnAccessor.elementCount,
-      max: rnAccessor.max,
-      min: rnAccessor.min,
       type: CompositionType.toGltf2AccessorCompositionTypeString(
         rnAccessor.compositionType.getNumberOfComponents() as VectorAndSquareMatrixComponentN
       ),
@@ -774,6 +772,10 @@ function createOrReuseGltf2Accessor(
         uint8Array: undefined,
       },
     };
+    if (rnAccessor.compositionType.getNumberOfComponents() <= 4) {
+      gltf2Accessor.max = rnAccessor.max;
+      gltf2Accessor.min = rnAccessor.min;
+    }
     existingUniqueRnAccessors.push(rnAccessor);
     json.accessors.push(gltf2Accessor);
     return gltf2Accessor;
@@ -807,7 +809,7 @@ function createOrReuseGltf2BufferView(
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
   rnBufferView: BufferView,
-  target: number
+  target?: number
 ) {
   const bufferViewIdx = calcBufferViewIdxToSet(
     existingUniqueRnBufferViews,
@@ -822,11 +824,13 @@ function createOrReuseGltf2BufferView(
       buffer: bufferIdxToSet,
       byteLength: rnBufferView.byteLength,
       byteOffset: rnBufferView.byteOffsetInBuffer,
-      target,
       extras: {
         uint8Array: rnBufferView.getUint8Array(),
       },
     };
+    if (Is.exist(target)) {
+      gltf2BufferView.target = target;
+    }
     if (rnBufferView.defaultByteStride !== 0) {
       gltf2BufferView.byteStride = rnBufferView.defaultByteStride;
     }
@@ -942,7 +946,7 @@ function createBufferViewsAndAccessorsOfAnimation(
               createGltf2BufferViewAndGltf2AccessorForInput(
                 rnChannel,
                 bufferIdx,
-                sumOfBufferViewByteLengthAccumulated,
+                sumOfBufferViewByteLengthAccumulated
               );
 
             sumOfBufferViewByteLengthAccumulated +=
@@ -953,7 +957,7 @@ function createBufferViewsAndAccessorsOfAnimation(
               createGltf2BufferViewAndGltf2AccessorForOutput(
                 rnChannel,
                 bufferIdx,
-                sumOfBufferViewByteLengthAccumulated,
+                sumOfBufferViewByteLengthAccumulated
               );
             sumOfBufferViewByteLengthAccumulated +=
               outputBufferViewByteLengthAccumulated;
