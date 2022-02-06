@@ -6,7 +6,7 @@ import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
 import {BufferUse} from '../foundation/definitions/BufferUse';
 import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
-import MeshComponent from '../foundation/components/MeshComponent';
+import MeshComponent from '../foundation/components/Mesh/MeshComponent';
 import {Primitive} from '../foundation/geometry/Primitive';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';

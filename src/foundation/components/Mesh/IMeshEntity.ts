@@ -1,4 +1,4 @@
-import MeshComponent from '../MeshComponent';
+import MeshComponent from './MeshComponent';
 
 export interface IMeshEntityMethods {
   getMesh(): MeshComponent;

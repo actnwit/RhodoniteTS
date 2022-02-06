@@ -1,4 +1,4 @@
-import MeshComponent from '../foundation/components/MeshComponent';
+import MeshComponent from '../foundation/components/Mesh/MeshComponent';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import {Primitive} from '../foundation/geometry/Primitive';
 import Matrix44 from '../foundation/math/Matrix44';

@@ -1,4 +1,4 @@
-import MeshComponent from '../components/MeshComponent';
+import MeshComponent from '../components/Mesh/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import TransformComponent from '../components/Transform/TransformComponent';

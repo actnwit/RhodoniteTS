@@ -11,7 +11,7 @@ import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import MeshComponent from '../../components/MeshComponent';
+import MeshComponent from '../../components/Mesh/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';

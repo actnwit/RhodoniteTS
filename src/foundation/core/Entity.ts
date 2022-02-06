@@ -5,7 +5,7 @@ import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import RnObject, {IRnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
-import MeshComponent from '../components/MeshComponent';
+import MeshComponent from '../components/Mesh/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import CameraComponent from '../components/Camera/CameraComponent';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';

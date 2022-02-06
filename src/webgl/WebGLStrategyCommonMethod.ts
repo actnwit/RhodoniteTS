@@ -2,7 +2,7 @@ import Material from '../foundation/materials/core/Material';
 import RenderPass from '../foundation/renderer/RenderPass';
 import {AlphaMode} from '../foundation/definitions/AlphaMode';
 import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
-import MeshComponent from '../foundation/components/MeshComponent';
+import MeshComponent from '../foundation/components/Mesh/MeshComponent';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
 import {Index} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';

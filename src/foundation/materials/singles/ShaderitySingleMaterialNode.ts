@@ -10,7 +10,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
-import MeshComponent from '../../components/MeshComponent';
+import MeshComponent from '../../components/Mesh/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
