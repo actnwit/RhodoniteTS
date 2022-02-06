@@ -1,27 +1,27 @@
-import ComponentRepository from '../core/ComponentRepository';
-import Component from '../core/Component';
-import EntityRepository from '../core/EntityRepository';
-import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
-import Matrix44 from '../math/Matrix44';
-import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
-import {ProcessStage} from '../definitions/ProcessStage';
-import MutableVector3 from '../math/MutableVector3';
-import MutableQuaternion from '../math/MutableQuaternion';
-import {MathUtil} from '../math/MathUtil';
-import MutableVector4 from '../math/MutableVector4';
-import MutableMatrix44 from '../math/MutableMatrix44';
+import ComponentRepository from '../../core/ComponentRepository';
+import Component from '../../core/Component';
+import EntityRepository from '../../core/EntityRepository';
+import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import Matrix44 from '../../math/Matrix44';
+import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
+import {ProcessStage} from '../../definitions/ProcessStage';
+import MutableVector3 from '../../math/MutableVector3';
+import MutableQuaternion from '../../math/MutableQuaternion';
+import {MathUtil} from '../../math/MathUtil';
+import MutableVector4 from '../../math/MutableVector4';
+import MutableMatrix44 from '../../math/MutableMatrix44';
 import {
   ComponentTID,
   ComponentSID,
   EntityUID,
   Index,
-} from '../../types/CommonTypes';
-import {ShaderSemantics} from '../definitions/ShaderSemantics';
-import GlobalDataRepository from '../core/GlobalDataRepository';
-import Config from '../core/Config';
-import {BoneDataType} from '../definitions/BoneDataType';
-import {IMatrix44} from '../math/IMatrix';
-import Accessor from '../memory/Accessor';
+} from '../../../types/CommonTypes';
+import {ShaderSemantics} from '../../definitions/ShaderSemantics';
+import GlobalDataRepository from '../../core/GlobalDataRepository';
+import Config from '../../core/Config';
+import {BoneDataType} from '../../definitions/BoneDataType';
+import {IMatrix44} from '../../math/IMatrix';
+import Accessor from '../../memory/Accessor';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];

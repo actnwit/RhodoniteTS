@@ -18,7 +18,7 @@ import VectorN from '../../math/VectorN';
 import Scalar from '../../math/Scalar';
 import Config from '../../core/Config';
 import Material from '../core/Material';
-import SkeletalComponent from '../../components/SkeletalComponent';
+import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import RenderPass from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';

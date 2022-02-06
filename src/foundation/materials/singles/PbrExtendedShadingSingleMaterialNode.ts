@@ -18,7 +18,7 @@ import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import MeshRendererComponent from '../../components/MeshRenderer/MeshRendererComponent';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import SkeletalComponent from '../../components/SkeletalComponent';
+import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './../core/Material';
 import PBRExtendedShaderVertex from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.vert';
 import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.frag';

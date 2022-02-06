@@ -23,7 +23,7 @@ import Vector4 from '../math/Vector4';
 import AnimationComponent from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
-import SkeletalComponent from '../components/SkeletalComponent';
+import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import {AlphaMode} from '../definitions/AlphaMode';
 import MaterialHelper from '../helpers/MaterialHelper';
 import {

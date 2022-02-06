@@ -15,7 +15,7 @@ import CubeTexture from '../../textures/CubeTexture';
 import LightComponent from '../../components/Light/LightComponent';
 import Config from '../../core/Config';
 import CameraComponent from '../../components/Camera/CameraComponent';
-import SkeletalComponent from '../../components/SkeletalComponent';
+import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './Material';
 import MutableVector2 from '../../math/MutableVector2';
 import MutableVector4 from '../../math/MutableVector4';
