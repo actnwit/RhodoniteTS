@@ -2,7 +2,7 @@ import Gizmo from './Gizmo';
 import TransformComponent from '../components/Transform/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRendererComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {Primitive} from '../geometry/Primitive';

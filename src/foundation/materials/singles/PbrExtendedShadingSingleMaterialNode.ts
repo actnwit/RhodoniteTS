@@ -16,7 +16,7 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import Scalar from '../../math/Scalar';
 import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
-import MeshRendererComponent from '../../components/MeshRendererComponent';
+import MeshRendererComponent from '../../components/MeshRenderer/MeshRendererComponent';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import SkeletalComponent from '../../components/SkeletalComponent';
 import Material from './../core/Material';

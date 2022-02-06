@@ -1,4 +1,4 @@
-import MeshRendererComponent from '../MeshRendererComponent';
+import MeshRendererComponent from './MeshRendererComponent';
 
 export interface IMeshRendererEntityMethods {
   getMeshRenderer(): MeshRendererComponent;

@@ -6,7 +6,7 @@ import RnObject, {IRnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRendererComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import CameraComponent from '../components/Camera/CameraComponent';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import PhysicsComponent from '../components/PhysicsComponent';
