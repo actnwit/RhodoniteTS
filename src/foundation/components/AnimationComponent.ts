@@ -27,12 +27,7 @@ import {
   AnimationTrackName,
   AnimationChannel,
 } from '../../types/AnimationTypes';
-import {
-  valueWithDefault,
-  greaterThan,
-  lessThan,
-  valueWithCompensation,
-} from '../misc/MiscUtil';
+import {valueWithDefault, greaterThan, lessThan} from '../misc/MiscUtil';
 import {EventPubSub, EventHandler} from '../system/EventPubSub';
 import {IVector, IVector3} from '../math/IVector';
 import {IQuaternion} from '../math/IQuaternion';
@@ -53,6 +48,7 @@ import {
   qlerp_offsetAsComposition,
 } from '../math/raw/raw_extension';
 import Vector3 from '../math/Vector3';
+import {Is} from '../misc/Is';
 
 const defaultAnimationInfo = {
   name: '',
@@ -367,14 +363,12 @@ export default class AnimationComponent extends Component {
     };
 
     // set AnimationSet
-    const animationSet = valueWithCompensation({
-      value: this.__animationTracks.get(trackName),
-      compensation: () => {
-        const map: Map<AnimationPathName, AnimationChannel> = new Map();
-        this.__animationTracks.set(trackName, map);
-        return map;
-      },
-    });
+    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
+    if (Is.not.exist(animationSet)) {
+      animationSet = new Map();
+      this.__animationTracks.set(trackName, animationSet);
+    }
 
     animationSet.set(pathName, channel);
 

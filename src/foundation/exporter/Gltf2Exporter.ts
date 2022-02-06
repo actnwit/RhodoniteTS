@@ -929,17 +929,18 @@ function createBufferViewsAndAccessorsOfAnimation(
       const trackNames = animationComponent.getAnimationTrackNames();
       for (const trackName of trackNames) {
         // AnimationTrack (Gltf2Animation)
-        let samplerIdx = 0;
         const animation: Gltf2Animation = {
           channels: [],
           samplers: [],
         };
         json.animations.push(animation);
+        let samplerIdx = 0;
         // Rhodonite AnimationTrack is corresponding to Gltf2Animation
         const rnAnimationTrack =
           animationComponent.getAnimationChannelsOfTrack(trackName);
         if (Is.exist(rnAnimationTrack)) {
-          for (const rnChannel of rnAnimationTrack.values()) {
+          const rnChannels = rnAnimationTrack.values();
+          for (const rnChannel of rnChannels) {
             // create and register Gltf2BufferView and Gltf2Accessor
             //   and set Input animation data as Uint8Array to the Gltf2Accessor
             const {inputAccessorIdx, inputBufferViewByteLengthAccumulated} =

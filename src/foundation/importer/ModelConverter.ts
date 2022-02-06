@@ -340,20 +340,24 @@ export default class ModelConverter {
                 .path as AnimationPathName;
             }
 
-            const rnEntity = rnEntities[channel.target!.node!];
+            const rnEntity = rnEntities[channel.target.node!];
             if (Is.exist(rnEntity)) {
-              entityRepository.addComponentsToEntity(
-                [AnimationComponent],
-                rnEntity.entityUID
-              );
-              const animationComponent = rnEntity.getComponent(
-                AnimationComponent
-              ) as AnimationComponent;
+              let animationComponent = rnEntity.getAnimation();
+              if (Is.not.exist(animationComponent)) {
+                entityRepository.addComponentsToEntity(
+                  [AnimationComponent],
+                  rnEntity.entityUID
+                );
+                animationComponent = rnEntity.getAnimation();
+              }
               if (Is.exist(animationComponent)) {
                 const outputComponentN =
                   channel.samplerObject.outputObject!.extras!.componentN!;
                 animationComponent.setAnimation(
-                  Is.exist(animation.name) ? animation.name! : 'Untitled',
+                  Is.exist(animation.name)
+                    ? animation.name
+                    : `Untitled_Animation_${channel.target.node}`,
+                    // : `Untitled_Animation_${channel.target.node}_${channel.target.path}`,
                   animationAttributeType,
                   animInputArray,
                   animOutputArray,
