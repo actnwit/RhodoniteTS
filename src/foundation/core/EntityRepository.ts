@@ -45,9 +45,9 @@ export default class EntityRepository {
    * @param componentClasses The class objects of the components.
    * @param entityClass a custom entity class
    */
-  createCustomEntity(
+  createCustomEntity<DerivedEntity extends typeof Entity>(
     componentClasses: Array<typeof Component>,
-    entityClass: typeof Entity
+    entityClass: DerivedEntity
   ): Entity {
     const entity = new entityClass(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;

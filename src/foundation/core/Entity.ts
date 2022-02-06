@@ -2,7 +2,7 @@ import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import RnObject from './RnObject';
+import RnObject, {IRnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
@@ -15,6 +15,8 @@ import LightComponent from '../components/LightComponent';
 import {Is} from '../misc/Is';
 import AnimationComponent from '../components/AnimationComponent';
 
+export type IEntity = IRnObject;
+
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
@@ -26,8 +28,8 @@ export default class Entity extends RnObject {
 
   private __components: Map<ComponentTID, Component> = new Map(); // index is ComponentTID
 
-  private __transformComponent?: TransformComponent;
-  private __sceneGraphComponent?: SceneGraphComponent;
+  protected __transformComponent?: TransformComponent;
+  protected __sceneGraphComponent?: SceneGraphComponent;
   private __skeletalComponent?: SkeletalComponent;
   private __meshComponent?: MeshComponent;
   private __meshRendererComponent?: MeshRendererComponent;
