@@ -3,7 +3,7 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import RnObject from './RnObject';
-import {ComponentTID, EntityUID} from '../../types/CommonTypes';
+import {ComponentTID, EntityUID, Index} from '../../types/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
@@ -24,7 +24,7 @@ export default class Entity extends RnObject {
   static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;
 
-  private __components: Component[] = []; // index is ComponentTID
+  private __components: Map<ComponentTID, Component> = new Map(); // index is ComponentTID
 
   private __transformComponent?: TransformComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
@@ -65,23 +65,28 @@ export default class Entity extends RnObject {
    * @param component The component to set.
    */
   _setComponent(component: Component) {
-    this.__components[(component.constructor as any).componentTID] = component;
+    this.__components.set(
+      (component.constructor as any).componentTID,
+      component
+    );
   }
 
   /**
    * Get the component of the specified type that the entity has
    * @param componentType
    */
-  getComponent(componentType: typeof Component): Component | null {
-    return this.__components[componentType.componentTID];
+  getComponent(componentType: typeof Component): Component | undefined {
+    return this.__components.get(componentType.componentTID);
   }
 
   /**
    * Gets the component corresponding to the ComponentTID.
    * @param componentTID The ComponentTID to get the component.
    */
-  getComponentByComponentTID(componentTID: ComponentTID): Component | null {
-    return this.__components[componentTID];
+  getComponentByComponentTID(
+    componentTID: ComponentTID
+  ): Component | undefined {
+    return this.__components.get(componentTID);
   }
 
   /**
@@ -182,11 +187,11 @@ export default class Entity extends RnObject {
     return this.__lightComponent;
   }
 
-  getAnimation(): AnimationComponent {
+  getAnimation(): AnimationComponent | undefined {
     if (this.__animationComponent == null) {
       this.__animationComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.AnimationComponentTID
-      ) as AnimationComponent;
+      ) as AnimationComponent | undefined;
     }
     return this.__animationComponent;
   }

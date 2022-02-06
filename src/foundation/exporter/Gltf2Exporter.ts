@@ -46,6 +46,7 @@ import {
 import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
 import {ComponentTypeEnum, CompositionTypeEnum} from '../..';
+import SceneGraphComponent from '../components/SceneGraphComponent';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 interface Gltf2ExporterArguments {
@@ -66,7 +67,7 @@ export default class Gltf2Exporter {
    * @param option a option config
    */
   static export(filename: string, option?: Gltf2ExporterArguments) {
-    const entities = this.__collectEntities(option);
+    const {collectedEntities, topLevelEntities} = this.__collectEntities(option);
 
     const {json, fileName}: {json: Gltf2Ex; fileName: string} =
       this.__createJsonBase(filename);
@@ -75,13 +76,13 @@ export default class Gltf2Exporter {
 
     this.__createBufferViewsAndAccessors(
       json,
-      entities,
+      collectedEntities,
       bufferViewByteLengthAccumulatedArray
     );
 
-    this.__createNodes(json, entities);
+    this.__createNodes(json, collectedEntities, topLevelEntities);
 
-    this.__createMaterials(json, entities);
+    this.__createMaterials(json, collectedEntities);
 
     const arraybuffer = this.__createBinary(
       json,
@@ -124,20 +125,36 @@ export default class Gltf2Exporter {
    * @returns target entities
    */
   private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
-    let entities = Gltf2Exporter.__entityRepository._getEntities();
     if (Is.exist(option) && option.entities.length > 0) {
-      const collectChildren = (entity: Entity): Entity[] => {
+      const collectDescendants = (entity: Entity, root: boolean): Entity[] => {
         const sg = entity.getSceneGraph();
-        let array = [entity];
-        for (let i = 0; i < sg.children.length; i++) {
-          const child = sg.children[i];
-          array = array.concat(collectChildren(child.entity));
+        if (sg.children.length > 0) {
+          const array: Entity[] = root ? [] : [entity];
+          for (let i = 0; i < sg.children.length; i++) {
+            const child = sg.children[i];
+            Array.prototype.push.apply(array, collectDescendants(child.entity, false));
+          }
+          return array;
+        } else {
+          return [entity];
         }
-        return array;
       };
-      entities = option.entities.flatMap(e => collectChildren(e));
+      const collectedDescendants = option.entities.flatMap(entity => collectDescendants(entity, true));
+
+      const topLevelEntities: Entity[] = [];
+      option.entities.forEach(entity => {
+        if (collectedDescendants.indexOf(entity) === -1) {
+          topLevelEntities.push(entity);
+        }
+      });
+      const collectedEntities = option.entities.concat();
+      Array.prototype.push.apply(collectedEntities, collectedDescendants);
+      return {collectedEntities, topLevelEntities};
     }
-    return entities;
+    const collectedEntities = Gltf2Exporter.__entityRepository._getEntities();
+    const topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
+
+    return {collectedEntities, topLevelEntities};
   }
 
   /**
@@ -224,7 +241,7 @@ export default class Gltf2Exporter {
    * @param entities target entities
    * @param indicesOfGltfMeshes the indices of Gltf2Meshes
    */
-  static __createNodes(json: Gltf2Ex, entities: Entity[]) {
+  static __createNodes(json: Gltf2Ex, entities: Entity[], topLevelEntities: Entity[]) {
     json.nodes = [];
     json.scenes = [{nodes: []}];
     const scene = json.scenes![0];
@@ -287,12 +304,15 @@ export default class Gltf2Exporter {
           node.skin = entityIdx;
         }
       }
-
-      // If the entity has no parent, it must be a top level entity in the scene graph.
-      if (Is.not.exist(sceneGraphComponent.parent)) {
-        scene.nodes!.push(i);
-      }
     }
+
+    // If the entity has no parent, it must be a top level entity in the scene graph.
+    topLevelEntities.forEach((entity, i) => {
+      const idx = entities.indexOf(entity);
+      if (idx >= 0) {
+        scene.nodes!.push(idx);
+      }
+    });
   }
 
   /**
