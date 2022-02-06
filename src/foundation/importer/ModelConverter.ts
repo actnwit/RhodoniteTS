@@ -79,6 +79,7 @@ import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
 import {AnimationPathName} from '../../types/AnimationTypes';
+import { TagGltf2NodeIndex } from '../../types/glTF2';
 
 declare let DracoDecoderModule: any;
 
@@ -339,20 +340,24 @@ export default class ModelConverter {
                 .path as AnimationPathName;
             }
 
-            const rnEntity = rnEntities[channel.target!.node!];
+            const rnEntity = rnEntities[channel.target.node!];
             if (Is.exist(rnEntity)) {
-              entityRepository.addComponentsToEntity(
-                [AnimationComponent],
-                rnEntity.entityUID
-              );
-              const animationComponent = rnEntity.getComponent(
-                AnimationComponent
-              ) as AnimationComponent;
+              let animationComponent = rnEntity.getAnimation();
+              if (Is.not.exist(animationComponent)) {
+                entityRepository.addComponentsToEntity(
+                  [AnimationComponent],
+                  rnEntity.entityUID
+                );
+                animationComponent = rnEntity.getAnimation();
+              }
               if (Is.exist(animationComponent)) {
                 const outputComponentN =
                   channel.samplerObject.outputObject!.extras!.componentN!;
                 animationComponent.setAnimation(
-                  Is.exist(animation.name) ? animation.name! : 'Untitled',
+                  Is.exist(animation.name)
+                    ? animation.name
+                    : `Untitled_Animation_${channel.target.node}`,
+                    // : `Untitled_Animation_${channel.target.node}_${channel.target.path}`,
                   animationAttributeType,
                   animInputArray,
                   animOutputArray,
@@ -432,7 +437,7 @@ export default class ModelConverter {
     }
   }
 
-  __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
+  private __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
     const rnEntities: Entity[] = [];
     const rnEntitiesByNames: Map<String, Entity> = new Map();
 
@@ -476,7 +481,7 @@ export default class ModelConverter {
         entity = group;
       }
 
-      entity.tryToSetTag({tag: 'gltf_node_index', value: '' + node_i});
+      entity.tryToSetTag({tag: TagGltf2NodeIndex, value: node_i});
 
       rnEntities.push(entity);
       rnEntitiesByNames.set(node.name!, entity);
