@@ -1,4 +1,4 @@
-import CameraComponent from '../components/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import {IGroupEntity} from '../helpers/EntityHelper';
 
 export default interface ICameraController {

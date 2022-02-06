@@ -8,7 +8,7 @@ import Entity from '../foundation/core/Entity';
 import EntityRepository from '../foundation/core/EntityRepository';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
-import CameraComponent from '../foundation/components/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';

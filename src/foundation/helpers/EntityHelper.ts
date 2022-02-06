@@ -3,8 +3,8 @@ import TransformComponent from '../components/Transform/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
-import CameraComponent from '../components/CameraComponent';
-import CameraControllerComponent from '../components/CameraControllerComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
+import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import Component from '../core/Component';
 import Entity, {IEntity} from '../core/Entity';
 import {

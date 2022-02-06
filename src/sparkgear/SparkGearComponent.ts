@@ -3,7 +3,7 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import Matrix44 from '../foundation/math/Matrix44';
-import CameraComponent from '../foundation/components/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';

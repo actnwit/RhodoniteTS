@@ -7,11 +7,11 @@ import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
-import CameraComponent from '../components/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import BlendShapeComponent from '../components/BlendShapeComponent';
 import PhysicsComponent from '../components/PhysicsComponent';
-import CameraControllerComponent from '../components/CameraControllerComponent';
-import LightComponent from '../components/LightComponent';
+import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
+import LightComponent from '../components/Light/LightComponent';
 import {Is} from '../misc/Is';
 import AnimationComponent from '../components/Animation/AnimationComponent';
 

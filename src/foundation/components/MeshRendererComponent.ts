@@ -8,7 +8,7 @@ import EntityRepository from '../core/EntityRepository';
 import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
-import CameraComponent from './CameraComponent';
+import CameraComponent from './Camera/CameraComponent';
 import Matrix44 from '../math/Matrix44';
 import Accessor from '../memory/Accessor';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';

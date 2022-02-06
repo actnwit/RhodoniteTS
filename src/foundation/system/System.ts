@@ -11,7 +11,7 @@ import Component from '../core/Component';
 import Expression from '../renderer/Expression';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';
-import CameraComponent from '../components/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import MemoryManager from '../core/MemoryManager';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import TransformComponent from '../components/Transform/TransformComponent';

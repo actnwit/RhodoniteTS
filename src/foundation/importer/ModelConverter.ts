@@ -16,7 +16,7 @@ import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import CameraComponent from '../components/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import {CameraType} from '../definitions/CameraType';
 import Texture from '../textures/Texture';
 import Vector4 from '../math/Vector4';
@@ -37,7 +37,7 @@ import Component from '../core/Component';
 import Accessor from '../memory/Accessor';
 import Mesh from '../geometry/Mesh';
 import MutableVector4 from '../math/MutableVector4';
-import LightComponent from '../components/LightComponent';
+import LightComponent from '../components/Light/LightComponent';
 import {LightType} from '../definitions/LightType';
 import {
   Count,

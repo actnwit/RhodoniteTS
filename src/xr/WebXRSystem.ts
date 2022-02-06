@@ -7,7 +7,7 @@ import Entity, {IEntity} from '../foundation/core/Entity';
 import EntityRepository from '../foundation/core/EntityRepository';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
-import CameraComponent from '../foundation/components/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
 import type {
   Navigator,

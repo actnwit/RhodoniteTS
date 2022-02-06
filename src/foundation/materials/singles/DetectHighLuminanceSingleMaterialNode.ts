@@ -9,7 +9,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import Scalar from '../../math/Scalar';
 import RenderPass from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';

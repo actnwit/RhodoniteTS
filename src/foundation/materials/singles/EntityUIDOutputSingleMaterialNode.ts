@@ -10,7 +10,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import Scalar from '../../math/Scalar';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import SkeletalComponent from '../../components/SkeletalComponent';
 import MutableMatrix44 from '../../math/MutableMatrix44';

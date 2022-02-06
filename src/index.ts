@@ -33,15 +33,15 @@ import _Gltf2Exporter from './foundation/exporter/Gltf2Exporter';
 import _ModelConverter from './foundation/importer/ModelConverter';
 import _ModuleManager from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
-import _CameraComponent from './foundation/components/CameraComponent';
+import _CameraComponent from './foundation/components/Camera/CameraComponent';
 import _AnimationComponent from './foundation/components/Animation/AnimationComponent';
 import {
   AnimationInfo as _AnimationInfo,
   ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent,
 } from './types/AnimationTypes';
-import _LightComponent from './foundation/components/LightComponent';
+import _LightComponent from './foundation/components/Light/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
-import _CameraControllerComponent from './foundation/components/CameraControllerComponent';
+import _CameraControllerComponent from './foundation/components/CameraController/CameraControllerComponent';
 import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';
 import {detectFormatByUri as _detectFormatByUri} from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';

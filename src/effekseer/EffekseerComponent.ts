@@ -4,7 +4,7 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
-import CameraComponent from '../foundation/components/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';

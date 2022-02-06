@@ -23,10 +23,10 @@ import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphC
 import Mesh from '../foundation/geometry/Mesh';
 import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
-import LightComponent from '../foundation/components/LightComponent';
+import LightComponent from '../foundation/components/Light/LightComponent';
 import Config from '../foundation/core/Config';
 import RenderPass from '../foundation/renderer/RenderPass';
-import CameraComponent from '../foundation/components/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import {
   WebGLResourceHandle,
   Index,

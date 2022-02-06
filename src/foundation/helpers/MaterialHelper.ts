@@ -30,7 +30,7 @@ import VarianceShadowMapDecodeClassicSingleMaterialNode from '../materials/singl
 import SkinPbrShadingSingleMaterialNode from '../materials/singles/SkinPbrShadingSingleMaterialNode';
 import PbrExtendedShadingSingleMaterialNode from '../materials/singles/PbrExtendedShadingSingleMaterialNode';
 import Texture from '../textures/Texture';
-import CameraComponent from '../../foundation/components/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
 import ShaderitySingleMaterialNode from '../materials/singles/ShaderitySingleMaterialNode';

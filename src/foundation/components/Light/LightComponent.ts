@@ -1,17 +1,17 @@
-import ComponentRepository from '../core/ComponentRepository';
-import Component from '../core/Component';
-import EntityRepository from '../core/EntityRepository';
-import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
-import {LightType} from '../definitions/LightType';
-import Vector3 from '../math/Vector3';
-import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
-import {ProcessStage} from '../definitions/ProcessStage';
-import Config from '../core/Config';
-import {ComponentTID, EntityUID, ComponentSID} from '../../types/CommonTypes';
-import GlobalDataRepository from '../core/GlobalDataRepository';
-import {ShaderSemantics} from '../definitions/ShaderSemantics';
-import MutableVector4 from '../math/MutableVector4';
-import VectorN from '../math/VectorN';
+import ComponentRepository from '../../core/ComponentRepository';
+import Component from '../../core/Component';
+import EntityRepository from '../../core/EntityRepository';
+import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import {LightType} from '../../definitions/LightType';
+import Vector3 from '../../math/Vector3';
+import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
+import {ProcessStage} from '../../definitions/ProcessStage';
+import Config from '../../core/Config';
+import {ComponentTID, EntityUID, ComponentSID} from '../../../types/CommonTypes';
+import GlobalDataRepository from '../../core/GlobalDataRepository';
+import {ShaderSemantics} from '../../definitions/ShaderSemantics';
+import MutableVector4 from '../../math/MutableVector4';
+import VectorN from '../../math/VectorN';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;

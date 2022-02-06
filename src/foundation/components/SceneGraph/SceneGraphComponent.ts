@@ -13,7 +13,7 @@ import AABB from '../../math/AABB';
 import MutableVector3 from '../../math/MutableVector3';
 import MeshComponent from '../MeshComponent';
 import {ComponentTID, ComponentSID, EntityUID} from '../../../types/CommonTypes';
-import CameraComponent from '../CameraComponent';
+import CameraComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import AABBGizmo from '../../gizmos/AABBGizmo';
 import LocatorGizmo from '../../gizmos/LocatorGizmo';
