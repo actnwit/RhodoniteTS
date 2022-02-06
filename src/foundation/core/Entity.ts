@@ -9,7 +9,7 @@ import MeshComponent from '../components/Mesh/MeshComponent';
 import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import CameraComponent from '../components/Camera/CameraComponent';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
-import PhysicsComponent from '../components/PhysicsComponent';
+import PhysicsComponent from '../components/Physics/PhysicsComponent';
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import LightComponent from '../components/Light/LightComponent';
 import {Is} from '../misc/Is';
