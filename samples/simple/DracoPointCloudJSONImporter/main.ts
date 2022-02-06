@@ -63,7 +63,7 @@ declare const Rn: typeof _Rn;
 
   async function createEntityPointCloud(
     pointCloudDrcUri: string
-  ): Promise<IGroupEntity> {
+  ): Promise<IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
     const gltf2JSON = (await importer.importPointCloud(
       pointCloudDrcUri
@@ -71,7 +71,7 @@ declare const Rn: typeof _Rn;
 
     const modelConverter = Rn.ModelConverter.getInstance();
     const rootGroup = modelConverter.convertToRhodoniteObject(gltf2JSON);
-    return rootGroup;
+    return rootGroup as IMeshEntity;
   }
 
   // For cases where there is a single baseColorTexture and each vertex has a UV attribute.

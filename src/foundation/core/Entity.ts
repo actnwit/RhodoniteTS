@@ -19,6 +19,19 @@ export interface IEntity extends IRnObject {
   entityUID: EntityUID;
   getComponent(componentType: typeof Component): Component | undefined;
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
+
+  // Get each Component
+  // getTransform(): TransformComponent | undefined;
+  // getSceneGraph(): SceneGraphComponent | undefined;
+  // getSkeletal(): SkeletalComponent | undefined;
+  // getMesh(): MeshComponent | undefined;
+  // getMeshRenderer(): MeshRendererComponent | undefined;
+  // getCamera(): CameraComponent | undefined;
+  // getCameraController(): CameraControllerComponent | undefined;
+  // getBlendShape(): BlendShapeComponent | undefined;
+  // getPhysics(): PhysicsComponent | undefined;
+  // getLight(): LightComponent | undefined;
+  // getAnimation(): AnimationComponent | undefined;
 }
 
 /**
@@ -32,8 +45,8 @@ export default class Entity extends RnObject implements IEntity {
 
   private __components: Map<ComponentTID, Component> = new Map(); // index is ComponentTID
 
-  protected __transformComponent?: TransformComponent;
-  protected __sceneGraphComponent?: SceneGraphComponent;
+  private __transformComponent?: TransformComponent;
+  private __sceneGraphComponent?: SceneGraphComponent;
   private __skeletalComponent?: SkeletalComponent;
   private __meshComponent?: MeshComponent;
   private __meshRendererComponent?: MeshRendererComponent;

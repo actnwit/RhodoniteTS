@@ -1,8 +1,9 @@
-import Entity, {IEntity} from '../../../dist/esm/foundation/core/Entity';
+import {IEntity} from '../../../dist/esm/foundation/core/Entity';
 import _Rn from '../../../dist/esm/index';
 import {checkFinished} from '../common/testHelpers';
 import CameraComponent from '../../../dist/esm/foundation/components/CameraComponent';
 import Material from '../../../dist/esm/foundation/materials/core/Material';
+import {ICameraEntity, IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 declare const Rn: typeof _Rn;
 let p: HTMLParagraphElement | undefined;
 
@@ -34,7 +35,7 @@ let p: HTMLParagraphElement | undefined;
   });
 })();
 
-function createGroupOfShapes(): IEntity {
+function createGroupOfShapes(): IMeshEntity {
   const group = Rn.EntityHelper.createGroupEntity();
   const material = Rn.MaterialHelper.createClassicUberMaterial();
   material.cullFace = false;
@@ -53,7 +54,7 @@ function createGroupOfShapes(): IEntity {
     group.getSceneGraph().addChild(shape.getSceneGraph());
   }
 
-  return group;
+  return group as IMeshEntity;
 }
 
 function createGrid(material: Material) {
@@ -170,14 +171,13 @@ async function setupRhodonite() {
   return system;
 }
 
-function createCamera(group: Entity) {
+function createCamera(group: IMeshEntity) {
   const cameraComponent = createCameraComponent();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 10;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1; // depthCameraComponent.direction = lightDirection;
   const cameraEntity = cameraComponent.entity;
-  // cameraEntity.getTransform().translate = Rn.Vector3.fromCopy3(0.2, 0.35, -0.5);
 
   cameraEntity.getCameraController().controller.setTarget(group);
 

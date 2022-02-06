@@ -1,6 +1,6 @@
+import {IGroupEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraControllerComponent,
-  Entity,
   LightComponent,
 } from '../../../dist/esm/index';
 import {OrbitCameraController, CameraComponent} from '../../../dist/esm/index';
@@ -9,7 +9,7 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 const setupRenderPassEntityUidOutput = function (
-  rootGroup: Entity,
+  rootGroup: IGroupEntity,
   cameraComponent: CameraComponent,
   canvas: HTMLCanvasElement
 ) {
@@ -39,7 +39,7 @@ const setupRenderPassEntityUidOutput = function (
 };
 
 const setupRenderPassRendering = function (
-  rootGroup: Entity,
+  rootGroup: IGroupEntity,
   cameraComponent: CameraComponent
 ) {
   const renderPass = new Rn.RenderPass();

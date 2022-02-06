@@ -1,7 +1,10 @@
+import {
+  ICameraEntity,
+  IGroupEntity,
+} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
   ComponentTypeEnum,
-  Entity,
   Expression,
   Material,
   MeshComponent,
@@ -196,7 +199,7 @@ declare const Rn: typeof _Rn;
     return entitySphere;
   }
 
-  function createEntityMainCamera(entityCameraTarget: Entity) {
+  function createEntityMainCamera(entityCameraTarget: IGroupEntity) {
     const entityCamera = generateEntity([
       Rn.TransformComponent,
       Rn.SceneGraphComponent,
@@ -208,7 +211,7 @@ declare const Rn: typeof _Rn;
     const controller = cameraControllerComponent.controller;
     controller.setTarget(entityCameraTarget);
 
-    return entityCamera;
+    return entityCamera as ICameraEntity;
   }
 
   function createEntityPostEffectCamera() {
@@ -222,7 +225,7 @@ declare const Rn: typeof _Rn;
     cameraComponent.zNearInner = 0.5;
     cameraComponent.zFarInner = 2.0;
 
-    return entityCamera;
+    return entityCamera as ICameraEntity;
   }
 
   function generateEntity(
@@ -240,7 +243,7 @@ declare const Rn: typeof _Rn;
 
   async function createRenderPassHDR(
     cameraComponent: CameraComponent,
-    entityRenderTargets: Entity[]
+    entityRenderTargets: IGroupEntity[]
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -486,7 +489,7 @@ declare const Rn: typeof _Rn;
   function createRenderPassGlareTargetRegion(
     material: Material,
     cameraComponent: CameraComponent,
-    entityGlareTarget: Entity
+    entityGlareTarget: IGroupEntity
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
