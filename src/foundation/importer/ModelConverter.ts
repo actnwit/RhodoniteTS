@@ -69,7 +69,7 @@ import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import MemoryManager from '../core/MemoryManager';
 import ILoaderExtension from './ILoaderExtension';
-import BlendShapeComponent from '../components/BlendShapeComponent';
+import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';

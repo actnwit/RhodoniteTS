@@ -9,7 +9,7 @@ import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
 import Entity from '../core/Entity';
 import {ComponentTID, EntityUID, ComponentSID} from '../../types/CommonTypes';
-import BlendShapeComponent from './BlendShapeComponent';
+import BlendShapeComponent from './BlendShape/BlendShapeComponent';
 import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';

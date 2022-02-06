@@ -11,7 +11,7 @@ import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import MeshComponent from '../../components/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {

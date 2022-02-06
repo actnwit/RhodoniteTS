@@ -12,7 +12,7 @@ import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import MeshComponent from '../../components/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import ShaderityUtility from '../core/ShaderityUtility';

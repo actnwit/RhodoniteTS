@@ -1,6 +1,6 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {AlphaMode} from '../../definitions/AlphaMode';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import ComponentRepository from '../../core/ComponentRepository';

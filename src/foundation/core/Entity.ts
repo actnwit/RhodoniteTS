@@ -8,7 +8,7 @@ import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import CameraComponent from '../components/Camera/CameraComponent';
-import BlendShapeComponent from '../components/BlendShapeComponent';
+import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import PhysicsComponent from '../components/PhysicsComponent';
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import LightComponent from '../components/Light/LightComponent';

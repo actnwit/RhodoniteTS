@@ -21,7 +21,7 @@ import Scalar from '../../math/Scalar';
 import Config from '../../core/Config';
 import VectorN from '../../math/VectorN';
 import MeshComponent from '../../components/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';

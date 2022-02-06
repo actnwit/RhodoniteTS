@@ -1,4 +1,4 @@
-import CameraComponent from '../../../dist/esm/foundation/components/CameraComponent';
+import CameraComponent from '../../../dist/esm/foundation/components/Camera/CameraComponent';
 import _Rn, {Material} from '../../../dist/esm/index';
 
 let p: any;

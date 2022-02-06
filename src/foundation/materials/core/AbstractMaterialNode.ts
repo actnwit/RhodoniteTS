@@ -28,7 +28,7 @@ import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import MemoryManager from '../../core/MemoryManager';
 import {BufferUse} from '../../definitions/BufferUse';
 import {ProcessApproach} from '../../definitions/ProcessApproach';

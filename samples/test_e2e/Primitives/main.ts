@@ -1,9 +1,8 @@
-import {IEntity} from '../../../dist/esm/foundation/core/Entity';
 import _Rn from '../../../dist/esm/index';
 import {checkFinished} from '../common/testHelpers';
-import CameraComponent from '../../../dist/esm/foundation/components/CameraComponent';
+import CameraComponent from '../../../dist/esm/foundation/components/Camera/CameraComponent';
 import Material from '../../../dist/esm/foundation/materials/core/Material';
-import {ICameraEntity, IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 declare const Rn: typeof _Rn;
 let p: HTMLParagraphElement | undefined;
 
