@@ -2,7 +2,7 @@ import EntityRepository from '../core/EntityRepository';
 import TransformComponent from '../components/Transform/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
-import Entity from '../core/Entity';
+import {IEntity} from '../core/Entity';
 import Vector3 from '../math/Vector3';
 import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
@@ -20,7 +20,7 @@ import CameraComponent from '../components/CameraComponent';
 import {CameraType} from '../definitions/CameraType';
 import Texture from '../textures/Texture';
 import Vector4 from '../math/Vector4';
-import AnimationComponent from '../components/AnimationComponent';
+import AnimationComponent from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
 import SkeletalComponent from '../components/SkeletalComponent';
@@ -70,7 +70,6 @@ import {BufferUse} from '../definitions/BufferUse';
 import MemoryManager from '../core/MemoryManager';
 import ILoaderExtension from './ILoaderExtension';
 import BlendShapeComponent from '../components/BlendShapeComponent';
-import GlobalDataRepository from '../core/GlobalDataRepository';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
@@ -78,7 +77,14 @@ import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
 import {AnimationPathName} from '../../types/AnimationTypes';
-import { TagGltf2NodeIndex } from '../../types/glTF2';
+import {TagGltf2NodeIndex} from '../../types/glTF2';
+import {
+  IAnimationEntity,
+  ICameraEntity,
+  IGroupEntity,
+  ILightEntity,
+  IMeshEntity,
+} from '../helpers/EntityHelper';
 
 declare let DracoDecoderModule: any;
 
@@ -118,7 +124,7 @@ export default class ModelConverter {
   private __generateEntity(
     components: typeof Component[],
     gltfModel: RnM2
-  ): Entity {
+  ): IEntity {
     const repo = EntityRepository.getInstance();
     const entity = repo.createEntity(components);
     entity.tryToSetTag({
@@ -133,15 +139,15 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateGroupEntity(gltfModel: RnM2): Entity {
+  private __generateGroupEntity(gltfModel: RnM2): IGroupEntity {
     const entity = this.__generateEntity(
       [TransformComponent, SceneGraphComponent],
       gltfModel
     );
-    return entity;
+    return entity as IGroupEntity;
   }
 
-  private __generateMeshEntity(gltfModel: RnM2): Entity {
+  private __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
     const entity = this.__generateEntity(
       [
         TransformComponent,
@@ -151,10 +157,10 @@ export default class ModelConverter {
       ],
       gltfModel
     );
-    return entity;
+    return entity as IMeshEntity;
   }
 
-  private __generateCameraEntity(gltfModel: RnM2): Entity {
+  private __generateCameraEntity(gltfModel: RnM2): IEntity {
     const entity = this.__generateEntity(
       [TransformComponent, SceneGraphComponent, CameraComponent],
       gltfModel
@@ -162,7 +168,7 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateLightEntity(gltfModel: RnM2): Entity {
+  private __generateLightEntity(gltfModel: RnM2): IEntity {
     const entity = this.__generateEntity(
       [TransformComponent, SceneGraphComponent, LightComponent],
       gltfModel
@@ -248,7 +254,7 @@ export default class ModelConverter {
     return rnBuffers;
   }
 
-  _setupTransform(gltfModel: RnM2, groups: Entity[]) {
+  _setupTransform(gltfModel: RnM2, groups: IGroupEntity[]) {
     for (const node_i in gltfModel.nodes) {
       const group = groups[node_i];
       const nodeJson = gltfModel.nodes[node_i];
@@ -281,7 +287,7 @@ export default class ModelConverter {
     }
   }
 
-  _setupHierarchy(gltfModel: RnM2, rnEntities: Entity[]) {
+  _setupHierarchy(gltfModel: RnM2, rnEntities: IGroupEntity[]) {
     const groupSceneComponents = rnEntities.map(group => {
       return group.getSceneGraph()!;
     });
@@ -302,7 +308,7 @@ export default class ModelConverter {
   /**
    * @private
    */
-  _setupAnimation(gltfModel: RnM2, rnEntities: Entity[]) {
+  _setupAnimation(gltfModel: RnM2, rnEntities: IGroupEntity[]) {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
@@ -339,7 +345,9 @@ export default class ModelConverter {
                 .path as AnimationPathName;
             }
 
-            const rnEntity = rnEntities[channel.target.node!];
+            const rnEntity = rnEntities[
+              channel.target.node!
+            ] as IAnimationEntity;
             if (Is.exist(rnEntity)) {
               let animationComponent = rnEntity.getAnimation();
               if (Is.not.exist(animationComponent)) {
@@ -370,7 +378,11 @@ export default class ModelConverter {
     }
   }
 
-  _setupSkeleton(gltfModel: RnM2, rnEntities: Entity[], rnBuffers: Buffer[]) {
+  _setupSkeleton(
+    gltfModel: RnM2,
+    rnEntities: IGroupEntity[],
+    rnBuffers: Buffer[]
+  ) {
     if (gltfModel.skins == null) {
       return;
     }
@@ -436,12 +448,12 @@ export default class ModelConverter {
   }
 
   private __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
-    const rnEntities: Entity[] = [];
-    const rnEntitiesByNames: Map<String, Entity> = new Map();
+    const rnEntities: IGroupEntity[] = [];
+    const rnEntitiesByNames: Map<String, IEntity> = new Map();
 
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[parseInt(node_i)] as RnM2Node;
-      let entity;
+      let entity: IGroupEntity;
       if (node.mesh != null) {
         const meshIdx = node.mesh;
         const meshEntity = this.__setupMesh(
@@ -521,7 +533,10 @@ export default class ModelConverter {
     }
   }
 
-  private __setupLight(light: KHR_lights_punctual_Light, gltfModel: RnM2) {
+  private __setupLight(
+    light: KHR_lights_punctual_Light,
+    gltfModel: RnM2
+  ): ILightEntity {
     const lightEntity = this.__generateLightEntity(gltfModel);
     const lightComponent = lightEntity.getComponent(
       LightComponent
@@ -542,10 +557,10 @@ export default class ModelConverter {
         lightComponent.range = light.range;
       }
     }
-    return lightEntity;
+    return lightEntity as ILightEntity;
   }
 
-  private __setupCamera(camera: RnM2Camera, gltfModel: RnM2) {
+  private __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getComponent(
       CameraComponent
@@ -578,7 +593,7 @@ export default class ModelConverter {
       cameraComponent.zNear = camera.orthographic!.znear;
       cameraComponent.zFar = camera.orthographic!.zfar;
     }
-    return cameraEntity;
+    return cameraEntity as ICameraEntity;
   }
 
   private __setupMesh(

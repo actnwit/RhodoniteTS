@@ -3,9 +3,8 @@ import {EntityUID} from '../../../types/CommonTypes';
 import SceneGraphComponent from './SceneGraphComponent';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {MixinBase} from '../../../types/TypeGenerators';
-import {IEntity} from '../../core/Entity';
 
-export interface ISceneGraphEntity extends IEntity {
+export interface ISceneGraphEntityMethods {
   getSceneGraph(): SceneGraphComponent;
 }
 

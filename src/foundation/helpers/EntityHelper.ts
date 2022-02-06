@@ -6,15 +6,26 @@ import MeshRendererComponent from '../components/MeshRendererComponent';
 import CameraComponent from '../components/CameraComponent';
 import CameraControllerComponent from '../components/CameraControllerComponent';
 import Component from '../core/Component';
-import Entity from '../core/Entity';
+import Entity, {IEntity} from '../core/Entity';
 import {
   addTransform,
-  ITranformEntity,
+  ITransformEntityMethods,
 } from '../components/Transform/ITransfomEntity';
 import {
   addSceneGraph,
-  ISceneGraphEntity,
+  ISceneGraphEntityMethods,
 } from '../components/SceneGraph/ISceneGraphEntity';
+import {IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
+import {
+  addCamera,
+  ICameraEntityMethods,
+} from '../components/Camera/ICameraEntity';
+import {
+  addAnimation,
+  IAnimationEntityMethods,
+} from '../components/Animation/IAnimationEntity';
+import {ILightEntityMethods} from '../components/Light/ILightEntity';
+import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
 import {ComponentMixinFunction} from '../../foundation/components/ComponentTypes';
 
 function processMixin(mixins: ComponentMixinFunction[]) {
@@ -31,7 +42,25 @@ function processMixin(mixins: ComponentMixinFunction[]) {
   );
   return customEntity;
 }
-export interface IGroupEntity extends ITranformEntity, ISceneGraphEntity {}
+export interface ITransformEntity extends IEntity, ITransformEntityMethods {}
+export interface IGroupEntity
+  extends ITransformEntity,
+    ISceneGraphEntityMethods {}
+export interface IMeshEntity
+  extends IGroupEntity,
+    IMeshEntityMethods,
+    IMeshRendererEntityMethods {}
+export interface ICameraEntity extends IGroupEntity, ICameraEntityMethods {}
+export interface ILightEntity extends IGroupEntity, ILightEntityMethods {}
+export interface IAnimationEntity
+  extends IGroupEntity,
+    IAnimationEntityMethods {}
+
+function createTransformEntity(): ITransformEntity {
+  const mixins = [addTransform];
+  const customEntity = processMixin(mixins);
+  return customEntity as ITransformEntity;
+}
 
 function createGroupEntity(): IGroupEntity {
   const mixins = [addTransform, addSceneGraph];
@@ -66,6 +95,7 @@ function createCameraWithControllerEntity() {
 }
 
 export default Object.freeze({
+  createTransformEntity,
   createGroupEntity,
   createMeshEntity,
   createCameraEntity,

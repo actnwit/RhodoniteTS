@@ -1,4 +1,4 @@
-import Entity from '../../../dist/esm/foundation/core/Entity';
+import Entity, {IEntity} from '../../../dist/esm/foundation/core/Entity';
 import _Rn from '../../../dist/esm/index';
 import {checkFinished} from '../common/testHelpers';
 import CameraComponent from '../../../dist/esm/foundation/components/CameraComponent';
@@ -34,7 +34,7 @@ let p: HTMLParagraphElement | undefined;
   });
 })();
 
-function createGroupOfShapes(): Entity {
+function createGroupOfShapes(): IEntity {
   const group = Rn.EntityHelper.createGroupEntity();
   const material = Rn.MaterialHelper.createClassicUberMaterial();
   material.cullFace = false;

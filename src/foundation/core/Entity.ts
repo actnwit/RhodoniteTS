@@ -13,15 +13,19 @@ import PhysicsComponent from '../components/PhysicsComponent';
 import CameraControllerComponent from '../components/CameraControllerComponent';
 import LightComponent from '../components/LightComponent';
 import {Is} from '../misc/Is';
-import AnimationComponent from '../components/AnimationComponent';
+import AnimationComponent from '../components/Animation/AnimationComponent';
 
-export type IEntity = IRnObject;
+export interface IEntity extends IRnObject {
+  entityUID: EntityUID;
+  getComponent(componentType: typeof Component): Component | undefined;
+  getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
+}
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
  */
-export default class Entity extends RnObject {
+export default class Entity extends RnObject implements IEntity {
   private readonly __entity_uid: number;
   static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;

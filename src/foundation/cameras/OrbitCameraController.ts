@@ -3,7 +3,6 @@ import MutableVector3 from '../math/MutableVector3';
 import {MathUtil} from '../math/MathUtil';
 import CameraComponent from '../components/CameraComponent';
 import MutableMatrix33 from '../math/MutableMatrix33';
-import Entity from '../core/Entity';
 import Matrix44 from '../math/Matrix44';
 import {Count, Size} from '../../types/CommonTypes';
 import ICameraController from './ICameraController';
@@ -11,6 +10,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import AABB from '../math/AABB';
 import AbstractCameraController from './AbstractCameraController';
 import {Is} from '../misc/Is';
+import {IGroupEntity} from '../helpers/EntityHelper';
 
 declare let window: any;
 
@@ -53,7 +53,7 @@ export default class OrbitCameraController
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
-  protected __targetEntity?: Entity;
+  protected __targetEntity?: IGroupEntity;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
   private __isPressingShift = false;
@@ -109,12 +109,12 @@ export default class OrbitCameraController
     this.registerEventListeners();
   }
 
-  setTarget(targetEntity: Entity) {
+  setTarget(targetEntity: IGroupEntity) {
     this.__targetEntity = targetEntity;
     this.__originalTargetAABB = undefined;
   }
 
-  getTarget(): Entity | undefined {
+  getTarget(): IGroupEntity | undefined {
     return this.__targetEntity;
   }
 

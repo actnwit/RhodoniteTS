@@ -5,6 +5,7 @@ import ModelConverter from './ModelConverter';
 import {Is} from '../misc/Is';
 import Entity from '../core/Entity';
 import {VRM} from '../../types/VRM';
+import { IGroupEntity } from '../helpers/EntityHelper';
 
 /**
  * The VRM Importer class.
@@ -25,7 +26,7 @@ export default class VRMImporter {
   /**
    * Import VRM file.
    */
-  async import(uri: string, options?: GltfLoadOption): Promise<Entity[]> {
+  async import(uri: string, options?: GltfLoadOption): Promise<IGroupEntity[]> {
     const gltfImporter = GltfImporter.getInstance();
     options = gltfImporter._getOptions(options);
 

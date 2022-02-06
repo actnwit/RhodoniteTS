@@ -1,9 +1,7 @@
-import Rn from '../../../../dist/esm';
+import Rn from '../../../../dist/esm/';
 
 function generateEntity() {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([Rn.TransformComponent]);
-  return entity;
+  return Rn.EntityHelper.createTransformEntity();
 }
 
 test('Use translate simply', () => {

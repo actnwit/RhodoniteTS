@@ -3,9 +3,8 @@ import {EntityUID} from '../../../types/CommonTypes';
 import TransformComponent from './TransformComponent';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {MixinBase} from '../../../types/TypeGenerators';
-import {IEntity} from '../../core/Entity';
 
-export interface ITranformEntity extends IEntity {
+export interface ITransformEntityMethods {
   getTransform(): TransformComponent;
 }
 

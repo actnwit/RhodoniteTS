@@ -34,7 +34,7 @@ import _ModelConverter from './foundation/importer/ModelConverter';
 import _ModuleManager from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
 import _CameraComponent from './foundation/components/CameraComponent';
-import _AnimationComponent from './foundation/components/AnimationComponent';
+import _AnimationComponent from './foundation/components/Animation/AnimationComponent';
 import {
   AnimationInfo as _AnimationInfo,
   ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent,

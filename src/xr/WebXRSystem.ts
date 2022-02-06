@@ -3,7 +3,7 @@ import Vector3 from '../foundation/math/Vector3';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
-import Entity from '../foundation/core/Entity';
+import Entity, {IEntity} from '../foundation/core/Entity';
 import EntityRepository from '../foundation/core/EntityRepository';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
@@ -32,6 +32,7 @@ import {Is} from '../foundation/misc/Is';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableQuaternion from '../foundation/math/MutableQuaternion';
 import MutableScalar from '../foundation/math/MutableScalar';
+import {IGroupEntity} from '../foundation/helpers/EntityHelper';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -55,7 +56,7 @@ export default class WebXRSystem {
   private __leftCameraEntity: Entity;
   private __rightCameraEntity: Entity;
   private __basePath?: string;
-  private __controllerEntities: Entity[] = [];
+  private __controllerEntities: IGroupEntity[] = [];
   private __xrInputSources: XRInputSource[] = [];
   private __viewerTranslate = MutableVector3.zero();
   private __viewerAzimuthAngle = MutableScalar.zero();
@@ -180,13 +181,9 @@ export default class WebXRSystem {
         callbackOnXrSessionEnd();
       });
 
-      const promiseFn = (resolve: (entities: Entity[]) => void) => {
-        session.addEventListener('inputsourceschange', e => {
-          this.__onInputSourcesChange(
-            e as XRInputSourceChangeEvent,
-            resolve,
-            profilePriorities
-          );
+      const promiseFn = (resolve: (entities: IEntity[]) => void) => {
+        session.addEventListener('inputsourceschange', (e: any) => {
+          this.__onInputSourcesChange(e, resolve, profilePriorities);
         });
       };
       const promise = new Promise(promiseFn);
@@ -465,7 +462,7 @@ export default class WebXRSystem {
 
   private async __onInputSourcesChange(
     event: XRInputSourceChangeEvent,
-    resolve: (entities: Entity[]) => void,
+    resolve: (entities: IGroupEntity[]) => void,
     profilePriorities: string[]
   ) {
     this.__xrInputSources.length = 0;

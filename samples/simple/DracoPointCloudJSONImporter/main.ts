@@ -1,3 +1,4 @@
+import { IGroupEntity, IMeshEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {Entity, Expression} from '../../../dist/esm/index';
 import {RnM2} from '../../../dist/esm/types/RnM2';
 
@@ -62,7 +63,7 @@ declare const Rn: typeof _Rn;
 
   async function createEntityPointCloud(
     pointCloudDrcUri: string
-  ): Promise<Entity> {
+  ): Promise<IGroupEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
     const gltf2JSON = (await importer.importPointCloud(
       pointCloudDrcUri
@@ -101,7 +102,7 @@ declare const Rn: typeof _Rn;
   //   return rootGroup;
   // }
 
-  function setPointSizeRecursively(entity: Entity, pointSize: number) {
+  function setPointSizeRecursively(entity: IMeshEntity, pointSize: number) {
     // set point size
     const meshComponent = entity.getMesh();
     if (meshComponent) {

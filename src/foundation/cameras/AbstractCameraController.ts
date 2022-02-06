@@ -1,12 +1,12 @@
 import CameraComponent from '../components/CameraComponent';
-import Entity from '../core/Entity';
+import {IGroupEntity} from '../helpers/EntityHelper';
 import Vector3 from '../math/Vector3';
 
 export default abstract class AbstractCameraController {
   public zNearLimitFactor = 10; // must be more than 0
   public zFarScalingFactor = 10000;
   public autoCalculateZNearAndZFar = true;
-  protected abstract __targetEntity?: Entity;
+  protected abstract __targetEntity?: IGroupEntity;
 
   constructor() {}
 
@@ -76,6 +76,6 @@ export default abstract class AbstractCameraController {
     }
   }
 
-  abstract setTarget(targetEntity: Entity): void;
-  abstract getTarget(): Entity | undefined;
+  abstract setTarget(targetEntity: IGroupEntity): void;
+  abstract getTarget(): IGroupEntity | undefined;
 }

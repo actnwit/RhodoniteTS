@@ -10,6 +10,7 @@ export interface IRnObject {
   tryToSetUniqueName(name: string, toAddNameIfConflict: boolean): boolean;
   validateTagString(val: string): boolean;
   tryToSetTag(tag: Tag): boolean;
+  getTagValue(tagName: string): any;
 }
 
 /**
@@ -137,7 +138,7 @@ export default class RnObject implements IRnObject {
    * Gets the tag object.
    * @param tagName The tag name.
    */
-  getTag(tagName: string) {
+  getTag(tagName: string): Tag {
     const tag: Tag = {
       tag: tagName,
       value: this.__tags[tagName],
