@@ -4,7 +4,7 @@ import EntityRepository from '../core/EntityRepository';
 import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
 import {LightType} from '../definitions/LightType';
 import Vector3 from '../math/Vector3';
-import SceneGraphComponent from './SceneGraphComponent';
+import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../definitions/ProcessStage';
 import Config from '../core/Config';
 import {ComponentTID, EntityUID, ComponentSID} from '../../types/CommonTypes';

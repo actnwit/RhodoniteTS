@@ -1,5 +1,5 @@
 import RnObject from '../core/RnObject';
-import SceneGraphComponent from '../components/SceneGraphComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
 

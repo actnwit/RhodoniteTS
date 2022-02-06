@@ -44,7 +44,7 @@ import {
 import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
 import {ComponentTypeEnum, CompositionTypeEnum} from '../..';
-import SceneGraphComponent from '../components/SceneGraphComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 interface Gltf2ExporterArguments {

@@ -7,7 +7,7 @@ import {
   AnimationInterpolation,
 } from '../definitions/AnimationInterpolation';
 import {AnimationAttribute} from '../definitions/AnimationAttribute';
-import TransformComponent from './TransformComponent';
+import TransformComponent from './Transform/TransformComponent';
 import {ProcessStage} from '../definitions/ProcessStage';
 import MeshComponent from './MeshComponent';
 import {

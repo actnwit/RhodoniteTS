@@ -1,5 +1,5 @@
-import TransformComponent from '../components/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraphComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import Component from './Component';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import RnObject, {IRnObject} from './RnObject';

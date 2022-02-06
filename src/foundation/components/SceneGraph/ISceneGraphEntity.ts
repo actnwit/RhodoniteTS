@@ -1,6 +1,6 @@
 import Component from '../../core/Component';
 import {EntityUID} from '../../../types/CommonTypes';
-import SceneGraphComponent from '../SceneGraphComponent';
+import SceneGraphComponent from './SceneGraphComponent';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {MixinBase} from '../../../types/TypeGenerators';
 import {IEntity} from '../../core/Entity';

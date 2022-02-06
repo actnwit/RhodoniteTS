@@ -1,5 +1,5 @@
-import TransformComponent from '../components/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraphComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';

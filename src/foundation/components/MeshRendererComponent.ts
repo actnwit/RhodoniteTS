@@ -5,7 +5,7 @@ import WebGLStrategy from '../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
-import SceneGraphComponent from './SceneGraphComponent';
+import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
 import CameraComponent from './CameraComponent';

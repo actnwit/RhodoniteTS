@@ -6,7 +6,7 @@ import Matrix44 from '../foundation/math/Matrix44';
 import CameraComponent from '../foundation/components/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
-import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';

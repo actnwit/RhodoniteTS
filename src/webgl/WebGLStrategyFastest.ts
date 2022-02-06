@@ -19,7 +19,7 @@ import {
 import Material from '../foundation/materials/core/Material';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import Component from '../foundation/core/Component';
-import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import Mesh from '../foundation/geometry/Mesh';
 import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';

@@ -10,7 +10,7 @@ import Mesh from '../geometry/Mesh';
 import Entity from '../core/Entity';
 import {ComponentTID, EntityUID, ComponentSID} from '../../types/CommonTypes';
 import BlendShapeComponent from './BlendShapeComponent';
-import SceneGraphComponent from './SceneGraphComponent';
+import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';

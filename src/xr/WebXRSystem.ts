@@ -5,8 +5,8 @@ import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
 import Entity from '../foundation/core/Entity';
 import EntityRepository from '../foundation/core/EntityRepository';
-import TransformComponent from '../foundation/components/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import TransformComponent from '../foundation/components/Transform/TransformComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import CameraComponent from '../foundation/components/CameraComponent';
 import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
 import type {
