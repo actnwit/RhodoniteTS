@@ -6,9 +6,9 @@ import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
 import Entity from '../foundation/core/Entity';
 import EntityRepository from '../foundation/core/EntityRepository';
-import TransformComponent from '../foundation/components/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
-import CameraComponent from '../foundation/components/CameraComponent';
+import TransformComponent from '../foundation/components/Transform/TransformComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
@@ -350,8 +350,8 @@ export default class WebVRSystem {
   }
 
   setValuesToGlobalDataRepository() {
-    const leftCamera = this.__leftCameraEntity.getCamera();
-    const rightCamera = this.__rightCameraEntity.getCamera();
+    const leftCamera = this.__leftCameraEntity.getCamera()!;
+    const rightCamera = this.__rightCameraEntity.getCamera()!;
     leftCamera.viewMatrix = this.leftViewMatrix;
     rightCamera.viewMatrix = this.rightViewMatrix;
     leftCamera.projectionMatrix = this.leftProjectionMatrix;
@@ -374,9 +374,9 @@ export default class WebVRSystem {
 
   getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera().componentSID;
+      return this.__leftCameraEntity.getCamera()!.componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera().componentSID;
+      return this.__rightCameraEntity.getCamera()!.componentSID;
     }
   }
 

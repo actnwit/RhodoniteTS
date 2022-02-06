@@ -9,13 +9,13 @@ import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import Component from '../core/Component';
 import Expression from '../renderer/Expression';
-import MeshRendererComponent from '../components/MeshRendererComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';
-import CameraComponent from '../components/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import MemoryManager from '../core/MemoryManager';
 import GlobalDataRepository from '../core/GlobalDataRepository';
-import TransformComponent from '../components/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraphComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import Vector3 from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
 import Time from '../misc/Time';
@@ -127,13 +127,13 @@ export default class System {
         SceneGraphComponent,
         CameraComponent,
       ]);
-      cameraEntity.getTransform().translate = Vector3.fromCopyArray([0, 0, 1]);
-      cameraEntity.getCamera().type = CameraType.Orthographic;
-      cameraEntity.getCamera().zNear = 0.1;
-      cameraEntity.getCamera().zFar = 10000;
+      cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
+      cameraEntity.getCamera()!.type = CameraType.Orthographic;
+      cameraEntity.getCamera()!.zNear = 0.1;
+      cameraEntity.getCamera()!.zFar = 10000;
       const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      cameraEntity.getCamera().xMag = wgl.width / wgl.height;
-      cameraEntity.getCamera().yMag = 1;
+      cameraEntity.getCamera()!.xMag = wgl.width / wgl.height;
+      cameraEntity.getCamera()!.yMag = 1;
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();

@@ -1,22 +1,22 @@
-import ComponentRepository from '../core/ComponentRepository';
-import Component from '../core/Component';
-import EntityRepository from '../core/EntityRepository';
-import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
-import {ProcessStage} from '../definitions/ProcessStage';
-import Vector3 from '../math/Vector3';
-import CameraComponent from './CameraComponent';
-import Vector4 from '../math/Vector4';
-import Mesh from '../geometry/Mesh';
-import Entity from '../core/Entity';
-import {ComponentTID, EntityUID, ComponentSID} from '../../types/CommonTypes';
-import BlendShapeComponent from './BlendShapeComponent';
-import SceneGraphComponent from './SceneGraphComponent';
-import Matrix44 from '../math/Matrix44';
-import MutableMatrix44 from '../math/MutableMatrix44';
-import MathClassUtil from '../math/MathClassUtil';
-import MutableVector3 from '../math/MutableVector3';
-import {ProcessApproachEnum} from '../definitions/ProcessApproach';
-import {Is} from '../misc/Is';
+import ComponentRepository from '../../core/ComponentRepository';
+import Component from '../../core/Component';
+import EntityRepository from '../../core/EntityRepository';
+import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import {ProcessStage} from '../../definitions/ProcessStage';
+import Vector3 from '../../math/Vector3';
+import CameraComponent from '../Camera/CameraComponent';
+import Vector4 from '../../math/Vector4';
+import Mesh from '../../geometry/Mesh';
+import Entity from '../../core/Entity';
+import {ComponentTID, EntityUID, ComponentSID} from '../../../types/CommonTypes';
+import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
+import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
+import Matrix44 from '../../math/Matrix44';
+import MutableMatrix44 from '../../math/MutableMatrix44';
+import MathClassUtil from '../../math/MathClassUtil';
+import MutableVector3 from '../../math/MutableVector3';
+import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
+import {Is} from '../../misc/Is';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -83,7 +83,7 @@ export default class MeshComponent extends Component {
       );
     }
 
-    const worldMatrixInner = this.entity.getSceneGraph().worldMatrixInner;
+    const worldMatrixInner = this.entity.getSceneGraph()!.worldMatrixInner;
     const centerPosition_inWorld = worldMatrixInner.multiplyVector3To(
       centerPosition_inLocal,
       MeshComponent.__tmpVector3_0

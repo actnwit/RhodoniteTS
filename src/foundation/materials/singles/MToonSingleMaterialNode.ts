@@ -1,14 +1,14 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {AlphaMode} from '../../definitions/AlphaMode';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
-import CameraComponent from '../../components/CameraComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
 import Config from '../../core/Config';
 import Material from '../core/Material';
-import MeshComponent from '../../components/MeshComponent';
+import MeshComponent from '../../components/Mesh/MeshComponent';
 import Scalar from '../../math/Scalar';
 import {
   ShaderSemanticsInfo,

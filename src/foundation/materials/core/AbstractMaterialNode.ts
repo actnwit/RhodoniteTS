@@ -12,23 +12,23 @@ import Matrix44 from '../../math/Matrix44';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Texture from '../../textures/Texture';
 import CubeTexture from '../../textures/CubeTexture';
-import LightComponent from '../../components/LightComponent';
+import LightComponent from '../../components/Light/LightComponent';
 import Config from '../../core/Config';
-import CameraComponent from '../../components/CameraComponent';
-import SkeletalComponent from '../../components/SkeletalComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
+import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './Material';
 import MutableVector2 from '../../math/MutableVector2';
 import MutableVector4 from '../../math/MutableVector4';
 import Vector3 from '../../math/Vector3';
 import MutableMatrix44 from '../../math/MutableMatrix44';
-import MeshComponent from '../../components/MeshComponent';
+import MeshComponent from '../../components/Mesh/MeshComponent';
 import {Primitive, Attributes} from '../../geometry/Primitive';
 import Accessor from '../../memory/Accessor';
 import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import MemoryManager from '../../core/MemoryManager';
 import {BufferUse} from '../../definitions/BufferUse';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
@@ -537,7 +537,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
         }
 
         const lightComponent = lightComponents![i];
-        const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+        const sceneGraphComponent = lightComponent.entity.getSceneGraph()!;
         const worldLightPosition = sceneGraphComponent.worldPosition;
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;

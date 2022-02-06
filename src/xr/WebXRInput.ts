@@ -5,7 +5,7 @@ import {XRFrame, XRInputSource} from 'webxr';
 import Gltf2Importer from '../foundation/importer/Gltf2Importer';
 import ModelConverter from '../foundation/importer/ModelConverter';
 import {Is} from '../foundation/misc/Is';
-import Entity from '../foundation/core/Entity';
+import Entity, { IEntity } from '../foundation/core/Entity';
 import {Component} from 'webxr-input-profiles/packages/motion-controllers/src/component';
 import Quaternion from '../foundation/math/Quaternion';
 import Vector3 from '../foundation/math/Vector3';
@@ -370,7 +370,7 @@ function addTouchPointDots(motionController: MotionController, asset: any) {
 }
 
 export function updateMotionControllerModel(
-  entity: Entity,
+  entity: IEntity,
   motionController: MotionController
 ) {
   // this codes are from https://immersive-web.github.io/webxr-input-profiles/packages/motion-controllers/#animating-components

@@ -1,15 +1,15 @@
-import Component from '../core/Component';
-import ComponentRepository from '../core/ComponentRepository';
-import EntityRepository from '../core/EntityRepository';
-import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
+import Component from '../../core/Component';
+import ComponentRepository from '../../core/ComponentRepository';
+import EntityRepository from '../../core/EntityRepository';
+import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {
   AnimationInterpolationEnum,
   AnimationInterpolation,
-} from '../definitions/AnimationInterpolation';
-import {AnimationAttribute} from '../definitions/AnimationAttribute';
-import TransformComponent from './TransformComponent';
-import {ProcessStage} from '../definitions/ProcessStage';
-import MeshComponent from './MeshComponent';
+} from '../../definitions/AnimationInterpolation';
+import {AnimationAttribute} from '../../definitions/AnimationAttribute';
+import TransformComponent from '../Transform/TransformComponent';
+import {ProcessStage} from '../../definitions/ProcessStage';
+import MeshComponent from '../Mesh/MeshComponent';
 import {
   ComponentTID,
   ComponentSID,
@@ -18,7 +18,7 @@ import {
   Array4,
   Array3,
   VectorComponentN,
-} from '../../types/CommonTypes';
+} from '../../../types/CommonTypes';
 import {
   AnimationPathName,
   AnimationTrack,
@@ -26,12 +26,12 @@ import {
   AnimationInfo,
   AnimationTrackName,
   AnimationChannel,
-} from '../../types/AnimationTypes';
-import {valueWithDefault, greaterThan, lessThan} from '../misc/MiscUtil';
-import {EventPubSub, EventHandler} from '../system/EventPubSub';
-import {IVector, IVector3} from '../math/IVector';
-import {IQuaternion} from '../math/IQuaternion';
-import Quaternion from '../math/Quaternion';
+} from '../../../types/AnimationTypes';
+import {valueWithDefault, greaterThan, lessThan} from '../../misc/MiscUtil';
+import {EventPubSub, EventHandler} from '../../system/EventPubSub';
+import {IVector, IVector3} from '../../math/IVector';
+import {IQuaternion} from '../../math/IQuaternion';
+import Quaternion from '../../math/Quaternion';
 import {
   array3_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
@@ -46,9 +46,9 @@ import {
   mulArrayNWithScalar_offset,
   normalizeArray4,
   qlerp_offsetAsComposition,
-} from '../math/raw/raw_extension';
-import Vector3 from '../math/Vector3';
-import {Is} from '../misc/Is';
+} from '../../math/raw/raw_extension';
+import Vector3 from '../../math/Vector3';
+import {Is} from '../../misc/Is';
 
 const defaultAnimationInfo = {
   name: '',

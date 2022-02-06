@@ -1,26 +1,26 @@
-import Vector3 from '../math/Vector3';
-import Quaternion from '../math/Quaternion';
-import Matrix44 from '../math/Matrix44';
-import Component from '../core/Component';
-import ComponentRepository from '../core/ComponentRepository';
-import {ComponentType} from '../definitions/ComponentType';
-import EntityRepository from '../core/EntityRepository';
-import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
-import {BufferUse} from '../definitions/BufferUse';
-import MutableMatrix44 from '../math/MutableMatrix44';
-import MutableQuaternion from '../math/MutableQuaternion';
-import {ProcessStage} from '../definitions/ProcessStage';
-import MutableMatrix33 from '../math/MutableMatrix33';
-import MutableVector3 from '../math/MutableVector3';
+import Vector3 from '../../math/Vector3';
+import Quaternion from '../../math/Quaternion';
+import Matrix44 from '../../math/Matrix44';
+import Component from '../../core/Component';
+import ComponentRepository from '../../core/ComponentRepository';
+import {ComponentType} from '../../definitions/ComponentType';
+import EntityRepository from '../../core/EntityRepository';
+import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import {BufferUse} from '../../definitions/BufferUse';
+import MutableMatrix44 from '../../math/MutableMatrix44';
+import MutableQuaternion from '../../math/MutableQuaternion';
+import {ProcessStage} from '../../definitions/ProcessStage';
+import MutableMatrix33 from '../../math/MutableMatrix33';
+import MutableVector3 from '../../math/MutableVector3';
 import {
   ComponentTID,
   ComponentSID,
   EntityUID,
   Array3,
-} from '../../types/CommonTypes';
-import {IQuaternion} from '../math/IQuaternion';
-import {IMatrix44} from '../math/IMatrix';
-import {IVector3} from '../math/IVector';
+} from '../../../types/CommonTypes';
+import {IQuaternion} from '../../math/IQuaternion';
+import {IMatrix44} from '../../math/IMatrix';
+import {IVector3} from '../../math/IVector';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -613,7 +613,7 @@ export default class TransformComponent extends Component {
   }
 
   $logic() {
-    const sceneGraphComponent = this.entity.getSceneGraph();
+    const sceneGraphComponent = this.entity.getSceneGraph()!;
     if (this.__updateCountAtLastLogic !== this._updateCount) {
       sceneGraphComponent.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this._updateCount;

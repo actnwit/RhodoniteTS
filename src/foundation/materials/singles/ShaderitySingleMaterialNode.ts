@@ -8,10 +8,10 @@ import {ShaderityObject} from 'shaderity';
 import ShaderityUtility from '../core/ShaderityUtility';
 import {ShaderType} from '../../definitions/ShaderType';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
-import MeshComponent from '../../components/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import MeshComponent from '../../components/Mesh/MeshComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {

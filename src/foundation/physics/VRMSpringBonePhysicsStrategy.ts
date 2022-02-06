@@ -1,6 +1,6 @@
 import Vector3 from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
-import SceneGraphComponent from '../components/SceneGraphComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
 import Time from '../misc/Time';
@@ -42,7 +42,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         ? center.getLocalPositionOf(worldChildPosition)
         : worldChildPosition;
     this.__prevTail = this.__currentTail;
-    this.__localRotation = transform.entity.getTransform().quaternion;
+    this.__localRotation = transform.entity.getTransform()!.quaternion;
     this.__boneAxis = Vector3.normalize(localChildPosition);
     // this.__boneAxis = Vector3.normalize(Vector3.subtract(this.__currentTail, transform.worldPosition));
     this.__length = localChildPosition.length();
@@ -228,12 +228,12 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     this.__currentTail =
       center != null ? center!.getLocalPositionOf(nextTail) : nextTail;
 
-    const resultRotation = this.applyRotation(nextTail);
+    // const resultRotation = this.applyRotation(nextTail);
     // this.head.entity.getTransform().quaternion = resultRotation;
     // this.head.entity.getTransform().translate = this.__transform!.getLocalPositionOf(currentTail);
     if (this.head.children.length > 0) {
       // this.head.children[0].entity.getTransform().matrix = Matrix44.identity();
-      this.head.children[0].entity.getTransform().translate =
+      this.head.children[0].entity.getTransform()!.translate =
         this.__transform!.getLocalPositionOf(nextTail);
       // this.head.children[0].entity.getTransform().translate = Vector3.fromCopyArray([1, 0, 0]);
       // this.head.children[0].entity.getTransform().quaternion = resultRotation;

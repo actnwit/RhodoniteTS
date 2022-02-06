@@ -5,10 +5,18 @@ export type Tag = {
   value: any;
 };
 
+export interface IRnObject {
+  objectUID: ObjectUID;
+  tryToSetUniqueName(name: string, toAddNameIfConflict: boolean): boolean;
+  validateTagString(val: string): boolean;
+  tryToSetTag(tag: Tag): boolean;
+  getTagValue(tagName: string): any;
+}
+
 /**
  * The root class of the objects in Rhodonite
  */
-export default class RnObject {
+export default class RnObject implements IRnObject {
   static readonly InvalidObjectUID = -1;
 
   static currentMaxObjectCount = 0;
@@ -92,7 +100,7 @@ export default class RnObject {
    * Validate the string of tags.
    * @param val The string to be validated
    */
-  validateTagString(val: string) {
+  validateTagString(val: string): boolean {
     const reg = new RegExp(/[!"#$%&'()\*\+\-\s\.,\/:;<=>?@\[\\\]^`{|}~]/g);
     if (reg.test(val)) {
       return false;
@@ -105,7 +113,7 @@ export default class RnObject {
    * @param tagName The tag name.
    * @param tagValue Tha value of the tag.
    */
-  tryToSetTag(tag: Tag) {
+  tryToSetTag(tag: Tag): boolean {
     if (this.validateTagString(tag.tag)) {
       if (this.hasTag(tag.tag)) {
         this.removeTag(tag.tag);
@@ -130,7 +138,7 @@ export default class RnObject {
    * Gets the tag object.
    * @param tagName The tag name.
    */
-  getTag(tagName: string) {
+  getTag(tagName: string): Tag {
     const tag: Tag = {
       tag: tagName,
       value: this.__tags[tagName],

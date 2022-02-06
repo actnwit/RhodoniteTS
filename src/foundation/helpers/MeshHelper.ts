@@ -1,7 +1,7 @@
-import TransformComponent from '../components/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraphComponent';
-import MeshComponent from '../components/MeshComponent';
-import MeshRendererComponent from '../components/MeshRendererComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import MeshComponent from '../components/Mesh/MeshComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';
 import {Plane, PlaneDescriptor} from '../geometry/shapes/Plane';
 import Mesh from '../geometry/Mesh';
@@ -43,7 +43,7 @@ function createShape(primitive: IShape) {
     MeshRendererComponent,
   ]);
 
-  const meshComponent = entity.getMesh();
+  const meshComponent = entity.getMesh()!;
   const mesh = new Mesh();
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);

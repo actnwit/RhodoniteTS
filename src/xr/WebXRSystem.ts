@@ -3,11 +3,11 @@ import Vector3 from '../foundation/math/Vector3';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
-import Entity from '../foundation/core/Entity';
+import Entity, {IEntity} from '../foundation/core/Entity';
 import EntityRepository from '../foundation/core/EntityRepository';
-import TransformComponent from '../foundation/components/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
-import CameraComponent from '../foundation/components/CameraComponent';
+import TransformComponent from '../foundation/components/Transform/TransformComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
 import type {
   Navigator,
@@ -32,6 +32,7 @@ import {Is} from '../foundation/misc/Is';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableQuaternion from '../foundation/math/MutableQuaternion';
 import MutableScalar from '../foundation/math/MutableScalar';
+import {IGroupEntity} from '../foundation/helpers/EntityHelper';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -55,7 +56,7 @@ export default class WebXRSystem {
   private __leftCameraEntity: Entity;
   private __rightCameraEntity: Entity;
   private __basePath?: string;
-  private __controllerEntities: Entity[] = [];
+  private __controllerEntities: IGroupEntity[] = [];
   private __xrInputSources: XRInputSource[] = [];
   private __viewerTranslate = MutableVector3.zero();
   private __viewerAzimuthAngle = MutableScalar.zero();
@@ -79,11 +80,11 @@ export default class WebXRSystem {
       CameraComponent,
     ]);
     this.__viewerEntity
-      .getSceneGraph()
-      .addChild(this.__leftCameraEntity.getSceneGraph());
+      .getSceneGraph()!
+      .addChild(this.__leftCameraEntity.getSceneGraph()!);
     this.__viewerEntity
-      .getSceneGraph()
-      .addChild(this.__rightCameraEntity.getSceneGraph());
+      .getSceneGraph()!
+      .addChild(this.__rightCameraEntity.getSceneGraph()!);
   }
 
   /// Public Methods
@@ -180,13 +181,9 @@ export default class WebXRSystem {
         callbackOnXrSessionEnd();
       });
 
-      const promiseFn = (resolve: (entities: Entity[]) => void) => {
-        session.addEventListener('inputsourceschange', e => {
-          this.__onInputSourcesChange(
-            e as XRInputSourceChangeEvent,
-            resolve,
-            profilePriorities
-          );
+      const promiseFn = (resolve: (entities: IEntity[]) => void) => {
+        session.addEventListener('inputsourceschange', (e: any) => {
+          this.__onInputSourcesChange(e, resolve, profilePriorities);
         });
       };
       const promise = new Promise(promiseFn);
@@ -251,11 +248,11 @@ export default class WebXRSystem {
   /// Accessors
 
   get leftViewMatrix() {
-    return this.__leftCameraEntity.getCamera().viewMatrix;
+    return this.__leftCameraEntity.getCamera()!.viewMatrix;
   }
 
   get rightViewMatrix() {
-    return this.__rightCameraEntity.getCamera().viewMatrix;
+    return this.__rightCameraEntity.getCamera()!.viewMatrix;
   }
 
   get leftProjectionMatrix() {
@@ -381,12 +378,12 @@ export default class WebXRSystem {
   }
 
   _setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera().projectionMatrix =
+    this.__leftCameraEntity.getCamera()!.projectionMatrix =
       this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera().projectionMatrix =
+    this.__rightCameraEntity.getCamera()!.projectionMatrix =
       this.rightProjectionMatrix;
-    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
-    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
+    this.__leftCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
+    this.__rightCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
   }
 
   /**
@@ -423,9 +420,9 @@ export default class WebXRSystem {
    */
   _getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera().componentSID;
+      return this.__leftCameraEntity.getCamera()!.componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera().componentSID;
+      return this.__rightCameraEntity.getCamera()!.componentSID;
     }
   }
 
@@ -465,7 +462,7 @@ export default class WebXRSystem {
 
   private async __onInputSourcesChange(
     event: XRInputSourceChangeEvent,
-    resolve: (entities: Entity[]) => void,
+    resolve: (entities: IGroupEntity[]) => void,
     profilePriorities: string[]
   ) {
     this.__xrInputSources.length = 0;
@@ -479,8 +476,8 @@ export default class WebXRSystem {
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
         this.__viewerEntity
-          .getSceneGraph()
-          .addChild(controller.getSceneGraph());
+          .getSceneGraph()!
+          .addChild(controller.getSceneGraph()!);
       }
     }
     resolve(this.__controllerEntities);
@@ -541,7 +538,7 @@ export default class WebXRSystem {
       (translateLeftScaled.z + translateRightScaled.z) / 2;
     const viewerTranslateX = (translateLeft.x + translateRight.x) / 2;
     const viewerTranslateZ = (translateLeft.z + translateRight.z) / 2;
-    const viewerTransform = this.__viewerEntity.getTransform();
+    const viewerTransform = this.__viewerEntity.getTransform()!;
     viewerTransform.translate = Vector3.fromCopyArray([
       viewerTranslateScaledX,
       0,
@@ -567,8 +564,8 @@ export default class WebXRSystem {
     rotateMatRight.translateX += xrViewerPosRight.x;
     rotateMatRight.translateZ += xrViewerPosRight.z;
 
-    this.__leftCameraEntity.getTransform().matrix = rotateMatLeft;
-    this.__rightCameraEntity.getTransform().matrix = rotateMatRight;
+    this.__leftCameraEntity.getTransform()!.matrix = rotateMatLeft;
+    this.__rightCameraEntity.getTransform()!.matrix = rotateMatRight;
   }
 
   private async __setupWebGLLayer(xrSession: XRSession) {
@@ -628,7 +625,7 @@ export default class WebXRSystem {
             const rotateMat = new MutableMatrix44(handWorldMatrix);
             rotateMat.translateY += this.__defaultPositionInLocalSpaceMode.y;
             rotateMat.translateY += this.__viewerTranslate.y;
-            hand.getTransform().matrix = rotateMat;
+            hand.getTransform()!.matrix = rotateMat;
 
             // update the components (buttons, etc...) of the controller
             const motionController = getMotionController(input);

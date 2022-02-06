@@ -1,6 +1,7 @@
 import Material from '../materials/core/Material';
 import {RnM2, RnM2Material, RnM2TextureSampler} from '../../types/RnM2';
 import Entity from '../core/Entity';
+import { IGroupEntity } from '../helpers/EntityHelper';
 
 export default interface ILoaderExtension {
   generateMaterial?(materialJson: RnM2Material): Material;
@@ -15,5 +16,8 @@ export default interface ILoaderExtension {
     material: Material,
     samplerJson: RnM2TextureSampler
   ): void;
-  loadExtensionInfoAndSetToRootGroup?(rootGroup: Entity, json: RnM2): void;
+  loadExtensionInfoAndSetToRootGroup?(
+    rootGroup: IGroupEntity,
+    json: RnM2
+  ): void;
 }

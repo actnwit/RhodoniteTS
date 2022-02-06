@@ -1,12 +1,7 @@
 import Rn from '../../../dist/esm';
 
 function generateEntity() {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-  ]);
-  return entity;
+  return Rn.EntityHelper.createGroupEntity();
 }
 
 test('addEntities and get entities', () => {

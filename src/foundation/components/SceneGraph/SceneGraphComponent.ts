@@ -1,23 +1,23 @@
-import ComponentRepository from '../core/ComponentRepository';
-import Component from '../core/Component';
-import Matrix44 from '../math/Matrix44';
-import EntityRepository from '../core/EntityRepository';
-import {ComponentType} from '../definitions/ComponentType';
-import {WellKnownComponentTIDs} from './WellKnownComponentTIDs';
-import {BufferUse} from '../definitions/BufferUse';
-import {ProcessStage} from '../definitions/ProcessStage';
-import MutableMatrix44 from '../math/MutableMatrix44';
-import MutableMatrix33 from '../math/MutableMatrix33';
-import Vector3 from '../math/Vector3';
-import AABB from '../math/AABB';
-import MutableVector3 from '../math/MutableVector3';
-import MeshComponent from './MeshComponent';
-import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
-import CameraComponent from './CameraComponent';
-import Vector4 from '../math/Vector4';
-import AABBGizmo from '../gizmos/AABBGizmo';
-import LocatorGizmo from '../gizmos/LocatorGizmo';
-import {Is} from '../misc/Is';
+import ComponentRepository from '../../core/ComponentRepository';
+import Component from '../../core/Component';
+import Matrix44 from '../../math/Matrix44';
+import EntityRepository from '../../core/EntityRepository';
+import {ComponentType} from '../../definitions/ComponentType';
+import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import {BufferUse} from '../../definitions/BufferUse';
+import {ProcessStage} from '../../definitions/ProcessStage';
+import MutableMatrix44 from '../../math/MutableMatrix44';
+import MutableMatrix33 from '../../math/MutableMatrix33';
+import Vector3 from '../../math/Vector3';
+import AABB from '../../math/AABB';
+import MutableVector3 from '../../math/MutableVector3';
+import MeshComponent from '../Mesh/MeshComponent';
+import {ComponentTID, ComponentSID, EntityUID} from '../../../types/CommonTypes';
+import CameraComponent from '../Camera/CameraComponent';
+import Vector4 from '../../math/Vector4';
+import AABBGizmo from '../../gizmos/AABBGizmo';
+import LocatorGizmo from '../../gizmos/LocatorGizmo';
+import {Is} from '../../misc/Is';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -252,7 +252,7 @@ export default class SceneGraphComponent extends Component {
     }
 
     const entity = this.__entityRepository.getEntity(this.__entityUid);
-    const transform = entity.getTransform();
+    const transform = entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return transform.matrixInner;
@@ -393,7 +393,7 @@ export default class SceneGraphComponent extends Component {
     let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
-      if (!meshComponent.entity.getSceneGraph().isVisible) {
+      if (!meshComponent.entity.getSceneGraph()!.isVisible) {
         continue;
       }
       if (!meshComponent.isPickable) {
@@ -456,7 +456,7 @@ export default class SceneGraphComponent extends Component {
     let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
-      if (!meshComponent.entity.getSceneGraph().isVisible) {
+      if (!meshComponent.entity.getSceneGraph()!.isVisible) {
         continue;
       }
       if (!meshComponent.isPickable) {

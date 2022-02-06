@@ -1,5 +1,5 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import CameraComponent from '../../components/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
@@ -12,7 +12,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import SkeletalComponent from '../../components/SkeletalComponent';
+import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Vector3 from '../../math/Vector3';
 import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
 import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';

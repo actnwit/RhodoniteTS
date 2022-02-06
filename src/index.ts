@@ -1,10 +1,10 @@
 import _EntityRepository from './foundation/core/EntityRepository';
 import _Entity from './foundation/core/Entity';
 import _ComponentRepository from './foundation/core/ComponentRepository';
-import _TransformComponent from './foundation/components/TransformComponent';
-import _SceneGraphComponent from './foundation/components/SceneGraphComponent';
-import _MeshComponent from './foundation/components/MeshComponent';
-import _MeshRendererComponent from './foundation/components/MeshRendererComponent';
+import _TransformComponent from './foundation/components/Transform/TransformComponent';
+import _SceneGraphComponent from './foundation/components/SceneGraph/SceneGraphComponent';
+import _MeshComponent from './foundation/components/Mesh/MeshComponent';
+import _MeshRendererComponent from './foundation/components/MeshRenderer/MeshRendererComponent';
 import {Primitive as _Primitive} from './foundation/geometry/Primitive';
 import _System from './foundation/system/System';
 import _Scalar from './foundation/math/Scalar';
@@ -33,15 +33,15 @@ import _Gltf2Exporter from './foundation/exporter/Gltf2Exporter';
 import _ModelConverter from './foundation/importer/ModelConverter';
 import _ModuleManager from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
-import _CameraComponent from './foundation/components/CameraComponent';
-import _AnimationComponent from './foundation/components/AnimationComponent';
+import _CameraComponent from './foundation/components/Camera/CameraComponent';
+import _AnimationComponent from './foundation/components/Animation/AnimationComponent';
 import {
   AnimationInfo as _AnimationInfo,
   ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent,
 } from './types/AnimationTypes';
-import _LightComponent from './foundation/components/LightComponent';
+import _LightComponent from './foundation/components/Light/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
-import _CameraControllerComponent from './foundation/components/CameraControllerComponent';
+import _CameraControllerComponent from './foundation/components/CameraController/CameraControllerComponent';
 import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';
 import {detectFormatByUri as _detectFormatByUri} from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';
@@ -78,7 +78,7 @@ import _EnvConstantSingleMaterialNode from './foundation/materials/singles/EnvCo
 import _ShadowMapDecodeClassicSingleMaterialNode from './foundation/materials/singles/ShadowMapDecodeClassicSingleMaterialNode';
 import _RnObject from './foundation/core/RnObject';
 import _VRMImporter from './foundation/importer/VRMImporter';
-import _BlendShapeComponent from './foundation/components/BlendShapeComponent';
+import _BlendShapeComponent from './foundation/components/BlendShape/BlendShapeComponent';
 import _AnimationAssigner from './foundation/importer/AnimationAssigner';
 import {MiscUtil as _MiscUtil} from './foundation/misc/MiscUtil';
 import {MathUtil as _MathUtil} from './foundation/math/MathUtil';

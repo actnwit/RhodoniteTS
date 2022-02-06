@@ -14,14 +14,14 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import Scalar from '../../math/Scalar';
 import Config from '../../core/Config';
 import VectorN from '../../math/VectorN';
-import MeshComponent from '../../components/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShapeComponent';
+import MeshComponent from '../../components/Mesh/MeshComponent';
+import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';

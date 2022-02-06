@@ -2,12 +2,13 @@ import Entity from '../foundation/core/Entity';
 import {RnPromise} from '../foundation/misc/RnPromise';
 import {Array3, Array4, Index} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
-import CameraComponent from '../foundation/components/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import Material from '../foundation/materials/core/Material';
 import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 import {Gltf2AnimationSamplerInterpolation, Gltf2AnyObject} from './glTF2';
+import { IGroupEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {
@@ -354,7 +355,7 @@ export type RnM2Asset = {
   extensions?: object;
   extras?: {
     rnLoaderOptions?: GltfLoadOption;
-    rnEntities?: Entity[];
+    rnEntities?: IGroupEntity[];
     rnMaterials?: {[s: string]: Material};
     version?: string;
     fileType?: string;

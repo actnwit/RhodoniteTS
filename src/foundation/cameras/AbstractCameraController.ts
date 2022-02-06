@@ -1,12 +1,12 @@
-import CameraComponent from '../components/CameraComponent';
-import Entity from '../core/Entity';
+import CameraComponent from '../components/Camera/CameraComponent';
+import {IGroupEntity} from '../helpers/EntityHelper';
 import Vector3 from '../math/Vector3';
 
 export default abstract class AbstractCameraController {
   public zNearLimitFactor = 10; // must be more than 0
   public zFarScalingFactor = 10000;
   public autoCalculateZNearAndZFar = true;
-  protected abstract __targetEntity?: Entity;
+  protected abstract __targetEntity?: IGroupEntity;
 
   constructor() {}
 
@@ -16,7 +16,7 @@ export default abstract class AbstractCameraController {
     eyeDirection: Vector3
   ) {
     if (this.autoCalculateZNearAndZFar && this.__targetEntity != null) {
-      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+      const targetAABB = this.__targetEntity.getSceneGraph()!.worldAABB;
       const lengthOfCenterToEye = Vector3.lengthBtw(
         eyePosition,
         targetAABB.centerPoint
@@ -76,6 +76,6 @@ export default abstract class AbstractCameraController {
     }
   }
 
-  abstract setTarget(targetEntity: Entity): void;
-  abstract getTarget(): Entity | undefined;
+  abstract setTarget(targetEntity: IGroupEntity): void;
+  abstract getTarget(): IGroupEntity | undefined;
 }

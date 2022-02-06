@@ -6,7 +6,7 @@ import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
 import {BufferUse} from '../foundation/definitions/BufferUse';
 import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
-import MeshComponent from '../foundation/components/MeshComponent';
+import MeshComponent from '../foundation/components/Mesh/MeshComponent';
 import {Primitive} from '../foundation/geometry/Primitive';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
@@ -19,14 +19,14 @@ import {
 import Material from '../foundation/materials/core/Material';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import Component from '../foundation/core/Component';
-import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
+import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import Mesh from '../foundation/geometry/Mesh';
-import MeshRendererComponent from '../foundation/components/MeshRendererComponent';
+import MeshRendererComponent from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
-import LightComponent from '../foundation/components/LightComponent';
+import LightComponent from '../foundation/components/Light/LightComponent';
 import Config from '../foundation/core/Config';
 import RenderPass from '../foundation/renderer/RenderPass';
-import CameraComponent from '../foundation/components/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import {
   WebGLResourceHandle,
   Index,
@@ -868,7 +868,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const entity = meshComponent.entity;
         this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
 
-        const meshRendererComponent = entity.getMeshRenderer();
+        const meshRendererComponent = entity.getMeshRenderer()!;
 
         const primitiveNum = mesh.getPrimitiveNumber();
         let firstTime = false;
@@ -930,8 +930,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             args: {
               glw: glw,
               entity: entity,
-              worldMatrix: entity.getSceneGraph().worldMatrixInner,
-              normalMatrix: entity.getSceneGraph().normalMatrixInner,
+              worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
+              normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
               lightComponents: this.__lightComponents,
               renderPass: renderPass,
               primitive: primitive,

@@ -1,7 +1,7 @@
-import MeshComponent from '../components/MeshComponent';
-import MeshRendererComponent from '../components/MeshRendererComponent';
-import SceneGraphComponent from '../components/SceneGraphComponent';
-import TransformComponent from '../components/TransformComponent';
+import MeshComponent from '../components/Mesh/MeshComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
 import Entity from '../core/Entity';
 import {CompositionType} from '../definitions/CompositionType';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
@@ -72,13 +72,13 @@ export default class LocatorGizmo extends Gizmo {
       `LocatorGizmo_of_${this.__target.uniqueName}`,
       true
     );
-    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix =
+    this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
       true;
     this.__target
-      .getSceneGraph()
-      ._addGizmoChild(this.__topEntity.getSceneGraph());
+      .getSceneGraph()!
+      ._addGizmoChild(this.__topEntity.getSceneGraph()!);
 
-    const meshComponent = this.__topEntity.getMesh();
+    const meshComponent = this.__topEntity.getMesh()!;
     LocatorGizmo.__mesh = new Mesh();
     LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
     meshComponent.setMesh(LocatorGizmo.__mesh);
@@ -94,10 +94,10 @@ export default class LocatorGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
-    const sg = this.__target.getSceneGraph();
+    const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
-    this.__topEntity.getTransform().translate = aabb.centerPoint;
-    this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
+    this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+    this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
       Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
       Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
       Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeZ / 2),

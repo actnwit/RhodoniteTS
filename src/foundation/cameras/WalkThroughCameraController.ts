@@ -3,12 +3,13 @@ import MathClassUtil from '../math/MathClassUtil';
 import {MiscUtil} from '../misc/MiscUtil';
 import ICameraController from './ICameraController';
 import MutableVector3 from '../math/MutableVector3';
-import CameraComponent from '../components/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import Entity from '../core/Entity';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import AbstractCameraController from './AbstractCameraController';
 import {MathUtil} from '../math/MathUtil';
+import { IGroupEntity } from '../helpers/EntityHelper';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -49,7 +50,7 @@ export default class WalkThroughCameraController
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
   private _eventTargetDom?: any;
   private _needInitialize = true;
-  protected __targetEntity?: Entity;
+  protected __targetEntity?: IGroupEntity;
 
   private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
@@ -238,7 +239,7 @@ export default class WalkThroughCameraController
   }
 
   private __updateCameraComponent(camera: CameraComponent) {
-    const targetAABB = this.__targetEntity?.getSceneGraph().worldAABB;
+    const targetAABB = this.__targetEntity!.getSceneGraph()!.worldAABB;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner *
@@ -250,7 +251,7 @@ export default class WalkThroughCameraController
       this._currentDir.setComponents(0, 0, -1);
 
       if (camera.entity.getSceneGraph()) {
-        const sg = camera.entity.getSceneGraph();
+        const sg = camera.entity.getSceneGraph()!;
         const invMat = Matrix44.invertTo(
           sg.worldMatrixInner,
           WalkThroughCameraController.__tmpInvMat
@@ -393,9 +394,9 @@ export default class WalkThroughCameraController
     return this._mouseWheelSpeedScale;
   }
 
-  setTarget(targetEntity: Entity) {
+  setTarget(targetEntity: IGroupEntity) {
     const speed =
-      targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 10;
+      targetEntity.getSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 
@@ -403,7 +404,7 @@ export default class WalkThroughCameraController
     this._needInitialize = true;
   }
 
-  getTarget(): Entity | undefined {
+  getTarget(): IGroupEntity | undefined {
     return this.__targetEntity;
   }
 

@@ -41,6 +41,21 @@ export default class EntityRepository {
   }
 
   /**
+   * Creates an entity which has the given types of the components
+   * @param componentClasses The class objects of the components.
+   * @param entityClass a custom entity class
+   */
+  createCustomEntity<DerivedEntity extends typeof Entity>(
+    componentClasses: Array<typeof Component>,
+    entityClass: DerivedEntity
+  ): Entity {
+    const entity = new entityClass(++this.__entity_uid_count, true);
+    this.__entities[this.__entity_uid_count] = entity;
+
+    return this.addComponentsToEntity(componentClasses, entity.entityUID);
+  }
+
+  /**
    * Add components to the entity.
    * @param componentClasses The class objects to set to the entity.
    * @param entityUid The entityUID of the entity.
