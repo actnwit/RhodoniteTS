@@ -356,8 +356,7 @@ export default class ModelConverter {
                 animationComponent.setAnimation(
                   Is.exist(animation.name)
                     ? animation.name
-                    : `Untitled_Animation_${channel.target.node}`,
-                    // : `Untitled_Animation_${channel.target.node}_${channel.target.path}`,
+                    : 'Untitled_Animation',
                   animationAttributeType,
                   animInputArray,
                   animOutputArray,
