@@ -34,9 +34,7 @@ import {
   Byte,
   Count,
   Index,
-  SquareMatrixComponentN,
   VectorAndSquareMatrixComponentN,
-  VectorComponentN,
 } from '../../types/CommonTypes';
 import Buffer from '../memory/Buffer';
 import {
@@ -127,19 +125,24 @@ export default class Gltf2Exporter {
   private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
     if (Is.exist(option) && option.entities.length > 0) {
       const collectDescendants = (entity: Entity, root: boolean): Entity[] => {
-        const sg = entity.getSceneGraph();
+        const sg = entity.getSceneGraph()!;
         if (sg.children.length > 0) {
           const array: Entity[] = root ? [] : [entity];
           for (let i = 0; i < sg.children.length; i++) {
             const child = sg.children[i];
-            Array.prototype.push.apply(array, collectDescendants(child.entity, false));
+            Array.prototype.push.apply(
+              array,
+              collectDescendants(child.entity, false)
+            );
           }
           return array;
         } else {
           return [entity];
         }
       };
-      const collectedDescendants = option.entities.flatMap(entity => collectDescendants(entity, true));
+      const collectedDescendants = option.entities.flatMap(entity =>
+        collectDescendants(entity, true)
+      );
 
       const topLevelEntities: Entity[] = [];
       option.entities.forEach(entity => {
@@ -241,7 +244,11 @@ export default class Gltf2Exporter {
    * @param entities target entities
    * @param indicesOfGltfMeshes the indices of Gltf2Meshes
    */
-  static __createNodes(json: Gltf2Ex, entities: Entity[], topLevelEntities: Entity[]) {
+  static __createNodes(
+    json: Gltf2Ex,
+    entities: Entity[],
+    topLevelEntities: Entity[]
+  ) {
     json.nodes = [];
     json.scenes = [{nodes: []}];
     const scene = json.scenes![0];
@@ -261,7 +268,7 @@ export default class Gltf2Exporter {
       node.name = entity.uniqueName;
 
       // node.children
-      const sceneGraphComponent = entity.getSceneGraph();
+      const sceneGraphComponent = entity.getSceneGraph()!;
       const children = sceneGraphComponent.children;
       if (children.length > 0) {
         node.children = [];
@@ -272,7 +279,7 @@ export default class Gltf2Exporter {
       }
 
       // matrix
-      const transform = entity.getTransform();
+      const transform = entity.getTransform()!;
       node.rotation = [
         transform.quaternionInner.x,
         transform.quaternionInner.y,

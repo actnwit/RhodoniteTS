@@ -83,7 +83,7 @@ export default class MeshComponent extends Component {
       );
     }
 
-    const worldMatrixInner = this.entity.getSceneGraph().worldMatrixInner;
+    const worldMatrixInner = this.entity.getSceneGraph()!.worldMatrixInner;
     const centerPosition_inWorld = worldMatrixInner.multiplyVector3To(
       centerPosition_inLocal,
       MeshComponent.__tmpVector3_0

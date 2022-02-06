@@ -717,7 +717,7 @@ function changeMaterial(
   primitive: Primitive,
   material: Material
 ) {
-  const meshRendererComponent = entity.getMeshRenderer();
+  const meshRendererComponent = entity.getMeshRenderer()!;
   primitive.material = material;
   meshRendererComponent.moveStageTo(ProcessStage.Load);
 }

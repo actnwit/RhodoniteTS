@@ -252,7 +252,7 @@ export default class SceneGraphComponent extends Component {
     }
 
     const entity = this.__entityRepository.getEntity(this.__entityUid);
-    const transform = entity.getTransform();
+    const transform = entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return transform.matrixInner;
@@ -393,7 +393,7 @@ export default class SceneGraphComponent extends Component {
     let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
-      if (!meshComponent.entity.getSceneGraph().isVisible) {
+      if (!meshComponent.entity.getSceneGraph()!.isVisible) {
         continue;
       }
       if (!meshComponent.isPickable) {
@@ -456,7 +456,7 @@ export default class SceneGraphComponent extends Component {
     let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
-      if (!meshComponent.entity.getSceneGraph().isVisible) {
+      if (!meshComponent.entity.getSceneGraph()!.isVisible) {
         continue;
       }
       if (!meshComponent.isPickable) {

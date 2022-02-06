@@ -3,7 +3,7 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import RnObject from './RnObject';
-import {ComponentTID, EntityUID, Index} from '../../types/CommonTypes';
+import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
@@ -93,11 +93,11 @@ export default class Entity extends RnObject {
    * Get the TransformComponent of the entity.
    * It's a shortcut method of getComponent(TransformComponent).
    */
-  getTransform(): TransformComponent {
+  getTransform(): TransformComponent | undefined {
     if (this.__transformComponent == null) {
       this.__transformComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.TransformComponentTID
-      ) as TransformComponent;
+      ) as TransformComponent | undefined;
     }
     return this.__transformComponent;
   }
@@ -106,65 +106,65 @@ export default class Entity extends RnObject {
    * Get the SceneGraphComponent of the entity.
    * It's a shortcut method of getComponent(SceneGraphComponent).
    */
-  getSceneGraph(): SceneGraphComponent {
+  getSceneGraph(): SceneGraphComponent | undefined {
     if (this.__sceneGraphComponent == null) {
       this.__sceneGraphComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.SceneGraphComponentTID
-      ) as SceneGraphComponent;
+      ) as SceneGraphComponent | undefined;
     }
     return this.__sceneGraphComponent;
   }
 
-  getSkeletal(): SkeletalComponent {
+  getSkeletal(): SkeletalComponent | undefined {
     if (this.__skeletalComponent == null) {
       this.__skeletalComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.SkeletalComponentTID
-      ) as SkeletalComponent;
+      ) as SkeletalComponent | undefined;
     }
     return this.__skeletalComponent;
   }
 
-  getMesh(): MeshComponent {
+  getMesh(): MeshComponent | undefined {
     if (this.__meshComponent == null) {
       this.__meshComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.MeshComponentTID
-      ) as MeshComponent;
+      ) as MeshComponent | undefined;
     }
     return this.__meshComponent;
   }
 
-  getMeshRenderer(): MeshRendererComponent {
+  getMeshRenderer(): MeshRendererComponent | undefined {
     if (this.__meshRendererComponent == null) {
       this.__meshRendererComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.MeshRendererComponentTID
-      ) as MeshRendererComponent;
+      ) as MeshRendererComponent | undefined;
     }
     return this.__meshRendererComponent;
   }
 
-  getCamera(): CameraComponent {
+  getCamera(): CameraComponent | undefined {
     if (this.__cameraComponent == null) {
       this.__cameraComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.CameraComponentTID
-      ) as CameraComponent;
+      ) as CameraComponent | undefined;
     }
     return this.__cameraComponent;
   }
 
-  getCameraController(): CameraControllerComponent {
+  getCameraController(): CameraControllerComponent | undefined {
     if (this.__cameraControllerComponent == null) {
       this.__cameraControllerComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.CameraControllerComponentTID
-      ) as CameraControllerComponent;
+      ) as CameraControllerComponent | undefined;
     }
     return this.__cameraControllerComponent;
   }
 
-  getBlendShape(): BlendShapeComponent {
+  getBlendShape(): BlendShapeComponent | undefined {
     if (this.__blendShapeComponent == null) {
       this.__blendShapeComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.BlendShapeComponentTID
-      ) as BlendShapeComponent;
+      ) as BlendShapeComponent | undefined;
     }
     return this.__blendShapeComponent;
   }
@@ -178,11 +178,11 @@ export default class Entity extends RnObject {
     return this.__physicsComponent;
   }
 
-  getLight(): LightComponent {
+  getLight(): LightComponent | undefined {
     if (this.__lightComponent == null) {
       this.__lightComponent = this.getComponentByComponentTID(
         WellKnownComponentTIDs.LightComponentTID
-      ) as LightComponent;
+      ) as LightComponent | undefined;
     }
     return this.__lightComponent;
   }
@@ -216,7 +216,7 @@ export default class Entity extends RnObject {
   }
 
   getChildByName(name: string) {
-    const sceneComponent = this.getSceneGraph();
+    const sceneComponent = this.getSceneGraph()!;
     const children = sceneComponent.children;
     for (const child of children) {
       if (child.entity.uniqueName === name) {

@@ -5,7 +5,6 @@ import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
-import {CompositionType} from '../definitions/CompositionType';
 import {Primitive} from '../geometry/Primitive';
 import Vector3 from '../math/Vector3';
 import Mesh from '../geometry/Mesh';
@@ -64,13 +63,13 @@ export default class AABBGizmo extends Gizmo {
       `AABBGizmo_of_${this.__target.uniqueName}`,
       true
     );
-    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix =
+    this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
       true;
     this.__target
-      .getSceneGraph()
-      ._addGizmoChild(this.__topEntity.getSceneGraph());
+      .getSceneGraph()!
+      ._addGizmoChild(this.__topEntity.getSceneGraph()!);
 
-    const meshComponent = this.__topEntity.getMesh();
+    const meshComponent = this.__topEntity.getMesh()!;
     AABBGizmo.__mesh = new Mesh();
     AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
     meshComponent.setMesh(AABBGizmo.__mesh);
@@ -166,10 +165,10 @@ export default class AABBGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
-    const sg = this.__target.getSceneGraph();
+    const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
-    this.__topEntity.getTransform().translate = aabb.centerPoint;
-    this.__topEntity.getTransform().scale = Vector3.fromCopyArray([
+    this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+    this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
       aabb.sizeX / 2,
       aabb.sizeY / 2,
       aabb.sizeZ / 2,

@@ -43,7 +43,7 @@ function createShape(primitive: IShape) {
     MeshRendererComponent,
   ]);
 
-  const meshComponent = entity.getMesh();
+  const meshComponent = entity.getMesh()!;
   const mesh = new Mesh();
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);

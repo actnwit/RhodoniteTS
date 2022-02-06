@@ -613,7 +613,7 @@ export default class TransformComponent extends Component {
   }
 
   $logic() {
-    const sceneGraphComponent = this.entity.getSceneGraph();
+    const sceneGraphComponent = this.entity.getSceneGraph()!;
     if (this.__updateCountAtLastLogic !== this._updateCount) {
       sceneGraphComponent.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this._updateCount;

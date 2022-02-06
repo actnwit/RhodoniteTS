@@ -531,7 +531,7 @@ export default class GltfImporter {
       for (const idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
-        vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph());
+        vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph()!);
         // const boneNodeIndex = boneGroup.bones[idxOfArray];
         // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
         // entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);

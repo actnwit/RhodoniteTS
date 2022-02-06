@@ -350,8 +350,8 @@ export default class WebVRSystem {
   }
 
   setValuesToGlobalDataRepository() {
-    const leftCamera = this.__leftCameraEntity.getCamera();
-    const rightCamera = this.__rightCameraEntity.getCamera();
+    const leftCamera = this.__leftCameraEntity.getCamera()!;
+    const rightCamera = this.__rightCameraEntity.getCamera()!;
     leftCamera.viewMatrix = this.leftViewMatrix;
     rightCamera.viewMatrix = this.rightViewMatrix;
     leftCamera.projectionMatrix = this.leftProjectionMatrix;
@@ -374,9 +374,9 @@ export default class WebVRSystem {
 
   getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera().componentSID;
+      return this.__leftCameraEntity.getCamera()!.componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera().componentSID;
+      return this.__rightCameraEntity.getCamera()!.componentSID;
     }
   }
 

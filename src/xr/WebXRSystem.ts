@@ -79,11 +79,11 @@ export default class WebXRSystem {
       CameraComponent,
     ]);
     this.__viewerEntity
-      .getSceneGraph()
-      .addChild(this.__leftCameraEntity.getSceneGraph());
+      .getSceneGraph()!
+      .addChild(this.__leftCameraEntity.getSceneGraph()!);
     this.__viewerEntity
-      .getSceneGraph()
-      .addChild(this.__rightCameraEntity.getSceneGraph());
+      .getSceneGraph()!
+      .addChild(this.__rightCameraEntity.getSceneGraph()!);
   }
 
   /// Public Methods
@@ -251,11 +251,11 @@ export default class WebXRSystem {
   /// Accessors
 
   get leftViewMatrix() {
-    return this.__leftCameraEntity.getCamera().viewMatrix;
+    return this.__leftCameraEntity.getCamera()!.viewMatrix;
   }
 
   get rightViewMatrix() {
-    return this.__rightCameraEntity.getCamera().viewMatrix;
+    return this.__rightCameraEntity.getCamera()!.viewMatrix;
   }
 
   get leftProjectionMatrix() {
@@ -381,12 +381,12 @@ export default class WebXRSystem {
   }
 
   _setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera().projectionMatrix =
+    this.__leftCameraEntity.getCamera()!.projectionMatrix =
       this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera().projectionMatrix =
+    this.__rightCameraEntity.getCamera()!.projectionMatrix =
       this.rightProjectionMatrix;
-    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
-    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
+    this.__leftCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
+    this.__rightCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
   }
 
   /**
@@ -423,9 +423,9 @@ export default class WebXRSystem {
    */
   _getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera().componentSID;
+      return this.__leftCameraEntity.getCamera()!.componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera().componentSID;
+      return this.__rightCameraEntity.getCamera()!.componentSID;
     }
   }
 
@@ -479,8 +479,8 @@ export default class WebXRSystem {
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
         this.__viewerEntity
-          .getSceneGraph()
-          .addChild(controller.getSceneGraph());
+          .getSceneGraph()!
+          .addChild(controller.getSceneGraph()!);
       }
     }
     resolve(this.__controllerEntities);
@@ -541,7 +541,7 @@ export default class WebXRSystem {
       (translateLeftScaled.z + translateRightScaled.z) / 2;
     const viewerTranslateX = (translateLeft.x + translateRight.x) / 2;
     const viewerTranslateZ = (translateLeft.z + translateRight.z) / 2;
-    const viewerTransform = this.__viewerEntity.getTransform();
+    const viewerTransform = this.__viewerEntity.getTransform()!;
     viewerTransform.translate = Vector3.fromCopyArray([
       viewerTranslateScaledX,
       0,
@@ -567,8 +567,8 @@ export default class WebXRSystem {
     rotateMatRight.translateX += xrViewerPosRight.x;
     rotateMatRight.translateZ += xrViewerPosRight.z;
 
-    this.__leftCameraEntity.getTransform().matrix = rotateMatLeft;
-    this.__rightCameraEntity.getTransform().matrix = rotateMatRight;
+    this.__leftCameraEntity.getTransform()!.matrix = rotateMatLeft;
+    this.__rightCameraEntity.getTransform()!.matrix = rotateMatRight;
   }
 
   private async __setupWebGLLayer(xrSession: XRSession) {
@@ -628,7 +628,7 @@ export default class WebXRSystem {
             const rotateMat = new MutableMatrix44(handWorldMatrix);
             rotateMat.translateY += this.__defaultPositionInLocalSpaceMode.y;
             rotateMat.translateY += this.__viewerTranslate.y;
-            hand.getTransform().matrix = rotateMat;
+            hand.getTransform()!.matrix = rotateMat;
 
             // update the components (buttons, etc...) of the controller
             const motionController = getMotionController(input);

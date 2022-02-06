@@ -868,7 +868,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const entity = meshComponent.entity;
         this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
 
-        const meshRendererComponent = entity.getMeshRenderer();
+        const meshRendererComponent = entity.getMeshRenderer()!;
 
         const primitiveNum = mesh.getPrimitiveNumber();
         let firstTime = false;
@@ -930,8 +930,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             args: {
               glw: glw,
               entity: entity,
-              worldMatrix: entity.getSceneGraph().worldMatrixInner,
-              normalMatrix: entity.getSceneGraph().normalMatrixInner,
+              worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
+              normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
               lightComponents: this.__lightComponents,
               renderPass: renderPass,
               primitive: primitive,

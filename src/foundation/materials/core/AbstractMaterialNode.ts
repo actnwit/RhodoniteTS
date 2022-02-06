@@ -537,7 +537,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
         }
 
         const lightComponent = lightComponents![i];
-        const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+        const sceneGraphComponent = lightComponent.entity.getSceneGraph()!;
         const worldLightPosition = sceneGraphComponent.worldPosition;
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;

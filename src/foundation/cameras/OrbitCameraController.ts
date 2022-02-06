@@ -619,13 +619,13 @@ export default class OrbitCameraController
       newCenterVec.copyComponents(centerVec);
     } else {
       if (this.__originalTargetAABB == null) {
-        const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+        const targetAABB = this.__targetEntity.getSceneGraph()!.worldAABB;
         this.__originalTargetAABB = targetAABB.clone();
       }
 
       // calc newCenterVec
       if (this.followTargetAABB) {
-        const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+        const targetAABB = this.__targetEntity.getSceneGraph()!.worldAABB;
         newCenterVec.copyComponents(targetAABB.centerPoint);
       } else {
         newCenterVec.copyComponents(this.__originalTargetAABB.centerPoint);

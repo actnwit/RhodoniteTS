@@ -238,7 +238,7 @@ export default class WalkThroughCameraController
   }
 
   private __updateCameraComponent(camera: CameraComponent) {
-    const targetAABB = this.__targetEntity?.getSceneGraph().worldAABB;
+    const targetAABB = this.__targetEntity!.getSceneGraph()!.worldAABB;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner *
@@ -250,7 +250,7 @@ export default class WalkThroughCameraController
       this._currentDir.setComponents(0, 0, -1);
 
       if (camera.entity.getSceneGraph()) {
-        const sg = camera.entity.getSceneGraph();
+        const sg = camera.entity.getSceneGraph()!;
         const invMat = Matrix44.invertTo(
           sg.worldMatrixInner,
           WalkThroughCameraController.__tmpInvMat
@@ -395,7 +395,7 @@ export default class WalkThroughCameraController
 
   setTarget(targetEntity: Entity) {
     const speed =
-      targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 10;
+      targetEntity.getSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 

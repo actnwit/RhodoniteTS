@@ -40,7 +40,7 @@ export default abstract class Gizmo extends RnObject {
   set isVisible(flg: boolean) {
     this.__isVisible = flg;
     if (this.__topEntity) {
-      this.__topEntity.getSceneGraph().setVisibilityRecursively(flg);
+      this.__topEntity.getSceneGraph()!.setVisibilityRecursively(flg);
     }
   }
 
@@ -78,7 +78,7 @@ export default abstract class Gizmo extends RnObject {
       this.__topEntity.tryToSetTag({tag: 'Gizmo', value: 'top'});
 
       const sceneGraphs = SceneGraphComponent.flattenHierarchy(
-        this.__topEntity.getSceneGraph(),
+        this.__topEntity.getSceneGraph()!,
         false
       );
       for (const sg of sceneGraphs) {

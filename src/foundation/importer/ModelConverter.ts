@@ -14,7 +14,6 @@ import {CompositionType} from '../definitions/CompositionType';
 import {ComponentType} from '../definitions/ComponentType';
 import {
   VertexAttribute,
-  VertexAttributeEnum,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import CameraComponent from '../components/CameraComponent';
@@ -206,8 +205,8 @@ export default class ModelConverter {
     if (gltfModel.scenes[0].nodes) {
       for (const nodesIndex of gltfModel.scenes[0].nodes) {
         rootGroup
-          .getSceneGraph()
-          .addChild(rnEntities[nodesIndex].getSceneGraph());
+          .getSceneGraph()!
+          .addChild(rnEntities[nodesIndex].getSceneGraph()!);
       }
     }
 
@@ -253,23 +252,23 @@ export default class ModelConverter {
     for (const node_i in gltfModel.nodes) {
       const group = groups[node_i];
       const nodeJson = gltfModel.nodes[node_i];
-
+      const groupTransform = group.getTransform()!;
       if (nodeJson.translation) {
-        group.getTransform().translate = Vector3.fromCopyArray([
+        groupTransform.translate = Vector3.fromCopyArray([
           nodeJson.translation[0],
           nodeJson.translation[1],
           nodeJson.translation[2],
         ]);
       }
       if (nodeJson.scale) {
-        group.getTransform().scale = Vector3.fromCopyArray([
+        groupTransform.scale = Vector3.fromCopyArray([
           nodeJson.scale[0],
           nodeJson.scale[1],
           nodeJson.scale[2],
         ]);
       }
       if (nodeJson.rotation) {
-        group.getTransform().quaternion = new Quaternion(
+        groupTransform.quaternion = new Quaternion(
           nodeJson.rotation[0],
           nodeJson.rotation[1],
           nodeJson.rotation[2],
@@ -277,14 +276,14 @@ export default class ModelConverter {
         );
       }
       if (nodeJson.matrix) {
-        group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
+        groupTransform.matrix = new Matrix44(nodeJson.matrix, true);
       }
     }
   }
 
   _setupHierarchy(gltfModel: RnM2, rnEntities: Entity[]) {
     const groupSceneComponents = rnEntities.map(group => {
-      return group.getSceneGraph();
+      return group.getSceneGraph()!;
     });
 
     for (const node_i in gltfModel.nodes) {
@@ -379,7 +378,7 @@ export default class ModelConverter {
     const entityRepository = EntityRepository.getInstance();
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[node_i];
-      const sg = rnEntities[node_i].getSceneGraph();
+      const sg = rnEntities[node_i].getSceneGraph()!;
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
@@ -403,7 +402,7 @@ export default class ModelConverter {
           if (Is.exist(node.mesh)) {
             const joints = [];
             for (const i of node.skinObject.joints) {
-              joints.push(rnEntities[i].getSceneGraph());
+              joints.push(rnEntities[i].getSceneGraph()!);
             }
             skeletalComponent!.setJoints(joints);
             if (Is.exist(node.skinObject.skeleton)) {
@@ -416,7 +415,7 @@ export default class ModelConverter {
         }
         if (node.skinObject.joints) {
           for (const joint_i of node.skinObject.joints) {
-            const sg = rnEntities[joint_i].getSceneGraph();
+            const sg = rnEntities[joint_i].getSceneGraph()!;
             sg.jointIndex = joint_i;
           }
         }
@@ -594,7 +593,7 @@ export default class ModelConverter {
       meshIndex
     ];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
-    const meshComponent = meshEntity.getMesh();
+    const meshComponent = meshEntity.getMesh()!;
     const rnMesh = new Mesh();
 
     // set flag to rnMesh with options
