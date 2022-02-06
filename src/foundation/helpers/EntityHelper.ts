@@ -16,14 +16,9 @@ import {
   ISceneGraphEntityMethods,
 } from '../components/SceneGraph/ISceneGraphEntity';
 import {IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
-import {
-  addCamera,
-  ICameraEntityMethods,
-} from '../components/Camera/ICameraEntity';
-import {
-  addAnimation,
-  IAnimationEntityMethods,
-} from '../components/Animation/IAnimationEntity';
+import {ICameraEntityMethods} from '../components/Camera/ICameraEntity';
+import {ICameraControllerEntityMethods} from '../components/CameraController/ICameraControllerEntity';
+import {IAnimationEntityMethods} from '../components/Animation/IAnimationEntity';
 import {ILightEntityMethods} from '../components/Light/ILightEntity';
 import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
 import {ComponentMixinFunction} from '../../foundation/components/ComponentTypes';
@@ -51,6 +46,9 @@ export interface IMeshEntity
     IMeshEntityMethods,
     IMeshRendererEntityMethods {}
 export interface ICameraEntity extends IGroupEntity, ICameraEntityMethods {}
+export interface ICameraWithControllerEntity
+  extends ICameraEntityMethods,
+    ICameraControllerEntityMethods {}
 export interface ILightEntity extends IGroupEntity, ILightEntityMethods {}
 export interface IAnimationEntity
   extends IGroupEntity,
