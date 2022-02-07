@@ -22,7 +22,7 @@ import {
   Count,
   Byte,
 } from '../../types/CommonTypes';
-import Entity from './Entity';
+import Entity, { IEntity } from './Entity';
 
 export function fromTensorToCompositionType(tensorClass: any) {
   switch (tensorClass.name) {
@@ -608,7 +608,7 @@ export default class Component extends RnObject {
    * get the entity which has this component.
    * @returns the entity which has this component
    */
-  get entity(): Entity {
+  get entity(): IEntity {
     return this.__entityRepository.getEntity(this.__entityUid);
   }
 

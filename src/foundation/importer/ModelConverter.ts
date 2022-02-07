@@ -16,11 +16,10 @@ import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import CameraComponent from '../components/Camera/CameraComponent';
 import {CameraType} from '../definitions/CameraType';
 import Texture from '../textures/Texture';
 import Vector4 from '../math/Vector4';
-import AnimationComponent from '../components/Animation/AnimationComponent';
+import PhysicsComponent from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
@@ -37,7 +36,6 @@ import Component from '../core/Component';
 import Accessor from '../memory/Accessor';
 import Mesh from '../geometry/Mesh';
 import MutableVector4 from '../math/MutableVector4';
-import LightComponent from '../components/Light/LightComponent';
 import {LightType} from '../definitions/LightType';
 import {
   Count,
@@ -69,7 +67,6 @@ import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import MemoryManager from '../core/MemoryManager';
 import ILoaderExtension from './ILoaderExtension';
-import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
@@ -85,6 +82,10 @@ import {
   ILightEntity,
   IMeshEntity,
 } from '../helpers/EntityHelper';
+import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
+import { CameraComponent } from '../..';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import LightComponent from '../components/Light/LightComponent';
 
 declare let DracoDecoderModule: any;
 
@@ -162,7 +163,7 @@ export default class ModelConverter {
 
   private __generateCameraEntity(gltfModel: RnM2): IEntity {
     const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent, CameraComponent],
+      [TransformComponent, SceneGraphComponent, BlendShapeComponent],
       gltfModel
     );
     return entity;
@@ -170,7 +171,7 @@ export default class ModelConverter {
 
   private __generateLightEntity(gltfModel: RnM2): IEntity {
     const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent, LightComponent],
+      [TransformComponent, SceneGraphComponent, BlendShapeComponent],
       gltfModel
     );
     return entity;
@@ -352,7 +353,7 @@ export default class ModelConverter {
               let animationComponent = rnEntity.getAnimation();
               if (Is.not.exist(animationComponent)) {
                 entityRepository.addComponentsToEntity(
-                  [AnimationComponent],
+                  [PhysicsComponent],
                   rnEntity.entityUID
                 );
                 animationComponent = rnEntity.getAnimation();
@@ -562,8 +563,8 @@ export default class ModelConverter {
 
   private __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
-    const cameraComponent = cameraEntity.getComponent(
-      CameraComponent
+    const cameraComponent = cameraEntity.getComponentByComponentTID(
+      WellKnownComponentTIDs.CameraComponentTID
     )! as CameraComponent;
     cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (

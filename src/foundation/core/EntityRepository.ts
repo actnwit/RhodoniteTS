@@ -1,4 +1,4 @@
-import Entity from './Entity';
+import Entity, {IEntity} from './Entity';
 import Component from './Component';
 import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
@@ -9,7 +9,7 @@ import {valueWithCompensation} from '../misc/MiscUtil';
  */
 export default class EntityRepository {
   private __entity_uid_count: number;
-  private __entities: Array<Entity>;
+  private __entities: Array<IEntity>;
   private static __instance: EntityRepository;
   private __componentRepository: ComponentRepository;
   _components: Array<Map<ComponentTID, Component>>; // index is EntityUID
@@ -33,7 +33,7 @@ export default class EntityRepository {
    * Creates an entity which has the given types of the components
    * @param componentClasses The class objects of the components.
    */
-  createEntity(componentClasses: Array<typeof Component>): Entity {
+  createEntity(componentClasses: Array<typeof Component>): IEntity {
     const entity = new Entity(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;
 
@@ -48,7 +48,7 @@ export default class EntityRepository {
   createCustomEntity<DerivedEntity extends typeof Entity>(
     componentClasses: Array<typeof Component>,
     entityClass: DerivedEntity
-  ): Entity {
+  ): IEntity {
     const entity = new entityClass(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;
 
@@ -63,8 +63,8 @@ export default class EntityRepository {
   addComponentsToEntity(
     componentClasses: Array<typeof Component>,
     entityUid: EntityUID
-  ) {
-    const entity: Entity = this.getEntity(entityUid);
+  ): IEntity {
+    const entity: IEntity = this.getEntity(entityUid);
 
     for (const componentClass of componentClasses) {
       const component = this.__componentRepository.createComponent(
@@ -87,7 +87,7 @@ export default class EntityRepository {
       }
     }
 
-    return entity;
+    return entity as IEntity;
   }
 
   /**
@@ -99,7 +99,7 @@ export default class EntityRepository {
     componentClasses: Array<typeof Component>,
     entityUid: EntityUID
   ) {
-    const entity: Entity = this.getEntity(entityUid);
+    const entity = this.getEntity(entityUid);
 
     for (const componentClass of componentClasses) {
       let map = this._components[entity.entityUID];
@@ -117,7 +117,7 @@ export default class EntityRepository {
    * Gets the entity corresponding to the entityUID.
    * @param entityUid The entityUID of the entity.
    */
-  getEntity(entityUid: EntityUID) {
+  getEntity(entityUid: EntityUID): IEntity {
     return this.__entities[entityUid];
   }
 
@@ -161,7 +161,7 @@ export default class EntityRepository {
    * Gets entity by the unique name.
    * @param uniqueName The unique name of the entity.
    */
-  getEntityByUniqueName(uniqueName: string) {
+  getEntityByUniqueName(uniqueName: string): IEntity | undefined {
     for (const entity of this.__entities) {
       if (entity.uniqueName === uniqueName) {
         return entity;
@@ -174,14 +174,14 @@ export default class EntityRepository {
    * @private
    * Gets all entities.
    */
-  _getEntities() {
+  _getEntities(): IEntity[] {
     return this.__entities.concat();
   }
 
   /**
    * Gets the number of all entities.
    */
-  getEntitiesNumber() {
+  getEntitiesNumber(): number {
     return this.__entities.length;
   }
 }

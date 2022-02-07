@@ -13,6 +13,7 @@ export function addAnimation<EntityBaseClass extends MixinBase>(
   components: typeof Component[]
 ) {
   const Derived = class SceneGraphEntity extends (baseClass as any) {
+    __animationComponent?: AnimationComponent;
     constructor(entityUID: EntityUID, isAlive: Boolean) {
       super(entityUID, isAlive);
     }

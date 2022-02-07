@@ -27,8 +27,10 @@ import CameraControllerComponent from '../CameraController/CameraControllerCompo
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import RenderPass from '../../renderer/RenderPass';
+import {ICameraEntity} from '../../helpers/EntityHelper';
+import { IEntity } from '../../core/Entity';
 
-export default class CameraComponent extends Component {
+export default class LightComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: MutableVector3 = MutableVector3.dummy();
   private _direction: MutableVector3 = MutableVector3.dummy();
@@ -166,8 +168,8 @@ export default class CameraComponent extends Component {
 
     this.setFovyAndChangeFocalLength(90);
 
-    if (CameraComponent.main === -1) {
-      CameraComponent.main = componentSid;
+    if (LightComponent.main === -1) {
+      LightComponent.main = componentSid;
     }
   }
 
@@ -200,7 +202,7 @@ export default class CameraComponent extends Component {
 
   get eye() {
     // In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning
-    return CameraComponent._eye;
+    return LightComponent._eye;
   }
 
   set eye(noUseVec: Vector3) {
@@ -244,7 +246,7 @@ export default class CameraComponent extends Component {
     const orthogonalVectorNewDirectionAndOldUp = MutableVector3.crossTo(
       newDirection,
       oldUp,
-      CameraComponent.__tmpVector3_0
+      LightComponent.__tmpVector3_0
     );
     const isOrthogonalNewDirectionAndOldUp =
       orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
@@ -254,23 +256,23 @@ export default class CameraComponent extends Component {
       const relativeXaxis = MutableVector3.crossTo(
         oldDirection,
         oldUp,
-        CameraComponent.__tmpVector3_1
+        LightComponent.__tmpVector3_1
       );
       newUpNonNormalize = MutableVector3.crossTo(
         relativeXaxis,
         newDirection,
-        CameraComponent.__tmpVector3_2
+        LightComponent.__tmpVector3_2
       );
     } else {
       const newDirectionComponentInOldUp = MutableVector3.multiplyTo(
         newDirection,
         newDirection.dot(oldUp),
-        CameraComponent.__tmpVector3_1
+        LightComponent.__tmpVector3_1
       );
       newUpNonNormalize = MutableVector3.subtractTo(
         oldUp,
         newDirectionComponentInOldUp,
-        CameraComponent.__tmpVector3_2
+        LightComponent.__tmpVector3_2
       );
     }
 
@@ -546,14 +548,14 @@ export default class CameraComponent extends Component {
     const f = MutableVector3.subtractTo(
       this._directionInner,
       eye,
-      CameraComponent.__tmpVector3_0
+      LightComponent.__tmpVector3_0
     ).normalize();
     const s = MutableVector3.crossTo(
       f,
       this._upInner,
-      CameraComponent.__tmpVector3_1
+      LightComponent.__tmpVector3_1
     ).normalize();
-    const u = MutableVector3.crossTo(s, f, CameraComponent.__tmpVector3_2);
+    const u = MutableVector3.crossTo(s, f, LightComponent.__tmpVector3_2);
 
     this._viewMatrix.setComponents(
       s.x,
@@ -576,7 +578,7 @@ export default class CameraComponent extends Component {
 
     const invertWorldMatrix = MutableMatrix44.invertTo(
       this.__sceneGraphComponent!.worldMatrixInner,
-      CameraComponent.__tmpMatrix44_0
+      LightComponent.__tmpMatrix44_0
     );
 
     this._viewMatrix.multiply(invertWorldMatrix);
@@ -600,17 +602,17 @@ export default class CameraComponent extends Component {
     return MutableMatrix44.multiplyTo(
       this._projectionMatrix,
       this._viewMatrix,
-      CameraComponent.__tmpMatrix44_0
+      LightComponent.__tmpMatrix44_0
     );
   }
 
   setValuesToGlobalDataRepositoryOnlyMatrices() {
-    CameraComponent.__globalDataRepository.setValue(
+    LightComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewMatrix,
       this.componentSID,
       this.viewMatrix
     );
-    CameraComponent.__globalDataRepository.setValue(
+    LightComponent.__globalDataRepository.setValue(
       ShaderSemantics.ProjectionMatrix,
       this.componentSID,
       this.projectionMatrix
@@ -618,17 +620,17 @@ export default class CameraComponent extends Component {
   }
 
   setValuesToGlobalDataRepository() {
-    CameraComponent.__globalDataRepository.setValue(
+    LightComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewMatrix,
       this.componentSID,
       this.viewMatrix
     );
-    CameraComponent.__globalDataRepository.setValue(
+    LightComponent.__globalDataRepository.setValue(
       ShaderSemantics.ProjectionMatrix,
       this.componentSID,
       this.projectionMatrix
     );
-    CameraComponent.__globalDataRepository.setValue(
+    LightComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewPosition,
       this.componentSID,
       this.worldPosition
@@ -638,9 +640,9 @@ export default class CameraComponent extends Component {
   get worldPosition() {
     this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(
       this.eyeInner,
-      CameraComponent.returnVector3
+      LightComponent.returnVector3
     );
-    return CameraComponent.returnVector3;
+    return LightComponent.returnVector3;
   }
 
   updateFrustum() {
@@ -666,7 +668,7 @@ export default class CameraComponent extends Component {
         CameraControllerComponent
       ) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
-      this._eyeInner.copyComponents(CameraComponent._eye);
+      this._eyeInner.copyComponents(LightComponent._eye);
       this._directionInner.copyComponents(this._direction);
       this._upInner.copyComponents(this._up);
       this._cornerInner.copyComponents(this._corner);
@@ -688,5 +690,15 @@ export default class CameraComponent extends Component {
       this.setValuesToGlobalDataRepository();
     }
   }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): ICameraEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as ICameraEntity;
+  }
 }
-ComponentRepository.registerComponentClass(CameraComponent);
+ComponentRepository.registerComponentClass(LightComponent);

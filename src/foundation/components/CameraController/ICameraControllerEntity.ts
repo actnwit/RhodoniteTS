@@ -8,11 +8,13 @@ export interface ICameraControllerEntityMethods {
   getCameraController(): CameraControllerComponent;
 }
 
-export function addCamera<EntityBaseClass extends MixinBase>(
+export function addCameraController<EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,
   components: typeof Component[]
 ) {
-  const Derived = class SceneGraphEntity extends (baseClass as any) {
+  const Derived = class CameraControllerEntity extends (baseClass as any) {
+    __cameraControllerComponent?: CameraControllerComponent;
+
     constructor(entityUID: EntityUID, isAlive: Boolean) {
       super(entityUID, isAlive);
     }
@@ -22,12 +24,12 @@ export function addCamera<EntityBaseClass extends MixinBase>(
      * It's a shortcut method of getComponent(CameraControllerComponent).
      */
     getCameraController(): CameraControllerComponent {
-      if (this.__cameraComponent == null) {
-        this.__cameraComponent = this.getComponentByComponentTID(
+      if (this.__cameraControllerComponent == null) {
+        this.__cameraControllerComponent = this.getComponentByComponentTID(
           WellKnownComponentTIDs.CameraControllerComponentTID
         ) as CameraControllerComponent;
       }
-      return this.__cameraComponent;
+      return this.__cameraControllerComponent;
     }
   };
 

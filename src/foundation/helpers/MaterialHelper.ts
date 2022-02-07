@@ -30,10 +30,11 @@ import VarianceShadowMapDecodeClassicSingleMaterialNode from '../materials/singl
 import SkinPbrShadingSingleMaterialNode from '../materials/singles/SkinPbrShadingSingleMaterialNode';
 import PbrExtendedShadingSingleMaterialNode from '../materials/singles/PbrExtendedShadingSingleMaterialNode';
 import Texture from '../textures/Texture';
-import CameraComponent from '../components/Camera/CameraComponent';
+import LightComponent from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
 import ShaderitySingleMaterialNode from '../materials/singles/ShaderitySingleMaterialNode';
+import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 
 function createMaterial(
   materialName: string,
@@ -365,7 +366,7 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
     isLighting?: boolean;
     colorAttachmentsNumberDepth?: Count;
     colorAttachmentsNumberSquareDepth?: Count;
-    depthCameraComponent?: CameraComponent;
+    depthCameraComponent?: LightComponent;
     maxInstancesNumber?: Count;
   },
   encodedDepthRenderPasses: RenderPass[]
@@ -713,7 +714,7 @@ function recreateShaderityMaterial(
 }
 
 function changeMaterial(
-  entity: Entity,
+  entity: IMeshRendererEntityMethods,
   primitive: Primitive,
   material: Material
 ) {

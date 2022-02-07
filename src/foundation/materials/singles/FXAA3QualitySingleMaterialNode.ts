@@ -8,7 +8,7 @@ import Vector2 from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import LightComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import shaderVertex from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
@@ -71,9 +71,9 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        CameraComponent,
-        CameraComponent.main
-      ) as CameraComponent;
+        LightComponent,
+        LightComponent.main
+      ) as LightComponent;
     }
     if (cameraComponent) {
       this.setViewInfo(

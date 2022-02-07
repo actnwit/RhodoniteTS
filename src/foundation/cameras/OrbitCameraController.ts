@@ -1,7 +1,7 @@
 import Vector3 from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
 import {MathUtil} from '../math/MathUtil';
-import CameraComponent from '../components/Camera/CameraComponent';
+import LightComponent from '../components/Camera/CameraComponent';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import Matrix44 from '../math/Matrix44';
 import {Count, Size} from '../../types/CommonTypes';
@@ -586,7 +586,7 @@ export default class OrbitCameraController
     }
   }
 
-  __getFovyFromCamera(camera: CameraComponent) {
+  __getFovyFromCamera(camera: LightComponent) {
     if (camera.fovy) {
       return camera.fovy;
     } else {
@@ -596,7 +596,7 @@ export default class OrbitCameraController
     }
   }
 
-  logic(cameraComponent: CameraComponent) {
+  logic(cameraComponent: LightComponent) {
     this.__updateTargeting(cameraComponent);
     this.__calculateInfluenceOfController();
     this.__updateCameraComponent(cameraComponent);
@@ -605,7 +605,7 @@ export default class OrbitCameraController
   /**
    * @private update center, eye and up vectors of OrbitCameraController
    */
-  __updateTargeting(camera: CameraComponent) {
+  __updateTargeting(camera: LightComponent) {
     const eyeVec = camera.eye;
     const centerVec = (camera as any)._direction as Vector3;
     const upVec = (camera as any)._up as Vector3;
@@ -756,7 +756,7 @@ export default class OrbitCameraController
     }
   }
 
-  __updateCameraComponent(camera: CameraComponent) {
+  __updateCameraComponent(camera: LightComponent) {
     const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(
       this.__newCenterVec
     );

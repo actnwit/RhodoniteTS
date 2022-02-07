@@ -12,7 +12,9 @@ export function addCamera<EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,
   components: typeof Component[]
 ) {
-  const Derived = class SceneGraphEntity extends (baseClass as any) {
+  const Derived = class CameraEntity extends (baseClass as any) {
+    __cameraComponent?: CameraComponent;
+
     constructor(entityUID: EntityUID, isAlive: Boolean) {
       super(entityUID, isAlive);
     }

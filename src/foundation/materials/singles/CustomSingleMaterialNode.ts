@@ -8,7 +8,7 @@ import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import LightComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import MeshComponent from '../../components/Mesh/MeshComponent';
@@ -140,9 +140,9 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
-            CameraComponent,
-            CameraComponent.main
-          ) as CameraComponent;
+            LightComponent,
+            LightComponent.main
+          ) as LightComponent;
         }
         this.setViewInfo(
           shaderProgram,
@@ -254,7 +254,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     this.setMorphInfo(
       shaderProgram,
       args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
+      args.entity.getComponent(LightComponent),
       args.primitive
     );
   }

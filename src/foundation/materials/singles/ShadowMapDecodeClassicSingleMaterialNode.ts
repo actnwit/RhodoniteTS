@@ -13,7 +13,7 @@ import {ShadingModel} from '../../definitions/ShadingModel';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import LightComponent from '../../components/Camera/CameraComponent';
 import VectorN from '../../math/VectorN';
 import Scalar from '../../math/Scalar';
 import Config from '../../core/Config';
@@ -379,13 +379,13 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        CameraComponent,
-        CameraComponent.main
-      ) as CameraComponent;
+        LightComponent,
+        LightComponent.main
+      ) as LightComponent;
     }
 
     const encodedDepthCameraComponent = this.__encodedDepthRenderPass
-      .cameraComponent as CameraComponent;
+      .cameraComponent as LightComponent;
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -467,7 +467,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     this.setMorphInfo(
       shaderProgram,
       args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
+      args.entity.getComponent(LightComponent),
       args.primitive
     );
   }

@@ -13,6 +13,8 @@ export function addTransform<EntityBaseClass extends MixinBase>(
   components: typeof Component[]
 ) {
   const Derived = class TransformEntity extends (baseClass as any) {
+    __transformComponent?: TransformComponent;
+
     constructor(entityUID: EntityUID, isAlive: Boolean) {
       super(entityUID, isAlive);
     }

@@ -23,7 +23,6 @@ import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphC
 import Mesh from '../foundation/geometry/Mesh';
 import MeshRendererComponent from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
-import LightComponent from '../foundation/components/Light/LightComponent';
 import Config from '../foundation/core/Config';
 import RenderPass from '../foundation/renderer/RenderPass';
 import CameraComponent from '../foundation/components/Camera/CameraComponent';
@@ -46,7 +45,11 @@ import CubeTexture from '../foundation/textures/CubeTexture';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
-import WebGLStrategyUniform from './WebGLStrategyUniform';
+import {
+  IGroupEntity,
+  IMeshEntity,
+  ISkeletalEntity,
+} from '../foundation/helpers/EntityHelper';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -61,7 +64,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   private __lastMaterial?: Material;
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
-  private __lightComponents?: LightComponent[];
+  private __lightComponents?: CameraComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
@@ -630,8 +633,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+      CameraComponent
+    ) as CameraComponent[];
   }
 
   private __isUboUse() {
@@ -792,7 +795,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   private __setCurrentComponentSIDsForEachEntity(
     gl: WebGLRenderingContext,
     renderPass: RenderPass,
-    entity: Entity
+    entity: ISkeletalEntity
   ) {
     const skeletalComponent = entity.getSkeletal();
     if (skeletalComponent) {
@@ -814,7 +817,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     gl: WebGLRenderingContext,
     renderPass: RenderPass,
     material: Material,
-    entity: Entity
+    entity: IGroupEntity
   ) {
     WebGLStrategyFastest.__currentComponentSIDs!._v[0] = material.materialSID;
     gl.uniform1fv(
@@ -865,8 +868,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         WebGLStrategyCommonMethod.startDepthMasking(idx, gl);
 
-        const entity = meshComponent.entity;
-        this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
+        const entity = meshComponent.entity as IMeshEntity;
+        this.__setCurrentComponentSIDsForEachEntity(
+          gl,
+          renderPass,
+          entity as unknown as ISkeletalEntity
+        );
 
         const meshRendererComponent = entity.getMeshRenderer()!;
 
@@ -972,7 +979,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     meshComponent: MeshComponent,
     worldMatrix: Matrix44,
     normalMatrix: Matrix33,
-    entity: Entity,
+    entity: IMeshEntity,
     renderPass: RenderPass,
     renderPassTickCount: Count,
     diffuseCube?: CubeTexture,

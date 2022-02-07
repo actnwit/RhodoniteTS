@@ -4,14 +4,10 @@ import Matrix44 from '../foundation/math/Matrix44';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
-import Entity from '../foundation/core/Entity';
-import EntityRepository from '../foundation/core/EntityRepository';
-import TransformComponent from '../foundation/components/Transform/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
-import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
+import EntityHelper, {ICameraEntity} from '../foundation/helpers/EntityHelper';
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;
@@ -33,21 +29,12 @@ export default class WebVRSystem {
   private __canvasHeightForVR = 0;
   private __leftViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __rightViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
-  private __leftCameraEntity: Entity;
-  private __rightCameraEntity: Entity;
+  private __leftCameraEntity: ICameraEntity;
+  private __rightCameraEntity: ICameraEntity;
 
   private constructor() {
-    const repo = EntityRepository.getInstance();
-    this.__leftCameraEntity = repo.createEntity([
-      TransformComponent,
-      SceneGraphComponent,
-      CameraComponent,
-    ]);
-    this.__rightCameraEntity = repo.createEntity([
-      TransformComponent,
-      SceneGraphComponent,
-      CameraComponent,
-    ]);
+    this.__leftCameraEntity = EntityHelper.createCameraEntity();
+    this.__rightCameraEntity = EntityHelper.createCameraEntity();
   }
 
   static getInstance() {
@@ -374,9 +361,9 @@ export default class WebVRSystem {
 
   getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera()!.componentSID;
+      return this.__leftCameraEntity.getCamera().componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera()!.componentSID;
+      return this.__rightCameraEntity.getCamera().componentSID;
     }
   }
 

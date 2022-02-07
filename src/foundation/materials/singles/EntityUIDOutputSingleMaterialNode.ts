@@ -10,7 +10,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import Scalar from '../../math/Scalar';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import LightComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import MutableMatrix44 from '../../math/MutableMatrix44';
@@ -124,9 +124,9 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        CameraComponent,
-        CameraComponent.main
-      ) as CameraComponent;
+        LightComponent,
+        LightComponent.main
+      ) as LightComponent;
     }
     this.setViewInfo(
       shaderProgram,

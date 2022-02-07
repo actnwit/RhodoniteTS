@@ -14,7 +14,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import LightComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import Scalar from '../../math/Scalar';
@@ -500,9 +500,9 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
-            CameraComponent,
-            CameraComponent.main
-          ) as CameraComponent;
+            LightComponent,
+            LightComponent.main
+          ) as LightComponent;
         }
         this.setViewInfo(
           shaderProgram,
@@ -612,7 +612,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
     this.setMorphInfo(
       shaderProgram,
       args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
+      args.entity.getComponent(LightComponent),
       args.primitive
     );
   }

@@ -1,16 +1,14 @@
 import EntityRepository from '../core/EntityRepository';
-import Entity from '../core/Entity';
+import Entity, {IEntity} from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
 import {
   Gltf2,
-  Gltf2Accessor,
   Gltf2AccessorCompositionTypeString,
   Gltf2Animation,
   Gltf2AnimationChannel,
   Gltf2AnimationSampler,
-  Gltf2BufferView,
   Gltf2BufferViewEx,
   Gltf2Mesh,
   Gltf2Primitive,
@@ -45,10 +43,16 @@ import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
 import {ComponentTypeEnum, CompositionTypeEnum} from '../..';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import {
+  IAnimationEntity,
+  IGroupEntity,
+  IMeshEntity,
+  ISkeletalEntity,
+} from '../helpers/EntityHelper';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 interface Gltf2ExporterArguments {
-  entities: Entity[]; // The target entities. This exporter includes their descendants for the output.
+  entities: IGroupEntity[]; // The target entities. This exporter includes their descendants for the output.
 }
 
 /**
@@ -65,7 +69,8 @@ export default class Gltf2Exporter {
    * @param option a option config
    */
   static export(filename: string, option?: Gltf2ExporterArguments) {
-    const {collectedEntities, topLevelEntities} = this.__collectEntities(option);
+    const {collectedEntities, topLevelEntities} =
+      this.__collectEntities(option);
 
     const {json, fileName}: {json: Gltf2Ex; fileName: string} =
       this.__createJsonBase(filename);
@@ -80,7 +85,7 @@ export default class Gltf2Exporter {
 
     this.__createNodes(json, collectedEntities, topLevelEntities);
 
-    this.__createMaterials(json, collectedEntities);
+    this.__createMaterials(json, collectedEntities as unknown as IMeshEntity[]);
 
     const arraybuffer = this.__createBinary(
       json,
@@ -124,10 +129,13 @@ export default class Gltf2Exporter {
    */
   private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
     if (Is.exist(option) && option.entities.length > 0) {
-      const collectDescendants = (entity: Entity, root: boolean): Entity[] => {
+      const collectDescendants = (
+        entity: IGroupEntity,
+        root: boolean
+      ): IGroupEntity[] => {
         const sg = entity.getSceneGraph()!;
         if (sg.children.length > 0) {
-          const array: Entity[] = root ? [] : [entity];
+          const array: IGroupEntity[] = root ? [] : [entity];
           for (let i = 0; i < sg.children.length; i++) {
             const child = sg.children[i];
             Array.prototype.push.apply(
@@ -144,7 +152,7 @@ export default class Gltf2Exporter {
         collectDescendants(entity, true)
       );
 
-      const topLevelEntities: Entity[] = [];
+      const topLevelEntities: IGroupEntity[] = [];
       option.entities.forEach(entity => {
         if (collectedDescendants.indexOf(entity) === -1) {
           topLevelEntities.push(entity);
@@ -154,8 +162,10 @@ export default class Gltf2Exporter {
       Array.prototype.push.apply(collectedEntities, collectedDescendants);
       return {collectedEntities, topLevelEntities};
     }
-    const collectedEntities = Gltf2Exporter.__entityRepository._getEntities();
-    const topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
+    const collectedEntities =
+      Gltf2Exporter.__entityRepository._getEntities() as unknown as IGroupEntity[];
+    const topLevelEntities =
+      SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
 
     return {collectedEntities, topLevelEntities};
   }
@@ -202,7 +212,7 @@ export default class Gltf2Exporter {
    */
   static __createBufferViewsAndAccessors(
     json: Gltf2Ex,
-    entities: Entity[],
+    entities: IGroupEntity[],
     bufferViewByteLengthAccumulatedArray: Byte[]
   ) {
     const existingUniqueRnBuffers: Buffer[] = [];
@@ -211,7 +221,7 @@ export default class Gltf2Exporter {
 
     createBufferViewsAndAccessorsOfMesh(
       json,
-      entities,
+      entities as IMeshEntity[],
       bufferViewByteLengthAccumulatedArray,
       existingUniqueRnBuffers,
       existingUniqueRnBufferViews,
@@ -221,12 +231,12 @@ export default class Gltf2Exporter {
     createBufferViewsAndAccessorsOfAnimation(
       json,
       bufferViewByteLengthAccumulatedArray,
-      entities
+      entities as IAnimationEntity[]
     );
 
     this.__createSkins(
       json,
-      entities,
+      entities as ISkeletalEntity[],
       existingUniqueRnBuffers,
       existingUniqueRnBufferViews,
       existingUniqueRnAccessors,
@@ -246,8 +256,8 @@ export default class Gltf2Exporter {
    */
   static __createNodes(
     json: Gltf2Ex,
-    entities: Entity[],
-    topLevelEntities: Entity[]
+    entities: IGroupEntity[],
+    topLevelEntities: IGroupEntity[]
   ) {
     json.nodes = [];
     json.scenes = [{nodes: []}];
@@ -298,13 +308,13 @@ export default class Gltf2Exporter {
       ];
 
       // mesh
-      const meshComponent = entity.getMesh();
+      const meshComponent = (entity as IMeshEntity).getMesh();
       if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
         node.mesh = meshCount++;
       }
 
       // skin
-      const skinComponent = entity.getSkeletal();
+      const skinComponent = (entity as ISkeletalEntity).getSkeletal();
       if (Is.exist(skinComponent)) {
         const entityIdx = json.extras.rnSkins.indexOf(skinComponent.entity);
         if (entityIdx >= 0) {
@@ -329,7 +339,7 @@ export default class Gltf2Exporter {
    */
   static __createSkins(
     json: Gltf2Ex,
-    entities: Entity[],
+    entities: ISkeletalEntity[],
     existingUniqueRnBuffers: Buffer[],
     existingUniqueRnBufferViews: BufferView[],
     existingUniqueRnAccessors: Accessor[],
@@ -376,7 +386,7 @@ export default class Gltf2Exporter {
       const bindShapeMatrix = skeletalComponent._bindShapeMatrix;
       let skeletalIdx = -1;
       if (Is.exist(topOfJointsSkeletonSceneComponent)) {
-        const skeletalEntity = topOfJointsSkeletonSceneComponent.entity;
+        const skeletalEntity = topOfJointsSkeletonSceneComponent.entity as ISkeletalEntity;
         skeletalIdx = entities.indexOf(skeletalEntity);
       } else {
         skeletalIdx = jointIndicesOfTheEntity[0];
@@ -397,7 +407,7 @@ export default class Gltf2Exporter {
    * @param json a glTF2 JSON
    * @param entities all target entities
    */
-  static __createMaterials(json: Gltf2, entities: Entity[]) {
+  static __createMaterials(json: Gltf2, entities: IMeshEntity[]) {
     let countMesh = 0;
     let countMaterial = 0;
     let countTexture = 0;
@@ -693,7 +703,7 @@ export default class Gltf2Exporter {
  */
 function createBufferViewsAndAccessorsOfMesh(
   json: Gltf2Ex,
-  entities: Entity[],
+  entities: IMeshEntity[],
   bufferViewByteLengthAccumulatedArray: Byte[],
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
@@ -943,7 +953,7 @@ function accumulateBufferViewByteLength(
 function createBufferViewsAndAccessorsOfAnimation(
   json: Gltf2Ex,
   bufferViewByteLengthAccumulatedArray: Byte[],
-  entities: Entity[]
+  entities: IAnimationEntity[]
 ): void {
   let sumOfBufferViewByteLengthAccumulated = 0;
   const bufferIdx = Gltf2Exporter.getNextBufferIdx(

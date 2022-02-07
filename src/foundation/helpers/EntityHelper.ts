@@ -1,10 +1,4 @@
 import EntityRepository from '../core/EntityRepository';
-import TransformComponent from '../components/Transform/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
-import CameraComponent from '../components/Camera/CameraComponent';
-import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import Component from '../core/Component';
 import Entity, {IEntity} from '../core/Entity';
 import {
@@ -15,12 +9,29 @@ import {
   addSceneGraph,
   ISceneGraphEntityMethods,
 } from '../components/SceneGraph/ISceneGraphEntity';
-import {IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
-import {ICameraEntityMethods} from '../components/Camera/ICameraEntity';
-import {ICameraControllerEntityMethods} from '../components/CameraController/ICameraControllerEntity';
+import {addMesh, IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
+import {
+  addCamera,
+  ICameraEntityMethods,
+} from '../components/Camera/ICameraEntity';
+import {
+  addCameraController,
+  ICameraControllerEntityMethods,
+} from '../components/CameraController/ICameraControllerEntity';
 import {IAnimationEntityMethods} from '../components/Animation/IAnimationEntity';
 import {ILightEntityMethods} from '../components/Light/ILightEntity';
-import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
+import {
+  addMeshRenderer,
+  IMeshRendererEntityMethods,
+} from '../components/MeshRenderer/IMeshRendererEntity';
+import {
+  addSkeletal,
+  ISkeletalEntityMethods,
+} from '../components/Skeletal/ISkeletalEntity';
+import {
+  addPhysics,
+  IPhysicsEntityMethods,
+} from '../components/Physics/IPhysicsEntity';
 import {ComponentMixinFunction} from '../../foundation/components/ComponentTypes';
 
 function processMixin(mixins: ComponentMixinFunction[]) {
@@ -35,7 +46,7 @@ function processMixin(mixins: ComponentMixinFunction[]) {
     resultComponents,
     resultEntity
   );
-  return customEntity;
+  return customEntity as IEntity;
 }
 export interface ITransformEntity extends IEntity, ITransformEntityMethods {}
 export interface IGroupEntity
@@ -49,7 +60,9 @@ export interface ICameraEntity extends IGroupEntity, ICameraEntityMethods {}
 export interface ICameraWithControllerEntity
   extends ICameraEntityMethods,
     ICameraControllerEntityMethods {}
+export interface ISkeletalEntity extends IGroupEntity, ISkeletalEntityMethods {}
 export interface ILightEntity extends IGroupEntity, ILightEntityMethods {}
+export interface IPhysicsEntity extends IGroupEntity, IPhysicsEntityMethods {}
 export interface IAnimationEntity
   extends IGroupEntity,
     IAnimationEntityMethods {}
@@ -67,29 +80,33 @@ function createGroupEntity(): IGroupEntity {
 }
 
 function createMeshEntity() {
-  return EntityRepository.getInstance().createEntity([
-    TransformComponent,
-    SceneGraphComponent,
-    MeshComponent,
-    MeshRendererComponent,
-  ]);
+  const mixins = [addTransform, addSceneGraph, addMesh, addMeshRenderer];
+  const customEntity = processMixin(mixins);
+  return customEntity as IMeshEntity;
 }
 
 function createCameraEntity() {
-  return EntityRepository.getInstance().createEntity([
-    TransformComponent,
-    SceneGraphComponent,
-    CameraComponent,
-  ]);
+  const mixins = [addTransform, addSceneGraph, addCamera];
+  const customEntity = processMixin(mixins);
+  return customEntity as ICameraEntity;
 }
 
 function createCameraWithControllerEntity() {
-  return EntityRepository.getInstance().createEntity([
-    TransformComponent,
-    SceneGraphComponent,
-    CameraComponent,
-    CameraControllerComponent,
-  ]);
+  const mixins = [addTransform, addSceneGraph, addCamera, addCameraController];
+  const customEntity = processMixin(mixins);
+  return customEntity as ICameraEntity;
+}
+
+function createSkeletalEntity() {
+  const mixins = [addTransform, addSceneGraph, addSkeletal];
+  const customEntity = processMixin(mixins);
+  return customEntity as ISkeletalEntity;
+}
+
+function createPhysicsEntity(): IPhysicsEntity {
+  const mixins = [addTransform, addSceneGraph, addPhysics];
+  const customEntity = processMixin(mixins);
+  return customEntity as IPhysicsEntity;
 }
 
 export default Object.freeze({
@@ -98,4 +115,6 @@ export default Object.freeze({
   createMeshEntity,
   createCameraEntity,
   createCameraWithControllerEntity,
+  createSkeletalEntity,
+  createPhysicsEntity,
 });

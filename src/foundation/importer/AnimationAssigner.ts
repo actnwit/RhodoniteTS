@@ -2,7 +2,7 @@ import Entity from '../core/Entity';
 import {RnM2} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';
 import EntityRepository from '../core/EntityRepository';
-import AnimationComponent from '../components/Animation/AnimationComponent';
+import PhysicsComponent from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {Index} from '../../types/CommonTypes';
 import {VRM} from '../../types/VRM';
@@ -155,12 +155,12 @@ export default class AnimationAssigner {
           );
           if (rnEntity) {
             entityRepository.addComponentsToEntity(
-              [AnimationComponent],
+              [PhysicsComponent],
               rnEntity.entityUID
             );
             const animationComponent = rnEntity.getComponent(
-              AnimationComponent
-            ) as AnimationComponent;
+              PhysicsComponent
+            ) as PhysicsComponent;
             if (animationComponent) {
               if (animationAttributeType === 'quaternion') {
                 animationComponent.setAnimation(

@@ -10,7 +10,7 @@ import Vector4 from '../../math/Vector4';
 import {ShaderType} from '../../definitions/ShaderType';
 import Scalar from '../../math/Scalar';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import LightComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
@@ -112,9 +112,9 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        CameraComponent,
-        CameraComponent.main
-      ) as CameraComponent;
+        LightComponent,
+        LightComponent.main
+      ) as LightComponent;
     }
     if (cameraComponent) {
       this.setViewInfo(

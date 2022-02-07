@@ -1,14 +1,10 @@
 import Gizmo from './Gizmo';
-import TransformComponent from '../components/Transform/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {Primitive} from '../geometry/Primitive';
 import Vector3 from '../math/Vector3';
 import Mesh from '../geometry/Mesh';
-import Entity from '../core/Entity';
+import EntityHelper, {IGroupEntity} from '../helpers/EntityHelper';
 
 /**
  * AABB Gizmo class
@@ -20,7 +16,7 @@ export default class AABBGizmo extends Gizmo {
    * Constructor
    * @param target the object which this gizmo belong to
    */
-  constructor(target: Entity) {
+  constructor(target: IGroupEntity) {
     super(target);
   }
 
@@ -53,12 +49,7 @@ export default class AABBGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = this.__entityRepository.createEntity([
-      TransformComponent,
-      SceneGraphComponent,
-      MeshComponent,
-      MeshRendererComponent,
-    ]);
+    this.__topEntity = EntityHelper.createMeshEntity();
     this.__topEntity.tryToSetUniqueName(
       `AABBGizmo_of_${this.__target.uniqueName}`,
       true

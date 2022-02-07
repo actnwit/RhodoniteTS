@@ -21,6 +21,7 @@ import {
 import {IQuaternion} from '../../math/IQuaternion';
 import {IMatrix44} from '../../math/IMatrix';
 import {IVector3} from '../../math/IVector';
+import { IGroupEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -613,12 +614,12 @@ export default class TransformComponent extends Component {
   }
 
   $logic() {
-    const sceneGraphComponent = this.entity.getSceneGraph()!;
+    const sceneGraphComponent = (this.entity as IGroupEntity).getSceneGraph()!;
     if (this.__updateCountAtLastLogic !== this._updateCount) {
       sceneGraphComponent.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this._updateCount;
     } else {
-      const skeletalComponent = this.entity.getSkeletal();
+      const skeletalComponent = (this.entity as ISkeletalEntity).getSkeletal();
       if (skeletalComponent != null) {
         sceneGraphComponent.setWorldMatrixDirty();
       }

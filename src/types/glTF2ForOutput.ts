@@ -1,4 +1,5 @@
 import Entity from '../foundation/core/Entity';
+import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import {
   Gltf2BufferView,
   Gltf2Accessor,
@@ -51,6 +52,6 @@ export interface Gltf2Ex extends Gltf2 {
   images: Gltf2Image[];
   skins: Gltf2Skin[];
   extras: {
-    rnSkins: Entity[];
+    rnSkins: ISkeletalEntity[];
   };
 }

@@ -11,11 +11,9 @@ import Component from '../core/Component';
 import Expression from '../renderer/Expression';
 import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';
-import CameraComponent from '../components/Camera/CameraComponent';
+import LightComponent from '../components/Camera/CameraComponent';
 import MemoryManager from '../core/MemoryManager';
 import GlobalDataRepository from '../core/GlobalDataRepository';
-import TransformComponent from '../components/Transform/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import Vector3 from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
 import Time from '../misc/Time';
@@ -25,6 +23,7 @@ import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
+import EntityHelper from '../helpers/EntityHelper';
 
 export default class System {
   private static __instance: System;
@@ -121,12 +120,8 @@ export default class System {
     }
     Time._processBegin();
 
-    if (CameraComponent.main === Component.InvalidObjectUID) {
-      const cameraEntity = this.__entityRepository.createEntity([
-        TransformComponent,
-        SceneGraphComponent,
-        CameraComponent,
-      ]);
+    if (LightComponent.main === Component.InvalidObjectUID) {
+      const cameraEntity = EntityHelper.createCameraEntity();
       cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
       cameraEntity.getCamera()!.type = CameraType.Orthographic;
       cameraEntity.getCamera()!.zNear = 0.1;

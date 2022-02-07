@@ -1,6 +1,5 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {AlphaMode} from '../../definitions/AlphaMode';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import ComponentRepository from '../../core/ComponentRepository';
@@ -940,7 +939,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     this.setMorphInfo(
       shaderProgram,
       args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
+      args.entity.getComponent(CameraComponent),
       args.primitive
     );
   }

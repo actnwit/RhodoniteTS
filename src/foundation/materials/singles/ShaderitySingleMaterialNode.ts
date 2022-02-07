@@ -8,7 +8,7 @@ import {ShaderityObject} from 'shaderity';
 import ShaderityUtility from '../core/ShaderityUtility';
 import {ShaderType} from '../../definitions/ShaderType';
 import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import LightComponent from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import MeshComponent from '../../components/Mesh/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
@@ -79,9 +79,9 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
-            CameraComponent,
-            CameraComponent.main
-          ) as CameraComponent;
+            LightComponent,
+            LightComponent.main
+          ) as LightComponent;
         }
         this.setViewInfo(
           shaderProgram,
@@ -113,7 +113,7 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
     this.setMorphInfo(
       shaderProgram,
       args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
+      args.entity.getComponent(LightComponent),
       args.primitive
     );
   }

@@ -4,12 +4,15 @@ import EntityRepository from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import Vector3 from '../../math/Vector3';
-import CameraComponent from '../Camera/CameraComponent';
+import LightComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import Mesh from '../../geometry/Mesh';
 import Entity from '../../core/Entity';
-import {ComponentTID, EntityUID, ComponentSID} from '../../../types/CommonTypes';
-import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+} from '../../../types/CommonTypes';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import Matrix44 from '../../math/Matrix44';
 import MutableMatrix44 from '../../math/MutableMatrix44';
@@ -17,6 +20,8 @@ import MathClassUtil from '../../math/MathClassUtil';
 import MutableVector3 from '../../math/MutableVector3';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {Is} from '../../misc/Is';
+import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
+import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -73,9 +78,9 @@ export default class MeshComponent extends Component {
     this.__mesh.weights = value;
   }
 
-  calcViewDepth(cameraComponent: CameraComponent) {
+  calcViewDepth(cameraComponent: LightComponent) {
     const centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
-    const skeletal = this.entity.getSkeletal();
+    const skeletal = (this.entity as unknown as ISkeletalEntity).getSkeletal();
     if (skeletal?._bindShapeMatrix) {
       skeletal._bindShapeMatrix.multiplyVector3To(
         this.__mesh!.AABB.centerPoint,
@@ -158,7 +163,7 @@ export default class MeshComponent extends Component {
   castRayFromScreen(
     x: number,
     y: number,
-    camera: CameraComponent,
+    camera: LightComponent,
     viewport: Vector4,
     dotThreshold = 0
   ) {
@@ -276,6 +281,16 @@ export default class MeshComponent extends Component {
   }
 
   $logic() {}
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): IMeshEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as IMeshEntity;
+  }
 }
 
 ComponentRepository.registerComponentClass(MeshComponent);

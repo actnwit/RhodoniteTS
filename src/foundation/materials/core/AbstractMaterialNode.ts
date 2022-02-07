@@ -12,7 +12,6 @@ import Matrix44 from '../../math/Matrix44';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Texture from '../../textures/Texture';
 import CubeTexture from '../../textures/CubeTexture';
-import LightComponent from '../../components/Light/LightComponent';
 import Config from '../../core/Config';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
@@ -29,8 +28,6 @@ import {
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
 import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
-import MemoryManager from '../../core/MemoryManager';
-import {BufferUse} from '../../definitions/BufferUse';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {ShaderityObject} from 'shaderity';
 import {BoneDataType} from '../../definitions/BoneDataType';
@@ -39,6 +36,7 @@ import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
+import LightComponent from '../../components/Light/LightComponent';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string

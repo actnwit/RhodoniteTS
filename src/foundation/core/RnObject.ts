@@ -7,10 +7,14 @@ export type Tag = {
 
 export interface IRnObject {
   objectUID: ObjectUID;
+  uniqueName: string;
   tryToSetUniqueName(name: string, toAddNameIfConflict: boolean): boolean;
   validateTagString(val: string): boolean;
   tryToSetTag(tag: Tag): boolean;
   getTagValue(tagName: string): any;
+  matchTag(tagName: string, tagValue: string): boolean;
+  matchTagsAsFreeStrings(stringArray: string[]): boolean;
+  matchTags(tags: RnTags): boolean;
 }
 
 /**
@@ -173,7 +177,7 @@ export default class RnObject implements IRnObject {
    * @param tagName The tag name.
    * @param tagValue The tag value.
    */
-  matchTag(tagName: string, tagValue: string) {
+  matchTag(tagName: string, tagValue: string): boolean {
     if (this.__tags[tagName] === tagValue) {
       return true;
     } else {
@@ -185,7 +189,7 @@ export default class RnObject implements IRnObject {
    * Confirm that this object's tags includes given an array of string.
    * @param stringArray an array of string.
    */
-  matchTagsAsFreeStrings(stringArray: string[]) {
+  matchTagsAsFreeStrings(stringArray: string[]): boolean {
     let regExpStr = '^';
 
     for (let i = 0; i < stringArray.length; i++) {
@@ -203,7 +207,7 @@ export default class RnObject implements IRnObject {
    * Confirm that this object's tags includes given set of tags.
    * @param tags The set of tags.
    */
-  matchTags(tags: RnTags) {
+  matchTags(tags: RnTags): boolean {
     let regExpStr = '^';
 
     for (const tagName in tags) {

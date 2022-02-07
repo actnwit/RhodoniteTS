@@ -22,6 +22,7 @@ import Config from '../../core/Config';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {IMatrix44} from '../../math/IMatrix';
 import Accessor from '../../memory/Accessor';
+import { ISkeletalEntity } from '../../helpers/EntityHelper';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -389,6 +390,16 @@ export default class SkeletalComponent extends Component {
 
   public getInverseBindMatricesAccessor(): Accessor | undefined {
     return this.__inverseBindMatricesAccessor;
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): ISkeletalEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as ISkeletalEntity;
   }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);

@@ -12,12 +12,21 @@ import Vector3 from '../../math/Vector3';
 import AABB from '../../math/AABB';
 import MutableVector3 from '../../math/MutableVector3';
 import MeshComponent from '../Mesh/MeshComponent';
-import {ComponentTID, ComponentSID, EntityUID} from '../../../types/CommonTypes';
-import CameraComponent from '../Camera/CameraComponent';
+import {
+  ComponentTID,
+  ComponentSID,
+  EntityUID,
+} from '../../../types/CommonTypes';
+import LightComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import AABBGizmo from '../../gizmos/AABBGizmo';
 import LocatorGizmo from '../../gizmos/LocatorGizmo';
 import {Is} from '../../misc/Is';
+import {
+  IGroupEntity,
+  IMeshEntity,
+  ITransformEntity,
+} from '../../helpers/EntityHelper';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -102,7 +111,7 @@ export default class SceneGraphComponent extends Component {
   set isLocatorGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__locatorGizmo)) {
-        this.__locatorGizmo = new LocatorGizmo(this.entity);
+        this.__locatorGizmo = new LocatorGizmo(this.entity as IMeshEntity);
         this.__locatorGizmo._setup();
       }
       this.__locatorGizmo.isVisible = true;
@@ -251,7 +260,9 @@ export default class SceneGraphComponent extends Component {
       return this._worldMatrix;
     }
 
-    const entity = this.__entityRepository.getEntity(this.__entityUid);
+    const entity = this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as ITransformEntity;
     const transform = entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
@@ -315,7 +326,7 @@ export default class SceneGraphComponent extends Component {
     const aabb = (function mergeAABBRecursively(
       elem: SceneGraphComponent
     ): AABB {
-      const meshComponent = elem.entity.getMesh();
+      const meshComponent = (elem.entity as IMeshEntity).getMesh();
 
       if (meshComponent?.mesh != null) {
         AABB.multiplyMatrixTo(
@@ -383,7 +394,7 @@ export default class SceneGraphComponent extends Component {
     );
     const meshComponents: MeshComponent[] = [];
     for (const sg of collectedSgComponents) {
-      const mesh = sg.entity.getMesh();
+      const mesh = (sg.entity as IMeshEntity).getMesh();
       if (mesh) {
         meshComponents.push(mesh);
       }
@@ -435,7 +446,7 @@ export default class SceneGraphComponent extends Component {
   castRayFromScreen(
     x: number,
     y: number,
-    camera: CameraComponent,
+    camera: LightComponent,
     viewport: Vector4,
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []
@@ -446,7 +457,7 @@ export default class SceneGraphComponent extends Component {
     );
     const meshComponents: MeshComponent[] = [];
     for (const sg of collectedSgComponents) {
-      const mesh = sg.entity.getMesh();
+      const mesh = (sg.entity as IMeshEntity).getMesh();
       if (mesh) {
         meshComponents.push(mesh);
       }
@@ -495,7 +506,7 @@ export default class SceneGraphComponent extends Component {
 
     this.__updateGizmos();
 
-    const mesh = this.entity.getMesh()?.mesh;
+    const mesh = (this.entity as IMeshEntity).getMesh()?.mesh;
     if (mesh) {
       const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
@@ -523,6 +534,16 @@ export default class SceneGraphComponent extends Component {
     ) {
       this.__locatorGizmo._update();
     }
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): IGroupEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as IGroupEntity;
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);

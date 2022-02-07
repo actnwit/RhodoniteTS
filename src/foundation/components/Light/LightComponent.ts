@@ -7,11 +7,16 @@ import Vector3 from '../../math/Vector3';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import Config from '../../core/Config';
-import {ComponentTID, EntityUID, ComponentSID} from '../../../types/CommonTypes';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+} from '../../../types/CommonTypes';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import MutableVector4 from '../../math/MutableVector4';
 import VectorN from '../../math/VectorN';
+import {ILightEntity} from '../../helpers/EntityHelper';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;
@@ -128,6 +133,16 @@ export default class LightComponent extends Component {
     LightComponent.__lightIntensities._v[4 * this.componentSID + 2] =
       this.__intensity.z;
     LightComponent.__lightIntensities._v[4 * this.componentSID + 3] = 0;
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): ILightEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as ILightEntity;
   }
 }
 ComponentRepository.registerComponentClass(LightComponent);

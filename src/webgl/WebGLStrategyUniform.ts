@@ -40,6 +40,7 @@ import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import {Is, Is as is} from '../foundation/misc/Is';
 import Scalar from '../foundation/math/Scalar';
 import Vector3 from '../foundation/math/Vector3';
+import { IGroupEntity, IMeshEntity } from '../foundation/helpers/EntityHelper';
 
 type ShaderVariableArguments = {
   glw: WebGLContextWrapper;
@@ -417,7 +418,7 @@ mat3 get_normalMatrix(float instanceId) {
     meshComponent: MeshComponent,
     worldMatrix: Matrix44,
     normalMatrix: Matrix33,
-    entity: Entity,
+    entity: IMeshEntity,
     renderPass: RenderPass,
     renderPassTickCount: Count,
     diffuseCube?: CubeTexture,

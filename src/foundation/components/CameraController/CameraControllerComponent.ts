@@ -1,7 +1,7 @@
 import Component from '../../core/Component';
 import {EntityUID, ComponentSID, ComponentTID} from '../../../types/CommonTypes';
 import EntityRepository from '../../core/EntityRepository';
-import CameraComponent from '../Camera/CameraComponent';
+import LightComponent from '../Camera/CameraComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import ComponentRepository from '../../core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
@@ -14,7 +14,7 @@ import {
 } from '../../definitions/CameraControllerType';
 
 export default class CameraControllerComponent extends Component {
-  private __cameraComponent?: CameraComponent;
+  private __cameraComponent?: LightComponent;
   private __cameraController: ICameraController;
 
   constructor(
@@ -56,8 +56,8 @@ export default class CameraControllerComponent extends Component {
   $create() {
     this.__cameraComponent = this.__entityRepository.getComponentOfEntity(
       this.__entityUid,
-      CameraComponent
-    ) as CameraComponent;
+      LightComponent
+    ) as LightComponent;
 
     this.moveStageTo(ProcessStage.Logic);
   }
