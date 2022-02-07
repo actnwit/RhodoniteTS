@@ -10,6 +10,8 @@ import {
 } from '../../../types/CommonTypes';
 import VRMSpringBonePhysicsStrategy from '../../physics/VRMSpringBonePhysicsStrategy';
 import PhysicsStrategy from '../../physics/PhysicsStrategy';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 export default class PhysicsComponent extends Component {
   private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
@@ -37,6 +39,24 @@ export default class PhysicsComponent extends Component {
   }
 
   $logic() {}
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class PhysicsEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getPhysics() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.PhysicsComponentTID
+        ) as PhysicsComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
 
 ComponentRepository.registerComponentClass(PhysicsComponent);

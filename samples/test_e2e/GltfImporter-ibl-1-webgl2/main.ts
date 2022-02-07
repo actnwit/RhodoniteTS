@@ -176,19 +176,6 @@ function createPostEffectCameraEntity() {
   return cameraEntity;
 }
 
-function generateEntity(
-  componentArray = [
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ] as Array<typeof Rn.Component>
-) {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity(componentArray);
-  return entity;
-}
-
 function setTextureParameterForMeshComponents(
   meshComponents,
   shaderSemantic,

@@ -17,6 +17,9 @@ import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import MutableVector4 from '../../math/MutableVector4';
 import VectorN from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
+import { MixinBase } from '../../../types/TypeGenerators';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;
@@ -143,6 +146,24 @@ export default class LightComponent extends Component {
     return this.__entityRepository.getEntity(
       this.__entityUid
     ) as unknown as ILightEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class LightEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getLight() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.LightComponentTID
+        ) as LightComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(LightComponent);

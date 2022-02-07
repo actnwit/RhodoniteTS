@@ -8,6 +8,9 @@ import {
   ComponentSID,
   EntityUID,
 } from '../../../types/CommonTypes';
+import {MixinBase} from '../../../types/TypeGenerators';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class BlendShapeComponent extends Component {
   private __weights: number[] = [];
@@ -44,6 +47,24 @@ export default class BlendShapeComponent extends Component {
   }
 
   $logic() {}
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class BlendShape extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getBlendShape() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.BlendShapeComponentTID
+        ) as BlendShapeComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
 
 ComponentRepository.registerComponentClass(BlendShapeComponent);

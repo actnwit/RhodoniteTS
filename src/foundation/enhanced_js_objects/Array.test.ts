@@ -7,12 +7,7 @@ declare global {
 }
 
 function generateEntity() {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-  ]);
+  const entity = Rn.EntityHelper.createMeshEntity();
   return entity;
 }
 

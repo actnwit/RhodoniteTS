@@ -27,6 +27,8 @@ import {
   IMeshEntity,
   ITransformEntity,
 } from '../../helpers/EntityHelper';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -544,6 +546,29 @@ export default class SceneGraphComponent extends Component {
     return this.__entityRepository.getEntity(
       this.__entityUid
     ) as unknown as IGroupEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class SceneGraphEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getSceneGraph() {
+        // console.log(this);
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.SceneGraphComponentTID
+        );
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);

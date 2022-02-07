@@ -22,7 +22,8 @@ import {
   Count,
   Byte,
 } from '../../types/CommonTypes';
-import Entity, { IEntity } from './Entity';
+import {IEntity} from './Entity';
+import {ComponentToComponentMethods} from '../components/ComponentTypes';
 
 export function fromTensorToCompositionType(tensorClass: any) {
   switch (tensorClass.name) {
@@ -722,6 +723,15 @@ export default class Component extends RnObject {
     );
   }
 
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ): EntityBase & ComponentToComponentMethods<SomeComponentClass> {
+    throw 'Invalid Calling';
+  }
   // $create() {
   //   // Define process dependencies with other components.
   //   // If circular dependencies are detected, the error will be reported.

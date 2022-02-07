@@ -4,7 +4,7 @@ function generateEntity() {
   return Rn.EntityHelper.createGroupEntity();
 }
 
-test('create Parents and children.', () => {
+test.skip('create Parents and children.', () => {
   Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
   // generate entities
@@ -64,3 +64,13 @@ test('flatten hierarchy', () => {
 
   expect(result.length).toBe(4);
 });
+
+// test('create Parents and children.', () => {
+//   const entityRepository = EntityRepository.getInstance();
+//   const entity = entityRepository.createEntity([]);
+//   const transformEntity = entityRepository.addComponentToEntity(
+//     TransformComponent,
+//     entity.entityUID
+//   );
+//   // const
+// });

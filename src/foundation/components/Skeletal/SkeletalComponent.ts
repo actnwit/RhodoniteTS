@@ -22,7 +22,9 @@ import Config from '../../core/Config';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {IMatrix44} from '../../math/IMatrix';
 import Accessor from '../../memory/Accessor';
-import { ISkeletalEntity } from '../../helpers/EntityHelper';
+import {ISkeletalEntity} from '../../helpers/EntityHelper';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -400,6 +402,24 @@ export default class SkeletalComponent extends Component {
     return this.__entityRepository.getEntity(
       this.__entityUid
     ) as unknown as ISkeletalEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class SkeletalEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getSkeletal() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.SkeletalComponentTID
+        ) as SkeletalComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);

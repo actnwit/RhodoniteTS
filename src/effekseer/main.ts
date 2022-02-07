@@ -5,13 +5,21 @@ import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphC
 
 const createEffekseerEntity = function () {
   const entityRepository = EntityRepository.getInstance();
-  const entity = entityRepository.createEntity([
+  const entity = entityRepository.createEntity();
+  const entity1 = entityRepository.addComponentToEntity(
     TransformComponent,
+    entity
+  );
+  const entity2 = entityRepository.addComponentToEntity(
     SceneGraphComponent,
+    entity1
+  );
+  const entity3 = entityRepository.addComponentToEntity(
     EffekseerComponent,
-  ]);
+    entity2
+  );
 
-  return entity;
+  return entity3;
 };
 
 const Effekseer = Object.freeze({

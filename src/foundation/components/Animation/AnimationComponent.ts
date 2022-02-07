@@ -49,7 +49,11 @@ import {
 } from '../../math/raw/raw_extension';
 import Vector3 from '../../math/Vector3';
 import {Is} from '../../misc/Is';
-import { IAnimationEntity } from '../../helpers/EntityHelper';
+import {IAnimationEntity} from '../../helpers/EntityHelper';
+import {MixinBase} from '../../../types/TypeGenerators';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
+import {IAnimationEntityMethods} from './IAnimationEntity';
 
 const defaultAnimationInfo = {
   name: '',
@@ -62,7 +66,7 @@ const ChangeAnimationInfo = Symbol(
 );
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 
-export default class PhysicsComponent extends Component {
+export default class AnimationComponent extends Component {
   /// inner states ///
   private __backupDefaultValues: Map<
     AnimationPathName,
@@ -135,9 +139,9 @@ export default class PhysicsComponent extends Component {
       if (animationSet !== undefined) {
         for (const [attributeName, channel] of animationSet) {
           const i = AnimationAttribute.fromString(attributeName).index;
-          const value = PhysicsComponent.__interpolate(
+          const value = AnimationComponent.__interpolate(
             channel,
-            PhysicsComponent.globalTime,
+            AnimationComponent.globalTime,
             i
           );
           if (i === AnimationAttribute.Quaternion.index) {
@@ -161,7 +165,7 @@ export default class PhysicsComponent extends Component {
   }
 
   static subscribe(type: AnimationComponentEventType, handler: EventHandler) {
-    PhysicsComponent.__pubsub.subscribe(type, handler);
+    AnimationComponent.__pubsub.subscribe(type, handler);
   }
 
   /**
@@ -305,8 +309,8 @@ export default class PhysicsComponent extends Component {
 
   static setAnimatingForAll(flg: boolean) {
     const animationComponents = this.__componentRepository._getComponents(
-      PhysicsComponent
-    )! as PhysicsComponent[];
+      AnimationComponent
+    )! as AnimationComponent[];
     for (const animationComponent of animationComponents) {
       animationComponent.setAnimating(flg);
     }
@@ -314,8 +318,8 @@ export default class PhysicsComponent extends Component {
 
   static setActiveAnimationForAll(animationName: AnimationTrackName) {
     const components = ComponentRepository.getInstance().getComponentsWithType(
-      PhysicsComponent
-    ) as PhysicsComponent[];
+      AnimationComponent
+    ) as AnimationComponent[];
     for (const component of components) {
       component.setActiveAnimation(animationName);
     }
@@ -378,7 +382,7 @@ export default class PhysicsComponent extends Component {
     const newMaxEndInputTime = inputArray[inputArray.length - 1];
 
     const existingAnimationInfo = valueWithDefault<AnimationInfo>({
-      value: PhysicsComponent.__animationGlobalInfo.get(trackName),
+      value: AnimationComponent.__animationGlobalInfo.get(trackName),
       defaultValue: defaultAnimationInfo,
     });
     const existingMaxStartInputTime = existingAnimationInfo.maxStartInputTime;
@@ -393,10 +397,10 @@ export default class PhysicsComponent extends Component {
         maxStartInputTime: startResult.less,
         maxEndInputTime: endResult.greater,
       };
-      PhysicsComponent.__animationGlobalInfo.set(trackName, info);
-      PhysicsComponent.__pubsub.publishAsync(
-        PhysicsComponent.Event.ChangeAnimationInfo,
-        {infoMap: new Map(PhysicsComponent.__animationGlobalInfo)}
+      AnimationComponent.__animationGlobalInfo.set(trackName, info);
+      AnimationComponent.__pubsub.publishAsync(
+        AnimationComponent.Event.ChangeAnimationInfo,
+        {infoMap: new Map(AnimationComponent.__animationGlobalInfo)}
       );
     }
 
@@ -414,7 +418,9 @@ export default class PhysicsComponent extends Component {
   public getStartInputValueOfAnimation(animationTrackName?: string): number {
     const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
     if (name === undefined) {
-      const array = Array.from(PhysicsComponent.__animationGlobalInfo.values());
+      const array = Array.from(
+        AnimationComponent.__animationGlobalInfo.values()
+      );
       if (array.length === 0) {
         return 0;
       }
@@ -422,7 +428,7 @@ export default class PhysicsComponent extends Component {
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxStartInputTime = valueWithDefault<AnimationInfo>({
-      value: PhysicsComponent.__animationGlobalInfo.get(name),
+      value: AnimationComponent.__animationGlobalInfo.get(name),
       defaultValue: defaultAnimationInfo,
     }).maxStartInputTime;
 
@@ -433,7 +439,9 @@ export default class PhysicsComponent extends Component {
     const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
 
     if (name === undefined) {
-      const array = Array.from(PhysicsComponent.__animationGlobalInfo.values());
+      const array = Array.from(
+        AnimationComponent.__animationGlobalInfo.values()
+      );
       if (array.length === 0) {
         return 0;
       }
@@ -441,7 +449,7 @@ export default class PhysicsComponent extends Component {
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxEndInputTime = valueWithDefault<AnimationInfo>({
-      value: PhysicsComponent.__animationGlobalInfo.get(name),
+      value: AnimationComponent.__animationGlobalInfo.get(name),
       defaultValue: defaultAnimationInfo,
     }).maxEndInputTime;
 
@@ -489,8 +497,8 @@ export default class PhysicsComponent extends Component {
 
   static get startInputValue() {
     const components = ComponentRepository.getInstance().getComponentsWithType(
-      PhysicsComponent
-    ) as PhysicsComponent[];
+      AnimationComponent
+    ) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     } else {
@@ -502,8 +510,8 @@ export default class PhysicsComponent extends Component {
 
   static get endInputValue() {
     const components = ComponentRepository.getInstance().getComponentsWithType(
-      PhysicsComponent
-    ) as PhysicsComponent[];
+      AnimationComponent
+    ) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     } else {
@@ -515,8 +523,8 @@ export default class PhysicsComponent extends Component {
 
   static get isAnimating() {
     const components = ComponentRepository.getInstance().getComponentsWithType(
-      PhysicsComponent
-    ) as PhysicsComponent[];
+      AnimationComponent
+    ) as AnimationComponent[];
 
     for (const component of components) {
       if (component.isAnimating) {
@@ -778,5 +786,23 @@ export default class PhysicsComponent extends Component {
       this.__entityUid
     ) as unknown as IAnimationEntity;
   }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class AnimationEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getAnimation() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.AnimationComponentTID
+        ) as AnimationComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
-ComponentRepository.registerComponentClass(PhysicsComponent);
+ComponentRepository.registerComponentClass(AnimationComponent);

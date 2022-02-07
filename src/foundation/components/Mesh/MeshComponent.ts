@@ -7,7 +7,7 @@ import Vector3 from '../../math/Vector3';
 import LightComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import Mesh from '../../geometry/Mesh';
-import Entity from '../../core/Entity';
+import Entity, {IEntity} from '../../core/Entity';
 import {
   ComponentTID,
   EntityUID,
@@ -22,6 +22,8 @@ import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {Is} from '../../misc/Is';
 import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
 import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
+import {MixinBase} from '../../../types/TypeGenerators';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -290,6 +292,25 @@ export default class MeshComponent extends Component {
     return this.__entityRepository.getEntity(
       this.__entityUid
     ) as unknown as IMeshEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class MeshEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+        // super._setComponent(this);
+      }
+
+      getMesh() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.MeshComponentTID
+        ) as MeshComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 

@@ -21,7 +21,10 @@ import {
 import {IQuaternion} from '../../math/IQuaternion';
 import {IMatrix44} from '../../math/IMatrix';
 import {IVector3} from '../../math/IVector';
-import { IGroupEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
+import {IGroupEntity, ISkeletalEntity, ITransformEntity} from '../../helpers/EntityHelper';
+import {MixinBase} from '../../../types/TypeGenerators';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -624,6 +627,40 @@ export default class TransformComponent extends Component {
         sceneGraphComponent.setWorldMatrixDirty();
       }
     }
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): ITransformEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as ITransformEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class TransformEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+        console.log(components);
+      }
+
+      getTransform() {
+        const com = this.getComponentByComponentTID(
+          WellKnownComponentTIDs.TransformComponentTID
+        );
+        return com;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 

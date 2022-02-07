@@ -247,19 +247,6 @@ function createPostEffectCameraEntity() {
   return cameraEntity;
 }
 
-function generateEntity(
-  componentArray = [
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ] as Array<typeof Rn.Component>
-) {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity(componentArray);
-  return entity;
-}
-
 function createRenderPassSharingEntitiesAndCamera(originalRenderPass) {
   const renderPass = new Rn.RenderPass();
   renderPass.addEntities(originalRenderPass.entities);

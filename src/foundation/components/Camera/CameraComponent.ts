@@ -24,11 +24,13 @@ import GlobalDataRepository from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {MathUtil} from '../../math/MathUtil';
 import CameraControllerComponent from '../CameraController/CameraControllerComponent';
+import CameraComponent from '../Camera/CameraComponent';
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import RenderPass from '../../renderer/RenderPass';
 import {ICameraEntity} from '../../helpers/EntityHelper';
-import { IEntity } from '../../core/Entity';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class LightComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
@@ -700,5 +702,23 @@ export default class LightComponent extends Component {
       this.__entityUid
     ) as unknown as ICameraEntity;
   }
+
+  addThisComponentToEntity<
+    EntityBaseClass extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBaseClass, _componentClass: SomeComponentClass) {
+    return class CameraEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getCamera() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.CameraComponentTID
+        ) as CameraComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBaseClass;
+  }
 }
-ComponentRepository.registerComponentClass(LightComponent);
+ComponentRepository.registerComponentClass(CameraComponent);

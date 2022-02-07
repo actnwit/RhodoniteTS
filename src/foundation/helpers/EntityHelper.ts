@@ -1,118 +1,122 @@
 import EntityRepository from '../core/EntityRepository';
-import Component from '../core/Component';
-import Entity, {IEntity} from '../core/Entity';
-import {
-  addTransform,
-  ITransformEntityMethods,
-} from '../components/Transform/ITransfomEntity';
-import {
-  addSceneGraph,
-  ISceneGraphEntityMethods,
-} from '../components/SceneGraph/ISceneGraphEntity';
-import {addMesh, IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
-import {
-  addCamera,
-  ICameraEntityMethods,
-} from '../components/Camera/ICameraEntity';
-import {
-  addCameraController,
-  ICameraControllerEntityMethods,
-} from '../components/CameraController/ICameraControllerEntity';
+import {IEntity} from '../core/Entity';
+import {ITransformEntityMethods} from '../components/Transform/ITransfomEntity';
+import {ISceneGraphEntityMethods} from '../components/SceneGraph/ISceneGraphEntity';
+import {IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
+import {ICameraEntityMethods} from '../components/Camera/ICameraEntity';
+import {ICameraControllerEntityMethods} from '../components/CameraController/ICameraControllerEntity';
 import {IAnimationEntityMethods} from '../components/Animation/IAnimationEntity';
-import {addLight, ILightEntityMethods} from '../components/Light/ILightEntity';
-import {
-  addMeshRenderer,
-  IMeshRendererEntityMethods,
-} from '../components/MeshRenderer/IMeshRendererEntity';
-import {
-  addSkeletal,
-  ISkeletalEntityMethods,
-} from '../components/Skeletal/ISkeletalEntity';
-import {
-  addPhysics,
-  IPhysicsEntityMethods,
-} from '../components/Physics/IPhysicsEntity';
-import {ComponentMixinFunction} from '../../foundation/components/ComponentTypes';
+import {ILightEntityMethods} from '../components/Light/ILightEntity';
+import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
+import {ISkeletalEntityMethods} from '../components/Skeletal/ISkeletalEntity';
+import {IPhysicsEntityMethods} from '../components/Physics/IPhysicsEntity';
+import TransformComponent from '../components/Transform/TransformComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import MeshComponent from '../components/Mesh/MeshComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
+import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
+import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
+import PhysicsComponent from '../components/Physics/PhysicsComponent';
+import LightComponent from '../components/Light/LightComponent';
 
-function processMixin(mixins: ComponentMixinFunction[]) {
-  let resultComponents: typeof Component[] = [];
-  let resultEntity: any = Entity;
-  for (const mixin of mixins) {
-    const {entityClass, components} = mixin(resultEntity, resultComponents);
-    resultEntity = entityClass;
-    resultComponents = components;
-  }
-  const customEntity = EntityRepository.getInstance().createCustomEntity(
-    resultComponents,
-    resultEntity
-  );
-  return customEntity as IEntity;
-}
-export interface ITransformEntity extends IEntity, ITransformEntityMethods {}
-export interface IGroupEntity
-  extends ITransformEntity,
-    ISceneGraphEntityMethods {}
-export interface IMeshEntity
-  extends IGroupEntity,
-    IMeshEntityMethods,
-    IMeshRendererEntityMethods {}
-export interface ICameraEntity extends IGroupEntity, ICameraEntityMethods {}
-export interface ICameraControllerEntity
-  extends ICameraEntity,
-    ICameraControllerEntityMethods {}
-export interface ISkeletalEntity extends IGroupEntity, ISkeletalEntityMethods {}
-export interface ILightEntity extends IGroupEntity, ILightEntityMethods {}
-export interface IPhysicsEntity extends IGroupEntity, IPhysicsEntityMethods {}
+export type ITransformEntity = IEntity & ITransformEntityMethods;
+export type IGroupEntity = ITransformEntity & ISceneGraphEntityMethods;
+export type IMeshEntity = IGroupEntity &
+  IMeshEntityMethods &
+  IMeshRendererEntityMethods;
+export type ICameraEntity = IGroupEntity & ICameraEntityMethods;
+export type ICameraControllerEntity = ICameraEntity &
+  ICameraControllerEntityMethods;
+export type ISkeletalEntity = IGroupEntity & ISkeletalEntityMethods;
+export type ILightEntity = IGroupEntity & ILightEntityMethods;
+export type IPhysicsEntity = IGroupEntity & IPhysicsEntityMethods;
 export interface IAnimationEntity
   extends IGroupEntity,
     IAnimationEntityMethods {}
 
 function createTransformEntity(): ITransformEntity {
-  const mixins = [addTransform];
-  const customEntity = processMixin(mixins);
-  return customEntity as ITransformEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = entityRepository.createEntity();
+  const entity1 = entityRepository.addComponentToEntity(
+    TransformComponent,
+    entity
+  );
+  return entity1;
 }
 
 function createGroupEntity(): IGroupEntity {
-  const mixins = [addTransform, addSceneGraph];
-  const customEntity = processMixin(mixins);
-  return customEntity as IGroupEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = createTransformEntity();
+  const entityAddedComponent = entityRepository.addComponentToEntity(
+    SceneGraphComponent,
+    entity
+  );
+  return entityAddedComponent;
 }
 
 function createMeshEntity(): IMeshEntity {
-  const mixins = [addTransform, addSceneGraph, addMesh, addMeshRenderer];
-  const customEntity = processMixin(mixins);
-  return customEntity as IMeshEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = createGroupEntity();
+  const entityAddedComponent = entityRepository.addComponentToEntity(
+    MeshComponent,
+    entity
+  );
+  const entityAddedComponent2 = entityRepository.addComponentToEntity(
+    MeshRendererComponent,
+    entityAddedComponent
+  );
+  return entityAddedComponent2;
 }
 
 function createCameraEntity() {
-  const mixins = [addTransform, addSceneGraph, addCamera];
-  const customEntity = processMixin(mixins);
-  return customEntity as ICameraEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = createGroupEntity();
+  const entityAddedComponent = entityRepository.addComponentToEntity(
+    CameraComponent,
+    entity
+  );
+  return entityAddedComponent;
 }
 
 function createCameraControllerEntity(): ICameraControllerEntity {
-  const mixins = [addTransform, addSceneGraph, addCamera, addCameraController];
-  const customEntity = processMixin(mixins);
-  return customEntity as ICameraControllerEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = createCameraEntity();
+  const entityAddedComponent = entityRepository.addComponentToEntity(
+    CameraControllerComponent,
+    entity
+  );
+  return entityAddedComponent;
 }
 
 function createSkeletalEntity(): ISkeletalEntity {
-  const mixins = [addTransform, addSceneGraph, addSkeletal];
-  const customEntity = processMixin(mixins);
-  return customEntity as ISkeletalEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = createGroupEntity();
+  const entityAddedComponent = entityRepository.addComponentToEntity(
+    SkeletalComponent,
+    entity
+  );
+  return entityAddedComponent;
 }
 
 function createPhysicsEntity(): IPhysicsEntity {
-  const mixins = [addTransform, addSceneGraph, addPhysics];
-  const customEntity = processMixin(mixins);
-  return customEntity as IPhysicsEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = createGroupEntity();
+  const entityAddedComponent = entityRepository.addComponentToEntity(
+    PhysicsComponent,
+    entity
+  );
+  return entityAddedComponent;
 }
 
 function createLightEntity(): ILightEntity {
-  const mixins = [addTransform, addSceneGraph, addLight];
-  const customEntity = processMixin(mixins);
-  return customEntity as ILightEntity;
+  const entityRepository = EntityRepository.getInstance();
+  const entity = createGroupEntity();
+  const entityAddedComponent = entityRepository.addComponentToEntity(
+    LightComponent,
+    entity
+  );
+  return entityAddedComponent;
 }
 
 export default Object.freeze({

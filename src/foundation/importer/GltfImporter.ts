@@ -535,7 +535,7 @@ export default class GltfImporter {
         vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph()!);
         // const boneNodeIndex = boneGroup.bones[idxOfArray];
         // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
-        // entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
+        // entityRepository.addComponentToEntity(PhysicsComponent, entity.entityUID);
       }
       boneGroups.push(vrmSpringBoneGroup);
     }
@@ -583,10 +583,7 @@ export default class GltfImporter {
     sg: SceneGraphComponent
   ): void {
     const entity = sg.entity;
-    entityRepository.addComponentsToEntity(
-      [PhysicsComponent],
-      entity.entityUID
-    );
+    entityRepository.addComponentToEntity(PhysicsComponent, entity);
     VRMSpringBonePhysicsStrategy.initialize(sg);
     if (sg.children.length > 0) {
       for (const child of sg.children) {

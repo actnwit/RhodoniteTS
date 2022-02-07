@@ -4,6 +4,7 @@ import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
 import {valueWithCompensation} from '../misc/MiscUtil';
+import { ComponentType } from '../definitions/ComponentType';
 /**
  * The class that generates and manages entities.
  */
@@ -30,64 +31,100 @@ export default class EntityRepository {
   }
 
   /**
-   * Creates an entity which has the given types of the components
-   * @param componentClasses The class objects of the components.
+   * Creates an entity
    */
-  createEntity(componentClasses: Array<typeof Component>): IEntity {
+  createEntity(): IEntity {
     const entity = new Entity(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;
 
-    return this.addComponentsToEntity(componentClasses, entity.entityUID);
+    return entity;
   }
 
-  /**
-   * Creates an entity which has the given types of the components
-   * @param componentClasses The class objects of the components.
-   * @param entityClass a custom entity class
-   */
-  createCustomEntity<DerivedEntity extends typeof Entity>(
-    componentClasses: Array<typeof Component>,
-    entityClass: DerivedEntity
-  ): IEntity {
-    const entity = new entityClass(++this.__entity_uid_count, true);
-    this.__entities[this.__entity_uid_count] = entity;
+  // /**
+  //  * Creates an entity which has the given types of the components
+  //  * @param componentClasses The class objects of the components.
+  //  * @param entityClass a custom entity class
+  //  */
+  // createCustomEntity<DerivedEntity extends typeof Entity>(
+  //   componentClasses: Array<typeof Component>,
+  //   entityClass: DerivedEntity
+  // ): IEntity[] {
+  //   const entity = new entityClass(++this.__entity_uid_count, true);
+  //   this.__entities[this.__entity_uid_count] = entity;
 
-    return this.addComponentsToEntity(componentClasses, entity.entityUID);
-  }
+  //   return componentClasses.flatMap(componentClass =>
+  //     this.addComponentToEntity(componentClass, entity.entityUID)
+  //   );
+  // }
 
-  /**
-   * Add components to the entity.
-   * @param componentClasses The class objects to set to the entity.
-   * @param entityUid The entityUID of the entity.
-   */
-  addComponentsToEntity(
-    componentClasses: Array<typeof Component>,
-    entityUid: EntityUID
-  ): IEntity {
-    const entity: IEntity = this.getEntity(entityUid);
+  // /**
+  //  * Add components to the entity.
+  //  * @param componentClasses The class objects to set to the entity.
+  //  * @param entityUid The entityUID of the entity.
+  //  */
+  // addComponentsToEntity(
+  //   componentClasses: Array<typeof Component>,
+  //   entityUid: EntityUID
+  // ): IEntity {
+  //   const entity: IEntity = this.getEntity(entityUid);
 
-    for (const componentClass of componentClasses) {
-      const component = this.__componentRepository.createComponent(
-        componentClass.componentTID,
-        entityUid,
-        this
-      );
+  //   let latestEntity: IEntity;
+  //   for (let i = 0; i < componentClasses.length; i++) {
+  //     const componentClass = componentClasses[i];
+  //     const component = this.__componentRepository.createComponent(
+  //       componentClass.componentTID,
+  //       entityUid,
+  //       this
+  //     );
 
-      if (Is.exist(component)) {
-        const map = valueWithCompensation({
-          value: this._components[entity.entityUID],
-          compensation: () => {
-            const map = new Map();
-            this._components[entity.entityUID] = map;
-            return map;
-          },
-        });
-        map.set(componentClass.componentTID, component);
-        entity._setComponent(component);
-      }
-    }
+  //     if (Is.exist(component)) {
+  //       const map = valueWithCompensation({
+  //         value: this._components[entity.entityUID],
+  //         compensation: () => {
+  //           const map = new Map();
+  //           this._components[entity.entityUID] = map;
+  //           return map;
+  //         },
+  //       });
+  //       map.set(componentClass.componentTID, component);
+  //       entity._setComponent(component);
+  //     }
+  //     latestEntity = this.addComponentToEntity(componentClasses[i], entityUid);
+  //   }
 
-    return entity as IEntity;
+  //   return latestEntity;
+  // }
+
+  addComponentToEntity<
+    ComponentType extends typeof Component,
+    EntityType extends IEntity
+  >(componentClass: ComponentType, entity: EntityType) {
+    const component = this.__componentRepository.createComponent(
+      componentClass.componentTID,
+      entity.entityUID,
+      this
+    );
+
+    const map = valueWithCompensation({
+      value: this._components[entity.entityUID],
+      compensation: () => {
+        const map = new Map();
+        this._components[entity.entityUID] = map;
+        return map;
+      },
+    });
+    map.set(componentClass.componentTID, component);
+    const entityClass = component.addThisComponentToEntity(
+      entity,
+      componentClass
+    );
+    entity._setComponent(componentClass, component);
+    const entity2 = new (entityClass as unknown as typeof Entity)(
+      entity.entityUID,
+      true,
+      entity._getComponentsInner()
+    );
+    return entity2 as unknown as typeof entityClass;
   }
 
   /**

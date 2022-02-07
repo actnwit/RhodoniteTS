@@ -19,6 +19,8 @@ import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
 import {IVector3} from '../foundation/math/IVector';
 import type {Unzip} from 'zlib';
+import {IEntity} from '../foundation/core/Entity';
+import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
 
 export default class EffekseerComponent extends Component {
   public static Unzip?: Unzip;
@@ -328,5 +330,27 @@ export default class EffekseerComponent extends Component {
 
     this.moveStageTo(ProcessStage.Logic);
   }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class EffekseerEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getEffekseer() {
+        return this.getComponentByComponentTID(
+          EffekseerComponent.componentTID
+        ) as EffekseerComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);
+
+export interface IEffekseerEntityMethods {
+  getEffekseer(): EffekseerComponent;
+}

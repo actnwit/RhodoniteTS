@@ -160,10 +160,9 @@ declare const Rn: typeof _Rn;
   ]);
 
   // CameraControllerComponent
-  const mainCameraEntityUID = mainCameraComponent.entityUID;
-  entityRepository.addComponentsToEntity(
-    [Rn.CameraControllerComponent],
-    mainCameraEntityUID
+  entityRepository.addComponentToEntity(
+    Rn.CameraControllerComponent,
+    mainCameraComponent.entity
   );
 
   const mainCameraEntity = mainCameraComponent.entity;

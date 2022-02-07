@@ -12,6 +12,10 @@ import {
   CameraControllerTypeEnum,
   CameraControllerType,
 } from '../../definitions/CameraControllerType';
+import { MixinBase } from '../../../types/TypeGenerators';
+import { CameraComponent } from '../../..';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 export default class CameraControllerComponent extends Component {
   private __cameraComponent?: LightComponent;
@@ -66,6 +70,24 @@ export default class CameraControllerComponent extends Component {
     if (this.__cameraController) {
       this.__cameraController.logic(this.__cameraComponent!);
     }
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class CameraControllerEntity extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getCameraController() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.CameraControllerComponentTID
+        ) as CameraControllerComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(CameraControllerComponent);

@@ -19,7 +19,7 @@ import {
 import {CameraType} from '../definitions/CameraType';
 import Texture from '../textures/Texture';
 import Vector4 from '../math/Vector4';
-import PhysicsComponent from '../components/Animation/AnimationComponent';
+import AnimationComponent from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
@@ -75,7 +75,7 @@ import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
 import {AnimationPathName} from '../../types/AnimationTypes';
 import {TagGltf2NodeIndex} from '../../types/glTF2';
-import {
+import EntityHelper, {
   IAnimationEntity,
   ICameraEntity,
   IGroupEntity,
@@ -122,12 +122,13 @@ export default class ModelConverter {
     return defaultShader;
   }
 
-  private __generateEntity(
-    components: typeof Component[],
-    gltfModel: RnM2
-  ): IEntity {
-    const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity(components);
+  private __generateGroupEntity(gltfModel: RnM2): IGroupEntity {
+    const entity = EntityHelper.createGroupEntity();
+    this.addTags(entity, gltfModel);
+    return entity;
+  }
+
+  private addTags(entity: IGroupEntity, gltfModel: RnM2) {
     entity.tryToSetTag({
       tag: 'SourceType',
       value: gltfModel.asset.extras!.fileType!,
@@ -136,44 +137,23 @@ export default class ModelConverter {
       tag: 'SourceTypeVersion',
       value: gltfModel.asset.extras!.version!,
     });
-
-    return entity;
-  }
-
-  private __generateGroupEntity(gltfModel: RnM2): IGroupEntity {
-    const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent],
-      gltfModel
-    );
-    return entity as IGroupEntity;
   }
 
   private __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
-    const entity = this.__generateEntity(
-      [
-        TransformComponent,
-        SceneGraphComponent,
-        MeshComponent,
-        MeshRendererComponent,
-      ],
-      gltfModel
-    );
-    return entity as IMeshEntity;
-  }
-
-  private __generateCameraEntity(gltfModel: RnM2): IEntity {
-    const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent, BlendShapeComponent],
-      gltfModel
-    );
+    const entity = EntityHelper.createMeshEntity();
+    this.addTags(entity, gltfModel);
     return entity;
   }
 
-  private __generateLightEntity(gltfModel: RnM2): IEntity {
-    const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent, BlendShapeComponent],
-      gltfModel
-    );
+  private __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
+    const entity = EntityHelper.createCameraEntity();
+    this.addTags(entity, gltfModel);
+    return entity;
+  }
+
+  private __generateLightEntity(gltfModel: RnM2): ILightEntity {
+    const entity = EntityHelper.createLightEntity();
+    this.addTags(entity, gltfModel);
     return entity;
   }
 
@@ -352,9 +332,9 @@ export default class ModelConverter {
             if (Is.exist(rnEntity)) {
               let animationComponent = rnEntity.getAnimation();
               if (Is.not.exist(animationComponent)) {
-                entityRepository.addComponentsToEntity(
-                  [PhysicsComponent],
-                  rnEntity.entityUID
+                entityRepository.addComponentToEntity(
+                  AnimationComponent,
+                  rnEntity
                 );
                 animationComponent = rnEntity.getAnimation();
               }
@@ -395,10 +375,7 @@ export default class ModelConverter {
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
-        entityRepository.addComponentsToEntity(
-          [SkeletalComponent],
-          rnEntity.entityUID
-        );
+        entityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
         skeletalComponent = rnEntity.getComponent(
           SkeletalComponent
         ) as SkeletalComponent;
@@ -505,10 +482,7 @@ export default class ModelConverter {
           weights = node.meshObject.weights;
         }
         const entityRepository = EntityRepository.getInstance();
-        entityRepository.addComponentsToEntity(
-          [BlendShapeComponent],
-          entity.entityUID
-        );
+        entityRepository.addComponentToEntity(BlendShapeComponent, entity);
         const blendShapeComponent = entity.getComponent(
           BlendShapeComponent
         ) as BlendShapeComponent;

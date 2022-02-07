@@ -1,14 +1,14 @@
 import Component from './Component';
 import RnObject, {IRnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
-import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
-import {Is} from '../misc/Is';
+import { Is } from '../misc/Is';
 
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
   getComponent(componentType: typeof Component): Component | undefined;
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
-  _setComponent(component: Component): void;
+  _setComponent(componentType: typeof Component, com: Component): void;
+  _getComponentsInner(): Map<ComponentTID, Component>;
 }
 
 /**
@@ -19,7 +19,7 @@ export default class Entity extends RnObject implements IEntity {
   private readonly __entity_uid: number;
   static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;
-  private __components: Map<ComponentTID, Component> = new Map(); // index is ComponentTID
+  protected __components: Map<ComponentTID, Component>; // index is ComponentTID
 
   /**
    * The constructor of the Entity class.
@@ -29,10 +29,16 @@ export default class Entity extends RnObject implements IEntity {
    * @param isAlive Whether this entity alive or not
    * @param entityComponent The instance of EntityComponent (Dependency Injection)
    */
-  constructor(entityUID: EntityUID, isAlive: Boolean) {
+  constructor(
+    entityUID: EntityUID,
+    isAlive: Boolean,
+    components?: Map<ComponentTID, Component>
+  ) {
     super();
     this.__entity_uid = entityUID;
     this.__isAlive = isAlive;
+
+    this.__components = Is.exist(components) ? components : new Map();
   }
 
   /**
@@ -47,11 +53,8 @@ export default class Entity extends RnObject implements IEntity {
    * Sets a component to this entity.
    * @param component The component to set.
    */
-  _setComponent(component: Component): void {
-    this.__components.set(
-      (component.constructor as any).componentTID,
-      component
-    );
+  _setComponent(componentType: typeof Component, component: Component): void {
+    this.__components.set(componentType.componentTID, component);
   }
 
   /**
@@ -70,5 +73,9 @@ export default class Entity extends RnObject implements IEntity {
     componentTID: ComponentTID
   ): Component | undefined {
     return this.__components.get(componentTID);
+  }
+
+  _getComponentsInner() {
+    return this.__components;
   }
 }

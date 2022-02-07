@@ -19,7 +19,6 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import ModuleManager from '../../system/ModuleManager';
 import CubeTexture from '../../textures/CubeTexture';
-import Entity from '../../core/Entity';
 import RenderPass from '../../renderer/RenderPass';
 import {Visibility} from '../../definitions/visibility';
 import RnObject from '../../core/RnObject';
@@ -35,6 +34,9 @@ import {
 import AbstractMaterialNode from '../../materials/core/AbstractMaterialNode';
 import {IMatrix44} from '../../math/IMatrix';
 import { IMeshEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
+import { MixinBase } from '../../../types/TypeGenerators';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -496,6 +498,24 @@ export default class MeshRendererComponent extends Component {
     } else {
       MeshComponent.alertNoMeshSet(this.__meshComponent!);
     }
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    return class MeshRenderer extends (base.constructor as any) {
+      constructor(entityUID: EntityUID, isAlive: Boolean) {
+        super(entityUID, isAlive);
+      }
+
+      getMeshRenderer() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.MeshRendererComponentTID
+        ) as MeshRendererComponent;
+      }
+    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent);
