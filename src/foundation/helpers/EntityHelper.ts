@@ -19,7 +19,7 @@ import {
   ICameraControllerEntityMethods,
 } from '../components/CameraController/ICameraControllerEntity';
 import {IAnimationEntityMethods} from '../components/Animation/IAnimationEntity';
-import {ILightEntityMethods} from '../components/Light/ILightEntity';
+import {addLight, ILightEntityMethods} from '../components/Light/ILightEntity';
 import {
   addMeshRenderer,
   IMeshRendererEntityMethods,
@@ -57,8 +57,8 @@ export interface IMeshEntity
     IMeshEntityMethods,
     IMeshRendererEntityMethods {}
 export interface ICameraEntity extends IGroupEntity, ICameraEntityMethods {}
-export interface ICameraWithControllerEntity
-  extends ICameraEntityMethods,
+export interface ICameraControllerEntity
+  extends ICameraEntity,
     ICameraControllerEntityMethods {}
 export interface ISkeletalEntity extends IGroupEntity, ISkeletalEntityMethods {}
 export interface ILightEntity extends IGroupEntity, ILightEntityMethods {}
@@ -79,7 +79,7 @@ function createGroupEntity(): IGroupEntity {
   return customEntity as IGroupEntity;
 }
 
-function createMeshEntity() {
+function createMeshEntity(): IMeshEntity {
   const mixins = [addTransform, addSceneGraph, addMesh, addMeshRenderer];
   const customEntity = processMixin(mixins);
   return customEntity as IMeshEntity;
@@ -91,13 +91,13 @@ function createCameraEntity() {
   return customEntity as ICameraEntity;
 }
 
-function createCameraWithControllerEntity() {
+function createCameraControllerEntity(): ICameraControllerEntity {
   const mixins = [addTransform, addSceneGraph, addCamera, addCameraController];
   const customEntity = processMixin(mixins);
-  return customEntity as ICameraEntity;
+  return customEntity as ICameraControllerEntity;
 }
 
-function createSkeletalEntity() {
+function createSkeletalEntity(): ISkeletalEntity {
   const mixins = [addTransform, addSceneGraph, addSkeletal];
   const customEntity = processMixin(mixins);
   return customEntity as ISkeletalEntity;
@@ -109,12 +109,19 @@ function createPhysicsEntity(): IPhysicsEntity {
   return customEntity as IPhysicsEntity;
 }
 
+function createLightEntity(): ILightEntity {
+  const mixins = [addTransform, addSceneGraph, addLight];
+  const customEntity = processMixin(mixins);
+  return customEntity as ILightEntity;
+}
+
 export default Object.freeze({
   createTransformEntity,
   createGroupEntity,
   createMeshEntity,
   createCameraEntity,
-  createCameraWithControllerEntity,
+  createCameraControllerEntity,
   createSkeletalEntity,
+  createLightEntity,
   createPhysicsEntity,
 });

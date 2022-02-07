@@ -1,4 +1,5 @@
 import CameraComponent from '../../../dist/esm/foundation/components/Camera/CameraComponent';
+import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {Material} from '../../../dist/esm/index';
 
 let p: any;
@@ -116,12 +117,7 @@ declare const Rn: typeof _Rn;
   renderPassMain.addEntities(rootGroups);
 
   // Env Cube
-  const sphereEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ]);
+  const sphereEntity = Rn.EntityHelper.createMeshEntity();
   const spherePrimitive = new Rn.Sphere();
   window.sphereEntity = sphereEntity;
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
@@ -153,11 +149,7 @@ declare const Rn: typeof _Rn;
   renderPassMain.addEntities([sphereEntity]);
 
   // Lights
-  const lightEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.LightComponent,
-  ]);
+  const lightEntity = Rn.EntityHelper.createLightEntity();
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
@@ -175,7 +167,9 @@ declare const Rn: typeof _Rn;
   );
 
   const mainCameraEntity = mainCameraComponent.entity;
-  const cameraControllerComponent = mainCameraEntity.getCameraController();
+  const cameraControllerComponent = (
+    mainCameraEntity as ICameraControllerEntity
+  ).getCameraController();
   cameraControllerComponent.controller.setTarget(rootGroups[0]);
 
   Rn.CameraComponent.main = 0;
@@ -281,12 +275,7 @@ function arrayDifference(arrayWholeSet, arraySubset) {
 }
 
 function createCameraComponent() {
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
@@ -336,7 +325,7 @@ function createPostEffectRenderPass(
   const boardMesh = new Rn.Mesh();
   boardMesh.addPrimitive(boardPrimitive);
 
-  const boardEntity = generateEntity();
+  const boardEntity = Rn.EntityHelper.createMeshEntity();
   boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
     Math.PI / 2,
     0.0,
@@ -357,28 +346,11 @@ function createPostEffectRenderPass(
 }
 
 function createPostEffectCameraEntity() {
-  const cameraEntity = generateEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNearInner = 0.5;
   cameraComponent.zFarInner = 2.0;
   return cameraEntity;
-}
-
-function generateEntity(
-  componentArray = [
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ] as Array<typeof Rn.Component>
-) {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity(componentArray);
-  return entity;
 }
 
 function renderPassHelperSetCameraComponent(cameraComponent) {

@@ -19,12 +19,7 @@ document.body.appendChild(p);
   const expressions = [];
 
   // camera
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -86,11 +81,7 @@ document.body.appendChild(p);
   expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
   // lighting
-  const lightEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.LightComponent,
-  ]);
+  const lightEntity = Rn.EntityHelper.createLightEntity();
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
@@ -134,7 +125,7 @@ function createPostEffectRenderPass(
   const boardMesh = new Rn.Mesh();
   boardMesh.addPrimitive(boardPrimitive);
 
-  const boardEntity = generateEntity();
+  const boardEntity = Rn.EntityHelper.createMeshEntity();
   boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
     Math.PI / 2,
     0.0,
@@ -155,11 +146,7 @@ function createPostEffectRenderPass(
 }
 
 function createPostEffectCameraEntity() {
-  const cameraEntity = generateEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNearInner = 0.5;
   cameraComponent.zFarInner = 2.0;

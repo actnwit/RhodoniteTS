@@ -1,10 +1,9 @@
 import RnObject from '../core/RnObject';
-import Entity, {IEntity} from '../core/Entity';
+import {IEntity} from '../core/Entity';
 import FrameBuffer from './FrameBuffer';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
 import Vector4 from '../math/Vector4';
-import LightComponent from '../components/Camera/CameraComponent';
 import {EntityUID} from '../../types/CommonTypes';
 import Material from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
@@ -15,6 +14,7 @@ import {Primitive} from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
 import {IVector4} from '../math/IVector';
 import {IGroupEntity, IMeshEntity} from '../helpers/EntityHelper';
+import {CameraComponent} from '../..';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -34,7 +34,7 @@ export default class RenderPass extends RnObject {
   public clearColor = Vector4.fromCopyArray([1, 1, 1, 1]);
   public clearDepth = 1;
   public clearStencil = 0;
-  public cameraComponent?: LightComponent;
+  public cameraComponent?: CameraComponent;
   public cullFrontFaceCCW = true;
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();

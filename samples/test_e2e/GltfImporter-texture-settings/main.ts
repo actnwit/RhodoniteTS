@@ -26,13 +26,7 @@ document.body.appendChild(p);
   );
 
   // camera
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zFar = 1000.0;
   cameraComponent.setFovyAndChangeFocalLength(25.0);

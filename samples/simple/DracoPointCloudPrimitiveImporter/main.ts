@@ -1,3 +1,4 @@
+import { IMeshEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {Entity, Expression} from '../../../dist/esm/index';
 
 declare const Rn: typeof _Rn;
@@ -36,13 +37,7 @@ declare const Rn: typeof _Rn;
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const entityCamera = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
   const cameraControllerComponent = entityCamera.getCameraController();
   cameraControllerComponent.controller.setTarget(rootGroup);
 
@@ -61,7 +56,7 @@ declare const Rn: typeof _Rn;
 
   async function createEntityPointCloud(
     pointCloudDrcUri: string
-  ): Promise<Entity> {
+  ): Promise<IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
     const primitive = await importer.importPointCloudToPrimitive(
       pointCloudDrcUri
@@ -70,13 +65,7 @@ declare const Rn: typeof _Rn;
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
 
-    const entityRepository = Rn.EntityRepository.getInstance();
-    const entity = entityRepository.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ]);
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     meshComponent.setMesh(mesh);
 
@@ -117,7 +106,7 @@ declare const Rn: typeof _Rn;
   //   return entity;
   // }
 
-  function setPointSizeRecursively(entity: Entity, pointSize: number) {
+  function setPointSizeRecursively(entity: IMeshEntity, pointSize: number) {
     // set point size
     const meshComponent = entity.getMesh();
     if (meshComponent) {
@@ -134,7 +123,7 @@ declare const Rn: typeof _Rn;
     if (sceneGraphComponent) {
       const childSceneGraphComponents = sceneGraphComponent.children;
       for (const childSceneGraphComponent of childSceneGraphComponents) {
-        const childEntity = childSceneGraphComponent.entity;
+        const childEntity = childSceneGraphComponent.entity as IMeshEntity;
         setPointSizeRecursively(childEntity, pointSize);
       }
     }

@@ -1,3 +1,4 @@
+import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 
@@ -25,12 +26,7 @@ declare const Rn: typeof _Rn;
     texture
   );
 
-  const planeEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ]);
+  const planeEntity = Rn.EntityHelper.createMeshEntity();
   const planePrimitive = new Rn.Plane();
   planePrimitive.generate({
     width: 2,
@@ -52,12 +48,7 @@ declare const Rn: typeof _Rn;
   ]);
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
@@ -70,7 +61,9 @@ declare const Rn: typeof _Rn;
   ]);
 
   // CameraComponent
-  const cameraControllerComponent = cameraEntity.getCameraController();
+  const cameraControllerComponent = (
+    cameraEntity as ICameraControllerEntity
+  ).getCameraController();
   const controller =
     cameraControllerComponent.controller as OrbitCameraController;
   controller.setTarget(planeEntity);

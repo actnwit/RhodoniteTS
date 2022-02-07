@@ -25,13 +25,7 @@ document.body.appendChild(p);
   expressions.push(envExpression);
 
   // camera
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -105,13 +99,7 @@ function createEnvCubeExpression(baseuri) {
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
 
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const sphereEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ]);
+  const sphereEntity = Rn.EntityHelper.createMeshEntity();
   sphereEntity.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
   sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
     0, 20, -20,

@@ -1,4 +1,4 @@
-import Entity from '../../../dist/esm/foundation/core/Entity';
+import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
   Expression,
@@ -10,8 +10,8 @@ declare const Rn: typeof _Rn;
 
 declare global {
   interface Window {
-    entityBoard: Entity;
-    entitySphere: Entity;
+    entityBoard: IMeshEntity;
+    entitySphere: IMeshEntity;
     material: Material;
     setRoughness: Function;
     setDebugView: Function;
@@ -62,11 +62,7 @@ declare global {
   }
 
   function createEntityMainCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.type = Rn.CameraType.Orthographic;
@@ -106,19 +102,6 @@ declare global {
     return renderPass;
   }
 
-  function generateEntity(
-    componentArray = [
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ] as Array<typeof Rn.Component>
-  ) {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity(componentArray);
-    return entity;
-  }
-
   function createEntityBoard(material: Material) {
     const primitive = new Rn.Plane();
     primitive.generate({
@@ -130,7 +113,7 @@ declare global {
       material,
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
@@ -147,7 +130,7 @@ declare global {
       material,
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);

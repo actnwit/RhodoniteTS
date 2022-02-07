@@ -82,13 +82,7 @@ let p: any;
 })();
 
 function createBoardEntityWithDepthEncodeMaterial() {
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const entity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ]);
+  const entity = Rn.EntityHelper.createMeshEntity();
 
   const primitive = new Rn.Plane();
   primitive.generate({
@@ -108,12 +102,7 @@ function createBoardEntityWithDepthEncodeMaterial() {
 }
 
 function createCameraComponent() {
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   // For debug
   // const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
   const cameraComponent = cameraEntity.getCamera();

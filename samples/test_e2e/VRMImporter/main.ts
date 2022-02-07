@@ -16,16 +16,10 @@ declare const Rn: typeof _Rn;
     document.getElementById('world') as HTMLCanvasElement
   );
 
-  const entityRepository = Rn.EntityRepository.getInstance();
   const importer = Rn.VRMImporter.getInstance();
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
@@ -40,11 +34,7 @@ declare const Rn: typeof _Rn;
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   // lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
   // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-  const lightEntity2 = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.LightComponent,
-  ]);
+  const lightEntity2 = Rn.EntityHelper.createLightEntity();
   const lightComponent2 = lightEntity2.getLight();
   lightComponent2.type = Rn.LightType.Directional;
   lightComponent2.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);

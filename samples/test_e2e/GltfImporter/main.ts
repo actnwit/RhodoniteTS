@@ -1,3 +1,4 @@
+import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 
@@ -27,19 +28,13 @@ declare const Rn: typeof _Rn;
     document.getElementById('world') as HTMLCanvasElement
   );
 
-  const entityRepository = Rn.EntityRepository.getInstance();
   const gltfImporter = Rn.GltfImporter.getInstance();
 
   // params
   const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0]);
 
   // camera
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -81,7 +76,8 @@ declare const Rn: typeof _Rn;
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
   const vrmMainCameraControllerComponent =
-    vrmMainCameraEntity.getCameraController();
+    (vrmMainCameraEntity as ICameraControllerEntity
+  ).getCameraController();
   const controller =
     vrmMainCameraControllerComponent.controller as OrbitCameraController;
   controller.dolly = 0.8;
@@ -90,11 +86,7 @@ declare const Rn: typeof _Rn;
   );
 
   // Lights
-  const lightEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.LightComponent,
-  ]);
+  const lightEntity = Rn.EntityHelper.createLightEntity();
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);

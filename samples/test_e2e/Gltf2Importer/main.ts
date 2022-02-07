@@ -19,15 +19,8 @@ declare const Rn: typeof _Rn;
       document.getElementById('world') as HTMLCanvasElement
     );
 
-    const entityRepository = Rn.EntityRepository.getInstance();
-
     // Camera
-    const cameraEntity = entityRepository.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-      Rn.CameraControllerComponent,
-    ]);
+    const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
     const cameraComponent = cameraEntity.getCamera();
     //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
     cameraComponent.zNear = 0.1;
@@ -39,11 +32,7 @@ declare const Rn: typeof _Rn;
     ]);
 
     // Lights
-    const lightEntity = entityRepository.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.LightComponent,
-    ]);
+    const lightEntity = Rn.EntityHelper.createLightEntity();
     lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
       1.0, 1.0, 100000.0,
     ]);

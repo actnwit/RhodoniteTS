@@ -15,11 +15,7 @@ declare const Rn: typeof _Rn;
 
   // camera
   const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -40,11 +36,7 @@ declare const Rn: typeof _Rn;
   );
 
   // Lights
-  const lightEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.LightComponent,
-  ]);
+  const lightEntity = Rn.EntityHelper.createLightEntity();
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.4, 0.9, 0.7]);
   lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
     4.0, 0.0, 5.0,

@@ -1,6 +1,11 @@
+import {
+  ICameraControllerEntity,
+  ICameraEntity,
+  IGroupEntity,
+  IMeshEntity,
+} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
-  Entity,
   Expression,
   MutableVector3,
   RenderPass,
@@ -72,7 +77,8 @@ declare const Rn: typeof _Rn;
     createEntityDepthCamera(directionLight).getCamera();
   const cameraComponentMain = createEntityMainCamera().getCamera();
   const cameraControllerComponent =
-    cameraComponentMain.entity.getCameraController();
+    (cameraComponentMain.entity as ICameraControllerEntity
+  ).getCameraController();
   const controller = cameraControllerComponent.controller;
   controller.setTarget(entityLargeBoard);
   controller.unregisterEventListeners();
@@ -108,12 +114,7 @@ declare const Rn: typeof _Rn;
   // ---functions-----------------------------------------------------------------------------------------
 
   function createEntityDepthCamera(directionLight: MutableVector3) {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
     const transformCamera = entityCamera.getTransform();
     transformCamera.translate = lightPosition;
 
@@ -127,31 +128,13 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityMainCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-      Rn.CameraControllerComponent,
-    ]);
+    const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     return entityCamera;
-  }
-
-  function generateEntity(
-    componentArray = [
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ] as Array<typeof Rn.Component>
-  ) {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity(componentArray);
-    return entity;
   }
 
   function createRenderPassDepth(
     cameraComponentDepth: CameraComponent,
-    entitiesRenderTarget: Entity[]
+    entitiesRenderTarget: IGroupEntity[]
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -166,8 +149,8 @@ declare const Rn: typeof _Rn;
   function createRenderPassMain(
     cameraComponent: CameraComponent,
     renderPassDepth: RenderPass,
-    entitySmallBoard: Entity,
-    entityLargeBoard: Entity
+    entitySmallBoard: IMeshEntity,
+    entityLargeBoard: IMeshEntity
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -222,7 +205,7 @@ declare const Rn: typeof _Rn;
       material: Rn.MaterialHelper.createEmptyMaterial(),
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
@@ -232,7 +215,7 @@ declare const Rn: typeof _Rn;
   }
 
   function setTransformParameterToEntity(
-    entity: Entity,
+    entity: IGroupEntity,
     scale: Vector3,
     translate: Vector3,
     rotate: Vector3
@@ -245,7 +228,7 @@ declare const Rn: typeof _Rn;
 
   function draw(
     expressions: Expression[],
-    entityDepthCamera: Entity,
+    entityDepthCamera: ICameraEntity,
     directionLight: MutableVector3
   ) {
     const inputElem = document.getElementById('light_pos') as HTMLInputElement;

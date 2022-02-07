@@ -1,7 +1,7 @@
+import {IGroupEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
   ComponentTypeEnum,
-  Entity,
   Expression,
   PixelFormatEnum,
   RenderPass,
@@ -86,12 +86,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityDepthCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
     const transformCamera = entityCamera.getTransform();
     transformCamera.translate = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
@@ -103,11 +98,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityPostEffectCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.zNearInner = 0.5;
@@ -118,7 +109,7 @@ declare const Rn: typeof _Rn;
 
   function createRenderPassDepthEncode(
     cameraComponent: CameraComponent,
-    entitiesTarget: Entity[]
+    entitiesTarget: IGroupEntity[]
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -130,19 +121,6 @@ declare const Rn: typeof _Rn;
     return renderPass;
   }
 
-  function generateEntity(
-    componentArray = [
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ] as Array<typeof Rn.Component>
-  ) {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity(componentArray);
-    return entity;
-  }
-
   function createEntitySphereWithEmptyMaterial() {
     const primitive = new Rn.Sphere();
     primitive.generate({
@@ -152,7 +130,7 @@ declare const Rn: typeof _Rn;
       material: Rn.MaterialHelper.createEmptyMaterial(),
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
@@ -177,7 +155,7 @@ declare const Rn: typeof _Rn;
       material: Rn.MaterialHelper.createEmptyMaterial(),
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
@@ -268,7 +246,7 @@ declare const Rn: typeof _Rn;
     const boardMesh = new Rn.Mesh();
     boardMesh.addPrimitive(boardPrimitive);
 
-    const boardEntity = generateEntity();
+    const boardEntity = Rn.EntityHelper.createMeshEntity();
     boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
       Math.PI / 2,
       0.0,

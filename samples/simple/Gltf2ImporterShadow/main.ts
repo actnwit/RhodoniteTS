@@ -88,11 +88,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityDepthCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
 
     const transformCamera = entityCamera.getTransform();
     transformCamera.translate = lightPosition;
@@ -111,13 +107,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityMainCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-      Rn.CameraControllerComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     return entityCamera;
   }
 
@@ -161,7 +151,7 @@ declare const Rn: typeof _Rn;
     const meshSphere = new Rn.Mesh();
     meshSphere.addPrimitive(primitiveSphere);
 
-    const entitySphere = generateEntity();
+    const entitySphere = Rn.EntityHelper.createMeshEntity();
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
@@ -199,7 +189,7 @@ declare const Rn: typeof _Rn;
       material,
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
@@ -209,19 +199,6 @@ declare const Rn: typeof _Rn;
     transform.scale = groundSize;
     transform.translate = groundPosition;
 
-    return entity;
-  }
-
-  function generateEntity(
-    componentArray = [
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ] as Array<typeof Rn.Component>
-  ) {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity(componentArray);
     return entity;
   }
 

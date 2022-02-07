@@ -1,4 +1,3 @@
-import Entity from '../core/Entity';
 import {RnM2} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';
 import EntityRepository from '../core/EntityRepository';
@@ -7,12 +6,13 @@ import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {Index} from '../../types/CommonTypes';
 import {VRM} from '../../types/VRM';
 import {Is} from '../misc/Is';
+import {IGroupEntity} from '../helpers/EntityHelper';
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
 
   assignAnimation(
-    rootEntity: Entity,
+    rootEntity: IGroupEntity,
     gltfModel: RnM2,
     vrmModel: VRM,
     isSameSkeleton = false
@@ -41,7 +41,7 @@ export default class AnimationAssigner {
   }
 
   private __getCorrespondingEntity(
-    rootEntity: Entity,
+    rootEntity: IGroupEntity,
     gltfModel: RnM2,
     vrmModel: VRM,
     nodeIndex: Index,
@@ -51,7 +51,7 @@ export default class AnimationAssigner {
     if (isSameSkeleton) {
       const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<
         string,
-        Entity
+        IGroupEntity
       >;
       const node = gltfModel.nodes[nodeIndex];
       const rnEntity = rnEntities.get(node.name!);
@@ -76,7 +76,9 @@ export default class AnimationAssigner {
       )! as Map<string, number>;
       const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
       if (dstBoneNodeId != null) {
-        const rnEntities = rootEntity.getTagValue('rnEntities')! as Entity[];
+        const rnEntities = rootEntity.getTagValue(
+          'rnEntities'
+        )! as IGroupEntity[];
         return rnEntities[dstBoneNodeId];
       } else {
         return void 0;
@@ -84,7 +86,7 @@ export default class AnimationAssigner {
     }
   }
 
-  private __isHips(rootEntity: Entity, vrmModel: VRM, nodeIndex: Index) {
+  private __isHips(rootEntity: IGroupEntity, vrmModel: VRM, nodeIndex: Index) {
     const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
     const srcMapNodeIdName: Map<number, string> = new Map();
     for (const bone of humanBones) {
@@ -102,7 +104,7 @@ export default class AnimationAssigner {
   }
 
   private __setupAnimationForSameSkeleton(
-    rootEntity: Entity,
+    rootEntity: IGroupEntity,
     gltfModel: RnM2,
     vrmModel: VRM,
     isSameSkeleton: boolean

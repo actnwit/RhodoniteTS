@@ -187,7 +187,7 @@ declare const Rn: typeof _Rn;
     const meshSphere = new Rn.Mesh();
     meshSphere.addPrimitive(primitiveSphere);
 
-    const entitySphere = generateEntity();
+    const entitySphere = Rn.EntityHelper.createMeshEntity();
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
@@ -200,13 +200,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityMainCamera(entityCameraTarget: IGroupEntity) {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-      Rn.CameraControllerComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     const cameraControllerComponent = entityCamera.getCameraController();
     const controller = cameraControllerComponent.controller;
     controller.setTarget(entityCameraTarget);
@@ -215,30 +209,12 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityPostEffectCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.zNearInner = 0.5;
     cameraComponent.zFarInner = 2.0;
 
     return entityCamera as ICameraEntity;
-  }
-
-  function generateEntity(
-    componentArray = [
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ] as Array<typeof Rn.Component>
-  ) {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity(componentArray);
-    return entity;
   }
 
   async function createRenderPassHDR(
@@ -269,7 +245,7 @@ declare const Rn: typeof _Rn;
     const boardMesh = new Rn.Mesh();
     boardMesh.addPrimitive(boardPrimitive);
 
-    const boardEntity = generateEntity();
+    const boardEntity = Rn.EntityHelper.createMeshEntity();
     boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
       Math.PI / 2,
       0.0,

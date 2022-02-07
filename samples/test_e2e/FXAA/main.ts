@@ -89,12 +89,7 @@ let renderPassMain: RenderPass;
 
 async function setupRenderPassMain(entityRepository: EntityRepository) {
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-  const planeEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ]);
+  const planeEntity = Rn.EntityHelper.createMeshEntity();
   const planePrimitive = new Rn.Plane();
   planePrimitive.generate({
     width: 2,
@@ -114,12 +109,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
     0,
     Math.PI / 3,
   ]);
-  const sphereEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ]);
+  const sphereEntity = Rn.EntityHelper.createMeshEntity();
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   spherePrimitive.generate({
@@ -149,12 +139,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
   // Camera
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
@@ -183,12 +168,7 @@ function setupRenderPassFxaa(
   height: number
 ) {
   const renderPassFxaa = new Rn.RenderPass();
-  const entityFxaa = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-    Rn.MeshRendererComponent,
-  ]);
+  const entityFxaa = Rn.EntityHelper.createMeshEntity();
   const primitiveFxaa = new Rn.Plane();
   primitiveFxaa.generate({
     width: 2,
@@ -217,11 +197,7 @@ function setupRenderPassFxaa(
     0,
   ]);
   renderPassFxaa.addEntities([entityFxaa]);
-  const cameraEntityFxaa = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntityFxaa = Rn.EntityHelper.createCameraEntity();
   const cameraComponentFxaa = cameraEntityFxaa.getCamera() as CameraComponent;
   cameraEntityFxaa.getTransform().translate = Rn.Vector3.fromCopyArray([
     0.0, 0.0, 1.0,

@@ -1,7 +1,7 @@
 import Rn from '../../../dist/esm';
 
 function generateEntity() {
-  return Rn.EntityHelper.createGroupEntity();
+  return Rn.EntityHelper.createMeshEntity();
 }
 
 test('addEntities and get entities', () => {
@@ -26,7 +26,7 @@ test('addEntities and get entities', () => {
 
   // console.log(JSON.stringify(entitieUids));
 
-  expect(JSON.stringify(entitieUids) == JSON.stringify([0, 2, 3, 1])).toBe(
+  expect(JSON.stringify(entitieUids) === JSON.stringify([0, 2, 3, 1])).toBe(
     true
   );
 });

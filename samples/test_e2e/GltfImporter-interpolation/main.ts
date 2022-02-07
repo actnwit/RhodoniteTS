@@ -15,12 +15,7 @@ document.body.appendChild(p);
   );
 
   // camera
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -40,11 +35,7 @@ document.body.appendChild(p);
   );
 
   // Lights
-  const lightEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.LightComponent,
-  ]);
+  const lightEntity = Rn.EntityHelper.createLightEntity();
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.9, 0.9, 0.9]);
   lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
     0.0, 10.0, 10.0,
