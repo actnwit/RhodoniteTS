@@ -99,12 +99,14 @@ export default class EntityRepository {
     ComponentType extends typeof Component,
     EntityType extends IEntity
   >(componentClass: ComponentType, entity: EntityType) {
+    // Create Component
     const component = this.__componentRepository.createComponent(
       componentClass.componentTID,
       entity.entityUID,
       this
     );
 
+    // this._components[entityUID] = map<componentTID, component> <-- component
     const map = valueWithCompensation({
       value: this._components[entity.entityUID],
       compensation: () => {
@@ -114,17 +116,21 @@ export default class EntityRepository {
       },
     });
     map.set(componentClass.componentTID, component);
+
+    // add this component to the entity
     const entityClass = component.addThisComponentToEntity(
       entity,
       componentClass
     );
     entity._setComponent(componentClass, component);
-    const entity2 = new (entityClass as unknown as typeof Entity)(
+
+    // create the new Entity using existed entity
+    const newEntity = new (entityClass as unknown as typeof Entity)(
       entity.entityUID,
       true,
       entity._getComponentsInner()
     );
-    return entity2 as unknown as typeof entityClass;
+    return newEntity as unknown as typeof entityClass;
   }
 
   /**
