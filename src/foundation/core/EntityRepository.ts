@@ -2,9 +2,8 @@ import Entity, {IEntity} from './Entity';
 import Component from './Component';
 import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
-import {Is} from '../misc/Is';
 import {valueWithCompensation} from '../misc/MiscUtil';
-import { ComponentType } from '../definitions/ComponentType';
+
 /**
  * The class that generates and manages entities.
  */
@@ -130,6 +129,7 @@ export default class EntityRepository {
       true,
       entity._getComponentsInner()
     );
+    this.__entities[this.__entity_uid_count] = newEntity;
     return newEntity as unknown as typeof entityClass;
   }
 

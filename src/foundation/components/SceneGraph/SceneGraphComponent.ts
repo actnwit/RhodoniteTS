@@ -562,7 +562,6 @@ export default class SceneGraphComponent extends Component {
       }
 
       getSceneGraph() {
-        // console.log(this);
         return this.getComponentByComponentTID(
           WellKnownComponentTIDs.SceneGraphComponentTID
         );

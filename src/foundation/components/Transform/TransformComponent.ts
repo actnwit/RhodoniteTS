@@ -650,7 +650,6 @@ export default class TransformComponent extends Component {
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);
-        console.log(components);
       }
 
       getTransform() {
