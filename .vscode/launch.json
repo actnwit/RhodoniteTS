@@ -5,6 +5,42 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest All",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--config",
+        "config/test/jest.config.js"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+      },
+      "runtimeExecutable": "/Users/emadurandal/.nodenv/shims/node"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Current File",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "${fileBasenameNoExtension}",
+        "--config",
+        "config/test/jest.config.js"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+      },
+      "runtimeExecutable": "/Users/emadurandal/.nodenv/shims/node"
+    },
+    {
       // You need the "Debugger for Chrome" VSCode Extension
       "name": "Launch Chrome to debug Rhodonite samples",
       "request": "launch",
@@ -20,6 +56,6 @@
       "runtimeArgs": [
         "--remote-debugging-port=9222"
       ],
-    }
+    },
   ]
 }
