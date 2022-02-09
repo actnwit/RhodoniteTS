@@ -465,7 +465,7 @@ export default class SceneGraphComponent extends Component {
     );
     const meshComponents: MeshComponent[] = [];
     for (const sg of collectedSgComponents) {
-      const mesh = (sg.entity as IMeshEntity).getMesh();
+      const mesh = sg.entity.tryToGetMesh();
       if (mesh) {
         meshComponents.push(mesh);
       }
@@ -475,7 +475,7 @@ export default class SceneGraphComponent extends Component {
     let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
-      if (!meshComponent.entity.getSceneGraph()!.isVisible) {
+      if (!meshComponent.entity.getSceneGraph().isVisible) {
         continue;
       }
       if (!meshComponent.isPickable) {

@@ -76,8 +76,7 @@ declare const Rn: typeof _Rn;
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
   const vrmMainCameraControllerComponent =
-    (vrmMainCameraEntity as ICameraControllerEntity
-  ).getCameraController();
+    vrmMainCameraEntity.tryToGetCameraController();
   const controller =
     vrmMainCameraControllerComponent.controller as OrbitCameraController;
   controller.dolly = 0.8;

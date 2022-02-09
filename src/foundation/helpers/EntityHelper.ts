@@ -69,7 +69,7 @@ function createMeshEntity(): IMeshEntity {
   return entityAddedComponent2;
 }
 
-function createCameraEntity() {
+function createCameraEntity(): ICameraEntity {
   const entityRepository = EntityRepository.getInstance();
   const entity = createGroupEntity();
   const entityAddedComponent = entityRepository.addComponentToEntity(
