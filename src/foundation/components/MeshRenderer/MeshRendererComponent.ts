@@ -36,6 +36,7 @@ import {IMatrix44} from '../../math/IMatrix';
 import { IMeshEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
+import { Is } from '../../misc/Is';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -157,7 +158,7 @@ export default class MeshRendererComponent extends Component {
     for (const name of names) {
       const entity = RnObject.getRnObjectByName(name) as unknown as IMeshEntity;
       if (entity) {
-        const meshComponent = entity.getMesh();
+        const meshComponent = entity.tryToGetMesh();
         if (meshComponent) {
           const mesh = meshComponent.mesh;
           if (mesh) {
@@ -285,8 +286,8 @@ export default class MeshRendererComponent extends Component {
       cameraComponent.updateFrustum();
 
       const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
-        const skeletalComponent = (sg.entity as ISkeletalEntity).getSkeletal();
-        if (skeletalComponent != null) {
+        const skeletalComponent = sg.entity.tryToGetSkeletal();
+        if (Is.exist(skeletalComponent)) {
           return true;
         } else {
           const children = sg.children;
@@ -304,7 +305,7 @@ export default class MeshRendererComponent extends Component {
       ) => {
         const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
         for (const sg of sgs) {
-          const mesh = (sg.entity as IMeshEntity).getMesh();
+          const mesh = sg.entity.tryToGetMesh();
           if (mesh) {
             meshComponents!.push(mesh);
           }
@@ -322,9 +323,9 @@ export default class MeshRendererComponent extends Component {
           whetherContainsSkeletal(sg)
         ) {
           const children = sg.children;
-          const mesh = (sg.entity as IMeshEntity).getMesh();
+          const mesh = sg.entity.tryToGetMesh();
           if (mesh) {
-            meshComponents!.push(mesh);
+            meshComponents.push(mesh);
           }
           for (const child of children) {
             frustumCullingRecursively(child, meshComponents);

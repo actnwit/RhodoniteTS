@@ -646,7 +646,7 @@ export default class OrbitCameraController
         .multiply(lengthCenterToCamera)
         .add(newCenterVec);
 
-      const sg = camera.entity.getSceneGraph();
+      const sg = camera.entity.tryToGetSceneGraph();
       if (sg != null) {
         const invMat = Matrix44.invertTo(
           sg.worldMatrixInner,

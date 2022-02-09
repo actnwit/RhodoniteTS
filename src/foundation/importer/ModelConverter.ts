@@ -332,11 +332,11 @@ export default class ModelConverter {
             if (Is.exist(rnEntity)) {
               let animationComponent = rnEntity.tryToGetAnimation();
               if (Is.not.exist(animationComponent)) {
-                entityRepository.addComponentToEntity(
+                const newRnEntity = entityRepository.addComponentToEntity(
                   AnimationComponent,
                   rnEntity
                 );
-                animationComponent = rnEntity.getAnimation();
+                animationComponent = newRnEntity.getAnimation();
               }
               if (Is.exist(animationComponent)) {
                 const outputComponentN =

@@ -308,15 +308,17 @@ export default class Gltf2Exporter {
       ];
 
       // mesh
-      const meshComponent = (entity as IMeshEntity).getMesh();
+      const meshComponent = entity.tryToGetMesh();
       if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
         node.mesh = meshCount++;
       }
 
       // skin
-      const skinComponent = (entity as ISkeletalEntity).getSkeletal();
+      const skinComponent = entity.tryToGetSkeletal();
       if (Is.exist(skinComponent)) {
-        const entityIdx = json.extras.rnSkins.indexOf(skinComponent.entity);
+        const entityIdx = json.extras.rnSkins.indexOf(
+          skinComponent.entity as any
+        );
         if (entityIdx >= 0) {
           node.skin = entityIdx;
         }
@@ -347,11 +349,11 @@ export default class Gltf2Exporter {
   ) {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
-      const skeletalComponent = entity.getSkeletal();
+      const skeletalComponent = entity.tryToGetSkeletal();
       if (Is.not.exist(skeletalComponent)) {
         continue;
       }
-      json.extras.rnSkins.push(skeletalComponent.entity);
+      json.extras.rnSkins.push(skeletalComponent.entity as any);
       const jointSceneComponentsOfTheEntity = skeletalComponent.getJoints();
       const jointIndicesOfTheEntity: Index[] = [];
       for (const jointSceneComponent of jointSceneComponentsOfTheEntity) {
@@ -711,7 +713,7 @@ function createBufferViewsAndAccessorsOfMesh(
 ): void {
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i];
-    const meshComponent = entity.getMesh();
+    const meshComponent = entity.tryToGetMesh();
     if (Is.exist(meshComponent) && meshComponent.mesh) {
       const mesh: Gltf2Mesh = {primitives: []};
       const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
@@ -961,7 +963,7 @@ function createBufferViewsAndAccessorsOfAnimation(
   );
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i];
-    const animationComponent = entity.getAnimation();
+    const animationComponent = entity.tryToGetAnimation();
     if (Is.exist(animationComponent)) {
       const trackNames = animationComponent.getAnimationTrackNames();
       for (const trackName of trackNames) {

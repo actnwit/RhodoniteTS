@@ -105,7 +105,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     );
 
     for (const sg of sceneGraphs) {
-      const physicsComponent = (sg.entity as IPhysicsEntity).getPhysics();
+      const physicsComponent = sg.entity.tryToGetPhysics();
       if (physicsComponent) {
         const strategy =
           physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
