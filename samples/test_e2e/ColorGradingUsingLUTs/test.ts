@@ -1,3 +1,6 @@
+import {Browser} from 'puppeteer';
+declare const browser: Browser;
+
 test('regression test ColorGradingUsingLUTs', async () => {
   jest.setTimeout(450000);
   const page = await browser.newPage();
@@ -7,7 +10,12 @@ test('regression test ColorGradingUsingLUTs', async () => {
   );
   await page.setViewport({width: 1000, height: 1000});
   await page.waitForSelector('p#rendered', {timeout: 450000});
-  const canvasElement = await page.$('#world');
+  const canvasElement = await page.$('#world')!;
+  if (canvasElement == null) {
+    expect(canvasElement).toBeDefined();
+    await page.close();
+    return;
+  }
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot();
   await page.goto('about:blank');
