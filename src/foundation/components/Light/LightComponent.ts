@@ -17,7 +17,6 @@ import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import MutableVector4 from '../../math/MutableVector4';
 import VectorN from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
-import { MixinBase } from '../../../types/TypeGenerators';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 
@@ -153,8 +152,12 @@ export default class LightComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
     return class LightEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: Boolean) {
-        super(entityUID, isAlive);
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
       }
 
       getLight() {

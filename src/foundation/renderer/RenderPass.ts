@@ -15,12 +15,13 @@ import MutableVector4 from '../math/MutableVector4';
 import {IVector4} from '../math/IVector';
 import {IGroupEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {CameraComponent} from '../..';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
  */
 export default class RenderPass extends RnObject {
-  private __entities: IMeshEntity[] = [];
+  private __entities: (IMeshEntity | IGroupEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
   private __meshComponents?: MeshComponent[];
@@ -67,7 +68,7 @@ export default class RenderPass extends RnObject {
    * Add entities to draw.
    * @param entities An array of entities.
    */
-  addEntities(entities: IGroupEntity[]) {
+  addEntities(entities: (IMeshEntity | IGroupEntity)[]) {
     for (const entity of entities) {
       const sceneGraphComponent = entity.getSceneGraph()!;
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
@@ -75,19 +76,25 @@ export default class RenderPass extends RnObject {
         sceneGraphComponent,
         false
       );
-      const collectedEntities: IMeshEntity[] = collectedSgComponents.map(
+      const collectedEntities = collectedSgComponents.map(
         (sg: SceneGraphComponent) => {
-          return sg.entity as IMeshEntity;
+          return sg.entity;
         }
       );
 
       // Eliminate duplicates
-      const map: Map<EntityUID, IMeshEntity> = this.__entities
+      const map: Map<EntityUID, IMeshEntity | IGroupEntity> = this.__entities
         .concat(collectedEntities)
-        .reduce((map: Map<EntityUID, IMeshEntity>, entity: IMeshEntity) => {
-          map.set(entity.entityUID, entity);
-          return map;
-        }, new Map());
+        .reduce(
+          (
+            map: Map<EntityUID, IMeshEntity | IGroupEntity>,
+            entity: IMeshEntity | IGroupEntity
+          ) => {
+            map.set(entity.entityUID, entity);
+            return map;
+          },
+          new Map()
+        );
 
       this.__entities = Array.from(map.values());
     }
@@ -137,7 +144,9 @@ export default class RenderPass extends RnObject {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];
       this.__entities.filter(entity => {
-        const meshComponent = entity.getMesh();
+        const meshComponent = entity.getComponentByComponentTID(
+          WellKnownComponentTIDs.MeshComponentTID
+        ) as MeshComponent | undefined;
         if (meshComponent) {
           this.__meshComponents!.push(meshComponent);
         }

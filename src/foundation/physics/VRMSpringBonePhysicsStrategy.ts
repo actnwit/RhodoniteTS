@@ -129,8 +129,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const children = sceneGraph.children;
 
     const physicsComponent = (sceneGraph.entity as IPhysicsEntity).getPhysics();
-    const vrmSpringBone =
-      physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
+    const vrmSpringBone = physicsComponent!
+      .strategy as VRMSpringBonePhysicsStrategy;
     if (children.length > 0) {
       const transform = children[0].entity.getTransform();
       vrmSpringBone.initialize(

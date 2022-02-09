@@ -72,10 +72,10 @@ export default class WebXRSystem {
     this.__rightCameraEntity = EntityHelper.createCameraEntity();
     this.__viewerEntity
       .getSceneGraph()
-      .addChild(this.__leftCameraEntity.getSceneGraph()!);
+      .addChild(this.__leftCameraEntity.getSceneGraph());
     this.__viewerEntity
       .getSceneGraph()
-      .addChild(this.__rightCameraEntity.getSceneGraph()!);
+      .addChild(this.__rightCameraEntity.getSceneGraph());
   }
 
   /// Public Methods

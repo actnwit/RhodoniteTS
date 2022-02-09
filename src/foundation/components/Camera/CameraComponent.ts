@@ -708,8 +708,12 @@ export default class LightComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBaseClass, _componentClass: SomeComponentClass) {
     return class CameraEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: Boolean) {
-        super(entityUID, isAlive);
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
       }
 
       getCamera() {

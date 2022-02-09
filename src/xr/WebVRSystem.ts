@@ -361,9 +361,9 @@ export default class WebVRSystem {
 
   getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera().componentSID;
+      return this.__leftCameraEntity.getCamera()!.componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera().componentSID;
+      return this.__rightCameraEntity.getCamera()!.componentSID;
     }
   }
 

@@ -1,7 +1,18 @@
 import Component from './Component';
 import RnObject, {IRnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
+import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import CameraComponent from '../components/Camera/CameraComponent';
+import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
+import LightComponent from '../components/Light/LightComponent';
+import MeshComponent from '../components/Mesh/MeshComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
+import PhysicsComponent from '../components/Physics/PhysicsComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
 
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
@@ -9,6 +20,16 @@ export interface IEntity extends IRnObject {
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
   _setComponent(componentType: typeof Component, com: Component): void;
   _getComponentsInner(): Map<ComponentTID, Component>;
+  tryToGetBlendShape(): BlendShapeComponent | undefined;
+  tryToGetCamera(): CameraComponent | undefined;
+  tryToGetCameraController(): CameraControllerComponent | undefined;
+  tryToGetLight(): LightComponent | undefined;
+  tryToGetMesh(): MeshComponent | undefined;
+  tryToGetMeshRenderer(): MeshRendererComponent | undefined;
+  tryToGetPhysics(): PhysicsComponent | undefined;
+  tryToGetSceneGraph(): SceneGraphComponent | undefined;
+  tryToGetSkeletal(): SkeletalComponent | undefined;
+  tryToGetTransform(): TransformComponent | undefined;
 }
 
 /**
@@ -77,5 +98,65 @@ export default class Entity extends RnObject implements IEntity {
 
   _getComponentsInner() {
     return this.__components;
+  }
+
+  tryToGetBlendShape() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.BlendShapeComponentTID
+    ) as BlendShapeComponent | undefined;
+  }
+
+  tryToGetCamera() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.CameraComponentTID
+    ) as CameraComponent | undefined;
+  }
+
+  tryToGetCameraController() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.CameraControllerComponentTID
+    ) as CameraControllerComponent | undefined;
+  }
+
+  tryToGetLight() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.LightComponentTID
+    ) as LightComponent | undefined;
+  }
+
+  tryToGetMesh() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.MeshComponentTID
+    ) as MeshComponent | undefined;
+  }
+
+  tryToGetMeshRenderer() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.MeshRendererComponentTID
+    ) as MeshRendererComponent | undefined;
+  }
+
+  tryToGetPhysics() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.PhysicsComponentTID
+    ) as PhysicsComponent | undefined;
+  }
+
+  tryToGetSceneGraph() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.SceneGraphComponentTID
+    ) as SceneGraphComponent | undefined;
+  }
+
+  tryToGetSkeletal() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.SkeletalComponentTID
+    ) as SkeletalComponent | undefined;
+  }
+
+  tryToGetTransform() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.TransformComponentTID
+    ) as TransformComponent | undefined;
   }
 }

@@ -8,7 +8,6 @@ import {
   ComponentSID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import {MixinBase} from '../../../types/TypeGenerators';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
@@ -53,8 +52,12 @@ export default class BlendShapeComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
     return class BlendShape extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: Boolean) {
-        super(entityUID, isAlive);
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
       }
 
       getBlendShape() {

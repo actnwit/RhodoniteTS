@@ -299,9 +299,12 @@ export default class MeshComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
     return class MeshEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: Boolean) {
-        super(entityUID, isAlive);
-        // super._setComponent(this);
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
       }
 
       getMesh() {

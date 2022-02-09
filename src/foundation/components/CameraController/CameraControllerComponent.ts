@@ -12,8 +12,6 @@ import {
   CameraControllerTypeEnum,
   CameraControllerType,
 } from '../../definitions/CameraControllerType';
-import { MixinBase } from '../../../types/TypeGenerators';
-import { CameraComponent } from '../../..';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 
@@ -77,8 +75,12 @@ export default class CameraControllerComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
     return class CameraControllerEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: Boolean) {
-        super(entityUID, isAlive);
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
       }
 
       getCameraController() {

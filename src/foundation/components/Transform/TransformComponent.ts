@@ -25,6 +25,7 @@ import {IGroupEntity, ISkeletalEntity, ITransformEntity} from '../../helpers/Ent
 import {MixinBase} from '../../../types/TypeGenerators';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
+import SkeletalComponent from '../Skeletal/SkeletalComponent';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -617,12 +618,12 @@ export default class TransformComponent extends Component {
   }
 
   $logic() {
-    const sceneGraphComponent = (this.entity as IGroupEntity).getSceneGraph()!;
+    const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
     if (this.__updateCountAtLastLogic !== this._updateCount) {
       sceneGraphComponent.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this._updateCount;
     } else {
-      const skeletalComponent = (this.entity as ISkeletalEntity).getSkeletal();
+      const skeletalComponent = this.entity.tryToGetSkeletal();
       if (skeletalComponent != null) {
         sceneGraphComponent.setWorldMatrixDirty();
       }
@@ -653,10 +654,9 @@ export default class TransformComponent extends Component {
       }
 
       getTransform() {
-        const com = this.getComponentByComponentTID(
+        return this.getComponentByComponentTID(
           WellKnownComponentTIDs.TransformComponentTID
-        );
-        return com;
+        ) as TransformComponent;
       }
     } as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;

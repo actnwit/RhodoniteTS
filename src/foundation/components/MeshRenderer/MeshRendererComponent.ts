@@ -34,7 +34,6 @@ import {
 import AbstractMaterialNode from '../../materials/core/AbstractMaterialNode';
 import {IMatrix44} from '../../math/IMatrix';
 import { IMeshEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
-import { MixinBase } from '../../../types/TypeGenerators';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 
@@ -504,9 +503,13 @@ export default class MeshRendererComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class MeshRenderer extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: Boolean) {
-        super(entityUID, isAlive);
+    return class MeshRendererEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
       }
 
       getMeshRenderer() {
