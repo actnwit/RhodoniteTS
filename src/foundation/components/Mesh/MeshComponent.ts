@@ -20,9 +20,8 @@ import MathClassUtil from '../../math/MathClassUtil';
 import MutableVector3 from '../../math/MutableVector3';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {Is} from '../../misc/Is';
-import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
+import {IMeshEntity} from '../../helpers/EntityHelper';
 import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
-import {MixinBase} from '../../../types/TypeGenerators';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class MeshComponent extends Component {
@@ -82,8 +81,8 @@ export default class MeshComponent extends Component {
 
   calcViewDepth(cameraComponent: LightComponent) {
     const centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
-    const skeletal = (this.entity as unknown as ISkeletalEntity).getSkeletal();
-    if (skeletal?._bindShapeMatrix) {
+    const skeletal = this.entity.tryToGetSkeletal();
+    if (Is.exist(skeletal) && Is.exist(skeletal._bindShapeMatrix)) {
       skeletal._bindShapeMatrix.multiplyVector3To(
         this.__mesh!.AABB.centerPoint,
         centerPosition_inLocal
@@ -256,9 +255,9 @@ export default class MeshComponent extends Component {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
         if (primitive.isPositionAccessorUpdated) {
-          meshComponent.entity
-            .getMeshRenderer()
-            ?.moveStageTo(ProcessStage.Load);
+          const meshRendererComponent =
+            meshComponent.entity.tryToGetMeshRenderer();
+          meshRendererComponent?.moveStageTo(ProcessStage.Load);
         }
       }
     }

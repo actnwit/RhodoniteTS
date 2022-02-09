@@ -39,9 +39,7 @@ export function addSceneGraph<EntityBaseClass extends MixinBase>(
     }
 
     get worldMatrixInner(): IMatrix44 {
-      const skeletalComponent = this.getSkeletal() as
-        | SkeletalComponent
-        | undefined;
+      const skeletalComponent = this.tryToGetSkeletal();
       if (
         Is.exist(skeletalComponent) &&
         skeletalComponent.isWorldMatrixUpdated
