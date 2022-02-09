@@ -13,6 +13,7 @@ import PhysicsComponent from '../components/Physics/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import TransformComponent from '../components/Transform/TransformComponent';
+import AnimationComponent from '../components/Animation/AnimationComponent';
 
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
@@ -30,6 +31,7 @@ export interface IEntity extends IRnObject {
   tryToGetSceneGraph(): SceneGraphComponent | undefined;
   tryToGetSkeletal(): SkeletalComponent | undefined;
   tryToGetTransform(): TransformComponent | undefined;
+  tryToGetAnimation(): AnimationComponent | undefined;
 }
 
 /**
@@ -158,5 +160,10 @@ export default class Entity extends RnObject implements IEntity {
     return this.getComponentByComponentTID(
       WellKnownComponentTIDs.TransformComponentTID
     ) as TransformComponent | undefined;
+  }
+  tryToGetAnimation() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.AnimationComponentTID
+    ) as AnimationComponent | undefined;
   }
 }

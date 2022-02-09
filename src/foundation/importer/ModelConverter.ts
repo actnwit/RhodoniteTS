@@ -330,7 +330,7 @@ export default class ModelConverter {
               channel.target.node!
             ] as IAnimationEntity;
             if (Is.exist(rnEntity)) {
-              let animationComponent = rnEntity.getAnimation();
+              let animationComponent = rnEntity.tryToGetAnimation();
               if (Is.not.exist(animationComponent)) {
                 entityRepository.addComponentToEntity(
                   AnimationComponent,

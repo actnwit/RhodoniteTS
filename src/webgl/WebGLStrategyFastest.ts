@@ -797,7 +797,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     renderPass: RenderPass,
     entity: ISkeletalEntity
   ) {
-    const skeletalComponent = entity.getSkeletal();
+    const skeletalComponent = entity.tryToGetSkeletal();
     if (skeletalComponent) {
       let index = 0;
       if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {

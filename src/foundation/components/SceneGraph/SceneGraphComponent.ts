@@ -29,6 +29,7 @@ import {
 } from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import { IMatrix44 } from '../../math/IMatrix';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -233,12 +234,18 @@ export default class SceneGraphComponent extends Component {
     return this._normalMatrix;
   }
 
-  get entityWorldMatrix() {
-    return this.entity.worldMatrix as MutableMatrix44;
+  get entityWorldMatrix(): MutableMatrix44 {
+    return this.entityWorldMatrixInner.clone();
   }
 
-  get entityWorldMatrixInner() {
-    return this.entity.worldMatrixInner as MutableMatrix44;
+  get entityWorldMatrixInner(): MutableMatrix44 {
+    const skeletalComponent = this.entity.tryToGetSkeletal();
+    if (Is.exist(skeletalComponent) && skeletalComponent.isWorldMatrixUpdated) {
+      return skeletalComponent.worldMatrixInner;
+    } else {
+      const sceneGraphComponent = this.entity.getSceneGraph();
+      return sceneGraphComponent.worldMatrixInner;
+    }
   }
 
   get normalMatrix() {
@@ -508,11 +515,12 @@ export default class SceneGraphComponent extends Component {
 
     this.__updateGizmos();
 
-    const mesh = (this.entity as IMeshEntity).getMesh()?.mesh;
-    if (mesh) {
-      const primitiveNum = mesh.getPrimitiveNumber();
+    const meshComponent = this.entity.tryToGetMesh();
+    if (Is.exist(meshComponent)) {
+      const mesh = meshComponent.mesh;
+      const primitiveNum = mesh!.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
+        const primitive = mesh!.getPrimitiveAt(i);
         if (primitive.isPositionAccessorUpdated) {
           this.setWorldAABBDirtyParentRecursively();
           break;
