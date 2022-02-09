@@ -899,7 +899,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       );
 
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
+      const skeletalComponent = args.entity.tryToGetSkeletal();
       this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
       // Lights

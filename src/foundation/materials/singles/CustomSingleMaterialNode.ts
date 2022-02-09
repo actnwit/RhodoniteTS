@@ -12,7 +12,6 @@ import LightComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import MeshComponent from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import ShaderityUtility from '../core/ShaderityUtility';
@@ -169,7 +168,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       }
 
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
+      const skeletalComponent = args.entity.tryToGetSkeletal();
       this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
     }
 

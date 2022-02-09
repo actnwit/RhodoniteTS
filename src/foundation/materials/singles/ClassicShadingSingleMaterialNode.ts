@@ -200,7 +200,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         args.setUniform
       );
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
+      const skeletalComponent = args.entity.tryToGetSkeletal();
       this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
     }
   }

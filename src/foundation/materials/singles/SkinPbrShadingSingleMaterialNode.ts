@@ -527,7 +527,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
       }
 
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
+      const skeletalComponent = args.entity.tryToGetSkeletal();
       this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
     }
 

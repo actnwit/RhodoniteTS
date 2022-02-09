@@ -26,6 +26,7 @@ import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
+import { Is } from '../../misc/Is';
 
 export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
@@ -562,8 +563,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           args.setUniform
         );
         /// Skinning
-        const skeletalComponent = args.entity.getSkeletal();
-        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+        const skeletalComponent = args.entity.tryToGetSkeletal();
       }
     }
 
