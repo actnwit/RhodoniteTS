@@ -263,7 +263,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
     }
-    const meshRenderComponent = args.entity.getMeshRenderer();
+    const meshRenderComponent = args.entity.tryToGetMeshRenderer();
     let diffuseHdriType = HdriFormat.LDR_SRGB.index;
     let specularHdriType = HdriFormat.LDR_SRGB.index;
     if (meshRenderComponent.diffuseCubeMap) {

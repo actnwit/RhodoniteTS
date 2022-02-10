@@ -427,7 +427,7 @@ export default class Gltf2Exporter {
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
-      const meshComponent = entity.getMesh();
+      const meshComponent = entity.tryToGetMesh();
       if (meshComponent && meshComponent.mesh) {
         const mesh = json.meshes![countMesh++];
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
