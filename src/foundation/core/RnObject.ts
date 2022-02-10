@@ -233,4 +233,8 @@ export default class RnObject implements IRnObject {
     this.__objectsByNameMap = new Map();
     this.__objects = [];
   }
+
+  destroy() {
+
+  }
 }
