@@ -20,6 +20,7 @@ export interface IEntity extends IRnObject {
   getComponent(componentType: typeof Component): Component | undefined;
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
   _setComponent(componentType: typeof Component, com: Component): void;
+  hasComponent(componentType: typeof Component): boolean;
   _getComponentsInner(): Map<ComponentTID, Component>;
   tryToGetBlendShape(): BlendShapeComponent | undefined;
   tryToGetCamera(): CameraComponent | undefined;
@@ -78,6 +79,15 @@ export default class Entity extends RnObject implements IEntity {
    */
   _setComponent(componentType: typeof Component, component: Component): void {
     this.__components.set(componentType.componentTID, component);
+  }
+
+  /**
+   * return whether this entity has the component or not
+   * @param componentType The component to check
+   * @returns
+   */
+  hasComponent(componentType: typeof Component): boolean {
+    return this.__components.has(componentType.componentTID);
   }
 
   /**

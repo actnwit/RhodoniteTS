@@ -3,6 +3,7 @@ import Component from './Component';
 import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 import {valueWithCompensation} from '../misc/MiscUtil';
+import {ComponentToComponentMethods} from '../components/ComponentTypes';
 
 /**
  * The class that generates and manages entities.
@@ -97,7 +98,15 @@ export default class EntityRepository {
   addComponentToEntity<
     ComponentType extends typeof Component,
     EntityType extends IEntity
-  >(componentClass: ComponentType, entity: EntityType) {
+  >(
+    componentClass: ComponentType,
+    entity: EntityType
+  ): EntityType & ComponentToComponentMethods<ComponentType> {
+    if (entity.hasComponent(componentClass)) {
+      console.log('This entity already has the Component.');
+      return entity as EntityType & ComponentToComponentMethods<ComponentType>;
+    }
+
     // Create Component
     const component = this.__componentRepository.createComponent(
       componentClass.componentTID,

@@ -1,12 +1,9 @@
 import EntityRepository from '../core/EntityRepository';
-import TransformComponent from '../components/Transform/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
 import {IEntity} from '../core/Entity';
 import Vector3 from '../math/Vector3';
 import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import {Primitive} from '../geometry/Primitive';
 import Buffer from '../memory/Buffer';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
@@ -32,7 +29,6 @@ import {
 import Vector2 from '../math/Vector2';
 import Material from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
-import Component from '../core/Component';
 import Accessor from '../memory/Accessor';
 import Mesh from '../geometry/Mesh';
 import MutableVector4 from '../math/MutableVector4';
@@ -83,8 +79,8 @@ import EntityHelper, {
   IMeshEntity,
 } from '../helpers/EntityHelper';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
-import { CameraComponent } from '../..';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import CameraComponent from '../../foundation/components/Camera/CameraComponent';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import LightComponent from '../components/Light/LightComponent';
 
 declare let DracoDecoderModule: any;
@@ -375,11 +371,11 @@ export default class ModelConverter {
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
-        entityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
-        skeletalComponent = rnEntity.getComponent(
-          SkeletalComponent
-        ) as SkeletalComponent;
-
+        const newRnEntity = entityRepository.addComponentToEntity(
+          SkeletalComponent,
+          rnEntity
+        );
+        skeletalComponent = newRnEntity.getSkeletal();
         skeletalComponent._jointIndices = node.skinObject.joints;
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = new Matrix44(
@@ -482,10 +478,11 @@ export default class ModelConverter {
           weights = node.meshObject.weights;
         }
         const entityRepository = EntityRepository.getInstance();
-        entityRepository.addComponentToEntity(BlendShapeComponent, entity);
-        const blendShapeComponent = entity.getComponent(
-          BlendShapeComponent
-        ) as BlendShapeComponent;
+        const newRnEntity = entityRepository.addComponentToEntity(
+          BlendShapeComponent,
+          entity
+        );
+        const blendShapeComponent = newRnEntity.getBlendShape();
         blendShapeComponent.weights = weights;
         if (node.meshObject?.primitives[0].extras?.targetNames) {
           blendShapeComponent.targetNames =

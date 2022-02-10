@@ -156,33 +156,32 @@ export default class AnimationAssigner {
             isSameSkeleton
           );
           if (rnEntity) {
-            entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
-            const animationComponent = rnEntity.getComponent(
-              AnimationComponent
-            ) as AnimationComponent;
-            if (animationComponent) {
-              if (animationAttributeType === 'quaternion') {
-                animationComponent.setAnimation(
-                  Is.exist(animation.name) ? animation.name! : 'Untitled',
-                  animationAttributeType,
-                  animInputArray!,
-                  animOutputArray!,
-                  4, // Quaternion
-                  AnimationInterpolation.fromString(interpolation)
-                );
-              } else if (
-                animationAttributeType === 'translate' &&
-                this.__isHips(rootEntity, vrmModel, channel.target!.node!)
-              ) {
-                animationComponent.setAnimation(
-                  Is.exist(animation.name) ? animation.name! : 'Untitled',
-                  animationAttributeType,
-                  animInputArray!,
-                  animOutputArray!,
-                  3, // translate
-                  AnimationInterpolation.fromString(interpolation)
-                );
-              }
+            const newRnEntity = entityRepository.addComponentToEntity(
+              AnimationComponent,
+              rnEntity
+            );
+            const animationComponent = newRnEntity.getAnimation();
+            if (animationAttributeType === 'quaternion') {
+              animationComponent.setAnimation(
+                Is.exist(animation.name) ? animation.name! : 'Untitled',
+                animationAttributeType,
+                animInputArray!,
+                animOutputArray!,
+                4, // Quaternion
+                AnimationInterpolation.fromString(interpolation)
+              );
+            } else if (
+              animationAttributeType === 'translate' &&
+              this.__isHips(rootEntity, vrmModel, channel.target!.node!)
+            ) {
+              animationComponent.setAnimation(
+                Is.exist(animation.name) ? animation.name! : 'Untitled',
+                animationAttributeType,
+                animInputArray!,
+                animOutputArray!,
+                3, // translate
+                AnimationInterpolation.fromString(interpolation)
+              );
             }
           }
         }

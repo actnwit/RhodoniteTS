@@ -3,7 +3,6 @@ import {EntityUID} from '../../../types/CommonTypes';
 import SceneGraphComponent from './SceneGraphComponent';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {MixinBase} from '../../../types/TypeGenerators';
-import SkeletalComponent from '../Skeletal/SkeletalComponent';
 import {Is} from '../../misc/Is';
 import {IMatrix44} from '../../math/IMatrix';
 import {IGroupEntity} from '../../helpers/EntityHelper';
