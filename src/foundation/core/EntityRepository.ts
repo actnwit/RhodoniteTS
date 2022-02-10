@@ -4,6 +4,7 @@ import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 import {valueWithCompensation} from '../misc/MiscUtil';
 import {ComponentToComponentMethods} from '../components/ComponentTypes';
+import RnObject from './RnObject';
 
 /**
  * The class that generates and manages entities.
@@ -139,6 +140,7 @@ export default class EntityRepository {
       entity._getComponentsInner()
     );
     this.__entities[this.__entity_uid_count] = newEntity;
+    newEntity._copyFrom(entity as unknown as RnObject);
     return newEntity as unknown as typeof entityClass;
   }
 

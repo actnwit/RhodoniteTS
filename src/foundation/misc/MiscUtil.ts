@@ -348,6 +348,10 @@ export function assertExist<T>(val: T): asserts val is NonNullable<T> {
   }
 }
 
+export function deepCopyUsingJsonStringify(obj: {[k: string]: any}) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,

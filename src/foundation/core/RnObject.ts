@@ -1,4 +1,5 @@
 import {RnTags, ObjectUID} from '../../types/CommonTypes';
+import { deepCopyUsingJsonStringify } from '../misc/MiscUtil';
 
 export type Tag = {
   tag: string;
@@ -15,30 +16,34 @@ export interface IRnObject {
   matchTag(tagName: string, tagValue: string): boolean;
   matchTagsAsFreeStrings(stringArray: string[]): boolean;
   matchTags(tags: RnTags): boolean;
+  _copyFrom(rnObject: RnObject): void;
 }
 
 /**
  * The root class of the objects in Rhodonite
  */
 export default class RnObject implements IRnObject {
+  /// static members
   static readonly InvalidObjectUID = -1;
-
   static currentMaxObjectCount = 0;
   private static __uniqueNames: string[] = [];
   private static __objectsByNameMap: Map<string, RnObject> = new Map();
   private static __objects: RnObject[] = [];
 
-  private readonly __objectUid: ObjectUID = RnObject.InvalidObjectUID;
+  /// members
+  private readonly __objectUid: ObjectUID = RnObject.currentMaxObjectCount++;
   private __uniqueName: string;
   private __tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
   private __combinedTagString = ''; // Tag string allows alphabet, digit and underscore (_) only
 
   constructor() {
-    this.__objectUid = RnObject.currentMaxObjectCount++;
-    RnObject.__objects[this.__objectUid] = this;
-
     this.__uniqueName = `${this.constructor.name}__uid_${this.__objectUid}`;
-    RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
+    this.__updateInfo(this.__uniqueName);
+  }
+
+  private __updateInfo(uniqueName: string) {
+    RnObject.__objects[this.__objectUid] = this;
+    RnObject.__uniqueNames[this.__objectUid] = uniqueName;
     RnObject.__objectsByNameMap.set(this.__uniqueName, this);
   }
 
@@ -236,5 +241,10 @@ export default class RnObject implements IRnObject {
     this.__uniqueNames = [];
     this.__objectsByNameMap = new Map();
     this.__objects = [];
+  }
+
+  _copyFrom(rnObject: RnObject) {
+    this.__tags = deepCopyUsingJsonStringify(rnObject.__tags);
+    this.__combinedTagString = rnObject.__combinedTagString;
   }
 }
