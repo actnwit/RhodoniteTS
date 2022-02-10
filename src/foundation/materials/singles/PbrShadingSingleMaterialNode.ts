@@ -27,6 +27,7 @@ import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleSha
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import { Is } from '../../misc/Is';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
@@ -526,7 +527,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

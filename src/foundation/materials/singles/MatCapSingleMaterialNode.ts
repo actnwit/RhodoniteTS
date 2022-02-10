@@ -19,6 +19,7 @@ import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import Material from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
   static MatCapTexture = new ShaderSemanticsClass({str: 'matCapTexture'});
@@ -123,7 +124,7 @@ export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

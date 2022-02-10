@@ -40,6 +40,7 @@ import GLSLShader from '../../../webgl/shaders/GLSLShader';
 import {AttributeNames} from '../../../webgl/main';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
 import {Primitive} from '../../geometry/Primitive';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -567,7 +568,7 @@ export default class Material extends RnObject {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     this.__materialNodes.forEach(materialNode => {
       if (materialNode.setParametersForGPU) {
@@ -640,7 +641,7 @@ export default class Material extends RnObject {
   }: {
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();

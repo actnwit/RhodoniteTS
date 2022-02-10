@@ -17,6 +17,7 @@ import VectorN from '../../math/VectorN';
 import Scalar from '../../math/Scalar';
 import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
@@ -211,7 +212,7 @@ export default class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

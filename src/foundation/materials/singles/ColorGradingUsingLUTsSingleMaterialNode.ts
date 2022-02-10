@@ -18,6 +18,7 @@ import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import Material from '../core/Material';
 import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialNode {
   static lookupTableTexture = new ShaderSemanticsClass({
@@ -115,7 +116,7 @@ export default class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMat
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

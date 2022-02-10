@@ -37,6 +37,8 @@ import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import LightComponent from '../../components/Light/LightComponent';
+import Matrix33 from '../../math/Matrix33';
+import { IMatrix33 } from '../../math/IMatrix';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -358,7 +360,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   protected setNormalMatrix(
     shaderProgram: WebGLProgram,
-    normalMatrix: Matrix44
+    normalMatrix: IMatrix33
   ) {
     (shaderProgram as any)._gl.uniformMatrix3fv(
       (shaderProgram as any).normalMatrix,

@@ -15,6 +15,7 @@ import Material from '../core/Material';
 import LightComponent from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
   static mode = new ShaderSemanticsClass({str: 'mode'});
@@ -141,7 +142,7 @@ export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode 
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

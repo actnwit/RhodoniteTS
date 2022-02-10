@@ -946,6 +946,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
               diffuseCube: meshRendererComponent.diffuseCubeMap,
               specularCube: meshRendererComponent.specularCubeMap!,
               setUniform: false,
+              isVr: isVRMainPass,
+              displayIdx,
             },
           });
 

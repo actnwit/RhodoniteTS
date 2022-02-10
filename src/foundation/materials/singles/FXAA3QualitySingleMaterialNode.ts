@@ -13,6 +13,7 @@ import Material from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import shaderVertex from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import shaderFragment from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
   constructor() {
@@ -61,7 +62,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

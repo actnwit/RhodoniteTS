@@ -22,6 +22,7 @@ import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './../core/Material';
 import PBRExtendedShaderVertex from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.vert';
 import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
   static detailNormalTexture = new ShaderSemanticsClass({
@@ -457,7 +458,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
