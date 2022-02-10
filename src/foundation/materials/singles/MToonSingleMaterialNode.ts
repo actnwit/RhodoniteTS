@@ -939,14 +939,12 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
-    if (Is.exist(blendShapeComponent)) {
-      this.setMorphInfo(
-        shaderProgram,
-        args.entity.getMesh(),
-        blendShapeComponent,
-        args.primitive
-      );
-    }
+    this.setMorphInfo(
+      shaderProgram,
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
+    );
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {

@@ -253,14 +253,12 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
-    if (Is.exist(blendShapeComponent)) {
-      this.setMorphInfo(
-        shaderProgram,
-        args.entity.getMesh(),
-        blendShapeComponent,
-        args.primitive
-      );
-    }
+    this.setMorphInfo(
+      shaderProgram,
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
+    );
   }
 
   private setupHdriParameters(args: RenderingArg) {

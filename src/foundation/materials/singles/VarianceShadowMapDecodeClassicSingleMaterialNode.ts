@@ -568,14 +568,12 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
-    if (Is.exist(blendShapeComponent)) {
-      this.setMorphInfo(
-        shaderProgram,
-        args.entity.getMesh(),
-        blendShapeComponent,
-        args.primitive
-      );
-    }
+    this.setMorphInfo(
+      shaderProgram,
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
+    );
 
     const __webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();

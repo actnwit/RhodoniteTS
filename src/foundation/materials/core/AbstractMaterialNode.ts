@@ -585,8 +585,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
   setMorphInfo(
     shaderProgram: WebGLProgram,
     meshComponent: MeshComponent,
-    blendShapeComponent: BlendShapeComponent,
-    primitive: Primitive
+    primitive: Primitive,
+    blendShapeComponent?: BlendShapeComponent
   ) {
     if (!this.__isMorphing) {
       return;
@@ -622,8 +622,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
     let weights;
     if (meshComponent.mesh!.weights.length > 0) {
       weights = meshComponent.mesh!.weights;
-    } else if (blendShapeComponent.weights.length > 0) {
-      weights = blendShapeComponent.weights;
+    } else if (blendShapeComponent!.weights.length > 0) {
+      weights = blendShapeComponent!.weights;
     } else {
       weights = new Float32Array(primitive.targets.length);
     }
