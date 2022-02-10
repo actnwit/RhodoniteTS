@@ -123,12 +123,12 @@ export default class System {
     if (LightComponent.main === Component.InvalidObjectUID) {
       const cameraEntity = EntityHelper.createCameraEntity();
       cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
-      cameraEntity.getCamera()!.type = CameraType.Orthographic;
-      cameraEntity.getCamera()!.zNear = 0.1;
-      cameraEntity.getCamera()!.zFar = 10000;
+      cameraEntity.getCamera().type = CameraType.Orthographic;
+      cameraEntity.getCamera().zNear = 0.1;
+      cameraEntity.getCamera().zFar = 10000;
       const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      cameraEntity.getCamera()!.xMag = wgl.width / wgl.height;
-      cameraEntity.getCamera()!.yMag = 1;
+      cameraEntity.getCamera().xMag = wgl.width / wgl.height;
+      cameraEntity.getCamera().yMag = 1;
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();

@@ -38,7 +38,7 @@ const createAxis = (
 
 function createShape(primitive: IShape) {
   const entity = EntityHelper.createMeshEntity();
-  const meshComponent = entity.getMesh()!;
+  const meshComponent = entity.getMesh();
   const mesh = new Mesh();
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);

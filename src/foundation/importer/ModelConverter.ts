@@ -583,7 +583,7 @@ export default class ModelConverter {
       meshIndex
     ];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
-    const meshComponent = meshEntity.getMesh()!;
+    const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
     // set flag to rnMesh with options

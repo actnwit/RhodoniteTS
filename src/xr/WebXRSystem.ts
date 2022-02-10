@@ -239,11 +239,11 @@ export default class WebXRSystem {
   /// Accessors
 
   get leftViewMatrix() {
-    return this.__leftCameraEntity.getCamera()!.viewMatrix;
+    return this.__leftCameraEntity.getCamera().viewMatrix;
   }
 
   get rightViewMatrix() {
-    return this.__rightCameraEntity.getCamera()!.viewMatrix;
+    return this.__rightCameraEntity.getCamera().viewMatrix;
   }
 
   get leftProjectionMatrix() {
@@ -369,12 +369,12 @@ export default class WebXRSystem {
   }
 
   _setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera()!.projectionMatrix =
+    this.__leftCameraEntity.getCamera().projectionMatrix =
       this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera()!.projectionMatrix =
+    this.__rightCameraEntity.getCamera().projectionMatrix =
       this.rightProjectionMatrix;
-    this.__leftCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
-    this.__rightCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
+    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
+    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
   }
 
   /**
@@ -411,9 +411,9 @@ export default class WebXRSystem {
    */
   _getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera()!.componentSID;
+      return this.__leftCameraEntity.getCamera().componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera()!.componentSID;
+      return this.__rightCameraEntity.getCamera().componentSID;
     }
   }
 

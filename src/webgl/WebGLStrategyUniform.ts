@@ -498,7 +498,7 @@ mat3 get_normalMatrix(float instanceId) {
             primitive: primitive,
             worldMatrix: worldMatrix,
             normalMatrix: normalMatrix,
-            lightComponents: this.__lightComponents,
+            lightComponents: this.__lightComponents!,
             renderPass: renderPass,
             diffuseCube: diffuseCube,
             specularCube: specularCube,

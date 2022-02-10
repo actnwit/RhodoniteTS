@@ -940,11 +940,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
               entity: entity,
               worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
               normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
-              lightComponents: this.__lightComponents,
+              lightComponents: this.__lightComponents!,
               renderPass: renderPass,
               primitive: primitive,
               diffuseCube: meshRendererComponent.diffuseCubeMap,
-              specularCube: meshRendererComponent.specularCubeMap,
+              specularCube: meshRendererComponent.specularCubeMap!,
               setUniform: false,
             },
           });
