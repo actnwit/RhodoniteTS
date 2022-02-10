@@ -50,6 +50,7 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../foundation/helpers/EntityHelper';
+import LightComponent from '../foundation/components/Light/LightComponent';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -64,7 +65,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   private __lastMaterial?: Material;
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
-  private __lightComponents?: CameraComponent[];
+  private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
@@ -633,8 +634,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(
-      CameraComponent
-    ) as CameraComponent[];
+      LightComponent
+    ) as LightComponent[] | undefined;
   }
 
   private __isUboUse() {
