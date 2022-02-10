@@ -29,6 +29,7 @@ import MutableVector4 from '../../math/MutableVector4';
 import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
 import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static ShadowColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -451,11 +452,10 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     }
 
     /// Skinning
-    const skeletalComponent = args.entity.getComponent(
-      SkeletalComponent
-    ) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-
+    const skeletalComponent = args.entity.tryToGetSkeletal();
+    if (Is.exist(skeletalComponent)) {
+      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    }
     // Lights
     this.setLightsInfo(
       shaderProgram,
@@ -465,11 +465,14 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     );
 
     // Morph
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(LightComponent),
-      args.primitive
-    );
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    if (Is.exist(blendShapeComponent)) {
+      this.setMorphInfo(
+        shaderProgram,
+        args.entity.getMesh(),
+        blendShapeComponent,
+        args.primitive
+      );
+    }
   }
 }

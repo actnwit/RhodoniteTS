@@ -28,7 +28,8 @@ import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent
 import MutableVector4 from '../../math/MutableVector4';
 import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import {RenderingArg} from '../../../webgl/types/CommomTypes';
+import {Is} from '../../misc/Is';
 
 export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
@@ -554,10 +555,10 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     }
 
     /// Skinning
-    const skeletalComponent = args.entity.getComponent(
-      SkeletalComponent
-    ) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    const skeletalComponent = args.entity.tryToGetSkeletal();
+    if (Is.exist(skeletalComponent)) {
+      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    }
 
     // Lights
     this.setLightsInfo(
@@ -568,12 +569,15 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     );
 
     // Morph
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(LightComponent),
-      args.primitive
-    );
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    if (Is.exist(blendShapeComponent)) {
+      this.setMorphInfo(
+        shaderProgram,
+        args.entity.getMesh(),
+        blendShapeComponent,
+        args.primitive
+      );
+    }
 
     const __webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();

@@ -530,7 +530,9 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
 
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      if (Is.exist(skeletalComponent)) {
+        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      }
     }
 
     // Env map
@@ -611,15 +613,18 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
     }
 
     // Morph
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(LightComponent),
-      args.primitive
-    );
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    if (Is.exist(blendShapeComponent)) {
+      this.setMorphInfo(
+        shaderProgram,
+        args.entity.getMesh(),
+        blendShapeComponent,
+        args.primitive
+      );
+    }
   }
 
-  private setupHdriParameters(args: any) {
+  private setupHdriParameters(args: RenderingArg) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

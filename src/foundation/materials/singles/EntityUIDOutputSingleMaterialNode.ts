@@ -143,10 +143,10 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     );
 
     /// Skinning
-    const skeletalComponent = args.entity.getComponent(
-      SkeletalComponent
-    ) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    const skeletalComponent = args.entity.tryToGetSkeletal();
+    if (skeletalComponent) {
+      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    }
 
     // Lights
     this.setLightsInfo(

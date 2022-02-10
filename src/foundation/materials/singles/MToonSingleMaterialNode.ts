@@ -26,6 +26,7 @@ import Texture from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
@@ -901,7 +902,9 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      if (Is.exist(skeletalComponent)) {
+        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      }
 
       // Lights
       this.setLightsInfo(
@@ -937,12 +940,15 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     }
 
     // Morph
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(CameraComponent),
-      args.primitive
-    );
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    if (Is.exist(blendShapeComponent)) {
+      this.setMorphInfo(
+        shaderProgram,
+        args.entity.getMesh(),
+        blendShapeComponent,
+        args.primitive
+      );
+    }
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {

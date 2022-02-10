@@ -17,6 +17,7 @@ import Vector3 from '../../math/Vector3';
 import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
 import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
@@ -180,9 +181,9 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
     }
 
     /// Skinning
-    const skeletalComponent = args.entity.getComponent(
-      SkeletalComponent
-    ) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    const skeletalComponent = args.entity.tryToGetSkeletal();
+    if (Is.exist(skeletalComponent)) {
+      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    }
   }
 }

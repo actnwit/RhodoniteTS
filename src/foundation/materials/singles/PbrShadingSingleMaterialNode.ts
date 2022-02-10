@@ -646,15 +646,18 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     }
 
     // Morph
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(LightComponent),
-      args.primitive
-    );
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    if (Is.exist(blendShapeComponent)) {
+      this.setMorphInfo(
+        shaderProgram,
+        args.entity.getMesh(),
+        blendShapeComponent,
+        args.primitive
+      );
+    }
   }
 
-  private setupHdriParameters(args: any) {
+  private setupHdriParameters(args: RenderingArg) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

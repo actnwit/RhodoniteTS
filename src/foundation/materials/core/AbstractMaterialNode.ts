@@ -39,6 +39,7 @@ import {RnXR} from '../../../xr/main';
 import LightComponent from '../../components/Light/LightComponent';
 import Matrix33 from '../../math/Matrix33';
 import { IMatrix33 } from '../../math/IMatrix';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -641,7 +642,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {}
 
   setDefaultInputValue(inputName: string, value: any) {

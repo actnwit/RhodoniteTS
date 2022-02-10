@@ -13,6 +13,7 @@ import GlobalDataRepository from '../../core/GlobalDataRepository';
 import MeshComponent from '../../components/Mesh/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
@@ -108,15 +109,20 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
       }
 
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      if (Is.exist(skeletalComponent)) {
+        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      }
     }
 
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(LightComponent),
-      args.primitive
-    );
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    if (Is.exist(blendShapeComponent)) {
+      this.setMorphInfo(
+        shaderProgram,
+        args.entity.getMesh(),
+        blendShapeComponent,
+        args.primitive
+      );
+    }
   }
 
   private static __removeUselessShaderSemantics(

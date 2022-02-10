@@ -208,10 +208,12 @@ export default class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
   setParametersForGPU({
     material,
     shaderProgram,
+    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
+    firstTime: boolean;
     args: RenderingArg;
   }) {
     if (args.setUniform) {

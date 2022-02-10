@@ -123,10 +123,12 @@ export default class DetectHighLuminanceSingleMaterialNode extends AbstractMater
   setParametersForGPU({
     material,
     shaderProgram,
+    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
+    firstTime: boolean;
     args: RenderingArg;
   }) {
     if (args.setUniform) {

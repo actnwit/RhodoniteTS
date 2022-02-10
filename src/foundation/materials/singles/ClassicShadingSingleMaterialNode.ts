@@ -19,6 +19,7 @@ import ClassicSingleShaderVertex from '../../../webgl/shaderity_shaders/ClassicS
 import ClassicSingleShaderFragment from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import {AlphaModeEnum} from '../../definitions/AlphaMode';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   constructor({
@@ -202,7 +203,9 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       );
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      if (Is.exist(skeletalComponent)) {
+        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      }
     }
   }
 }

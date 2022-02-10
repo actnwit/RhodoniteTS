@@ -15,7 +15,8 @@ import MeshComponent from '../../components/Mesh/MeshComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import ShaderityUtility from '../core/ShaderityUtility';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import {RenderingArg} from '../../../webgl/types/CommomTypes';
+import {Is} from '../../misc/Is';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
@@ -170,7 +171,9 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
 
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      if (Is.exist(skeletalComponent)) {
+        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      }
     }
 
     // Env map
@@ -251,20 +254,23 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     }
 
     // Morph
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(LightComponent),
-      args.primitive
-    );
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    if (Is.exist(blendShapeComponent)) {
+      this.setMorphInfo(
+        shaderProgram,
+        args.entity.getMesh(),
+        blendShapeComponent,
+        args.primitive
+      );
+    }
   }
 
-  private setupHdriParameters(args: any) {
+  private setupHdriParameters(args: RenderingArg) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
     }
-    const meshRenderComponent = args.entity.tryToGetMeshRenderer();
+    const meshRenderComponent = args.entity.getMeshRenderer();
     let diffuseHdriType = HdriFormat.LDR_SRGB.index;
     let specularHdriType = HdriFormat.LDR_SRGB.index;
     if (meshRenderComponent.diffuseCubeMap) {
