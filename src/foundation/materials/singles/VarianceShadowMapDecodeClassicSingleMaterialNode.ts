@@ -556,9 +556,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
 
     /// Skinning
     const skeletalComponent = args.entity.tryToGetSkeletal();
-    if (Is.exist(skeletalComponent)) {
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-    }
+    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
 
     // Lights
     this.setLightsInfo(

@@ -109,9 +109,7 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
       }
 
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      if (Is.exist(skeletalComponent)) {
-        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-      }
+      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
     const blendShapeComponent = args.entity.tryToGetBlendShape();

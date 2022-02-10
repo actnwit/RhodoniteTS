@@ -438,8 +438,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   protected setSkinning(
     shaderProgram: WebGLProgram,
-    skeletalComponent: SkeletalComponent,
-    setUniform: boolean
+    setUniform: boolean,
+    skeletalComponent?: SkeletalComponent
   ) {
     if (!this.__isSkinning) {
       return;

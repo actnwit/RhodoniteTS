@@ -182,8 +182,6 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
 
     /// Skinning
     const skeletalComponent = args.entity.tryToGetSkeletal();
-    if (Is.exist(skeletalComponent)) {
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-    }
+    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
   }
 }

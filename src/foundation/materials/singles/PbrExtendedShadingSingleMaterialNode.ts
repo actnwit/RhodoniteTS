@@ -491,9 +491,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
 
     /// Skinning
     const skeletalComponent = args.entity.tryToGetSkeletal();
-    if (Is.exist(skeletalComponent)) {
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-    }
+    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
 
     // Env map
     this.__webglResourceRepository.setUniformValue(
