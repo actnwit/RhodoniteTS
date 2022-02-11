@@ -1,8 +1,8 @@
-import LightComponent from '../components/Camera/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import {IGroupEntity} from '../helpers/EntityHelper';
 
 export default interface ICameraController {
-  logic(cameraComponent: LightComponent): void;
+  logic(cameraComponent: CameraComponent): void;
   registerEventListeners(eventTargetDom: any): void;
   unregisterEventListeners(): void;
   setTarget(targetEntity: IGroupEntity): void;

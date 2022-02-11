@@ -3,7 +3,7 @@ import MathClassUtil from '../math/MathClassUtil';
 import {MiscUtil} from '../misc/MiscUtil';
 import ICameraController from './ICameraController';
 import MutableVector3 from '../math/MutableVector3';
-import LightComponent from '../components/Camera/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import Entity from '../core/Entity';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
@@ -235,11 +235,11 @@ export default class WalkThroughCameraController
     this._newDir.setComponents(0, 0, -1);
   }
 
-  logic(cameraComponent: LightComponent) {
+  logic(cameraComponent: CameraComponent) {
     this.__updateCameraComponent(cameraComponent);
   }
 
-  private __updateCameraComponent(camera: LightComponent) {
+  private __updateCameraComponent(camera: CameraComponent) {
     const targetAABB = this.__targetEntity!.getSceneGraph().worldAABB;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =

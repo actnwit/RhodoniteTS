@@ -1,5 +1,5 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
@@ -175,9 +175,9 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
         cameraComponent = ComponentRepository.getInstance().getComponent(
-          LightComponent,
-          LightComponent.main
-        ) as LightComponent;
+          CameraComponent,
+          CameraComponent.main
+        ) as CameraComponent;
       }
       this.setViewInfo(
         shaderProgram,

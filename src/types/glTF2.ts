@@ -2,7 +2,7 @@ import Entity from '../foundation/core/Entity';
 import {RnPromise} from '../foundation/misc/RnPromise';
 import {Array3, Index} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
-import LightComponent from '../foundation/components/Camera/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import Material from '../foundation/materials/core/Material';
 import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
@@ -430,7 +430,7 @@ export type GltfLoadOption = {
       sampler?: any;
     }[];
   };
-  cameraComponent?: LightComponent;
+  cameraComponent?: CameraComponent;
   fileType?: string;
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
 };

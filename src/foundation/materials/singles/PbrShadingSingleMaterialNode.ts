@@ -14,7 +14,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import Scalar from '../../math/Scalar';
@@ -537,9 +537,9 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
-            LightComponent,
-            LightComponent.main
-          ) as LightComponent;
+            CameraComponent,
+            CameraComponent.main
+          ) as CameraComponent;
         }
         this.setViewInfo(
           shaderProgram,

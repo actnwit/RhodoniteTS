@@ -1,4 +1,3 @@
-import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 
@@ -34,7 +33,7 @@ declare const Rn: typeof _Rn;
   const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0]);
 
   // camera
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;

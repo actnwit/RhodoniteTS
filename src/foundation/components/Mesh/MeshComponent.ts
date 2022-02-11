@@ -4,7 +4,7 @@ import EntityRepository from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import Vector3 from '../../math/Vector3';
-import LightComponent from '../Camera/CameraComponent';
+import CameraComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import Mesh from '../../geometry/Mesh';
 import Entity, {IEntity} from '../../core/Entity';
@@ -79,7 +79,7 @@ export default class MeshComponent extends Component {
     this.__mesh.weights = value;
   }
 
-  calcViewDepth(cameraComponent: LightComponent) {
+  calcViewDepth(cameraComponent: CameraComponent) {
     const centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
     const skeletal = this.entity.tryToGetSkeletal();
     if (Is.exist(skeletal) && Is.exist(skeletal._bindShapeMatrix)) {
@@ -164,7 +164,7 @@ export default class MeshComponent extends Component {
   castRayFromScreen(
     x: number,
     y: number,
-    camera: LightComponent,
+    camera: CameraComponent,
     viewport: Vector4,
     dotThreshold = 0
   ) {

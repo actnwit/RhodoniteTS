@@ -8,7 +8,7 @@ import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import ComponentRepository from '../../core/ComponentRepository';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import MeshComponent from '../../components/Mesh/MeshComponent';
@@ -141,9 +141,9 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
-            LightComponent,
-            LightComponent.main
-          ) as LightComponent;
+            CameraComponent,
+            CameraComponent.main
+          ) as CameraComponent;
         }
         this.setViewInfo(
           shaderProgram,

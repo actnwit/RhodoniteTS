@@ -13,7 +13,7 @@ import {ShadingModel} from '../../definitions/ShadingModel';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import VectorN from '../../math/VectorN';
 import Scalar from '../../math/Scalar';
 import Config from '../../core/Config';
@@ -381,13 +381,13 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        LightComponent,
-        LightComponent.main
-      ) as LightComponent;
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
 
     const encodedDepthCameraComponent = this.__encodedDepthRenderPass
-      .cameraComponent as LightComponent;
+      .cameraComponent as CameraComponent;
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

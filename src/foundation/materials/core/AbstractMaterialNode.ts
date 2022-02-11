@@ -13,7 +13,6 @@ import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Texture from '../../textures/Texture';
 import CubeTexture from '../../textures/CubeTexture';
 import Config from '../../core/Config';
-import CameraComponent from '../../components/Camera/CameraComponent';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './Material';
 import MutableVector2 from '../../math/MutableVector2';
@@ -37,9 +36,9 @@ import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import LightComponent from '../../components/Light/LightComponent';
-import Matrix33 from '../../math/Matrix33';
 import { IMatrix33 } from '../../math/IMatrix';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import CameraComponent from '../../components/Camera/CameraComponent';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string

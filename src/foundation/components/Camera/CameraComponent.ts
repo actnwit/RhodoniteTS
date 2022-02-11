@@ -24,7 +24,6 @@ import GlobalDataRepository from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {MathUtil} from '../../math/MathUtil';
 import CameraControllerComponent from '../CameraController/CameraControllerComponent';
-import CameraComponent from '../Camera/CameraComponent';
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import RenderPass from '../../renderer/RenderPass';
@@ -32,7 +31,7 @@ import {ICameraEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class LightComponent extends Component {
+export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: MutableVector3 = MutableVector3.dummy();
   private _direction: MutableVector3 = MutableVector3.dummy();
@@ -170,8 +169,8 @@ export default class LightComponent extends Component {
 
     this.setFovyAndChangeFocalLength(90);
 
-    if (LightComponent.main === -1) {
-      LightComponent.main = componentSid;
+    if (CameraComponent.main === -1) {
+      CameraComponent.main = componentSid;
     }
   }
 
@@ -204,7 +203,7 @@ export default class LightComponent extends Component {
 
   get eye() {
     // In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning
-    return LightComponent._eye;
+    return CameraComponent._eye;
   }
 
   set eye(noUseVec: Vector3) {
@@ -248,7 +247,7 @@ export default class LightComponent extends Component {
     const orthogonalVectorNewDirectionAndOldUp = MutableVector3.crossTo(
       newDirection,
       oldUp,
-      LightComponent.__tmpVector3_0
+      CameraComponent.__tmpVector3_0
     );
     const isOrthogonalNewDirectionAndOldUp =
       orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
@@ -258,23 +257,23 @@ export default class LightComponent extends Component {
       const relativeXaxis = MutableVector3.crossTo(
         oldDirection,
         oldUp,
-        LightComponent.__tmpVector3_1
+        CameraComponent.__tmpVector3_1
       );
       newUpNonNormalize = MutableVector3.crossTo(
         relativeXaxis,
         newDirection,
-        LightComponent.__tmpVector3_2
+        CameraComponent.__tmpVector3_2
       );
     } else {
       const newDirectionComponentInOldUp = MutableVector3.multiplyTo(
         newDirection,
         newDirection.dot(oldUp),
-        LightComponent.__tmpVector3_1
+        CameraComponent.__tmpVector3_1
       );
       newUpNonNormalize = MutableVector3.subtractTo(
         oldUp,
         newDirectionComponentInOldUp,
-        LightComponent.__tmpVector3_2
+        CameraComponent.__tmpVector3_2
       );
     }
 
@@ -550,14 +549,14 @@ export default class LightComponent extends Component {
     const f = MutableVector3.subtractTo(
       this._directionInner,
       eye,
-      LightComponent.__tmpVector3_0
+      CameraComponent.__tmpVector3_0
     ).normalize();
     const s = MutableVector3.crossTo(
       f,
       this._upInner,
-      LightComponent.__tmpVector3_1
+      CameraComponent.__tmpVector3_1
     ).normalize();
-    const u = MutableVector3.crossTo(s, f, LightComponent.__tmpVector3_2);
+    const u = MutableVector3.crossTo(s, f, CameraComponent.__tmpVector3_2);
 
     this._viewMatrix.setComponents(
       s.x,
@@ -580,7 +579,7 @@ export default class LightComponent extends Component {
 
     const invertWorldMatrix = MutableMatrix44.invertTo(
       this.__sceneGraphComponent!.worldMatrixInner,
-      LightComponent.__tmpMatrix44_0
+      CameraComponent.__tmpMatrix44_0
     );
 
     this._viewMatrix.multiply(invertWorldMatrix);
@@ -604,17 +603,17 @@ export default class LightComponent extends Component {
     return MutableMatrix44.multiplyTo(
       this._projectionMatrix,
       this._viewMatrix,
-      LightComponent.__tmpMatrix44_0
+      CameraComponent.__tmpMatrix44_0
     );
   }
 
   setValuesToGlobalDataRepositoryOnlyMatrices() {
-    LightComponent.__globalDataRepository.setValue(
+    CameraComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewMatrix,
       this.componentSID,
       this.viewMatrix
     );
-    LightComponent.__globalDataRepository.setValue(
+    CameraComponent.__globalDataRepository.setValue(
       ShaderSemantics.ProjectionMatrix,
       this.componentSID,
       this.projectionMatrix
@@ -622,17 +621,17 @@ export default class LightComponent extends Component {
   }
 
   setValuesToGlobalDataRepository() {
-    LightComponent.__globalDataRepository.setValue(
+    CameraComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewMatrix,
       this.componentSID,
       this.viewMatrix
     );
-    LightComponent.__globalDataRepository.setValue(
+    CameraComponent.__globalDataRepository.setValue(
       ShaderSemantics.ProjectionMatrix,
       this.componentSID,
       this.projectionMatrix
     );
-    LightComponent.__globalDataRepository.setValue(
+    CameraComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewPosition,
       this.componentSID,
       this.worldPosition
@@ -642,9 +641,9 @@ export default class LightComponent extends Component {
   get worldPosition() {
     this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(
       this.eyeInner,
-      LightComponent.returnVector3
+      CameraComponent.returnVector3
     );
-    return LightComponent.returnVector3;
+    return CameraComponent.returnVector3;
   }
 
   updateFrustum() {
@@ -670,7 +669,7 @@ export default class LightComponent extends Component {
         CameraControllerComponent
       ) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
-      this._eyeInner.copyComponents(LightComponent._eye);
+      this._eyeInner.copyComponents(CameraComponent._eye);
       this._directionInner.copyComponents(this._direction);
       this._upInner.copyComponents(this._up);
       this._cornerInner.copyComponents(this._corner);

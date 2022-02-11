@@ -3,7 +3,7 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import Matrix44 from '../foundation/math/Matrix44';
-import LightComponent from '../foundation/components/Camera/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
@@ -330,9 +330,9 @@ export default class SparkGearComponent extends Component {
     }
 
     const cameraComponent = ComponentRepository.getInstance().getComponent(
-      LightComponent,
-      LightComponent.main
-    ) as LightComponent;
+      CameraComponent,
+      CameraComponent.main
+    ) as CameraComponent;
     let viewMatrix = SparkGearComponent.__tmp_indentityMatrix;
     let projectionMatrix = SparkGearComponent.__tmp_indentityMatrix;
     if (cameraComponent) {

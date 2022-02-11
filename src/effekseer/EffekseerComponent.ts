@@ -4,7 +4,7 @@ import EntityRepository from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
-import LightComponent from '../foundation/components/Camera/CameraComponent';
+import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
@@ -309,9 +309,9 @@ export default class EffekseerComponent extends Component {
 
   $render() {
     const cameraComponent = ComponentRepository.getInstance().getComponent(
-      LightComponent,
-      LightComponent.main
-    ) as LightComponent;
+      CameraComponent,
+      CameraComponent.main
+    ) as CameraComponent;
     const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
     const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;
 

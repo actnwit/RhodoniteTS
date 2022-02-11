@@ -17,7 +17,7 @@ import {
   ComponentSID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import LightComponent from '../Camera/CameraComponent';
+import CameraComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import AABBGizmo from '../../gizmos/AABBGizmo';
 import LocatorGizmo from '../../gizmos/LocatorGizmo';
@@ -454,7 +454,7 @@ export default class SceneGraphComponent extends Component {
   castRayFromScreen(
     x: number,
     y: number,
-    camera: LightComponent,
+    camera: CameraComponent,
     viewport: Vector4,
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []

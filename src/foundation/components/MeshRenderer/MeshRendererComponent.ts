@@ -8,7 +8,7 @@ import EntityRepository from '../../core/EntityRepository';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import LightComponent from '../Camera/CameraComponent';
+import CameraComponent from '../Camera/CameraComponent';
 import Matrix44 from '../../math/Matrix44';
 import Accessor from '../../memory/Accessor';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
@@ -59,7 +59,7 @@ export default class MeshRendererComponent extends Component {
   private static __webglRenderingStrategy?: WebGLStrategy;
   private static __instanceIdAccessor?: Accessor;
   private static __tmp_identityMatrix: IMatrix44 = Matrix44.identity();
-  private static __cameraComponent?: LightComponent;
+  private static __cameraComponent?: CameraComponent;
   private static __firstTransparentIndex = -1;
   private static __lastTransparentIndex = -1;
   private static __manualTransparentSids?: ComponentSID[];
@@ -80,8 +80,8 @@ export default class MeshRendererComponent extends Component {
     ) as SceneGraphComponent;
     const componentRepository = ComponentRepository.getInstance();
     const cameraComponents = componentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+      CameraComponent
+    ) as CameraComponent[];
 
     if (cameraComponents) {
       MeshRendererComponent.__cameraComponent = cameraComponents[0];
@@ -278,9 +278,9 @@ export default class MeshRendererComponent extends Component {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = componentRepository.getComponent(
-        LightComponent,
-        LightComponent.main
-      ) as LightComponent;
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
     if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
@@ -434,9 +434,9 @@ export default class MeshRendererComponent extends Component {
     if (MeshRendererComponent.__cameraComponent == null) {
       MeshRendererComponent.__cameraComponent =
         MeshRendererComponent.__componentRepository.getComponent(
-          LightComponent,
-          LightComponent.main
-        ) as LightComponent;
+          CameraComponent,
+          CameraComponent.main
+        ) as CameraComponent;
     }
     let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;

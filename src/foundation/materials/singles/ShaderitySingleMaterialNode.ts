@@ -8,12 +8,9 @@ import {ShaderityObject} from 'shaderity';
 import ShaderityUtility from '../core/ShaderityUtility';
 import {ShaderType} from '../../definitions/ShaderType';
 import ComponentRepository from '../../core/ComponentRepository';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
-import MeshComponent from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
-import { Is } from '../../misc/Is';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
@@ -81,9 +78,9 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
-            LightComponent,
-            LightComponent.main
-          ) as LightComponent;
+            CameraComponent,
+            CameraComponent.main
+          ) as CameraComponent;
         }
         this.setViewInfo(
           shaderProgram,

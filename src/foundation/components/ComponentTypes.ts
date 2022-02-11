@@ -1,4 +1,3 @@
-import CameraComponent from './Camera/CameraComponent';
 import {MixinBase} from '../../types/TypeGenerators';
 import Component from '../core/Component';
 import AnimationComponent from './Animation/AnimationComponent';
@@ -111,7 +110,7 @@ type IsThisCameraController<
 type IsThisCamera<
   T extends typeof Component,
   Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof CameraComponent
+> = T extends typeof LightComponent
   ? ICameraEntityMethods
   : Exclude<Possibles, ICameraEntityMethods>;
 

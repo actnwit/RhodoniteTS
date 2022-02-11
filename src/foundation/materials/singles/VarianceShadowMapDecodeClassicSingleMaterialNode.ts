@@ -13,7 +13,7 @@ import {ShadingModel} from '../../definitions/ShadingModel';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import VectorN from '../../math/VectorN';
 import Scalar from '../../math/Scalar';
 import Config from '../../core/Config';
@@ -58,7 +58,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
   private static __lastZNear = 0.0;
   private static __lastZFar = 0.0;
 
-  private __depthCameraComponent?: LightComponent;
+  private __depthCameraComponent?: CameraComponent;
 
   /**
    * The constructor of the VarianceShadowMapDecodeClassicSingleMaterialNode
@@ -89,7 +89,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
       isDebugging: boolean;
       colorAttachmentsNumberDepth: Count;
       colorAttachmentsNumberSquareDepth: Count;
-      depthCameraComponent?: LightComponent;
+      depthCameraComponent?: CameraComponent;
     },
     encodedDepthRenderPasses: RenderPass[]
   ) {
@@ -483,14 +483,14 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        LightComponent,
-        LightComponent.main
-      ) as LightComponent;
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
 
     const encodedDepthCameraComponent =
       this.__depthCameraComponent ??
-      (args.renderPass.cameraComponent as LightComponent);
+      (args.renderPass.cameraComponent as CameraComponent);
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -585,7 +585,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     );
   }
 
-  set depthCameraComponent(depthCameraComponent: LightComponent) {
+  set depthCameraComponent(depthCameraComponent: CameraComponent) {
     this.__depthCameraComponent = depthCameraComponent;
   }
 }

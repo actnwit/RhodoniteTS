@@ -37,7 +37,6 @@ import {
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import VectorN from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
-import Entity from '../foundation/core/Entity';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import Matrix33 from '../foundation/math/Matrix33';

@@ -1,5 +1,5 @@
 import AbstractTexture from '../../textures/AbstractTexture';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import {CompositionType} from '../../definitions/CompositionType';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -126,9 +126,9 @@ export default class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMat
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        LightComponent,
-        LightComponent.main
-      ) as LightComponent;
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
     if (cameraComponent) {
       this.setViewInfo(

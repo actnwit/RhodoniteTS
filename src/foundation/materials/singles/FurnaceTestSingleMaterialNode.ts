@@ -12,7 +12,7 @@ import Vector2 from '../../math/Vector2';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import ComponentRepository from '../../core/ComponentRepository';
 import Material from '../core/Material';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommomTypes';
@@ -153,9 +153,9 @@ export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode 
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getInstance().getComponent(
-            LightComponent,
-            LightComponent.main
-          ) as LightComponent;
+            CameraComponent,
+            CameraComponent.main
+          ) as CameraComponent;
         }
         this.setViewInfo(
           shaderProgram,

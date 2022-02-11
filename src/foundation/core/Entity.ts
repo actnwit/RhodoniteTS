@@ -4,7 +4,6 @@ import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import CameraComponent from '../components/Camera/CameraComponent';
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import LightComponent from '../components/Light/LightComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
@@ -23,7 +22,7 @@ export interface IEntity extends IRnObject {
   hasComponent(componentType: typeof Component): boolean;
   _getComponentsInner(): Map<ComponentTID, Component>;
   tryToGetBlendShape(): BlendShapeComponent | undefined;
-  tryToGetCamera(): CameraComponent | undefined;
+  tryToGetCamera(): LightComponent | undefined;
   tryToGetCameraController(): CameraControllerComponent | undefined;
   tryToGetLight(): LightComponent | undefined;
   tryToGetMesh(): MeshComponent | undefined;
@@ -121,7 +120,7 @@ export default class Entity extends RnObject implements IEntity {
   tryToGetCamera() {
     return this.getComponentByComponentTID(
       WellKnownComponentTIDs.CameraComponentTID
-    ) as CameraComponent | undefined;
+    ) as LightComponent | undefined;
   }
 
   tryToGetCameraController() {

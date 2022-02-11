@@ -79,8 +79,6 @@ import EntityHelper, {
   IMeshEntity,
 } from '../helpers/EntityHelper';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
-import CameraComponent from '../../foundation/components/Camera/CameraComponent';
-import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import LightComponent from '../components/Light/LightComponent';
 
 declare let DracoDecoderModule: any;
@@ -141,8 +139,8 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
-    const entity = EntityHelper.createCameraEntity();
+  private __generateCameraControllerEntity(gltfModel: RnM2): ICameraEntity {
+    const entity = EntityHelper.createCameraControllerEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
@@ -533,10 +531,8 @@ export default class ModelConverter {
   }
 
   private __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
-    const cameraEntity = this.__generateCameraEntity(gltfModel);
-    const cameraComponent = cameraEntity.getComponentByComponentTID(
-      WellKnownComponentTIDs.CameraComponentTID
-    )! as CameraComponent;
+    const cameraEntity = this.__generateCameraControllerEntity(gltfModel);
+    const cameraComponent = cameraEntity.getCamera();
     cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (
       gltfModel.asset &&

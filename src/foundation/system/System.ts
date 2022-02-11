@@ -11,7 +11,7 @@ import Component from '../core/Component';
 import Expression from '../renderer/Expression';
 import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import EntityRepository from '../core/EntityRepository';
-import LightComponent from '../components/Camera/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import MemoryManager from '../core/MemoryManager';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import Vector3 from '../math/Vector3';
@@ -120,7 +120,7 @@ export default class System {
     }
     Time._processBegin();
 
-    if (LightComponent.main === Component.InvalidObjectUID) {
+    if (CameraComponent.main === Component.InvalidObjectUID) {
       const cameraEntity = EntityHelper.createCameraEntity();
       cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
       cameraEntity.getCamera().type = CameraType.Orthographic;

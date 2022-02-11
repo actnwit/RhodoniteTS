@@ -17,8 +17,8 @@ import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import MutableVector4 from '../../math/MutableVector4';
 import VectorN from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;

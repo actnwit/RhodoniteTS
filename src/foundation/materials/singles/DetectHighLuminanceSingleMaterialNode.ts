@@ -9,7 +9,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import ComponentRepository from '../../core/ComponentRepository';
-import LightComponent from '../../components/Camera/CameraComponent';
+import CameraComponent from '../../components/Camera/CameraComponent';
 import Scalar from '../../math/Scalar';
 import RenderPass from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
@@ -139,9 +139,9 @@ export default class DetectHighLuminanceSingleMaterialNode extends AbstractMater
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(
-        LightComponent,
-        LightComponent.main
-      ) as LightComponent;
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
     if (cameraComponent) {
       this.setViewInfo(

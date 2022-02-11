@@ -1,4 +1,4 @@
-import LightComponent from '../components/Camera/CameraComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 import {IGroupEntity} from '../helpers/EntityHelper';
 import Vector3 from '../math/Vector3';
 
@@ -11,7 +11,7 @@ export default abstract class AbstractCameraController {
   constructor() {}
 
   protected _calcZNearInner(
-    camera: LightComponent,
+    camera: CameraComponent,
     eyePosition: Vector3,
     eyeDirection: Vector3
   ) {
@@ -68,7 +68,7 @@ export default abstract class AbstractCameraController {
     }
   }
 
-  protected _calcZFarInner(camera: LightComponent) {
+  protected _calcZFarInner(camera: CameraComponent) {
     if (this.autoCalculateZNearAndZFar) {
       camera.zFarInner = camera.zNearInner * this.zFarScalingFactor;
     } else {
