@@ -27,6 +27,7 @@ import EffekseerComponent, {
 import SparkGearComponent, {
   ISparkGearEntityMethods,
 } from '../../sparkgear/SparkGearComponent';
+import CameraComponent from './Camera/CameraComponent';
 
 export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,
@@ -110,7 +111,7 @@ type IsThisCameraController<
 type IsThisCamera<
   T extends typeof Component,
   Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof LightComponent
+> = T extends typeof CameraComponent
   ? ICameraEntityMethods
   : Exclude<Possibles, ICameraEntityMethods>;
 
