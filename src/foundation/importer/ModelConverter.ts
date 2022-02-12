@@ -80,6 +80,7 @@ import EntityHelper, {
 } from '../helpers/EntityHelper';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import LightComponent from '../components/Light/LightComponent';
+import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 
 declare let DracoDecoderModule: any;
 
@@ -185,9 +186,8 @@ export default class ModelConverter {
     rootGroup.tryToSetTag({tag: 'ObjectType', value: 'top'});
     if (gltfModel.scenes[0].nodes) {
       for (const nodesIndex of gltfModel.scenes[0].nodes) {
-        rootGroup
-          .getSceneGraph()!
-          .addChild(rnEntities[nodesIndex].getSceneGraph()!);
+        const sg = rnEntities[nodesIndex].getSceneGraph();
+        rootGroup.getSceneGraph().addChild(sg);
       }
     }
 
@@ -269,12 +269,12 @@ export default class ModelConverter {
 
     for (const node_i in gltfModel.nodes) {
       const parentNode_i = parseInt(node_i);
-      const node = gltfModel.nodes[parentNode_i];
-      if (Is.exist(node.children)) {
-        const parentGroup = groupSceneComponents[parentNode_i];
-        for (const childNode_i of node.children) {
-          const childGroup = groupSceneComponents[childNode_i];
-          parentGroup.addChild(childGroup);
+      const glTF2ParentNode = gltfModel.nodes[parentNode_i];
+      if (Is.exist(glTF2ParentNode.children)) {
+        const rnParentSceneGraphComponent = groupSceneComponents[parentNode_i];
+        for (const childNode_i of glTF2ParentNode.children) {
+          const rnChildSceneGraphComponent = groupSceneComponents[childNode_i];
+          rnParentSceneGraphComponent.addChild(rnChildSceneGraphComponent);
         }
       }
     }
@@ -463,11 +463,6 @@ export default class ModelConverter {
         entity = group;
       }
 
-      entity.tryToSetTag({tag: TagGltf2NodeIndex, value: node_i});
-
-      rnEntities.push(entity);
-      rnEntitiesByNames.set(node.name!, entity);
-
       if (this.__isMorphing(node, gltfModel)) {
         let weights: number[] = [];
         if (node.weights) {
@@ -476,17 +471,23 @@ export default class ModelConverter {
           weights = node.meshObject.weights;
         }
         const entityRepository = EntityRepository.getInstance();
-        const newRnEntity = entityRepository.addComponentToEntity(
+        entity = entityRepository.addComponentToEntity(
           BlendShapeComponent,
           entity
         );
-        const blendShapeComponent = newRnEntity.getBlendShape();
+        const blendShapeComponent = (
+          entity as unknown as IBlendShapeEntityMethods
+        ).getBlendShape();
         blendShapeComponent.weights = weights;
         if (node.meshObject?.primitives[0].extras?.targetNames) {
           blendShapeComponent.targetNames =
             node.meshObject.primitives[0].extras.targetNames;
         }
       }
+      entity.tryToSetTag({tag: TagGltf2NodeIndex, value: node_i});
+
+      rnEntities.push(entity);
+      rnEntitiesByNames.set(node.name!, entity);
     }
 
     return {rnEntities, rnEntitiesByNames};

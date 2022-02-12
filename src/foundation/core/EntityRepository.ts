@@ -139,7 +139,7 @@ export default class EntityRepository {
       true,
       entity._getComponentsInner()
     );
-    this.__entities[this.__entity_uid_count] = newEntity;
+    this.__entities[entity.entityUID] = newEntity;
     newEntity._copyFrom(entity as unknown as RnObject);
     return newEntity as unknown as typeof entityClass;
   }
