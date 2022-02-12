@@ -18,6 +18,8 @@ import Vector4 from '../../math/Vector4';
 import ClassicSingleShaderVertex from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import {AlphaModeEnum} from '../../definitions/AlphaMode';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   constructor({
@@ -162,7 +164,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -200,8 +202,8 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         args.setUniform
       );
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      const skeletalComponent = args.entity.tryToGetSkeletal();
+      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
   }
 }

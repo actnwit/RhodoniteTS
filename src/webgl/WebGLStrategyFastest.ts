@@ -23,7 +23,6 @@ import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphC
 import Mesh from '../foundation/geometry/Mesh';
 import MeshRendererComponent from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
-import LightComponent from '../foundation/components/Light/LightComponent';
 import Config from '../foundation/core/Config';
 import RenderPass from '../foundation/renderer/RenderPass';
 import CameraComponent from '../foundation/components/Camera/CameraComponent';
@@ -38,7 +37,6 @@ import {
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import VectorN from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
-import Entity from '../foundation/core/Entity';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import Matrix33 from '../foundation/math/Matrix33';
@@ -46,7 +44,12 @@ import CubeTexture from '../foundation/textures/CubeTexture';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
-import WebGLStrategyUniform from './WebGLStrategyUniform';
+import {
+  IGroupEntity,
+  IMeshEntity,
+  ISkeletalEntity,
+} from '../foundation/helpers/EntityHelper';
+import LightComponent from '../foundation/components/Light/LightComponent';
 
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
@@ -631,7 +634,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(
       LightComponent
-    ) as LightComponent[];
+    ) as LightComponent[] | undefined;
   }
 
   private __isUboUse() {
@@ -792,9 +795,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   private __setCurrentComponentSIDsForEachEntity(
     gl: WebGLRenderingContext,
     renderPass: RenderPass,
-    entity: Entity
+    entity: ISkeletalEntity
   ) {
-    const skeletalComponent = entity.getSkeletal();
+    const skeletalComponent = entity.tryToGetSkeletal();
     if (skeletalComponent) {
       let index = 0;
       if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {
@@ -814,7 +817,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     gl: WebGLRenderingContext,
     renderPass: RenderPass,
     material: Material,
-    entity: Entity
+    entity: IGroupEntity
   ) {
     WebGLStrategyFastest.__currentComponentSIDs!._v[0] = material.materialSID;
     gl.uniform1fv(
@@ -865,8 +868,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         WebGLStrategyCommonMethod.startDepthMasking(idx, gl);
 
-        const entity = meshComponent.entity;
-        this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
+        const entity = meshComponent.entity as IMeshEntity;
+        this.__setCurrentComponentSIDsForEachEntity(
+          gl,
+          renderPass,
+          entity as unknown as ISkeletalEntity
+        );
 
         const meshRendererComponent = entity.getMeshRenderer()!;
 
@@ -932,12 +939,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
               entity: entity,
               worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
               normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
-              lightComponents: this.__lightComponents,
+              lightComponents: this.__lightComponents!,
               renderPass: renderPass,
               primitive: primitive,
               diffuseCube: meshRendererComponent.diffuseCubeMap,
-              specularCube: meshRendererComponent.specularCubeMap,
+              specularCube: meshRendererComponent.specularCubeMap!,
               setUniform: false,
+              isVr: isVRMainPass,
+              displayIdx,
             },
           });
 
@@ -972,7 +981,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     meshComponent: MeshComponent,
     worldMatrix: Matrix44,
     normalMatrix: Matrix33,
-    entity: Entity,
+    entity: IMeshEntity,
     renderPass: RenderPass,
     renderPassTickCount: Count,
     diffuseCube?: CubeTexture,

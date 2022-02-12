@@ -34,6 +34,7 @@ import CameraComponent from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
 import ShaderitySingleMaterialNode from '../materials/singles/ShaderitySingleMaterialNode';
+import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 
 function createMaterial(
   materialName: string,
@@ -713,7 +714,7 @@ function recreateShaderityMaterial(
 }
 
 function changeMaterial(
-  entity: Entity,
+  entity: IMeshRendererEntityMethods,
   primitive: Primitive,
   material: Material
 ) {

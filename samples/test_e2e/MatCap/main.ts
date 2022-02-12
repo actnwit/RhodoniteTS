@@ -47,12 +47,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityMainCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
     const transformCamera = entityCamera.getTransform();
     transformCamera.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
@@ -104,19 +99,6 @@ declare const Rn: typeof _Rn;
     return renderPass;
   }
 
-  function generateEntity(
-    componentArray = [
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ] as Array<typeof Rn.Component>
-  ) {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity(componentArray);
-    return entity;
-  }
-
   function createEntityMatCapSphere(texture: Texture) {
     const primitive = new Rn.Sphere();
     primitive.generate({
@@ -126,7 +108,7 @@ declare const Rn: typeof _Rn;
       material: Rn.MaterialHelper.createMatCapMaterial({texture}),
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
@@ -145,7 +127,7 @@ declare const Rn: typeof _Rn;
       material: Rn.MaterialHelper.createMatCapMaterial({texture}),
     });
 
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);

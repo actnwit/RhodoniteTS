@@ -25,6 +25,8 @@ import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent
 
 import PbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import SkinPbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/SkinPbrSingleShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
@@ -489,7 +491,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -527,8 +529,8 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
       }
 
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      const skeletalComponent = args.entity.tryToGetSkeletal();
+      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
     // Env map
@@ -609,15 +611,16 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
     }
 
     // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(
       shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
-      args.primitive
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
     );
   }
 
-  private setupHdriParameters(args: any) {
+  private setupHdriParameters(args: RenderingArg) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

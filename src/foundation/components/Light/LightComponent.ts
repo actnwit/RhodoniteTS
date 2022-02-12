@@ -1,17 +1,24 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {LightType} from '../../definitions/LightType';
 import Vector3 from '../../math/Vector3';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import Config from '../../core/Config';
-import {ComponentTID, EntityUID, ComponentSID} from '../../../types/CommonTypes';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+} from '../../../types/CommonTypes';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import MutableVector4 from '../../math/MutableVector4';
 import VectorN from '../../math/VectorN';
+import {ILightEntity} from '../../helpers/EntityHelper';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;
@@ -128,6 +135,40 @@ export default class LightComponent extends Component {
     LightComponent.__lightIntensities._v[4 * this.componentSID + 2] =
       this.__intensity.z;
     LightComponent.__lightIntensities._v[4 * this.componentSID + 3] = 0;
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): ILightEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as ILightEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class LightEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getLight() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.LightComponentTID
+        ) as LightComponent;
+      }
+    }
+    applyMixins(base, LightEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(LightComponent);

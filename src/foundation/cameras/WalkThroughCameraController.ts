@@ -10,6 +10,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import AbstractCameraController from './AbstractCameraController';
 import {MathUtil} from '../math/MathUtil';
 import { IGroupEntity } from '../helpers/EntityHelper';
+import { Is } from '../misc/Is';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -239,7 +240,7 @@ export default class WalkThroughCameraController
   }
 
   private __updateCameraComponent(camera: CameraComponent) {
-    const targetAABB = this.__targetEntity!.getSceneGraph()!.worldAABB;
+    const targetAABB = this.__targetEntity!.getSceneGraph().worldAABB;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner *
@@ -250,10 +251,10 @@ export default class WalkThroughCameraController
       this._currentCenter.copyComponents(targetAABB.centerPoint);
       this._currentDir.setComponents(0, 0, -1);
 
-      if (camera.entity.getSceneGraph()) {
-        const sg = camera.entity.getSceneGraph()!;
+      const sceneComponent = camera.entity.tryToGetSceneGraph();
+      if (Is.exist(sceneComponent)) {
         const invMat = Matrix44.invertTo(
-          sg.worldMatrixInner,
+          sceneComponent.worldMatrixInner,
           WalkThroughCameraController.__tmpInvMat
         );
         invMat.multiplyVector3To(this._currentPos, this._currentPos);
@@ -396,7 +397,7 @@ export default class WalkThroughCameraController
 
   setTarget(targetEntity: IGroupEntity) {
     const speed =
-      targetEntity.getSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
+      targetEntity.tryToGetSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 

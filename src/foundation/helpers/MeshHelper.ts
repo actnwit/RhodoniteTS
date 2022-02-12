@@ -8,6 +8,7 @@ import Mesh from '../geometry/Mesh';
 import {AxisDescriptor} from '../geometry/shapes/Axis';
 import {Axis} from '../geometry/shapes/Axis';
 import {IShape} from '../geometry/shapes/IShape';
+import EntityHelper from './EntityHelper';
 
 const createPlane = (
   desc: PlaneDescriptor = {
@@ -36,14 +37,8 @@ const createAxis = (
 };
 
 function createShape(primitive: IShape) {
-  const entity = EntityRepository.getInstance().createEntity([
-    TransformComponent,
-    SceneGraphComponent,
-    MeshComponent,
-    MeshRendererComponent,
-  ]);
-
-  const meshComponent = entity.getMesh()!;
+  const entity = EntityHelper.createMeshEntity();
+  const meshComponent = entity.getMesh();
   const mesh = new Mesh();
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);

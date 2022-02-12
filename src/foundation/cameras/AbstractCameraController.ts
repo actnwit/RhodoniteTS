@@ -16,7 +16,7 @@ export default abstract class AbstractCameraController {
     eyeDirection: Vector3
   ) {
     if (this.autoCalculateZNearAndZFar && this.__targetEntity != null) {
-      const targetAABB = this.__targetEntity.getSceneGraph()!.worldAABB;
+      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
       const lengthOfCenterToEye = Vector3.lengthBtw(
         eyePosition,
         targetAABB.centerPoint

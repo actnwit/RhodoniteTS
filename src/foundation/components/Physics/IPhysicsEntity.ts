@@ -1,9 +1,9 @@
 import {EntityUID} from '../../../types/CommonTypes';
 import {MixinBase} from '../../../types/TypeGenerators';
 import Component from '../../core/Component';
-import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import PhysicsComponent from './PhysicsComponent';
 
-export interface IBlendShapeEntityMethods {
-  getBlendShape(): BlendShapeComponent;
+export interface IPhysicsEntityMethods {
+  getPhysics(): PhysicsComponent;
 }

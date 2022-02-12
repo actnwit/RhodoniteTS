@@ -19,6 +19,8 @@ import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import Material from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
   static MatCapTexture = new ShaderSemanticsClass({str: 'matCapTexture'});
@@ -123,7 +125,7 @@ export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -152,9 +154,7 @@ export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
     );
 
     /// Skinning
-    const skeletalComponent = args.entity.getComponent(
-      SkeletalComponent
-    ) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    const skeletalComponent = args.entity.tryToGetSkeletal();
+    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
   }
 }

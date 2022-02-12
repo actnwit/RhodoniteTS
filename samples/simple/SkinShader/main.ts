@@ -64,19 +64,11 @@ const load = async function () {
   );
   const expression = new Rn.Expression();
 
-  const entityRepository = Rn.EntityRepository.getInstance();
-
   // Camera
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getComponent(
     Rn.CameraComponent
   ) as CameraComponent;
-  //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(30);
@@ -86,11 +78,7 @@ const load = async function () {
   ]);
 
   // Lights
-  const lightEntity2 = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.LightComponent,
-  ]);
+  const lightEntity2 = Rn.EntityHelper.createLightEntity();
   lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([
     0.0, 0.0, 10.0,
   ]);

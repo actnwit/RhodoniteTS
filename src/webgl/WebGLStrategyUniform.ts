@@ -6,7 +6,6 @@ import {Primitive} from '../foundation/geometry/Primitive';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
 import Matrix44 from '../foundation/math/Matrix44';
 import Matrix33 from '../foundation/math/Matrix33';
-import Entity from '../foundation/core/Entity';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import LightComponent from '../foundation/components/Light/LightComponent';
@@ -20,7 +19,6 @@ import {CompositionType} from '../foundation/definitions/CompositionType';
 import Material from '../foundation/materials/core/Material';
 import RenderPass from '../foundation/renderer/RenderPass';
 import {
-  ShaderVariableUpdateIntervalEnum,
   ShaderVariableUpdateInterval,
 } from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Mesh from '../foundation/geometry/Mesh';
@@ -38,24 +36,7 @@ import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import {Is, Is as is} from '../foundation/misc/Is';
-import Scalar from '../foundation/math/Scalar';
-import Vector3 from '../foundation/math/Vector3';
-
-type ShaderVariableArguments = {
-  glw: WebGLContextWrapper;
-  shaderProgram: WebGLProgram;
-  primitive: Primitive;
-  shaderProgramUid: WebGLResourceHandle;
-  entity: Entity;
-  worldMatrix: Matrix44;
-  normalMatrix: Matrix33;
-  renderPass: RenderPass;
-  diffuseCube?: CubeTexture;
-  specularCube?: CubeTexture;
-  firstTime: boolean;
-  updateInterval?: ShaderVariableUpdateIntervalEnum;
-};
-
+import { IMeshEntity } from '../foundation/helpers/EntityHelper';
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
@@ -417,7 +398,7 @@ mat3 get_normalMatrix(float instanceId) {
     meshComponent: MeshComponent,
     worldMatrix: Matrix44,
     normalMatrix: Matrix33,
-    entity: Entity,
+    entity: IMeshEntity,
     renderPass: RenderPass,
     renderPassTickCount: Count,
     diffuseCube?: CubeTexture,
@@ -497,12 +478,12 @@ mat3 get_normalMatrix(float instanceId) {
             primitive: primitive,
             worldMatrix: worldMatrix,
             normalMatrix: normalMatrix,
-            lightComponents: this.__lightComponents,
+            lightComponents: this.__lightComponents!,
             renderPass: renderPass,
             diffuseCube: diffuseCube,
             specularCube: specularCube,
             isVr: isVrMainPass,
-            displayIdx: displayIdx,
+            displayIdx,
           },
         });
 

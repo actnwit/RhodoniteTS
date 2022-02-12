@@ -15,6 +15,7 @@ import {
   CGAPIResourceHandle,
 } from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
+import {IMeshEntity} from '../foundation/helpers/EntityHelper';
 
 export type ShaderSources = {
   vertex: string;
@@ -33,7 +34,7 @@ export default interface WebGLStrategy {
     meshComponent: MeshComponent,
     worldMatrix: Matrix44,
     normalMatrix: Matrix33,
-    entity: Entity,
+    entity: IMeshEntity,
     renderPass: RenderPass,
     renderPassTickCount: Count,
     diffuseCube?: CubeTexture,

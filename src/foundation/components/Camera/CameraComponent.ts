@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
@@ -27,6 +27,9 @@ import CameraControllerComponent from '../CameraController/CameraControllerCompo
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import RenderPass from '../../renderer/RenderPass';
+import {ICameraEntity} from '../../helpers/EntityHelper';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
@@ -687,6 +690,40 @@ export default class CameraComponent extends Component {
     } else {
       this.setValuesToGlobalDataRepository();
     }
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): ICameraEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as ICameraEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBaseClass extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBaseClass, _componentClass: SomeComponentClass) {
+    class CameraEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getCamera() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.CameraComponentTID
+        ) as CameraComponent;
+      }
+    }
+    applyMixins(base, CameraEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBaseClass;
   }
 }
 ComponentRepository.registerComponentClass(CameraComponent);

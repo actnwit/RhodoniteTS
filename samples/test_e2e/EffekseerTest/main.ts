@@ -64,12 +64,7 @@ declare const Rn: typeof _Rn;
   // effekseerEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;

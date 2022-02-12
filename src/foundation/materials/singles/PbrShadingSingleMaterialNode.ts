@@ -26,6 +26,8 @@ import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
+import { Is } from '../../misc/Is';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
@@ -525,7 +527,7 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -562,8 +564,8 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           args.setUniform
         );
         /// Skinning
-        const skeletalComponent = args.entity.getSkeletal();
-        this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+        const skeletalComponent = args.entity.tryToGetSkeletal();
+        this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
       }
     }
 
@@ -645,15 +647,16 @@ export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     }
 
     // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(
       shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
-      args.primitive
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
     );
   }
 
-  private setupHdriParameters(args: any) {
+  private setupHdriParameters(args: RenderingArg) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

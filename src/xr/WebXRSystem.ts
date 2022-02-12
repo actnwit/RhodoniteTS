@@ -32,7 +32,10 @@ import {Is} from '../foundation/misc/Is';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableQuaternion from '../foundation/math/MutableQuaternion';
 import MutableScalar from '../foundation/math/MutableScalar';
-import {IGroupEntity} from '../foundation/helpers/EntityHelper';
+import EntityHelper, {
+  ICameraEntity,
+  IGroupEntity,
+} from '../foundation/helpers/EntityHelper';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -52,9 +55,9 @@ export default class WebXRSystem {
   private __defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
   private __canvasWidthForVR = 0;
   private __canvasHeightForVR = 0;
-  private __viewerEntity: Entity;
-  private __leftCameraEntity: Entity;
-  private __rightCameraEntity: Entity;
+  private __viewerEntity: IGroupEntity;
+  private __leftCameraEntity: ICameraEntity;
+  private __rightCameraEntity: ICameraEntity;
   private __basePath?: string;
   private __controllerEntities: IGroupEntity[] = [];
   private __xrInputSources: XRInputSource[] = [];
@@ -64,27 +67,15 @@ export default class WebXRSystem {
   private __viewerScale = MutableVector3.one();
 
   private constructor() {
-    const repo = EntityRepository.getInstance();
-    this.__viewerEntity = repo.createEntity([
-      TransformComponent,
-      SceneGraphComponent,
-    ]);
-    this.__leftCameraEntity = repo.createEntity([
-      TransformComponent,
-      SceneGraphComponent,
-      CameraComponent,
-    ]);
-    this.__rightCameraEntity = repo.createEntity([
-      TransformComponent,
-      SceneGraphComponent,
-      CameraComponent,
-    ]);
+    this.__viewerEntity = EntityHelper.createGroupEntity();
+    this.__leftCameraEntity = EntityHelper.createCameraEntity();
+    this.__rightCameraEntity = EntityHelper.createCameraEntity();
     this.__viewerEntity
-      .getSceneGraph()!
-      .addChild(this.__leftCameraEntity.getSceneGraph()!);
+      .getSceneGraph()
+      .addChild(this.__leftCameraEntity.getSceneGraph());
     this.__viewerEntity
-      .getSceneGraph()!
-      .addChild(this.__rightCameraEntity.getSceneGraph()!);
+      .getSceneGraph()
+      .addChild(this.__rightCameraEntity.getSceneGraph());
   }
 
   /// Public Methods
@@ -248,11 +239,11 @@ export default class WebXRSystem {
   /// Accessors
 
   get leftViewMatrix() {
-    return this.__leftCameraEntity.getCamera()!.viewMatrix;
+    return this.__leftCameraEntity.getCamera().viewMatrix;
   }
 
   get rightViewMatrix() {
-    return this.__rightCameraEntity.getCamera()!.viewMatrix;
+    return this.__rightCameraEntity.getCamera().viewMatrix;
   }
 
   get leftProjectionMatrix() {
@@ -378,12 +369,12 @@ export default class WebXRSystem {
   }
 
   _setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera()!.projectionMatrix =
+    this.__leftCameraEntity.getCamera().projectionMatrix =
       this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera()!.projectionMatrix =
+    this.__rightCameraEntity.getCamera().projectionMatrix =
       this.rightProjectionMatrix;
-    this.__leftCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
-    this.__rightCameraEntity.getCamera()!.setValuesToGlobalDataRepository();
+    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
+    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
   }
 
   /**
@@ -420,9 +411,9 @@ export default class WebXRSystem {
    */
   _getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
-      return this.__leftCameraEntity.getCamera()!.componentSID;
+      return this.__leftCameraEntity.getCamera().componentSID;
     } else {
-      return this.__rightCameraEntity.getCamera()!.componentSID;
+      return this.__rightCameraEntity.getCamera().componentSID;
     }
   }
 

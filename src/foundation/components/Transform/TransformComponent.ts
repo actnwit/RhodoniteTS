@@ -4,7 +4,7 @@ import Matrix44 from '../../math/Matrix44';
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
 import MutableMatrix44 from '../../math/MutableMatrix44';
@@ -21,6 +21,11 @@ import {
 import {IQuaternion} from '../../math/IQuaternion';
 import {IMatrix44} from '../../math/IMatrix';
 import {IVector3} from '../../math/IVector';
+import {IGroupEntity, ISkeletalEntity, ITransformEntity} from '../../helpers/EntityHelper';
+import {MixinBase} from '../../../types/TypeGenerators';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
+import SkeletalComponent from '../Skeletal/SkeletalComponent';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -613,16 +618,50 @@ export default class TransformComponent extends Component {
   }
 
   $logic() {
-    const sceneGraphComponent = this.entity.getSceneGraph()!;
+    const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
     if (this.__updateCountAtLastLogic !== this._updateCount) {
       sceneGraphComponent.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this._updateCount;
     } else {
-      const skeletalComponent = this.entity.getSkeletal();
+      const skeletalComponent = this.entity.tryToGetSkeletal();
       if (skeletalComponent != null) {
         sceneGraphComponent.setWorldMatrixDirty();
       }
     }
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): ITransformEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as ITransformEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class TransformEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getTransform() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.TransformComponentTID
+        ) as TransformComponent;
+      }
+    }
+    applyMixins(base, TransformEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 

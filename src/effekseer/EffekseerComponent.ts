@@ -1,6 +1,6 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
 import Component from '../foundation/core/Component';
-import EntityRepository from '../foundation/core/EntityRepository';
+import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
@@ -19,6 +19,8 @@ import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
 import {IVector3} from '../foundation/math/IVector';
 import type {Unzip} from 'zlib';
+import {IEntity} from '../foundation/core/Entity';
+import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
 
 export default class EffekseerComponent extends Component {
   public static Unzip?: Unzip;
@@ -328,5 +330,33 @@ export default class EffekseerComponent extends Component {
 
     this.moveStageTo(ProcessStage.Logic);
   }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class EffekseerEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getEffekseer() {
+        return this.getComponentByComponentTID(
+          EffekseerComponent.componentTID
+        ) as EffekseerComponent;
+      }
+    }
+    applyMixins(base, EffekseerComponent);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);
+
+export interface IEffekseerEntityMethods {
+  getEffekseer(): EffekseerComponent;
+}

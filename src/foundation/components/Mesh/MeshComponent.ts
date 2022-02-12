@@ -1,15 +1,18 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import Vector3 from '../../math/Vector3';
 import CameraComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import Mesh from '../../geometry/Mesh';
-import Entity from '../../core/Entity';
-import {ComponentTID, EntityUID, ComponentSID} from '../../../types/CommonTypes';
-import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
+import Entity, {IEntity} from '../../core/Entity';
+import {
+  ComponentTID,
+  EntityUID,
+  ComponentSID,
+} from '../../../types/CommonTypes';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import Matrix44 from '../../math/Matrix44';
 import MutableMatrix44 from '../../math/MutableMatrix44';
@@ -17,6 +20,9 @@ import MathClassUtil from '../../math/MathClassUtil';
 import MutableVector3 from '../../math/MutableVector3';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {Is} from '../../misc/Is';
+import {IMeshEntity} from '../../helpers/EntityHelper';
+import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -75,8 +81,8 @@ export default class MeshComponent extends Component {
 
   calcViewDepth(cameraComponent: CameraComponent) {
     const centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
-    const skeletal = this.entity.getSkeletal();
-    if (skeletal?._bindShapeMatrix) {
+    const skeletal = this.entity.tryToGetSkeletal();
+    if (Is.exist(skeletal) && Is.exist(skeletal._bindShapeMatrix)) {
       skeletal._bindShapeMatrix.multiplyVector3To(
         this.__mesh!.AABB.centerPoint,
         centerPosition_inLocal
@@ -249,9 +255,9 @@ export default class MeshComponent extends Component {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
         if (primitive.isPositionAccessorUpdated) {
-          meshComponent.entity
-            .getMeshRenderer()
-            ?.moveStageTo(ProcessStage.Load);
+          const meshRendererComponent =
+            meshComponent.entity.tryToGetMeshRenderer();
+          meshRendererComponent?.moveStageTo(ProcessStage.Load);
         }
       }
     }
@@ -276,6 +282,40 @@ export default class MeshComponent extends Component {
   }
 
   $logic() {}
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): IMeshEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as IMeshEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class MeshEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getMesh() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.MeshComponentTID
+        ) as MeshComponent;
+      }
+    }
+    applyMixins(base, MeshEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
 
 ComponentRepository.registerComponentClass(MeshComponent);

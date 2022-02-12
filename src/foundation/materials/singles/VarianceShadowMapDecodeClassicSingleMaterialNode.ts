@@ -28,6 +28,8 @@ import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent
 import MutableVector4 from '../../math/MutableVector4';
 import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
+import {RenderingArg} from '../../../webgl/types/CommomTypes';
+import {Is} from '../../misc/Is';
 
 export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
@@ -476,7 +478,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
@@ -553,10 +555,8 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     }
 
     /// Skinning
-    const skeletalComponent = args.entity.getComponent(
-      SkeletalComponent
-    ) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    const skeletalComponent = args.entity.tryToGetSkeletal();
+    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
 
     // Lights
     this.setLightsInfo(
@@ -567,11 +567,12 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
     );
 
     // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(
       shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
-      args.primitive
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
     );
 
     const __webglResourceRepository =

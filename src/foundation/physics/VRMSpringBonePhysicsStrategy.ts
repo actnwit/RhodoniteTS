@@ -9,6 +9,7 @@ import VRMColliderGroup from './VRMColliderGroup';
 import {Index} from '../../types/CommonTypes';
 import PhysicsStrategy from './PhysicsStrategy';
 import MutableQuaternion from '../math/MutableQuaternion';
+import { IPhysicsEntity } from '../helpers/EntityHelper';
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
@@ -104,7 +105,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     );
 
     for (const sg of sceneGraphs) {
-      const physicsComponent = sg.entity.getPhysics();
+      const physicsComponent = sg.entity.tryToGetPhysics();
       if (physicsComponent) {
         const strategy =
           physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
@@ -127,7 +128,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   static initialize(sceneGraph: SceneGraphComponent) {
     const children = sceneGraph.children;
 
-    const physicsComponent = sceneGraph.entity.getPhysics();
+    const physicsComponent = sceneGraph.entity.tryToGetPhysics()!;
     const vrmSpringBone =
       physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
     if (children.length > 0) {

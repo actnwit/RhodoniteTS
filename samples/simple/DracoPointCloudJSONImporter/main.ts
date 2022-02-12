@@ -1,5 +1,5 @@
-import { IGroupEntity, IMeshEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {Entity, Expression} from '../../../dist/esm/index';
+import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
+import _Rn, {Expression} from '../../../dist/esm/index';
 import {RnM2} from '../../../dist/esm/types/RnM2';
 
 declare const Rn: typeof _Rn;
@@ -38,13 +38,7 @@ declare const Rn: typeof _Rn;
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const entityCamera = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
+  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
   const cameraControllerComponent = entityCamera.getCameraController();
   cameraControllerComponent.controller.setTarget(rootGroup);
 
@@ -119,7 +113,7 @@ declare const Rn: typeof _Rn;
     if (sceneGraphComponent) {
       const childSceneGraphComponents = sceneGraphComponent.children;
       for (const childSceneGraphComponent of childSceneGraphComponents) {
-        const childEntity = childSceneGraphComponent.entity;
+        const childEntity = childSceneGraphComponent.entity as IMeshEntity;
         setPointSizeRecursively(childEntity, pointSize);
       }
     }

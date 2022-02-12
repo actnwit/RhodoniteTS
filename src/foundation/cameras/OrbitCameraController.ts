@@ -619,13 +619,13 @@ export default class OrbitCameraController
       newCenterVec.copyComponents(centerVec);
     } else {
       if (this.__originalTargetAABB == null) {
-        const targetAABB = this.__targetEntity.getSceneGraph()!.worldAABB;
+        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldAABB;
         this.__originalTargetAABB = targetAABB.clone();
       }
 
       // calc newCenterVec
       if (this.followTargetAABB) {
-        const targetAABB = this.__targetEntity.getSceneGraph()!.worldAABB;
+        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldAABB;
         newCenterVec.copyComponents(targetAABB.centerPoint);
       } else {
         newCenterVec.copyComponents(this.__originalTargetAABB.centerPoint);
@@ -646,7 +646,7 @@ export default class OrbitCameraController
         .multiply(lengthCenterToCamera)
         .add(newCenterVec);
 
-      const sg = camera.entity.getSceneGraph();
+      const sg = camera.entity.tryToGetSceneGraph();
       if (sg != null) {
         const invMat = Matrix44.invertTo(
           sg.worldMatrixInner,

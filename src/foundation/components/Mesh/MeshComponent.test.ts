@@ -2,12 +2,11 @@ import Rn from '../../../../dist/esm';
 
 function generateEntity() {
   const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.MeshComponent,
-  ]);
-  return entity;
+  const entity = repo.createEntity();
+  const entity1 = repo.addComponentToEntity(Rn.TransformComponent, entity);
+  const entity2 = repo.addComponentToEntity(Rn.SceneGraphComponent, entity1);
+  const entity3 = repo.addComponentToEntity(Rn.MeshComponent, entity2);
+  return entity3;
 }
 
 // test('Use translate simply', async () => {

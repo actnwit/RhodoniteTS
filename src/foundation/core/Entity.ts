@@ -1,37 +1,37 @@
-import TransformComponent from '../components/Transform/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import Component from './Component';
-import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import RnObject, {IRnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
-import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
-import CameraComponent from '../components/Camera/CameraComponent';
+import {Is} from '../misc/Is';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
-import PhysicsComponent from '../components/Physics/PhysicsComponent';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import LightComponent from '../components/Light/LightComponent';
-import {Is} from '../misc/Is';
+import MeshComponent from '../components/Mesh/MeshComponent';
+import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
+import PhysicsComponent from '../components/Physics/PhysicsComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
 import AnimationComponent from '../components/Animation/AnimationComponent';
 
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
   getComponent(componentType: typeof Component): Component | undefined;
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
-
-  // Get each Component
-  // getTransform(): TransformComponent | undefined;
-  // getSceneGraph(): SceneGraphComponent | undefined;
-  // getSkeletal(): SkeletalComponent | undefined;
-  // getMesh(): MeshComponent | undefined;
-  // getMeshRenderer(): MeshRendererComponent | undefined;
-  // getCamera(): CameraComponent | undefined;
-  // getCameraController(): CameraControllerComponent | undefined;
-  // getBlendShape(): BlendShapeComponent | undefined;
-  // getPhysics(): PhysicsComponent | undefined;
-  // getLight(): LightComponent | undefined;
-  // getAnimation(): AnimationComponent | undefined;
+  _setComponent(componentType: typeof Component, com: Component): void;
+  hasComponent(componentType: typeof Component): boolean;
+  _getComponentsInner(): Map<ComponentTID, Component>;
+  tryToGetBlendShape(): BlendShapeComponent | undefined;
+  tryToGetCamera(): LightComponent | undefined;
+  tryToGetCameraController(): CameraControllerComponent | undefined;
+  tryToGetLight(): LightComponent | undefined;
+  tryToGetMesh(): MeshComponent | undefined;
+  tryToGetMeshRenderer(): MeshRendererComponent | undefined;
+  tryToGetPhysics(): PhysicsComponent | undefined;
+  tryToGetSceneGraph(): SceneGraphComponent | undefined;
+  tryToGetSkeletal(): SkeletalComponent | undefined;
+  tryToGetTransform(): TransformComponent | undefined;
+  tryToGetAnimation(): AnimationComponent | undefined;
 }
 
 /**
@@ -42,20 +42,7 @@ export default class Entity extends RnObject implements IEntity {
   private readonly __entity_uid: number;
   static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;
-
-  private __components: Map<ComponentTID, Component> = new Map(); // index is ComponentTID
-
-  private __transformComponent?: TransformComponent;
-  private __sceneGraphComponent?: SceneGraphComponent;
-  private __skeletalComponent?: SkeletalComponent;
-  private __meshComponent?: MeshComponent;
-  private __meshRendererComponent?: MeshRendererComponent;
-  private __cameraComponent?: CameraComponent;
-  private __cameraControllerComponent?: CameraControllerComponent;
-  private __blendShapeComponent?: BlendShapeComponent;
-  private __physicsComponent?: PhysicsComponent;
-  private __lightComponent?: LightComponent;
-  private __animationComponent?: AnimationComponent;
+  protected __components: Map<ComponentTID, Component>; // index is ComponentTID
 
   /**
    * The constructor of the Entity class.
@@ -65,10 +52,16 @@ export default class Entity extends RnObject implements IEntity {
    * @param isAlive Whether this entity alive or not
    * @param entityComponent The instance of EntityComponent (Dependency Injection)
    */
-  constructor(entityUID: EntityUID, isAlive: Boolean) {
+  constructor(
+    entityUID: EntityUID,
+    isAlive: Boolean,
+    components?: Map<ComponentTID, Component>
+  ) {
     super();
     this.__entity_uid = entityUID;
     this.__isAlive = isAlive;
+
+    this.__components = Is.exist(components) ? components : new Map();
   }
 
   /**
@@ -83,11 +76,17 @@ export default class Entity extends RnObject implements IEntity {
    * Sets a component to this entity.
    * @param component The component to set.
    */
-  _setComponent(component: Component) {
-    this.__components.set(
-      (component.constructor as any).componentTID,
-      component
-    );
+  _setComponent(componentType: typeof Component, component: Component): void {
+    this.__components.set(componentType.componentTID, component);
+  }
+
+  /**
+   * return whether this entity has the component or not
+   * @param componentType The component to check
+   * @returns
+   */
+  hasComponent(componentType: typeof Component): boolean {
+    return this.__components.has(componentType.componentTID);
   }
 
   /**
@@ -108,140 +107,72 @@ export default class Entity extends RnObject implements IEntity {
     return this.__components.get(componentTID);
   }
 
-  /**
-   * Get the TransformComponent of the entity.
-   * It's a shortcut method of getComponent(TransformComponent).
-   */
-  getTransform(): TransformComponent | undefined {
-    if (this.__transformComponent == null) {
-      this.__transformComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.TransformComponentTID
-      ) as TransformComponent | undefined;
-    }
-    return this.__transformComponent;
+  _getComponentsInner() {
+    return this.__components;
   }
 
-  /**
-   * Get the SceneGraphComponent of the entity.
-   * It's a shortcut method of getComponent(SceneGraphComponent).
-   */
-  getSceneGraph(): SceneGraphComponent | undefined {
-    if (this.__sceneGraphComponent == null) {
-      this.__sceneGraphComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.SceneGraphComponentTID
-      ) as SceneGraphComponent | undefined;
-    }
-    return this.__sceneGraphComponent;
+  tryToGetBlendShape() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.BlendShapeComponentTID
+    ) as BlendShapeComponent | undefined;
   }
 
-  getSkeletal(): SkeletalComponent | undefined {
-    if (this.__skeletalComponent == null) {
-      this.__skeletalComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.SkeletalComponentTID
-      ) as SkeletalComponent | undefined;
-    }
-    return this.__skeletalComponent;
+  tryToGetCamera() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.CameraComponentTID
+    ) as LightComponent | undefined;
   }
 
-  getMesh(): MeshComponent | undefined {
-    if (this.__meshComponent == null) {
-      this.__meshComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.MeshComponentTID
-      ) as MeshComponent | undefined;
-    }
-    return this.__meshComponent;
+  tryToGetCameraController() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.CameraControllerComponentTID
+    ) as CameraControllerComponent | undefined;
   }
 
-  getMeshRenderer(): MeshRendererComponent | undefined {
-    if (this.__meshRendererComponent == null) {
-      this.__meshRendererComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.MeshRendererComponentTID
-      ) as MeshRendererComponent | undefined;
-    }
-    return this.__meshRendererComponent;
+  tryToGetLight() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.LightComponentTID
+    ) as LightComponent | undefined;
   }
 
-  getCamera(): CameraComponent | undefined {
-    if (this.__cameraComponent == null) {
-      this.__cameraComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.CameraComponentTID
-      ) as CameraComponent | undefined;
-    }
-    return this.__cameraComponent;
+  tryToGetMesh() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.MeshComponentTID
+    ) as MeshComponent | undefined;
   }
 
-  getCameraController(): CameraControllerComponent | undefined {
-    if (this.__cameraControllerComponent == null) {
-      this.__cameraControllerComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.CameraControllerComponentTID
-      ) as CameraControllerComponent | undefined;
-    }
-    return this.__cameraControllerComponent;
+  tryToGetMeshRenderer() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.MeshRendererComponentTID
+    ) as MeshRendererComponent | undefined;
   }
 
-  getBlendShape(): BlendShapeComponent | undefined {
-    if (this.__blendShapeComponent == null) {
-      this.__blendShapeComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.BlendShapeComponentTID
-      ) as BlendShapeComponent | undefined;
-    }
-    return this.__blendShapeComponent;
+  tryToGetPhysics() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.PhysicsComponentTID
+    ) as PhysicsComponent | undefined;
   }
 
-  getPhysics(): PhysicsComponent {
-    if (this.__physicsComponent == null) {
-      this.__physicsComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.PhysicsComponentTID
-      ) as PhysicsComponent;
-    }
-    return this.__physicsComponent;
+  tryToGetSceneGraph() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.SceneGraphComponentTID
+    ) as SceneGraphComponent | undefined;
   }
 
-  getLight(): LightComponent | undefined {
-    if (this.__lightComponent == null) {
-      this.__lightComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.LightComponentTID
-      ) as LightComponent | undefined;
-    }
-    return this.__lightComponent;
+  tryToGetSkeletal() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.SkeletalComponentTID
+    ) as SkeletalComponent | undefined;
   }
 
-  getAnimation(): AnimationComponent | undefined {
-    if (this.__animationComponent == null) {
-      this.__animationComponent = this.getComponentByComponentTID(
-        WellKnownComponentTIDs.AnimationComponentTID
-      ) as AnimationComponent | undefined;
-    }
-    return this.__animationComponent;
+  tryToGetTransform() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.TransformComponentTID
+    ) as TransformComponent | undefined;
   }
-
-  get worldMatrixInner() {
-    const skeletalComponent = this.getSkeletal() as
-      | SkeletalComponent
-      | undefined;
-    if (Is.exist(skeletalComponent) && skeletalComponent.isWorldMatrixUpdated) {
-      return skeletalComponent.worldMatrixInner;
-    } else {
-      const sceneGraphComponent = this.getSceneGraph();
-      if (Is.exist(sceneGraphComponent)) {
-        return sceneGraphComponent.worldMatrixInner;
-      }
-    }
-    return undefined;
-  }
-
-  get worldMatrix() {
-    return this.worldMatrixInner?.clone();
-  }
-
-  getChildByName(name: string) {
-    const sceneComponent = this.getSceneGraph()!;
-    const children = sceneComponent.children;
-    for (const child of children) {
-      if (child.entity.uniqueName === name) {
-        return child.entity;
-      }
-    }
-    return undefined;
+  tryToGetAnimation() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.AnimationComponentTID
+    ) as AnimationComponent | undefined;
   }
 }

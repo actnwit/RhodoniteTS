@@ -1,7 +1,7 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
 import Matrix44 from '../../math/Matrix44';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
@@ -12,12 +12,24 @@ import Vector3 from '../../math/Vector3';
 import AABB from '../../math/AABB';
 import MutableVector3 from '../../math/MutableVector3';
 import MeshComponent from '../Mesh/MeshComponent';
-import {ComponentTID, ComponentSID, EntityUID} from '../../../types/CommonTypes';
+import {
+  ComponentTID,
+  ComponentSID,
+  EntityUID,
+} from '../../../types/CommonTypes';
 import CameraComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import AABBGizmo from '../../gizmos/AABBGizmo';
 import LocatorGizmo from '../../gizmos/LocatorGizmo';
 import {Is} from '../../misc/Is';
+import {
+  IGroupEntity,
+  IMeshEntity,
+  ITransformEntity,
+} from '../../helpers/EntityHelper';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
+import { IMatrix44 } from '../../math/IMatrix';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -102,7 +114,7 @@ export default class SceneGraphComponent extends Component {
   set isLocatorGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__locatorGizmo)) {
-        this.__locatorGizmo = new LocatorGizmo(this.entity);
+        this.__locatorGizmo = new LocatorGizmo(this.entity as IMeshEntity);
         this.__locatorGizmo._setup();
       }
       this.__locatorGizmo.isVisible = true;
@@ -222,12 +234,18 @@ export default class SceneGraphComponent extends Component {
     return this._normalMatrix;
   }
 
-  get entityWorldMatrix() {
-    return this.entity.worldMatrix as MutableMatrix44;
+  get entityWorldMatrix(): MutableMatrix44 {
+    return this.entityWorldMatrixInner.clone();
   }
 
-  get entityWorldMatrixInner() {
-    return this.entity.worldMatrixInner as MutableMatrix44;
+  get entityWorldMatrixInner(): MutableMatrix44 {
+    const skeletalComponent = this.entity.tryToGetSkeletal();
+    if (Is.exist(skeletalComponent) && skeletalComponent.isWorldMatrixUpdated) {
+      return skeletalComponent.worldMatrixInner;
+    } else {
+      const sceneGraphComponent = this.entity.getSceneGraph();
+      return sceneGraphComponent.worldMatrixInner;
+    }
   }
 
   get normalMatrix() {
@@ -251,7 +269,9 @@ export default class SceneGraphComponent extends Component {
       return this._worldMatrix;
     }
 
-    const entity = this.__entityRepository.getEntity(this.__entityUid);
+    const entity = this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as ITransformEntity;
     const transform = entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
@@ -315,9 +335,8 @@ export default class SceneGraphComponent extends Component {
     const aabb = (function mergeAABBRecursively(
       elem: SceneGraphComponent
     ): AABB {
-      const meshComponent = elem.entity.getMesh();
-
-      if (meshComponent?.mesh != null) {
+      const meshComponent = elem.entity.tryToGetMesh();
+      if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
         AABB.multiplyMatrixTo(
           elem.entityWorldMatrixInner,
           meshComponent.mesh.AABB,
@@ -383,7 +402,7 @@ export default class SceneGraphComponent extends Component {
     );
     const meshComponents: MeshComponent[] = [];
     for (const sg of collectedSgComponents) {
-      const mesh = sg.entity.getMesh();
+      const mesh = sg.entity.tryToGetMesh();
       if (mesh) {
         meshComponents.push(mesh);
       }
@@ -446,7 +465,7 @@ export default class SceneGraphComponent extends Component {
     );
     const meshComponents: MeshComponent[] = [];
     for (const sg of collectedSgComponents) {
-      const mesh = sg.entity.getMesh();
+      const mesh = sg.entity.tryToGetMesh();
       if (mesh) {
         meshComponents.push(mesh);
       }
@@ -456,7 +475,7 @@ export default class SceneGraphComponent extends Component {
     let intersectedPosition = null;
     let selectedMeshComponent = null;
     for (const meshComponent of meshComponents) {
-      if (!meshComponent.entity.getSceneGraph()!.isVisible) {
+      if (!meshComponent.entity.getSceneGraph().isVisible) {
         continue;
       }
       if (!meshComponent.isPickable) {
@@ -495,11 +514,12 @@ export default class SceneGraphComponent extends Component {
 
     this.__updateGizmos();
 
-    const mesh = this.entity.getMesh()?.mesh;
-    if (mesh) {
-      const primitiveNum = mesh.getPrimitiveNumber();
+    const meshComponent = this.entity.tryToGetMesh();
+    if (Is.exist(meshComponent)) {
+      const mesh = meshComponent.mesh;
+      const primitiveNum = mesh!.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
+        const primitive = mesh!.getPrimitiveAt(i);
         if (primitive.isPositionAccessorUpdated) {
           this.setWorldAABBDirtyParentRecursively();
           break;
@@ -523,6 +543,40 @@ export default class SceneGraphComponent extends Component {
     ) {
       this.__locatorGizmo._update();
     }
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): IGroupEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as IGroupEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class SceneGraphEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getSceneGraph() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.SceneGraphComponentTID
+        );
+      }
+    }
+    applyMixins(base, SceneGraphEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);

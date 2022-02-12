@@ -1,58 +1,23 @@
 import _Rn from '../../../dist/esm/index';
-import {
-  OrbitCameraController,
-  CameraComponent,
-  MeshComponent,
-  EntityRepository,
-  AbstractTexture,
-  Expression,
-  FrameBuffer,
-  RenderPass,
-} from '../../../dist/esm/index';
+import {OrbitCameraController} from '../../../dist/esm/index';
 
 declare const window: any;
 declare const Rn: typeof _Rn;
 declare const Stats: any;
 (function () {
   //    import Rn from '../../../dist/rhodonite.mjs';
-  function generateEntity() {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ]);
-    return entity;
-  }
-  function generateGroupEntity() {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-    ]);
-    //    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-    return entity;
-  }
-
   const promises = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
   Promise.all(promises).then(() => {
     const system = Rn.System.getInstance();
-    const entityRepository = Rn.EntityRepository.getInstance();
 
     const gl = system.setProcessApproachAndCanvas(
       Rn.ProcessApproach.UniformWebGL1,
       document.getElementById('world') as HTMLCanvasElement
     );
 
-    const cameraEntity = entityRepository.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-      Rn.CameraControllerComponent,
-    ]);
+    const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
     const cameraComponent = cameraEntity.getCamera();
 
     const expression = new Rn.Expression();
@@ -64,11 +29,7 @@ declare const Stats: any;
     renderPass2.cameraComponent = cameraComponent;
     const renderPass_fxaa = new Rn.RenderPass();
     renderPass_fxaa.toClearColorBuffer = true;
-    const cameraEntity_fxaa = entityRepository.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
+    const cameraEntity_fxaa = Rn.EntityHelper.createCameraEntity();
     const cameraComponent_fxaa = cameraEntity_fxaa.getCamera();
     cameraEntity_fxaa.getTransform().translate = Rn.Vector3.fromCopyArray([
       0.0, 0.0, 1.0,
@@ -109,13 +70,13 @@ declare const Stats: any;
     );
 
     const entities = [];
-    const entity = generateEntity();
+    const entity = Rn.EntityHelper.createMeshEntity();
     entities.push(entity);
 
-    const entity2 = generateEntity();
+    const entity2 = Rn.EntityHelper.createMeshEntity();
     entities.push(entity2);
 
-    const entity_fxaa = generateEntity();
+    const entity_fxaa = Rn.EntityHelper.createMeshEntity();
     entities.push(entity_fxaa);
 
     const cameraControllerComponent = cameraEntity.getCameraController();

@@ -5,25 +5,6 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 (function () {
   //    import Rn from '../../../dist/rhodonite.mjs';
-  function generateEntity() {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ]);
-    return entity;
-  }
-  function generateGroupEntity() {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-    ]);
-    //    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-    return entity;
-  }
   function readyBasicVerticesData() {
     const indices = new Uint16Array([
       //        0, 1, 2, 2, 3, 0
@@ -106,7 +87,7 @@ declare const Rn: typeof _Rn;
     originalMesh.addPrimitive(primitive);
     for (let i = 0; i < entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
-      const entity = generateEntity();
+      const entity = Rn.EntityHelper.createMeshEntity();
 
       entities.push(entity);
       const meshComponent = entity.getMesh();

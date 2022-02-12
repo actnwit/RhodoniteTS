@@ -1,5 +1,5 @@
 import Component from '../foundation/core/Component';
-import EntityRepository from '../foundation/core/EntityRepository';
+import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import Matrix44 from '../foundation/math/Matrix44';
@@ -10,6 +10,8 @@ import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphC
 import ModuleManager from '../foundation/system/ModuleManager';
 import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
+import {IEntity} from '../foundation/core/Entity';
+import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
 
 declare let window: any;
 declare let _SPARK_Data_Delete: Function;
@@ -369,5 +371,33 @@ export default class SparkGearComponent extends Component {
     this.onAfterRender();
     this.moveStageTo(ProcessStage.Logic);
   }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class SparkGearEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getSparkGear() {
+        return this.getComponentByComponentTID(
+          SparkGearComponent.componentTID
+        ) as SparkGearComponent;
+      }
+    }
+    applyMixins(base, SparkGearEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
 ComponentRepository.registerComponentClass(SparkGearComponent);
+
+export interface ISparkGearEntityMethods {
+  getSparkGear(): SparkGearComponent;
+}

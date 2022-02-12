@@ -1,6 +1,6 @@
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {
   AnimationInterpolationEnum,
@@ -49,6 +49,9 @@ import {
 } from '../../math/raw/raw_extension';
 import Vector3 from '../../math/Vector3';
 import {Is} from '../../misc/Is';
+import {IAnimationEntity} from '../../helpers/EntityHelper';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 const defaultAnimationInfo = {
   name: '',
@@ -770,6 +773,40 @@ export default class AnimationComponent extends Component {
 
     // non supported type
     return [];
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): IAnimationEntity {
+    return this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as unknown as IAnimationEntity;
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class AnimationEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getAnimation() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.AnimationComponentTID
+        ) as AnimationComponent;
+      }
+    }
+    applyMixins(base, AnimationEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);

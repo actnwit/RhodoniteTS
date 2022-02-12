@@ -24,14 +24,8 @@ const Module = {
     // バッファをクリアする
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const entityRepository = Rn.EntityRepository.getInstance();
-    const cameraEntity = entityRepository.createEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
+    const cameraEntity = Rn.EntityHelper.createCameraEntity();
     const cameraComponent = cameraEntity.getCamera();
-    //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
     cameraComponent.zNear = 0.1;
     cameraComponent.zFar = 10000;
     cameraComponent.setFovyAndChangeFocalLength(90);

@@ -4,7 +4,7 @@ import MeshComponent from '../Mesh/MeshComponent';
 import WebGLStrategy from '../../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
@@ -19,7 +19,6 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import ModuleManager from '../../system/ModuleManager';
 import CubeTexture from '../../textures/CubeTexture';
-import Entity from '../../core/Entity';
 import RenderPass from '../../renderer/RenderPass';
 import {Visibility} from '../../definitions/visibility';
 import RnObject from '../../core/RnObject';
@@ -34,6 +33,10 @@ import {
 } from '../../../types/CommonTypes';
 import AbstractMaterialNode from '../../materials/core/AbstractMaterialNode';
 import {IMatrix44} from '../../math/IMatrix';
+import { IMeshEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
+import { Is } from '../../misc/Is';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -153,9 +156,9 @@ export default class MeshRendererComponent extends Component {
   static set manualTransparentEntityNames(names: string[]) {
     MeshRendererComponent.__manualTransparentSids = [];
     for (const name of names) {
-      const entity = RnObject.getRnObjectByName(name) as Entity;
+      const entity = RnObject.getRnObjectByName(name) as unknown as IMeshEntity;
       if (entity) {
-        const meshComponent = entity.getMesh();
+        const meshComponent = entity.tryToGetMesh();
         if (meshComponent) {
           const mesh = meshComponent.mesh;
           if (mesh) {
@@ -283,8 +286,8 @@ export default class MeshRendererComponent extends Component {
       cameraComponent.updateFrustum();
 
       const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
-        const skeletalComponent = sg.entity.getSkeletal();
-        if (skeletalComponent != null) {
+        const skeletalComponent = sg.entity.tryToGetSkeletal();
+        if (Is.exist(skeletalComponent)) {
           return true;
         } else {
           const children = sg.children;
@@ -302,7 +305,7 @@ export default class MeshRendererComponent extends Component {
       ) => {
         const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
         for (const sg of sgs) {
-          const mesh = sg.entity.getMesh();
+          const mesh = sg.entity.tryToGetMesh();
           if (mesh) {
             meshComponents!.push(mesh);
           }
@@ -320,9 +323,9 @@ export default class MeshRendererComponent extends Component {
           whetherContainsSkeletal(sg)
         ) {
           const children = sg.children;
-          const mesh = sg.entity.getMesh();
+          const mesh = sg.entity.tryToGetMesh();
           if (mesh) {
-            meshComponents!.push(mesh);
+            meshComponents.push(mesh);
           }
           for (const child of children) {
             frustumCullingRecursively(child, meshComponents);
@@ -347,7 +350,7 @@ export default class MeshRendererComponent extends Component {
       if (!meshComponents[i].entity.getSceneGraph()!.isVisible) {
         continue;
       }
-      const meshRendererComponent = meshComponents[i].entity.getMeshRenderer()!;
+      const meshRendererComponent = meshComponents[i].entity.tryToGetMeshRenderer()!;
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         if (meshComponent.mesh) {
@@ -472,7 +475,9 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
-    const entity = this.__entityRepository.getEntity(this.__entityUid);
+    const entity = this.__entityRepository.getEntity(
+      this.__entityUid
+    ) as IMeshEntity;
 
     MeshRendererComponent.__webglRenderingStrategy!.$render!(
       i,
@@ -493,6 +498,30 @@ export default class MeshRendererComponent extends Component {
     } else {
       MeshComponent.alertNoMeshSet(this.__meshComponent!);
     }
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class MeshRendererEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getMeshRenderer() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.MeshRendererComponentTID
+        ) as MeshRendererComponent;
+      }
+    }
+    applyMixins(base, MeshRendererEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent);

@@ -12,9 +12,7 @@ import Matrix44 from '../../math/Matrix44';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Texture from '../../textures/Texture';
 import CubeTexture from '../../textures/CubeTexture';
-import LightComponent from '../../components/Light/LightComponent';
 import Config from '../../core/Config';
-import CameraComponent from '../../components/Camera/CameraComponent';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './Material';
 import MutableVector2 from '../../math/MutableVector2';
@@ -29,8 +27,6 @@ import {
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
 import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
-import MemoryManager from '../../core/MemoryManager';
-import {BufferUse} from '../../definitions/BufferUse';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {ShaderityObject} from 'shaderity';
 import {BoneDataType} from '../../definitions/BoneDataType';
@@ -39,6 +35,10 @@ import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
+import LightComponent from '../../components/Light/LightComponent';
+import { IMatrix33 } from '../../math/IMatrix';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import CameraComponent from '../../components/Camera/CameraComponent';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -360,7 +360,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   protected setNormalMatrix(
     shaderProgram: WebGLProgram,
-    normalMatrix: Matrix44
+    normalMatrix: IMatrix33
   ) {
     (shaderProgram as any)._gl.uniformMatrix3fv(
       (shaderProgram as any).normalMatrix,
@@ -437,8 +437,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   protected setSkinning(
     shaderProgram: WebGLProgram,
-    skeletalComponent: SkeletalComponent,
-    setUniform: boolean
+    setUniform: boolean,
+    skeletalComponent?: SkeletalComponent
   ) {
     if (!this.__isSkinning) {
       return;
@@ -584,8 +584,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
   setMorphInfo(
     shaderProgram: WebGLProgram,
     meshComponent: MeshComponent,
-    blendShapeComponent: BlendShapeComponent,
-    primitive: Primitive
+    primitive: Primitive,
+    blendShapeComponent?: BlendShapeComponent
   ) {
     if (!this.__isMorphing) {
       return;
@@ -621,8 +621,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
     let weights;
     if (meshComponent.mesh!.weights.length > 0) {
       weights = meshComponent.mesh!.weights;
-    } else if (blendShapeComponent.weights.length > 0) {
-      weights = blendShapeComponent.weights;
+    } else if (blendShapeComponent!.weights.length > 0) {
+      weights = blendShapeComponent!.weights;
     } else {
       weights = new Float32Array(primitive.targets.length);
     }
@@ -641,7 +641,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {}
 
   setDefaultInputValue(inputName: string, value: any) {

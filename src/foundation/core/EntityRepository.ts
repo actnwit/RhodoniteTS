@@ -1,15 +1,17 @@
-import Entity from './Entity';
+import Entity, {IEntity} from './Entity';
 import Component from './Component';
 import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
-import {Is} from '../misc/Is';
 import {valueWithCompensation} from '../misc/MiscUtil';
+import {ComponentToComponentMethods} from '../components/ComponentTypes';
+import RnObject from './RnObject';
+
 /**
  * The class that generates and manages entities.
  */
 export default class EntityRepository {
   private __entity_uid_count: number;
-  private __entities: Array<Entity>;
+  private __entities: Array<IEntity>;
   private static __instance: EntityRepository;
   private __componentRepository: ComponentRepository;
   _components: Array<Map<ComponentTID, Component>>; // index is EntityUID
@@ -30,64 +32,52 @@ export default class EntityRepository {
   }
 
   /**
-   * Creates an entity which has the given types of the components
-   * @param componentClasses The class objects of the components.
+   * Creates an entity
    */
-  createEntity(componentClasses: Array<typeof Component>): Entity {
+  createEntity(): IEntity {
     const entity = new Entity(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;
 
-    return this.addComponentsToEntity(componentClasses, entity.entityUID);
+    return entity;
   }
 
-  /**
-   * Creates an entity which has the given types of the components
-   * @param componentClasses The class objects of the components.
-   * @param entityClass a custom entity class
-   */
-  createCustomEntity<DerivedEntity extends typeof Entity>(
-    componentClasses: Array<typeof Component>,
-    entityClass: DerivedEntity
-  ): Entity {
-    const entity = new entityClass(++this.__entity_uid_count, true);
-    this.__entities[this.__entity_uid_count] = entity;
-
-    return this.addComponentsToEntity(componentClasses, entity.entityUID);
-  }
-
-  /**
-   * Add components to the entity.
-   * @param componentClasses The class objects to set to the entity.
-   * @param entityUid The entityUID of the entity.
-   */
-  addComponentsToEntity(
-    componentClasses: Array<typeof Component>,
-    entityUid: EntityUID
-  ) {
-    const entity: Entity = this.getEntity(entityUid);
-
-    for (const componentClass of componentClasses) {
-      const component = this.__componentRepository.createComponent(
-        componentClass.componentTID,
-        entityUid,
-        this
-      );
-
-      if (Is.exist(component)) {
-        const map = valueWithCompensation({
-          value: this._components[entity.entityUID],
-          compensation: () => {
-            const map = new Map();
-            this._components[entity.entityUID] = map;
-            return map;
-          },
-        });
-        map.set(componentClass.componentTID, component);
-        entity._setComponent(component);
-      }
+  addComponentToEntity<
+    ComponentType extends typeof Component,
+    EntityType extends IEntity
+  >(
+    componentClass: ComponentType,
+    entity: EntityType
+  ): EntityType & ComponentToComponentMethods<ComponentType> {
+    if (entity.hasComponent(componentClass)) {
+      console.log('This entity already has the Component.');
+      return entity as EntityType & ComponentToComponentMethods<ComponentType>;
     }
 
-    return entity;
+    // Create Component
+    const component = this.__componentRepository.createComponent(
+      componentClass.componentTID,
+      entity.entityUID,
+      this
+    );
+
+    const map = valueWithCompensation({
+      value: this._components[entity.entityUID],
+      compensation: () => {
+        const map = new Map();
+        this._components[entity.entityUID] = map;
+        return map;
+      },
+    });
+    map.set(componentClass.componentTID, component);
+
+    // add this component to the entity
+    const entityClass = component.addThisComponentToEntity(
+      entity,
+      componentClass
+    );
+    entity._setComponent(componentClass, component);
+
+    return entity as unknown as typeof entityClass;
   }
 
   /**
@@ -99,7 +89,7 @@ export default class EntityRepository {
     componentClasses: Array<typeof Component>,
     entityUid: EntityUID
   ) {
-    const entity: Entity = this.getEntity(entityUid);
+    const entity = this.getEntity(entityUid);
 
     for (const componentClass of componentClasses) {
       let map = this._components[entity.entityUID];
@@ -117,7 +107,7 @@ export default class EntityRepository {
    * Gets the entity corresponding to the entityUID.
    * @param entityUid The entityUID of the entity.
    */
-  getEntity(entityUid: EntityUID) {
+  getEntity(entityUid: EntityUID): IEntity {
     return this.__entities[entityUid];
   }
 
@@ -161,7 +151,7 @@ export default class EntityRepository {
    * Gets entity by the unique name.
    * @param uniqueName The unique name of the entity.
    */
-  getEntityByUniqueName(uniqueName: string) {
+  getEntityByUniqueName(uniqueName: string): IEntity | undefined {
     for (const entity of this.__entities) {
       if (entity.uniqueName === uniqueName) {
         return entity;
@@ -174,14 +164,26 @@ export default class EntityRepository {
    * @private
    * Gets all entities.
    */
-  _getEntities() {
+  _getEntities(): IEntity[] {
     return this.__entities.concat();
   }
 
   /**
    * Gets the number of all entities.
    */
-  getEntitiesNumber() {
+  getEntitiesNumber(): number {
     return this.__entities.length;
   }
+}
+
+// This can live anywhere in your codebase:
+export function applyMixins(derivedCtor: IEntity, baseCtor: any) {
+  Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+    Object.defineProperty(
+      derivedCtor,
+      name,
+      Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
+        Object.create(null)
+    );
+  });
 }

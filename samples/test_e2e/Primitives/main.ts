@@ -171,29 +171,15 @@ async function setupRhodonite() {
 }
 
 function createCamera(group: IMeshEntity) {
-  const cameraComponent = createCameraComponent();
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 10;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1; // depthCameraComponent.direction = lightDirection;
-  const cameraEntity = cameraComponent.entity;
 
   cameraEntity.getCameraController().controller.setTarget(group);
 
-  return cameraComponent;
-}
-
-function createCameraComponent() {
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-    Rn.CameraControllerComponent,
-  ]);
-  // For debug
-  // const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
-  const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
 

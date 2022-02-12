@@ -1,9 +1,15 @@
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import {ComponentTID, ComponentSID, EntityUID} from '../../../types/CommonTypes';
+import {
+  ComponentTID,
+  ComponentSID,
+  EntityUID,
+} from '../../../types/CommonTypes';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class BlendShapeComponent extends Component {
   private __weights: number[] = [];
@@ -40,6 +46,30 @@ export default class BlendShapeComponent extends Component {
   }
 
   $logic() {}
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class BlendShapeEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getBlendShape() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.BlendShapeComponentTID
+        ) as BlendShapeComponent;
+      }
+    }
+    applyMixins(base, BlendShapeEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
+  }
 }
 
 ComponentRepository.registerComponentClass(BlendShapeComponent);

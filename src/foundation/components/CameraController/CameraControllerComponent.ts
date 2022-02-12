@@ -1,6 +1,6 @@
 import Component from '../../core/Component';
 import {EntityUID, ComponentSID, ComponentTID} from '../../../types/CommonTypes';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import CameraComponent from '../Camera/CameraComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import ComponentRepository from '../../core/ComponentRepository';
@@ -12,6 +12,8 @@ import {
   CameraControllerTypeEnum,
   CameraControllerType,
 } from '../../definitions/CameraControllerType';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 export default class CameraControllerComponent extends Component {
   private __cameraComponent?: CameraComponent;
@@ -66,6 +68,30 @@ export default class CameraControllerComponent extends Component {
     if (this.__cameraController) {
       this.__cameraController.logic(this.__cameraComponent!);
     }
+  }
+
+  addThisComponentToEntity<
+    EntityBase extends IEntity,
+    SomeComponentClass extends typeof Component
+  >(base: EntityBase, _componentClass: SomeComponentClass) {
+    class CameraControllerEntity extends (base.constructor as any) {
+      constructor(
+        entityUID: EntityUID,
+        isAlive: Boolean,
+        components?: Map<ComponentTID, Component>
+      ) {
+        super(entityUID, isAlive, components);
+      }
+
+      getCameraController() {
+        return this.getComponentByComponentTID(
+          WellKnownComponentTIDs.CameraControllerComponentTID
+        ) as CameraControllerComponent;
+      }
+    }
+    applyMixins(base, CameraControllerEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
+      EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(CameraControllerComponent);

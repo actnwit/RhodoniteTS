@@ -1,6 +1,5 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {AlphaMode} from '../../definitions/AlphaMode';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import ComponentRepository from '../../core/ComponentRepository';
@@ -26,6 +25,8 @@ import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import Texture from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { Is } from '../../misc/Is';
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
@@ -872,7 +873,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
@@ -900,8 +901,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       );
 
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      const skeletalComponent = args.entity.tryToGetSkeletal();
+      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
 
       // Lights
       this.setLightsInfo(
@@ -937,11 +938,12 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     }
 
     // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(
       shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
-      args.primitive
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
     );
   }
 

@@ -10,8 +10,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
-import MeshComponent from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
@@ -69,7 +68,7 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -106,15 +105,16 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
         );
       }
 
-      const skeletalComponent = args.entity.getSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      const skeletalComponent = args.entity.tryToGetSkeletal();
+      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(
       shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
-      args.primitive
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
     );
   }
 

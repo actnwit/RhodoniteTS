@@ -1,10 +1,9 @@
 import RnObject from '../core/RnObject';
-import Entity, {IEntity} from '../core/Entity';
+import {IEntity} from '../core/Entity';
 import FrameBuffer from './FrameBuffer';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
 import Vector4 from '../math/Vector4';
-import CameraComponent from '../components/Camera/CameraComponent';
 import {EntityUID} from '../../types/CommonTypes';
 import Material from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
@@ -14,13 +13,15 @@ import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {Primitive} from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
 import {IVector4} from '../math/IVector';
-import { IGroupEntity } from '../helpers/EntityHelper';
+import {IGroupEntity, IMeshEntity} from '../helpers/EntityHelper';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import CameraComponent from '../components/Camera/CameraComponent';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
  */
 export default class RenderPass extends RnObject {
-  private __entities: IEntity[] = [];
+  private __entities: (IMeshEntity | IGroupEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
   private __meshComponents?: MeshComponent[];
@@ -67,7 +68,7 @@ export default class RenderPass extends RnObject {
    * Add entities to draw.
    * @param entities An array of entities.
    */
-  addEntities(entities: IGroupEntity[]) {
+  addEntities(entities: (IMeshEntity | IGroupEntity)[]) {
     for (const entity of entities) {
       const sceneGraphComponent = entity.getSceneGraph()!;
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
@@ -75,19 +76,25 @@ export default class RenderPass extends RnObject {
         sceneGraphComponent,
         false
       );
-      const collectedEntities: IEntity[] = collectedSgComponents.map(
+      const collectedEntities = collectedSgComponents.map(
         (sg: SceneGraphComponent) => {
           return sg.entity;
         }
       );
 
       // Eliminate duplicates
-      const map: Map<EntityUID, IEntity> = this.__entities
+      const map: Map<EntityUID, IMeshEntity | IGroupEntity> = this.__entities
         .concat(collectedEntities)
-        .reduce((map: Map<EntityUID, IEntity>, entity: IEntity) => {
-          map.set(entity.entityUID, entity);
-          return map;
-        }, new Map());
+        .reduce(
+          (
+            map: Map<EntityUID, IMeshEntity | IGroupEntity>,
+            entity: IMeshEntity | IGroupEntity
+          ) => {
+            map.set(entity.entityUID, entity);
+            return map;
+          },
+          new Map()
+        );
 
       this.__entities = Array.from(map.values());
     }
@@ -137,7 +144,9 @@ export default class RenderPass extends RnObject {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];
       this.__entities.filter(entity => {
-        const meshComponent = (entity as Entity).getMesh();
+        const meshComponent = entity.getComponentByComponentTID(
+          WellKnownComponentTIDs.MeshComponentTID
+        ) as MeshComponent | undefined;
         if (meshComponent) {
           this.__meshComponents!.push(meshComponent);
         }

@@ -12,6 +12,7 @@ import Material from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import GammaCorrectionShaderVertex from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import { RenderingArg } from '../../../webgl/types/CommomTypes';
 
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
   constructor() {
@@ -48,7 +49,7 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

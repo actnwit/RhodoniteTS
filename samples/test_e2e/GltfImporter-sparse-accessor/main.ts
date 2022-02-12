@@ -15,12 +15,7 @@ document.body.appendChild(p);
   );
 
   // camera
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([
-    Rn.TransformComponent,
-    Rn.SceneGraphComponent,
-    Rn.CameraComponent,
-  ]);
+  const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.type = Rn.CameraType.Orthographic;
 

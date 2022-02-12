@@ -12,10 +12,11 @@ import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import MeshComponent from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import ShaderityUtility from '../core/ShaderityUtility';
+import {RenderingArg} from '../../../webgl/types/CommomTypes';
+import {Is} from '../../misc/Is';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
@@ -130,7 +131,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args?: any;
+    args: RenderingArg;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -169,8 +170,8 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       }
 
       /// Skinning
-      const skeletalComponent = args.entity.getSkeletal();
-      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+      const skeletalComponent = args.entity.tryToGetSkeletal();
+      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
     // Env map
@@ -251,15 +252,16 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
     }
 
     // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(
       shaderProgram,
-      args.entity.getComponent(MeshComponent),
-      args.entity.getComponent(BlendShapeComponent),
-      args.primitive
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
     );
   }
 
-  private setupHdriParameters(args: any) {
+  private setupHdriParameters(args: RenderingArg) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

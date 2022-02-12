@@ -1,12 +1,9 @@
 import EntityRepository from '../core/EntityRepository';
-import TransformComponent from '../components/Transform/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
 import {IEntity} from '../core/Entity';
 import Vector3 from '../math/Vector3';
 import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import {Primitive} from '../geometry/Primitive';
 import Buffer from '../memory/Buffer';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
@@ -16,7 +13,6 @@ import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import CameraComponent from '../components/Camera/CameraComponent';
 import {CameraType} from '../definitions/CameraType';
 import Texture from '../textures/Texture';
 import Vector4 from '../math/Vector4';
@@ -33,11 +29,9 @@ import {
 import Vector2 from '../math/Vector2';
 import Material from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
-import Component from '../core/Component';
 import Accessor from '../memory/Accessor';
 import Mesh from '../geometry/Mesh';
 import MutableVector4 from '../math/MutableVector4';
-import LightComponent from '../components/Light/LightComponent';
 import {LightType} from '../definitions/LightType';
 import {
   Count,
@@ -69,7 +63,6 @@ import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import MemoryManager from '../core/MemoryManager';
 import ILoaderExtension from './ILoaderExtension';
-import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
 import Scalar from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
@@ -78,13 +71,16 @@ import {Is} from '../misc/Is';
 import DataUtil from '../misc/DataUtil';
 import {AnimationPathName} from '../../types/AnimationTypes';
 import {TagGltf2NodeIndex} from '../../types/glTF2';
-import {
+import EntityHelper, {
   IAnimationEntity,
   ICameraEntity,
   IGroupEntity,
   ILightEntity,
   IMeshEntity,
 } from '../helpers/EntityHelper';
+import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
+import LightComponent from '../components/Light/LightComponent';
+import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 
 declare let DracoDecoderModule: any;
 
@@ -121,12 +117,13 @@ export default class ModelConverter {
     return defaultShader;
   }
 
-  private __generateEntity(
-    components: typeof Component[],
-    gltfModel: RnM2
-  ): IEntity {
-    const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity(components);
+  private __generateGroupEntity(gltfModel: RnM2): IGroupEntity {
+    const entity = EntityHelper.createGroupEntity();
+    this.addTags(entity, gltfModel);
+    return entity;
+  }
+
+  private addTags(entity: IGroupEntity, gltfModel: RnM2) {
     entity.tryToSetTag({
       tag: 'SourceType',
       value: gltfModel.asset.extras!.fileType!,
@@ -135,44 +132,23 @@ export default class ModelConverter {
       tag: 'SourceTypeVersion',
       value: gltfModel.asset.extras!.version!,
     });
-
-    return entity;
-  }
-
-  private __generateGroupEntity(gltfModel: RnM2): IGroupEntity {
-    const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent],
-      gltfModel
-    );
-    return entity as IGroupEntity;
   }
 
   private __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
-    const entity = this.__generateEntity(
-      [
-        TransformComponent,
-        SceneGraphComponent,
-        MeshComponent,
-        MeshRendererComponent,
-      ],
-      gltfModel
-    );
-    return entity as IMeshEntity;
-  }
-
-  private __generateCameraEntity(gltfModel: RnM2): IEntity {
-    const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent, CameraComponent],
-      gltfModel
-    );
+    const entity = EntityHelper.createMeshEntity();
+    this.addTags(entity, gltfModel);
     return entity;
   }
 
-  private __generateLightEntity(gltfModel: RnM2): IEntity {
-    const entity = this.__generateEntity(
-      [TransformComponent, SceneGraphComponent, LightComponent],
-      gltfModel
-    );
+  private __generateCameraControllerEntity(gltfModel: RnM2): ICameraEntity {
+    const entity = EntityHelper.createCameraControllerEntity();
+    this.addTags(entity, gltfModel);
+    return entity;
+  }
+
+  private __generateLightEntity(gltfModel: RnM2): ILightEntity {
+    const entity = EntityHelper.createLightEntity();
+    this.addTags(entity, gltfModel);
     return entity;
   }
 
@@ -210,9 +186,8 @@ export default class ModelConverter {
     rootGroup.tryToSetTag({tag: 'ObjectType', value: 'top'});
     if (gltfModel.scenes[0].nodes) {
       for (const nodesIndex of gltfModel.scenes[0].nodes) {
-        rootGroup
-          .getSceneGraph()!
-          .addChild(rnEntities[nodesIndex].getSceneGraph()!);
+        const sg = rnEntities[nodesIndex].getSceneGraph();
+        rootGroup.getSceneGraph().addChild(sg);
       }
     }
 
@@ -294,12 +269,12 @@ export default class ModelConverter {
 
     for (const node_i in gltfModel.nodes) {
       const parentNode_i = parseInt(node_i);
-      const node = gltfModel.nodes[parentNode_i];
-      if (Is.exist(node.children)) {
-        const parentGroup = groupSceneComponents[parentNode_i];
-        for (const childNode_i of node.children) {
-          const childGroup = groupSceneComponents[childNode_i];
-          parentGroup.addChild(childGroup);
+      const glTF2ParentNode = gltfModel.nodes[parentNode_i];
+      if (Is.exist(glTF2ParentNode.children)) {
+        const rnParentSceneGraphComponent = groupSceneComponents[parentNode_i];
+        for (const childNode_i of glTF2ParentNode.children) {
+          const rnChildSceneGraphComponent = groupSceneComponents[childNode_i];
+          rnParentSceneGraphComponent.addChild(rnChildSceneGraphComponent);
         }
       }
     }
@@ -349,13 +324,13 @@ export default class ModelConverter {
               channel.target.node!
             ] as IAnimationEntity;
             if (Is.exist(rnEntity)) {
-              let animationComponent = rnEntity.getAnimation();
+              let animationComponent = rnEntity.tryToGetAnimation();
               if (Is.not.exist(animationComponent)) {
-                entityRepository.addComponentsToEntity(
-                  [AnimationComponent],
-                  rnEntity.entityUID
+                const newRnEntity = entityRepository.addComponentToEntity(
+                  AnimationComponent,
+                  rnEntity
                 );
-                animationComponent = rnEntity.getAnimation();
+                animationComponent = newRnEntity.getAnimation();
               }
               if (Is.exist(animationComponent)) {
                 const outputComponentN =
@@ -394,14 +369,11 @@ export default class ModelConverter {
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
-        entityRepository.addComponentsToEntity(
-          [SkeletalComponent],
-          rnEntity.entityUID
+        const newRnEntity = entityRepository.addComponentToEntity(
+          SkeletalComponent,
+          rnEntity
         );
-        skeletalComponent = rnEntity.getComponent(
-          SkeletalComponent
-        ) as SkeletalComponent;
-
+        skeletalComponent = newRnEntity.getSkeletal();
         skeletalComponent._jointIndices = node.skinObject.joints;
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = new Matrix44(
@@ -409,7 +381,7 @@ export default class ModelConverter {
             true
           );
         }
-        if (node.skinObject.skeleton) {
+        if (Is.exist(node.skinObject.skeleton)) {
           sg.isRootJoint = true;
           if (Is.exist(node.mesh)) {
             const joints = [];
@@ -425,11 +397,9 @@ export default class ModelConverter {
             }
           }
         }
-        if (node.skinObject.joints) {
-          for (const joint_i of node.skinObject.joints) {
-            const sg = rnEntities[joint_i].getSceneGraph()!;
-            sg.jointIndex = joint_i;
-          }
+        for (const joint_i of node.skinObject.joints) {
+          const sg = rnEntities[joint_i].getSceneGraph()!;
+          sg.jointIndex = joint_i;
         }
 
         const inverseBindMatAccessor =
@@ -491,11 +461,6 @@ export default class ModelConverter {
         entity = group;
       }
 
-      entity.tryToSetTag({tag: TagGltf2NodeIndex, value: node_i});
-
-      rnEntities.push(entity);
-      rnEntitiesByNames.set(node.name!, entity);
-
       if (this.__isMorphing(node, gltfModel)) {
         let weights: number[] = [];
         if (node.weights) {
@@ -504,19 +469,23 @@ export default class ModelConverter {
           weights = node.meshObject.weights;
         }
         const entityRepository = EntityRepository.getInstance();
-        entityRepository.addComponentsToEntity(
-          [BlendShapeComponent],
-          entity.entityUID
+        entity = entityRepository.addComponentToEntity(
+          BlendShapeComponent,
+          entity
         );
-        const blendShapeComponent = entity.getComponent(
-          BlendShapeComponent
-        ) as BlendShapeComponent;
+        const blendShapeComponent = (
+          entity as unknown as IBlendShapeEntityMethods
+        ).getBlendShape();
         blendShapeComponent.weights = weights;
         if (node.meshObject?.primitives[0].extras?.targetNames) {
           blendShapeComponent.targetNames =
             node.meshObject.primitives[0].extras.targetNames;
         }
       }
+      entity.tryToSetTag({tag: TagGltf2NodeIndex, value: node_i});
+
+      rnEntities.push(entity);
+      rnEntitiesByNames.set(node.name!, entity);
     }
 
     return {rnEntities, rnEntitiesByNames};
@@ -561,10 +530,8 @@ export default class ModelConverter {
   }
 
   private __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
-    const cameraEntity = this.__generateCameraEntity(gltfModel);
-    const cameraComponent = cameraEntity.getComponent(
-      CameraComponent
-    )! as CameraComponent;
+    const cameraEntity = this.__generateCameraControllerEntity(gltfModel);
+    const cameraComponent = cameraEntity.getCamera();
     cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (
       gltfModel.asset &&
@@ -608,7 +575,7 @@ export default class ModelConverter {
       meshIndex
     ];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
-    const meshComponent = meshEntity.getMesh()!;
+    const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
     // set flag to rnMesh with options

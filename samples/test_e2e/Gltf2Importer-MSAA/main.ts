@@ -1,3 +1,4 @@
+import { ICameraEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
   Entity,
@@ -82,13 +83,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityMainCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-      Rn.CameraControllerComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.setFovyAndChangeFocalLength(30);
 
@@ -96,12 +91,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createEntityPostEffectCamera() {
-    const entityCamera = generateEntity([
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.CameraComponent,
-    ]);
-
+    const entityCamera = Rn.EntityHelper.createCameraEntity();
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.zNearInner = 0.5;
     cameraComponent.zFarInner = 2.0;
@@ -112,7 +102,7 @@ declare const Rn: typeof _Rn;
   async function createRenderPassMain(
     uriGltf: string,
     basePathIBL: string,
-    entityCamera: Entity
+    entityCamera: ICameraEntity
   ) {
     const entityEnvironmentCube = createEntityEnvironmentCube(basePathIBL);
     const entityRootGroup = await createEntityGltf2(uriGltf);
@@ -159,7 +149,7 @@ declare const Rn: typeof _Rn;
     const meshSphere = new Rn.Mesh();
     meshSphere.addPrimitive(primitiveSphere);
 
-    const entitySphere = generateEntity();
+    const entitySphere = Rn.EntityHelper.createMeshEntity();
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
@@ -181,19 +171,6 @@ declare const Rn: typeof _Rn;
     return entityRootGroup;
   }
 
-  function generateEntity(
-    componentArray = [
-      Rn.TransformComponent,
-      Rn.SceneGraphComponent,
-      Rn.MeshComponent,
-      Rn.MeshRendererComponent,
-    ] as Array<typeof Rn.Component>
-  ) {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity(componentArray);
-    return entity;
-  }
-
   function createRenderPassPostEffect(
     material: Material,
     cameraComponent: CameraComponent
@@ -211,7 +188,7 @@ declare const Rn: typeof _Rn;
     const boardMesh = new Rn.Mesh();
     boardMesh.addPrimitive(boardPrimitive);
 
-    const boardEntity = generateEntity();
+    const boardEntity = Rn.EntityHelper.createMeshEntity();
     boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
       Math.PI / 2,
       0.0,

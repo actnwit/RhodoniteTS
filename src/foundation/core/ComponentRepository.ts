@@ -81,14 +81,11 @@ export default class ComponentRepository {
         this.__components.set(componentTid, []);
       }
       const array = this.__components.get(componentTid);
-      if (array != null) {
-        array[component.componentSID] = component;
-        return component;
-      }
+      array![component.componentSID] = component;
+      return component;
     } else {
-      console.error('The Component Class object is invalid.');
+      throw new Error('The Component Class object is invalid.');
     }
-    return null;
   }
 
   /**
