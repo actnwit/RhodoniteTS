@@ -29,7 +29,10 @@ describe('EntityHelper', () => {
     const cameraComponent = cameraEntity.getCamera();
 
     // const cameraComponent0 = transformEntity.getCamera(); // transformEntity don't have getCamera method
+
+    // You can use these instead, but you should do null check before use.
     const cameraComponent1 = transformEntity.tryToGetCamera();
+    const cameraComponent2 = transformEntity.getComponent(CameraComponent);
 
     expect(cameraComponent1).toBe(cameraComponent); // got same camera component
   });

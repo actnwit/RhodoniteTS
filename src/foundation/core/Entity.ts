@@ -13,6 +13,7 @@ import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import TransformComponent from '../components/Transform/TransformComponent';
 import AnimationComponent from '../components/Animation/AnimationComponent';
+import CameraComponent from '../components/Camera/CameraComponent';
 
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
@@ -22,7 +23,7 @@ export interface IEntity extends IRnObject {
   hasComponent(componentType: typeof Component): boolean;
   _getComponentsInner(): Map<ComponentTID, Component>;
   tryToGetBlendShape(): BlendShapeComponent | undefined;
-  tryToGetCamera(): LightComponent | undefined;
+  tryToGetCamera(): CameraComponent | undefined;
   tryToGetCameraController(): CameraControllerComponent | undefined;
   tryToGetLight(): LightComponent | undefined;
   tryToGetMesh(): MeshComponent | undefined;
@@ -120,7 +121,7 @@ export default class Entity extends RnObject implements IEntity {
   tryToGetCamera() {
     return this.getComponentByComponentTID(
       WellKnownComponentTIDs.CameraComponentTID
-    ) as LightComponent | undefined;
+    ) as CameraComponent | undefined;
   }
 
   tryToGetCameraController() {
