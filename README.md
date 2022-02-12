@@ -40,19 +40,19 @@ IE11 is not supported.
 
 You can install the esm version of Rhodonite easily.
 
-```
+```bash
 $ yarn add rhodonite
 ```
 
 You can install yarn as following,
 
-```
+```bash
 $ npm install -g yarn
 ```
 
 You can use npm of course, but we recommend yarn because we use it usually.
 
-```
+```bash
 $ npm install rhodonite
 ```
 
@@ -100,11 +100,9 @@ async function load() {
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
 
-  const entityRepository = Rn.EntityRepository.getInstance();
-
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
-  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraComponent = cameraEntity.getCamera();
 
   ...
   (After that, please refer to the sample codes.)
@@ -135,8 +133,8 @@ async function load() {
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
-  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraComponent = cameraEntity.getCamera();
 
   ...
   (After that, please refer to the sample codes.)
@@ -146,7 +144,7 @@ async function load() {
 
 In this approach, you don't need any bundler. just compile it by:
 
-```
+```bash
 $ npx tsc ./main.ts --lib es2015,dom --target es2015 --module umd --moduleResolution node
 ```
 
@@ -259,7 +257,7 @@ This project supports the VSCode devcontainer for any docker-installed OS.
 
 Input the following command in the VSCode command palette.
 
-```
+```bash
 > Remote-Containers: Reopen in Container
 ```
 
