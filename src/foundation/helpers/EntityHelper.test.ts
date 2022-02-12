@@ -1,0 +1,36 @@
+import CameraComponent from '../components/Camera/CameraComponent';
+import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import TransformComponent from '../components/Transform/TransformComponent';
+import EntityRepository from '../core/EntityRepository';
+import MemoryManager from '../core/MemoryManager';
+
+describe('EntityHelper', () => {
+  beforeAll(() => {
+    MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  });
+
+  test('EntityHelper', () => {
+    const entityRepository = EntityRepository.getInstance();
+    const entity = entityRepository.createEntity();
+    const transformEntity = entityRepository.addComponentToEntity(
+      TransformComponent,
+      entity
+    );
+    const sceneGraphEntity = entityRepository.addComponentToEntity(
+      SceneGraphComponent,
+      transformEntity
+    );
+    const cameraEntity = entityRepository.addComponentToEntity(
+      CameraComponent,
+      sceneGraphEntity
+    );
+    const transformComponent = transformEntity.getTransform();
+    const sceneGraphComponent = sceneGraphEntity.getSceneGraph();
+    const cameraComponent = cameraEntity.getCamera();
+
+    // const cameraComponent0 = transformEntity.getCamera(); // transformEntity don't have getCamera method
+    const cameraComponent1 = transformEntity.tryToGetCamera();
+
+    expect(cameraComponent1).toBe(cameraComponent); // got same camera component
+  });
+});
