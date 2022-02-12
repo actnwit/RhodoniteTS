@@ -381,7 +381,7 @@ export default class ModelConverter {
             true
           );
         }
-        if (node.skinObject.skeleton) {
+        if (Is.exist(node.skinObject.skeleton)) {
           sg.isRootJoint = true;
           if (Is.exist(node.mesh)) {
             const joints = [];
@@ -397,11 +397,9 @@ export default class ModelConverter {
             }
           }
         }
-        if (node.skinObject.joints) {
-          for (const joint_i of node.skinObject.joints) {
-            const sg = rnEntities[joint_i].getSceneGraph()!;
-            sg.jointIndex = joint_i;
-          }
+        for (const joint_i of node.skinObject.joints) {
+          const sg = rnEntities[joint_i].getSceneGraph()!;
+          sg.jointIndex = joint_i;
         }
 
         const inverseBindMatAccessor =
