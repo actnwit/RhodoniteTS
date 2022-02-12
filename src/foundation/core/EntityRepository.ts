@@ -41,61 +41,6 @@ export default class EntityRepository {
     return entity;
   }
 
-  // /**
-  //  * Creates an entity which has the given types of the components
-  //  * @param componentClasses The class objects of the components.
-  //  * @param entityClass a custom entity class
-  //  */
-  // createCustomEntity<DerivedEntity extends typeof Entity>(
-  //   componentClasses: Array<typeof Component>,
-  //   entityClass: DerivedEntity
-  // ): IEntity[] {
-  //   const entity = new entityClass(++this.__entity_uid_count, true);
-  //   this.__entities[this.__entity_uid_count] = entity;
-
-  //   return componentClasses.flatMap(componentClass =>
-  //     this.addComponentToEntity(componentClass, entity.entityUID)
-  //   );
-  // }
-
-  // /**
-  //  * Add components to the entity.
-  //  * @param componentClasses The class objects to set to the entity.
-  //  * @param entityUid The entityUID of the entity.
-  //  */
-  // addComponentsToEntity(
-  //   componentClasses: Array<typeof Component>,
-  //   entityUid: EntityUID
-  // ): IEntity {
-  //   const entity: IEntity = this.getEntity(entityUid);
-
-  //   let latestEntity: IEntity;
-  //   for (let i = 0; i < componentClasses.length; i++) {
-  //     const componentClass = componentClasses[i];
-  //     const component = this.__componentRepository.createComponent(
-  //       componentClass.componentTID,
-  //       entityUid,
-  //       this
-  //     );
-
-  //     if (Is.exist(component)) {
-  //       const map = valueWithCompensation({
-  //         value: this._components[entity.entityUID],
-  //         compensation: () => {
-  //           const map = new Map();
-  //           this._components[entity.entityUID] = map;
-  //           return map;
-  //         },
-  //       });
-  //       map.set(componentClass.componentTID, component);
-  //       entity._setComponent(component);
-  //     }
-  //     latestEntity = this.addComponentToEntity(componentClasses[i], entityUid);
-  //   }
-
-  //   return latestEntity;
-  // }
-
   addComponentToEntity<
     ComponentType extends typeof Component,
     EntityType extends IEntity
@@ -115,7 +60,6 @@ export default class EntityRepository {
       this
     );
 
-    // this._components[entityUID] = map<componentTID, component> <-- component
     const map = valueWithCompensation({
       value: this._components[entity.entityUID],
       compensation: () => {
@@ -133,15 +77,7 @@ export default class EntityRepository {
     );
     entity._setComponent(componentClass, component);
 
-    // create the new Entity using existed entity
-    const newEntity = new (entityClass as unknown as typeof Entity)(
-      entity.entityUID,
-      true,
-      entity._getComponentsInner()
-    );
-    this.__entities[entity.entityUID] = newEntity;
-    newEntity._copyFrom(entity as unknown as RnObject);
-    return newEntity as unknown as typeof entityClass;
+    return entity as unknown as typeof entityClass;
   }
 
   /**
@@ -238,4 +174,16 @@ export default class EntityRepository {
   getEntitiesNumber(): number {
     return this.__entities.length;
   }
+}
+
+// This can live anywhere in your codebase:
+export function applyMixins(derivedCtor: IEntity, baseCtor: any) {
+  Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+    Object.defineProperty(
+      derivedCtor,
+      name,
+      Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
+        Object.create(null)
+    );
+  });
 }

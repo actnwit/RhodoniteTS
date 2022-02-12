@@ -4,7 +4,7 @@ import MeshComponent from '../Mesh/MeshComponent';
 import WebGLStrategy from '../../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
@@ -504,7 +504,7 @@ export default class MeshRendererComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class MeshRendererEntity extends (base.constructor as any) {
+    class MeshRendererEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -518,7 +518,9 @@ export default class MeshRendererComponent extends Component {
           WellKnownComponentTIDs.MeshRendererComponentTID
         ) as MeshRendererComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, MeshRendererEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

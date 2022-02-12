@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
@@ -706,7 +706,7 @@ export default class CameraComponent extends Component {
     EntityBaseClass extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBaseClass, _componentClass: SomeComponentClass) {
-    return class CameraEntity extends (base.constructor as any) {
+    class CameraEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -720,7 +720,9 @@ export default class CameraComponent extends Component {
           WellKnownComponentTIDs.CameraComponentTID
         ) as CameraComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, CameraEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBaseClass;
   }
 }

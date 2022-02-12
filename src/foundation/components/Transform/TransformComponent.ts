@@ -4,7 +4,7 @@ import Matrix44 from '../../math/Matrix44';
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
 import MutableMatrix44 from '../../math/MutableMatrix44';
@@ -644,7 +644,7 @@ export default class TransformComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class TransformEntity extends (base.constructor as any) {
+    class TransformEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -658,7 +658,9 @@ export default class TransformComponent extends Component {
           WellKnownComponentTIDs.TransformComponentTID
         ) as TransformComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, TransformEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

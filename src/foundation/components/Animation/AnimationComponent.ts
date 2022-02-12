@@ -1,6 +1,6 @@
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {
   AnimationInterpolationEnum,
@@ -50,10 +50,8 @@ import {
 import Vector3 from '../../math/Vector3';
 import {Is} from '../../misc/Is';
 import {IAnimationEntity} from '../../helpers/EntityHelper';
-import {MixinBase} from '../../../types/TypeGenerators';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import {IAnimationEntityMethods} from './IAnimationEntity';
 
 const defaultAnimationInfo = {
   name: '',
@@ -791,7 +789,7 @@ export default class AnimationComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class AnimationEntity extends (base.constructor as any) {
+    class AnimationEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -805,7 +803,9 @@ export default class AnimationComponent extends Component {
           WellKnownComponentTIDs.AnimationComponentTID
         ) as AnimationComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, AnimationEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

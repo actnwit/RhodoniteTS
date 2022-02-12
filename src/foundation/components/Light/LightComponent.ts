@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {LightType} from '../../definitions/LightType';
 import Vector3 from '../../math/Vector3';
@@ -151,7 +151,7 @@ export default class LightComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class LightEntity extends (base.constructor as any) {
+    class LightEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -165,7 +165,9 @@ export default class LightComponent extends Component {
           WellKnownComponentTIDs.LightComponentTID
         ) as LightComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, LightEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

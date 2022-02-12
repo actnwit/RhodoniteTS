@@ -1,6 +1,6 @@
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import {
@@ -51,7 +51,7 @@ export default class BlendShapeComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class BlendShape extends (base.constructor as any) {
+    class BlendShapeEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -65,7 +65,9 @@ export default class BlendShapeComponent extends Component {
           WellKnownComponentTIDs.BlendShapeComponentTID
         ) as BlendShapeComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, BlendShapeEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

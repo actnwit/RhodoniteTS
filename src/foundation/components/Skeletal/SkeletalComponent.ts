@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import Matrix44 from '../../math/Matrix44';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
@@ -408,7 +408,7 @@ export default class SkeletalComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class SkeletalEntity extends (base.constructor as any) {
+    class SkeletalEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -422,7 +422,9 @@ export default class SkeletalComponent extends Component {
           WellKnownComponentTIDs.SkeletalComponentTID
         ) as SkeletalComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, SkeletalEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

@@ -1,6 +1,6 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
 import Component from '../foundation/core/Component';
-import EntityRepository from '../foundation/core/EntityRepository';
+import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
@@ -335,7 +335,7 @@ export default class EffekseerComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class EffekseerEntity extends (base.constructor as any) {
+    class EffekseerEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -349,7 +349,9 @@ export default class EffekseerComponent extends Component {
           EffekseerComponent.componentTID
         ) as EffekseerComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, EffekseerComponent);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

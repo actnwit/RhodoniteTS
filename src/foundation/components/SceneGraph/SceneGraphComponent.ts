@@ -1,7 +1,7 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
 import Matrix44 from '../../math/Matrix44';
-import EntityRepository from '../../core/EntityRepository';
+import EntityRepository, { applyMixins } from '../../core/EntityRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
@@ -559,7 +559,7 @@ export default class SceneGraphComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class SceneGraphEntity extends (base.constructor as any) {
+    class SceneGraphEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -573,7 +573,9 @@ export default class SceneGraphComponent extends Component {
           WellKnownComponentTIDs.SceneGraphComponentTID
         );
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, SceneGraphEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }

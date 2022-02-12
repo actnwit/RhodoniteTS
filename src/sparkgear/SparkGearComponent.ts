@@ -1,5 +1,5 @@
 import Component from '../foundation/core/Component';
-import EntityRepository from '../foundation/core/EntityRepository';
+import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import Matrix44 from '../foundation/math/Matrix44';
@@ -376,7 +376,7 @@ export default class SparkGearComponent extends Component {
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
-    return class SparkGearEntity extends (base.constructor as any) {
+    class SparkGearEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -390,7 +390,9 @@ export default class SparkGearComponent extends Component {
           SparkGearComponent.componentTID
         ) as SparkGearComponent;
       }
-    } as unknown as ComponentToComponentMethods<SomeComponentClass> &
+    }
+    applyMixins(base, SparkGearEntity);
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
 }
