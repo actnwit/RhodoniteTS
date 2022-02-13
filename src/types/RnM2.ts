@@ -383,6 +383,17 @@ export type GltfFileBuffers = {
   //        "boo.png": content of file as ArrayBuffer
 };
 
+export type RnM2ExtensionEffekseer = {
+  effects: RnM2ExtensionsEffekseerEffect[];
+};
+
+export type RnM2ExtensionsEffekseerEffect = {
+  node: number;
+  name?: string;
+  uri?: string;
+  bufferView?: number;
+};
+
 export type RnM2Sampler = {
   magFilter?: number;
   minFilter?: number;
