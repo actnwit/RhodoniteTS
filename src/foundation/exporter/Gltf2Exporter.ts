@@ -51,8 +51,19 @@ import {
 } from '../helpers/EntityHelper';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
+export const GLTF2_EXPORT_GLTF = 'glTF';
+export const GLTF2_EXPORT_GLB = 'glTF-Binary';
+export const GLTF2_EXPORT_DRACO = 'glTF-Draco';
+export const GLTF2_EXPORT_EMBEDDED = 'glTF-Embedded';
+
+export type Gltf2ExportType =
+  | typeof GLTF2_EXPORT_GLTF
+  | typeof GLTF2_EXPORT_GLB
+  | typeof GLTF2_EXPORT_DRACO
+  | typeof GLTF2_EXPORT_EMBEDDED;
 interface Gltf2ExporterArguments {
-  entities: IGroupEntity[]; // The target entities. This exporter includes their descendants for the output.
+  entities?: IGroupEntity[]; // The target entities. This exporter includes their descendants for the output.
+  type: Gltf2ExportType;
 }
 
 /**
@@ -68,7 +79,13 @@ export default class Gltf2Exporter {
    * @param filename the target output path
    * @param option a option config
    */
-  static export(filename: string, option?: Gltf2ExporterArguments) {
+  static export(
+    filename: string,
+    option: Gltf2ExporterArguments = {
+      entities: undefined,
+      type: GLTF2_EXPORT_GLB,
+    }
+  ) {
     const {collectedEntities, topLevelEntities} =
       this.__collectEntities(option);
 
@@ -128,7 +145,11 @@ export default class Gltf2Exporter {
    * @returns target entities
    */
   private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
-    if (Is.exist(option) && option.entities.length > 0) {
+    if (
+      Is.exist(option) &&
+      Is.exist(option.entities) &&
+      option.entities.length > 0
+    ) {
       const collectDescendants = (
         entity: IGroupEntity,
         root: boolean
