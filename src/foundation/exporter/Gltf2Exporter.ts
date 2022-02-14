@@ -409,7 +409,8 @@ export default class Gltf2Exporter {
       const bindShapeMatrix = skeletalComponent._bindShapeMatrix;
       let skeletalIdx = -1;
       if (Is.exist(topOfJointsSkeletonSceneComponent)) {
-        const skeletalEntity = topOfJointsSkeletonSceneComponent.entity as ISkeletalEntity;
+        const skeletalEntity =
+          topOfJointsSkeletonSceneComponent.entity as ISkeletalEntity;
         skeletalIdx = entities.indexOf(skeletalEntity);
       } else {
         skeletalIdx = jointIndicesOfTheEntity[0];
@@ -694,6 +695,7 @@ export default class Gltf2Exporter {
    */
   static __download(json: Gltf2, filename: string, arraybuffer: ArrayBuffer) {
     {
+      // .gltf file
       const a = document.createElement('a');
 
       a.download = filename + '.gltf';
@@ -704,10 +706,11 @@ export default class Gltf2Exporter {
       a.dispatchEvent(e);
     }
     {
+      // .bin file
       const a = document.createElement('a');
-      const blob = new Blob([arraybuffer], {type: 'octet/stream'}),
-        url = URL.createObjectURL(blob);
       a.download = filename + '.bin';
+      const blob = new Blob([arraybuffer], {type: 'octet/stream'});
+      const url = URL.createObjectURL(blob);
       a.href = url;
       const e = new MouseEvent('click');
       a.dispatchEvent(e);
