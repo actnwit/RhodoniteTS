@@ -49,6 +49,7 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
+import { MiscUtil } from '../misc/MiscUtil';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -111,7 +112,11 @@ export default class Gltf2Exporter {
 
     this.__deleteEmptyArrays(json);
 
-    this.__download(json, fileName, arraybuffer);
+    if (option.type === GLTF2_EXPORT_GLB) {
+      this.__downloadGlb(json, fileName, arraybuffer);
+    } else if (option.type === GLTF2_EXPORT_GLTF) {
+      this.__downloadGltf(json, fileName, arraybuffer);
+    }
   }
 
   private static __deleteEmptyArrays(json: Gltf2Ex) {
@@ -693,7 +698,71 @@ export default class Gltf2Exporter {
    * @param filename target output path
    * @param arraybuffer an ArrayBuffer of the .bin file
    */
-  static __download(json: Gltf2, filename: string, arraybuffer: ArrayBuffer) {
+  static __downloadGlb(
+    json: Gltf2,
+    filename: string,
+    arraybuffer: ArrayBuffer
+  ): void {
+    {
+      const headerBytes = 12; // 12byte-header
+
+      // .glb file
+      delete json.buffers![0].uri;
+      const jsonStr = JSON.stringify(json, null, 2);
+      const jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
+      const jsonChunkLength =
+        jsonArrayBuffer.byteLength +
+        DataUtil.calcPaddingBytes(jsonArrayBuffer.byteLength, 4);
+      const headerAndChunk0 = headerBytes + 4 + 4 + jsonChunkLength; // Chunk-0
+      const totalBytes = headerAndChunk0 + 4 + 4 + arraybuffer.byteLength; // Chunk-1
+
+      const glbArrayBuffer = new ArrayBuffer(totalBytes);
+      const dataView = new DataView(glbArrayBuffer);
+      dataView.setUint32(0, 0x46546c67, true);
+      dataView.setUint32(4, 2, true);
+      dataView.setUint32(8, totalBytes, true);
+      dataView.setUint32(12, jsonChunkLength, true);
+      dataView.setUint32(16, 0x4e4f534a, true);
+      dataView.setUint32(headerAndChunk0, arraybuffer.byteLength, true);
+      dataView.setUint32(headerAndChunk0 + 4, 0x004e4942, true);
+
+      DataUtil.copyArrayBufferAs4BytesWithPadding({
+        src: jsonArrayBuffer,
+        dist: glbArrayBuffer,
+        srcByteOffset: 0,
+        copyByteLength: jsonArrayBuffer.byteLength,
+        distByteOffset: 20,
+      });
+      DataUtil.copyArrayBufferAs4Bytes({
+        src: arraybuffer,
+        dist: glbArrayBuffer,
+        srcByteOffset: 0,
+        copyByteLength: arraybuffer.byteLength,
+        distByteOffset: 20 + jsonChunkLength + 8,
+      });
+
+      const a = document.createElement('a');
+      a.download = filename + '.glb';
+      const blob = new Blob([glbArrayBuffer], {type: 'octet/stream'});
+      const url = URL.createObjectURL(blob);
+      a.href = url;
+
+      const e = new MouseEvent('click');
+      a.dispatchEvent(e);
+    }
+  }
+
+  /**
+   * download the glTF2 files
+   * @param json a glTF2 JSON
+   * @param filename target output path
+   * @param arraybuffer an ArrayBuffer of the .bin file
+   */
+  static __downloadGltf(
+    json: Gltf2,
+    filename: string,
+    arraybuffer: ArrayBuffer
+  ): void {
     {
       // .gltf file
       const a = document.createElement('a');
