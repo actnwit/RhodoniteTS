@@ -1,5 +1,4 @@
 import EntityRepository from '../core/EntityRepository';
-import Entity, {IEntity} from '../core/Entity';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
@@ -656,12 +655,10 @@ export default class Gltf2Exporter {
       dataView.setUint32(0, 0x46546c67, true);
       dataView.setUint32(4, 2, true);
       dataView.setUint32(8, totalBytes, true);
-      dataView.setUint32(12, jsonChunkLength, true);
+      dataView.setUint32(12, jsonArrayBuffer.byteLength, true);
       dataView.setUint32(16, 0x4e4f534a, true);
-      dataView.setUint32(headerAndChunk0, arraybuffer.byteLength, true);
-      dataView.setUint32(headerAndChunk0 + 4, 0x004e4942, true);
 
-      DataUtil.copyArrayBufferAs4BytesWithPadding({
+      const copiedUint8Array = DataUtil.copyArrayBufferWithPadding({
         src: jsonArrayBuffer,
         dist: glbArrayBuffer,
         srcByteOffset: 0,
@@ -675,6 +672,8 @@ export default class Gltf2Exporter {
         copyByteLength: arraybuffer.byteLength,
         distByteOffset: 20 + jsonChunkLength + 8,
       });
+      dataView.setUint32(headerAndChunk0, arraybuffer.byteLength, true);
+      dataView.setUint32(headerAndChunk0 + 4, 0x004e4942, true);
 
       const a = document.createElement('a');
       a.download = filename + '.glb';
