@@ -538,6 +538,12 @@ export default class DataUtil {
     return 0;
   }
 
+  static addPaddingBytes(originalByteLength: Byte, byteAlign: Byte) {
+    return (
+      originalByteLength + this.calcPaddingBytes(originalByteLength, byteAlign)
+    );
+  }
+
   static normalizedInt8ArrayToFloat32Array(from: Int8Array | number[]) {
     const float32Array = new Float32Array(from.length);
     for (let i = 0; i < from.length; i++) {
@@ -719,5 +725,10 @@ export default class DataUtil {
     );
 
     return dst.buffer;
+  }
+
+  static stringToBuffer(src: string): ArrayBuffer {
+    const enc = new TextEncoder();
+    return enc.encode(src).buffer;
   }
 }
