@@ -727,50 +727,6 @@ export default class DataUtil {
     return dst.buffer;
   }
 
-  /**
-   * get a copy of the src arraybuffer with padding to be 4bytes aligined
-   * @param param0 copy description
-   * @returns copied memory as ArrayBuffer
-   */
-  static copyArrayBufferWithPadding({
-    src,
-    dist,
-    srcByteOffset,
-    copyByteLength,
-    distByteOffset,
-  }: {
-    src: ArrayBuffer;
-    dist: ArrayBuffer;
-    srcByteOffset: Byte;
-    copyByteLength: Byte;
-    distByteOffset: Byte;
-  }): ArrayBuffer {
-    const srcByteOffsetAligned =
-      srcByteOffset % 4 === 0
-        ? srcByteOffset
-        : srcByteOffset + (4 - (srcByteOffset % 4));
-    const distByteOffsetAligned =
-      distByteOffset % 4 === 0
-        ? distByteOffset
-        : distByteOffset + (4 - (distByteOffset % 4));
-    const copyByteLengthAligned =
-      copyByteLength % 4 === 0
-        ? copyByteLength
-        : copyByteLength + (4 - (copyByteLength % 4));
-
-    const dst = new Uint8Array(
-      dist,
-      distByteOffsetAligned,
-      copyByteLengthAligned
-    );
-    dst.set(new Uint8Array(src, srcByteOffsetAligned));
-
-    // set 0~3 bytes for 4bytes Align
-    dst.set(new Uint8Array(4 - (copyByteLength % 4)), src.byteLength);
-
-    return dst.buffer;
-  }
-
   static stringToBuffer(src: string): ArrayBuffer {
     const enc = new TextEncoder();
     return enc.encode(src).buffer;

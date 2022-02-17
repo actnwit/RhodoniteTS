@@ -641,11 +641,19 @@ export default class Gltf2Exporter {
 
       // .glb file
       delete json.buffers![0].uri;
-      const jsonStr = JSON.stringify(json, null, 2);
-      const jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
-      const jsonChunkLength =
-        jsonArrayBuffer.byteLength +
-        DataUtil.calcPaddingBytes(jsonArrayBuffer.byteLength, 4);
+      let jsonStr = JSON.stringify(json, null, 2);
+      let jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
+      const paddingBytes = DataUtil.calcPaddingBytes(
+        jsonArrayBuffer.byteLength,
+        4
+      );
+      if (paddingBytes > 0) {
+        for (let i = 0; i < paddingBytes; i++) {
+          jsonStr += ' ';
+        }
+        jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
+      }
+      const jsonChunkLength = jsonArrayBuffer.byteLength;
       const headerAndChunk0 = headerBytes + 4 + 4 + jsonChunkLength; // Chunk-0
       const totalBytes = headerAndChunk0 + 4 + 4 + arraybuffer.byteLength; // Chunk-1
 
@@ -657,7 +665,7 @@ export default class Gltf2Exporter {
       dataView.setUint32(12, jsonArrayBuffer.byteLength, true);
       dataView.setUint32(16, 0x4e4f534a, true);
 
-      const copiedUint8Array = DataUtil.copyArrayBufferWithPadding({
+      DataUtil.copyArrayBufferAs4Bytes({
         src: jsonArrayBuffer,
         dist: glbArrayBuffer,
         srcByteOffset: 0,
