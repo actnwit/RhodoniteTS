@@ -30,6 +30,12 @@ import _Gltf2Importer from './foundation/importer/Gltf2Importer';
 import _DrcPointCloudImporter from './foundation/importer/DrcPointCloudImporter';
 import _GltfImporter from './foundation/importer/GltfImporter';
 import _Gltf2Exporter from './foundation/exporter/Gltf2Exporter';
+import {
+  GLTF2_EXPORT_GLTF as _GLTF2_EXPORT_GLTF,
+  GLTF2_EXPORT_GLB as _GLTF2_EXPORT_GLB,
+  GLTF2_EXPORT_DRACO as _GLTF2_EXPORT_DRACO,
+  GLTF2_EXPORT_EMBEDDED as _GLTF2_EXPORT_EMBEDDED,
+} from './foundation/exporter/Gltf2Exporter';
 import _ModelConverter from './foundation/importer/ModelConverter';
 import _ModuleManager from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
@@ -249,6 +255,10 @@ export default {
   CubeTexture: _CubeTexture,
   CameraControllerComponent: _CameraControllerComponent,
   Gltf2Exporter: _Gltf2Exporter,
+  _GLTF2_EXPORT_GLB: _GLTF2_EXPORT_GLB,
+  _GLTF2_EXPORT_GLTF: _GLTF2_EXPORT_GLTF,
+  _GLTF2_EXPORT_DRACO: _GLTF2_EXPORT_DRACO,
+  _GLTF2_EXPORT_EMBEDDED: _GLTF2_EXPORT_EMBEDDED,
   detectFormatByArrayBuffers: _detectFormatByArrayBuffers,
   detectFormatByUri: _detectFormatByUri,
   Config: _Config,

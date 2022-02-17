@@ -48,7 +48,6 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
-import { MiscUtil } from '../misc/MiscUtil';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -61,7 +60,7 @@ export type Gltf2ExportType =
   | typeof GLTF2_EXPORT_GLB
   | typeof GLTF2_EXPORT_DRACO
   | typeof GLTF2_EXPORT_EMBEDDED;
-interface Gltf2ExporterArguments {
+export interface Gltf2ExporterArguments {
   entities?: IGroupEntity[]; // The target entities. This exporter includes their descendants for the output.
   type: Gltf2ExportType;
 }
