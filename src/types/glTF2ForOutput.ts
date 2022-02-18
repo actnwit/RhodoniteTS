@@ -1,5 +1,5 @@
-import Entity from '../foundation/core/Entity';
-import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
+import {ISkeletalEntity} from '../foundation/helpers/EntityHelper';
+import { Byte } from './CommonTypes';
 import {
   Gltf2BufferView,
   Gltf2Accessor,
@@ -53,5 +53,9 @@ export interface Gltf2Ex extends Gltf2 {
   skins: Gltf2Skin[];
   extras: {
     rnSkins: ISkeletalEntity[];
+    bufferViewByteLengthAccumulatedArray: Byte[];
+    // bufferViewByteLengthAccumulatedArray[0] for buffer 0
+    // bufferViewByteLengthAccumulatedArray[1] for buffer 1
+    // ...
   };
 }

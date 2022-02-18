@@ -21,7 +21,6 @@ import {
 import {
   Gltf2AccessorEx,
   Gltf2Ex,
-  Gltf2ImageEx,
   Gltf2MaterialEx,
 } from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
@@ -92,17 +91,7 @@ export default class Gltf2Exporter {
     const {json, fileName}: {json: Gltf2Ex; fileName: string} =
       this.__createJsonBase(filename);
 
-    const bufferViewByteLengthAccumulatedArray: Byte[] = [
-      // 0: bufferViewByteLengthAccumulated for buffer 0
-      // 1: bufferViewByteLengthAccumulated for buffer 1
-      // ...
-    ];
-
-    this.__createBufferViewsAndAccessors(
-      json,
-      collectedEntities,
-      bufferViewByteLengthAccumulatedArray
-    );
+    this.__createBufferViewsAndAccessors(json, collectedEntities);
 
     this.__createNodes(json, collectedEntities, topLevelEntities);
 
@@ -112,10 +101,7 @@ export default class Gltf2Exporter {
       option
     );
 
-    const arraybuffer = this.__createBinary(
-      json,
-      bufferViewByteLengthAccumulatedArray
-    );
+    const arraybuffer = this.__createBinary(json);
 
     this.__deleteEmptyArrays(json);
 
@@ -147,10 +133,6 @@ export default class Gltf2Exporter {
     }
     if (json.images.length === 0) {
       delete (json as Gltf2).images;
-    } else {
-      for (const image of json.images) {
-        delete image.extras.blob;
-      }
     }
     delete (json as Gltf2).extras;
   }
@@ -242,6 +224,10 @@ export default class Gltf2Exporter {
       },
       extras: {
         rnSkins: [],
+        bufferViewByteLengthAccumulatedArray: [],
+        // bufferViewByteLengthAccumulatedArray[0] for buffer 0
+        // bufferViewByteLengthAccumulatedArray[1] for buffer 1
+        // ...
       },
     };
 
@@ -255,8 +241,7 @@ export default class Gltf2Exporter {
    */
   static __createBufferViewsAndAccessors(
     json: Gltf2Ex,
-    entities: IGroupEntity[],
-    bufferViewByteLengthAccumulatedArray: Byte[]
+    entities: IGroupEntity[]
   ) {
     const existingUniqueRnBuffers: Buffer[] = [];
     const existingUniqueRnBufferViews: BufferView[] = [];
@@ -265,7 +250,6 @@ export default class Gltf2Exporter {
     __createBufferViewsAndAccessorsOfMesh(
       json,
       entities as IMeshEntity[],
-      bufferViewByteLengthAccumulatedArray,
       existingUniqueRnBuffers,
       existingUniqueRnBufferViews,
       existingUniqueRnAccessors
@@ -273,7 +257,6 @@ export default class Gltf2Exporter {
 
     __createBufferViewsAndAccessorsOfAnimation(
       json,
-      bufferViewByteLengthAccumulatedArray,
       entities as IAnimationEntity[]
     );
 
@@ -282,13 +265,8 @@ export default class Gltf2Exporter {
       entities as ISkeletalEntity[],
       existingUniqueRnBuffers,
       existingUniqueRnBufferViews,
-      existingUniqueRnAccessors,
-      bufferViewByteLengthAccumulatedArray
+      existingUniqueRnAccessors
     );
-  }
-
-  static getNextBufferIdx(bufferViewByteLengthAccumulatedArray: number[]) {
-    return bufferViewByteLengthAccumulatedArray.length;
   }
 
   /**
@@ -462,9 +440,8 @@ export default class Gltf2Exporter {
                   }
                 }
                 if (!match) {
-                  const glTF2ImageEx: Gltf2ImageEx = {
+                  const glTF2ImageEx = {
                     uri: rnTexture.name,
-                    extras: {},
                   };
 
                   if (existedImages.indexOf(rnTexture.name) !== -1) {
@@ -588,19 +565,17 @@ export default class Gltf2Exporter {
    * @param json a glTF2 JSON
    * @returns A arraybuffer
    */
-  private static __createBinary(
-    json: Gltf2,
-    bufferViewByteLengthAccumulatedArray: Byte[]
-  ) {
+  private static __createBinary(json: Gltf2Ex) {
     // write all data of accessors to the DataView (total data area)
     if (Is.undefined(json.accessors) || Is.undefined(json.bufferViews)) {
       return new ArrayBuffer(0);
     }
 
     // calc total sum of BufferViews in multiple Buffers
-    const byteLengthOfUniteBuffer = bufferViewByteLengthAccumulatedArray.reduce(
-      (sum, val) => sum + val
-    );
+    const byteLengthOfUniteBuffer =
+      json.extras.bufferViewByteLengthAccumulatedArray.reduce(
+        (sum, val) => sum + val
+      );
     if (byteLengthOfUniteBuffer > 0) {
       const buffer = json.buffers![0];
       buffer.byteLength =
@@ -615,8 +590,8 @@ export default class Gltf2Exporter {
     let lastCopiedByteLengthOfBufferView = 0;
     for (let i = 0; i < json.bufferViews.length; i++) {
       const bufferView = json.bufferViews[i];
-      const uint8ArrayOfBufferView = bufferView.extras!.uint8Array;
-      delete bufferView.extras;
+      const uint8ArrayOfBufferView = bufferView.extras!.uint8Array!;
+      delete (bufferView as unknown as Gltf2).extras;
 
       // const bufferIdx = bufferView.buffer!;
       // const byteOffsetOfTheBuffer =
@@ -756,8 +731,7 @@ function __createBufferViewsAndAccessorsOfSkin(
   entities: ISkeletalEntity[],
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
-  existingUniqueRnAccessors: Accessor[],
-  bufferViewByteLengthAccumulatedArray: Byte[]
+  existingUniqueRnAccessors: Accessor[]
 ) {
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i];
@@ -781,7 +755,6 @@ function __createBufferViewsAndAccessorsOfSkin(
     if (Is.exist(inverseBindMatRnAccessor)) {
       createOrReuseGltf2BufferView(
         json,
-        bufferViewByteLengthAccumulatedArray,
         existingUniqueRnBuffers,
         existingUniqueRnBufferViews,
         inverseBindMatRnAccessor.bufferView
@@ -829,7 +802,6 @@ function __createBufferViewsAndAccessorsOfSkin(
 function __createBufferViewsAndAccessorsOfMesh(
   json: Gltf2Ex,
   entities: IMeshEntity[],
-  bufferViewByteLengthAccumulatedArray: Byte[],
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
   existingUniqueRnAccessors: Accessor[]
@@ -854,7 +826,6 @@ function __createBufferViewsAndAccessorsOfMesh(
           const rnBufferView = rnIndicesAccessor.bufferView;
           const gltf2BufferView = createOrReuseGltf2BufferView(
             json,
-            bufferViewByteLengthAccumulatedArray,
             existingUniqueRnBuffers,
             existingUniqueRnBufferViews,
             rnBufferView,
@@ -880,7 +851,6 @@ function __createBufferViewsAndAccessorsOfMesh(
           const rnBufferView = rnAttributeAccessor.bufferView;
           const gltf2BufferView = createOrReuseGltf2BufferView(
             json,
-            bufferViewByteLengthAccumulatedArray,
             existingUniqueRnBuffers,
             existingUniqueRnBufferViews,
             rnBufferView,
@@ -910,18 +880,14 @@ function __createBufferViewsAndAccessorsOfMesh(
 /**
  * create BufferViews and Accessors of animation
  * @param json
- * @param bufferViewByteLengthAccumulatedArray
  * @param entities
  */
 function __createBufferViewsAndAccessorsOfAnimation(
   json: Gltf2Ex,
-  bufferViewByteLengthAccumulatedArray: Byte[],
   entities: IAnimationEntity[]
 ): void {
   let sumOfBufferViewByteLengthAccumulated = 0;
-  const bufferIdx = Gltf2Exporter.getNextBufferIdx(
-    bufferViewByteLengthAccumulatedArray
-  );
+  const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length;
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i];
     const animationComponent = entity.tryToGetAnimation();
@@ -984,7 +950,7 @@ function __createBufferViewsAndAccessorsOfAnimation(
         }
       }
     }
-    bufferViewByteLengthAccumulatedArray.push(
+    json.extras.bufferViewByteLengthAccumulatedArray.push(
       sumOfBufferViewByteLengthAccumulated
     );
   }
@@ -1050,7 +1016,6 @@ function calcAccessorIdxToSet(
 
 function createOrReuseGltf2BufferView(
   json: Gltf2Ex,
-  bufferViewByteLengthAccumulatedArray: Byte[],
   existingUniqueRnBuffers: Buffer[],
   existingUniqueRnBufferViews: BufferView[],
   rnBufferView: BufferView,
@@ -1080,9 +1045,9 @@ function createOrReuseGltf2BufferView(
       gltf2BufferView.byteStride = rnBufferView.defaultByteStride;
     }
 
-    bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
+    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
       accumulateBufferViewByteLength(
-        bufferViewByteLengthAccumulatedArray,
+        json.extras.bufferViewByteLengthAccumulatedArray,
         bufferIdxToSet,
         gltf2BufferView
       );
@@ -1536,7 +1501,8 @@ async function handleTextureImage(
     promises.push(promise);
     const results = await Promise.all(promises);
     for (const result of results) {
-      if (ArrayBuffer.isView(result)) {} else {
+      if (ArrayBuffer.isView(result)) {
+      } else {
         console.error('convert from blob to arraybuffer failed');
       }
     }
