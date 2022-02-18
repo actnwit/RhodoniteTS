@@ -21,6 +21,7 @@ import {
 import {
   Gltf2AccessorEx,
   Gltf2Ex,
+  Gltf2ImageEx,
   Gltf2MaterialEx,
 } from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
@@ -91,7 +92,11 @@ export default class Gltf2Exporter {
     const {json, fileName}: {json: Gltf2Ex; fileName: string} =
       this.__createJsonBase(filename);
 
-    const bufferViewByteLengthAccumulatedArray: Byte[] = [];
+    const bufferViewByteLengthAccumulatedArray: Byte[] = [
+      // 0: bufferViewByteLengthAccumulated for buffer 0
+      // 1: bufferViewByteLengthAccumulated for buffer 1
+      // ...
+    ];
 
     this.__createBufferViewsAndAccessors(
       json,
@@ -101,7 +106,11 @@ export default class Gltf2Exporter {
 
     this.__createNodes(json, collectedEntities, topLevelEntities);
 
-    this.__createMaterials(json, collectedEntities as unknown as IMeshEntity[]);
+    this.__createMaterials(
+      json,
+      collectedEntities as unknown as IMeshEntity[],
+      option
+    );
 
     const arraybuffer = this.__createBinary(
       json,
@@ -138,6 +147,10 @@ export default class Gltf2Exporter {
     }
     if (json.images.length === 0) {
       delete (json as Gltf2).images;
+    } else {
+      for (const image of json.images) {
+        delete image.extras.blob;
+      }
     }
     delete (json as Gltf2).extras;
   }
@@ -369,7 +382,11 @@ export default class Gltf2Exporter {
    * @param json a glTF2 JSON
    * @param entities all target entities
    */
-  static __createMaterials(json: Gltf2, entities: IMeshEntity[]) {
+  static __createMaterials(
+    json: Gltf2,
+    entities: IMeshEntity[],
+    option: Gltf2ExporterArguments
+  ) {
     let countMesh = 0;
     let countMaterial = 0;
     let countTexture = 0;
@@ -445,32 +462,33 @@ export default class Gltf2Exporter {
                   }
                 }
                 if (!match) {
-                  const imageJson = {
+                  const glTF2ImageEx: Gltf2ImageEx = {
                     uri: rnTexture.name,
+                    extras: {},
                   };
 
                   if (existedImages.indexOf(rnTexture.name) !== -1) {
-                    imageJson.uri += '_' + rnTexture.textureUID;
+                    glTF2ImageEx.uri += '_' + rnTexture.textureUID;
                   }
 
-                  existedImages.push(imageJson.uri);
+                  existedImages.push(glTF2ImageEx.uri!);
 
-                  if (Is.not.exist(imageJson.uri.match(/\.(png|jpg|jpeg)/))) {
-                    imageJson.uri += '.png';
+                  if (
+                    Is.not.exist(glTF2ImageEx.uri!.match(/\.(png|jpg|jpeg)/))
+                  ) {
+                    glTF2ImageEx.uri += '.png';
                   }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
-                    htmlCanvasElement.toBlob((blob: Blob | null) => {
-                      setTimeout(() => {
-                        const a = document.createElement('a');
-                        const e = new MouseEvent('click');
-                        a.href = URL.createObjectURL(blob!);
-                        a.download = imageJson.uri;
-                        a.dispatchEvent(e);
-                      }, Math.random() * 10000);
+                    htmlCanvasElement.toBlob(blob => {
+                      if (Is.exist(blob)) {
+                        handleTextureImage(blob, option, glTF2ImageEx);
+                      } else {
+                        throw Error('canvas to blob error!');
+                      }
                     });
                   }
-                  json.images![countImage++] = imageJson;
+                  json.images![countImage++] = glTF2ImageEx;
                 }
 
                 json.textures![countTexture] = {
@@ -1491,4 +1509,45 @@ function createGltf2Accessor({
     extras: {},
   };
   return gltf2AccessorEx;
+}
+
+async function handleTextureImage(
+  blob: Blob,
+  option: Gltf2ExporterArguments,
+  glTF2ImageEx: Gltf2ImageEx
+) {
+  if (option.type === GLTF2_EXPORT_GLB) {
+    const promises: Promise<ArrayBuffer | DOMException>[] = [];
+    const promise = new Promise(
+      (
+        resolve: (v: ArrayBuffer) => void,
+        rejected: (reason?: DOMException) => void
+      ) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          resolve(reader.result as ArrayBuffer);
+        });
+        reader.addEventListener('error', () => {
+          rejected(reader.error as DOMException);
+        });
+        reader.readAsArrayBuffer(blob);
+      }
+    );
+    promises.push(promise);
+    const results = await Promise.all(promises);
+    for (const result of results) {
+      if (ArrayBuffer.isView(result)) {} else {
+        console.error('convert from blob to arraybuffer failed');
+      }
+    }
+  } else {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      const e = new MouseEvent('click');
+      a.href = URL.createObjectURL(blob!);
+      a.download = glTF2ImageEx.uri!;
+      a.dispatchEvent(e);
+      URL.revokeObjectURL(a.href);
+    }, Math.random() * 5000);
+  }
 }
