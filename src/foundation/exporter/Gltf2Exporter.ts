@@ -950,10 +950,10 @@ function __createBufferViewsAndAccessorsOfAnimation(
         }
       }
     }
-    json.extras.bufferViewByteLengthAccumulatedArray.push(
-      sumOfBufferViewByteLengthAccumulated
-    );
   }
+  json.extras.bufferViewByteLengthAccumulatedArray.push(
+    sumOfBufferViewByteLengthAccumulated
+  );
 }
 
 function createOrReuseGltf2Accessor(
