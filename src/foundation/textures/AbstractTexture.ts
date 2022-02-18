@@ -162,7 +162,13 @@ export default abstract class AbstractTexture extends RnObject {
     }
   }
 
-  getPixelAsArray(x: Index, y: Index) {
+  /**
+   * get the pixel data at (x,y) in the Texture as Uint8Clamped Array
+   * @param x x position in the texture
+   * @param y y position in the texture
+   * @returns a pixel data as Uint8Clamped Array
+   */
+  getPixelAsArray(x: Index, y: Index): Uint8ClampedArray {
     const pixel = this.getImageData(x, y, 1, 1);
     return pixel.data;
   }
@@ -216,7 +222,7 @@ export default abstract class AbstractTexture extends RnObject {
     this.__canvasContext = canvas.getContext('2d')!;
   }
 
-  getTextureDataFloat(channels: Size) {
+  getTextureDataFloat(channels: Size): TextureDataFloat {
     const pixel = this.getImageData(0, 0, this.width, this.height);
     const textureDataFloat = new TextureDataFloat(
       this.width,
