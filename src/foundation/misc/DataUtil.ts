@@ -658,6 +658,40 @@ export default class DataUtil {
    * @param param0 copy description
    * @returns copied memory as ArrayBuffer
    */
+  static copyArrayBufferWithPadding({
+    src,
+    dist,
+    srcByteOffset,
+    copyByteLength,
+    distByteOffset = 0,
+  }: {
+    src: ArrayBuffer;
+    dist: ArrayBuffer;
+    srcByteOffset: Byte;
+    copyByteLength: Byte;
+    distByteOffset: Byte;
+  }): ArrayBuffer {
+    const dst = new Uint8Array(dist, distByteOffset, copyByteLength);
+    const byteDiff = src.byteLength - srcByteOffset - copyByteLength;
+    if (byteDiff < 0) {
+      dst.set(
+        new Uint8Array(src, srcByteOffset, src.byteLength - srcByteOffset)
+      );
+      const byteCount = -byteDiff;
+      const paddingArrayBuffer = new Uint8Array(byteCount);
+      dst.set(paddingArrayBuffer);
+    } else {
+      dst.set(new Uint8Array(src, srcByteOffset, copyByteLength));
+    }
+
+    return dst.buffer;
+  }
+
+  /**
+   * get a copy of the src arraybuffer
+   * @param param0 copy description
+   * @returns copied memory as ArrayBuffer
+   */
   static copyArrayBufferAs4Bytes({
     src,
     dist,
