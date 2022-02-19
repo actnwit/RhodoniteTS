@@ -613,7 +613,7 @@ export default class Gltf2Exporter {
       delete (bufferView as unknown as Gltf2).extras;
 
       const distByteOffset = lastCopiedByteLengthOfBufferView;
-      DataUtil.copyArrayBufferAs4Bytes({
+      DataUtil.copyArrayBufferWithPadding({
         src: uint8ArrayOfBufferView.buffer,
         dist: arrayBuffer,
         srcByteOffset: uint8ArrayOfBufferView.byteOffset,
