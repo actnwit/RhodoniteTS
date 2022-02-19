@@ -612,24 +612,18 @@ export default class Gltf2Exporter {
       const uint8ArrayOfBufferView = bufferView.extras!.uint8Array!;
       delete (bufferView as unknown as Gltf2).extras;
 
-      // const bufferIdx = bufferView.buffer!;
-      // const byteOffsetOfTheBuffer =
-      //   bufferIdx === 0
-      //     ? 0
-      //     : bufferViewByteLengthAccumulatedArray[bufferIdx - 1];
-
       const distByteOffset = lastCopiedByteLengthOfBufferView;
-      const copyByteLength =
-        uint8ArrayOfBufferView.byteLength +
-        DataUtil.calcPaddingBytes(uint8ArrayOfBufferView.byteLength, 4);
-      DataUtil.copyArrayBufferWithPadding({
+      DataUtil.copyArrayBufferAs4Bytes({
         src: uint8ArrayOfBufferView.buffer,
         dist: arrayBuffer,
         srcByteOffset: uint8ArrayOfBufferView.byteOffset,
-        copyByteLength: copyByteLength,
+        copyByteLength: uint8ArrayOfBufferView.byteLength,
         distByteOffset,
       });
-      lastCopiedByteLengthOfBufferView += copyByteLength;
+      lastCopiedByteLengthOfBufferView += DataUtil.addPaddingBytes(
+        uint8ArrayOfBufferView.byteLength,
+        4
+      );
       bufferView.byteOffset = distByteOffset;
       bufferView.buffer = 0; // rewrite buffer index to 0 (The Unite Buffer)
     }
