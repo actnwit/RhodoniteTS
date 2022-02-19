@@ -13,6 +13,7 @@ import {
   Gltf2Primitive,
   Gltf2AnimationPathName,
   Gltf2Skin,
+  Gltf2Image,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -78,7 +79,7 @@ export default class Gltf2Exporter {
    * @param filename the target output path
    * @param option a option config
    */
-  static export(
+  static async export(
     filename: string,
     option: Gltf2ExporterArguments = {
       entities: undefined,
@@ -95,7 +96,7 @@ export default class Gltf2Exporter {
 
     this.__createNodes(json, collectedEntities, topLevelEntities);
 
-    this.__createMaterials(
+    await this.__createMaterials(
       json,
       collectedEntities as unknown as IMeshEntity[],
       option
@@ -360,8 +361,8 @@ export default class Gltf2Exporter {
    * @param json a glTF2 JSON
    * @param entities all target entities
    */
-  static __createMaterials(
-    json: Gltf2,
+  static async __createMaterials(
+    json: Gltf2Ex,
     entities: IMeshEntity[],
     option: Gltf2ExporterArguments
   ) {
@@ -379,7 +380,10 @@ export default class Gltf2Exporter {
       wrapS: 10497,
       wrapT: 10497,
     };
-
+    const promises: Promise<any>[] = [];
+    json.extras.bufferViewByteLengthAccumulatedArray.push(0);
+    const bufferIdx =
+      json.extras.bufferViewByteLengthAccumulatedArray.length - 1;
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.tryToGetMesh();
@@ -450,20 +454,34 @@ export default class Gltf2Exporter {
 
                   existedImages.push(glTF2ImageEx.uri!);
 
-                  if (
-                    Is.not.exist(glTF2ImageEx.uri!.match(/\.(png|jpg|jpeg)/))
-                  ) {
+                  if (Is.not.exist(glTF2ImageEx.uri!.match(/\.(png)/))) {
                     glTF2ImageEx.uri += '.png';
                   }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
-                    htmlCanvasElement.toBlob(blob => {
-                      if (Is.exist(blob)) {
-                        handleTextureImage(blob, option, glTF2ImageEx);
-                      } else {
-                        throw Error('canvas to blob error!');
+                    const promise = new Promise(
+                      (
+                        resolve: (v?: ArrayBuffer) => void,
+                        rejected: (reason?: DOMException) => void
+                      ) => {
+                        htmlCanvasElement.toBlob(blob => {
+                          if (Is.exist(blob)) {
+                            handleTextureImage(
+                              json,
+                              bufferIdx,
+                              blob,
+                              option,
+                              glTF2ImageEx,
+                              resolve,
+                              rejected
+                            );
+                          } else {
+                            throw Error('canvas to blob error!');
+                          }
+                        });
                       }
-                    });
+                    );
+                    promises.push(promise);
                   }
                   json.images![countImage++] = glTF2ImageEx;
                 }
@@ -558,6 +576,7 @@ export default class Gltf2Exporter {
         }
       }
     }
+    return Promise.all(promises);
   }
 
   /**
@@ -603,7 +622,7 @@ export default class Gltf2Exporter {
       const copyByteLength =
         uint8ArrayOfBufferView.byteLength +
         DataUtil.calcPaddingBytes(uint8ArrayOfBufferView.byteLength, 4);
-      DataUtil.copyArrayBufferAs4Bytes({
+      DataUtil.copyArrayBufferWithPadding({
         src: uint8ArrayOfBufferView.buffer,
         dist: arrayBuffer,
         srcByteOffset: uint8ArrayOfBufferView.byteOffset,
@@ -1198,9 +1217,9 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
     min: [rnChannel.sampler.input[0]],
     max: [rnChannel.sampler.input[rnChannel.sampler.input.length - 1]],
   });
+  json.accessors.push(gltf2Accessor);
 
   // register
-  json.accessors.push(gltf2Accessor);
   bufferViewByteLengthAccumulated = alignBufferViewByteLength(
     bufferViewByteLengthAccumulated,
     gltf2BufferView
@@ -1247,9 +1266,9 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
       rnChannel.sampler.outputComponentN
     ),
   });
+  json.accessors.push(gltf2Accessor);
 
   // register
-  json.accessors.push(gltf2Accessor);
   bufferViewByteLengthAccumulated = alignBufferViewByteLength(
     bufferViewByteLengthAccumulated,
     gltf2BufferView
@@ -1416,6 +1435,32 @@ interface Gltf2BufferViewDesc {
   uint8Array: Uint8Array;
 }
 
+function createAndAddGltf2BufferViewForImages(
+  json: Gltf2Ex,
+  bufferIdx: Index,
+  uint8Array: Uint8Array
+): Gltf2BufferViewEx {
+  const bufferViewByteLengthAccumulated =
+    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx];
+  const gltfBufferViewEx: Gltf2BufferViewEx = {
+    buffer: bufferIdx,
+    byteLength: uint8Array.byteLength,
+    byteOffset: bufferViewByteLengthAccumulated,
+    extras: {
+      uint8Array,
+    },
+  };
+
+  const nextBufferViewBytesLengthAccumulated =
+    DataUtil.addPaddingBytes(gltfBufferViewEx.byteLength, 4) +
+    bufferViewByteLengthAccumulated;
+
+  json.bufferViews.push(gltfBufferViewEx);
+  json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx] =
+    nextBufferViewBytesLengthAccumulated;
+  return gltfBufferViewEx;
+}
+
 function createGltf2BufferView({
   bufferIdx,
   bufferViewByteOffset,
@@ -1477,35 +1522,32 @@ function createGltf2Accessor({
 }
 
 async function handleTextureImage(
+  json: Gltf2Ex,
+  bufferIdx: Index,
   blob: Blob,
   option: Gltf2ExporterArguments,
-  glTF2ImageEx: Gltf2ImageEx
+  glTF2ImageEx: Gltf2Image,
+  resolve: (v?: ArrayBuffer) => void,
+  rejected: (reason?: DOMException) => void
 ) {
   if (option.type === GLTF2_EXPORT_GLB) {
-    const promises: Promise<ArrayBuffer | DOMException>[] = [];
-    const promise = new Promise(
-      (
-        resolve: (v: ArrayBuffer) => void,
-        rejected: (reason?: DOMException) => void
-      ) => {
-        const reader = new FileReader();
-        reader.addEventListener('load', () => {
-          resolve(reader.result as ArrayBuffer);
-        });
-        reader.addEventListener('error', () => {
-          rejected(reader.error as DOMException);
-        });
-        reader.readAsArrayBuffer(blob);
-      }
-    );
-    promises.push(promise);
-    const results = await Promise.all(promises);
-    for (const result of results) {
-      if (ArrayBuffer.isView(result)) {
-      } else {
-        console.error('convert from blob to arraybuffer failed');
-      }
-    }
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      const arrayBuffer = reader.result as ArrayBuffer;
+      const gltf2BufferView = createAndAddGltf2BufferViewForImages(
+        json,
+        bufferIdx,
+        new Uint8ClampedArray(arrayBuffer) as unknown as Uint8Array
+      );
+      glTF2ImageEx.bufferView = json.bufferViews.indexOf(gltf2BufferView);
+      glTF2ImageEx.mimeType = 'image/png';
+      delete glTF2ImageEx.uri;
+      resolve();
+    });
+    reader.addEventListener('error', () => {
+      rejected(reader.error as DOMException);
+    });
+    reader.readAsArrayBuffer(blob);
   } else {
     setTimeout(() => {
       const a = document.createElement('a');
@@ -1515,5 +1557,6 @@ async function handleTextureImage(
       a.dispatchEvent(e);
       URL.revokeObjectURL(a.href);
     }, Math.random() * 5000);
+    resolve();
   }
 }
