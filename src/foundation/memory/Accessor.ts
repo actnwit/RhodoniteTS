@@ -312,6 +312,10 @@ export default class Accessor {
     return this.numberOfComponents * this.componentSizeInBytes;
   }
 
+  /**
+   * get element count
+   * element may be scalar, vec2, vec3, vec4, ...
+   */
   get elementCount(): Count {
     return this.__count;
   }
