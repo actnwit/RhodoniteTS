@@ -43,6 +43,9 @@ import Buffer from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
   GL_ELEMENT_ARRAY_BUFFER,
+  GL_LINEAR,
+  GL_LINEAR_MIPMAP_LINEAR,
+  GL_REPEAT,
 } from '../../types/WebGLConstants';
 import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
@@ -238,7 +241,14 @@ export default class Gltf2Exporter {
         // bufferViewByteLengthAccumulatedArray[1] for buffer 1
         // ...
       },
-      samplers: [],
+      samplers: [
+        {
+          magFilter: GL_LINEAR,
+          minFilter: GL_LINEAR_MIPMAP_LINEAR,
+          wrapS: GL_REPEAT,
+          wrapT: GL_REPEAT,
+        },
+      ],
     };
 
     return {json, fileName};
