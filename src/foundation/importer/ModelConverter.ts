@@ -80,7 +80,8 @@ import EntityHelper, {
 } from '../helpers/EntityHelper';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import LightComponent from '../components/Light/LightComponent';
-import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
+import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
+import BufferView from '../memory/BufferView';
 
 declare let DracoDecoderModule: any;
 
@@ -405,7 +406,7 @@ export default class ModelConverter {
         const inverseBindMatAccessor =
           node.skinObject.inverseBindMatricesObject;
         if (Is.exist(inverseBindMatAccessor)) {
-          const rnBufferOfInverseBindMatAccessor = this.__getRnAccessor(
+          const rnBufferOfInverseBindMatAccessor = this.__getRnBufferViewAndRnAccessor(
             inverseBindMatAccessor,
             rnBuffers[inverseBindMatAccessor.bufferViewObject!.buffer!]
           );
@@ -630,31 +631,43 @@ export default class ModelConverter {
         } else {
           // attributes
           if (Is.exist(primitive.indices)) {
-            indicesRnAccessor = this.__getRnAccessor(
+            indicesRnAccessor = this.__getRnBufferViewAndRnAccessor(
               primitive.indicesObject!,
               rnBuffers[primitive.indicesObject!.bufferViewObject!.buffer!]
             );
           }
 
+          const rnBufferViewMap: Map<number, BufferView> = new Map();
           for (const attributeName in primitive.attributesObjects!) {
-            const attributeAccessor =
-              primitive.attributesObjects![attributeName];
+            const rnm2attribute = primitive.attributesObjects[attributeName]!;
+            const rnBuffer = rnBuffers[rnm2attribute.bufferViewObject!.buffer!];
+            let rnBufferView: BufferView | undefined;
+            if (Is.exist(rnm2attribute.bufferView)) {
+              rnBufferView = rnBufferViewMap.get(rnm2attribute.bufferView);
+              if (Is.not.exist(rnBufferView)) {
+                rnBufferView = this.__getRnBufferView(
+                  rnm2attribute.bufferViewObject!,
+                  rnBuffer
+                );
+                rnBufferViewMap.set(rnm2attribute.bufferView, rnBufferView);
+              }
+            } else {
+              rnBufferView = rnBuffer.takeBufferView({
+                byteLengthToNeed: 0,
+                byteStride: 0,
+              });
+            }
             const attributeRnAccessor = this.__getRnAccessor(
-              attributeAccessor,
-              rnBuffers[
-                (attributeAccessor.bufferViewObject as RnM2BufferView).buffer!
-              ]
+              rnm2attribute,
+              rnBufferView
             );
-
-            if (attributeAccessor.sparse) {
-              this.setSparseAccessor(attributeAccessor, attributeRnAccessor);
+            if (Is.exist(rnm2attribute.sparse)) {
+              this.setSparseAccessor(rnm2attribute, attributeRnAccessor);
             }
 
             const joinedString =
               VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
-                VertexAttribute.fromString(
-                  attributeAccessor.extras!.attributeName
-                )
+                VertexAttribute.fromString(rnm2attribute.extras!.attributeName)
               );
             map.set(joinedString, attributeRnAccessor);
           }
@@ -685,7 +698,7 @@ export default class ModelConverter {
             > = new Map();
             for (const attributeName in target) {
               const attributeAccessor = target[attributeName];
-              const attributeRnAccessor = this.__getRnAccessor(
+              const attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(
                 attributeAccessor,
                 rnBuffers[attributeAccessor.bufferViewObject!.buffer!]
               );
@@ -1810,13 +1823,38 @@ export default class ModelConverter {
   }
 
   /**
+   * Take a Rn.Accessor from the Rn.Buffer
+   *  from the information of the Gltf2Buffer, Gltf2BufferView, and Gltf2Accessor.
+   * @param accessor
+   * @param rnBuffer
+   * @returns
+   */
+  private __getRnAccessor(accessor: RnM2Accessor, rnBufferView: BufferView) {
+    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+      compositionType: CompositionType.fromString(accessor.type),
+      componentType: ComponentType.from(accessor.componentType),
+      count: accessor.count,
+      byteOffsetInBufferView: accessor.byteOffset ?? 0,
+      byteStride: accessor.byteStride,
+      max: accessor.max,
+      min: accessor.min,
+      normalized: accessor.normalized,
+    });
+
+    return rnAccessor;
+  }
+
+  /**
    * Take a Rn.BufferView and a Rn.Accessor from the Rn.Buffer
    *  from the information of the Gltf2Buffer, Gltf2BufferView, and Gltf2Accessor.
    * @param accessor
    * @param rnBuffer
    * @returns
    */
-  private __getRnAccessor(accessor: RnM2Accessor, rnBuffer: Buffer) {
+  private __getRnBufferViewAndRnAccessor(
+    accessor: RnM2Accessor,
+    rnBuffer: Buffer
+  ) {
     const gltfBufferView = accessor.bufferViewObject!;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: gltfBufferView.byteLength,
@@ -1887,11 +1925,11 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __getRnBufferView(bufferView: RnM2BufferView, rnBuffer: Buffer) {
+  private __getRnBufferView(rnm2bufferView: RnM2BufferView, rnBuffer: Buffer) {
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
-      byteLengthToNeed: bufferView.byteLength,
-      byteStride: bufferView.byteStride ?? 0,
-      byteOffset: bufferView.byteOffset ?? 0,
+      byteLengthToNeed: rnm2bufferView.byteLength,
+      byteStride: rnm2bufferView.byteStride ?? 0,
+      byteOffset: rnm2bufferView.byteOffset ?? 0,
     });
 
     return rnBufferView;
@@ -2046,7 +2084,7 @@ export default class ModelConverter {
       if (Is.not.exist(dracoAttributeId)) {
         // non-encoded data
 
-        attributeRnAccessor = this.__getRnAccessor(
+        attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(
           attributeGltf2Accessor!,
           rnBuffers[attributeGltf2Accessor!.bufferViewObject!.buffer!]
         );

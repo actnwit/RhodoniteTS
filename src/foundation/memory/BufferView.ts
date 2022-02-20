@@ -250,6 +250,7 @@ export default class BufferView {
       this.byteLength === rnBufferView.byteLength &&
       this.byteOffsetInRawArrayBufferOfBuffer ===
         rnBufferView.byteOffsetInRawArrayBufferOfBuffer &&
+      this.defaultByteStride === rnBufferView.defaultByteStride &&
       this.buffer.getArrayBuffer() === rnBufferView.buffer.getArrayBuffer()
     );
   }
