@@ -399,7 +399,7 @@ export default class Gltf2Exporter {
           let colorParam;
           let metallic = 1.0;
           let roughness = 1.0;
-          if (rnMaterial != null) {
+          if (Is.exist(rnMaterial)) {
             colorParam = rnMaterial.getParameter(
               ShaderSemantics.BaseColorFactor
             );
@@ -415,16 +415,14 @@ export default class Gltf2Exporter {
                 ShaderSemantics.MetallicRoughnessFactor
               ).y;
             }
-          }
-
-          if (colorParam) {
             material.pbrMetallicRoughness.baseColorFactor =
               Array.prototype.slice.call(colorParam._v);
           }
+
           material.pbrMetallicRoughness.metallicFactor = metallic;
           material.pbrMetallicRoughness.roughnessFactor = roughness;
 
-          if (rnMaterial) {
+          if (Is.exist(rnMaterial)) {
             material.alphaMode = rnMaterial.alphaMode.str;
 
             const existedImages: string[] = [];
@@ -590,8 +588,7 @@ export default class Gltf2Exporter {
           }
 
           json.materials.push(material);
-          primitive.material = json.materials.length - 1;
-          console.log(primitive.material);
+          primitive.material = json.materials.indexOf(material);
         }
       }
     }
