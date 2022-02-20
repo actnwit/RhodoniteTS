@@ -241,14 +241,7 @@ export default class Gltf2Exporter {
         // bufferViewByteLengthAccumulatedArray[1] for buffer 1
         // ...
       },
-      samplers: [
-        {
-          magFilter: GL_LINEAR,
-          minFilter: GL_LINEAR_MIPMAP_LINEAR,
-          wrapS: GL_REPEAT,
-          wrapT: GL_REPEAT,
-        },
-      ],
+      samplers: [],
     };
 
     return {json, fileName};
