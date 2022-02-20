@@ -14,6 +14,8 @@ import {
   Gltf2AnimationPathName,
   Gltf2Skin,
   Gltf2Image,
+  Gltf2Accessor,
+  Gltf2BufferView,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -134,6 +136,9 @@ export default class Gltf2Exporter {
     }
     if (json.images.length === 0) {
       delete (json as Gltf2).images;
+    }
+    if (json.animations.length === 0) {
+      delete (json as Gltf2).animations;
     }
     delete (json as Gltf2).extras;
   }
@@ -996,6 +1001,14 @@ function createOrReuseGltf2Accessor(
         uint8Array: undefined,
       },
     };
+
+    const gltf2BufferView = json.bufferViews[gltf2Accessor.bufferView!];
+    if (Is.exist(gltf2BufferView.target)) {
+      if (gltf2BufferView.target === GL_ARRAY_BUFFER) {
+        gltf2BufferView.byteStride = rnAccessor.bufferView.defaultByteStride;
+      }
+    }
+
     if (rnAccessor.compositionType.getNumberOfComponents() <= 4) {
       gltf2Accessor.max = rnAccessor.max;
       gltf2Accessor.min = rnAccessor.min;
@@ -1054,9 +1067,6 @@ function createOrReuseGltf2BufferView(
     if (Is.exist(target)) {
       gltf2BufferView.target = target;
     }
-    if (rnBufferView.defaultByteStride !== 0) {
-      gltf2BufferView.byteStride = rnBufferView.defaultByteStride;
-    }
 
     json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
       accumulateBufferViewByteLength(
@@ -1068,7 +1078,6 @@ function createOrReuseGltf2BufferView(
     json.bufferViews.push(gltf2BufferView);
     return gltf2BufferView;
   }
-
   const gltf2BufferView = json.bufferViews[bufferViewIdx];
   return gltf2BufferView;
 }
@@ -1429,7 +1438,7 @@ interface Gltf2BufferViewDesc {
   uint8Array: Uint8Array;
 }
 
-function createAndAddGltf2BufferViewForImages(
+function createAndAddGltf2BufferView(
   json: Gltf2Ex,
   bufferIdx: Index,
   uint8Array: Uint8Array
@@ -1528,7 +1537,7 @@ async function handleTextureImage(
     const reader = new FileReader();
     reader.addEventListener('load', () => {
       const arrayBuffer = reader.result as ArrayBuffer;
-      const gltf2BufferView = createAndAddGltf2BufferViewForImages(
+      const gltf2BufferView = createAndAddGltf2BufferView(
         json,
         bufferIdx,
         new Uint8ClampedArray(arrayBuffer) as unknown as Uint8Array
