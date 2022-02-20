@@ -663,7 +663,7 @@ export default class DataUtil {
     dist,
     srcByteOffset,
     copyByteLength,
-    distByteOffset = 0,
+    distByteOffset,
   }: {
     src: ArrayBuffer;
     dist: ArrayBuffer;
@@ -736,27 +736,19 @@ export default class DataUtil {
     copyByteLength: Byte;
     distByteOffset: Byte;
   }): ArrayBuffer {
-    const srcByteOffsetAligned =
-      srcByteOffset % 4 === 0
-        ? srcByteOffset
-        : srcByteOffset + (4 - (srcByteOffset % 4));
-    const distByteOffsetAligned =
-      distByteOffset % 4 === 0
-        ? distByteOffset
-        : distByteOffset + (4 - (distByteOffset % 4));
-    const copyByteLengthAligned =
-      copyByteLength % 4 === 0
-        ? copyByteLength
-        : copyByteLength + (4 - (copyByteLength % 4));
+    const dst = new Int32Array(dist, distByteOffset, copyByteLength / 4);
+    const byteDiff = src.byteLength - srcByteOffset - copyByteLength;
 
-    const dst = new Int32Array(
-      dist,
-      distByteOffsetAligned,
-      copyByteLengthAligned / 4
-    );
-    dst.set(
-      new Int32Array(src, srcByteOffsetAligned, copyByteLengthAligned / 4)
-    );
+    if (byteDiff < 0) {
+      dst.set(
+        new Int32Array(src, srcByteOffset, (src.byteLength - srcByteOffset) / 4)
+      );
+      const byteCount = -byteDiff;
+      const paddingArrayBuffer = new Uint8Array(byteCount);
+      dst.set(paddingArrayBuffer);
+    } else {
+      dst.set(new Int32Array(src, srcByteOffset, copyByteLength / 4));
+    }
 
     return dst.buffer;
   }
