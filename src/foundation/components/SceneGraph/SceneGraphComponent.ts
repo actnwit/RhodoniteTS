@@ -1,7 +1,7 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
 import Matrix44 from '../../math/Matrix44';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import EntityRepository, {applyMixins} from '../../core/EntityRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
@@ -29,7 +29,6 @@ import {
 } from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import { IMatrix44 } from '../../math/IMatrix';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
