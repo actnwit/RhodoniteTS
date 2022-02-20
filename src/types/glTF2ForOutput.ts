@@ -13,6 +13,7 @@ import {
   Gltf2TextureInfo,
   Gltf2Image,
   Gltf2Texture,
+  Gltf2TextureSampler,
 } from './glTF2';
 
 export interface Gltf2BufferViewEx extends Gltf2BufferView {
@@ -51,6 +52,7 @@ export interface Gltf2Ex extends Gltf2 {
   textures: Gltf2Texture[];
   images: Gltf2Image[];
   skins: Gltf2Skin[];
+  samplers: Gltf2TextureSampler[];
   extras: {
     rnSkins: ISkeletalEntity[];
     bufferViewByteLengthAccumulatedArray: Byte[];

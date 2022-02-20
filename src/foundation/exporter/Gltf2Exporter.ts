@@ -16,6 +16,8 @@ import {
   Gltf2Image,
   Gltf2Accessor,
   Gltf2BufferView,
+  Gltf2TextureSampler,
+  isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -235,6 +237,7 @@ export default class Gltf2Exporter {
         // bufferViewByteLengthAccumulatedArray[1] for buffer 1
         // ...
       },
+      samplers: [],
     };
 
     return {json, fileName};
@@ -372,19 +375,8 @@ export default class Gltf2Exporter {
     option: Gltf2ExporterArguments
   ) {
     let countMesh = 0;
-    let countMaterial = 0;
     let countTexture = 0;
     let countImage = 0;
-    json.materials = [];
-    json.textures = [];
-    json.samplers = [];
-    json.images = [];
-    json.samplers[0] = {
-      magFilter: 9729,
-      minFilter: 9987,
-      wrapS: 10497,
-      wrapT: 10497,
-    };
     const promises: Promise<any>[] = [];
     json.extras.bufferViewByteLengthAccumulatedArray.push(0);
     const bufferIdx =
@@ -448,7 +440,28 @@ export default class Gltf2Exporter {
                     match = true;
                   }
                 }
+
+                // Sampler
+                const gltf2TextureSampler: Gltf2TextureSampler = {
+                  magFilter: rnTexture.magFilter.index,
+                  minFilter: rnTexture.minFilter.index,
+                  wrapS: rnTexture.wrapS.index,
+                  wrapT: rnTexture.wrapT.index,
+                };
+
+                let samplerIdx = json.samplers.findIndex(sampler => {
+                  return isSameGlTF2TextureSampler(
+                    gltf2TextureSampler,
+                    sampler
+                  );
+                });
+                if (samplerIdx === -1) {
+                  json.samplers.push(gltf2TextureSampler);
+                  samplerIdx = json.samplers.length - 1;
+                }
+
                 if (!match) {
+                  // Image
                   const glTF2ImageEx = {
                     uri: rnTexture.name,
                   };
@@ -492,7 +505,7 @@ export default class Gltf2Exporter {
                 }
 
                 json.textures![countTexture] = {
-                  sampler: 0,
+                  sampler: samplerIdx,
                   source: imageIndex,
                 };
 
@@ -577,7 +590,8 @@ export default class Gltf2Exporter {
           }
 
           json.materials.push(material);
-          primitive.material = countMaterial++;
+          primitive.material = json.materials.length - 1;
+          console.log(primitive.material);
         }
       }
     }
