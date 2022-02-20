@@ -244,4 +244,20 @@ export default abstract class AbstractTexture extends RnObject {
     }
     return textureDataFloat;
   }
+
+  get magFilter() {
+    return this.__magFilter;
+  }
+
+  get minFilter() {
+    return this.__minFilter;
+  }
+
+  get wrapS() {
+    return this.__wrapS;
+  }
+
+  get wrapT() {
+    return this.__wrapT;
+  }
 }

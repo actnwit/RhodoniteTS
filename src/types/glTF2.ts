@@ -16,6 +16,7 @@ import {
   GL_DATA_UNSIGNED_INT,
   GL_DATA_FLOAT,
 } from '../types/WebGLConstants';
+import {Is} from '../foundation/misc/Is';
 
 export interface Gltf2AnyObject {
   [s: string]: any;
@@ -436,3 +437,15 @@ export type GltfLoadOption = {
 };
 
 export const TagGltf2NodeIndex = 'gltf_node_index';
+
+export function isSameGlTF2TextureSampler(
+  lhs: Gltf2TextureSampler,
+  rhs: Gltf2TextureSampler
+) {
+  return (
+    lhs.magFilter === rhs.magFilter &&
+    lhs.minFilter === rhs.minFilter &&
+    lhs.wrapS === rhs.wrapS &&
+    lhs.wrapT === rhs.wrapT
+  );
+}
