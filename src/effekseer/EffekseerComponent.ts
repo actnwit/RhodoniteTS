@@ -84,9 +84,13 @@ export default class EffekseerComponent extends Component {
     this.stop();
     this.isPause = false;
 
-    this.__handle = this.__context?.play(this.__effect, 0, 0, 0);
-    if (this.randomSeed > 0) {
-      this.__handle?.setRandomSeed(this.randomSeed);
+    this.__handle = this.__context.play(this.__effect, 0, 0, 0);
+    if (
+      Is.exist(this.__handle) &&
+      Is.exist(this.__handle.setRandomSeed) &&
+      this.randomSeed > 0
+    ) {
+      this.__handle.setRandomSeed(this.randomSeed);
     }
 
     return true;
@@ -193,7 +197,7 @@ export default class EffekseerComponent extends Component {
 
   private __createEffekseerContext(): boolean {
     if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
-      console.error('Effekseer data not found.');
+      // console.error('Effekseer data not found.');
       return false;
     }
     effekseer.setImageCrossOrigin(
