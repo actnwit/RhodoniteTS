@@ -42,7 +42,7 @@ export default class RhodoniteImportExtension {
             effect.bufferView!,
             arrayBufferOfBuffer
           );
-          effekseerComponent.arrayBuffer = imageUint8Array.buffer;
+          effekseerComponent.arrayBuffer = imageUint8Array;
           effekseerComponent.type = 'efkpkg';
         });
       } else if (Is.exist(effect.uri)) {
