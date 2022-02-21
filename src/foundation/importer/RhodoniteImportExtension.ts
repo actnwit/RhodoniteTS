@@ -32,8 +32,8 @@ export default class RhodoniteImportExtension {
         );
       const effekseerComponent = effekseerEntity.getEffekseer();
       effekseerComponent.playJustAfterLoaded = true;
-      // effekseerComponent.randomSeed = 1;
-      effekseerComponent.isLoop = true;
+      effekseerComponent.randomSeed = 1;
+      effekseerComponent.isLoop = false;
       if (Is.exist(effect.bufferView)) {
         const rnm2Buffer = gltfJson.buffers[0];
         rnm2Buffer.bufferPromise!.then((arrayBufferOfBuffer: ArrayBuffer) => {
