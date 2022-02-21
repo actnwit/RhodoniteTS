@@ -229,12 +229,8 @@ export default class Gltf2Exporter {
       ],
       textures: [],
       images: [],
-      extensionsUsed: ['RHODONITE_effekseer'],
-      extensions: {
-        RHODONITE_effekseer: {
-          effects: [],
-        },
-      },
+      extensionsUsed: [],
+      extensions: {},
       extras: {
         rnSkins: [],
         bufferViewByteLengthAccumulatedArray: [],

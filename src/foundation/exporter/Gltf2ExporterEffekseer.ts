@@ -43,9 +43,9 @@ export function createEffekseer(json: Gltf2Ex, entities: IGroupEntity[]) {
   }
 
   if (effekseerExists) {
-    json.extensions!.Rhodonite_Effekseer = {
+    json.extensions!.RHODONITE_effekseer = {
       effects: effects,
     } as RnM2ExtensionEffekseer;
-    json.extensionsUsed!.push('Rhodonite_Effekseer');
+    json.extensionsUsed!.push('RHODONITE_effekseer');
   }
 }
