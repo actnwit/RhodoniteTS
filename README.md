@@ -70,7 +70,7 @@ $ npm install rhodonite
     await Rn.ModuleManager.getInstance().loadModule('webgl');
     await Rn.ModuleManager.getInstance().loadModule('pbr');
     const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
+    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world'));
     const entityRepository = Rn.EntityRepository.getInstance();
     ...
     (After that, please refer to the sample codes.)
@@ -98,7 +98,7 @@ async function load() {
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world') as HTMLCanvasElement);
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -128,7 +128,7 @@ async function load() {
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world') as HTMLCanvasElement);
+  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world') as HTMLCanvasElement);
 
   const entityRepository = Rn.EntityRepository.getInstance();
 
@@ -204,17 +204,17 @@ You can execute a part of tests like this.
 ### For unit test
 
 ```bash
-$ yarn test-unit -- ./src/foundation/core
+$ yarn test-unit-part -- ./src/foundation/core
 ```
 
 ```bash
-$ yarn test-unit -- ./src/foundation/core/Entity.test.ts
+$ yarn test-unit-part -- ./src/foundation/core/Entity.test.ts
 ```
 
 ### For E2E (visual) test
 
 ```bash
-$ yarn test-e2e -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
+$ yarn test-e2e-part -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
 ```
 
 ### For M1 Mac in E2E test
