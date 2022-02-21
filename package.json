@@ -83,6 +83,7 @@
     "ktx-parse": "^0.2.1",
     "requirejs": "^2.3.6",
     "shaderity": "^0.2.2",
+    "zlibjs": "^0.3.1",
     "zstddec": "^0.0.2"
   },
   "description": "Rhodonite is a WebGL library written in TypeScript.",
