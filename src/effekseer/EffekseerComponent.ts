@@ -1,6 +1,8 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
 import Component from '../foundation/core/Component';
-import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
+import EntityRepository, {
+  applyMixins,
+} from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';

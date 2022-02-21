@@ -55,6 +55,7 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
+import { createEffekseer } from './Gltf2ExporterEffekseer';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -107,6 +108,8 @@ export default class Gltf2Exporter {
       collectedEntities as unknown as IMeshEntity[],
       option
     );
+
+    createEffekseer(json, collectedEntities);
 
     const arraybuffer = this.__createBinary(json);
 
@@ -1456,7 +1459,7 @@ interface Gltf2BufferViewDesc {
   uint8Array: Uint8Array;
 }
 
-function createAndAddGltf2BufferView(
+export function createAndAddGltf2BufferView(
   json: Gltf2Ex,
   bufferIdx: Index,
   uint8Array: Uint8Array
