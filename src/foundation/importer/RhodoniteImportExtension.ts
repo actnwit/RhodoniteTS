@@ -47,7 +47,7 @@ export default class RhodoniteImportExtension {
         });
       } else if (Is.exist(effect.uri)) {
         effekseerComponent.uri = effect.uri;
-        effekseerComponent.type = 'efkpkg';
+        effekseerComponent.type = 'efk';
       } else {
         console.error('No real effect data.');
       }
