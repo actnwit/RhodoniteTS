@@ -43,9 +43,11 @@ export default class RhodoniteImportExtension {
             arrayBufferOfBuffer
           );
           effekseerComponent.arrayBuffer = imageUint8Array.buffer;
+          effekseerComponent.type = 'efkpkg';
         });
       } else if (Is.exist(effect.uri)) {
         effekseerComponent.uri = effect.uri;
+        effekseerComponent.type = 'efk';
       } else {
         console.error('No real effect data.');
       }
