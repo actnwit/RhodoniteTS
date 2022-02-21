@@ -1253,7 +1253,7 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
   const componentType = ComponentType.fromTypedArray(rnChannel.sampler.input);
   const accessorCount = rnChannel.sampler.input.length;
   // create a Gltf2BufferView
-  const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferView({
+  const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferViewForAnimation({
     bufferIdx,
     bufferViewByteOffset: bufferViewByteLengthAccumulated,
     accessorByteOffset: 0,
@@ -1266,7 +1266,7 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
   json.bufferViews.push(gltf2BufferView);
 
   // create a Gltf2Accessor
-  const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
+  const gltf2Accessor: Gltf2AccessorEx = createGltf2AccessorForAnimation({
     bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
     accessorByteOffset: 0,
     componentType,
@@ -1299,7 +1299,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   const accessorCount =
     rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
   // create a Gltf2BufferView
-  const gltf2BufferView = createGltf2BufferView({
+  const gltf2BufferView = createGltf2BufferViewForAnimation({
     bufferIdx,
     bufferViewByteOffset: bufferViewByteLengthAccumulated,
     accessorByteOffset: 0,
@@ -1315,7 +1315,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   json.bufferViews.push(gltf2BufferView);
 
   // create a Gltf2Accessor
-  const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
+  const gltf2Accessor: Gltf2AccessorEx = createGltf2AccessorForAnimation({
     bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
     accessorByteOffset: 0,
     componentType,
@@ -1519,7 +1519,7 @@ function createAndAddGltf2BufferView(
   return gltfBufferViewEx;
 }
 
-function createGltf2BufferView({
+function createGltf2BufferViewForAnimation({
   bufferIdx,
   bufferViewByteOffset,
   accessorByteOffset,
@@ -1554,7 +1554,7 @@ function createGltf2BufferView({
   return gltfBufferViewEx;
 }
 
-function createGltf2Accessor({
+function createGltf2AccessorForAnimation({
   bufferViewIdx,
   accessorByteOffset,
   componentType,
