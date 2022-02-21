@@ -22,7 +22,7 @@ import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './../core/Material';
 import PBRExtendedShaderVertex from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.vert';
 import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
 export default class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {

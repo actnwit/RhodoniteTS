@@ -10,7 +10,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import ComponentRepository from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {

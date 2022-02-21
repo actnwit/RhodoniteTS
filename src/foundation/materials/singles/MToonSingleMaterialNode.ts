@@ -25,7 +25,7 @@ import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import Texture from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {

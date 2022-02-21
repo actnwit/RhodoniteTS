@@ -16,7 +16,7 @@ import VectorN from '../../math/VectorN';
 import GaussianBlurSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
 import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
 import Texture from '../../textures/Texture';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 export default class GaussianBlurNode extends AbstractMaterialNode {
   static GaussianKernelSize = new ShaderSemanticsClass({

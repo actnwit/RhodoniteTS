@@ -17,7 +17,7 @@ import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import Material from '../core/Material';
 import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 export default class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({

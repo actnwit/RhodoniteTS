@@ -18,7 +18,7 @@ import Vector4 from '../../math/Vector4';
 import ClassicSingleShaderVertex from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import {AlphaModeEnum} from '../../definitions/AlphaMode';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {

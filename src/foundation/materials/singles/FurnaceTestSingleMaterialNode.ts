@@ -15,7 +15,7 @@ import Material from '../core/Material';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
   static mode = new ShaderSemanticsClass({str: 'mode'});
