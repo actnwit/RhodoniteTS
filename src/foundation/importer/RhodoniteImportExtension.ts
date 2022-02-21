@@ -11,6 +11,7 @@ export default class RhodoniteImportExtension {
   static importEffect(gltfJson: RnM2, rootGroup: IGroupEntity) {
     const RHODONITE_effekseer = 'RHODONITE_effekseer';
     if (
+      Is.not.exist(gltfJson.extensions) ||
       Is.not.exist(gltfJson.extensions.RHODONITE_effekseer) ||
       gltfJson.extensionsUsed.findIndex(extension => {
         return RHODONITE_effekseer === extension;
@@ -30,6 +31,9 @@ export default class RhodoniteImportExtension {
           entity
         );
       const effekseerComponent = effekseerEntity.getEffekseer();
+      effekseerComponent.playJustAfterLoaded = true;
+      // effekseerComponent.randomSeed = 1;
+      effekseerComponent.isLoop = true;
       if (Is.exist(effect.bufferView)) {
         const rnm2Buffer = gltfJson.buffers[0];
         rnm2Buffer.bufferPromise!.then((arrayBufferOfBuffer: ArrayBuffer) => {
