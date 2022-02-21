@@ -995,45 +995,6 @@ function __createBufferViewsAndAccessorsOfAnimation(
   );
 }
 
-function createOrReuseGltf2Accessor(
-  json: Gltf2Ex,
-  bufferViewIdxToSet: Index,
-  existingUniqueRnAccessors: Accessor[],
-  rnAccessor: Accessor
-) {
-  const accessorIdx = calcAccessorIdxToSet(
-    existingUniqueRnAccessors,
-    rnAccessor
-  );
-  if (accessorIdx === -1) {
-    // create a Gltf2Accessor
-    rnAccessor.calcMinMax();
-    const gltf2Accessor: Gltf2AccessorEx = {
-      bufferView: bufferViewIdxToSet,
-      byteOffset: rnAccessor.byteOffsetInBufferView,
-      componentType: ComponentType.toGltf2AccessorComponentType(
-        rnAccessor.componentType as Gltf2AccessorComponentType
-      ),
-      count: rnAccessor.elementCount,
-      type: CompositionType.toGltf2AccessorCompositionTypeString(
-        rnAccessor.compositionType.getNumberOfComponents() as VectorAndSquareMatrixComponentN
-      ),
-      extras: {
-        uint8Array: undefined,
-      },
-    };
-    if (rnAccessor.compositionType.getNumberOfComponents() <= 4) {
-      gltf2Accessor.max = rnAccessor.max;
-      gltf2Accessor.min = rnAccessor.min;
-    }
-    existingUniqueRnAccessors.push(rnAccessor);
-    json.accessors.push(gltf2Accessor);
-    return gltf2Accessor;
-  }
-  const gltf2Accessor = json.accessors[accessorIdx];
-  return gltf2Accessor;
-}
-
 function calcAccessorIdxToSet(
   existingUniqueRnAccessors: Accessor[],
   rnAccessor: Accessor
@@ -1106,48 +1067,6 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     });
   gltf2BufferView.byteLength = fixedBufferViewByteLength;
   // gltf2BufferView.byteOffset = fixedBufferViewByteOffset;
-  return gltf2BufferView;
-}
-
-function createOrReuseGltf2BufferView(
-  json: Gltf2Ex,
-  existingUniqueRnBuffers: Buffer[],
-  existingUniqueRnBufferViews: BufferView[],
-  rnBufferView: BufferView,
-  target?: number
-) {
-  const bufferViewIdx = findBufferViewIdx(
-    existingUniqueRnBufferViews,
-    rnBufferView
-  );
-  if (bufferViewIdx === -1) {
-    const bufferIdxToSet = calcBufferIdxToSet(
-      existingUniqueRnBuffers,
-      rnBufferView.buffer
-    );
-    const gltf2BufferView: Gltf2BufferViewEx = {
-      buffer: bufferIdxToSet,
-      byteLength: rnBufferView.byteLength,
-      byteOffset: rnBufferView.byteOffsetInBuffer,
-      extras: {
-        uint8Array: rnBufferView.getUint8Array(),
-      },
-    };
-    if (Is.exist(target)) {
-      gltf2BufferView.target = target;
-    }
-
-    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
-      accumulateBufferViewByteLength(
-        json.extras.bufferViewByteLengthAccumulatedArray,
-        bufferIdxToSet,
-        gltf2BufferView
-      );
-    existingUniqueRnBufferViews.push(rnBufferView);
-    json.bufferViews.push(gltf2BufferView);
-    return gltf2BufferView;
-  }
-  const gltf2BufferView = json.bufferViews[bufferViewIdx];
   return gltf2BufferView;
 }
 
@@ -1472,6 +1391,50 @@ function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
   return byteStrideAlgined;
 }
 
+async function handleTextureImage(
+  json: Gltf2Ex,
+  bufferIdx: Index,
+  blob: Blob,
+  option: Gltf2ExporterArguments,
+  glTF2ImageEx: Gltf2Image,
+  resolve: (v?: ArrayBuffer) => void,
+  rejected: (reason?: DOMException) => void
+) {
+  if (option.type === GLTF2_EXPORT_GLB) {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      const arrayBuffer = reader.result as ArrayBuffer;
+      const gltf2BufferView = createAndAddGltf2BufferView(
+        json,
+        bufferIdx,
+        new Uint8ClampedArray(arrayBuffer) as unknown as Uint8Array
+      );
+      glTF2ImageEx.bufferView = json.bufferViews.indexOf(gltf2BufferView);
+      glTF2ImageEx.mimeType = 'image/png';
+      delete glTF2ImageEx.uri;
+      resolve();
+    });
+    reader.addEventListener('error', () => {
+      rejected(reader.error as DOMException);
+    });
+    reader.readAsArrayBuffer(blob);
+  } else {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      const e = new MouseEvent('click');
+      a.href = URL.createObjectURL(blob!);
+      a.download = glTF2ImageEx.uri!;
+      a.dispatchEvent(e);
+      URL.revokeObjectURL(a.href);
+    }, Math.random() * 5000);
+    resolve();
+  }
+}
+
+///
+/// BufferView and Accessor Creaters
+///
+
 interface Gltf2AccessorDesc {
   bufferViewIdx: Index;
   accessorByteOffset: Byte;
@@ -1579,42 +1542,83 @@ function createGltf2AccessorForAnimation({
   return gltf2AccessorEx;
 }
 
-async function handleTextureImage(
+function createOrReuseGltf2BufferView(
   json: Gltf2Ex,
-  bufferIdx: Index,
-  blob: Blob,
-  option: Gltf2ExporterArguments,
-  glTF2ImageEx: Gltf2Image,
-  resolve: (v?: ArrayBuffer) => void,
-  rejected: (reason?: DOMException) => void
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  rnBufferView: BufferView,
+  target?: number
 ) {
-  if (option.type === GLTF2_EXPORT_GLB) {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => {
-      const arrayBuffer = reader.result as ArrayBuffer;
-      const gltf2BufferView = createAndAddGltf2BufferView(
-        json,
-        bufferIdx,
-        new Uint8ClampedArray(arrayBuffer) as unknown as Uint8Array
+  const bufferViewIdx = findBufferViewIdx(
+    existingUniqueRnBufferViews,
+    rnBufferView
+  );
+  if (bufferViewIdx === -1) {
+    const bufferIdxToSet = calcBufferIdxToSet(
+      existingUniqueRnBuffers,
+      rnBufferView.buffer
+    );
+    const gltf2BufferView: Gltf2BufferViewEx = {
+      buffer: bufferIdxToSet,
+      byteLength: rnBufferView.byteLength,
+      byteOffset: rnBufferView.byteOffsetInBuffer,
+      extras: {
+        uint8Array: rnBufferView.getUint8Array(),
+      },
+    };
+    if (Is.exist(target)) {
+      gltf2BufferView.target = target;
+    }
+
+    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
+      accumulateBufferViewByteLength(
+        json.extras.bufferViewByteLengthAccumulatedArray,
+        bufferIdxToSet,
+        gltf2BufferView
       );
-      glTF2ImageEx.bufferView = json.bufferViews.indexOf(gltf2BufferView);
-      glTF2ImageEx.mimeType = 'image/png';
-      delete glTF2ImageEx.uri;
-      resolve();
-    });
-    reader.addEventListener('error', () => {
-      rejected(reader.error as DOMException);
-    });
-    reader.readAsArrayBuffer(blob);
-  } else {
-    setTimeout(() => {
-      const a = document.createElement('a');
-      const e = new MouseEvent('click');
-      a.href = URL.createObjectURL(blob!);
-      a.download = glTF2ImageEx.uri!;
-      a.dispatchEvent(e);
-      URL.revokeObjectURL(a.href);
-    }, Math.random() * 5000);
-    resolve();
+    existingUniqueRnBufferViews.push(rnBufferView);
+    json.bufferViews.push(gltf2BufferView);
+    return gltf2BufferView;
   }
+  const gltf2BufferView = json.bufferViews[bufferViewIdx];
+  return gltf2BufferView;
+}
+
+function createOrReuseGltf2Accessor(
+  json: Gltf2Ex,
+  bufferViewIdxToSet: Index,
+  existingUniqueRnAccessors: Accessor[],
+  rnAccessor: Accessor
+) {
+  const accessorIdx = calcAccessorIdxToSet(
+    existingUniqueRnAccessors,
+    rnAccessor
+  );
+  if (accessorIdx === -1) {
+    // create a Gltf2Accessor
+    rnAccessor.calcMinMax();
+    const gltf2Accessor: Gltf2AccessorEx = {
+      bufferView: bufferViewIdxToSet,
+      byteOffset: rnAccessor.byteOffsetInBufferView,
+      componentType: ComponentType.toGltf2AccessorComponentType(
+        rnAccessor.componentType as Gltf2AccessorComponentType
+      ),
+      count: rnAccessor.elementCount,
+      type: CompositionType.toGltf2AccessorCompositionTypeString(
+        rnAccessor.compositionType.getNumberOfComponents() as VectorAndSquareMatrixComponentN
+      ),
+      extras: {
+        uint8Array: undefined,
+      },
+    };
+    if (rnAccessor.compositionType.getNumberOfComponents() <= 4) {
+      gltf2Accessor.max = rnAccessor.max;
+      gltf2Accessor.min = rnAccessor.min;
+    }
+    existingUniqueRnAccessors.push(rnAccessor);
+    json.accessors.push(gltf2Accessor);
+    return gltf2Accessor;
+  }
+  const gltf2Accessor = json.accessors[accessorIdx];
+  return gltf2Accessor;
 }
