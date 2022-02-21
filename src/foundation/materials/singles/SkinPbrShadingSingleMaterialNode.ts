@@ -25,7 +25,7 @@ import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent
 
 import PbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import SkinPbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/SkinPbrSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
 export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {

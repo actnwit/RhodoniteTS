@@ -40,7 +40,7 @@ import GLSLShader from '../../../webgl/shaders/GLSLShader';
 import {AttributeNames} from '../../../webgl/main';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
 import {Primitive} from '../../geometry/Primitive';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 type MaterialTypeName = string;
 type ShaderVariable = {

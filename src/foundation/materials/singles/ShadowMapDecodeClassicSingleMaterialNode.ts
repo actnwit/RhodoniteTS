@@ -28,7 +28,7 @@ import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent
 import MutableVector4 from '../../math/MutableVector4';
 import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
 import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {

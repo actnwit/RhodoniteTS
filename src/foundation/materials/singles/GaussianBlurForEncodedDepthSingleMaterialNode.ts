@@ -16,7 +16,7 @@ import VectorN from '../../math/VectorN';
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import Texture from '../../textures/Texture';
-import { RenderingArg } from '../../../webgl/types/CommomTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNode {
   static GaussianKernelSize = new ShaderSemanticsClass({

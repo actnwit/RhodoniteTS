@@ -15,7 +15,7 @@ import MeshComponent from '../../components/Mesh/MeshComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import ShaderityUtility from '../core/ShaderityUtility';
-import {RenderingArg} from '../../../webgl/types/CommomTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
