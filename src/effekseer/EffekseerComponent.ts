@@ -352,7 +352,7 @@ export default class EffekseerComponent extends Component {
         ) as EffekseerComponent;
       }
     }
-    applyMixins(base, EffekseerComponent);
+    applyMixins(base, EffekseerEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
