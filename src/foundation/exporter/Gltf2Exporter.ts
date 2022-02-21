@@ -55,6 +55,7 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
+import { createEffekseer } from './Gltf2ExporterEffekseer';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -107,6 +108,8 @@ export default class Gltf2Exporter {
       collectedEntities as unknown as IMeshEntity[],
       option
     );
+
+    createEffekseer(json, collectedEntities);
 
     const arraybuffer = this.__createBinary(json);
 
@@ -226,12 +229,8 @@ export default class Gltf2Exporter {
       ],
       textures: [],
       images: [],
-      extensionsUsed: ['RHODONITE_effekseer'],
-      extensions: {
-        RHODONITE_effekseer: {
-          effects: [],
-        },
-      },
+      extensionsUsed: [],
+      extensions: {},
       extras: {
         rnSkins: [],
         bufferViewByteLengthAccumulatedArray: [],
@@ -995,45 +994,6 @@ function __createBufferViewsAndAccessorsOfAnimation(
   );
 }
 
-function createOrReuseGltf2Accessor(
-  json: Gltf2Ex,
-  bufferViewIdxToSet: Index,
-  existingUniqueRnAccessors: Accessor[],
-  rnAccessor: Accessor
-) {
-  const accessorIdx = calcAccessorIdxToSet(
-    existingUniqueRnAccessors,
-    rnAccessor
-  );
-  if (accessorIdx === -1) {
-    // create a Gltf2Accessor
-    rnAccessor.calcMinMax();
-    const gltf2Accessor: Gltf2AccessorEx = {
-      bufferView: bufferViewIdxToSet,
-      byteOffset: rnAccessor.byteOffsetInBufferView,
-      componentType: ComponentType.toGltf2AccessorComponentType(
-        rnAccessor.componentType as Gltf2AccessorComponentType
-      ),
-      count: rnAccessor.elementCount,
-      type: CompositionType.toGltf2AccessorCompositionTypeString(
-        rnAccessor.compositionType.getNumberOfComponents() as VectorAndSquareMatrixComponentN
-      ),
-      extras: {
-        uint8Array: undefined,
-      },
-    };
-    if (rnAccessor.compositionType.getNumberOfComponents() <= 4) {
-      gltf2Accessor.max = rnAccessor.max;
-      gltf2Accessor.min = rnAccessor.min;
-    }
-    existingUniqueRnAccessors.push(rnAccessor);
-    json.accessors.push(gltf2Accessor);
-    return gltf2Accessor;
-  }
-  const gltf2Accessor = json.accessors[accessorIdx];
-  return gltf2Accessor;
-}
-
 function calcAccessorIdxToSet(
   existingUniqueRnAccessors: Accessor[],
   rnAccessor: Accessor
@@ -1106,48 +1066,6 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     });
   gltf2BufferView.byteLength = fixedBufferViewByteLength;
   // gltf2BufferView.byteOffset = fixedBufferViewByteOffset;
-  return gltf2BufferView;
-}
-
-function createOrReuseGltf2BufferView(
-  json: Gltf2Ex,
-  existingUniqueRnBuffers: Buffer[],
-  existingUniqueRnBufferViews: BufferView[],
-  rnBufferView: BufferView,
-  target?: number
-) {
-  const bufferViewIdx = findBufferViewIdx(
-    existingUniqueRnBufferViews,
-    rnBufferView
-  );
-  if (bufferViewIdx === -1) {
-    const bufferIdxToSet = calcBufferIdxToSet(
-      existingUniqueRnBuffers,
-      rnBufferView.buffer
-    );
-    const gltf2BufferView: Gltf2BufferViewEx = {
-      buffer: bufferIdxToSet,
-      byteLength: rnBufferView.byteLength,
-      byteOffset: rnBufferView.byteOffsetInBuffer,
-      extras: {
-        uint8Array: rnBufferView.getUint8Array(),
-      },
-    };
-    if (Is.exist(target)) {
-      gltf2BufferView.target = target;
-    }
-
-    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
-      accumulateBufferViewByteLength(
-        json.extras.bufferViewByteLengthAccumulatedArray,
-        bufferIdxToSet,
-        gltf2BufferView
-      );
-    existingUniqueRnBufferViews.push(rnBufferView);
-    json.bufferViews.push(gltf2BufferView);
-    return gltf2BufferView;
-  }
-  const gltf2BufferView = json.bufferViews[bufferViewIdx];
   return gltf2BufferView;
 }
 
@@ -1253,7 +1171,7 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
   const componentType = ComponentType.fromTypedArray(rnChannel.sampler.input);
   const accessorCount = rnChannel.sampler.input.length;
   // create a Gltf2BufferView
-  const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferView({
+  const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferViewForAnimation({
     bufferIdx,
     bufferViewByteOffset: bufferViewByteLengthAccumulated,
     accessorByteOffset: 0,
@@ -1266,7 +1184,7 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
   json.bufferViews.push(gltf2BufferView);
 
   // create a Gltf2Accessor
-  const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
+  const gltf2Accessor: Gltf2AccessorEx = createGltf2AccessorForAnimation({
     bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
     accessorByteOffset: 0,
     componentType,
@@ -1299,7 +1217,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   const accessorCount =
     rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
   // create a Gltf2BufferView
-  const gltf2BufferView = createGltf2BufferView({
+  const gltf2BufferView = createGltf2BufferViewForAnimation({
     bufferIdx,
     bufferViewByteOffset: bufferViewByteLengthAccumulated,
     accessorByteOffset: 0,
@@ -1315,7 +1233,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   json.bufferViews.push(gltf2BufferView);
 
   // create a Gltf2Accessor
-  const gltf2Accessor: Gltf2AccessorEx = createGltf2Accessor({
+  const gltf2Accessor: Gltf2AccessorEx = createGltf2AccessorForAnimation({
     bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
     accessorByteOffset: 0,
     componentType,
@@ -1472,113 +1390,6 @@ function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
   return byteStrideAlgined;
 }
 
-interface Gltf2AccessorDesc {
-  bufferViewIdx: Index;
-  accessorByteOffset: Byte;
-  componentType: ComponentTypeEnum;
-  count: Count;
-  compositionType: CompositionTypeEnum;
-  min?: Array1to4<number>;
-  max?: Array1to4<number>;
-}
-
-interface Gltf2BufferViewDesc {
-  bufferIdx: Index;
-  bufferViewByteOffset: Byte;
-  accessorByteOffset: Byte;
-  accessorCount: Count;
-  bufferViewByteStride: Byte;
-  componentType: ComponentTypeEnum;
-  compositionType: CompositionTypeEnum;
-  uint8Array: Uint8Array;
-}
-
-function createAndAddGltf2BufferView(
-  json: Gltf2Ex,
-  bufferIdx: Index,
-  uint8Array: Uint8Array
-): Gltf2BufferViewEx {
-  const bufferViewByteLengthAccumulated =
-    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx];
-  const gltfBufferViewEx: Gltf2BufferViewEx = {
-    buffer: bufferIdx,
-    byteLength: uint8Array.byteLength,
-    byteOffset: bufferViewByteLengthAccumulated,
-    extras: {
-      uint8Array,
-    },
-  };
-
-  const nextBufferViewBytesLengthAccumulated =
-    DataUtil.addPaddingBytes(gltfBufferViewEx.byteLength, 4) +
-    bufferViewByteLengthAccumulated;
-
-  json.bufferViews.push(gltfBufferViewEx);
-  json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx] =
-    nextBufferViewBytesLengthAccumulated;
-  return gltfBufferViewEx;
-}
-
-function createGltf2BufferView({
-  bufferIdx,
-  bufferViewByteOffset,
-  accessorByteOffset,
-  accessorCount,
-  bufferViewByteStride,
-  componentType,
-  compositionType,
-  uint8Array,
-}: Gltf2BufferViewDesc): Gltf2BufferViewEx {
-  const alignedAccessorByteOffset =
-    alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
-  const {fixedBufferViewByteLength, fixedBufferViewByteOffset} =
-    calcBufferViewByteLengthAndByteOffset({
-      accessorByteOffset: alignedAccessorByteOffset,
-      accessorCount: accessorCount,
-      bufferViewByteStride,
-      bufferViewByteOffset,
-      sizeOfComponent: componentType.getSizeInBytes(),
-      numberOfComponents: compositionType.getNumberOfComponents(),
-    });
-
-  const gltfBufferViewEx: Gltf2BufferViewEx = {
-    buffer: bufferIdx,
-    byteLength: fixedBufferViewByteLength,
-    byteOffset: fixedBufferViewByteOffset,
-    byteStride: bufferViewByteStride,
-    extras: {
-      uint8Array,
-    },
-  };
-
-  return gltfBufferViewEx;
-}
-
-function createGltf2Accessor({
-  bufferViewIdx,
-  accessorByteOffset,
-  componentType,
-  count,
-  compositionType,
-  min,
-  max,
-}: Gltf2AccessorDesc): Gltf2AccessorEx {
-  const alignedAccessorByteOffset =
-    alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
-
-  const gltf2AccessorEx = {
-    bufferView: bufferViewIdx,
-    byteOffset: alignedAccessorByteOffset,
-    componentType: ComponentType.toGltf2AccessorComponentType(componentType),
-    count,
-    type: compositionType.str as Gltf2AccessorCompositionTypeString,
-    min,
-    max,
-    extras: {},
-  };
-  return gltf2AccessorEx;
-}
-
 async function handleTextureImage(
   json: Gltf2Ex,
   bufferIdx: Index,
@@ -1617,4 +1428,196 @@ async function handleTextureImage(
     }, Math.random() * 5000);
     resolve();
   }
+}
+
+///
+/// BufferView and Accessor Creaters
+///
+
+interface Gltf2AccessorDesc {
+  bufferViewIdx: Index;
+  accessorByteOffset: Byte;
+  componentType: ComponentTypeEnum;
+  count: Count;
+  compositionType: CompositionTypeEnum;
+  min?: Array1to4<number>;
+  max?: Array1to4<number>;
+}
+
+interface Gltf2BufferViewDesc {
+  bufferIdx: Index;
+  bufferViewByteOffset: Byte;
+  accessorByteOffset: Byte;
+  accessorCount: Count;
+  bufferViewByteStride: Byte;
+  componentType: ComponentTypeEnum;
+  compositionType: CompositionTypeEnum;
+  uint8Array: Uint8Array;
+}
+
+export function createAndAddGltf2BufferView(
+  json: Gltf2Ex,
+  bufferIdx: Index,
+  uint8Array: Uint8Array
+): Gltf2BufferViewEx {
+  const bufferViewByteLengthAccumulated =
+    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx];
+  const gltfBufferViewEx: Gltf2BufferViewEx = {
+    buffer: bufferIdx,
+    byteLength: uint8Array.byteLength,
+    byteOffset: bufferViewByteLengthAccumulated,
+    extras: {
+      uint8Array,
+    },
+  };
+
+  const nextBufferViewBytesLengthAccumulated =
+    DataUtil.addPaddingBytes(gltfBufferViewEx.byteLength, 4) +
+    bufferViewByteLengthAccumulated;
+
+  json.bufferViews.push(gltfBufferViewEx);
+  json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx] =
+    nextBufferViewBytesLengthAccumulated;
+  return gltfBufferViewEx;
+}
+
+function createGltf2BufferViewForAnimation({
+  bufferIdx,
+  bufferViewByteOffset,
+  accessorByteOffset,
+  accessorCount,
+  bufferViewByteStride,
+  componentType,
+  compositionType,
+  uint8Array,
+}: Gltf2BufferViewDesc): Gltf2BufferViewEx {
+  const alignedAccessorByteOffset =
+    alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
+  const {fixedBufferViewByteLength, fixedBufferViewByteOffset} =
+    calcBufferViewByteLengthAndByteOffset({
+      accessorByteOffset: alignedAccessorByteOffset,
+      accessorCount: accessorCount,
+      bufferViewByteStride,
+      bufferViewByteOffset,
+      sizeOfComponent: componentType.getSizeInBytes(),
+      numberOfComponents: compositionType.getNumberOfComponents(),
+    });
+
+  const gltfBufferViewEx: Gltf2BufferViewEx = {
+    buffer: bufferIdx,
+    byteLength: fixedBufferViewByteLength,
+    byteOffset: fixedBufferViewByteOffset,
+    byteStride: bufferViewByteStride,
+    extras: {
+      uint8Array,
+    },
+  };
+
+  return gltfBufferViewEx;
+}
+
+function createGltf2AccessorForAnimation({
+  bufferViewIdx,
+  accessorByteOffset,
+  componentType,
+  count,
+  compositionType,
+  min,
+  max,
+}: Gltf2AccessorDesc): Gltf2AccessorEx {
+  const alignedAccessorByteOffset =
+    alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
+
+  const gltf2AccessorEx = {
+    bufferView: bufferViewIdx,
+    byteOffset: alignedAccessorByteOffset,
+    componentType: ComponentType.toGltf2AccessorComponentType(componentType),
+    count,
+    type: compositionType.str as Gltf2AccessorCompositionTypeString,
+    min,
+    max,
+    extras: {},
+  };
+  return gltf2AccessorEx;
+}
+
+function createOrReuseGltf2BufferView(
+  json: Gltf2Ex,
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  rnBufferView: BufferView,
+  target?: number
+) {
+  const bufferViewIdx = findBufferViewIdx(
+    existingUniqueRnBufferViews,
+    rnBufferView
+  );
+  if (bufferViewIdx === -1) {
+    const bufferIdxToSet = calcBufferIdxToSet(
+      existingUniqueRnBuffers,
+      rnBufferView.buffer
+    );
+    const gltf2BufferView: Gltf2BufferViewEx = {
+      buffer: bufferIdxToSet,
+      byteLength: rnBufferView.byteLength,
+      byteOffset: rnBufferView.byteOffsetInBuffer,
+      extras: {
+        uint8Array: rnBufferView.getUint8Array(),
+      },
+    };
+    if (Is.exist(target)) {
+      gltf2BufferView.target = target;
+    }
+
+    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] =
+      accumulateBufferViewByteLength(
+        json.extras.bufferViewByteLengthAccumulatedArray,
+        bufferIdxToSet,
+        gltf2BufferView
+      );
+    existingUniqueRnBufferViews.push(rnBufferView);
+    json.bufferViews.push(gltf2BufferView);
+    return gltf2BufferView;
+  }
+  const gltf2BufferView = json.bufferViews[bufferViewIdx];
+  return gltf2BufferView;
+}
+
+function createOrReuseGltf2Accessor(
+  json: Gltf2Ex,
+  bufferViewIdxToSet: Index,
+  existingUniqueRnAccessors: Accessor[],
+  rnAccessor: Accessor
+) {
+  const accessorIdx = calcAccessorIdxToSet(
+    existingUniqueRnAccessors,
+    rnAccessor
+  );
+  if (accessorIdx === -1) {
+    // create a Gltf2Accessor
+    rnAccessor.calcMinMax();
+    const gltf2Accessor: Gltf2AccessorEx = {
+      bufferView: bufferViewIdxToSet,
+      byteOffset: rnAccessor.byteOffsetInBufferView,
+      componentType: ComponentType.toGltf2AccessorComponentType(
+        rnAccessor.componentType as Gltf2AccessorComponentType
+      ),
+      count: rnAccessor.elementCount,
+      type: CompositionType.toGltf2AccessorCompositionTypeString(
+        rnAccessor.compositionType.getNumberOfComponents() as VectorAndSquareMatrixComponentN
+      ),
+      extras: {
+        uint8Array: undefined,
+      },
+    };
+    if (rnAccessor.compositionType.getNumberOfComponents() <= 4) {
+      gltf2Accessor.max = rnAccessor.max;
+      gltf2Accessor.min = rnAccessor.min;
+    }
+    existingUniqueRnAccessors.push(rnAccessor);
+    json.accessors.push(gltf2Accessor);
+    return gltf2Accessor;
+  }
+  const gltf2Accessor = json.accessors[accessorIdx];
+  return gltf2Accessor;
 }

@@ -9,6 +9,7 @@ import {
 import {RnPromise} from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
+import RhodoniteImportExtension from './RhodoniteImportExtension';
 
 declare let Rn: any;
 
@@ -596,38 +597,38 @@ export default class Gltf2Importer {
 
     // Buffers Async load
     let rnpArrayBuffer: RnPromise<ArrayBuffer>;
-    for (const bufferInfo of gltfJson.buffers) {
+    for (const rnm2Buffer of gltfJson.buffers) {
       let filename = '';
-      if (bufferInfo.uri) {
-        const splitUri = bufferInfo.uri.split('/');
+      if (rnm2Buffer.uri) {
+        const splitUri = rnm2Buffer.uri.split('/');
         filename = splitUri[splitUri.length - 1];
       }
 
-      if (typeof bufferInfo.uri === 'undefined') {
+      if (typeof rnm2Buffer.uri === 'undefined') {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
-          bufferInfo.buffer = uint8Array;
+          rnm2Buffer.buffer = uint8Array;
           resolve(uint8Array);
         });
-      } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
+      } else if (rnm2Buffer.uri.match(/^data:application\/(.*);base64,/)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
-          const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
-          bufferInfo.buffer = new Uint8Array(arrayBuffer);
+          const arrayBuffer = DataUtil.dataUriToArrayBuffer(rnm2Buffer.uri!);
+          rnm2Buffer.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
       } else if (files && this.__containsFileName(files, filename)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           const fullPath = this.__getFullPathOfFileName(files, filename);
           const arrayBuffer = files[fullPath!];
-          bufferInfo.buffer = new Uint8Array(arrayBuffer);
+          rnm2Buffer.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
       } else {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(
           DataUtil.loadResourceAsync(
-            basePath + bufferInfo.uri,
+            basePath + rnm2Buffer.uri,
             true,
             (resolve: Function, response: ArrayBuffer) => {
-              bufferInfo.buffer = new Uint8Array(response);
+              rnm2Buffer.buffer = new Uint8Array(response);
               resolve(response);
             },
             (reject: Function, error: number) => {
@@ -636,20 +637,20 @@ export default class Gltf2Importer {
           )
         );
       }
-      bufferInfo.bufferPromise = rnpArrayBuffer;
+      rnm2Buffer.bufferPromise = rnpArrayBuffer;
       promisesToLoadResources.push(rnpArrayBuffer);
     }
 
     // Textures Async load
-    for (const imageJson of gltfJson.images ?? []) {
-      if (imageJson.uri == null) {
+    for (const rnm2Image of gltfJson.images ?? []) {
+      if (rnm2Image.uri == null) {
         if (uint8Array == null) {
-          // need to wait for load gltfJson.buffer
-          const bufferViewInfo = gltfJson.bufferViews[imageJson.bufferView!];
-          let bufferInfo = bufferViewInfo.bufferObject!;
-          if (!isNaN(bufferInfo as unknown as number)) {
-            const bufferIndex = bufferInfo as unknown as number;
-            bufferInfo = gltfJson.buffers[bufferIndex];
+          // Load Texture from gltfJson.buffer
+          const rnm2BufferView = gltfJson.bufferViews[rnm2Image.bufferView!];
+          const bufferInfo = rnm2BufferView.bufferObject;
+          if (Is.not.exist(bufferInfo)) {
+            console.error('gltf2BufferView.bufferObject not found');
+            continue;
           }
 
           const bufferPromise =
@@ -660,14 +661,14 @@ export default class Gltf2Importer {
               const imageUint8Array =
                 DataUtil.createUint8ArrayFromBufferViewInfo(
                   gltfJson,
-                  imageJson.bufferView!,
+                  rnm2Image.bufferView!,
                   arraybuffer
                 );
               const imageUri = DataUtil.createBlobImageUriFromUint8Array(
                 imageUint8Array,
-                imageJson.mimeType!
+                rnm2Image.mimeType!
               );
-              this.__loadImageUri(imageUri, imageJson, files).then(() => {
+              this.__loadImageUri(imageUri, rnm2Image, files).then(() => {
                 resolve(arraybuffer);
               });
             });
@@ -681,19 +682,20 @@ export default class Gltf2Importer {
         } else {
           const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
             gltfJson,
-            imageJson.bufferView!,
+            rnm2Image.bufferView!,
             uint8Array
           );
           const imageUri = DataUtil.createBlobImageUriFromUint8Array(
             imageUint8Array,
-            imageJson.mimeType!
+            rnm2Image.mimeType!
           );
           promisesToLoadResources.push(
-            this.__loadImageUri(imageUri, imageJson, files)
+            this.__loadImageUri(imageUri, rnm2Image, files)
           );
         }
       } else {
-        const imageFileStr = imageJson.uri;
+        // Load Texture from URI
+        const imageFileStr = rnm2Image.uri;
         const splitUri = imageFileStr.split('/');
         const filename = splitUri[splitUri.length - 1];
 
@@ -703,7 +705,7 @@ export default class Gltf2Importer {
           const arrayBuffer = files[fullPath!];
           imageUri = DataUtil.createBlobImageUriFromUint8Array(
             new Uint8Array(arrayBuffer),
-            imageJson.mimeType!
+            rnm2Image.mimeType!
           );
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
@@ -712,7 +714,7 @@ export default class Gltf2Importer {
         }
 
         promisesToLoadResources.push(
-          this.__loadImageUri(imageUri, imageJson, files)
+          this.__loadImageUri(imageUri, rnm2Image, files)
         );
       }
     }

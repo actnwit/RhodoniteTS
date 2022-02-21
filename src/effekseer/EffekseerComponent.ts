@@ -1,6 +1,8 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
 import Component from '../foundation/core/Component';
-import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
+import EntityRepository, {
+  applyMixins,
+} from '../foundation/core/EntityRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import TransformComponent from '../foundation/components/Transform/TransformComponent';
@@ -82,9 +84,13 @@ export default class EffekseerComponent extends Component {
     this.stop();
     this.isPause = false;
 
-    this.__handle = this.__context?.play(this.__effect, 0, 0, 0);
-    if (this.randomSeed > 0) {
-      this.__handle?.setRandomSeed(this.randomSeed);
+    this.__handle = this.__context.play(this.__effect, 0, 0, 0);
+    if (
+      Is.exist(this.__handle) &&
+      Is.exist(this.__handle.setRandomSeed) &&
+      this.randomSeed > 0
+    ) {
+      this.__handle.setRandomSeed(this.randomSeed);
     }
 
     return true;
@@ -191,7 +197,7 @@ export default class EffekseerComponent extends Component {
 
   private __createEffekseerContext(): boolean {
     if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
-      console.error('Effekseer data not found.');
+      // console.error('Effekseer data not found.');
       return false;
     }
     effekseer.setImageCrossOrigin(
@@ -350,7 +356,7 @@ export default class EffekseerComponent extends Component {
         ) as EffekseerComponent;
       }
     }
-    applyMixins(base, EffekseerComponent);
+    applyMixins(base, EffekseerEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }

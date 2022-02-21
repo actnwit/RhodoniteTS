@@ -82,6 +82,7 @@ import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import LightComponent from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
 import BufferView from '../memory/BufferView';
+import RhodoniteImportExtension from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
 
@@ -210,6 +211,9 @@ export default class ModelConverter {
     rootGroup.tryToSetTag({tag: 'rnEntities', value: rnEntities});
     rootGroup.tryToSetTag({tag: 'rnEntitiesByNames', value: rnEntitiesByNames});
     rootGroup.tryToSetTag({tag: 'gltfModel', value: gltfModel});
+
+    // Effekseer
+    RhodoniteImportExtension.importEffect(gltfModel, rootGroup);
 
     return rootGroup;
   }
