@@ -1,5 +1,7 @@
+import { TextureParameter } from '../../../dist/esm/foundation/definitions/TextureParameter';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
+import { GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT } from '../../../dist/esm/types/WebGLConstants';
 
 let p: any;
 
@@ -23,7 +25,12 @@ declare const Rn: typeof _Rn;
     const response = await fetch('../../../assets/images/Rn.basis');
     const buffer = await response.arrayBuffer();
     const uint8Array = new Uint8Array(buffer);
-    texture.generateTextureFromBasis(uint8Array);
+    texture.generateTextureFromBasis(uint8Array, {
+      magFilter: TextureParameter.from(GL_LINEAR),
+      minFilter: TextureParameter.from(GL_LINEAR_MIPMAP_LINEAR),
+      wrapS: TextureParameter.from(GL_REPEAT),
+      wrapT: TextureParameter.from(GL_REPEAT),
+    });
   }
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
   modelMaterial.setTextureParameter(

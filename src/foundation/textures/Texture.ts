@@ -30,22 +30,25 @@ export default class Texture extends AbstractTexture {
 
   generateTextureFromBasis(
     uint8Array: Uint8Array,
-    options?: {
+    options: {
       level?: Count;
       internalFormat?: PixelFormatEnum;
       format?: PixelFormatEnum;
       type?: ComponentTypeEnum;
-      magFilter?: TextureParameterEnum;
-      minFilter?: TextureParameterEnum;
-      wrapS?: TextureParameterEnum;
-      wrapT?: TextureParameterEnum;
+      magFilter: TextureParameterEnum;
+      minFilter: TextureParameterEnum;
+      wrapS: TextureParameterEnum;
+      wrapT: TextureParameterEnum;
       generateMipmap?: boolean;
       anisotropy?: boolean;
       isPremultipliedAlpha?: boolean;
     }
   ) {
     this.__startedToLoad = true;
-
+    this.__magFilter = options.magFilter;
+    this.__minFilter = options.minFilter;
+    this.__wrapS = options.wrapS;
+    this.__wrapT = options.wrapT;
     if (typeof BASIS === 'undefined') {
       console.error(
         'Failed to call BASIS() function. Please check to import basis_transcoder.js.'
@@ -95,6 +98,10 @@ export default class Texture extends AbstractTexture {
     } = {}
   ): void {
     this.__startedToLoad = true;
+    this.__magFilter = magFilter;
+    this.__minFilter = minFilter;
+    this.__wrapS = wrapS;
+    this.__wrapT = wrapT;
 
     const basisFile = new Texture.__BasisFile!(uint8Array);
 
@@ -143,6 +150,10 @@ export default class Texture extends AbstractTexture {
     } = {}
   ) {
     this.__startedToLoad = true;
+    this.__magFilter = magFilter;
+    this.__minFilter = minFilter;
+    this.__wrapS = wrapS;
+    this.__wrapT = wrapT;
 
     const transcodedData =
       KTX2TextureLoader.getInstance().transcode(uint8Array);
@@ -180,6 +191,10 @@ export default class Texture extends AbstractTexture {
       isPremultipliedAlpha = false,
     } = {}
   ) {
+    this.__magFilter = magFilter;
+    this.__minFilter = minFilter;
+    this.__wrapS = wrapS;
+    this.__wrapT = wrapT;
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
     let img: HTMLImageElement | HTMLCanvasElement | ImageData = image;
@@ -357,6 +372,10 @@ export default class Texture extends AbstractTexture {
       isPremultipliedAlpha = false,
     } = {}
   ) {
+    this.__magFilter = magFilter;
+    this.__minFilter = minFilter;
+    this.__wrapS = wrapS;
+    this.__wrapT = wrapT;
     const type = ComponentType.fromTypedArray(typedArray);
 
     const webGLResourceRepository =
@@ -399,6 +418,10 @@ export default class Texture extends AbstractTexture {
   ) {
     this.__width = width;
     this.__height = height;
+    this.__magFilter = magFilter;
+    this.__minFilter = minFilter;
+    this.__wrapS = wrapS;
+    this.__wrapT = wrapT;
 
     const textureData = {
       level: 0,
@@ -439,6 +462,10 @@ export default class Texture extends AbstractTexture {
       // isPremultipliedAlpha = false,
     } = {}
   ) {
+    this.__magFilter = magFilter;
+    this.__minFilter = minFilter;
+    this.__wrapS = wrapS;
+    this.__wrapT = wrapT;
     const originalTextureData = textureDataArray.find(
       textureData => textureData.level === 0
     );

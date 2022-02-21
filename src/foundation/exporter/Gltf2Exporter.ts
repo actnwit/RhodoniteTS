@@ -14,10 +14,9 @@ import {
   Gltf2AnimationPathName,
   Gltf2Skin,
   Gltf2Image,
-  Gltf2Accessor,
-  Gltf2BufferView,
   Gltf2TextureSampler,
   isSameGlTF2TextureSampler,
+  Gltf2Texture,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -42,6 +41,9 @@ import Buffer from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
   GL_ELEMENT_ARRAY_BUFFER,
+  GL_LINEAR,
+  GL_LINEAR_MIPMAP_LINEAR,
+  GL_REPEAT,
 } from '../../types/WebGLConstants';
 import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
@@ -375,8 +377,6 @@ export default class Gltf2Exporter {
     option: Gltf2ExporterArguments
   ) {
     let countMesh = 0;
-    let countTexture = 0;
-    let countImage = 0;
     const promises: Promise<any>[] = [];
     json.extras.bufferViewByteLengthAccumulatedArray.push(0);
     const bufferIdx =
@@ -385,21 +385,22 @@ export default class Gltf2Exporter {
       const entity = entities[i];
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent && meshComponent.mesh) {
-        const mesh = json.meshes![countMesh++];
+        const gltf2Mesh = json.meshes![countMesh++];
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
         for (let j = 0; j < primitiveCount; j++) {
           const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
-          const primitive = mesh.primitives[j];
+          const primitive = gltf2Mesh.primitives[j];
           const rnMaterial = rnPrimitive.material!;
 
           const material: Gltf2MaterialEx = {
-            pbrMetallicRoughness: {},
+            pbrMetallicRoughness: {
+              metallicFactor: 1.0,
+              roughnessFactor: 1.0,
+            },
           };
 
           let colorParam;
-          let metallic = 1.0;
-          let roughness = 1.0;
-          if (rnMaterial != null) {
+          if (Is.exist(rnMaterial)) {
             colorParam = rnMaterial.getParameter(
               ShaderSemantics.BaseColorFactor
             );
@@ -408,32 +409,27 @@ export default class Gltf2Exporter {
                 ShaderSemantics.DiffuseColorFactor
               );
             } else {
-              metallic = rnMaterial.getParameter(
-                ShaderSemantics.MetallicRoughnessFactor
-              ).x;
-              roughness = rnMaterial.getParameter(
-                ShaderSemantics.MetallicRoughnessFactor
-              ).y;
+              material.pbrMetallicRoughness.metallicFactor =
+                rnMaterial.getParameter(
+                  ShaderSemantics.MetallicRoughnessFactor
+                ).x;
+              material.pbrMetallicRoughness.roughnessFactor =
+                rnMaterial.getParameter(
+                  ShaderSemantics.MetallicRoughnessFactor
+                ).y;
             }
-          }
-
-          if (colorParam) {
             material.pbrMetallicRoughness.baseColorFactor =
               Array.prototype.slice.call(colorParam._v);
-          }
-          material.pbrMetallicRoughness.metallicFactor = metallic;
-          material.pbrMetallicRoughness.roughnessFactor = roughness;
 
-          if (rnMaterial) {
             material.alphaMode = rnMaterial.alphaMode.str;
 
             const existedImages: string[] = [];
 
             const processTexture = (rnTexture: AbstractTexture) => {
               if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
-                let imageIndex = countImage;
+                let imageIndex = json.images.length;
                 let match = false;
-                for (let k = 0; k < json.images!.length; k++) {
+                for (let k = 0; k < json.images.length; k++) {
                   const image = json.images![k];
                   if (image.uri === rnTexture.name) {
                     imageIndex = k;
@@ -442,22 +438,25 @@ export default class Gltf2Exporter {
                 }
 
                 // Sampler
-                const gltf2TextureSampler: Gltf2TextureSampler = {
-                  magFilter: rnTexture.magFilter.index,
-                  minFilter: rnTexture.minFilter.index,
-                  wrapS: rnTexture.wrapS.index,
-                  wrapT: rnTexture.wrapT.index,
-                };
+                let samplerIdx = -1;
+                {
+                  const gltf2TextureSampler: Gltf2TextureSampler = {
+                    magFilter: rnTexture.magFilter.index,
+                    minFilter: rnTexture.minFilter.index,
+                    wrapS: rnTexture.wrapS.index,
+                    wrapT: rnTexture.wrapT.index,
+                  };
 
-                let samplerIdx = json.samplers.findIndex(sampler => {
-                  return isSameGlTF2TextureSampler(
-                    gltf2TextureSampler,
-                    sampler
-                  );
-                });
-                if (samplerIdx === -1) {
-                  json.samplers.push(gltf2TextureSampler);
-                  samplerIdx = json.samplers.length - 1;
+                  samplerIdx = json.samplers.findIndex(sampler => {
+                    return isSameGlTF2TextureSampler(
+                      gltf2TextureSampler,
+                      sampler
+                    );
+                  });
+                  if (samplerIdx === -1) {
+                    json.samplers.push(gltf2TextureSampler);
+                    samplerIdx = json.samplers.length - 1;
+                  }
                 }
 
                 if (!match) {
@@ -501,15 +500,19 @@ export default class Gltf2Exporter {
                     );
                     promises.push(promise);
                   }
-                  json.images![countImage++] = glTF2ImageEx;
+                  json.images.push(glTF2ImageEx);
                 }
 
-                json.textures![countTexture] = {
+                const gltf2Texture: Gltf2Texture = {
                   sampler: samplerIdx,
                   source: imageIndex,
                 };
+                const textureIdx = json.textures.indexOf(gltf2Texture);
+                if (textureIdx === -1) {
+                  json.textures.push(gltf2Texture);
+                }
 
-                return countTexture++;
+                return json.textures.indexOf(gltf2Texture);
               }
               return void 0;
             };
@@ -589,9 +592,11 @@ export default class Gltf2Exporter {
             }
           }
 
-          json.materials.push(material);
-          primitive.material = json.materials.length - 1;
-          console.log(primitive.material);
+          const imageIdx = json.materials.indexOf(material);
+          if (imageIdx === -1) {
+            json.materials.push(material);
+          }
+          primitive.material = json.materials.indexOf(material);
         }
       }
     }
@@ -906,7 +911,7 @@ function __createBufferViewsAndAccessorsOfMesh(
         }
         mesh.primitives[j] = primitive;
       }
-      json.meshes!.push(mesh);
+      json.meshes.push(mesh);
     }
   }
 }
