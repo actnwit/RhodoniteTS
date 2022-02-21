@@ -14,8 +14,6 @@ import {
   Gltf2AnimationPathName,
   Gltf2Skin,
   Gltf2Image,
-  Gltf2Accessor,
-  Gltf2BufferView,
   Gltf2TextureSampler,
   isSameGlTF2TextureSampler,
   Gltf2Texture,
