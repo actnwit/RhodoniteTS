@@ -18,7 +18,7 @@ declare const Rn: typeof _Rn;
   Rn.Config.maxVertexMorphNumberInShader = 1;
   Rn.Config.maxMaterialInstanceForEachType = 30;
   Rn.Config.maxCameraNumber = 3;
-  Rn.Config.maxSkeletalBoneNumber = 50;
+  Rn.Config.maxSkeletalBoneNumber = 100;
   Rn.Config.dataTextureWidth = 2 ** 9;
   Rn.Config.dataTextureHeight = 2 ** 10;
   Rn.Config.maxMorphTargetNumber = 1;
