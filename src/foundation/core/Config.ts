@@ -12,7 +12,7 @@ const maxCameraNumber = 15;
 const maxSizeLimitOfNonCompressedTexture = 512;
 
 /// ShaderGlobalStorageSize ///
-const maxSkeletalBoneNumber = 250;
+const maxSkeletalBoneNumber = 300;
 const maxSkeletalBoneNumberForUniformMode = 50; // For Uniform Mode
 const dataTextureWidth = Math.pow(2, 12);
 const dataTextureHeight = Math.pow(2, 12);
