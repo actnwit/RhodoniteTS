@@ -29,7 +29,7 @@ import Vector3 from '../math/Vector3';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import {BoneDataType} from '../definitions/BoneDataType';
-import {ProcessApproachEnum} from '../../foundation/definitions/ProcessApproach';
+import {ProcessApproach, ProcessApproachEnum} from '../../foundation/definitions/ProcessApproach';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -102,7 +102,9 @@ export default class GlobalDataRepository {
     this.registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
     this.registerProperty(viewPositionInfo, Config.maxCameraNumber);
 
-    const maxSkeletalBoneNumber = Config.getMaxSkeletalBoneNumber(approach);
+    const maxSkeletalBoneNumber = ProcessApproach.isUniformApproach(approach)
+      ? Config.maxSkeletalBoneNumberForUniformMode
+      : Config.maxSkeletalBoneNumber;
 
     // Skinning
     const boneMatrixInfo = {

@@ -1,7 +1,5 @@
 /* eslint-disable prefer-const */
 import {BoneDataType} from '../definitions/BoneDataType';
-import {ProcessApproachEnum} from '../definitions/ProcessApproach';
-import {ProcessApproach} from '../definitions/ProcessApproach';
 
 let byteAlignOfBuffer = 16;
 let maxEntityNumber = 5000;
@@ -13,8 +11,8 @@ let maxCameraNumber = 15;
 let maxSizeLimitOfNonCompressedTexture = 512;
 
 /// ShaderGlobalStorageSize ///
-export let maxSkeletalBoneNumber = 250;
-export let maxSkeletalBoneNumberForUniformMode = 50; // For Uniform Mode
+let maxSkeletalBoneNumber = 250;
+let maxSkeletalBoneNumberForUniformMode = 50; // For Uniform Mode
 let dataTextureWidth = Math.pow(2, 12);
 let dataTextureHeight = Math.pow(2, 12);
 let boneDataType = BoneDataType.Vec4x2;
@@ -22,11 +20,6 @@ let noWebGLTex2DStateCache = false;
 let maxMorphTargetNumber = 4;
 let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = true;
-let getMaxSkeletalBoneNumber = (approach: ProcessApproachEnum) => {
-  return ProcessApproach.isUniformApproach(approach)
-    ? maxSkeletalBoneNumberForUniformMode
-    : maxSkeletalBoneNumber;
-};
 
 export default {
   maxEntityNumber,
@@ -45,5 +38,4 @@ export default {
   maxMorphTargetNumber,
   totalSizeOfGPUShaderDataStorageExceptMorphData,
   isUboEnabled,
-  getMaxSkeletalBoneNumber,
 };
