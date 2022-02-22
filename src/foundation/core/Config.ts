@@ -13,8 +13,8 @@ let maxCameraNumber = 15;
 let maxSizeLimitOfNonCompressedTexture = 512;
 
 /// ShaderGlobalStorageSize ///
-let maxSkeletalBoneNumber = 250;
-let maxSkeletalBoneNumberForUniformMode = 50; // For Uniform Mode
+export let maxSkeletalBoneNumber = 250;
+export let maxSkeletalBoneNumberForUniformMode = 50; // For Uniform Mode
 let dataTextureWidth = Math.pow(2, 12);
 let dataTextureHeight = Math.pow(2, 12);
 let boneDataType = BoneDataType.Vec4x2;
