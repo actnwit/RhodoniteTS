@@ -1,5 +1,4 @@
-import CameraControllerComponent from '../../../dist/esm/foundation/components/CameraController/CameraControllerComponent';
-import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {ICameraControllerEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 
@@ -91,10 +90,10 @@ declare const Rn: typeof _Rn;
 
   // camera controller
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
-  const vrmMainCameraEntity = vrmMainCameraComponent.entity;
+  const vrmMainCameraEntity =
+    vrmMainCameraComponent.entity as ICameraControllerEntity;
   const vrmMainCameraControllerComponent =
-    (vrmMainCameraEntity as ICameraControllerEntity
-  ).getCameraController();
+    vrmMainCameraEntity.getCameraController();
   const controller =
     vrmMainCameraControllerComponent.controller as OrbitCameraController;
   controller.dolly = 0.78;

@@ -1,7 +1,11 @@
-import { TextureParameter } from '../../../dist/esm/foundation/definitions/TextureParameter';
+import {TextureParameter} from '../../../dist/esm/foundation/definitions/TextureParameter';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
-import { GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT } from '../../../dist/esm/types/WebGLConstants';
+import {
+  GL_LINEAR,
+  GL_LINEAR_MIPMAP_LINEAR,
+  GL_REPEAT,
+} from '../../../dist/esm/types/WebGLConstants';
 
 let p: any;
 
@@ -16,8 +20,6 @@ declare const Rn: typeof _Rn;
     Rn.ProcessApproach.FastestWebGL1,
     document.getElementById('world') as HTMLCanvasElement
   );
-
-  const entityRepository = Rn.EntityRepository.getInstance();
 
   // Plane
   const texture = new Rn.Texture();
