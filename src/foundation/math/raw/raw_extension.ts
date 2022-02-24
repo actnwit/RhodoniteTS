@@ -7,7 +7,11 @@ import type {
   Array4,
   ArrayType,
 } from '../../../types/CommonTypes';
+export const get1 = Symbol('get1');
+export const get1_offset = Symbol('get1_offset');
 export const get1_offsetAsComposition = Symbol('get1_offsetAsComposition');
+export const get2 = Symbol('get2');
+export const get2_offset = Symbol('get2_offset');
 export const get2_offsetAsComposition = Symbol('get2_offsetAsComposition');
 export const get3 = Symbol('get3');
 export const get3_offset = Symbol('get3_offset');
@@ -43,10 +47,14 @@ export const normalizeArray4 = Symbol('normalizeArray4');
 
 declare global {
   interface Extension {
+    [get1](this: ArrayType): Array1<number>;
+    [get1_offset](this: ArrayType, offset: number): Array1<number>;
     [get1_offsetAsComposition](
       this: ArrayType,
       offsetAsComposition: number
     ): Array1<number>;
+    [get2](this: ArrayType): Array2<number>;
+    [get2_offset](this: ArrayType, offset: number): Array2<number>;
     [get2_offsetAsComposition](
       this: ArrayType,
       offsetAsComposition: number
@@ -157,11 +165,33 @@ declare global {
   interface Float32Array extends Extension {}
 }
 
+const get1_fn = function (this: ArrayType): Array1<number> {
+  return [this[0]];
+};
+
+const get1_offset_fn = function (
+  this: ArrayType,
+  offset: number
+): Array1<number> {
+  return [this[offset]];
+};
+
 const get1_offsetAsComposition_fn = function (
   this: ArrayType,
   offsetAsComposition: number
 ): Array1<number> {
   return [this[offsetAsComposition]];
+};
+
+const get2_fn = function (this: ArrayType): Array2<number> {
+  return [this[0], this[1]];
+};
+
+const get2_offset_fn = function (
+  this: ArrayType,
+  offset: number
+): Array2<number> {
+  return [this[offset], this[offset + 1]];
 };
 
 const get2_offsetAsComposition_fn = function (
@@ -504,6 +534,10 @@ const arrayTypes = [
 const operators = [
   get1_offsetAsComposition,
   get2_offsetAsComposition,
+  get1,
+  get1_offset,
+  get2,
+  get2_offset,
   get3,
   get3_offset,
   get3_offsetAsComposition,
@@ -531,6 +565,10 @@ const operators = [
 const functions = [
   get1_offsetAsComposition_fn,
   get2_offsetAsComposition_fn,
+  get1_fn,
+  get1_offset_fn,
+  get2_fn,
+  get2_offset_fn,
   get3_fn,
   get3_offset_fn,
   get3_offsetAsComposition_fn,
