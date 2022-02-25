@@ -142,8 +142,8 @@ export default class ModelConverter {
     return entity;
   }
 
-  private __generateCameraControllerEntity(gltfModel: RnM2): ICameraEntity {
-    const entity = EntityHelper.createCameraControllerEntity();
+  private __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
+    const entity = EntityHelper.createCameraEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
@@ -535,7 +535,7 @@ export default class ModelConverter {
   }
 
   private __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
-    const cameraEntity = this.__generateCameraControllerEntity(gltfModel);
+    const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getCamera();
     cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (
