@@ -23,7 +23,7 @@ import AABBGizmo from '../../gizmos/AABBGizmo';
 import LocatorGizmo from '../../gizmos/LocatorGizmo';
 import {Is} from '../../misc/Is';
 import {
-  IGroupEntity,
+  ISceneGraphEntity,
   IMeshEntity,
   ITransformEntity,
 } from '../../helpers/EntityHelper';
@@ -548,10 +548,10 @@ export default class SceneGraphComponent extends Component {
    * get the entity which has this component.
    * @returns the entity which has this component
    */
-  get entity(): IGroupEntity {
+  get entity(): ISceneGraphEntity {
     return this.__entityRepository.getEntity(
       this.__entityUid
-    ) as unknown as IGroupEntity;
+    ) as unknown as ISceneGraphEntity;
   }
 
   addThisComponentToEntity<

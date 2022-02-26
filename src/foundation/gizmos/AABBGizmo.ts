@@ -4,7 +4,7 @@ import {VertexAttribute} from '../definitions/VertexAttribute';
 import {Primitive} from '../geometry/Primitive';
 import Vector3 from '../math/Vector3';
 import Mesh from '../geometry/Mesh';
-import EntityHelper, {IGroupEntity} from '../helpers/EntityHelper';
+import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
 
 /**
  * AABB Gizmo class
@@ -16,7 +16,7 @@ export default class AABBGizmo extends Gizmo {
    * Constructor
    * @param target the object which this gizmo belong to
    */
-  constructor(target: IGroupEntity) {
+  constructor(target: ISceneGraphEntity) {
     super(target);
   }
 

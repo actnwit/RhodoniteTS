@@ -1,4 +1,4 @@
-import {IGroupEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {ISceneGraphEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
   ComponentTypeEnum,
@@ -109,7 +109,7 @@ declare const Rn: typeof _Rn;
 
   function createRenderPassDepthEncode(
     cameraComponent: CameraComponent,
-    entitiesTarget: IGroupEntity[]
+    entitiesTarget: ISceneGraphEntity[]
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;

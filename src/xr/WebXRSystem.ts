@@ -34,7 +34,7 @@ import MutableQuaternion from '../foundation/math/MutableQuaternion';
 import MutableScalar from '../foundation/math/MutableScalar';
 import EntityHelper, {
   ICameraEntity,
-  IGroupEntity,
+  ISceneGraphEntity,
 } from '../foundation/helpers/EntityHelper';
 
 declare const navigator: Navigator;
@@ -55,11 +55,11 @@ export default class WebXRSystem {
   private __defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
   private __canvasWidthForVR = 0;
   private __canvasHeightForVR = 0;
-  private __viewerEntity: IGroupEntity;
+  private __viewerEntity: ISceneGraphEntity;
   private __leftCameraEntity: ICameraEntity;
   private __rightCameraEntity: ICameraEntity;
   private __basePath?: string;
-  private __controllerEntities: IGroupEntity[] = [];
+  private __controllerEntities: ISceneGraphEntity[] = [];
   private __xrInputSources: XRInputSource[] = [];
   private __viewerTranslate = MutableVector3.zero();
   private __viewerAzimuthAngle = MutableScalar.zero();
@@ -453,7 +453,7 @@ export default class WebXRSystem {
 
   private async __onInputSourcesChange(
     event: XRInputSourceChangeEvent,
-    resolve: (entities: IGroupEntity[]) => void,
+    resolve: (entities: ISceneGraphEntity[]) => void,
     profilePriorities: string[]
   ) {
     this.__xrInputSources.length = 0;

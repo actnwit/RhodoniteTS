@@ -22,19 +22,19 @@ import CameraComponent from '../components/Camera/CameraComponent';
 import LightComponent from '../components/Light/LightComponent';
 
 export type ITransformEntity = IEntity & ITransformEntityMethods;
-export type IGroupEntity = ITransformEntity & ISceneGraphEntityMethods;
-export type IMeshEntity = IGroupEntity &
+export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
+export type IMeshEntity = ISceneGraphEntity &
   IMeshEntityMethods &
   IMeshRendererEntityMethods;
-export type ICameraEntity = IGroupEntity & ICameraEntityMethods;
+export type ICameraEntity = ISceneGraphEntity & ICameraEntityMethods;
 export type ICameraControllerEntity = ICameraEntity &
   ICameraControllerEntityMethods;
-export type ISkeletalEntity = IGroupEntity & ISkeletalEntityMethods;
-export type ILightEntity = IGroupEntity & ILightEntityMethods;
-export type IPhysicsEntity = IGroupEntity & IPhysicsEntityMethods;
+export type ISkeletalEntity = ISceneGraphEntity & ISkeletalEntityMethods;
+export type ILightEntity = ISceneGraphEntity & ILightEntityMethods;
+export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 export type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
 export interface IAnimationEntity
-  extends IGroupEntity,
+  extends ISceneGraphEntity,
     IAnimationEntityMethods {}
 
 function createTransformEntity(): ITransformEntity {
@@ -47,7 +47,7 @@ function createTransformEntity(): ITransformEntity {
   return entity1;
 }
 
-function createGroupEntity(): IGroupEntity {
+function createGroupEntity(): ISceneGraphEntity {
   const entityRepository = EntityRepository.getInstance();
   const entity = createTransformEntity();
   const entityAddedComponent = entityRepository.addComponentToEntity(

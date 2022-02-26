@@ -45,7 +45,7 @@ import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
 import {
-  IGroupEntity,
+  ISceneGraphEntity,
   IMeshEntity,
   ISkeletalEntity,
 } from '../foundation/helpers/EntityHelper';
@@ -817,7 +817,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     gl: WebGLRenderingContext,
     renderPass: RenderPass,
     material: Material,
-    entity: IGroupEntity
+    entity: ISceneGraphEntity
   ) {
     WebGLStrategyFastest.__currentComponentSIDs!._v[0] = material.materialSID;
     gl.uniform1fv(

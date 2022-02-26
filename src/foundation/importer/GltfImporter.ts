@@ -21,7 +21,7 @@ import DataUtil from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
 import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
-import { IGroupEntity } from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -491,7 +491,7 @@ export default class GltfImporter {
     return options;
   }
 
-  _readVRMHumanoidInfo(gltfModel: VRM, rootEntity?: IGroupEntity): void {
+  _readVRMHumanoidInfo(gltfModel: VRM, rootEntity?: ISceneGraphEntity): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
     // const mapNameNodeName: Map<string, string> = new Map();
@@ -512,7 +512,7 @@ export default class GltfImporter {
     // });
   }
 
-  _readSpringBone(rootEntity: IGroupEntity, gltfModel: VRM): void {
+  _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void {
     const entityRepository = EntityRepository.getInstance();
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation

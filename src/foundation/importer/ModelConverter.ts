@@ -74,7 +74,7 @@ import {TagGltf2NodeIndex} from '../../types/glTF2';
 import EntityHelper, {
   IAnimationEntity,
   ICameraEntity,
-  IGroupEntity,
+  ISceneGraphEntity,
   ILightEntity,
   IMeshEntity,
 } from '../helpers/EntityHelper';
@@ -119,13 +119,13 @@ export default class ModelConverter {
     return defaultShader;
   }
 
-  private __generateGroupEntity(gltfModel: RnM2): IGroupEntity {
+  private __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
     const entity = EntityHelper.createGroupEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
-  private addTags(entity: IGroupEntity, gltfModel: RnM2) {
+  private addTags(entity: ISceneGraphEntity, gltfModel: RnM2) {
     entity.tryToSetTag({
       tag: 'SourceType',
       value: gltfModel.asset.extras!.fileType!,
@@ -234,7 +234,7 @@ export default class ModelConverter {
     return rnBuffers;
   }
 
-  _setupTransform(gltfModel: RnM2, groups: IGroupEntity[]) {
+  _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]) {
     for (const node_i in gltfModel.nodes) {
       const group = groups[node_i];
       const nodeJson = gltfModel.nodes[node_i];
@@ -267,7 +267,7 @@ export default class ModelConverter {
     }
   }
 
-  _setupHierarchy(gltfModel: RnM2, rnEntities: IGroupEntity[]) {
+  _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
     const groupSceneComponents = rnEntities.map(group => {
       return group.getSceneGraph()!;
     });
@@ -288,7 +288,7 @@ export default class ModelConverter {
   /**
    * @private
    */
-  _setupAnimation(gltfModel: RnM2, rnEntities: IGroupEntity[]) {
+  _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
@@ -360,7 +360,7 @@ export default class ModelConverter {
 
   _setupSkeleton(
     gltfModel: RnM2,
-    rnEntities: IGroupEntity[],
+    rnEntities: ISceneGraphEntity[],
     rnBuffers: Buffer[]
   ) {
     if (gltfModel.skins == null) {
@@ -423,12 +423,12 @@ export default class ModelConverter {
   }
 
   private __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
-    const rnEntities: IGroupEntity[] = [];
+    const rnEntities: ISceneGraphEntity[] = [];
     const rnEntitiesByNames: Map<String, IEntity> = new Map();
 
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[parseInt(node_i)] as RnM2Node;
-      let entity: IGroupEntity;
+      let entity: ISceneGraphEntity;
       if (node.mesh != null) {
         const meshIdx = node.mesh;
         const meshEntity = this.__setupMesh(

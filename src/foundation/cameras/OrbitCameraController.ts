@@ -10,7 +10,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import AABB from '../math/AABB';
 import AbstractCameraController from './AbstractCameraController';
 import {Is} from '../misc/Is';
-import {IGroupEntity} from '../helpers/EntityHelper';
+import {ISceneGraphEntity} from '../helpers/EntityHelper';
 
 declare let window: any;
 
@@ -53,7 +53,7 @@ export default class OrbitCameraController
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
-  protected __targetEntity?: IGroupEntity;
+  protected __targetEntity?: ISceneGraphEntity;
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
   private __isPressingShift = false;
@@ -109,12 +109,12 @@ export default class OrbitCameraController
     this.registerEventListeners();
   }
 
-  setTarget(targetEntity: IGroupEntity) {
+  setTarget(targetEntity: ISceneGraphEntity) {
     this.__targetEntity = targetEntity;
     this.__originalTargetAABB = undefined;
   }
 
-  getTarget(): IGroupEntity | undefined {
+  getTarget(): ISceneGraphEntity | undefined {
     return this.__targetEntity;
   }
 

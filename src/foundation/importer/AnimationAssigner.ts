@@ -6,13 +6,13 @@ import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {Index} from '../../types/CommonTypes';
 import {VRM} from '../../types/VRM';
 import {Is} from '../misc/Is';
-import {IGroupEntity} from '../helpers/EntityHelper';
+import {ISceneGraphEntity} from '../helpers/EntityHelper';
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
 
   assignAnimation(
-    rootEntity: IGroupEntity,
+    rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
     vrmModel: VRM,
     isSameSkeleton = false
@@ -41,7 +41,7 @@ export default class AnimationAssigner {
   }
 
   private __getCorrespondingEntity(
-    rootEntity: IGroupEntity,
+    rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
     vrmModel: VRM,
     nodeIndex: Index,
@@ -51,7 +51,7 @@ export default class AnimationAssigner {
     if (isSameSkeleton) {
       const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<
         string,
-        IGroupEntity
+        ISceneGraphEntity
       >;
       const node = gltfModel.nodes[nodeIndex];
       const rnEntity = rnEntities.get(node.name!);
@@ -78,7 +78,7 @@ export default class AnimationAssigner {
       if (dstBoneNodeId != null) {
         const rnEntities = rootEntity.getTagValue(
           'rnEntities'
-        )! as IGroupEntity[];
+        )! as ISceneGraphEntity[];
         return rnEntities[dstBoneNodeId];
       } else {
         return void 0;
@@ -86,7 +86,7 @@ export default class AnimationAssigner {
     }
   }
 
-  private __isHips(rootEntity: IGroupEntity, vrmModel: VRM, nodeIndex: Index) {
+  private __isHips(rootEntity: ISceneGraphEntity, vrmModel: VRM, nodeIndex: Index) {
     const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
     const srcMapNodeIdName: Map<number, string> = new Map();
     for (const bone of humanBones) {
@@ -104,7 +104,7 @@ export default class AnimationAssigner {
   }
 
   private __setupAnimationForSameSkeleton(
-    rootEntity: IGroupEntity,
+    rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
     vrmModel: VRM,
     isSameSkeleton: boolean

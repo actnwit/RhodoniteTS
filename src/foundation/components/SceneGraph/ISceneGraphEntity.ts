@@ -5,7 +5,7 @@ import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {MixinBase} from '../../../types/TypeGenerators';
 import {Is} from '../../misc/Is';
 import {IMatrix44} from '../../math/IMatrix';
-import {IGroupEntity} from '../../helpers/EntityHelper';
+import {ISceneGraphEntity} from '../../helpers/EntityHelper';
 
 export interface ISceneGraphEntityMethods {
   getSceneGraph(): SceneGraphComponent;

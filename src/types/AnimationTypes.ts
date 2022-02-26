@@ -1,6 +1,6 @@
 import Entity, { IEntity } from '../foundation/core/Entity';
 import {AnimationInterpolationEnum} from '../foundation/definitions/AnimationInterpolation';
-import { IGroupEntity } from '../foundation/helpers/EntityHelper';
+import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import {Second, VectorComponentN} from './CommonTypes';
 
 /**
@@ -44,7 +44,7 @@ export interface AnimationChannel {
  */
 export interface AnimationChannelTarget {
   pathName: AnimationPathName;
-  entity: IGroupEntity;
+  entity: ISceneGraphEntity;
 }
 
 /**

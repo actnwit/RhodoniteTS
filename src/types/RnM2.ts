@@ -8,7 +8,7 @@ import Expression from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 import {Gltf2AnimationSamplerInterpolation, Gltf2AnyObject} from './glTF2';
-import { IGroupEntity } from '../foundation/helpers/EntityHelper';
+import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {
@@ -355,7 +355,7 @@ export type RnM2Asset = {
   extensions?: object;
   extras?: {
     rnLoaderOptions?: GltfLoadOption;
-    rnEntities?: IGroupEntity[];
+    rnEntities?: ISceneGraphEntity[];
     rnMaterials?: {[s: string]: Material};
     version?: string;
     fileType?: string;

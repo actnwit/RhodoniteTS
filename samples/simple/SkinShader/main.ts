@@ -1,4 +1,4 @@
-import {IGroupEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {ISceneGraphEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn from '../../../dist/esm/index';
 import {
   CameraComponent,
@@ -12,7 +12,7 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 const setupRenderPassEntityUidOutput = function (
-  rootGroup: IGroupEntity,
+  rootGroup: ISceneGraphEntity,
   cameraComponent: CameraComponent,
   canvas: HTMLCanvasElement
 ) {

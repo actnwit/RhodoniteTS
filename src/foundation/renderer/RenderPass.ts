@@ -13,7 +13,7 @@ import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {Primitive} from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
 import {IVector4} from '../math/IVector';
-import {IGroupEntity, IMeshEntity} from '../helpers/EntityHelper';
+import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import CameraComponent from '../components/Camera/CameraComponent';
 
@@ -21,7 +21,7 @@ import CameraComponent from '../components/Camera/CameraComponent';
  * A render pass is a collection of the resources which is used in rendering process.
  */
 export default class RenderPass extends RnObject {
-  private __entities: (IMeshEntity | IGroupEntity)[] = [];
+  private __entities: (IMeshEntity | ISceneGraphEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
   private __meshComponents?: MeshComponent[];
@@ -68,7 +68,7 @@ export default class RenderPass extends RnObject {
    * Add entities to draw.
    * @param entities An array of entities.
    */
-  addEntities(entities: (IMeshEntity | IGroupEntity)[]) {
+  addEntities(entities: (IMeshEntity | ISceneGraphEntity)[]) {
     for (const entity of entities) {
       const sceneGraphComponent = entity.getSceneGraph()!;
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
@@ -83,12 +83,12 @@ export default class RenderPass extends RnObject {
       );
 
       // Eliminate duplicates
-      const map: Map<EntityUID, IMeshEntity | IGroupEntity> = this.__entities
+      const map: Map<EntityUID, IMeshEntity | ISceneGraphEntity> = this.__entities
         .concat(collectedEntities)
         .reduce(
           (
-            map: Map<EntityUID, IMeshEntity | IGroupEntity>,
-            entity: IMeshEntity | IGroupEntity
+            map: Map<EntityUID, IMeshEntity | ISceneGraphEntity>,
+            entity: IMeshEntity | ISceneGraphEntity
           ) => {
             map.set(entity.entityUID, entity);
             return map;
