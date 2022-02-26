@@ -1,7 +1,7 @@
 import {
   ICameraControllerEntity,
   ICameraEntity,
-  IGroupEntity,
+  ISceneGraphEntity,
   IMeshEntity,
 } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
@@ -134,7 +134,7 @@ declare const Rn: typeof _Rn;
 
   function createRenderPassDepth(
     cameraComponentDepth: CameraComponent,
-    entitiesRenderTarget: IGroupEntity[]
+    entitiesRenderTarget: ISceneGraphEntity[]
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -215,7 +215,7 @@ declare const Rn: typeof _Rn;
   }
 
   function setTransformParameterToEntity(
-    entity: IGroupEntity,
+    entity: ISceneGraphEntity,
     scale: Vector3,
     translate: Vector3,
     rotate: Vector3

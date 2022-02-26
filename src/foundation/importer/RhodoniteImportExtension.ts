@@ -1,14 +1,14 @@
 import EffekseerComponent from '../../effekseer/EffekseerComponent';
 import {RnM2, RnM2ExtensionsEffekseerEffect} from '../../types/RnM2';
 import EntityRepository from '../core/EntityRepository';
-import {IGroupEntity} from '../helpers/EntityHelper';
+import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import DataUtil from '../misc/DataUtil';
 import {Is} from '../misc/Is';
 
 export default class RhodoniteImportExtension {
   private static __instance: RhodoniteImportExtension;
 
-  static importEffect(gltfJson: RnM2, rootGroup: IGroupEntity) {
+  static importEffect(gltfJson: RnM2, rootGroup: ISceneGraphEntity) {
     const RHODONITE_effekseer = 'RHODONITE_effekseer';
     if (
       Is.not.exist(gltfJson.extensions) ||
@@ -19,7 +19,7 @@ export default class RhodoniteImportExtension {
     ) {
       return;
     }
-    const entities = rootGroup.getTagValue('rnEntities') as IGroupEntity[];
+    const entities = rootGroup.getTagValue('rnEntities') as ISceneGraphEntity[];
     const effects = gltfJson.extensions.RHODONITE_effekseer
       .effects as RnM2ExtensionsEffekseerEffect[];
 

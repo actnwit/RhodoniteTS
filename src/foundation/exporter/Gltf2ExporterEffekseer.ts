@@ -5,11 +5,11 @@ import {
   RnM2ExtensionsEffekseerEffect,
 } from '../../types/RnM2';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import {IGroupEntity} from '../helpers/EntityHelper';
+import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {Is} from '../misc/Is';
 import {createAndAddGltf2BufferView} from './Gltf2Exporter';
 
-export function createEffekseer(json: Gltf2Ex, entities: IGroupEntity[]) {
+export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
   let effekseerExists = false;
   const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length - 1;
   const effects: RnM2ExtensionsEffekseerEffect[] = [];

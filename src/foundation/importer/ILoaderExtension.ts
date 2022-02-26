@@ -1,7 +1,7 @@
 import Material from '../materials/core/Material';
 import {RnM2, RnM2Material, RnM2TextureSampler} from '../../types/RnM2';
 import Entity from '../core/Entity';
-import { IGroupEntity } from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 
 export default interface ILoaderExtension {
   generateMaterial?(materialJson: RnM2Material): Material;
@@ -17,7 +17,7 @@ export default interface ILoaderExtension {
     samplerJson: RnM2TextureSampler
   ): void;
   loadExtensionInfoAndSetToRootGroup?(
-    rootGroup: IGroupEntity,
+    rootGroup: ISceneGraphEntity,
     json: RnM2
   ): void;
 }

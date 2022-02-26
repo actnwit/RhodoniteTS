@@ -2,7 +2,7 @@ import RnObject from '../core/RnObject';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import EntityRepository from '../core/EntityRepository';
 import Entity from '../core/Entity';
-import {IGroupEntity, IMeshEntity} from '../helpers/EntityHelper';
+import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 
 /**
  * Abstract Gizmo class
@@ -18,7 +18,7 @@ export default abstract class Gizmo extends RnObject {
    */
   protected __topEntity?: IMeshEntity;
   /** the target entity which this gizmo belong to */
-  protected __target: IGroupEntity;
+  protected __target: ISceneGraphEntity;
 
   protected __isVisible = false;
 
@@ -26,7 +26,7 @@ export default abstract class Gizmo extends RnObject {
    * Constructor
    * @param entity the object which this gizmo belong to
    */
-  constructor(target: IGroupEntity) {
+  constructor(target: ISceneGraphEntity) {
     super();
     this.__target = target;
     this.setGizmoTag();

@@ -51,7 +51,7 @@ import {ComponentTypeEnum, CompositionTypeEnum} from '../..';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import {
   IAnimationEntity,
-  IGroupEntity,
+  ISceneGraphEntity,
   IMeshEntity,
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
@@ -69,7 +69,7 @@ export type Gltf2ExportType =
   | typeof GLTF2_EXPORT_DRACO
   | typeof GLTF2_EXPORT_EMBEDDED;
 export interface Gltf2ExporterArguments {
-  entities?: IGroupEntity[]; // The target entities. This exporter includes their descendants for the output.
+  entities?: ISceneGraphEntity[]; // The target entities. This exporter includes their descendants for the output.
   type: Gltf2ExportType;
 }
 
@@ -162,12 +162,12 @@ export default class Gltf2Exporter {
       option.entities.length > 0
     ) {
       const collectDescendants = (
-        entity: IGroupEntity,
+        entity: ISceneGraphEntity,
         root: boolean
-      ): IGroupEntity[] => {
+      ): ISceneGraphEntity[] => {
         const sg = entity.getSceneGraph()!;
         if (sg.children.length > 0) {
-          const array: IGroupEntity[] = root ? [] : [entity];
+          const array: ISceneGraphEntity[] = root ? [] : [entity];
           for (let i = 0; i < sg.children.length; i++) {
             const child = sg.children[i];
             Array.prototype.push.apply(
@@ -184,7 +184,7 @@ export default class Gltf2Exporter {
         collectDescendants(entity, true)
       );
 
-      const topLevelEntities: IGroupEntity[] = [];
+      const topLevelEntities: ISceneGraphEntity[] = [];
       option.entities.forEach(entity => {
         if (collectedDescendants.indexOf(entity) === -1) {
           topLevelEntities.push(entity);
@@ -195,7 +195,7 @@ export default class Gltf2Exporter {
       return {collectedEntities, topLevelEntities};
     }
     const collectedEntities =
-      Gltf2Exporter.__entityRepository._getEntities() as unknown as IGroupEntity[];
+      Gltf2Exporter.__entityRepository._getEntities() as unknown as ISceneGraphEntity[];
     const topLevelEntities =
       SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
 
@@ -251,7 +251,7 @@ export default class Gltf2Exporter {
    */
   static __createBufferViewsAndAccessors(
     json: Gltf2Ex,
-    entities: IGroupEntity[]
+    entities: ISceneGraphEntity[]
   ) {
     const existingUniqueRnBuffers: Buffer[] = [];
     const existingUniqueRnBufferViews: BufferView[] = [];
@@ -287,8 +287,8 @@ export default class Gltf2Exporter {
    */
   static __createNodes(
     json: Gltf2Ex,
-    entities: IGroupEntity[],
-    topLevelEntities: IGroupEntity[]
+    entities: ISceneGraphEntity[],
+    topLevelEntities: ISceneGraphEntity[]
   ) {
     json.nodes = [];
     json.scenes = [{nodes: []}];

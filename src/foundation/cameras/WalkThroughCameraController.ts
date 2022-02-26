@@ -9,7 +9,7 @@ import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import AbstractCameraController from './AbstractCameraController';
 import {MathUtil} from '../math/MathUtil';
-import { IGroupEntity } from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
@@ -51,7 +51,7 @@ export default class WalkThroughCameraController
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
   private _eventTargetDom?: any;
   private _needInitialize = true;
-  protected __targetEntity?: IGroupEntity;
+  protected __targetEntity?: ISceneGraphEntity;
 
   private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
@@ -395,7 +395,7 @@ export default class WalkThroughCameraController
     return this._mouseWheelSpeedScale;
   }
 
-  setTarget(targetEntity: IGroupEntity) {
+  setTarget(targetEntity: ISceneGraphEntity) {
     const speed =
       targetEntity.tryToGetSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
@@ -405,7 +405,7 @@ export default class WalkThroughCameraController
     this._needInitialize = true;
   }
 
-  getTarget(): IGroupEntity | undefined {
+  getTarget(): ISceneGraphEntity | undefined {
     return this.__targetEntity;
   }
 

@@ -1,6 +1,6 @@
 import {
   ICameraEntity,
-  IGroupEntity,
+  ISceneGraphEntity,
 } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
@@ -199,7 +199,7 @@ declare const Rn: typeof _Rn;
     return entitySphere;
   }
 
-  function createEntityMainCamera(entityCameraTarget: IGroupEntity) {
+  function createEntityMainCamera(entityCameraTarget: ISceneGraphEntity) {
     const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     const cameraControllerComponent = entityCamera.getCameraController();
     const controller = cameraControllerComponent.controller;
@@ -219,7 +219,7 @@ declare const Rn: typeof _Rn;
 
   async function createRenderPassHDR(
     cameraComponent: CameraComponent,
-    entityRenderTargets: IGroupEntity[]
+    entityRenderTargets: ISceneGraphEntity[]
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -465,7 +465,7 @@ declare const Rn: typeof _Rn;
   function createRenderPassGlareTargetRegion(
     material: Material,
     cameraComponent: CameraComponent,
-    entityGlareTarget: IGroupEntity
+    entityGlareTarget: ISceneGraphEntity
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;

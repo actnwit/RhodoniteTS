@@ -21,7 +21,7 @@ import {
 import {IQuaternion} from '../../math/IQuaternion';
 import {IMatrix44} from '../../math/IMatrix';
 import {IVector3} from '../../math/IVector';
-import {IGroupEntity, ISkeletalEntity, ITransformEntity} from '../../helpers/EntityHelper';
+import {ISceneGraphEntity, ISkeletalEntity, ITransformEntity} from '../../helpers/EntityHelper';
 import {MixinBase} from '../../../types/TypeGenerators';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
