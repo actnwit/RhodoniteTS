@@ -35,11 +35,11 @@ export class ShaderSemanticsClass
     ShaderSemanticsClass.__classes[this.index] = this;
   }
 
-  static getShaderSemanticByIndex(index: Index) {
+  static getShaderSemanticByIndex(index: ShaderSemanticsIndex) {
     return this.__classes[Math.abs(index) - (Math.abs(index) % this._scale)];
   }
 
-  static isNonArrayShaderSemanticIndex(index: Index) {
+  static isNonArrayShaderSemanticIndex(index: ShaderSemanticsIndex) {
     if (index >= this._scale) {
       return true;
     } else {
@@ -47,7 +47,7 @@ export class ShaderSemanticsClass
     }
   }
 
-  static isArrayAndZeroIndexShaderSemanticIndex(index: Index) {
+  static isArrayAndZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex) {
     if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale === 0) {
       return true;
     } else {
@@ -55,7 +55,9 @@ export class ShaderSemanticsClass
     }
   }
 
-  static isArrayAndNonZeroIndexShaderSemanticIndex(index: Index) {
+  static isArrayAndNonZeroIndexShaderSemanticIndex(
+    index: ShaderSemanticsIndex
+  ) {
     if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale !== 0) {
       return true;
     } else {
@@ -298,7 +300,7 @@ const typeList = [
   FramebufferWidth,
 ];
 
-function from(index: number): ShaderSemanticsEnum {
+function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
 }
 
@@ -328,22 +330,22 @@ type UpdateFunc = ({
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum;
   prefix?: string;
-  index?: Count;
-  maxIndex?: Count;
+  index?: Count; // index of an array type shader variable
+  maxIndex?: Count; // the array length of the array type shader variable
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   min: number;
   max: number;
   valueStep?: number;
   isSystem: boolean;
-  initialValue?: any;
+  initialValue?: any; // initial value
   updateInterval?: ShaderVariableUpdateIntervalEnum;
   stage: ShaderTypeEnum;
   xName?: string;
   yName?: string;
   zName?: string;
   wName?: string;
-  soloDatum?: boolean;
+  soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
   isComponentData?: boolean;
   noControlUi?: boolean;
   needUniformInFastest?: boolean;
