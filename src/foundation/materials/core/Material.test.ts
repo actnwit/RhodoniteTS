@@ -7,11 +7,11 @@ test('MaterialTID are processed correctly', () => {
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
   // 0st
-  Material.registerMaterial('MyMaterial0', []);
+  Material.registerMaterial('MyMaterial0', undefined);
   const material0 = Material.createMaterial('MyMaterial0')!;
 
   // 1st
-  Material.registerMaterial('MyMaterial1', []);
+  Material.registerMaterial('MyMaterial1', undefined);
   const material1a = Material.createMaterial('MyMaterial1')!;
   const material1b = Material.createMaterial('MyMaterial1')!;
 
