@@ -34,40 +34,37 @@ import CameraComponent from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
 import ShaderitySingleMaterialNode from '../materials/singles/ShaderitySingleMaterialNode';
-import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
+import {Is} from '../misc/Is';
 
 function createMaterial(
   materialName: string,
-  materialNodes?: AbstractMaterialNode[],
+  materialNode?: AbstractMaterialNode,
   maxInstancesNumber?: Count
 ): Material {
   const isRegisteredMaterialType =
     Material.isRegisteredMaterialType(materialName);
 
   if (!isRegisteredMaterialType) {
-    Material.registerMaterial(
-      materialName,
-      materialNodes!,
-      maxInstancesNumber!
-    );
+    Material.registerMaterial(materialName, materialNode, maxInstancesNumber!);
   }
 
-  const material = Material.createMaterial(materialName, materialNodes);
+  const material = Material.createMaterial(materialName, materialNode);
   return material;
 }
 
 function recreateMaterial(
   materialName: string,
-  materialNodes?: AbstractMaterialNode[],
+  materialNode?: AbstractMaterialNode,
   maxInstancesNumber?: Count
 ): Material {
   Material.forceRegisterMaterial(
     materialName,
-    materialNodes!,
+    materialNode!,
     maxInstancesNumber!
   );
 
-  const material = Material.createMaterial(materialName, materialNodes);
+  const material = Material.createMaterial(materialName, materialNode);
   return material;
 }
 
@@ -75,7 +72,7 @@ function createEmptyMaterial() {
   const materialName = 'Empty';
   const material = createMaterial(
     materialName,
-    [],
+    undefined,
     Config.maxMaterialInstanceForEachType
   );
   material.tryToSetUniqueName('EmptyMaterial', true);
@@ -117,7 +114,7 @@ function createPbrUberMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -147,7 +144,7 @@ function createSkinPbrUberMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -175,7 +172,7 @@ function createClassicUberMaterialOld({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -210,7 +207,7 @@ function createClassicUberMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -228,7 +225,7 @@ function createEnvConstantMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -245,7 +242,7 @@ function createFXAA3QualityMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -262,7 +259,7 @@ function createFurnaceTestMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -284,7 +281,7 @@ function createDepthEncodeMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -322,7 +319,7 @@ function createShadowMapDecodeClassicSingleMaterial(
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -340,7 +337,7 @@ function createGaussianBlurForEncodedDepthMaterial({
 
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -394,7 +391,7 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
   return material;
@@ -416,7 +413,7 @@ function createDetectHighLuminanceMaterial(
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
   return material;
@@ -432,7 +429,7 @@ function createGaussianBlurMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -460,7 +457,7 @@ function createSynthesizeHDRMaterial(
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -494,7 +491,7 @@ function createColorGradingUsingLUTsMaterial(
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -511,7 +508,7 @@ function createGammaCorrectionMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -538,7 +535,7 @@ function createMatCapMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -555,7 +552,7 @@ function createEntityUIDOutputMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -611,7 +608,7 @@ function createMToonMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
   materialNode.setMaterialParameters(material, isOutline);
@@ -635,7 +632,7 @@ function createPbrExtendedUberMaterial(maxInstancesNumber?: Count) {
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -683,7 +680,7 @@ function recreateCustomMaterial(
   materialNode.isSingleOperation = true;
   const material = recreateMaterial(
     materialName,
-    [materialNode],
+    materialNode,
     maxInstancesNumber
   );
 
@@ -708,7 +705,7 @@ function recreateShaderityMaterial(
   });
 
   materialNode.isSingleOperation = true;
-  const material = recreateMaterial(name, [materialNode], maxInstancesNumber);
+  const material = recreateMaterial(name, materialNode, maxInstancesNumber);
 
   return material;
 }

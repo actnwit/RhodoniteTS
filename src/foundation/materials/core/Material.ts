@@ -40,7 +40,7 @@ import GLSLShader from '../../../webgl/shaders/GLSLShader';
 import {AttributeNames} from '../../../webgl/main';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
 import {Primitive} from '../../geometry/Primitive';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -50,12 +50,13 @@ type ShaderVariable = {
 type MaterialUID = Index; // a unique number of any Material
 type MaterialSID = Index; // a serial number in the Material Type
 type MaterialTID = Index; // a type number of the Material Type
+
 /**
  * The material class.
  * This class has one or more material nodes.
  */
 export default class Material extends RnObject {
-  private __materialNodes: AbstractMaterialNode[] = [];
+  private __materialNode?: AbstractMaterialNode;
 
   private __fields: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
   private __fieldsForNonSystem: Map<ShaderSemanticsIndex, ShaderVariable> =
@@ -90,7 +91,7 @@ export default class Material extends RnObject {
   private static __materialUidCount = -1;
   private static __materialTypes: Map<
     MaterialTypeName,
-    AbstractMaterialNode[]
+    AbstractMaterialNode | undefined
   > = new Map();
   private static __maxInstances: Map<MaterialTypeName, MaterialSID> = new Map();
   private __materialTypeName: MaterialTypeName;
@@ -118,283 +119,17 @@ export default class Material extends RnObject {
   private constructor(
     materialTid: Index,
     materialTypeName: string,
-    materialNodes: AbstractMaterialNode[]
+    materialNode: AbstractMaterialNode
   ) {
     super();
-    this.__materialNodes = materialNodes;
+    this.__materialNode = materialNode;
     this.__materialTid = materialTid;
     this.__materialTypeName = materialTypeName;
 
-    this.initialize();
+    this.__initialize();
   }
 
-  get materialTypeName() {
-    return this.__materialTypeName;
-  }
-
-  public static getMaterialByMaterialUid(materialUid: MaterialSID) {
-    return this.__materialMap.get(materialUid);
-  }
-
-  /**
-   * @private
-   * @param primitive
-   */
-  _addBelongPrimitive(primitive: Primitive) {
-    this.__belongPrimitives.set(primitive.primitiveUid, primitive);
-  }
-
-  _belongPrimitives() {
-    return Array.from(this.__belongPrimitives.values());
-  }
-
-  /**
-   * Gets materialTID.
-   */
-  get materialTID() {
-    return this.__materialTid;
-  }
-
-  get fieldsInfoArray() {
-    return Array.from(this.__fieldsInfo.values());
-  }
-
-  /**
-   * Creates an instance of this Material class.
-   * @param materialTypeName The material type to create.
-   * @param materialNodes_ The material nodes to add to the created material.
-   */
-  static createMaterial(
-    materialTypeName: string,
-    materialNodes_?: AbstractMaterialNode[]
-  ) {
-    let materialNodes = materialNodes_;
-    if (!materialNodes) {
-      materialNodes = Material.__materialTypes.get(materialTypeName)!;
-    }
-
-    return new Material(
-      Material.__materialTids.get(materialTypeName)!,
-      materialTypeName,
-      materialNodes
-    );
-  }
-
-  static isRegisteredMaterialType(materialTypeName: string) {
-    return Material.__materialTypes.has(materialTypeName);
-  }
-
-  static _calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
-    const compositionNumber =
-      semanticInfo.compositionType.getNumberOfComponents();
-    const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
-    const semanticInfoByte = compositionNumber * componentSizeInByte;
-    let alignedByteLength = semanticInfoByte;
-    if (alignedByteLength % 16 !== 0) {
-      alignedByteLength = semanticInfoByte + 16 - (semanticInfoByte % 16);
-    }
-    if (CompositionType.isArray(semanticInfo.compositionType)) {
-      const maxArrayLength = semanticInfo.maxIndex;
-      if (maxArrayLength != null) {
-        alignedByteLength *= maxArrayLength;
-      } else {
-        console.error('semanticInfo has invalid maxIndex!');
-        alignedByteLength *= 100;
-      }
-    }
-    return alignedByteLength;
-  }
-
-  private static __allocateBufferView(
-    materialTypeName: string,
-    materialNodes: AbstractMaterialNode[]
-  ) {
-    let totalByteLength = 0;
-    const alignedByteLengthAndSemanticInfoArray = [];
-    for (const materialNode of materialNodes) {
-      for (const semanticInfo of materialNode._semanticsInfoArray) {
-        const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
-        let dataCount = 1;
-        if (!semanticInfo.soloDatum) {
-          dataCount = Material.__maxInstances.get(materialTypeName)!;
-        }
-
-        totalByteLength += alignedByteLength * dataCount;
-        alignedByteLengthAndSemanticInfoArray.push({
-          alignedByte: alignedByteLength,
-          semanticInfo: semanticInfo,
-        });
-      }
-    }
-
-    if (!this.__accessors.has(materialTypeName)) {
-      this.__accessors.set(materialTypeName, new Map());
-    }
-
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(
-      BufferUse.GPUInstanceData
-    );
-    let bufferView;
-    if (this.__bufferViews.has(materialTypeName)) {
-      bufferView = this.__bufferViews.get(materialTypeName);
-    } else {
-      bufferView = buffer.takeBufferView({
-        byteLengthToNeed: totalByteLength,
-        byteStride: 0,
-      });
-      this.__bufferViews.set(materialTypeName, bufferView);
-    }
-
-    for (let i = 0; i < alignedByteLengthAndSemanticInfoArray.length; i++) {
-      const alignedByte = alignedByteLengthAndSemanticInfoArray[i].alignedByte;
-      const semanticInfo =
-        alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
-
-      let count = 1;
-      if (!semanticInfo.soloDatum) {
-        count = Material.__maxInstances.get(materialTypeName)!;
-      }
-      let maxArrayLength = semanticInfo.maxIndex;
-      if (
-        CompositionType.isArray(semanticInfo.compositionType) &&
-        maxArrayLength == null
-      ) {
-        maxArrayLength = 100;
-      }
-      const accessor = bufferView!.takeAccessor({
-        compositionType: semanticInfo.compositionType,
-        componentType: ComponentType.Float,
-        count: count,
-        byteStride: alignedByte,
-        arrayLength: maxArrayLength,
-      });
-
-      const propertyIndex = this._getPropertyIndex(semanticInfo);
-      if (semanticInfo.soloDatum) {
-        const typedArray = accessor.takeOne() as Float32Array;
-        let map = this.__soloDatumFields.get(materialTypeName);
-        if (map == null) {
-          map = new Map();
-          this.__soloDatumFields.set(materialTypeName, map);
-        }
-
-        map.set(this._getPropertyIndex(semanticInfo), {
-          info: semanticInfo,
-          value: MathClassUtil.initWithFloat32Array(
-            semanticInfo.initialValue,
-            semanticInfo.initialValue,
-            typedArray,
-            semanticInfo.compositionType
-          ),
-        });
-      } else {
-        const properties = this.__accessors.get(materialTypeName)!;
-        properties.set(propertyIndex, accessor);
-      }
-    }
-
-    return bufferView;
-  }
-
-  /**
-   * Registers the material type.
-   * @param materialTypeName The type name of the material.
-   * @param materialNodes The material nodes to register.
-   * @param maxInstancesNumber The maximum number to create the material instances.
-   */
-  static registerMaterial(
-    materialTypeName: string,
-    materialNodes: AbstractMaterialNode[],
-    maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
-  ) {
-    if (!Material.__materialTypes.has(materialTypeName)) {
-      Material.__materialTypes.set(materialTypeName, materialNodes);
-
-      const materialTid = ++Material.__materialTidCount;
-      Material.__materialTids.set(materialTypeName, materialTid);
-      Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
-
-      Material.__allocateBufferView(materialTypeName, materialNodes);
-      Material.__materialInstanceCountOfType.set(materialTypeName, 0);
-
-      return true;
-    } else {
-      console.info(`${materialTypeName} is already registered.`);
-      return false;
-    }
-  }
-
-  static forceRegisterMaterial(
-    materialTypeName: string,
-    materialNodes: AbstractMaterialNode[],
-    maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
-  ) {
-    Material.__materialTypes.set(materialTypeName, materialNodes);
-
-    const materialTid = ++Material.__materialTidCount;
-    Material.__materialTids.set(materialTypeName, materialTid);
-    Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
-
-    Material.__allocateBufferView(materialTypeName, materialNodes);
-    Material.__materialInstanceCountOfType.set(materialTypeName, 0);
-
-    return true;
-  }
-
-  static getAllMaterials() {
-    return Array.from(Material.__materialMap.values());
-  }
-
-  setMaterialNodes(materialNodes: AbstractMaterialNode[]) {
-    this.__materialNodes = materialNodes;
-  }
-
-  get materialUID() {
-    return this.__materialUid;
-  }
-
-  get materialSID() {
-    return this.__materialSid;
-  }
-
-  get isSkinning() {
-    return this.__materialNodes[0].isSkinning;
-  }
-  get isMorphing() {
-    return this.__materialNodes[0].isMorphing;
-  }
-  get isLighting() {
-    return this.__materialNodes[0].isLighting;
-  }
-
-  /**
-   * @private
-   */
-  static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
-    let propertyIndex = semanticInfo.semantic.index;
-    if (semanticInfo.index != null) {
-      propertyIndex += semanticInfo.index;
-      propertyIndex *= -1;
-    }
-    return propertyIndex;
-  }
-
-  /**
-   * @private
-   */
-  static _getPropertyIndex2(
-    shaderSemantic: ShaderSemanticsEnum,
-    index?: Index
-  ) {
-    let propertyIndex = shaderSemantic.index;
-    if (index != null) {
-      propertyIndex += index;
-      propertyIndex *= -1;
-    }
-    return propertyIndex;
-  }
-
-  initialize() {
+  private __initialize() {
     this.__materialUid = ++Material.__materialUidCount;
     Material.__materialMap.set(this.__materialUid, this);
     Material.__instancesByTypes.set(this.__materialTypeName, this);
@@ -414,8 +149,8 @@ export default class Material extends RnObject {
       countOfThisType
     );
 
-    this.__materialNodes.forEach(materialNode => {
-      const semanticsInfoArray = materialNode._semanticsInfoArray;
+    if (Is.exist(this.__materialNode)) {
+      const semanticsInfoArray = this.__materialNode._semanticsInfoArray;
       const accessorMap = Material.__accessors.get(this.__materialTypeName);
       semanticsInfoArray.forEach(semanticsInfo => {
         const propertyIndex = Material._getPropertyIndex(semanticsInfo);
@@ -438,8 +173,21 @@ export default class Material extends RnObject {
           }
         }
       });
-    });
+    }
   }
+
+  /**
+   * @private
+   * called from Primitive class only
+   * @param primitive
+   */
+  _addBelongPrimitive(primitive: Primitive) {
+    this.__belongPrimitives.set(primitive.primitiveUid, primitive);
+  }
+
+  // _belongPrimitives() {
+  //   return Array.from(this.__belongPrimitives.values());
+  // }
 
   // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
   //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
@@ -455,22 +203,6 @@ export default class Material extends RnObject {
     if (targetShaderSemantics != null) {
       this.setTextureParameter(targetShaderSemantics, value);
     }
-  }
-
-  private __getTargetShaderSemantics(uniformName: string) {
-    const targetFieldsInfo = this.fieldsInfoArray.find(fieldsInfo => {
-      const prefix = fieldsInfo.none_u_prefix ? '' : 'u_';
-      return prefix + fieldsInfo.semantic.str === uniformName;
-    });
-
-    if (targetFieldsInfo == null) {
-      console.error(
-        `Material.__getTargetShaderSemantics: uniform ${uniformName} is not found`
-      );
-      return;
-    }
-
-    return targetFieldsInfo.semantic;
   }
 
   setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
@@ -534,10 +266,10 @@ export default class Material extends RnObject {
       CGAPIResourceRepository.getWebGLResourceRepository();
 
     let array: ShaderSemanticsInfo[] = [];
-    this.__materialNodes.forEach(materialNode => {
-      const semanticsInfoArray = materialNode._semanticsInfoArray;
+    if (Is.exist(this.__materialNode)) {
+      const semanticsInfoArray = this.__materialNode._semanticsInfoArray;
       array = array.concat(semanticsInfoArray);
-    });
+    }
 
     webglResourceRepository.setupUniformLocations(
       this._shaderProgramUid,
@@ -570,16 +302,16 @@ export default class Material extends RnObject {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    this.__materialNodes.forEach(materialNode => {
-      if (materialNode.setParametersForGPU) {
-        materialNode.setParametersForGPU({
+    if (Is.exist(this.__materialNode)) {
+      if (Is.exist(this.__materialNode.setParametersForGPU)) {
+        this.__materialNode.setParametersForGPU({
           material,
           shaderProgram,
           firstTime,
           args,
         });
       }
-    });
+    }
 
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
@@ -725,7 +457,7 @@ export default class Material extends RnObject {
   ): CGAPIResourceHandle {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
-    const materialNode = this.__materialNodes[0];
+    const materialNode = this.__materialNode!;
     const glslShader = materialNode.shader;
 
     const {vertexPropertiesStr, pixelPropertiesStr} = this._getProperties(
@@ -794,7 +526,7 @@ export default class Material extends RnObject {
   createProgramAsSingleOperationByUpdatedSources(
     updatedShaderSources: ShaderSources
   ) {
-    const materialNode = this.__materialNodes[0];
+    const materialNode = this.__materialNode!;
     const glslShader = materialNode.shader;
     const {attributeNames, attributeSemantics} = this.__getAttributeInfo(
       materialNode,
@@ -918,6 +650,22 @@ export default class Material extends RnObject {
     return {vertexPropertiesStr, pixelPropertiesStr};
   }
 
+  private __getTargetShaderSemantics(uniformName: string) {
+    const targetFieldsInfo = this.fieldsInfoArray.find(fieldsInfo => {
+      const prefix = fieldsInfo.none_u_prefix ? '' : 'u_';
+      return prefix + fieldsInfo.semantic.str === uniformName;
+    });
+
+    if (targetFieldsInfo == null) {
+      console.error(
+        `Material.__getTargetShaderSemantics: uniform ${uniformName} is not found`
+      );
+      return;
+    }
+
+    return targetFieldsInfo.semantic;
+  }
+
   createProgram(
     vertexShaderMethodDefinitions_uniform: string,
     propertySetter: getShaderPropertyFunc,
@@ -943,58 +691,6 @@ export default class Material extends RnObject {
     }
 
     return programUid;
-  }
-
-  isBlend() {
-    if (
-      this.alphaMode === AlphaMode.Translucent ||
-      this.alphaMode === AlphaMode.Additive
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static getLocationOffsetOfMemberOfMaterial(
-    materialTypeName: string,
-    propertyIndex: Index
-  ): IndexOf16Bytes {
-    const material = Material.__instancesByTypes.get(materialTypeName)!;
-    const info = material.__fieldsInfo.get(propertyIndex)!;
-    if (info.soloDatum) {
-      const value = Material.__soloDatumFields
-        .get(material.__materialTypeName)!
-        .get(propertyIndex);
-      return (value!.value._v as Float32Array).byteOffset / 4 / 4;
-    } else {
-      const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(propertyIndex);
-      return accessor!.byteOffsetInBuffer / 4 / 4;
-    }
-  }
-
-  static getAccessorOfMemberOfMaterial(
-    materialTypeName: string,
-    propertyIndex: Index
-  ): Accessor | undefined {
-    const material = Material.__instancesByTypes.get(materialTypeName)!;
-    const info = material.__fieldsInfo.get(propertyIndex)!;
-    if (info.soloDatum) {
-      return void 0;
-    } else {
-      const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(propertyIndex);
-      return accessor;
-    }
-  }
-
-  get alphaMode() {
-    return this.__alphaMode;
-  }
-
-  set alphaMode(mode: AlphaModeEnum) {
-    this.__alphaMode = mode;
   }
 
   /**
@@ -1038,6 +734,91 @@ export default class Material extends RnObject {
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
   }
 
+  setupBasicUniformsLocations() {
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
+  }
+
+  ////////////////
+  /// Setters
+  ////////////////
+
+  setupAdditionalUniformLocations(
+    shaderSemantics: ShaderSemanticsInfo[],
+    isUniformOnlyMode: boolean
+  ) {
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    return webglResourceRepository.setupUniformLocations(
+      this._shaderProgramUid,
+      shaderSemantics,
+      isUniformOnlyMode
+    );
+  }
+
+  // setMaterialNode(materialNode: AbstractMaterialNode) {
+  //   this.__materialNode = materialNode;
+  // }
+
+  ///
+  /// Getters
+  ///
+
+  isEmptyMaterial(): boolean {
+    if (Is.not.exist(this.__materialNode)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isBlend() {
+    if (
+      this.alphaMode === AlphaMode.Translucent ||
+      this.alphaMode === AlphaMode.Additive
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  getShaderSemanticInfoFromName(name: string) {
+    if (Is.exist(this.__materialNode)) {
+      return this.__materialNode.getShaderSemanticInfoFromName(name);
+    }
+    return undefined;
+  }
+  /**
+   * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
+   * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.
+   * So we need to improve the shader to use the alphaToCoverage.
+   * @param alphaToCoverage apply alphaToCoverage to this material or not
+   */
+  set alphaToCoverage(alphaToCoverage: boolean) {
+    if (alphaToCoverage && this.alphaMode === AlphaMode.Translucent) {
+      console.warn(
+        'If you set alphaToCoverage = true on a material whose AlphaMode is Translucent, you may get drawing problems.'
+      );
+    }
+    this.__alphaToCoverage = alphaToCoverage;
+  }
+  get alphaToCoverage() {
+    return this.__alphaToCoverage;
+  }
+
+  /**
+   * Gets materialTID.
+   */
+  get materialTID() {
+    return this.__materialTid;
+  }
+
+  get fieldsInfoArray() {
+    return Array.from(this.__fieldsInfo.values());
+  }
+
   get blendEquationMode() {
     return this.__blendEquationMode;
   }
@@ -1062,55 +843,285 @@ export default class Material extends RnObject {
     return this.__blendFuncAlphaDstFactor;
   }
 
-  isEmptyMaterial(): boolean {
-    if (this.__materialNodes.length === 0) {
+  get alphaMode() {
+    return this.__alphaMode;
+  }
+
+  set alphaMode(mode: AlphaModeEnum) {
+    this.__alphaMode = mode;
+  }
+
+  get materialUID() {
+    return this.__materialUid;
+  }
+
+  get materialSID() {
+    return this.__materialSid;
+  }
+
+  get isSkinning() {
+    return this.__materialNode!.isSkinning;
+  }
+
+  get isMorphing() {
+    return this.__materialNode!.isMorphing;
+  }
+
+  get isLighting() {
+    return this.__materialNode!.isLighting;
+  }
+
+  get materialTypeName() {
+    return this.__materialTypeName;
+  }
+
+  /**
+   * Creates an instance of this Material class.
+   * @param materialTypeName The material type to create.
+   * @param materialNodes_ The material nodes to add to the created material.
+   */
+  static createMaterial(
+    materialTypeName: string,
+    materialNode_?: AbstractMaterialNode
+  ) {
+    let materialNode = materialNode_;
+    if (!materialNode) {
+      materialNode = Material.__materialTypes.get(materialTypeName)!;
+    }
+
+    return new Material(
+      Material.__materialTids.get(materialTypeName)!,
+      materialTypeName,
+      materialNode
+    );
+  }
+
+  static getLocationOffsetOfMemberOfMaterial(
+    materialTypeName: string,
+    propertyIndex: Index
+  ): IndexOf16Bytes {
+    const material = Material.__instancesByTypes.get(materialTypeName)!;
+    const info = material.__fieldsInfo.get(propertyIndex)!;
+    if (info.soloDatum) {
+      const value = Material.__soloDatumFields
+        .get(material.__materialTypeName)!
+        .get(propertyIndex);
+      return (value!.value._v as Float32Array).byteOffset / 4 / 4;
+    } else {
+      const properties = this.__accessors.get(materialTypeName);
+      const accessor = properties!.get(propertyIndex);
+      return accessor!.byteOffsetInBuffer / 4 / 4;
+    }
+  }
+
+  static getAccessorOfMemberOfMaterial(
+    materialTypeName: string,
+    propertyIndex: Index
+  ): Accessor | undefined {
+    const material = Material.__instancesByTypes.get(materialTypeName)!;
+    const info = material.__fieldsInfo.get(propertyIndex)!;
+    if (info.soloDatum) {
+      return void 0;
+    } else {
+      const properties = this.__accessors.get(materialTypeName);
+      const accessor = properties!.get(propertyIndex);
+      return accessor;
+    }
+  }
+
+  static isRegisteredMaterialType(materialTypeName: string) {
+    return Material.__materialTypes.has(materialTypeName);
+  }
+
+  static _calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
+    const compositionNumber =
+      semanticInfo.compositionType.getNumberOfComponents();
+    const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
+    const semanticInfoByte = compositionNumber * componentSizeInByte;
+    let alignedByteLength = semanticInfoByte;
+    if (alignedByteLength % 16 !== 0) {
+      alignedByteLength = semanticInfoByte + 16 - (semanticInfoByte % 16);
+    }
+    if (CompositionType.isArray(semanticInfo.compositionType)) {
+      const maxArrayLength = semanticInfo.maxIndex;
+      if (maxArrayLength != null) {
+        alignedByteLength *= maxArrayLength;
+      } else {
+        console.error('semanticInfo has invalid maxIndex!');
+        alignedByteLength *= 100;
+      }
+    }
+    return alignedByteLength;
+  }
+
+  public static getMaterialByMaterialUid(materialUid: MaterialSID) {
+    return this.__materialMap.get(materialUid);
+  }
+
+  private static __allocateBufferView(
+    materialTypeName: string,
+    materialNode: AbstractMaterialNode
+  ) {
+    let totalByteLength = 0;
+    const alignedByteLengthAndSemanticInfoArray = [];
+    for (const semanticInfo of materialNode._semanticsInfoArray) {
+      const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
+      let dataCount = 1;
+      if (!semanticInfo.soloDatum) {
+        dataCount = Material.__maxInstances.get(materialTypeName)!;
+      }
+
+      totalByteLength += alignedByteLength * dataCount;
+      alignedByteLengthAndSemanticInfoArray.push({
+        alignedByte: alignedByteLength,
+        semanticInfo: semanticInfo,
+      });
+    }
+
+    if (!this.__accessors.has(materialTypeName)) {
+      this.__accessors.set(materialTypeName, new Map());
+    }
+
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(
+      BufferUse.GPUInstanceData
+    );
+    let bufferView;
+    if (this.__bufferViews.has(materialTypeName)) {
+      bufferView = this.__bufferViews.get(materialTypeName);
+    } else {
+      bufferView = buffer.takeBufferView({
+        byteLengthToNeed: totalByteLength,
+        byteStride: 0,
+      });
+      this.__bufferViews.set(materialTypeName, bufferView);
+    }
+
+    for (let i = 0; i < alignedByteLengthAndSemanticInfoArray.length; i++) {
+      const alignedByte = alignedByteLengthAndSemanticInfoArray[i].alignedByte;
+      const semanticInfo =
+        alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
+
+      let count = 1;
+      if (!semanticInfo.soloDatum) {
+        count = Material.__maxInstances.get(materialTypeName)!;
+      }
+      let maxArrayLength = semanticInfo.maxIndex;
+      if (
+        CompositionType.isArray(semanticInfo.compositionType) &&
+        maxArrayLength == null
+      ) {
+        maxArrayLength = 100;
+      }
+      const accessor = bufferView!.takeAccessor({
+        compositionType: semanticInfo.compositionType,
+        componentType: ComponentType.Float,
+        count: count,
+        byteStride: alignedByte,
+        arrayLength: maxArrayLength,
+      });
+
+      const propertyIndex = this._getPropertyIndex(semanticInfo);
+      if (semanticInfo.soloDatum) {
+        const typedArray = accessor.takeOne() as Float32Array;
+        let map = this.__soloDatumFields.get(materialTypeName);
+        if (map == null) {
+          map = new Map();
+          this.__soloDatumFields.set(materialTypeName, map);
+        }
+
+        map.set(this._getPropertyIndex(semanticInfo), {
+          info: semanticInfo,
+          value: MathClassUtil.initWithFloat32Array(
+            semanticInfo.initialValue,
+            semanticInfo.initialValue,
+            typedArray,
+            semanticInfo.compositionType
+          ),
+        });
+      } else {
+        const properties = this.__accessors.get(materialTypeName)!;
+        properties.set(propertyIndex, accessor);
+      }
+    }
+
+    return bufferView;
+  }
+
+  /**
+   * Registers the material type.
+   * @param materialTypeName The type name of the material.
+   * @param materialNodes The material nodes to register.
+   * @param maxInstancesNumber The maximum number to create the material instances.
+   */
+  static registerMaterial(
+    materialTypeName: string,
+    materialNode?: AbstractMaterialNode,
+    maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
+  ) {
+    if (!Material.__materialTypes.has(materialTypeName)) {
+      Material.__materialTypes.set(materialTypeName, materialNode);
+
+      const materialTid = ++Material.__materialTidCount;
+      Material.__materialTids.set(materialTypeName, materialTid);
+      Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
+
+      if (Is.exist(materialNode)) {
+        Material.__allocateBufferView(materialTypeName, materialNode);
+      }
+      Material.__materialInstanceCountOfType.set(materialTypeName, 0);
+
       return true;
     } else {
+      console.info(`${materialTypeName} is already registered.`);
       return false;
     }
   }
 
-  getShaderSemanticInfoFromName(name: string) {
-    for (const materialNode of this.__materialNodes) {
-      return materialNode.getShaderSemanticInfoFromName(name);
-    }
-    return void 0;
-  }
-
-  setupAdditionalUniformLocations(
-    shaderSemantics: ShaderSemanticsInfo[],
-    isUniformOnlyMode: boolean
+  static forceRegisterMaterial(
+    materialTypeName: string,
+    materialNode: AbstractMaterialNode,
+    maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
   ) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    return webglResourceRepository.setupUniformLocations(
-      this._shaderProgramUid,
-      shaderSemantics,
-      isUniformOnlyMode
-    );
+    Material.__materialTypes.set(materialTypeName, materialNode);
+
+    const materialTid = ++Material.__materialTidCount;
+    Material.__materialTids.set(materialTypeName, materialTid);
+    Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
+
+    Material.__allocateBufferView(materialTypeName, materialNode);
+    Material.__materialInstanceCountOfType.set(materialTypeName, 0);
+
+    return true;
   }
 
-  setupBasicUniformsLocations() {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
+  static getAllMaterials() {
+    return Array.from(Material.__materialMap.values());
   }
 
   /**
-   * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
-   * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.
-   * So we need to improve the shader to use the alphaToCoverage.
-   * @param alphaToCoverage apply alphaToCoverage to this material or not
+   * @private
    */
-  set alphaToCoverage(alphaToCoverage: boolean) {
-    if (alphaToCoverage && this.alphaMode === AlphaMode.Translucent) {
-      console.warn(
-        'If you set alphaToCoverage = true on a material whose AlphaMode is Translucent, you may get drawing problems.'
-      );
+  static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
+    let propertyIndex = semanticInfo.semantic.index;
+    if (semanticInfo.index != null) {
+      propertyIndex += semanticInfo.index;
+      propertyIndex *= -1;
     }
-    this.__alphaToCoverage = alphaToCoverage;
+    return propertyIndex;
   }
-  get alphaToCoverage() {
-    return this.__alphaToCoverage;
+
+  /**
+   * @private
+   */
+  static _getPropertyIndex2(
+    shaderSemantic: ShaderSemanticsEnum,
+    index?: Index
+  ) {
+    let propertyIndex = shaderSemantic.index;
+    if (index != null) {
+      propertyIndex += index;
+      propertyIndex *= -1;
+    }
+    return propertyIndex;
   }
 }

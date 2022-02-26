@@ -18,9 +18,7 @@ import MeshRendererComponent from '../foundation/components/MeshRenderer/MeshRen
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import Material from '../foundation/materials/core/Material';
 import RenderPass from '../foundation/renderer/RenderPass';
-import {
-  ShaderVariableUpdateInterval,
-} from '../foundation/definitions/ShaderVariableUpdateInterval';
+import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Mesh from '../foundation/geometry/Mesh';
 import MemoryManager from '../foundation/core/MemoryManager';
 import {ShaderType} from '../foundation/definitions/ShaderType';
@@ -35,8 +33,8 @@ import Buffer from '../foundation/memory/Buffer';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import {Is, Is as is} from '../foundation/misc/Is';
-import { IMeshEntity } from '../foundation/helpers/EntityHelper';
+import {Is} from '../foundation/misc/Is';
+import {IMeshEntity} from '../foundation/helpers/EntityHelper';
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
@@ -220,7 +218,7 @@ mat3 get_normalMatrix(float instanceId) {
 
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
-    if (!is.exist(mesh)) {
+    if (!Is.exist(mesh)) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }

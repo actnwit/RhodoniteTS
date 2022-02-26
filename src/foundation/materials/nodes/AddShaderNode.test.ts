@@ -9,7 +9,7 @@ test('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
-  Material.registerMaterial('MyMaterial', []);
+  // Material.registerMaterial('MyMaterial', undefined);
   const material = Material.createMaterial('MyMaterial')!;
 
   const a_position = new AttributePositionShaderNode();
