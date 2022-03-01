@@ -1,17 +1,17 @@
-import { Vector3 } from '../../math/Vector3';
-import { Quaternion } from '../../math/Quaternion';
-import { Matrix44 } from '../../math/Matrix44';
-import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
+import {Vector3} from '../../math/Vector3';
+import {Quaternion} from '../../math/Quaternion';
+import {Matrix44} from '../../math/Matrix44';
+import {Component} from '../../core/Component';
+import {ComponentRepository} from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableQuaternion } from '../../math/MutableQuaternion';
+import {MutableMatrix44} from '../../math/MutableMatrix44';
+import {MutableQuaternion} from '../../math/MutableQuaternion';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import { MutableMatrix33 } from '../../math/MutableMatrix33';
-import { MutableVector3 } from '../../math/MutableVector3';
+import {MutableMatrix33} from '../../math/MutableMatrix33';
+import {MutableVector3} from '../../math/MutableVector3';
 import {
   ComponentTID,
   ComponentSID,
@@ -21,11 +21,9 @@ import {
 import {IQuaternion} from '../../math/IQuaternion';
 import {IMatrix44} from '../../math/IMatrix';
 import {IVector3} from '../../math/IVector';
-import {ISceneGraphEntity, ISkeletalEntity, ITransformEntity} from '../../helpers/EntityHelper';
-import {MixinBase} from '../../../types/TypeGenerators';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
-import { SkeletalComponent } from '../Skeletal/SkeletalComponent';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
+import {ITransformEntity} from '../../helpers';
 
 // import AnimationComponent from './AnimationComponent';
 

@@ -201,7 +201,7 @@ mat3 get_normalMatrix(float instanceId) {
 
     material._setupBasicUniformsLocations();
 
-    material.setUniformLocationsOfMaterialNodes(true);
+    material._setUniformLocationsOfMaterialNodes(true);
 
     const shaderSemanticsInfos = this.componentMatrices;
     const shaderSemanticsInfosPointSprite =

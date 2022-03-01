@@ -205,7 +205,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
 
     material._setupBasicUniformsLocations();
 
-    material.setUniformLocationsOfMaterialNodes(false);
+    material._setUniformLocationsOfMaterialNodes(false);
 
     material._setupAdditionalUniformLocations(
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),

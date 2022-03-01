@@ -35,17 +35,17 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import {WebGLContextWrapper} from '../../../webgl/WebGLContextWrapper';
 import {ShaderityUtility} from './ShaderityUtility';
 import {Is} from '../../misc/Is';
+import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
+import {ShaderSources} from '../../../webgl/WebGLStrategy';
+import {Primitive} from '../../geometry/Primitive';
+import {AttributeNames, RenderingArg} from '../../../webgl/types/CommonTypes';
 import {
   GL_FUNC_ADD,
   GL_ONE,
   GL_ONE_MINUS_SRC_ALPHA,
   GL_SRC_ALPHA,
-  VertexAttributeEnum,
-} from '../../..';
-import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
-import {ShaderSources} from '../../../webgl/WebGLStrategy';
-import {Primitive} from '../../geometry/Primitive';
-import {AttributeNames, RenderingArg} from '../../../webgl/types/CommonTypes';
+} from '../../../types';
+import {VertexAttributeEnum} from '../../definitions';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -139,19 +139,26 @@ export class Material extends RnObject {
    */
   private __initialize() {
     this.__materialUid = ++Material.__materialUidCount;
+
     Material.__materialMap.set(this.__materialUid, this);
     Material.__instancesByTypes.set(this.__materialTypeName, this);
+
     this.tryToSetUniqueName(this.__materialTypeName, true);
+
     let countOfThisType = Material.__materialInstanceCountOfType.get(
       this.__materialTypeName
     ) as number;
     this.__materialSid = countOfThisType++;
+
+    // set this material instance for the material type
     let map = Material.__instances.get(this.__materialTypeName);
     if (Is.not.exist(map)) {
       map = new Map();
       Material.__instances.set(this.__materialTypeName, map);
     }
     map.set(this.__materialSid, this);
+
+    // set the count of instance for the material type
     Material.__materialInstanceCountOfType.set(
       this.__materialTypeName,
       countOfThisType
@@ -308,7 +315,12 @@ export class Material extends RnObject {
     return void 0;
   }
 
-  setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
+  /**
+   * @private
+   * called from WebGLStrategyFastest and WebGLStrategyUnfirom only
+   * @param isUniformOnlyMode
+   */
+  _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
 
@@ -848,12 +860,12 @@ export class Material extends RnObject {
     }
   }
 
-  getShaderSemanticInfoFromName(name: string) {
-    if (Is.exist(this.__materialNode)) {
-      return this.__materialNode.getShaderSemanticInfoFromName(name);
-    }
-    return undefined;
-  }
+  // getShaderSemanticInfoFromName(name: string) {
+  //   if (Is.exist(this.__materialNode)) {
+  //     return this.__materialNode.getShaderSemanticInfoFromName(name);
+  //   }
+  //   return undefined;
+  // }
 
   /**
    * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
@@ -979,20 +991,20 @@ export class Material extends RnObject {
     }
   }
 
-  static getAccessorOfMemberOfMaterial(
-    materialTypeName: string,
-    propertyIndex: Index
-  ): Accessor | undefined {
-    const material = Material.__instancesByTypes.get(materialTypeName)!;
-    const info = material.__fieldsInfo.get(propertyIndex)!;
-    if (info.soloDatum) {
-      return void 0;
-    } else {
-      const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(propertyIndex);
-      return accessor;
-    }
-  }
+  // static getAccessorOfMemberOfMaterial(
+  //   materialTypeName: string,
+  //   propertyIndex: Index
+  // ): Accessor | undefined {
+  //   const material = Material.__instancesByTypes.get(materialTypeName)!;
+  //   const info = material.__fieldsInfo.get(propertyIndex)!;
+  //   if (info.soloDatum) {
+  //     return void 0;
+  //   } else {
+  //     const properties = this.__accessors.get(materialTypeName);
+  //     const accessor = properties!.get(propertyIndex);
+  //     return accessor;
+  //   }
+  // }
 
   static isRegisteredMaterialType(materialTypeName: string) {
     return Material.__materialTypes.has(materialTypeName);
