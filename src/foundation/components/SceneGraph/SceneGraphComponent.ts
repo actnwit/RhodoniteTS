@@ -29,6 +29,11 @@ import {
 } from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import {
+  RaycastResult,
+  RaycastResultEx,
+} from '../../geometry/types/GeometryTypes';
+import { posix } from 'path';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -394,7 +399,7 @@ export default class SceneGraphComponent extends Component {
     directionInWorld: Vector3,
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []
-  ) {
+  ): RaycastResultEx {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(
       this,
       false
@@ -408,8 +413,8 @@ export default class SceneGraphComponent extends Component {
     }
 
     let rayDistance = Number.MAX_VALUE;
-    let intersectedPosition = null;
-    let selectedMeshComponent = null;
+    let intersectedPosition = undefined;
+    let selectedMeshComponent = undefined;
     for (const meshComponent of meshComponents) {
       if (!meshComponent.entity.getSceneGraph()!.isVisible) {
         continue;
@@ -420,23 +425,32 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      const {t, intersectedPositionInWorld} = meshComponent.castRay(
+      const result = meshComponent.castRay(
         srcPointInWorld,
         directionInWorld,
         dotThreshold
       );
-      if (t < rayDistance) {
-        rayDistance = t;
-        intersectedPosition = intersectedPositionInWorld;
+      if (Is.defined(result.data) && result.data.t < rayDistance) {
+        rayDistance = result.data.t;
+        intersectedPosition = result.data.position;
         selectedMeshComponent = meshComponent;
       }
     }
 
-    if (rayDistance === Number.MAX_VALUE) {
-      rayDistance = -1;
+    if (Is.exist(selectedMeshComponent) && Is.exist(intersectedPosition)) {
+      return {
+        result: true,
+        data: {
+          t: rayDistance,
+          position: intersectedPosition,
+          selectedMeshComponent,
+        },
+      };
+    } else {
+      return {
+        result: false,
+      };
     }
-
-    return {intersectedPosition, rayDistance, selectedMeshComponent};
   }
 
   /**
@@ -457,7 +471,7 @@ export default class SceneGraphComponent extends Component {
     viewport: Vector4,
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []
-  ) {
+  ): RaycastResultEx {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(
       this,
       false
@@ -471,8 +485,8 @@ export default class SceneGraphComponent extends Component {
     }
 
     let rayDistance = Number.MAX_VALUE;
-    let intersectedPosition = null;
-    let selectedMeshComponent = null;
+    let intersectedPosition = undefined;
+    let selectedMeshComponent = undefined;
     for (const meshComponent of meshComponents) {
       if (!meshComponent.entity.getSceneGraph().isVisible) {
         continue;
@@ -483,25 +497,34 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      const {t, intersectedPositionInWorld} = meshComponent.castRayFromScreen(
+      const result = meshComponent.castRayFromScreen(
         x,
         y,
         camera,
         viewport,
         dotThreshold
       );
-      if (t < rayDistance) {
-        rayDistance = t;
-        intersectedPosition = intersectedPositionInWorld;
+      if (Is.defined(result.data) && result.data.t < rayDistance) {
+        rayDistance = result.data.t;
+        intersectedPosition = result.data.position;
         selectedMeshComponent = meshComponent;
       }
     }
 
-    if (rayDistance === Number.MAX_VALUE) {
-      rayDistance = -1;
+    if (Is.exist(selectedMeshComponent) && Is.exist(intersectedPosition)) {
+      return {
+        result: true,
+        data: {
+          t: rayDistance,
+          position: intersectedPosition,
+          selectedMeshComponent,
+        },
+      };
+    } else {
+      return {
+        result: false,
+      };
     }
-
-    return {intersectedPosition, rayDistance, selectedMeshComponent};
   }
 
   $create() {

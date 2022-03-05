@@ -23,6 +23,7 @@ import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
+import {RaycastResult} from './types/GeometryTypes';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -454,16 +455,26 @@ export class Primitive extends RnObject {
     isBackFacePickable: boolean,
     dotThreshold: number,
     hasFaceNormal: boolean
-  ) {
+  ): RaycastResult {
     let currentShortestT = Number.MAX_VALUE;
-    let currentShortestIntersectedPosVec3 = null;
+    let currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
+      Number.MAX_VALUE,
+      Number.MAX_VALUE,
+      Number.MAX_VALUE
+    );
 
     let incrementNum = 3; // gl.TRIANGLES
     if (this.__mode === PrimitiveMode.TriangleStrip) {
       // gl.TRIANGLE_STRIP
       incrementNum = 1;
     } else if (this.__mode === PrimitiveMode.Points) {
-      return {currentShortestIntersectedPosVec3, currentShortestT};
+      return {
+        result: true,
+        data: {
+          t: currentShortestT,
+          position: currentShortestIntersectedPosVec3!,
+        },
+      };
     }
 
     if (this.hasIndices()) {
@@ -489,13 +500,13 @@ export class Primitive extends RnObject {
           dotThreshold,
           hasFaceNormal
         );
-        if (result === null) {
+        if (Is.false(result) || Is.not.exist(result.data)) {
           continue;
-        }
-        const t = result[0];
-        if (result[0] < currentShortestT) {
-          currentShortestT = t;
-          currentShortestIntersectedPosVec3 = result[1];
+        } else {
+          if (result.data.t < currentShortestT) {
+            currentShortestT = result.data.t;
+            currentShortestIntersectedPosVec3 = result.data.position;
+          }
         }
       }
     } else {
@@ -523,17 +534,23 @@ export class Primitive extends RnObject {
           hasFaceNormal
         );
 
-        if (Is.exist(result)) {
-          const t = result[0];
-          if (result[0] < currentShortestT) {
+        if (result.result && Is.defined(result.data)) {
+          const t = result.data.t;
+          if (t < currentShortestT) {
             currentShortestT = t;
-            currentShortestIntersectedPosVec3 = result[1];
+            currentShortestIntersectedPosVec3 = result.data.position;
           }
         }
       }
     }
 
-    return {currentShortestIntersectedPosVec3, currentShortestT};
+    return {
+      result: true,
+      data: {
+        t: currentShortestT,
+        position: currentShortestIntersectedPosVec3,
+      },
+    };
   }
 
   private __castRayInner(
@@ -547,9 +564,11 @@ export class Primitive extends RnObject {
     isBackFacePickable: boolean,
     dotThreshold: number,
     hasFaceNormal: boolean
-  ): any[] | null {
+  ): RaycastResult {
     if (!this.__arenberg3rdPosition[i]) {
-      return null;
+      return {
+        result: false,
+      };
     }
 
     if (hasFaceNormal) {
@@ -557,10 +576,14 @@ export class Primitive extends RnObject {
       if (normalAccessor) {
         const normal = normalAccessor.getVec3(i, {});
         if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
-          return null;
+          return {
+            result: false,
+          };
         }
         if (normal.dot(dirVec3) > -dotThreshold && !isBackFacePickable) {
-          return null;
+          return {
+            result: false,
+          };
         }
       }
     }
@@ -572,19 +595,25 @@ export class Primitive extends RnObject {
       this.__inverseArenbergMatrix[i].multiplyVector(dirVec3);
 
     if (convertedDirVec3.z >= -1e-6 && convertedDirVec3.z <= 1e-6) {
-      return null;
+      return {
+        result: false,
+      };
     }
 
     const t = -convertedOrigVec3.z / convertedDirVec3.z;
 
     if (t <= 1e-5) {
-      return null;
+      return {
+        result: false,
+      };
     }
 
     const u = convertedOrigVec3.x + t * convertedDirVec3.x;
     const v = convertedOrigVec3.y + t * convertedDirVec3.y;
     if (u < 0.0 || v < 0.0 || u + v > 1.0) {
-      return null;
+      return {
+        result: false,
+      };
     }
 
     const fDat = 1.0 - u - v;
@@ -604,7 +633,13 @@ export class Primitive extends RnObject {
       .add(pos1)
       .add(pos2);
 
-    return [t, intersectedPosVec3];
+    return {
+      result: true,
+      data: {
+        t,
+        position: intersectedPosVec3,
+      },
+    };
   }
 
   _calcArenbergInverseMatrices() {

@@ -14,8 +14,9 @@ import Entity from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
 import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
-import {Is as is} from '../misc/Is';
+import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
+import { RaycastResult } from './types/GeometryTypes';
 
 /**
  * The Mesh class.
@@ -385,33 +386,37 @@ export default class Mesh {
     srcPointInLocal: IVector3,
     directionInLocal: IVector3,
     dotThreshold = 0
-  ) {
-    let finalShortestIntersectedPosVec3: Vector3 | undefined;
+  ): RaycastResult {
+    let finalShortestIntersectedPosVec3: IVector3 | undefined;
     let finalShortestT = Number.MAX_VALUE;
     for (const primitive of this.__primitives) {
-      const {currentShortestIntersectedPosVec3, currentShortestT} =
-        primitive.castRay(
-          srcPointInLocal,
-          directionInLocal,
-          true,
-          true,
-          dotThreshold,
-          this.__hasFaceNormal
-        );
-      if (currentShortestT != null && currentShortestT < finalShortestT) {
-        finalShortestT = currentShortestT;
-        finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;
+      const result = primitive.castRay(
+        srcPointInLocal,
+        directionInLocal,
+        true,
+        true,
+        dotThreshold,
+        this.__hasFaceNormal
+      );
+      if (Is.defined(result.data) && result.data?.t < finalShortestT) {
+        finalShortestT = result.data.t;
+        finalShortestIntersectedPosVec3 = result.data.position!;
       }
     }
 
-    if (finalShortestT === Number.MAX_VALUE) {
-      finalShortestT === -1;
+    if (Is.defined(finalShortestIntersectedPosVec3)) {
+      return {
+        result: true,
+        data: {
+          t: finalShortestT,
+          position: finalShortestIntersectedPosVec3,
+        },
+      };
+    } else {
+      return {
+        result: false,
+      };
     }
-
-    return {
-      t: finalShortestT,
-      intersectedPosition: finalShortestIntersectedPosVec3,
-    };
   }
 
   ///
