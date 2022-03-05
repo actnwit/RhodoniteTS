@@ -493,6 +493,7 @@ export default class Mesh {
   }
 
   /**
+   * calc Arenberg InverseMatrices as preprocess for raycasting
    * @private
    */
   _calcArenbergInverseMatrices() {

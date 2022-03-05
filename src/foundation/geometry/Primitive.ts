@@ -488,7 +488,7 @@ export class Primitive extends RnObject {
         const pos1IndexBase = this.__indices!.getScalar(j + 1, {});
         const pos2IndexBase = this.__indices!.getScalar(j + 2, {});
 
-        const result = this.__castRayInner(
+        const result = this.__castRayInnerArenberg(
           origVec3,
           dirVec3,
           i,
@@ -521,7 +521,7 @@ export class Primitive extends RnObject {
         const pos1IndexBase = i + 1;
         const pos2IndexBase = i + 2;
 
-        const result = this.__castRayInner(
+        const result = this.__castRayInnerArenberg(
           origVec3,
           dirVec3,
           i,
@@ -553,7 +553,7 @@ export class Primitive extends RnObject {
     };
   }
 
-  private __castRayInner(
+  private __castRayInnerArenberg(
     origVec3: IVector3,
     dirVec3: IVector3,
     i: Index,
@@ -642,6 +642,13 @@ export class Primitive extends RnObject {
     };
   }
 
+  /**
+   * calc Arenberg InverseMatrices as preprocess for raycasting
+   * @param i
+   * @param pos0IndexBase
+   * @param pos1IndexBase
+   * @param pos2IndexBase
+   */
   _calcArenbergInverseMatrices() {
     if (this.__inverseArenbergMatrix.length !== 0) {
       return;
@@ -697,7 +704,14 @@ export class Primitive extends RnObject {
     }
   }
 
-  _calcArenbergMatrixFor3Vertices(
+  /**
+   * calc ArenbergMatrix for 3 vertices as preprocess for raycasting
+   * @param i
+   * @param pos0IndexBase
+   * @param pos1IndexBase
+   * @param pos2IndexBase
+   */
+  private _calcArenbergMatrixFor3Vertices(
     i: Index,
     pos0IndexBase: Index,
     pos1IndexBase: Index,
