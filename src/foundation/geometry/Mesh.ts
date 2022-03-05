@@ -16,7 +16,7 @@ import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
-import { RaycastResult } from './types/GeometryTypes';
+import {RaycastResultEx1} from './types/GeometryTypes';
 
 /**
  * The Mesh class.
@@ -386,9 +386,11 @@ export default class Mesh {
     srcPointInLocal: IVector3,
     directionInLocal: IVector3,
     dotThreshold = 0
-  ): RaycastResult {
+  ): RaycastResultEx1 {
     let finalShortestIntersectedPosVec3: IVector3 | undefined;
     let finalShortestT = Number.MAX_VALUE;
+    let u = 0;
+    let v = 0;
     for (const primitive of this.__primitives) {
       const result = primitive.castRay(
         srcPointInLocal,
@@ -401,6 +403,8 @@ export default class Mesh {
       if (Is.defined(result.data) && result.data?.t < finalShortestT) {
         finalShortestT = result.data.t;
         finalShortestIntersectedPosVec3 = result.data.position!;
+        u = result.data.u;
+        v = result.data.v;
       }
     }
 
@@ -409,6 +413,8 @@ export default class Mesh {
         result: true,
         data: {
           t: finalShortestT,
+          u,
+          v,
           position: finalShortestIntersectedPosVec3,
         },
       };

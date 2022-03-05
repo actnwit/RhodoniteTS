@@ -29,11 +29,7 @@ import {
 } from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import {
-  RaycastResult,
-  RaycastResultEx,
-} from '../../geometry/types/GeometryTypes';
-import { posix } from 'path';
+import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -399,7 +395,7 @@ export default class SceneGraphComponent extends Component {
     directionInWorld: Vector3,
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []
-  ): RaycastResultEx {
+  ): RaycastResultEx2 {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(
       this,
       false
@@ -415,6 +411,8 @@ export default class SceneGraphComponent extends Component {
     let rayDistance = Number.MAX_VALUE;
     let intersectedPosition = undefined;
     let selectedMeshComponent = undefined;
+    let u = 0;
+    let v = 0;
     for (const meshComponent of meshComponents) {
       if (!meshComponent.entity.getSceneGraph()!.isVisible) {
         continue;
@@ -434,6 +432,8 @@ export default class SceneGraphComponent extends Component {
         rayDistance = result.data.t;
         intersectedPosition = result.data.position;
         selectedMeshComponent = meshComponent;
+        u = result.data.u;
+        v = result.data.v;
       }
     }
 
@@ -442,6 +442,8 @@ export default class SceneGraphComponent extends Component {
         result: true,
         data: {
           t: rayDistance,
+          u,
+          v,
           position: intersectedPosition,
           selectedMeshComponent,
         },
@@ -471,7 +473,7 @@ export default class SceneGraphComponent extends Component {
     viewport: Vector4,
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []
-  ): RaycastResultEx {
+  ): RaycastResultEx2 {
     const collectedSgComponents = SceneGraphComponent.flattenHierarchy(
       this,
       false
@@ -487,6 +489,8 @@ export default class SceneGraphComponent extends Component {
     let rayDistance = Number.MAX_VALUE;
     let intersectedPosition = undefined;
     let selectedMeshComponent = undefined;
+    let u = 0;
+    let v = 0;
     for (const meshComponent of meshComponents) {
       if (!meshComponent.entity.getSceneGraph().isVisible) {
         continue;
@@ -508,6 +512,8 @@ export default class SceneGraphComponent extends Component {
         rayDistance = result.data.t;
         intersectedPosition = result.data.position;
         selectedMeshComponent = meshComponent;
+        u = result.data.u;
+        v = result.data.v;
       }
     }
 
@@ -516,6 +522,8 @@ export default class SceneGraphComponent extends Component {
         result: true,
         data: {
           t: rayDistance,
+          u,
+          v,
           position: intersectedPosition,
           selectedMeshComponent,
         },

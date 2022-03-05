@@ -23,7 +23,7 @@ import {Is} from '../../misc/Is';
 import {IMeshEntity} from '../../helpers/EntityHelper';
 import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import {RaycastResult} from '../../geometry/types/GeometryTypes';
+import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -120,7 +120,7 @@ export default class MeshComponent extends Component {
     srcPointInWorld: Vector3,
     directionInWorld: Vector3,
     dotThreshold = 0
-  ) {
+  ): RaycastResultEx1 {
     if (this.__mesh) {
       let srcPointInLocal = srcPointInWorld;
       let directionInLocal = directionInWorld;
@@ -158,6 +158,8 @@ export default class MeshComponent extends Component {
             result: true,
             data: {
               t: result.data.t,
+              u: result.data.u,
+              v: result.data.v,
               position: intersectPositionInWorld,
             },
           };
@@ -176,7 +178,7 @@ export default class MeshComponent extends Component {
     camera: CameraComponent,
     viewport: Vector4,
     dotThreshold = 0
-  ): RaycastResult {
+  ): RaycastResultEx1 {
     if (this.__mesh) {
       if (this.__sceneGraphComponent) {
         const invPVW = MutableMatrix44.multiplyTo(
@@ -226,6 +228,8 @@ export default class MeshComponent extends Component {
             result: true,
             data: {
               t: result.data.t,
+              u: result.data.u,
+              v: result.data.v,
               position: intersectedPositionInWorld,
             },
           };
