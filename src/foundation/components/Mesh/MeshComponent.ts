@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import EntityRepository, {applyMixins} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import Vector3 from '../../math/Vector3';
@@ -23,6 +23,7 @@ import {Is} from '../../misc/Is';
 import {IMeshEntity} from '../../helpers/EntityHelper';
 import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -119,7 +120,7 @@ export default class MeshComponent extends Component {
     srcPointInWorld: Vector3,
     directionInWorld: Vector3,
     dotThreshold = 0
-  ) {
+  ): RaycastResultEx1 {
     if (this.__mesh) {
       let srcPointInLocal = srcPointInWorld;
       let directionInLocal = directionInWorld;
@@ -140,25 +141,35 @@ export default class MeshComponent extends Component {
           Vector3.subtract(distVecInLocal, srcPointInLocal)
         );
 
-        const {t, intersectedPosition} = this.__mesh.castRay(
+        const result = this.__mesh.castRay(
           srcPointInLocal,
           directionInLocal,
           dotThreshold
         );
         let intersectPositionInWorld = null;
-        if (t >= 0) {
+        if (Is.defined(result.data) && result.data.t >= 0) {
           intersectPositionInWorld = Vector3.fromCopyVector4(
             this.__sceneGraphComponent.worldMatrixInner.multiplyVector(
-              Vector4.fromCopyVector3(intersectedPosition!)
+              Vector4.fromCopyVector3(result.data.position)
             )
           );
-        }
 
-        return {t, intersectedPositionInWorld: intersectPositionInWorld};
+          return {
+            result: true,
+            data: {
+              t: result.data.t,
+              u: result.data.u,
+              v: result.data.v,
+              position: intersectPositionInWorld,
+            },
+          };
+        }
       }
     }
 
-    return {t: -1, intersectedPositionInWorld: undefined};
+    return {
+      result: false,
+    };
   }
 
   castRayFromScreen(
@@ -167,7 +178,7 @@ export default class MeshComponent extends Component {
     camera: CameraComponent,
     viewport: Vector4,
     dotThreshold = 0
-  ) {
+  ): RaycastResultEx1 {
     if (this.__mesh) {
       if (this.__sceneGraphComponent) {
         const invPVW = MutableMatrix44.multiplyTo(
@@ -201,25 +212,34 @@ export default class MeshComponent extends Component {
           MeshComponent.__tmpVector3_2
         ).normalize();
 
-        const {t, intersectedPosition} = this.__mesh.castRay(
+        const result = this.__mesh.castRay(
           srcPointInLocal,
           directionInLocal,
           dotThreshold
         );
         let intersectedPositionInWorld = null;
-        if (intersectedPosition != null && t >= 0) {
+        if (Is.defined(result.data) && result.data.t >= 0) {
           intersectedPositionInWorld =
             this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
-              intersectedPosition,
+              result.data.position,
               MeshComponent.__returnVector3
             );
+          return {
+            result: true,
+            data: {
+              t: result.data.t,
+              u: result.data.u,
+              v: result.data.v,
+              position: intersectedPositionInWorld,
+            },
+          };
         }
-
-        return {t, intersectedPositionInWorld};
       }
     }
 
-    return {t: -1, intersectedPositionInWorld: undefined};
+    return {
+      result: false,
+    };
   }
 
   $create() {
@@ -269,7 +289,7 @@ export default class MeshComponent extends Component {
     }
     //    this.__mesh!.makeVerticesSeparated();
     this.__mesh._calcTangents();
-    this.__mesh._calcArenbergInverseMatrices();
+    // this.__mesh._calcArenbergInverseMatrices();
     // this.__mesh.__initMorphPrimitives();
     this.__mesh!._calcFaceNormalsIfNonNormal();
     if (
