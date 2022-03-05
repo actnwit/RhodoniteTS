@@ -289,7 +289,7 @@ export default class MeshComponent extends Component {
     }
     //    this.__mesh!.makeVerticesSeparated();
     this.__mesh._calcTangents();
-    this.__mesh._calcArenbergInverseMatrices();
+    // this.__mesh._calcArenbergInverseMatrices();
     // this.__mesh.__initMorphPrimitives();
     this.__mesh!._calcFaceNormalsIfNonNormal();
     if (

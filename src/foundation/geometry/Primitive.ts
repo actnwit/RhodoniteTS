@@ -482,11 +482,22 @@ export class Primitive extends RnObject {
         pos0IndexBase = this.__indices!.getScalar(j, {});
         pos1IndexBase = this.__indices!.getScalar(j + 1, {});
         pos2IndexBase = this.__indices!.getScalar(j + 2, {});
-
-        const result = this.__castRayInnerArenberg(
+        // const result = this.__castRayInnerArenberg(
+        //   origVec3,
+        //   dirVec3,
+        //   i,
+        //   isFrontFacePickable,
+        //   isBackFacePickable,
+        //   dotThreshold,
+        //   hasFaceNormal
+        // );
+        const result = this.__castRayInnerTomasMoller(
           origVec3,
           dirVec3,
           i,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
           isFrontFacePickable,
           isBackFacePickable,
           dotThreshold,
@@ -513,17 +524,27 @@ export class Primitive extends RnObject {
         pos0IndexBase = i;
         pos1IndexBase = i + 1;
         pos2IndexBase = i + 2;
-
-        const result = this.__castRayInnerArenberg(
+        // const result = this.__castRayInnerArenberg(
+        //   origVec3,
+        //   dirVec3,
+        //   i,
+        //   isFrontFacePickable,
+        //   isBackFacePickable,
+        //   dotThreshold,
+        //   hasFaceNormal
+        // );
+        const result = this.__castRayInnerTomasMoller(
           origVec3,
           dirVec3,
           i,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
           isFrontFacePickable,
           isBackFacePickable,
           dotThreshold,
           hasFaceNormal
         );
-
         if (result.result && Is.defined(result.data)) {
           const t = result.data.t;
           if (t < currentShortestT) {
@@ -553,98 +574,109 @@ export class Primitive extends RnObject {
     };
   }
 
-  //   private __castRayInnerTomasMoller(
-  //     origVec3: IVector3,
-  //     dirVec3: IVector3,
-  //     i: Index,
-  //     pos0IndexBase: Index,
-  //     pos1IndexBase: Index,
-  //     pos2IndexBase: Index,
-  //     isFrontFacePickable: boolean,
-  //     isBackFacePickable: boolean,
-  //     dotThreshold: number,
-  //     hasFaceNormal: boolean
-  //   )
-  // {
+  private __castRayInnerTomasMoller(
+    origVec3: IVector3,
+    dirVec3: IVector3,
+    i: Index,
+    pos0IndexBase: Index,
+    pos1IndexBase: Index,
+    pos2IndexBase: Index,
+    isFrontFacePickable: boolean,
+    isBackFacePickable: boolean,
+    dotThreshold: number,
+    hasFaceNormal: boolean
+  ): RaycastResult {
+    if (hasFaceNormal) {
+      const normalAccessor = this.__attributes.get(VertexAttribute.Normal.XYZ);
+      if (normalAccessor) {
+        const normal = normalAccessor.getVec3(i, {});
+        if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
+          return {
+            result: false,
+          };
+        }
+        if (normal.dot(dirVec3) > -dotThreshold && !isBackFacePickable) {
+          return {
+            result: false,
+          };
+        }
+      }
+    }
 
-  //   if (hasFaceNormal) {
-  //     const normalAccessor = this.__attributes.get(VertexAttribute.Normal.XYZ);
-  //     if (normalAccessor) {
-  //       const normal = normalAccessor.getVec3(i, {});
-  //       if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
-  //         return {
-  //           result: false,
-  //         };
-  //       }
-  //       if (normal.dot(dirVec3) > -dotThreshold && !isBackFacePickable) {
-  //         return {
-  //           result: false,
-  //         };
-  //       }
-  //     }
-  //   }
+    const positionAccessor = this.__attributes.get(
+      VertexAttribute.Position.XYZ
+    )!;
+    const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
+    const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
+    const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
 
-  //   const positionAccessor = this.__attributes.get(
-  //     VertexAttribute.Position.XYZ
-  //   )!;
-  //   const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
-  //   const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
-  //   const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
+    const e1 = MutableVector3.zero();
+    const e2 = MutableVector3.zero();
+    const pvec = MutableVector3.zero();
+    const tvec = MutableVector3.zero();
+    const qvec = MutableVector3.zero();
 
-  //     const e1 = MutableVector3.zero();
-  //     const e2 = MutableVector3.zero();
-  //     const pvec = MutableVector3.zero();
-  //     const tvec = MutableVector3.zero();
-  //     const qvec = MutableVector3.zero();
+    let u = 0,
+      v = 0;
 
-  //     let u = 0, v = 0;
+    MutableVector3.subtractTo(pos1Vec3, pos0Vec3, e1);
+    MutableVector3.subtractTo(pos2Vec3, pos0Vec3, e2);
 
-  //     MutableVector3.subtractTo(pos1Vec3, pos0Vec3, e1);
-  //     MutableVector3.subtractTo(pos1Vec3, pos0Vec3, e2);
+    MutableVector3.crossTo(dirVec3, e2, pvec);
+    const det = Vector3.dot(e1, pvec);
 
-  //     MutableVector3.crossTo(dirVec3, e2, pvec);
-  //     const det = Vector3.dot(e1, pvec);
+    if (det > 1e-3) {
+      MutableVector3.subtractTo(origVec3, pos0Vec3, tvec);
+      u = Vector3.dot(tvec, pvec);
+      if (u < 0.0 || u > det) {
+        return {
+          result: false,
+        };
+      }
+      MutableVector3.crossTo(tvec, e1, qvec);
+      v = Vector3.dot(dirVec3, qvec);
+      if (v < 0.0 || u + v > det) {
+        return {
+          result: false,
+        };
+      }
+    } else if (det < -1e-3) {
+      MutableVector3.subtractTo(origVec3, pos0Vec3, tvec);
+      u = Vector3.dot(tvec, pvec);
+      if (u > 0.0 || u < det) {
+        return {
+          result: false,
+        };
+      }
+      MutableVector3.crossTo(tvec, e1, qvec);
+      v = Vector3.dot(dirVec3, qvec);
+      if (v > 0.0 || u + v < det) {
+        return {
+          result: false,
+        };
+      }
+    } else {
+      return {
+        result: false,
+      };
+    }
 
-  //     if (det > (1e-3)) {
-  //         MutableVector3.subtractTo(origVec3, pos0Vec3, tvec);
-  //         u = Vector3.dot(tvec, pvec);
-  //         if (u < 0.0 || u > det) {
-  //           return false;
-  //         }
-  //         MutableVector3.crossTo(tvec, e1, qvec);
-  //         v = Vector3.dot(dirVec3, qvec);
-  //         if (v < 0.0 || u + v > det) {
-  //           return false
-  //         }
-  //     } else if (det < -(1e-3)) {
-  //         MutableVector3.subtractTo(origVec3, pos0Vec3, tvec);
-  //         u = Vector3.dot(tvec, pvec);
-  //         if (u > 0.0 || u < det) {
-  //           return false;
-  //         }
-  //         MutableVector3.crossTo(tvec, e1, qvec);
-  //         v = Vector3.dot(dirVec3, qvec);
-  //         if (v > 0.0 || u + v < det) {
-  //           return false;
-  //         }
-  //     } else {
-  //         return false;
-  //     }
+    const inv_det = 1.0 / det;
 
-  //     const inv_det = 1.0 / det;
+    let t = Vector3.dot(e2, qvec);
+    t *= inv_det;
+    u *= inv_det;
+    v *= inv_det;
 
-  //     let t = Vector3.dot(e2, qvec);
-  //     t *= inv_det;
-  //     u *= inv_det;
-  //     v *= inv_det;
-
-  //     if(pRetT) *pRetT = t;
-  //     if(pRetU) *pRetU = u;
-  //     if(pRetV) *pRetV = v;
-
-  //     return true;    //hit!!
-  // }
-
+    return {
+      result: true,
+      data: {
+        t,
+        u,
+        v,
+      },
+    };
+  }
 
   private __castRayInnerArenberg(
     origVec3: IVector3,
