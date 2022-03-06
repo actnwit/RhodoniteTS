@@ -51,8 +51,6 @@ export class Primitive extends RnObject {
   private __aabb = new AABB();
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
-  private __inverseArenbergMatrix: Matrix33[] = [];
-  private __arenberg3rdPosition: Vector3[] = [];
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -482,15 +480,6 @@ export class Primitive extends RnObject {
         pos0IndexBase = this.__indices!.getScalar(j, {});
         pos1IndexBase = this.__indices!.getScalar(j + 1, {});
         pos2IndexBase = this.__indices!.getScalar(j + 2, {});
-        // const result = this.__castRayInnerArenberg(
-        //   origVec3,
-        //   dirVec3,
-        //   i,
-        //   isFrontFacePickable,
-        //   isBackFacePickable,
-        //   dotThreshold,
-        //   hasFaceNormal
-        // );
         const result = this.__castRayInnerTomasMoller(
           origVec3,
           dirVec3,
@@ -524,15 +513,6 @@ export class Primitive extends RnObject {
         pos0IndexBase = i;
         pos1IndexBase = i + 1;
         pos2IndexBase = i + 2;
-        // const result = this.__castRayInnerArenberg(
-        //   origVec3,
-        //   dirVec3,
-        //   i,
-        //   isFrontFacePickable,
-        //   isBackFacePickable,
-        //   dotThreshold,
-        //   hasFaceNormal
-        // );
         const result = this.__castRayInnerTomasMoller(
           origVec3,
           dirVec3,
@@ -678,78 +658,6 @@ export class Primitive extends RnObject {
     };
   }
 
-  private __castRayInnerArenberg(
-    origVec3: IVector3,
-    dirVec3: IVector3,
-    i: Index,
-    isFrontFacePickable: boolean,
-    isBackFacePickable: boolean,
-    dotThreshold: number,
-    hasFaceNormal: boolean
-  ): RaycastResult {
-    // test exceptions
-    if (!this.__arenberg3rdPosition[i]) {
-      return {
-        result: false,
-      };
-    }
-
-    if (hasFaceNormal) {
-      const normalAccessor = this.__attributes.get(VertexAttribute.Normal.XYZ);
-      if (normalAccessor) {
-        const normal = normalAccessor.getVec3(i, {});
-        if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
-          return {
-            result: false,
-          };
-        }
-        if (normal.dot(dirVec3) > -dotThreshold && !isBackFacePickable) {
-          return {
-            result: false,
-          };
-        }
-      }
-    }
-
-    // start essential raycast process from here
-    const vec3 = Vector3.subtract(origVec3, this.__arenberg3rdPosition[i]);
-    const convertedOrigVec3 =
-      this.__inverseArenbergMatrix[i].multiplyVector(vec3);
-    const convertedDirVec3 =
-      this.__inverseArenbergMatrix[i].multiplyVector(dirVec3);
-
-    if (convertedDirVec3.z >= -1e-6 && convertedDirVec3.z <= 1e-6) {
-      return {
-        result: false,
-      };
-    }
-
-    const t = -convertedOrigVec3.z / convertedDirVec3.z;
-
-    if (t <= 1e-5) {
-      return {
-        result: false,
-      };
-    }
-
-    const u = convertedOrigVec3.x + t * convertedDirVec3.x;
-    const v = convertedOrigVec3.y + t * convertedDirVec3.y;
-    if (u < 0.0 || v < 0.0 || u + v > 1.0) {
-      return {
-        result: false,
-      };
-    }
-
-    return {
-      result: true,
-      data: {
-        t,
-        u,
-        v,
-      },
-    };
-  }
-
   private __calcPositionFromUV(
     pos0IndexBase: Index,
     pos1IndexBase: Index,
@@ -775,124 +683,5 @@ export class Primitive extends RnObject {
       .add(pos2);
 
     return intersectedPosVec3;
-  }
-
-  /**
-   * calc Arenberg InverseMatrices as preprocess for raycasting
-   * @param i
-   * @param pos0IndexBase
-   * @param pos1IndexBase
-   * @param pos2IndexBase
-   */
-  _calcArenbergInverseMatrices() {
-    if (this.__inverseArenbergMatrix.length !== 0) {
-      return;
-    }
-
-    const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZ
-    )!;
-
-    let incrementNum = 3; // gl.TRIANGLES
-    if (this.__mode === PrimitiveMode.TriangleStrip) {
-      // gl.TRIANGLE_STRIP
-      incrementNum = 1;
-    } else if (this.__mode === PrimitiveMode.Points) {
-      return;
-    }
-
-    if (this.hasIndices()) {
-      for (let i = 0; i < this.__indices!.elementCount - 2; i++) {
-        const j = i * incrementNum;
-        if (j + 2 > this.__indices!.elementCount - 1) {
-          // gl.TRIANGLES
-          break;
-        }
-        const pos0IndexBase = this.__indices!.getScalar(j, {});
-        const pos1IndexBase = this.__indices!.getScalar(j + 1, {});
-        const pos2IndexBase = this.__indices!.getScalar(j + 2, {});
-
-        this._calcArenbergMatrixFor3Vertices(
-          i,
-          pos0IndexBase,
-          pos1IndexBase,
-          pos2IndexBase
-        );
-      }
-    } else {
-      for (
-        let i = 0;
-        i < positionAccessor.elementCount - 2;
-        i += incrementNum
-      ) {
-        const pos0IndexBase = i;
-        const pos1IndexBase = i + 1;
-        const pos2IndexBase = i + 2;
-
-        this._calcArenbergMatrixFor3Vertices(
-          i,
-          pos0IndexBase,
-          pos1IndexBase,
-          pos2IndexBase
-        );
-      }
-    }
-  }
-
-  /**
-   * calc ArenbergMatrix for 3 vertices as preprocess for raycasting
-   * @param i
-   * @param pos0IndexBase
-   * @param pos1IndexBase
-   * @param pos2IndexBase
-   */
-  private _calcArenbergMatrixFor3Vertices(
-    i: Index,
-    pos0IndexBase: Index,
-    pos1IndexBase: Index,
-    pos2IndexBase: Index
-  ) {
-    const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZ
-    )!;
-    const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
-    const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
-    const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
-
-    const ax = pos0Vec3.x - pos2Vec3.x;
-    const ay = pos0Vec3.y - pos2Vec3.y;
-    const az = pos0Vec3.z - pos2Vec3.z;
-    const bx = pos1Vec3.x - pos2Vec3.x;
-    const by = pos1Vec3.y - pos2Vec3.y;
-    const bz = pos1Vec3.z - pos2Vec3.z;
-
-    let nx = ay * bz - az * by;
-    let ny = az * bx - ax * bz;
-    let nz = ax * by - ay * bx;
-    let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
-    if (da <= 1e-6) {
-      da = 0.0001;
-    }
-    da = 1.0 / da;
-    nx *= da;
-    ny *= da;
-    nz *= da;
-
-    const arenbergMatrix = new MutableMatrix33(
-      pos0Vec3.x - pos2Vec3.x,
-      pos1Vec3.x - pos2Vec3.x,
-      nx - pos2Vec3.x,
-      pos0Vec3.y - pos2Vec3.y,
-      pos1Vec3.y - pos2Vec3.y,
-      ny - pos2Vec3.y,
-      pos0Vec3.z - pos2Vec3.z,
-      pos1Vec3.z - pos2Vec3.z,
-      nz - pos2Vec3.z
-    );
-
-    const inverseArenbergMatrix = arenbergMatrix.invert();
-
-    this.__inverseArenbergMatrix[i] = inverseArenbergMatrix;
-    this.__arenberg3rdPosition[i] = pos2Vec3;
   }
 }

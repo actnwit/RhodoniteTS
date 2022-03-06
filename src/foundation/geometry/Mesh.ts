@@ -54,7 +54,6 @@ export default class Mesh {
    */
   public tangentCalculationMode: Index = 1;
 
-  public isPreComputeForRayCastPickingEnable = false;
   private __hasFaceNormal = false;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
@@ -496,22 +495,6 @@ export default class Mesh {
   _addMeshToInstanceArray(mesh: Mesh) {
     this.__instances.push(mesh);
     this.__instancesDirty = true;
-  }
-
-  /**
-   * calc Arenberg InverseMatrices as preprocess for raycasting
-   * @private
-   */
-  _calcArenbergInverseMatrices() {
-    if (this.isInstanceMesh()) {
-      return;
-    }
-
-    if (this.isPreComputeForRayCastPickingEnable) {
-      for (const primitive of this.__primitives) {
-        primitive._calcArenbergInverseMatrices();
-      }
-    }
   }
 
   ///
