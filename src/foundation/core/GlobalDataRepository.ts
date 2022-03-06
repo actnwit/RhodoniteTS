@@ -29,7 +29,10 @@ import Vector3 from '../math/Vector3';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import {BoneDataType} from '../definitions/BoneDataType';
-import {ProcessApproach, ProcessApproachEnum} from '../../foundation/definitions/ProcessApproach';
+import {
+  ProcessApproach,
+  ProcessApproachEnum,
+} from '../../foundation/definitions/ProcessApproach';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;

@@ -36,8 +36,8 @@ import {IVector3} from '../../math/IVector';
 import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import LightComponent from '../../components/Light/LightComponent';
-import { IMatrix33 } from '../../math/IMatrix';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {IMatrix33} from '../../math/IMatrix';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import CameraComponent from '../../components/Camera/CameraComponent';
 
 export type ShaderAttributeOrSemanticsOrString =

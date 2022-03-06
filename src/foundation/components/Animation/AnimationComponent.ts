@@ -1,6 +1,6 @@
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import EntityRepository, {applyMixins} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {
   AnimationInterpolationEnum,
@@ -18,6 +18,7 @@ import {
   Array4,
   Array3,
   VectorComponentN,
+  Array1,
 } from '../../../types/CommonTypes';
 import {
   AnimationPathName,
@@ -35,6 +36,8 @@ import Quaternion from '../../math/Quaternion';
 import {
   array3_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
+  get1_offset,
+  get1_offsetAsComposition,
   get3_offset,
   get3_offsetAsComposition,
   get4_offset,
@@ -71,7 +74,7 @@ export default class AnimationComponent extends Component {
     IVector | IQuaternion | number[]
   > = new Map();
 
-  //
+  // The name of the current Active Track
   private __currentActiveAnimationTrackName?: AnimationTrackName;
 
   // Animation Data of each AnimationComponent
@@ -634,8 +637,14 @@ export default class AnimationComponent extends Component {
             channel.sampler.outputComponentN
         ) as Array3<number>;
         return value;
+      } else if (channel.sampler.outputComponentN === 1) {
+        const value = array[get1_offset](
+          channel.sampler.outputComponentN * 3 * keyFrameId +
+            channel.sampler.outputComponentN
+        ) as Array1<number>;
+        return value;
       } else {
-        // weights
+        // weights // outputComponentN === N
         const value = array[getN_offset](
           channel.sampler.outputComponentN * 3 * keyFrameId +
             channel.sampler.outputComponentN,
@@ -644,6 +653,7 @@ export default class AnimationComponent extends Component {
         return value;
       }
     } else {
+      // For Other than CUBICSPLINE interpolation
       if (channel.sampler.outputComponentN === 4) {
         // Quaternion/weights
         const value = array[get4_offsetAsComposition](
@@ -655,6 +665,12 @@ export default class AnimationComponent extends Component {
         const value = array[get3_offsetAsComposition](
           keyFrameId
         ) as Array3<number>;
+        return value;
+      } else if (channel.sampler.outputComponentN === 1) {
+        // Effekseer (Animation Event)
+        const value = array[get1_offsetAsComposition](
+          keyFrameId
+        ) as Array1<number>;
         return value;
       } else {
         // weights
