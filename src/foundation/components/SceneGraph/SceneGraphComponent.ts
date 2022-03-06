@@ -30,6 +30,7 @@ import {
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
+import TranslationGizmo from '../../gizmos/TranslationGizmo';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -49,6 +50,7 @@ export default class SceneGraphComponent extends Component {
   public isVisible = true;
   private __aabbGizmo?: AABBGizmo;
   private __locatorGizmo?: LocatorGizmo;
+  private __translationGizmo?: TranslationGizmo;
   private static isJointAABBShouldBeCalculated = false;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
@@ -128,6 +130,30 @@ export default class SceneGraphComponent extends Component {
   get isLocatorGizmoVisible() {
     if (Is.exist(this.__locatorGizmo)) {
       return this.__locatorGizmo.isVisible;
+    } else {
+      return false;
+    }
+  }
+
+  set isTranslationGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__translationGizmo)) {
+        this.__translationGizmo = new TranslationGizmo(
+          this.entity as IMeshEntity
+        );
+        this.__translationGizmo._setup();
+      }
+      this.__translationGizmo.isVisible = true;
+    } else {
+      if (Is.exist(this.__translationGizmo)) {
+        this.__translationGizmo.isVisible = false;
+      }
+    }
+  }
+
+  get isTranslationGizmoVisible() {
+    if (Is.exist(this.__translationGizmo)) {
+      return this.__translationGizmo.isVisible;
     } else {
       return false;
     }
@@ -547,12 +573,14 @@ export default class SceneGraphComponent extends Component {
     const meshComponent = this.entity.tryToGetMesh();
     if (Is.exist(meshComponent)) {
       const mesh = meshComponent.mesh;
-      const primitiveNum = mesh!.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh!.getPrimitiveAt(i);
-        if (primitive.isPositionAccessorUpdated) {
-          this.setWorldAABBDirtyParentRecursively();
-          break;
+      if (Is.exist(mesh)) {
+        const primitiveNum = mesh.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+          const primitive = mesh!.getPrimitiveAt(i);
+          if (primitive.isPositionAccessorUpdated) {
+            this.setWorldAABBDirtyParentRecursively();
+            break;
+          }
         }
       }
     }
@@ -572,6 +600,13 @@ export default class SceneGraphComponent extends Component {
       this.__locatorGizmo.isVisible
     ) {
       this.__locatorGizmo._update();
+    }
+    if (
+      Is.exist(this.__translationGizmo) &&
+      this.__translationGizmo.isSetup &&
+      this.__translationGizmo.isVisible
+    ) {
+      this.__translationGizmo._update();
     }
   }
 

@@ -378,8 +378,6 @@ export default class MeshRendererComponent extends Component {
               meshComponent.calcViewDepth(cameraComponent);
             }
           }
-        } else {
-          MeshComponent.alertNoMeshSet(meshComponent);
         }
       }
     }
