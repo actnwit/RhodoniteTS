@@ -428,7 +428,6 @@ export default class DataUtil {
         },
       ],
       tangentCalculationMode: 1,
-      isPreComputeForRayCastPickingEnable: false,
       extendedJson: void 0, //   URI string / JSON Object / ArrayBuffer
     };
 
