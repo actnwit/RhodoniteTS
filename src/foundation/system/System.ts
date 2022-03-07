@@ -24,6 +24,7 @@ import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
 import EntityHelper from '../helpers/EntityHelper';
+import Config from '../core/Config';
 
 export default class System {
   private static __instance: System;
@@ -267,6 +268,7 @@ export default class System {
     rnWebGLDebug = true,
     fallback3dApi = true
   ) {
+    Config.eventTargetDom = canvas;
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     MemoryManager.createInstanceIfNotCreated(
       0.125 * memoryUsageOrder,

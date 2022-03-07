@@ -1,3 +1,5 @@
+import OrbitCameraController from '../cameras/OrbitCameraController';
+import Config from '../core/Config';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import {VertexAttribute} from '../definitions/VertexAttribute';
@@ -10,7 +12,10 @@ import Material from '../materials/core/Material';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
 import {Is} from '../misc/Is';
+import { getEvent, InputManager, INPUT_HANDLING_STATE_GIZMO_TRNSLATION } from '../system/InputManager';
 import Gizmo from './Gizmo';
+
+declare let window: any;
 
 /**
  * Translation Gizmo class
@@ -28,6 +33,9 @@ export default class TranslationGizmo extends Gizmo {
   private static __xCubeMaterial: Material;
   private static __yCubeMaterial: Material;
   private static __zCubeMaterial: Material;
+  private static __isPointerDown = false;
+  private static __originalX = 0;
+  private static __originalY = 0;
 
   private static __length = 1;
   /**
@@ -248,5 +256,68 @@ export default class TranslationGizmo extends Gizmo {
     });
 
     return primitive;
+  }
+
+  set isVisible(flg: boolean) {
+    if (this.__isVisible === false && flg === true) {
+      let eventTargetDom = window;
+      if (Is.exist(Config.eventTargetDom)) {
+        eventTargetDom = Config.eventTargetDom;
+      }
+      InputManager.register(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, [
+        {
+          eventName: getEvent('start'),
+          handler: TranslationGizmo.__onPointerDown,
+          options: {},
+          classInstance: this,
+          eventTargetDom: eventTargetDom,
+        },
+        {
+          eventName: getEvent('move'),
+          handler: TranslationGizmo.__onPointerMove,
+          options: {},
+          classInstance: this,
+          eventTargetDom: eventTargetDom,
+        },
+        {
+          eventName: getEvent('end'),
+          handler: TranslationGizmo.__onPointerUp,
+          options: {},
+          classInstance: this,
+          eventTargetDom: eventTargetDom,
+        },
+      ]);
+    }
+
+    if (this.__isVisible === true && flg === false) {
+      InputManager.unregister(INPUT_HANDLING_STATE_GIZMO_TRNSLATION);
+    }
+
+    InputManager.setActive(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, flg);
+
+    this.__setVisible(flg);
+  }
+
+  private static __onPointerDown(evt: PointerEvent) {
+    evt.preventDefault();
+    this.__isPointerDown = true;
+    this.__originalX = evt.clientX;
+    this.__originalY = evt.clientY;
+  }
+
+  private static __onPointerMove(evt: PointerEvent) {
+    evt.preventDefault();
+    this.__isPointerDown = true;
+    if (Is.false(this.__isPointerDown)) {
+      return;
+    }
+    const deltaX = evt.clientX;
+    const deltaY = evt.clientY;
+    console.log(deltaX, deltaY);
+  }
+
+  private static __onPointerUp(evt: PointerEvent) {
+    evt.preventDefault();
+    this.__isPointerDown = false;
   }
 }

@@ -11,6 +11,11 @@ import AABB from '../math/AABB';
 import AbstractCameraController from './AbstractCameraController';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
+import {
+  InputManager,
+  INPUT_HANDLING_STATE_CAMERACONTROLLER,
+} from '../system/InputManager';
+import Config from '../core/Config';
 
 declare let window: any;
 
@@ -18,7 +23,6 @@ export default class OrbitCameraController
   extends AbstractCameraController
   implements ICameraController
 {
-  public eventTargetDom?: HTMLElement;
   public dollyScale = 2.0;
   public scaleOfLengthCenterToCamera = 1.0;
   public moveSpeed = 1;
@@ -85,7 +89,6 @@ export default class OrbitCameraController
   private __releaseShiftFunc = this.__releaseShift.bind(this);
   private __pressCtrlFunc = this.__pressCtrl.bind(this);
   private __releaseCtrlFunc = this.__releaseCtrl.bind(this);
-  private _eventTargetDom?: any;
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
 
@@ -472,118 +475,197 @@ export default class OrbitCameraController
     }
   }
 
-  registerEventListeners(eventTargetDom: any = document) {
-    this._eventTargetDom = eventTargetDom;
+  registerEventListeners() {
+    let eventTargetDom = window;
+    if (Is.exist(Config.eventTargetDom)) {
+    } else {
+      eventTargetDom = Config.eventTargetDom;
+    }
 
-    if (eventTargetDom) {
-      if ('ontouchend' in document) {
-        eventTargetDom.addEventListener('touchstart', this.__touchDownFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('touchmove', this.__touchMoveFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('touchend', this.__touchUpFunc, {
-          passive: !this.__doPreventDefault,
-        });
-
-        eventTargetDom.addEventListener('touchmove', this.__pinchInOutFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('touchend', this.__pinchInOutEndFunc, {
-          passive: !this.__doPreventDefault,
-        });
-
-        eventTargetDom.addEventListener(
-          'touchstart',
-          this.__resetDollyAndPositionFunc,
-          {passive: !this.__doPreventDefault}
-        );
-      } else {
-        eventTargetDom.addEventListener('mousedown', this.__mouseDownFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('mouseup', this.__mouseUpFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('mouseleave', this.__mouseUpFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('mousemove', this.__mouseMoveFunc, {
-          passive: !this.__doPreventDefault,
-        });
-
-        eventTargetDom.addEventListener('keydown', this.__pressShiftFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('keyup', this.__releaseShiftFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('keydown', this.__pressCtrlFunc, {
-          passive: !this.__doPreventDefault,
-        });
-        eventTargetDom.addEventListener('keyup', this.__releaseCtrlFunc, {
-          passive: !this.__doPreventDefault,
-        });
-
-        eventTargetDom.addEventListener('contextmenu', (e: any) => {
-          e.preventDefault();
-        });
-      }
-
-      if (window.WheelEvent) {
-        eventTargetDom.addEventListener('wheel', this.__mouseWheelFunc, {
-          passive: !this.__doPreventDefault,
-        });
-      }
-
-      eventTargetDom.addEventListener('contextmenu', this.__contextMenuFunc, {
-        passive: !this.__doPreventDefault,
-      });
-      eventTargetDom.addEventListener('dblclick', this.__mouseDblClickFunc, {
-        passive: !this.__doPreventDefault,
-      });
+    if ('ontouchend' in document) {
+      // touch devices
+      InputManager.register(INPUT_HANDLING_STATE_CAMERACONTROLLER, [
+        {
+          eventName: 'touchstart',
+          handler: this.__touchDownFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'touchmove',
+          handler: this.__touchMoveFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'touchend',
+          handler: this.__touchUpFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'touchmove',
+          handler: this.__pinchInOutFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'touchend',
+          handler: this.__pinchInOutEndFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'touchstart',
+          handler: this.__resetDollyAndPositionFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'contextmenu',
+          handler: this.__contextMenuFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'dblclick',
+          handler: this.__mouseDblClickFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+      ]);
+    } else {
+      // pc devices
+      InputManager.register(INPUT_HANDLING_STATE_CAMERACONTROLLER, [
+        {
+          eventName: 'mousedown',
+          handler: this.__mouseDownFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'mouseup',
+          handler: this.__mouseUpFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'mouseleave',
+          handler: this.__mouseUpFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'mousemove',
+          handler: this.__mouseMoveFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'keydown',
+          handler: this.__pressShiftFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'keyup',
+          handler: this.__releaseShiftFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'keydown',
+          handler: this.__pressCtrlFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'keyup',
+          handler: this.__releaseCtrlFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'contextmenu',
+          handler: this.__contextMenuFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'wheel',
+          handler: this.__mouseWheelFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'dblclick',
+          handler: this.__mouseDblClickFunc,
+          options: {
+            passive: !this.__doPreventDefault,
+          },
+          classInstance: this,
+          eventTargetDom,
+        },
+      ]);
     }
   }
 
   unregisterEventListeners() {
-    const eventTargetDom = this._eventTargetDom;
-
-    if (eventTargetDom) {
-      if ('ontouchend' in document) {
-        eventTargetDom.removeEventListener('touchstart', this.__touchDownFunc);
-        eventTargetDom.removeEventListener('touchmove', this.__touchMoveFunc);
-        eventTargetDom.removeEventListener('touchend', this.__touchUpFunc);
-
-        eventTargetDom.removeEventListener('touchmove', this.__pinchInOutFunc);
-        eventTargetDom.removeEventListener(
-          'touchend',
-          this.__pinchInOutEndFunc
-        );
-
-        eventTargetDom.removeEventListener(
-          'touchstart',
-          this.__resetDollyAndPositionFunc
-        );
-      } else {
-        eventTargetDom.removeEventListener('mousedown', this.__mouseDownFunc);
-        eventTargetDom.removeEventListener('mouseup', this.__mouseUpFunc);
-        eventTargetDom.removeEventListener('mouseleave', this.__mouseUpFunc);
-        eventTargetDom.removeEventListener('mousemove', this.__mouseMoveFunc);
-
-        eventTargetDom.removeEventListener('keydown', this.__pressShiftFunc);
-        eventTargetDom.removeEventListener('keyup', this.__releaseShiftFunc);
-
-        eventTargetDom.removeEventListener('contextmenu', (e: any) => {
-          e.preventDefault();
-        });
-      }
-      if (window.WheelEvent) {
-        eventTargetDom.removeEventListener('wheel', this.__mouseWheelFunc);
-      }
-      eventTargetDom.removeEventListener('contextmenu', this.__contextMenuFunc);
-      eventTargetDom.removeEventListener('dblclick', this.__mouseDblClickFunc);
-    }
+    InputManager.unregister(INPUT_HANDLING_STATE_CAMERACONTROLLER);
   }
 
   __getFovyFromCamera(camera: CameraComponent) {

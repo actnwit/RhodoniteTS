@@ -20,6 +20,7 @@ let noWebGLTex2DStateCache = false;
 let maxMorphTargetNumber = 4;
 let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = true;
+let eventTargetDom: HTMLElement | undefined;
 
 export default {
   maxEntityNumber,
@@ -38,4 +39,5 @@ export default {
   maxMorphTargetNumber,
   totalSizeOfGPUShaderDataStorageExceptMorphData,
   isUboEnabled,
+  eventTargetDom,
 };
