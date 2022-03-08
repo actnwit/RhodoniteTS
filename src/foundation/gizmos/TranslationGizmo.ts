@@ -1,4 +1,6 @@
 import OrbitCameraController from '../cameras/OrbitCameraController';
+import CameraComponent from '../components/Camera/CameraComponent';
+import ComponentRepository from '../core/ComponentRepository';
 import Config from '../core/Config';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
@@ -36,6 +38,9 @@ export default class TranslationGizmo extends Gizmo {
   private static __isPointerDown = false;
   private static __originalX = 0;
   private static __originalY = 0;
+  private static __onPointerDownFunc = TranslationGizmo.__onPointerDown.bind(TranslationGizmo);
+  private static __onPointerMoveFunc = TranslationGizmo.__onPointerMove.bind(TranslationGizmo);
+  private static __onPointerUpFunc = TranslationGizmo.__onPointerUp.bind(TranslationGizmo);
 
   private static __length = 1;
   /**
@@ -267,21 +272,21 @@ export default class TranslationGizmo extends Gizmo {
       InputManager.register(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, [
         {
           eventName: getEvent('start'),
-          handler: TranslationGizmo.__onPointerDown,
+          handler: TranslationGizmo.__onPointerDownFunc,
           options: {},
           classInstance: this,
           eventTargetDom: eventTargetDom,
         },
         {
           eventName: getEvent('move'),
-          handler: TranslationGizmo.__onPointerMove,
+          handler: TranslationGizmo.__onPointerMoveFunc,
           options: {},
           classInstance: this,
           eventTargetDom: eventTargetDom,
         },
         {
           eventName: getEvent('end'),
-          handler: TranslationGizmo.__onPointerUp,
+          handler: TranslationGizmo.__onPointerUpFunc,
           options: {},
           classInstance: this,
           eventTargetDom: eventTargetDom,
@@ -303,6 +308,19 @@ export default class TranslationGizmo extends Gizmo {
     this.__isPointerDown = true;
     this.__originalX = evt.clientX;
     this.__originalY = evt.clientY;
+
+    const rect = (evt.target as HTMLElement).getBoundingClientRect()
+    const width = (evt.target as HTMLElement).clientWidth
+    const height = (evt.target as HTMLElement).clientHeight
+    const x = evt.clientX - rect.left
+    const y = rect.height - (evt.clientY - rect.top)
+    const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4
+    const activeCamera = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent | undefined;
+    const xResult = this.__xCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, [])
+    const yResult = this.__yCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, [])
+    const zResult = this.__zCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, [])
+
+    console.log(xResult, yResult, zResult);
   }
 
   private static __onPointerMove(evt: PointerEvent) {
@@ -313,7 +331,7 @@ export default class TranslationGizmo extends Gizmo {
     }
     const deltaX = evt.clientX;
     const deltaY = evt.clientY;
-    console.log(deltaX, deltaY);
+    // console.log(deltaX, deltaY);
   }
 
   private static __onPointerUp(evt: PointerEvent) {

@@ -605,7 +605,7 @@ export class Primitive extends RnObject {
     MutableVector3.crossTo(dirVec3, e2, pvec);
     const det = Vector3.dot(e1, pvec);
 
-    if (det > 1e-3) {
+    if (det > 0.0001) {
       MutableVector3.subtractTo(origVec3, pos0Vec3, tvec);
       u = Vector3.dot(tvec, pvec);
       if (u < 0.0 || u > det) {
@@ -615,12 +615,12 @@ export class Primitive extends RnObject {
       }
       MutableVector3.crossTo(tvec, e1, qvec);
       v = Vector3.dot(dirVec3, qvec);
-      if (v < 0.0 || u + v > det) {
+      if (v < 0.0 || (u + v) > det) {
         return {
           result: false,
         };
       }
-    } else if (det < -1e-3) {
+    } else if (det < -0.0001) {
       MutableVector3.subtractTo(origVec3, pos0Vec3, tvec);
       u = Vector3.dot(tvec, pvec);
       if (u > 0.0 || u < det) {
@@ -630,7 +630,7 @@ export class Primitive extends RnObject {
       }
       MutableVector3.crossTo(tvec, e1, qvec);
       v = Vector3.dot(dirVec3, qvec);
-      if (v > 0.0 || u + v < det) {
+      if (v > 0.0 || (u + v) < det) {
         return {
           result: false,
         };
@@ -674,9 +674,9 @@ export class Primitive extends RnObject {
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
 
-    const pos0 = Vector3.multiply(pos0Vec3, u);
-    const pos1 = Vector3.multiply(pos1Vec3, v);
-    const pos2 = Vector3.multiply(pos2Vec3, fDat);
+    const pos0 = Vector3.multiply(pos0Vec3, fDat);
+    const pos1 = Vector3.multiply(pos1Vec3, u);
+    const pos2 = Vector3.multiply(pos2Vec3, v);
     const intersectedPosVec3 = MutableVector3.zero()
       .add(pos0)
       .add(pos1)
