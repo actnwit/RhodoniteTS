@@ -133,6 +133,9 @@ export default class TranslationGizmo extends Gizmo {
     InputManager.setActive(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, flg);
 
     this.__setVisible(flg);
+    TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
+    TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
+    TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
   }
 
   get isVisible(): boolean {
@@ -251,7 +254,7 @@ export default class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xyPlaneEntity = EntityHelper.createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xyPlane', true);
       TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
-      TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
+      // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
       TranslationGizmo.__xyPlaneEntity.getTransform().rotate =
         Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
       TranslationGizmo.__xyPlaneMaterial =
@@ -264,8 +267,8 @@ export default class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xyPlaneMesh = new Mesh();
       TranslationGizmo.__xyPlanePrimitive = new Plane();
       TranslationGizmo.__xyPlanePrimitive.generate({
-        width: 2,
-        height: 2,
+        width: 100000,
+        height: 100000,
         uSpan: 1,
         vSpan: 1,
         isUVRepeat: true,
@@ -285,7 +288,7 @@ export default class TranslationGizmo extends Gizmo {
       TranslationGizmo.__yzPlaneEntity = EntityHelper.createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yzPlane', true);
       TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
-      TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
+      // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
       TranslationGizmo.__yzPlaneEntity.getTransform().rotate =
         Vector3.fromCopy3(0, 0, MathUtil.degreeToRadian(90));
       TranslationGizmo.__yzPlaneMaterial =
@@ -298,8 +301,8 @@ export default class TranslationGizmo extends Gizmo {
       TranslationGizmo.__yzPlaneMesh = new Mesh();
       TranslationGizmo.__yzPlanePrimitive = new Plane();
       TranslationGizmo.__yzPlanePrimitive.generate({
-        width: 2,
-        height: 2,
+        width: 100000,
+        height: 100000,
         uSpan: 1,
         vSpan: 1,
         isUVRepeat: true,
@@ -319,7 +322,7 @@ export default class TranslationGizmo extends Gizmo {
       TranslationGizmo.__zxPlaneEntity = EntityHelper.createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zxPlane', true);
       TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
-      TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
+      // TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
       // TranslationGizmo.__zxPlaneEntity.getTransform().rotate =
         // Vector3.fromCopy3(90, 0, 0);
       TranslationGizmo.__zxPlaneMaterial =
@@ -332,8 +335,8 @@ export default class TranslationGizmo extends Gizmo {
       TranslationGizmo.__zxPlaneMesh = new Mesh();
       TranslationGizmo.__zxPlanePrimitive = new Plane();
       TranslationGizmo.__zxPlanePrimitive.generate({
-        width: 2,
-        height: 2,
+        width: 100000,
+        height: 100000,
         uSpan: 1,
         vSpan: 1,
         isUVRepeat: true,
@@ -531,8 +534,6 @@ export default class TranslationGizmo extends Gizmo {
       console.log('Move:' + zResult.data.position.toStringApproximately());
     }
 
-
-    // TranslationGizmo.__pickStatedPoint = pickInMovingPoint;
     const deltaVector3 = Vector3.subtract(pickInMovingPoint, TranslationGizmo.__pickStatedPoint);
     const deltaDeltaVector3 = Vector3.add(TranslationGizmo.__targetPointBackup, deltaVector3);
     TranslationGizmo.__deltaPoint = deltaDeltaVector3;
@@ -545,6 +546,7 @@ export default class TranslationGizmo extends Gizmo {
     evt.preventDefault();
     TranslationGizmo.__isPointerDown = false;
     TranslationGizmo.__activeAxis = 'none';
+    TranslationGizmo.__targetPointBackup = this.__target.getTransform().translate.clone();
   }
 
   private static castRay2(evt: PointerEvent) {
