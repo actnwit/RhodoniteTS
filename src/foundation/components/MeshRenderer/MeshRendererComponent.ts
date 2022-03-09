@@ -347,7 +347,7 @@ export default class MeshRendererComponent extends Component {
     const transparentCompletelyMeshComponents: MeshComponent[] = [];
 
     for (let i = 0; i < meshComponents.length; i++) {
-      if (!meshComponents[i].entity.getSceneGraph()!.isVisible) {
+      if (Is.false(meshComponents[i].entity.getSceneGraph().isVisible)) {
         continue;
       }
       const meshRendererComponent = meshComponents[i].entity.tryToGetMeshRenderer()!;
