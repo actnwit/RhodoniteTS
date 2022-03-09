@@ -465,9 +465,9 @@ export class Primitive extends RnObject {
       };
     }
 
-    let pos0IndexBase = 0;
-    let pos1IndexBase = 0;
-    let pos2IndexBase = 0;
+    let hitPos0IndexBase = 0;
+    let hitPos1IndexBase = 0;
+    let hitPos2IndexBase = 0;
     let u = 0;
     let v = 0;
     if (this.hasIndices()) {
@@ -477,9 +477,9 @@ export class Primitive extends RnObject {
           // gl.TRIANGLES
           break;
         }
-        pos0IndexBase = this.__indices!.getScalar(j, {});
-        pos1IndexBase = this.__indices!.getScalar(j + 1, {});
-        pos2IndexBase = this.__indices!.getScalar(j + 2, {});
+        const pos0IndexBase = this.__indices!.getScalar(j, {});
+        const pos1IndexBase = this.__indices!.getScalar(j + 1, {});
+        const pos2IndexBase = this.__indices!.getScalar(j + 2, {});
         const result = this.__castRayInnerTomasMoller(
           origVec3,
           dirVec3,
@@ -499,6 +499,9 @@ export class Primitive extends RnObject {
             currentShortestT = result.data.t;
             u = result.data.u;
             v = result.data.v;
+            hitPos0IndexBase = pos0IndexBase;
+            hitPos1IndexBase = pos1IndexBase;
+            hitPos0IndexBase = pos2IndexBase;
           }
         }
       }
@@ -510,9 +513,9 @@ export class Primitive extends RnObject {
       }
 
       for (let i = 0; i < elementCount; i += incrementNum) {
-        pos0IndexBase = i;
-        pos1IndexBase = i + 1;
-        pos2IndexBase = i + 2;
+        const pos0IndexBase = i;
+        const pos1IndexBase = i + 1;
+        const pos2IndexBase = i + 2;
         const result = this.__castRayInnerTomasMoller(
           origVec3,
           dirVec3,
@@ -531,27 +534,34 @@ export class Primitive extends RnObject {
             currentShortestT = t;
             u = result.data.u;
             v = result.data.v;
+            hitPos0IndexBase = pos0IndexBase;
+            hitPos1IndexBase = pos1IndexBase;
+            hitPos0IndexBase = pos2IndexBase;
           }
         }
       }
     }
 
-    const currentShortestIntersectedPosVec3 = this.__calcPositionFromUV(
-      pos0IndexBase,
-      pos1IndexBase,
-      pos2IndexBase,
-      u,
-      v
-    );
-    return {
-      result: true,
-      data: {
-        t: currentShortestT,
-        u,
-        v,
-        position: currentShortestIntersectedPosVec3,
-      },
-    };
+    if (currentShortestT === Number.MAX_VALUE) {
+      return {
+        result: false,
+      }
+    } else {
+      const currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
+        dirVec3.x * currentShortestT + origVec3.x,
+        dirVec3.y * currentShortestT + origVec3.y,
+        dirVec3.z * currentShortestT + origVec3.z
+      )
+      return {
+        result: true,
+        data: {
+          t: currentShortestT,
+          u,
+          v,
+          position: currentShortestIntersectedPosVec3,
+        },
+      };
+    }
   }
 
   private __castRayInnerTomasMoller(
@@ -658,7 +668,7 @@ export class Primitive extends RnObject {
     };
   }
 
-  private __calcPositionFromUV(
+  private __calcNormalFromUV(
     pos0IndexBase: Index,
     pos1IndexBase: Index,
     pos2IndexBase: Index,
@@ -681,7 +691,7 @@ export class Primitive extends RnObject {
       .add(pos0)
       .add(pos1)
       .add(pos2);
-
     return intersectedPosVec3;
   }
+
 }
