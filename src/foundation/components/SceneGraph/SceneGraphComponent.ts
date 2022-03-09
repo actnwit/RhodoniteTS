@@ -527,7 +527,7 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      const result = meshComponent.castRayFromScreen(
+      const result = meshComponent.castRayFromScreenInWorld(
         x,
         y,
         camera,

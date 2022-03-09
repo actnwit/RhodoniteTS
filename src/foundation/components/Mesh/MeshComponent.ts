@@ -24,6 +24,7 @@ import {IMeshEntity} from '../../helpers/EntityHelper';
 import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
+import { assertExist } from '../../misc/MiscUtil';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -172,7 +173,7 @@ export default class MeshComponent extends Component {
     };
   }
 
-  castRayFromScreen(
+  castRayFromScreenInLocal(
     x: number,
     y: number,
     camera: CameraComponent,
@@ -217,20 +218,14 @@ export default class MeshComponent extends Component {
           directionInLocal,
           dotThreshold
         );
-        let intersectedPositionInWorld = null;
         if (Is.defined(result.data) && result.data.t >= 0) {
-          intersectedPositionInWorld =
-            this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
-              result.data.position,
-              MeshComponent.__returnVector3
-            );
           return {
             result: true,
             data: {
               t: result.data.t,
               u: result.data.u,
               v: result.data.v,
-              position: intersectedPositionInWorld,
+              position: result.data.position,
             },
           };
         }
@@ -240,6 +235,37 @@ export default class MeshComponent extends Component {
     return {
       result: false,
     };
+  }
+
+  castRayFromScreenInWorld(
+    x: number,
+    y: number,
+    camera: CameraComponent,
+    viewport: Vector4,
+    dotThreshold = 0
+  ): RaycastResultEx1 {
+    const result = this.castRayFromScreenInLocal(x, y, camera, viewport, dotThreshold);
+    if (this.__mesh && this.__sceneGraphComponent && result.result) {
+      assertExist(result.data);
+
+      // convert to World space
+      const intersectedPositionInWorld =
+      this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
+        result.data.position,
+        MeshComponent.__returnVector3
+      );
+      return {
+        result: true,
+        data: {
+          t: result.data.t,
+          u: result.data.u,
+          v: result.data.v,
+          position: intersectedPositionInWorld,
+        },
+      };
+    } else {
+      return result
+    }
   }
 
   $create() {
