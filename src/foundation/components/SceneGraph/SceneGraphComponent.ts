@@ -205,9 +205,12 @@ export default class SceneGraphComponent extends Component {
 
   /**
    * add a SceneGraph component as a child of this
-   * @param sg a SceneGraph component of Gizmo
+   * @param sg a SceneGraph component
    */
   public addChild(sg: SceneGraphComponent): void {
+    if (Is.exist(sg.__parent)) {
+      sg.__parent.removeChild(sg);
+    }
     sg.__parent = this;
     this.__children.push(sg);
   }
