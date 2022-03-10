@@ -213,6 +213,18 @@ export default class SceneGraphComponent extends Component {
   }
 
   /**
+   * remove the child SceneGraph component from this
+   * @param sg a SceneGraph component
+   */
+  public removeChild(sg: SceneGraphComponent): void {
+    const index = this.__children.indexOf(sg);
+    if (index >= 0) {
+      this.__children.splice(index, 1);
+    }
+    sg.__parent = undefined;
+  }
+
+  /**
    * add a SceneGraph component as a child of this (But Gizmo only)
    * @param sg a SceneGraph component of Gizmo
    */
