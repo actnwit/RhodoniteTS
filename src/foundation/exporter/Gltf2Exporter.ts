@@ -150,6 +150,9 @@ export default class Gltf2Exporter {
     if (json.animations.length === 0) {
       delete (json as Gltf2).animations;
     }
+    if (Is.exist(json.extensionsUsed) && json.extensionsUsed.length === 0) {
+      delete (json as Gltf2).extensionsUsed;
+    }
     delete (json as Gltf2).extras;
   }
 

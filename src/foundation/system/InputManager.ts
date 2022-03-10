@@ -1,3 +1,4 @@
+import TranslationGizmo from '../gizmos/TranslationGizmo';
 import {Is} from '../misc/Is';
 import {assertExist} from '../misc/MiscUtil';
 
@@ -99,11 +100,13 @@ export interface InputHandlerInfo {
 export const INPUT_HANDLING_STATE_NONE = 'None';
 export const INPUT_HANDLING_STATE_CAMERACONTROLLER = 'CameraController';
 export const INPUT_HANDLING_STATE_GIZMO_TRNSLATION = 'GizmoTranslation';
+export const INPUT_HANDLING_STATE_GIZMO_SCALE = 'GizmoScale';
 
 export type InputHandlingState =
   | typeof INPUT_HANDLING_STATE_NONE
   | typeof INPUT_HANDLING_STATE_CAMERACONTROLLER
-  | typeof INPUT_HANDLING_STATE_GIZMO_TRNSLATION;
+  | typeof INPUT_HANDLING_STATE_GIZMO_TRNSLATION
+  | typeof INPUT_HANDLING_STATE_GIZMO_SCALE;
 
 export class InputManager {
   private static __inputHandlingStateMap: InputHandlingStateMap = new Map();
@@ -135,6 +138,13 @@ export class InputManager {
 
   static setActive(inputHandlingState: InputHandlingState, active: boolean) {
     this.__activeMap.set(inputHandlingState, active);
+
+    if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_TRNSLATION && active) {
+      this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_SCALE, false);
+    } else if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_SCALE && active) {
+      this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, false);
+    }
+
     this.__processEventListners();
   }
 
@@ -168,6 +178,7 @@ export class InputManager {
 
   static __processEventListners() {
     const translationGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_TRNSLATION);
+    const scaleGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
     const cameraControllerActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_CAMERACONTROLLER);
 
     if (cameraControllerActive) {
@@ -179,8 +190,17 @@ export class InputManager {
     if (translationGizmoActive) {
       this.__addEventListeners(INPUT_HANDLING_STATE_GIZMO_TRNSLATION);
       this.__removeEventListeners(INPUT_HANDLING_STATE_CAMERACONTROLLER);
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_SCALE);
       this.__currentState = INPUT_HANDLING_STATE_GIZMO_TRNSLATION;
     }
+
+    if (scaleGizmoActive) {
+      this.__addEventListeners(INPUT_HANDLING_STATE_GIZMO_SCALE);
+      this.__removeEventListeners(INPUT_HANDLING_STATE_CAMERACONTROLLER);
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_TRNSLATION);
+      this.__currentState = INPUT_HANDLING_STATE_GIZMO_SCALE;
+    }
+
   }
 
   static getCurrentState() {

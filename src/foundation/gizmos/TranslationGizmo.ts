@@ -52,13 +52,14 @@ export default class TranslationGizmo extends Gizmo {
   private static __xyPlaneMaterial: Material;
   private static __yzPlaneMaterial: Material;
   private static __zxPlaneMaterial: Material;
-  private static __isPointerDown = false;
   private static __originalX = 0;
   private static __originalY = 0;
   private static __pickStatedPoint = Vector3.zero();
   private static __deltaPoint = Vector3.zero();
   private static __targetPointBackup = Vector3.zero();
+  private static __isPointerDown = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
+  private static __latestTargetEntity?: ISceneGraphEntity;
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
@@ -122,12 +123,29 @@ export default class TranslationGizmo extends Gizmo {
           classInstance: this,
           eventTargetDom: eventTargetDom,
         },
+        {
+          eventName: 'pointerleave',
+          handler: this.__onPointerUpFunc,
+          options: {},
+          classInstance: this,
+          eventTargetDom: eventTargetDom,
+        },
       ]);
+      this.__topEntity!.getSceneGraph().addChild(
+        TranslationGizmo.__groupEntity.getSceneGraph()
+      )
+      TranslationGizmo.__latestTargetEntity = this.__target;
     }
 
 
     if (this.__isVisible === true && flg === false) {
       InputManager.unregister(INPUT_HANDLING_STATE_GIZMO_TRNSLATION);
+      TranslationGizmo.__deltaPoint = this.__target.getTransform().translate;
+      TranslationGizmo.__pickStatedPoint = Vector3.zero();
+      TranslationGizmo.__isPointerDown = false;
+      TranslationGizmo.__targetPointBackup = this.__target.getTransform().translate;
+      TranslationGizmo.__activeAxis = 'none';
+
     }
 
     InputManager.setActive(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, flg);
@@ -136,6 +154,7 @@ export default class TranslationGizmo extends Gizmo {
     TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
     TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
     TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
+
   }
 
   get isVisible(): boolean {
@@ -358,6 +377,7 @@ export default class TranslationGizmo extends Gizmo {
     this.__topEntity!.getSceneGraph().addChild(
       TranslationGizmo.__groupEntity.getSceneGraph()
     )
+
     TranslationGizmo.__groupEntity.getSceneGraph().addChild(
       TranslationGizmo.__xCubeEntity.getSceneGraph()
     );
@@ -377,6 +397,8 @@ export default class TranslationGizmo extends Gizmo {
       TranslationGizmo.__zxPlaneEntity.getSceneGraph()
     );
 
+    TranslationGizmo.__latestTargetEntity = this.__target;
+
     this.setGizmoTag();
   }
 
@@ -391,14 +413,18 @@ export default class TranslationGizmo extends Gizmo {
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
     this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+    const max = Math.max(aabb.sizeX, aabb.sizeY, aabb.sizeZ);
     this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
-      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
-      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
-      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeZ / 2),
+      Math.min(1, aabb.isVanilla() ? 1 : max / 2),
+      Math.min(1, aabb.isVanilla() ? 1 : max / 2),
+      Math.min(1, aabb.isVanilla() ? 1 : max / 2),
     ]);
 
-    // this.__target.getTransform().translate = Vector3.subtract(TranslationGizmo.__deltaPoint, (this.__target.getTransform()!.translateInner));
-    this.__target.getTransform().translate = TranslationGizmo.__deltaPoint
+    if (TranslationGizmo.__isPointerDown) {
+      if (TranslationGizmo.__latestTargetEntity === this.__target) {
+        this.__target.getTransform().translate = TranslationGizmo.__deltaPoint.clone();
+      }
+    }
   }
 
   ///
@@ -464,7 +490,6 @@ export default class TranslationGizmo extends Gizmo {
     TranslationGizmo.__originalX = evt.clientX;
     TranslationGizmo.__originalY = evt.clientY;
 
-    TranslationGizmo.__targetPointBackup = this.__target.getTransform().translate.clone();
 
     const { xResult, yResult, zResult } = TranslationGizmo.castRay(evt);
     if (xResult.result) {
@@ -485,12 +510,16 @@ export default class TranslationGizmo extends Gizmo {
       console.log('Down:' + TranslationGizmo.__pickStatedPoint.toStringApproximately());
       TranslationGizmo.__activeAxis = 'z';
     }
+
+    if (TranslationGizmo.__latestTargetEntity === this.__target) {
+      TranslationGizmo.__targetPointBackup = this.__target.getTransform().translate;
+    }
   }
 
   private __onPointerMove(evt: PointerEvent) {
     evt.preventDefault();
     if (Is.false(TranslationGizmo.__isPointerDown)) {
-      // return;
+      return;
     }
 
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
@@ -501,20 +530,7 @@ export default class TranslationGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent | undefined;
 
-    // const { xResult, yResult, zResult } = TranslationGizmo.castRay(evt);
     let pickInMovingPoint: Vector3 = TranslationGizmo.__pickStatedPoint.clone();
-    // if (xResult.result) {
-    //   assertExist(xResult.data)
-    //   pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
-    // }
-    // if (yResult.result) {
-    //   assertExist(yResult.data)
-    //   pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
-    // }
-    // if (zResult.result) {
-    //   assertExist(zResult.data)
-    //   pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
-    // }
     if (TranslationGizmo.__activeAxis === 'x') {
       const xResult = TranslationGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       assertExist(xResult.data)
@@ -537,16 +553,17 @@ export default class TranslationGizmo extends Gizmo {
     const deltaVector3 = Vector3.subtract(pickInMovingPoint, TranslationGizmo.__pickStatedPoint);
     const deltaDeltaVector3 = Vector3.add(TranslationGizmo.__targetPointBackup, deltaVector3);
     TranslationGizmo.__deltaPoint = deltaDeltaVector3;
-    // TranslationGizmo.__deltaPoint = xResult.data.position;
-    // console.log(deltaVector3.toStringApproximately());
-
+    // TranslationGizmo.__deltaPoint = deltaVector3;
   }
 
   private __onPointerUp(evt: PointerEvent) {
     evt.preventDefault();
     TranslationGizmo.__isPointerDown = false;
     TranslationGizmo.__activeAxis = 'none';
-    TranslationGizmo.__targetPointBackup = this.__target.getTransform().translate.clone();
+
+    if (TranslationGizmo.__latestTargetEntity === this.__target) {
+      TranslationGizmo.__targetPointBackup = this.__target.getTransform().translate;
+    }
   }
 
   private static castRay2(evt: PointerEvent) {

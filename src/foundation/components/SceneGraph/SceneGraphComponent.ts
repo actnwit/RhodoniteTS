@@ -31,6 +31,7 @@ import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 import TranslationGizmo from '../../gizmos/TranslationGizmo';
+import ScaleGizmo from '../../gizmos/ScaleGizmo';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -51,6 +52,7 @@ export default class SceneGraphComponent extends Component {
   private __aabbGizmo?: AABBGizmo;
   private __locatorGizmo?: LocatorGizmo;
   private __translationGizmo?: TranslationGizmo;
+  private __scaleGizmo?: ScaleGizmo;
   private static isJointAABBShouldBeCalculated = false;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
@@ -154,6 +156,30 @@ export default class SceneGraphComponent extends Component {
   get isTranslationGizmoVisible() {
     if (Is.exist(this.__translationGizmo)) {
       return this.__translationGizmo.isVisible;
+    } else {
+      return false;
+    }
+  }
+
+  set isScaleGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__scaleGizmo)) {
+        this.__scaleGizmo = new ScaleGizmo(
+          this.entity as IMeshEntity
+        );
+        this.__scaleGizmo._setup();
+      }
+      this.__scaleGizmo.isVisible = true;
+    } else {
+      if (Is.exist(this.__scaleGizmo)) {
+        this.__scaleGizmo.isVisible = false;
+      }
+    }
+  }
+
+  get isScaleGizmoVisible() {
+    if (Is.exist(this.__scaleGizmo)) {
+      return this.__scaleGizmo.isVisible;
     } else {
       return false;
     }
@@ -622,6 +648,13 @@ export default class SceneGraphComponent extends Component {
       this.__translationGizmo.isVisible
     ) {
       this.__translationGizmo._update();
+    }
+    if (
+      Is.exist(this.__scaleGizmo) &&
+      this.__scaleGizmo.isSetup &&
+      this.__scaleGizmo.isVisible
+    ) {
+      this.__scaleGizmo._update();
     }
   }
 
