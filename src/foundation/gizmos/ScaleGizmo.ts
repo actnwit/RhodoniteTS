@@ -17,6 +17,7 @@ import { IMatrix44 } from '../math/IMatrix';
 import { MathUtil } from '../math/MathUtil';
 import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
+import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import Quaternion from '../math/Quaternion';
 import Vector3 from '../math/Vector3';
@@ -61,7 +62,7 @@ export default class ScaleGizmo extends Gizmo {
   private static __originalY = 0;
   private static __pickStatedPoint = Vector3.zero();
   private static __deltaPoint = Vector3.one();
-  private static __targetPointBackup = Vector3.one();
+  private static __targetScaleBackup = Vector3.one();
   private static __isPointerDown = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
   private static __space: 'local' | 'world' = 'world';
@@ -153,7 +154,7 @@ export default class ScaleGizmo extends Gizmo {
       ScaleGizmo.__deltaPoint = this.__target.getTransform().scale;
       ScaleGizmo.__pickStatedPoint = Vector3.zero();
       ScaleGizmo.__isPointerDown = false;
-      ScaleGizmo.__targetPointBackup = this.__target.getTransform().scale;
+      ScaleGizmo.__targetScaleBackup = this.__target.getTransform().scale;
       ScaleGizmo.__activeAxis = 'none';
 
     }
@@ -509,29 +510,44 @@ export default class ScaleGizmo extends Gizmo {
     ScaleGizmo.__originalX = evt.clientX;
     ScaleGizmo.__originalY = evt.clientY;
 
+    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const scaleVec = Vector3.one();//this.__target.getSceneGraph().worldMatrix.getScale();
+    let rotMat = new Matrix33(
+      scaleVec.x * worldMatrix.m00, scaleVec.x * worldMatrix.m01, scaleVec.x * worldMatrix.m02,
+      scaleVec.y * worldMatrix.m10, scaleVec.y * worldMatrix.m11, scaleVec.y * worldMatrix.m12,
+      scaleVec.z * worldMatrix.m20, scaleVec.z * worldMatrix.m21, scaleVec.z * worldMatrix.m22,
+    )
+
+    if (ScaleGizmo.__space === 'local') {
+      rotMat = Matrix33.transpose(rotMat);
+    } else if (ScaleGizmo.__space === 'world') {
+      // rotMat = rotMat;
+      // rotMat = Matrix33.transpose(rotMat);
+      rotMat = MutableMatrix33.identity();
+    }
 
     const { xResult, yResult, zResult } = ScaleGizmo.castRay(evt);
     if (xResult.result) {
       assertExist(xResult.data)
-      ScaleGizmo.__pickStatedPoint = xResult.data.position.clone();
+      ScaleGizmo.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
       console.log('Down:' + ScaleGizmo.__pickStatedPoint.toStringApproximately());
       ScaleGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data)
-      ScaleGizmo.__pickStatedPoint = yResult.data.position.clone();
+      ScaleGizmo.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
       console.log('Down:' + ScaleGizmo.__pickStatedPoint.toStringApproximately());
       ScaleGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data)
-      ScaleGizmo.__pickStatedPoint = zResult.data.position.clone();
+      ScaleGizmo.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
       console.log('Down:' + ScaleGizmo.__pickStatedPoint.toStringApproximately());
       ScaleGizmo.__activeAxis = 'z';
     }
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
-      ScaleGizmo.__targetPointBackup = this.__target.getTransform().scale;
+      ScaleGizmo.__targetScaleBackup = this.__target.getTransform().scale;
     }
   }
 
@@ -549,12 +565,28 @@ export default class ScaleGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent | undefined;
 
+      const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+      const scaleVec = Vector3.one();//this.__target.getSceneGraph().worldMatrix.getScale();
+      let rotMat = new Matrix33(
+        scaleVec.x * worldMatrix.m00, scaleVec.x * worldMatrix.m01, scaleVec.x * worldMatrix.m02,
+        scaleVec.y * worldMatrix.m10, scaleVec.y * worldMatrix.m11, scaleVec.y * worldMatrix.m12,
+        scaleVec.z * worldMatrix.m20, scaleVec.z * worldMatrix.m21, scaleVec.z * worldMatrix.m22,
+      )
+    if (ScaleGizmo.__space === 'local') {
+      rotMat = Matrix33.transpose(rotMat);
+    } else if (ScaleGizmo.__space === 'world') {
+      rotMat = rotMat;
+      // rotMat = Matrix33.transpose(rotMat);
+      // rotMat = MutableMatrix33.identity();
+    }
     let pickInMovingPoint: Vector3 = ScaleGizmo.__pickStatedPoint.clone();
     if (ScaleGizmo.__activeAxis === 'x') {
       const xResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (xResult.result) {
         assertExist(xResult.data)
-        pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
+        const position = rotMat.multiplyVector(xResult.data.position);
+        pickInMovingPoint = Vector3.fromCopy3(position.x, pickInMovingPoint.y, pickInMovingPoint.z);
+        // pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         console.log('Move:' + xResult.data.position.toStringApproximately());
       }
     }
@@ -562,7 +594,9 @@ export default class ScaleGizmo extends Gizmo {
       const yResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
         if (yResult.result) {
         assertExist(yResult.data)
-        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
+        const position = rotMat.multiplyVector(yResult.data.position);
+        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, position.y, pickInMovingPoint.z);
+        // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
         console.log('Move:' + yResult.data.position.toStringApproximately());
       }
     }
@@ -570,26 +604,28 @@ export default class ScaleGizmo extends Gizmo {
       const zResult = ScaleGizmo.__yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (zResult.result) {
         assertExist(zResult.data)
-        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
+        const position = rotMat.multiplyVector(zResult.data.position);
+        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, position.z);
+        // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
         console.log('Move:' + zResult.data.position.toStringApproximately());
       }
     }
 
     const deltaVector3 = Vector3.multiply(Vector3.subtract(pickInMovingPoint, ScaleGizmo.__pickStatedPoint), 0.1);
     if (ScaleGizmo.__space === 'local') {
-      const deltaDeltaVector3 = Vector3.add(ScaleGizmo.__targetPointBackup, deltaVector3);
+      const deltaDeltaVector3 = Vector3.add(ScaleGizmo.__targetScaleBackup, deltaVector3);
       ScaleGizmo.__deltaPoint = deltaDeltaVector3;
     } else if (ScaleGizmo.__space === 'world') {
+      // const deltaDeltaVector3 = Vector3.add(ScaleGizmo.__targetScaleBackup, deltaVector3);
+      // ScaleGizmo.__deltaPoint = deltaDeltaVector3;
       // ScaleGizmo.__deltamatrix = Matrix44.multiply(Matrix44.scale(ScaleGizmo.__deltaPoint), this.__target.getSceneGraph().worldMatrix.invert());
       // obsidian://open?vault=MyObsidian&file=_Zettelkasten%2F%E3%81%9D%E3%81%AE39%20%E7%9F%A5%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B%E3%81%A8%E4%BE%BF%E5%88%A9%EF%BC%9F%E3%83%AF%E3%83%BC%E3%83%AB%E3%83%89%E5%A4%89%E6%8F%9B%E8%A1%8C%E5%88%97%E3%81%8B%E3%82%89%E6%83%85%E5%A0%B1%E3%82%92%E6%8A%9C%E3%81%8D%E5%87%BA%E3%81%9D%E3%81%86
-      const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
-      const scaleVec = Vector3.one();//this.__target.getSceneGraph().worldMatrix.getScale();
-      const rotMat = new Matrix33(
-        scaleVec.x * worldMatrix.m00, scaleVec.x * worldMatrix.m01, scaleVec.x * worldMatrix.m02,
-        scaleVec.y * worldMatrix.m10, scaleVec.y * worldMatrix.m11, scaleVec.y * worldMatrix.m12,
-        scaleVec.z * worldMatrix.m20, scaleVec.z * worldMatrix.m21, scaleVec.z * worldMatrix.m22,
-      )
-      ScaleGizmo.__deltaPoint = Vector3.add(Matrix33.invert(rotMat).multiplyVector(deltaVector3), ScaleGizmo.__targetPointBackup);
+      // ScaleGizmo.__deltaPoint = Vector3.add(Matrix33.transpose(rotMat).multiplyVector(deltaVector3), ScaleGizmo.__targetScaleBackup);
+      ScaleGizmo.__deltaPoint = Vector3.add(rotMat.multiplyVector(deltaVector3), ScaleGizmo.__targetScaleBackup);
+      // ScaleGizmo.__deltaPoint = rotMat.multiplyVector(Vector3.add(deltaVector3, ScaleGizmo.__targetPointBackup));
+      // ScaleGizmo.__deltaPoint = Matrix33.transpose(rotMat).multiplyVector(Vector3.add(deltaVector3, ScaleGizmo.__targetPointBackup));
+      // ScaleGizmo.__deltaPoint = Vector3.add(deltaVector3, Matrix33.transpose(rotMat).multiplyVector(ScaleGizmo.__targetPointBackup));
+      // ScaleGizmo.__deltaPoint = Vector3.add(deltaVector3, rotMat.multiplyVector(ScaleGizmo.__targetPointBackup));
     }
 
     // TranslationGizmo.__deltaPoint = deltaVector3;
@@ -601,7 +637,7 @@ export default class ScaleGizmo extends Gizmo {
     ScaleGizmo.__activeAxis = 'none';
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
-      ScaleGizmo.__targetPointBackup = this.__target.getTransform().scale;
+      ScaleGizmo.__targetScaleBackup = this.__target.getTransform().scale;
     }
   }
 
