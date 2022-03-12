@@ -64,5 +64,6 @@
         "zstddec"
     ],
     "eslint.format.enable": true,
-    "bookmarks.saveBookmarksInProject": true
+    "bookmarks.saveBookmarksInProject": true,
+    "nuxt.isNuxtApp": false
 }
