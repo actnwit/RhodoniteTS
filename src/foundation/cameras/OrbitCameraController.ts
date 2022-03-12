@@ -59,7 +59,7 @@ export default class OrbitCameraController
   private __upVec = MutableVector3.zero();
   protected __targetEntity?: ISceneGraphEntity;
   private __scaleOfZNearAndZFar = 5000;
-  private __doPreventDefault = true;
+  private __doPreventDefault = false;
   private __isPressingShift = false;
   private __isPressingCtrl = false;
 
