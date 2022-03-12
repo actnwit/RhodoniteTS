@@ -53,6 +53,7 @@ export default class SceneGraphComponent extends Component {
   private __locatorGizmo?: LocatorGizmo;
   private __translationGizmo?: TranslationGizmo;
   private __scaleGizmo?: ScaleGizmo;
+  private __transformGizmoSpace: 'local' | 'world' = 'world';
   private static isJointAABBShouldBeCalculated = false;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
@@ -666,6 +667,11 @@ export default class SceneGraphComponent extends Component {
     return this.__entityRepository.getEntity(
       this.__entityUid
     ) as unknown as ISceneGraphEntity;
+  }
+
+  setTransformGizmoSpace(space: 'local' | 'world') {
+    this.__transformGizmoSpace = space;
+    this.__scaleGizmo?.setSpace(space);
   }
 
   /**
