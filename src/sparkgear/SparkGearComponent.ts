@@ -372,6 +372,12 @@ export default class SparkGearComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  /**
+   * @override
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component

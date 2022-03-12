@@ -47,6 +47,12 @@ export default class BlendShapeComponent extends Component {
 
   $logic() {}
 
+  /**
+   * @override
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component

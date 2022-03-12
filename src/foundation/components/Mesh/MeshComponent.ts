@@ -338,6 +338,12 @@ export default class MeshComponent extends Component {
     ) as unknown as IMeshEntity;
   }
 
+  /**
+   * @override
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component

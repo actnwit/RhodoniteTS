@@ -801,6 +801,12 @@ export default class AnimationComponent extends Component {
     ) as unknown as IAnimationEntity;
   }
 
+  /**
+   * @override
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
