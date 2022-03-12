@@ -15,13 +15,15 @@ import TransformComponent from '../components/Transform/TransformComponent';
 import AnimationComponent from '../components/Animation/AnimationComponent';
 import CameraComponent from '../components/Camera/CameraComponent';
 
+/**
+ * The Interface for an Entity.
+ */
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
   getComponent(componentType: typeof Component): Component | undefined;
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
   _setComponent(componentType: typeof Component, com: Component): void;
   hasComponent(componentType: typeof Component): boolean;
-  _getComponentsInner(): Map<ComponentTID, Component>;
   tryToGetBlendShape(): BlendShapeComponent | undefined;
   tryToGetCamera(): CameraComponent | undefined;
   tryToGetCameraController(): CameraControllerComponent | undefined;
@@ -40,10 +42,17 @@ export interface IEntity extends IRnObject {
  * Entities can acquire various functions by having components on themselves.
  */
 export default class Entity extends RnObject implements IEntity {
+  /** The Unique ID of Entity */
   private readonly __entity_uid: number;
-  static readonly invalidEntityUID = -1;
-  private __isAlive: Boolean;
+
+  /** The Map of components. All components must be managed in this map */
   protected __components: Map<ComponentTID, Component>; // index is ComponentTID
+
+  /** Invalid Entity UID constant value */
+  static readonly invalidEntityUID = -1;
+
+  /** No use yet */
+  private __isAlive: Boolean;
 
   /**
    * The constructor of the Entity class.
@@ -108,8 +117,18 @@ export default class Entity extends RnObject implements IEntity {
     return this.__components.get(componentTID);
   }
 
-  _getComponentsInner() {
-    return this.__components;
+  ///
+  /// tryToGet methods
+  ///
+
+  /**
+   * try to get an Animation Component if the entity has it.
+   * @returns AnimationComponent | undefined
+   */
+  tryToGetAnimation() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.AnimationComponentTID
+    ) as AnimationComponent | undefined;
   }
 
   tryToGetBlendShape() {
@@ -170,10 +189,5 @@ export default class Entity extends RnObject implements IEntity {
     return this.getComponentByComponentTID(
       WellKnownComponentTIDs.TransformComponentTID
     ) as TransformComponent | undefined;
-  }
-  tryToGetAnimation() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.AnimationComponentTID
-    ) as AnimationComponent | undefined;
   }
 }
