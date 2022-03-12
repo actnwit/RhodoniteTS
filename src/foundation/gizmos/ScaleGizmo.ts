@@ -575,9 +575,9 @@ export default class ScaleGizmo extends Gizmo {
     if (ScaleGizmo.__space === 'local') {
       rotMat = Matrix33.transpose(rotMat);
     } else if (ScaleGizmo.__space === 'world') {
-      rotMat = rotMat;
+      // rotMat = rotMat;
       // rotMat = Matrix33.transpose(rotMat);
-      // rotMat = MutableMatrix33.identity();
+      rotMat = MutableMatrix33.identity();
     }
     let pickInMovingPoint: Vector3 = ScaleGizmo.__pickStatedPoint.clone();
     if (ScaleGizmo.__activeAxis === 'x') {
@@ -616,16 +616,9 @@ export default class ScaleGizmo extends Gizmo {
       const deltaDeltaVector3 = Vector3.add(ScaleGizmo.__targetScaleBackup, deltaVector3);
       ScaleGizmo.__deltaPoint = deltaDeltaVector3;
     } else if (ScaleGizmo.__space === 'world') {
-      // const deltaDeltaVector3 = Vector3.add(ScaleGizmo.__targetScaleBackup, deltaVector3);
-      // ScaleGizmo.__deltaPoint = deltaDeltaVector3;
-      // ScaleGizmo.__deltamatrix = Matrix44.multiply(Matrix44.scale(ScaleGizmo.__deltaPoint), this.__target.getSceneGraph().worldMatrix.invert());
-      // obsidian://open?vault=MyObsidian&file=_Zettelkasten%2F%E3%81%9D%E3%81%AE39%20%E7%9F%A5%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B%E3%81%A8%E4%BE%BF%E5%88%A9%EF%BC%9F%E3%83%AF%E3%83%BC%E3%83%AB%E3%83%89%E5%A4%89%E6%8F%9B%E8%A1%8C%E5%88%97%E3%81%8B%E3%82%89%E6%83%85%E5%A0%B1%E3%82%92%E6%8A%9C%E3%81%8D%E5%87%BA%E3%81%9D%E3%81%86
-      // ScaleGizmo.__deltaPoint = Vector3.add(Matrix33.transpose(rotMat).multiplyVector(deltaVector3), ScaleGizmo.__targetScaleBackup);
-      ScaleGizmo.__deltaPoint = Vector3.add(rotMat.multiplyVector(deltaVector3), ScaleGizmo.__targetScaleBackup);
-      // ScaleGizmo.__deltaPoint = rotMat.multiplyVector(Vector3.add(deltaVector3, ScaleGizmo.__targetPointBackup));
-      // ScaleGizmo.__deltaPoint = Matrix33.transpose(rotMat).multiplyVector(Vector3.add(deltaVector3, ScaleGizmo.__targetPointBackup));
-      // ScaleGizmo.__deltaPoint = Vector3.add(deltaVector3, Matrix33.transpose(rotMat).multiplyVector(ScaleGizmo.__targetPointBackup));
-      // ScaleGizmo.__deltaPoint = Vector3.add(deltaVector3, rotMat.multiplyVector(ScaleGizmo.__targetPointBackup));
+      const worldMat = this.__target.getSceneGraph().worldMatrix;
+      const existedScale = Matrix44.multiply(worldMat, Matrix44.scale(ScaleGizmo.__targetScaleBackup)).getScale();
+      ScaleGizmo.__deltaPoint = Matrix44.multiply(Matrix44.invert(worldMat), Matrix44.scale(Vector4.add(deltaVector3, existedScale))).getScale();
     }
 
     // TranslationGizmo.__deltaPoint = deltaVector3;
