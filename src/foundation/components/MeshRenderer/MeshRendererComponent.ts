@@ -245,7 +245,7 @@ export default class MeshRendererComponent extends Component {
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
     if (MeshRendererComponent.__manualTransparentSids == null) {
       const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
-        void 0,
+        undefined,
         renderPass
       );
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
