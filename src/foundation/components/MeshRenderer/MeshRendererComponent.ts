@@ -33,7 +33,7 @@ import {
 } from '../../../types/CommonTypes';
 import AbstractMaterialNode from '../../materials/core/AbstractMaterialNode';
 import {IMatrix44} from '../../math/IMatrix';
-import {IMeshEntity} from '../../helpers/EntityHelper';
+import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {Is} from '../../misc/Is';
@@ -270,12 +270,111 @@ export default class MeshRendererComponent extends Component {
 
     let meshComponents: MeshComponent[] = [];
     let cameraComponent = renderPass.cameraComponent;
+    // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;
     }
+
+    // FrustumCulling
+    meshComponents = MeshRendererComponent.__cullingWithViewFrustum(
+      cameraComponent,
+      sceneGraphComponents,
+      meshComponents,
+      renderPass
+    );
+
+    // After FrustumCulling, remove duplicated MeshComponents
+    meshComponents = Array.from(new Set(meshComponents));
+
+    // collect meshComponentSids into the three type arrays by tranclucency
+    const opaqueAndTransparentPartiallyMeshComponentSids: ComponentSID[] = [];
+    const transparentPartiallyMeshComponents: MeshComponent[] = [];
+    const transparentCompletelyMeshComponents: MeshComponent[] = [];
+
+    for (let i = 0; i < meshComponents.length; i++) {
+      if (Is.false(meshComponents[i].entity.getSceneGraph().isVisible)) {
+        continue;
+      }
+      const meshRendererComponent =
+        meshComponents[i].entity.tryToGetMeshRenderer()!;
+      if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
+        const meshComponent = meshComponents[i];
+        if (meshComponent.mesh) {
+          if (
+            transparentMeshComponentSids_.length === 0 &&
+            meshComponent.mesh.isBlendPartially()
+          ) {
+            transparentPartiallyMeshComponents.push(meshComponent);
+            opaqueAndTransparentPartiallyMeshComponentSids.push(
+              meshComponent.componentSID
+            );
+          } else if (
+            transparentMeshComponentSids_.length === 0 &&
+            meshComponent.mesh.isAllBlend()
+          ) {
+            transparentCompletelyMeshComponents.push(meshComponent);
+          }
+
+          if (meshComponent.mesh.isOpaque()) {
+            opaqueAndTransparentPartiallyMeshComponentSids.push(
+              meshComponent.componentSID
+            );
+          } else {
+            if (cameraComponent) {
+              // calc View Depth
+              meshComponent.calcViewDepth(cameraComponent);
+            }
+          }
+        }
+      }
+    }
+
+    // Sort transparent meshes by depth
+    const transparentPartiallyOrAllMeshComponents =
+      transparentPartiallyMeshComponents.concat(
+        transparentCompletelyMeshComponents
+      );
+    transparentPartiallyOrAllMeshComponents.sort((a, b) => {
+      return a.viewDepth - b.viewDepth;
+    });
+
+    let transparentMeshComponentSids;
+    if (transparentMeshComponentSids_.length === 0) {
+      transparentMeshComponentSids =
+        transparentPartiallyOrAllMeshComponents.map(meshComponent => {
+          return meshComponent.componentSID;
+        });
+    } else {
+      transparentMeshComponentSids = transparentMeshComponentSids_;
+    }
+
+    MeshRendererComponent.__firstTransparentIndex =
+      opaqueAndTransparentPartiallyMeshComponentSids.length;
+
+    // Concat opaque and transparent meshes
+    const sortedMeshComponentSids =
+      opaqueAndTransparentPartiallyMeshComponentSids.concat(
+        transparentMeshComponentSids
+      );
+
+    MeshRendererComponent.__lastTransparentIndex =
+      sortedMeshComponentSids.length - 1;
+
+    // Add terminator
+    sortedMeshComponentSids.push(Component.invalidComponentSID);
+
+    return sortedMeshComponentSids;
+  }
+
+  private static __cullingWithViewFrustum(
+    cameraComponent: CameraComponent,
+    sceneGraphComponents: SceneGraphComponent[],
+    meshComponents: MeshComponent[],
+    renderPass: RenderPass
+  ) {
     if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
 
@@ -333,85 +432,7 @@ export default class MeshRendererComponent extends Component {
     } else {
       meshComponents = renderPass!.meshComponents!;
     }
-
-    meshComponents = Array.from(new Set(meshComponents));
-
-    const opaqueAndTransparentPartiallyMeshComponentSids: ComponentSID[] = [];
-    const transparentPartiallyMeshComponents: MeshComponent[] = [];
-    const transparentCompletelyMeshComponents: MeshComponent[] = [];
-
-    for (let i = 0; i < meshComponents.length; i++) {
-      if (Is.false(meshComponents[i].entity.getSceneGraph().isVisible)) {
-        continue;
-      }
-      const meshRendererComponent =
-        meshComponents[i].entity.tryToGetMeshRenderer()!;
-      if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
-        const meshComponent = meshComponents[i];
-        if (meshComponent.mesh) {
-          if (
-            transparentMeshComponentSids_.length === 0 &&
-            meshComponent.mesh.isBlendPartially()
-          ) {
-            transparentPartiallyMeshComponents.push(meshComponent);
-            opaqueAndTransparentPartiallyMeshComponentSids.push(
-              meshComponent.componentSID
-            );
-          } else if (
-            transparentMeshComponentSids_.length === 0 &&
-            meshComponent.mesh.isAllBlend()
-          ) {
-            transparentCompletelyMeshComponents.push(meshComponent);
-          }
-
-          if (meshComponent.mesh.isOpaque()) {
-            opaqueAndTransparentPartiallyMeshComponentSids.push(
-              meshComponent.componentSID
-            );
-          } else {
-            if (cameraComponent) {
-              meshComponent.calcViewDepth(cameraComponent);
-            }
-          }
-        }
-      }
-    }
-
-    // Sort transparent meshes
-    const transparentPartiallyOrAllMeshComponents =
-      transparentPartiallyMeshComponents.concat(
-        transparentCompletelyMeshComponents
-      );
-    transparentPartiallyOrAllMeshComponents.sort((a, b) => {
-      return a.viewDepth - b.viewDepth;
-    });
-
-    let transparentMeshComponentSids;
-    if (transparentMeshComponentSids_.length === 0) {
-      transparentMeshComponentSids =
-        transparentPartiallyOrAllMeshComponents.map(meshComponent => {
-          return meshComponent.componentSID;
-        });
-    } else {
-      transparentMeshComponentSids = transparentMeshComponentSids_;
-    }
-
-    MeshRendererComponent.__firstTransparentIndex =
-      opaqueAndTransparentPartiallyMeshComponentSids.length;
-
-    // Concat opaque and transparent meshes
-    const sortedMeshComponentSids =
-      opaqueAndTransparentPartiallyMeshComponentSids.concat(
-        transparentMeshComponentSids
-      );
-
-    MeshRendererComponent.__lastTransparentIndex =
-      sortedMeshComponentSids.length - 1;
-
-    // Add terminator
-    sortedMeshComponentSids.push(Component.invalidComponentSID);
-
-    return sortedMeshComponentSids;
+    return meshComponents;
   }
 
   static common_$render({
