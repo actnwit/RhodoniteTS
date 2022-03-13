@@ -736,10 +736,10 @@
   resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.35.tgz#13b3cf1cd90544524d932ed36e6b109a2ec73d22"
   integrity sha512-jdpJqweU5v7hYwUlHKQU6wzjQvUfBfmTz4WBwVd/5PVGYalKm6YbEnM/3T+M+QzRYf2R/ojBGnrWpjHBZFR3Og==
 
-"@types/webxr@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.2.1.tgz#58eab531ac17d761894cdea63c7d86b3f31cc0d6"
-  integrity sha512-1WLx0tQUXJKqdIeTPLZPMOzeI+ZdhCdp/iqB8Ke8bWG+tfvSuyWow+MM6Rl/7NGabW1rcwJyO3y3gjnbo2AVvA==
+"@types/webxr@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.2.3.tgz#6e04a6c4aff9a6e9ae4265ad3eae6545dcfdcf0a"
+  integrity sha512-MCxbyG4KIcx8+g1RwX9uRYsEfRncWLKtGhzSFh+j8fNOgnuzuBAabGJZz45iU4JvPeqaKaLRqQt6o92NMprmwQ==
 
 "@types/yargs-parser@*":
   version "20.2.0"

@@ -53,7 +53,7 @@
     "@types/webgl-ext": "^0.0.32",
     "@types/webgl2": "^0.0.5",
     "@types/webvr-api": "^0.0.35",
-    "@types/webxr": "^0.2.1",
+    "@types/webxr": "^0.2.3",
     "@typescript-eslint/parser": "4.15.1",
     "cross-env": "^7.0.3",
     "express": "^4.17.1",
