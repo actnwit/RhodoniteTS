@@ -57,6 +57,7 @@ export default class MeshComponent extends Component {
 
   setMesh(mesh: Mesh) {
     this.__mesh = mesh;
+    mesh._belongToMeshComponent(this);
     mesh._attachedEntityUID = this.entityUID;
   }
 

@@ -37,7 +37,8 @@ import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {Is} from '../../misc/Is';
-import { Primitive } from '../../..';
+import {Primitive} from '../../..';
+import {PrimitiveSortKey_BitOffset_TranslucencyType} from '../../geometry/types/GeometryTypes';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -209,7 +210,7 @@ export default class MeshRendererComponent extends Component {
       this.specularCubeMap.loadTextureImagesAsync();
     }
 
-    this.moveStageTo(ProcessStage.PreRender);
+    // this.moveStageTo(ProcessStage.PreRender);
   }
 
   static common_$prerender(): CGAPIResourceHandle {
@@ -233,34 +234,37 @@ export default class MeshRendererComponent extends Component {
     return MeshRendererComponent.__instanceIDBufferUid;
   }
 
-  $prerender() {
-    MeshRendererComponent.__webglRenderingStrategy!.$prerender(
-      this.__meshComponent!,
-      this,
-      MeshRendererComponent.__instanceIDBufferUid
-    );
+  // $prerender() {
+  //   MeshRendererComponent.__webglRenderingStrategy!.$prerender(
+  //     this.__meshComponent!,
+  //     this,
+  //     MeshRendererComponent.__instanceIDBufferUid
+  //   );
 
-    this.moveStageTo(ProcessStage.Render);
-  }
+  //   this.moveStageTo(ProcessStage.Render);
+  // }
 
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
-    if (MeshRendererComponent.__manualTransparentSids == null) {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
-        undefined,
-        renderPass
-      );
-      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
+    // if (MeshRendererComponent.__manualTransparentSids == null) {
+    //   const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
+    //     undefined,
+    //     renderPass
+    //   );
+    //   // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
-      return sortedMeshComponentSids;
-    } else {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
-        MeshRendererComponent.__manualTransparentSids,
-        renderPass
-      );
-      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
+    //   return sortedMeshComponentSids;
+    // } else {
+    //   const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
+    //     MeshRendererComponent.__manualTransparentSids,
+    //     renderPass
+    //   );
+    //   // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
 
-      return sortedMeshComponentSids;
-    }
+    //   return sortedMeshComponentSids;
+    // }
+
+    const primitiveUids = MeshRendererComponent.sort_$render_inner2(renderPass);
+    return primitiveUids;
   }
 
   private static sort_$render_inner2(renderPass: RenderPass) {
@@ -292,6 +296,21 @@ export default class MeshRendererComponent extends Component {
 
     const primitiveUids = primitives.map(primitive => primitive.primitiveUid);
     primitiveUids.push(-1);
+
+    MeshRendererComponent.__firstTransparentIndex = -1;
+    for (let i = 0; i < primitives.length; i++) {
+      const primitive = primitives[i];
+      const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
+      const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
+      MeshRendererComponent.__firstTransparentIndex = primitive._sortkey;
+      if (isTranslucency) {
+        MeshRendererComponent.__firstTransparentIndex = primitive._sortkey;
+        break;
+      }
+    }
+
+    MeshRendererComponent.__lastTransparentIndex =
+      primitives[primitives.length - 1]._sortkey;
 
     return primitiveUids;
   }
@@ -574,13 +593,13 @@ export default class MeshRendererComponent extends Component {
     }
 
     // Call common_$render of WebGLRenderingStrategy
-    const meshComponentSids =
+    const primitiveUids =
       Component.__componentsOfProcessStages.get(processStage)!;
     const meshComponents = ComponentRepository._getComponents(
       MeshComponent
     ) as MeshComponent[];
     MeshRendererComponent.__webglRenderingStrategy!.common_$render(
-      meshComponentSids,
+      primitiveUids,
       meshComponents,
       viewMatrix,
       projectionMatrix,
@@ -598,31 +617,30 @@ export default class MeshRendererComponent extends Component {
     renderPass: RenderPass;
     renderPassTickCount: Count;
   }) {
-    if (MeshRendererComponent.__webglRenderingStrategy!.$render == null) {
-      return;
-    }
-
-    const entity = EntityRepository.getEntity(this.__entityUid) as IMeshEntity;
-
-    MeshRendererComponent.__webglRenderingStrategy!.$render!(
-      i,
-      this.__meshComponent!,
-      this.__sceneGraphComponent!.worldMatrixInner,
-      this.__sceneGraphComponent!.normalMatrixInner,
-      entity,
-      renderPass,
-      renderPassTickCount,
-      this.diffuseCubeMap,
-      this.specularCubeMap
-    );
-
-    if (this.__meshComponent!.mesh) {
-      if (this.__meshComponent!.mesh.weights.length > 0) {
-        this.moveStageTo(ProcessStage.PreRender);
-      }
-    } else {
-      MeshComponent.alertNoMeshSet(this.__meshComponent!);
-    }
+    //   if (MeshRendererComponent.__webglRenderingStrategy!.$render == null) {
+    //     return;
+    //   }
+    //   const entity = this.__entityRepository.getEntity(
+    //     this.__entityUid
+    //   ) as IMeshEntity;
+    //   MeshRendererComponent.__webglRenderingStrategy!.$render!(
+    //     i,
+    //     this.__meshComponent!,
+    //     this.__sceneGraphComponent!.worldMatrixInner,
+    //     this.__sceneGraphComponent!.normalMatrixInner,
+    //     entity,
+    //     renderPass,
+    //     renderPassTickCount,
+    //     this.diffuseCubeMap,
+    //     this.specularCubeMap
+    //   );
+    //   if (this.__meshComponent!.mesh) {
+    //     if (this.__meshComponent!.mesh.weights.length > 0) {
+    //       this.moveStageTo(ProcessStage.PreRender);
+    //     }
+    //   } else {
+    //     MeshComponent.alertNoMeshSet(this.__meshComponent!);
+    //   }
   }
 
   /**

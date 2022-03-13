@@ -17,8 +17,8 @@ import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 import {IMesh, RaycastResultEx1} from './types/GeometryTypes';
-
-
+import {IMeshEntity} from '../helpers/EntityHelper';
+import {MeshComponent} from '../..';
 
 /**
  * The Mesh class.
@@ -46,6 +46,7 @@ export default class Mesh implements IMesh {
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
   private __latestPrimitivePositionAccessorVersion = 0;
+  private __weakRefMeshEntity: WeakMap<Mesh, IMeshEntity> = new WeakMap();
 
   /**
    * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
@@ -97,6 +98,13 @@ export default class Mesh implements IMesh {
     }
   }
 
+  get meshEntity() {
+    return this.__weakRefMeshEntity.get(this);
+  }
+
+  _belongToMeshComponent(meshComponent: MeshComponent) {
+    this.__weakRefMeshEntity.set(this, meshComponent.entity);
+  }
   /**
    * Adds primitive.
    * @param primitive The primitive object.
@@ -466,9 +474,13 @@ export default class Mesh implements IMesh {
     }
 
     for (const primitive of this.__primitives) {
-      if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
+      if (
+        primitive.positionAccessorVersion !==
+        this.__latestPrimitivePositionAccessorVersion
+      ) {
         this.__localAABB.initialize();
-        this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
+        this.__latestPrimitivePositionAccessorVersion =
+          primitive.positionAccessorVersion!;
         break;
       }
     }

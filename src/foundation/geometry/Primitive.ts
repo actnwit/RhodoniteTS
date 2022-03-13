@@ -59,7 +59,7 @@ export class Primitive extends RnObject {
   private __vertexHandles?: VertexHandles;
   private __latestPositionAccessorVersion = 0;
   private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
-
+  private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
@@ -107,6 +107,10 @@ export class Primitive extends RnObject {
     this.__material = this._prevMaterial;
   }
 
+  static getPrimitive(primitiveUid: PrimitiveUID) {
+    return this.__primitives[primitiveUid];
+  }
+
   setData(
     attributes: Attributes,
     mode: PrimitiveModeEnum,
@@ -127,6 +131,7 @@ export class Primitive extends RnObject {
     this.__mode = mode;
 
     this.__primitiveUid = Primitive.__primitiveCount++;
+    Primitive.__primitives[this.__primitiveUid] = this;
 
     // if (Primitive.__headerAccessor == null) {
     //   // primitive 0
