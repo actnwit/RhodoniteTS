@@ -18,13 +18,18 @@ import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 import {RaycastResultEx1} from './types/GeometryTypes';
 
+
+export interface IMesh {
+
+}
+
 /**
  * The Mesh class.
  * This mesh object has primitives (geometries) or a reference of 'original mesh'.
  * If the latter, this mesh object is an 'instanced mesh', which has no primitives.
  * Instanced meshes refer original mesh's primitives when drawing.
  */
-export default class Mesh {
+export default class Mesh implements IMesh {
   private readonly __meshUID: MeshUID;
   public static readonly invalidateMeshUID = -1;
   public static __mesh_uid_count = Mesh.invalidateMeshUID;
@@ -100,6 +105,7 @@ export default class Mesh {
    * @param primitive The primitive object.
    */
   public addPrimitive(primitive: Primitive): void {
+    primitive._belongToMesh(this);
     if (this.isInstanceMesh()) {
       // De-instancing
       this.__instanceOf!.__instances = this.__instanceOf!.__instances.filter(

@@ -24,6 +24,7 @@ import MutableVector3 from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 import {RaycastResult, RaycastResultEx1} from './types/GeometryTypes';
+import {IMesh} from './Mesh';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -52,6 +53,7 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __latestPositionAccessorVersion = 0;
+  private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -66,6 +68,18 @@ export class Primitive extends RnObject {
 
   get material() {
     return this.__material;
+  }
+
+  /**
+   * belong to mesh (weak reference)
+   * @param mesh
+   */
+  _belongToMesh(mesh: IMesh) {
+    this.__weakRefMesh.set(this, mesh);
+  }
+
+  get mesh(): IMesh | undefined {
+    return this.__weakRefMesh.get(this);
   }
 
   _backupMaterial() {
@@ -347,8 +361,10 @@ export class Primitive extends RnObject {
   }
 
   get AABB() {
-    if (this.__aabb.isVanilla() ||
-      this.positionAccessorVersion !== this.__latestPositionAccessorVersion) {
+    if (
+      this.__aabb.isVanilla() ||
+      this.positionAccessorVersion !== this.__latestPositionAccessorVersion
+    ) {
       const positionAccessor = this.__attributes.get(
         VertexAttribute.Position.XYZ
       )!;
@@ -472,7 +488,7 @@ export class Primitive extends RnObject {
 
     let hitPos0IndexBase = 0;
     let hitPos1IndexBase = 0;
-    let hitPos2IndexBase = 0;
+    const hitPos2IndexBase = 0;
     let u = 0;
     let v = 0;
     if (this.hasIndices()) {
@@ -550,13 +566,13 @@ export class Primitive extends RnObject {
     if (currentShortestT === Number.MAX_VALUE) {
       return {
         result: false,
-      }
+      };
     } else {
       const currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
         dirVec3.x * currentShortestT + origVec3.x,
         dirVec3.y * currentShortestT + origVec3.y,
         dirVec3.z * currentShortestT + origVec3.z
-      )
+      );
       return {
         result: true,
         data: {
@@ -630,7 +646,7 @@ export class Primitive extends RnObject {
       }
       MutableVector3.crossTo(tvec, e1, qvec);
       v = Vector3.dot(dirVec3, qvec);
-      if (v < 0.0 || (u + v) > det) {
+      if (v < 0.0 || u + v > det) {
         return {
           result: false,
         };
@@ -645,7 +661,7 @@ export class Primitive extends RnObject {
       }
       MutableVector3.crossTo(tvec, e1, qvec);
       v = Vector3.dot(dirVec3, qvec);
-      if (v > 0.0 || (u + v) < det) {
+      if (v > 0.0 || u + v < det) {
         return {
           result: false,
         };
@@ -698,5 +714,4 @@ export class Primitive extends RnObject {
       .add(pos2);
     return intersectedPosVec3;
   }
-
 }
