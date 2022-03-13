@@ -16,12 +16,9 @@ import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
-import {RaycastResultEx1} from './types/GeometryTypes';
+import {IMesh, RaycastResultEx1} from './types/GeometryTypes';
 
 
-export interface IMesh {
-
-}
 
 /**
  * The Mesh class.

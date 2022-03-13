@@ -21,8 +21,15 @@ import Vector3 from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
-import {IMesh} from './Mesh';
-import {PrimitiveSortKey, PrimitiveSortKeyOffset, RaycastResult, RaycastResultEx1} from './types/GeometryTypes';
+import {
+  IMesh,
+  PrimitiveSortKey,
+  PrimitiveSortKeyOffset,
+  PrimitiveSortKey_BitOffset_Material,
+  PrimitiveSortKey_BitOffset_TranslucencyType,
+  RaycastResult,
+  RaycastResultEx1,
+} from './types/GeometryTypes';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -63,17 +70,21 @@ export class Primitive extends RnObject {
 
   set material(mat: Material) {
     this.__material = mat;
-    this.__sortkey
+    this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
+    this.setSortKey(
+      PrimitiveSortKey_BitOffset_TranslucencyType,
+      mat.alphaMode.index
+    );
     mat._addBelongPrimitive(this);
+  }
+
+  get material() {
+    return this.__material;
   }
 
   setSortKey(offset: PrimitiveSortKeyOffset, value: number) {
     const offsetValue = value << offset;
     this.__sortkey |= offsetValue;
-  }
-
-  get material() {
-    return this.__material;
   }
 
   /**
