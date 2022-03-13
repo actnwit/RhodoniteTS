@@ -18,13 +18,11 @@ import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
 import Vector3 from '../math/Vector3';
-import Matrix33 from '../math/Matrix33';
-import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
-import {RaycastResult, RaycastResultEx1} from './types/GeometryTypes';
 import {IMesh} from './Mesh';
+import {PrimitiveSortKey, PrimitiveSortKeyOffset, RaycastResult, RaycastResultEx1} from './types/GeometryTypes';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -55,6 +53,8 @@ export class Primitive extends RnObject {
   private __latestPositionAccessorVersion = 0;
   private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
 
+  private __sortkey: PrimitiveSortKey = 0;
+
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
   constructor() {
@@ -63,7 +63,13 @@ export class Primitive extends RnObject {
 
   set material(mat: Material) {
     this.__material = mat;
+    this.__sortkey
     mat._addBelongPrimitive(this);
+  }
+
+  setSortKey(offset: PrimitiveSortKeyOffset, value: number) {
+    const offsetValue = value << offset;
+    this.__sortkey |= offsetValue;
   }
 
   get material() {
