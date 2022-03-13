@@ -37,6 +37,7 @@ import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {Is} from '../../misc/Is';
+import { Primitive } from '../../..';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -262,6 +263,39 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
+  private static sort_$render_inner2(renderPass: RenderPass) {
+    // get CameraComponent
+    let cameraComponent = renderPass.cameraComponent;
+    // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
+    if (cameraComponent == null) {
+      const componentRepository = ComponentRepository.getInstance();
+      cameraComponent = componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
+    }
+
+    // FrustumCulling
+    let primitives: Primitive[] = [];
+    const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
+    primitives = MeshRendererComponent.__cullingWithViewFrustum2(
+      cameraComponent,
+      sceneGraphComponents,
+      renderPass
+    );
+
+    // After Frustum Culling, remove duplicated Primitives
+    primitives = Array.from(new Set(primitives));
+
+    // Sort by sortkey
+    primitives.sort((a, b) => a._sortkey - b._sortkey);
+
+    const primitiveUids = primitives.map(primitive => primitive.primitiveUid);
+    primitiveUids.push(-1);
+
+    return primitiveUids;
+  }
+
   private static sort_$render_inner(
     transparentMeshComponentSids_: ComponentSID[] = [],
     renderPass: RenderPass
@@ -369,6 +403,85 @@ export default class MeshRendererComponent extends Component {
     return sortedMeshComponentSids;
   }
 
+  private static __cullingWithViewFrustum2(
+    cameraComponent: CameraComponent,
+    sceneGraphComponents: SceneGraphComponent[],
+    renderPass: RenderPass
+  ) {
+    let meshComponents: MeshComponent[] = [];
+    if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
+      cameraComponent.updateFrustum();
+
+      const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
+        const skeletalComponent = sg.entity.tryToGetSkeletal();
+        if (Is.exist(skeletalComponent)) {
+          return true;
+        } else {
+          const children = sg.children;
+          for (const child of children) {
+            return whetherContainsSkeletal(child);
+          }
+          return false;
+        }
+      };
+
+      const frustum = cameraComponent.frustum;
+      const doAsVisible = (
+        sg: SceneGraphComponent,
+        meshComponents: MeshComponent[]
+      ) => {
+        const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
+        for (const sg of sgs) {
+          const mesh = sg.entity.tryToGetMesh();
+          if (mesh) {
+            meshComponents!.push(mesh);
+          }
+        }
+      };
+      const frustumCullingRecursively = (
+        sg: SceneGraphComponent,
+        meshComponents: MeshComponent[]
+      ) => {
+        const result = frustum.culling(sg);
+        if (result === Visibility.Visible) {
+          doAsVisible(sg, meshComponents);
+        } else if (
+          result === Visibility.Neutral ||
+          whetherContainsSkeletal(sg)
+        ) {
+          const children = sg.children;
+          const mesh = sg.entity.tryToGetMesh();
+          if (mesh) {
+            meshComponents.push(mesh);
+          }
+          for (const child of children) {
+            frustumCullingRecursively(child, meshComponents);
+          }
+        }
+      };
+
+      for (const tlsg of sceneGraphComponents) {
+        frustumCullingRecursively(tlsg, meshComponents);
+      }
+    } else {
+      meshComponents = renderPass!.meshComponents!;
+    }
+
+    const primitives: Primitive[] = [];
+    for (let i = 0; i < meshComponents.length; i++) {
+      const meshComponent = meshComponents[i];
+      const mesh = meshComponent.mesh;
+      if (mesh !== undefined) {
+        const meshPrimitives = mesh.primitives;
+        for (let j = 0; j < meshPrimitives.length; j++) {
+          const primitive = meshPrimitives[j];
+          primitives.push(primitive);
+        }
+      }
+    }
+    return primitives;
+  }
+
   private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
     sceneGraphComponents: SceneGraphComponent[],
@@ -460,6 +573,7 @@ export default class MeshRendererComponent extends Component {
         MeshRendererComponent.__cameraComponent.projectionMatrix;
     }
 
+    // Call common_$render of WebGLRenderingStrategy
     const meshComponentSids =
       Component.__componentsOfProcessStages.get(processStage)!;
     const meshComponents = ComponentRepository._getComponents(

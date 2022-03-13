@@ -60,7 +60,7 @@ export class Primitive extends RnObject {
   private __latestPositionAccessorVersion = 0;
   private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
 
-  private __sortkey: PrimitiveSortKey = 0;
+  public _sortkey: PrimitiveSortKey = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -84,7 +84,7 @@ export class Primitive extends RnObject {
 
   setSortKey(offset: PrimitiveSortKeyOffset, value: number) {
     const offsetValue = value << offset;
-    this.__sortkey |= offsetValue;
+    this._sortkey |= offsetValue;
   }
 
   /**
