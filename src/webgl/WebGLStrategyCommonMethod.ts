@@ -223,15 +223,8 @@ function isMaterialsSetup(meshComponent: MeshComponent) {
   }
 }
 
-function isSkipDrawing(material: Material, primitive: Primitive) {
-  if (
-    material.isEmptyMaterial() ||
-    material._shaderProgramUid === -1 ||
-    (primitive._sortkey < MeshRendererComponent.firstTransparentIndex &&
-      material.isBlend() && MeshRendererComponent.firstTransparentIndex !== -1) ||
-    (primitive._sortkey >= MeshRendererComponent.firstTransparentIndex &&
-      !material.isBlend() && MeshRendererComponent.firstTransparentIndex !== -1)
-  ) {
+function isSkipDrawing(material: Material) {
+  if (material.isEmptyMaterial() || material._shaderProgramUid === -1) {
     return true;
   } else {
     return false;

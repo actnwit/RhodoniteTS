@@ -449,7 +449,7 @@ mat3 get_normalMatrix(float instanceId) {
           primitive.material!
         );
         WebGLStrategyCommonMethod.startDepthMasking(primitive, gl);
-        if (WebGLStrategyCommonMethod.isSkipDrawing(material, primitive)) {
+        if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
           continue;
         }
 

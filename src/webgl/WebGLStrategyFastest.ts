@@ -960,7 +960,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           primitive,
           primitive.material
         );
-        if (WebGLStrategyCommonMethod.isSkipDrawing(material, primitive)) {
+        if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
           continue;
         }
 
