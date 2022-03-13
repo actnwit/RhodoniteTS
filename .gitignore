@@ -88,3 +88,4 @@ docs/api/
 !**/.vscode/settings.json
 !**/.vscode/launch.json
 .vscode/workspace.code-workspace
+*.tsbuildinfo
