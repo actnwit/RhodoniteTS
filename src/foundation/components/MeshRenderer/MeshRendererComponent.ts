@@ -347,7 +347,7 @@ export default class MeshRendererComponent extends Component {
     const transparentCompletelyMeshComponents: MeshComponent[] = [];
 
     for (let i = 0; i < meshComponents.length; i++) {
-      if (!meshComponents[i].entity.getSceneGraph()!.isVisible) {
+      if (Is.false(meshComponents[i].entity.getSceneGraph().isVisible)) {
         continue;
       }
       const meshRendererComponent = meshComponents[i].entity.tryToGetMeshRenderer()!;
@@ -378,8 +378,6 @@ export default class MeshRendererComponent extends Component {
               meshComponent.calcViewDepth(cameraComponent);
             }
           }
-        } else {
-          MeshComponent.alertNoMeshSet(meshComponent);
         }
       }
     }
@@ -500,6 +498,12 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
+  /**
+   * @override
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component

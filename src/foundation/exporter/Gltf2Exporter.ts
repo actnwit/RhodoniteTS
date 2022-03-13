@@ -56,6 +56,8 @@ import {
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
+import Vector4 from '../math/Vector4';
+import { Tag } from '../core/RnObject';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -71,6 +73,7 @@ export type Gltf2ExportType =
 export interface Gltf2ExporterArguments {
   entities?: ISceneGraphEntity[]; // The target entities. This exporter includes their descendants for the output.
   type: Gltf2ExportType;
+  excludeTags?: Tag[];
 }
 
 /**
@@ -147,6 +150,9 @@ export default class Gltf2Exporter {
     if (json.animations.length === 0) {
       delete (json as Gltf2).animations;
     }
+    if (Is.exist(json.extensionsUsed) && json.extensionsUsed.length === 0) {
+      delete (json as Gltf2).extensionsUsed;
+    }
     delete (json as Gltf2).extras;
   }
 
@@ -155,19 +161,39 @@ export default class Gltf2Exporter {
    * @param option an option config
    * @returns target entities
    */
-  private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
+  private static __collectEntities(option: Gltf2ExporterArguments | undefined){
+      const checkPassOrNotWithTags = (entity: ISceneGraphEntity) => {
+        if (Is.exist(option) && Is.exist(option.excludeTags)) {
+          for (const tag of option.excludeTags) {
+            if (entity.matchTag(tag.tag, tag.value)) {
+              return false; // exludes
+            }
+          }
+        }
+        return true;
+      };
     if (
       Is.exist(option) &&
       Is.exist(option.entities) &&
       option.entities.length > 0
     ) {
+      const excludeWithTags = (entity: ISceneGraphEntity) => {
+        if (Is.exist(option.excludeTags)) {
+          for (const tag of option.excludeTags) {
+            if (entity.matchTag(tag.tag, tag.value)) {
+              return [];
+            }
+          }
+        }
+        return [entity];
+      };
       const collectDescendants = (
         entity: ISceneGraphEntity,
         root: boolean
       ): ISceneGraphEntity[] => {
         const sg = entity.getSceneGraph()!;
         if (sg.children.length > 0) {
-          const array: ISceneGraphEntity[] = root ? [] : [entity];
+          const array: ISceneGraphEntity[] = root ? [] : excludeWithTags(entity);
           for (let i = 0; i < sg.children.length; i++) {
             const child = sg.children[i];
             Array.prototype.push.apply(
@@ -177,27 +203,33 @@ export default class Gltf2Exporter {
           }
           return array;
         } else {
-          return [entity];
+          return excludeWithTags(entity);
         }
       };
       const collectedDescendants = option.entities.flatMap(entity =>
         collectDescendants(entity, true)
       );
 
-      const topLevelEntities: ISceneGraphEntity[] = [];
+      let topLevelEntities: ISceneGraphEntity[] = [];
       option.entities.forEach(entity => {
-        if (collectedDescendants.indexOf(entity) === -1) {
+        // if (collectedDescendants.indexOf(entity) === -1) {
+        if (collectedDescendants.indexOf(entity) === -1 && checkPassOrNotWithTags(entity)) {
           topLevelEntities.push(entity);
         }
       });
-      const collectedEntities = option.entities.concat();
+      let collectedEntities = option.entities.concat();
       Array.prototype.push.apply(collectedEntities, collectedDescendants);
+      collectedEntities = [...new Set(collectedEntities)];
+      if (topLevelEntities.length === 0) {
+        topLevelEntities = collectedEntities;
+      }
       return {collectedEntities, topLevelEntities};
     }
-    const collectedEntities =
+    let collectedEntities =
       Gltf2Exporter.__entityRepository._getEntities() as unknown as ISceneGraphEntity[];
-    const topLevelEntities =
-      SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
+    collectedEntities = collectedEntities.filter(entity => checkPassOrNotWithTags(entity));
+    let topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
+    topLevelEntities = topLevelEntities.filter(entity => checkPassOrNotWithTags(entity));
 
     return {collectedEntities, topLevelEntities};
   }
@@ -403,10 +435,13 @@ export default class Gltf2Exporter {
             colorParam = rnMaterial.getParameter(
               ShaderSemantics.BaseColorFactor
             );
-            if (colorParam == null) {
+            if (Is.not.exist(colorParam)) {
               colorParam = rnMaterial.getParameter(
                 ShaderSemantics.DiffuseColorFactor
               );
+              if (Is.not.exist(colorParam)) {
+                colorParam = Vector4.fromCopy4(1,1,1,1);
+              }
             } else {
               material.pbrMetallicRoughness.metallicFactor =
                 rnMaterial.getParameter(

@@ -30,6 +30,8 @@ import {
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
+import TranslationGizmo from '../../gizmos/TranslationGizmo';
+import ScaleGizmo from '../../gizmos/ScaleGizmo';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -49,6 +51,8 @@ export default class SceneGraphComponent extends Component {
   public isVisible = true;
   private __aabbGizmo?: AABBGizmo;
   private __locatorGizmo?: LocatorGizmo;
+  private __translationGizmo?: TranslationGizmo;
+  private __scaleGizmo?: ScaleGizmo;
   private static isJointAABBShouldBeCalculated = false;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
 
@@ -133,6 +137,54 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
+  set isTranslationGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__translationGizmo)) {
+        this.__translationGizmo = new TranslationGizmo(
+          this.entity as IMeshEntity
+        );
+        this.__translationGizmo._setup();
+      }
+      this.__translationGizmo.isVisible = true;
+    } else {
+      if (Is.exist(this.__translationGizmo)) {
+        this.__translationGizmo.isVisible = false;
+      }
+    }
+  }
+
+  get isTranslationGizmoVisible() {
+    if (Is.exist(this.__translationGizmo)) {
+      return this.__translationGizmo.isVisible;
+    } else {
+      return false;
+    }
+  }
+
+  set isScaleGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__scaleGizmo)) {
+        this.__scaleGizmo = new ScaleGizmo(
+          this.entity as IMeshEntity
+        );
+        this.__scaleGizmo._setup();
+      }
+      this.__scaleGizmo.isVisible = true;
+    } else {
+      if (Is.exist(this.__scaleGizmo)) {
+        this.__scaleGizmo.isVisible = false;
+      }
+    }
+  }
+
+  get isScaleGizmoVisible() {
+    if (Is.exist(this.__scaleGizmo)) {
+      return this.__scaleGizmo.isVisible;
+    } else {
+      return false;
+    }
+  }
+
   static getTopLevelComponents(): SceneGraphComponent[] {
     return SceneGraphComponent.__sceneGraphs.filter(
       (sg: SceneGraphComponent) => {
@@ -179,11 +231,26 @@ export default class SceneGraphComponent extends Component {
 
   /**
    * add a SceneGraph component as a child of this
-   * @param sg a SceneGraph component of Gizmo
+   * @param sg a SceneGraph component
    */
   public addChild(sg: SceneGraphComponent): void {
+    if (Is.exist(sg.__parent)) {
+      sg.__parent.removeChild(sg);
+    }
     sg.__parent = this;
     this.__children.push(sg);
+  }
+
+  /**
+   * remove the child SceneGraph component from this
+   * @param sg a SceneGraph component
+   */
+  public removeChild(sg: SceneGraphComponent): void {
+    const index = this.__children.indexOf(sg);
+    if (index >= 0) {
+      this.__children.splice(index, 1);
+    }
+    sg.__parent = undefined;
   }
 
   /**
@@ -501,7 +568,7 @@ export default class SceneGraphComponent extends Component {
       if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
         continue;
       }
-      const result = meshComponent.castRayFromScreen(
+      const result = meshComponent.castRayFromScreenInWorld(
         x,
         y,
         camera,
@@ -547,12 +614,14 @@ export default class SceneGraphComponent extends Component {
     const meshComponent = this.entity.tryToGetMesh();
     if (Is.exist(meshComponent)) {
       const mesh = meshComponent.mesh;
-      const primitiveNum = mesh!.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh!.getPrimitiveAt(i);
-        if (primitive.isPositionAccessorUpdated) {
-          this.setWorldAABBDirtyParentRecursively();
-          break;
+      if (Is.exist(mesh)) {
+        const primitiveNum = mesh.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+          const primitive = mesh!.getPrimitiveAt(i);
+          if (primitive.isPositionAccessorUpdated) {
+            this.setWorldAABBDirtyParentRecursively();
+            break;
+          }
         }
       }
     }
@@ -573,6 +642,20 @@ export default class SceneGraphComponent extends Component {
     ) {
       this.__locatorGizmo._update();
     }
+    if (
+      Is.exist(this.__translationGizmo) &&
+      this.__translationGizmo.isSetup &&
+      this.__translationGizmo.isVisible
+    ) {
+      this.__translationGizmo._update();
+    }
+    if (
+      Is.exist(this.__scaleGizmo) &&
+      this.__scaleGizmo.isSetup &&
+      this.__scaleGizmo.isVisible
+    ) {
+      this.__scaleGizmo._update();
+    }
   }
 
   /**
@@ -585,6 +668,12 @@ export default class SceneGraphComponent extends Component {
     ) as unknown as ISceneGraphEntity;
   }
 
+  /**
+   * @override
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component

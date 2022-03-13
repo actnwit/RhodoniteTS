@@ -25,36 +25,6 @@ import {
 import {IEntity} from './Entity';
 import {ComponentToComponentMethods} from '../components/ComponentTypes';
 
-export function fromTensorToCompositionType(tensorClass: any) {
-  switch (tensorClass.name) {
-    case 'Scalar':
-    case 'MutableScalar':
-      return CompositionType.Scalar;
-    case 'Vector2':
-    case 'MutableVector2':
-      return CompositionType.Vec2;
-    case 'Vector3':
-    case 'MutableVector3':
-      return CompositionType.Vec3;
-    case 'Vector4':
-    case 'MutableVector4':
-    case 'Quaternion':
-    case 'MutableQuaternion':
-      return CompositionType.Vec4;
-    case 'Matrix22':
-    case 'MutableMatrix22':
-      return CompositionType.Mat2;
-    case 'Matrix33':
-    case 'MutableMatrix33':
-      return CompositionType.Mat3;
-    case 'Matrix44':
-    case 'MutableMatrix44':
-      return CompositionType.Mat4;
-    default:
-      return CompositionType.Unknown;
-  }
-}
-
 type MemberInfo = {
   memberName: string;
   bufferUse: BufferUseEnum;
@@ -95,10 +65,16 @@ export default class Component extends RnObject {
   > = new Map();
   private __byteOffsetOfThisComponent: Byte = -1;
 
-  private __isAlive: Boolean;
+  /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
+
+  /** the instance of MemoryManager */
   protected __memoryManager: MemoryManager;
+
+  /** the instance of EntityRepository */
   protected __entityRepository: EntityRepository;
+
+  /** the MaxComponent Number of entities */
   private __maxComponentNumber: Count = Config.maxEntityNumber;
 
   public static readonly _processStages: Array<ProcessStageEnum> = [
@@ -129,7 +105,6 @@ export default class Component extends RnObject {
 
     this.__entityUid = entityUid;
     this._component_sid = componentSid;
-    this.__isAlive = true;
 
     const stages = Component._processStages;
 
@@ -149,14 +124,6 @@ export default class Component extends RnObject {
     this.__entityRepository = entityRepository;
   }
 
-  set maxNumberOfComponent(value: number) {
-    this.__maxComponentNumber = value;
-  }
-
-  get maxNumberOfComponent() {
-    return this.__maxComponentNumber;
-  }
-
   /**
    * Move to the other stages of process
    * @param processStage stage of component's process
@@ -165,6 +132,22 @@ export default class Component extends RnObject {
     // Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, false);
     // Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
     this.__currentProcessStage = processStage;
+  }
+
+  /**
+   * @private
+   * set the Max number of components
+   * this method is called by the ***Component classes only
+   */
+  _setMaxNumberOfComponent(value: number) {
+    this.__maxComponentNumber = value;
+  }
+
+  /**
+   * Get the max number of components
+   */
+  get maxNumberOfComponent() {
+    return this.__maxComponentNumber;
   }
 
   /**
@@ -197,8 +180,9 @@ export default class Component extends RnObject {
 
   /**
    * Get true or false whether the specified ProcessStage exists in Component.
+   * @returns true or false
    */
-  static isExistProcessStageMethod(
+  static doesTheProcessStageMethodExist(
     componentType: typeof Component,
     processStage: ProcessStageEnum,
     componentRepository: ComponentRepository
@@ -243,7 +227,7 @@ export default class Component extends RnObject {
     renderPassTickCount: Count;
   }) {
     if (
-      !Component.isExistProcessStageMethod(
+      !Component.doesTheProcessStageMethodExist(
         componentType,
         processStage,
         componentRepository
@@ -283,7 +267,7 @@ export default class Component extends RnObject {
     renderPass?: RenderPass
   ) {
     if (
-      !Component.isExistProcessStageMethod(
+      !Component.doesTheProcessStageMethodExist(
         componentClass,
         processStage,
         componentRepository
@@ -329,10 +313,9 @@ export default class Component extends RnObject {
     return byteLengthSumOfMembers.get(bufferUse)!;
   }
 
-  static setupBufferView() {}
-
   /**
    * register a dependency for the other components.
+   * Note: This method is not used yet
    */
   registerDependency(component: Component, isMust: boolean) {}
 
@@ -454,36 +437,6 @@ export default class Component extends RnObject {
   ): Byte {
     return this.__accessors.get(componentClass)!.get(memberName)!
       .byteOffsetInBufferView;
-  }
-
-  static getCompositionTypeOfMember(
-    memberName: string,
-    componentClass: Function
-  ): CompositionTypeEnum | null {
-    const memberInfoArray = this.__memberInfo.get(componentClass)!;
-    const info = memberInfoArray.find(info => {
-      return info.memberName === memberName;
-    });
-    if (info != null) {
-      return info.compositionType;
-    } else {
-      return null;
-    }
-  }
-
-  static getComponentTypeOfMember(
-    memberName: string,
-    componentClass: Function
-  ): ComponentTypeEnum | null {
-    const memberInfoArray = this.__memberInfo.get(componentClass)!;
-    const info = memberInfoArray.find(info => {
-      return info.memberName === memberName;
-    });
-    if (info != null) {
-      return info.componentType;
-    } else {
-      return null;
-    }
   }
 
   /**
@@ -723,6 +676,12 @@ export default class Component extends RnObject {
     );
   }
 
+  /**
+   * @virtual
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBase extends IEntity,
     SomeComponentClass extends typeof Component
@@ -730,8 +689,10 @@ export default class Component extends RnObject {
     base: EntityBase,
     _componentClass: SomeComponentClass
   ): EntityBase & ComponentToComponentMethods<SomeComponentClass> {
+    // can not be called. this is a virtual method.
     throw 'Invalid Calling';
   }
+
   // $create() {
   //   // Define process dependencies with other components.
   //   // If circular dependencies are detected, the error will be reported.
@@ -752,4 +713,38 @@ export default class Component extends RnObject {
   // $unmount() {}
 
   // $discard() {}
+
+  ///
+  /// convenient methods but not used yet
+  ///
+
+  static getCompositionTypeOfMember(
+    memberName: string,
+    componentClass: Function
+  ): CompositionTypeEnum | undefined {
+    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+    const info = memberInfoArray.find(info => {
+      return info.memberName === memberName;
+    });
+    if (info != null) {
+      return info.compositionType;
+    } else {
+      return undefined;
+    }
+  }
+
+  static getComponentTypeOfMember(
+    memberName: string,
+    componentClass: Function
+  ): ComponentTypeEnum | undefined {
+    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+    const info = memberInfoArray.find(info => {
+      return info.memberName === memberName;
+    });
+    if (info != null) {
+      return info.componentType;
+    } else {
+      return undefined;
+    }
+  }
 }

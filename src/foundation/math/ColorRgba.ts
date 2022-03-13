@@ -1,6 +1,7 @@
 import Vector4 from './Vector4';
 import {IVector4} from './IVector';
 import {IColorRgba} from './IColor';
+import { Array4 } from '../../types/CommonTypes';
 
 export class ColorRgba extends Vector4 implements IVector4, IColorRgba {
   constructor(r: Float32Array) {
@@ -81,6 +82,22 @@ export class ColorRgba extends Vector4 implements IVector4, IColorRgba {
 
   clone(): ColorRgba {
     return super.clone() as ColorRgba;
+  }
+
+  static fromCopyArray(array: Array<number>): ColorRgba {
+    return this._fromCopyArray(array, Float32Array) as ColorRgba;
+  }
+
+  static fromCopyArray4(array: Array4<number>): ColorRgba {
+    return this._fromCopyArray4(array, Float32Array) as ColorRgba;
+  }
+
+  static fromCopy4(x: number, y: number, z: number, w: number): ColorRgba {
+    return this._fromCopy4(x, y, z, w, Float32Array) as ColorRgba;
+  }
+
+  static fromCopyVector4(vec4: IVector4): ColorRgba {
+    return this._fromCopyVector4(vec4, Float32Array) as ColorRgba;
   }
 }
 

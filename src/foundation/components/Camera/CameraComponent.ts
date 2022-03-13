@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import EntityRepository, {applyMixins} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
@@ -76,9 +76,8 @@ export default class CameraComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository);
 
-    this.maxNumberOfComponent = Math.max(
-      10,
-      Math.floor(Config.maxEntityNumber / 100)
+    this._setMaxNumberOfComponent(
+      Math.max(10, Math.floor(Config.maxEntityNumber / 100))
     );
 
     this.registerMember(
@@ -702,6 +701,12 @@ export default class CameraComponent extends Component {
     ) as unknown as ICameraEntity;
   }
 
+  /**
+   * @override
+   * Add this component to the entity
+   * @param base the target entity
+   * @param _componentClass the component class to add
+   */
   addThisComponentToEntity<
     EntityBaseClass extends IEntity,
     SomeComponentClass extends typeof Component

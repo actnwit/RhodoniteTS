@@ -39,14 +39,18 @@ export default abstract class Gizmo extends RnObject {
   ///
 
   set isVisible(flg: boolean) {
-    this.__isVisible = flg;
-    if (this.__topEntity) {
-      this.__topEntity.getSceneGraph()!.setVisibilityRecursively(flg);
-    }
+    this.__setVisible(flg);
   }
 
   get isVisible() {
     return this.__isVisible;
+  }
+
+  protected __setVisible(flg: boolean) {
+    this.__isVisible = flg;
+    if (this.__topEntity) {
+      this.__topEntity.getSceneGraph()!.setVisibilityRecursively(flg);
+    }
   }
 
   abstract isSetup: boolean;

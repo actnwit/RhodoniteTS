@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import EntityRepository, {applyMixins} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {LightType} from '../../definitions/LightType';
 import Vector3 from '../../math/Vector3';
@@ -43,9 +43,8 @@ export default class LightComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository);
 
-    this.maxNumberOfComponent = Math.max(
-      10,
-      Math.floor(Config.maxEntityNumber / 100)
+    this._setMaxNumberOfComponent(
+      Math.max(10, Math.floor(Config.maxEntityNumber / 100))
     );
   }
 

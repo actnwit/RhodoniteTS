@@ -139,7 +139,6 @@ mat3 get_normalMatrix(float instanceId) {
 
   setupShaderProgram(meshComponent: MeshComponent): void {
     if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
 
@@ -219,7 +218,6 @@ mat3 get_normalMatrix(float instanceId) {
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
     if (!Is.exist(mesh)) {
-      MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
 
@@ -238,7 +236,6 @@ mat3 get_normalMatrix(float instanceId) {
     instanceIDBufferUid: WebGLResourceHandle
   ) {
     if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
   }
@@ -403,7 +400,6 @@ mat3 get_normalMatrix(float instanceId) {
     specularCube?: CubeTexture
   ) {
     if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
 

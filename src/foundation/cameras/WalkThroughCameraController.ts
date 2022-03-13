@@ -9,8 +9,9 @@ import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import AbstractCameraController from './AbstractCameraController';
 import {MathUtil} from '../math/MathUtil';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { Is } from '../misc/Is';
+import {ISceneGraphEntity} from '../helpers/EntityHelper';
+import {Is} from '../misc/Is';
+import {InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERACONTROLLER} from '../system/InputManager';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -97,52 +98,100 @@ export default class WalkThroughCameraController
     this.registerEventListeners(eventTargetDom);
   }
 
-  registerEventListeners(eventTargetDom: any = document) {
+  registerEventListeners(eventTargetDom: Document = document) {
     this._eventTargetDom = eventTargetDom;
 
-    if (eventTargetDom) {
-      eventTargetDom.addEventListener('keydown', this._onKeydown);
-      eventTargetDom.addEventListener('keyup', this._onKeyup);
-
-      if ('ontouchend' in document) {
-        document.addEventListener('touchstart', this._mouseDownBind);
-        document.addEventListener('touchend', this._mouseUpBind);
-        document.addEventListener('touchmove', this._mouseMoveBind);
-      }
-      if ('onmouseup' in document) {
-        eventTargetDom.addEventListener('mousedown', this._mouseDownBind);
-        eventTargetDom.addEventListener('mouseup', this._mouseUpBind);
-        eventTargetDom.addEventListener('mouseleave', this._mouseUpBind);
-        eventTargetDom.addEventListener('mousemove', this._mouseMoveBind);
-      }
-      if ('onwheel' in document) {
-        eventTargetDom.addEventListener('wheel', this._mouseWheelBind);
-      }
+    const inputHandlerInfos: InputHandlerInfo[] = [
+      {
+        eventName: 'keydown',
+        handler: this._onKeydown,
+        options: {},
+        classInstance: this,
+        eventTargetDom,
+      },
+      {
+        eventName: 'keyup',
+        handler: this._onKeyup,
+        options: {},
+        classInstance: this,
+        eventTargetDom,
+      },
+    ];
+    if ('ontouchend' in document) {
+      inputHandlerInfos.push(
+        {
+          eventName: 'touchstart',
+          handler: this._mouseDownBind,
+          options: {},
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'touchend',
+          handler: this._mouseUpBind,
+          options: {},
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'touchmove',
+          handler: this._mouseMoveBind,
+          options: {},
+          classInstance: this,
+          eventTargetDom,
+        }
+      );
     }
+    if ('onmouseup' in document) {
+      inputHandlerInfos.push(
+        {
+          eventName: 'mousedown',
+          handler: this._mouseDownBind,
+          options: {},
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'mouseup',
+          handler: this._mouseUpBind,
+          options: {},
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'mouseleave',
+          handler: this._mouseUpBind,
+          options: {},
+          classInstance: this,
+          eventTargetDom,
+        },
+        {
+          eventName: 'mousemove',
+          handler: this._mouseMoveBind,
+          options: {},
+          classInstance: this,
+          eventTargetDom,
+        }
+      );
+    }
+    if ('onwheel' in document) {
+      inputHandlerInfos.push({
+        eventName: 'wheel',
+        handler: this._mouseWheelBind,
+        options: {},
+        classInstance: this,
+        eventTargetDom,
+      });
+    }
+
+    InputManager.register(
+      INPUT_HANDLING_STATE_CAMERACONTROLLER,
+      inputHandlerInfos
+    );
   }
 
   unregisterEventListeners() {
-    const eventTargetDom = this._eventTargetDom;
-
-    if (eventTargetDom) {
-      eventTargetDom.removeEventListener('keydown', this._onKeydown);
-      eventTargetDom.removeEventListener('keyup', this._onKeyup);
-
-      if ('ontouchend' in document) {
-        document.removeEventListener('touchstart', this._mouseDownBind);
-        document.removeEventListener('touchend', this._mouseUpBind);
-        document.removeEventListener('touchmove', this._mouseMoveBind);
-      }
-      if ('onmouseup' in document) {
-        eventTargetDom.removeEventListener('mousedown', this._mouseDownBind);
-        eventTargetDom.removeEventListener('mouseup', this._mouseUpBind);
-        eventTargetDom.removeEventListener('mouseleave', this._mouseUpBind);
-        eventTargetDom.removeEventListener('mousemove', this._mouseMoveBind);
-      }
-      if ('onwheel' in document) {
-        eventTargetDom.removeEventListener('wheel', this._mouseWheelBind);
-      }
-    }
+    InputManager.unregister(INPUT_HANDLING_STATE_CAMERACONTROLLER);
   }
 
   _mouseWheel(e: WheelEvent) {
