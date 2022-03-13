@@ -671,6 +671,7 @@ export default class SceneGraphComponent extends Component {
 
   setTransformGizmoSpace(space: 'local' | 'world') {
     this.__transformGizmoSpace = space;
+    this.__translationGizmo?.setSpace(space);
     this.__scaleGizmo?.setSpace(space);
   }
 

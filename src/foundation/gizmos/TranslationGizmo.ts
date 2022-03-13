@@ -14,6 +14,10 @@ import EntityHelper, {IMeshEntity, ISceneGraphEntity} from '../helpers/EntityHel
 import MaterialHelper from '../helpers/MaterialHelper';
 import Material from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
+import Matrix33 from '../math/Matrix33';
+import Matrix44 from '../math/Matrix44';
+import MutableMatrix33 from '../math/MutableMatrix33';
+import Quaternion from '../math/Quaternion';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
 import {Is} from '../misc/Is';
@@ -59,6 +63,7 @@ export default class TranslationGizmo extends Gizmo {
   private static __targetPointBackup = Vector3.zero();
   private static __isPointerDown = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
+  private static __space: 'local' | 'world' = 'world';
   private static __latestTargetEntity?: ISceneGraphEntity;
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
@@ -135,6 +140,11 @@ export default class TranslationGizmo extends Gizmo {
         TranslationGizmo.__groupEntity.getSceneGraph()
       )
       TranslationGizmo.__latestTargetEntity = this.__target;
+      if (TranslationGizmo.__space === 'local') {
+        TranslationGizmo.__groupEntity.getTransform().quaternion = this.__target.getTransform().quaternion;
+      } else if (TranslationGizmo.__space === 'world') {
+        TranslationGizmo.__groupEntity.getTransform().quaternion = new Quaternion(0, 0, 0, 1);
+      }
     }
 
 
@@ -155,6 +165,14 @@ export default class TranslationGizmo extends Gizmo {
     TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
     TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
 
+  }
+
+  setSpace(space: 'local' | 'world') {
+    TranslationGizmo.__space = space;
+    if (this.__isVisible) {
+      this.isVisible = false;
+      this.isVisible = true;
+    }
   }
 
   get isVisible(): boolean {
@@ -490,23 +508,36 @@ export default class TranslationGizmo extends Gizmo {
     TranslationGizmo.__originalX = evt.clientX;
     TranslationGizmo.__originalY = evt.clientY;
 
+    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const scaleVec = Vector3.one();//this.__target.getSceneGraph().worldMatrix.getScale();
+    let rotMat = new Matrix33(
+      scaleVec.x * worldMatrix.m00, scaleVec.x * worldMatrix.m01, scaleVec.x * worldMatrix.m02,
+      scaleVec.y * worldMatrix.m10, scaleVec.y * worldMatrix.m11, scaleVec.y * worldMatrix.m12,
+      scaleVec.z * worldMatrix.m20, scaleVec.z * worldMatrix.m21, scaleVec.z * worldMatrix.m22,
+    )
+
+    if (TranslationGizmo.__space === 'local') {
+      rotMat = Matrix33.transpose(rotMat);
+    } else if (TranslationGizmo.__space === 'world') {
+      rotMat = MutableMatrix33.identity();
+    }
 
     const { xResult, yResult, zResult } = TranslationGizmo.castRay(evt);
     if (xResult.result) {
       assertExist(xResult.data)
-      TranslationGizmo.__pickStatedPoint = xResult.data.position.clone();
+      TranslationGizmo.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
       console.log('Down:' + TranslationGizmo.__pickStatedPoint.toStringApproximately());
       TranslationGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data)
-      TranslationGizmo.__pickStatedPoint = yResult.data.position.clone();
+      TranslationGizmo.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
       console.log('Down:' + TranslationGizmo.__pickStatedPoint.toStringApproximately());
       TranslationGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data)
-      TranslationGizmo.__pickStatedPoint = zResult.data.position.clone();
+      TranslationGizmo.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
       console.log('Down:' + TranslationGizmo.__pickStatedPoint.toStringApproximately());
       TranslationGizmo.__activeAxis = 'z';
     }
@@ -530,30 +561,61 @@ export default class TranslationGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent | undefined;
 
+    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const scaleVec = Vector3.one();//this.__target.getSceneGraph().worldMatrix.getScale();
+    let rotMat = new Matrix33(
+      scaleVec.x * worldMatrix.m00, scaleVec.x * worldMatrix.m01, scaleVec.x * worldMatrix.m02,
+      scaleVec.y * worldMatrix.m10, scaleVec.y * worldMatrix.m11, scaleVec.y * worldMatrix.m12,
+      scaleVec.z * worldMatrix.m20, scaleVec.z * worldMatrix.m21, scaleVec.z * worldMatrix.m22,
+    )
+    if (TranslationGizmo.__space === 'local') {
+      rotMat = Matrix33.transpose(rotMat);
+    } else if (TranslationGizmo.__space === 'world') {
+      rotMat = MutableMatrix33.identity();
+    }
     let pickInMovingPoint: Vector3 = TranslationGizmo.__pickStatedPoint.clone();
     if (TranslationGizmo.__activeAxis === 'x') {
       const xResult = TranslationGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
-      assertExist(xResult.data)
-      pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
-      console.log('Move:' + xResult.data.position.toStringApproximately());
+      if (xResult.result) {
+        assertExist(xResult.data)
+        const position = rotMat.multiplyVector(xResult.data.position);
+        pickInMovingPoint = Vector3.fromCopy3(position.x, pickInMovingPoint.y, pickInMovingPoint.z);
+        console.log('Move:' + xResult.data.position.toStringApproximately());
+      }
     }
     if (TranslationGizmo.__activeAxis === 'y') {
       const yResult = TranslationGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
-      assertExist(yResult.data)
-      pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
-      console.log('Move:' + yResult.data.position.toStringApproximately());
+        if (yResult.result) {
+        assertExist(yResult.data)
+        const position = rotMat.multiplyVector(yResult.data.position);
+        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, position.y, pickInMovingPoint.z);
+        console.log('Move:' + yResult.data.position.toStringApproximately());
+      }
     }
     if (TranslationGizmo.__activeAxis === 'z') {
       const zResult = TranslationGizmo.__yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
-      assertExist(zResult.data)
-      pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
-      console.log('Move:' + zResult.data.position.toStringApproximately());
+      if (zResult.result) {
+        assertExist(zResult.data)
+        const position = rotMat.multiplyVector(zResult.data.position);
+        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, position.z);
+        console.log('Move:' + zResult.data.position.toStringApproximately());
+      }
     }
 
     const deltaVector3 = Vector3.subtract(pickInMovingPoint, TranslationGizmo.__pickStatedPoint);
-    const deltaDeltaVector3 = Vector3.add(TranslationGizmo.__targetPointBackup, deltaVector3);
-    TranslationGizmo.__deltaPoint = deltaDeltaVector3;
-    // TranslationGizmo.__deltaPoint = deltaVector3;
+    if (TranslationGizmo.__space === 'local') {
+    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const scaleVec = Vector3.one();//this.__target.getSceneGraph().worldMatrix.getScale();
+    let rotMat = new Matrix33(
+      scaleVec.x * worldMatrix.m00, scaleVec.x * worldMatrix.m01, scaleVec.x * worldMatrix.m02,
+      scaleVec.y * worldMatrix.m10, scaleVec.y * worldMatrix.m11, scaleVec.y * worldMatrix.m12,
+      scaleVec.z * worldMatrix.m20, scaleVec.z * worldMatrix.m21, scaleVec.z * worldMatrix.m22,
+    )
+      TranslationGizmo.__deltaPoint = Vector3.add((rotMat).multiplyVector(deltaVector3), TranslationGizmo.__targetPointBackup);
+    } else if (TranslationGizmo.__space === 'world') {
+      const deltaDeltaVector3 = Vector3.add(TranslationGizmo.__targetPointBackup, deltaVector3);
+      TranslationGizmo.__deltaPoint = deltaDeltaVector3;
+    }
   }
 
   private __onPointerUp(evt: PointerEvent) {
