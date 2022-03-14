@@ -98,6 +98,18 @@ export default class Mesh implements IMesh {
     }
   }
 
+  public getVaoUidsByPrimitiveUid(primitiveUid: Index): CGAPIResourceHandle {
+    const index = this.__primitives.findIndex(
+      primitive => primitive.primitiveUid === primitiveUid
+    );
+
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.getVaoUids(index);
+    } else {
+      return this.__vaoUids[index];
+    }
+  }
+
   get meshEntity() {
     return this.__weakRefMeshEntity.get(this);
   }

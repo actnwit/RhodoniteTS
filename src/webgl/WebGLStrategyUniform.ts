@@ -367,13 +367,13 @@ mat3 get_normalMatrix(float instanceId) {
   attachVertexDataInner(
     mesh: Mesh,
     primitive: Primitive,
-    primitiveIndex: Index,
+    primitiveUid: Index,
     glw: WebGLContextWrapper,
     instanceIDBufferUid: WebGLResourceHandle
   ) {
     const vaoHandles = primitive.vertexHandles!;
     const vao = this.__webglResourceRepository.getWebGLResource(
-      mesh.getVaoUids(primitiveIndex)
+      mesh.getVaoUidsByPrimitiveUid(primitiveUid)
     ) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
