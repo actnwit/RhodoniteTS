@@ -522,19 +522,17 @@ mat3 get_normalMatrix(float instanceId) {
         });
 
         if (primitive.indicesAccessor) {
-          glw.drawElementsInstanced(
+          gl.drawElements(
             primitive.primitiveMode.index,
             primitive.indicesAccessor.elementCount,
             primitive.indicesAccessor.componentType.index,
-            0,
-            1
+            0
           );
         } else {
-          glw.drawArraysInstanced(
+          gl.drawArrays(
             primitive.primitiveMode.index,
             0,
-            primitive.getVertexCountAsVerticesBased(),
-            1
+            primitive.getVertexCountAsVerticesBased()
           );
         }
         // this.dettachVertexData(glw);
