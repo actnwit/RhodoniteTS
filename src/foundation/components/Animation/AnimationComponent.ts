@@ -919,5 +919,35 @@ export default class AnimationComponent extends Component {
 
     return true;
   }
+
+  hasKeyFramesAtFrame(
+    trackName: AnimationTrackName,
+    pathName: AnimationPathName,
+    frame: Index,
+    fps: number,
+  ) {
+    const secBegin = frame * fps;
+    const secEnd = (frame + 1) * fps;
+
+    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+    this.__animationTracks.get(trackName);
+    if (Is.not.exist(animationSet)) {
+      return false;
+    }
+
+    const channel = animationSet.get(pathName);
+    if (Is.not.exist(channel)) {
+      return false;
+    }
+
+    for (let i=0; i < channel.sampler.input.length; i++) {
+      const input = channel.sampler.input[i];
+      if (secBegin <= input && input < secEnd) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);
