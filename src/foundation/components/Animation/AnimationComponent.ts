@@ -833,5 +833,91 @@ export default class AnimationComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
+
+  addKeyFrame(
+    trackName: AnimationTrackName,
+    pathName: AnimationPathName,
+    frameToInsert: Index,
+    input: number,
+    output: Array<number>,
+    fps: number
+    ) {
+    const secBegin = frameToInsert * fps;
+    const secEnd = (frameToInsert + 1) * fps;
+
+    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+    this.__animationTracks.get(trackName);
+    if (Is.not.exist(animationSet)) {
+      return false;
+    }
+
+    const channel = animationSet.get(pathName);
+    if (Is.not.exist(channel)) {
+      return false;
+    }
+
+    if (ArrayBuffer.isView(channel.sampler.input)) {
+      channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
+    }
+    if (ArrayBuffer.isView(channel.sampler.output)) {
+      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
+    }
+
+    for (let i=0; i < channel.sampler.input.length; i++) {
+      const existedInput = channel.sampler.input[i];
+      if (secBegin < existedInput && existedInput <= secEnd) {
+        channel.sampler.input.splice(i-1, 0, input);
+        channel.sampler.output.splice(
+          (i-1) * channel.sampler.outputComponentN,
+          0,
+          ...output
+        );
+        break;
+      }
+    }
+
+    return true;
+  }
+
+  deleteKeysAtFrame(
+    trackName: AnimationTrackName,
+    pathName: AnimationPathName,
+    frameToDelete: Index,
+    fps: number,
+  ) {
+    const secBegin = frameToDelete * fps;
+    const secEnd = (frameToDelete + 1) * fps;
+
+    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+    this.__animationTracks.get(trackName);
+    if (Is.not.exist(animationSet)) {
+      return false;
+    }
+
+    const channel = animationSet.get(pathName);
+    if (Is.not.exist(channel)) {
+      return false;
+    }
+
+    if (ArrayBuffer.isView(channel.sampler.input)) {
+      channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
+    }
+    if (ArrayBuffer.isView(channel.sampler.output)) {
+      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
+    }
+
+    for (let i=0; i < channel.sampler.input.length; i++) {
+      const input = channel.sampler.input[i];
+      if (secBegin <= input && input < secEnd) {
+        channel.sampler.input.splice(i, 1);
+        channel.sampler.output.splice(
+          i * channel.sampler.outputComponentN,
+          channel.sampler.outputComponentN,
+        );
+      }
+    }
+
+    return true;
+  }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);
