@@ -25,6 +25,7 @@ import {
 import {
   Gltf2AccessorEx,
   Gltf2Ex,
+  Gltf2ImageEx,
   Gltf2MaterialEx,
 } from '../../types/glTF2ForOutput';
 import BufferView from '../memory/BufferView';
@@ -465,7 +466,7 @@ export default class Gltf2Exporter {
                 let match = false;
                 for (let k = 0; k < json.images.length; k++) {
                   const image = json.images![k];
-                  if (image.uri === rnTexture.name) {
+                  if (Is.exist(image.rnTextureUID) && image.rnTextureUID === rnTexture.textureUID) {
                     imageIndex = k;
                     match = true;
                   }
@@ -495,9 +496,10 @@ export default class Gltf2Exporter {
 
                 if (!match) {
                   // Image
-                  const glTF2ImageEx = {
+                  const glTF2ImageEx: Gltf2ImageEx = {
                     uri: rnTexture.name,
                   };
+                  glTF2ImageEx.rnTextureUID = rnTexture.textureUID;
 
                   if (existedImages.indexOf(rnTexture.name) !== -1) {
                     glTF2ImageEx.uri += '_' + rnTexture.textureUID;

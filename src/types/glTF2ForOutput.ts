@@ -1,5 +1,6 @@
 import {ISkeletalEntity} from '../foundation/helpers/EntityHelper';
-import { Byte } from './CommonTypes';
+import Texture from '../foundation/textures/Texture';
+import { Byte, Index } from './CommonTypes';
 import {
   Gltf2BufferView,
   Gltf2Accessor,
@@ -33,6 +34,9 @@ export interface Gltf2AccessorEx extends Gltf2Accessor {
 export interface Gltf2MaterialEx extends Gltf2Material {
   pbrMetallicRoughness: Gltf2PbrMetallicRoughnessEx;
 }
+export interface Gltf2ImageEx extends Gltf2Image {
+  rnTextureUID?: Index;
+}
 
 export interface Gltf2PbrMetallicRoughnessEx extends Gltf2PbrMetallicRoughness {
   diffuseColorTexture?: Gltf2TextureInfo;
@@ -50,7 +54,7 @@ export interface Gltf2Ex extends Gltf2 {
   materials: Gltf2Material[];
   animations: Gltf2Animation[];
   textures: Gltf2Texture[];
-  images: Gltf2Image[];
+  images: Gltf2ImageEx[];
   skins: Gltf2Skin[];
   samplers: Gltf2TextureSampler[];
   extras: {
