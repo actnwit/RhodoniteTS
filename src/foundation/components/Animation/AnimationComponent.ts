@@ -322,16 +322,15 @@ export default class AnimationComponent extends Component {
       AnimationComponent
     ) as AnimationComponent[];
     for (const component of components) {
-      component.setActiveAnimation(animationName);
+      component.setActiveAnimationTrack(animationName);
     }
   }
 
-  setActiveAnimation(animationName: AnimationTrackName) {
+  setActiveAnimationTrack(animationName: AnimationTrackName) {
     if (this.__animationTracks.has(animationName)) {
       this.__currentActiveAnimationTrackName = animationName;
       return true;
     } else {
-      this.__currentActiveAnimationTrackName = undefined;
       return false;
     }
   }
