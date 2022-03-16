@@ -220,7 +220,7 @@ export default class AnimationComponent extends Component {
     return retVal;
   }
 
-  static interpolationSearch(inputArray: Float32Array, currentTime: number) {
+  static interpolationSearch(inputArray: Float32Array | number[], currentTime: number) {
     let mid = 0;
     let lower = 0;
     let upper = inputArray.length - 1;
@@ -333,6 +333,10 @@ export default class AnimationComponent extends Component {
     } else {
       return false;
     }
+  }
+
+  getActiveAnimationTrack() {
+    return this.__currentActiveAnimationTrackName;
   }
 
   setAnimation(
@@ -539,7 +543,7 @@ export default class AnimationComponent extends Component {
   }
 
   private static __prepareVariablesForCubicSpline(
-    outputArray_: Float32Array,
+    outputArray_: Float32Array | number[],
     i: number,
     componentN: number,
     t_diff: number
@@ -615,7 +619,7 @@ export default class AnimationComponent extends Component {
   private static __getOutputValue(
     keyFrameId: Index,
     channel: AnimationChannel,
-    array_: Float32Array
+    array_: Float32Array | number[]
   ) {
     const array = array_ as globalThis.Float32Array;
     if (
@@ -683,7 +687,7 @@ export default class AnimationComponent extends Component {
   }
 
   private static __lerp(
-    data_: Float32Array,
+    data_: Float32Array | number[],
     ratio: number,
     animationAttributeIndex: Index,
     i: Index,

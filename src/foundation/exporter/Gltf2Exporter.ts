@@ -1205,7 +1205,9 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
   bufferIdx: Index,
   bufferViewByteLengthAccumulated: Byte
 ) {
-  const componentType = ComponentType.fromTypedArray(rnChannel.sampler.input);
+  const componentType = ComponentType.fromTypedArray(
+    ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input : new Float32Array(rnChannel.sampler.input)
+  )
   const accessorCount = rnChannel.sampler.input.length;
   // create a Gltf2BufferView
   const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferViewForAnimation({
@@ -1216,7 +1218,8 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
     bufferViewByteStride: ComponentType.Float.getSizeInBytes(),
     componentType,
     compositionType: CompositionType.Scalar,
-    uint8Array: new Uint8Array(rnChannel.sampler.input.buffer),
+    uint8Array: new Uint8Array(
+      ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input.buffer : rnChannel.sampler.input),
   });
   json.bufferViews.push(gltf2BufferView);
 
@@ -1250,7 +1253,9 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   bufferIdx: Index,
   bufferViewByteLengthAccumulated: Byte
 ) {
-  const componentType = ComponentType.fromTypedArray(rnChannel.sampler.output);
+  const componentType = ComponentType.fromTypedArray(
+    ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input : new Float32Array(rnChannel.sampler.input)
+    );
   const accessorCount =
     rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
   // create a Gltf2BufferView
@@ -1265,8 +1270,9 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     compositionType: CompositionType.toGltf2AnimationAccessorCompositionType(
       rnChannel.sampler.outputComponentN
     ),
-    uint8Array: new Uint8Array(rnChannel.sampler.output.buffer),
-  });
+    uint8Array: new Uint8Array(
+      ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input.buffer : rnChannel.sampler.input),
+    });
   json.bufferViews.push(gltf2BufferView);
 
   // create a Gltf2Accessor
