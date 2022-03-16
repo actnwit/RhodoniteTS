@@ -1254,7 +1254,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   bufferViewByteLengthAccumulated: Byte
 ) {
   const componentType = ComponentType.fromTypedArray(
-    ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input : new Float32Array(rnChannel.sampler.input)
+    ArrayBuffer.isView(rnChannel.sampler.output) ? rnChannel.sampler.output : new Float32Array(rnChannel.sampler.output)
     );
   const accessorCount =
     rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
@@ -1271,7 +1271,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
       rnChannel.sampler.outputComponentN
     ),
     uint8Array: new Uint8Array(
-      ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input.buffer : rnChannel.sampler.input),
+      ArrayBuffer.isView(rnChannel.sampler.output) ? rnChannel.sampler.output.buffer : rnChannel.sampler.output),
     });
   json.bufferViews.push(gltf2BufferView);
 
