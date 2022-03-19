@@ -199,6 +199,13 @@ export default class RenderPass extends RnObject {
   }
 
   /**
+   * Remove the existing framebuffer
+   */
+  removeFramebuffer() {
+    this.__frameBuffer = undefined;
+  }
+
+  /**
    * Sets the viewport of this render pass.
    * @param vec A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
    */
