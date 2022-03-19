@@ -176,7 +176,7 @@ export default class RenderPass extends RnObject {
 
   /**
    * Sets the target framebuffer of this render pass.
-   * If two or more render pass share a framebuffer, Rhodonite renders entities in render passes to same framebuffer.
+   * If two or more render pass share a framebuffer, Rhodonite renders entities to the same framebuffer in those render passes.
    * @param framebuffer A framebuffer
    */
   setFramebuffer(framebuffer: FrameBuffer) {
