@@ -8,6 +8,7 @@ import _MeshRendererComponent from './foundation/components/MeshRenderer/MeshRen
 import {Primitive as _Primitive} from './foundation/geometry/Primitive';
 import _System from './foundation/system/System';
 import {Is as _Is} from './foundation/misc/Is';
+import type {IsType} from './foundation/misc/Is';
 import _Scalar from './foundation/math/Scalar';
 import _Vector2 from './foundation/math/Vector2';
 import _Vector3 from './foundation/math/Vector3';
@@ -274,7 +275,7 @@ export default {
   MaterialHelper: _MaterialHelper,
   MeshHelper: _MeshHelper,
   RenderPass: _RenderPass,
-  Is: typeof _Is,
+  Is: _Is as IsType,
   FrameBuffer: _FrameBuffer,
   Expression: _Expression,
   RenderTargetTexture: _RenderTargetTexture,
