@@ -97,7 +97,14 @@ export default class Frame extends RnObject {
   /**
    * Clear render passes of this expression.
    */
-  clearRenderPasses() {
+  clearExpressions() {
     this.__expressions.length = 0;
+  }
+
+  /**
+   * Get expressions
+   */
+  get expressions() {
+    return this.__expressions.map(exp => exp.exp);
   }
 }

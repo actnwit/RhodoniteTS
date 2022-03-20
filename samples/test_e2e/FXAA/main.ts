@@ -76,7 +76,7 @@ let renderPassMain: RenderPass;
       }
     }
 
-    system.process([activeExpression]);
+    system.process(frame);
     count++;
 
     requestAnimationFrame(draw);
@@ -217,4 +217,6 @@ window.toggleFXAA = function () {
     renderPassMain.setFramebuffer(framebuffer);
     (toggleButton.firstChild as ChildNode).textContent = 'Now FXAA On';
   }
+  frame.clearExpressions();
+  frame.addExpression(activeExpression);
 };

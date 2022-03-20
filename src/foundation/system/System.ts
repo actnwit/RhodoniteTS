@@ -25,6 +25,7 @@ import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
 import EntityHelper from '../helpers/EntityHelper';
 import Config from '../core/Config';
+import Frame from '../renderer/Frame';
 
 export default class System {
   private static __instance: System;
@@ -115,7 +116,14 @@ export default class System {
     }
   }
 
-  process(expressions: Expression[]) {
+  process(frame: Frame): void;
+  process(expressions: Expression[]): void;
+  process(value: any) {
+    let expressions: Expression[] = value;
+    if (value instanceof Frame) {
+      expressions = value.expressions;
+    }
+
     if (this.__processApproach === ProcessApproach.None) {
       throw new Error('Choose a process approach first.');
     }
