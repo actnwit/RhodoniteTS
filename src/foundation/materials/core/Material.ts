@@ -246,6 +246,41 @@ export default class Material extends RnObject {
     }
   }
 
+  getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {
+    if (this.__fieldsInfo.has(shaderSemantic.index)) {
+      const array = this.__fields.get(shaderSemantic.index)!;
+      return array.value[1];
+    }
+    return undefined;
+  }
+
+  setTextureParameterAsPromise(
+    shaderSemantic: ShaderSemanticsEnum,
+    promise: Promise<AbstractTexture>
+  ): void {
+    promise.then(texture => {
+      if (this.__fieldsInfo.has(shaderSemantic.index)) {
+        const array = this.__fields.get(shaderSemantic.index)!;
+        const shaderVariable = {
+          value: [array.value[0], texture],
+          info: array.info,
+        };
+        this.__fields.set(shaderSemantic.index, shaderVariable);
+        if (!array.info.isSystem) {
+          this.__fieldsForNonSystem.set(shaderSemantic.index, shaderVariable);
+        }
+        if (
+          shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
+          shaderSemantic === ShaderSemantics.BaseColorTexture
+        ) {
+          if (texture.isTransparent) {
+            this.alphaMode = AlphaMode.Translucent;
+          }
+        }
+      }
+    });
+  }
+
   getParameter(shaderSemantic: ShaderSemanticsEnum): any {
     const info = this.__fieldsInfo.get(shaderSemantic.index);
     if (info != null) {

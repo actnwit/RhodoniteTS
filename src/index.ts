@@ -70,6 +70,7 @@ import type {GridDescriptor as _GridDescriptor} from './foundation/geometry/shap
 import _Material from './foundation/materials/core/Material';
 import _MaterialHelper from './foundation/helpers/MaterialHelper';
 import _RenderPass from './foundation/renderer/RenderPass';
+import _Frame from './foundation/renderer/Frame';
 import _FrameBuffer from './foundation/renderer/FrameBuffer';
 import _Expression from './foundation/renderer/Expression';
 import _RenderTargetTexture from './foundation/textures/RenderTargetTexture';
@@ -276,6 +277,7 @@ export default {
   MeshHelper: _MeshHelper,
   RenderPass: _RenderPass,
   Is: _Is as IsType,
+  Frame: _Frame,
   FrameBuffer: _FrameBuffer,
   Expression: _Expression,
   RenderTargetTexture: _RenderTargetTexture,
