@@ -103,7 +103,7 @@ type IsImplType = typeof IsObj;
 //   [s: string]: {[s: string]: FnType};
 // }
 
-interface IsType extends IsImplType {
+export interface IsType extends IsImplType {
   not: typeof NotObj;
   all: typeof IsObj;
   any: typeof IsObj;
