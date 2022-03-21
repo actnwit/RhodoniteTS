@@ -1,9 +1,9 @@
+import Frame from '../../../dist/esm/foundation/renderer/Frame';
 import _Rn from '../../../dist/esm/index';
 import {
   OrbitCameraController,
   CameraComponent,
   MeshComponent,
-  EntityRepository,
   AbstractTexture,
   Expression,
   FrameBuffer,
@@ -13,9 +13,10 @@ import {
 declare const window: any;
 declare const Rn: typeof _Rn;
 
+const frame = new Rn.Frame();
 const expressionWithFXAA = new Rn.Expression();
 const expressionWithOutFXAA = new Rn.Expression();
-let expression: Expression;
+let activeExpression: Expression;
 let framebuffer: FrameBuffer;
 let renderPassMain: RenderPass;
 
@@ -24,7 +25,6 @@ let renderPassMain: RenderPass;
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
-
   const gl = system.setProcessApproachAndCanvas(
     Rn.ProcessApproach.UniformWebGL1,
     canvas,
@@ -32,9 +32,8 @@ let renderPassMain: RenderPass;
     {antialias: false}
   );
 
-  const entityRepository = Rn.EntityRepository.getInstance();
-
-  renderPassMain = await setupRenderPassMain(entityRepository);
+  // setup the Main RenderPass
+  renderPassMain = await setupRenderPassMain();
   framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
     canvas!.clientWidth,
     canvas!.clientHeight,
@@ -43,17 +42,22 @@ let renderPassMain: RenderPass;
   );
   renderPassMain.setFramebuffer(framebuffer);
 
+  // setup the FXAA RenderPass
   const renderPassFxaa = await setupRenderPassFxaa(
-    entityRepository,
-    framebuffer.getColorAttachedRenderTargetTexture(0) as any,
+    // framebuffer.getColorAttachedRenderTargetTexture(0),
+    frame.getColorAttachmentFromInputOf(expressionWithFXAA),
     canvas!.clientWidth,
     canvas!.clientHeight
   );
 
-  // expression
+  // register renderPasses to expressions
   expressionWithFXAA.addRenderPasses([renderPassMain, renderPassFxaa]);
   expressionWithOutFXAA.addRenderPasses([renderPassMain]);
-  expression = expressionWithFXAA;
+
+  frame.addExpression(expressionWithFXAA, [renderPassMain]);
+  frame.resolve();
+
+  activeExpression = expressionWithFXAA;
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
@@ -65,20 +69,14 @@ let renderPassMain: RenderPass;
     if (window.isAnimating) {
       const date = new Date();
       const rotation = 0.001 * (date.getTime() - startTime);
-      //rotationVec3._v[0] = 0.1;
-      //rotationVec3._v[1] = rotation;
-      //rotationVec3._v[2] = 0.1;
       const time = (date.getTime() - startTime) / 1000;
       Rn.AnimationComponent.globalTime = time;
       if (time > Rn.AnimationComponent.endInputValue) {
         startTime = date.getTime();
       }
-      //console.log(time);
-      //      rootGroup.getTransform().scale = rotationVec3;
-      //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process([expression]);
+    system.process(frame);
     count++;
 
     requestAnimationFrame(draw);
@@ -87,7 +85,7 @@ let renderPassMain: RenderPass;
   draw();
 })();
 
-async function setupRenderPassMain(entityRepository: EntityRepository) {
+async function setupRenderPassMain() {
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
   const planeEntity = Rn.EntityHelper.createMeshEntity();
   const planePrimitive = new Rn.Plane();
@@ -141,7 +139,6 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
-  //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
@@ -162,8 +159,7 @@ async function setupRenderPassMain(entityRepository: EntityRepository) {
 }
 
 function setupRenderPassFxaa(
-  entityRepository: EntityRepository,
-  renderable: AbstractTexture,
+  renderable: Promise<AbstractTexture>,
   width: number,
   height: number
 ) {
@@ -179,7 +175,7 @@ function setupRenderPassFxaa(
     flipTextureCoordinateY: false,
   });
   primitiveFxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
-  primitiveFxaa.material.setTextureParameter(
+  primitiveFxaa.material.setTextureParameterAsPromise(
     Rn.ShaderSemantics.BaseColorTexture,
     renderable
   );
@@ -212,13 +208,15 @@ window.toggleFXAA = function () {
   const toggleButton = document.getElementById(
     'toggleFXAAButton'
   ) as HTMLElement;
-  if (expression === expressionWithFXAA) {
-    expression = expressionWithOutFXAA;
+  if (activeExpression === expressionWithFXAA) {
+    activeExpression = expressionWithOutFXAA;
     renderPassMain.setFramebuffer(undefined as any);
     (toggleButton.firstChild as ChildNode).textContent = 'Now FXAA Off';
   } else {
-    expression = expressionWithFXAA;
+    activeExpression = expressionWithFXAA;
     renderPassMain.setFramebuffer(framebuffer);
     (toggleButton.firstChild as ChildNode).textContent = 'Now FXAA On';
   }
+  frame.clearExpressions();
+  frame.addExpression(activeExpression);
 };
