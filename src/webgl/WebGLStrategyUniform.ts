@@ -35,6 +35,9 @@ import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import {Is} from '../foundation/misc/Is';
 import {IMeshEntity} from '../foundation/helpers/EntityHelper';
+
+declare const spector: any;
+
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
@@ -401,6 +404,9 @@ mat3 get_normalMatrix(float instanceId) {
   ) {
     if (meshComponent.mesh == null) {
       return;
+    }
+    if (typeof spector !== 'undefined') {
+      spector.setMarker(`|  |  Uniform:$render#`);
     }
 
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;

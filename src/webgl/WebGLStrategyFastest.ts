@@ -51,6 +51,8 @@ import {
 } from '../foundation/helpers/EntityHelper';
 import LightComponent from '../foundation/components/Light/LightComponent';
 
+declare const spector: any;
+
 export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
   private __webglResourceRepository: WebGLResourceRepository =
@@ -834,6 +836,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     renderPass: RenderPass,
     renderPassTickCount: Count
   ) {
+    if (typeof spector !== 'undefined') {
+      spector.setMarker(`|  |  Fastest:common_$render#`);
+    }
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 

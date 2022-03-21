@@ -27,6 +27,8 @@ import EntityHelper from '../helpers/EntityHelper';
 import Config from '../core/Config';
 import Frame from '../renderer/Frame';
 
+declare const spector: any;
+
 export default class System {
   private static __instance: System;
   private __componentRepository: ComponentRepository =
@@ -119,15 +121,17 @@ export default class System {
   process(frame: Frame): void;
   process(expressions: Expression[]): void;
   process(value: any) {
-    let expressions: Expression[] = value;
-    if (value instanceof Frame) {
-      expressions = value.expressions;
+    if (typeof spector !== 'undefined') {
+      spector.setMarker('Rn#');
     }
-
     if (this.__processApproach === ProcessApproach.None) {
       throw new Error('Choose a process approach first.');
     }
     Time._processBegin();
+    let expressions: Expression[] = value;
+    if (value instanceof Frame) {
+      expressions = value.expressions;
+    }
 
     if (CameraComponent.main === Component.InvalidObjectUID) {
       const cameraEntity = EntityHelper.createCameraEntity();
@@ -160,6 +164,9 @@ export default class System {
 
             for (let i = 0; i < loopN; i++) {
               const renderPass = exp!.renderPasses[i];
+              if (typeof spector !== 'undefined') {
+                spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
+              }
               renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
               if (
