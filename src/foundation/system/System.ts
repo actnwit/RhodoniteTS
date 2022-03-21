@@ -165,7 +165,7 @@ export default class System {
             for (let i = 0; i < loopN; i++) {
               const renderPass = exp!.renderPasses[i];
               if (typeof spector !== 'undefined') {
-                spector.setMarker(`| ${exp}: ${renderPass}#`);
+                spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
               }
               renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
