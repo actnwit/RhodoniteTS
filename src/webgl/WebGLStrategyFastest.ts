@@ -70,8 +70,13 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+  private static __isDebugOperationToDataTextureBufferDone = true;
 
   private constructor() {}
+
+  public static dumpDataTextureBuffer() {
+    this.__isDebugOperationToDataTextureBufferDone = false;
+  }
 
   get vertexShaderMethodDefinitions_dataTexture() {
     return `
@@ -511,6 +516,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           type: ComponentType.Float,
         }
       );
+
+      // debug
+      if (!WebGLStrategyFastest.__isDebugOperationToDataTextureBufferDone) {
+        MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
+        WebGLStrategyFastest.__isDebugOperationToDataTextureBufferDone = true;
+      }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
       let morphBufferTakenSizeInByte = 0;

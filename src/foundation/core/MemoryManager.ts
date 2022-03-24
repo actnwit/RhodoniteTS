@@ -3,6 +3,7 @@ import {BufferUse, BufferUseEnum} from '../definitions/BufferUse';
 import {Size, Byte, ObjectUID} from '../../types/CommonTypes';
 import Config from './Config';
 import RnObject from './RnObject';
+import { MiscUtil } from '../misc/MiscUtil';
 
 /**
  * Usage
@@ -156,14 +157,7 @@ export default class MemoryManager {
   dumpBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
     const buffer = this.__buffers[bufferUse.toString()];
 
-    const a = document.createElement('a');
-    a.download =`Rhodonite_${bufferUse.toString()}.bin`;
-    const blob = new Blob([buffer.getArrayBuffer()], {type: 'octet/stream'});
-    const url = URL.createObjectURL(blob);
-    a.href = url;
-    const e = new MouseEvent('click');
-    a.dispatchEvent(e);
-
+    MiscUtil.downloadArrayBuffer(bufferUse.toString(), buffer.getArrayBuffer());
     return buffer;
   }
 }
