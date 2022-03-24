@@ -71,7 +71,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
-
+  private __latestPrimitivePositionAccessorVersions: number[] = [];
   private constructor() {}
 
   public static dumpDataTextureBuffer() {
@@ -418,7 +418,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
-    if (!is.exist(mesh)) {
+    if (is.not.exist(mesh)) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
@@ -433,9 +433,37 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.setupShaderProgramForMeshComponent(meshComponent);
     }
 
-    if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
+    if (!this.isMeshSetup(mesh)) {
+      this.deleteDataTexture(); // delete data texture to recreate one on next
       WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
+      const primitiveNum = mesh.getPrimitiveNumber();
+
+      for (let i = 0; i < primitiveNum; i++) {
+        const primitive = mesh.getPrimitiveAt(i);
+          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] = primitive.positionAccessorVersion!;
+      }
     }
+  }
+
+  isMeshSetup(mesh: Mesh) {
+    if (
+      mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
+      return false;
+    }
+
+    const primitiveNum = mesh.getPrimitiveNumber();
+    for (let i = 0; i < primitiveNum; i++) {
+      const primitive = mesh.getPrimitiveAt(i);
+      if (
+        Is.not.exist(primitive.vertexHandles) ||
+        primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   $prerender(
@@ -462,7 +490,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   private __createAndUpdateDataTexture() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer | undefined = memoryManager.getBuffer(
+
+    // the GPU global Storage
+    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(
       BufferUse.GPUInstanceData
     );
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
@@ -471,7 +501,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       ? glw!.getAlignedMaxUniformBlockSize()
       : 0;
 
-    if (buffer == null) {
+    if (gpuInstanceDataBuffer == null) {
       return;
     }
 
@@ -484,7 +514,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       const bufferSizeForDataTextureInByte =
-        buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+        gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
       const height = Math.min(
         Math.ceil(
           bufferSizeForDataTextureInByte /
@@ -499,7 +529,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
       const floatDataTextureBuffer = new Float32Array(
-        buffer.getArrayBuffer(),
+        gpuInstanceDataBuffer.getArrayBuffer(),
         startOffsetOfDataTextureOnGPUInstanceData,
         updateByteSize / 4
       );
@@ -531,8 +561,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
 
-      const restSizeOfDataTexture =
-        dataTextureByteSize - morphBufferTakenSizeInByte;
+      // const restSizeOfDataTexture =
+      //   dataTextureByteSize - morphBufferTakenSizeInByte;
       let floatDataTextureBuffer: Float32Array;
       // if (restSizeOfDataTexture > buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData) {
       //   let totalSizeOfDataTextureExceptMorphData = dataTextureByteSize - morphBufferTakenSizeInByte;
@@ -555,43 +585,54 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       // } else {
       {
         const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
+
+        // the size of morph buffer.
         let morphBufferTakenSizeInByte = 0;
-        if (morphBuffer != null) {
+        if (Is.exist(morphBuffer)) {
           morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
         }
 
+        // the arraybuffer of morph buffer.
         let morphBufferArrayBuffer = new ArrayBuffer(0);
-        if (morphBuffer != null) {
+        if (Is.exist(morphBuffer)) {
           morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
         }
+
+        // the DataTexture size (GPU global storage size - UBO space size)
         const actualSpaceForDataTextureInByte =
-          buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
-        const spareSpaceTexel =
+          gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+
+        // spare padding texel for texture alignment (to edge of the width of texture)
+        const paddingSpaceTexel =
           MemoryManager.bufferWidthLength -
           ((actualSpaceForDataTextureInByte / 4 / 4) %
             MemoryManager.bufferWidthLength);
-        const spareSpaceBytes = spareSpaceTexel * 4 * 4;
+        const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
+
         const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
           finalSize: dataTextureByteSize,
-          srcs: [buffer.getArrayBuffer(), morphBufferArrayBuffer],
+          srcs: [gpuInstanceDataBuffer.getArrayBuffer(), morphBufferArrayBuffer],
           srcsCopySize: [
-            actualSpaceForDataTextureInByte + spareSpaceBytes,
+// final size =
+            actualSpaceForDataTextureInByte + paddingSpaceBytes,
             morphBufferTakenSizeInByte,
           ],
           srcsOffset: [startOffsetOfDataTextureOnGPUInstanceData, 0],
         });
-        // if (finalArrayBuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
+
+        // warning if the used memory exceeds the size of the data texture.
         if (
           actualSpaceForDataTextureInByte +
-            spareSpaceBytes +
+            paddingSpaceBytes +
             morphBufferTakenSizeInByte >
           dataTextureByteSize
         ) {
           console.warn('The buffer size exceeds the size of the data texture.');
         }
+
         floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
         Config.totalSizeOfGPUShaderDataStorageExceptMorphData =
-          buffer.takenSizeInByte + spareSpaceBytes;
+          gpuInstanceDataBuffer.takenSizeInByte + paddingSpaceBytes;
       }
 
       // write data
@@ -636,6 +677,13 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           }
         );
       }
+    }
+  }
+
+  deleteDataTexture(): void {
+    if (this.__dataTextureUid != null) {
+      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }
 

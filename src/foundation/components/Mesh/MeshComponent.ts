@@ -39,6 +39,7 @@ export default class MeshComponent extends Component {
   private static __returnVector3: MutableVector3 = MutableVector3.zero();
 
   private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
+  private static __latestPrimitivePositionAccessorVersion = 0;
 
   constructor(
     entityUid: EntityUID,
@@ -300,10 +301,11 @@ export default class MeshComponent extends Component {
       const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
-        if (primitive.isPositionAccessorUpdated) {
+        if (primitive.positionAccessorVersion !== MeshComponent.__latestPrimitivePositionAccessorVersion) {
           const meshRendererComponent =
             meshComponent.entity.tryToGetMeshRenderer();
           meshRendererComponent?.moveStageTo(ProcessStage.Load);
+          MeshComponent.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
         }
       }
     }

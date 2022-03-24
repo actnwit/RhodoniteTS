@@ -198,27 +198,6 @@ function updateVBOAndVAO(mesh: Mesh) {
   mesh.updateVAO();
 }
 
-function isMeshSetup(mesh: Mesh) {
-  if (
-    mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
-  ) {
-    return false;
-  }
-
-  const primitiveNum = mesh.getPrimitiveNumber();
-  for (let i = 0; i < primitiveNum; i++) {
-    const primitive = mesh.getPrimitiveAt(i);
-    if (
-      !is.exist(primitive.vertexHandles) ||
-      primitive.isPositionAccessorUpdated
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 function isMaterialsSetup(meshComponent: MeshComponent) {
   if (
     meshComponent.mesh!._variationVBOUid !==
@@ -351,7 +330,6 @@ export default Object.freeze({
   startDepthMasking,
   endDepthMasking,
   updateVBOAndVAO,
-  isMeshSetup,
   isMaterialsSetup,
   isSkipDrawing,
   setVRViewport,

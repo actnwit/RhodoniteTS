@@ -43,6 +43,7 @@ export default class Mesh {
   public _attachedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
+  private __latestPrimitivePositionAccessorVersion = 0;
 
   /**
    * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
@@ -462,8 +463,9 @@ export default class Mesh {
     }
 
     for (const primitive of this.__primitives) {
-      if (primitive.isPositionAccessorUpdated) {
+      if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
         this.__localAABB.initialize();
+        this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
         break;
       }
     }

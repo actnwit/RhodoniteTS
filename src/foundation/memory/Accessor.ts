@@ -70,6 +70,7 @@ export default class Accessor {
   private static __tmpVector4_0 = MutableVector4.zero();
   private static __tmpVector3_0 = MutableVector3.zero();
   private static __tmpVector2_0 = MutableVector2.zero();
+  private __version = 0;
 
   constructor({
     bufferView,
@@ -712,6 +713,7 @@ export default class Accessor {
     }
     this.__dataViewSetter(this.__byteStride * index, value, endian);
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setVec2(
@@ -732,6 +734,7 @@ export default class Accessor {
       endian
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setVec3(
@@ -758,6 +761,7 @@ export default class Accessor {
       endian
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setVec4(
@@ -790,6 +794,7 @@ export default class Accessor {
       endian
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setVec2AsVector(
@@ -809,6 +814,7 @@ export default class Accessor {
       endian
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setVec3AsVector(
@@ -833,6 +839,7 @@ export default class Accessor {
       endian
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setVec4AsVector(
@@ -862,6 +869,7 @@ export default class Accessor {
       endian
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   copyFromTypedArray(typedArray: TypedArray) {
@@ -903,6 +911,8 @@ export default class Accessor {
           throw new Error('Other than vectors are currently not supported.');
       }
     }
+    this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setScalarAt(
@@ -921,6 +931,7 @@ export default class Accessor {
       endian
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setElementFromSameCompositionAccessor(
@@ -938,6 +949,8 @@ export default class Accessor {
     } else if (this.compositionType.getNumberOfComponents() === 4) {
       this.setVec4AsVector(i, accessor.getVec4(j, {}), {});
     }
+    this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   copyBuffer(accessor: Accessor) {
@@ -949,6 +962,7 @@ export default class Accessor {
       this.__byteOffsetInRawArrayBufferOfBuffer
     );
     this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   setElementFromAccessor(i: Index, accessor: Accessor, secondIdx?: Index) {
@@ -1005,6 +1019,8 @@ export default class Accessor {
         this.setVec4AsVector(i, vec, {});
       }
     }
+    this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   addElementFromSameCompositionAccessor(
@@ -1048,6 +1064,8 @@ export default class Accessor {
         {}
       );
     }
+    this.__isMinMixDirty = true;
+    this.__version++;
   }
 
   get arrayBufferOfBufferView(): ArrayBuffer {
@@ -1229,6 +1247,10 @@ export default class Accessor {
 
   get isMinMaxDirty() {
     return this.__isMinMixDirty;
+  }
+
+  get version() {
+    return this.__version;
   }
 
   get actualByteStride() {

@@ -51,6 +51,7 @@ export class Primitive extends RnObject {
   private __aabb = new AABB();
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
+  private __latestPositionAccessorVersion = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -334,22 +335,25 @@ export class Primitive extends RnObject {
     return this.__primitiveUid;
   }
 
-  get isPositionAccessorUpdated(): boolean {
+  get positionAccessorVersion(): number | undefined {
     const positionAccessor = this.__attributes.get(
       VertexAttribute.Position.XYZ
     );
-    return positionAccessor?.isMinMaxDirty || false;
+    if (Is.exist(positionAccessor)) {
+      return positionAccessor.version;
+    } else {
+      return undefined;
+    }
   }
 
   get AABB() {
-    if (this.__aabb.isVanilla() || this.isPositionAccessorUpdated) {
+    if (this.__aabb.isVanilla() ||
+      this.positionAccessorVersion !== this.__latestPositionAccessorVersion) {
       const positionAccessor = this.__attributes.get(
         VertexAttribute.Position.XYZ
       )!;
 
-      if (positionAccessor.isMinMaxDirty) {
-        positionAccessor.calcMinMax();
-      }
+      positionAccessor.calcMinMax();
 
       const min = positionAccessor.min as number[];
       this.__aabb.minPoint = Primitive.__tmpVec3_0.setComponents(
@@ -363,6 +367,7 @@ export class Primitive extends RnObject {
         max[1],
         max[2]
       );
+      this.__latestPositionAccessorVersion = positionAccessor.version;
     }
 
     return this.__aabb;

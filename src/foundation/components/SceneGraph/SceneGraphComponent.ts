@@ -56,6 +56,7 @@ export default class SceneGraphComponent extends Component {
   private __transformGizmoSpace: 'local' | 'world' = 'world';
   private static isJointAABBShouldBeCalculated = false;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
+  private __latestPrimitivePositionAccessorVersion = 0;
 
   // Skeletal
   public isRootJoint = false;
@@ -619,8 +620,9 @@ export default class SceneGraphComponent extends Component {
         const primitiveNum = mesh.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
           const primitive = mesh!.getPrimitiveAt(i);
-          if (primitive.isPositionAccessorUpdated) {
+          if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
             this.setWorldAABBDirtyParentRecursively();
+            this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
             break;
           }
         }
