@@ -301,7 +301,7 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
         const instanceSizeInScalar =
           scalarSizeOfProperty * (info.maxIndex ?? 1);
         indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
-        indexStr += `int scalar_idx = ${
+        indexStr += `int scalar_idx = ${ // IndexOf4Bytes
           dataBeginPos * 4 // IndexOf16bytes to IndexOf4Bytes
         } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
       }
