@@ -218,8 +218,11 @@ const EntityUID: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const MorphTargetNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'morphTargetNumber',
 });
+
+// the 16byteoffset (16byte unit offset) of MorphData in DataTexture
 const DataTextureMorphOffsetPosition: ShaderSemanticsEnum =
   new ShaderSemanticsClass({str: 'dataTextureMorphOffsetPosition'});
+
 const MorphWeights: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'morphWeights',
 });
