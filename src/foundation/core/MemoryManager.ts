@@ -152,4 +152,18 @@ export default class MemoryManager {
     }
     // console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);
   }
+
+  dumpBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
+    const buffer = this.__buffers[bufferUse.toString()];
+
+    const a = document.createElement('a');
+    a.download =`Rhodonite_${bufferUse.toString()}.bin`;
+    const blob = new Blob([buffer.getArrayBuffer()], {type: 'octet/stream'});
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    const e = new MouseEvent('click');
+    a.dispatchEvent(e);
+
+    return buffer;
+  }
 }
