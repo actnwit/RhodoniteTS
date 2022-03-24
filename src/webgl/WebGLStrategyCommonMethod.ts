@@ -4,7 +4,7 @@ import {AlphaMode} from '../foundation/definitions/AlphaMode';
 import MeshRendererComponent from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import MeshComponent from '../foundation/components/Mesh/MeshComponent';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import {Index} from '../types/CommonTypes';
+import {Index, IndexOf16Bytes} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';
 import {Is, Is as is} from '../foundation/misc/Is';
 import ModuleManager from '../foundation/system/ModuleManager';
@@ -304,7 +304,7 @@ function isVrMainPass(renderPass: RenderPass) {
 function getLocationOffsetOfProperty(
   propertyIndex: Index,
   materialTypeName?: string
-) {
+): IndexOf16Bytes {
   if (Is.exist(materialTypeName)) {
     const dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(
       materialTypeName,
