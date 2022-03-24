@@ -8,8 +8,10 @@ declare const Rn: typeof _Rn;
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
 
+//  Rn.Config.maxMorphTargetNumber = 16;
+
   system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
+    Rn.ProcessApproach.FastestWebGL2,
     document.getElementById('world') as HTMLCanvasElement
   );
 
@@ -29,7 +31,7 @@ declare const Rn: typeof _Rn;
   // gltf
   const gltfImporter = Rn.GltfImporter.getInstance();
   const expression = await gltfImporter.import(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb',
+    '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb',
     {
       cameraComponent: cameraComponent,
     }
