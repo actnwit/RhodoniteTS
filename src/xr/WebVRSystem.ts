@@ -34,7 +34,17 @@ export default class WebVRSystem {
 
   private constructor() {
     this.__leftCameraEntity = EntityHelper.createCameraEntity();
+    this.__leftCameraEntity.tryToSetUniqueName('WebVR Left Camera', true)
+    this.__leftCameraEntity.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    })
     this.__rightCameraEntity = EntityHelper.createCameraEntity();
+    this.__rightCameraEntity.tryToSetUniqueName('WebVR Right Camera', true)
+    this.__rightCameraEntity.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    })
   }
 
   static getInstance() {
