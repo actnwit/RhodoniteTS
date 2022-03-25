@@ -51,8 +51,8 @@ export interface AnimationChannelTarget {
  * Similar to [Animation.Sampler](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-sampler)
  */
 export interface AnimationSampler {
-  input: Float32Array;
-  output: Float32Array;
+  input: Float32Array | Array<number>;
+  output: Float32Array | Array<number>;
   outputComponentN: VectorComponentN;
   interpolationMethod: AnimationInterpolationEnum;
 }

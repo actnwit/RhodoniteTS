@@ -3,6 +3,7 @@ import {BufferUse, BufferUseEnum} from '../definitions/BufferUse';
 import {Size, Byte, ObjectUID} from '../../types/CommonTypes';
 import Config from './Config';
 import RnObject from './RnObject';
+import { MiscUtil } from '../misc/MiscUtil';
 
 /**
  * Usage
@@ -151,5 +152,12 @@ export default class MemoryManager {
       );
     }
     // console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);
+  }
+
+  dumpBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
+    const buffer = this.__buffers[bufferUse.toString()];
+
+    MiscUtil.downloadArrayBuffer(bufferUse.toString(), buffer.getArrayBuffer());
+    return buffer;
   }
 }

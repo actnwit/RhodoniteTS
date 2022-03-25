@@ -16,7 +16,6 @@ import {
   GL_DATA_UNSIGNED_INT,
   GL_DATA_FLOAT,
 } from '../types/WebGLConstants';
-import {Is} from '../foundation/misc/Is';
 
 export interface Gltf2AnyObject {
   [s: string]: any;

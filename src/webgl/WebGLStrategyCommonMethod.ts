@@ -4,7 +4,7 @@ import {AlphaMode} from '../foundation/definitions/AlphaMode';
 import MeshRendererComponent from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import MeshComponent from '../foundation/components/Mesh/MeshComponent';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import {Index} from '../types/CommonTypes';
+import {Index, IndexOf16Bytes} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';
 import {Is, Is as is} from '../foundation/misc/Is';
 import ModuleManager from '../foundation/system/ModuleManager';
@@ -198,27 +198,6 @@ function updateVBOAndVAO(mesh: Mesh) {
   mesh.updateVAO();
 }
 
-function isMeshSetup(mesh: Mesh) {
-  if (
-    mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
-  ) {
-    return false;
-  }
-
-  const primitiveNum = mesh.getPrimitiveNumber();
-  for (let i = 0; i < primitiveNum; i++) {
-    const primitive = mesh.getPrimitiveAt(i);
-    if (
-      !is.exist(primitive.vertexHandles) ||
-      primitive.isPositionAccessorUpdated
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 function isMaterialsSetup(meshComponent: MeshComponent) {
   if (
     meshComponent.mesh!._variationVBOUid !==
@@ -304,7 +283,7 @@ function isVrMainPass(renderPass: RenderPass) {
 function getLocationOffsetOfProperty(
   propertyIndex: Index,
   materialTypeName?: string
-) {
+): IndexOf16Bytes {
   if (Is.exist(materialTypeName)) {
     const dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(
       materialTypeName,
@@ -351,7 +330,6 @@ export default Object.freeze({
   startDepthMasking,
   endDepthMasking,
   updateVBOAndVAO,
-  isMeshSetup,
   isMaterialsSetup,
   isSkipDrawing,
   setVRViewport,

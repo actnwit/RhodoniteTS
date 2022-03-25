@@ -49,6 +49,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private __latestPrimitivePositionAccessorVersions: number[] = [];
 
   private readonly componentMatrices = [
     {
@@ -228,9 +229,36 @@ mat3 get_normalMatrix(float instanceId) {
       this.setupShaderProgram(meshComponent);
     }
 
-    if (!WebGLStrategyCommonMethod.isMeshSetup(mesh)) {
+    if (!this.isMeshSetup(mesh)) {
       WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
+
+      const primitiveNum = mesh.getPrimitiveNumber();
+      for (let i = 0; i < primitiveNum; i++) {
+        const primitive = mesh.getPrimitiveAt(i);
+          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] = primitive.positionAccessorVersion!;
+      }
     }
+  }
+
+  isMeshSetup(mesh: Mesh) {
+    if (
+      mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
+      return false;
+    }
+
+    const primitiveNum = mesh.getPrimitiveNumber();
+    for (let i = 0; i < primitiveNum; i++) {
+      const primitive = mesh.getPrimitiveAt(i);
+      if (
+        Is.not.exist(primitive.vertexHandles) ||
+        primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   $prerender(

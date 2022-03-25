@@ -1,5 +1,5 @@
 import {off} from 'process';
-import {Byte, Size} from '../../types/CommonTypes';
+import {Byte, Size, TypedArray} from '../../types/CommonTypes';
 import {Is} from './Is';
 
 const isMobile = function () {
@@ -352,6 +352,26 @@ export function deepCopyUsingJsonStringify(obj: {[k: string]: any}) {
   return JSON.parse(JSON.stringify(obj));
 }
 
+export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: ArrayBuffer) {
+  const a = document.createElement('a');
+  a.download = fileNameToDownload;
+  const blob = new Blob([arrayBuffer], {type: 'octet/stream'});
+  const url = URL.createObjectURL(blob);
+  a.href = url;
+  const e = new MouseEvent('click');
+  a.dispatchEvent(e);
+}
+
+export function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray) {
+  const a = document.createElement('a');
+  a.download = fileNameToDownload;
+  const blob = new Blob([typedArray], {type: 'octet/stream'});
+  const url = URL.createObjectURL(blob);
+  a.href = url;
+  const e = new MouseEvent('click');
+  a.dispatchEvent(e);
+}
+
 export const MiscUtil = Object.freeze({
   isMobile,
   isIOS,
@@ -363,4 +383,6 @@ export const MiscUtil = Object.freeze({
   concatArrayBuffers,
   concatArrayBuffers2,
   addLineNumberToCode,
+  downloadArrayBuffer,
+  downloadTypedArray,
 });

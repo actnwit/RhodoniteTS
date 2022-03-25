@@ -68,8 +68,20 @@ export default class WebXRSystem {
 
   private constructor() {
     this.__viewerEntity = EntityHelper.createGroupEntity();
+
     this.__leftCameraEntity = EntityHelper.createCameraEntity();
+    this.__leftCameraEntity.tryToSetUniqueName('WebXR Left Camera', true)
+    this.__leftCameraEntity.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    })
     this.__rightCameraEntity = EntityHelper.createCameraEntity();
+    this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true)
+    this.__rightCameraEntity.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    })
+
     this.__viewerEntity
       .getSceneGraph()
       .addChild(this.__leftCameraEntity.getSceneGraph());
