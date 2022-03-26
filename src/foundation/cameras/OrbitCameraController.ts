@@ -478,7 +478,6 @@ export default class OrbitCameraController
   registerEventListeners() {
     let eventTargetDom = window;
     if (Is.exist(Config.eventTargetDom)) {
-    } else {
       eventTargetDom = Config.eventTargetDom;
     }
 
