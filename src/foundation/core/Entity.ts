@@ -36,6 +36,7 @@ export interface IEntity extends IRnObject {
   tryToGetSkeletal(): SkeletalComponent | undefined;
   tryToGetTransform(): TransformComponent | undefined;
   tryToGetAnimation(): AnimationComponent | undefined;
+  destroy(): void;
 }
 
 /**
@@ -196,7 +197,6 @@ export default class Entity extends RnObject implements IEntity {
     this.__components.forEach((component) => {
       component.destroy();
     });
-    this.__components.clear();
     this._isAlive = false;
   }
 }
