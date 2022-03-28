@@ -115,10 +115,10 @@ export default class ComponentRepository {
       if (component != null) {
         return map[componentSid];
       } else {
-        return null;
+        return undefined;
       }
     }
-    return null;
+    return undefined;
   }
 
   /**
@@ -129,7 +129,8 @@ export default class ComponentRepository {
   _getComponents(
     componentClass: typeof Component
   ): Array<Component> | undefined {
-    return this.__components.get(componentClass.componentTID);
+    const components = this.__components.get(componentClass.componentTID);
+    return components?.filter(component => component._isAlive);
   }
 
   static getMemoryBeginIndex(componentTid: ComponentTID) {
@@ -154,7 +155,7 @@ export default class ComponentRepository {
     if (components == null) {
       return [];
     }
-    return components;
+    return components.filter(component => component._isAlive);
   }
 
   /**

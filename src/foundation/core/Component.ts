@@ -40,6 +40,7 @@ type MemberInfo = {
 export default class Component extends RnObject {
   private _component_sid: number;
   static readonly invalidComponentSID = -1;
+  _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
   protected static __componentsOfProcessStages: Map<
     ProcessStageEnum,
@@ -746,5 +747,9 @@ export default class Component extends RnObject {
     } else {
       return undefined;
     }
+  }
+
+  destroy() {
+    this._isAlive = false;
   }
 }

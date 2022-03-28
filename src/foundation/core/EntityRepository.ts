@@ -165,14 +165,15 @@ export default class EntityRepository {
    * Gets all entities.
    */
   _getEntities(): IEntity[] {
-    return this.__entities.concat();
+    return this.__entities.filter(entity => entity._isAlive);
   }
 
   /**
    * Gets the number of all entities.
    */
   getEntitiesNumber(): number {
-    return this.__entities.length;
+    const entities =  this.__entities.filter(entity => entity._isAlive);
+    return entities.length;
   }
 }
 

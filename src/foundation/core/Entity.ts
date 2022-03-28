@@ -20,6 +20,7 @@ import CameraComponent from '../components/Camera/CameraComponent';
  */
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
+  _isAlive: boolean;
   getComponent(componentType: typeof Component): Component | undefined;
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
   _setComponent(componentType: typeof Component, com: Component): void;
@@ -52,7 +53,7 @@ export default class Entity extends RnObject implements IEntity {
   static readonly invalidEntityUID = -1;
 
   /** No use yet */
-  private __isAlive: Boolean;
+  _isAlive: boolean;
 
   /**
    * The constructor of the Entity class.
@@ -64,12 +65,12 @@ export default class Entity extends RnObject implements IEntity {
    */
   constructor(
     entityUID: EntityUID,
-    isAlive: Boolean,
+    isAlive: boolean,
     components?: Map<ComponentTID, Component>
   ) {
     super();
     this.__entity_uid = entityUID;
-    this.__isAlive = isAlive;
+    this._isAlive = isAlive;
 
     this.__components = Is.exist(components) ? components : new Map();
   }
@@ -189,5 +190,13 @@ export default class Entity extends RnObject implements IEntity {
     return this.getComponentByComponentTID(
       WellKnownComponentTIDs.TransformComponentTID
     ) as TransformComponent | undefined;
+  }
+
+  destroy() {
+    this.__components.forEach((component) => {
+      component.destroy();
+    });
+    this.__components.clear();
+    this._isAlive = false;
   }
 }
