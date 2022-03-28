@@ -133,6 +133,19 @@ export default class ComponentRepository {
     return components?.filter(component => component._isAlive);
   }
 
+  /**
+   * @private
+   * Gets an array of components corresponding to the class object of the component (dead components included).
+   * @param componentClass The class object of the component.
+   */
+   _getComponentsIncludingDead(
+    componentClass: typeof Component
+  ): Array<Component> | undefined {
+    const components = this.__components.get(componentClass.componentTID);
+    return components;
+  }
+
+
   static getMemoryBeginIndex(componentTid: ComponentTID) {
     let memoryBeginIndex = 0;
     for (let i = 0; i < componentTid; i++) {
