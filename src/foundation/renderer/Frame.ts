@@ -1,5 +1,6 @@
 import {RenderPass} from '../..';
 import RnObject from '../core/RnObject';
+import { IVector4 } from '../math/IVector';
 import {Is} from '../misc/Is';
 import RenderTargetTexture from '../textures/RenderTargetTexture';
 import Expression from './Expression';
@@ -106,5 +107,11 @@ export default class Frame extends RnObject {
    */
   get expressions() {
     return this.__expressions.map(exp => exp.exp);
+  }
+
+  setViewport(viewport: IVector4) {
+    for (const exp of this.__expressions) {
+      exp.exp.setViewport(viewport);
+    }
   }
 }

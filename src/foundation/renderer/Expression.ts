@@ -1,4 +1,5 @@
 import RnObject from '../core/RnObject';
+import { IVector4 } from '../math/IVector';
 import RenderPass from './RenderPass';
 
 /**
@@ -32,5 +33,11 @@ export default class Expression extends RnObject {
    */
   get renderPasses(): RenderPass[] {
     return this.__renderPasses;
+  }
+
+  setViewport(viewport: IVector4) {
+    for (const renderPass of this.__renderPasses) {
+      renderPass.setViewport(viewport);
+    }
   }
 }
