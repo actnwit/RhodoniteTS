@@ -677,6 +677,16 @@ export default class SceneGraphComponent extends Component {
     this.__scaleGizmo?.setSpace(space);
   }
 
+  destroy() {
+    // this.__aabbGizmo?.destroy();
+    // this.__locatorGizmo?.destroy();
+    // this.__translationGizmo?.destroy();
+    // this.__scaleGizmo?.destroy();
+    // this.__entityRepository.removeEntity(this.__entityUid);
+    this.parent?.removeChild(this);
+    this.children.forEach((child) => child.parent?.removeChild(child));
+  }
+
   /**
    * @override
    * Add this component to the entity

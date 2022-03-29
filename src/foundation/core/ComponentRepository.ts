@@ -115,10 +115,10 @@ export default class ComponentRepository {
       if (component != null) {
         return map[componentSid];
       } else {
-        return null;
+        return undefined;
       }
     }
-    return null;
+    return undefined;
   }
 
   /**
@@ -129,8 +129,22 @@ export default class ComponentRepository {
   _getComponents(
     componentClass: typeof Component
   ): Array<Component> | undefined {
-    return this.__components.get(componentClass.componentTID);
+    const components = this.__components.get(componentClass.componentTID);
+    return components?.filter(component => component._isAlive);
   }
+
+  /**
+   * @private
+   * Gets an array of components corresponding to the class object of the component (dead components included).
+   * @param componentClass The class object of the component.
+   */
+   _getComponentsIncludingDead(
+    componentClass: typeof Component
+  ): Array<Component> | undefined {
+    const components = this.__components.get(componentClass.componentTID);
+    return components;
+  }
+
 
   static getMemoryBeginIndex(componentTid: ComponentTID) {
     let memoryBeginIndex = 0;
@@ -154,7 +168,7 @@ export default class ComponentRepository {
     if (components == null) {
       return [];
     }
-    return components;
+    return components.filter(component => component._isAlive);
   }
 
   /**

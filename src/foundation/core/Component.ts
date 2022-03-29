@@ -40,6 +40,7 @@ type MemberInfo = {
 export default class Component extends RnObject {
   private _component_sid: number;
   static readonly invalidComponentSID = -1;
+  _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
   protected static __componentsOfProcessStages: Map<
     ProcessStageEnum,
@@ -239,14 +240,14 @@ export default class Component extends RnObject {
     const methodName = processStage.methodName;
     const array = this.__componentsOfProcessStages.get(processStage)!;
     const components: Component[] | undefined =
-      componentRepository._getComponents(componentType);
+      componentRepository._getComponentsIncludingDead(componentType);
     for (let i = 0; i < array.length; ++i) {
       const componentSid = array[i];
       if (componentSid === Component.invalidComponentSID) {
         return;
       }
       const component = components![componentSid];
-      (component! as any)[methodName]({
+      (component as any)[methodName]({
         i,
         processStage,
         processApproach,
@@ -293,7 +294,7 @@ export default class Component extends RnObject {
         for (let i = 0; i < components.length; ++i) {
           const component = components[i];
           if (processStage === component.__currentProcessStage) {
-            array[count++] = i;
+            array[count++] = component.componentSID;
           }
         }
         array[count] = Component.invalidComponentSID;
@@ -746,5 +747,9 @@ export default class Component extends RnObject {
     } else {
       return undefined;
     }
+  }
+
+  destroy() {
+    this._isAlive = false;
   }
 }

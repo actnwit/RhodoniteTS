@@ -82,25 +82,25 @@ export default class EntityRepository {
 
   /**
    * Remove components from the entity.
-   * @param componentClasses The class object of the components to remove.
+   * Note: the returned entity's type will be IEntity (most basic type).
+   *       You have to cast it to appropriate type later.
+   * @param componentClass The class object of the component to remove.
    * @param entityUid The entityUID of the entity.
    */
-  removeComponentsFromEntity(
-    componentClasses: Array<typeof Component>,
+  removeComponentFromEntity(
+    componentClass: typeof Component,
     entityUid: EntityUID
-  ) {
+  ): IEntity {
     const entity = this.getEntity(entityUid);
 
-    for (const componentClass of componentClasses) {
-      let map = this._components[entity.entityUID];
-      if (map == null) {
-        map = new Map();
-        this._components[entity.entityUID] = map;
-      }
-      map.delete(componentClass.componentTID);
+    let map = this._components[entity.entityUID];
+    if (map == null) {
+      map = new Map();
+      this._components[entity.entityUID] = map;
     }
+    map.delete(componentClass.componentTID);
 
-    return entity;
+    return entity as IEntity;
   }
 
   /**
@@ -165,14 +165,15 @@ export default class EntityRepository {
    * Gets all entities.
    */
   _getEntities(): IEntity[] {
-    return this.__entities.concat();
+    return this.__entities.filter(entity => entity._isAlive);
   }
 
   /**
    * Gets the number of all entities.
    */
   getEntitiesNumber(): number {
-    return this.__entities.length;
+    const entities =  this.__entities.filter(entity => entity._isAlive);
+    return entities.length;
   }
 }
 
