@@ -5,6 +5,7 @@ import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 import {valueWithCompensation} from '../misc/MiscUtil';
 import {ComponentToComponentMethods} from '../components/ComponentTypes';
 import RnObject from './RnObject';
+import { Is } from '../misc/Is';
 
 /**
  * The class that generates and manages entities.
@@ -89,16 +90,19 @@ export default class EntityRepository {
    */
   removeComponentFromEntity(
     componentClass: typeof Component,
-    entityUid: EntityUID
+    entity: IEntity
   ): IEntity {
-    const entity = this.getEntity(entityUid);
 
     let map = this._components[entity.entityUID];
     if (map == null) {
       map = new Map();
       this._components[entity.entityUID] = map;
     }
-    map.delete(componentClass.componentTID);
+    const component = map.get(componentClass.componentTID);
+    if (Is.exist(component)) {
+      component.destroy();
+      map.delete(componentClass.componentTID);
+    }
 
     return entity as IEntity;
   }

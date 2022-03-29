@@ -63,6 +63,8 @@ export default class ComponentRepository {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
     if (Is.exist(componentClass)) {
+
+      // Update __component_sid_count_map
       let component_sid_count =
         this.__component_sid_count_map.get(componentTid);
       if (Is.not.exist(component_sid_count)) {
@@ -71,12 +73,14 @@ export default class ComponentRepository {
       }
       this.__component_sid_count_map.set(componentTid, ++component_sid_count!);
 
+      // create the component
       const component = new componentClass(
         entityUid,
         component_sid_count!,
         entityRepository
       ) as Component;
 
+      // register the component
       if (!this.__components.has(componentTid)) {
         this.__components.set(componentTid, []);
       }

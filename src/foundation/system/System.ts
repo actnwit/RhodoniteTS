@@ -26,6 +26,7 @@ import {Is} from '../misc/Is';
 import EntityHelper from '../helpers/EntityHelper';
 import Config from '../core/Config';
 import Frame from '../renderer/Frame';
+import Vector4 from '../math/Vector4';
 
 declare const spector: any;
 
@@ -339,6 +340,11 @@ export default class System {
 
   get processApproach() {
     return this.__processApproach;
+  }
+
+  resizeCanvas(width: number, height: number) {
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    repo.resizeCanvas(width, height);
   }
 
   static getInstance() {
