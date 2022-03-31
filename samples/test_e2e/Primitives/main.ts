@@ -67,7 +67,7 @@ function createGrid(material: Material) {
     material,
   });
   const shape = Rn.MeshHelper.createShape(primitive);
-  shape.getTransform().rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
 
   return shape;
 }
@@ -83,8 +83,8 @@ function createPlane(material: Material) {
     material,
   });
   const shape = Rn.MeshHelper.createShape(primitive);
-  shape.getTransform().rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.getTransform().translate = Rn.Vector3.fromCopy3(3, 0, 0);
+  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.translate = Rn.Vector3.fromCopy3(3, 0, 0);
 
   return shape;
 }
@@ -96,8 +96,8 @@ function createCube(material: Material) {
     material,
   });
   const shape = Rn.MeshHelper.createShape(primitive);
-  shape.getTransform().rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.getTransform().translate = Rn.Vector3.fromCopy3(0, 3, 0);
+  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.translate = Rn.Vector3.fromCopy3(0, 3, 0);
 
   return shape;
 }
@@ -109,8 +109,8 @@ function createAxis(material: Material) {
     material,
   });
   const shape = Rn.MeshHelper.createShape(primitive);
-  shape.getTransform().rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.getTransform().translate = Rn.Vector3.fromCopy3(0, 6, 0);
+  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.translate = Rn.Vector3.fromCopy3(0, 6, 0);
 
   return shape;
 }
@@ -121,8 +121,8 @@ function createJoint(material: Material) {
     material,
   });
   const shape = Rn.MeshHelper.createShape(primitive);
-  shape.getTransform().rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.getTransform().translate = Rn.Vector3.fromCopy3(3, 3, 0);
+  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.translate = Rn.Vector3.fromCopy3(3, 3, 0);
 
   return shape;
 }
@@ -136,8 +136,8 @@ function createLine(material: Material) {
     material,
   });
   const shape = Rn.MeshHelper.createShape(primitive);
-  shape.getTransform().rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.getTransform().translate = Rn.Vector3.fromCopy3(6, 3, 0);
+  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.translate = Rn.Vector3.fromCopy3(6, 3, 0);
 
   return shape;
 }
@@ -151,8 +151,8 @@ function createSphere(material: Material) {
     material,
   });
   const shape = Rn.MeshHelper.createShape(primitive);
-  shape.getTransform().rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.getTransform().translate = Rn.Vector3.fromCopy3(6, 6, 0);
+  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.translate = Rn.Vector3.fromCopy3(6, 6, 0);
 
   return shape;
 }
