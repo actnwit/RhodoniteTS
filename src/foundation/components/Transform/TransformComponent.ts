@@ -664,6 +664,61 @@ export default class TransformComponent extends Component {
           WellKnownComponentTIDs.TransformComponentTID
         ) as TransformComponent;
       }
+      set translate(vec: IVector3) {
+        const transform = this.getTransform();
+        transform.translate = vec;
+      }
+      get translate() {
+        return this.translateInner.clone();
+      }
+      get translateInner() {
+        const transform = this.getTransform();
+        return transform.translateInner;
+      }
+      set scale(vec: IVector3) {
+        const transform = this.getTransform();
+        transform.scale = vec;
+      }
+      get scale() {
+        return this.scaleInner.clone();
+      }
+      get scaleInner() {
+        const transform = this.getTransform();
+        return transform.scaleInner;
+      }
+      set rotate(vec: IVector3) {
+        const transform = this.getTransform();
+        transform.rotate = vec;
+      }
+      get rotate() {
+        return this.rotateInner.clone();
+      }
+      get rotateInner() {
+        const transform = this.getTransform();
+        return transform.rotateInner;
+      }
+      set quaternion(quat: IQuaternion) {
+        const transform = this.getTransform();
+        transform.quaternion = quat;
+      }
+      get quaternion() {
+        return this.quaternionInner.clone();
+      }
+      get quaternionInner() {
+        const transform = this.getTransform();
+        return transform.quaternionInner;
+      }
+      set matrix(mat: IMatrix44) {
+        const transform = this.getTransform();
+        transform.matrix = mat;
+      }
+      get matrix() {
+        return this.matrixInner.clone();
+      }
+      get matrixInner() {
+        const transform = this.getTransform();
+        return transform.matrixInner;
+      }
     }
     applyMixins(base, TransformEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> &

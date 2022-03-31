@@ -1,9 +1,18 @@
-import Component from '../../core/Component';
-import {EntityUID} from '../../../types/CommonTypes';
+import {IVector3} from '../../math/IVector';
+import {IQuaternion} from '../../math/IQuaternion';
+import {IMatrix22} from '../../math/IMatrix';
 import TransformComponent from './TransformComponent';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import {MixinBase} from '../../../types/TypeGenerators';
 
 export interface ITransformEntityMethods {
   getTransform(): TransformComponent;
+  translate: IVector3;
+  scale: IVector3;
+  rotate: IVector3;
+  quaternion: IQuaternion;
+  matrix: IMatrix22;
+  translateInner: IVector3;
+  scaleInner: IVector3;
+  rotateInner: IVector3;
+  quaternionInner: IQuaternion;
+  matrixInner: IMatrix22;
 }
