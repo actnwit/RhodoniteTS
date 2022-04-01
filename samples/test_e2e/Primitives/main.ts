@@ -1,6 +1,5 @@
 import _Rn from '../../../dist/esm/index';
 import {checkFinished} from '../common/testHelpers';
-import CameraComponent from '../../../dist/esm/foundation/components/Camera/CameraComponent';
 import Material from '../../../dist/esm/foundation/materials/core/Material';
 import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 declare const Rn: typeof _Rn;
@@ -12,23 +11,16 @@ let p: HTMLParagraphElement | undefined;
 
   // setup shape entities
   const group = createGroupOfShapes();
-  const entities = [group];
 
   // setup camera
-  const cameraComponent = createCamera(group);
-
-  // setup render pass and expression
-  const expression = new Rn.Expression();
-  const renderPass = createRenderPassSpecifyingCameraComponent(cameraComponent);
-  renderPass.addEntities(entities);
-  expression.addRenderPasses([renderPass]);
+  createCamera(group);
 
   // Rendering Loop
   let count = 0;
   system.startRenderLoop(() => {
     [p, count] = checkFinished({p: p!, count});
 
-    system.process([expression]);
+    system.processWithAuto();
 
     count++;
   });
@@ -176,19 +168,9 @@ function createCamera(group: IMeshEntity) {
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 10;
   cameraComponent.setFovyAndChangeFocalLength(90);
-  cameraComponent.aspect = 1; // depthCameraComponent.direction = lightDirection;
+  cameraComponent.aspect = 1;
 
   cameraEntity.getCameraController().controller.setTarget(group);
 
   return cameraComponent;
-}
-
-function createRenderPassSpecifyingCameraComponent(
-  cameraComponent: CameraComponent
-) {
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = true;
-  renderPass.clearColor = Rn.Vector4.fromCopy4(0, 0, 0, 1);
-  renderPass.cameraComponent = cameraComponent;
-  return renderPass;
 }

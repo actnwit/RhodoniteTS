@@ -23,10 +23,11 @@ import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
-import EntityHelper from '../helpers/EntityHelper';
+import EntityHelper, { ISceneGraphEntity } from '../helpers/EntityHelper';
 import Config from '../core/Config';
 import Frame from '../renderer/Frame';
 import Vector4 from '../math/Vector4';
+import RenderPass from '../renderer/RenderPass';
 
 declare const spector: any;
 
@@ -117,6 +118,20 @@ export default class System {
     if (this.__renderLoopFunc != null) {
       this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
     }
+  }
+
+  processWithAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
+    const entityRepository = EntityRepository.getInstance();
+    const entities = entityRepository._getEntities();
+    const expression = new Expression();
+    const renderPassInit = new RenderPass();
+    renderPassInit.toClearColorBuffer = true;
+    renderPassInit.toClearDepthBuffer = true;
+    renderPassInit.clearColor = clearColor;
+    const renderPassMain = new RenderPass();
+    renderPassMain.addEntities(entities as unknown as ISceneGraphEntity[]);
+    expression.addRenderPasses([renderPassInit, renderPassMain]);
+    this.process([expression]);
   }
 
   process(frame: Frame): void;
