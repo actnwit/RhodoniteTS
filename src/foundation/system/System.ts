@@ -120,7 +120,7 @@ export default class System {
     }
   }
 
-  processWithAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
+  processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
     const entityRepository = EntityRepository.getInstance();
     const entities = entityRepository._getEntities();
     const expression = new Expression();

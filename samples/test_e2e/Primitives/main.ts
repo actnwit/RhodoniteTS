@@ -20,7 +20,7 @@ let p: HTMLParagraphElement | undefined;
   system.startRenderLoop(() => {
     [p, count] = checkFinished({p: p!, count});
 
-    system.processWithAuto();
+    system.processAuto();
 
     count++;
   });
