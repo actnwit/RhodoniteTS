@@ -32,6 +32,7 @@ import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 import TranslationGizmo from '../../gizmos/TranslationGizmo';
 import ScaleGizmo from '../../gizmos/ScaleGizmo';
+import { IMatrix44 } from '../../math/IMatrix';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -698,6 +699,7 @@ export default class SceneGraphComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
     class SceneGraphEntity extends (base.constructor as any) {
+      private __component?: SceneGraphComponent;
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -707,9 +709,27 @@ export default class SceneGraphComponent extends Component {
       }
 
       getSceneGraph() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.SceneGraphComponentTID
-        );
+        if (this.__component === undefined) {
+          this.__component = this.getComponentByComponentTID(
+            WellKnownComponentTIDs.SceneGraphComponentTID
+          );
+        }
+        return this.__component;
+      }
+      get worldMatrx(): IMatrix44 {
+        return this.worldMatrix;
+      }
+      get worldMatrxInner(): IMatrix44 {
+        return this.worldMatrixInner;
+      }
+      addChild(sg: SceneGraphComponent): void {
+        this.addChild(sg);
+      }
+      get children(): SceneGraphComponent[] {
+        return this.children;
+      }
+      removeChild(sg: SceneGraphComponent): void {
+        this.removeChild(sg);
       }
     }
     applyMixins(base, SceneGraphEntity);
