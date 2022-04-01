@@ -23,18 +23,21 @@ import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
-import EntityHelper from '../helpers/EntityHelper';
+import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
 import Config from '../core/Config';
 import Frame from '../renderer/Frame';
 import Vector4 from '../math/Vector4';
+import RenderPass from '../renderer/RenderPass';
 
 declare const spector: any;
 
 export default class System {
   private static __instance: System;
+  private static __expressionForProcessAuto?: Expression;
+  private static __renderPassForProcessAuto?: RenderPass;
+  private __entityRepository = EntityRepository.getInstance();
   private __componentRepository: ComponentRepository =
     ComponentRepository.getInstance();
-  private __entityRepository: EntityRepository = EntityRepository.getInstance();
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private __webglResourceRepository =
     CGAPIResourceRepository.getWebGLResourceRepository();
@@ -117,6 +120,26 @@ export default class System {
     if (this.__renderLoopFunc != null) {
       this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
     }
+  }
+
+  processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
+    if (Is.not.exist(System.__expressionForProcessAuto)) {
+      const expression = new Expression();
+      const renderPassInit = new RenderPass();
+      renderPassInit.toClearColorBuffer = true;
+      renderPassInit.toClearDepthBuffer = true;
+      renderPassInit.clearColor = clearColor;
+      const renderPassMain = new RenderPass();
+      expression.addRenderPasses([renderPassInit, renderPassMain]);
+      System.__expressionForProcessAuto = expression;
+      System.__renderPassForProcessAuto = renderPassMain;
+    }
+    System.__renderPassForProcessAuto!.clearEntities();
+    const entities = this.__entityRepository._getEntities();
+    System.__renderPassForProcessAuto!.addEntities(
+      entities as unknown as ISceneGraphEntity[]
+    );
+    this.process([System.__expressionForProcessAuto]);
   }
 
   process(frame: Frame): void;
