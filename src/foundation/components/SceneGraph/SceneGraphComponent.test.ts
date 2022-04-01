@@ -17,15 +17,15 @@ describe('SceneGraphComponent', () => {
     //  const child2Entity = generateEntity();
 
     // set transform info
-    sceneEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
-    parentEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
-    childEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
+    sceneEntity.translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
+    parentEntity.translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
+    childEntity.translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
     //  child2Entity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 1, 0]);
 
     // setup scene graph
     parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());
     //  parentEntity.getSceneGraph().addChild(child2Entity.getSceneGraph());
-    sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
+    sceneEntity.addChild(parentEntity.getSceneGraph());
 
     // console.log(childEntity.getSceneGraph().worldMatrix);
     // console.log(childEntity.getSceneGraph().worldMatrix);
@@ -57,8 +57,8 @@ describe('SceneGraphComponent', () => {
 
     // setup scene graph
     parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());
-    parentEntity.getSceneGraph().addChild(child2Entity.getSceneGraph());
-    sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
+    parentEntity.addChild(child2Entity.getSceneGraph());
+    sceneEntity.addChild(parentEntity.getSceneGraph());
 
     const result = Rn.SceneGraphComponent.flattenHierarchy(
       sceneEntity.getSceneGraph(),

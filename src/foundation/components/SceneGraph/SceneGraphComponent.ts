@@ -699,7 +699,7 @@ export default class SceneGraphComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
     class SceneGraphEntity extends (base.constructor as any) {
-      private __component?: SceneGraphComponent;
+      private __sceneGraphcomponent?: SceneGraphComponent;
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -709,27 +709,32 @@ export default class SceneGraphComponent extends Component {
       }
 
       getSceneGraph() {
-        if (this.__component === undefined) {
-          this.__component = this.getComponentByComponentTID(
+        if (this.__sceneGraphComponent === undefined) {
+          this.__sceneGraphComponent = this.getComponentByComponentTID(
             WellKnownComponentTIDs.SceneGraphComponentTID
-          );
+          ) as SceneGraphComponent;
         }
-        return this.__component;
+        return this.__sceneGraphComponent;
       }
       get worldMatrx(): IMatrix44 {
-        return this.worldMatrix;
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.worldMatrix;
       }
       get worldMatrxInner(): IMatrix44 {
-        return this.worldMatrixInner;
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.worldMatrixInner;
       }
       addChild(sg: SceneGraphComponent): void {
-        this.addChild(sg);
+        const sceneGraph = this.getSceneGraph();
+        sceneGraph.addChild(sg);
       }
       get children(): SceneGraphComponent[] {
-        return this.children;
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.children;
       }
       removeChild(sg: SceneGraphComponent): void {
-        this.removeChild(sg);
+        const sceneGraph = this.getSceneGraph();
+        sceneGraph.removeChild(sg);
       }
     }
     applyMixins(base, SceneGraphEntity);

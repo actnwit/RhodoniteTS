@@ -651,7 +651,7 @@ export default class TransformComponent extends Component {
     SomeComponentClass extends typeof Component
   >(base: EntityBase, _componentClass: SomeComponentClass) {
     class TransformEntity extends (base.constructor as any) {
-      private __component?: TransformComponent;
+      private __transformComponent?: TransformComponent;
       constructor(
         entityUID: EntityUID,
         isAlive: Boolean,
@@ -661,12 +661,12 @@ export default class TransformComponent extends Component {
       }
 
       getTransform() {
-        if (this.__component === undefined) {
-          this.__component = this.getComponentByComponentTID(
+        if (this.__transformComponent === undefined) {
+          this.__transformComponent = this.getComponentByComponentTID(
             WellKnownComponentTIDs.TransformComponentTID
           ) as TransformComponent;
         }
-        return this.__component;
+        return this.__transformComponent;
       }
       set translate(vec: IVector3) {
         const transform = this.getTransform();
