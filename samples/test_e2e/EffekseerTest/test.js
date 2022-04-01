@@ -11,6 +11,6 @@ test('regression test EffekseerTest', async () => {
     expect,
     0.03,
     false,
-    true
+    false
   );
 });
