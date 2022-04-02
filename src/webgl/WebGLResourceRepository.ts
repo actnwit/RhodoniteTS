@@ -57,6 +57,7 @@ import Material from '../foundation/materials/core/Material';
 import System from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import Config from '../foundation/core/Config';
+import {GL_TEXTURE_2D} from '../types/WebGLConstants';
 
 declare let HDRImage: any;
 
@@ -953,6 +954,140 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
+  /**
+   * create a TexStorage2D
+   * @param data
+   * @param param1
+   * @returns
+   */
+  createTexStorage2D({
+    levels,
+    internalFormat,
+    width,
+    height,
+  }: {
+    levels: Index;
+    internalFormat: TextureParameterEnum | PixelFormatEnum;
+    width: Size;
+    height: Size;
+  }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture();
+    this.__glw!.bindTexture2D(0, texture!);
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+    const resourceHandle = this.__registerResource(texture!);
+    this.__glw!.unbindTexture2D(0);
+
+    return resourceHandle;
+  }
+
+  /**
+   * create a TexStorage2D
+   * @param data
+   * @param param1
+   * @returns
+   */
+  createTexStorage2DWithSamplerParameters({
+    levels,
+    internalFormat,
+    width,
+    height,
+    magFilter,
+    minFilter,
+    wrapS,
+    wrapT,
+    anisotropy,
+    isPremultipliedAlpha,
+  }: {
+    levels: Index;
+    internalFormat: TextureParameterEnum | PixelFormatEnum;
+    width: Size;
+    height: Size;
+    magFilter: TextureParameterEnum;
+    minFilter: TextureParameterEnum;
+    wrapS: TextureParameterEnum;
+    wrapT: TextureParameterEnum;
+    anisotropy: boolean;
+    isPremultipliedAlpha?: boolean;
+  }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture();
+    this.__glw!.bindTexture2D(0, texture!);
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+    const resourceHandle = this.__registerResource(texture!);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    if (MathUtil.isPowerOfTwoTexture(width, height)) {
+      if (anisotropy) {
+        if (this.__glw!.webgl2ExtTFA) {
+          gl.texParameteri(
+            gl.TEXTURE_2D,
+            this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+            4
+          );
+        } else if (this.__glw!.webgl1ExtTFA) {
+          gl.texParameteri(
+            gl.TEXTURE_2D,
+            this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+            4
+          );
+        }
+      } else if (this.__glw!.webgl1ExtTFA) {
+        gl.texParameteri(
+          gl.TEXTURE_2D,
+          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+          1
+        );
+      }
+    }
+    this.__glw!.unbindTexture2D(0);
+
+    return resourceHandle;
+  }
+
+  createTextureSampler({
+    magFilter,
+    minFilter,
+    wrapS,
+    wrapT,
+    anisotropy,
+    isPremultipliedAlpha,
+  }: {
+    magFilter: TextureParameterEnum;
+    minFilter: TextureParameterEnum;
+    wrapS: TextureParameterEnum;
+    wrapT: TextureParameterEnum;
+    anisotropy: boolean;
+    isPremultipliedAlpha?: boolean;
+  }) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const sampler = gl.createSampler()!;
+    const resourceHandle = this.__registerResource(sampler);
+    gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, wrapT.index);
+    if (anisotropy) {
+      if (this.__glw!.webgl2ExtTFA) {
+        gl.samplerParameteri(
+          sampler,
+          this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+          4
+        );
+      } else if (this.__glw!.webgl1ExtTFA) {
+        gl.samplerParameteri(
+          sampler,
+          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+          4
+        );
+      }
+    }
+
+    return resourceHandle;
+  }
   /**
    * create a Texture
    * @param data
@@ -2155,6 +2290,56 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
       img.src = dataUri;
     });
+  }
+
+  updateLevel0TextureAndGenerateMipmap(
+    textureUid: WebGLResourceHandle,
+    textureData: DirectTextureData,
+    {
+      width,
+      height,
+      format,
+      type,
+    }: {
+      width: Size;
+      height: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+    }
+  ) {
+    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    const isWebGL2 = this.__glw!.isWebGL2;
+
+    this.__glw!.bindTexture2D(0, texture);
+
+    if (isWebGL2 || ArrayBuffer.isView(textureData)) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        width,
+        height,
+        format.index,
+        type.index,
+        textureData as any as ArrayBufferView
+      );
+      gl.generateMipmap(gl.TEXTURE_2D);
+    } else {
+      const gl = this.__glw!.getRawContextAsWebGL1();
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        format.index,
+        type.index,
+        textureData
+      );
+      gl.generateMipmap(gl.TEXTURE_2D);
+    }
+    this.__glw!.unbindTexture2D(0);
   }
 
   updateTexture(
