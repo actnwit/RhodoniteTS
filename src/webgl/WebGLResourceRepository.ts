@@ -1147,18 +1147,44 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       data instanceof HTMLVideoElement
     ) {
       if (isWebGL2) {
-        const gl = this.__glw!.getRawContextAsWebGL2();
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          level,
-          internalFormat.index,
-          width,
-          height,
-          border,
-          format.index,
-          ComponentType.UnsignedByte.index,
-          data
-        );
+        const levels = Math.max(Math.log2(width), Math.log2(height));
+        this.createTexStorage2DWithSamplerParameters({
+          levels: levels,
+          internalFormat: internalFormat,
+          width: width,
+          height: height,
+          magFilter: magFilter,
+          minFilter: minFilter,
+          wrapS: wrapS,
+          wrapT: wrapT,
+          anisotropy: anisotropy,
+          isPremultipliedAlpha: isPremultipliedAlpha,
+        });
+        if (isWebGL2 || ArrayBuffer.isView(data)) {
+          const gl = this.__glw!.getRawContextAsWebGL2();
+          gl.texSubImage2D(
+            gl.TEXTURE_2D,
+            0,
+            0,
+            0,
+            width,
+            height,
+            format.index,
+            type.index,
+            data as any as ArrayBufferView
+          );
+        } else {
+          const gl = this.__glw!.getRawContextAsWebGL1();
+          gl.texSubImage2D(
+            gl.TEXTURE_2D,
+            0,
+            0,
+            0,
+            format.index,
+            type.index,
+            data
+          );
+        }
       } else {
         gl.texImage2D(
           gl.TEXTURE_2D,
