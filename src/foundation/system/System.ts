@@ -370,6 +370,11 @@ export default class System {
     repo.resizeCanvas(width, height);
   }
 
+  getCanvasSize() {
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    return repo.getCanvasSize();
+  }
+
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new System();

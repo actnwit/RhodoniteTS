@@ -57,6 +57,7 @@ import Material from '../foundation/materials/core/Material';
 import System from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import Config from '../foundation/core/Config';
+import {GL_TEXTURE_2D} from '../types/WebGLConstants';
 
 declare let HDRImage: any;
 
@@ -158,6 +159,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return ++this.__resourceCounter;
   }
 
+  private __registerResource(obj: WebGLResource) {
+    const handle = this.getResourceNumber();
+    (obj as any)._resourceUid = handle;
+    this.__webglResources.set(handle, obj);
+    return handle;
+  }
+
   getWebGLResource(
     WebGLResourceHandle: WebGLResourceHandle
   ): WebGLResource | null {
@@ -174,8 +182,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     this.__glw!.bindVertexArray(null);
     const ibo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, ibo!);
+    const resourceHandle = this.__registerResource(ibo!);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     //    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor.bufferView.buffer.getArrayBuffer(), gl.STATIC_DRAW);
@@ -219,8 +226,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     this.__glw!.bindVertexArray(null);
     const vbo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vbo!);
+    const resourceHandle = this.__registerResource(vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(
@@ -243,8 +249,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     this.__glw!.bindVertexArray(null);
     const vbo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vbo!);
+    const resourceHandle = this.__registerResource(vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, typedArray, gl.STATIC_DRAW);
@@ -285,8 +290,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       return undefined;
     }
 
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vao);
+    const resourceHandle = this.__registerResource(vao);
 
     return resourceHandle;
   }
@@ -449,8 +453,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       );
     }
 
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, shaderProgram);
+    const resourceHandle = this.__registerResource(shaderProgram);
 
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
@@ -952,6 +955,140 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   /**
+   * create a TexStorage2D
+   * @param data
+   * @param param1
+   * @returns
+   */
+  createTexStorage2D({
+    levels,
+    internalFormat,
+    width,
+    height,
+  }: {
+    levels: Index;
+    internalFormat: TextureParameterEnum | PixelFormatEnum;
+    width: Size;
+    height: Size;
+  }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture();
+    this.__glw!.bindTexture2D(0, texture!);
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+    const resourceHandle = this.__registerResource(texture!);
+    this.__glw!.unbindTexture2D(0);
+
+    return resourceHandle;
+  }
+
+  /**
+   * create a TexStorage2D
+   * @param data
+   * @param param1
+   * @returns
+   */
+  createTexStorage2DWithSamplerParameters({
+    levels,
+    internalFormat,
+    width,
+    height,
+    magFilter,
+    minFilter,
+    wrapS,
+    wrapT,
+    anisotropy,
+    isPremultipliedAlpha,
+  }: {
+    levels: Index;
+    internalFormat: TextureParameterEnum | PixelFormatEnum;
+    width: Size;
+    height: Size;
+    magFilter: TextureParameterEnum;
+    minFilter: TextureParameterEnum;
+    wrapS: TextureParameterEnum;
+    wrapT: TextureParameterEnum;
+    anisotropy: boolean;
+    isPremultipliedAlpha?: boolean;
+  }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture();
+    this.__glw!.bindTexture2D(0, texture!);
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+    const resourceHandle = this.__registerResource(texture!);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    if (MathUtil.isPowerOfTwoTexture(width, height)) {
+      if (anisotropy) {
+        if (this.__glw!.webgl2ExtTFA) {
+          gl.texParameteri(
+            gl.TEXTURE_2D,
+            this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+            4
+          );
+        } else if (this.__glw!.webgl1ExtTFA) {
+          gl.texParameteri(
+            gl.TEXTURE_2D,
+            this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+            4
+          );
+        }
+      } else if (this.__glw!.webgl1ExtTFA) {
+        gl.texParameteri(
+          gl.TEXTURE_2D,
+          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+          1
+        );
+      }
+    }
+    this.__glw!.unbindTexture2D(0);
+
+    return resourceHandle;
+  }
+
+  createTextureSampler({
+    magFilter,
+    minFilter,
+    wrapS,
+    wrapT,
+    anisotropy,
+    isPremultipliedAlpha,
+  }: {
+    magFilter: TextureParameterEnum;
+    minFilter: TextureParameterEnum;
+    wrapS: TextureParameterEnum;
+    wrapT: TextureParameterEnum;
+    anisotropy: boolean;
+    isPremultipliedAlpha?: boolean;
+  }) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const sampler = gl.createSampler()!;
+    const resourceHandle = this.__registerResource(sampler);
+    gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, wrapT.index);
+    if (anisotropy) {
+      if (this.__glw!.webgl2ExtTFA) {
+        gl.samplerParameteri(
+          sampler,
+          this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+          4
+        );
+      } else if (this.__glw!.webgl1ExtTFA) {
+        gl.samplerParameteri(
+          sampler,
+          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
+          4
+        );
+      }
+    }
+
+    return resourceHandle;
+  }
+  /**
    * create a Texture
    * @param data
    * @param param1
@@ -976,7 +1113,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       isPremultipliedAlpha,
     }: {
       level: Index;
-      internalFormat: TextureParameterEnum | PixelFormatEnum;
+      internalFormat: TextureParameterEnum;
       width: Size;
       height: Size;
       border: Size;
@@ -991,13 +1128,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
-    const gl = this.__glw!.getRawContext();
     const isWebGL2 = this.__glw!.isWebGL2;
+    const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
     if (isPremultipliedAlpha) {
@@ -1013,22 +1148,23 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     ) {
       if (isWebGL2) {
         const gl = this.__glw!.getRawContextAsWebGL2();
-        gl.texImage2D(
+        // const levels = Math.max(Math.log2(width), Math.log2(height));
+        const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+        gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+        gl.texSubImage2D(
           gl.TEXTURE_2D,
-          level,
-          internalFormat.index,
-          width,
-          height,
-          border,
+          0,
+          0,
+          0,
           format.index,
-          ComponentType.UnsignedByte.index,
+          type.index,
           data
         );
       } else {
         gl.texImage2D(
           gl.TEXTURE_2D,
           level,
-          internalFormat.index,
+          TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
           format.index,
           type.index,
           data
@@ -1036,22 +1172,26 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
     } else {
       if (isWebGL2) {
-        gl.texImage2D(
+        const gl = this.__glw!.getRawContextAsWebGL2();
+        // const levels = Math.max(Math.log2(width), Math.log2(height));
+        const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+        gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+        gl.texSubImage2D(
           gl.TEXTURE_2D,
-          level,
-          internalFormat.index,
+          0,
+          0,
+          0,
           width,
           height,
-          border,
           format.index,
-          ComponentType.Float.index,
-          data
+          type.index,
+          data as any as ArrayBufferView
         );
       } else {
         gl.texImage2D(
           gl.TEXTURE_2D,
           level,
-          internalFormat.index,
+          TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
           width,
           height,
           border,
@@ -1089,11 +1229,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         );
       }
 
-      const isGenerateMipmap =
-        generateMipmap &&
-        height !== 1 &&
-        width !== 1 &&
-        !(this.__glw!.isWebGL2 && MiscUtil.isMobile());
+      const isGenerateMipmap = generateMipmap && height !== 1 && width !== 1;
       if (isGenerateMipmap) {
         gl.generateMipmap(gl.TEXTURE_2D);
       }
@@ -1128,12 +1264,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(
-      resourceHandle,
-      texture as unknown as WebGLObject
-    );
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
 
@@ -1226,9 +1357,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const gl = this.__glw!.getRawContext();
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -1360,8 +1489,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   createFrameBufferObject() {
     const gl = this.__glw!.getRawContext();
     const fbo = gl.createFramebuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, fbo!);
+    const resourceHandle = this.__registerResource(fbo!);
 
     return resourceHandle;
   }
@@ -1508,8 +1636,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   ) {
     const gl = this.__glw!.getRawContext();
     const renderBuffer = gl.createRenderbuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, renderBuffer!);
+    const resourceHandle = this.__registerResource(renderBuffer!);
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
     if (isMSAA) {
@@ -1592,7 +1719,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     width: Size;
     height: Size;
     level: Index;
-    internalFormat: TextureParameterEnum | PixelFormatEnum;
+    internalFormat: TextureParameterEnum;
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
     magFilter: TextureParameterEnum;
@@ -1603,9 +1730,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
@@ -1644,7 +1769,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.texImage2D(
         gl.TEXTURE_2D,
         level,
-        internalFormat.index,
+        TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
         width,
         height,
         0,
@@ -1683,9 +1808,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTextureCube(0, texture);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -1960,9 +2083,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     let compressionType: Index;
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTextureCube(0, texture);
 
@@ -2108,9 +2229,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   setWebGLTextureDirectly(webGLTexture: WebGLTexture) {
     const texture = webGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    (texture as any)._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture);
+    const resourceHandle = this.__registerResource(texture);
+
     return resourceHandle;
   }
 
@@ -2175,6 +2295,56 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
       img.src = dataUri;
     });
+  }
+
+  updateLevel0TextureAndGenerateMipmap(
+    textureUid: WebGLResourceHandle,
+    textureData: DirectTextureData,
+    {
+      width,
+      height,
+      format,
+      type,
+    }: {
+      width: Size;
+      height: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+    }
+  ) {
+    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    const isWebGL2 = this.__glw!.isWebGL2;
+
+    this.__glw!.bindTexture2D(0, texture);
+
+    if (isWebGL2 || ArrayBuffer.isView(textureData)) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        width,
+        height,
+        format.index,
+        type.index,
+        textureData as any as ArrayBufferView
+      );
+      gl.generateMipmap(gl.TEXTURE_2D);
+    } else {
+      const gl = this.__glw!.getRawContextAsWebGL1();
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        format.index,
+        type.index,
+        textureData
+      );
+      gl.generateMipmap(gl.TEXTURE_2D);
+    }
+    this.__glw!.unbindTexture2D(0);
   }
 
   updateTexture(
@@ -2271,7 +2441,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     return this.createTexture(canvas, {
       level: 0,
-      internalFormat: PixelFormat.RGBA,
+      internalFormat: TextureParameter.RGBA8,
       width: 1,
       height: 1,
       border: 0,
@@ -2309,7 +2479,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
     return this.createTexture(new Uint8Array(arrayBuffer), {
       level: 0,
-      internalFormat: PixelFormat.RGBA,
+      internalFormat: TextureParameter.RGBA8,
       width: 1,
       height: 1,
       border: 0,
@@ -2333,8 +2503,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const ubo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, ubo!);
+    const resourceHandle = this.__registerResource(ubo!);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
     gl.bufferData(gl.UNIFORM_BUFFER, bufferView, gl.DYNAMIC_DRAW);
@@ -2409,8 +2578,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const ubo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, ubo!);
+    const resourceHandle = this.__registerResource(ubo!);
 
     const alignedMaxUniformBlockSize =
       this.__glw!.getAlignedMaxUniformBlockSize();
@@ -2480,8 +2648,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   createTransformFeedback() {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const transformFeedback = gl.createTransformFeedback();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, transformFeedback!);
+    const resourceHandle = this.__registerResource(transformFeedback!);
 
     gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
 
@@ -2568,6 +2735,10 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     this.__glw!.setViewportAsVector4(
       Vector4.fromCopyArray([0, 0, width, height])
     );
+  }
+
+  getCanvasSize(): [Size, Size] {
+    return [this.__glw!.canvas.width, this.__glw!.canvas.height];
   }
 
   switchDepthTest(flag: boolean) {

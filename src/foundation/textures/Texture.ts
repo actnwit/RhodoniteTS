@@ -85,7 +85,7 @@ export default class Texture extends AbstractTexture {
     uint8Array: Uint8Array,
     {
       level = 0,
-      internalFormat = PixelFormat.RGBA,
+      internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       magFilter = TextureParameter.Linear,
@@ -179,7 +179,7 @@ export default class Texture extends AbstractTexture {
     image: HTMLImageElement,
     {
       level = 0,
-      internalFormat = PixelFormat.RGBA,
+      internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       magFilter = TextureParameter.Linear,
@@ -249,7 +249,7 @@ export default class Texture extends AbstractTexture {
     imageUri: string,
     {
       level = 0,
-      internalFormat = PixelFormat.RGBA,
+      internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       magFilter = TextureParameter.Linear,
@@ -337,7 +337,7 @@ export default class Texture extends AbstractTexture {
       CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createTexture(canvas, {
       level: 0,
-      internalFormat: PixelFormat.RGBA,
+      internalFormat: TextureParameter.RGBA8,
       width: 1,
       height: 1,
       border: 0,
@@ -361,7 +361,7 @@ export default class Texture extends AbstractTexture {
     typedArray: TypedArray,
     {
       level = 0,
-      internalFormat = PixelFormat.RGBA,
+      internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       magFilter = TextureParameter.Linear,
       minFilter = TextureParameter.LinearMipmapLinear,

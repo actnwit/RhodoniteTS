@@ -25,7 +25,7 @@ export default class RenderTargetTexture
     width,
     height,
     level = 0,
-    internalFormat = PixelFormat.RGBA,
+    internalFormat = TextureParameter.RGB8,
     format = PixelFormat.RGBA,
     type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
@@ -36,7 +36,7 @@ export default class RenderTargetTexture
     width: Size;
     height: Size;
     level: number;
-    internalFormat: PixelFormatEnum;
+    internalFormat: TextureParameterEnum;
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
     magFilter: TextureParameterEnum;
