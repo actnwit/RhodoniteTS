@@ -333,7 +333,7 @@ mat3 get_normalMatrix(float instanceId) {
           floatDataTextureBuffer,
           {
             level: 0,
-            internalFormat: PixelFormat.RGBA,
+            internalFormat: TextureParameter.RGBA8,
             width: MemoryManager.bufferWidthLength,
             height: MemoryManager.bufferHeightLength,
             border: 0,

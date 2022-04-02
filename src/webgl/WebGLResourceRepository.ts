@@ -1113,7 +1113,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       isPremultipliedAlpha,
     }: {
       level: Index;
-      internalFormat: TextureParameterEnum | PixelFormatEnum;
+      internalFormat: TextureParameterEnum;
       width: Size;
       height: Size;
       border: Size;
@@ -1128,8 +1128,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
-    const gl = this.__glw!.getRawContext();
     const isWebGL2 = this.__glw!.isWebGL2;
+    const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
@@ -1147,49 +1147,24 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       data instanceof HTMLVideoElement
     ) {
       if (isWebGL2) {
-        const levels = Math.max(Math.log2(width), Math.log2(height));
-        this.createTexStorage2DWithSamplerParameters({
-          levels: levels,
-          internalFormat: internalFormat,
-          width: width,
-          height: height,
-          magFilter: magFilter,
-          minFilter: minFilter,
-          wrapS: wrapS,
-          wrapT: wrapT,
-          anisotropy: anisotropy,
-          isPremultipliedAlpha: isPremultipliedAlpha,
-        });
-        if (isWebGL2 || ArrayBuffer.isView(data)) {
-          const gl = this.__glw!.getRawContextAsWebGL2();
-          gl.texSubImage2D(
-            gl.TEXTURE_2D,
-            0,
-            0,
-            0,
-            width,
-            height,
-            format.index,
-            type.index,
-            data as any as ArrayBufferView
-          );
-        } else {
-          const gl = this.__glw!.getRawContextAsWebGL1();
-          gl.texSubImage2D(
-            gl.TEXTURE_2D,
-            0,
-            0,
-            0,
-            format.index,
-            type.index,
-            data
-          );
-        }
+        const gl = this.__glw!.getRawContextAsWebGL2();
+        // const levels = Math.max(Math.log2(width), Math.log2(height));
+        const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+        gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          0,
+          0,
+          format.index,
+          type.index,
+          data
+        );
       } else {
         gl.texImage2D(
           gl.TEXTURE_2D,
           level,
-          internalFormat.index,
+          TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
           format.index,
           type.index,
           data
@@ -1197,22 +1172,26 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
     } else {
       if (isWebGL2) {
-        gl.texImage2D(
+        const gl = this.__glw!.getRawContextAsWebGL2();
+        // const levels = Math.max(Math.log2(width), Math.log2(height));
+        const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+        gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+        gl.texSubImage2D(
           gl.TEXTURE_2D,
-          level,
-          internalFormat.index,
+          0,
+          0,
+          0,
           width,
           height,
-          border,
           format.index,
-          ComponentType.Float.index,
-          data
+          type.index,
+          data as any as ArrayBufferView
         );
       } else {
         gl.texImage2D(
           gl.TEXTURE_2D,
           level,
-          internalFormat.index,
+          TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
           width,
           height,
           border,
@@ -1740,7 +1719,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     width: Size;
     height: Size;
     level: Index;
-    internalFormat: TextureParameterEnum | PixelFormatEnum;
+    internalFormat: TextureParameterEnum;
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
     magFilter: TextureParameterEnum;
@@ -1790,7 +1769,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.texImage2D(
         gl.TEXTURE_2D,
         level,
-        internalFormat.index,
+        TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
         width,
         height,
         0,
@@ -2462,7 +2441,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     return this.createTexture(canvas, {
       level: 0,
-      internalFormat: PixelFormat.RGBA,
+      internalFormat: TextureParameter.RGBA8,
       width: 1,
       height: 1,
       border: 0,
@@ -2500,7 +2479,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
     return this.createTexture(new Uint8Array(arrayBuffer), {
       level: 0,
-      internalFormat: PixelFormat.RGBA,
+      internalFormat: TextureParameter.RGBA8,
       width: 1,
       height: 1,
       border: 0,
@@ -2756,6 +2735,10 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     this.__glw!.setViewportAsVector4(
       Vector4.fromCopyArray([0, 0, width, height])
     );
+  }
+
+  getCanvasSize(): [Size, Size] {
+    return [this.__glw!.canvas.width, this.__glw!.canvas.height];
   }
 
   switchDepthTest(flag: boolean) {

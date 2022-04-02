@@ -11,7 +11,7 @@ function createTexturesForRenderTarget(
   textureNum: number,
   {
     level = 0,
-    internalFormat = PixelFormat.RGBA,
+    internalFormat = TextureParameter.RGBA8,
     format = PixelFormat.RGBA,
     type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
@@ -67,7 +67,7 @@ function createTexturesForRenderTarget(
 function createTexturesForRenderTarget(width: number, height:number, textureNum:number,
   {
     level = 0,
-    internalFormat = PixelFormat.RGBA,
+    internalFormat = TextureParameter.RGBA8,
     format = PixelFormat.RGBA,
     type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,

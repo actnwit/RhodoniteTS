@@ -443,7 +443,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
     // const pbrCookTorranceBrdfLutDataUrl = ModuleManager.getInstance().getModule('pbr').pbrCookTorranceBrdfLutDataUrl;
     // AbstractMaterialNode.__pbrCookTorranceBrdfLutDataUrlUid = await AbstractMaterialNode.__webglResourceRepository!.createTextureFromDataUri(pbrCookTorranceBrdfLutDataUrl,
     //   {
-    //     level: 0, internalFormat: PixelFormat.RGBA,
+    //     level: 0, internalFormat: TextureParameter.RGBA8,
     //     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
     //     wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
     //   }

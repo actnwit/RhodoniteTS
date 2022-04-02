@@ -661,7 +661,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           floatDataTextureBuffer!,
           {
             level: 0,
-            internalFormat: PixelFormat.RGBA,
+            internalFormat: TextureParameter.RGBA8,
             width: MemoryManager.bufferWidthLength,
             height: MemoryManager.bufferHeightLength,
             border: 0,

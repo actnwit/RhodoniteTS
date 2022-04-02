@@ -1,4 +1,5 @@
 import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 
 export type TextureParameterEnum = EnumIO;
 
@@ -166,6 +167,15 @@ function from(index: number): TextureParameterEnum {
   return _from({typeList, index}) as TextureParameterEnum;
 }
 
+function migrateToWebGL1InternalFormat(tp: TextureParameterEnum): TextureParameterEnum {
+  if (tp.index === RGBA8.index) {
+    return PixelFormat.RGBA;
+  } else if (tp.index === RGB8.index) {
+    return PixelFormat.RGB;
+  }
+  throw new Error('Unsupported texture parameter');
+}
+
 export const TextureParameter = Object.freeze({
   Nearest,
   Linear,
@@ -198,4 +208,5 @@ export const TextureParameter = Object.freeze({
   Depth24Stencil8,
   Depth32FStencil8,
   from,
+  migrateToWebGL1InternalFormat,
 });

@@ -170,6 +170,9 @@ export default class Gltf2Exporter {
               return false; // exludes
             }
           }
+          if (entity.matchTag('Being', 'gizmo')) {
+            return true;
+          }
         }
         return true;
       };

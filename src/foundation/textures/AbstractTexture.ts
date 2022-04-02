@@ -28,7 +28,7 @@ export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
   protected __height: Size = 0;
   protected __level: Index = 0;
-  protected __internalFormat: PixelFormatEnum = PixelFormat.RGBA;
+  protected __internalFormat: TextureParameterEnum = TextureParameter.RGBA8;
   protected __format: PixelFormatEnum = PixelFormat.RGBA;
   protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;
   protected __magFilter: TextureParameterEnum = TextureParameter.Linear;

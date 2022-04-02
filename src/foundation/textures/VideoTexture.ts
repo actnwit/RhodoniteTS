@@ -89,7 +89,7 @@ export default class VideoTexture extends AbstractTexture {
     video: HTMLVideoElement,
     {
       level = 0,
-      internalFormat = PixelFormat.RGBA,
+      internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       magFilter = TextureParameter.Linear,
@@ -143,7 +143,7 @@ export default class VideoTexture extends AbstractTexture {
     videoUri: string,
     {
       level = 0,
-      internalFormat = PixelFormat.RGBA,
+      internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       magFilter = TextureParameter.Linear,
