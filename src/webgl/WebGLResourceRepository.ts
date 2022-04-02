@@ -158,6 +158,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return ++this.__resourceCounter;
   }
 
+  private __registerResource(obj: WebGLResource) {
+    const handle = this.getResourceNumber();
+    (obj as any)._resourceUid = handle;
+    this.__webglResources.set(handle, obj);
+    return handle;
+  }
+
   getWebGLResource(
     WebGLResourceHandle: WebGLResourceHandle
   ): WebGLResource | null {
@@ -174,8 +181,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     this.__glw!.bindVertexArray(null);
     const ibo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, ibo!);
+    const resourceHandle = this.__registerResource(ibo!);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     //    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor.bufferView.buffer.getArrayBuffer(), gl.STATIC_DRAW);
@@ -219,8 +225,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     this.__glw!.bindVertexArray(null);
     const vbo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vbo!);
+    const resourceHandle = this.__registerResource(vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(
@@ -243,8 +248,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     this.__glw!.bindVertexArray(null);
     const vbo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vbo!);
+    const resourceHandle = this.__registerResource(vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, typedArray, gl.STATIC_DRAW);
@@ -285,8 +289,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       return undefined;
     }
 
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vao);
+    const resourceHandle = this.__registerResource(vao);
 
     return resourceHandle;
   }
@@ -449,8 +452,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       );
     }
 
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, shaderProgram);
+    const resourceHandle = this.__registerResource(shaderProgram);
 
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
@@ -995,9 +997,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const isWebGL2 = this.__glw!.isWebGL2;
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
     if (isPremultipliedAlpha) {
@@ -1128,12 +1128,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(
-      resourceHandle,
-      texture as unknown as WebGLObject
-    );
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
 
@@ -1226,9 +1221,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const gl = this.__glw!.getRawContext();
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -1360,8 +1353,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   createFrameBufferObject() {
     const gl = this.__glw!.getRawContext();
     const fbo = gl.createFramebuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, fbo!);
+    const resourceHandle = this.__registerResource(fbo!);
 
     return resourceHandle;
   }
@@ -1508,8 +1500,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   ) {
     const gl = this.__glw!.getRawContext();
     const renderBuffer = gl.createRenderbuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, renderBuffer!);
+    const resourceHandle = this.__registerResource(renderBuffer!);
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
     if (isMSAA) {
@@ -1603,9 +1594,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
@@ -1683,9 +1672,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTextureCube(0, texture);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -1960,9 +1947,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     let compressionType: Index;
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
+    const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTextureCube(0, texture);
 
@@ -2108,9 +2093,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   setWebGLTextureDirectly(webGLTexture: WebGLTexture) {
     const texture = webGLTexture;
-    const resourceHandle = this.getResourceNumber();
-    (texture as any)._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture);
+    const resourceHandle = this.__registerResource(texture);
+
     return resourceHandle;
   }
 
@@ -2333,8 +2317,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const ubo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, ubo!);
+    const resourceHandle = this.__registerResource(ubo!);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
     gl.bufferData(gl.UNIFORM_BUFFER, bufferView, gl.DYNAMIC_DRAW);
@@ -2409,8 +2392,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const ubo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, ubo!);
+    const resourceHandle = this.__registerResource(ubo!);
 
     const alignedMaxUniformBlockSize =
       this.__glw!.getAlignedMaxUniformBlockSize();
@@ -2480,8 +2462,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   createTransformFeedback() {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const transformFeedback = gl.createTransformFeedback();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, transformFeedback!);
+    const resourceHandle = this.__registerResource(transformFeedback!);
 
     gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
 
