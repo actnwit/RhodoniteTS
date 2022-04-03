@@ -957,7 +957,8 @@ export default class Accessor {
     new Uint8Array(this.__raw).set(
       new Uint8Array(
         accessor.__raw,
-        accessor.__byteOffsetInRawArrayBufferOfBuffer
+        accessor.__byteOffsetInRawArrayBufferOfBuffer,
+        accessor.byteLength
       ),
       this.__byteOffsetInRawArrayBufferOfBuffer
     );
