@@ -351,7 +351,9 @@ export default class Gltf2Exporter {
         node.children = [];
         for (let j = 0; j < children.length; j++) {
           const child = children[j];
-          node.children.push((child.entity as any).gltfNodeIndex);
+          if (Is.exist((child.entity as any).gltfNodeIndex)) {
+            node.children.push((child.entity as any).gltfNodeIndex);
+          }
         }
       }
 
