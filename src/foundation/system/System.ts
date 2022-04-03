@@ -310,9 +310,9 @@ export default class System {
     Config.eventTargetDom = canvas;
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     MemoryManager.createInstanceIfNotCreated(
-      0.125 * memoryUsageOrder,
-      0.0625 * memoryUsageOrder,
-      0.9375 * memoryUsageOrder
+      0.3 * memoryUsageOrder,
+      0.4 * memoryUsageOrder,
+      0.6 * memoryUsageOrder
     );
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(approach);
