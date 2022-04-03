@@ -89,6 +89,11 @@ export default abstract class Gizmo extends RnObject {
       for (const sg of sceneGraphs) {
         sg.entity.tryToSetTag({tag: 'Being', value: 'gizmo'});
       }
+
+      this.__topEntity.tryToSetTag({
+        tag: 'type',
+        value: 'background-assets',
+      })
     }
   }
 }
