@@ -44,7 +44,7 @@ export default class RhodoniteImportExtension {
           );
           effekseerComponent.arrayBuffer = imageUint8Array.buffer.slice(
             imageUint8Array.byteOffset,
-            imageUint8Array.byteOffset + imageUint8Array.byteOffset
+            imageUint8Array.byteOffset + imageUint8Array.byteLength
           );
           effekseerComponent.type = 'efkpkg';
         });
