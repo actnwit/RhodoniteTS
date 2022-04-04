@@ -349,6 +349,9 @@ export default class Gltf2Importer {
 
   _loadDependenciesOfMeshes(gltfJson: RnM2) {
     // Mesh
+    if (Is.not.exist(gltfJson.meshes)) {
+      return;
+    }
     for (const mesh of gltfJson.meshes) {
       for (const primitive of mesh.primitives) {
         if (primitive.material !== void 0) {

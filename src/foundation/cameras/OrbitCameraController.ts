@@ -719,10 +719,13 @@ export default class OrbitCameraController
         newEyeVec
       ) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
-      const lengthCenterToCamera =
+      let lengthCenterToCamera =
         this.__originalTargetAABB.lengthCenterToCorner *
         (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
         this.scaleOfLengthCenterToCamera;
+      if (Math.abs(lengthCenterToCamera) < 0.00001) {
+        lengthCenterToCamera = 1;
+      }
       centerToCameraVecNormalized
         .multiply(lengthCenterToCamera)
         .add(newCenterVec);
