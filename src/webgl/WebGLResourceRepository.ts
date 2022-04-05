@@ -1149,8 +1149,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       if (isWebGL2) {
         const gl = this.__glw!.getRawContextAsWebGL2();
         // const levels = Math.max(Math.log2(width), Math.log2(height));
-        const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
-        gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+        const levels = generateMipmap
+          ? Math.max(Math.log2(width), Math.log2(height))
+          : 1;
+        gl.texStorage2D(
+          GL_TEXTURE_2D,
+          levels,
+          internalFormat.index,
+          width,
+          height
+        );
         gl.texSubImage2D(
           gl.TEXTURE_2D,
           0,
@@ -1174,8 +1182,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       if (isWebGL2) {
         const gl = this.__glw!.getRawContextAsWebGL2();
         // const levels = Math.max(Math.log2(width), Math.log2(height));
-        const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
-        gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+        const levels = generateMipmap
+          ? Math.max(Math.log2(width), Math.log2(height))
+          : 1;
+        gl.texStorage2D(
+          GL_TEXTURE_2D,
+          levels,
+          internalFormat.index,
+          width,
+          height
+        );
         gl.texSubImage2D(
           gl.TEXTURE_2D,
           0,
