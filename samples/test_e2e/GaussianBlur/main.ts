@@ -19,9 +19,6 @@ declare const Rn: typeof _Rn;
 
   // ---main algorithm-----------------------------------------------------------------------------------------
 
-  // load modules
-  await loadRnModules(['webgl', 'pbr']);
-
   // prepare memory
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({

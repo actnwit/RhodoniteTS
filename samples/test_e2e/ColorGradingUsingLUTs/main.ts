@@ -13,9 +13,6 @@ declare const Rn: typeof _Rn;
 (async () => {
   // ---main algorithm-----------------------------------------------------------------------------------------
 
-  // load modules
-  await loadRnModules(['webgl', 'pbr']);
-
   // prepare memory
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
@@ -46,15 +43,6 @@ declare const Rn: typeof _Rn;
   draw(expressions, true);
 
   // ---functions-----------------------------------------------------------------------------------------
-
-  function loadRnModules(moduleNames: string[]) {
-    const promises = [];
-    const moduleManagerInstance = Rn.ModuleManager.getInstance();
-    for (const moduleName of moduleNames) {
-      promises.push(moduleManagerInstance.loadModule(moduleName));
-    }
-    return Promise.all(promises);
-  }
 
   function createEntityMainCamera() {
     const entityCamera = Rn.EntityHelper.createCameraEntity();
