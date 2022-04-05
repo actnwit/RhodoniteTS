@@ -81,9 +81,9 @@ function createEmptyMaterial() {
 
 function createPbrUberMaterial({
   additionalName = '',
-  isMorphing = false,
-  isSkinning = false,
-  isLighting = false,
+  isMorphing = true,
+  isSkinning = true,
+  isLighting = true,
   useTangentAttribute = false,
   useNormalTexture = true,
   alphaMode = AlphaMode.Opaque,
@@ -153,8 +153,8 @@ function createSkinPbrUberMaterial({
 
 function createClassicUberMaterialOld({
   additionalName = '',
-  isSkinning = false,
-  isLighting = false,
+  isSkinning = true,
+  isLighting = true,
   alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
