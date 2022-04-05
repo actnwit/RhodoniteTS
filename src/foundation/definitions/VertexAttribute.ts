@@ -1,12 +1,5 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {
-  Array1to4,
-  Array2,
-  Array3,
-  Array4,
-  Count,
-  Index,
-} from '../../types/CommonTypes';
+import {Count, Index} from '../../types/CommonTypes';
 import {RnException} from '../misc/Result';
 import {VectorComponentN} from '../../types/CommonTypes';
 

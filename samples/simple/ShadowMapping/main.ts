@@ -42,12 +42,11 @@ declare const Rn: typeof _Rn;
   ]);
 
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    rnCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: rnCanvasElement
+}  );
 
   // prepare entities
   const entitySmallBoard = createEntityBoardWithEmptyMaterial();
@@ -238,7 +237,7 @@ declare const Rn: typeof _Rn;
     Rn.MutableVector3.multiplyTo(lightPosition, -1, directionLight).normalize();
     entityDepthCamera.getCamera().direction = directionLight;
 
-    system.process(expressions);
+    Rn.System.process(expressions);
     requestAnimationFrame(
       draw.bind(null, expressions, entityDepthCamera, directionLight)
     );

@@ -4,15 +4,10 @@ declare const Rn: typeof _Rn;
 let p: any;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-
-  const system = Rn.System.getInstance();
-
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
   // setting cameras except for post effect
   const depthCameraComponent = createCameraComponent();
@@ -114,7 +109,7 @@ let p: any;
       p.innerText = 'Rendered.';
       document.body.appendChild(p);
     }
-    system.process([expression]);
+    Rn.System.process([expression]);
 
     count++;
     requestAnimationFrame(draw);

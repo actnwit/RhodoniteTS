@@ -21,16 +21,12 @@ declare const Rn: typeof _Rn;
 
   // ---main algorithm-----------------------------------------------------------------------------------------
 
-  // load modules
-  await loadRnModules(['webgl', 'pbr']);
-
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    rnCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: rnCanvasElement,
+  });
 
   // prepare entities
   const entitySphere = createEntitySphereWithEmptyMaterial();
@@ -75,15 +71,6 @@ declare const Rn: typeof _Rn;
   draw(expressions);
 
   // ---functions-----------------------------------------------------------------------------------------
-
-  function loadRnModules(moduleNames: string[]) {
-    const promises = [];
-    const moduleManagerInstance = Rn.ModuleManager.getInstance();
-    for (const moduleName of moduleNames) {
-      promises.push(moduleManagerInstance.loadModule(moduleName));
-    }
-    return Promise.all(promises);
-  }
 
   function createEntityDepthCamera() {
     const entityCamera = Rn.EntityHelper.createCameraEntity();
@@ -273,7 +260,7 @@ declare const Rn: typeof _Rn;
   }
 
   function draw(expressions: Expression[]) {
-    system.process(expressions);
+    Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions));
   }
 })();

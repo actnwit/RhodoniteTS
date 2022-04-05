@@ -14,19 +14,12 @@ declare const Rn: typeof _Rn;
 
   // ---main algorithm-----------------------------------------------------------------------------------------
 
-  // load modules
-  await Promise.all([
-    Rn.ModuleManager.getInstance().loadModule('webgl'),
-    Rn.ModuleManager.getInstance().loadModule('pbr'),
-  ]);
-
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    rnCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: rnCanvasElement,
+  });
 
   // prepare entity
   const rootGroup = await createEntityPointCloud(pointCloudDrcUri);
@@ -120,7 +113,7 @@ declare const Rn: typeof _Rn;
   }
 
   function draw(expressions: Expression[]) {
-    system.process(expressions);
+    Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions));
   }
 })();

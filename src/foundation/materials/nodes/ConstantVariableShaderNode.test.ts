@@ -1,4 +1,3 @@
-import ModuleManager from '../../system/ModuleManager';
 import MemoryManager from '../../core/MemoryManager';
 import ConstantVariableShaderNode from './ConstantVariableShaderNode';
 import {CompositionType} from '../../definitions/CompositionType';
@@ -7,10 +6,15 @@ import AddShaderNode from './AddShaderNode';
 import OutPositionShaderNode from './OutPositionShaderNode';
 import Vector4 from '../../math/Vector4';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
+import ModuleManager from '../../system/ModuleManager';
 
 test('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const constant1 = new ConstantVariableShaderNode(
     CompositionType.Vec4,

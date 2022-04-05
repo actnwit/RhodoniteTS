@@ -63,12 +63,11 @@ declare const Rn: typeof _Rn;
   const promises: Promise<void>[] = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
-  Promise.all(promises).then(() => {
-    const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(
-      Rn.ProcessApproach.FastestWebGL1,
-      document.getElementById('world') as HTMLCanvasElement
-    );
+  Promise.all(promises).then(async () => {
+    const gl = await Rn.System.init({
+      approach: Rn.ProcessApproach.FastestWebGL1,
+      canvas: document.getElementById('world') as HTMLCanvasElement,
+    });
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -159,7 +158,7 @@ declare const Rn: typeof _Rn;
       stats.begin();
 
       //      console.log(date.getTime());
-      system.process([expression]);
+      Rn.System.process([expression]);
 
       stats.end();
       count++;

@@ -3,7 +3,7 @@ import {BufferUse, BufferUseEnum} from '../definitions/BufferUse';
 import {Size, Byte, ObjectUID} from '../../types/CommonTypes';
 import Config from './Config';
 import RnObject from './RnObject';
-import { MiscUtil } from '../misc/MiscUtil';
+import {MiscUtil} from '../misc/MiscUtil';
 
 /**
  * Usage
@@ -29,11 +29,15 @@ export default class MemoryManager {
     this.__memorySizeRatios[BufferUse.GPUVertexData.str] = gpuVertexData;
   }
 
-  static createInstanceIfNotCreated(
-    cpuGeneric: number,
-    gpuInstanceData: number,
-    gpuVertexData: number
-  ) {
+  static createInstanceIfNotCreated({
+    cpuGeneric,
+    gpuInstanceData,
+    gpuVertexData,
+  }: {
+    cpuGeneric: number;
+    gpuInstanceData: number;
+    gpuVertexData: number;
+  }) {
     if (!this.__instance) {
       this.__instance = new MemoryManager(
         cpuGeneric,

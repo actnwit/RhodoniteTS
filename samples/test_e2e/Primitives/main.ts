@@ -17,10 +17,10 @@ let p: HTMLParagraphElement | undefined;
 
   // Rendering Loop
   let count = 0;
-  system.startRenderLoop(() => {
+  Rn.System.startRenderLoop(() => {
     [p, count] = checkFinished({p: p!, count});
 
-    system.processAuto();
+    Rn.System.processAuto();
 
     count++;
   });
@@ -102,16 +102,10 @@ function createSphere() {
 }
 
 async function setupRhodonite() {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-
-  const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
-
-  return system;
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 }
 
 function createCamera(group: IMeshEntity) {

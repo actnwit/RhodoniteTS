@@ -21,16 +21,12 @@ let framebuffer: FrameBuffer;
 let renderPassMain: RenderPass;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
-  const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
+  const gl = await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
     canvas,
-    1,
-    {antialias: false}
-  );
+    webglOption: {antialias: false},
+  });
 
   // setup the Main RenderPass
   renderPassMain = await setupRenderPassMain();
@@ -76,7 +72,7 @@ let renderPassMain: RenderPass;
       }
     }
 
-    system.process(frame);
+    Rn.System.process(frame);
     count++;
 
     requestAnimationFrame(draw);

@@ -5,12 +5,12 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
   const world = document.getElementById('world') as HTMLCanvasElement;
 
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, world);
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: world,
+  });
 
   // camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -38,7 +38,7 @@ document.body.appendChild(p);
     }
   );
 
-  system.process([expression]);
+  Rn.System.process([expression]);
 
   p.id = 'rendered';
   p.innerText = 'Rendered.';

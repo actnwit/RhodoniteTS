@@ -322,8 +322,7 @@ export default class RenderPass extends RnObject {
     if (webglRenderingStrategy != null) {
       return webglRenderingStrategy;
     }
-    const system = System.getInstance();
-    const processApproach = system.processApproach;
+    const processApproach = System.processApproach;
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';

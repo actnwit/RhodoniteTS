@@ -6,7 +6,11 @@ function generateEntity() {
 }
 
 test('The entity repository can provide the component corresponding to the specified entityUID and componentTID', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const firstEntity = generateEntity();
   const entityRepository = Rn.EntityRepository.getInstance();

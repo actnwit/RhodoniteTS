@@ -8,9 +8,8 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
+
+
 
   Rn.Config.maxEntityNumber = 200;
   Rn.Config.maxLightNumberInShader = 1;
@@ -23,10 +22,10 @@ declare const Rn: typeof _Rn;
   Rn.Config.maxMorphTargetNumber = 1;
   Rn.Config.isUboEnabled = false;
 
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
   const gltfImporter = Rn.GltfImporter.getInstance();
   const gltf2Importer = Rn.Gltf2Importer.getInstance();
@@ -135,7 +134,7 @@ declare const Rn: typeof _Rn;
       }
     }
 
-    system.process(expressions);
+    Rn.System.process(expressions);
 
     count++;
 

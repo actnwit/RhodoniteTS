@@ -7,13 +7,10 @@ declare const window: Window;
 
 (async window => {
   // Init Rhodonite
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
   // Plane
   const planeEntity = Rn.MeshHelper.createPlane();
@@ -41,7 +38,7 @@ declare const window: Window;
       document.body.appendChild(p);
     }
 
-    system.process([expression]);
+    Rn.System.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

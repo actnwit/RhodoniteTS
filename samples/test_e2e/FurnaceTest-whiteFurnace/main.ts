@@ -26,16 +26,12 @@ declare global {
 (async () => {
   // ---main algorithm-----------------------------------------------------------------------------------------
 
-  // load modules
-  await loadRnModules(['webgl', 'pbr']);
-
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    rnCanvasElement
-  );
+  const gl = await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: rnCanvasElement,
+  });
 
   // prepare renderPasses
   const cameraComponentMain = createEntityMainCamera().getCamera();
@@ -51,15 +47,6 @@ declare global {
   attachGlobalFunctions(gl, expressions);
 
   // ---functions-----------------------------------------------------------------------------------------
-
-  function loadRnModules(moduleNames: string[]) {
-    const promises = [];
-    const moduleManagerInstance = Rn.ModuleManager.getInstance();
-    for (const moduleName of moduleNames) {
-      promises.push(moduleManagerInstance.loadModule(moduleName));
-    }
-    return Promise.all(promises);
-  }
 
   function createEntityMainCamera() {
     const entityCamera = Rn.EntityHelper.createCameraEntity();
@@ -145,7 +132,7 @@ declare global {
   }
 
   function draw(expressions: Expression[], createPElem = false) {
-    system.process(expressions);
+    Rn.System.process(expressions);
 
     // for e2e-test
     if (createPElem) {

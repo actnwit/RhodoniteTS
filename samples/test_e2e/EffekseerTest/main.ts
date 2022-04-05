@@ -41,12 +41,15 @@ declare const Rn: typeof _Rn;
   });
 
   const importer = Rn.Gltf2Importer.getInstance();
-  const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    document.getElementById('world') as HTMLCanvasElement,
-    0.5
-  );
+  const gl = await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+    memoryUsageOrder: {
+      cpuGeneric: 0.15,
+      gpuInstanceData: 0.2,
+      gpuVertexData: 0.3,
+    },
+  });
 
   const entityRepository = Rn.EntityRepository.getInstance();
 
@@ -119,7 +122,7 @@ declare const Rn: typeof _Rn;
       count = 0;
     }
 
-    system.process([expression]);
+    Rn.System.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

@@ -13,7 +13,11 @@ function generateEntity() {
 
 test('array[GetComponentFromEntities]', () => {
   Rn.enhanceArray();
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const entities = [];
   entities.push(generateEntity());

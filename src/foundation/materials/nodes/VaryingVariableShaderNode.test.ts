@@ -12,7 +12,11 @@ import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('VaryingVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const varyingOut1 = new VaryingOutVariableShaderNode(
     CompositionType.Vec4,

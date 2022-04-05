@@ -68,20 +68,15 @@ const pick = function (e: any) {
 let p: any;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
-  const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
 
-  const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    canvas
-  );
+  const gl = await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas,
+  });
   const expression = new Rn.Expression();
-
-  const entityRepository = Rn.EntityRepository.getInstance();
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -190,7 +185,7 @@ let p: any;
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process([expression]);
+    Rn.System.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

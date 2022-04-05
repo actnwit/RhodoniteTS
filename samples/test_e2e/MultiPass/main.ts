@@ -9,13 +9,11 @@ declare const Stats: any;
   const promises = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
-  Promise.all(promises).then(() => {
-    const system = Rn.System.getInstance();
-
-    const gl = system.setProcessApproachAndCanvas(
-      Rn.ProcessApproach.UniformWebGL1,
-      document.getElementById('world') as HTMLCanvasElement
-    );
+  Promise.all(promises).then(async () => {
+    const gl = await Rn.System.init({
+      approach: Rn.ProcessApproach.UniformWebGL1,
+      canvas: document.getElementById('world') as HTMLCanvasElement,
+    });
 
     const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
     const cameraComponent = cameraEntity.getCamera();
@@ -202,7 +200,7 @@ declare const Stats: any;
       stats.begin();
 
       //      console.log(date.getTime());
-      system.process([expression]);
+      Rn.System.process([expression]);
 
       stats.end();
       count++;

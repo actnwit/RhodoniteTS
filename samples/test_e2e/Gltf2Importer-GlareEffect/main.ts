@@ -35,16 +35,12 @@ declare const Rn: typeof _Rn;
   const synthesizeCoefficient = [1.0, 1.0 / 5.0, 1.0 / 6.0, 1.0 / 10.0];
   // ---main algorithm-----------------------------------------------------------------------------------------
 
-  // load modules
-  await loadRnModules(['webgl', 'pbr']);
-
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    rnCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: rnCanvasElement,
+  });
 
   // import gltf2
   const rootGroup = await createEntityGltf2(uriGltf);
@@ -134,15 +130,6 @@ declare const Rn: typeof _Rn;
   draw(expressions, 0);
 
   // ---functions-----------------------------------------------------------------------------------------
-
-  function loadRnModules(moduleNames: string[]) {
-    const promises = [];
-    const moduleManagerInstance = Rn.ModuleManager.getInstance();
-    for (const moduleName of moduleNames) {
-      promises.push(moduleManagerInstance.loadModule(moduleName));
-    }
-    return Promise.all(promises);
-  }
 
   async function createEntityGltf2(uriGltf: string) {
     const importer = Rn.Gltf2Importer.getInstance();
@@ -519,7 +506,7 @@ declare const Rn: typeof _Rn;
       document.body.appendChild(pElem);
     }
 
-    system.process(expressions);
+    Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions, loopCount + 1, pElem));
   }
 })();

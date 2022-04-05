@@ -1,5 +1,5 @@
 import CameraComponent from '../../../dist/esm/foundation/components/Camera/CameraComponent';
-import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {ICameraControllerEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {Material} from '../../../dist/esm/index';
 
 let p: any;
@@ -8,13 +8,10 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  const gl = await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
   const VRMImporter = Rn.VRMImporter.getInstance();
   const entityRepository = Rn.EntityRepository.getInstance();
@@ -196,7 +193,7 @@ declare const Rn: typeof _Rn;
       const date = new Date();
     }
 
-    system.process([expression]);
+    Rn.System.process([expression]);
 
     count++;
 
