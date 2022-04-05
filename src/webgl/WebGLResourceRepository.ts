@@ -125,10 +125,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   generateWebGLContext(
     canvas: HTMLCanvasElement,
-    webglOption: WebGLContextAttributes,
     version: number,
     asCurrent: boolean,
     isDebug: boolean,
+    webglOption?: WebGLContextAttributes,
     fallback = true
   ) {
     let gl: WebGL2RenderingContext | WebGLRenderingContext;
@@ -2783,7 +2783,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       return false;
     }
 
-    const processApproach = System.getInstance().processApproach;
+    const processApproach = System.processApproach;
     const renderingStrategy = getRenderingStrategy(processApproach);
 
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(

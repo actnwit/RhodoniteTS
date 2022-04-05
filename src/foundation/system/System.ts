@@ -31,26 +31,39 @@ import RenderPass from '../renderer/RenderPass';
 
 declare const spector: any;
 
+interface SystemInitDescription {
+  approach: ProcessApproachEnum;
+  canvas: HTMLCanvasElement;
+  memoryUsageOrder?: {
+    cpuGeneric: number;
+    gpuInstanceData: number;
+    gpuVertexData: number;
+  };
+  webglOption?: WebGLContextAttributes;
+  rnWebGLDebug?: boolean;
+  fallback3dApi?: boolean;
+}
+
 export default class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
-  private __entityRepository = EntityRepository.getInstance();
-  private __componentRepository: ComponentRepository =
+  private static __entityRepository = EntityRepository.getInstance();
+  private static __componentRepository: ComponentRepository =
     ComponentRepository.getInstance();
-  private __processApproach: ProcessApproachEnum = ProcessApproach.None;
-  private __webglResourceRepository =
+  private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
+  private static __webglResourceRepository =
     CGAPIResourceRepository.getWebGLResourceRepository();
-  private __webglStrategy?: WebGLStrategy;
-  private __renderPassTickCount = 0;
-  private __animationFrameId = -1;
+  private static __webglStrategy?: WebGLStrategy;
+  private static __renderPassTickCount = 0;
+  private static __animationFrameId = -1;
 
-  private __renderLoopFunc?: Function;
-  private __args: unknown[] = [];
+  private static __renderLoopFunc?: Function;
+  private static __args: unknown[] = [];
 
   private constructor() {}
 
-  startRenderLoop(renderLoopFunc: Function, ...args: unknown[]) {
+  static startRenderLoop(renderLoopFunc: Function, ...args: unknown[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
@@ -89,7 +102,7 @@ export default class System {
     }) as FrameRequestCallback);
   }
 
-  private __getAnimationFrameObject(): Window | VRDisplay | XRSession {
+  private static __getAnimationFrameObject(): Window | VRDisplay | XRSession {
     let animationFrameObject: Window | VRDisplay | XRSession | undefined =
       window;
     const rnVRModule = ModuleManager.getInstance().getModule('xr') as
@@ -110,19 +123,19 @@ export default class System {
     return animationFrameObject;
   }
 
-  stopRenderLoop() {
+  public static stopRenderLoop() {
     const animationFrameObject = this.__getAnimationFrameObject();
     animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
     this.__animationFrameId = -1;
   }
 
-  restartRenderLoop() {
+  public static restartRenderLoop() {
     if (this.__renderLoopFunc != null) {
       this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
     }
   }
 
-  processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
+  public static processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
     if (Is.not.exist(System.__expressionForProcessAuto)) {
       const expression = new Expression();
       const renderPassInit = new RenderPass();
@@ -142,9 +155,9 @@ export default class System {
     this.process([System.__expressionForProcessAuto]);
   }
 
-  process(frame: Frame): void;
-  process(expressions: Expression[]): void;
-  process(value: any) {
+  public static process(frame: Frame): void;
+  public static process(expressions: Expression[]): void;
+  public static process(value: any) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('Rn#');
     }
@@ -189,7 +202,9 @@ export default class System {
             for (let i = 0; i < loopN; i++) {
               const renderPass = exp!.renderPasses[i];
               if (typeof spector !== 'undefined') {
-                spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
+                spector.setMarker(
+                  `| ${exp.uniqueName}: ${renderPass.uniqueName}#`
+                );
               }
               renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
@@ -299,48 +314,50 @@ export default class System {
     Time._processEnd();
   }
 
-  setProcessApproachAndCanvas(
-    approach: ProcessApproachEnum,
-    canvas: HTMLCanvasElement,
-    memoryUsageOrder = 1,
-    webglOption: WebGLContextAttributes = {},
-    rnWebGLDebug = true,
-    fallback3dApi = true
-  ) {
-    Config.eventTargetDom = canvas;
+  public static async init(desc: SystemInitDescription) {
+    await ModuleManager.getInstance().loadModule('webgl');
+    await ModuleManager.getInstance().loadModule('pbr');
+
+    Config.eventTargetDom = desc.canvas;
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    MemoryManager.createInstanceIfNotCreated(
-      0.3 * memoryUsageOrder,
-      0.4 * memoryUsageOrder,
-      0.6 * memoryUsageOrder
-    );
+    MemoryManager.createInstanceIfNotCreated({
+      cpuGeneric: Is.exist(desc.memoryUsageOrder)
+        ? desc.memoryUsageOrder.cpuGeneric
+        : 0.3,
+      gpuInstanceData: Is.exist(desc.memoryUsageOrder)
+        ? desc.memoryUsageOrder.gpuInstanceData
+        : 0.4,
+      gpuVertexData: Is.exist(desc.memoryUsageOrder)
+        ? desc.memoryUsageOrder.gpuVertexData
+        : 0.6,
+    });
     const globalDataRepository = GlobalDataRepository.getInstance();
-    globalDataRepository.initialize(approach);
+    globalDataRepository.initialize(desc.approach);
 
     const gl = repo.generateWebGLContext(
-      canvas,
-      webglOption,
-      approach.webGLVersion,
+      desc.canvas,
+      desc.approach.webGLVersion,
       true,
-      rnWebGLDebug,
-      fallback3dApi
+      desc.rnWebGLDebug ? desc.rnWebGLDebug : false,
+      desc.webglOption,
+      desc.fallback3dApi
     );
 
     repo.switchDepthTest(true);
-    this.__processApproach = approach;
-    SystemState.currentProcessApproach = approach;
+    this.__processApproach = desc.approach;
+    SystemState.currentProcessApproach = desc.approach;
 
     if (
-      rnWebGLDebug &&
+      desc.rnWebGLDebug &&
       MiscUtil.isMobile() &&
-      ProcessApproach.isUniformApproach(approach)
+      ProcessApproach.isUniformApproach(desc.approach)
     ) {
       alert(
         'Use the FastestWebGL1/FastestWebGL2 as the argument of setProcessApproachAndCanvas method for this device.'
       );
     }
 
-    canvas.addEventListener(
+    desc.canvas.addEventListener(
       'webglcontextlost',
       ((event: Event) => {
         // Calling preventDefault signals to the page that you intent to handle context restoration.
@@ -350,7 +367,7 @@ export default class System {
       }).bind(this)
     );
 
-    canvas.addEventListener('webglcontextrestored', () => {
+    desc.canvas.addEventListener('webglcontextrestored', () => {
       // Once this function is called the gl context will be restored but any graphics resources
       // that were previously loaded will be lost, so the scene should be reloaded.
       console.error('WebGL context restored.');
@@ -361,16 +378,16 @@ export default class System {
     return gl;
   }
 
-  get processApproach() {
+  static get processApproach() {
     return this.__processApproach;
   }
 
-  resizeCanvas(width: number, height: number) {
+  public static resizeCanvas(width: number, height: number) {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     repo.resizeCanvas(width, height);
   }
 
-  getCanvasSize() {
+  public static getCanvasSize() {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     return repo.getCanvasSize();
   }

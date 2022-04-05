@@ -180,8 +180,8 @@ export default class WebXRSystem {
         this.__isWebXRMode = false;
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         console.log('XRSession ends.');
-        System.getInstance().stopRenderLoop();
-        System.getInstance().restartRenderLoop();
+        System.stopRenderLoop();
+        System.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
 
@@ -207,8 +207,8 @@ export default class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session);
       this.__requestedToEnterWebXR = true;
-      System.getInstance().stopRenderLoop();
-      System.getInstance().restartRenderLoop();
+      System.stopRenderLoop();
+      System.restartRenderLoop();
       console.warn('End of enterWebXR.');
       return promise;
     } else {
