@@ -3,11 +3,7 @@ import Vector3 from '../foundation/math/Vector3';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';
-import Entity, {IEntity} from '../foundation/core/Entity';
-import EntityRepository from '../foundation/core/EntityRepository';
-import TransformComponent from '../foundation/components/Transform/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
-import CameraComponent from '../foundation/components/Camera/CameraComponent';
+import {IEntity} from '../foundation/core/Entity';
 import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
 import type {
   Navigator,
@@ -68,24 +64,24 @@ export default class WebXRSystem {
 
   private constructor() {
     this.__viewerEntity = EntityHelper.createGroupEntity();
-    this.__viewerEntity.tryToSetUniqueName('WebXR Viewer', true)
+    this.__viewerEntity.tryToSetUniqueName('WebXR Viewer', true);
     this.__viewerEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
-    })
+    });
 
     this.__leftCameraEntity = EntityHelper.createCameraEntity();
-    this.__leftCameraEntity.tryToSetUniqueName('WebXR Left Camera', true)
+    this.__leftCameraEntity.tryToSetUniqueName('WebXR Left Camera', true);
     this.__leftCameraEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
-    })
+    });
     this.__rightCameraEntity = EntityHelper.createCameraEntity();
-    this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true)
+    this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true);
     this.__rightCameraEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
-    })
+    });
 
     this.__viewerEntity
       .getSceneGraph()
