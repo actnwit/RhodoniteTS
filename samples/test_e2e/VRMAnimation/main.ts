@@ -8,9 +8,6 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-
-
-
   Rn.Config.maxEntityNumber = 200;
   Rn.Config.maxLightNumberInShader = 1;
   Rn.Config.maxVertexMorphNumberInShader = 1;
@@ -27,7 +24,6 @@ declare const Rn: typeof _Rn;
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  const gltfImporter = Rn.GltfImporter.getInstance();
   const gltf2Importer = Rn.Gltf2Importer.getInstance();
 
   // params
@@ -46,10 +42,10 @@ declare const Rn: typeof _Rn;
   const animGltf2ModelPromise = gltf2Importer.import(
     '../../../assets/vrm/test.glb'
   );
-  const vrmModelPromise = gltfImporter.importJsonOfVRM(
+  const vrmModelPromise = Rn.GltfImporter.importJsonOfVRM(
     '../../../assets/vrm/test.vrm'
   );
-  const vrmExpressionPromise = gltfImporter.import(
+  const vrmExpressionPromise = Rn.GltfImporter.import(
     '../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [

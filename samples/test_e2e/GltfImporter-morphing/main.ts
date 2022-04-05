@@ -22,8 +22,7 @@ declare const Rn: typeof _Rn;
   cameraTransform.rotate = Rn.Vector3.fromCopyArray([0, Math.PI / 4, 0]);
 
   // gltf
-  const gltfImporter = Rn.GltfImporter.getInstance();
-  const expression = await gltfImporter.import(
+  const expression = await Rn.GltfImporter.import(
     '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb',
     {
       cameraComponent: cameraComponent,

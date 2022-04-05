@@ -25,8 +25,7 @@ document.body.appendChild(p);
   cameraTransform.rotate = Rn.Vector3.fromCopyArray([-0.1, 0, 0]);
 
   // gltf
-  const gltfImporter = Rn.GltfImporter.getInstance();
-  const expression = await gltfImporter.import(
+  const expression = await Rn.GltfImporter.import(
     './../../../assets/gltf/glTF-Sample-Models/2.0/AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf',
     {
       cameraComponent: cameraComponent,

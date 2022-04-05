@@ -29,8 +29,7 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const gltfImporter = Rn.GltfImporter.getInstance();
-  const mainExpression = await gltfImporter.import(
+  const mainExpression = await Rn.GltfImporter.import(
     '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
     {
       cameraComponent: cameraComponent,

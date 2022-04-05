@@ -24,8 +24,6 @@ declare const Rn: typeof _Rn;
     },
   });
 
-  const gltfImporter = Rn.GltfImporter.getInstance();
-
   // params
 
   const displayResolution = 800;
@@ -47,7 +45,7 @@ declare const Rn: typeof _Rn;
   const expressions = [];
 
   // vrm
-  const vrmExpression = await gltfImporter.import(
+  const vrmExpression = await Rn.GltfImporter.import(
     '../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [
@@ -138,7 +136,8 @@ declare const Rn: typeof _Rn;
 
   // cameraController
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
-  const vrmMainCameraEntity = vrmMainCameraComponent.entity as ICameraControllerEntity;
+  const vrmMainCameraEntity =
+    vrmMainCameraComponent.entity as ICameraControllerEntity;
   const vrmMainCameraControllerComponent =
     vrmMainCameraEntity.getCameraController();
   const controller =

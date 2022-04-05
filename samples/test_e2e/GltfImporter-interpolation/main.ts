@@ -23,8 +23,7 @@ document.body.appendChild(p);
   cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 4.2, 25]);
 
   // gltf
-  const gltfImporter = Rn.GltfImporter.getInstance();
-  const expression = await gltfImporter.import(
+  const expression = await Rn.GltfImporter.import(
     '../../../assets/gltf/glTF-Sample-Models/2.0/InterpolationTest/glTF-Binary/InterpolationTest.glb',
     {
       cameraComponent: cameraComponent,

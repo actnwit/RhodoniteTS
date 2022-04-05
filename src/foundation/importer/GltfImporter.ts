@@ -1,4 +1,4 @@
-import Entity, { IEntity } from '../core/Entity';
+import Entity, {IEntity} from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
@@ -21,28 +21,19 @@ import DataUtil from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
 import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import {ISceneGraphEntity} from '../helpers/EntityHelper';
 
 /**
  * Importer class which can import GLTF and VRM.
  */
 export default class GltfImporter {
-  private static __instance: GltfImporter;
-
   private constructor() {}
-
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new GltfImporter();
-    }
-    return this.__instance;
-  }
 
   /**
    * For VRM file only
    * Generate JSON.
    */
-  async importJsonOfVRM(
+  static async importJsonOfVRM(
     uri: string,
     options?: GltfLoadOption
   ): Promise<VRM | undefined> {
@@ -65,7 +56,7 @@ export default class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  async import(
+  static async import(
     uris: string | string[],
     options?: GltfLoadOption
   ): Promise<Expression> {
@@ -100,7 +91,7 @@ export default class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  async importFromArrayBuffers(
+  static async importFromArrayBuffers(
     files: GltfFileBuffers,
     options?: GltfLoadOption
   ): Promise<Expression> {
@@ -118,7 +109,7 @@ export default class GltfImporter {
     return this.__setRenderPassesToExpression(renderPasses, options);
   }
 
-  private __initOptions(options?: GltfLoadOption): GltfLoadOption {
+  private static __initOptions(options?: GltfLoadOption): GltfLoadOption {
     if (options == null) {
       options = DataUtil.createDefaultGltfOptions();
     } else {
@@ -154,7 +145,7 @@ export default class GltfImporter {
     return options;
   }
 
-  private __setRenderPassesToExpression(
+  private static __setRenderPassesToExpression(
     renderPasses: RenderPass[],
     options: GltfLoadOption
   ) {
@@ -168,7 +159,7 @@ export default class GltfImporter {
     return expression;
   }
 
-  private __importMultipleModelsFromUri(
+  private static __importMultipleModelsFromUri(
     uris: string[],
     options: GltfLoadOption
   ): Promise<RenderPass[]> {
@@ -192,7 +183,7 @@ export default class GltfImporter {
     });
   }
 
-  private __importMultipleModelsFromArrayBuffers(
+  private static __importMultipleModelsFromArrayBuffers(
     files: GltfFileBuffers,
     options: GltfLoadOption
   ): Promise<RenderPass[]> {
@@ -222,7 +213,7 @@ export default class GltfImporter {
     });
   }
 
-  private __isValidExtension(fileExtension: string) {
+  private static __isValidExtension(fileExtension: string) {
     if (
       fileExtension === 'gltf' ||
       fileExtension === 'glb' ||
@@ -235,7 +226,7 @@ export default class GltfImporter {
     }
   }
 
-  private __importToRenderPassesFromUriPromise(
+  private static __importToRenderPassesFromUriPromise(
     uri: string,
     renderPasses: RenderPass[],
     options: GltfLoadOption
@@ -251,7 +242,7 @@ export default class GltfImporter {
     });
   }
 
-  private __isGlb(arrayBuffer: ArrayBuffer) {
+  private static __isGlb(arrayBuffer: ArrayBuffer) {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const isLittleEndian = true;
     // Magic field
@@ -265,14 +256,14 @@ export default class GltfImporter {
     }
   }
 
-  private __getGlbVersion(glbArrayBuffer: ArrayBuffer) {
+  private static __getGlbVersion(glbArrayBuffer: ArrayBuffer) {
     const dataView = new DataView(glbArrayBuffer, 0, 20);
     const isLittleEndian = true;
     const glbVer = dataView.getUint32(4, isLittleEndian);
     return glbVer;
   }
 
-  private __getGltfVersion(gltfJson: glTF1 | RnM2) {
+  private static __getGltfVersion(gltfJson: glTF1 | RnM2) {
     if ((gltfJson as RnM2).asset?.version?.charAt(0) === '2') {
       return 2;
     } else {
@@ -280,7 +271,7 @@ export default class GltfImporter {
     }
   }
 
-  private __importToRenderPassesFromArrayBufferPromise(
+  private static __importToRenderPassesFromArrayBufferPromise(
     fileName: string,
     renderPasses: RenderPass[],
     options: GltfLoadOption,
@@ -374,7 +365,7 @@ export default class GltfImporter {
     }) as Promise<void>;
   }
 
-  private __getFileTypeFromFilePromise(
+  private static __getFileTypeFromFilePromise(
     fileName: string,
     options: GltfLoadOption,
     optionalFileType?: string
@@ -389,7 +380,7 @@ export default class GltfImporter {
     }
   }
 
-  private __importVRM(
+  private static __importVRM(
     uri: string,
     file: ArrayBuffer,
     renderPasses: RenderPass[],
@@ -444,7 +435,7 @@ export default class GltfImporter {
       });
   }
 
-  _getOptions(options?: GltfLoadOption): GltfLoadOption {
+  static _getOptions(options?: GltfLoadOption): GltfLoadOption {
     if (options != null) {
       for (const file in options.files) {
         const fileName = file.split('.vrm')[0];
@@ -491,7 +482,10 @@ export default class GltfImporter {
     return options;
   }
 
-  _readVRMHumanoidInfo(gltfModel: VRM, rootEntity?: ISceneGraphEntity): void {
+  static _readVRMHumanoidInfo(
+    gltfModel: VRM,
+    rootEntity?: ISceneGraphEntity
+  ): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
     // const mapNameNodeName: Map<string, string> = new Map();
@@ -512,7 +506,7 @@ export default class GltfImporter {
     // });
   }
 
-  _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void {
+  static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void {
     const entityRepository = EntityRepository.getInstance();
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
@@ -578,7 +572,7 @@ export default class GltfImporter {
     }
   }
 
-  private addPhysicsComponentRecursively(
+  private static addPhysicsComponentRecursively(
     entityRepository: EntityRepository,
     sg: SceneGraphComponent
   ): void {
@@ -592,7 +586,7 @@ export default class GltfImporter {
     }
   }
 
-  _createTextures(gltfModel: RnM2): Texture[] {
+  static _createTextures(gltfModel: RnM2): Texture[] {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
@@ -615,7 +609,7 @@ export default class GltfImporter {
     return rnTextures;
   }
 
-  _existOutlineMaterial(extensionsVRM: any): boolean {
+  static _existOutlineMaterial(extensionsVRM: any): boolean {
     const materialProperties = extensionsVRM.materialProperties;
     if (materialProperties != null) {
       for (const materialProperty of materialProperties) {
@@ -628,7 +622,10 @@ export default class GltfImporter {
     return false;
   }
 
-  _initializeMaterialProperties(gltfModel: RnM2, texturesLength: number): void {
+  static _initializeMaterialProperties(
+    gltfModel: RnM2,
+    texturesLength: number
+  ): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     for (const materialProperty of materialProperties) {
@@ -639,7 +636,7 @@ export default class GltfImporter {
     }
   }
 
-  private __initializeMToonMaterialProperties(
+  private static __initializeMToonMaterialProperties(
     gltfModel: RnM2,
     texturesLength: number
   ): void {
@@ -819,7 +816,7 @@ export default class GltfImporter {
     }
   }
 
-  private __initializeForUndefinedProperty(
+  private static __initializeForUndefinedProperty(
     object: any,
     propertyName: string,
     initialValue: any
