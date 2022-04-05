@@ -6,7 +6,11 @@ import MemoryManager from '../core/MemoryManager';
 
 describe('EntityHelper', () => {
   beforeAll(() => {
-    MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+    MemoryManager.createInstanceIfNotCreated({
+      cpuGeneric: 1,
+      gpuInstanceData: 1,
+      gpuVertexData: 1,
+    });
   });
 
   test('EntityHelper', () => {

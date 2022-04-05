@@ -5,7 +5,11 @@ function generateEntity() {
 }
 
 test('addEntities and get entities', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const entity1st = generateEntity(); // Uid is 0
   const entity2nd = generateEntity(); // Uid is 1
@@ -32,7 +36,11 @@ test('addEntities and get entities', () => {
 });
 
 test('clearEntities and get entities', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const entity1st = generateEntity(); // Uid is 0
   const entity2nd = generateEntity(); // Uid is 1

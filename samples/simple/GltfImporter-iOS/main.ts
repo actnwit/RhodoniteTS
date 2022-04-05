@@ -9,26 +9,21 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-  await Promise.all([
-    Rn.ModuleManager.getInstance().loadModule('webgl'),
-    Rn.ModuleManager.getInstance().loadModule('pbr'),
-  ]);
-
   // Note: The length of one side of texture must be less than Math.pow(2, 12)
   // This is the limit of iOS13.3 (iPhone 6S)
   Rn.Config.dataTextureWidth = Math.pow(2, 8);
   Rn.Config.dataTextureHeight = Math.pow(2, 9);
 
-  // Note: We cannot take too large memory on the iOS
-  Rn.MemoryManager.createInstanceIfNotCreated(1.3, 0.6, 0.0);
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+    memoryUsageOrder: {
+      cpuGeneric: 1.3,
+      gpuInstanceData: 0.6,
+      gpuVertexData: 0.0,
+    },
+  });
 
-  const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
-
-  const entityRepository = Rn.EntityRepository.getInstance();
   const gltfImporter = Rn.GltfImporter.getInstance();
 
   // params
@@ -188,7 +183,7 @@ declare const Rn: typeof _Rn;
       }
     }
 
-    system.process(expressions);
+    Rn.System.process(expressions);
 
     count++;
 

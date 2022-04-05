@@ -4,7 +4,11 @@ import Material from './Material';
 
 test('MaterialTID are processed correctly', () => {
   ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   // 0st
   Material.registerMaterial('MyMaterial0', undefined);

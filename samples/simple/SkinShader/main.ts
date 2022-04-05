@@ -52,16 +52,13 @@ const setupRenderPassRendering = function (rootGroup, cameraComponent) {
 let p = null;
 
 const load = async function () {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf2Importer.getInstance();
-  const system = Rn.System.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
-  const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    canvas
-  );
+  const gl = await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas,
+  });
   const expression = new Rn.Expression();
 
   // Camera
@@ -148,7 +145,7 @@ const load = async function () {
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process([expression]);
+    Rn.System.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

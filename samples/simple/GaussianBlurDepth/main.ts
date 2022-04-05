@@ -25,12 +25,11 @@ declare const Rn: typeof _Rn;
   await loadRnModules(['webgl', 'pbr']);
 
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    rnCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: rnCanvasElement,
+  });
 
   // prepare entities
   const entitySphere = createEntitySphereWithEmptyMaterial();
@@ -273,7 +272,7 @@ declare const Rn: typeof _Rn;
   }
 
   function draw(expressions: Expression[]) {
-    system.process(expressions);
+    Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions));
   }
 })();

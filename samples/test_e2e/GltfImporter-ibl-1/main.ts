@@ -11,14 +11,10 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
-
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
   // expressions
   const expressions = [];
@@ -97,7 +93,7 @@ document.body.appendChild(p);
       p.innerText = 'Started.';
     }
 
-    system.process(expressions);
+    Rn.System.process(expressions);
 
     count++;
 

@@ -24,12 +24,11 @@ declare const Rn: typeof _Rn;
   await loadRnModules(['webgl', 'pbr']);
 
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL2,
-    rnCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL2,
+    canvas: rnCanvasElement,
+  });
 
   // when "ProcessApproach.FastestWebGL2" is specified,
   // we need to specify the following setting in order to avoid the error
@@ -266,7 +265,7 @@ declare const Rn: typeof _Rn;
       document.body.appendChild(pElem);
     }
 
-    system.process(expressions);
+    Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions, loopCount + 1, pElem));
   }
 })();

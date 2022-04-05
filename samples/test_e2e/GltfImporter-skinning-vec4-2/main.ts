@@ -8,14 +8,10 @@ document.body.appendChild(p);
   Rn.Config.boneDataType = Rn.BoneDataType.Vec4x2;
   Rn.Config.maxSkeletalBoneNumber = 2;
 
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
-
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.UniformWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
   // camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -57,7 +53,7 @@ document.body.appendChild(p);
       }
     }
 
-    system.process([expression]);
+    Rn.System.process([expression]);
 
     count++;
 

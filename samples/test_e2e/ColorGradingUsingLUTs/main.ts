@@ -17,12 +17,11 @@ declare const Rn: typeof _Rn;
   await loadRnModules(['webgl', 'pbr']);
 
   // prepare memory
-  const system = Rn.System.getInstance();
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    rnCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: rnCanvasElement,
+  });
 
   // prepare renderPasses
   const cameraComponentMain = createEntityMainCamera().getCamera();
@@ -213,7 +212,7 @@ declare const Rn: typeof _Rn;
       document.body.appendChild(pElem);
     }
 
-    system.process(expressions);
+    Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions, false, pElem));
   }
 })();

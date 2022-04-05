@@ -4,19 +4,12 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
-
-//  Rn.Config.maxMorphTargetNumber = 16;
-
-  system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL2,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL2,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
   // camera
-  const entityRepository = Rn.EntityRepository.getInstance();
   const cameraEntity = Rn.EntityHelper.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
@@ -63,7 +56,7 @@ declare const Rn: typeof _Rn;
       }
     }
 
-    system.process([expression]);
+    Rn.System.process([expression]);
 
     count++;
 

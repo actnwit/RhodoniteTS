@@ -28,6 +28,7 @@ import Config from '../core/Config';
 import Frame from '../renderer/Frame';
 import Vector4 from '../math/Vector4';
 import RenderPass from '../renderer/RenderPass';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 declare const spector: any;
 
@@ -52,8 +53,7 @@ export default class System {
   private static __componentRepository: ComponentRepository =
     ComponentRepository.getInstance();
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
-  private static __webglResourceRepository =
-    CGAPIResourceRepository.getWebGLResourceRepository();
+  private static __webglResourceRepository: WebGLResourceRepository;
   private static __webglStrategy?: WebGLStrategy;
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
@@ -317,7 +317,8 @@ export default class System {
   public static async init(desc: SystemInitDescription) {
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('pbr');
-
+    System.__webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
     Config.eventTargetDom = desc.canvas;
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     MemoryManager.createInstanceIfNotCreated({

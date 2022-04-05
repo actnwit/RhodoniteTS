@@ -10,14 +10,13 @@ declare const Rn: typeof _Rn;
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
 
   //-------------------------------
-  Promise.all(promises).then(() => {
+  Promise.all(promises).then(async () => {
     const importer = Rn.Gltf2Importer.getInstance();
-    const system = Rn.System.getInstance();
 
-    const gl = system.setProcessApproachAndCanvas(
-      Rn.ProcessApproach.UniformWebGL1,
-      document.getElementById('world') as HTMLCanvasElement
-    );
+    const gl = await Rn.System.init({
+      approach: Rn.ProcessApproach.UniformWebGL1,
+      canvas: document.getElementById('world') as HTMLCanvasElement,
+    });
 
     // Camera
     const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -90,7 +89,7 @@ declare const Rn: typeof _Rn;
           //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
         }
 
-        system.process([expression]);
+        Rn.System.process([expression]);
         count++;
 
         requestAnimationFrame(draw);

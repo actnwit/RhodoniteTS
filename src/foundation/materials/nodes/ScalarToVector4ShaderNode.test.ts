@@ -10,7 +10,11 @@ import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const constant1 = new ConstantVariableShaderNode(
     CompositionType.Scalar,

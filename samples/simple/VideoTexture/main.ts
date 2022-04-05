@@ -8,13 +8,10 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(
-    Rn.ProcessApproach.FastestWebGL1,
-    document.getElementById('world') as HTMLCanvasElement
-  );
+  const gl = await Rn.System.init({
+    approach: Rn.ProcessApproach.FastestWebGL1,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // Plane
@@ -105,7 +102,7 @@ declare const Rn: typeof _Rn;
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
     texture.updateTexture();
-    system.process([expression]);
+    Rn.System.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

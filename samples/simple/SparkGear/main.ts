@@ -9,11 +9,10 @@ const Module = {
     await moduleManager.loadModule('webgl');
     const sparkgearModule = await moduleManager.loadModule('sparkgear');
 
-    const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(
-      Rn.ProcessApproach.UniformWebGL1,
-      document.getElementById('world') as HTMLCanvasElement
-    );
+    const gl = await Rn.System.init({
+      approach: Rn.ProcessApproach.UniformWebGL1,
+      canvas: document.getElementById('world') as HTMLCanvasElement,
+    });
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -79,7 +78,7 @@ const Module = {
         }
       }
 
-      system.process([expression]);
+      Rn.System.process([expression]);
 
       count++;
       requestAnimationFrame(draw);

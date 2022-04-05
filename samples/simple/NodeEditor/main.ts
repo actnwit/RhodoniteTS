@@ -2,8 +2,11 @@ import _Rn from '../../../dist/esm/index';
 declare const Rn: typeof _Rn;
 
 (async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   const constant1 = new Rn.ConstantVariableShaderNode(
     Rn.CompositionType.Vec4,

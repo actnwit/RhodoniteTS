@@ -7,7 +7,11 @@ import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1);
+  MemoryManager.createInstanceIfNotCreated({
+    cpuGeneric: 1,
+    gpuInstanceData: 1,
+    gpuVertexData: 1,
+  });
 
   // Material.registerMaterial('MyMaterial', undefined);
   const material = Material.createMaterial('MyMaterial')!;
