@@ -27,8 +27,7 @@ document.body.appendChild(p);
   ]);
 
   // gltf
-  const gltfImporter = Rn.GltfImporter.getInstance();
-  const expression = await gltfImporter.import(
+  const expression = await Rn.GltfImporter.import(
     '../../../assets/gltf/glTF-Sample-Models/2.0/MultiUVTest/glTF/MultiUVTest.gltf',
     {
       cameraComponent: cameraComponent,

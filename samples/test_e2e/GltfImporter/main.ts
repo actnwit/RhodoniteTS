@@ -26,8 +26,6 @@ declare const Rn: typeof _Rn;
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  const gltfImporter = Rn.GltfImporter.getInstance();
-
   // params
   const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0]);
 
@@ -43,7 +41,7 @@ declare const Rn: typeof _Rn;
   const expressions = [];
 
   // vrm
-  const vrmExpression = await gltfImporter.import(
+  const vrmExpression = await Rn.GltfImporter.import(
     '../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [

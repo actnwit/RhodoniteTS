@@ -3,9 +3,8 @@ import Gltf2Importer from './Gltf2Importer';
 import {GltfLoadOption} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';
 import {Is} from '../misc/Is';
-import Entity from '../core/Entity';
 import {VRM} from '../../types/VRM';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import {ISceneGraphEntity} from '../helpers/EntityHelper';
 
 /**
  * The VRM Importer class.
@@ -26,9 +25,11 @@ export default class VRMImporter {
   /**
    * Import VRM file.
    */
-  async import(uri: string, options?: GltfLoadOption): Promise<ISceneGraphEntity[]> {
-    const gltfImporter = GltfImporter.getInstance();
-    options = gltfImporter._getOptions(options);
+  async import(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<ISceneGraphEntity[]> {
+    options = GltfImporter._getOptions(options);
 
     const gltf2Importer = Gltf2Importer.getInstance();
     const gltfModel = await gltf2Importer.import(uri, options);
@@ -36,7 +37,7 @@ export default class VRMImporter {
       return [];
     }
 
-    const textures = gltfImporter._createTextures(gltfModel);
+    const textures = GltfImporter._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray;
@@ -44,14 +45,14 @@ export default class VRMImporter {
       defaultMaterialHelperArgumentArray[0].textures = textures;
     }
 
-    gltfImporter._initializeMaterialProperties(gltfModel, textures.length);
+    GltfImporter._initializeMaterialProperties(gltfModel, textures.length);
 
     // setup rootGroup
     let rootGroups;
     const modelConverter = ModelConverter.getInstance();
     const rootGroupMain = modelConverter.convertToRhodoniteObject(gltfModel!);
 
-    const existOutline = gltfImporter._existOutlineMaterial(
+    const existOutline = GltfImporter._existOutlineMaterial(
       gltfModel.extensions.VRM
     );
     if (existOutline) {
@@ -65,8 +66,8 @@ export default class VRMImporter {
     } else {
       rootGroups = [rootGroupMain];
     }
-    gltfImporter._readSpringBone(rootGroupMain, gltfModel as VRM);
-    gltfImporter._readVRMHumanoidInfo(gltfModel as VRM, rootGroupMain);
+    GltfImporter._readSpringBone(rootGroupMain, gltfModel as VRM);
+    GltfImporter._readVRMHumanoidInfo(gltfModel as VRM, rootGroupMain);
 
     return rootGroups;
   }
