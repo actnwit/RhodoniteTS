@@ -6,13 +6,8 @@ declare const Rn: typeof _Rn;
 
 (async () => {
   const promises = [];
-  promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
-  promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
-
   //-------------------------------
   Promise.all(promises).then(async () => {
-    const importer = Rn.Gltf2Importer.getInstance();
-
     const gl = await Rn.System.init({
       approach: Rn.ProcessApproach.UniformWebGL1,
       canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -44,7 +39,7 @@ declare const Rn: typeof _Rn;
     ]);
     //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-    const promise = importer.import(
+    const promise = Rn.Gltf2Importer.import(
       '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
     );
     //    const promise = importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');

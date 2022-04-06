@@ -11,8 +11,6 @@ declare const Rn: typeof _Rn;
 
   //-------------------------------
   Promise.all(promises).then(async () => {
-    const importer = Rn.Gltf2Importer.getInstance();
-
     const gl = await Rn.System.init({
       approach: Rn.ProcessApproach.UniformWebGL1,
       canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -30,7 +28,7 @@ declare const Rn: typeof _Rn;
       0.0, 0, 0.5,
     ]);
 
-    const promise = importer.import(
+    const promise = Rn.Gltf2Importer.import(
       // '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
       '../../../assets/gltf/glTF-Sample-Models/2.0/BrainStem/glTF/BrainStem.gltf'
     );

@@ -6,7 +6,6 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-  const importer = Rn.Gltf2Importer.getInstance();
   const gl = await Rn.System.init({
     approach: Rn.ProcessApproach.FastestWebGL1,
     canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -56,7 +55,7 @@ declare const Rn: typeof _Rn;
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
   //  const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
-  const response = await importer.import(
+  const response = await Rn.Gltf2Importer.import(
     '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
   );
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');

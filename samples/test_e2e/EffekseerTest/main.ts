@@ -33,14 +33,11 @@ declare const Rn: typeof _Rn;
   // };
 
   const moduleManager = Rn.ModuleManager.getInstance();
-  await moduleManager.loadModule('webgl');
-  await moduleManager.loadModule('pbr');
   const effekseerModule = await moduleManager.loadModule('effekseer', {
     // Comment out for WASM version
     // wasm: '../../../vendor/effekseer.wasm',
   });
 
-  const importer = Rn.Gltf2Importer.getInstance();
   const gl = await Rn.System.init({
     approach: Rn.ProcessApproach.UniformWebGL1,
     canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -50,8 +47,6 @@ declare const Rn: typeof _Rn;
       gpuVertexData: 0.3,
     },
   });
-
-  const entityRepository = Rn.EntityRepository.getInstance();
 
   // Effekseer
   const effekseerEntity = effekseerModule.createEffekseerEntity();
@@ -75,7 +70,7 @@ declare const Rn: typeof _Rn;
   cameraComponent.aspect = 1;
 
   // 3D Model for Test
-  const response = await importer.import(
+  const response = await Rn.Gltf2Importer.import(
     '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
   );
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');

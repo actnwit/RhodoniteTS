@@ -132,8 +132,7 @@ declare const Rn: typeof _Rn;
   // ---functions-----------------------------------------------------------------------------------------
 
   async function createEntityGltf2(uriGltf: string) {
-    const importer = Rn.Gltf2Importer.getInstance();
-    const gltf2JSON = await importer.import(uriGltf, {
+    const gltf2JSON = await Rn.Gltf2Importer.import(uriGltf, {
       defaultMaterialHelperArgumentArray: [{makeOutputSrgb: false}],
     });
 

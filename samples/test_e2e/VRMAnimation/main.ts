@@ -24,8 +24,6 @@ declare const Rn: typeof _Rn;
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  const gltf2Importer = Rn.Gltf2Importer.getInstance();
-
   // params
 
   const vrmModelRotation = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
@@ -39,7 +37,7 @@ declare const Rn: typeof _Rn;
   cameraComponent.aspect = 1.0;
 
   // vrm
-  const animGltf2ModelPromise = gltf2Importer.import(
+  const animGltf2ModelPromise = Rn.Gltf2Importer.import(
     '../../../assets/vrm/test.glb'
   );
   const vrmModelPromise = Rn.GltfImporter.importJsonOfVRM(

@@ -52,7 +52,6 @@ const setupRenderPassRendering = function (rootGroup, cameraComponent) {
 let p = null;
 
 const load = async function () {
-  const importer = Rn.Gltf2Importer.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
   const gl = await Rn.System.init({
@@ -83,7 +82,7 @@ const load = async function () {
     Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
-  const response = await importer.import('');
+  const response = await Rn.Gltf2Importer.import('');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
 

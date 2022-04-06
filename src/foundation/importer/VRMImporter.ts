@@ -31,8 +31,7 @@ export default class VRMImporter {
   ): Promise<ISceneGraphEntity[]> {
     options = GltfImporter._getOptions(options);
 
-    const gltf2Importer = Gltf2Importer.getInstance();
-    const gltfModel = await gltf2Importer.import(uri, options);
+    const gltfModel = await Gltf2Importer.import(uri, options);
     if (Is.not.exist(gltfModel)) {
       return [];
     }
