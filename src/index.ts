@@ -86,7 +86,7 @@ import _Component from './foundation/core/Component';
 import _EnvConstantSingleMaterialNode from './foundation/materials/singles/EnvConstantSingleMaterialNode';
 import _ShadowMapDecodeClassicSingleMaterialNode from './foundation/materials/singles/ShadowMapDecodeClassicSingleMaterialNode';
 import _RnObject from './foundation/core/RnObject';
-import _VRMImporter from './foundation/importer/VRMImporter';
+import _VRMImporter from './foundation/importer/VrmImporter';
 import _BlendShapeComponent from './foundation/components/BlendShape/BlendShapeComponent';
 import _AnimationAssigner from './foundation/importer/AnimationAssigner';
 import {MiscUtil as _MiscUtil} from './foundation/misc/MiscUtil';

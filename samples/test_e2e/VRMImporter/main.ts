@@ -40,7 +40,7 @@ declare const Rn: typeof _Rn;
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-  const rootGroups = await Rn.VRMImporter.import(
+  const rootGroups = await Rn.VrmImporter.import(
     '../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [{isLighting: true}],
