@@ -56,8 +56,7 @@ declare const Rn: typeof _Rn;
       pointCloudDrcUri
     )) as RnM2;
 
-    const modelConverter = Rn.ModelConverter.getInstance();
-    const rootGroup = modelConverter.convertToRhodoniteObject(gltf2JSON);
+    const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
     return rootGroup as IMeshEntity;
   }
 

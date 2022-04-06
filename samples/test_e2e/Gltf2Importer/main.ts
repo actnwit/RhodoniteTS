@@ -45,8 +45,7 @@ declare const Rn: typeof _Rn;
     //    const promise = importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');
     //---------------------------
     promise.then(response => {
-      const modelConverter = Rn.ModelConverter.getInstance();
-      const rootGroup = modelConverter.convertToRhodoniteObject(response);
+      const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
       //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
       rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 

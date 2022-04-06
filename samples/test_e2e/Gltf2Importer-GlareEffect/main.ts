@@ -136,8 +136,7 @@ declare const Rn: typeof _Rn;
       defaultMaterialHelperArgumentArray: [{makeOutputSrgb: false}],
     });
 
-    const modelConverter = Rn.ModelConverter.getInstance();
-    const rootGroup = modelConverter.convertToRhodoniteObject(gltf2JSON);
+    const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
     rootGroup.getTransform().scale = rootGroupScale;
     return rootGroup;
   }

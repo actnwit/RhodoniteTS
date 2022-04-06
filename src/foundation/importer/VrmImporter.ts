@@ -39,8 +39,7 @@ export default class VrmImporter {
 
     // setup rootGroup
     let rootGroups;
-    const modelConverter = ModelConverter.getInstance();
-    const rootGroupMain = modelConverter.convertToRhodoniteObject(gltfModel!);
+    const rootGroupMain = ModelConverter.convertToRhodoniteObject(gltfModel!);
 
     const existOutline = GltfImporter._existOutlineMaterial(
       gltfModel.extensions.VRM
@@ -50,7 +49,7 @@ export default class VrmImporter {
         defaultMaterialHelperArgumentArray[0].isOutline = true;
       }
       const rootGroupOutline =
-        modelConverter.convertToRhodoniteObject(gltfModel);
+        ModelConverter.convertToRhodoniteObject(gltfModel);
 
       rootGroups = [rootGroupMain, rootGroupOutline];
     } else {

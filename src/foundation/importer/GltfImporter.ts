@@ -285,7 +285,6 @@ export default class GltfImporter {
     );
 
     return new Promise((resolve, reject) => {
-      const modelConverter = ModelConverter.getInstance();
       const fileArrayBuffer = options.files![fileName];
       options.isImportVRM = false;
       let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
@@ -305,7 +304,7 @@ export default class GltfImporter {
               .importGltf(json, options.files!, options, fileName)
               .then(gltfModel => {
                 const rootGroup =
-                  modelConverter.convertToRhodoniteObject(gltfModel);
+                  ModelConverter.convertToRhodoniteObject(gltfModel);
                 renderPasses[0].addEntities([rootGroup]);
                 resolve();
               });
@@ -324,7 +323,7 @@ export default class GltfImporter {
               .importGlb(fileArrayBuffer, options.files!, options)
               .then(gltfModel => {
                 const rootGroup =
-                  modelConverter.convertToRhodoniteObject(gltfModel);
+                  ModelConverter.convertToRhodoniteObject(gltfModel);
                 renderPasses[0].addEntities([rootGroup]);
                 resolve();
               });
@@ -342,7 +341,7 @@ export default class GltfImporter {
                   reject();
                 } else {
                   const rootGroup =
-                    modelConverter.convertToRhodoniteObject(gltfModel);
+                    ModelConverter.convertToRhodoniteObject(gltfModel);
                   renderPasses[0].addEntities([rootGroup]);
                   resolve();
                 }
@@ -408,7 +407,6 @@ export default class GltfImporter {
       }
 
       let rootGroup;
-      const modelConverter = ModelConverter.getInstance();
       const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
       if (existOutline) {
         renderPasses[1] = renderPasses[1] ?? new RenderPass();
@@ -419,10 +417,10 @@ export default class GltfImporter {
           renderPassOutline: renderPassOutline,
         };
 
-        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+        rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPassOutline.addEntities([rootGroup]);
       } else {
-        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+        rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
       }
 
       const renderPassMain = renderPasses[0];
