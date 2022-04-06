@@ -13,7 +13,6 @@ declare const Rn: typeof _Rn;
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  const VRMImporter = Rn.VRMImporter.getInstance();
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // params
@@ -87,7 +86,7 @@ declare const Rn: typeof _Rn;
   ]);
 
   // rootGroups[0]: main entity, rootGroups[1]: outline entity(if exist)
-  const rootGroups = await VRMImporter.import(
+  const rootGroups = await Rn.VRMImporter.import(
     './../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [

@@ -11,21 +11,12 @@ import {ISceneGraphEntity} from '../helpers/EntityHelper';
  * This class will be integrated into GltfImporter.
  */
 export default class VRMImporter {
-  private static __instance: VRMImporter;
-
   private constructor() {}
-
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new VRMImporter();
-    }
-    return this.__instance;
-  }
 
   /**
    * Import VRM file.
    */
-  async import(
+  public static async import(
     uri: string,
     options?: GltfLoadOption
   ): Promise<ISceneGraphEntity[]> {
