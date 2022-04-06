@@ -145,10 +145,12 @@ export default class WebXRSystem {
    */
   async enterWebXR({
     initialUserPosition,
+    callbackOnXrSessionStart = () => {},
     callbackOnXrSessionEnd = () => {},
     profilePriorities = [],
   }: {
     initialUserPosition?: Vector3;
+    callbackOnXrSessionStart: Function;
     callbackOnXrSessionEnd: Function;
     profilePriorities: string[];
   }) {
@@ -205,7 +207,7 @@ export default class WebXRSystem {
           initialUserPosition ?? defaultUserPositionInVR;
       }
       this.__xrReferenceSpace = referenceSpace;
-      await this.__setupWebGLLayer(session);
+      await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebXR = true;
       System.stopRenderLoop();
       System.restartRenderLoop();
@@ -572,7 +574,10 @@ export default class WebXRSystem {
     this.__rightCameraEntity.getTransform()!.matrix = rotateMatRight;
   }
 
-  private async __setupWebGLLayer(xrSession: XRSession) {
+  private async __setupWebGLLayer(
+    xrSession: XRSession,
+    callbackOnXrSessionStart: Function
+    ) {
     const gl = this.__glw?.getRawContext();
 
     if (gl != null) {
@@ -601,6 +606,7 @@ export default class WebXRSystem {
         this.__canvasWidthForVR,
         this.__canvasHeightForVR
       );
+      callbackOnXrSessionStart();
     } else {
       console.error('WebGL context is not ready for WebXR.');
     }
