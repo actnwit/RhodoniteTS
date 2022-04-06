@@ -158,12 +158,6 @@ export default class WebXRSystem {
       CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
-    // if (this.__xrSession != null) {
-    //   this.__requestedToEnterWebXR = true;
-    //   this.__isWebXRMode = true;
-    //   return true;
-    // }
-
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
       const session = (await navigator.xr.requestSession(
@@ -172,6 +166,7 @@ export default class WebXRSystem {
       this.__xrSession = session;
 
       session.addEventListener('end', () => {
+        glw.__gl.bindFramebuffer(glw.__gl.FRAMEBUFFER, null);
         this.__xrSession = undefined;
         this.__webglLayer = undefined;
         this.__xrViewerPose = undefined;
@@ -220,17 +215,9 @@ export default class WebXRSystem {
   }
 
   /**
-   * exit from WebXR
-   */
-  exitWebXR() {
-    this.__requestedToEnterWebXR = false;
-    this.__isWebXRMode = false;
-  }
-
-  /**
    * Disable WebXR (Close the XrSession)
    */
-  async disableWebXR() {
+  async exitWebXR() {
     if (this.__xrSession != null) {
       // End the XR session now.
       await this.__xrSession.end();
