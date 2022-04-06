@@ -297,7 +297,7 @@ export default class GltfImporter {
             glTFVer = this.__getGltfVersion(json);
             let importer;
             if (glTFVer === 1) {
-              importer = Gltf1Importer.getInstance();
+              importer = Gltf1Importer;
             } else {
               importer = Gltf2Importer;
             }
@@ -316,7 +316,7 @@ export default class GltfImporter {
             glTFVer = this.__getGlbVersion(fileArrayBuffer);
             let importer;
             if (glTFVer === 1) {
-              importer = Gltf1Importer.getInstance();
+              importer = Gltf1Importer;
             } else {
               importer = Gltf2Importer;
             }
