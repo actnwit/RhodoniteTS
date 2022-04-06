@@ -90,22 +90,9 @@ declare let DracoDecoderModule: any;
  * A converter class from glTF2 model to Rhodonite Native data
  */
 export default class ModelConverter {
-  private static __instance: ModelConverter;
-
   private constructor() {}
 
-  /**
-   * The static method to get singleton instance of this class.
-   * @return The singleton instance of ModelConverter class
-   */
-  static getInstance(): ModelConverter {
-    if (!this.__instance) {
-      this.__instance = new ModelConverter();
-    }
-    return this.__instance;
-  }
-
-  _getDefaultShader(options: GltfLoadOption) {
+  static _getDefaultShader(options: GltfLoadOption) {
     const defaultShader = null;
 
     // if (options && typeof options.defaultShaderClass !== "undefined") {
@@ -119,13 +106,13 @@ export default class ModelConverter {
     return defaultShader;
   }
 
-  private __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
+  private static __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
     const entity = EntityHelper.createGroupEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
-  private addTags(entity: ISceneGraphEntity, gltfModel: RnM2) {
+  private static addTags(entity: ISceneGraphEntity, gltfModel: RnM2) {
     entity.tryToSetTag({
       tag: 'SourceType',
       value: gltfModel.asset.extras!.fileType!,
@@ -136,25 +123,25 @@ export default class ModelConverter {
     });
   }
 
-  private __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
+  private static __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
     const entity = EntityHelper.createMeshEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
-  private __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
+  private static __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
     const entity = EntityHelper.createCameraEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
-  private __generateLightEntity(gltfModel: RnM2): ILightEntity {
+  private static __generateLightEntity(gltfModel: RnM2): ILightEntity {
     const entity = EntityHelper.createLightEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
-  convertToRhodoniteObject(gltfModel: RnM2) {
+  static convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.createRnBuffer(gltfModel);
@@ -218,9 +205,9 @@ export default class ModelConverter {
     return rootGroup;
   }
 
-  _setupCamera(gltfModel: RnM2) {}
+  static _setupCamera(gltfModel: RnM2) {}
 
-  private createRnBuffer(gltfModel: RnM2): Buffer[] {
+  private static createRnBuffer(gltfModel: RnM2): Buffer[] {
     const rnBuffers = [];
     for (const buffer of gltfModel.buffers) {
       const rnBuffer = new Buffer({
@@ -234,7 +221,7 @@ export default class ModelConverter {
     return rnBuffers;
   }
 
-  _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]) {
+  static _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]) {
     for (const node_i in gltfModel.nodes) {
       const group = groups[node_i];
       const nodeJson = gltfModel.nodes[node_i];
@@ -267,7 +254,7 @@ export default class ModelConverter {
     }
   }
 
-  _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
+  static _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
     const groupSceneComponents = rnEntities.map(group => {
       return group.getSceneGraph()!;
     });
@@ -288,7 +275,7 @@ export default class ModelConverter {
   /**
    * @private
    */
-  _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
+  static _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
@@ -358,7 +345,7 @@ export default class ModelConverter {
     }
   }
 
-  _setupSkeleton(
+  static _setupSkeleton(
     gltfModel: RnM2,
     rnEntities: ISceneGraphEntity[],
     rnBuffers: Buffer[]
@@ -410,10 +397,11 @@ export default class ModelConverter {
         const inverseBindMatAccessor =
           node.skinObject.inverseBindMatricesObject;
         if (Is.exist(inverseBindMatAccessor)) {
-          const rnBufferOfInverseBindMatAccessor = this.__getRnBufferViewAndRnAccessor(
-            inverseBindMatAccessor,
-            rnBuffers[inverseBindMatAccessor.bufferViewObject!.buffer!]
-          );
+          const rnBufferOfInverseBindMatAccessor =
+            this.__getRnBufferViewAndRnAccessor(
+              inverseBindMatAccessor,
+              rnBuffers[inverseBindMatAccessor.bufferViewObject!.buffer!]
+            );
           skeletalComponent!.setInverseBindMatricesAccessor(
             rnBufferOfInverseBindMatAccessor
           );
@@ -422,7 +410,7 @@ export default class ModelConverter {
     }
   }
 
-  private __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
+  private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
     const rnEntities: ISceneGraphEntity[] = [];
     const rnEntitiesByNames: Map<String, IEntity> = new Map();
 
@@ -496,7 +484,7 @@ export default class ModelConverter {
     return {rnEntities, rnEntitiesByNames};
   }
 
-  private __isMorphing(node: RnM2Node, gltfModel: RnM2) {
+  private static __isMorphing(node: RnM2Node, gltfModel: RnM2) {
     const argument =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -507,7 +495,7 @@ export default class ModelConverter {
     }
   }
 
-  private __setupLight(
+  private static __setupLight(
     light: KHR_lights_punctual_Light,
     gltfModel: RnM2
   ): ILightEntity {
@@ -534,7 +522,10 @@ export default class ModelConverter {
     return lightEntity as ILightEntity;
   }
 
-  private __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
+  private static __setupCamera(
+    camera: RnM2Camera,
+    gltfModel: RnM2
+  ): ICameraEntity {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getCamera();
     cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
@@ -568,7 +559,7 @@ export default class ModelConverter {
     return cameraEntity as ICameraEntity;
   }
 
-  private __setupMesh(
+  private static __setupMesh(
     node: RnM2Node,
     mesh: RnM2Mesh,
     meshIndex: Index,
@@ -732,7 +723,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor) {
+  static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor) {
     const uint8Array: Uint8Array =
       accessor.bufferViewObject!.bufferObject!.buffer!;
     const count = accessor.sparse!.count;
@@ -863,7 +854,7 @@ export default class ModelConverter {
     }
   }
 
-  private __setVRMMaterial(
+  private static __setVRMMaterial(
     rnPrimitive: Primitive,
     node: RnM2Node,
     gltfModel: RnM2,
@@ -952,7 +943,7 @@ export default class ModelConverter {
     return undefined;
   }
 
-  private __generateAppropriateMaterial(
+  private static __generateAppropriateMaterial(
     rnPrimitive: Primitive,
     node: RnM2Node,
     gltfModel: RnM2,
@@ -1038,7 +1029,7 @@ export default class ModelConverter {
     }
   }
 
-  private __isLighting(gltfModel: RnM2, materialJson?: RnM2Material) {
+  private static __isLighting(gltfModel: RnM2, materialJson?: RnM2Material) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1051,7 +1042,7 @@ export default class ModelConverter {
     }
   }
 
-  private __isSkinning(node: RnM2Node, gltfModel: RnM2) {
+  private static __isSkinning(node: RnM2Node, gltfModel: RnM2) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1062,7 +1053,10 @@ export default class ModelConverter {
     }
   }
 
-  private __useTangentAttribute(gltfModel: RnM2, primitive: RnM2Primitive) {
+  private static __useTangentAttribute(
+    gltfModel: RnM2,
+    primitive: RnM2Primitive
+  ) {
     const tangentCalculationMode =
       gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode;
 
@@ -1088,7 +1082,7 @@ export default class ModelConverter {
     return false;
   }
 
-  private __useNormalTexture(gltfModel: RnM2) {
+  private static __useNormalTexture(gltfModel: RnM2) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
@@ -1101,14 +1095,14 @@ export default class ModelConverter {
     }
   }
 
-  private __makeOutputSrgb(gltfModel: RnM2) {
+  private static __makeOutputSrgb(gltfModel: RnM2) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray![0];
     return argument?.makeOutputSrgb as boolean | undefined;
   }
 
-  private __getMaterialHash(
+  private static __getMaterialHash(
     node: RnM2Node,
     gltfModel: RnM2,
     primitive: RnM2Primitive,
@@ -1127,7 +1121,7 @@ export default class ModelConverter {
     );
   }
 
-  private __setupMaterial(
+  private static __setupMaterial(
     rnPrimitive: Primitive,
     node: RnM2Node,
     gltfModel: RnM2,
@@ -1491,7 +1485,7 @@ export default class ModelConverter {
     }
   }
 
-  private __needParameterInitialization(
+  private static __needParameterInitialization(
     materialJson: RnM2Material,
     materialTypeName: string
   ): boolean {
@@ -1507,7 +1501,7 @@ export default class ModelConverter {
     }
   }
 
-  private _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
+  private static _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
     if (gltfModel.asset.extras?.rnLoaderOptions) {
       return true;
     } else {
@@ -1515,7 +1509,7 @@ export default class ModelConverter {
     }
   }
 
-  private __rewrapWithTypedArray(
+  private static __rewrapWithTypedArray(
     typedArrayClass: TypedArrayConstructor,
     uint8Array: Uint8Array,
     byteOffset: Byte,
@@ -1528,7 +1522,7 @@ export default class ModelConverter {
     );
   }
 
-  _checkBytesPerComponent(accessor: RnM2Accessor | RnM2SparseIndices) {
+  static _checkBytesPerComponent(accessor: RnM2Accessor | RnM2SparseIndices) {
     let bytesPerComponent = 0;
     switch (accessor.componentType) {
       case 5120: // gl.BYTE
@@ -1558,7 +1552,7 @@ export default class ModelConverter {
     return bytesPerComponent;
   }
 
-  _checkComponentNumber(accessor: RnM2Accessor) {
+  static _checkComponentNumber(accessor: RnM2Accessor) {
     let componentN = 0;
     switch (accessor.type) {
       case 'SCALAR':
@@ -1581,7 +1575,7 @@ export default class ModelConverter {
     return componentN;
   }
 
-  _checkDataViewMethod(accessor: RnM2Accessor | RnM2SparseIndices) {
+  static _checkDataViewMethod(accessor: RnM2Accessor | RnM2SparseIndices) {
     let dataViewMethod = '';
     switch (accessor.componentType) {
       case 5120: // gl.BYTE
@@ -1615,7 +1609,7 @@ export default class ModelConverter {
     return !!new Uint8Array(new Uint16Array([0x00ff]).buffer)[0];
   }
 
-  _readBinaryFromAccessorAndSetItToAccessorExtras(
+  static _readBinaryFromAccessorAndSetItToAccessorExtras(
     accessor: RnM2Accessor
   ): Float32Array {
     const bufferView = accessor.bufferViewObject!;
@@ -1769,7 +1763,7 @@ export default class ModelConverter {
    * @param numberArray
    * @returns
    */
-  private __normalizeTypedArrayToFloat32Array(
+  private static __normalizeTypedArrayToFloat32Array(
     dataViewMethod: string,
     numberArray: number[] | TypedArray
   ): Float32Array {
@@ -1805,7 +1799,7 @@ export default class ModelConverter {
     }
   }
 
-  private __addOffsetToIndices(meshComponent: MeshComponent) {
+  private static __addOffsetToIndices(meshComponent: MeshComponent) {
     const primitiveNumber = meshComponent.mesh!.getPrimitiveNumber();
     let offsetSum = 0;
     for (let i = 0; i < primitiveNumber; i++) {
@@ -1829,7 +1823,10 @@ export default class ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  private __getRnAccessor(accessor: RnM2Accessor, rnBufferView: BufferView) {
+  private static __getRnAccessor(
+    accessor: RnM2Accessor,
+    rnBufferView: BufferView
+  ) {
     const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
       compositionType: CompositionType.fromString(accessor.type),
       componentType: ComponentType.from(accessor.componentType),
@@ -1851,7 +1848,7 @@ export default class ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  private __getRnBufferViewAndRnAccessor(
+  private static __getRnBufferViewAndRnAccessor(
     accessor: RnM2Accessor,
     rnBuffer: Buffer
   ) {
@@ -1876,7 +1873,7 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
+  private static __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
     const byteSize = srcRnAccessor.elementCount * 3 /* vec4 */ * 4; /* bytes */
     const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(
       BufferUse.GPUVertexData
@@ -1900,7 +1897,7 @@ export default class ModelConverter {
     return dstRnAccessor;
   }
 
-  private __takeRnBufferViewAndRnAccessorForDraco(
+  private static __takeRnBufferViewAndRnAccessorForDraco(
     accessor: RnM2Accessor,
     numOfAttributes: Count,
     compositionNum: Count,
@@ -1925,7 +1922,10 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __getRnBufferView(rnm2bufferView: RnM2BufferView, rnBuffer: Buffer) {
+  private static __getRnBufferView(
+    rnm2bufferView: RnM2BufferView,
+    rnBuffer: Buffer
+  ) {
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: rnm2bufferView.byteLength,
       byteStride: rnm2bufferView.byteStride ?? 0,
@@ -1935,7 +1935,7 @@ export default class ModelConverter {
     return rnBufferView;
   }
 
-  private __getGeometryFromDracoBuffer(
+  private static __getGeometryFromDracoBuffer(
     draco: any,
     decoder: any,
     arrayBuffer: ArrayBuffer
@@ -1971,7 +1971,7 @@ export default class ModelConverter {
     return dracoGeometry;
   }
 
-  __getIndicesFromDraco(
+  static __getIndicesFromDraco(
     draco: any,
     decoder: any,
     dracoGeometry: any,
@@ -2011,7 +2011,7 @@ export default class ModelConverter {
     return indices;
   }
 
-  private __decodeDraco(
+  private static __decodeDraco(
     primitive: RnM2Primitive,
     rnBuffers: Buffer[],
     gltfModel: RnM2,
@@ -2196,7 +2196,7 @@ export default class ModelConverter {
     }
   }
 
-  private __createBufferForDecompressedData(
+  private static __createBufferForDecompressedData(
     primitive: RnM2Primitive,
     numPoints: number
   ): Buffer {

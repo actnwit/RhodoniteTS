@@ -109,8 +109,7 @@ declare const Rn: typeof _Rn;
 
   async function createEntityGltf2(uriGltf: string) {
     const gltf2JSON = await Rn.Gltf2Importer.import(uriGltf);
-    const modelConverter = Rn.ModelConverter.getInstance();
-    const entityRootGroup = modelConverter.convertToRhodoniteObject(gltf2JSON);
+    const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 
     const transformComponent = entityRootGroup.getTransform();
     transformComponent.scale = rootGroupScale;

@@ -74,8 +74,7 @@ declare const Rn: typeof _Rn;
     '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
   );
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
-  const modelConverter = Rn.ModelConverter.getInstance();
-  const rootGroup = modelConverter.convertToRhodoniteObject(response);
+  const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
   // const sphereEntity = createSphere();
 
   // CameraComponent

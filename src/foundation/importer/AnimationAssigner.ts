@@ -86,7 +86,11 @@ export default class AnimationAssigner {
     }
   }
 
-  private __isHips(rootEntity: ISceneGraphEntity, vrmModel: VRM, nodeIndex: Index) {
+  private __isHips(
+    rootEntity: ISceneGraphEntity,
+    vrmModel: VRM,
+    nodeIndex: Index
+  ) {
     const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
     const srcMapNodeIdName: Map<number, string> = new Map();
     for (const bone of humanBones) {
@@ -110,14 +114,12 @@ export default class AnimationAssigner {
     isSameSkeleton: boolean
   ) {
     if (gltfModel.animations) {
-      const modelConverter = ModelConverter.getInstance();
-
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          modelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
             sampler.inputObject!
           );
-          modelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
             sampler.outputObject!
           );
         }

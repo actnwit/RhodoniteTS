@@ -83,8 +83,7 @@ const load = async function () {
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
   const response = await Rn.Gltf2Importer.import('');
-  const modelConverter = Rn.ModelConverter.getInstance();
-  const rootGroup = modelConverter.convertToRhodoniteObject(response);
+  const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
 
   const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(
     rootGroup,

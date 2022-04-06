@@ -161,8 +161,7 @@ declare const Rn: typeof _Rn;
     const gltf2JSON = await Rn.Gltf2Importer.import(uriGltf, {
       defaultMaterialHelperArgumentArray: [{makeOutputSrgb: false}],
     });
-    const modelConverter = Rn.ModelConverter.getInstance();
-    const entityRootGroup = modelConverter.convertToRhodoniteObject(gltf2JSON);
+    const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
     return entityRootGroup;
   }
 
