@@ -86,7 +86,7 @@ import _Component from './foundation/core/Component';
 import _EnvConstantSingleMaterialNode from './foundation/materials/singles/EnvConstantSingleMaterialNode';
 import _ShadowMapDecodeClassicSingleMaterialNode from './foundation/materials/singles/ShadowMapDecodeClassicSingleMaterialNode';
 import _RnObject from './foundation/core/RnObject';
-import _VRMImporter from './foundation/importer/VrmImporter';
+import _VrmImporter from './foundation/importer/VrmImporter';
 import _BlendShapeComponent from './foundation/components/BlendShape/BlendShapeComponent';
 import _AnimationAssigner from './foundation/importer/AnimationAssigner';
 import {MiscUtil as _MiscUtil} from './foundation/misc/MiscUtil';
@@ -294,7 +294,7 @@ export default {
   ShadowMapDecodeClassicSingleMaterialNode:
     _ShadowMapDecodeClassicSingleMaterialNode,
   RnObject: _RnObject,
-  VRMImporter: _VRMImporter,
+  VrmImporter: _VrmImporter,
   BlendShapeComponent: _BlendShapeComponent,
   AnimationAssigner: _AnimationAssigner,
   MiscUtil: _MiscUtil,
@@ -451,7 +451,7 @@ export type EnvConstantSingleMaterialNode = _EnvConstantSingleMaterialNode;
 export type ShadowMapDecodeClassicSingleMaterialNode =
   _ShadowMapDecodeClassicSingleMaterialNode;
 export type RnObject = _RnObject;
-export type VRMImporter = _VRMImporter;
+export type VrmImporter = _VrmImporter;
 export type BlendShapeComponent = _BlendShapeComponent;
 export type AnimationAssigner = _AnimationAssigner;
 export type MiscUtil = typeof _MiscUtil;
