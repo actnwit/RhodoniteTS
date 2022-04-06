@@ -39,8 +39,7 @@ export default class GltfImporter {
   ): Promise<VRM | undefined> {
     options = this._getOptions(options);
 
-    const gltf2Importer = Gltf2Importer.getInstance();
-    const gltfModel = await gltf2Importer.import(uri, options);
+    const gltfModel = await Gltf2Importer.import(uri, options);
     if (Is.not.exist(gltfModel)) {
       return undefined;
     }
@@ -298,9 +297,9 @@ export default class GltfImporter {
             glTFVer = this.__getGltfVersion(json);
             let importer;
             if (glTFVer === 1) {
-              importer = Gltf1Importer.getInstance();
+              importer = Gltf1Importer;
             } else {
-              importer = Gltf2Importer.getInstance();
+              importer = Gltf2Importer;
             }
             importer
               .importGltf(json, options.files!, options, fileName)
@@ -317,9 +316,9 @@ export default class GltfImporter {
             glTFVer = this.__getGlbVersion(fileArrayBuffer);
             let importer;
             if (glTFVer === 1) {
-              importer = Gltf1Importer.getInstance();
+              importer = Gltf1Importer;
             } else {
-              importer = Gltf2Importer.getInstance();
+              importer = Gltf2Importer;
             }
             importer
               .importGlb(fileArrayBuffer, options.files!, options)
@@ -386,53 +385,52 @@ export default class GltfImporter {
     renderPasses: RenderPass[],
     options: GltfLoadOption
   ): Promise<void> {
-    const gltf2Importer = Gltf2Importer.getInstance();
-    return gltf2Importer
-      .importGltfOrGlbFromArrayBuffers(file, options.files!, options)
-      .then(gltfModel_ => {
-        const gltfModel = gltfModel_!;
-        const defaultMaterialHelperArgumentArray =
-          gltfModel.asset.extras?.rnLoaderOptions
-            ?.defaultMaterialHelperArgumentArray;
-        if (Is.exist(defaultMaterialHelperArgumentArray)) {
-          defaultMaterialHelperArgumentArray[0].textures =
-            defaultMaterialHelperArgumentArray[0].textures ??
-            this._createTextures(gltfModel);
-          defaultMaterialHelperArgumentArray[0].isLighting =
-            defaultMaterialHelperArgumentArray[0].isLighting ?? true;
+    return Gltf2Importer.importGltfOrGlbFromArrayBuffers(
+      file,
+      options.files!,
+      options
+    ).then(gltfModel_ => {
+      const gltfModel = gltfModel_!;
+      const defaultMaterialHelperArgumentArray =
+        gltfModel.asset.extras?.rnLoaderOptions
+          ?.defaultMaterialHelperArgumentArray;
+      if (Is.exist(defaultMaterialHelperArgumentArray)) {
+        defaultMaterialHelperArgumentArray[0].textures =
+          defaultMaterialHelperArgumentArray[0].textures ??
+          this._createTextures(gltfModel);
+        defaultMaterialHelperArgumentArray[0].isLighting =
+          defaultMaterialHelperArgumentArray[0].isLighting ?? true;
 
-          this._initializeMaterialProperties(
-            gltfModel,
-            defaultMaterialHelperArgumentArray[0].textures.length
-          );
-        }
-
-        let rootGroup;
-        const modelConverter = ModelConverter.getInstance();
-        const existOutline = this._existOutlineMaterial(
-          gltfModel.extensions.VRM
+        this._initializeMaterialProperties(
+          gltfModel,
+          defaultMaterialHelperArgumentArray[0].textures.length
         );
-        if (existOutline) {
-          renderPasses[1] = renderPasses[1] ?? new RenderPass();
-          const renderPassOutline = renderPasses[1];
-          renderPassOutline.toClearColorBuffer = false;
-          renderPassOutline.toClearDepthBuffer = false;
-          gltfModel.extensions.VRM.rnExtension = {
-            renderPassOutline: renderPassOutline,
-          };
+      }
 
-          rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-          renderPassOutline.addEntities([rootGroup]);
-        } else {
-          rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-        }
+      let rootGroup;
+      const modelConverter = ModelConverter.getInstance();
+      const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
+      if (existOutline) {
+        renderPasses[1] = renderPasses[1] ?? new RenderPass();
+        const renderPassOutline = renderPasses[1];
+        renderPassOutline.toClearColorBuffer = false;
+        renderPassOutline.toClearDepthBuffer = false;
+        gltfModel.extensions.VRM.rnExtension = {
+          renderPassOutline: renderPassOutline,
+        };
 
-        const renderPassMain = renderPasses[0];
-        renderPassMain.addEntities([rootGroup]);
+        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+        renderPassOutline.addEntities([rootGroup]);
+      } else {
+        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+      }
 
-        this._readSpringBone(rootGroup, gltfModel as VRM);
-        this._readVRMHumanoidInfo(gltfModel as VRM, rootGroup);
-      });
+      const renderPassMain = renderPasses[0];
+      renderPassMain.addEntities([rootGroup]);
+
+      this._readSpringBone(rootGroup, gltfModel as VRM);
+      this._readVRMHumanoidInfo(gltfModel as VRM, rootGroup);
+    });
   }
 
   static _getOptions(options?: GltfLoadOption): GltfLoadOption {

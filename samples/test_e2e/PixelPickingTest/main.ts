@@ -68,7 +68,6 @@ const pick = function (e: any) {
 let p: any;
 
 (async () => {
-  const importer = Rn.Gltf1Importer.getInstance();
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
 
@@ -116,7 +115,7 @@ let p: any;
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
   //  const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
-  const response = await importer.import(
+  const response = await Rn.Gltf1Importer.import(
     '../../../assets/gltf/glTF-Sample-Models/1.0/BoxAnimated/glTF/BoxAnimated.gltf'
   );
   //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');

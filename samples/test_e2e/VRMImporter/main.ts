@@ -7,15 +7,10 @@ declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {
-
-
-
   const gl = await Rn.System.init({
     approach: Rn.ProcessApproach.FastestWebGL1,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
-
-  const importer = Rn.VRMImporter.getInstance();
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -45,10 +40,13 @@ declare const Rn: typeof _Rn;
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-  const rootGroups = await importer.import('../../../assets/vrm/test.vrm', {
-    defaultMaterialHelperArgumentArray: [{isLighting: true}],
-    tangentCalculationMode: 0,
-  });
+  const rootGroups = await Rn.VrmImporter.import(
+    '../../../assets/vrm/test.vrm',
+    {
+      defaultMaterialHelperArgumentArray: [{isLighting: true}],
+      tangentCalculationMode: 0,
+    }
+  );
   //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 
   for (const rootGroup of rootGroups) {

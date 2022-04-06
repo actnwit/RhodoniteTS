@@ -34,9 +34,8 @@ const Module = {
       0.0, 0, 3,
     ]);
 
-    const importer = Rn.Gltf2Importer.getInstance();
     const modelConverter = Rn.ModelConverter.getInstance();
-    const response = await importer.import(
+    const response = await Rn.Gltf2Importer.import(
       '../../../assets/gltf/glTF-Sample-Models/2.0/BrainStem/glTF/BrainStem.gltf'
     );
     //    const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
