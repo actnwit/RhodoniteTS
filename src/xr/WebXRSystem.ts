@@ -158,11 +158,11 @@ export default class WebXRSystem {
       CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
-    if (this.__xrSession != null) {
-      this.__requestedToEnterWebXR = true;
-      this.__isWebXRMode = true;
-      return true;
-    }
+    // if (this.__xrSession != null) {
+    //   this.__requestedToEnterWebXR = true;
+    //   this.__isWebXRMode = true;
+    //   return true;
+    // }
 
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
