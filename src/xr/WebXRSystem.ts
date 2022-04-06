@@ -145,22 +145,18 @@ export default class WebXRSystem {
    */
   async enterWebXR({
     initialUserPosition,
+    callbackOnXrSessionStart = () => {},
     callbackOnXrSessionEnd = () => {},
     profilePriorities = [],
   }: {
     initialUserPosition?: Vector3;
+    callbackOnXrSessionStart: Function;
     callbackOnXrSessionEnd: Function;
     profilePriorities: string[];
   }) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
-
-    if (this.__xrSession != null) {
-      this.__requestedToEnterWebXR = true;
-      this.__isWebXRMode = true;
-      return true;
-    }
 
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
@@ -170,6 +166,7 @@ export default class WebXRSystem {
       this.__xrSession = session;
 
       session.addEventListener('end', () => {
+        glw.__gl.bindFramebuffer(glw.__gl.FRAMEBUFFER, null);
         this.__xrSession = undefined;
         this.__webglLayer = undefined;
         this.__xrViewerPose = undefined;
@@ -205,7 +202,7 @@ export default class WebXRSystem {
           initialUserPosition ?? defaultUserPositionInVR;
       }
       this.__xrReferenceSpace = referenceSpace;
-      await this.__setupWebGLLayer(session);
+      await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebXR = true;
       System.stopRenderLoop();
       System.restartRenderLoop();
@@ -218,17 +215,9 @@ export default class WebXRSystem {
   }
 
   /**
-   * exit from WebXR
-   */
-  exitWebXR() {
-    this.__requestedToEnterWebXR = false;
-    this.__isWebXRMode = false;
-  }
-
-  /**
    * Disable WebXR (Close the XrSession)
    */
-  async disableWebXR() {
+  async exitWebXR() {
     if (this.__xrSession != null) {
       // End the XR session now.
       await this.__xrSession.end();
@@ -572,7 +561,10 @@ export default class WebXRSystem {
     this.__rightCameraEntity.getTransform()!.matrix = rotateMatRight;
   }
 
-  private async __setupWebGLLayer(xrSession: XRSession) {
+  private async __setupWebGLLayer(
+    xrSession: XRSession,
+    callbackOnXrSessionStart: Function
+    ) {
     const gl = this.__glw?.getRawContext();
 
     if (gl != null) {
@@ -601,6 +593,7 @@ export default class WebXRSystem {
         this.__canvasWidthForVR,
         this.__canvasHeightForVR
       );
+      callbackOnXrSessionStart();
     } else {
       console.error('WebGL context is not ready for WebXR.');
     }
