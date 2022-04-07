@@ -289,8 +289,6 @@ export default class ModelConverter {
       }
     }
 
-    const entityRepository = EntityRepository.getInstance();
-
     if (Is.exist(gltfModel.animations) && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
@@ -318,7 +316,7 @@ export default class ModelConverter {
             if (Is.exist(rnEntity)) {
               let animationComponent = rnEntity.tryToGetAnimation();
               if (Is.not.exist(animationComponent)) {
-                const newRnEntity = entityRepository.addComponentToEntity(
+                const newRnEntity = EntityRepository.addComponentToEntity(
                   AnimationComponent,
                   rnEntity
                 );
@@ -354,14 +352,13 @@ export default class ModelConverter {
       return;
     }
 
-    const entityRepository = EntityRepository.getInstance();
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[node_i];
       const sg = rnEntities[node_i].getSceneGraph()!;
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
-        const newRnEntity = entityRepository.addComponentToEntity(
+        const newRnEntity = EntityRepository.addComponentToEntity(
           SkeletalComponent,
           rnEntity
         );
@@ -461,8 +458,7 @@ export default class ModelConverter {
         } else if (node.meshObject?.weights) {
           weights = node.meshObject.weights;
         }
-        const entityRepository = EntityRepository.getInstance();
-        entity = entityRepository.addComponentToEntity(
+        entity = EntityRepository.addComponentToEntity(
           BlendShapeComponent,
           entity
         );

@@ -4,7 +4,7 @@ import MeshComponent from '../Mesh/MeshComponent';
 import WebGLStrategy from '../../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import EntityRepository, {applyMixins} from '../../core/EntityRepository';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
@@ -33,10 +33,10 @@ import {
 } from '../../../types/CommonTypes';
 import AbstractMaterialNode from '../../materials/core/AbstractMaterialNode';
 import {IMatrix44} from '../../math/IMatrix';
-import { IMeshEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
-import { Is } from '../../misc/Is';
+import {IMeshEntity} from '../../helpers/EntityHelper';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
+import {Is} from '../../misc/Is';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -52,8 +52,6 @@ export default class MeshRendererComponent extends Component {
   public rotationOfCubeMap = 0;
 
   private static __webglResourceRepository?: WebGLResourceRepository;
-  private static __componentRepository: ComponentRepository =
-    ComponentRepository.getInstance();
   private static __instanceIDBufferUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webglRenderingStrategy?: WebGLStrategy;
@@ -74,12 +72,11 @@ export default class MeshRendererComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository);
 
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
-    const componentRepository = ComponentRepository.getInstance();
-    const cameraComponents = componentRepository.getComponentsWithType(
+    const cameraComponents = ComponentRepository.getComponentsWithType(
       CameraComponent
     ) as CameraComponent[];
 
@@ -129,9 +126,7 @@ export default class MeshRendererComponent extends Component {
     }
 
     const meshComponents =
-      MeshRendererComponent.__componentRepository.getComponentsWithType(
-        MeshComponent
-      );
+      ComponentRepository.getComponentsWithType(MeshComponent);
     if (meshComponents == null) {
       return CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
@@ -174,7 +169,7 @@ export default class MeshRendererComponent extends Component {
   }
 
   $create() {
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(
+    this.__meshComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
@@ -274,10 +269,9 @@ export default class MeshRendererComponent extends Component {
     const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
 
     let meshComponents: MeshComponent[] = [];
-    const componentRepository = ComponentRepository.getInstance();
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = componentRepository.getComponent(
+      cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;
@@ -350,7 +344,8 @@ export default class MeshRendererComponent extends Component {
       if (Is.false(meshComponents[i].entity.getSceneGraph().isVisible)) {
         continue;
       }
-      const meshRendererComponent = meshComponents[i].entity.tryToGetMeshRenderer()!;
+      const meshRendererComponent =
+        meshComponents[i].entity.tryToGetMeshRenderer()!;
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         if (meshComponent.mesh) {
@@ -431,7 +426,7 @@ export default class MeshRendererComponent extends Component {
     MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
     if (MeshRendererComponent.__cameraComponent == null) {
       MeshRendererComponent.__cameraComponent =
-        MeshRendererComponent.__componentRepository.getComponent(
+        ComponentRepository.getComponent(
           CameraComponent,
           CameraComponent.main
         ) as CameraComponent;
@@ -446,10 +441,9 @@ export default class MeshRendererComponent extends Component {
 
     const meshComponentSids =
       Component.__componentsOfProcessStages.get(processStage)!;
-    const meshComponents =
-      MeshRendererComponent.__componentRepository._getComponents(
-        MeshComponent
-      ) as MeshComponent[];
+    const meshComponents = ComponentRepository._getComponents(
+      MeshComponent
+    ) as MeshComponent[];
     MeshRendererComponent.__webglRenderingStrategy!.common_$render(
       meshComponentSids,
       meshComponents,
@@ -473,9 +467,7 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
-    const entity = this.__entityRepository.getEntity(
-      this.__entityUid
-    ) as IMeshEntity;
+    const entity = EntityRepository.getEntity(this.__entityUid) as IMeshEntity;
 
     MeshRendererComponent.__webglRenderingStrategy!.$render!(
       i,

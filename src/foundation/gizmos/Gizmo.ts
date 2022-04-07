@@ -1,15 +1,11 @@
 import RnObject from '../core/RnObject';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
-import EntityRepository from '../core/EntityRepository';
-import Entity from '../core/Entity';
 import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 
 /**
  * Abstract Gizmo class
  */
 export default abstract class Gizmo extends RnObject {
-  protected __entityRepository = EntityRepository.getInstance();
-
   /**
    * The top entity of this gizmo group.
    * A programmer who implements a gizmo class has to make this entity
@@ -93,7 +89,7 @@ export default abstract class Gizmo extends RnObject {
       this.__topEntity.tryToSetTag({
         tag: 'type',
         value: 'background-assets',
-      })
+      });
     }
   }
 }

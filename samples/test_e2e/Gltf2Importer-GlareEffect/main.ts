@@ -480,10 +480,9 @@ declare const Rn: typeof _Rn;
     cubeTextureDiffuse.mipmapLevelNumber = 1;
     cubeTextureDiffuse.isNamePosNeg = true;
 
-    const meshRendererComponents =
-      Rn.ComponentRepository.getInstance().getComponentsWithType(
-        Rn.MeshRendererComponent
-      ) as MeshRendererComponent[];
+    const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+      Rn.MeshRendererComponent
+    ) as MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;

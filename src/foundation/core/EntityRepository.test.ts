@@ -13,8 +13,7 @@ test('The entity repository can provide the component corresponding to the speci
   });
 
   const firstEntity = generateEntity();
-  const entityRepository = Rn.EntityRepository.getInstance();
-  const sceneGraphComponent = entityRepository.getComponentOfEntity(
+  const sceneGraphComponent = Rn.EntityRepository.getComponentOfEntity(
     firstEntity.entityUID,
     Rn.SceneGraphComponent
   );

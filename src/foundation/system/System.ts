@@ -49,9 +49,6 @@ export default class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
-  private static __entityRepository = EntityRepository.getInstance();
-  private static __componentRepository: ComponentRepository =
-    ComponentRepository.getInstance();
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private static __webglResourceRepository: WebGLResourceRepository;
   private static __webglStrategy?: WebGLStrategy;
@@ -148,7 +145,7 @@ export default class System {
       System.__renderPassForProcessAuto = renderPassMain;
     }
     System.__renderPassForProcessAuto!.clearEntities();
-    const entities = this.__entityRepository._getEntities();
+    const entities = EntityRepository._getEntities();
     System.__renderPassForProcessAuto!.addEntities(
       entities as unknown as ISceneGraphEntity[]
     );
@@ -190,7 +187,7 @@ export default class System {
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
-      const componentTids = this.__componentRepository.getComponentTIDs();
+      const componentTids = ComponentRepository.getComponentTIDs();
       for (const componentTid of componentTids) {
         if (stage === ProcessStage.Render) {
           for (const exp of expressions) {
@@ -241,7 +238,6 @@ export default class System {
               componentClass.updateComponentsOfEachProcessStage(
                 componentClass,
                 stage,
-                this.__componentRepository,
                 renderPass
               );
 
@@ -261,7 +257,6 @@ export default class System {
                 componentType: componentClass,
                 processStage: stage,
                 processApproach: this.__processApproach,
-                componentRepository: this.__componentRepository,
                 strategy: this.__webglStrategy!,
                 renderPass: renderPass,
                 renderPassTickCount: this.__renderPassTickCount,
@@ -282,8 +277,7 @@ export default class System {
             ComponentRepository.getComponentClass(componentTid)!;
           componentClass.updateComponentsOfEachProcessStage(
             componentClass,
-            stage,
-            this.__componentRepository
+            stage
           );
 
           const componentClass_commonMethod = (componentClass as any)[
@@ -302,7 +296,6 @@ export default class System {
             componentType: componentClass,
             processStage: stage,
             processApproach: this.__processApproach,
-            componentRepository: this.__componentRepository,
             strategy: this.__webglStrategy!,
             renderPass: void 0,
             renderPassTickCount: this.__renderPassTickCount,

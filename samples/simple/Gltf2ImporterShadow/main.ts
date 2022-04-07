@@ -74,15 +74,6 @@ declare const Rn: typeof _Rn;
 
   // ---functions-----------------------------------------------------------------------------------------
 
-  function loadRnModules(moduleNames: string[]) {
-    const promises = [];
-    const moduleManagerInstance = Rn.ModuleManager.getInstance();
-    for (const moduleName of moduleNames) {
-      promises.push(moduleManagerInstance.loadModule(moduleName));
-    }
-    return Promise.all(promises);
-  }
-
   function createEntityDepthCamera() {
     const entityCamera = Rn.EntityHelper.createCameraEntity();
 
@@ -109,7 +100,8 @@ declare const Rn: typeof _Rn;
 
   async function createEntityGltf2(uriGltf: string) {
     const gltf2JSON = await Rn.Gltf2Importer.import(uriGltf);
-    const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+    const entityRootGroup =
+      Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 
     const transformComponent = entityRootGroup.getTransform();
     transformComponent.scale = rootGroupScale;
@@ -259,10 +251,9 @@ declare const Rn: typeof _Rn;
     cubeTextureDiffuse.mipmapLevelNumber = 1;
     cubeTextureDiffuse.isNamePosNeg = true;
 
-    const meshRendererComponents =
-      Rn.ComponentRepository.getInstance().getComponentsWithType(
-        Rn.MeshRendererComponent
-      ) as MeshRendererComponent[];
+    const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+      Rn.MeshRendererComponent
+    ) as MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;

@@ -152,8 +152,7 @@ function setIBL(baseUri) {
   diffuseCubeTexture.mipmapLevelNumber = 1;
   diffuseCubeTexture.isNamePosNeg = true;
 
-  const componentRepository = Rn.ComponentRepository.getInstance();
-  const meshRendererComponents = componentRepository.getComponentsWithType(
+  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as MeshRendererComponent[];
   for (let i = 0; i < meshRendererComponents.length; i++) {

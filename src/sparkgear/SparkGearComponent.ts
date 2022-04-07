@@ -257,7 +257,7 @@ export default class SparkGearComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
@@ -329,7 +329,7 @@ export default class SparkGearComponent extends Component {
       this.play();
     }
 
-    const cameraComponent = ComponentRepository.getInstance().getComponent(
+    const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.main
     ) as CameraComponent;

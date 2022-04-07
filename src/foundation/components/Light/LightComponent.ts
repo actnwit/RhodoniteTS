@@ -29,7 +29,6 @@ export default class LightComponent extends Component {
   public spotCutoff = 30; // in degree
   public range = -1;
   private __sceneGraphComponent?: SceneGraphComponent;
-  private static __componentRepository = ComponentRepository.getInstance();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
   private static __lightPositions = new VectorN(new Float32Array(0));
@@ -65,7 +64,7 @@ export default class LightComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
@@ -73,10 +72,9 @@ export default class LightComponent extends Component {
   }
 
   $load() {
-    const lightComponents =
-      LightComponent.__componentRepository.getComponentsWithType(
-        LightComponent
-      ) as LightComponent[];
+    const lightComponents = ComponentRepository.getComponentsWithType(
+      LightComponent
+    ) as LightComponent[];
     const currentComponentSIDs = LightComponent.__globalDataRepository.getValue(
       ShaderSemantics.CurrentComponentSIDs,
       0
@@ -141,7 +139,7 @@ export default class LightComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ILightEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as ILightEntity;
   }

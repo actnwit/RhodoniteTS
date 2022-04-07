@@ -24,7 +24,7 @@ import {IMeshEntity} from '../../helpers/EntityHelper';
 import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
-import { assertExist } from '../../misc/MiscUtil';
+import {assertExist} from '../../misc/MiscUtil';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -245,16 +245,22 @@ export default class MeshComponent extends Component {
     viewport: Vector4,
     dotThreshold = 0
   ): RaycastResultEx1 {
-    const result = this.castRayFromScreenInLocal(x, y, camera, viewport, dotThreshold);
+    const result = this.castRayFromScreenInLocal(
+      x,
+      y,
+      camera,
+      viewport,
+      dotThreshold
+    );
     if (this.__mesh && this.__sceneGraphComponent && result.result) {
       assertExist(result.data);
 
       // convert to World space
       const intersectedPositionInWorld =
-      this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
-        result.data.position,
-        MeshComponent.__returnVector3
-      );
+        this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
+          result.data.position,
+          MeshComponent.__returnVector3
+        );
       return {
         result: true,
         data: {
@@ -265,16 +271,16 @@ export default class MeshComponent extends Component {
         },
       };
     } else {
-      return result
+      return result;
     }
   }
 
   $create() {
-    this.__blendShapeComponent = this.__entityRepository.getComponentOfEntity(
+    this.__blendShapeComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       BlendShapeComponent
     ) as BlendShapeComponent;
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
@@ -288,8 +294,7 @@ export default class MeshComponent extends Component {
     processApproach: ProcessApproachEnum;
   }) {
     // check for the need to update VBO
-    const componentRepository = ComponentRepository.getInstance();
-    const meshComponents = componentRepository.getComponentsWithType(
+    const meshComponents = ComponentRepository.getComponentsWithType(
       MeshComponent
     ) as MeshComponent[];
     for (const meshComponent of meshComponents) {
@@ -301,11 +306,15 @@ export default class MeshComponent extends Component {
       const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
-        if (primitive.positionAccessorVersion !== MeshComponent.__latestPrimitivePositionAccessorVersion) {
+        if (
+          primitive.positionAccessorVersion !==
+          MeshComponent.__latestPrimitivePositionAccessorVersion
+        ) {
           const meshRendererComponent =
             meshComponent.entity.tryToGetMeshRenderer();
           meshRendererComponent?.moveStageTo(ProcessStage.Load);
-          MeshComponent.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
+          MeshComponent.__latestPrimitivePositionAccessorVersion =
+            primitive.positionAccessorVersion!;
         }
       }
     }
@@ -335,7 +344,7 @@ export default class MeshComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): IMeshEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as IMeshEntity;
   }
