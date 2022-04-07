@@ -272,8 +272,7 @@ export default class MeshRendererComponent extends Component {
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
     if (cameraComponent == null) {
-      const componentRepository = ComponentRepository.getInstance();
-      cameraComponent = componentRepository.getComponent(
+      cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;
