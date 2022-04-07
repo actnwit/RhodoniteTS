@@ -307,8 +307,10 @@ export default class MeshRendererComponent extends Component {
       }
     }
 
-    MeshRendererComponent.__lastTransparentIndex =
-      primitives[primitives.length - 1]._sortkey;
+    if (primitives.length > 1) {
+      MeshRendererComponent.__lastTransparentIndex =
+        primitives[primitives.length - 1]._sortkey;
+    }
 
     return primitiveUids;
   }
