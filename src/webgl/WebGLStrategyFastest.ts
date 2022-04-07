@@ -1058,8 +1058,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     diffuseCube?: CubeTexture,
     specularCube?: CubeTexture
   ) {
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
+    // const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    // const gl = glw.getRawContext();
     // WebGLStrategyCommonMethod.endDepthMasking(idx, gl);
   }
 }
