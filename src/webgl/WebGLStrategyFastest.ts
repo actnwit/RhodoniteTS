@@ -914,17 +914,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         isVRMainPass
       ); // update u_currentComponentSIDs(uniform)
 
-      for (
-        let primitiveUid = 0;
-        primitiveUid < primitiveUids.length;
-        primitiveUid++
-      ) {
+      for (let i = 0; i < primitiveUids.length; i++) {
+        const primitiveUid = primitiveUids[i];
         if (primitiveUid === Component.invalidComponentSID) {
           break;
         }
 
         const primitive = Primitive.getPrimitive(primitiveUid);
-        if (Is.not.exist(primitive)){
+        if (Is.not.exist(primitive)) {
           continue;
         }
         const mesh = primitive.mesh as Mesh;
