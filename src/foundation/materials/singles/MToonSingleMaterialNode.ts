@@ -877,7 +877,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(
+      cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;

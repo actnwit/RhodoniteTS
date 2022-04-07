@@ -58,7 +58,7 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
     /// Matrices
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(
+      cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;

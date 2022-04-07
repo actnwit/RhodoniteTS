@@ -52,8 +52,6 @@ export default class MeshRendererComponent extends Component {
   public rotationOfCubeMap = 0;
 
   private static __webglResourceRepository?: WebGLResourceRepository;
-  private static __componentRepository: ComponentRepository =
-    ComponentRepository.getInstance();
   private static __instanceIDBufferUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webglRenderingStrategy?: WebGLStrategy;
@@ -78,8 +76,7 @@ export default class MeshRendererComponent extends Component {
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
-    const componentRepository = ComponentRepository.getInstance();
-    const cameraComponents = componentRepository.getComponentsWithType(
+    const cameraComponents = ComponentRepository.getComponentsWithType(
       CameraComponent
     ) as CameraComponent[];
 
@@ -129,9 +126,7 @@ export default class MeshRendererComponent extends Component {
     }
 
     const meshComponents =
-      MeshRendererComponent.__componentRepository.getComponentsWithType(
-        MeshComponent
-      );
+      ComponentRepository.getComponentsWithType(MeshComponent);
     if (meshComponents == null) {
       return CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
@@ -274,10 +269,9 @@ export default class MeshRendererComponent extends Component {
     const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
 
     let meshComponents: MeshComponent[] = [];
-    const componentRepository = ComponentRepository.getInstance();
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = componentRepository.getComponent(
+      cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;
@@ -432,7 +426,7 @@ export default class MeshRendererComponent extends Component {
     MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
     if (MeshRendererComponent.__cameraComponent == null) {
       MeshRendererComponent.__cameraComponent =
-        MeshRendererComponent.__componentRepository.getComponent(
+        ComponentRepository.getComponent(
           CameraComponent,
           CameraComponent.main
         ) as CameraComponent;
@@ -447,10 +441,9 @@ export default class MeshRendererComponent extends Component {
 
     const meshComponentSids =
       Component.__componentsOfProcessStages.get(processStage)!;
-    const meshComponents =
-      MeshRendererComponent.__componentRepository._getComponents(
-        MeshComponent
-      ) as MeshComponent[];
+    const meshComponents = ComponentRepository._getComponents(
+      MeshComponent
+    ) as MeshComponent[];
     MeshRendererComponent.__webglRenderingStrategy!.common_$render(
       meshComponentSids,
       meshComponents,

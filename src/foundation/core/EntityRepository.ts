@@ -12,8 +12,6 @@ import {Is} from '../misc/Is';
 export default class EntityRepository {
   private static __entity_uid_count: number = Entity.invalidEntityUID;
   private static __entities: Array<IEntity> = [];
-  private static __componentRepository: ComponentRepository =
-    ComponentRepository.getInstance();
   static _components: Array<Map<ComponentTID, Component>> = []; // index is EntityUID
 
   private constructor() {}
@@ -41,7 +39,7 @@ export default class EntityRepository {
     }
 
     // Create Component
-    const component = this.__componentRepository.createComponent(
+    const component = ComponentRepository.createComponent(
       componentClass.componentTID,
       entity.entityUID,
       this

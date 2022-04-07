@@ -692,8 +692,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     this.__createAndUpdateDataTexture();
     this.__createAndUpdateUBO();
 
-    const componentRepository = ComponentRepository.getInstance();
-    this.__lightComponents = componentRepository.getComponentsWithType(
+    this.__lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent
     ) as LightComponent[] | undefined;
   }
@@ -836,7 +835,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     } else {
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getInstance().getComponent(
+        cameraComponent = ComponentRepository.getComponent(
           CameraComponent,
           CameraComponent.main
         ) as CameraComponent;

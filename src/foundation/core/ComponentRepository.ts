@@ -8,17 +8,14 @@ import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
  * The class that generates and manages all kinds of components.
  */
 export default class ComponentRepository {
-  private static __instance: ComponentRepository;
-  private __component_sid_count_map: Map<ComponentTID, number>;
-  private __components: Map<ComponentTID, Array<Component>>; // index of array Is ComponentSID
+  private static __component_sid_count_map: Map<ComponentTID, number> =
+    new Map();
+  private static __components: Map<ComponentTID, Array<Component>> = new Map(); // index of array Is ComponentSID
   static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
 
-  constructor() {
-    this.__component_sid_count_map = new Map();
-    this.__components = new Map();
-  }
+  constructor() {}
 
-  static registerComponentClass(componentClass: typeof Component) {
+  public static registerComponentClass(componentClass: typeof Component) {
     const thisClass = ComponentRepository;
     thisClass.__componentClasses.set(
       componentClass.componentTID,
@@ -26,26 +23,16 @@ export default class ComponentRepository {
     );
   }
 
-  static unregisterComponentClass(componentTID: ComponentTID) {
+  public static unregisterComponentClass(componentTID: ComponentTID) {
     const thisClass = ComponentRepository;
     thisClass.__componentClasses.delete(componentTID);
-  }
-
-  /**
-   * Gets the singleton instance of the ComponentRepository.
-   */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new ComponentRepository();
-    }
-    return this.__instance;
   }
 
   /**
    * Gets the class object of the component corresponding to specified ComponentTID.
    * @param componentTid The componentTID to get the class object.
    */
-  static getComponentClass(componentTid: ComponentTID) {
+  public static getComponentClass(componentTid: ComponentTID) {
     return this.__componentClasses.get(componentTid);
   }
 
@@ -55,7 +42,7 @@ export default class ComponentRepository {
    * @param entityUid The entityUID of the entity.
    * @param entityRepository the reference of the entityRepository.
    */
-  createComponent(
+  public static createComponent(
     componentTid: ComponentTID,
     entityUid: EntityUID,
     entityRepository: EntityRepository
@@ -63,7 +50,6 @@ export default class ComponentRepository {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
     if (Is.exist(componentClass)) {
-
       // Update __component_sid_count_map
       let component_sid_count =
         this.__component_sid_count_map.get(componentTid);
@@ -97,7 +83,10 @@ export default class ComponentRepository {
    * @param componentClass The class object to get the component.
    * @param componentSid The componentSID to get the component.
    */
-  getComponent(componentClass: typeof Component, componentSid: ComponentSID) {
+  public static getComponent(
+    componentClass: typeof Component,
+    componentSid: ComponentSID
+  ) {
     return this.getComponentFromComponentTID(
       componentClass.componentTID,
       componentSid
@@ -109,7 +98,7 @@ export default class ComponentRepository {
    * @param componentTid The componentTID to get the component.
    * @param componentSid The componentSID to get the component.
    */
-  getComponentFromComponentTID(
+  public static getComponentFromComponentTID(
     componentTid: ComponentTID,
     componentSid: ComponentSID
   ) {
@@ -130,7 +119,7 @@ export default class ComponentRepository {
    * Gets an array of components corresponding to the class object of the component.
    * @param componentClass The class object of the component.
    */
-  _getComponents(
+  public static _getComponents(
     componentClass: typeof Component
   ): Array<Component> | undefined {
     const components = this.__components.get(componentClass.componentTID);
@@ -142,15 +131,14 @@ export default class ComponentRepository {
    * Gets an array of components corresponding to the class object of the component (dead components included).
    * @param componentClass The class object of the component.
    */
-   _getComponentsIncludingDead(
+  public static _getComponentsIncludingDead(
     componentClass: typeof Component
   ): Array<Component> | undefined {
     const components = this.__components.get(componentClass.componentTID);
     return components;
   }
 
-
-  static getMemoryBeginIndex(componentTid: ComponentTID) {
+  public static getMemoryBeginIndex(componentTid: ComponentTID) {
     let memoryBeginIndex = 0;
     for (let i = 0; i < componentTid; i++) {
       const componentClass = ComponentRepository.__componentClasses.get(i);
@@ -167,7 +155,9 @@ export default class ComponentRepository {
    * Gets an array of components corresponding to the class object of the component.
    * @param componentType The class object of the component.
    */
-  getComponentsWithType(componentType: typeof Component): Array<Component> {
+  public static getComponentsWithType(
+    componentType: typeof Component
+  ): Array<Component> {
     const components = this.__components.get(componentType.componentTID);
     if (components == null) {
       return [];
@@ -178,7 +168,7 @@ export default class ComponentRepository {
   /**
    * Gets all componentTIDs.
    */
-  getComponentTIDs(): Array<ComponentTID> {
+  public static getComponentTIDs(): Array<ComponentTID> {
     const indices = [];
     for (const type of this.__components.keys()) {
       indices.push(type);

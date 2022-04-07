@@ -125,7 +125,7 @@ export default class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMat
     /// Matrices
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(
+      cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;
