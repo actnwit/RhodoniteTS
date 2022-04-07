@@ -786,11 +786,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     instanceIDBufferUid: WebGLResourceHandle
   ) {
     const vertexHandles = primitive.vertexHandles!;
+    const gl = glw.getRawContext();
+
+    // bind
     const vao = this.__webglResourceRepository.getWebGLResource(
       mesh.getVaoUids(primitiveIndex)
     ) as WebGLVertexArrayObjectOES;
-    const gl = glw.getRawContext();
-
     if (vao != null) {
       glw.bindVertexArray(vao);
     } else {
@@ -962,11 +963,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         }
 
         const shaderProgramUid = material._shaderProgramUid;
+        const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
 
         this.attachVertexDataInner(
           mesh,
           primitive,
-          primitiveUid,
+          primitiveIndex,
           glw,
           mesh._variationVBOUid
         );

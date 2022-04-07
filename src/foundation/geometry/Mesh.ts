@@ -925,6 +925,9 @@ export default class Mesh implements IMesh {
     normalAccessor.setVec3(i + 2, nx, ny, nz, {indicesAccessor});
   }
 
+  getPrimitiveIndexInMesh(primitive: Primitive) {
+    return this.primitives.indexOf(primitive);
+  }
   // makeVerticesSeparated() {
   //   for (let primitive of this.__primitives) {
   //     if (primitive.hasIndices()) {
