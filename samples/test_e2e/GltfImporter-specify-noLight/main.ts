@@ -1,4 +1,3 @@
-import ComponentRepository from '../../../dist/esm/foundation/core/ComponentRepository';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 declare const window: any;
@@ -32,7 +31,7 @@ let p = null;
     }
   );
 
-  const meshComponents = ComponentRepository.getComponentsWithType(
+  const meshComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshComponent
   );
   setParameterForMeshComponents(
