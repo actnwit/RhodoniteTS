@@ -110,8 +110,8 @@ export default class VideoTexture extends AbstractTexture {
     }
     const img = video;
 
-    this.__width = img.width;
-    this.__height = img.height;
+    this.__width = img.videoWidth;
+    this.__height = img.videoHeight;
 
     const webGLResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
@@ -163,8 +163,8 @@ export default class VideoTexture extends AbstractTexture {
       const button = playButtonDomElement as HTMLButtonElement | undefined;
 
       const setupTexture = () => {
-        this.__width = video.width;
-        this.__height = video.height;
+        this.__width = video.videoWidth;
+        this.__height = video.videoHeight;
 
         const webGLResourceRepository =
           CGAPIResourceRepository.getWebGLResourceRepository();
@@ -249,6 +249,22 @@ export default class VideoTexture extends AbstractTexture {
         }
       );
     }
+  }
+
+  getCurrentFramePixelData() {
+    let pixel: Uint8Array | undefined = undefined;
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    if (this.__isTextureReady && this.#htmlVideoElement) {
+      pixel = webGLResourceRepository.getPixelDataFromTexture(
+        this.cgApiResourceUid,
+        0,
+        0,
+        this.width,
+        this.height
+      );
+    }
+    return [pixel, this.width, this.height];
   }
 
   set playbackRate(value) {

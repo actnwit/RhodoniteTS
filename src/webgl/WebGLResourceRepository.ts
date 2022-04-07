@@ -2807,4 +2807,29 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
     return true;
   }
+
+  getPixelDataFromTexture(
+    texUid: WebGLResourceHandle,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) {
+    const gl = this.__glw!.getRawContext();
+    const pixels = new Uint8Array((width - x) * (height - y) * 4);
+    const texture = this.getWebGLResource(texUid) as WebGLTexture;
+    const fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      texture,
+      0
+    );
+    gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return pixels;
+  }
 }
