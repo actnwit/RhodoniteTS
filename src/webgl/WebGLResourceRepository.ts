@@ -2829,7 +2829,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     );
     gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
+    gl.deleteFramebuffer(fbo);
     return pixels;
   }
 }
