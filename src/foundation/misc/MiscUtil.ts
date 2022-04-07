@@ -352,7 +352,10 @@ export function deepCopyUsingJsonStringify(obj: {[k: string]: any}) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: ArrayBuffer) {
+export function downloadArrayBuffer(
+  fileNameToDownload: string,
+  arrayBuffer: ArrayBuffer
+) {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
   const blob = new Blob([arrayBuffer], {type: 'octet/stream'});
@@ -360,9 +363,13 @@ export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: Arr
   a.href = url;
   const e = new MouseEvent('click');
   a.dispatchEvent(e);
+  URL.revokeObjectURL(url);
 }
 
-export function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray) {
+export function downloadTypedArray(
+  fileNameToDownload: string,
+  typedArray: TypedArray
+) {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
   const blob = new Blob([typedArray], {type: 'octet/stream'});
@@ -370,6 +377,7 @@ export function downloadTypedArray(fileNameToDownload: string, typedArray: Typed
   a.href = url;
   const e = new MouseEvent('click');
   a.dispatchEvent(e);
+  URL.revokeObjectURL(url);
 }
 
 export const MiscUtil = Object.freeze({

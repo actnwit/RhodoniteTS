@@ -1,4 +1,4 @@
-import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {ICameraControllerEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 
@@ -12,7 +12,6 @@ declare const Rn: typeof _Rn;
     approach: Rn.ProcessApproach.FastestWebGL1,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
-  const entityRepository = Rn.EntityRepository.getInstance();
 
   // Plane
   const texture = new Rn.VideoTexture();
@@ -22,6 +21,7 @@ declare const Rn: typeof _Rn;
     Rn.ShaderSemantics.DiffuseColorTexture,
     texture
   );
+  window.texture = texture;
 
   const planeEntity = Rn.EntityHelper.createMeshEntity();
   const planePrimitive = new Rn.Plane();
@@ -45,7 +45,7 @@ declare const Rn: typeof _Rn;
   ]);
 
   // Camera
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
@@ -113,4 +113,26 @@ declare const Rn: typeof _Rn;
 
 window.exportGltf2 = function () {
   Rn.Gltf2Exporter.export('Rhodonite');
+};
+
+window.downloadFrame = function () {
+  const [pixels, width, height] = window.texture.getCurrentFramePixelData();
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.createImageData(width, height);
+
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    imageData.data[i + 0] = pixels[i + 0];
+    imageData.data[i + 1] = pixels[i + 1];
+    imageData.data[i + 2] = pixels[i + 2];
+    imageData.data[i + 3] = pixels[i + 3];
+  }
+  ctx.putImageData(imageData, 0, 0);
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.download = 'frame.png';
+  a.href = url;
+  const e = new MouseEvent('click');
+  a.dispatchEvent(e);
 };
