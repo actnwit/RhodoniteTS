@@ -14,17 +14,16 @@ describe('EntityHelper', () => {
   });
 
   test('EntityHelper', () => {
-    const entityRepository = EntityRepository.getInstance();
-    const entity = entityRepository.createEntity();
-    const transformEntity = entityRepository.addComponentToEntity(
+    const entity = EntityRepository.createEntity();
+    const transformEntity = EntityRepository.addComponentToEntity(
       TransformComponent,
       entity
     );
-    const sceneGraphEntity = entityRepository.addComponentToEntity(
+    const sceneGraphEntity = EntityRepository.addComponentToEntity(
       SceneGraphComponent,
       transformEntity
     );
-    const cameraEntity = entityRepository.addComponentToEntity(
+    const cameraEntity = EntityRepository.addComponentToEntity(
       CameraComponent,
       sceneGraphEntity
     );

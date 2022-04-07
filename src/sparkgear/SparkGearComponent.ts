@@ -329,7 +329,7 @@ export default class SparkGearComponent extends Component {
       this.play();
     }
 
-    const cameraComponent = ComponentRepository.getInstance().getComponent(
+    const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.main
     ) as CameraComponent;

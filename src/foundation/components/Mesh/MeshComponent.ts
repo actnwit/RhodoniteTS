@@ -294,8 +294,7 @@ export default class MeshComponent extends Component {
     processApproach: ProcessApproachEnum;
   }) {
     // check for the need to update VBO
-    const componentRepository = ComponentRepository.getInstance();
-    const meshComponents = componentRepository.getComponentsWithType(
+    const meshComponents = ComponentRepository.getComponentsWithType(
       MeshComponent
     ) as MeshComponent[];
     for (const meshComponent of meshComponents) {

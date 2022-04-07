@@ -132,7 +132,7 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
   }) {
     let cameraComponent = args.renderPass.cameraComponent as CameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(
+      cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
         CameraComponent.main
       ) as CameraComponent;

@@ -1,6 +1,6 @@
 import Entity from './Entity';
-import EntityRepository from './EntityRepository';
 import {Is} from '../misc/Is';
+import EntityRepository from './EntityRepository';
 
 test('Entities cannot be instantiated by new operator.', () => {
   let entity = null;
@@ -11,16 +11,14 @@ test('Entities cannot be instantiated by new operator.', () => {
   }
 });
 
-test('The EntityRepository creates a entity whose uid Is 1', () => {
-  const repo = EntityRepository.getInstance();
-  const firstEntity = repo.createEntity();
+test('The EntityEntityRepositorysitory creates a entity whose uid Is 1', () => {
+  const firstEntity = EntityRepository.createEntity();
   expect(firstEntity.entityUID).toBe(0);
 });
 
 test('A entity name Is unique', () => {
-  const repo = EntityRepository.getInstance();
-  const firstEntity = repo.createEntity();
-  const secondEntity = repo.createEntity();
+  const firstEntity = EntityRepository.createEntity();
+  const secondEntity = EntityRepository.createEntity();
   const beforeSecondEntityName = secondEntity.uniqueName;
   firstEntity.tryToSetUniqueName('Foo', false);
   const renamed = secondEntity.tryToSetUniqueName('Foo', false);
@@ -29,9 +27,8 @@ test('A entity name Is unique', () => {
 });
 
 test('The tryToSetUniqueName method can almost certainly set a new unique name by setting the 2nd argument to true.', () => {
-  const repo = EntityRepository.getInstance();
-  const firstEntity = repo.createEntity();
-  const secondEntity = repo.createEntity();
+  const firstEntity = EntityRepository.createEntity();
+  const secondEntity = EntityRepository.createEntity();
   const beforeSecondEntityName = secondEntity.uniqueName;
   firstEntity.tryToSetUniqueName('Foo', false);
   const renamed = secondEntity.tryToSetUniqueName('Foo', true);

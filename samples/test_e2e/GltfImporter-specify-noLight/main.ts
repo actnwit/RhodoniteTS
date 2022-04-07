@@ -1,14 +1,6 @@
+import ComponentRepository from '../../../dist/esm/foundation/core/ComponentRepository';
 import _Rn from '../../../dist/esm/index';
-import {
-  OrbitCameraController,
-  CameraComponent,
-  MeshComponent,
-  EntityRepository,
-  AbstractTexture,
-  Expression,
-  FrameBuffer,
-  RenderPass,
-} from '../../../dist/esm/index';
+import {OrbitCameraController} from '../../../dist/esm/index';
 declare const window: any;
 declare const Rn: typeof _Rn;
 let p = null;
@@ -40,8 +32,7 @@ let p = null;
     }
   );
 
-  const componentRepository = Rn.ComponentRepository.getInstance();
-  const meshComponents = componentRepository.getComponentsWithType(
+  const meshComponents = ComponentRepository.getComponentsWithType(
     Rn.MeshComponent
   );
   setParameterForMeshComponents(

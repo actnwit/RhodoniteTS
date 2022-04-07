@@ -77,7 +77,7 @@ export default class ShaderitySingleMaterialNode extends AbstractMaterialNode {
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getInstance().getComponent(
+          cameraComponent = ComponentRepository.getComponent(
             CameraComponent,
             CameraComponent.main
           ) as CameraComponent;

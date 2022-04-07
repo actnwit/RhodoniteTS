@@ -185,8 +185,7 @@ export default class Component extends RnObject {
    */
   static doesTheProcessStageMethodExist(
     componentType: typeof Component,
-    processStage: ProcessStageEnum,
-    componentRepository: ComponentRepository
+    processStage: ProcessStageEnum
   ) {
     if ((componentType.prototype as any)[processStage.methodName] == null) {
       return false;
@@ -214,7 +213,6 @@ export default class Component extends RnObject {
     componentType,
     processStage,
     processApproach,
-    componentRepository,
     strategy,
     renderPass,
     renderPassTickCount,
@@ -222,17 +220,12 @@ export default class Component extends RnObject {
     componentType: typeof Component;
     processStage: ProcessStageEnum;
     processApproach: ProcessApproachEnum;
-    componentRepository: ComponentRepository;
     strategy: WebGLStrategy;
     renderPass?: RenderPass;
     renderPassTickCount: Count;
   }) {
     if (
-      !Component.doesTheProcessStageMethodExist(
-        componentType,
-        processStage,
-        componentRepository
-      )
+      !Component.doesTheProcessStageMethodExist(componentType, processStage)
     ) {
       return;
     }
@@ -240,7 +233,7 @@ export default class Component extends RnObject {
     const methodName = processStage.methodName;
     const array = this.__componentsOfProcessStages.get(processStage)!;
     const components: Component[] | undefined =
-      componentRepository._getComponentsIncludingDead(componentType);
+      ComponentRepository._getComponentsIncludingDead(componentType);
     for (let i = 0; i < array.length; ++i) {
       const componentSid = array[i];
       if (componentSid === Component.invalidComponentSID) {
@@ -264,15 +257,10 @@ export default class Component extends RnObject {
   static updateComponentsOfEachProcessStage(
     componentClass: typeof Component,
     processStage: ProcessStageEnum,
-    componentRepository: ComponentRepository,
     renderPass?: RenderPass
   ) {
     if (
-      !Component.doesTheProcessStageMethodExist(
-        componentClass,
-        processStage,
-        componentRepository
-      )
+      !Component.doesTheProcessStageMethodExist(componentClass, processStage)
     ) {
       return;
     }
@@ -290,7 +278,7 @@ export default class Component extends RnObject {
       } else {
         let count = 0;
         const components =
-          componentRepository.getComponentsWithType(componentClass)!;
+          ComponentRepository.getComponentsWithType(componentClass)!;
         for (let i = 0; i < components.length; ++i) {
           const component = components[i];
           if (processStage === component.__currentProcessStage) {
@@ -624,7 +612,7 @@ export default class Component extends RnObject {
     componentSID: ComponentSID,
     memberName: string
   ) {
-    const component = ComponentRepository.getInstance().getComponent(
+    const component = ComponentRepository.getComponent(
       componentType,
       componentSID
     );
@@ -668,10 +656,7 @@ export default class Component extends RnObject {
     componentType: typeof Component,
     memberName: string
   ) {
-    const component = ComponentRepository.getInstance().getComponent(
-      componentType,
-      0
-    );
+    const component = ComponentRepository.getComponent(componentType, 0);
     return (
       (component as any)['_byteOffsetOfAccessorInBuffer_' + memberName] / 4 / 4
     );

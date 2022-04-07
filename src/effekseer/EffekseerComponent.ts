@@ -317,7 +317,7 @@ export default class EffekseerComponent extends Component {
   }
 
   $render() {
-    const cameraComponent = ComponentRepository.getInstance().getComponent(
+    const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.main
     ) as CameraComponent;

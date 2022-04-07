@@ -235,7 +235,8 @@ mat3 get_normalMatrix(float instanceId) {
       const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
-          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] = primitive.positionAccessorVersion!;
+        this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] =
+          primitive.positionAccessorVersion!;
       }
     }
   }
@@ -252,7 +253,8 @@ mat3 get_normalMatrix(float instanceId) {
       const primitive = mesh.getPrimitiveAt(i);
       if (
         Is.not.exist(primitive.vertexHandles) ||
-        primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
+        primitive.positionAccessorVersion !==
+          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
       ) {
         return false;
       }
@@ -272,8 +274,7 @@ mat3 get_normalMatrix(float instanceId) {
   }
 
   common_$prerender(): void {
-    const componentRepository = ComponentRepository.getInstance();
-    this.__lightComponents = componentRepository.getComponentsWithType(
+    this.__lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent
     ) as LightComponent[];
 

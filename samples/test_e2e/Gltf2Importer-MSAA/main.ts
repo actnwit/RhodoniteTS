@@ -1,4 +1,4 @@
-import { ICameraEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {ICameraEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {
   CameraComponent,
   Entity,
@@ -161,7 +161,8 @@ declare const Rn: typeof _Rn;
     const gltf2JSON = await Rn.Gltf2Importer.import(uriGltf, {
       defaultMaterialHelperArgumentArray: [{makeOutputSrgb: false}],
     });
-    const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+    const entityRootGroup =
+      Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
     return entityRootGroup;
   }
 
@@ -236,10 +237,9 @@ declare const Rn: typeof _Rn;
     cubeTextureDiffuse.mipmapLevelNumber = 1;
     cubeTextureDiffuse.isNamePosNeg = true;
 
-    const meshRendererComponents =
-      Rn.ComponentRepository.getInstance().getComponentsWithType(
-        Rn.MeshRendererComponent
-      ) as MeshRendererComponent[];
+    const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+      Rn.MeshRendererComponent
+    ) as MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;

@@ -102,8 +102,6 @@ export default class AnimationComponent extends Component {
   private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> =
     new Map();
   private static __pubsub = new EventPubSub();
-  private static __componentRepository: ComponentRepository =
-    ComponentRepository.getInstance();
 
   constructor(
     entityUid: EntityUID,
@@ -312,7 +310,7 @@ export default class AnimationComponent extends Component {
   }
 
   static setAnimatingForAll(flg: boolean) {
-    const animationComponents = this.__componentRepository._getComponents(
+    const animationComponents = ComponentRepository._getComponents(
       AnimationComponent
     )! as AnimationComponent[];
     for (const animationComponent of animationComponents) {
@@ -321,7 +319,7 @@ export default class AnimationComponent extends Component {
   }
 
   static setActiveAnimationForAll(animationName: AnimationTrackName) {
-    const components = ComponentRepository.getInstance().getComponentsWithType(
+    const components = ComponentRepository.getComponentsWithType(
       AnimationComponent
     ) as AnimationComponent[];
     for (const component of components) {
@@ -503,7 +501,7 @@ export default class AnimationComponent extends Component {
   }
 
   static get startInputValue() {
-    const components = ComponentRepository.getInstance().getComponentsWithType(
+    const components = ComponentRepository.getComponentsWithType(
       AnimationComponent
     ) as AnimationComponent[];
     if (components.length === 0) {
@@ -516,7 +514,7 @@ export default class AnimationComponent extends Component {
   }
 
   static get endInputValue() {
-    const components = ComponentRepository.getInstance().getComponentsWithType(
+    const components = ComponentRepository.getComponentsWithType(
       AnimationComponent
     ) as AnimationComponent[];
     if (components.length === 0) {
@@ -529,7 +527,7 @@ export default class AnimationComponent extends Component {
   }
 
   static get isAnimating() {
-    const components = ComponentRepository.getInstance().getComponentsWithType(
+    const components = ComponentRepository.getComponentsWithType(
       AnimationComponent
     ) as AnimationComponent[];
 
