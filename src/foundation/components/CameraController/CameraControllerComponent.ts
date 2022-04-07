@@ -1,6 +1,10 @@
 import Component from '../../core/Component';
-import {EntityUID, ComponentSID, ComponentTID} from '../../../types/CommonTypes';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import {
+  EntityUID,
+  ComponentSID,
+  ComponentTID,
+} from '../../../types/CommonTypes';
+import EntityRepository, {applyMixins} from '../../core/EntityRepository';
 import CameraComponent from '../Camera/CameraComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import ComponentRepository from '../../core/ComponentRepository';
@@ -12,8 +16,8 @@ import {
   CameraControllerTypeEnum,
   CameraControllerType,
 } from '../../definitions/CameraControllerType';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import {IEntity} from '../../core/Entity';
+import {ComponentToComponentMethods} from '../ComponentTypes';
 
 export default class CameraControllerComponent extends Component {
   private __cameraComponent?: CameraComponent;
@@ -56,7 +60,7 @@ export default class CameraControllerComponent extends Component {
   }
 
   $create() {
-    this.__cameraComponent = this.__entityRepository.getComponentOfEntity(
+    this.__cameraComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       CameraComponent
     ) as CameraComponent;

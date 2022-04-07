@@ -32,7 +32,7 @@ import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 import TranslationGizmo from '../../gizmos/TranslationGizmo';
 import ScaleGizmo from '../../gizmos/ScaleGizmo';
-import { IMatrix44 } from '../../math/IMatrix';
+import {IMatrix44} from '../../math/IMatrix';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -167,9 +167,7 @@ export default class SceneGraphComponent extends Component {
   set isScaleGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__scaleGizmo)) {
-        this.__scaleGizmo = new ScaleGizmo(
-          this.entity as IMeshEntity
-        );
+        this.__scaleGizmo = new ScaleGizmo(this.entity as IMeshEntity);
         this.__scaleGizmo._setup();
       }
       this.__scaleGizmo.isVisible = true;
@@ -339,7 +337,7 @@ export default class SceneGraphComponent extends Component {
       return this._worldMatrix;
     }
 
-    const entity = this.__entityRepository.getEntity(
+    const entity = EntityRepository.getEntity(
       this.__entityUid
     ) as ITransformEntity;
     const transform = entity.getTransform()!;
@@ -621,9 +619,13 @@ export default class SceneGraphComponent extends Component {
         const primitiveNum = mesh.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
           const primitive = mesh!.getPrimitiveAt(i);
-          if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
+          if (
+            primitive.positionAccessorVersion !==
+            this.__latestPrimitivePositionAccessorVersion
+          ) {
             this.setWorldAABBDirtyParentRecursively();
-            this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
+            this.__latestPrimitivePositionAccessorVersion =
+              primitive.positionAccessorVersion!;
             break;
           }
         }
@@ -667,7 +669,7 @@ export default class SceneGraphComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ISceneGraphEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as ISceneGraphEntity;
   }
@@ -685,7 +687,7 @@ export default class SceneGraphComponent extends Component {
     // this.__scaleGizmo?.destroy();
     // this.__entityRepository.removeEntity(this.__entityUid);
     this.parent?.removeChild(this);
-    this.children.forEach((child) => child.parent?.removeChild(child));
+    this.children.forEach(child => child.parent?.removeChild(child));
   }
 
   /**

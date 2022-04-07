@@ -38,9 +38,8 @@ export interface IAnimationEntity
     IAnimationEntityMethods {}
 
 function createTransformEntity(): ITransformEntity {
-  const entityRepository = EntityRepository.getInstance();
-  const entity = entityRepository.createEntity();
-  const entity1 = entityRepository.addComponentToEntity(
+  const entity = EntityRepository.createEntity();
+  const entity1 = EntityRepository.addComponentToEntity(
     TransformComponent,
     entity
   );
@@ -48,9 +47,8 @@ function createTransformEntity(): ITransformEntity {
 }
 
 function createGroupEntity(): ISceneGraphEntity {
-  const entityRepository = EntityRepository.getInstance();
   const entity = createTransformEntity();
-  const entityAddedComponent = entityRepository.addComponentToEntity(
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
     SceneGraphComponent,
     entity
   );
@@ -58,13 +56,12 @@ function createGroupEntity(): ISceneGraphEntity {
 }
 
 function createMeshEntity(): IMeshEntity {
-  const entityRepository = EntityRepository.getInstance();
   const entity = createGroupEntity();
-  const entityAddedComponent = entityRepository.addComponentToEntity(
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
     MeshComponent,
     entity
   );
-  const entityAddedComponent2 = entityRepository.addComponentToEntity(
+  const entityAddedComponent2 = EntityRepository.addComponentToEntity(
     MeshRendererComponent,
     entityAddedComponent
   );
@@ -72,9 +69,8 @@ function createMeshEntity(): IMeshEntity {
 }
 
 function createCameraEntity(): ICameraEntity {
-  const entityRepository = EntityRepository.getInstance();
   const entity = createGroupEntity();
-  const entityAddedComponent = entityRepository.addComponentToEntity(
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
     CameraComponent,
     entity
   );
@@ -82,9 +78,8 @@ function createCameraEntity(): ICameraEntity {
 }
 
 function createCameraControllerEntity(): ICameraControllerEntity {
-  const entityRepository = EntityRepository.getInstance();
   const entity = createCameraEntity();
-  const entityAddedComponent = entityRepository.addComponentToEntity(
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
     CameraControllerComponent,
     entity
   );
@@ -92,9 +87,8 @@ function createCameraControllerEntity(): ICameraControllerEntity {
 }
 
 function createSkeletalEntity(): ISkeletalEntity {
-  const entityRepository = EntityRepository.getInstance();
   const entity = createGroupEntity();
-  const entityAddedComponent = entityRepository.addComponentToEntity(
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
     SkeletalComponent,
     entity
   );
@@ -102,9 +96,8 @@ function createSkeletalEntity(): ISkeletalEntity {
 }
 
 function createPhysicsEntity(): IPhysicsEntity {
-  const entityRepository = EntityRepository.getInstance();
   const entity = createGroupEntity();
-  const entityAddedComponent = entityRepository.addComponentToEntity(
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
     PhysicsComponent,
     entity
   );
@@ -112,9 +105,8 @@ function createPhysicsEntity(): IPhysicsEntity {
 }
 
 function createLightEntity(): ILightEntity {
-  const entityRepository = EntityRepository.getInstance();
   const entity = createGroupEntity();
-  const entityAddedComponent = entityRepository.addComponentToEntity(
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
     LightComponent,
     entity
   );

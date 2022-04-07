@@ -65,7 +65,7 @@ export default class LightComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
@@ -141,7 +141,7 @@ export default class LightComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ILightEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as ILightEntity;
   }

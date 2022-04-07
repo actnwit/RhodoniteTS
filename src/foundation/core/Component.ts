@@ -564,7 +564,7 @@ export default class Component extends RnObject {
    * @returns the entity which has this component
    */
   get entity(): IEntity {
-    return this.__entityRepository.getEntity(this.__entityUid);
+    return EntityRepository.getEntity(this.__entityUid);
   }
 
   /**
@@ -647,7 +647,7 @@ export default class Component extends RnObject {
     entityUID: EntityUID,
     memberName: string
   ) {
-    const component = EntityRepository.getInstance().getComponentOfEntity(
+    const component = EntityRepository.getComponentOfEntity(
       entityUID,
       componentType
     );

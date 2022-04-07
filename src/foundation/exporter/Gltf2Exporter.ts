@@ -42,9 +42,6 @@ import Buffer from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
   GL_ELEMENT_ARRAY_BUFFER,
-  GL_LINEAR,
-  GL_LINEAR_MIPMAP_LINEAR,
-  GL_REPEAT,
 } from '../../types/WebGLConstants';
 import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
@@ -56,9 +53,9 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
-import { createEffekseer } from './Gltf2ExporterEffekseer';
+import {createEffekseer} from './Gltf2ExporterEffekseer';
 import Vector4 from '../math/Vector4';
-import { Tag } from '../core/RnObject';
+import {Tag} from '../core/RnObject';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -81,8 +78,6 @@ export interface Gltf2ExporterArguments {
  * The glTF2 format Exporter class.
  */
 export default class Gltf2Exporter {
-  private static __entityRepository = EntityRepository.getInstance();
-
   private constructor() {}
 
   /**
@@ -162,20 +157,20 @@ export default class Gltf2Exporter {
    * @param option an option config
    * @returns target entities
    */
-  private static __collectEntities(option: Gltf2ExporterArguments | undefined){
-      const checkPassOrNotWithTags = (entity: ISceneGraphEntity) => {
-        if (Is.exist(option) && Is.exist(option.excludeTags)) {
-          for (const tag of option.excludeTags) {
-            if (entity.matchTag(tag.tag, tag.value)) {
-              return false; // exludes
-            }
-          }
-          if (entity.matchTag('Being', 'gizmo')) {
-            return true;
+  private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
+    const checkPassOrNotWithTags = (entity: ISceneGraphEntity) => {
+      if (Is.exist(option) && Is.exist(option.excludeTags)) {
+        for (const tag of option.excludeTags) {
+          if (entity.matchTag(tag.tag, tag.value)) {
+            return false; // exludes
           }
         }
-        return true;
-      };
+        if (entity.matchTag('Being', 'gizmo')) {
+          return true;
+        }
+      }
+      return true;
+    };
     if (
       Is.exist(option) &&
       Is.exist(option.entities) &&
@@ -197,7 +192,9 @@ export default class Gltf2Exporter {
       ): ISceneGraphEntity[] => {
         const sg = entity.getSceneGraph()!;
         if (sg.children.length > 0) {
-          const array: ISceneGraphEntity[] = root ? [] : excludeWithTags(entity);
+          const array: ISceneGraphEntity[] = root
+            ? []
+            : excludeWithTags(entity);
           for (let i = 0; i < sg.children.length; i++) {
             const child = sg.children[i];
             Array.prototype.push.apply(
@@ -217,7 +214,10 @@ export default class Gltf2Exporter {
       let topLevelEntities: ISceneGraphEntity[] = [];
       option.entities.forEach(entity => {
         // if (collectedDescendants.indexOf(entity) === -1) {
-        if (collectedDescendants.indexOf(entity) === -1 && checkPassOrNotWithTags(entity)) {
+        if (
+          collectedDescendants.indexOf(entity) === -1 &&
+          checkPassOrNotWithTags(entity)
+        ) {
           topLevelEntities.push(entity);
         }
       });
@@ -230,10 +230,16 @@ export default class Gltf2Exporter {
       return {collectedEntities, topLevelEntities};
     }
     let collectedEntities =
-      Gltf2Exporter.__entityRepository._getEntities() as unknown as ISceneGraphEntity[];
-    collectedEntities = collectedEntities.filter(entity => checkPassOrNotWithTags(entity));
-    let topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
-    topLevelEntities = topLevelEntities.filter(entity => checkPassOrNotWithTags(entity));
+      EntityRepository._getEntities() as unknown as ISceneGraphEntity[];
+    collectedEntities = collectedEntities.filter(entity =>
+      checkPassOrNotWithTags(entity)
+    );
+    let topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(
+      c => c.entity
+    );
+    topLevelEntities = topLevelEntities.filter(entity =>
+      checkPassOrNotWithTags(entity)
+    );
 
     return {collectedEntities, topLevelEntities};
   }
@@ -446,7 +452,7 @@ export default class Gltf2Exporter {
                 ShaderSemantics.DiffuseColorFactor
               );
               if (Is.not.exist(colorParam)) {
-                colorParam = Vector4.fromCopy4(1,1,1,1);
+                colorParam = Vector4.fromCopy4(1, 1, 1, 1);
               }
             } else {
               material.pbrMetallicRoughness.metallicFactor =
@@ -471,7 +477,10 @@ export default class Gltf2Exporter {
                 let match = false;
                 for (let k = 0; k < json.images.length; k++) {
                   const image = json.images![k];
-                  if (Is.exist(image.rnTextureUID) && image.rnTextureUID === rnTexture.textureUID) {
+                  if (
+                    Is.exist(image.rnTextureUID) &&
+                    image.rnTextureUID === rnTexture.textureUID
+                  ) {
                     imageIndex = k;
                     match = true;
                   }
@@ -1211,8 +1220,10 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
   bufferViewByteLengthAccumulated: Byte
 ) {
   const componentType = ComponentType.fromTypedArray(
-    ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input : new Float32Array(rnChannel.sampler.input)
-  )
+    ArrayBuffer.isView(rnChannel.sampler.input)
+      ? rnChannel.sampler.input
+      : new Float32Array(rnChannel.sampler.input)
+  );
   const accessorCount = rnChannel.sampler.input.length;
   // create a Gltf2BufferView
   const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferViewForAnimation({
@@ -1224,7 +1235,10 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
     componentType,
     compositionType: CompositionType.Scalar,
     uint8Array: new Uint8Array(
-      ArrayBuffer.isView(rnChannel.sampler.input) ? rnChannel.sampler.input.buffer : rnChannel.sampler.input),
+      ArrayBuffer.isView(rnChannel.sampler.input)
+        ? rnChannel.sampler.input.buffer
+        : rnChannel.sampler.input
+    ),
   });
   json.bufferViews.push(gltf2BufferView);
 
@@ -1259,8 +1273,10 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   bufferViewByteLengthAccumulated: Byte
 ) {
   const componentType = ComponentType.fromTypedArray(
-    ArrayBuffer.isView(rnChannel.sampler.output) ? rnChannel.sampler.output : new Float32Array(rnChannel.sampler.output)
-    );
+    ArrayBuffer.isView(rnChannel.sampler.output)
+      ? rnChannel.sampler.output
+      : new Float32Array(rnChannel.sampler.output)
+  );
   const accessorCount =
     rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
   // create a Gltf2BufferView
@@ -1276,8 +1292,11 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
       rnChannel.sampler.outputComponentN
     ),
     uint8Array: new Uint8Array(
-      ArrayBuffer.isView(rnChannel.sampler.output) ? rnChannel.sampler.output.buffer : rnChannel.sampler.output),
-    });
+      ArrayBuffer.isView(rnChannel.sampler.output)
+        ? rnChannel.sampler.output.buffer
+        : rnChannel.sampler.output
+    ),
+  });
   json.bufferViews.push(gltf2BufferView);
 
   // create a Gltf2Accessor

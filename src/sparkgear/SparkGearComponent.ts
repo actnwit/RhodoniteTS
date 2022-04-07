@@ -257,7 +257,7 @@ export default class SparkGearComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;

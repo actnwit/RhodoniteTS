@@ -118,11 +118,11 @@ export default class AnimationComponent extends Component {
   /// LifeCycle Methods ///
 
   $create() {
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(
+    this.__transformComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       TransformComponent
     ) as TransformComponent;
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(
+    this.__meshComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
@@ -220,7 +220,10 @@ export default class AnimationComponent extends Component {
     return retVal;
   }
 
-  static interpolationSearch(inputArray: Float32Array | number[], currentTime: number) {
+  static interpolationSearch(
+    inputArray: Float32Array | number[],
+    currentTime: number
+  ) {
     let mid = 0;
     let lower = 0;
     let upper = inputArray.length - 1;
@@ -408,11 +411,11 @@ export default class AnimationComponent extends Component {
       );
     }
 
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(
+    this.__transformComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       TransformComponent
     ) as TransformComponent;
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(
+    this.__meshComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
@@ -799,7 +802,7 @@ export default class AnimationComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): IAnimationEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as IAnimationEntity;
   }
@@ -839,13 +842,13 @@ export default class AnimationComponent extends Component {
     pathName: AnimationPathName,
     frameToInsert: Index,
     fps: number
-    ) {
+  ) {
     const secBegin = frameToInsert * fps;
     const input = secBegin;
     const secEnd = (frameToInsert + 1) * fps;
 
-    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-    this.__animationTracks.get(trackName);
+    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
     if (Is.not.exist(animationSet)) {
       return false;
     }
@@ -859,7 +862,9 @@ export default class AnimationComponent extends Component {
       channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
     }
     if (ArrayBuffer.isView(channel.sampler.output)) {
-      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
+      channel.sampler.output = Array.from(
+        channel.sampler.output as Float32Array
+      );
     }
 
     const i = AnimationAttribute.fromString(pathName).index;
@@ -869,12 +874,12 @@ export default class AnimationComponent extends Component {
       i
     );
 
-    for (let i=0; i < channel.sampler.input.length; i++) {
+    for (let i = 0; i < channel.sampler.input.length; i++) {
       const existedInput = channel.sampler.input[i];
       if (secBegin < existedInput && existedInput <= secEnd) {
-        channel.sampler.input.splice(i-1, 0, input);
+        channel.sampler.input.splice(i - 1, 0, input);
         channel.sampler.output.splice(
-          (i-1) * channel.sampler.outputComponentN,
+          (i - 1) * channel.sampler.outputComponentN,
           0,
           ...value
         );
@@ -891,13 +896,13 @@ export default class AnimationComponent extends Component {
     frameToInsert: Index,
     output: Array<number>,
     fps: number
-    ) {
+  ) {
     const secBegin = frameToInsert * fps;
     const input = secBegin;
     const secEnd = (frameToInsert + 1) * fps;
 
-    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-    this.__animationTracks.get(trackName);
+    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
     if (Is.not.exist(animationSet)) {
       return false;
     }
@@ -911,15 +916,17 @@ export default class AnimationComponent extends Component {
       channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
     }
     if (ArrayBuffer.isView(channel.sampler.output)) {
-      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
+      channel.sampler.output = Array.from(
+        channel.sampler.output as Float32Array
+      );
     }
 
-    for (let i=0; i < channel.sampler.input.length; i++) {
+    for (let i = 0; i < channel.sampler.input.length; i++) {
       const existedInput = channel.sampler.input[i];
       if (secBegin < existedInput && existedInput <= secEnd) {
-        channel.sampler.input.splice(i-1, 0, input);
+        channel.sampler.input.splice(i - 1, 0, input);
         channel.sampler.output.splice(
-          (i-1) * channel.sampler.outputComponentN,
+          (i - 1) * channel.sampler.outputComponentN,
           0,
           ...output
         );
@@ -934,13 +941,13 @@ export default class AnimationComponent extends Component {
     trackName: AnimationTrackName,
     pathName: AnimationPathName,
     frameToDelete: Index,
-    fps: number,
+    fps: number
   ) {
     const secBegin = frameToDelete * fps;
     const secEnd = (frameToDelete + 1) * fps;
 
-    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-    this.__animationTracks.get(trackName);
+    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
     if (Is.not.exist(animationSet)) {
       return false;
     }
@@ -954,16 +961,18 @@ export default class AnimationComponent extends Component {
       channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
     }
     if (ArrayBuffer.isView(channel.sampler.output)) {
-      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
+      channel.sampler.output = Array.from(
+        channel.sampler.output as Float32Array
+      );
     }
 
-    for (let i=0; i < channel.sampler.input.length; i++) {
+    for (let i = 0; i < channel.sampler.input.length; i++) {
       const input = channel.sampler.input[i];
       if (secBegin <= input && input < secEnd) {
         channel.sampler.input.splice(i, 1);
         channel.sampler.output.splice(
           i * channel.sampler.outputComponentN,
-          channel.sampler.outputComponentN,
+          channel.sampler.outputComponentN
         );
       }
     }
@@ -975,13 +984,13 @@ export default class AnimationComponent extends Component {
     trackName: AnimationTrackName,
     pathName: AnimationPathName,
     frame: Index,
-    fps: number,
+    fps: number
   ) {
     const secBegin = frame * fps;
     const secEnd = (frame + 1) * fps;
 
-    let animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-    this.__animationTracks.get(trackName);
+    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
     if (Is.not.exist(animationSet)) {
       return false;
     }
@@ -991,7 +1000,7 @@ export default class AnimationComponent extends Component {
       return false;
     }
 
-    for (let i=0; i < channel.sampler.input.length; i++) {
+    for (let i = 0; i < channel.sampler.input.length; i++) {
       const input = channel.sampler.input[i];
       if (secBegin <= input && input < secEnd) {
         return true;
