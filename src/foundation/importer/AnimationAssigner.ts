@@ -126,8 +126,6 @@ export default class AnimationAssigner {
       }
     }
 
-    const entityRepository = EntityRepository.getInstance();
-
     if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
@@ -158,7 +156,7 @@ export default class AnimationAssigner {
             isSameSkeleton
           );
           if (rnEntity) {
-            const newRnEntity = entityRepository.addComponentToEntity(
+            const newRnEntity = EntityRepository.addComponentToEntity(
               AnimationComponent,
               rnEntity
             );

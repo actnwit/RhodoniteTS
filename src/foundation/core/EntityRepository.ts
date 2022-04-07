@@ -4,45 +4,31 @@ import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 import {valueWithCompensation} from '../misc/MiscUtil';
 import {ComponentToComponentMethods} from '../components/ComponentTypes';
-import RnObject from './RnObject';
-import { Is } from '../misc/Is';
+import {Is} from '../misc/Is';
 
 /**
  * The class that generates and manages entities.
  */
 export default class EntityRepository {
-  private __entity_uid_count: number;
-  private __entities: Array<IEntity>;
-  private static __instance: EntityRepository;
-  private __componentRepository: ComponentRepository;
-  _components: Array<Map<ComponentTID, Component>>; // index is EntityUID
+  private static __entity_uid_count: number = Entity.invalidEntityUID;
+  private static __entities: Array<IEntity> = [];
+  private static __componentRepository: ComponentRepository =
+    ComponentRepository.getInstance();
+  static _components: Array<Map<ComponentTID, Component>> = []; // index is EntityUID
 
-  private constructor() {
-    this.__entity_uid_count = Entity.invalidEntityUID;
-
-    this.__entities = [];
-    this._components = [];
-    this.__componentRepository = ComponentRepository.getInstance();
-  }
-
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new EntityRepository();
-    }
-    return this.__instance;
-  }
+  private constructor() {}
 
   /**
    * Creates an entity
    */
-  createEntity(): IEntity {
+  public static createEntity(): IEntity {
     const entity = new Entity(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;
 
     return entity;
   }
 
-  addComponentToEntity<
+  public static addComponentToEntity<
     ComponentType extends typeof Component,
     EntityType extends IEntity
   >(
@@ -88,11 +74,10 @@ export default class EntityRepository {
    * @param componentClass The class object of the component to remove.
    * @param entityUid The entityUID of the entity.
    */
-  removeComponentFromEntity(
+  public static removeComponentFromEntity(
     componentClass: typeof Component,
     entity: IEntity
   ): IEntity {
-
     let map = this._components[entity.entityUID];
     if (map == null) {
       map = new Map();
@@ -111,7 +96,7 @@ export default class EntityRepository {
    * Gets the entity corresponding to the entityUID.
    * @param entityUid The entityUID of the entity.
    */
-  getEntity(entityUid: EntityUID): IEntity {
+  public static getEntity(entityUid: EntityUID): IEntity {
     return this.__entities[entityUid];
   }
 
@@ -120,7 +105,7 @@ export default class EntityRepository {
    * @param entityUid The entity to get the component from.
    * @param componentType The class object of the component to get.
    */
-  getComponentOfEntity(
+  public static getComponentOfEntity(
     entityUid: EntityUID,
     componentType: typeof Component
   ): Component | null {
@@ -141,7 +126,7 @@ export default class EntityRepository {
    * Search entities by the given tags.
    * @param tags The tags to search
    */
-  searchByTags(tags: RnTags) {
+  public static searchByTags(tags: RnTags) {
     const matchEntities = [];
     for (const entity of this.__entities) {
       if (entity.matchTags(tags)) {
@@ -155,7 +140,7 @@ export default class EntityRepository {
    * Gets entity by the unique name.
    * @param uniqueName The unique name of the entity.
    */
-  getEntityByUniqueName(uniqueName: string): IEntity | undefined {
+  public static getEntityByUniqueName(uniqueName: string): IEntity | undefined {
     for (const entity of this.__entities) {
       if (entity.uniqueName === uniqueName) {
         return entity;
@@ -168,15 +153,15 @@ export default class EntityRepository {
    * @private
    * Gets all entities.
    */
-  _getEntities(): IEntity[] {
+  public static _getEntities(): IEntity[] {
     return this.__entities.filter(entity => entity._isAlive);
   }
 
   /**
    * Gets the number of all entities.
    */
-  getEntitiesNumber(): number {
-    const entities =  this.__entities.filter(entity => entity._isAlive);
+  public static getEntitiesNumber(): number {
+    const entities = this.__entities.filter(entity => entity._isAlive);
     return entities.length;
   }
 }

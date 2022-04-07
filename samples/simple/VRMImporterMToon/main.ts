@@ -13,8 +13,6 @@ declare const Rn: typeof _Rn;
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  const entityRepository = Rn.EntityRepository.getInstance();
-
   // params
   const rootGroupScale = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
@@ -156,7 +154,7 @@ declare const Rn: typeof _Rn;
   ]);
 
   // CameraControllerComponent
-  entityRepository.addComponentToEntity(
+  Rn.EntityRepository.addComponentToEntity(
     Rn.CameraControllerComponent,
     mainCameraComponent.entity
   );

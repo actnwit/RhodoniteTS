@@ -635,7 +635,7 @@ export default class TransformComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ITransformEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as ITransformEntity;
   }

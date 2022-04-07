@@ -654,7 +654,7 @@ export default class CameraComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
@@ -662,11 +662,10 @@ export default class CameraComponent extends Component {
   }
 
   $logic({renderPass}: {renderPass: RenderPass}) {
-    const cameraControllerComponent =
-      this.__entityRepository.getComponentOfEntity(
-        this.__entityUid,
-        CameraControllerComponent
-      ) as CameraControllerComponent;
+    const cameraControllerComponent = EntityRepository.getComponentOfEntity(
+      this.__entityUid,
+      CameraControllerComponent
+    ) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
       this._eyeInner.copyComponents(CameraComponent._eye);
       this._directionInner.copyComponents(this._direction);
@@ -696,7 +695,7 @@ export default class CameraComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ICameraEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as ICameraEntity;
   }

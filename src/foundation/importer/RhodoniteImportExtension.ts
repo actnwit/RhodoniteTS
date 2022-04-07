@@ -25,11 +25,10 @@ export default class RhodoniteImportExtension {
 
     for (const effect of effects) {
       const entity = entities[effect.node];
-      const effekseerEntity =
-        EntityRepository.getInstance().addComponentToEntity(
-          EffekseerComponent,
-          entity
-        );
+      const effekseerEntity = EntityRepository.addComponentToEntity(
+        EffekseerComponent,
+        entity
+      );
       const effekseerComponent = effekseerEntity.getEffekseer();
       effekseerComponent.playJustAfterLoaded = true;
       // effekseerComponent.randomSeed = 1;

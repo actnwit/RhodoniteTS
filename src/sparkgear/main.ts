@@ -4,17 +4,16 @@ import TransformComponent from '../foundation/components/Transform/TransformComp
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
 
 const createSparkGearEntity = function () {
-  const entityRepository = EntityRepository.getInstance();
-  const entity = entityRepository.createEntity();
-  const entity1 = entityRepository.addComponentToEntity(
+  const entity = EntityRepository.createEntity();
+  const entity1 = EntityRepository.addComponentToEntity(
     TransformComponent,
     entity
   );
-  const entity2 = entityRepository.addComponentToEntity(
+  const entity2 = EntityRepository.addComponentToEntity(
     SceneGraphComponent,
     entity1
   );
-  const entity3 = entityRepository.addComponentToEntity(
+  const entity3 = EntityRepository.addComponentToEntity(
     SparkGearComponent,
     entity2
   );

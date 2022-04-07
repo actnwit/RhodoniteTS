@@ -503,7 +503,6 @@ export default class GltfImporter {
   }
 
   static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void {
-    const entityRepository = EntityRepository.getInstance();
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
       .boneGroups) {
@@ -533,7 +532,7 @@ export default class GltfImporter {
     VRMSpringBonePhysicsStrategy.setBoneGroups(boneGroups);
     for (const boneGroup of boneGroups) {
       for (const sg of boneGroup.rootBones) {
-        this.addPhysicsComponentRecursively(entityRepository, sg);
+        this.addPhysicsComponentRecursively(EntityRepository, sg);
       }
     }
 
@@ -573,7 +572,7 @@ export default class GltfImporter {
     sg: SceneGraphComponent
   ): void {
     const entity = sg.entity;
-    entityRepository.addComponentToEntity(PhysicsComponent, entity);
+    EntityRepository.addComponentToEntity(PhysicsComponent, entity);
     VRMSpringBonePhysicsStrategy.initialize(sg);
     if (sg.children.length > 0) {
       for (const child of sg.children) {

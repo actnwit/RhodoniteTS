@@ -49,7 +49,6 @@ export default class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
-  private static __entityRepository = EntityRepository.getInstance();
   private static __componentRepository: ComponentRepository =
     ComponentRepository.getInstance();
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
@@ -148,7 +147,7 @@ export default class System {
       System.__renderPassForProcessAuto = renderPassMain;
     }
     System.__renderPassForProcessAuto!.clearEntities();
-    const entities = this.__entityRepository._getEntities();
+    const entities = EntityRepository._getEntities();
     System.__renderPassForProcessAuto!.addEntities(
       entities as unknown as ISceneGraphEntity[]
     );

@@ -399,7 +399,7 @@ export default class SkeletalComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ISkeletalEntity {
-    return this.__entityRepository.getEntity(
+    return EntityRepository.getEntity(
       this.__entityUid
     ) as unknown as ISkeletalEntity;
   }

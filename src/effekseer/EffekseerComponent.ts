@@ -187,11 +187,11 @@ export default class EffekseerComponent extends Component {
   }
 
   $create() {
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(
+    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       SceneGraphComponent
     ) as SceneGraphComponent;
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(
+    this.__transformComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       TransformComponent
     ) as TransformComponent;
