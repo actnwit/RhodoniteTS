@@ -1,4 +1,4 @@
-import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
+import {ICameraControllerEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 
@@ -12,7 +12,6 @@ declare const Rn: typeof _Rn;
     approach: Rn.ProcessApproach.FastestWebGL1,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
-  const entityRepository = Rn.EntityRepository.getInstance();
 
   // Plane
   const texture = new Rn.VideoTexture();
@@ -45,7 +44,7 @@ declare const Rn: typeof _Rn;
   ]);
 
   // Camera
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
+  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
