@@ -301,7 +301,6 @@ export default class MeshRendererComponent extends Component {
       const primitive = primitives[i];
       const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
       const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
-      MeshRendererComponent.__firstTransparentIndex = primitive._sortkey;
       if (isTranslucency) {
         MeshRendererComponent.__firstTransparentIndex = primitive._sortkey;
         break;
@@ -341,7 +340,7 @@ export default class MeshRendererComponent extends Component {
     // After FrustumCulling, remove duplicated MeshComponents
     meshComponents = Array.from(new Set(meshComponents));
 
-    // collect meshComponentSids into the three type arrays by tranclucency
+    // collect meshComponentSids into the three type arrays by translucency
     const opaqueAndTransparentPartiallyMeshComponentSids: ComponentSID[] = [];
     const transparentPartiallyMeshComponents: MeshComponent[] = [];
     const transparentCompletelyMeshComponents: MeshComponent[] = [];
