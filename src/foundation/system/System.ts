@@ -191,12 +191,12 @@ export default class System {
       for (const componentTid of componentTids) {
         if (stage === ProcessStage.Render) {
           for (const exp of expressions) {
-            let loopN = 1;
+            let renderPassN = 1;
             if (componentTid === MeshRendererComponent.componentTID) {
-              loopN = exp!.renderPasses.length;
+              renderPassN = exp!.renderPasses.length;
             }
 
-            for (let i = 0; i < loopN; i++) {
+            for (let i = 0; i < renderPassN; i++) {
               const renderPass = exp!.renderPasses[i];
               if (typeof spector !== 'undefined') {
                 spector.setMarker(
@@ -209,12 +209,12 @@ export default class System {
                 componentTid === MeshRendererComponent.componentTID &&
                 stage === ProcessStage.Render
               ) {
+                // bindFramebuffer
                 if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
                   const glw =
                     this.__webglResourceRepository.currentWebGLContextWrapper!;
                   const gl = glw.getRawContext();
-                  gl?.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
-                  // glw.drawBuffers([RenderBufferTarget.ColorAttachment0]);
+                  gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
                 } else {
                   this.__webglResourceRepository.bindFramebuffer(
                     renderPass.getFramebuffer()
@@ -224,6 +224,7 @@ export default class System {
                   );
                 }
 
+                // setViewport for Normal (Not WebXR)
                 if (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) {
                   this.__webglResourceRepository.setViewport(
                     renderPass.getViewport()
