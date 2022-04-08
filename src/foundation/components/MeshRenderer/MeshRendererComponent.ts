@@ -299,7 +299,7 @@ export default class MeshRendererComponent extends Component {
     MeshRendererComponent.__firstTransparentIndex = -1;
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
-      const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
+      const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType;
       const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
       if (isTranslucency) {
         MeshRendererComponent.__firstTransparentIndex = primitive._sortkey;
