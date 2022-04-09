@@ -60,7 +60,6 @@ export default class MeshRendererComponent extends Component {
   private static __webglRenderingStrategy?: WebGLStrategy;
   private static __instanceIdAccessor?: Accessor;
   private static __tmp_identityMatrix: IMatrix44 = Matrix44.identity();
-  private static __cameraComponent?: CameraComponent;
   private static __firstTransparentIndex = -1;
   private static __lastTransparentIndex = -1;
   private static __manualTransparentSids?: ComponentSID[];
@@ -82,10 +81,6 @@ export default class MeshRendererComponent extends Component {
     const cameraComponents = ComponentRepository.getComponentsWithType(
       CameraComponent
     ) as CameraComponent[];
-
-    if (cameraComponents) {
-      MeshRendererComponent.__cameraComponent = cameraComponents[0];
-    }
   }
 
   static get componentTID(): ComponentTID {
@@ -416,9 +411,9 @@ export default class MeshRendererComponent extends Component {
     processStage: ProcessStageEnum;
     renderPassTickCount: Count;
   }) {
-    MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
-    if (MeshRendererComponent.__cameraComponent == null) {
-      MeshRendererComponent.__cameraComponent =
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent =
         ComponentRepository.getComponent(
           CameraComponent,
           CameraComponent.main
@@ -426,10 +421,9 @@ export default class MeshRendererComponent extends Component {
     }
     let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;
-    if (MeshRendererComponent.__cameraComponent) {
-      viewMatrix = MeshRendererComponent.__cameraComponent.viewMatrix;
-      projectionMatrix =
-        MeshRendererComponent.__cameraComponent.projectionMatrix;
+    if (cameraComponent != null) {
+      viewMatrix = cameraComponent.viewMatrix;
+      projectionMatrix = cameraComponent.projectionMatrix;
     }
 
     // Call common_$render of WebGLRenderingStrategy
