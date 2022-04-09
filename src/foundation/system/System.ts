@@ -29,6 +29,7 @@ import Frame from '../renderer/Frame';
 import Vector4 from '../math/Vector4';
 import RenderPass from '../renderer/RenderPass';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 
 declare const spector: any;
 
@@ -45,6 +46,8 @@ interface SystemInitDescription {
   fallback3dApi?: boolean;
 }
 
+type ComponentMethodName = string;
+
 export default class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
@@ -57,6 +60,10 @@ export default class System {
 
   private static __renderLoopFunc?: Function;
   private static __args: unknown[] = [];
+  private static __stageMethods: Map<
+    typeof Component,
+    Map<ProcessStageEnum, ComponentMethodName[]>
+  > = new Map();
 
   private constructor() {}
 
@@ -370,7 +377,35 @@ export default class System {
       // loadSceneGraphics(gl);
       this.restartRenderLoop();
     });
+
+    // this.detectComponentMethods();
+
     return gl;
+  }
+
+  static detectComponentMethods() {
+    const wellKnownComponentTIDs = Array.from(
+      Object.values(WellKnownComponentTIDs)
+    );
+    for (const componentTid of wellKnownComponentTIDs) {
+      const methods = [];
+      for (const stage of Component._processStages) {
+        const componentClass: typeof Component =
+          ComponentRepository.getComponentClass(componentTid)!;
+        const exist = componentClass.doesTheProcessStageMethodExist(
+          componentClass,
+          stage
+        );
+        if (exist) {
+          const map = valueWithCompensation({
+            value: this.__stageMethods.get(componentClass),
+            compensation: () => new Map(),
+          });
+          // map.set()
+          // this.__stageMethods.set(componentClass, stage.methodName);
+        }
+      }
+    }
   }
 
   static get processApproach() {
