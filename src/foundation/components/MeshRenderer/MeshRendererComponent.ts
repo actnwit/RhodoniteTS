@@ -263,11 +263,11 @@ export default class MeshRendererComponent extends Component {
     //   return sortedMeshComponentSids;
     // }
 
-    const primitiveUids = MeshRendererComponent.sort_$render_inner2(renderPass);
+    const primitiveUids = MeshRendererComponent.sort_$render_inner(renderPass);
     return primitiveUids;
   }
 
-  private static sort_$render_inner2(renderPass: RenderPass) {
+  private static sort_$render_inner(renderPass: RenderPass) {
     // get CameraComponent
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
@@ -281,7 +281,7 @@ export default class MeshRendererComponent extends Component {
     // FrustumCulling
     let primitives: Primitive[] = [];
     const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
-    primitives = MeshRendererComponent.__cullingWithViewFrustum2(
+    primitives = MeshRendererComponent.__cullingWithViewFrustum(
       cameraComponent,
       sceneGraphComponents,
       renderPass
@@ -322,114 +322,7 @@ export default class MeshRendererComponent extends Component {
     return primitiveUids;
   }
 
-  private static sort_$render_inner(
-    transparentMeshComponentSids_: ComponentSID[] = [],
-    renderPass: RenderPass
-  ) {
-    const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
-
-    let meshComponents: MeshComponent[] = [];
-    let cameraComponent = renderPass.cameraComponent;
-    // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.main
-      ) as CameraComponent;
-    }
-
-    // FrustumCulling
-    meshComponents = MeshRendererComponent.__cullingWithViewFrustum(
-      cameraComponent,
-      sceneGraphComponents,
-      meshComponents,
-      renderPass
-    );
-
-    // After FrustumCulling, remove duplicated MeshComponents
-    meshComponents = Array.from(new Set(meshComponents));
-
-    // collect meshComponentSids into the three type arrays by translucency
-    const opaqueAndTransparentPartiallyMeshComponentSids: ComponentSID[] = [];
-    const transparentPartiallyMeshComponents: MeshComponent[] = [];
-    const transparentCompletelyMeshComponents: MeshComponent[] = [];
-
-    for (let i = 0; i < meshComponents.length; i++) {
-      if (Is.false(meshComponents[i].entity.getSceneGraph().isVisible)) {
-        continue;
-      }
-      const meshRendererComponent =
-        meshComponents[i].entity.tryToGetMeshRenderer()!;
-      if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
-        const meshComponent = meshComponents[i];
-        if (meshComponent.mesh) {
-          if (
-            transparentMeshComponentSids_.length === 0 &&
-            meshComponent.mesh.isBlendPartially()
-          ) {
-            transparentPartiallyMeshComponents.push(meshComponent);
-            opaqueAndTransparentPartiallyMeshComponentSids.push(
-              meshComponent.componentSID
-            );
-          } else if (
-            transparentMeshComponentSids_.length === 0 &&
-            meshComponent.mesh.isAllBlend()
-          ) {
-            transparentCompletelyMeshComponents.push(meshComponent);
-          }
-
-          if (meshComponent.mesh.isOpaque()) {
-            opaqueAndTransparentPartiallyMeshComponentSids.push(
-              meshComponent.componentSID
-            );
-          } else {
-            if (cameraComponent) {
-              // calc View Depth
-              meshComponent.calcViewDepth(cameraComponent);
-            }
-          }
-        }
-      }
-    }
-
-    // Sort transparent meshes by depth
-    const transparentPartiallyOrAllMeshComponents =
-      transparentPartiallyMeshComponents.concat(
-        transparentCompletelyMeshComponents
-      );
-    transparentPartiallyOrAllMeshComponents.sort((a, b) => {
-      return a.viewDepth - b.viewDepth;
-    });
-
-    let transparentMeshComponentSids;
-    if (transparentMeshComponentSids_.length === 0) {
-      transparentMeshComponentSids =
-        transparentPartiallyOrAllMeshComponents.map(meshComponent => {
-          return meshComponent.componentSID;
-        });
-    } else {
-      transparentMeshComponentSids = transparentMeshComponentSids_;
-    }
-
-    MeshRendererComponent.__firstTransparentIndex =
-      opaqueAndTransparentPartiallyMeshComponentSids.length;
-
-    // Concat opaque and transparent meshes
-    const sortedMeshComponentSids =
-      opaqueAndTransparentPartiallyMeshComponentSids.concat(
-        transparentMeshComponentSids
-      );
-
-    MeshRendererComponent.__lastTransparentIndex =
-      sortedMeshComponentSids.length - 1;
-
-    // Add terminator
-    sortedMeshComponentSids.push(Component.invalidComponentSID);
-
-    return sortedMeshComponentSids;
-  }
-
-  private static __cullingWithViewFrustum2(
+  private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
     sceneGraphComponents: SceneGraphComponent[],
     renderPass: RenderPass
@@ -508,72 +401,6 @@ export default class MeshRendererComponent extends Component {
       }
     }
     return primitives;
-  }
-
-  private static __cullingWithViewFrustum(
-    cameraComponent: CameraComponent,
-    sceneGraphComponents: SceneGraphComponent[],
-    meshComponents: MeshComponent[],
-    renderPass: RenderPass
-  ) {
-    if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
-      cameraComponent.updateFrustum();
-
-      const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
-        const skeletalComponent = sg.entity.tryToGetSkeletal();
-        if (Is.exist(skeletalComponent)) {
-          return true;
-        } else {
-          const children = sg.children;
-          for (const child of children) {
-            return whetherContainsSkeletal(child);
-          }
-          return false;
-        }
-      };
-
-      const frustum = cameraComponent.frustum;
-      const doAsVisible = (
-        sg: SceneGraphComponent,
-        meshComponents: MeshComponent[]
-      ) => {
-        const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
-        for (const sg of sgs) {
-          const mesh = sg.entity.tryToGetMesh();
-          if (mesh) {
-            meshComponents!.push(mesh);
-          }
-        }
-      };
-      const frustumCullingRecursively = (
-        sg: SceneGraphComponent,
-        meshComponents: MeshComponent[]
-      ) => {
-        const result = frustum.culling(sg);
-        if (result === Visibility.Visible) {
-          doAsVisible(sg, meshComponents);
-        } else if (
-          result === Visibility.Neutral ||
-          whetherContainsSkeletal(sg)
-        ) {
-          const children = sg.children;
-          const mesh = sg.entity.tryToGetMesh();
-          if (mesh) {
-            meshComponents.push(mesh);
-          }
-          for (const child of children) {
-            frustumCullingRecursively(child, meshComponents);
-          }
-        }
-      };
-
-      for (const tlsg of sceneGraphComponents) {
-        frustumCullingRecursively(tlsg, meshComponents);
-      }
-    } else {
-      meshComponents = renderPass!.meshComponents!;
-    }
-    return meshComponents;
   }
 
   static common_$render({
