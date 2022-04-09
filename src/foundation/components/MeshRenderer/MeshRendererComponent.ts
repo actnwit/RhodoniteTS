@@ -39,6 +39,7 @@ import {ComponentToComponentMethods} from '../ComponentTypes';
 import {Is} from '../../misc/Is';
 import {Primitive} from '../../..';
 import {PrimitiveSortKey_BitOffset_TranslucencyType} from '../../geometry/types/GeometryTypes';
+import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -395,6 +396,9 @@ export default class MeshRendererComponent extends Component {
         const meshPrimitives = mesh.primitives;
         for (let j = 0; j < meshPrimitives.length; j++) {
           const primitive = meshPrimitives[j];
+          if (WebGLStrategyCommonMethod.isSkipDrawing(primitive.material)) {
+            continue;
+          }
           primitive._viewDepth = viewDepth;
           primitives.push(primitive);
         }
