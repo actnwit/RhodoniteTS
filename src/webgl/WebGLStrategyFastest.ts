@@ -306,7 +306,8 @@ export default class WebGLStrategyFastest implements WebGLStrategy {
         const instanceSizeInScalar =
           scalarSizeOfProperty * (info.maxIndex ?? 1);
         indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
-        indexStr += `int scalar_idx = ${ // IndexOf4Bytes
+        indexStr += `int scalar_idx = ${
+          // IndexOf4Bytes
           dataBeginPos * 4 // IndexOf16bytes to IndexOf4Bytes
         } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
       }
@@ -440,7 +441,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
-          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] = primitive.positionAccessorVersion!;
+        this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] =
+          primitive.positionAccessorVersion!;
       }
     }
   }
@@ -457,7 +459,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const primitive = mesh.getPrimitiveAt(i);
       if (
         Is.not.exist(primitive.vertexHandles) ||
-        primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
+        primitive.positionAccessorVersion !==
+          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
       ) {
         return false;
       }
@@ -514,7 +517,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       const bufferSizeForDataTextureInByte =
-        gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+        gpuInstanceDataBuffer.takenSizeInByte -
+        startOffsetOfDataTextureOnGPUInstanceData;
       const height = Math.min(
         Math.ceil(
           bufferSizeForDataTextureInByte /
@@ -549,7 +553,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // debug
       if (!WebGLStrategyFastest.__isDebugOperationToDataTextureBufferDone) {
-        MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
+        MiscUtil.downloadTypedArray(
+          'Rhodonite_dataTextureBuffer.bin',
+          floatDataTextureBuffer
+        );
         WebGLStrategyFastest.__isDebugOperationToDataTextureBufferDone = true;
       }
     } else {
@@ -600,7 +607,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         // the DataTexture size (GPU global storage size - UBO space size)
         const actualSpaceForDataTextureInByte =
-          gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+          gpuInstanceDataBuffer.takenSizeInByte -
+          startOffsetOfDataTextureOnGPUInstanceData;
 
         // spare padding texel for texture alignment (to edge of the width of texture)
         const paddingSpaceTexel =
@@ -611,9 +619,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
           finalSize: dataTextureByteSize,
-          srcs: [gpuInstanceDataBuffer.getArrayBuffer(), morphBufferArrayBuffer],
+          srcs: [
+            gpuInstanceDataBuffer.getArrayBuffer(),
+            morphBufferArrayBuffer,
+          ],
           srcsCopySize: [
-// final size =
+            // final size =
             actualSpaceForDataTextureInByte + paddingSpaceBytes,
             morphBufferTakenSizeInByte,
           ],
@@ -896,7 +907,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     renderPassTickCount: Count
   ) {
     if (typeof spector !== 'undefined') {
-      spector.setMarker(`|  |  Fastest:common_$render#`);
+      spector.setMarker('|  |  Fastest:common_$render#');
     }
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
@@ -922,21 +933,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         }
 
         const primitive = Primitive.getPrimitive(primitiveUid);
-        if (Is.not.exist(primitive)) {
-          continue;
-        }
         const mesh = primitive.mesh as Mesh;
-        if (Is.not.exist(mesh)) {
-          continue;
-        }
-        const meshEntity = mesh.meshEntity;
-        if (Is.not.exist(meshEntity)) {
-          continue;
-        }
+        const meshEntity = mesh.meshEntity!;
         const meshComponent = meshEntity.getMesh();
-        if (meshComponent == null) {
-          break;
-        }
         if (!mesh?.isOriginalMesh()) {
           continue;
         }
@@ -954,10 +953,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         let firstTime = false;
 
-        const material: Material = renderPass.getAppropriateMaterial(
-          primitive,
-          primitive.material
-        );
+        const material: Material = renderPass.getAppropriateMaterial(primitive);
         if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
           continue;
         }

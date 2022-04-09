@@ -342,10 +342,7 @@ export default class RenderPass extends RnObject {
     return this.__primitiveMaterial.has(primitive);
   }
 
-  getAppropriateMaterial(
-    primitive: Primitive,
-    defaultMaterial: Material
-  ): Material {
+  getAppropriateMaterial(primitive: Primitive): Material {
     let material;
 
     if (this.__hasMaterialOf(primitive)) {
@@ -353,7 +350,7 @@ export default class RenderPass extends RnObject {
     } else if (this.material != null) {
       material = this.material;
     } else {
-      material = defaultMaterial;
+      material = primitive.material;
     }
     return material;
   }
