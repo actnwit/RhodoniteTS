@@ -799,7 +799,7 @@ export default class Material extends RnObject {
   ///
 
   isEmptyMaterial(): boolean {
-    if (Is.not.exist(this.__materialNode)) {
+    if (this.__materialNode === undefined) {
       return true;
     } else {
       return false;

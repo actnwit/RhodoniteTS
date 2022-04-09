@@ -880,13 +880,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   private __setCurrentComponentSIDsForEachPrimitive(
     gl: WebGLRenderingContext,
-    renderPass: RenderPass,
     material: Material,
-    entity: ISceneGraphEntity
+    shaderProgram: WebGLProgram
   ) {
     WebGLStrategyFastest.__currentComponentSIDs!._v[0] = material.materialSID;
     gl.uniform1fv(
-      (WebGLStrategyFastest.__shaderProgram as any).currentComponentSIDs,
+      (shaderProgram as any).currentComponentSIDs,
       WebGLStrategyFastest.__currentComponentSIDs!._v as Float32Array
     );
   }
@@ -950,9 +949,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         let firstTime = false;
 
         const material: Material = renderPass.getAppropriateMaterial(primitive);
-        if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
-          continue;
-        }
 
         const shaderProgramUid = material._shaderProgramUid;
         const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
@@ -970,8 +966,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           )! as WebGLProgram;
           gl.useProgram(shaderProgram);
 
+          // Bind DataTexture
           gl.uniform1i((shaderProgram as any).dataTexture, 7);
-
           this.__webglResourceRepository.bindTexture2D(
             7,
             this.__dataTextureUid
@@ -987,9 +983,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         this.__setCurrentComponentSIDsForEachPrimitive(
           gl,
-          renderPass,
           material,
-          entity
+          WebGLStrategyFastest.__shaderProgram
         );
 
         WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
