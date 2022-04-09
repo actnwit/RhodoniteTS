@@ -956,6 +956,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         let firstTime = false;
 
         const material: Material = renderPass.getAppropriateMaterial(primitive);
+        if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
+          continue;
+        }
 
         const shaderProgramUid = material._shaderProgramUid;
         const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);

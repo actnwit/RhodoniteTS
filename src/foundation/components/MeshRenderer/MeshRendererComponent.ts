@@ -397,7 +397,7 @@ export default class MeshRendererComponent extends Component {
         for (let j = 0; j < meshPrimitives.length; j++) {
           const primitive = meshPrimitives[j];
           if (WebGLStrategyCommonMethod.isSkipDrawing(primitive.material)) {
-            continue;
+            // continue;
           }
           primitive._viewDepth = viewDepth;
           primitives.push(primitive);

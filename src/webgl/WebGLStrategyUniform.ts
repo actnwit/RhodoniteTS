@@ -445,8 +445,10 @@ mat3 get_normalMatrix(float instanceId) {
 
         const primitive = Primitive.getPrimitive(primitiveUid);
         const material: Material = renderPass.getAppropriateMaterial(primitive);
+        if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
+          continue;
+        }
         WebGLStrategyCommonMethod.startDepthMasking(primitive, gl);
-
         const mesh = primitive.mesh as Mesh;
         const meshEntity = mesh.meshEntity!;
         if (!meshEntity.getSceneGraph().isVisible) {
