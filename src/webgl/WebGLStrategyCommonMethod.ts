@@ -19,6 +19,7 @@ import {ShaderType} from '../foundation/definitions/ShaderType';
 import Scalar from '../foundation/math/Scalar';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Vector3 from '../foundation/math/Vector3';
+import { Primitive } from '..';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -169,17 +170,17 @@ function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
-function startDepthMasking(idx: number, gl: WebGLRenderingContext) {
+function startDepthMasking(primitive: Primitive, gl: WebGLRenderingContext) {
   if (MeshRendererComponent.isDepthMaskTrueForTransparencies) {
     return;
   }
-  if (idx === MeshRendererComponent.firstTransparentIndex) {
+  if (primitive._sortkey === MeshRendererComponent.firstTransparentIndex) {
     gl.depthMask(false);
   }
 }
 
-function endDepthMasking(idx: number, gl: WebGLRenderingContext) {
-  if (idx === MeshRendererComponent.lastTransparentIndex) {
+function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext) {
+  if (primitive._sortkey === MeshRendererComponent.lastTransparentIndex) {
     gl.depthMask(true);
   }
 }
@@ -222,13 +223,8 @@ function isMaterialsSetup(meshComponent: MeshComponent) {
   }
 }
 
-function isSkipDrawing(material: Material, idx: Index) {
-  if (
-    material.isEmptyMaterial() ||
-    material._shaderProgramUid === -1 ||
-    (idx < MeshRendererComponent.firstTransparentIndex && material.isBlend()) ||
-    (idx >= MeshRendererComponent.firstTransparentIndex && !material.isBlend())
-  ) {
+function isSkipDrawing(material: Material) {
+  if (material.isEmptyMaterial() || material._shaderProgramUid === -1) {
     return true;
   } else {
     return false;

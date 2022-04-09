@@ -42,7 +42,7 @@ export default interface WebGLStrategy {
   ): void;
   common_$prerender(): void;
   common_$render(
-    meshComponentSids: Int32Array,
+    primitiveUids: Int32Array,
     meshComponents: MeshComponent[],
     viewMatrix: IMatrix44,
     projectionMatrix: IMatrix44,

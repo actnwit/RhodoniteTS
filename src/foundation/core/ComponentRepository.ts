@@ -169,15 +169,8 @@ export default class ComponentRepository {
    * Gets all componentTIDs.
    */
   public static getComponentTIDs(): Array<ComponentTID> {
-    const indices = [];
-    for (const type of this.__components.keys()) {
-      indices.push(type);
-    }
-    indices.sort((a, b) => {
-      if (a < b) return -1;
-      if (a > b) return 1;
-      return 0;
-    });
-    return indices;
+    const componentTids = Array.from(this.__components.keys());
+    componentTids.sort((a, b) => a - b);
+    return componentTids;
   }
 }

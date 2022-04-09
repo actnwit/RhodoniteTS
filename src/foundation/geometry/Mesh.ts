@@ -16,7 +16,9 @@ import MutableVector3 from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
-import {RaycastResultEx1} from './types/GeometryTypes';
+import {IMesh, RaycastResultEx1} from './types/GeometryTypes';
+import {IMeshEntity} from '../helpers/EntityHelper';
+import {MeshComponent} from '../..';
 
 /**
  * The Mesh class.
@@ -24,7 +26,7 @@ import {RaycastResultEx1} from './types/GeometryTypes';
  * If the latter, this mesh object is an 'instanced mesh', which has no primitives.
  * Instanced meshes refer original mesh's primitives when drawing.
  */
-export default class Mesh {
+export default class Mesh implements IMesh {
   private readonly __meshUID: MeshUID;
   public static readonly invalidateMeshUID = -1;
   public static __mesh_uid_count = Mesh.invalidateMeshUID;
@@ -44,6 +46,7 @@ export default class Mesh {
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
   private __latestPrimitivePositionAccessorVersion = 0;
+  private __weakRefMeshEntity: WeakMap<Mesh, IMeshEntity> = new WeakMap();
 
   /**
    * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
@@ -95,11 +98,31 @@ export default class Mesh {
     }
   }
 
+  public getVaoUidsByPrimitiveUid(primitiveUid: Index): CGAPIResourceHandle {
+    const index = this.__primitives.findIndex(
+      primitive => primitive.primitiveUid === primitiveUid
+    );
+
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.getVaoUids(index);
+    } else {
+      return this.__vaoUids[index];
+    }
+  }
+
+  get meshEntity() {
+    return this.__weakRefMeshEntity.get(this);
+  }
+
+  _belongToMeshComponent(meshComponent: MeshComponent) {
+    this.__weakRefMeshEntity.set(this, meshComponent.entity);
+  }
   /**
    * Adds primitive.
    * @param primitive The primitive object.
    */
   public addPrimitive(primitive: Primitive): void {
+    primitive._belongToMesh(this);
     if (this.isInstanceMesh()) {
       // De-instancing
       this.__instanceOf!.__instances = this.__instanceOf!.__instances.filter(
@@ -463,9 +486,13 @@ export default class Mesh {
     }
 
     for (const primitive of this.__primitives) {
-      if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
+      if (
+        primitive.positionAccessorVersion !==
+        this.__latestPrimitivePositionAccessorVersion
+      ) {
         this.__localAABB.initialize();
-        this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
+        this.__latestPrimitivePositionAccessorVersion =
+          primitive.positionAccessorVersion!;
         break;
       }
     }
@@ -898,6 +925,9 @@ export default class Mesh {
     normalAccessor.setVec3(i + 2, nx, ny, nz, {indicesAccessor});
   }
 
+  getPrimitiveIndexInMesh(primitive: Primitive) {
+    return this.primitives.indexOf(primitive);
+  }
   // makeVerticesSeparated() {
   //   for (let primitive of this.__primitives) {
   //     if (primitive.hasIndices()) {

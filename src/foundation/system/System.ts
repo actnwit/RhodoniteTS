@@ -1,4 +1,4 @@
-import {ProcessStage} from '../definitions/ProcessStage';
+import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import ComponentRepository from '../core/ComponentRepository';
 import {
   ProcessApproachEnum,
@@ -18,7 +18,7 @@ import Vector3 from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
 import Time from '../misc/Time';
 import SystemState from './SystemState';
-import {MiscUtil} from '../misc/MiscUtil';
+import {MiscUtil, valueWithCompensation} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
@@ -29,6 +29,8 @@ import Frame from '../renderer/Frame';
 import Vector4 from '../math/Vector4';
 import RenderPass from '../renderer/RenderPass';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import { WebXRSystem } from '../..';
 
 declare const spector: any;
 
@@ -45,6 +47,8 @@ interface SystemInitDescription {
   fallback3dApi?: boolean;
 }
 
+type ComponentMethodName = string;
+
 export default class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
@@ -57,6 +61,10 @@ export default class System {
 
   private static __renderLoopFunc?: Function;
   private static __args: unknown[] = [];
+  private static __stageMethods: Map<
+    typeof Component,
+    Map<ProcessStageEnum, ComponentMethodName[]>
+  > = new Map();
 
   private constructor() {}
 
@@ -184,19 +192,21 @@ export default class System {
       | undefined;
     const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
 
+    const componentTids = ComponentRepository.getComponentTIDs();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
-      const componentTids = ComponentRepository.getComponentTIDs();
       for (const componentTid of componentTids) {
+        const componentClass: typeof Component =
+          ComponentRepository.getComponentClass(componentTid)!;
         if (stage === ProcessStage.Render) {
           for (const exp of expressions) {
-            let loopN = 1;
+            let renderPassN = 1;
             if (componentTid === MeshRendererComponent.componentTID) {
-              loopN = exp!.renderPasses.length;
+              renderPassN = exp!.renderPasses.length;
             }
 
-            for (let i = 0; i < loopN; i++) {
+            for (let i = 0; i < renderPassN; i++) {
               const renderPass = exp!.renderPasses[i];
               if (typeof spector !== 'undefined') {
                 spector.setMarker(
@@ -209,32 +219,16 @@ export default class System {
                 componentTid === MeshRendererComponent.componentTID &&
                 stage === ProcessStage.Render
               ) {
-                if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
-                  const glw =
-                    this.__webglResourceRepository.currentWebGLContextWrapper!;
-                  const gl = glw.getRawContext();
-                  gl?.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
-                  // glw.drawBuffers([RenderBufferTarget.ColorAttachment0]);
-                } else {
-                  this.__webglResourceRepository.bindFramebuffer(
-                    renderPass.getFramebuffer()
-                  );
-                  this.__webglResourceRepository.setDrawTargets(
-                    renderPass.getFramebuffer()
-                  );
-                }
+                // bind Framebuffer
+                System.bindFramebuffer(webXRSystem, renderPass);
 
-                if (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) {
-                  this.__webglResourceRepository.setViewport(
-                    renderPass.getViewport()
-                  );
-                }
+                // set Viewport for Normal (Not WebXR)
+                System.setViewportForNormalRendering(webXRSystem, renderPass);
 
+                // clear Framebuffer
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
               }
 
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
               componentClass.updateComponentsOfEachProcessStage(
                 componentClass,
                 stage,
@@ -258,7 +252,7 @@ export default class System {
                 processStage: stage,
                 processApproach: this.__processApproach,
                 strategy: this.__webglStrategy!,
-                renderPass: renderPass,
+                renderPass: void 0,
                 renderPassTickCount: this.__renderPassTickCount,
               });
 
@@ -273,8 +267,6 @@ export default class System {
             }
           }
         } else {
-          const componentClass: typeof Component =
-            ComponentRepository.getComponentClass(componentTid)!;
           componentClass.updateComponentsOfEachProcessStage(
             componentClass,
             stage
@@ -305,6 +297,33 @@ export default class System {
     }
 
     Time._processEnd();
+  }
+
+  private static setViewportForNormalRendering(
+    webXRSystem: WebXRSystem | undefined,
+    renderPass: RenderPass
+  ) {
+    if (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) {
+      this.__webglResourceRepository.setViewport(renderPass.getViewport());
+    }
+  }
+
+  private static bindFramebuffer(
+    webXRSystem: WebXRSystem | undefined,
+    renderPass: RenderPass
+  ) {
+    if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
+    } else {
+      this.__webglResourceRepository.bindFramebuffer(
+        renderPass.getFramebuffer()
+      );
+      this.__webglResourceRepository.setDrawTargets(
+        renderPass.getFramebuffer()
+      );
+    }
   }
 
   public static async init(desc: SystemInitDescription) {
@@ -369,7 +388,35 @@ export default class System {
       // loadSceneGraphics(gl);
       this.restartRenderLoop();
     });
+
+    // this.detectComponentMethods();
+
     return gl;
+  }
+
+  static detectComponentMethods() {
+    const wellKnownComponentTIDs = Array.from(
+      Object.values(WellKnownComponentTIDs)
+    );
+    for (const componentTid of wellKnownComponentTIDs) {
+      const methods = [];
+      for (const stage of Component._processStages) {
+        const componentClass: typeof Component =
+          ComponentRepository.getComponentClass(componentTid)!;
+        const exist = componentClass.doesTheProcessStageMethodExist(
+          componentClass,
+          stage
+        );
+        if (exist) {
+          const map = valueWithCompensation({
+            value: this.__stageMethods.get(componentClass),
+            compensation: () => new Map(),
+          });
+          // map.set()
+          // this.__stageMethods.set(componentClass, stage.methodName);
+        }
+      }
+    }
   }
 
   static get processApproach() {

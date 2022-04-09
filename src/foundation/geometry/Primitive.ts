@@ -18,12 +18,18 @@ import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
 import Vector3 from '../math/Vector3';
-import Matrix33 from '../math/Matrix33';
-import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
-import {RaycastResult, RaycastResultEx1} from './types/GeometryTypes';
+import {
+  IMesh,
+  PrimitiveSortKey,
+  PrimitiveSortKeyOffset,
+  PrimitiveSortKey_BitOffset_Material,
+  PrimitiveSortKey_BitOffset_TranslucencyType,
+  RaycastResult,
+  RaycastResultEx1,
+} from './types/GeometryTypes';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -52,6 +58,10 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __latestPositionAccessorVersion = 0;
+  private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
+  private static __primitives: Primitive[] = [];
+  public _sortkey: PrimitiveSortKey = 0;
+  public _viewDepth = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -61,11 +71,34 @@ export class Primitive extends RnObject {
 
   set material(mat: Material) {
     this.__material = mat;
+    this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
+    this.setSortKey(
+      PrimitiveSortKey_BitOffset_TranslucencyType,
+      mat.alphaMode.index
+    );
     mat._addBelongPrimitive(this);
   }
 
   get material() {
     return this.__material;
+  }
+
+  setSortKey(offset: PrimitiveSortKeyOffset, value: number) {
+    const offsetValue = value << offset;
+    this._sortkey |= offsetValue;
+  }
+
+  /**
+   * belong to mesh (weak reference)
+   * @param mesh
+   */
+  _belongToMesh(mesh: IMesh) {
+    // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
+    this.__weakRefMesh.set(this, mesh);
+  }
+
+  get mesh(): IMesh | undefined {
+    return this.__weakRefMesh.get(this);
   }
 
   _backupMaterial() {
@@ -74,6 +107,10 @@ export class Primitive extends RnObject {
 
   _restoreMaterial() {
     this.__material = this._prevMaterial;
+  }
+
+  static getPrimitive(primitiveUid: PrimitiveUID) {
+    return this.__primitives[primitiveUid];
   }
 
   setData(
@@ -96,6 +133,7 @@ export class Primitive extends RnObject {
     this.__mode = mode;
 
     this.__primitiveUid = Primitive.__primitiveCount++;
+    Primitive.__primitives[this.__primitiveUid] = this;
 
     // if (Primitive.__headerAccessor == null) {
     //   // primitive 0
@@ -347,8 +385,10 @@ export class Primitive extends RnObject {
   }
 
   get AABB() {
-    if (this.__aabb.isVanilla() ||
-      this.positionAccessorVersion !== this.__latestPositionAccessorVersion) {
+    if (
+      this.__aabb.isVanilla() ||
+      this.positionAccessorVersion !== this.__latestPositionAccessorVersion
+    ) {
       const positionAccessor = this.__attributes.get(
         VertexAttribute.Position.XYZ
       )!;
@@ -472,7 +512,7 @@ export class Primitive extends RnObject {
 
     let hitPos0IndexBase = 0;
     let hitPos1IndexBase = 0;
-    let hitPos2IndexBase = 0;
+    const hitPos2IndexBase = 0;
     let u = 0;
     let v = 0;
     if (this.hasIndices()) {
@@ -550,13 +590,13 @@ export class Primitive extends RnObject {
     if (currentShortestT === Number.MAX_VALUE) {
       return {
         result: false,
-      }
+      };
     } else {
       const currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
         dirVec3.x * currentShortestT + origVec3.x,
         dirVec3.y * currentShortestT + origVec3.y,
         dirVec3.z * currentShortestT + origVec3.z
-      )
+      );
       return {
         result: true,
         data: {
@@ -630,7 +670,7 @@ export class Primitive extends RnObject {
       }
       MutableVector3.crossTo(tvec, e1, qvec);
       v = Vector3.dot(dirVec3, qvec);
-      if (v < 0.0 || (u + v) > det) {
+      if (v < 0.0 || u + v > det) {
         return {
           result: false,
         };
@@ -645,7 +685,7 @@ export class Primitive extends RnObject {
       }
       MutableVector3.crossTo(tvec, e1, qvec);
       v = Vector3.dot(dirVec3, qvec);
-      if (v > 0.0 || (u + v) < det) {
+      if (v > 0.0 || u + v < det) {
         return {
           result: false,
         };
@@ -698,5 +738,4 @@ export class Primitive extends RnObject {
       .add(pos2);
     return intersectedPosVec3;
   }
-
 }

@@ -20,6 +20,7 @@ export default class AABB {
   private __isCenterPointDirty = false;
   private __isLengthCenterToCornerDirty = false;
   private static __tmpVector3 = MutableVector3.zero();
+  private __isVanilla = true;
 
   constructor() {}
 
@@ -42,6 +43,8 @@ export default class AABB {
     this.__lengthCenterToCorner = aabb.__lengthCenterToCorner;
     this.__isCenterPointDirty = aabb.__isCenterPointDirty;
     this.__isLengthCenterToCornerDirty = aabb.__isLengthCenterToCornerDirty;
+
+    this.__isVanilla = false;
     return this;
   }
 
@@ -60,12 +63,16 @@ export default class AABB {
     this.__lengthCenterToCorner = 0;
     this.__isCenterPointDirty = false;
     this.__isLengthCenterToCornerDirty = false;
+
+    this.__isVanilla = true;
   }
 
   set minPoint(val: Vector3) {
     this.__min.copyComponents(val);
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
+
+    this.__isVanilla = false;
   }
 
   get minPoint() {
@@ -76,6 +83,8 @@ export default class AABB {
     this.__max.copyComponents(val);
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
+
+    this.__isVanilla = false;
   }
 
   get maxPoint() {
@@ -83,18 +92,7 @@ export default class AABB {
   }
 
   isVanilla() {
-    if (
-      this.__min.x >= Number.MAX_VALUE &&
-      this.__min.y >= Number.MAX_VALUE &&
-      this.__min.z >= Number.MAX_VALUE &&
-      this.__max.x <= -Number.MAX_VALUE &&
-      this.__max.y <= -Number.MAX_VALUE &&
-      this.__max.z <= -Number.MAX_VALUE
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.__isVanilla;
   }
 
   addPosition(positionVector: Vector3) {
@@ -114,6 +112,8 @@ export default class AABB {
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
+
+    this.__isVanilla = false;
 
     return positionVector;
   }
@@ -135,6 +135,8 @@ export default class AABB {
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
 
+    this.__isVanilla = false;
+
     return array;
   }
 
@@ -151,36 +153,30 @@ export default class AABB {
     if (this.isVanilla()) {
       this.__min.copyComponents(aabb.minPoint);
       this.__max.copyComponents(aabb.maxPoint);
-      isUpdated = true;
-      return isUpdated;
+      this.__isVanilla = false;
+      return true;
     }
 
     if (aabb.minPoint.x < this.__min.x) {
       this.__min.x = aabb.minPoint.x;
-      isUpdated = true;
     }
     if (aabb.minPoint.y < this.__min.y) {
       this.__min.y = aabb.minPoint.y;
-      isUpdated = true;
     }
     if (aabb.minPoint.z < this.__min.z) {
       this.__min.z = aabb.minPoint.z;
-      isUpdated = true;
     }
     if (this.__max.x < aabb.maxPoint.x) {
       this.__max.x = aabb.maxPoint.x;
-      isUpdated = true;
     }
     if (this.__max.y < aabb.maxPoint.y) {
       this.__max.y = aabb.maxPoint.y;
-      isUpdated = true;
     }
     if (this.__max.z < aabb.maxPoint.z) {
       this.__max.z = aabb.maxPoint.z;
-      isUpdated = true;
     }
 
-    return isUpdated;
+    return true;
   }
 
   get centerPoint() {
