@@ -216,28 +216,13 @@ export default class System {
                 componentTid === MeshRendererComponent.componentTID &&
                 stage === ProcessStage.Render
               ) {
-                // bindFramebuffer
-                if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
-                  const glw =
-                    this.__webglResourceRepository.currentWebGLContextWrapper!;
-                  const gl = glw.getRawContext();
-                  gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
-                } else {
-                  this.__webglResourceRepository.bindFramebuffer(
-                    renderPass.getFramebuffer()
-                  );
-                  this.__webglResourceRepository.setDrawTargets(
-                    renderPass.getFramebuffer()
-                  );
-                }
+                // bind Framebuffer
+                System.bindFramebuffer(webXRSystem, renderPass);
 
-                // setViewport for Normal (Not WebXR)
-                if (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) {
-                  this.__webglResourceRepository.setViewport(
-                    renderPass.getViewport()
-                  );
-                }
+                // set Viewport for Normal (Not WebXR)
+                System.setViewportForNormalRendering(webXRSystem, renderPass);
 
+                // clear Framebuffer
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
               }
 
@@ -313,6 +298,33 @@ export default class System {
     }
 
     Time._processEnd();
+  }
+
+  private static setViewportForNormalRendering(
+    webXRSystem: WebXRSystem | undefined,
+    renderPass: RenderPass
+  ) {
+    if (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) {
+      this.__webglResourceRepository.setViewport(renderPass.getViewport());
+    }
+  }
+
+  private static bindFramebuffer(
+    webXRSystem: WebXRSystem | undefined,
+    renderPass: RenderPass
+  ) {
+    if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
+    } else {
+      this.__webglResourceRepository.bindFramebuffer(
+        renderPass.getFramebuffer()
+      );
+      this.__webglResourceRepository.setDrawTargets(
+        renderPass.getFramebuffer()
+      );
+    }
   }
 
   public static async init(desc: SystemInitDescription) {
