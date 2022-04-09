@@ -8,7 +8,6 @@ import {EntityUID} from '../../types/CommonTypes';
 import Material from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
 import System from '../system/System';
-import ModuleManager from '../system/ModuleManager';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {Primitive} from '../geometry/Primitive';
 import MutableVector4 from '../math/MutableVector4';
@@ -16,6 +15,7 @@ import {IVector4} from '../math/IVector';
 import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import CameraComponent from '../components/Camera/CameraComponent';
+import getRenderingStrategy from '../../webgl/getRenderingStrategy';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -83,18 +83,19 @@ export default class RenderPass extends RnObject {
       );
 
       // Eliminate duplicates
-      const map: Map<EntityUID, IMeshEntity | ISceneGraphEntity> = this.__entities
-        .concat(collectedEntities)
-        .reduce(
-          (
-            map: Map<EntityUID, IMeshEntity | ISceneGraphEntity>,
-            entity: IMeshEntity | ISceneGraphEntity
-          ) => {
-            map.set(entity.entityUID, entity);
-            return map;
-          },
-          new Map()
-        );
+      const map: Map<EntityUID, IMeshEntity | ISceneGraphEntity> =
+        this.__entities
+          .concat(collectedEntities)
+          .reduce(
+            (
+              map: Map<EntityUID, IMeshEntity | ISceneGraphEntity>,
+              entity: IMeshEntity | ISceneGraphEntity
+            ) => {
+              map.set(entity.entityUID, entity);
+              return map;
+            },
+            new Map()
+          );
 
       this.__entities = Array.from(map.values());
     }
@@ -324,11 +325,7 @@ export default class RenderPass extends RnObject {
     }
     const processApproach = System.processApproach;
 
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = moduleManager.getModule(moduleName)! as any;
-    const newWebglRenderingStrategyRef =
-      webglModule.getRenderingStrategy(processApproach);
+    const newWebglRenderingStrategyRef = getRenderingStrategy(processApproach);
     this.__webglRenderingStrategy = newWebglRenderingStrategyRef;
 
     return newWebglRenderingStrategyRef;

@@ -39,7 +39,6 @@ import {
   GLTF2_EXPORT_EMBEDDED as _GLTF2_EXPORT_EMBEDDED,
 } from './foundation/exporter/Gltf2Exporter';
 import _ModelConverter from './foundation/importer/ModelConverter';
-import _ModuleManager from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
 import _CameraComponent from './foundation/components/Camera/CameraComponent';
 import _AnimationComponent from './foundation/components/Animation/AnimationComponent';
@@ -250,7 +249,6 @@ export default {
   DrcPointCloudImporter: _DrcPointCloudImporter,
   GltfImporter: _GltfImporter,
   ModelConverter: _ModelConverter,
-  ModuleManager: _ModuleManager,
   MemoryManager: _MemoryManager,
   CameraComponent: _CameraComponent,
   AnimationComponent: _AnimationComponent,
@@ -401,7 +399,6 @@ export type Gltf2Importer = _Gltf2Importer;
 export type DrcPointCloudImporter = _DrcPointCloudImporter;
 export type GltfImporter = _GltfImporter;
 export type ModelConverter = _ModelConverter;
-export type ModuleManager = _ModuleManager;
 export type MemoryManager = _MemoryManager;
 export type CameraComponent = _CameraComponent;
 export type CameraType = typeof _CameraType;

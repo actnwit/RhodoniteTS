@@ -8,6 +8,7 @@ import {IMatrix44} from '../foundation/math/IMatrix';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import EntityHelper, {ICameraEntity} from '../foundation/helpers/EntityHelper';
+import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;
@@ -34,17 +35,17 @@ export default class WebVRSystem {
 
   private constructor() {
     this.__leftCameraEntity = EntityHelper.createCameraEntity();
-    this.__leftCameraEntity.tryToSetUniqueName('WebVR Left Camera', true)
+    this.__leftCameraEntity.tryToSetUniqueName('WebVR Left Camera', true);
     this.__leftCameraEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
-    })
+    });
     this.__rightCameraEntity = EntityHelper.createCameraEntity();
-    this.__rightCameraEntity.tryToSetUniqueName('WebVR Right Camera', true)
+    this.__rightCameraEntity.tryToSetUniqueName('WebVR Right Camera', true);
     this.__rightCameraEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
-    })
+    });
   }
 
   static getInstance() {
@@ -80,9 +81,8 @@ export default class WebVRSystem {
     minRenderHeight?: number
   ) {
     return new Promise((resolve, reject) => {
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-      const glw = webglResourceRepository.currentWebGLContextWrapper;
+      const glw =
+        WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
       if (
         glw != null &&
         this.__webvrDisplay != null &&
@@ -119,7 +119,7 @@ export default class WebVRSystem {
             rightEye.renderHeight
           );
         }
-        webglResourceRepository.resizeCanvas(
+        WebGLResourceRepository.getInstance().resizeCanvas(
           this.__canvasWidthForVR,
           this.__canvasHeightForVR
         );
@@ -145,8 +145,7 @@ export default class WebVRSystem {
   async readyForWebVR(requestButtonDom: HTMLElement) {
     return new Promise((resolve, reject) => {
       const glw =
-        CGAPIResourceRepository.getWebGLResourceRepository()
-          .currentWebGLContextWrapper;
+        WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
       if (glw == null) {
         reject('WebGL Context is not ready yet.');
         return;
@@ -221,9 +220,7 @@ export default class WebVRSystem {
     if (this.__webvrDisplay && this.__webvrDisplay.isPresenting) {
       await this.__webvrDisplay.exitPresent();
     }
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.resizeCanvas(
+    WebGLResourceRepository.getInstance().resizeCanvas(
       this.__canvasWidthBackup,
       this.__canvasHeightBackup
     );

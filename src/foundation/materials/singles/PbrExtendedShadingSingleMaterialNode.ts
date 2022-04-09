@@ -24,6 +24,7 @@ import PBRExtendedShaderVertex from '../../../webgl/shaderity_shaders/PBRExtende
 import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
+import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 
 export default class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
   static detailNormalTexture = new ShaderSemanticsClass({
@@ -494,36 +495,36 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
     this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
 
     // Env map
-    this.__webglResourceRepository.setUniformValue(
+    WebGLResourceRepository.getInstance().setUniformValue(
       shaderProgram,
       ShaderSemantics.DiffuseEnvTexture.str,
       firstTime,
       [5, -1]
     );
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      const texture = this.__webglResourceRepository.getWebGLResource(
+      const texture = WebGLResourceRepository.getInstance().getWebGLResource(
         args.diffuseCube.cgApiResourceUid!
       ) as WebGLTexture;
       args.glw.bindTextureCube(5, texture);
     } else {
-      const texture = this.__webglResourceRepository.getWebGLResource(
+      const texture = WebGLResourceRepository.getInstance().getWebGLResource(
         AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid
       ) as WebGLTexture;
       args.glw.bindTextureCube(5, texture);
     }
-    this.__webglResourceRepository.setUniformValue(
+    WebGLResourceRepository.getInstance().setUniformValue(
       shaderProgram,
       ShaderSemantics.SpecularEnvTexture.str,
       firstTime,
       [6, -1]
     );
     if (args.specularCube && args.specularCube.isTextureReady) {
-      const texture = this.__webglResourceRepository.getWebGLResource(
+      const texture = WebGLResourceRepository.getInstance().getWebGLResource(
         args.specularCube.cgApiResourceUid!
       ) as WebGLTexture;
       args.glw.bindTextureCube(6, texture);
     } else {
-      const texture = this.__webglResourceRepository.getWebGLResource(
+      const texture = WebGLResourceRepository.getInstance().getWebGLResource(
         AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid
       ) as WebGLTexture;
       args.glw.bindTextureCube(6, texture);
@@ -545,7 +546,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
       specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
     }
     if (args.setUniform) {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.IBLParameter.str,
         firstTime,
@@ -556,7 +557,7 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
           w: meshRenderComponent!.rotationOfCubeMap,
         }
       );
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.HDRIFormat.str,
         firstTime,
@@ -576,13 +577,13 @@ export default class PbrExtendedShadingSingleMaterialNode extends AbstractMateri
     }
 
     // BRDF LUT
-    // updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
+    // updated = WebglResourceRepository.getInstance().setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
     // if (updated) {
     //   if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
-    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
+    //     const texture = WebglResourceRepository.getInstance().getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
     //     glw.bindTexture2D(5, texture);
     //   } else {
-    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTexture!) as WebGLTexture;
+    //     const texture = WebglResourceRepository.getInstance().getWebGLResource(this.__dummyWhiteTexture!) as WebGLTexture;
     //     glw.bindTexture2D(5, texture);
     //   }
     // }

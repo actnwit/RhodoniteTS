@@ -4,6 +4,7 @@ import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {BasisTranscoder, BASIS} from '../../types/BasisTexture';
 import {TextureParameter} from '../definitions/TextureParameter';
 import {Size, TypedArray} from '../../types/CommonTypes';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 declare const BASIS: BASIS;
 
@@ -18,10 +19,8 @@ export default class CubeTexture extends AbstractTexture {
 
   async loadTextureImages() {
     this.__startedToLoad = true;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     this.cgApiResourceUid =
-      await webGLResourceRepository.createCubeTextureFromFiles(
+      await WebGLResourceRepository.getInstance().createCubeTextureFromFiles(
         this.baseUriToLoad!,
         this.mipmapLevelNumber!,
         this.isNamePosNeg,
@@ -32,16 +31,14 @@ export default class CubeTexture extends AbstractTexture {
 
   loadTextureImagesAsync() {
     this.__startedToLoad = true;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository
+    WebGLResourceRepository.getInstance()
       .createCubeTextureFromFiles(
         this.baseUriToLoad!,
         this.mipmapLevelNumber!,
         this.isNamePosNeg,
         this.hdriFormat
       )
-      .then(cubeTextureUid => {
+      .then((cubeTextureUid: number) => {
         this.cgApiResourceUid = cubeTextureUid;
       })
       .then(() => {
@@ -80,17 +77,16 @@ export default class CubeTexture extends AbstractTexture {
         return;
       }
 
-      const webGLResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-      const texture = webGLResourceRepository.createCubeTextureFromBasis(
-        basisFile,
-        {
-          magFilter: magFilter,
-          minFilter: minFilter,
-          wrapS: wrapS,
-          wrapT: wrapT,
-        }
-      );
+      const texture =
+        WebGLResourceRepository.getInstance().createCubeTextureFromBasis(
+          basisFile,
+          {
+            magFilter: magFilter,
+            minFilter: minFilter,
+            wrapS: wrapS,
+            wrapT: wrapT,
+          }
+        );
 
       this.cgApiResourceUid = texture;
       this.__isTextureReady = true;
@@ -107,24 +103,23 @@ export default class CubeTexture extends AbstractTexture {
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
 
-    this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(
-      1,
-      [
-        {
-          posX: canvas,
-          negX: canvas,
-          posY: canvas,
-          negY: canvas,
-          posZ: canvas,
-          negZ: canvas,
-        },
-      ],
-      1,
-      1
-    );
+    this.cgApiResourceUid =
+      WebGLResourceRepository.getInstance().createCubeTexture(
+        1,
+        [
+          {
+            posX: canvas,
+            negX: canvas,
+            posY: canvas,
+            negY: canvas,
+            posZ: canvas,
+            negZ: canvas,
+          },
+        ],
+        1,
+        1
+      );
     this.__isTextureReady = true;
   }
 
@@ -146,15 +141,13 @@ export default class CubeTexture extends AbstractTexture {
     baseLevelWidth: Size,
     baseLevelHeight: Size
   ) {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-
-    this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(
-      typedArrayImages.length,
-      typedArrayImages,
-      baseLevelWidth,
-      baseLevelHeight
-    );
+    this.cgApiResourceUid =
+      WebGLResourceRepository.getInstance().createCubeTexture(
+        typedArrayImages.length,
+        typedArrayImages,
+        baseLevelWidth,
+        baseLevelHeight
+      );
 
     this.__isTextureReady = true;
     this.__startedToLoad = true;
@@ -168,10 +161,10 @@ export default class CubeTexture extends AbstractTexture {
   ) {
     this.__width = width;
     this.__height = height;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     const texture =
-      webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
+      WebGLResourceRepository.getInstance().setWebGLTextureDirectly(
+        webGLTexture
+      );
     this.cgApiResourceUid = texture;
     this.__startedToLoad = true;
     this.__isTextureReady = true;

@@ -17,7 +17,6 @@ import type {
   XRInputSource,
 } from 'webxr';
 import System from '../foundation/system/System';
-import ModuleManager from '../foundation/system/ModuleManager';
 import {
   updateGamePad,
   createMotionController,
@@ -32,6 +31,7 @@ import EntityHelper, {
   ICameraEntity,
   ISceneGraphEntity,
 } from '../foundation/helpers/EntityHelper';
+import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -101,11 +101,9 @@ export default class WebXRSystem {
    */
   async readyForWebXR(requestButtonDom: HTMLElement, basePath: string) {
     this.__basePath = basePath;
-    await ModuleManager.getInstance().loadModule('xr');
 
     const glw =
-      CGAPIResourceRepository.getWebGLResourceRepository()
-        .currentWebGLContextWrapper;
+      WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
     if (glw == null) {
       console.error('WebGL Context is not ready yet.');
       return [];
@@ -154,9 +152,7 @@ export default class WebXRSystem {
     callbackOnXrSessionEnd: Function;
     profilePriorities: string[];
   }) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webglResourceRepository.currentWebGLContextWrapper;
+    const glw = WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
 
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
@@ -564,7 +560,7 @@ export default class WebXRSystem {
   private async __setupWebGLLayer(
     xrSession: XRSession,
     callbackOnXrSessionStart: Function
-    ) {
+  ) {
     const gl = this.__glw?.getRawContext();
 
     if (gl != null) {
@@ -583,13 +579,11 @@ export default class WebXRSystem {
         depthNear: 0.1,
         depthFar: 10000,
       });
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
       console.log(this.__canvasWidthForVR);
       console.log(this.__canvasHeightForVR);
-      webglResourceRepository.resizeCanvas(
+      WebGLResourceRepository.getInstance().resizeCanvas(
         this.__canvasWidthForVR,
         this.__canvasHeightForVR
       );

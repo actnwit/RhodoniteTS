@@ -30,6 +30,7 @@ import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
+import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 
 export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
@@ -531,9 +532,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
         VarianceShadowMapDecodeClassicSingleMaterialNode.__lastZFar =
           encodedDepthCameraComponent.zFarInner;
       }
-      const __webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-      __webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.LightViewProjectionMatrix.str,
         true,
@@ -575,9 +574,7 @@ export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends Ab
       blendShapeComponent
     );
 
-    const __webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    __webglResourceRepository.setUniformValue(
+    WebGLResourceRepository.getInstance().setUniformValue(
       shaderProgram,
       ShaderSemantics.LightViewProjectionMatrix.str,
       true,

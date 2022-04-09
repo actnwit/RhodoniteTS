@@ -23,6 +23,7 @@ import {IVector3} from '../foundation/math/IVector';
 import type {Unzip} from 'zlib';
 import {IEntity} from '../foundation/core/Entity';
 import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
+import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 
 export default class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
@@ -211,9 +212,7 @@ export default class EffekseerComponent extends Component {
       console.error('Effekseer context creation fails');
       return false;
     }
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const glw = WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
     EffekseerComponent.__isInitialized = true;
     const gl = glw!.getRawContext();
     const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;

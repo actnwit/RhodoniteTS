@@ -11,7 +11,7 @@ import {
 } from 'ktx-parse';
 import CGAPIResourceRepository from '../../foundation/renderer/CGAPIResourceRepository';
 import WebGLContextWrapper from '../WebGLContextWrapper';
-import {TextureData} from '../WebGLResourceRepository';
+import WebGLResourceRepository, {TextureData} from '../WebGLResourceRepository';
 import {
   CompressionTextureType,
   CompressionTextureTypeEnum,
@@ -145,10 +145,8 @@ export default class KTX2TextureLoader {
   }
 
   private __getDeviceDependentParameters(hasAlpha: boolean) {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw =
-      webGLResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
+    const glw = WebGLResourceRepository.getInstance()
+      .currentWebGLContextWrapper as WebGLContextWrapper;
 
     const astc = glw.webgl2ExtCTAstc || glw.webgl1ExtCTAstc;
     const bptc = glw.webgl2ExtCTBptc || glw.webgl1ExtCTBptc;

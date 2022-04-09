@@ -4,7 +4,6 @@ import {
   ProcessApproachEnum,
   ProcessApproach,
 } from '../definitions/ProcessApproach';
-import ModuleManager from './ModuleManager';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import Component from '../core/Component';
@@ -21,7 +20,7 @@ import SystemState from './SystemState';
 import {MiscUtil, valueWithCompensation} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
-import type WebVRSystem from '../../xr/WebVRSystem';
+import WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
 import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
 import Config from '../core/Config';
@@ -30,7 +29,7 @@ import Vector4 from '../math/Vector4';
 import RenderPass from '../renderer/RenderPass';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import { WebXRSystem } from '../..';
+import WebXRSystem from '../../xr/WebXRSystem';
 
 declare const spector: any;
 
@@ -77,30 +76,25 @@ export default class System {
       _time: number,
       xrFrame: XRFrame
     ) => {
-      const rnVRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
-      if (Is.exist(rnVRModule)) {
-        let webVRSystem: WebVRSystem;
-        if (webXRSystem.isReadyForWebXR) {
-          webXRSystem._preRender(_time, xrFrame);
-        } else {
-          webVRSystem = rnVRModule.WebVRSystem.getInstance();
-          if (webVRSystem.isReadyForWebVR) {
-            webVRSystem.preRender();
-          }
+      const webXRSystem = WebXRSystem.getInstance();
+      let webVRSystem: WebVRSystem;
+      if (webXRSystem.isReadyForWebXR) {
+        webXRSystem._preRender(_time, xrFrame);
+      } else {
+        webVRSystem = WebVRSystem.getInstance();
+        if (webVRSystem.isReadyForWebVR) {
+          webVRSystem.preRender();
         }
       }
 
       renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
 
-      if (Is.exist(rnVRModule)) {
-        if (webXRSystem.isReadyForWebXR) {
-          webXRSystem._postRender();
-        } else {
-          const webVRSystem = rnVRModule.WebVRSystem.getInstance();
-          if (webVRSystem.isReadyForWebVR) {
-            webVRSystem.postRender();
-          }
+      if (webXRSystem.isReadyForWebXR) {
+        webXRSystem._postRender();
+      } else {
+        const webVRSystem = WebVRSystem.getInstance();
+        if (webVRSystem.isReadyForWebVR) {
+          webVRSystem.postRender();
         }
       }
       this.startRenderLoop(renderLoopFunc, ...args);
@@ -110,20 +104,15 @@ export default class System {
   private static __getAnimationFrameObject(): Window | VRDisplay | XRSession {
     let animationFrameObject: Window | VRDisplay | XRSession | undefined =
       window;
-    const rnVRModule = ModuleManager.getInstance().getModule('xr') as
-      | RnXR
-      | undefined;
-    if (Is.exist(rnVRModule)) {
-      const webVRSystem = rnVRModule.WebVRSystem.getInstance();
-      const webXRSystem = rnVRModule.WebXRSystem.getInstance();
-      if (webXRSystem.requestedToEnterWebXR) {
-        animationFrameObject = webXRSystem.xrSession;
-      } else if (webVRSystem.isWebVRMode) {
-        animationFrameObject = webVRSystem.vrDisplay;
-      }
-      if (Is.not.exist(animationFrameObject)) {
-        return window;
-      }
+    const webVRSystem = WebVRSystem.getInstance();
+    const webXRSystem = WebXRSystem.getInstance();
+    if (webXRSystem.requestedToEnterWebXR) {
+      animationFrameObject = webXRSystem.xrSession;
+    } else if (webVRSystem.isWebVRMode) {
+      animationFrameObject = webVRSystem.vrDisplay;
+    }
+    if (Is.not.exist(animationFrameObject)) {
+      return window;
     }
     return animationFrameObject;
   }
@@ -186,11 +175,7 @@ export default class System {
       cameraEntity.getCamera().yMag = 1;
     }
 
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    const rnVRModule = ModuleManager.getInstance().getModule('xr') as
-      | RnXR
-      | undefined;
-    const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
+    const webXRSystem = WebXRSystem.getInstance();
 
     const componentTids = ComponentRepository.getComponentTIDs();
     for (const stage of Component._processStages) {
@@ -214,7 +199,9 @@ export default class System {
                 );
               }
               renderPass.doPreRender();
-              repo.switchDepthTest(renderPass.isDepthTest);
+              WebGLResourceRepository.getInstance().switchDepthTest(
+                renderPass.isDepthTest
+              );
               if (
                 componentTid === MeshRendererComponent.componentTID &&
                 stage === ProcessStage.Render
@@ -272,11 +259,9 @@ export default class System {
             stage
           );
 
-          const componentClass_commonMethod = (componentClass as any)[
-            commonMethodName
-          ];
-          if (componentClass_commonMethod) {
-            componentClass_commonMethod({
+          const commonMethod = (componentClass as any)[commonMethodName];
+          if (commonMethod) {
+            commonMethod({
               processApproach: this.__processApproach,
               renderPass: void 0,
               processStage: stage,
@@ -327,12 +312,7 @@ export default class System {
   }
 
   public static async init(desc: SystemInitDescription) {
-    await ModuleManager.getInstance().loadModule('webgl');
-    await ModuleManager.getInstance().loadModule('pbr');
-    System.__webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     Config.eventTargetDom = desc.canvas;
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: Is.exist(desc.memoryUsageOrder)
         ? desc.memoryUsageOrder.cpuGeneric
@@ -347,7 +327,7 @@ export default class System {
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);
 
-    const gl = repo.generateWebGLContext(
+    const gl = WebGLResourceRepository.getInstance().generateWebGLContext(
       desc.canvas,
       desc.approach.webGLVersion,
       true,
@@ -356,7 +336,7 @@ export default class System {
       desc.fallback3dApi
     );
 
-    repo.switchDepthTest(true);
+    WebGLResourceRepository.getInstance().switchDepthTest(true);
     this.__processApproach = desc.approach;
     SystemState.currentProcessApproach = desc.approach;
 
@@ -424,13 +404,11 @@ export default class System {
   }
 
   public static resizeCanvas(width: number, height: number) {
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    repo.resizeCanvas(width, height);
+    WebGLResourceRepository.getInstance().resizeCanvas(width, height);
   }
 
   public static getCanvasSize() {
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    return repo.getCanvasSize();
+    return WebGLResourceRepository.getInstance().getCanvasSize();
   }
 
   static getInstance() {

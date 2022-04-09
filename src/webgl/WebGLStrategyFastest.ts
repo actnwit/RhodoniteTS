@@ -39,17 +39,11 @@ import VectorN from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import Matrix33 from '../foundation/math/Matrix33';
-import CubeTexture from '../foundation/textures/CubeTexture';
-import ModuleManager from '../foundation/system/ModuleManager';
-import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
-import {
-  ISceneGraphEntity,
-  IMeshEntity,
-  ISkeletalEntity,
-} from '../foundation/helpers/EntityHelper';
+import {IMeshEntity, ISkeletalEntity} from '../foundation/helpers/EntityHelper';
 import LightComponent from '../foundation/components/Light/LightComponent';
+import WebVRSystem from '../xr/WebVRSystem';
+import WebXRSystem from '../xr/WebXRSystem';
 
 declare const spector: any;
 
@@ -832,13 +826,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     isVRMainPass: boolean
   ) {
     if (isVRMainPass) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = WebXRSystem.getInstance();
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
         cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
       } else {
-        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+        const webvrSystem = WebVRSystem.getInstance();
         cameraComponentSid = webvrSystem.getCameraComponentSIDAt(displayIdx);
       }
       WebGLStrategyFastest.__currentComponentSIDs!._v[

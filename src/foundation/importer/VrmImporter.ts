@@ -16,13 +16,13 @@ export default class VrmImporter {
   /**
    * Import VRM file.
    */
-  public static async import(
+  public static async load(
     uri: string,
     options?: GltfLoadOption
   ): Promise<ISceneGraphEntity[]> {
     options = GltfImporter._getOptions(options);
 
-    const gltfModel = await Gltf2Importer.import(uri, options);
+    const gltfModel = await Gltf2Importer.load(uri, options);
     if (Is.not.exist(gltfModel)) {
       return [];
     }

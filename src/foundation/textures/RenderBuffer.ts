@@ -7,6 +7,7 @@ import {
 } from '../definitions/TextureParameter';
 import {Size, CGAPIResourceHandle} from '../../types/CommonTypes';
 import FrameBuffer from '../renderer/FrameBuffer';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 export default class RenderBuffer extends RnObject implements IRenderable {
   width = 0;
@@ -40,15 +41,14 @@ export default class RenderBuffer extends RnObject implements IRenderable {
     this.__isMSAA = isMSAA;
     this.__sampleCountMSAA = sampleCountMSAA;
     this.__internalFormat = internalFormat;
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(
-      width,
-      height,
-      internalFormat,
-      isMSAA,
-      sampleCountMSAA
-    );
+    this.cgApiResourceUid =
+      WebGLResourceRepository.getInstance().createRenderBuffer(
+        width,
+        height,
+        internalFormat,
+        isMSAA,
+        sampleCountMSAA
+      );
   }
 
   resize(width: Size, height: Size) {
@@ -59,9 +59,9 @@ export default class RenderBuffer extends RnObject implements IRenderable {
   destroy3DAPIResources() {
     this.width = 0;
     this.height = 0;
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.deleteRenderBuffer(this.cgApiResourceUid);
+    WebGLResourceRepository.getInstance().deleteRenderBuffer(
+      this.cgApiResourceUid
+    );
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     return true;
   }

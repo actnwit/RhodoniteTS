@@ -10,6 +10,7 @@ import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Size, Index} from '../../types/CommonTypes';
 import FrameBuffer from '../renderer/FrameBuffer';
 import Vector4 from '../math/Vector4';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 export default class RenderTargetTexture
   extends AbstractTexture
@@ -67,20 +68,19 @@ export default class RenderTargetTexture
   }
 
   private __createRenderTargetTexture() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createRenderTargetTexture({
-      width: this.__width,
-      height: this.__height,
-      level: this.__level,
-      internalFormat: this.__internalFormat,
-      format: this.__format,
-      type: this.__type,
-      magFilter: this.__magFilter,
-      minFilter: this.__minFilter,
-      wrapS: this.__wrapS,
-      wrapT: this.__wrapT,
-    });
+    const texture =
+      WebGLResourceRepository.getInstance().createRenderTargetTexture({
+        width: this.__width,
+        height: this.__height,
+        level: this.__level,
+        internalFormat: this.__internalFormat,
+        format: this.__format,
+        type: this.__type,
+        magFilter: this.__magFilter,
+        minFilter: this.__minFilter,
+        wrapS: this.__wrapS,
+        wrapT: this.__wrapT,
+      });
     this.cgApiResourceUid = texture;
 
     AbstractTexture.__textureMap.set(texture, this);
@@ -95,22 +95,19 @@ export default class RenderTargetTexture
 
   destroy3DAPIResources() {
     AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
+    WebGLResourceRepository.getInstance().deleteTexture(this.cgApiResourceUid);
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
     return true;
   }
 
   getTexturePixelData() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const glw =
+      WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
     const gl = glw!.getRawContext() as WebGLRenderingContext;
 
     // Create a framebuffer backed by the texture
-    const fbo = webGLResourceRepository.getWebGLResource(
+    const fbo = WebGLResourceRepository.getInstance().getWebGLResource(
       this.__fbo!.framebufferUID
     ) as WebGLFramebuffer;
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);

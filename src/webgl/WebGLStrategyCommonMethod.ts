@@ -7,7 +7,6 @@ import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceReposit
 import {Index, IndexOf16Bytes} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';
 import {Is, Is as is} from '../foundation/misc/Is';
-import ModuleManager from '../foundation/system/ModuleManager';
 import WebGLResourceRepository from './WebGLResourceRepository';
 import {RnXR} from '../xr/main';
 import Vector4 from '../foundation/math/Vector4';
@@ -19,7 +18,9 @@ import {ShaderType} from '../foundation/definitions/ShaderType';
 import Scalar from '../foundation/math/Scalar';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Vector3 from '../foundation/math/Vector3';
-import { Primitive } from '..';
+import {Primitive} from '..';
+import WebVRSystem from '../xr/WebVRSystem';
+import WebXRSystem from '../xr/WebXRSystem';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -245,12 +246,11 @@ function getViewport(renderPass: RenderPass) {
 function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   const webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();
-  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-  const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+  const webxrSystem = WebXRSystem.getInstance();
   if (webxrSystem.isWebXRMode) {
     webglResourceRepository.setViewport(webxrSystem._getViewportAt(displayIdx));
   } else {
-    const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+    const webvrSystem = WebVRSystem.getInstance();
     if (webvrSystem.isWebVRMode) {
       webglResourceRepository.setViewport(
         webvrSystem.getViewportAt(getViewport(renderPass), displayIdx)
@@ -268,10 +268,9 @@ function getDisplayNumber(isVRMainPass: boolean) {
 }
 
 function isVrMainPass(renderPass: RenderPass) {
-  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const isVRMainPass =
-    (rnXRModule?.WebXRSystem.getInstance().isWebXRMode ||
-      rnXRModule?.WebVRSystem.getInstance().isWebVRMode) &&
+    (WebXRSystem.getInstance().isWebXRMode ||
+      WebVRSystem.getInstance().isWebVRMode) &&
     renderPass.isVrRendering;
   return isVRMainPass;
 }

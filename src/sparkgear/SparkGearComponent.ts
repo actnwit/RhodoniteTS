@@ -7,7 +7,6 @@ import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import ComponentRepository from '../foundation/core/ComponentRepository';
 import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
-import ModuleManager from '../foundation/system/ModuleManager';
 import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import {IEntity} from '../foundation/core/Entity';
@@ -269,14 +268,8 @@ export default class SparkGearComponent extends Component {
       return;
     }
 
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = moduleManager.getModule(moduleName)! as any;
-
     // Initialize SPARKGEAR
-    SparkGearComponent.SPFX_Initialize(
-      webglModule.WebGLResourceRepository.getInstance()
-    );
+    SparkGearComponent.SPFX_Initialize(WebGLResourceRepository.getInstance());
   }
 
   $load() {

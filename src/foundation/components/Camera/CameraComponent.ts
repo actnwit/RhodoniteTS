@@ -24,12 +24,12 @@ import GlobalDataRepository from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {MathUtil} from '../../math/MathUtil';
 import CameraControllerComponent from '../CameraController/CameraControllerComponent';
-import ModuleManager from '../../system/ModuleManager';
-import {RnXR} from '../../../xr/main';
 import RenderPass from '../../renderer/RenderPass';
 import {ICameraEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import WebVRSystem from '../../../xr/WebVRSystem';
+import WebXRSystem from '../../../xr/WebXRSystem';
 
 export default class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
@@ -678,12 +678,11 @@ export default class CameraComponent extends Component {
     this.calcViewMatrix();
     this.calcProjectionMatrix();
 
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (rnXRModule?.WebXRSystem.getInstance().isWebXRMode) {
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    if (WebXRSystem.getInstance().isWebXRMode) {
+      const webxrSystem = WebXRSystem.getInstance();
       webxrSystem._setValuesToGlobalDataRepository();
-    } else if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode) {
-      const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+    } else if (WebVRSystem.getInstance().isWebVRMode) {
+      const webvrSystem = WebVRSystem.getInstance();
       webvrSystem.setValuesToGlobalDataRepository();
     } else {
       this.setValuesToGlobalDataRepository();

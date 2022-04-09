@@ -9,6 +9,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';
 import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
 import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
+import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 
 export default class ShaderGraphResolver {
   static createVertexShaderCode(vertexNodes: AbstractShaderNode[]) {
@@ -26,10 +27,10 @@ export default class ShaderGraphResolver {
 
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     let in_ = 'attribute';
-    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
+    if (
+      WebGLResourceRepository.getInstance().currentWebGLContextWrapper?.isWebGL2
+    ) {
       in_ = 'in';
     }
     vertexShaderPrerequisites += `

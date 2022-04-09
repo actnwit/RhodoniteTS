@@ -13,7 +13,9 @@ import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import Entity from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
 import MutableVector3 from '../math/MutableVector3';
-import {VertexHandles} from '../../webgl/WebGLResourceRepository';
+import WebGLResourceRepository, {
+  VertexHandles,
+} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 import {IMesh, RaycastResultEx1} from './types/GeometryTypes';
@@ -294,14 +296,13 @@ export default class Mesh implements IMesh {
         return false;
       }
 
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-
       if (
         this.__variationVBOUid !==
         CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
-        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+        WebGLResourceRepository.getInstance().deleteVertexBuffer(
+          this.__variationVBOUid
+        );
       }
 
       const instanceNum = this.__instances.length;
@@ -312,7 +313,7 @@ export default class Mesh implements IMesh {
       }
 
       this.__variationVBOUid =
-        webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
+        WebGLResourceRepository.getInstance().createVertexBufferFromTypedArray(entityUIDs);
 
       this.__instancesDirty = false;
 
@@ -332,13 +333,13 @@ export default class Mesh implements IMesh {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.deleteVariationVBO();
     } else {
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
       if (
         this.__variationVBOUid !==
         CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
-        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+        WebGLResourceRepository.getInstance().deleteVertexBuffer(
+          this.__variationVBOUid
+        );
         this.__variationVBOUid =
           CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -353,9 +354,6 @@ export default class Mesh implements IMesh {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.updateVAO();
     }
-
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
@@ -372,11 +370,12 @@ export default class Mesh implements IMesh {
         vertexHandles.vaoHandle ===
           CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
-        this.__vaoUids[i] = webglResourceRepository.createVertexArray()!;
+        this.__vaoUids[i] =
+          WebGLResourceRepository.getInstance().createVertexArray()!;
         vertexHandles.vaoHandle = this.__vaoUids[i];
       }
 
-      webglResourceRepository.setVertexDataToPipeline(
+      WebGLResourceRepository.getInstance().setVertexDataToPipeline(
         vertexHandles,
         primitive,
         this.__variationVBOUid
@@ -386,7 +385,9 @@ export default class Mesh implements IMesh {
     // remove useless VAO
     for (let i = this.__primitives.length; i < this.__vaoUids.length; i++) {
       if (this.__vaoUids[i]) {
-        webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
+        WebGLResourceRepository.getInstance().deleteVertexArray(
+          this.__vaoUids[i]
+        );
         this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
     }
@@ -397,10 +398,10 @@ export default class Mesh implements IMesh {
       return this.__instanceOf!.updateVAO();
     }
 
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
-      webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
+      WebGLResourceRepository.getInstance().deleteVertexArray(
+        this.__vaoUids[i]
+      );
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }

@@ -17,6 +17,7 @@ import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import ShaderityUtility from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
+import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 
 export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
@@ -176,14 +177,14 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
 
     // Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
         [5, args.diffuseCube]
       );
     } else {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
@@ -191,14 +192,14 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
         [6, args.specularCube]
       );
     } else {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
@@ -214,7 +215,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
           diffuseHdriType,
           specularHdriType,
         } = this.setupHdriParameters(args);
-        this.__webglResourceRepository.setUniformValue(
+        WebGLResourceRepository.getInstance().setUniformValue(
           shaderProgram,
           ShaderSemantics.IBLParameter.str,
           firstTime,
@@ -225,7 +226,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
             w: meshRenderComponent!.rotationOfCubeMap,
           }
         );
-        this.__webglResourceRepository.setUniformValue(
+        WebGLResourceRepository.getInstance().setUniformValue(
           shaderProgram,
           ShaderSemantics.HDRIFormat.str,
           firstTime,

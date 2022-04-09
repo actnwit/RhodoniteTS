@@ -14,7 +14,7 @@ import {
 import AABB from '../math/AABB';
 import Material from '../materials/core/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
-import {VertexHandles} from '../../webgl/WebGLResourceRepository';
+import WebGLResourceRepository, {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
 import Vector3 from '../math/Vector3';
@@ -451,10 +451,8 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles != null) {
       return false;
     }
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     this.__vertexHandles =
-      webglResourceRepository.createVertexBufferAndIndexBuffer(this);
+      WebGLResourceRepository.getInstance().createVertexBufferAndIndexBuffer(this);
 
     return true;
   }
@@ -465,9 +463,7 @@ export class Primitive extends RnObject {
       return false;
     }
 
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.updateVertexBufferAndIndexBuffer(
+    WebGLResourceRepository.getInstance().updateVertexBufferAndIndexBuffer(
       this,
       vertexHandles
     );
@@ -479,9 +475,7 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles == null) {
       return false;
     }
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.deleteVertexDataResources(this.__vertexHandles);
+    WebGLResourceRepository.getInstance().deleteVertexDataResources(this.__vertexHandles);
     this.__vertexHandles = undefined;
 
     return true;

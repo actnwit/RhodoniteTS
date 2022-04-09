@@ -77,11 +77,11 @@ export class Ok<T, ErrObj>
 
   catch(f: (value: RnError<ErrObj>) => void): void {}
 
-  true(): true {
+  truly(): boolean {
     return true;
   }
 
-  isOk(): true {
+  isOk(): boolean {
     return true;
   }
 
@@ -115,11 +115,11 @@ export class Err<T, ErrObj>
     throw new RnException(this.val as RnError<ErrObj>);
   }
 
-  false(): false {
+  falsy(): boolean {
     return false;
   }
 
-  isOk(): false {
+  isOk(): boolean {
     return false;
   }
 

@@ -8,6 +8,7 @@ import AbstractTexture from './AbstractTexture';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Size} from '../../types/CommonTypes';
 import DataUtil from '../misc/DataUtil';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 export type VideoTextureArguments = {
   level: number;
@@ -113,9 +114,7 @@ export default class VideoTexture extends AbstractTexture {
     this.__width = img.videoWidth;
     this.__height = img.videoHeight;
 
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(img, {
+    const texture = WebGLResourceRepository.getInstance().createTexture(img, {
       level: level,
       internalFormat: internalFormat,
       width: this.__width,
@@ -166,24 +165,25 @@ export default class VideoTexture extends AbstractTexture {
         this.__width = video.videoWidth;
         this.__height = video.videoHeight;
 
-        const webGLResourceRepository =
-          CGAPIResourceRepository.getWebGLResourceRepository();
-        const texture = webGLResourceRepository.createTexture(video, {
-          level: level,
-          internalFormat: internalFormat,
-          width: this.__width,
-          height: this.__height,
-          border: 0,
-          format: format,
-          type: type,
-          magFilter: magFilter,
-          minFilter: minFilter,
-          wrapS: wrapS,
-          wrapT: wrapT,
-          generateMipmap: generateMipmap,
-          anisotropy: anisotropy,
-          isPremultipliedAlpha,
-        });
+        const texture = WebGLResourceRepository.getInstance().createTexture(
+          video,
+          {
+            level: level,
+            internalFormat: internalFormat,
+            width: this.__width,
+            height: this.__height,
+            border: 0,
+            format: format,
+            type: type,
+            magFilter: magFilter,
+            minFilter: minFilter,
+            wrapS: wrapS,
+            wrapT: wrapT,
+            generateMipmap: generateMipmap,
+            anisotropy: anisotropy,
+            isPremultipliedAlpha,
+          }
+        );
 
         this.cgApiResourceUid = texture;
         this.__isTextureReady = true;
@@ -232,10 +232,8 @@ export default class VideoTexture extends AbstractTexture {
   }
 
   updateTexture() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
-      webGLResourceRepository.updateTexture(
+      WebGLResourceRepository.getInstance().updateTexture(
         this.cgApiResourceUid,
         this.#htmlVideoElement,
         {
@@ -253,10 +251,8 @@ export default class VideoTexture extends AbstractTexture {
 
   getCurrentFramePixelData() {
     let pixel: Uint8Array | undefined = undefined;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
-      pixel = webGLResourceRepository.getPixelDataFromTexture(
+      pixel = WebGLResourceRepository.getInstance().getPixelDataFromTexture(
         this.cgApiResourceUid,
         0,
         0,

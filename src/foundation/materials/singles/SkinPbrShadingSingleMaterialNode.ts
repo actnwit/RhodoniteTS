@@ -27,6 +27,7 @@ import PbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleSha
 import SkinPbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/SkinPbrSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
+import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 
 export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
@@ -535,14 +536,14 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
 
     // Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
         [5, args.diffuseCube]
       );
     } else {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
@@ -550,14 +551,14 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
         [6, args.specularCube]
       );
     } else {
-      this.__webglResourceRepository.setUniformValue(
+      WebGLResourceRepository.getInstance().setUniformValue(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
@@ -573,7 +574,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
           diffuseHdriType,
           specularHdriType,
         } = this.setupHdriParameters(args);
-        this.__webglResourceRepository.setUniformValue(
+        WebGLResourceRepository.getInstance().setUniformValue(
           shaderProgram,
           ShaderSemantics.IBLParameter.str,
           firstTime,
@@ -584,7 +585,7 @@ export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNo
             w: meshRenderComponent!.rotationOfCubeMap,
           }
         );
-        this.__webglResourceRepository.setUniformValue(
+        WebGLResourceRepository.getInstance().setUniformValue(
           shaderProgram,
           ShaderSemantics.HDRIFormat.str,
           firstTime,

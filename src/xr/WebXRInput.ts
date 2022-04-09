@@ -107,7 +107,7 @@ export async function createMotionController(
 }
 
 async function addMotionControllerToScene(motionController: MotionController) {
-  const asset = await Gltf2Importer.import(motionController.assetUrl);
+  const asset = await Gltf2Importer.load(motionController.assetUrl);
   addTouchPointDots(motionController, asset);
   // MyEngine.scene.add(asset);
 

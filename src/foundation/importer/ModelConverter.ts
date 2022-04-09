@@ -83,6 +83,7 @@ import LightComponent from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
 import BufferView from '../memory/BufferView';
 import RhodoniteImportExtension from './RhodoniteImportExtension';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 declare let DracoDecoderModule: any;
 
@@ -822,10 +823,8 @@ export default class ModelConverter {
 
       const image = textureInfo.image;
       if (image?.image != null) {
-        const webglResourceRepository =
-          CGAPIResourceRepository.getWebGLResourceRepository();
         const isWebGL1 =
-          !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
+          !WebGLResourceRepository.getInstance().currentWebGLContextWrapper?.isWebGL2;
 
         if (
           isWebGL1 &&
@@ -1427,10 +1426,9 @@ export default class ModelConverter {
     const image = texture.image as RnM2Image;
     if (image.image) {
       const imageElem = image.image as HTMLImageElement;
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
       const isWebGL1 =
-        !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
+        !WebGLResourceRepository.getInstance().currentWebGLContextWrapper
+          ?.isWebGL2;
 
       if (
         isWebGL1 &&

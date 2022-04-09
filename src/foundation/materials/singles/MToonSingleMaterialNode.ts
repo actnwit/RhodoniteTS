@@ -25,8 +25,7 @@ import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
 import Texture from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { Is } from '../../misc/Is';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
@@ -850,9 +849,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   }
 
   private static __initializeUsableBlendEquationModeAlpha() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const glw =
+      WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
     const gl = glw!.getRawContextAsWebGL2();
     if (glw!.isWebGL2) {
       MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.MAX;
@@ -948,9 +946,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const glw =
+      WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
     const gl = glw!.getRawContext();
 
     let result = gl.ZERO;

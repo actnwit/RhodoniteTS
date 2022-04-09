@@ -24,7 +24,7 @@ export default class Gltf2Importer {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  public static async import(
+  public static async load(
     uri: string,
     options?: GltfLoadOption
   ): Promise<RnM2 | undefined> {
@@ -33,7 +33,7 @@ export default class Gltf2Importer {
         const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.importGltfOrGlbFromArrayBuffers(
+          return await this.loadGltfOrGlbFromArrayBuffers(
             (options.files as GltfFileBuffers)[fileName],
             options.files,
             options,
@@ -47,7 +47,7 @@ export default class Gltf2Importer {
     }
 
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
+    const glTFJson = await this.loadGltfOrGlbFromArrayBuffers(
       arrayBuffer,
       options?.files ?? {},
       options,
@@ -64,7 +64,7 @@ export default class Gltf2Importer {
     options?: GltfLoadOption
   ) {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
+    const glTFJson = await this.loadGltfOrGlbFromArrayBuffers(
       arrayBuffer,
       {},
       options,
@@ -83,7 +83,7 @@ export default class Gltf2Importer {
    * @param uri .gltf file's uri (Optional)
    * @returns a glTF2 based JSON pre-processed
    */
-  public static async importGltfOrGlbFromArrayBuffers(
+  public static async loadGltfOrGlbFromArrayBuffers(
     arrayBuffer: ArrayBuffer,
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,

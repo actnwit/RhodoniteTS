@@ -33,6 +33,7 @@ import {
   ProcessApproach,
   ProcessApproachEnum,
 } from '../../foundation/definitions/ProcessApproach';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -409,15 +410,13 @@ export default class GlobalDataRepository {
   }
 
   setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       semanticsInfoArray.push(semanticInfo);
     });
 
-    webglResourceRepository.setupUniformLocations(
+    WebGLResourceRepository.getInstance().setupUniformLocations(
       shaderProgramUid,
       semanticsInfoArray,
       true
@@ -425,13 +424,11 @@ export default class GlobalDataRepository {
   }
 
   setUniformValues(shaderProgram: WebGLProgram) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       const values = globalPropertyStruct.values;
       for (let i = 0; i < values.length; i++) {
-        webglResourceRepository.setUniformValue(
+        WebGLResourceRepository.getInstance().setUniformValue(
           shaderProgram,
           info.semantic.str,
           true,

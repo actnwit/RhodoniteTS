@@ -1,4 +1,3 @@
-import Entity, {IEntity} from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
@@ -39,7 +38,7 @@ export default class GltfImporter {
   ): Promise<VRM | undefined> {
     options = this._getOptions(options);
 
-    const gltfModel = await Gltf2Importer.import(uri, options);
+    const gltfModel = await Gltf2Importer.load(uri, options);
     if (Is.not.exist(gltfModel)) {
       return undefined;
     }
@@ -55,7 +54,7 @@ export default class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  static async import(
+  static async load(
     uris: string | string[],
     options?: GltfLoadOption
   ): Promise<Expression> {
@@ -90,14 +89,14 @@ export default class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  static async importFromArrayBuffers(
+  static async loadFromArrayBuffers(
     files: GltfFileBuffers,
     options?: GltfLoadOption
   ): Promise<Expression> {
     options = this.__initOptions(options);
 
     const renderPasses: RenderPass[] =
-      await this.__importMultipleModelsFromArrayBuffers(files, options);
+      await this.__loadMultipleModelsFromArrayBuffers(files, options);
 
     if (options && options.cameraComponent) {
       for (const renderPass of renderPasses) {
@@ -182,7 +181,7 @@ export default class GltfImporter {
     });
   }
 
-  private static __importMultipleModelsFromArrayBuffers(
+  private static __loadMultipleModelsFromArrayBuffers(
     files: GltfFileBuffers,
     options: GltfLoadOption
   ): Promise<RenderPass[]> {
@@ -384,7 +383,7 @@ export default class GltfImporter {
     renderPasses: RenderPass[],
     options: GltfLoadOption
   ): Promise<void> {
-    return Gltf2Importer.importGltfOrGlbFromArrayBuffers(
+    return Gltf2Importer.loadGltfOrGlbFromArrayBuffers(
       file,
       options.files!,
       options

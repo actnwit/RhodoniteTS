@@ -8,6 +8,7 @@ import {
 } from '../definitions/RenderBufferTarget';
 import {Index, Size, CGAPIResourceHandle} from '../../types/CommonTypes';
 import RenderTargetTexture from '../textures/RenderTargetTexture';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 export default class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
@@ -69,9 +70,8 @@ export default class FrameBuffer extends RnObject {
   create(width: Size, height: Size) {
     this.width = width;
     this.height = height;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    this.cgApiResourceUid = webGLResourceRepository.createFrameBufferObject();
+    this.cgApiResourceUid =
+      WebGLResourceRepository.getInstance().createFrameBufferObject();
 
     return this.cgApiResourceUid;
   }
@@ -86,9 +86,7 @@ export default class FrameBuffer extends RnObject {
     }
     this.__colorAttachments[index] = renderable;
 
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.attachColorBufferToFrameBufferObject(
+    WebGLResourceRepository.getInstance().attachColorBufferToFrameBufferObject(
       this,
       index,
       renderable
@@ -104,10 +102,7 @@ export default class FrameBuffer extends RnObject {
       return false;
     }
     this.__depthAttachment = renderable;
-
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.attachDepthBufferToFrameBufferObject(
+    WebGLResourceRepository.getInstance().attachDepthBufferToFrameBufferObject(
       this,
       renderable
     );
@@ -121,9 +116,7 @@ export default class FrameBuffer extends RnObject {
     }
     this.__stencilAttachment = renderable;
 
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.attachStencilBufferToFrameBufferObject(
+    WebGLResourceRepository.getInstance().attachStencilBufferToFrameBufferObject(
       this,
       renderable
     );
@@ -137,9 +130,7 @@ export default class FrameBuffer extends RnObject {
     }
     this.__depthStencilAttachment = renderable;
 
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.attachDepthStencilBufferToFrameBufferObject(
+    WebGLResourceRepository.getInstance().attachDepthStencilBufferToFrameBufferObject(
       this,
       renderable
     );
@@ -149,9 +140,9 @@ export default class FrameBuffer extends RnObject {
 
   resize(width: Size, height: Size) {
     // this.destroy3DAPIResources();
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
+    WebGLResourceRepository.getInstance().deleteFrameBufferObject(
+      this.cgApiResourceUid
+    );
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.width = 0;
     this.height = 0;
@@ -178,9 +169,9 @@ export default class FrameBuffer extends RnObject {
   }
 
   destroy3DAPIResources() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
+    WebGLResourceRepository.getInstance().deleteFrameBufferObject(
+      this.cgApiResourceUid
+    );
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.width = 0;
     this.height = 0;

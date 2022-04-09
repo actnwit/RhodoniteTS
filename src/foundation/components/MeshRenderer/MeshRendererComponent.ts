@@ -17,7 +17,6 @@ import Config from '../../core/Config';
 import {BufferUse} from '../../definitions/BufferUse';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import ModuleManager from '../../system/ModuleManager';
 import CubeTexture from '../../textures/CubeTexture';
 import RenderPass from '../../renderer/RenderPass';
 import {Visibility} from '../../definitions/visibility';
@@ -40,6 +39,7 @@ import {Is} from '../../misc/Is';
 import {Primitive} from '../../..';
 import {PrimitiveSortKey_BitOffset_TranslucencyType} from '../../geometry/types/GeometryTypes';
 import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';
+import getRenderingStrategy from '../../../webgl/getRenderingStrategy';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -179,17 +179,13 @@ export default class MeshRendererComponent extends Component {
   }: {
     processApproach: ProcessApproachEnum;
   }) {
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = moduleManager.getModule(moduleName)! as any;
-
     // Strategy
     MeshRendererComponent.__webglRenderingStrategy =
-      webglModule.getRenderingStrategy(processApproach);
+      getRenderingStrategy(processApproach);
 
     // ResourceRepository
     MeshRendererComponent.__webglResourceRepository =
-      webglModule.WebGLResourceRepository.getInstance();
+      WebGLResourceRepository.getInstance();
 
     AbstractMaterialNode.initDefaultTextures();
   }
@@ -413,11 +409,10 @@ export default class MeshRendererComponent extends Component {
   }) {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent =
-        ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.main
-        ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.main
+      ) as CameraComponent;
     }
     let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;

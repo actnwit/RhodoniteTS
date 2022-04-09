@@ -7,7 +7,6 @@ import {
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {ComponentTypeEnum} from '../../definitions/ComponentType';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import Matrix44 from '../../math/Matrix44';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Texture from '../../textures/Texture';
@@ -33,12 +32,14 @@ import {BoneDataType} from '../../definitions/BoneDataType';
 import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import {IVector3} from '../../math/IVector';
-import ModuleManager from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import LightComponent from '../../components/Light/LightComponent';
 import {IMatrix33} from '../../math/IMatrix';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import CameraComponent from '../../components/Camera/CameraComponent';
+import {pbrKelemenSzirmayKalosBrdfLutDataUrl} from '../../../pbr/main';
+import WebVRSystem from '../../../xr/WebVRSystem';
+import WebXRSystem from '../../../xr/WebXRSystem';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -82,7 +83,6 @@ export default abstract class AbstractMaterialNode extends RnObject {
   public isSingleOperation = false;
   protected __definitions = '';
 
-  protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
   protected static __dummyWhiteTexture = new Texture();
   protected static __dummyBlueTexture = new Texture();
@@ -152,8 +152,6 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
-    this.__webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
   }
 
@@ -326,11 +324,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
       'rgba(186, 186, 186, 1)'
     );
 
-    const moduleName = 'pbr';
-    const moduleManager = ModuleManager.getInstance();
-    const pbrModule = moduleManager.getModule(moduleName)! as any;
     this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.generateTextureFromUri(
-      pbrModule.pbrKelemenSzirmayKalosBrdfLutDataUrl
+      pbrKelemenSzirmayKalosBrdfLutDataUrl
     );
   }
 
@@ -378,13 +373,12 @@ export default abstract class AbstractMaterialNode extends RnObject {
     let viewMatrix: Matrix44;
     let cameraPosition: IVector3;
     if (isVr) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = WebXRSystem.getInstance();
       if (webxrSystem.isWebXRMode) {
         viewMatrix = webxrSystem._getViewMatrixAt(displayIdx);
         cameraPosition = webxrSystem._getCameraWorldPositionAt(displayIdx);
       } else {
-        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+        const webvrSystem = WebVRSystem.getInstance();
         viewMatrix = webvrSystem.getViewMatrixAt(displayIdx);
         cameraPosition = webvrSystem.getCameraWorldPosition();
       }
@@ -415,12 +409,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
   ) {
     let projectionMatrix: Matrix44;
     if (isVr) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = WebXRSystem.getInstance();
       if (webxrSystem.isWebXRMode) {
         projectionMatrix = webxrSystem._getProjectMatrixAt(displayIdx);
       } else {
-        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
+        const webvrSystem = WebVRSystem.getInstance();
         projectionMatrix = webvrSystem.getProjectMatrixAt(displayIdx);
       }
     } else if (cameraComponent) {
