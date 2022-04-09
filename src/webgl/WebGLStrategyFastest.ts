@@ -831,19 +831,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     displayIdx: Index,
     isVRMainPass: boolean
   ) {
+    let cameraComponentSid = -1;
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
-      let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
         cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
       } else {
         const webvrSystem = rnXRModule.WebVRSystem.getInstance();
         cameraComponentSid = webvrSystem.getCameraComponentSIDAt(displayIdx);
       }
-      WebGLStrategyFastest.__currentComponentSIDs!._v[
-        WellKnownComponentTIDs.CameraComponentTID
-      ] = cameraComponentSid;
     } else {
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
@@ -851,17 +848,13 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           CameraComponent,
           CameraComponent.main
         ) as CameraComponent;
-      }
-      if (cameraComponent) {
-        WebGLStrategyFastest.__currentComponentSIDs!._v[
-          WellKnownComponentTIDs.CameraComponentTID
-        ] = cameraComponent.componentSID;
-      } else {
-        WebGLStrategyFastest.__currentComponentSIDs!._v[
-          WellKnownComponentTIDs.CameraComponentTID
-        ] = -1;
+        cameraComponentSid = cameraComponent.componentSID;
       }
     }
+
+    WebGLStrategyFastest.__currentComponentSIDs!._v[
+      WellKnownComponentTIDs.CameraComponentTID
+    ] = cameraComponentSid;
   }
 
   private __setCurrentComponentSIDsForEachEntity(
