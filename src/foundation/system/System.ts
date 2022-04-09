@@ -191,10 +191,10 @@ export default class System {
       | undefined;
     const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
 
+    const componentTids = ComponentRepository.getComponentTIDs();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
-      const componentTids = ComponentRepository.getComponentTIDs();
       for (const componentTid of componentTids) {
         if (stage === ProcessStage.Render) {
           for (const exp of expressions) {
