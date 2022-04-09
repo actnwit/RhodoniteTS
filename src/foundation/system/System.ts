@@ -196,6 +196,8 @@ export default class System {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
       for (const componentTid of componentTids) {
+        const componentClass: typeof Component =
+          ComponentRepository.getComponentClass(componentTid)!;
         if (stage === ProcessStage.Render) {
           for (const exp of expressions) {
             let renderPassN = 1;
@@ -226,8 +228,6 @@ export default class System {
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
               }
 
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
               componentClass.updateComponentsOfEachProcessStage(
                 componentClass,
                 stage,
@@ -266,8 +266,6 @@ export default class System {
             }
           }
         } else {
-          const componentClass: typeof Component =
-            ComponentRepository.getComponentClass(componentTid)!;
           componentClass.updateComponentsOfEachProcessStage(
             componentClass,
             stage
