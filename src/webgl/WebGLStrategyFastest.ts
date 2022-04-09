@@ -935,6 +935,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const primitive = Primitive.getPrimitive(primitiveUid);
         const mesh = primitive.mesh as Mesh;
         const meshEntity = mesh.meshEntity!;
+        if (!meshEntity.getSceneGraph().isVisible) {
+          continue;
+        }
         const meshComponent = meshEntity.getMesh();
         if (!mesh?.isOriginalMesh()) {
           continue;

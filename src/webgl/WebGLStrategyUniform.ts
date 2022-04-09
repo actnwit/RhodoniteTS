@@ -451,17 +451,11 @@ mat3 get_normalMatrix(float instanceId) {
         }
 
         const mesh = primitive.mesh as Mesh;
-        if (Is.not.exist(mesh)) {
-          continue;
-        }
-        const meshEntity = mesh.meshEntity;
-        if (Is.not.exist(meshEntity)) {
+        const meshEntity = mesh.meshEntity!;
+        if (!meshEntity.getSceneGraph().isVisible) {
           continue;
         }
         const meshComponent = meshEntity.getMesh();
-        if (meshComponent == null) {
-          continue;
-        }
 
         this.attachVertexDataInner(
           meshComponent.mesh!,
