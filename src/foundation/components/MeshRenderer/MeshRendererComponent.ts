@@ -291,7 +291,14 @@ export default class MeshRendererComponent extends Component {
     primitives = Array.from(new Set(primitives));
 
     // Sort by sortkey
-    primitives.sort((a, b) => a._sortkey - b._sortkey);
+    primitives.sort((a, b) => {
+      const deltaKey = a._sortkey - b._sortkey;
+      if (deltaKey === 0) {
+        return a._viewDepth - b._viewDepth;
+      } else {
+        return deltaKey;
+      }
+    });
 
     const primitiveUids = primitives.map(primitive => primitive.primitiveUid);
     primitiveUids.push(-1);
@@ -299,7 +306,7 @@ export default class MeshRendererComponent extends Component {
     MeshRendererComponent.__firstTransparentIndex = -1;
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
-      const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType;
+      const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
       const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
       if (isTranslucency) {
         MeshRendererComponent.__firstTransparentIndex = primitive._sortkey;
@@ -489,11 +496,13 @@ export default class MeshRendererComponent extends Component {
     const primitives: Primitive[] = [];
     for (let i = 0; i < meshComponents.length; i++) {
       const meshComponent = meshComponents[i];
+      const viewDepth = meshComponent.calcViewDepth(cameraComponent);
       const mesh = meshComponent.mesh;
       if (mesh !== undefined) {
         const meshPrimitives = mesh.primitives;
         for (let j = 0; j < meshPrimitives.length; j++) {
           const primitive = meshPrimitives[j];
+          primitive._viewDepth = viewDepth;
           primitives.push(primitive);
         }
       }

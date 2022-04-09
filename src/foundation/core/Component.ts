@@ -240,14 +240,16 @@ export default class Component extends RnObject {
         return;
       }
       const component = components![componentSid];
-      (component as any)[methodName]({
-        i,
-        processStage,
-        processApproach,
-        strategy,
-        renderPass,
-        renderPassTickCount,
-      });
+      if (component !== undefined) {
+        (component as any)[methodName]({
+          i,
+          processStage,
+          processApproach,
+          strategy,
+          renderPass,
+          renderPassTickCount,
+        });
+      }
     }
   }
 

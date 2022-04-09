@@ -61,6 +61,7 @@ export class Primitive extends RnObject {
   private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
   private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
+  public _viewDepth = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -92,6 +93,7 @@ export class Primitive extends RnObject {
    * @param mesh
    */
   _belongToMesh(mesh: IMesh) {
+    // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
     this.__weakRefMesh.set(this, mesh);
   }
 

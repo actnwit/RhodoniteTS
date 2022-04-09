@@ -536,121 +536,12 @@ mat3 get_normalMatrix(float instanceId) {
           );
         }
         // this.dettachVertexData(glw);
-        WebGLStrategyCommonMethod.endDepthMasking(primitive, gl);
-        this.__lastRenderPassTickCount = renderPassTickCount;
       }
+      gl.depthMask(true);
     }
 
     return false;
   }
 
-  $render(
-    primitiveUid: Index,
-    meshComponent: MeshComponent,
-    worldMatrix: Matrix44,
-    normalMatrix: Matrix33,
-    entity: IMeshEntity,
-    renderPass: RenderPass,
-    renderPassTickCount: Count,
-    diffuseCube?: CubeTexture,
-    specularCube?: CubeTexture
-  ) {
-    if (meshComponent.mesh == null) {
-      return;
-    }
-
-    // const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    // const gl = glw.getRawContext();
-
-    // WebGLStrategyCommonMethod.startDepthMasking(primitive, gl);
-    // const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    // const displayNumber =
-    //   WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
-
-    // for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
-    //   if (isVrMainPass) {
-    //     WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
-    //   }
-
-    //   const primitive = Primitive.getPrimitive(primitiveUid);
-    //   const material: Material = renderPass.getAppropriateMaterial(
-    //     primitive,
-    //     primitive.material!
-    //   );
-    //   if (WebGLStrategyCommonMethod.isSkipDrawing(material, primitiveUid)) {
-    //     continue;
-    //   }
-
-    //   this.attachVertexDataInner(
-    //     meshComponent.mesh,
-    //     primitive,
-    //     primitiveUid,
-    //     glw,
-    //     CGAPIResourceRepository.InvalidCGAPIResourceUid
-    //   );
-
-    //   const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-    //     material._shaderProgramUid
-    //   )! as WebGLProgram;
-    //   const shaderProgramUid = material._shaderProgramUid;
-
-    //   let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
-
-    //   if (shaderProgramUid !== this.__lastShader) {
-    //     firstTime = true;
-
-    //     gl.useProgram(shaderProgram);
-    //     gl.uniform1i((shaderProgram as any).dataTexture, 7);
-    //     this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-
-    //     this.__lastShader = shaderProgramUid;
-    //   }
-
-    //   if (this.__lastMaterial !== material) {
-    //     firstTime = true;
-    //     this.__lastMaterial = material;
-    //   }
-
-    //   WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-    //   material._setParametersForGPU({
-    //     material,
-    //     shaderProgram,
-    //     firstTime,
-    //     args: {
-    //       setUniform: true,
-    //       glw: glw,
-    //       entity: entity,
-    //       primitive: primitive,
-    //       worldMatrix: worldMatrix,
-    //       normalMatrix: normalMatrix,
-    //       lightComponents: this.__lightComponents!,
-    //       renderPass: renderPass,
-    //       diffuseCube: diffuseCube,
-    //       specularCube: specularCube,
-    //       isVr: isVrMainPass,
-    //       displayIdx,
-    //     },
-    //   });
-
-    //   if (primitive.indicesAccessor) {
-    //     glw.drawElementsInstanced(
-    //       primitive.primitiveMode.index,
-    //       primitive.indicesAccessor.elementCount,
-    //       primitive.indicesAccessor.componentType.index,
-    //       0,
-    //       1
-    //     );
-    //   } else {
-    //     glw.drawArraysInstanced(
-    //       primitive.primitiveMode.index,
-    //       0,
-    //       primitive.getVertexCountAsVerticesBased(),
-    //       1
-    //     );
-    //   }
-    //   // this.dettachVertexData(glw);
-    // }
-    // WebGLStrategyCommonMethod.endDepthMasking(primitive, gl);
-    // this.__lastRenderPassTickCount = renderPassTickCount;
-  }
+  $render() {}
 }

@@ -1041,25 +1041,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         this.__lastShader = shaderProgramUid;
       }
+      gl.depthMask(true);
     }
 
     this.__lastRenderPassTickCount = renderPassTickCount;
     return false;
   }
 
-  $render(
-    idx: Index,
-    meshComponent: MeshComponent,
-    worldMatrix: Matrix44,
-    normalMatrix: Matrix33,
-    entity: IMeshEntity,
-    renderPass: RenderPass,
-    renderPassTickCount: Count,
-    diffuseCube?: CubeTexture,
-    specularCube?: CubeTexture
-  ) {
-    // const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    // const gl = glw.getRawContext();
-    // WebGLStrategyCommonMethod.endDepthMasking(idx, gl);
-  }
+  $render() {}
 }

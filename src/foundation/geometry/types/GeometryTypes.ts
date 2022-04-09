@@ -1,4 +1,5 @@
 import {MeshComponent} from '../../..';
+import { MeshUID } from '../../../types/CommonTypes';
 import {IVector3} from '../../math/IVector';
 
 export interface RaycastResult {
@@ -47,14 +48,12 @@ export interface RaycastResultEx2 {
  * 32 bits: Depth
  */
 export type PrimitiveSortKey = number;
-export const PrimitiveSortKey_BitOffset_Depth = 0;
-export const PrimitiveSortKey_BitLength_Depth = 24;
-export const PrimitiveSortKey_BitOffset_Material =
-  PrimitiveSortKey_BitLength_Depth;
+export const PrimitiveSortKey_BitLength_Depth = 32;
 export const PrimitiveSortKey_BitLength_Material = 10;
+export const PrimitiveSortKey_BitLength_TranslucencyType = 2;
+export const PrimitiveSortKey_BitOffset_Material = 0;
 export const PrimitiveSortKey_BitOffset_TranslucencyType =
   PrimitiveSortKey_BitLength_Material;
-export const PrimitiveSortKey_BitLength_TranslucencyType = 2;
 export const PrimitiveSortKey_BitOffset_ViewportLayer =
   PrimitiveSortKey_BitLength_Material +
   PrimitiveSortKey_BitLength_TranslucencyType;
@@ -64,4 +63,6 @@ export type PrimitiveSortKeyOffset =
   | typeof PrimitiveSortKey_BitOffset_TranslucencyType
   | typeof PrimitiveSortKey_BitOffset_ViewportLayer;
 
-export interface IMesh {}
+export interface IMesh {
+  meshUID: MeshUID;
+}

@@ -254,6 +254,15 @@ export default class System {
                 });
               }
 
+              componentClass.process({
+                componentType: componentClass,
+                processStage: stage,
+                processApproach: this.__processApproach,
+                strategy: this.__webglStrategy!,
+                renderPass: void 0,
+                renderPassTickCount: this.__renderPassTickCount,
+              });
+
               this.__renderPassTickCount++;
 
               if (
