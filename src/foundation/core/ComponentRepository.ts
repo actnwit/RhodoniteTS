@@ -170,7 +170,7 @@ export default class ComponentRepository {
    */
   public static getComponentTIDs(): Array<ComponentTID> {
     const componentTids = Array.from(this.__components.keys());
-    componentTids.sort();
+    componentTids.sort((a, b) => a - b);
     return componentTids;
   }
 }

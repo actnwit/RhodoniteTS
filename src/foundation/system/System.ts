@@ -1,4 +1,4 @@
-import {ProcessStage} from '../definitions/ProcessStage';
+import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import ComponentRepository from '../core/ComponentRepository';
 import {
   ProcessApproachEnum,
@@ -18,7 +18,7 @@ import Vector3 from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
 import Time from '../misc/Time';
 import SystemState from './SystemState';
-import {MiscUtil} from '../misc/MiscUtil';
+import {MiscUtil, valueWithCompensation} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
@@ -30,6 +30,7 @@ import Vector4 from '../math/Vector4';
 import RenderPass from '../renderer/RenderPass';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import { WebXRSystem } from '../..';
 
 declare const spector: any;
 
