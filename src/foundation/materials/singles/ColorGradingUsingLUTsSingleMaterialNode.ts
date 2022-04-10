@@ -15,7 +15,7 @@ import Texture from '../../textures/Texture';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import RenderPass from '../../renderer/RenderPass';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import Material from '../core/Material';
+import { Material } from '../core/Material';
 import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';

@@ -15,7 +15,7 @@ import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import Material from '../core/Material';
+import { Material } from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import { Scalar } from '../../math/Scalar';
 import Config from '../../core/Config';

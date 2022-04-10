@@ -1,6 +1,6 @@
 import DataUtil from '../misc/DataUtil';
 import {Primitive} from '../geometry/Primitive';
-import MaterialHelper from '../helpers/MaterialHelper';
+import {Material}Helper from '../helpers/MaterialHelper';
 import {
   CompositionType,
   CompositionTypeEnum,

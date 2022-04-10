@@ -9,7 +9,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import Material from '../core/Material';
+import { Material } from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import shaderVertex from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import shaderFragment from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';

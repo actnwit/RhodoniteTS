@@ -53,7 +53,7 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
-import Material from '../foundation/materials/core/Material';
+import { Material } from '../foundation/materials/core/Material';
 import { System } from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import Config from '../foundation/core/Config';

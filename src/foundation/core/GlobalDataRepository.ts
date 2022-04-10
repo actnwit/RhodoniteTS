@@ -14,7 +14,7 @@ import {
 import {BufferUse} from '../definitions/BufferUse';
 import { MemoryManager } from './MemoryManager';
 import {CompositionType} from '../definitions/CompositionType';
-import Material from '../materials/core/Material';
+import { Material } from '../materials/core/Material';
 import {ComponentType} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
 import { MathClassUtil } from '../math/MathClassUtil';

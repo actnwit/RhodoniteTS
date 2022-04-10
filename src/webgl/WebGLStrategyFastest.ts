@@ -16,7 +16,7 @@ import {
   ShaderSemanticsInfo,
   ShaderSemanticsClass,
 } from '../foundation/definitions/ShaderSemantics';
-import Material from '../foundation/materials/core/Material';
+import { Material } from '../foundation/materials/core/Material';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import Component from '../foundation/core/Component';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';

@@ -21,13 +21,13 @@ import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import {AlphaMode} from '../definitions/AlphaMode';
-import MaterialHelper from '../helpers/MaterialHelper';
+import {Material}Helper from '../helpers/MaterialHelper';
 import {
   ShaderSemantics,
   ShaderSemanticsEnum,
 } from '../definitions/ShaderSemantics';
 import { Vector2 } from '../math/Vector2';
-import Material from '../materials/core/Material';
+import { Material } from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
 import Accessor from '../memory/Accessor';
 import Mesh from '../geometry/Mesh';

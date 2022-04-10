@@ -3,7 +3,7 @@ import {
   ShaderSemanticsInfo,
 } from '../../definitions/ShaderSemantics';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import Material from '../core/Material';
+import { Material } from '../core/Material';
 import {ShaderityObject} from 'shaderity';
 import ShaderityUtility from '../core/ShaderityUtility';
 import {ShaderType} from '../../definitions/ShaderType';

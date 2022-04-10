@@ -13,8 +13,8 @@ import EntityHelper, {
   IMeshEntity,
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
-import MaterialHelper from '../helpers/MaterialHelper';
-import Material from '../materials/core/Material';
+import {Material}Helper from '../helpers/MaterialHelper';
+import { Material } from '../materials/core/Material';
 import {MathUtil} from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
 import { Matrix44 } from '../math/Matrix44';

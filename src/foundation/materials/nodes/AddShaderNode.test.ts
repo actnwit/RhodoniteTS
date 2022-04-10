@@ -1,6 +1,6 @@
 import {ModuleManager} from '../../system/ModuleManager';
 import {MemoryManager} from '../../core/MemoryManager';
-import Material from '../core/Material';
+import {Material} from '../core/Material';
 import OutPositionNode from './OutPositionShaderNode';
 import AttributePositionShaderNode from './AttributePositionShaderNode';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';

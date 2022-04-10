@@ -9,7 +9,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import Material from '../core/Material';
+import { Material } from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import {ShaderityObject} from 'shaderity';

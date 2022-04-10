@@ -1,5 +1,5 @@
 import Config from '../core/Config';
-import Material from '../materials/core/Material';
+import { Material } from '../materials/core/Material';
 import RenderPass from '../renderer/RenderPass';
 import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';

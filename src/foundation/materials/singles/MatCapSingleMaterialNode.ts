@@ -16,7 +16,7 @@ import Texture from '../../textures/Texture';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import { Vector3 } from '../../math/Vector3';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import Material from '../core/Material';
+import { Material } from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';

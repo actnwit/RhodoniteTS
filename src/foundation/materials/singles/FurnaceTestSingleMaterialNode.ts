@@ -11,7 +11,7 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import { Vector2 } from '../../math/Vector2';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import { ComponentRepository } from '../../core/ComponentRepository';
-import Material from '../core/Material';
+import { Material } from '../core/Material';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';

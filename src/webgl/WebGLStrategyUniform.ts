@@ -16,7 +16,7 @@ import {TextureParameter} from '../foundation/definitions/TextureParameter';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import {CompositionType} from '../foundation/definitions/CompositionType';
-import Material from '../foundation/materials/core/Material';
+import { Material } from '../foundation/materials/core/Material';
 import RenderPass from '../foundation/renderer/RenderPass';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Mesh from '../foundation/geometry/Mesh';

@@ -55,7 +55,7 @@ type MaterialTID = Index; // a type number of the Material Type
  * The material class.
  * This class has one or more material nodes.
  */
-export default class Material extends RnObject {
+export class Material extends RnObject {
   private __materialNode?: AbstractMaterialNode;
 
   private __fields: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
