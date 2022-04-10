@@ -720,7 +720,7 @@ function changeMaterial(
   meshRendererComponent.moveStageTo(ProcessStage.Load);
 }
 
-export default Object.freeze({
+export const MaterialHelper = Object.freeze({
   createMaterial,
   recreateMaterial,
   recreateCustomMaterial,

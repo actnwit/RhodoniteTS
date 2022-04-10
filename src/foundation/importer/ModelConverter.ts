@@ -21,7 +21,7 @@ import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import {AlphaMode} from '../definitions/AlphaMode';
-import {Material}Helper from '../helpers/MaterialHelper';
+import {MaterialHelper} from '../helpers/MaterialHelper';
 import {
   ShaderSemantics,
   ShaderSemanticsEnum,

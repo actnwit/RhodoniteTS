@@ -68,7 +68,7 @@ import type {JointDescriptor as _JointDescriptor} from './foundation/geometry/sh
 import type {LineDescriptor as _LineDescriptor} from './foundation/geometry/shapes/Line';
 import type {GridDescriptor as _GridDescriptor} from './foundation/geometry/shapes/Grid';
 import { Material as _Material } from './foundation/materials/core/Material';
-import _MaterialHelper from './foundation/helpers/MaterialHelper';
+import {MaterialHelper as _MaterialHelper} from './foundation/helpers/MaterialHelper';
 import { RenderPass as _RenderPass } from './foundation/renderer/RenderPass';
 import _Frame from './foundation/renderer/Frame';
 import _FrameBuffer from './foundation/renderer/FrameBuffer';

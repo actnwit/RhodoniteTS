@@ -13,7 +13,7 @@ import {
 } from '../definitions/CompositionType';
 import AABB from '../math/AABB';
 import { Material } from '../materials/core/Material';
-import {Material}Helper from '../helpers/MaterialHelper';
+import {MaterialHelper} from '../helpers/MaterialHelper';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
