@@ -19,7 +19,7 @@ import {
 import {ColorRgb} from '../math/ColorRgb';
 import {ColorRgba} from '../math/ColorRgba';
 import { MutableVector3 } from '../math/MutableVector3';
-import MutableVector4 from '../math/MutableVector4';
+import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import {Is} from '../misc/Is';

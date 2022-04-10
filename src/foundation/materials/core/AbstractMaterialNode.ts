@@ -16,7 +16,7 @@ import Config from '../../core/Config';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './Material';
 import { MutableVector2 } from '../../math/MutableVector2';
-import MutableVector4 from '../../math/MutableVector4';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import MutableMatrix44 from '../../math/MutableMatrix44';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';

@@ -11,7 +11,7 @@ import { System } from '../system/System';
 import ModuleManager from '../system/ModuleManager';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {Primitive} from '../geometry/Primitive';
-import MutableVector4 from '../math/MutableVector4';
+import { MutableVector4 } from '../math/MutableVector4';
 import {IVector4} from '../math/IVector';
 import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';

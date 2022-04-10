@@ -31,7 +31,7 @@ import Material from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
 import Accessor from '../memory/Accessor';
 import Mesh from '../geometry/Mesh';
-import MutableVector4 from '../math/MutableVector4';
+import { MutableVector4 } from '../math/MutableVector4';
 import {LightType} from '../definitions/LightType';
 import {
   Count,
