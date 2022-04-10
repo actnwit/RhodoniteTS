@@ -17,7 +17,7 @@ import MaterialHelper from '../helpers/MaterialHelper';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';

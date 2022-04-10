@@ -547,7 +547,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   }
 }
 
-export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
+export class Vector3 extends Vector3_<Float32ArrayConstructor> {
   constructor(v: TypedArray) {
     super(v, {type: Float32Array});
   }

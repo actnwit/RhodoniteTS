@@ -14,7 +14,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import Texture from '../../textures/Texture';
 import {TextureParameter} from '../../definitions/TextureParameter';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import Material from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';

@@ -1,5 +1,5 @@
 import { Vector2 } from './Vector2';
-import Vector3 from './Vector3';
+import { Vector3 } from './Vector3';
 import Vector4 from './Vector4';
 import Quaternion from './Quaternion';
 import Matrix33 from './Matrix33';

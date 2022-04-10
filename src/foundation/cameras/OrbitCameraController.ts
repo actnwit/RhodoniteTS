@@ -1,4 +1,4 @@
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
 import {MathUtil} from '../math/MathUtil';
 import CameraComponent from '../components/Camera/CameraComponent';

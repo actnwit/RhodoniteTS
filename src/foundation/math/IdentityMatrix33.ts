@@ -5,7 +5,7 @@ import {IMatrix, IMatrix33} from './IMatrix';
 import {IVector, IMutableVector} from './IVector';
 import Matrix33 from './Matrix33';
 import MutableVector3 from './MutableVector3';
-import Vector3 from './Vector3';
+import { Vector3 } from './Vector3';
 
 export default class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static readonly __v = new Float32Array([1, 0, 0,

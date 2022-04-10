@@ -1,4 +1,4 @@
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import Quaternion from '../math/Quaternion';

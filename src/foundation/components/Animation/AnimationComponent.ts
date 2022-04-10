@@ -50,7 +50,7 @@ import {
   normalizeArray4,
   qlerp_offsetAsComposition,
 } from '../../math/raw/raw_extension';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import {Is} from '../../misc/Is';
 import {IAnimationEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';

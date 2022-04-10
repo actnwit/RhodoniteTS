@@ -25,7 +25,7 @@ import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateI
 import Config from './Config';
 import { Scalar } from '../math/Scalar';
 import Vector4 from '../math/Vector4';
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import {BoneDataType} from '../definitions/BoneDataType';

@@ -3,7 +3,7 @@ import Component from '../../core/Component';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {LightType} from '../../definitions/LightType';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import Config from '../../core/Config';

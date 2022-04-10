@@ -5,7 +5,7 @@ import {
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';

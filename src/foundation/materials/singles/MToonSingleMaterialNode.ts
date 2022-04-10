@@ -16,7 +16,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
 import VectorN from '../../math/VectorN';
 import {Array3, Array4, Count} from '../../../types/CommonTypes';

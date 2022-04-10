@@ -9,7 +9,7 @@ import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import Vector4 from '../../math/Vector4';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';

@@ -8,7 +8,7 @@ import {BufferUse} from '../../definitions/BufferUse';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import MutableMatrix44 from '../../math/MutableMatrix44';
 import MutableMatrix33 from '../../math/MutableMatrix33';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import AABB from '../../math/AABB';
 import MutableVector3 from '../../math/MutableVector3';
 import { MeshComponent } from '../Mesh/MeshComponent';

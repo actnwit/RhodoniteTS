@@ -5,7 +5,7 @@ import MemoryManager from '../core/MemoryManager';
 import {BufferUse} from '../definitions/BufferUse';
 import {ComponentType} from '../definitions/ComponentType';
 import {CompositionType} from '../definitions/CompositionType';
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import Accessor from '../memory/Accessor';
 import { Vector2 } from '../math/Vector2';
 import AABB from '../math/AABB';

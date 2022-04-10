@@ -4,7 +4,7 @@ import {VertexAttribute} from '../definitions/VertexAttribute';
 import Mesh from '../geometry/Mesh';
 import {Primitive} from '../geometry/Primitive';
 import EntityHelper, {IMeshEntity} from '../helpers/EntityHelper';
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import Gizmo from './Gizmo';
 
 /**

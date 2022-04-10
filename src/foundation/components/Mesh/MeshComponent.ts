@@ -3,7 +3,7 @@ import Component from '../../core/Component';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import CameraComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import Mesh from '../../geometry/Mesh';

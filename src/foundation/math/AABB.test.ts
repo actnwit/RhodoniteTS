@@ -1,5 +1,5 @@
 import AABB from './AABB';
-import Vector3 from './Vector3';
+import {Vector3} from './Vector3';
 
 test('AABB is vanilla first', () => {
   const aabb = new AABB();

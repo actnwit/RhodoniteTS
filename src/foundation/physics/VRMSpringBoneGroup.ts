@@ -1,4 +1,4 @@
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import RnObject from '../core/RnObject';
 import {Index} from '../../types/CommonTypes';

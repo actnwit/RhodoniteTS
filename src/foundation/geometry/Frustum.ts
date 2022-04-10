@@ -2,7 +2,7 @@ import Vector4 from '../math/Vector4';
 import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableVector4 from '../math/MutableVector4';
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import {Visibility} from '../definitions/visibility';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 

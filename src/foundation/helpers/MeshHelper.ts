@@ -5,7 +5,7 @@ import {Axis} from '../geometry/shapes/Axis';
 import {IShape} from '../geometry/shapes/IShape';
 import EntityHelper from './EntityHelper';
 import {Line, LineDescriptor} from '../geometry/shapes/Line';
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import {Grid, GridDescriptor} from '../geometry/shapes/Grid';
 import { Cube, CubeDescriptor } from '../geometry/shapes/Cube';
 import { Sphere, SphereDescriptor } from '../geometry/shapes/Sphere';

@@ -12,7 +12,7 @@ import {
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import {ShadingModel} from '../../definitions/ShadingModel';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';
 
 import ClassicSingleShaderVertex from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';

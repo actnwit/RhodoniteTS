@@ -1,5 +1,5 @@
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import Vector3 from '../foundation/math/Vector3';
+import { Vector3 } from '../foundation/math/Vector3';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
 import Vector4 from '../foundation/math/Vector4';

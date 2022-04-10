@@ -8,7 +8,7 @@ import PhysicsComponent from '../components/Physics/PhysicsComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import SphereCollider from '../physics/SphereCollider';
 import Texture from '../textures/Texture';
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 import VRMColliderGroup from '../physics/VRMColliderGroup';
 import VRMSpringBoneGroup from '../physics/VRMSpringBoneGroup';
 import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrategy';

@@ -1,4 +1,4 @@
-import Vector3 from './Vector3';
+import { Vector3 } from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector4 from './Vector4';

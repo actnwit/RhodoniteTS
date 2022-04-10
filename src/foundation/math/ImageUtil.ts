@@ -1,4 +1,4 @@
-import Vector3 from './Vector3';
+import { Vector3 } from './Vector3';
 import MutableMatrix33 from './MutableMatrix33';
 import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
