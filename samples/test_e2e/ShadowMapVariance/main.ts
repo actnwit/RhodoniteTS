@@ -349,7 +349,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createExpression(renderPasses: RenderPass[]) {
-    const expression = new Expression();
+    const expression = new Rn.Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
   }
