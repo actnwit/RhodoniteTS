@@ -10,7 +10,7 @@ import {Is, Is as is} from '../foundation/misc/Is';
 import ModuleManager from '../foundation/system/ModuleManager';
 import WebGLResourceRepository from './WebGLResourceRepository';
 import {RnXR} from '../xr/main';
-import Vector4 from '../foundation/math/Vector4';
+import { Vector4 } from '../foundation/math/Vector4';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import {CompositionType} from '../foundation/definitions/CompositionType';

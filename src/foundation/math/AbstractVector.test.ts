@@ -1,4 +1,4 @@
-import Vector4 from './Vector4';
+import {Vector4} from './Vector4';
 
 test('AbstractVector::isTheSourceSame', () => {
   const vec_source = new Float32Array([0, 1, 2, 3]);

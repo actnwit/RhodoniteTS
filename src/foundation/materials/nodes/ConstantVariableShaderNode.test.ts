@@ -4,7 +4,7 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import AddShaderNode from './AddShaderNode';
 import OutPositionShaderNode from './OutPositionShaderNode';
-import Vector4 from '../../math/Vector4';
+import {Vector4} from '../../math/Vector4';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
 import ModuleManager from '../../system/ModuleManager';
 

@@ -3,7 +3,7 @@ import Component from '../../core/Component';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import { Vector3 } from '../../math/Vector3';
-import Vector4 from '../../math/Vector4';
+import { Vector4 } from '../../math/Vector4';
 import {CameraTypeEnum, CameraType} from '../../definitions/CameraType';
 import Matrix44 from '../../math/Matrix44';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';

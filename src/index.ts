@@ -12,7 +12,7 @@ import type {IsType} from './foundation/misc/Is';
 import { Scalar as _Scalar } from './foundation/math/Scalar';
 import { Vector2 as _Vector2 } from './foundation/math/Vector2';
 import { Vector3 as _Vector3 } from './foundation/math/Vector3';
-import _Vector4 from './foundation/math/Vector4';
+import { Vector4 as _Vector4 } from './foundation/math/Vector4';
 import {ColorRgb as _ColorRgb} from './foundation/math/ColorRgb';
 import {ColorRgba as _ColorRgba} from './foundation/math/ColorRgba';
 import {MutableColorRgb as _MutableColorRgb} from './foundation/math/MutableColorRgb';

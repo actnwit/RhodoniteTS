@@ -15,7 +15,7 @@ import {
 } from '../definitions/VertexAttribute';
 import {CameraType} from '../definitions/CameraType';
 import Texture from '../textures/Texture';
-import Vector4 from '../math/Vector4';
+import { Vector4 } from '../math/Vector4';
 import AnimationComponent from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';

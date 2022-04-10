@@ -7,7 +7,7 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import OutPositionShaderNode from './OutPositionShaderNode';
 import OutColorShaderNode from './OutColorShaderNode';
-import Vector4 from '../../math/Vector4';
+import {Vector4} from '../../math/Vector4';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('VaryingVariable works correctly 1', async () => {

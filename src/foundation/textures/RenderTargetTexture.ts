@@ -9,7 +9,7 @@ import IRenderable from './IRenderable';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Size, Index} from '../../types/CommonTypes';
 import FrameBuffer from '../renderer/FrameBuffer';
-import Vector4 from '../math/Vector4';
+import { Vector4 } from '../math/Vector4';
 
 export default class RenderTargetTexture
   extends AbstractTexture

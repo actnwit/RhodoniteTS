@@ -1,4 +1,4 @@
-import Vector4 from '../math/Vector4';
+import { Vector4 } from '../math/Vector4';
 import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableVector4 from '../math/MutableVector4';

@@ -469,7 +469,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   }
 }
 
-export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
+export class Vector4 extends Vector4_<Float32ArrayConstructor> {
   constructor(x: Float32Array) {
     super(x, {type: Float32Array});
   }

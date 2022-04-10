@@ -22,7 +22,7 @@ import Matrix44 from '../math/Matrix44';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import Quaternion from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
-import Vector4 from '../math/Vector4';
+import { Vector4 } from '../math/Vector4';
 import {Is} from '../misc/Is';
 import {assertExist, MiscUtil} from '../misc/MiscUtil';
 import {

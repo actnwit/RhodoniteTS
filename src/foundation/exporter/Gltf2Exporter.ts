@@ -54,7 +54,7 @@ import {
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
 import {createEffekseer} from './Gltf2ExporterEffekseer';
-import Vector4 from '../math/Vector4';
+import { Vector4 } from '../math/Vector4';
 import {Tag} from '../core/RnObject';
 const _VERSION = require('./../../../VERSION-FILE').default;
 

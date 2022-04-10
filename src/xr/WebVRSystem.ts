@@ -3,7 +3,7 @@ import { Vector3 } from '../foundation/math/Vector3';
 import Matrix44 from '../foundation/math/Matrix44';
 import MutableMatrix44 from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
-import Vector4 from '../foundation/math/Vector4';
+import { Vector4 } from '../foundation/math/Vector4';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';

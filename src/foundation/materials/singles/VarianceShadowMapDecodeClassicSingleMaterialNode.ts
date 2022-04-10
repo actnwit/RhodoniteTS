@@ -7,7 +7,7 @@ import {
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import Vector4 from '../../math/Vector4';
+import { Vector4 } from '../../math/Vector4';
 import { Vector3 } from '../../math/Vector3';
 import {ShadingModel} from '../../definitions/ShadingModel';
 import {ShaderType} from '../../definitions/ShaderType';

@@ -1,7 +1,7 @@
 import { Vector3 } from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
-import Vector4 from './Vector4';
+import { Vector4 } from './Vector4';
 import {IMatrix, IMatrix44} from './IMatrix';
 import {CompositionType} from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
