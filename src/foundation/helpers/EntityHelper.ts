@@ -19,7 +19,7 @@ import CameraControllerComponent from '../components/CameraController/CameraCont
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import PhysicsComponent from '../components/Physics/PhysicsComponent';
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import LightComponent from '../components/Light/LightComponent';
+import { LightComponent } from '../components/Light/LightComponent';
 
 export type ITransformEntity = IEntity & ITransformEntityMethods;
 export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;

@@ -79,7 +79,7 @@ import EntityHelper, {
   IMeshEntity,
 } from '../helpers/EntityHelper';
 import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
-import LightComponent from '../components/Light/LightComponent';
+import { LightComponent } from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
 import BufferView from '../memory/BufferView';
 import RhodoniteImportExtension from './RhodoniteImportExtension';

@@ -1,5 +1,5 @@
 import {Entity, Matrix44} from '../..';
-import LightComponent from '../../foundation/components/Light/LightComponent';
+import { LightComponent } from '../../foundation/components/Light/LightComponent';
 import {Primitive} from '../../foundation/geometry/Primitive';
 import {Cube} from '../../foundation/geometry/shapes/Cube';
 import { IMeshEntity } from '../../foundation/helpers/EntityHelper';

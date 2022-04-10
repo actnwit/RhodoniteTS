@@ -47,7 +47,7 @@ import {
   AnimationInfo as _AnimationInfo,
   ChangeAnimationInfoEvent as _ChangeAnimationInfoEvent,
 } from './types/AnimationTypes';
-import _LightComponent from './foundation/components/Light/LightComponent';
+import { LightComponent as _LightComponent } from './foundation/components/Light/LightComponent';
 import _CubeTexture from './foundation/textures/CubeTexture';
 import _CameraControllerComponent from './foundation/components/CameraController/CameraControllerComponent';
 import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';

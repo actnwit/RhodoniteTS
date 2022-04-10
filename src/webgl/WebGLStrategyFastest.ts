@@ -49,7 +49,7 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../foundation/helpers/EntityHelper';
-import LightComponent from '../foundation/components/Light/LightComponent';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
 
 declare const spector: any;
 

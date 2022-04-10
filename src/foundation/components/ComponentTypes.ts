@@ -8,7 +8,7 @@ import {ICameraEntityMethods} from './Camera/ICameraEntity';
 import CameraControllerComponent from './CameraController/CameraControllerComponent';
 import {ICameraControllerEntityMethods} from './CameraController/ICameraControllerEntity';
 import {ILightEntityMethods} from './Light/ILightEntity';
-import LightComponent from './Light/LightComponent';
+import { LightComponent } from './Light/LightComponent';
 import {IMeshEntityMethods} from './Mesh/IMeshEntity';
 import { MeshComponent } from './Mesh/MeshComponent';
 import {IMeshRendererEntityMethods} from './MeshRenderer/IMeshRendererEntity';

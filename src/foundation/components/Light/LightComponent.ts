@@ -20,7 +20,7 @@ import {ILightEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class LightComponent extends Component {
+export class LightComponent extends Component {
   public type = LightType.Point;
   private __intensity = Vector3.fromCopyArray([1, 1, 1]);
   private readonly __initialdirection = Vector3.fromCopyArray([0, 1, 0]);
