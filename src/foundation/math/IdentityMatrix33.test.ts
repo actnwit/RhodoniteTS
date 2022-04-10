@@ -1,5 +1,5 @@
 import IdentityMatrix33 from './IdentityMatrix33';
-import Matrix33 from './Matrix33';
+import {Matrix33} from './Matrix33';
 import MutableMatrix33 from './MutableMatrix33';
 
 test('Test isEqual', () => {

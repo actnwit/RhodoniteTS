@@ -1,4 +1,4 @@
-import Matrix44 from './Matrix44';
+import {Matrix44} from './Matrix44';
 import MutableMatrix44 from './MutableMatrix44';
 import IdentityMatrix44 from './IdentityMatrix44';
 

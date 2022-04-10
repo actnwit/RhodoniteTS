@@ -22,8 +22,8 @@ import { MutableVector2 as _MutableVector2 } from './foundation/math/MutableVect
 import { MutableVector3 as _MutableVector3 } from './foundation/math/MutableVector3';
 import { MutableVector4 as _MutableVector4 } from './foundation/math/MutableVector4';
 import { Matrix22 as _Matrix22 } from './foundation/math/Matrix22';
-import _Matrix33 from './foundation/math/Matrix33';
-import _Matrix44 from './foundation/math/Matrix44';
+import { Matrix33 as _Matrix33 } from './foundation/math/Matrix33';
+import { Matrix44 as _Matrix44 } from './foundation/math/Matrix44';
 import _MutableMatrix22 from './foundation/math/MutableMatrix22';
 import _MutableMatrix33 from './foundation/math/MutableMatrix33';
 import _MutableMatrix44 from './foundation/math/MutableMatrix44';

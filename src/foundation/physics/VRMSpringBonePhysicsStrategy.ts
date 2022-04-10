@@ -2,7 +2,7 @@ import { Vector3 } from '../math/Vector3';
 import { MutableVector3 } from '../math/MutableVector3';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import Quaternion from '../math/Quaternion';
-import Matrix44 from '../math/Matrix44';
+import { Matrix44 } from '../math/Matrix44';
 import Time from '../misc/Time';
 import VRMSpringBoneGroup from './VRMSpringBoneGroup';
 import VRMColliderGroup from './VRMColliderGroup';

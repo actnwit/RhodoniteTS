@@ -1,4 +1,4 @@
-import Entity from './Entity';
+import {Entity} from './Entity';
 import {Is} from '../misc/Is';
 import {EntityRepository} from './EntityRepository';
 

@@ -8,7 +8,7 @@ import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {ComponentTypeEnum} from '../../definitions/ComponentType';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import Matrix44 from '../../math/Matrix44';
+import { Matrix44 } from '../../math/Matrix44';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Texture from '../../textures/Texture';
 import CubeTexture from '../../textures/CubeTexture';

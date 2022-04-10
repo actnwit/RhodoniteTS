@@ -3,7 +3,7 @@ import { MutableVector3 } from '../math/MutableVector3';
 import {MathUtil} from '../math/MathUtil';
 import CameraComponent from '../components/Camera/CameraComponent';
 import MutableMatrix33 from '../math/MutableMatrix33';
-import Matrix44 from '../math/Matrix44';
+import { Matrix44 } from '../math/Matrix44';
 import {Count, Size} from '../../types/CommonTypes';
 import ICameraController from './ICameraController';
 import MutableMatrix44 from '../math/MutableMatrix44';

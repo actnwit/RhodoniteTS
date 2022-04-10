@@ -1,7 +1,7 @@
-import Matrix44 from './Matrix44';
+import { Matrix44 } from './Matrix44';
 import Quaternion from './Quaternion';
 import {IMutableMatrix33, IMutableMatrix} from './IMatrix';
-import Matrix33 from './Matrix33';
+import { Matrix33 } from './Matrix33';
 import { Vector3 } from './Vector3';
 import {Index} from '../../types/CommonTypes';
 

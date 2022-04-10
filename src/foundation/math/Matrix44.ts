@@ -1,5 +1,5 @@
 import { Vector3 } from './Vector3';
-import Matrix33 from './Matrix33';
+import { Matrix33 } from './Matrix33';
 import Quaternion from './Quaternion';
 import { Vector4 } from './Vector4';
 import {IMatrix, IMatrix44} from './IMatrix';
@@ -18,7 +18,7 @@ import {mulThatAndThisToOutAsMat44_offsetAsComposition} from './raw/raw_extensio
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
+export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
 
   constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Array<number>, isColumnMajor?: boolean, notCopyFloatArray?: boolean);

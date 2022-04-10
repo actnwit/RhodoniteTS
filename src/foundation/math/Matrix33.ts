@@ -1,5 +1,5 @@
 import { Vector3 } from './Vector3';
-import Matrix44 from './Matrix44';
+import { Matrix44 } from './Matrix44';
 import Quaternion from './Quaternion';
 import {IMatrix, IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
@@ -11,7 +11,7 @@ import IdentityMatrix33 from './IdentityMatrix33';
 import {IMutableVector3, IVector3} from './IVector';
 /* eslint-disable prettier/prettier */
 
-export default class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
+export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Array<number>, isColumnMajor?: boolean);

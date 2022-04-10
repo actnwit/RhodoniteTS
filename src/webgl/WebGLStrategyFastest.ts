@@ -10,7 +10,7 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import {Primitive} from '../foundation/geometry/Primitive';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import Matrix44 from '../foundation/math/Matrix44';
+import { Matrix44 } from '../foundation/math/Matrix44';
 import {
   ShaderSemantics,
   ShaderSemanticsInfo,
@@ -39,7 +39,7 @@ import VectorN from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import Matrix33 from '../foundation/math/Matrix33';
+import { Matrix33 } from '../foundation/math/Matrix33';
 import CubeTexture from '../foundation/textures/CubeTexture';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';

@@ -14,7 +14,7 @@ import {
   ComponentSID,
 } from '../../../types/CommonTypes';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
-import Matrix44 from '../../math/Matrix44';
+import { Matrix44 } from '../../math/Matrix44';
 import MutableMatrix44 from '../../math/MutableMatrix44';
 import MathClassUtil from '../../math/MathClassUtil';
 import { MutableVector3 } from '../../math/MutableVector3';

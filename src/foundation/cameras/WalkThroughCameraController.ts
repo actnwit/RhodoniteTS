@@ -1,4 +1,4 @@
-import Matrix44 from '../math/Matrix44';
+import { Matrix44 } from '../math/Matrix44';
 import MathClassUtil from '../math/MathClassUtil';
 import {MiscUtil} from '../misc/MiscUtil';
 import ICameraController from './ICameraController';
