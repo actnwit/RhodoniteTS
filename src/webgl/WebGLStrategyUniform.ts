@@ -1,6 +1,6 @@
 import WebGLResourceRepository from './WebGLResourceRepository';
 import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
-import MeshComponent from '../foundation/components/Mesh/MeshComponent';
+import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import {Primitive} from '../foundation/geometry/Primitive';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';

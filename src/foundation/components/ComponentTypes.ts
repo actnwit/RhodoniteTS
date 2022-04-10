@@ -10,7 +10,7 @@ import {ICameraControllerEntityMethods} from './CameraController/ICameraControll
 import {ILightEntityMethods} from './Light/ILightEntity';
 import LightComponent from './Light/LightComponent';
 import {IMeshEntityMethods} from './Mesh/IMeshEntity';
-import MeshComponent from './Mesh/MeshComponent';
+import { MeshComponent } from './Mesh/MeshComponent';
 import {IMeshRendererEntityMethods} from './MeshRenderer/IMeshRendererEntity';
 import MeshRendererComponent from './MeshRenderer/MeshRendererComponent';
 import {IPhysicsEntityMethods} from './Physics/IPhysicsEntity';

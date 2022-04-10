@@ -6,7 +6,7 @@ import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import LightComponent from '../components/Light/LightComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
 import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
 import PhysicsComponent from '../components/Physics/PhysicsComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';

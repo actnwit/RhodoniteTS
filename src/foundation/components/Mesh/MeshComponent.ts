@@ -26,7 +26,7 @@ import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
 import {assertExist} from '../../misc/MiscUtil';
 
-export default class MeshComponent extends Component {
+export class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
   private __mesh?: Mesh;
   private __blendShapeComponent?: BlendShapeComponent;

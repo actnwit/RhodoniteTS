@@ -1,6 +1,6 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import MeshComponent from '../Mesh/MeshComponent';
+import { MeshComponent } from '../Mesh/MeshComponent';
 import WebGLStrategy from '../../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';

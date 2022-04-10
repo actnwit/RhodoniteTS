@@ -2,7 +2,7 @@ import RnObject from '../core/RnObject';
 import {IEntity} from '../core/Entity';
 import FrameBuffer from './FrameBuffer';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
 import Vector4 from '../math/Vector4';
 import {EntityUID} from '../../types/CommonTypes';
 import Material from '../materials/core/Material';

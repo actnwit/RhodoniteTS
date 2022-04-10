@@ -11,7 +11,7 @@ import MutableMatrix33 from '../../math/MutableMatrix33';
 import Vector3 from '../../math/Vector3';
 import AABB from '../../math/AABB';
 import MutableVector3 from '../../math/MutableVector3';
-import MeshComponent from '../Mesh/MeshComponent';
+import { MeshComponent } from '../Mesh/MeshComponent';
 import {
   ComponentTID,
   ComponentSID,
