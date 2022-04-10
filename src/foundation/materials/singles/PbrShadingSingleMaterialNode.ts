@@ -5,7 +5,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
-import Vector2 from '../../math/Vector2';
+import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import Vector4 from '../../math/Vector4';

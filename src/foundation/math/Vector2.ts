@@ -385,7 +385,7 @@ export class Vector2_<
   }
 }
 
-export default class Vector2
+export class Vector2
   extends Vector2_<Float32ArrayConstructor>
   implements IVector, IVector2
 {

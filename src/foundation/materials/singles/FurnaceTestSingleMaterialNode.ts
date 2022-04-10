@@ -8,7 +8,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import Vector2 from '../../math/Vector2';
+import { Vector2 } from '../../math/Vector2';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import Material from '../core/Material';

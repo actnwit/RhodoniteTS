@@ -7,7 +7,7 @@ import {ComponentType} from '../definitions/ComponentType';
 import {CompositionType} from '../definitions/CompositionType';
 import Vector3 from '../math/Vector3';
 import Accessor from '../memory/Accessor';
-import Vector2 from '../math/Vector2';
+import { Vector2 } from '../math/Vector2';
 import AABB from '../math/AABB';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import { Entity } from '../core/Entity';

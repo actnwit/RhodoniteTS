@@ -26,7 +26,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsEnum,
 } from '../definitions/ShaderSemantics';
-import Vector2 from '../math/Vector2';
+import { Vector2 } from '../math/Vector2';
 import Material from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
 import Accessor from '../memory/Accessor';

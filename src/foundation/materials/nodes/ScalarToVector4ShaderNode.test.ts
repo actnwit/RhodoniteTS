@@ -5,7 +5,7 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import ScalarToVector4MaterialNode from './ScalarToVector4ShaderNode';
 import OutPositionNode from './OutPositionShaderNode';
-import Scalar from '../../math/Scalar';
+import {Scalar} from '../../math/Scalar';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('ScalarToVector4 works correctly 1', async () => {

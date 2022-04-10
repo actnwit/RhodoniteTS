@@ -4,7 +4,7 @@ import {
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
 import BufferView from './BufferView';
-import Vector2 from '../math/Vector2';
+import { Vector2 } from '../math/Vector2';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
 import MutableVector2 from '../math/MutableVector2';
