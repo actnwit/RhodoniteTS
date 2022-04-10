@@ -6539,7 +6539,11 @@ webpack@^5.23.0:
 
 webxr-input-profiles@./webxr-input-profiles-v1.0.0.tgz:
   version "1.0.0"
-  resolved "./webxr-input-profiles-v1.0.0.tgz#621e5c4fc9292dfd18da4f4f6061199918d176e3"
+  resolved "./webxr-input-profiles-v1.0.0.tgz#f79e17f96f34b361f5f3c15273e5e0373185bbb1"
+
+webxr-input-profiles@actnwit/webxr-input-profiles#e35bc3bf053937346ce52abf4bf7da025290fb74:
+  version "1.0.0"
+  resolved "https://codeload.github.com/actnwit/webxr-input-profiles/tar.gz/e35bc3bf053937346ce52abf4bf7da025290fb74"
 
 whatwg-encoding@^1.0.5:
   version "1.0.5"
