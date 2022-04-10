@@ -6,7 +6,7 @@ import { SceneGraphComponent as _SceneGraphComponent } from './foundation/compon
 import { MeshComponent as _MeshComponent } from './foundation/components/Mesh/MeshComponent';
 import _MeshRendererComponent from './foundation/components/MeshRenderer/MeshRendererComponent';
 import {Primitive as _Primitive} from './foundation/geometry/Primitive';
-import _System from './foundation/system/System';
+import { System as _System } from './foundation/system/System';
 import {Is as _Is} from './foundation/misc/Is';
 import type {IsType} from './foundation/misc/Is';
 import _Scalar from './foundation/math/Scalar';

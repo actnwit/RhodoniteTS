@@ -28,7 +28,7 @@ import {
 } from '../../../types/CommonTypes';
 import DataUtil from '../../misc/DataUtil';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
-import System from '../../system/System';
+import { System } from '../../system/System';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';

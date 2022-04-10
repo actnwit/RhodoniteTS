@@ -16,7 +16,7 @@ import type {
   XRInputSourceChangeEvent,
   XRInputSource,
 } from 'webxr';
-import System from '../foundation/system/System';
+import { System } from '../foundation/system/System';
 import ModuleManager from '../foundation/system/ModuleManager';
 import {
   updateGamePad,

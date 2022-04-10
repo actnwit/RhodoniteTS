@@ -49,7 +49,7 @@ interface SystemInitDescription {
 
 type ComponentMethodName = string;
 
-export default class System {
+export class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
