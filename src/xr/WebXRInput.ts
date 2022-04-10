@@ -2,7 +2,7 @@ import {MotionController} from 'webxr-input-profiles/packages/motion-controllers
 import {fetchProfile} from 'webxr-input-profiles/packages/motion-controllers/src/profiles';
 import {Constants} from 'webxr-input-profiles/packages/motion-controllers/src/constants';
 import {XRFrame, XRInputSource} from 'webxr';
-import Gltf2Importer from '../foundation/importer/Gltf2Importer';
+import { Gltf2Importer } from '../foundation/importer/Gltf2Importer';
 import ModelConverter from '../foundation/importer/ModelConverter';
 import {Is} from '../foundation/misc/Is';
 import { IEntity, Entity } from '../foundation/core/Entity';

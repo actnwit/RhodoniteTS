@@ -15,7 +15,7 @@ declare let Rn: any;
 /**
  * The glTF2 Importer class.
  */
-export default class Gltf2Importer {
+export class Gltf2Importer {
   private constructor() {}
 
   /**
