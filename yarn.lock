@@ -6537,13 +6537,9 @@ webpack@^5.23.0:
     watchpack "^2.3.1"
     webpack-sources "^3.2.3"
 
-webxr-input-profiles@./webxr-input-profiles-v1.0.0.tgz:
+webxr-input-profiles@actnwit/webxr-input-profiles#d143b0d0538d79486503e2af9fa5d6996b6272fb:
   version "1.0.0"
-  resolved "./webxr-input-profiles-v1.0.0.tgz#f79e17f96f34b361f5f3c15273e5e0373185bbb1"
-
-webxr-input-profiles@actnwit/webxr-input-profiles#e35bc3bf053937346ce52abf4bf7da025290fb74:
-  version "1.0.0"
-  resolved "https://codeload.github.com/actnwit/webxr-input-profiles/tar.gz/e35bc3bf053937346ce52abf4bf7da025290fb74"
+  resolved "https://codeload.github.com/actnwit/webxr-input-profiles/tar.gz/d143b0d0538d79486503e2af9fa5d6996b6272fb"
 
 whatwg-encoding@^1.0.5:
   version "1.0.5"
