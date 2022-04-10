@@ -19,7 +19,7 @@ import {
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class CameraControllerComponent extends Component {
+export class CameraControllerComponent extends Component {
   private __cameraComponent?: CameraComponent;
   private __cameraController: ICameraController;
 

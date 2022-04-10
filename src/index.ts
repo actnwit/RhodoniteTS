@@ -49,7 +49,7 @@ import {
 } from './types/AnimationTypes';
 import { LightComponent as _LightComponent } from './foundation/components/Light/LightComponent';
 import { CubeTexture as _CubeTexture } from './foundation/textures/CubeTexture';
-import _CameraControllerComponent from './foundation/components/CameraController/CameraControllerComponent';
+import { CameraControllerComponent as _CameraControllerComponent } from './foundation/components/CameraController/CameraControllerComponent';
 import {detectFormatByArrayBuffers as _detectFormatByArrayBuffers} from './foundation/importer/FormatDetector';
 import {detectFormatByUri as _detectFormatByUri} from './foundation/importer/FormatDetector';
 import _Config from './foundation/core/Config';

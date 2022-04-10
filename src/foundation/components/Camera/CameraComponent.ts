@@ -23,7 +23,7 @@ import {
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {MathUtil} from '../../math/MathUtil';
-import CameraControllerComponent from '../CameraController/CameraControllerComponent';
+import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { ModuleManager } from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
 import RenderPass from '../../renderer/RenderPass';

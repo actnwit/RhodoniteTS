@@ -5,7 +5,7 @@ import {IAnimationEntityMethods} from './Animation/IAnimationEntity';
 import BlendShapeComponent from './BlendShape/BlendShapeComponent';
 import {IBlendShapeEntityMethods} from './BlendShape/IBlendShapeEntity';
 import {ICameraEntityMethods} from './Camera/ICameraEntity';
-import CameraControllerComponent from './CameraController/CameraControllerComponent';
+import { CameraControllerComponent } from './CameraController/CameraControllerComponent';
 import {ICameraControllerEntityMethods} from './CameraController/ICameraControllerEntity';
 import {ILightEntityMethods} from './Light/ILightEntity';
 import { LightComponent } from './Light/LightComponent';
