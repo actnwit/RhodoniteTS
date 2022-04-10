@@ -11,7 +11,7 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Scalar } from '../../math/Scalar';
-import RenderPass from '../../renderer/RenderPass';
+import { RenderPass } from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import { Material } from '../core/Material';

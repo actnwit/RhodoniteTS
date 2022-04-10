@@ -20,7 +20,7 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 /**
  * A render pass is a collection of the resources which is used in rendering process.
  */
-export default class RenderPass extends RnObject {
+export class RenderPass extends RnObject {
   private __entities: (IMeshEntity | ISceneGraphEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];

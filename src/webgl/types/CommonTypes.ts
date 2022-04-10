@@ -5,7 +5,7 @@ import {Cube} from '../../foundation/geometry/shapes/Cube';
 import { IMeshEntity } from '../../foundation/helpers/EntityHelper';
 import { IMatrix33 } from '../../foundation/math/IMatrix';
 import { MutableMatrix33 } from '../../foundation/math/MutableMatrix33';
-import RenderPass from '../../foundation/renderer/RenderPass';
+import { RenderPass } from '../../foundation/renderer/RenderPass';
 import { CubeTexture } from '../../foundation/textures/CubeTexture';
 import {Index} from '../../types/CommonTypes';
 import WebGLContextWrapper from '../WebGLContextWrapper';

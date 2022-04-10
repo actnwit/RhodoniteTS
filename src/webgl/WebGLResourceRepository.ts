@@ -30,7 +30,7 @@ import FrameBuffer from '../foundation/renderer/FrameBuffer';
 import {HdriFormatEnum, HdriFormat} from '../foundation/definitions/HdriFormat';
 import { Vector4 } from '../foundation/math/Vector4';
 import {RenderBufferTarget} from '../foundation/definitions/RenderBufferTarget';
-import RenderPass from '../foundation/renderer/RenderPass';
+import { RenderPass } from '../foundation/renderer/RenderPass';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import {
   WebGLResourceHandle,

@@ -1,6 +1,6 @@
 import RnObject from '../core/RnObject';
 import { IVector4 } from '../math/IVector';
-import RenderPass from './RenderPass';
+import { RenderPass } from './RenderPass';
 
 /**
  * Expression specifies the order of render passes on rendering process.

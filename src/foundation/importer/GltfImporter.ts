@@ -15,7 +15,7 @@ import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrateg
 import { Gltf1Importer } from './Gltf1Importer';
 import { DrcPointCloudImporter } from './DrcPointCloudImporter';
 import Expression from '../renderer/Expression';
-import RenderPass from '../renderer/RenderPass';
+import { RenderPass } from '../renderer/RenderPass';
 import {VRM} from '../../types/VRM';
 import DataUtil from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
