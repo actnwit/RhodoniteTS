@@ -7,7 +7,7 @@ import { Vector4 } from '../foundation/math/Vector4';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
-import EntityHelper, {ICameraEntity} from '../foundation/helpers/EntityHelper';
+import {EntityHelper, ICameraEntity} from '../foundation/helpers/EntityHelper';
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;

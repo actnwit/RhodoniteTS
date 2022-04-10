@@ -10,7 +10,7 @@ import { Mesh } from '../geometry/Mesh';
 import {Primitive} from '../geometry/Primitive';
 import {Cube} from '../geometry/shapes/Cube';
 import {Plane} from '../geometry/shapes/Plane';
-import EntityHelper, {
+import {EntityHelper,
   IMeshEntity,
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
@@ -202,17 +202,17 @@ export class TranslationGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createMeshEntity();
-    this.__topEntity.tryToSetUniqueName(
+    this.__topEntity!.tryToSetUniqueName(
       `TranslationGizmo_of_${this.__target.uniqueName}`,
       true
     );
-    this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
+    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
       true;
 
     // add this topEntity to the target as gizmo
     this.__target
       .getSceneGraph()
-      ._addGizmoChild(this.__topEntity.getSceneGraph());
+      ._addGizmoChild(this.__topEntity!.getSceneGraph());
 
     // setup the mesh
     // x

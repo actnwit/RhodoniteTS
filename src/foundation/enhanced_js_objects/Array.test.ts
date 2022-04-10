@@ -1,9 +1,8 @@
 import Rn from '../../../dist/esm';
-import type {ArrayAsRn} from '../../../dist/esm';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface Array<T> extends ArrayAsRn<T> {}
+  interface Array<T> extends Rn.ArrayAsRn<T> {}
 }
 
 function generateEntity() {

@@ -3,7 +3,7 @@ import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import {Primitive} from '../geometry/Primitive';
-import EntityHelper, {IMeshEntity} from '../helpers/EntityHelper';
+import {EntityHelper, IMeshEntity} from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Gizmo } from './Gizmo';
 
@@ -59,17 +59,17 @@ export class LocatorGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createMeshEntity();
-    this.__topEntity.tryToSetUniqueName(
+    this.__topEntity!.tryToSetUniqueName(
       `LocatorGizmo_of_${this.__target.uniqueName}`,
       true
     );
-    this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
+    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
       true;
     this.__target
       .getSceneGraph()!
-      ._addGizmoChild(this.__topEntity.getSceneGraph());
+      ._addGizmoChild(this.__topEntity!.getSceneGraph());
 
-    const meshComponent = this.__topEntity.getMesh();
+    const meshComponent = this.__topEntity!.getMesh();
     LocatorGizmo.__mesh = new Mesh();
     LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
     meshComponent.setMesh(LocatorGizmo.__mesh);

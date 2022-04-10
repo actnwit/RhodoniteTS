@@ -2,7 +2,7 @@ import {
   ICameraEntity,
   ISceneGraphEntity,
 } from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {
+import Rn, {
   CameraComponent,
   ComponentTypeEnum,
   Expression,
@@ -15,8 +15,6 @@ import _Rn, {
   ShaderSemanticsEnum,
   TextureParameterEnum,
 } from '../../../dist/esm/index';
-
-declare const Rn: typeof _Rn;
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------

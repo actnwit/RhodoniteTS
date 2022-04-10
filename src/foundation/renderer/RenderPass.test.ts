@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm';
+import Rn from '../../../';
 
 function generateEntity() {
   return Rn.EntityHelper.createMeshEntity();

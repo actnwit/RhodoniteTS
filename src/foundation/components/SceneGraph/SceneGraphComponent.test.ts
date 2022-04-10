@@ -1,4 +1,4 @@
-import Rn from '../../../../dist/esm';
+import Rn from '../../../../';
 
 describe('SceneGraphComponent', () => {
   function generateEntity() {

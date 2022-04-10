@@ -4,7 +4,7 @@ import {VertexAttribute} from '../definitions/VertexAttribute';
 import {Primitive} from '../geometry/Primitive';
 import { Vector3 } from '../math/Vector3';
 import { Mesh } from '../geometry/Mesh';
-import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
+import {EntityHelper, ISceneGraphEntity} from '../helpers/EntityHelper';
 
 /**
  * AABB Gizmo class
@@ -50,17 +50,17 @@ export class AABBGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createMeshEntity();
-    this.__topEntity.tryToSetUniqueName(
+    this.__topEntity!.tryToSetUniqueName(
       `AABBGizmo_of_${this.__target.uniqueName}`,
       true
     );
-    this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
+    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
       true;
     this.__target
       .getSceneGraph()!
-      ._addGizmoChild(this.__topEntity.getSceneGraph()!);
+      ._addGizmoChild(this.__topEntity!.getSceneGraph()!);
 
-    const meshComponent = this.__topEntity.getMesh()!;
+    const meshComponent = this.__topEntity!.getMesh()!;
     AABBGizmo.__mesh = new Mesh();
     AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
     meshComponent.setMesh(AABBGizmo.__mesh);

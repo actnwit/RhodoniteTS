@@ -18,7 +18,7 @@ import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/G
 import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class GaussianBlurNode extends AbstractMaterialNode {
+export class GaussianBlurSingleMaterialNode extends AbstractMaterialNode {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });
@@ -52,7 +52,7 @@ export class GaussianBlurNode extends AbstractMaterialNode {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: GaussianBlurNode.IsHorizontal,
+        semantic: GaussianBlurSingleMaterialNode.IsHorizontal,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -64,7 +64,7 @@ export class GaussianBlurNode extends AbstractMaterialNode {
         max: 1,
       },
       {
-        semantic: GaussianBlurNode.GaussianRatio,
+        semantic: GaussianBlurSingleMaterialNode.GaussianRatio,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         maxIndex: 30,
@@ -78,7 +78,7 @@ export class GaussianBlurNode extends AbstractMaterialNode {
         needUniformInFastest: true,
       },
       {
-        semantic: GaussianBlurNode.GaussianKernelSize,
+        semantic: GaussianBlurSingleMaterialNode.GaussianKernelSize,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -144,7 +144,7 @@ export class GaussianBlurNode extends AbstractMaterialNode {
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).gaussianRatio,
-        material.getParameter(GaussianBlurNode.GaussianRatio)._v
+        material.getParameter(GaussianBlurSingleMaterialNode.GaussianRatio)._v
       );
     }
 

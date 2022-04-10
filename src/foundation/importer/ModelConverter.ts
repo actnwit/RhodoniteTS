@@ -71,7 +71,7 @@ import {Is} from '../misc/Is';
 import { DataUtil } from '../misc/DataUtil';
 import {AnimationPathName} from '../../types/AnimationTypes';
 import {TagGltf2NodeIndex} from '../../types/glTF2';
-import EntityHelper, {
+import {EntityHelper,
   IAnimationEntity,
   ICameraEntity,
   ISceneGraphEntity,
