@@ -16,7 +16,7 @@ import {
 import {CameraType} from '../definitions/CameraType';
 import Texture from '../textures/Texture';
 import { Vector4 } from '../math/Vector4';
-import AnimationComponent from '../components/Animation/AnimationComponent';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';

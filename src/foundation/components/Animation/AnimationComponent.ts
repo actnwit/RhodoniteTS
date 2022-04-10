@@ -67,7 +67,7 @@ const ChangeAnimationInfo = Symbol(
 );
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 
-export default class AnimationComponent extends Component {
+export class AnimationComponent extends Component {
   /// inner states ///
   private __backupDefaultValues: Map<
     AnimationPathName,
