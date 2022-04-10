@@ -21,8 +21,7 @@ const createEffekseerEntity = function () {
   return entity3;
 };
 
-const Effekseer = Object.freeze({
+export const Effekseer = Object.freeze({
   EffekseerComponent,
   createEffekseerEntity,
 });
-export default Effekseer;

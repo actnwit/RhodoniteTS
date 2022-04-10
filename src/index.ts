@@ -129,8 +129,8 @@ import {
   FileType as _FileType,
   FileTypeEnum as _FileTypeEnum,
 } from './foundation/definitions/FileType';
-import _WebXRSystem from './xr/WebXRSystem';
-import Effekseer from './effekseer/main';
+import { WebXRSystem as _WebXRSystem } from './xr/WebXRSystem';
+import {Effekseer} from './effekseer/main';
 import {GetComponentFromEntities as _GetComponentFromEntities} from './foundation/enhanced_js_objects/Array';
 import {
   ArrayAsRn as _ArrayAsRn,
@@ -145,7 +145,7 @@ import {PbrShadingSingleMaterialNode as _PbrShadingMaterialNode} from './foundat
 import {MatCapSingleMaterialNode as _MatCapMaterialNode} from './foundation/materials/singles/MatCapSingleMaterialNode';
 import {GaussianBlurNode as _GaussianBlurSingleMaterialNode} from './foundation/materials/singles/GaussianBlurSingleMaterialNode';
 import {GaussianBlurForEncodedDepthNode as _GaussianBlurForEncodedDepthSingleMaterialNode} from './foundation/materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
-import _ImageUtil from './foundation/math/ImageUtil';
+import {ImageUtil as _ImageUtil} from './foundation/math/ImageUtil';
 
 const _VERSION = require('./../VERSION-FILE').default;
 

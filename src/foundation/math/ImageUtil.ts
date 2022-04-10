@@ -451,4 +451,4 @@ function precomputations(
   return retVal as SeamlessTextureData;
 }
 
-export default Object.freeze({precomputations});
+export const ImageUtil = Object.freeze({precomputations});
