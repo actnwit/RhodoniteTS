@@ -7,7 +7,7 @@ import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import LightComponent from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
+import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import PhysicsComponent from '../components/Physics/PhysicsComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';

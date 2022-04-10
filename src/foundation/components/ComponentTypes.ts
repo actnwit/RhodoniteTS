@@ -12,7 +12,7 @@ import LightComponent from './Light/LightComponent';
 import {IMeshEntityMethods} from './Mesh/IMeshEntity';
 import { MeshComponent } from './Mesh/MeshComponent';
 import {IMeshRendererEntityMethods} from './MeshRenderer/IMeshRendererEntity';
-import MeshRendererComponent from './MeshRenderer/MeshRendererComponent';
+import { MeshRendererComponent } from './MeshRenderer/MeshRendererComponent';
 import {IPhysicsEntityMethods} from './Physics/IPhysicsEntity';
 import PhysicsComponent from './Physics/PhysicsComponent';
 import {ISceneGraphEntityMethods} from './SceneGraph/ISceneGraphEntity';

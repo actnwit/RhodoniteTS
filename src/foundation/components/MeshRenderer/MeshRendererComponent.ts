@@ -41,7 +41,7 @@ import {Primitive} from '../../..';
 import {PrimitiveSortKey_BitOffset_TranslucencyType} from '../../geometry/types/GeometryTypes';
 import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';
 
-export default class MeshRendererComponent extends Component {
+export class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<
     ObjectUID,

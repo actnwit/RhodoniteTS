@@ -14,7 +14,7 @@ import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEnti
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
+import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import PhysicsComponent from '../components/Physics/PhysicsComponent';

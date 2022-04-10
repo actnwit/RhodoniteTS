@@ -4,7 +4,7 @@ import { ComponentRepository as _ComponentRepository } from './foundation/core/C
 import { TransformComponent as _TransformComponent } from './foundation/components/Transform/TransformComponent';
 import { SceneGraphComponent as _SceneGraphComponent } from './foundation/components/SceneGraph/SceneGraphComponent';
 import { MeshComponent as _MeshComponent } from './foundation/components/Mesh/MeshComponent';
-import _MeshRendererComponent from './foundation/components/MeshRenderer/MeshRendererComponent';
+import { MeshRendererComponent as _MeshRendererComponent } from './foundation/components/MeshRenderer/MeshRendererComponent';
 import {Primitive as _Primitive} from './foundation/geometry/Primitive';
 import { System as _System } from './foundation/system/System';
 import {Is as _Is} from './foundation/misc/Is';
