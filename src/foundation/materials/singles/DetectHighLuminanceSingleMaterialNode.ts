@@ -19,7 +19,7 @@ import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode {
+export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'luminanceCriterion',
   });

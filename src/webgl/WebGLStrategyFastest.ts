@@ -1,6 +1,6 @@
 import WebGLResourceRepository from './WebGLResourceRepository';
 import { MemoryManager } from '../foundation/core/MemoryManager';
-import Buffer from '../foundation/memory/Buffer';
+import { Buffer } from '../foundation/memory/Buffer';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
@@ -9,7 +9,7 @@ import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import {Primitive} from '../foundation/geometry/Primitive';
 import WebGLContextWrapper from './WebGLContextWrapper';
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../foundation/math/Matrix44';
 import {
   ShaderSemantics,

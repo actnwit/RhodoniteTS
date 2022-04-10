@@ -3,7 +3,7 @@ import {ComponentTypeEnum} from '../../definitions/ComponentType';
 import AbstractShaderNode from '../core/AbstractShaderNode';
 import BlockEndShader from '../../../webgl/shaders/nodes/BlockEndShader';
 
-export default class BlockEndShaderNode extends AbstractShaderNode {
+export class BlockEndShaderNode extends AbstractShaderNode {
   constructor() {
     super('blockEnd');
 

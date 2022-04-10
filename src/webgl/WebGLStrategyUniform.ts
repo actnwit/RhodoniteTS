@@ -3,7 +3,7 @@ import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import WebGLContextWrapper from './WebGLContextWrapper';
 import {Primitive} from '../foundation/geometry/Primitive';
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../foundation/math/Matrix44';
 import { Matrix33 } from '../foundation/math/Matrix33';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
@@ -29,7 +29,7 @@ import {
   Count,
 } from '../types/CommonTypes';
 import {BufferUse} from '../foundation/definitions/BufferUse';
-import Buffer from '../foundation/memory/Buffer';
+import { Buffer } from '../foundation/memory/Buffer';
 import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';

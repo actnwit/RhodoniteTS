@@ -1,5 +1,5 @@
 import {IVector3, IVector4} from './IVector';
-import Quaternion from './Quaternion';
+import { Quaternion } from './Quaternion';
 import {TypedArray} from '../../types/CommonTypes';
 import {ILogQuaternion, IQuaternion} from './IQuaternion';
 import AbstractVector from './AbstractVector';

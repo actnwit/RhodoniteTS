@@ -38,7 +38,7 @@ import {
   Index,
   VectorAndSquareMatrixComponentN,
 } from '../../types/CommonTypes';
-import Buffer from '../memory/Buffer';
+import { Buffer } from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
   GL_ELEMENT_ARRAY_BUFFER,

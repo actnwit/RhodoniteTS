@@ -1,6 +1,6 @@
 import { AbstractTexture } from './AbstractTexture';
 import {HdriFormat} from '../definitions/HdriFormat';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {BasisTranscoder, BASIS} from '../../types/BasisTexture';
 import {TextureParameter} from '../definitions/TextureParameter';
 import {Size, TypedArray} from '../../types/CommonTypes';

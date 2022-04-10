@@ -3,7 +3,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import IfStatementShader from '../../../webgl/shaders/nodes/IfStatementShader';
 import AbstractShaderNode from '../core/AbstractShaderNode';
 
-export default class IfStatementShaderNode extends AbstractShaderNode {
+export class IfStatementShaderNode extends AbstractShaderNode {
   constructor() {
     super('ifStatement', undefined, new IfStatementShader());
 

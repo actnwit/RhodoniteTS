@@ -5,7 +5,7 @@ import {
   TextureParameterEnum,
 } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {Size} from '../../types/CommonTypes';
 import DataUtil from '../misc/DataUtil';
 

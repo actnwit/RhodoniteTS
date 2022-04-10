@@ -3,7 +3,7 @@ import { RenderPass } from '../foundation/renderer/RenderPass';
 import {AlphaMode} from '../foundation/definitions/AlphaMode';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import {Index, IndexOf16Bytes} from '../types/CommonTypes';
 import { Mesh } from '../foundation/geometry/Mesh';
 import {Is, Is as is} from '../foundation/misc/Is';

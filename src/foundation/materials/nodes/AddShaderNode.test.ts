@@ -3,7 +3,7 @@ import {MemoryManager} from '../../core/MemoryManager';
 import {Material} from '../core/Material';
 import {OutPositionShaderNode} from './OutPositionShaderNode';
 import {AttributePositionShaderNode} from './AttributePositionShaderNode';
-import ShaderGraphResolver from '../core/ShaderGraphResolver';
+import {ShaderGraphResolver} from '../core/ShaderGraphResolver';
 
 test('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');

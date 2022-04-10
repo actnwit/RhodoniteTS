@@ -17,7 +17,7 @@ import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTes
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
+export class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
   static mode = new ShaderSemanticsClass({str: 'mode'});
   static debugView = new ShaderSemanticsClass({str: 'debugView'});
   static g_type = new ShaderSemanticsClass({str: 'g_type'});

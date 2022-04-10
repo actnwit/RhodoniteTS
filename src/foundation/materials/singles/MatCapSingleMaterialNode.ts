@@ -22,7 +22,7 @@ import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
+export class MatCapSingleMaterialNode extends AbstractMaterialNode {
   static MatCapTexture = new ShaderSemanticsClass({str: 'matCapTexture'});
 
   constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture) {

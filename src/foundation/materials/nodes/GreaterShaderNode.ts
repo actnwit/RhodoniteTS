@@ -9,7 +9,7 @@ import {
 } from '../../definitions/ComponentType';
 import GreaterShaderityObject from '../../../webgl/shaderity_shaders/nodes/Greater.glsl';
 
-export default class GreaterShaderNode extends AbstractShaderNode {
+export class GreaterShaderNode extends AbstractShaderNode {
   constructor(
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum

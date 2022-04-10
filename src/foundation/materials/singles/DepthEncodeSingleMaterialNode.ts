@@ -19,7 +19,7 @@ import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/De
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
+export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
   static zFarInner = new ShaderSemanticsClass({str: 'zFarInner'});
   static isPointLight = new ShaderSemanticsClass({str: 'isPointLight'});

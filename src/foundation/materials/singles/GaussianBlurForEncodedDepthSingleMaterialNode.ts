@@ -18,7 +18,7 @@ import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shad
 import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNode {
+export class GaussianBlurForEncodedDepthNode extends AbstractMaterialNode {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });

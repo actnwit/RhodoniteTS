@@ -1,6 +1,6 @@
 import { Vector3 } from './Vector3';
 import { Matrix44 } from './Matrix44';
-import Quaternion from './Quaternion';
+import { Quaternion } from './Quaternion';
 import {IMatrix, IMatrix33} from './IMatrix';
 import { MutableMatrix33 } from './MutableMatrix33';
 import {CompositionType} from '../definitions/CompositionType';

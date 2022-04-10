@@ -3,7 +3,7 @@ import {ComponentTypeEnum} from '../../definitions/ComponentType';
 import VaryingVariableShader from '../../../webgl/shaders/nodes/VaryingVariableShader';
 import AbstractShaderNode from '../core/AbstractShaderNode';
 
-export default class VaryingOutVariableShaderNode extends AbstractShaderNode {
+export class VaryingOutVariableShaderNode extends AbstractShaderNode {
   constructor(
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum

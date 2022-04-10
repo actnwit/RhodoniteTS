@@ -1,4 +1,4 @@
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Vector3 } from '../foundation/math/Vector3';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
@@ -26,7 +26,7 @@ import {
 } from './WebXRInput';
 import {Is} from '../foundation/misc/Is';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
-import MutableQuaternion from '../foundation/math/MutableQuaternion';
+import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 import EntityHelper, {
   ICameraEntity,

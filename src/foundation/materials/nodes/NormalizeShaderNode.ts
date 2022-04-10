@@ -3,7 +3,7 @@ import {ComponentTypeEnum} from '../../../foundation/definitions/ComponentType';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 import AbstractShaderNode from '../core/AbstractShaderNode';
 
-export default class NormalizeShaderNode extends AbstractShaderNode {
+export class NormalizeShaderNode extends AbstractShaderNode {
   constructor(
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum

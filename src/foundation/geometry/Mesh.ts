@@ -9,7 +9,7 @@ import { Vector3 } from '../math/Vector3';
 import Accessor from '../memory/Accessor';
 import { Vector2 } from '../math/Vector2';
 import AABB from '../math/AABB';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Entity } from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
 import { MutableVector3 } from '../math/MutableVector3';

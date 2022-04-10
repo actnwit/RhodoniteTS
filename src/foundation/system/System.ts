@@ -5,7 +5,7 @@ import {
   ProcessApproach,
 } from '../definitions/ProcessApproach';
 import { ModuleManager } from './ModuleManager';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';

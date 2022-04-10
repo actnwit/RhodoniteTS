@@ -1,5 +1,5 @@
 import { Vector3 } from '../../math/Vector3';
-import Quaternion from '../../math/Quaternion';
+import { Quaternion } from '../../math/Quaternion';
 import { Matrix44 } from '../../math/Matrix44';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
@@ -8,7 +8,7 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import MutableQuaternion from '../../math/MutableQuaternion';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableVector3 } from '../../math/MutableVector3';

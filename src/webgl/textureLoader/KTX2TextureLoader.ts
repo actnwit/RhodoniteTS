@@ -9,7 +9,7 @@ import {
   KTX2Transfer,
   read,
 } from 'ktx-parse';
-import CGAPIResourceRepository from '../../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
 import WebGLContextWrapper from '../WebGLContextWrapper';
 import {TextureData} from '../WebGLResourceRepository';
 import {

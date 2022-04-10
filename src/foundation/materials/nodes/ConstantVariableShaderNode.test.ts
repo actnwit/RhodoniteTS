@@ -5,7 +5,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import {AddShaderNode} from './AddShaderNode';
 import {OutPositionShaderNode} from './OutPositionShaderNode';
 import {Vector4} from '../../math/Vector4';
-import ShaderGraphResolver from '../core/ShaderGraphResolver';
+import {ShaderGraphResolver} from '../core/ShaderGraphResolver';
 import {ModuleManager} from '../../system/ModuleManager';
 
 test('ConstantVariable works correctly 1', async () => {

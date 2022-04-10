@@ -110,21 +110,21 @@ import { WorldMatrixShaderNode as _WorldMatrixShaderNode } from './foundation/ma
 import { ViewMatrixShaderNode as _ViewMatrixShaderNode } from './foundation/materials/nodes/ViewMatrixShaderNode';
 import { NormalMatrixShaderNode as _NormalMatrixShaderNode } from './foundation/materials/nodes/NormalMatrixShaderNode';
 import _AABB from './foundation/math/AABB';
-import _ProjectionMatrixShaderNode from './foundation/materials/nodes/ProjectionMatrixShaderNode';
-import _VaryingInVariableShaderNode from './foundation/materials/nodes/VaryingInVariableShaderNode';
-import _VaryingOutVariableShaderNode from './foundation/materials/nodes/VaryingOutVariableShaderNode';
-import _UniformDataShaderNode from './foundation/materials/nodes/UniformDataShaderNode';
-import _NormalizeShaderNode from './foundation/materials/nodes/NormalizeShaderNode';
-import _IfStatementShaderNode from './foundation/materials/nodes/IfStatementShaderNode';
-import _BlockBeginShaderNode from './foundation/materials/nodes/BlockBeginShaderNode';
-import _BlockEndShaderNode from './foundation/materials/nodes/BlockEndShaderNode';
-import _GreaterShaderNode from './foundation/materials/nodes/GreaterShaderNode';
-import _ShaderGraphResolver from './foundation/materials/core/ShaderGraphResolver';
-import _Quaternion from './foundation/math/Quaternion';
-import _MutableQuaternion from './foundation/math/MutableQuaternion';
-import _PbrShadingSingleMaterialNode from './foundation/materials/singles/PbrShadingSingleMaterialNode';
-import _Buffer from './foundation/memory/Buffer';
-import _CGAPIResourceRepository from './foundation/renderer/CGAPIResourceRepository';
+import { ProjectionMatrixShaderNode as _ProjectionMatrixShaderNode } from './foundation/materials/nodes/ProjectionMatrixShaderNode';
+import { VaryingInVariableShaderNode as _VaryingInVariableShaderNode } from './foundation/materials/nodes/VaryingInVariableShaderNode';
+import { VaryingOutVariableShaderNode as _VaryingOutVariableShaderNode } from './foundation/materials/nodes/VaryingOutVariableShaderNode';
+import { UniformDataShaderNode as _UniformDataShaderNode } from './foundation/materials/nodes/UniformDataShaderNode';
+import { NormalizeShaderNode as _NormalizeShaderNode } from './foundation/materials/nodes/NormalizeShaderNode';
+import { IfStatementShaderNode as _IfStatementShaderNode } from './foundation/materials/nodes/IfStatementShaderNode';
+import { BlockBeginShaderNode as _BlockBeginShaderNode } from './foundation/materials/nodes/BlockBeginShaderNode';
+import { BlockEndShaderNode as _BlockEndShaderNode } from './foundation/materials/nodes/BlockEndShaderNode';
+import { GreaterShaderNode as _GreaterShaderNode } from './foundation/materials/nodes/GreaterShaderNode';
+import { ShaderGraphResolver as _ShaderGraphResolver } from './foundation/materials/core/ShaderGraphResolver';
+import { Quaternion as _Quaternion } from './foundation/math/Quaternion';
+import { MutableQuaternion as _MutableQuaternion } from './foundation/math/MutableQuaternion';
+import { PbrShadingSingleMaterialNode as _PbrShadingSingleMaterialNode } from './foundation/materials/singles/PbrShadingSingleMaterialNode';
+import { Buffer as _Buffer } from './foundation/memory/Buffer';
+import { CGAPIResourceRepository as _CGAPIResourceRepository } from './foundation/renderer/CGAPIResourceRepository';
 import {
   FileType as _FileType,
   FileTypeEnum as _FileTypeEnum,
@@ -136,15 +136,15 @@ import {
   ArrayAsRn as _ArrayAsRn,
   enhanceArray as _enhanceArray,
 } from './foundation/enhanced_js_objects/Array';
-import _VarianceShadowMapDecodeClassicSingleMaterialNode from './foundation/materials/singles/VarianceShadowMapDecodeClassicSingleMaterialNode';
-import _FurnaceTestSingleMaterialNode from './foundation/materials/singles/FurnaceTestSingleMaterialNode';
-import _SynthesizeHDRMaterialNode from './foundation/materials/singles/SynthesizeHDRSingleMaterialNode';
-import _DetectHighLuminanceSingleMaterialNode from './foundation/materials/singles/DetectHighLuminanceSingleMaterialNode';
-import _DepthEncodeSingleMaterialNode from './foundation/materials/singles/DepthEncodeSingleMaterialNode';
-import _PbrShadingMaterialNode from './foundation/materials/singles/PbrShadingSingleMaterialNode';
-import _MatCapMaterialNode from './foundation/materials/singles/MatCapSingleMaterialNode';
-import _GaussianBlurSingleMaterialNode from './foundation/materials/singles/GaussianBlurSingleMaterialNode';
-import _GaussianBlurForEncodedDepthSingleMaterialNode from './foundation/materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
+import { VarianceShadowMapDecodeClassicSingleMaterialNode as _VarianceShadowMapDecodeClassicSingleMaterialNode } from './foundation/materials/singles/VarianceShadowMapDecodeClassicSingleMaterialNode';
+import { FurnaceTestSingleMaterialNode as _FurnaceTestSingleMaterialNode } from './foundation/materials/singles/FurnaceTestSingleMaterialNode';
+import { SynthesizeHDRMaterialNode as _SynthesizeHDRMaterialNode } from './foundation/materials/singles/SynthesizeHDRSingleMaterialNode';
+import { DetectHighLuminanceSingleMaterialNode as _DetectHighLuminanceSingleMaterialNode } from './foundation/materials/singles/DetectHighLuminanceSingleMaterialNode';
+import { DepthEncodeSingleMaterialNode as _DepthEncodeSingleMaterialNode } from './foundation/materials/singles/DepthEncodeSingleMaterialNode';
+import { PbrShadingSingleMaterialNode as _PbrShadingMaterialNode } from './foundation/materials/singles/PbrShadingSingleMaterialNode';
+import { MatCapSingleMaterialNode as _MatCapMaterialNode } from './foundation/materials/singles/MatCapSingleMaterialNode';
+import { GaussianBlurNode as _GaussianBlurSingleMaterialNode } from './foundation/materials/singles/GaussianBlurSingleMaterialNode';
+import { GaussianBlurForEncodedDepthNode as _GaussianBlurForEncodedDepthSingleMaterialNode } from './foundation/materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
 import _ImageUtil from './foundation/math/ImageUtil';
 
 const _VERSION = require('./../VERSION-FILE').default;

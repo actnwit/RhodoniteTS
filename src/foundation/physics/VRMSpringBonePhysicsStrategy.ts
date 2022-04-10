@@ -1,14 +1,14 @@
 import { Vector3 } from '../math/Vector3';
 import { MutableVector3 } from '../math/MutableVector3';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import Quaternion from '../math/Quaternion';
+import { Quaternion } from '../math/Quaternion';
 import { Matrix44 } from '../math/Matrix44';
 import Time from '../misc/Time';
 import VRMSpringBoneGroup from './VRMSpringBoneGroup';
 import VRMColliderGroup from './VRMColliderGroup';
 import {Index} from '../../types/CommonTypes';
 import PhysicsStrategy from './PhysicsStrategy';
-import MutableQuaternion from '../math/MutableQuaternion';
+import { MutableQuaternion } from '../math/MutableQuaternion';
 import { IPhysicsEntity } from '../helpers/EntityHelper';
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {

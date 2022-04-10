@@ -1,5 +1,5 @@
 import Accessor from '../foundation/memory/Accessor';
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import {Primitive} from '../foundation/geometry/Primitive';
 import {AttributeNames} from './shaders/GLSLShader';
 import {

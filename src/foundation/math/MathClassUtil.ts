@@ -1,7 +1,7 @@
 import { Vector2 } from './Vector2';
 import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';
-import Quaternion from './Quaternion';
+import { Quaternion } from './Quaternion';
 import { Matrix33 } from './Matrix33';
 import { Matrix44 } from './Matrix44';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
@@ -12,7 +12,7 @@ import { MutableVector4 } from './MutableVector4';
 import { MutableVector3 } from './MutableVector3';
 import { MutableVector2 } from './MutableVector2';
 import { Scalar } from './Scalar';
-import MutableQuaternion from './MutableQuaternion';
+import { MutableQuaternion } from './MutableQuaternion';
 import { MutableScalar } from './MutableScalar';
 import VectorN from './VectorN';
 import {TypedArray} from '../../types/CommonTypes';

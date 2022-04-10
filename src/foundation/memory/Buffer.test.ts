@@ -1,4 +1,4 @@
-import Buffer from './Buffer';
+import {Buffer} from './Buffer';
 import BufferView from './BufferView';
 import {Byte} from '../../types/CommonTypes';
 

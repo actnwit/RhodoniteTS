@@ -11,7 +11,7 @@ import {
 
 import DataUtil from '../misc/DataUtil';
 
-export default class Buffer {
+export class Buffer {
   private __byteLength: Byte = 0;
   private __byteOffset: Byte = 0;
   private __takenBytesIndex: Byte = 0;

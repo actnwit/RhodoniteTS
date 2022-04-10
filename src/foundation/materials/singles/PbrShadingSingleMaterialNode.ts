@@ -7,7 +7,7 @@ import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Vector4 } from '../../math/Vector4';
 import { Vector3 } from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
@@ -29,7 +29,7 @@ import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import { Is } from '../../misc/Is';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
+export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
     str: 'isOutputHDR',
   });

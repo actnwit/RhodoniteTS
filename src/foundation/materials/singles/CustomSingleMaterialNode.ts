@@ -4,7 +4,7 @@ import {
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import { ComponentRepository } from '../../core/ComponentRepository';

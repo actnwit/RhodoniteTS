@@ -1,6 +1,6 @@
 import { RnObject } from '../core/RnObject';
 import IRenderable from './IRenderable';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {
   TextureParameter,
   TextureParameterEnum,

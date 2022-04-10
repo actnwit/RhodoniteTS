@@ -8,7 +8,7 @@ import {IMatrix44} from './IMatrix';
 import LogQuaternion from './LogQuaternion';
 import AbstractQuaternion from './AbstractQuaternion';
 
-export default class Quaternion
+export class Quaternion
   extends AbstractQuaternion
   implements IQuaternion
 {

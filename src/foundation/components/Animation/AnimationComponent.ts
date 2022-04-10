@@ -32,7 +32,7 @@ import {valueWithDefault, greaterThan, lessThan} from '../../misc/MiscUtil';
 import {EventPubSub, EventHandler} from '../../system/EventPubSub';
 import {IVector, IVector3} from '../../math/IVector';
 import {IQuaternion} from '../../math/IQuaternion';
-import Quaternion from '../../math/Quaternion';
+import { Quaternion } from '../../math/Quaternion';
 import {
   array3_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,

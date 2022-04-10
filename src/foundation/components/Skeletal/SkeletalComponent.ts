@@ -6,7 +6,7 @@ import { Matrix44 } from '../../math/Matrix44';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import { MutableVector3 } from '../../math/MutableVector3';
-import MutableQuaternion from '../../math/MutableQuaternion';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
 import {MathUtil} from '../../math/MathUtil';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';

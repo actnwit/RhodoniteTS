@@ -19,7 +19,7 @@ import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/S
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
+export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
     str: 'synthesizeCoefficient',
   });

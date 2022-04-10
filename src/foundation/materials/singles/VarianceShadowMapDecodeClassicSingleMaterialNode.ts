@@ -19,7 +19,7 @@ import { Scalar } from '../../math/Scalar';
 import Config from '../../core/Config';
 import { Material } from '../core/Material';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { RenderPass } from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
@@ -31,7 +31,7 @@ import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderi
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
 
-export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
+export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
   static DepthTexture = new ShaderSemanticsClass({str: 'depthTexture'});
   static SquareDepthTexture = new ShaderSemanticsClass({

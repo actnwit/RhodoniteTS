@@ -18,7 +18,7 @@ import { Material } from '../materials/core/Material';
 import {ComponentType} from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
 import { MathClassUtil } from '../math/MathClassUtil';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../definitions/ShaderType';
 import VectorN from '../math/VectorN';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';

@@ -15,7 +15,7 @@ import AABB from '../math/AABB';
 import { Material } from '../materials/core/Material';
 import {MaterialHelper} from '../helpers/MaterialHelper';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
 import { Vector3 } from '../math/Vector3';
 import { MutableVector3 } from '../math/MutableVector3';

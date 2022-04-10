@@ -1,4 +1,4 @@
-import Buffer from '../memory/Buffer';
+import { Buffer } from '../memory/Buffer';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
 import Accessor from './Accessor';

@@ -10,7 +10,7 @@ import { TransformComponent } from '../foundation/components/Transform/Transform
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import {
   ComponentTID,
   EntityUID,
