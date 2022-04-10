@@ -2,7 +2,7 @@ import Vector3 from '../../math/Vector3';
 import Quaternion from '../../math/Quaternion';
 import Matrix44 from '../../math/Matrix44';
 import Component from '../../core/Component';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';

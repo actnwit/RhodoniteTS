@@ -7,7 +7,7 @@ import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';

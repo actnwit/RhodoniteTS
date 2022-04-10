@@ -1,6 +1,6 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import CameraComponent from '../../components/Camera/CameraComponent';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
 import Material from '../core/Material';

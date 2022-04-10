@@ -1,6 +1,6 @@
 import CameraComponent from '../../components/Camera/CameraComponent';
 import {CompositionType} from '../../definitions/CompositionType';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import Scalar from '../../math/Scalar';
 import {

@@ -1,5 +1,5 @@
 import CameraComponent from '../components/Camera/CameraComponent';
-import ComponentRepository from '../core/ComponentRepository';
+import { ComponentRepository } from '../core/ComponentRepository';
 import Config from '../core/Config';
 import {AlphaMode} from '../definitions/AlphaMode';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';

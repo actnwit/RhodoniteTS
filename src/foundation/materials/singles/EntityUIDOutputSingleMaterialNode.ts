@@ -9,7 +9,7 @@ import Vector3 from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import Scalar from '../../math/Scalar';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';

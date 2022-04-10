@@ -8,7 +8,7 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Scalar from '../../math/Scalar';
 import RenderPass from '../../renderer/RenderPass';

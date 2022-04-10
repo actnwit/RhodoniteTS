@@ -7,7 +7,7 @@ import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceReposit
 import Matrix44 from '../foundation/math/Matrix44';
 import Matrix33 from '../foundation/math/Matrix33';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
-import ComponentRepository from '../foundation/core/ComponentRepository';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import LightComponent from '../foundation/components/Light/LightComponent';
 import Config from '../foundation/core/Config';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';

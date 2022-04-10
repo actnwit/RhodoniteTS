@@ -6,7 +6,7 @@ import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';

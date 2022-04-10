@@ -1,7 +1,7 @@
 import AbstractTexture from '../../textures/AbstractTexture';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import {CompositionType} from '../../definitions/CompositionType';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {Count} from '../../../types/CommonTypes';
 import {

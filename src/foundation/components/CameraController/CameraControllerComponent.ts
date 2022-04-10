@@ -7,7 +7,7 @@ import {
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import CameraComponent from '../Camera/CameraComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import OrbitCameraController from '../../cameras/OrbitCameraController';
 import ICameraController from '../../cameras/ICameraController';

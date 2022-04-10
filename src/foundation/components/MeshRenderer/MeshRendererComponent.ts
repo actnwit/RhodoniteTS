@@ -1,4 +1,4 @@
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import Component from '../../core/Component';
 import MeshComponent from '../Mesh/MeshComponent';
 import WebGLStrategy from '../../../webgl/WebGLStrategy';

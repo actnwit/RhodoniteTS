@@ -1,4 +1,4 @@
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import Component from '../../core/Component';
 import Matrix44 from '../../math/Matrix44';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';

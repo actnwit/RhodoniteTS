@@ -10,7 +10,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import Vector2 from '../../math/Vector2';
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import Material from '../core/Material';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';

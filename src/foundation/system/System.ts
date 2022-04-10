@@ -1,5 +1,5 @@
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
-import ComponentRepository from '../core/ComponentRepository';
+import { ComponentRepository } from '../core/ComponentRepository';
 import {
   ProcessApproachEnum,
   ProcessApproach,

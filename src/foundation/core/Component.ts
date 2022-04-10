@@ -10,7 +10,7 @@ import {
 } from '../../foundation/definitions/CompositionType';
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import {ProcessApproachEnum} from '../definitions/ProcessApproach';
-import ComponentRepository from './ComponentRepository';
+import { ComponentRepository } from './ComponentRepository';
 import Config from './Config';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';

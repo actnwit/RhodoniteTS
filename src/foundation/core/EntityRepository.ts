@@ -1,6 +1,6 @@
 import {IEntity, Entity} from './Entity';
 import Component from './Component';
-import ComponentRepository from './ComponentRepository';
+import { ComponentRepository } from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 import {valueWithCompensation} from '../misc/MiscUtil';
 import {ComponentToComponentMethods} from '../components/ComponentTypes';
