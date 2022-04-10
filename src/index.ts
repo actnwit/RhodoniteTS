@@ -29,7 +29,7 @@ import { MutableMatrix33 as _MutableMatrix33 } from './foundation/math/MutableMa
 import { MutableMatrix44 as _MutableMatrix44 } from './foundation/math/MutableMatrix44';
 import { Gltf1Importer as _Gltf1Importer } from './foundation/importer/Gltf1Importer';
 import { Gltf2Importer as _Gltf2Importer } from './foundation/importer/Gltf2Importer';
-import _DrcPointCloudImporter from './foundation/importer/DrcPointCloudImporter';
+import { DrcPointCloudImporter as _DrcPointCloudImporter } from './foundation/importer/DrcPointCloudImporter';
 import _GltfImporter from './foundation/importer/GltfImporter';
 import _Gltf2Exporter from './foundation/exporter/Gltf2Exporter';
 import {

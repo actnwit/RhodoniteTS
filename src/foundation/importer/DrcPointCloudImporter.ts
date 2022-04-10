@@ -23,7 +23,7 @@ declare let Rn: any;
 /**
  * The draco Importer class.
  */
-export default class DrcPointCloudImporter {
+export class DrcPointCloudImporter {
   private static __instance: DrcPointCloudImporter;
 
   private constructor() {}
