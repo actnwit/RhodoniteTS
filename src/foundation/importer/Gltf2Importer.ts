@@ -1,4 +1,4 @@
-import DataUtil from '../misc/DataUtil';
+import { DataUtil } from '../misc/DataUtil';
 import {
   RnM2,
   GltfLoadOption,
@@ -15,7 +15,7 @@ declare let Rn: any;
 /**
  * The glTF2 Importer class.
  */
-export default class Gltf2Importer {
+export class Gltf2Importer {
   private constructor() {}
 
   /**

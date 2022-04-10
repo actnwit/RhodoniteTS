@@ -1,6 +1,6 @@
-import EntityRepository from '../core/EntityRepository';
+import { EntityRepository } from '../core/EntityRepository';
 import {IEntity} from '../core/Entity';
-import {ITransformEntityMethods} from '../components/Transform/ITransfomEntity';
+import {ITransformEntityMethods} from '../components/Transform/ITransformEntity';
 import {ISceneGraphEntityMethods} from '../components/SceneGraph/ISceneGraphEntity';
 import {IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
 import {ICameraEntityMethods} from '../components/Camera/ICameraEntity';
@@ -11,15 +11,15 @@ import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRender
 import {ISkeletalEntityMethods} from '../components/Skeletal/ISkeletalEntity';
 import {IPhysicsEntityMethods} from '../components/Physics/IPhysicsEntity';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
-import TransformComponent from '../components/Transform/TransformComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
-import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
-import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
-import PhysicsComponent from '../components/Physics/PhysicsComponent';
-import CameraComponent from '../components/Camera/CameraComponent';
-import LightComponent from '../components/Light/LightComponent';
+import { TransformComponent } from '../components/Transform/TransformComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { LightComponent } from '../components/Light/LightComponent';
 
 export type ITransformEntity = IEntity & ITransformEntityMethods;
 export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
@@ -113,7 +113,7 @@ function createLightEntity(): ILightEntity {
   return entityAddedComponent;
 }
 
-export default Object.freeze({
+export const EntityHelper = Object.freeze({
   createTransformEntity,
   createGroupEntity,
   createMeshEntity,

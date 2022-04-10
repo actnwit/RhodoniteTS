@@ -1,14 +1,14 @@
 import {RnM2} from '../../types/RnM2';
-import ModelConverter from './ModelConverter';
-import EntityRepository from '../core/EntityRepository';
-import AnimationComponent from '../components/Animation/AnimationComponent';
+import { ModelConverter } from './ModelConverter';
+import { EntityRepository } from '../core/EntityRepository';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {Index} from '../../types/CommonTypes';
 import {VRM} from '../../types/VRM';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 
-export default class AnimationAssigner {
+export class AnimationAssigner {
   private static __instance: AnimationAssigner;
 
   assignAnimation(

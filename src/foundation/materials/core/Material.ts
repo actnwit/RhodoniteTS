@@ -1,6 +1,6 @@
-import RnObject from '../../core/RnObject';
+import { RnObject } from '../../core/RnObject';
 import {AlphaMode, AlphaModeEnum} from '../../definitions/AlphaMode';
-import AbstractMaterialNode from './AbstractMaterialNode';
+import { AbstractMaterialNode } from './AbstractMaterialNode';
 import {
   ShaderSemanticsEnum,
   ShaderSemanticsInfo,
@@ -9,15 +9,15 @@ import {
   getShaderPropertyFunc,
 } from '../../definitions/ShaderSemantics';
 import {CompositionType} from '../../definitions/CompositionType';
-import MathClassUtil from '../../math/MathClassUtil';
+import { MathClassUtil } from '../../math/MathClassUtil';
 import {ComponentType} from '../../definitions/ComponentType';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import AbstractTexture from '../../textures/AbstractTexture';
-import MemoryManager from '../../core/MemoryManager';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { MemoryManager } from '../../core/MemoryManager';
 import {BufferUse} from '../../definitions/BufferUse';
-import Config from '../../core/Config';
-import BufferView from '../../memory/BufferView';
-import Accessor from '../../memory/Accessor';
+import {Config} from '../../core/Config';
+import { BufferView } from '../../memory/BufferView';
+import { Accessor } from '../../memory/Accessor';
 import {ShaderType} from '../../definitions/ShaderType';
 import {
   Index,
@@ -26,17 +26,17 @@ import {
   IndexOf16Bytes,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
-import DataUtil from '../../misc/DataUtil';
-import GlobalDataRepository from '../../core/GlobalDataRepository';
-import System from '../../system/System';
+import { DataUtil } from '../../misc/DataUtil';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { System } from '../../system/System';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
-import ShaderityUtility from './ShaderityUtility';
+import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
+import { ShaderityUtility } from './ShaderityUtility';
 import {Is} from '../../misc/Is';
 import {VertexAttributeEnum} from '../../..';
-import GLSLShader from '../../../webgl/shaders/GLSLShader';
+import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
 import {AttributeNames} from '../../../webgl/main';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
 import {Primitive} from '../../geometry/Primitive';
@@ -55,7 +55,7 @@ type MaterialTID = Index; // a type number of the Material Type
  * The material class.
  * This class has one or more material nodes.
  */
-export default class Material extends RnObject {
+export class Material extends RnObject {
   private __materialNode?: AbstractMaterialNode;
 
   private __fields: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();

@@ -3,22 +3,22 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
-import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
-import Material from '../core/Material';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { Material } from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import MeshComponent from '../../components/Mesh/MeshComponent';
+import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
-import ShaderityUtility from '../core/ShaderityUtility';
+import { ShaderityUtility } from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
 
-export default class CustomSingleMaterialNode extends AbstractMaterialNode {
+export class CustomSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   static BaseColorTextureTransform = new ShaderSemanticsClass({

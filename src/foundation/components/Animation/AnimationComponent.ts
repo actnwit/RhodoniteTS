@@ -1,15 +1,15 @@
-import Component from '../../core/Component';
-import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {
   AnimationInterpolationEnum,
   AnimationInterpolation,
 } from '../../definitions/AnimationInterpolation';
 import {AnimationAttribute} from '../../definitions/AnimationAttribute';
-import TransformComponent from '../Transform/TransformComponent';
+import { TransformComponent } from '../Transform/TransformComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import MeshComponent from '../Mesh/MeshComponent';
+import { MeshComponent } from '../Mesh/MeshComponent';
 import {
   ComponentTID,
   ComponentSID,
@@ -32,7 +32,7 @@ import {valueWithDefault, greaterThan, lessThan} from '../../misc/MiscUtil';
 import {EventPubSub, EventHandler} from '../../system/EventPubSub';
 import {IVector, IVector3} from '../../math/IVector';
 import {IQuaternion} from '../../math/IQuaternion';
-import Quaternion from '../../math/Quaternion';
+import { Quaternion } from '../../math/Quaternion';
 import {
   array3_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
@@ -50,7 +50,7 @@ import {
   normalizeArray4,
   qlerp_offsetAsComposition,
 } from '../../math/raw/raw_extension';
-import Vector3 from '../../math/Vector3';
+import { Vector3 } from '../../math/Vector3';
 import {Is} from '../../misc/Is';
 import {IAnimationEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
@@ -67,7 +67,7 @@ const ChangeAnimationInfo = Symbol(
 );
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 
-export default class AnimationComponent extends Component {
+export class AnimationComponent extends Component {
   /// inner states ///
   private __backupDefaultValues: Map<
     AnimationPathName,

@@ -1,9 +1,9 @@
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import WireframeShaderityObject from '../../../webgl/shaderity_shaders/nodes/Wireframe.glsl';
 
-export default class WireframeMaterialNode extends AbstractShaderNode {
+export class WireframeMaterialNode extends AbstractShaderNode {
   constructor() {
     super('wireframe', WireframeShaderityObject.code);
 

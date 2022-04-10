@@ -1,8 +1,8 @@
-import Buffer from '../memory/Buffer';
+import { Buffer } from '../memory/Buffer';
 import {BufferUse, BufferUseEnum} from '../definitions/BufferUse';
 import {Size, Byte, ObjectUID} from '../../types/CommonTypes';
-import Config from './Config';
-import RnObject from './RnObject';
+import {Config} from './Config';
+import { RnObject } from './RnObject';
 import {MiscUtil} from '../misc/MiscUtil';
 
 /**
@@ -12,7 +12,7 @@ import {MiscUtil} from '../misc/MiscUtil';
  *   mm.assignMem(componentUID, propertyId, entityUID, isRendered)
  * );
  */
-export default class MemoryManager {
+export class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: {[s: string]: Buffer} = {};

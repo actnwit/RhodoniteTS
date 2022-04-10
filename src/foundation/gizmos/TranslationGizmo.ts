@@ -1,28 +1,28 @@
-import OrbitCameraController from '../cameras/OrbitCameraController';
-import CameraComponent from '../components/Camera/CameraComponent';
-import ComponentRepository from '../core/ComponentRepository';
-import Config from '../core/Config';
+import { OrbitCameraController } from '../cameras/OrbitCameraController';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { ComponentRepository } from '../core/ComponentRepository';
+import {Config} from '../core/Config';
 import {AlphaMode} from '../definitions/AlphaMode';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import {VertexAttribute} from '../definitions/VertexAttribute';
-import Mesh from '../geometry/Mesh';
+import { Mesh } from '../geometry/Mesh';
 import {Primitive} from '../geometry/Primitive';
 import {Cube} from '../geometry/shapes/Cube';
 import {Plane} from '../geometry/shapes/Plane';
-import EntityHelper, {
+import {EntityHelper,
   IMeshEntity,
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
-import MaterialHelper from '../helpers/MaterialHelper';
-import Material from '../materials/core/Material';
+import {MaterialHelper} from '../helpers/MaterialHelper';
+import { Material } from '../materials/core/Material';
 import {MathUtil} from '../math/MathUtil';
-import Matrix33 from '../math/Matrix33';
-import Matrix44 from '../math/Matrix44';
-import MutableMatrix33 from '../math/MutableMatrix33';
-import Quaternion from '../math/Quaternion';
-import Vector3 from '../math/Vector3';
-import Vector4 from '../math/Vector4';
+import { Matrix33 } from '../math/Matrix33';
+import { Matrix44 } from '../math/Matrix44';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { Quaternion } from '../math/Quaternion';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
 import {Is} from '../misc/Is';
 import {assertExist, MiscUtil} from '../misc/MiscUtil';
 import {
@@ -30,14 +30,14 @@ import {
   InputManager,
   INPUT_HANDLING_STATE_GIZMO_TRNSLATION,
 } from '../system/InputManager';
-import Gizmo from './Gizmo';
+import { Gizmo } from './Gizmo';
 
 declare let window: any;
 
 /**
  * Translation Gizmo class
  */
-export default class TranslationGizmo extends Gizmo {
+export class TranslationGizmo extends Gizmo {
   private static __groupEntity: ISceneGraphEntity;
   private static __xCubeEntity: IMeshEntity;
   private static __yCubeEntity: IMeshEntity;
@@ -202,17 +202,17 @@ export default class TranslationGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createMeshEntity();
-    this.__topEntity.tryToSetUniqueName(
+    this.__topEntity!.tryToSetUniqueName(
       `TranslationGizmo_of_${this.__target.uniqueName}`,
       true
     );
-    this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
+    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
       true;
 
     // add this topEntity to the target as gizmo
     this.__target
       .getSceneGraph()
-      ._addGizmoChild(this.__topEntity.getSceneGraph());
+      ._addGizmoChild(this.__topEntity!.getSceneGraph());
 
     // setup the mesh
     // x

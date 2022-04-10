@@ -1,8 +1,8 @@
-import CameraComponent from '../../components/Camera/CameraComponent';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 import {CompositionType} from '../../definitions/CompositionType';
-import ComponentRepository from '../../core/ComponentRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
-import Scalar from '../../math/Scalar';
+import { Scalar } from '../../math/Scalar';
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
@@ -10,15 +10,15 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import Material from '../core/Material';
-import VectorN from '../../math/VectorN';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { Material } from '../core/Material';
+import { VectorN } from '../../math/VectorN';
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
-import Texture from '../../textures/Texture';
+import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNode {
+export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMaterialNode {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });
@@ -52,7 +52,7 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: GaussianBlurForEncodedDepthNode.IsHorizontal,
+        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.IsHorizontal,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -64,7 +64,7 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
         max: 1,
       },
       {
-        semantic: GaussianBlurForEncodedDepthNode.GaussianRatio,
+        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         maxIndex: 30,
@@ -78,7 +78,7 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
         needUniformInFastest: true,
       },
       {
-        semantic: GaussianBlurForEncodedDepthNode.GaussianKernelSize,
+        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.GaussianKernelSize,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -144,7 +144,7 @@ export default class GaussianBlurForEncodedDepthNode extends AbstractMaterialNod
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).gaussianRatio,
-        material.getParameter(GaussianBlurForEncodedDepthNode.GaussianRatio)._v
+        material.getParameter(GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio)._v
       );
     }
 

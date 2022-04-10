@@ -1,11 +1,11 @@
-import Rn from '../../../dist/esm';
+import {EntityHelper, MemoryManager, RenderPass} from '../..';
 
 function generateEntity() {
-  return Rn.EntityHelper.createMeshEntity();
+  return EntityHelper.createMeshEntity();
 }
 
 test('addEntities and get entities', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated({
+  MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
@@ -20,7 +20,7 @@ test('addEntities and get entities', () => {
     .getSceneGraph()
     .addChild(entityGrandChildOf1st.getSceneGraph());
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new RenderPass();
   renderPass.addEntities([entity1st, entity2nd]);
 
   const entities = renderPass.entities;
@@ -36,7 +36,7 @@ test('addEntities and get entities', () => {
 });
 
 test('clearEntities and get entities', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated({
+  MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
@@ -45,7 +45,7 @@ test('clearEntities and get entities', () => {
   const entity1st = generateEntity(); // Uid is 0
   const entity2nd = generateEntity(); // Uid is 1
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new RenderPass();
   renderPass.addEntities([entity1st, entity2nd]);
 
   expect(renderPass.entities.length).toBe(2);

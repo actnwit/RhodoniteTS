@@ -1,4 +1,4 @@
-import BufferView from './BufferView';
+import { BufferView } from './BufferView';
 import {Byte, TypedArray} from '../../types/CommonTypes';
 import {
   CompositionType,
@@ -9,9 +9,9 @@ import {
   ComponentTypeEnum,
 } from '../../foundation/definitions/ComponentType';
 
-import DataUtil from '../misc/DataUtil';
+import { DataUtil } from '../misc/DataUtil';
 
-export default class Buffer {
+export class Buffer {
   private __byteLength: Byte = 0;
   private __byteOffset: Byte = 0;
   private __takenBytesIndex: Byte = 0;

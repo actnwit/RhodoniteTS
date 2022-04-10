@@ -1,19 +1,19 @@
-import Component from './Component';
-import RnObject, {IRnObject} from './RnObject';
+import { Component } from './Component';
+import {IRnObject, RnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
-import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
-import LightComponent from '../components/Light/LightComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
-import PhysicsComponent from '../components/Physics/PhysicsComponent';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
-import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
-import TransformComponent from '../components/Transform/TransformComponent';
-import AnimationComponent from '../components/Animation/AnimationComponent';
-import CameraComponent from '../components/Camera/CameraComponent';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { LightComponent } from '../components/Light/LightComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import { TransformComponent } from '../components/Transform/TransformComponent';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 
 /**
  * The Interface for an Entity.
@@ -43,7 +43,7 @@ export interface IEntity extends IRnObject {
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
  */
-export default class Entity extends RnObject implements IEntity {
+export class Entity extends RnObject implements IEntity {
   /** The Unique ID of Entity */
   private readonly __entity_uid: number;
 

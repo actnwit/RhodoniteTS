@@ -4,34 +4,34 @@ import {
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import Vector4 from '../../math/Vector4';
-import Vector3 from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
+import { Vector3 } from '../../math/Vector3';
 import {ShadingModel} from '../../definitions/ShadingModel';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
-import VectorN from '../../math/VectorN';
-import Scalar from '../../math/Scalar';
-import Config from '../../core/Config';
-import Material from '../core/Material';
-import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import RenderPass from '../../renderer/RenderPass';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { VectorN } from '../../math/VectorN';
+import { Scalar } from '../../math/Scalar';
+import {Config} from '../../core/Config';
+import { Material } from '../core/Material';
+import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { RenderPass } from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
-import MutableMatrix44 from '../../math/MutableMatrix44';
-import MeshComponent from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
-import MutableVector4 from '../../math/MutableVector4';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MeshComponent } from '../../components/Mesh/MeshComponent';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
+import { MutableVector4 } from '../../math/MutableVector4';
 import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
 
-export default class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
+export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
   static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
   static DepthTexture = new ShaderSemanticsClass({str: 'depthTexture'});
   static SquareDepthTexture = new ShaderSemanticsClass({

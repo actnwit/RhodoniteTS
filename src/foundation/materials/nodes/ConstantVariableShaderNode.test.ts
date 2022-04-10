@@ -1,12 +1,12 @@
-import MemoryManager from '../../core/MemoryManager';
-import ConstantVariableShaderNode from './ConstantVariableShaderNode';
+import {MemoryManager} from '../../core/MemoryManager';
+import {ConstantVariableShaderNode} from './ConstantVariableShaderNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import AddShaderNode from './AddShaderNode';
-import OutPositionShaderNode from './OutPositionShaderNode';
-import Vector4 from '../../math/Vector4';
-import ShaderGraphResolver from '../core/ShaderGraphResolver';
-import ModuleManager from '../../system/ModuleManager';
+import {AddShaderNode} from './AddShaderNode';
+import {OutPositionShaderNode} from './OutPositionShaderNode';
+import {Vector4} from '../../math/Vector4';
+import {ShaderGraphResolver} from '../core/ShaderGraphResolver';
+import {ModuleManager} from '../../system/ModuleManager';
 
 test('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');

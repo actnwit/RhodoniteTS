@@ -1,4 +1,4 @@
-import EffekseerComponent from '../../effekseer/EffekseerComponent';
+import { EffekseerComponent } from '../../effekseer/EffekseerComponent';
 import {Gltf2Ex} from '../../types/glTF2ForOutput';
 import {
   RnM2ExtensionEffekseer,

@@ -10,8 +10,8 @@ const config = merge(baseConfig, {
     chunkFilename: 'rhodonite-[name].js',
     path: path.resolve(__dirname, './../../dist/umd'),
     library: 'Rn',
-    libraryExport: 'default',
-    libraryTarget: 'umd',
+    // libraryExport: 'default',
+    // libraryTarget: 'umd',
   },
   devtool: 'inline-source-map',
   plugins: [

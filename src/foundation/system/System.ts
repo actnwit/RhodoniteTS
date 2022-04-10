@@ -1,34 +1,34 @@
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
-import ComponentRepository from '../core/ComponentRepository';
+import { ComponentRepository } from '../core/ComponentRepository';
 import {
   ProcessApproachEnum,
   ProcessApproach,
 } from '../definitions/ProcessApproach';
-import ModuleManager from './ModuleManager';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import WebGLStrategy from '../../webgl/WebGLStrategy';
-import Component from '../core/Component';
-import Expression from '../renderer/Expression';
-import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';
-import EntityRepository from '../core/EntityRepository';
-import CameraComponent from '../components/Camera/CameraComponent';
-import MemoryManager from '../core/MemoryManager';
-import GlobalDataRepository from '../core/GlobalDataRepository';
-import Vector3 from '../math/Vector3';
+import { ModuleManager } from './ModuleManager';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { WebGLStrategy } from '../../webgl/WebGLStrategy';
+import { Component } from '../core/Component';
+import { Expression } from '../renderer/Expression';
+import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import { EntityRepository } from '../core/EntityRepository';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { MemoryManager } from '../core/MemoryManager';
+import { GlobalDataRepository } from '../core/GlobalDataRepository';
+import { Vector3 } from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
-import Time from '../misc/Time';
+import { Time } from '../misc/Time';
 import SystemState from './SystemState';
 import {MiscUtil, valueWithCompensation} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
-import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
-import Config from '../core/Config';
-import Frame from '../renderer/Frame';
-import Vector4 from '../math/Vector4';
-import RenderPass from '../renderer/RenderPass';
-import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
+import {EntityHelper, ISceneGraphEntity} from '../helpers/EntityHelper';
+import {Config} from '../core/Config';
+import { Frame } from '../renderer/Frame';
+import { Vector4 } from '../math/Vector4';
+import { RenderPass } from '../renderer/RenderPass';
+import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import { WebXRSystem } from '../..';
 
@@ -49,7 +49,7 @@ interface SystemInitDescription {
 
 type ComponentMethodName = string;
 
-export default class System {
+export class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;

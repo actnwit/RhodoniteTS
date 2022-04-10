@@ -1,9 +1,9 @@
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import AttributePositionShaderityObject from '../../../webgl/shaderity_shaders/nodes/AttributePosition.vert';
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
-export default class AttributePositionShaderNode extends AbstractShaderNode {
+export class AttributePositionShaderNode extends AbstractShaderNode {
   constructor() {
     super('attributePosition', AttributePositionShaderityObject.code);
 

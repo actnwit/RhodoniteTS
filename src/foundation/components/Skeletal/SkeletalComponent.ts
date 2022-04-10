@@ -1,15 +1,15 @@
-import ComponentRepository from '../../core/ComponentRepository';
-import Component from '../../core/Component';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Component } from '../../core/Component';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import Matrix44 from '../../math/Matrix44';
-import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
+import { Matrix44 } from '../../math/Matrix44';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import MutableVector3 from '../../math/MutableVector3';
-import MutableQuaternion from '../../math/MutableQuaternion';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
 import {MathUtil} from '../../math/MathUtil';
-import MutableVector4 from '../../math/MutableVector4';
-import MutableMatrix44 from '../../math/MutableMatrix44';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import {
   ComponentTID,
   ComponentSID,
@@ -17,16 +17,16 @@ import {
   Index,
 } from '../../../types/CommonTypes';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import GlobalDataRepository from '../../core/GlobalDataRepository';
-import Config from '../../core/Config';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import {Config} from '../../core/Config';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {IMatrix44} from '../../math/IMatrix';
-import Accessor from '../../memory/Accessor';
+import { Accessor } from '../../memory/Accessor';
 import {ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class SkeletalComponent extends Component {
+export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
   private __joints: SceneGraphComponent[] = [];
   private __inverseBindMatricesAccessor?: Accessor;

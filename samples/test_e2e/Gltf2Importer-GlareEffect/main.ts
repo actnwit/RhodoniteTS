@@ -16,6 +16,7 @@ import _Rn, {
   TextureParameterEnum,
 } from '../../../dist/esm/index';
 
+declare const window: any;
 declare const Rn: typeof _Rn;
 
 (async () => {

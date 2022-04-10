@@ -1,11 +1,11 @@
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import { IVector4 } from '../math/IVector';
-import RenderPass from './RenderPass';
+import { RenderPass } from './RenderPass';
 
 /**
  * Expression specifies the order of render passes on rendering process.
  */
-export default class Expression extends RnObject {
+export class Expression extends RnObject {
   private __renderPasses: RenderPass[] = [];
 
   constructor() {

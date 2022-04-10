@@ -12,7 +12,7 @@ import type {
 } from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
-import AbstractVector from './AbstractVector';
+import { AbstractVector } from './AbstractVector';
 
 export class Vector2_<
   T extends FloatTypedArrayConstructor
@@ -385,7 +385,7 @@ export class Vector2_<
   }
 }
 
-export default class Vector2
+export class Vector2
   extends Vector2_<Float32ArrayConstructor>
   implements IVector, IVector2
 {

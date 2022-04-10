@@ -1,32 +1,32 @@
-import ComponentRepository from '../../core/ComponentRepository';
-import Component from '../../core/Component';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Component } from '../../core/Component';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import Vector3 from '../../math/Vector3';
-import CameraComponent from '../Camera/CameraComponent';
-import Vector4 from '../../math/Vector4';
-import Mesh from '../../geometry/Mesh';
-import Entity, {IEntity} from '../../core/Entity';
+import { Vector3 } from '../../math/Vector3';
+import { CameraComponent } from '../Camera/CameraComponent';
+import { Vector4 } from '../../math/Vector4';
+import { Mesh } from '../../geometry/Mesh';
+import {IEntity, Entity} from '../../core/Entity';
 import {
   ComponentTID,
   EntityUID,
   ComponentSID,
 } from '../../../types/CommonTypes';
-import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
-import Matrix44 from '../../math/Matrix44';
-import MutableMatrix44 from '../../math/MutableMatrix44';
-import MathClassUtil from '../../math/MathClassUtil';
-import MutableVector3 from '../../math/MutableVector3';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { Matrix44 } from '../../math/Matrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MathClassUtil } from '../../math/MathClassUtil';
+import { MutableVector3 } from '../../math/MutableVector3';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {Is} from '../../misc/Is';
 import {IMeshEntity} from '../../helpers/EntityHelper';
-import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
 import {assertExist} from '../../misc/MiscUtil';
 
-export default class MeshComponent extends Component {
+export class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
   private __mesh?: Mesh;
   private __blendShapeComponent?: BlendShapeComponent;

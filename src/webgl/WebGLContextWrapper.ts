@@ -1,8 +1,8 @@
 import {WebGLExtensionEnum, WebGLExtension} from './WebGLExtension';
 import {RenderBufferTargetEnum} from '../foundation/definitions/RenderBufferTarget';
 import {Index, Size} from '../types/CommonTypes';
-import Vector4 from '../foundation/math/Vector4';
-import Config from '../foundation/core/Config';
+import { Vector4 } from '../foundation/math/Vector4';
+import {Config} from '../foundation/core/Config';
 
 const INVALID_SIZE = -1;
 
@@ -13,7 +13,7 @@ interface WEBGL_compressed_texture_bptc {
   readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
 }
 
-export default class WebGLContextWrapper {
+export class WebGLContextWrapper {
   __gl: WebGLRenderingContext | WebGL2RenderingContext;
   __webglVersion = 1;
   public width: Size = 0;

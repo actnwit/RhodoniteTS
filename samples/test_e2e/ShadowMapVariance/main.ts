@@ -1,16 +1,6 @@
 import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {
-  CameraComponent,
-  ComponentTypeEnum,
-  Expression,
-  PixelFormatEnum,
-  RenderPass,
-  RenderTargetTexture,
-  TextureParameterEnum,
-} from '../../../dist/esm/index';
-
+import _Rn, { CameraComponent, ComponentTypeEnum, Expression, PixelFormatEnum, RenderPass, RenderTargetTexture, TextureParameterEnum } from '../../../dist/esm/index';
 declare const Rn: typeof _Rn;
-
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
 

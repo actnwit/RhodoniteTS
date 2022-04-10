@@ -3,29 +3,29 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from './../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from './../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
-import Vector2 from '../../math/Vector2';
+import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import Vector4 from '../../math/Vector4';
-import Vector3 from '../../math/Vector3';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { Vector4 } from '../../math/Vector4';
+import { Vector3 } from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import Scalar from '../../math/Scalar';
-import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
-import MeshRendererComponent from '../../components/MeshRenderer/MeshRendererComponent';
+import { Scalar } from '../../math/Scalar';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { MeshRendererComponent } from '../../components/MeshRenderer/MeshRendererComponent';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
-import Material from './../core/Material';
+import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
+import { Material } from './../core/Material';
 import PBRExtendedShaderVertex from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.vert';
 import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
+export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
   static detailNormalTexture = new ShaderSemanticsClass({
     str: 'detailNormalTexture',
   });

@@ -1,14 +1,14 @@
 /* eslint-disable prettier/prettier */
 import { CompositionType } from '../definitions/CompositionType';
-import AbstractMatrix from './AbstractMatrix';
+import { AbstractMatrix } from './AbstractMatrix';
 import {IMatrix, IMatrix44} from './IMatrix';
 import { IVector, IMutableVector4, IMutableVector, IVector3 } from './IVector';
-import Matrix44 from './Matrix44';
-import MutableVector4 from './MutableVector4';
-import Vector3 from './Vector3';
-import Vector4 from './Vector4';
+import { Matrix44 } from './Matrix44';
+import { MutableVector4 } from './MutableVector4';
+import { Vector3 } from './Vector3';
+import { Vector4 } from './Vector4';
 
-export default class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
+export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   static readonly __v = new Float32Array([1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,

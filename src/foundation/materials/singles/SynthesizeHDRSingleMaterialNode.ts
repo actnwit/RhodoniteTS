@@ -1,6 +1,6 @@
-import AbstractTexture from '../../textures/AbstractTexture';
-import CameraComponent from '../../components/Camera/CameraComponent';
-import ComponentRepository from '../../core/ComponentRepository';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
 import {Count} from '../../../types/CommonTypes';
@@ -11,15 +11,15 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import Material from '../core/Material';
-import VectorN from '../../math/VectorN';
-import Scalar from '../../math/Scalar';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { Material } from '../core/Material';
+import { VectorN } from '../../math/VectorN';
+import { Scalar } from '../../math/Scalar';
 import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
+export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
     str: 'synthesizeCoefficient',
   });

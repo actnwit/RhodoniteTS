@@ -1,18 +1,18 @@
 import {Primitive} from './Primitive';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import MemoryManager from '../core/MemoryManager';
+import { MemoryManager } from '../core/MemoryManager';
 import {BufferUse} from '../definitions/BufferUse';
 import {ComponentType} from '../definitions/ComponentType';
 import {CompositionType} from '../definitions/CompositionType';
-import Vector3 from '../math/Vector3';
-import Accessor from '../memory/Accessor';
-import Vector2 from '../math/Vector2';
-import AABB from '../math/AABB';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import Entity from '../core/Entity';
+import { Vector3 } from '../math/Vector3';
+import { Accessor } from '../memory/Accessor';
+import { Vector2 } from '../math/Vector2';
+import { AABB } from '../math/AABB';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { Entity } from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
-import MutableVector3 from '../math/MutableVector3';
+import { MutableVector3 } from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
@@ -26,7 +26,7 @@ import {MeshComponent} from '../..';
  * If the latter, this mesh object is an 'instanced mesh', which has no primitives.
  * Instanced meshes refer original mesh's primitives when drawing.
  */
-export default class Mesh implements IMesh {
+export class Mesh implements IMesh {
   private readonly __meshUID: MeshUID;
   public static readonly invalidateMeshUID = -1;
   public static __mesh_uid_count = Mesh.invalidateMeshUID;

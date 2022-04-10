@@ -7,4 +7,10 @@ module.exports = {
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   rootDir: process.cwd(),
+  transformIgnorePatterns: [
+    "node_modules/(?!(webxr-input-profiles/packages/motion-controllers"
+      + "|webxr-input-profiles/packages/motion-controllers"
+      + "|webxr-input-profiles/packages/motion-controllers"
+      + ")/)",
+  ],
 };

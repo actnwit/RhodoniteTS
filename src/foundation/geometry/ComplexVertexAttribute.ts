@@ -1,7 +1,7 @@
 import {VertexAttributeEnum} from '../definitions/VertexAttribute';
 import {PrimitiveModeEnum} from '../definitions/PrimitiveMode';
 import {Attributes} from './Primitive';
-import Accessor, {IndicesAccessOption} from '../memory/Accessor';
+import {IndicesAccessOption, Accessor} from '../memory/Accessor';
 import {Index, Array1to4} from '../../types/CommonTypes';
 import {Array1, Array2, Array3, Array4} from '../../types/CommonTypes';
 import {ISemanticVertexAttribute} from './ISemanticVertexAttribute';

@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsEnum,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {
   CompositionType,
   CompositionTypeEnum,
@@ -12,10 +12,10 @@ import {
   ComponentType,
   ComponentTypeEnum,
 } from '../../definitions/ComponentType';
-import UniformDataShader from '../../../webgl/shaders/nodes/UniformDataShader';
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { UniformDataShader } from '../../../webgl/shaders/nodes/UniformDataShader';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
-export default class UniformDataShaderNode extends AbstractShaderNode {
+export class UniformDataShaderNode extends AbstractShaderNode {
   constructor(
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum

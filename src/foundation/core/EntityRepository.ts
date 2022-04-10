@@ -1,6 +1,6 @@
-import Entity, {IEntity} from './Entity';
-import Component from './Component';
-import ComponentRepository from './ComponentRepository';
+import {IEntity, Entity} from './Entity';
+import { Component } from './Component';
+import { ComponentRepository } from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
 import {valueWithCompensation} from '../misc/MiscUtil';
 import {ComponentToComponentMethods} from '../components/ComponentTypes';
@@ -9,7 +9,7 @@ import {Is} from '../misc/Is';
 /**
  * The class that generates and manages entities.
  */
-export default class EntityRepository {
+export class EntityRepository {
   private static __entity_uid_count: number = Entity.invalidEntityUID;
   private static __entities: Array<IEntity> = [];
   static _components: Array<Map<ComponentTID, Component>> = []; // index is EntityUID

@@ -1,13 +1,13 @@
-import Component from './Component';
+import { Component } from './Component';
 import {Is} from '../misc/Is';
-import EntityRepository from './EntityRepository';
-import Config from './Config';
+import { EntityRepository } from './EntityRepository';
+import {Config} from './Config';
 import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
 
 /**
  * The class that generates and manages all kinds of components.
  */
-export default class ComponentRepository {
+export class ComponentRepository {
   private static __component_sid_count_map: Map<ComponentTID, number> =
     new Map();
   private static __components: Map<ComponentTID, Array<Component>> = new Map(); // index of array Is ComponentSID

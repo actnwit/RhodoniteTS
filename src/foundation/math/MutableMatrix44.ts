@@ -1,17 +1,17 @@
-import Matrix44 from './Matrix44';
+import { Matrix44 } from './Matrix44';
 import {IMutableMatrix44, IMutableMatrix, IMatrix44} from './IMatrix';
-import Matrix33 from './Matrix33';
-import Quaternion from './Quaternion';
-import Vector3 from './Vector3';
+import { Matrix33 } from './Matrix33';
+import { Quaternion } from './Quaternion';
+import { Vector3 } from './Vector3';
 import {Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
-import MutableVector3 from './MutableVector3';
+import { MutableVector3 } from './MutableVector3';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
+export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
   constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Array<number>, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);

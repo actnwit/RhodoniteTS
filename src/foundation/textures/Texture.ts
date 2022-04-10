@@ -4,20 +4,20 @@ import {
   TextureParameter,
   TextureParameterEnum,
 } from '../definitions/TextureParameter';
-import AbstractTexture from './AbstractTexture';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { AbstractTexture } from './AbstractTexture';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {Size, TypedArray, Count} from '../../types/CommonTypes';
-import Config from '../core/Config';
+import {Config} from '../core/Config';
 import {BasisFile, BasisTranscoder, BASIS} from '../../types/BasisTexture';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
-import DataUtil from '../misc/DataUtil';
+import { DataUtil } from '../misc/DataUtil';
 import {CompressionTextureTypeEnum} from '../definitions/CompressionTextureType';
-import KTX2TextureLoader from '../../webgl/textureLoader/KTX2TextureLoader';
+import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
 import {TextureData} from '../../webgl/WebGLResourceRepository';
 
 declare const BASIS: BASIS;
 
-export default class Texture extends AbstractTexture {
+export class Texture extends AbstractTexture {
   public autoResize = true;
   public autoDetectTransparency = false;
   private static __loadedBasisFunc = false;

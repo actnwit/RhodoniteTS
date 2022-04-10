@@ -22,7 +22,7 @@ let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = true;
 let eventTargetDom: HTMLElement | undefined;
 
-export default {
+export const Config = {
   maxEntityNumber,
   maxLightNumberInShader,
   maxVertexMorphNumberInShader,

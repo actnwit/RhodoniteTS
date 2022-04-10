@@ -1,4 +1,4 @@
-import DataUtil from '../misc/DataUtil';
+import { DataUtil } from '../misc/DataUtil';
 import {
   RnM2,
   RnM2Accessor,
@@ -14,7 +14,7 @@ import {glTF1} from '../../types/glTF1';
 
 declare let Rn: any;
 
-export default class Gltf1Importer {
+export class Gltf1Importer {
   private constructor() {}
 
   /**
@@ -23,7 +23,10 @@ export default class Gltf1Importer {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  public static async import(uri: string, options?: GltfLoadOption): Promise<RnM2> {
+  public static async import(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<RnM2> {
     if (options && options.files) {
       for (const fileName in options.files) {
         const fileExtension = DataUtil.getExtension(fileName);

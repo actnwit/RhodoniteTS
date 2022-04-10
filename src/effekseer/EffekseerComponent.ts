@@ -1,30 +1,31 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
-import Component from '../foundation/core/Component';
-import EntityRepository, {
+import { Component } from '../foundation/core/Component';
+import {
   applyMixins,
+  EntityRepository,
 } from '../foundation/core/EntityRepository';
-import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
-import TransformComponent from '../foundation/components/Transform/TransformComponent';
-import CameraComponent from '../foundation/components/Camera/CameraComponent';
-import ComponentRepository from '../foundation/core/ComponentRepository';
+import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import {
   ComponentTID,
   EntityUID,
   ComponentSID,
   Second,
 } from '../types/CommonTypes';
-import Config from '../foundation/core/Config';
-import MutableMatrix44 from '../foundation/math/MutableMatrix44';
+import {Config} from '../foundation/core/Config';
+import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
 import {IVector3} from '../foundation/math/IVector';
 import type {Unzip} from 'zlib';
 import {IEntity} from '../foundation/core/Entity';
 import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
 
-export default class EffekseerComponent extends Component {
+export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
   public static readonly ANIMATION_EVENT_PAUSE = 1;
   public static readonly ANIMATION_EVENT_END = 2;

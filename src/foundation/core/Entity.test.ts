@@ -1,6 +1,6 @@
-import Entity from './Entity';
+import {Entity} from './Entity';
 import {Is} from '../misc/Is';
-import EntityRepository from './EntityRepository';
+import {EntityRepository} from './EntityRepository';
 
 test('Entities cannot be instantiated by new operator.', () => {
   let entity = null;

@@ -1,6 +1,6 @@
-import Matrix44 from './Matrix44';
-import MutableMatrix44 from './MutableMatrix44';
-import Vector3 from './Vector3';
+import {Matrix44} from './Matrix44';
+import {MutableMatrix44} from './MutableMatrix44';
+import {Vector3} from './Vector3';
 
 test('Make MutableMatrix44 from Matrix44 (1)', () => {
   // eslint-disable-next-line prettier/prettier

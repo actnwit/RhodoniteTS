@@ -1,10 +1,10 @@
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import Vector3 from '../foundation/math/Vector3';
-import MutableMatrix44 from '../foundation/math/MutableMatrix44';
+import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
+import {Vector3} from '../foundation/math/Vector3';
+import {MutableMatrix44} from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
-import Vector4 from '../foundation/math/Vector4';
+import {Vector4} from '../foundation/math/Vector4';
 import {IEntity} from '../foundation/core/Entity';
-import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
+import {WebGLContextWrapper} from '../webgl/WebGLContextWrapper';
 import type {
   Navigator,
   XRSession,
@@ -16,8 +16,8 @@ import type {
   XRInputSourceChangeEvent,
   XRInputSource,
 } from 'webxr';
-import System from '../foundation/system/System';
-import ModuleManager from '../foundation/system/ModuleManager';
+import {System} from '../foundation/system/System';
+import {ModuleManager} from '../foundation/system/ModuleManager';
 import {
   updateGamePad,
   createMotionController,
@@ -25,10 +25,11 @@ import {
   getMotionController,
 } from './WebXRInput';
 import {Is} from '../foundation/misc/Is';
-import MutableVector3 from '../foundation/math/MutableVector3';
-import MutableQuaternion from '../foundation/math/MutableQuaternion';
-import MutableScalar from '../foundation/math/MutableScalar';
-import EntityHelper, {
+import {MutableVector3} from '../foundation/math/MutableVector3';
+import {MutableQuaternion} from '../foundation/math/MutableQuaternion';
+import {MutableScalar} from '../foundation/math/MutableScalar';
+import {
+  EntityHelper,
   ICameraEntity,
   ISceneGraphEntity,
 } from '../foundation/helpers/EntityHelper';
@@ -37,7 +38,7 @@ declare const navigator: Navigator;
 declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 
-export default class WebXRSystem {
+export class WebXRSystem {
   private static __instance: WebXRSystem;
   private __xrSession?: XRSession;
   private __xrReferenceSpace?: XRReferenceSpace;
@@ -564,7 +565,7 @@ export default class WebXRSystem {
   private async __setupWebGLLayer(
     xrSession: XRSession,
     callbackOnXrSessionStart: Function
-    ) {
+  ) {
     const gl = this.__glw?.getRawContext();
 
     if (gl != null) {

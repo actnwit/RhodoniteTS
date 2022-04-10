@@ -1,9 +1,9 @@
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import WorldMatrixShaderityObject from '../../../webgl/shaderity_shaders/nodes/WorldMatrix.vert';
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
-export default class WorldMatrixShaderNode extends AbstractShaderNode {
+export class WorldMatrixShaderNode extends AbstractShaderNode {
   constructor() {
     super('worldMatrix', WorldMatrixShaderityObject.code);
 

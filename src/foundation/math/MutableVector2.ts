@@ -137,7 +137,7 @@ export class MutableVector2_<
   }
 }
 
-export default class MutableVector2
+export class MutableVector2
   extends MutableVector2_<Float32ArrayConstructor>
   implements IMutableVector, IMutableVector2
 {

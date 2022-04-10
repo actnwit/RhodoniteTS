@@ -1,4 +1,4 @@
-import RnObject from './RnObject';
+import {RnObject} from './RnObject';
 
 beforeEach(() => {
   RnObject._reset();

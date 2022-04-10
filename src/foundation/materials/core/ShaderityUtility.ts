@@ -15,9 +15,9 @@ import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import MemoryManager from '../../core/MemoryManager';
+import { MemoryManager } from '../../core/MemoryManager';
 import {WellKnownComponentTIDs} from '../../components/WellKnownComponentTIDs';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import {
   ShaderSemantics,
   ShaderSemanticsClass,
@@ -25,14 +25,14 @@ import {
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import AbstractMaterialNode from './AbstractMaterialNode';
-import MutableVector2 from '../../math/MutableVector2';
-import MutableVector3 from '../../math/MutableVector3';
-import MutableVector4 from '../../math/MutableVector4';
-import MutableMatrix33 from '../../math/MutableMatrix33';
-import MutableMatrix44 from '../../math/MutableMatrix44';
-import MutableScalar from '../../math/MutableScalar';
-import MutableMatrix22 from '../../math/MutableMatrix22';
+import { AbstractMaterialNode } from './AbstractMaterialNode';
+import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { MutableMatrix33 } from '../../math/MutableMatrix33';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableScalar } from '../../math/MutableScalar';
+import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import {ShaderType} from '../../definitions/ShaderType';
 
 export type FillArgsObject = {
@@ -46,7 +46,7 @@ export type VertexAttributesLayout = {
   components: ComponentTypeEnum[];
 };
 
-export default class ShaderityUtility {
+export class ShaderityUtility {
   public static fillTemplate(
     shaderityObject: ShaderityObject,
     args: FillArgsObject

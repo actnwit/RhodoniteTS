@@ -1,12 +1,12 @@
-import Matrix44 from './Matrix44';
-import Quaternion from './Quaternion';
+import { Matrix44 } from './Matrix44';
+import { Quaternion } from './Quaternion';
 import {IMutableMatrix33, IMutableMatrix} from './IMatrix';
-import Matrix33 from './Matrix33';
-import Vector3 from './Vector3';
+import { Matrix33 } from './Matrix33';
+import { Vector3 } from './Vector3';
 import {Index} from '../../types/CommonTypes';
 
 /* eslint-disable prettier/prettier */
-export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
+export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
 
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?: boolean, notCopyFloatArray?: boolean);

@@ -1,9 +1,9 @@
 import {RenderPass} from '../..';
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import { IVector4 } from '../math/IVector';
 import {Is} from '../misc/Is';
-import RenderTargetTexture from '../textures/RenderTargetTexture';
-import Expression from './Expression';
+import { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import { Expression } from './Expression';
 
 type ColorAttachmentIndex = number;
 type InputIndex = number;
@@ -19,7 +19,7 @@ type GeneratorOfRenderTargetTexturePromise =
 /**
  * Frame manages expressions and input/output dependencies between them
  */
-export default class Frame extends RnObject {
+export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
   private __expressionMap: Map<
     Expression,

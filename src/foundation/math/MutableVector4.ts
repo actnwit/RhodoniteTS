@@ -190,7 +190,7 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
   private __updateCount = 0;
 }
 
-export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
+export class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
   constructor(x: Float32Array) {
     super(x, {type: Float32Array});
   }

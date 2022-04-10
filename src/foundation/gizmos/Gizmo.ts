@@ -1,11 +1,11 @@
-import RnObject from '../core/RnObject';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import { RnObject } from '../core/RnObject';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 
 /**
  * Abstract Gizmo class
  */
-export default abstract class Gizmo extends RnObject {
+export abstract class Gizmo extends RnObject {
   /**
    * The top entity of this gizmo group.
    * A programmer who implements a gizmo class has to make this entity

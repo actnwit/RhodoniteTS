@@ -1,4 +1,4 @@
-import Vector3 from './Vector3';
+import { Vector3 } from './Vector3';
 import {IVector3} from './IVector';
 import {IColorRgb} from './IColor';
 

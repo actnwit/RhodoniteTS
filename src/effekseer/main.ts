@@ -1,7 +1,7 @@
-import EffekseerComponent from './EffekseerComponent';
-import EntityRepository from '../foundation/core/EntityRepository';
-import TransformComponent from '../foundation/components/Transform/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { EffekseerComponent } from './EffekseerComponent';
+import { EntityRepository } from '../foundation/core/EntityRepository';
+import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 
 const createEffekseerEntity = function () {
   const entity = EntityRepository.createEntity();
@@ -21,8 +21,7 @@ const createEffekseerEntity = function () {
   return entity3;
 };
 
-const Effekseer = Object.freeze({
+export const Effekseer = Object.freeze({
   EffekseerComponent,
   createEffekseerEntity,
 });
-export default Effekseer;

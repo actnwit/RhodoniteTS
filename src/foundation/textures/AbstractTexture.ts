@@ -1,4 +1,4 @@
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
 import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
 import {
@@ -11,20 +11,20 @@ import {
   Size,
   Index,
 } from '../../types/CommonTypes';
-import TextureDataFloat from './TextureDataFloat';
+import { TextureDataFloat } from './TextureDataFloat';
 import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
 import {ColorRgb} from '../math/ColorRgb';
 import {ColorRgba} from '../math/ColorRgba';
-import MutableVector3 from '../math/MutableVector3';
-import MutableVector4 from '../math/MutableVector4';
-import Vector3 from '../math/Vector3';
-import Vector4 from '../math/Vector4';
+import { MutableVector3 } from '../math/MutableVector3';
+import { MutableVector4 } from '../math/MutableVector4';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
 import {Is} from '../misc/Is';
 
-export default abstract class AbstractTexture extends RnObject {
+export abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
   protected __height: Size = 0;
   protected __level: Index = 0;

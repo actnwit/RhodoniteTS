@@ -1,5 +1,4 @@
-import Rn from '..';
-import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
+import {WebGLResourceRepository} from '../webgl/WebGLResourceRepository';
 
 const puppeteer = require('puppeteer');
 

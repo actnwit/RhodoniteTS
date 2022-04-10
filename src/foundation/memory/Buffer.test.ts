@@ -1,5 +1,5 @@
-import Buffer from './Buffer';
-import BufferView from './BufferView';
+import {Buffer} from './Buffer';
+import {BufferView} from './BufferView';
 import {Byte} from '../../types/CommonTypes';
 
 function createBuffer(byteSize: Byte) {

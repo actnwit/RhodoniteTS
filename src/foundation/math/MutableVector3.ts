@@ -205,7 +205,7 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
   }
 }
 
-export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
+export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
   constructor(v: TypedArray) {
     super(v, {type: Float32Array});
   }

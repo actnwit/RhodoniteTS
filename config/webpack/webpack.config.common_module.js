@@ -4,13 +4,17 @@ const baseConfig = require('./webpack.config.base.js');
 const webpack = require('webpack');
 
 const config = merge(baseConfig, {
+  entry: './src/cjs.ts',
   target: 'node',
   mode: 'development',
   output: {
     filename: 'index.js',
     chunkFilename: 'rhodonite-[name].js',
     path: path.resolve(__dirname, './../../dist/esm'),
-    libraryTarget: 'commonjs-module',
+    library: {
+      type: 'umd',
+    },
+
   },
   devtool: 'inline-source-map',
   plugins: [

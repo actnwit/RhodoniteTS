@@ -1,4 +1,4 @@
-import MutableVector4 from './MutableVector4';
+import {MutableVector4} from './MutableVector4';
 
 test('Test isEqual', () => {
   const a = MutableVector4.fromCopyArray([0.2, 0.2, 0.2, 0.2]);

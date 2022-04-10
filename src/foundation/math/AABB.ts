@@ -1,10 +1,10 @@
-import Vector3 from './Vector3';
-import Matrix44 from './Matrix44';
-import MutableVector3 from './MutableVector3';
+import { Vector3 } from './Vector3';
+import { Matrix44 } from './Matrix44';
+import { MutableVector3 } from './MutableVector3';
 import {Index} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 
-export default class AABB {
+export class AABB {
   private __min: MutableVector3 = MutableVector3.fromCopyArray([
     Number.MAX_VALUE,
     Number.MAX_VALUE,

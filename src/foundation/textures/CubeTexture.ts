@@ -1,13 +1,13 @@
-import AbstractTexture from './AbstractTexture';
+import { AbstractTexture } from './AbstractTexture';
 import {HdriFormat} from '../definitions/HdriFormat';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {BasisTranscoder, BASIS} from '../../types/BasisTexture';
 import {TextureParameter} from '../definitions/TextureParameter';
 import {Size, TypedArray} from '../../types/CommonTypes';
 
 declare const BASIS: BASIS;
 
-export default class CubeTexture extends AbstractTexture {
+export class CubeTexture extends AbstractTexture {
   public baseUriToLoad?: string;
   public mipmapLevelNumber = 1;
   public hdriFormat = HdriFormat.LDR_SRGB;

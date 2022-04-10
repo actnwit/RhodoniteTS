@@ -1,15 +1,15 @@
-import RnObject from '../core/RnObject';
-import Entity from '../core/Entity';
-import CGAPIResourceRepository from './CGAPIResourceRepository';
-import IRenderable from '../textures/IRenderable';
+import { RnObject } from '../core/RnObject';
+import { Entity } from '../core/Entity';
+import { CGAPIResourceRepository } from './CGAPIResourceRepository';
+import { IRenderable } from '../textures/IRenderable';
 import {
   RenderBufferTargetEnum,
   RenderBufferTarget,
 } from '../definitions/RenderBufferTarget';
 import {Index, Size, CGAPIResourceHandle} from '../../types/CommonTypes';
-import RenderTargetTexture from '../textures/RenderTargetTexture';
+import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 
-export default class FrameBuffer extends RnObject {
+export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
   private __depthAttachment?: IRenderable;
   private __stencilAttachment?: IRenderable;

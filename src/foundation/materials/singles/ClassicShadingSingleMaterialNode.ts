@@ -1,10 +1,10 @@
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import CameraComponent from '../../components/Camera/CameraComponent';
-import ComponentRepository from '../../core/ComponentRepository';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
-import Material from '../core/Material';
-import Scalar from '../../math/Scalar';
+import { Material } from '../core/Material';
+import { Scalar } from '../../math/Scalar';
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
@@ -12,8 +12,8 @@ import {
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import {ShadingModel} from '../../definitions/ShadingModel';
-import Vector3 from '../../math/Vector3';
-import Vector4 from '../../math/Vector4';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
 
 import ClassicSingleShaderVertex from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
@@ -21,7 +21,7 @@ import {AlphaModeEnum} from '../../definitions/AlphaMode';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
+export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   constructor({
     isSkinning,
     isLighting,

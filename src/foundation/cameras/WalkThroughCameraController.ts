@@ -1,13 +1,13 @@
-import Matrix44 from '../math/Matrix44';
-import MathClassUtil from '../math/MathClassUtil';
+import { Matrix44 } from '../math/Matrix44';
+import { MathClassUtil } from '../math/MathClassUtil';
 import {MiscUtil} from '../misc/MiscUtil';
-import ICameraController from './ICameraController';
-import MutableVector3 from '../math/MutableVector3';
-import CameraComponent from '../components/Camera/CameraComponent';
-import Entity from '../core/Entity';
-import MutableMatrix33 from '../math/MutableMatrix33';
-import MutableMatrix44 from '../math/MutableMatrix44';
-import AbstractCameraController from './AbstractCameraController';
+import { ICameraController } from './ICameraController';
+import { MutableVector3 } from '../math/MutableVector3';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { Entity } from '../core/Entity';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { AbstractCameraController } from './AbstractCameraController';
 import {MathUtil} from '../math/MathUtil';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {Is} from '../misc/Is';
@@ -15,7 +15,7 @@ import {InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERACONTROLLER} f
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
-export default class WalkThroughCameraController
+export class WalkThroughCameraController
   extends AbstractCameraController
   implements ICameraController
 {

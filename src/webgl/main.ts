@@ -1,14 +1,15 @@
 import getRenderingStrategy from './getRenderingStrategy';
-import GLSLShader, {
+import {
   AttributeNames as attributeNames,
+  GLSLShader,
 } from './shaders/GLSLShader';
-import WebGLContextWrapper from './WebGLContextWrapper';
-import WebGLResourceRepository, {
-  VertexHandles as vertexHandles,
+import { WebGLContextWrapper } from './WebGLContextWrapper';
+import {
+  VertexHandles as vertexHandles, WebGLResourceRepository
 } from './WebGLResourceRepository';
-import webGLStrategy from './WebGLStrategy';
-import WebGLStrategyUniform from './WebGLStrategyUniform';
-import WebGLStrategyFastest from './WebGLStrategyFastest';
+import { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
+import { WebGLStrategyUniform } from './WebGLStrategyUniform';
+import { WebGLStrategyFastest } from './WebGLStrategyFastest';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
@@ -26,4 +27,3 @@ export type RnWebGL = typeof WebGL;
 export type AttributeNames = attributeNames;
 export type VertexHandles = vertexHandles;
 export type WebGLStrategy = webGLStrategy;
-

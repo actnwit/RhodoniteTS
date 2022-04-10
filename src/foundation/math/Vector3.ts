@@ -8,7 +8,7 @@ import {
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion} from './IQuaternion';
-import AbstractVector from './AbstractVector';
+import { AbstractVector } from './AbstractVector';
 import {
   Array3,
   FloatTypedArrayConstructor,
@@ -547,7 +547,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   }
 }
 
-export default class Vector3 extends Vector3_<Float32ArrayConstructor> {
+export class Vector3 extends Vector3_<Float32ArrayConstructor> {
   constructor(v: TypedArray) {
     super(v, {type: Float32Array});
   }

@@ -1,12 +1,12 @@
-import ModuleManager from '../../system/ModuleManager';
-import MemoryManager from '../../core/MemoryManager';
-import ConstantVariableShaderNode from './ConstantVariableShaderNode';
+import {ModuleManager} from '../../system/ModuleManager';
+import {MemoryManager} from '../../core/MemoryManager';
+import {ConstantVariableShaderNode} from './ConstantVariableShaderNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import ScalarToVector4MaterialNode from './ScalarToVector4ShaderNode';
-import OutPositionNode from './OutPositionShaderNode';
-import Scalar from '../../math/Scalar';
-import ShaderGraphResolver from '../core/ShaderGraphResolver';
+import {ScalarToVector4ShaderNode} from './ScalarToVector4ShaderNode';
+import {OutPositionShaderNode} from './OutPositionShaderNode';
+import {Scalar} from '../../math/Scalar';
+import {ShaderGraphResolver} from '../core/ShaderGraphResolver';
 
 test('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -37,13 +37,13 @@ test('ScalarToVector4 works correctly 1', async () => {
   );
   constant4.setDefaultInputValue('value', Scalar.fromCopyNumber(4));
 
-  const scalarToVector4MaterialNode = new ScalarToVector4MaterialNode();
+  const scalarToVector4MaterialNode = new ScalarToVector4ShaderNode();
   scalarToVector4MaterialNode.addInputConnection(constant1, 'outValue', 'x');
   scalarToVector4MaterialNode.addInputConnection(constant2, 'outValue', 'y');
   scalarToVector4MaterialNode.addInputConnection(constant3, 'outValue', 'z');
   scalarToVector4MaterialNode.addInputConnection(constant4, 'outValue', 'w');
 
-  const endMaterialNode = new OutPositionNode();
+  const endMaterialNode = new OutPositionShaderNode();
   endMaterialNode.addInputConnection(
     scalarToVector4MaterialNode,
     'outValue',

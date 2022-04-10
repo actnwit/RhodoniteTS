@@ -1,10 +1,10 @@
-import AbstractTexture from '../../textures/AbstractTexture';
-import CameraComponent from '../../components/Camera/CameraComponent';
-import ComponentRepository from '../../core/ComponentRepository';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
-import Scalar from '../../math/Scalar';
-import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
+import { Scalar } from '../../math/Scalar';
+import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import {
   ShaderSemanticsInfo,
   ShaderSemanticsClass,
@@ -12,17 +12,17 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import Texture from '../../textures/Texture';
+import { Texture } from '../../textures/Texture';
 import {TextureParameter} from '../../definitions/TextureParameter';
-import Vector3 from '../../math/Vector3';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
-import Material from '../core/Material';
+import { Vector3 } from '../../math/Vector3';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { Material } from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class MatCapSingleMaterialNode extends AbstractMaterialNode {
+export class MatCapSingleMaterialNode extends AbstractMaterialNode {
   static MatCapTexture = new ShaderSemanticsClass({str: 'matCapTexture'});
 
   constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture) {

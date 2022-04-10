@@ -1,6 +1,6 @@
-import Component from '../../core/Component';
-import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import {
@@ -8,12 +8,12 @@ import {
   ComponentSID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import VRMSpringBonePhysicsStrategy from '../../physics/VRMSpringBonePhysicsStrategy';
-import PhysicsStrategy from '../../physics/PhysicsStrategy';
+import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpringBonePhysicsStrategy';
+import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 
-export default class PhysicsComponent extends Component {
+export class PhysicsComponent extends Component {
   private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
 
   constructor(

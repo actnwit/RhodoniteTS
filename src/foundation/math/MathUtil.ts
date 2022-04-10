@@ -1,5 +1,5 @@
-import MutableMatrix33 from './MutableMatrix33';
-import MutableVector3 from './MutableVector3';
+import { MutableMatrix33 } from './MutableMatrix33';
+import { MutableVector3 } from './MutableVector3';
 import {Count, Size} from '../../types/CommonTypes';
 
 function radianToDegree(rad: number) {

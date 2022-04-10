@@ -1,10 +1,10 @@
-import Quaternion from './Quaternion';
+import { Quaternion } from './Quaternion';
 import {IVector3, IVector4} from './IVector';
 import {TypedArray} from '../../types/CommonTypes';
 import {IMutableQuaternion, ILogQuaternion, IQuaternion} from './IQuaternion';
 import {IMatrix44} from './IMatrix';
 
-export default class MutableQuaternion
+export class MutableQuaternion
   extends Quaternion
   implements IMutableQuaternion
 {

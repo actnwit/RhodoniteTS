@@ -6,7 +6,7 @@ import {
 } from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
-import AbstractVector from './AbstractVector';
+import { AbstractVector } from './AbstractVector';
 
 export class Vector4_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
@@ -469,7 +469,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   }
 }
 
-export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
+export class Vector4 extends Vector4_<Float32ArrayConstructor> {
   constructor(x: Float32Array) {
     super(x, {type: Float32Array});
   }

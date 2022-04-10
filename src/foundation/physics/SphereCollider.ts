@@ -1,6 +1,6 @@
-import Vector3 from '../math/Vector3';
+import { Vector3 } from '../math/Vector3';
 
-export default class SphereCollider {
+export class SphereCollider {
   public position = Vector3.zero();
   public radius = 0;
 }

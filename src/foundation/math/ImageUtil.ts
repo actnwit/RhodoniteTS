@@ -1,11 +1,11 @@
-import Vector3 from './Vector3';
-import MutableMatrix33 from './MutableMatrix33';
+import { Vector3 } from './Vector3';
+import { MutableMatrix33 } from './MutableMatrix33';
 import {MathUtil} from './MathUtil';
-import MutableVector3 from './MutableVector3';
+import { MutableVector3 } from './MutableVector3';
 import {ColorRgb} from './ColorRgb';
 import {Index, Size} from '../../types/CommonTypes';
-import MutableVector2 from './MutableVector2';
-import TextureDataFloat from '../textures/TextureDataFloat';
+import { MutableVector2 } from './MutableVector2';
+import { TextureDataFloat } from '../textures/TextureDataFloat';
 
 type PixelSortType = {
   x: Index;
@@ -451,4 +451,4 @@ function precomputations(
   return retVal as SeamlessTextureData;
 }
 
-export default Object.freeze({precomputations});
+export const ImageUtil = Object.freeze({precomputations});

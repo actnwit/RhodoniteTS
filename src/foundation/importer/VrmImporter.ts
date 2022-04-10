@@ -1,7 +1,7 @@
-import GltfImporter from './GltfImporter';
-import Gltf2Importer from './Gltf2Importer';
+import { GltfImporter } from './GltfImporter';
+import { Gltf2Importer } from './Gltf2Importer';
 import {GltfLoadOption} from '../../types/RnM2';
-import ModelConverter from './ModelConverter';
+import { ModelConverter } from './ModelConverter';
 import {Is} from '../misc/Is';
 import {VRM} from '../../types/VRM';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
@@ -10,7 +10,7 @@ import {ISceneGraphEntity} from '../helpers/EntityHelper';
  * The VRM Importer class.
  * This class will be integrated into GltfImporter.
  */
-export default class VrmImporter {
+export class VrmImporter {
   private constructor() {}
 
   /**

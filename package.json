@@ -13,7 +13,8 @@
   "types": "dist/esm/index.d.ts",
   "files": [
     "dist/esm",
-    "VERSION-FILE"
+    "VERSION-FILE",
+    "webxr-input-profiles-v1.0.0.tgz"
   ],
   "repository": {
     "type": "git",
@@ -31,9 +32,9 @@
     "build-type": "tsc --emitDeclarationOnly",
     "build-samples": "tsc -p ./samples/",
     "watch-samples": "tsc-watch -p ./samples/ --onSuccess \"npm run start\"",
-    "test": "npm run test-unit && npm run test-e2e",
-    "test-unit": "npm run test-unit-part -- ./src",
-    "test-unit-part": "npx jest --config ./config/test/jest.config.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npm run test-unit && npm run test-e2e",
+    "test-unit": "NODE_OPTIONS=--experimental-vm-modules npm run test-unit-part -- ./src",
+    "test-unit-part": "NODE_OPTIONS=--experimental-vm-modules npx jest --config ./config/test/jest.config.js",
     "test-e2e": "npm run test-e2e-part -- ./samples/test_e2e",
     "test-e2e-serial": "npm run test-e2e-part -- --runInBand ./samples/test_e2e",
     "test-e2e-part": "npx cross-env JEST_PUPPETEER_CONFIG=./config/test/jest-puppeteer.config.js npx jest --config ./config/test/jest.config.e2e.js",
@@ -77,7 +78,7 @@
     "webpack": "^5.23.0",
     "webpack-cli": "^4.8.0",
     "webpack-merge": "^5.7.3",
-    "webxr-input-profiles": "actnwit/webxr-input-profiles#369df6294cb57d429ecdec544c1409deef040e5a"
+    "webxr-input-profiles": "actnwit/webxr-input-profiles#d143b0d0538d79486503e2af9fa5d6996b6272fb"
   },
   "dependencies": {
     "ktx-parse": "^0.2.1",

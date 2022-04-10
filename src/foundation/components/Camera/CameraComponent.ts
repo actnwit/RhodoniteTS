@@ -1,37 +1,37 @@
-import ComponentRepository from '../../core/ComponentRepository';
-import Component from '../../core/Component';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Component } from '../../core/Component';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import Vector3 from '../../math/Vector3';
-import Vector4 from '../../math/Vector4';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
 import {CameraTypeEnum, CameraType} from '../../definitions/CameraType';
-import Matrix44 from '../../math/Matrix44';
-import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
+import { Matrix44 } from '../../math/Matrix44';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import {BufferUse} from '../../definitions/BufferUse';
 import {ComponentType} from '../../definitions/ComponentType';
-import MutableMatrix44 from '../../math/MutableMatrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import MutableVector4 from '../../math/MutableVector4';
-import MutableVector3 from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { MutableVector3 } from '../../math/MutableVector3';
 import {Frustum} from '../../geometry/Frustum';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import {
   ComponentTID,
   ComponentSID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import GlobalDataRepository from '../../core/GlobalDataRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {MathUtil} from '../../math/MathUtil';
-import CameraControllerComponent from '../CameraController/CameraControllerComponent';
-import ModuleManager from '../../system/ModuleManager';
+import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import { ModuleManager } from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
-import RenderPass from '../../renderer/RenderPass';
+import { RenderPass } from '../../renderer/RenderPass';
 import {ICameraEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class CameraComponent extends Component {
+export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: MutableVector3 = MutableVector3.dummy();
   private _direction: MutableVector3 = MutableVector3.dummy();

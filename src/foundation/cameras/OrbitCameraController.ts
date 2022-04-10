@@ -1,25 +1,25 @@
-import Vector3 from '../math/Vector3';
-import MutableVector3 from '../math/MutableVector3';
+import { Vector3 } from '../math/Vector3';
+import { MutableVector3 } from '../math/MutableVector3';
 import {MathUtil} from '../math/MathUtil';
-import CameraComponent from '../components/Camera/CameraComponent';
-import MutableMatrix33 from '../math/MutableMatrix33';
-import Matrix44 from '../math/Matrix44';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { Matrix44 } from '../math/Matrix44';
 import {Count, Size} from '../../types/CommonTypes';
-import ICameraController from './ICameraController';
-import MutableMatrix44 from '../math/MutableMatrix44';
-import AABB from '../math/AABB';
-import AbstractCameraController from './AbstractCameraController';
+import { ICameraController } from './ICameraController';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { AABB } from '../math/AABB';
+import { AbstractCameraController } from './AbstractCameraController';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {
   InputManager,
   INPUT_HANDLING_STATE_CAMERACONTROLLER,
 } from '../system/InputManager';
-import Config from '../core/Config';
+import {Config} from '../core/Config';
 
 declare let window: any;
 
-export default class OrbitCameraController
+export class OrbitCameraController
   extends AbstractCameraController
   implements ICameraController
 {

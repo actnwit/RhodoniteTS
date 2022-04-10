@@ -1,6 +1,6 @@
 import _Rn from '../../../dist/esm/index';
 import {checkFinished} from '../common/testHelpers';
-import Material from '../../../dist/esm/foundation/materials/core/Material';
+import {Material} from '../../../dist/esm/foundation/materials/core/Material';
 import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
 declare const Rn: typeof _Rn;
 let p: HTMLParagraphElement | undefined;

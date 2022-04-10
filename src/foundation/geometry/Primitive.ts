@@ -3,22 +3,22 @@ import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import Accessor from '../memory/Accessor';
-import RnObject from '../core/RnObject';
+import { Accessor } from '../memory/Accessor';
+import { RnObject } from '../core/RnObject';
 import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
-import MemoryManager from '../core/MemoryManager';
+import { MemoryManager } from '../core/MemoryManager';
 import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import AABB from '../math/AABB';
-import Material from '../materials/core/Material';
-import MaterialHelper from '../helpers/MaterialHelper';
+import { AABB } from '../math/AABB';
+import { Material } from '../materials/core/Material';
+import {MaterialHelper} from '../helpers/MaterialHelper';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
-import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
-import Vector3 from '../math/Vector3';
-import MutableVector3 from '../math/MutableVector3';
+import { Vector3 } from '../math/Vector3';
+import { MutableVector3 } from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 import {

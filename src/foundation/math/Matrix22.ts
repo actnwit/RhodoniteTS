@@ -1,14 +1,14 @@
-import Matrix33 from './Matrix33';
-import Matrix44 from './Matrix44';
+import { Matrix33 } from './Matrix33';
+import { Matrix44 } from './Matrix44';
 import {IMatrix, IMatrix22} from './IMatrix';
 import {CompositionType} from '../definitions/CompositionType';
-import Vector2 from './Vector2';
-import MutableMatrix22 from './MutableMatrix22';
+import { Vector2 } from './Vector2';
+import { MutableMatrix22 } from './MutableMatrix22';
 import {MathUtil} from './MathUtil';
-import MutableVector2 from './MutableVector2';
-import AbstractMatrix from './AbstractMatrix';
+import { MutableVector2 } from './MutableVector2';
+import { AbstractMatrix } from './AbstractMatrix';
 
-export default class Matrix22 extends AbstractMatrix implements IMatrix22 {
+export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   constructor(m: null);
   constructor(
     m: Float32Array,

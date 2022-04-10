@@ -1,4 +1,4 @@
-import Vector4 from './Vector4';
+import {Vector4} from './Vector4';
 
 test('Vector4 is immutable', () => {
   const vec = Vector4.fromCopyArray([0, 3, 4, 0]);

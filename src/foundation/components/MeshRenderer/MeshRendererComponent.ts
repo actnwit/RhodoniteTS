@@ -1,27 +1,27 @@
-import ComponentRepository from '../../core/ComponentRepository';
-import Component from '../../core/Component';
-import MeshComponent from '../Mesh/MeshComponent';
-import WebGLStrategy from '../../../webgl/WebGLStrategy';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Component } from '../../core/Component';
+import { MeshComponent } from '../Mesh/MeshComponent';
+import { WebGLStrategy } from '../../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
-import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
-import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import CameraComponent from '../Camera/CameraComponent';
-import Matrix44 from '../../math/Matrix44';
-import Accessor from '../../memory/Accessor';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import MemoryManager from '../../core/MemoryManager';
-import Config from '../../core/Config';
+import { CameraComponent } from '../Camera/CameraComponent';
+import { Matrix44 } from '../../math/Matrix44';
+import { Accessor } from '../../memory/Accessor';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { MemoryManager } from '../../core/MemoryManager';
+import {Config} from '../../core/Config';
 import {BufferUse} from '../../definitions/BufferUse';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import ModuleManager from '../../system/ModuleManager';
-import CubeTexture from '../../textures/CubeTexture';
-import RenderPass from '../../renderer/RenderPass';
+import { ModuleManager } from '../../system/ModuleManager';
+import { CubeTexture } from '../../textures/CubeTexture';
+import { RenderPass } from '../../renderer/RenderPass';
 import {Visibility} from '../../definitions/visibility';
-import RnObject from '../../core/RnObject';
+import { RnObject } from '../../core/RnObject';
 import {
   ComponentSID,
   CGAPIResourceHandle,
@@ -31,7 +31,7 @@ import {
   ComponentTID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import AbstractMaterialNode from '../../materials/core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../../materials/core/AbstractMaterialNode';
 import {IMatrix44} from '../../math/IMatrix';
 import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
@@ -41,7 +41,7 @@ import {Primitive} from '../../..';
 import {PrimitiveSortKey_BitOffset_TranslucencyType} from '../../geometry/types/GeometryTypes';
 import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';
 
-export default class MeshRendererComponent extends Component {
+export class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<
     ObjectUID,

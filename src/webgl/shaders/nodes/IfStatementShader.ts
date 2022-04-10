@@ -1,10 +1,10 @@
 import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribute';
-import GLSLShader from '../GLSLShader';
+import { GLSLShader } from '../GLSLShader';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 
 export type AttributeNames = Array<string>;
 
-export default class IfStatementShader extends GLSLShader {
+export class IfStatementShader extends GLSLShader {
   constructor() {
     super();
   }

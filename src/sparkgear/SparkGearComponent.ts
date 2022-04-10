@@ -1,13 +1,13 @@
-import Component from '../foundation/core/Component';
-import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
+import { Component } from '../foundation/core/Component';
+import { applyMixins, EntityRepository } from '../foundation/core/EntityRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
-import Matrix44 from '../foundation/math/Matrix44';
-import CameraComponent from '../foundation/components/Camera/CameraComponent';
-import ComponentRepository from '../foundation/core/ComponentRepository';
-import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
-import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
-import ModuleManager from '../foundation/system/ModuleManager';
+import { Matrix44 } from '../foundation/math/Matrix44';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import {IEntity} from '../foundation/core/Entity';
@@ -30,7 +30,7 @@ declare let _SPARK_Update: Function;
 declare let _SPARK_DrawAll: Function;
 declare let _SPARK_DrawDebugInfo: Function;
 
-export default class SparkGearComponent extends Component {
+export class SparkGearComponent extends Component {
   public url?: string;
   private __hSPFXInst: any;
   private static __isInitialized = false;

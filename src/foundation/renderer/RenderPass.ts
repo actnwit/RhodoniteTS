@@ -1,26 +1,26 @@
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import {IEntity} from '../core/Entity';
-import FrameBuffer from './FrameBuffer';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
-import MeshComponent from '../components/Mesh/MeshComponent';
-import Vector4 from '../math/Vector4';
+import { FrameBuffer } from './FrameBuffer';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { Vector4 } from '../math/Vector4';
 import {EntityUID} from '../../types/CommonTypes';
-import Material from '../materials/core/Material';
+import { Material } from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
-import System from '../system/System';
-import ModuleManager from '../system/ModuleManager';
-import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
+import { System } from '../system/System';
+import { ModuleManager } from '../system/ModuleManager';
+import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import {Primitive} from '../geometry/Primitive';
-import MutableVector4 from '../math/MutableVector4';
+import { MutableVector4 } from '../math/MutableVector4';
 import {IVector4} from '../math/IVector';
 import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import CameraComponent from '../components/Camera/CameraComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
  */
-export default class RenderPass extends RnObject {
+export class RenderPass extends RnObject {
   private __entities: (IMeshEntity | ISceneGraphEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];

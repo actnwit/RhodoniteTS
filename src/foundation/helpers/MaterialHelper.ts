@@ -1,39 +1,39 @@
-import Config from '../core/Config';
-import Material from '../materials/core/Material';
-import RenderPass from '../renderer/RenderPass';
-import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
-import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
-import ClassicShadingSingleMaterialNode from '../materials/singles/ClassicShadingSingleMaterialNode';
-import EnvConstantSingleMaterialNode from '../materials/singles/EnvConstantSingleMaterialNode';
-import FXAA3QualitySingleMaterialNode from '../materials/singles/FXAA3QualitySingleMaterialNode';
-import DepthEncodeSingleMaterialNode from '../materials/singles/DepthEncodeSingleMaterialNode';
-import ShadowMapDecodeClassicSingleMaterialNode from '../materials/singles/ShadowMapDecodeClassicSingleMaterialNode';
-import GammaCorrectionSingleMaterialNode from '../materials/singles/GammaCorrectionSingleMaterialNode';
-import EntityUIDOutputSingleMaterialNode from '../materials/singles/EntityUIDOutputSingleMaterialNode';
-import MToonSingleMaterialNode from '../materials/singles/MToonSingleMaterialNode';
+import {Config} from '../core/Config';
+import { Material } from '../materials/core/Material';
+import { RenderPass } from '../renderer/RenderPass';
+import { AbstractMaterialNode } from '../materials/core/AbstractMaterialNode';
+import { PbrShadingSingleMaterialNode } from '../materials/singles/PbrShadingSingleMaterialNode';
+import { ClassicShadingSingleMaterialNode } from '../materials/singles/ClassicShadingSingleMaterialNode';
+import { EnvConstantSingleMaterialNode } from '../materials/singles/EnvConstantSingleMaterialNode';
+import { FXAA3QualitySingleMaterialNode } from '../materials/singles/FXAA3QualitySingleMaterialNode';
+import { DepthEncodeSingleMaterialNode } from '../materials/singles/DepthEncodeSingleMaterialNode';
+import { ShadowMapDecodeClassicSingleMaterialNode } from '../materials/singles/ShadowMapDecodeClassicSingleMaterialNode';
+import { GammaCorrectionSingleMaterialNode } from '../materials/singles/GammaCorrectionSingleMaterialNode';
+import { EntityUIDOutputSingleMaterialNode } from '../materials/singles/EntityUIDOutputSingleMaterialNode';
+import { MToonSingleMaterialNode } from '../materials/singles/MToonSingleMaterialNode';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import CustomSingleMaterialNode from '../materials/singles/CustomSingleMaterialNode';
+import { CustomSingleMaterialNode } from '../materials/singles/CustomSingleMaterialNode';
 import {Primitive} from '../geometry/Primitive';
-import Entity from '../core/Entity';
+import { Entity } from '../core/Entity';
 import {ProcessStage} from '../definitions/ProcessStage';
 import {AlphaMode} from '../definitions/AlphaMode';
-import AbstractTexture from '../textures/AbstractTexture';
-import FurnaceTestSingleMaterialNode from '../materials/singles/FurnaceTestSingleMaterialNode';
-import GaussianBlurForEncodedDepthSingleMaterialNode from '../materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
-import GaussianBlurSingleMaterialNode from '../materials/singles/GaussianBlurSingleMaterialNode';
-import DetectHighLuminanceSingleMaterialNode from '../materials/singles/DetectHighLuminanceSingleMaterialNode';
-import SynthesizeHDRSingleMaterialNode from '../materials/singles/SynthesizeHDRSingleMaterialNode';
-import ColorGradingUsingLUTsSingleMaterialNode from '../materials/singles/ColorGradingUsingLUTsSingleMaterialNode';
-import MatCapSingleMaterialNode from '../materials/singles/MatCapSingleMaterialNode';
-import VarianceShadowMapDecodeClassicSingleMaterialNode from '../materials/singles/VarianceShadowMapDecodeClassicSingleMaterialNode';
-import SkinPbrShadingSingleMaterialNode from '../materials/singles/SkinPbrShadingSingleMaterialNode';
-import PbrExtendedShadingSingleMaterialNode from '../materials/singles/PbrExtendedShadingSingleMaterialNode';
-import Texture from '../textures/Texture';
-import CameraComponent from '../components/Camera/CameraComponent';
+import { AbstractTexture } from '../textures/AbstractTexture';
+import { FurnaceTestSingleMaterialNode } from '../materials/singles/FurnaceTestSingleMaterialNode';
+import { GaussianBlurForEncodedDepthSingleMaterialNode as GaussianBlurForEncodedDepthSingleMaterialNode } from '../materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
+import { GaussianBlurSingleMaterialNode as GaussianBlurSingleMaterialNode } from '../materials/singles/GaussianBlurSingleMaterialNode';
+import { DetectHighLuminanceSingleMaterialNode } from '../materials/singles/DetectHighLuminanceSingleMaterialNode';
+import { SynthesizeHDRMaterialNode as SynthesizeHDRSingleMaterialNode } from '../materials/singles/SynthesizeHDRSingleMaterialNode';
+import { ColorGradingUsingLUTsSingleMaterialNode } from '../materials/singles/ColorGradingUsingLUTsSingleMaterialNode';
+import { MatCapSingleMaterialNode } from '../materials/singles/MatCapSingleMaterialNode';
+import { VarianceShadowMapDecodeClassicSingleMaterialNode } from '../materials/singles/VarianceShadowMapDecodeClassicSingleMaterialNode';
+import { SkinPbrShadingSingleMaterialNode } from '../materials/singles/SkinPbrShadingSingleMaterialNode';
+import { PbrExtendedShadingSingleMaterialNode } from '../materials/singles/PbrExtendedShadingSingleMaterialNode';
+import { Texture } from '../textures/Texture';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
-import ShaderitySingleMaterialNode from '../materials/singles/ShaderitySingleMaterialNode';
+import { ShaderitySingleMaterialNode } from '../materials/singles/ShaderitySingleMaterialNode';
 import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
 import {Is} from '../misc/Is';
 
@@ -720,7 +720,7 @@ function changeMaterial(
   meshRendererComponent.moveStageTo(ProcessStage.Load);
 }
 
-export default Object.freeze({
+export const MaterialHelper = Object.freeze({
   createMaterial,
   recreateMaterial,
   recreateCustomMaterial,

@@ -1,4 +1,4 @@
-import MutableVector3 from './MutableVector3';
+import { MutableVector3 } from './MutableVector3';
 import {IVector3, IVector4, IMutableVector3} from './IVector';
 import {IMutableColorRgb} from './IColor';
 

@@ -5,7 +5,7 @@ import {
   TypedArrayConstructor,
 } from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
-import AbstractVector from './AbstractVector';
+import { AbstractVector } from './AbstractVector';
 
 export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   constructor(v: TypedArray, {type}: {type: T}) {
@@ -62,7 +62,7 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   }
 }
 
-export default class Scalar
+export class Scalar
   extends Scalar_<Float32ArrayConstructor>
   implements IScalar
 {

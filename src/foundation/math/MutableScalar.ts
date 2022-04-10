@@ -43,7 +43,7 @@ export class MutableScalar_<
   }
 }
 
-export default class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
+export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
   constructor(x: TypedArray) {
     super(x, {type: Float32Array});
   }

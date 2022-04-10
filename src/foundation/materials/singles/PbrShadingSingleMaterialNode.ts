@@ -3,25 +3,25 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
-import Vector2 from '../../math/Vector2';
+import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import Vector4 from '../../math/Vector4';
-import Vector3 from '../../math/Vector3';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { Vector4 } from '../../math/Vector4';
+import { Vector3 } from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import ComponentRepository from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
-import Material from '../core/Material';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { Material } from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import Scalar from '../../math/Scalar';
-import Config from '../../core/Config';
-import VectorN from '../../math/VectorN';
-import MeshComponent from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
+import { Scalar } from '../../math/Scalar';
+import {Config} from '../../core/Config';
+import { VectorN } from '../../math/VectorN';
+import { MeshComponent } from '../../components/Mesh/MeshComponent';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
@@ -29,7 +29,7 @@ import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import { Is } from '../../misc/Is';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
+export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
     str: 'isOutputHDR',
   });

@@ -1,31 +1,31 @@
-import WebGLResourceRepository from './WebGLResourceRepository';
-import MemoryManager from '../foundation/core/MemoryManager';
-import Buffer from '../foundation/memory/Buffer';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import { MemoryManager } from '../foundation/core/MemoryManager';
+import { Buffer } from '../foundation/memory/Buffer';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
 import {BufferUse} from '../foundation/definitions/BufferUse';
-import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
-import MeshComponent from '../foundation/components/Mesh/MeshComponent';
+import {ShaderSources, WebGLStrategy} from './WebGLStrategy';
+import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import {Primitive} from '../foundation/geometry/Primitive';
-import WebGLContextWrapper from './WebGLContextWrapper';
-import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
-import Matrix44 from '../foundation/math/Matrix44';
+import { WebGLContextWrapper } from './WebGLContextWrapper';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { Matrix44 } from '../foundation/math/Matrix44';
 import {
   ShaderSemantics,
   ShaderSemanticsInfo,
   ShaderSemanticsClass,
 } from '../foundation/definitions/ShaderSemantics';
-import Material from '../foundation/materials/core/Material';
+import { Material } from '../foundation/materials/core/Material';
 import {CompositionType} from '../foundation/definitions/CompositionType';
-import Component from '../foundation/core/Component';
-import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
-import Mesh from '../foundation/geometry/Mesh';
-import MeshRendererComponent from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import ComponentRepository from '../foundation/core/ComponentRepository';
-import Config from '../foundation/core/Config';
-import RenderPass from '../foundation/renderer/RenderPass';
-import CameraComponent from '../foundation/components/Camera/CameraComponent';
+import { Component } from '../foundation/core/Component';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { Mesh } from '../foundation/geometry/Mesh';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import {Config} from '../foundation/core/Config';
+import { RenderPass } from '../foundation/renderer/RenderPass';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import {
   WebGLResourceHandle,
   Index,
@@ -34,14 +34,14 @@ import {
   IndexOf16Bytes,
   IndexOf4Bytes,
 } from '../types/CommonTypes';
-import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
-import VectorN from '../foundation/math/VectorN';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { VectorN } from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import Matrix33 from '../foundation/math/Matrix33';
-import CubeTexture from '../foundation/textures/CubeTexture';
-import ModuleManager from '../foundation/system/ModuleManager';
+import { Matrix33 } from '../foundation/math/Matrix33';
+import { CubeTexture } from '../foundation/textures/CubeTexture';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
 import {
@@ -49,11 +49,11 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../foundation/helpers/EntityHelper';
-import LightComponent from '../foundation/components/Light/LightComponent';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
 
 declare const spector: any;
 
-export default class WebGLStrategyFastest implements WebGLStrategy {
+export class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();

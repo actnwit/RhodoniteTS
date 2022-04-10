@@ -1,4 +1,4 @@
-import RnObject from '../../core/RnObject';
+import { RnObject } from '../../core/RnObject';
 import {
   ShaderSemanticsInfo,
   ShaderSemanticsEnum,
@@ -6,39 +6,39 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {ComponentTypeEnum} from '../../definitions/ComponentType';
-import GLSLShader from '../../../webgl/shaders/GLSLShader';
-import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import Matrix44 from '../../math/Matrix44';
-import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
-import Texture from '../../textures/Texture';
-import CubeTexture from '../../textures/CubeTexture';
-import Config from '../../core/Config';
-import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
-import Material from './Material';
-import MutableVector2 from '../../math/MutableVector2';
-import MutableVector4 from '../../math/MutableVector4';
-import Vector3 from '../../math/Vector3';
-import MutableMatrix44 from '../../math/MutableMatrix44';
-import MeshComponent from '../../components/Mesh/MeshComponent';
+import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { Matrix44 } from '../../math/Matrix44';
+import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
+import { Texture } from '../../textures/Texture';
+import { CubeTexture } from '../../textures/CubeTexture';
+import {Config} from '../../core/Config';
+import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
+import { Material } from './Material';
+import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { Vector3 } from '../../math/Vector3';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import {Primitive, Attributes} from '../../geometry/Primitive';
-import Accessor from '../../memory/Accessor';
+import { Accessor } from '../../memory/Accessor';
 import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {ShaderityObject} from 'shaderity';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import {IVector3} from '../../math/IVector';
-import ModuleManager from '../../system/ModuleManager';
+import { ModuleManager } from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
-import LightComponent from '../../components/Light/LightComponent';
+import { LightComponent } from '../../components/Light/LightComponent';
 import {IMatrix33} from '../../math/IMatrix';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -60,7 +60,7 @@ type InputConnectionType = {
   inputNameOfThis: string;
 };
 
-export default abstract class AbstractMaterialNode extends RnObject {
+export abstract class AbstractMaterialNode extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
   protected static __semanticsMap: Map<
     MaterialNodeTypeName,
