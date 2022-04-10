@@ -31,7 +31,7 @@ import { Gltf1Importer as _Gltf1Importer } from './foundation/importer/Gltf1Impo
 import { Gltf2Importer as _Gltf2Importer } from './foundation/importer/Gltf2Importer';
 import { DrcPointCloudImporter as _DrcPointCloudImporter } from './foundation/importer/DrcPointCloudImporter';
 import { GltfImporter as _GltfImporter } from './foundation/importer/GltfImporter';
-import _Gltf2Exporter from './foundation/exporter/Gltf2Exporter';
+import { Gltf2Exporter as _Gltf2Exporter } from './foundation/exporter/Gltf2Exporter';
 import {
   GLTF2_EXPORT_GLTF as _GLTF2_EXPORT_GLTF,
   GLTF2_EXPORT_GLB as _GLTF2_EXPORT_GLB,

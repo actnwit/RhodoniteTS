@@ -77,7 +77,7 @@ export interface Gltf2ExporterArguments {
 /**
  * The glTF2 format Exporter class.
  */
-export default class Gltf2Exporter {
+export class Gltf2Exporter {
   private constructor() {}
 
   /**
