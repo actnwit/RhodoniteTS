@@ -1,4 +1,4 @@
-import EntityRepository from '../core/EntityRepository';
+import { EntityRepository } from '../core/EntityRepository';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import AbstractTexture from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';

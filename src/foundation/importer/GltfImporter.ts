@@ -1,5 +1,5 @@
 import Entity, {IEntity} from '../core/Entity';
-import EntityRepository from '../core/EntityRepository';
+import { EntityRepository } from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';
 import {GltfLoadOption, RnM2, GltfFileBuffers} from '../../types/RnM2';

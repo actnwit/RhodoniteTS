@@ -1,7 +1,7 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
 import Matrix44 from '../../math/Matrix44';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';

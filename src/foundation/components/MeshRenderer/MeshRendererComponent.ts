@@ -4,7 +4,7 @@ import MeshComponent from '../Mesh/MeshComponent';
 import WebGLStrategy from '../../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';

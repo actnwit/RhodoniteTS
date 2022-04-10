@@ -1,4 +1,4 @@
-import EntityRepository from '../core/EntityRepository';
+import { EntityRepository } from '../core/EntityRepository';
 import MeshComponent from '../components/Mesh/MeshComponent';
 import {IEntity} from '../core/Entity';
 import Vector3 from '../math/Vector3';

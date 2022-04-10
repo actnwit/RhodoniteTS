@@ -4,7 +4,7 @@ import Matrix44 from '../../math/Matrix44';
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
-import EntityRepository, { applyMixins } from '../../core/EntityRepository';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
 import MutableMatrix44 from '../../math/MutableMatrix44';

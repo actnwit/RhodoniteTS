@@ -1,4 +1,4 @@
-import EntityRepository from '../core/EntityRepository';
+import { EntityRepository } from '../core/EntityRepository';
 import {IEntity} from '../core/Entity';
 import {ITransformEntityMethods} from '../components/Transform/ITransfomEntity';
 import {ISceneGraphEntityMethods} from '../components/SceneGraph/ISceneGraphEntity';

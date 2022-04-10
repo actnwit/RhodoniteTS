@@ -1,5 +1,5 @@
 import Component from '../foundation/core/Component';
-import EntityRepository, { applyMixins } from '../foundation/core/EntityRepository';
+import { applyMixins, EntityRepository } from '../foundation/core/EntityRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';
 import Matrix44 from '../foundation/math/Matrix44';

@@ -1,6 +1,6 @@
 import ComponentRepository from '../../core/ComponentRepository';
 import Component from '../../core/Component';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import Vector3 from '../../math/Vector3';
 import Vector4 from '../../math/Vector4';

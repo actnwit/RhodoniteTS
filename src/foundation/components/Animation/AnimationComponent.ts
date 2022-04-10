@@ -1,6 +1,6 @@
 import Component from '../../core/Component';
 import ComponentRepository from '../../core/ComponentRepository';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {
   AnimationInterpolationEnum,

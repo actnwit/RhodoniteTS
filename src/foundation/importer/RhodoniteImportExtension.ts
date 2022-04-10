@@ -1,6 +1,6 @@
 import EffekseerComponent from '../../effekseer/EffekseerComponent';
 import {RnM2, RnM2ExtensionsEffekseerEffect} from '../../types/RnM2';
-import EntityRepository from '../core/EntityRepository';
+import { EntityRepository } from '../core/EntityRepository';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import DataUtil from '../misc/DataUtil';
 import {Is} from '../misc/Is';

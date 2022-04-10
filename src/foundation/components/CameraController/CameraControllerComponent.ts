@@ -4,7 +4,7 @@ import {
   ComponentSID,
   ComponentTID,
 } from '../../../types/CommonTypes';
-import EntityRepository, {applyMixins} from '../../core/EntityRepository';
+import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import CameraComponent from '../Camera/CameraComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import ComponentRepository from '../../core/ComponentRepository';

@@ -1,5 +1,5 @@
 import MemoryManager from '../core/MemoryManager';
-import EntityRepository from './EntityRepository';
+import { EntityRepository } from './EntityRepository';
 import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import {BufferUseEnum} from '../definitions/BufferUse';
