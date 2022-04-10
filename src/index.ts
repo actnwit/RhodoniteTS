@@ -39,7 +39,7 @@ import {
   GLTF2_EXPORT_EMBEDDED as _GLTF2_EXPORT_EMBEDDED,
 } from './foundation/exporter/Gltf2Exporter';
 import { ModelConverter as _ModelConverter } from './foundation/importer/ModelConverter';
-import _ModuleManager from './foundation/system/ModuleManager';
+import { ModuleManager as _ModuleManager } from './foundation/system/ModuleManager';
 import _MemoryManager from './foundation/core/MemoryManager';
 import _CameraComponent from './foundation/components/Camera/CameraComponent';
 import _AnimationComponent from './foundation/components/Animation/AnimationComponent';

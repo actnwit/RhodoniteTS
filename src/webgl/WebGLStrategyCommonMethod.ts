@@ -7,7 +7,7 @@ import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceReposit
 import {Index, IndexOf16Bytes} from '../types/CommonTypes';
 import Mesh from '../foundation/geometry/Mesh';
 import {Is, Is as is} from '../foundation/misc/Is';
-import ModuleManager from '../foundation/system/ModuleManager';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import WebGLResourceRepository from './WebGLResourceRepository';
 import {RnXR} from '../xr/main';
 import { Vector4 } from '../foundation/math/Vector4';

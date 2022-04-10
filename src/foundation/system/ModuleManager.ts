@@ -1,4 +1,4 @@
-export default class ModuleManager {
+export class ModuleManager {
   private static __instance: ModuleManager;
   private __modules: Map<string, any> = new Map();
   private constructor() {}

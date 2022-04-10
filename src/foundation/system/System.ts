@@ -4,7 +4,7 @@ import {
   ProcessApproachEnum,
   ProcessApproach,
 } from '../definitions/ProcessApproach';
-import ModuleManager from './ModuleManager';
+import { ModuleManager } from './ModuleManager';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import Component from '../core/Component';

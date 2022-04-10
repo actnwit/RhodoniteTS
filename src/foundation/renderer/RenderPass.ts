@@ -8,7 +8,7 @@ import {EntityUID} from '../../types/CommonTypes';
 import Material from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
 import { System } from '../system/System';
-import ModuleManager from '../system/ModuleManager';
+import { ModuleManager } from '../system/ModuleManager';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 import {Primitive} from '../geometry/Primitive';
 import { MutableVector4 } from '../math/MutableVector4';

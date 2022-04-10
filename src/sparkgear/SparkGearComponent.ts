@@ -7,7 +7,7 @@ import CameraComponent from '../foundation/components/Camera/CameraComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import WebGLResourceRepository from '../webgl/WebGLResourceRepository';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import ModuleManager from '../foundation/system/ModuleManager';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import {ComponentTID, EntityUID, ComponentSID} from '../types/CommonTypes';
 import {IMatrix44} from '../foundation/math/IMatrix';
 import {IEntity} from '../foundation/core/Entity';

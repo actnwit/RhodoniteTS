@@ -17,7 +17,7 @@ import type {
   XRInputSource,
 } from 'webxr';
 import { System } from '../foundation/system/System';
-import ModuleManager from '../foundation/system/ModuleManager';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import {
   updateGamePad,
   createMotionController,

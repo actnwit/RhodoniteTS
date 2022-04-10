@@ -17,7 +17,7 @@ import Config from '../../core/Config';
 import {BufferUse} from '../../definitions/BufferUse';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import ModuleManager from '../../system/ModuleManager';
+import { ModuleManager } from '../../system/ModuleManager';
 import CubeTexture from '../../textures/CubeTexture';
 import RenderPass from '../../renderer/RenderPass';
 import {Visibility} from '../../definitions/visibility';

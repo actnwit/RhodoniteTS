@@ -1,4 +1,4 @@
-import ModuleManager from '../system/ModuleManager';
+import { ModuleManager } from '../system/ModuleManager';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 export default abstract class CGAPIResourceRepository {
