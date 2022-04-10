@@ -70,7 +70,7 @@ import type {GridDescriptor as _GridDescriptor} from './foundation/geometry/shap
 import { Material as _Material } from './foundation/materials/core/Material';
 import {MaterialHelper as _MaterialHelper} from './foundation/helpers/MaterialHelper';
 import { RenderPass as _RenderPass } from './foundation/renderer/RenderPass';
-import _Frame from './foundation/renderer/Frame';
+import { Frame as _Frame } from './foundation/renderer/Frame';
 import _FrameBuffer from './foundation/renderer/FrameBuffer';
 import _Expression from './foundation/renderer/Expression';
 import _RenderTargetTexture from './foundation/textures/RenderTargetTexture';

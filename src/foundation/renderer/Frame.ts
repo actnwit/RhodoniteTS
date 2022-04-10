@@ -19,7 +19,7 @@ type GeneratorOfRenderTargetTexturePromise =
 /**
  * Frame manages expressions and input/output dependencies between them
  */
-export default class Frame extends RnObject {
+export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
   private __expressionMap: Map<
     Expression,

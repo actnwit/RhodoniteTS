@@ -25,7 +25,7 @@ import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
 import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
 import Config from '../core/Config';
-import Frame from '../renderer/Frame';
+import { Frame } from '../renderer/Frame';
 import { Vector4 } from '../math/Vector4';
 import { RenderPass } from '../renderer/RenderPass';
 import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
