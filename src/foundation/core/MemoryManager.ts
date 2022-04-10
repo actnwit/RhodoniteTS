@@ -1,7 +1,7 @@
 import { Buffer } from '../memory/Buffer';
 import {BufferUse, BufferUseEnum} from '../definitions/BufferUse';
 import {Size, Byte, ObjectUID} from '../../types/CommonTypes';
-import Config from './Config';
+import {Config} from './Config';
 import { RnObject } from './RnObject';
 import {MiscUtil} from '../misc/MiscUtil';
 

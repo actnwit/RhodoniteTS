@@ -56,7 +56,7 @@ import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionT
 import { Material } from '../foundation/materials/core/Material';
 import { System } from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
-import Config from '../foundation/core/Config';
+import {Config} from '../foundation/core/Config';
 import {GL_TEXTURE_2D} from '../types/WebGLConstants';
 
 declare let HDRImage: any;

@@ -15,7 +15,7 @@ import {
   InputManager,
   INPUT_HANDLING_STATE_CAMERACONTROLLER,
 } from '../system/InputManager';
-import Config from '../core/Config';
+import {Config} from '../core/Config';
 
 declare let window: any;
 

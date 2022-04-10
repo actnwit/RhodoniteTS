@@ -7,7 +7,7 @@ import {
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {Size, TypedArray, Count} from '../../types/CommonTypes';
-import Config from '../core/Config';
+import {Config} from '../core/Config';
 import {BasisFile, BasisTranscoder, BASIS} from '../../types/BasisTexture';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
 import { DataUtil } from '../misc/DataUtil';

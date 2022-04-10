@@ -14,7 +14,7 @@ import {ProcessStage} from '../../definitions/ProcessStage';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector3 } from '../../math/MutableVector3';
 import {Frustum} from '../../geometry/Frustum';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import {
   ComponentTID,
   ComponentSID,

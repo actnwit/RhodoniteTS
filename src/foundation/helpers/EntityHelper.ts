@@ -113,7 +113,7 @@ function createLightEntity(): ILightEntity {
   return entityAddedComponent;
 }
 
-export default Object.freeze({
+export const EntityHelper = Object.freeze({
   createTransformEntity,
   createGroupEntity,
   createMeshEntity,

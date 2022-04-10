@@ -15,7 +15,7 @@ import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository'
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import { MemoryManager } from '../../core/MemoryManager';
 import {BufferUse} from '../../definitions/BufferUse';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import { BufferView } from '../../memory/BufferView';
 import { Accessor } from '../../memory/Accessor';
 import {ShaderType} from '../../definitions/ShaderType';

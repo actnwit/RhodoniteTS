@@ -9,7 +9,7 @@ import { Matrix33 } from '../foundation/math/Matrix33';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
-import Config from '../foundation/core/Config';
+import {Config} from '../foundation/core/Config';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';

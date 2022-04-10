@@ -1,4 +1,4 @@
-import Config from '../core/Config';
+import {Config} from '../core/Config';
 import { Material } from '../materials/core/Material';
 import { RenderPass } from '../renderer/RenderPass';
 import { AbstractMaterialNode } from '../materials/core/AbstractMaterialNode';

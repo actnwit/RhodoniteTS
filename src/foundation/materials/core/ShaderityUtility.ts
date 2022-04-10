@@ -17,7 +17,7 @@ import {
 } from '../../definitions/VertexAttribute';
 import { MemoryManager } from '../../core/MemoryManager';
 import {WellKnownComponentTIDs} from '../../components/WellKnownComponentTIDs';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import {
   ShaderSemantics,
   ShaderSemanticsClass,

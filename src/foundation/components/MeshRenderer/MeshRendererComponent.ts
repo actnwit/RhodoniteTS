@@ -13,7 +13,7 @@ import { Matrix44 } from '../../math/Matrix44';
 import { Accessor } from '../../memory/Accessor';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { MemoryManager } from '../../core/MemoryManager';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import {BufferUse} from '../../definitions/BufferUse';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';

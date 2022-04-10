@@ -16,7 +16,7 @@ import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { VectorN } from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import { Material } from '../core/Material';
 import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';

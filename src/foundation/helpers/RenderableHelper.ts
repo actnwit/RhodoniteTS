@@ -109,4 +109,4 @@ function createTexturesForRenderTarget(width: number, height:number, textureNum:
 }
 */
 
-export default Object.freeze({createTexturesForRenderTarget});
+export const RenderableHelper = Object.freeze({createTexturesForRenderTarget});

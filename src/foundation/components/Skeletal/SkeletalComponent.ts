@@ -18,7 +18,7 @@ import {
 } from '../../../types/CommonTypes';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import Config from '../../core/Config';
+import {Config} from '../../core/Config';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {IMatrix44} from '../../math/IMatrix';
 import { Accessor } from '../../memory/Accessor';

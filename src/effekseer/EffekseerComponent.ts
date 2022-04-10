@@ -17,7 +17,7 @@ import {
   ComponentSID,
   Second,
 } from '../types/CommonTypes';
-import Config from '../foundation/core/Config';
+import {Config} from '../foundation/core/Config';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import {Is} from '../foundation/misc/Is';
 import {IVector3} from '../foundation/math/IVector';

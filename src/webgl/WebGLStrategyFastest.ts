@@ -23,7 +23,7 @@ import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGr
 import { Mesh } from '../foundation/geometry/Mesh';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
-import Config from '../foundation/core/Config';
+import {Config} from '../foundation/core/Config';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import {

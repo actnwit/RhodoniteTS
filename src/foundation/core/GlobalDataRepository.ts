@@ -22,7 +22,7 @@ import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../definitions/ShaderType';
 import { VectorN } from '../math/VectorN';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
-import Config from './Config';
+import {Config} from './Config';
 import { Scalar } from '../math/Scalar';
 import { Vector4 } from '../math/Vector4';
 import { Vector3 } from '../math/Vector3';
