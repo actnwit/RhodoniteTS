@@ -26,7 +26,7 @@ import {MeshComponent} from '../..';
  * If the latter, this mesh object is an 'instanced mesh', which has no primitives.
  * Instanced meshes refer original mesh's primitives when drawing.
  */
-export default class Mesh implements IMesh {
+export class Mesh implements IMesh {
   private readonly __meshUID: MeshUID;
   public static readonly invalidateMeshUID = -1;
   public static __mesh_uid_count = Mesh.invalidateMeshUID;

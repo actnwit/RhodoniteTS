@@ -1,4 +1,4 @@
-import RnObject from '../../core/RnObject';
+import { RnObject } from '../../core/RnObject';
 import {
   ShaderSemanticsInfo,
   ShaderSemanticsEnum,
@@ -10,7 +10,7 @@ import GLSLShader from '../../../webgl/shaders/GLSLShader';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../../math/Matrix44';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
-import Texture from '../../textures/Texture';
+import { Texture } from '../../textures/Texture';
 import { CubeTexture } from '../../textures/CubeTexture';
 import Config from '../../core/Config';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
@@ -26,7 +26,7 @@ import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {ShaderityObject} from 'shaderity';
 import {BoneDataType} from '../../definitions/BoneDataType';
@@ -60,7 +60,7 @@ type InputConnectionType = {
   inputNameOfThis: string;
 };
 
-export default abstract class AbstractMaterialNode extends RnObject {
+export abstract class AbstractMaterialNode extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
   protected static __semanticsMap: Map<
     MaterialNodeTypeName,

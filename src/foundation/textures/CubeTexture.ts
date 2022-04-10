@@ -1,4 +1,4 @@
-import AbstractTexture from './AbstractTexture';
+import { AbstractTexture } from './AbstractTexture';
 import {HdriFormat} from '../definitions/HdriFormat';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {BasisTranscoder, BASIS} from '../../types/BasisTexture';

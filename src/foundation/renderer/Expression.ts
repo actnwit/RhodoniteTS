@@ -1,4 +1,4 @@
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import { IVector4 } from '../math/IVector';
 import { RenderPass } from './RenderPass';
 

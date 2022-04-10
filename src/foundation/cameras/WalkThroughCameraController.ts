@@ -15,7 +15,7 @@ import {InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERACONTROLLER} f
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
-export default class WalkThroughCameraController
+export class WalkThroughCameraController
   extends AbstractCameraController
   implements ICameraController
 {

@@ -1,6 +1,6 @@
 import { EntityRepository } from '../core/EntityRepository';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
-import AbstractTexture from '../textures/AbstractTexture';
+import { AbstractTexture } from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
 import {
   Gltf2,

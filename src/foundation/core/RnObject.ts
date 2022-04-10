@@ -22,7 +22,7 @@ export interface IRnObject {
 /**
  * The root class of the objects in Rhodonite
  */
-export default class RnObject implements IRnObject {
+export class RnObject implements IRnObject {
   /// static members
   static readonly InvalidObjectUID = -1;
   static currentMaxObjectCount = 0;

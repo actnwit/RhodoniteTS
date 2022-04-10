@@ -14,7 +14,7 @@ import { ComponentRepository } from './ComponentRepository';
 import Config from './Config';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import { RenderPass } from '../renderer/RenderPass';
-import RnObject from './RnObject';
+import { RnObject } from './RnObject';
 import {
   EntityUID,
   ComponentSID,
@@ -37,7 +37,7 @@ type MemberInfo = {
 /**
  * Component is a functional unit that can be added to an Entity instance.
  */
-export default class Component extends RnObject {
+export class Component extends RnObject {
   private _component_sid: number;
   static readonly invalidComponentSID = -1;
   _isAlive = true;

@@ -1,7 +1,7 @@
 import { Entity } from '../core/Entity';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
-import Mesh from '../geometry/Mesh';
+import { Mesh } from '../geometry/Mesh';
 import {Primitive} from '../geometry/Primitive';
 import EntityHelper, {IMeshEntity} from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';

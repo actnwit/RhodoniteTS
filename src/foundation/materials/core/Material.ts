@@ -1,6 +1,6 @@
-import RnObject from '../../core/RnObject';
+import { RnObject } from '../../core/RnObject';
 import {AlphaMode, AlphaModeEnum} from '../../definitions/AlphaMode';
-import AbstractMaterialNode from './AbstractMaterialNode';
+import { AbstractMaterialNode } from './AbstractMaterialNode';
 import {
   ShaderSemanticsEnum,
   ShaderSemanticsInfo,
@@ -12,7 +12,7 @@ import {CompositionType} from '../../definitions/CompositionType';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import {ComponentType} from '../../definitions/ComponentType';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
-import AbstractTexture from '../../textures/AbstractTexture';
+import { AbstractTexture } from '../../textures/AbstractTexture';
 import { MemoryManager } from '../../core/MemoryManager';
 import {BufferUse} from '../../definitions/BufferUse';
 import Config from '../../core/Config';
@@ -33,7 +33,7 @@ import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
-import ShaderityUtility from './ShaderityUtility';
+import { ShaderityUtility } from './ShaderityUtility';
 import {Is} from '../../misc/Is';
 import {VertexAttributeEnum} from '../../..';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';

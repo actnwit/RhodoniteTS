@@ -7,7 +7,7 @@ import {
 import { ModuleManager } from './ModuleManager';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
-import Component from '../core/Component';
+import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { EntityRepository } from '../core/EntityRepository';

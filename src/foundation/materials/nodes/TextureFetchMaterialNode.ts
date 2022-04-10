@@ -2,7 +2,7 @@ import {
   ShaderSemanticsInfo,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import TextureFetchShader from '../../../webgl/shaders/nodes/TextureFetchShader';

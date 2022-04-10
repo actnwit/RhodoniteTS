@@ -1,5 +1,5 @@
 import {Plane, PlaneDescriptor} from '../geometry/shapes/Plane';
-import Mesh from '../geometry/Mesh';
+import { Mesh } from '../geometry/Mesh';
 import {AxisDescriptor} from '../geometry/shapes/Axis';
 import {Axis} from '../geometry/shapes/Axis';
 import {IShape} from '../geometry/shapes/IShape';

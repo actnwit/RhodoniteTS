@@ -1,4 +1,4 @@
-import AbstractTexture from './AbstractTexture';
+import { AbstractTexture } from './AbstractTexture';
 import {
   TextureParameter,
   TextureParameterEnum,
@@ -11,7 +11,7 @@ import {Size, Index} from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { Vector4 } from '../math/Vector4';
 
-export default class RenderTargetTexture
+export class RenderTargetTexture
   extends AbstractTexture
   implements IRenderable
 {

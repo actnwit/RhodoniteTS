@@ -1,4 +1,4 @@
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import IRenderable from './IRenderable';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {
@@ -8,7 +8,7 @@ import {
 import {Size, CGAPIResourceHandle} from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 
-export default class RenderBuffer extends RnObject implements IRenderable {
+export class RenderBuffer extends RnObject implements IRenderable {
   width = 0;
   height = 0;
   private __internalFormat: TextureParameterEnum = TextureParameter.Depth24;

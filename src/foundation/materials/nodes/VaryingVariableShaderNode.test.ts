@@ -1,12 +1,12 @@
 import {ModuleManager} from '../../system/ModuleManager';
 import {MemoryManager} from '../../core/MemoryManager';
-import ConstantVariableShaderNode from './ConstantVariableShaderNode';
+import {ConstantVariableShaderNode} from './ConstantVariableShaderNode';
 import VaryingInVariableShaderNode from './VaryingInVariableShaderNode';
 import VaryingOutVariableShaderNode from './VaryingOutVariableShaderNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import OutPositionShaderNode from './OutPositionShaderNode';
-import OutColorShaderNode from './OutColorShaderNode';
+import {OutPositionShaderNode} from './OutPositionShaderNode';
+import {OutColorShaderNode} from './OutColorShaderNode';
 import {Vector4} from '../../math/Vector4';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
 

@@ -1,4 +1,4 @@
-import RnObject from '../../core/RnObject';
+import { RnObject } from '../../core/RnObject';
 import {ShaderSocket} from './AbstractMaterialNode';
 import GLSLShader from '../../../webgl/shaders/GLSLShader';
 

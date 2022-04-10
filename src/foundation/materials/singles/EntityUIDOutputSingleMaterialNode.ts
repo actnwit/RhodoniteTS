@@ -2,7 +2,7 @@ import {
   ShaderSemanticsInfo,
   ShaderSemantics,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector3 } from '../../math/Vector3';

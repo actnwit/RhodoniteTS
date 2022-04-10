@@ -1,4 +1,4 @@
-import Component from '../foundation/core/Component';
+import { Component } from '../foundation/core/Component';
 import { applyMixins, EntityRepository } from '../foundation/core/EntityRepository';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {ProcessStage} from '../foundation/definitions/ProcessStage';

@@ -1,8 +1,8 @@
 import {ModuleManager} from '../../system/ModuleManager';
 import {MemoryManager} from '../../core/MemoryManager';
 import {Material} from '../core/Material';
-import OutPositionNode from './OutPositionShaderNode';
-import AttributePositionShaderNode from './AttributePositionShaderNode';
+import {OutPositionShaderNode} from './OutPositionShaderNode';
+import {AttributePositionShaderNode} from './AttributePositionShaderNode';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
 
 test('AttributePosition works correctly 1', async () => {
@@ -18,7 +18,7 @@ test('AttributePosition works correctly 1', async () => {
 
   const a_position = new AttributePositionShaderNode();
 
-  const outPositionNode = new OutPositionNode();
+  const outPositionNode = new OutPositionShaderNode();
   outPositionNode.addInputConnection(a_position, 'outValue', 'value');
 
   // nodes are intentionally made the order random

@@ -5,7 +5,7 @@ import { MeshRendererComponent } from '../foundation/components/MeshRenderer/Mes
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import CGAPIResourceRepository from '../foundation/renderer/CGAPIResourceRepository';
 import {Index, IndexOf16Bytes} from '../types/CommonTypes';
-import Mesh from '../foundation/geometry/Mesh';
+import { Mesh } from '../foundation/geometry/Mesh';
 import {Is, Is as is} from '../foundation/misc/Is';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import WebGLResourceRepository from './WebGLResourceRepository';

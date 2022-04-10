@@ -23,8 +23,8 @@ import {
   ShaderSemanticsInfo,
   ShaderSemantics,
 } from '../foundation/definitions/ShaderSemantics';
-import AbstractTexture from '../foundation/textures/AbstractTexture';
-import RenderTargetTexture from '../foundation/textures/RenderTargetTexture';
+import { AbstractTexture } from '../foundation/textures/AbstractTexture';
+import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
 import IRenderable from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import {HdriFormatEnum, HdriFormat} from '../foundation/definitions/HdriFormat';
@@ -43,7 +43,7 @@ import {
   ArrayType,
 } from '../types/CommonTypes';
 import DataUtil from '../foundation/misc/DataUtil';
-import RenderBuffer from '../foundation/textures/RenderBuffer';
+import { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import {BasisFile} from '../types/BasisTexture';
 import {
   BasisCompressionTypeEnum,

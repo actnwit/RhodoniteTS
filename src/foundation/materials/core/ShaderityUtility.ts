@@ -25,7 +25,7 @@ import {
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import AbstractMaterialNode from './AbstractMaterialNode';
+import { AbstractMaterialNode } from './AbstractMaterialNode';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -46,7 +46,7 @@ export type VertexAttributesLayout = {
   components: ComponentTypeEnum[];
 };
 
-export default class ShaderityUtility {
+export class ShaderityUtility {
   public static fillTemplate(
     shaderityObject: ShaderityObject,
     args: FillArgsObject

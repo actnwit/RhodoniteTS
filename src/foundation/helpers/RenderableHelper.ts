@@ -1,9 +1,9 @@
 import { FrameBuffer } from '../renderer/FrameBuffer';
-import RenderTargetTexture from '../textures/RenderTargetTexture';
+import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import {TextureParameter} from '../definitions/TextureParameter';
 import {ComponentType} from '../definitions/ComponentType';
 import {PixelFormat} from '../definitions/PixelFormat';
-import RenderBuffer from '../textures/RenderBuffer';
+import { RenderBuffer } from '../textures/RenderBuffer';
 
 function createTexturesForRenderTarget(
   width: number,

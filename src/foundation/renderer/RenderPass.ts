@@ -1,4 +1,4 @@
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import {IEntity} from '../core/Entity';
 import { FrameBuffer } from './FrameBuffer';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';

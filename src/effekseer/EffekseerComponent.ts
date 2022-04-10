@@ -1,5 +1,5 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
-import Component from '../foundation/core/Component';
+import { Component } from '../foundation/core/Component';
 import {
   applyMixins,
   EntityRepository,

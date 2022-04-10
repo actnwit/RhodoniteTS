@@ -1,8 +1,8 @@
-import Component from './Component';
-import RnObject, {IRnObject} from './RnObject';
+import { Component } from './Component';
+import {IRnObject, RnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
-import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { LightComponent } from '../components/Light/LightComponent';

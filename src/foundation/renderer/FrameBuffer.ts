@@ -1,4 +1,4 @@
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import { Entity } from '../core/Entity';
 import CGAPIResourceRepository from './CGAPIResourceRepository';
 import IRenderable from '../textures/IRenderable';
@@ -7,7 +7,7 @@ import {
   RenderBufferTarget,
 } from '../definitions/RenderBufferTarget';
 import {Index, Size, CGAPIResourceHandle} from '../../types/CommonTypes';
-import RenderTargetTexture from '../textures/RenderTargetTexture';
+import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 
 export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];

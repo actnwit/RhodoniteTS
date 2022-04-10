@@ -4,7 +4,7 @@ import {
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector4 } from '../../math/Vector4';
@@ -24,7 +24,7 @@ import { RenderPass } from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { MutableVector4 } from '../../math/MutableVector4';
 import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';

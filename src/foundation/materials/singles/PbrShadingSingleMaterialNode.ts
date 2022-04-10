@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -21,7 +21,7 @@ import { Scalar } from '../../math/Scalar';
 import Config from '../../core/Config';
 import VectorN from '../../math/VectorN';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
-import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';

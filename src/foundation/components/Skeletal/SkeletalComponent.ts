@@ -1,5 +1,5 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
-import Component from '../../core/Component';
+import { Component } from '../../core/Component';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import { Matrix44 } from '../../math/Matrix44';

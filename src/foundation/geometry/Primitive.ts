@@ -4,7 +4,7 @@ import {
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
-import RnObject from '../core/RnObject';
+import { RnObject } from '../core/RnObject';
 import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
 import { MemoryManager } from '../core/MemoryManager';
 import {

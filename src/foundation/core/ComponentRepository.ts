@@ -1,4 +1,4 @@
-import Component from './Component';
+import { Component } from './Component';
 import {Is} from '../misc/Is';
 import { EntityRepository } from './EntityRepository';
 import Config from './Config';

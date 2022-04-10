@@ -1,4 +1,4 @@
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {AlphaMode} from '../../definitions/AlphaMode';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
@@ -22,7 +22,7 @@ import VectorN from '../../math/VectorN';
 import {Array3, Array4, Count} from '../../../types/CommonTypes';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import WebGLContextWrapper from '../../../webgl/WebGLContextWrapper';
-import Texture from '../../textures/Texture';
+import { Texture } from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';

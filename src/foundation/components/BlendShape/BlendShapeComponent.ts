@@ -1,4 +1,4 @@
-import Component from '../../core/Component';
+import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
@@ -11,7 +11,7 @@ import {
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class BlendShapeComponent extends Component {
+export class BlendShapeComponent extends Component {
   private __weights: number[] = [];
   private __targetNames: string[] = [];
 

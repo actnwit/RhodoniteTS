@@ -1,4 +1,4 @@
-import AbstractTexture from '../../textures/AbstractTexture';
+import { AbstractTexture } from '../../textures/AbstractTexture';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -11,7 +11,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import { Material } from '../core/Material';
 import VectorN from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';

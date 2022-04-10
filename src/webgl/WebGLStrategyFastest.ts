@@ -18,9 +18,9 @@ import {
 } from '../foundation/definitions/ShaderSemantics';
 import { Material } from '../foundation/materials/core/Material';
 import {CompositionType} from '../foundation/definitions/CompositionType';
-import Component from '../foundation/core/Component';
+import { Component } from '../foundation/core/Component';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import Mesh from '../foundation/geometry/Mesh';
+import { Mesh } from '../foundation/geometry/Mesh';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import Config from '../foundation/core/Config';

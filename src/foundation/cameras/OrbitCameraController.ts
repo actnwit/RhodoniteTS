@@ -19,7 +19,7 @@ import Config from '../core/Config';
 
 declare let window: any;
 
-export default class OrbitCameraController
+export class OrbitCameraController
   extends AbstractCameraController
   implements ICameraController
 {

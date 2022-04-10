@@ -4,7 +4,7 @@ import {ComponentTypeEnum} from '../../../foundation/definitions/ComponentType';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 import AbstractShaderNode from '../core/AbstractShaderNode';
 
-export default class MultiplyShaderNode extends AbstractShaderNode {
+export class MultiplyShaderNode extends AbstractShaderNode {
   constructor(
     lhsCompositionType: CompositionTypeEnum,
     lhsComponentType: ComponentTypeEnum,

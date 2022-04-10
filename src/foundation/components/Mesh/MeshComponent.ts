@@ -1,12 +1,12 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
-import Component from '../../core/Component';
+import { Component } from '../../core/Component';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import { Vector3 } from '../../math/Vector3';
 import { CameraComponent } from '../Camera/CameraComponent';
 import { Vector4 } from '../../math/Vector4';
-import Mesh from '../../geometry/Mesh';
+import { Mesh } from '../../geometry/Mesh';
 import {IEntity, Entity} from '../../core/Entity';
 import {
   ComponentTID,
@@ -21,7 +21,7 @@ import { MutableVector3 } from '../../math/MutableVector3';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {Is} from '../../misc/Is';
 import {IMeshEntity} from '../../helpers/EntityHelper';
-import BlendShapeComponent from '../BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
 import {assertExist} from '../../misc/MiscUtil';

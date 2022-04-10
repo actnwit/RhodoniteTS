@@ -4,7 +4,7 @@ import {
   TextureParameter,
   TextureParameterEnum,
 } from '../definitions/TextureParameter';
-import AbstractTexture from './AbstractTexture';
+import { AbstractTexture } from './AbstractTexture';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import {Size} from '../../types/CommonTypes';
 import DataUtil from '../misc/DataUtil';
@@ -25,7 +25,7 @@ export type VideoTextureArguments = {
   playButtonDomElement?: HTMLElement;
 };
 
-export default class VideoTexture extends AbstractTexture {
+export class VideoTexture extends AbstractTexture {
   private __imageData?: ImageData;
   public autoResize = true;
   public autoDetectTransparency = false;

@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector4 } from '../../math/Vector4';
@@ -17,7 +17,7 @@ import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvC
 import EnvConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
+export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
   static EnvHdriFormat = new ShaderSemanticsClass({str: 'EnvHdriFormat'});
 

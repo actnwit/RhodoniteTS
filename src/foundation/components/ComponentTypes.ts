@@ -1,8 +1,8 @@
 import {MixinBase} from '../../types/TypeGenerators';
-import Component from '../core/Component';
+import { Component } from '../core/Component';
 import { AnimationComponent } from './Animation/AnimationComponent';
 import {IAnimationEntityMethods} from './Animation/IAnimationEntity';
-import BlendShapeComponent from './BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from './BlendShape/BlendShapeComponent';
 import {IBlendShapeEntityMethods} from './BlendShape/IBlendShapeEntity';
 import {ICameraEntityMethods} from './Camera/ICameraEntity';
 import { CameraControllerComponent } from './CameraController/CameraControllerComponent';

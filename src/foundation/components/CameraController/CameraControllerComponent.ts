@@ -1,4 +1,4 @@
-import Component from '../../core/Component';
+import { Component } from '../../core/Component';
 import {
   EntityUID,
   ComponentSID,
@@ -9,9 +9,9 @@ import { CameraComponent } from '../Camera/CameraComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import OrbitCameraController from '../../cameras/OrbitCameraController';
+import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import ICameraController from '../../cameras/ICameraController';
-import WalkThroughCameraController from '../../cameras/WalkThroughCameraController';
+import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
 import {
   CameraControllerTypeEnum,
   CameraControllerType,

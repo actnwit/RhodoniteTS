@@ -14,7 +14,7 @@ import {
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import {CameraType} from '../definitions/CameraType';
-import Texture from '../textures/Texture';
+import { Texture } from '../textures/Texture';
 import { Vector4 } from '../math/Vector4';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
@@ -30,7 +30,7 @@ import { Vector2 } from '../math/Vector2';
 import { Material } from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
 import Accessor from '../memory/Accessor';
-import Mesh from '../geometry/Mesh';
+import { Mesh } from '../geometry/Mesh';
 import { MutableVector4 } from '../math/MutableVector4';
 import {LightType} from '../definitions/LightType';
 import {
@@ -78,7 +78,7 @@ import EntityHelper, {
   ILightEntity,
   IMeshEntity,
 } from '../helpers/EntityHelper';
-import BlendShapeComponent from '../components/BlendShape/BlendShapeComponent';
+import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import { LightComponent } from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
 import BufferView from '../memory/BufferView';

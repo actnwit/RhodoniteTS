@@ -3,7 +3,7 @@ import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {Primitive} from '../geometry/Primitive';
 import { Vector3 } from '../math/Vector3';
-import Mesh from '../geometry/Mesh';
+import { Mesh } from '../geometry/Mesh';
 import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
 
 /**

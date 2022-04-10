@@ -3,7 +3,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import {Vector3AndScalarToVector4ShaderityObject} from '../../../webgl/shaderity_shaders/nodes/Vector3AndScalarToVector4.glsl';
 import AbstractShaderNode from '../core/AbstractShaderNode';
 
-export default class Vector3AndScalarToVector4ShaderNode extends AbstractShaderNode {
+export class Vector3AndScalarToVector4ShaderNode extends AbstractShaderNode {
   constructor() {
     super(
       'vector3AndScalarToVector4',

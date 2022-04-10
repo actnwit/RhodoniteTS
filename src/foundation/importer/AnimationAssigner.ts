@@ -8,7 +8,7 @@ import {VRM} from '../../types/VRM';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 
-export default class AnimationAssigner {
+export class AnimationAssigner {
   private static __instance: AnimationAssigner;
 
   assignAnimation(

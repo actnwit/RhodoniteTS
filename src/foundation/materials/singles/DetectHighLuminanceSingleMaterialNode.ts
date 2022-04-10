@@ -13,7 +13,7 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Scalar } from '../../math/Scalar';
 import { RenderPass } from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import { Material } from '../core/Material';
 import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';

@@ -6,7 +6,7 @@ import {
 } from '../../definitions/ComponentType';
 import AddShaderityObject from '../../../webgl/shaderity_shaders/nodes/Add.glsl';
 
-export default class AddShaderNode extends AbstractShaderNode {
+export class AddShaderNode extends AbstractShaderNode {
   constructor(
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum

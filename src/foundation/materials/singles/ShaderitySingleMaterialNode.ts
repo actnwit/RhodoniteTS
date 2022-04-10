@@ -2,10 +2,10 @@ import {
   ShaderSemantics,
   ShaderSemanticsInfo,
 } from '../../definitions/ShaderSemantics';
-import AbstractMaterialNode from '../core/AbstractMaterialNode';
+import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import { Material } from '../core/Material';
 import {ShaderityObject} from 'shaderity';
-import ShaderityUtility from '../core/ShaderityUtility';
+import { ShaderityUtility } from '../core/ShaderityUtility';
 import {ShaderType} from '../../definitions/ShaderType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
