@@ -32,7 +32,7 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import MutableMatrix33 from '../../math/MutableMatrix33';
 import MutableMatrix44 from '../../math/MutableMatrix44';
 import { MutableScalar } from '../../math/MutableScalar';
-import MutableMatrix22 from '../../math/MutableMatrix22';
+import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import {ShaderType} from '../../definitions/ShaderType';
 
 export type FillArgsObject = {

@@ -5,7 +5,7 @@ import {Index} from '../../types/CommonTypes';
 import { Matrix33 } from './Matrix33';
 import { Vector2 } from './Vector2';
 
-export default class MutableMatrix22
+export class MutableMatrix22
   extends Matrix22
   implements IMutableMatrix, IMutableMatrix22
 {
