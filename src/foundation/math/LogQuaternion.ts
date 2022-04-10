@@ -2,9 +2,9 @@ import {IVector3, IVector4} from './IVector';
 import { Quaternion } from './Quaternion';
 import {TypedArray} from '../../types/CommonTypes';
 import {ILogQuaternion, IQuaternion} from './IQuaternion';
-import AbstractVector from './AbstractVector';
+import { AbstractVector } from './AbstractVector';
 
-export default class LogQuaternion implements ILogQuaternion {
+export class LogQuaternion implements ILogQuaternion {
   _v: Float32Array;
   constructor(
     x:

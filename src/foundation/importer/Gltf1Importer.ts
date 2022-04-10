@@ -1,4 +1,4 @@
-import DataUtil from '../misc/DataUtil';
+import { DataUtil } from '../misc/DataUtil';
 import {
   RnM2,
   RnM2Accessor,

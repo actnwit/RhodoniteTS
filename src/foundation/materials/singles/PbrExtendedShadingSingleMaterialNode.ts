@@ -25,7 +25,7 @@ import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExten
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
+export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
   static detailNormalTexture = new ShaderSemanticsClass({
     str: 'detailNormalTexture',
   });

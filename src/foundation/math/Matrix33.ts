@@ -6,8 +6,8 @@ import { MutableMatrix33 } from './MutableMatrix33';
 import {CompositionType} from '../definitions/CompositionType';
 import {MathUtil} from './MathUtil';
 import { MutableVector3 } from './MutableVector3';
-import AbstractMatrix from './AbstractMatrix';
-import IdentityMatrix33 from './IdentityMatrix33';
+import { AbstractMatrix } from './AbstractMatrix';
+import { IdentityMatrix33 } from './IdentityMatrix33';
 import {IMutableVector3, IVector3} from './IVector';
 /* eslint-disable prettier/prettier */
 

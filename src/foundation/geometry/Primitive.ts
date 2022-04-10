@@ -3,7 +3,7 @@ import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import Accessor from '../memory/Accessor';
+import { Accessor } from '../memory/Accessor';
 import { RnObject } from '../core/RnObject';
 import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
 import { MemoryManager } from '../core/MemoryManager';
@@ -11,7 +11,7 @@ import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import AABB from '../math/AABB';
+import { AABB } from '../math/AABB';
 import { Material } from '../materials/core/Material';
 import {MaterialHelper} from '../helpers/MaterialHelper';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';

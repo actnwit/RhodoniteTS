@@ -15,7 +15,7 @@ import {
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import { MutableVector4 } from '../../math/MutableVector4';
-import VectorN from '../../math/VectorN';
+import { VectorN } from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';

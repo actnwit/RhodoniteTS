@@ -18,7 +18,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
-import VectorN from '../../math/VectorN';
+import { VectorN } from '../../math/VectorN';
 import {Array3, Array4, Count} from '../../../types/CommonTypes';
 import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
@@ -28,7 +28,7 @@ import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSin
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class MToonSingleMaterialNode extends AbstractMaterialNode {
+export class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
   static readonly _Color = new ShaderSemanticsClass({str: 'litColor'});
   static readonly _ShadeColor = new ShaderSemanticsClass({str: 'shadeColor'});

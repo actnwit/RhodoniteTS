@@ -6,7 +6,7 @@ import { Vector2 } from './Vector2';
 import { MutableMatrix22 } from './MutableMatrix22';
 import {MathUtil} from './MathUtil';
 import { MutableVector2 } from './MutableVector2';
-import AbstractMatrix from './AbstractMatrix';
+import { AbstractMatrix } from './AbstractMatrix';
 
 export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   constructor(m: null);

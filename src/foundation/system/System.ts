@@ -16,7 +16,7 @@ import { MemoryManager } from '../core/MemoryManager';
 import { GlobalDataRepository } from '../core/GlobalDataRepository';
 import { Vector3 } from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
-import Time from '../misc/Time';
+import { Time } from '../misc/Time';
 import SystemState from './SystemState';
 import {MiscUtil, valueWithCompensation} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';

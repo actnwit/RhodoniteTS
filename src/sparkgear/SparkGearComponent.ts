@@ -30,7 +30,7 @@ declare let _SPARK_Update: Function;
 declare let _SPARK_DrawAll: Function;
 declare let _SPARK_DrawDebugInfo: Function;
 
-export default class SparkGearComponent extends Component {
+export class SparkGearComponent extends Component {
   public url?: string;
   private __hSPFXInst: any;
   private static __isInitialized = false;

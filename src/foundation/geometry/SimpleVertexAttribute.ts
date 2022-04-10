@@ -1,6 +1,6 @@
 import {VertexAttributeEnum} from '../definitions/VertexAttribute';
 import {PrimitiveModeEnum} from '../definitions/PrimitiveMode';
-import Accessor from '../memory/Accessor';
+import { Accessor } from '../memory/Accessor';
 import {Array1, Array2, Array3, Array4, Index} from '../../types/CommonTypes';
 import {IndicesAccessOption} from '../memory/Accessor';
 import {ISemanticVertexAttribute} from './ISemanticVertexAttribute';

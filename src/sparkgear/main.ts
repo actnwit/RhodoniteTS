@@ -1,4 +1,4 @@
-import SparkGearComponent from './SparkGearComponent';
+import { SparkGearComponent } from './SparkGearComponent';
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';

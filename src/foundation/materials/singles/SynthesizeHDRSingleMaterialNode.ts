@@ -13,7 +13,7 @@ import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import { Material } from '../core/Material';
-import VectorN from '../../math/VectorN';
+import { VectorN } from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';
 import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';

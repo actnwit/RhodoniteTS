@@ -7,7 +7,7 @@ import {
 import {ColorRgb} from '../math/ColorRgb';
 import {ColorRgba} from '../math/ColorRgba';
 
-export default class TextureDataFloat {
+export class TextureDataFloat {
   private __data: Float32Array;
   private __channels: number;
   private __width: number;

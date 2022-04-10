@@ -14,7 +14,7 @@ import { MutableVector2 } from './MutableVector2';
 import { Scalar } from './Scalar';
 import { MutableQuaternion } from './MutableQuaternion';
 import { MutableScalar } from './MutableScalar';
-import VectorN from './VectorN';
+import { VectorN } from './VectorN';
 import {TypedArray} from '../../types/CommonTypes';
 
 export class MathClassUtil {

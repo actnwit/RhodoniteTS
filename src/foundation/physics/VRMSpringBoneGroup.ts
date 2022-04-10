@@ -3,7 +3,7 @@ import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponen
 import { RnObject } from '../core/RnObject';
 import {Index} from '../../types/CommonTypes';
 
-export default class VRMSpringBoneGroup extends RnObject {
+export class VRMSpringBoneGroup extends RnObject {
   stiffnessForce = 0.5;
   gravityPower = 0;
   gravityDir = Vector3.fromCopyArray([0, -1.0, 0]);

@@ -6,7 +6,7 @@ import {
 } from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
-import AbstractVector from './AbstractVector';
+import { AbstractVector } from './AbstractVector';
 
 export class Vector4_<T extends FloatTypedArrayConstructor>
   extends AbstractVector

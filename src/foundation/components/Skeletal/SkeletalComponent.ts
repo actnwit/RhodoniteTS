@@ -21,7 +21,7 @@ import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import Config from '../../core/Config';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {IMatrix44} from '../../math/IMatrix';
-import Accessor from '../../memory/Accessor';
+import { Accessor } from '../../memory/Accessor';
 import {ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';

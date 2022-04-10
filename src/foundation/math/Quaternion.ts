@@ -5,8 +5,8 @@ import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion, ILogQuaternion, IMutableQuaternion} from './IQuaternion';
 import {IMutableVector3} from './IVector';
 import {IMatrix44} from './IMatrix';
-import LogQuaternion from './LogQuaternion';
-import AbstractQuaternion from './AbstractQuaternion';
+import { LogQuaternion } from './LogQuaternion';
+import { AbstractQuaternion } from './AbstractQuaternion';
 
 export class Quaternion
   extends AbstractQuaternion

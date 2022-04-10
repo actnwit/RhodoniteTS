@@ -3,7 +3,7 @@ import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import BufferView from './BufferView';
+import { BufferView } from './BufferView';
 import { Vector2 } from '../math/Vector2';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
@@ -37,7 +37,7 @@ export type IndicesAccessOption = {
   endian?: boolean;
 };
 
-export default class Accessor {
+export class Accessor {
   private __bufferView: BufferView;
   private __byteOffsetInRawArrayBufferOfBuffer: Byte;
   private __compositionType: CompositionTypeEnum = CompositionType.Unknown;

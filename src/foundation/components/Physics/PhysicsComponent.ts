@@ -8,8 +8,8 @@ import {
   ComponentSID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import VRMSpringBonePhysicsStrategy from '../../physics/VRMSpringBonePhysicsStrategy';
-import PhysicsStrategy from '../../physics/PhysicsStrategy';
+import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpringBonePhysicsStrategy';
+import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 

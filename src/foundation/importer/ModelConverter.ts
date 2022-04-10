@@ -29,7 +29,7 @@ import {
 import { Vector2 } from '../math/Vector2';
 import { Material } from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
-import Accessor from '../memory/Accessor';
+import { Accessor } from '../memory/Accessor';
 import { Mesh } from '../geometry/Mesh';
 import { MutableVector4 } from '../math/MutableVector4';
 import {LightType} from '../definitions/LightType';
@@ -68,7 +68,7 @@ import { Scalar } from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
-import DataUtil from '../misc/DataUtil';
+import { DataUtil } from '../misc/DataUtil';
 import {AnimationPathName} from '../../types/AnimationTypes';
 import {TagGltf2NodeIndex} from '../../types/glTF2';
 import EntityHelper, {
@@ -81,7 +81,7 @@ import EntityHelper, {
 import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import { LightComponent } from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
-import BufferView from '../memory/BufferView';
+import { BufferView } from '../memory/BufferView';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;

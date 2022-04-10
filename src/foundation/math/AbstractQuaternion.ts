@@ -2,7 +2,7 @@ import {TypedArray} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
 import {IMutableVector3} from './IVector';
 
-export default abstract class AbstractQuaternion implements IQuaternion {
+export abstract class AbstractQuaternion implements IQuaternion {
   get className() {
     return this.constructor.name;
   }

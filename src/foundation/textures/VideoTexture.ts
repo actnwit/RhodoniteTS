@@ -7,7 +7,7 @@ import {
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {Size} from '../../types/CommonTypes';
-import DataUtil from '../misc/DataUtil';
+import { DataUtil } from '../misc/DataUtil';
 
 export type VideoTextureArguments = {
   level: number;

@@ -19,7 +19,7 @@ import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/
 import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
+export class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
   constructor() {
     super(
       null,

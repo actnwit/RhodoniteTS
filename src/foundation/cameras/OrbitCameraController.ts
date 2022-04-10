@@ -7,7 +7,7 @@ import { Matrix44 } from '../math/Matrix44';
 import {Count, Size} from '../../types/CommonTypes';
 import { ICameraController } from './ICameraController';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
-import AABB from '../math/AABB';
+import { AABB } from '../math/AABB';
 import { AbstractCameraController } from './AbstractCameraController';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';

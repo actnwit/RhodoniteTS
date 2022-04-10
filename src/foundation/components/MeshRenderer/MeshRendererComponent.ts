@@ -10,7 +10,7 @@ import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository'
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import { CameraComponent } from '../Camera/CameraComponent';
 import { Matrix44 } from '../../math/Matrix44';
-import Accessor from '../../memory/Accessor';
+import { Accessor } from '../../memory/Accessor';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { MemoryManager } from '../../core/MemoryManager';
 import Config from '../../core/Config';

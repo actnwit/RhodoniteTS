@@ -1,4 +1,4 @@
-import Accessor from '../foundation/memory/Accessor';
+import { Accessor } from '../foundation/memory/Accessor';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import {Primitive} from '../foundation/geometry/Primitive';
 import {AttributeNames} from './shaders/GLSLShader';
@@ -25,7 +25,7 @@ import {
 } from '../foundation/definitions/ShaderSemantics';
 import { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
-import IRenderable from '../foundation/textures/IRenderable';
+import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import {HdriFormatEnum, HdriFormat} from '../foundation/definitions/HdriFormat';
 import { Vector4 } from '../foundation/math/Vector4';
@@ -42,7 +42,7 @@ import {
   Byte,
   ArrayType,
 } from '../types/CommonTypes';
-import DataUtil from '../foundation/misc/DataUtil';
+import { DataUtil } from '../foundation/misc/DataUtil';
 import { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import {BasisFile} from '../types/BasisTexture';
 import {

@@ -14,7 +14,7 @@ import GammaCorrectionShaderVertex from '../../../webgl/shaderity_shaders/GammaC
 import GammaCorrectionShaderFragment from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
+export class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
   constructor() {
     super(
       null,

@@ -1,7 +1,7 @@
-import SphereCollider from './SphereCollider';
+import { SphereCollider } from './SphereCollider';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 
-export default class VRMColliderGroup {
+export class VRMColliderGroup {
   colliders: SphereCollider[] = [];
   baseSceneGraph?: SceneGraphComponent;
 }

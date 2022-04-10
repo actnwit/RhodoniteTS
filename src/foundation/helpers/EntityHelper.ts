@@ -1,6 +1,6 @@
 import { EntityRepository } from '../core/EntityRepository';
 import {IEntity} from '../core/Entity';
-import {ITransformEntityMethods} from '../components/Transform/ITransfomEntity';
+import {ITransformEntityMethods} from '../components/Transform/ITransformEntity';
 import {ISceneGraphEntityMethods} from '../components/SceneGraph/ISceneGraphEntity';
 import {IMeshEntityMethods} from '../components/Mesh/IMeshEntity';
 import {ICameraEntityMethods} from '../components/Camera/ICameraEntity';

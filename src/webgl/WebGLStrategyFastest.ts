@@ -35,7 +35,7 @@ import {
   IndexOf4Bytes,
 } from '../types/CommonTypes';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import VectorN from '../foundation/math/VectorN';
+import { VectorN } from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';

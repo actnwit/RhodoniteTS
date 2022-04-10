@@ -3,15 +3,15 @@ import { MutableVector3 } from '../math/MutableVector3';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { Quaternion } from '../math/Quaternion';
 import { Matrix44 } from '../math/Matrix44';
-import Time from '../misc/Time';
-import VRMSpringBoneGroup from './VRMSpringBoneGroup';
-import VRMColliderGroup from './VRMColliderGroup';
+import { Time } from '../misc/Time';
+import { VRMSpringBoneGroup } from './VRMSpringBoneGroup';
+import { VRMColliderGroup } from './VRMColliderGroup';
 import {Index} from '../../types/CommonTypes';
-import PhysicsStrategy from './PhysicsStrategy';
+import { PhysicsStrategy } from './PhysicsStrategy';
 import { MutableQuaternion } from '../math/MutableQuaternion';
 import { IPhysicsEntity } from '../helpers/EntityHelper';
 
-export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
+export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
   private static __tmp_quat = MutableQuaternion.identity();

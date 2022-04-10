@@ -16,8 +16,8 @@ import { AbstractTexture } from '../../textures/AbstractTexture';
 import { MemoryManager } from '../../core/MemoryManager';
 import {BufferUse} from '../../definitions/BufferUse';
 import Config from '../../core/Config';
-import BufferView from '../../memory/BufferView';
-import Accessor from '../../memory/Accessor';
+import { BufferView } from '../../memory/BufferView';
+import { Accessor } from '../../memory/Accessor';
 import {ShaderType} from '../../definitions/ShaderType';
 import {
   Index,
@@ -26,7 +26,7 @@ import {
   IndexOf16Bytes,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
-import DataUtil from '../../misc/DataUtil';
+import { DataUtil } from '../../misc/DataUtil';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { System } from '../../system/System';
 import {ProcessApproach} from '../../definitions/ProcessApproach';

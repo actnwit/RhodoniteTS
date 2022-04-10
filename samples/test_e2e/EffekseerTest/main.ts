@@ -1,4 +1,4 @@
-import EffekseerComponent from '../../../dist/esm/effekseer/EffekseerComponent';
+import {EffekseerComponent} from '../../../dist/esm/effekseer/EffekseerComponent';
 import _Rn from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
 

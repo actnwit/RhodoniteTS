@@ -1,6 +1,6 @@
 import Rn from '../../../../dist/esm';
 import {ShaderityObject} from 'shaderity';
-import ShaderityUtility from './ShaderityUtility';
+import {ShaderityUtility} from './ShaderityUtility';
 
 test.skip('ShaderityUtility parse rn_data correctly', async () => {
   const shaderText = `

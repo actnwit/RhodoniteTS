@@ -11,7 +11,7 @@ import {
   Size,
   Index,
 } from '../../types/CommonTypes';
-import TextureDataFloat from './TextureDataFloat';
+import { TextureDataFloat } from './TextureDataFloat';
 import {
   CompositionType,
   CompositionTypeEnum,

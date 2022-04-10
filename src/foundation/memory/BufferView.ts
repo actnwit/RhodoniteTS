@@ -1,10 +1,10 @@
 import { Buffer } from '../memory/Buffer';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
-import Accessor from './Accessor';
+import { Accessor } from './Accessor';
 import {Byte, Count, Size} from '../../types/CommonTypes';
 
-export default class BufferView {
+export class BufferView {
   private __buffer: Buffer;
   private __byteOffsetInRawArrayBufferOfBuffer: Byte;
   private __byteOffsetInBuffer: Byte;

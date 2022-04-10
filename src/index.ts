@@ -109,7 +109,7 @@ import { AttributePositionShaderNode as _AttributeNormalShaderNode } from './fou
 import { WorldMatrixShaderNode as _WorldMatrixShaderNode } from './foundation/materials/nodes/WorldMatrixShaderNode';
 import { ViewMatrixShaderNode as _ViewMatrixShaderNode } from './foundation/materials/nodes/ViewMatrixShaderNode';
 import { NormalMatrixShaderNode as _NormalMatrixShaderNode } from './foundation/materials/nodes/NormalMatrixShaderNode';
-import _AABB from './foundation/math/AABB';
+import { AABB as _AABB } from './foundation/math/AABB';
 import { ProjectionMatrixShaderNode as _ProjectionMatrixShaderNode } from './foundation/materials/nodes/ProjectionMatrixShaderNode';
 import { VaryingInVariableShaderNode as _VaryingInVariableShaderNode } from './foundation/materials/nodes/VaryingInVariableShaderNode';
 import { VaryingOutVariableShaderNode as _VaryingOutVariableShaderNode } from './foundation/materials/nodes/VaryingOutVariableShaderNode';

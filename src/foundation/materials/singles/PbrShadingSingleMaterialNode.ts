@@ -19,7 +19,7 @@ import { Material } from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import { Scalar } from '../../math/Scalar';
 import Config from '../../core/Config';
-import VectorN from '../../math/VectorN';
+import { VectorN } from '../../math/VectorN';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 

@@ -1,7 +1,7 @@
 import {CGAPIResourceHandle, Size} from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 
-export default interface IRenderable {
+export interface IRenderable {
   width: Size;
   height: Size;
   cgApiResourceUid: CGAPIResourceHandle;

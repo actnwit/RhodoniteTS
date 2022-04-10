@@ -6,7 +6,7 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import { Material } from '../foundation/materials/core/Material';
 import { Expression } from '../foundation/renderer/Expression';
 import { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
-import Accessor from '../foundation/memory/Accessor';
+import { Accessor } from '../foundation/memory/Accessor';
 import {Gltf2AnimationSamplerInterpolation, Gltf2AnyObject} from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 

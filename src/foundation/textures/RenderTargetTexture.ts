@@ -5,7 +5,7 @@ import {
 } from '../definitions/TextureParameter';
 import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
 import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
-import IRenderable from './IRenderable';
+import { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import {Size, Index} from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';

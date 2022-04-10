@@ -19,7 +19,7 @@ import { Material } from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
 import { Scalar } from '../../math/Scalar';
 import Config from '../../core/Config';
-import VectorN from '../../math/VectorN';
+import { VectorN } from '../../math/VectorN';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 
@@ -28,7 +28,7 @@ import SkinPbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSin
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export default class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
+export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static readonly IsOutputHDR = new ShaderSemanticsClass({

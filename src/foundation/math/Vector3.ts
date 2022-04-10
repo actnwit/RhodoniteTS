@@ -8,7 +8,7 @@ import {
 import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion} from './IQuaternion';
-import AbstractVector from './AbstractVector';
+import { AbstractVector } from './AbstractVector';
 import {
   Array3,
   FloatTypedArrayConstructor,

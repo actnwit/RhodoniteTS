@@ -1,7 +1,7 @@
 import { RnObject } from '../core/RnObject';
 import { Entity } from '../core/Entity';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
-import IRenderable from '../textures/IRenderable';
+import { IRenderable } from '../textures/IRenderable';
 import {
   RenderBufferTargetEnum,
   RenderBufferTarget,

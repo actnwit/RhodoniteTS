@@ -1,4 +1,4 @@
-export default class Time {
+export class Time {
   private static __currentProcessBeginTime = 0;
   private static __lastProcessEndTime = 0;
   private static __lastTickTimeInterval = 0;

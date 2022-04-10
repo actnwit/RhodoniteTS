@@ -21,7 +21,7 @@ import { Vector3 } from '../../math/Vector3';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import {Primitive, Attributes} from '../../geometry/Primitive';
-import Accessor from '../../memory/Accessor';
+import { Accessor } from '../../memory/Accessor';
 import {
   VertexAttribute,
   VertexAttributeEnum,

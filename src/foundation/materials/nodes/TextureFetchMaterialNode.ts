@@ -8,7 +8,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import { TextureFetchShader } from '../../../webgl/shaders/nodes/TextureFetchShader';
 import {ShaderType} from '../../definitions/ShaderType';
 
-export default class TextureFetchMaterialNode extends AbstractMaterialNode {
+export class TextureFetchMaterialNode extends AbstractMaterialNode {
   generalTextureMaterialNodeUID?: ShaderSemanticsClass;
 
   constructor() {

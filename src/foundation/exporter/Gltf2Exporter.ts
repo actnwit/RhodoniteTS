@@ -28,9 +28,9 @@ import {
   Gltf2ImageEx,
   Gltf2MaterialEx,
 } from '../../types/glTF2ForOutput';
-import BufferView from '../memory/BufferView';
-import DataUtil from '../misc/DataUtil';
-import Accessor from '../memory/Accessor';
+import { BufferView } from '../memory/BufferView';
+import { DataUtil } from '../misc/DataUtil';
+import { Accessor } from '../memory/Accessor';
 import {
   Array1to4,
   Byte,
