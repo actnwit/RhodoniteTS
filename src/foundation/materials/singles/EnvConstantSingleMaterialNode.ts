@@ -8,7 +8,7 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import Vector4 from '../../math/Vector4';
 import {ShaderType} from '../../definitions/ShaderType';
-import Scalar from '../../math/Scalar';
+import { Scalar } from '../../math/Scalar';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';

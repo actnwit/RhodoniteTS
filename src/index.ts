@@ -9,7 +9,7 @@ import {Primitive as _Primitive} from './foundation/geometry/Primitive';
 import { System as _System } from './foundation/system/System';
 import {Is as _Is} from './foundation/misc/Is';
 import type {IsType} from './foundation/misc/Is';
-import _Scalar from './foundation/math/Scalar';
+import { Scalar as _Scalar } from './foundation/math/Scalar';
 import _Vector2 from './foundation/math/Vector2';
 import _Vector3 from './foundation/math/Vector3';
 import _Vector4 from './foundation/math/Vector4';

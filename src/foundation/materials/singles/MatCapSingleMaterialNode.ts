@@ -3,7 +3,7 @@ import CameraComponent from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
-import Scalar from '../../math/Scalar';
+import { Scalar } from '../../math/Scalar';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import {
   ShaderSemanticsInfo,

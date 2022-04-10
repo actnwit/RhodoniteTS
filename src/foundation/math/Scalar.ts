@@ -62,7 +62,7 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   }
 }
 
-export default class Scalar
+export class Scalar
   extends Scalar_<Float32ArrayConstructor>
   implements IScalar
 {

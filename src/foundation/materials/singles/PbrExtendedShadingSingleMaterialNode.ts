@@ -13,7 +13,7 @@ import Vector3 from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import Scalar from '../../math/Scalar';
+import { Scalar } from '../../math/Scalar';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import { MeshRendererComponent } from '../../components/MeshRenderer/MeshRendererComponent';

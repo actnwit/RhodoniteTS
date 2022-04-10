@@ -17,7 +17,7 @@ import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import Scalar from '../../math/Scalar';
+import { Scalar } from '../../math/Scalar';
 import Config from '../../core/Config';
 import VectorN from '../../math/VectorN';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';

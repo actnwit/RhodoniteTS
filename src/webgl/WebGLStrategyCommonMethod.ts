@@ -16,7 +16,7 @@ import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {ShaderType} from '../foundation/definitions/ShaderType';
-import Scalar from '../foundation/math/Scalar';
+import { Scalar } from '../foundation/math/Scalar';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Vector3 from '../foundation/math/Vector3';
 import { Primitive } from '..';
