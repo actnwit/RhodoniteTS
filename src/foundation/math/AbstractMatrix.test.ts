@@ -1,4 +1,4 @@
-import Matrix22 from './Matrix22';
+import {Matrix22} from './Matrix22';
 
 test('AbstractMatrix::isTheSourceSame', () => {
   const mat_source = new Float32Array([0, 1, 2, 3]);
