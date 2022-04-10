@@ -9,7 +9,7 @@ import {
 import WebGLResourceRepository from '../WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
 import SystemState from '../../foundation/system/SystemState';
-import MemoryManager from '../../foundation/core/MemoryManager';
+import { MemoryManager } from '../../foundation/core/MemoryManager';
 
 export type AttributeNames = Array<string>;
 

@@ -1,7 +1,7 @@
 import {Primitive} from './Primitive';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import MemoryManager from '../core/MemoryManager';
+import { MemoryManager } from '../core/MemoryManager';
 import {BufferUse} from '../definitions/BufferUse';
 import {ComponentType} from '../definitions/ComponentType';
 import {CompositionType} from '../definitions/CompositionType';

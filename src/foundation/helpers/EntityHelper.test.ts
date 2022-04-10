@@ -2,7 +2,7 @@ import CameraComponent from '../components/Camera/CameraComponent';
 import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
 import {TransformComponent} from '../components/Transform/TransformComponent';
 import {EntityRepository} from '../core/EntityRepository';
-import MemoryManager from '../core/MemoryManager';
+import {MemoryManager} from '../core/MemoryManager';
 
 describe('EntityHelper', () => {
   beforeAll(() => {

@@ -12,7 +12,7 @@ import {MiscUtil} from '../misc/MiscUtil';
  *   mm.assignMem(componentUID, propertyId, entityUID, isRendered)
  * );
  */
-export default class MemoryManager {
+export class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: {[s: string]: Buffer} = {};

@@ -15,7 +15,7 @@ import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import MemoryManager from '../../core/MemoryManager';
+import { MemoryManager } from '../../core/MemoryManager';
 import {WellKnownComponentTIDs} from '../../components/WellKnownComponentTIDs';
 import Config from '../../core/Config';
 import {

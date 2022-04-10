@@ -1,5 +1,5 @@
 import {ModuleManager} from '../../system/ModuleManager';
-import MemoryManager from '../../core/MemoryManager';
+import {MemoryManager} from '../../core/MemoryManager';
 import Material from './Material';
 
 test('MaterialTID are processed correctly', () => {

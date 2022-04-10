@@ -13,7 +13,7 @@ import { MathClassUtil } from '../../math/MathClassUtil';
 import {ComponentType} from '../../definitions/ComponentType';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import AbstractTexture from '../../textures/AbstractTexture';
-import MemoryManager from '../../core/MemoryManager';
+import { MemoryManager } from '../../core/MemoryManager';
 import {BufferUse} from '../../definitions/BufferUse';
 import Config from '../../core/Config';
 import BufferView from '../../memory/BufferView';

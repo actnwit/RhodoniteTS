@@ -1,5 +1,5 @@
 import WebGLResourceRepository from './WebGLResourceRepository';
-import MemoryManager from '../foundation/core/MemoryManager';
+import { MemoryManager } from '../foundation/core/MemoryManager';
 import Buffer from '../foundation/memory/Buffer';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';

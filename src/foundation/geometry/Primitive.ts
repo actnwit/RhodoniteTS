@@ -6,7 +6,7 @@ import {
 import Accessor from '../memory/Accessor';
 import RnObject from '../core/RnObject';
 import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
-import MemoryManager from '../core/MemoryManager';
+import { MemoryManager } from '../core/MemoryManager';
 import {
   CompositionType,
   CompositionTypeEnum,

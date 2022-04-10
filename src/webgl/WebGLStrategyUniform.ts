@@ -20,7 +20,7 @@ import Material from '../foundation/materials/core/Material';
 import RenderPass from '../foundation/renderer/RenderPass';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import Mesh from '../foundation/geometry/Mesh';
-import MemoryManager from '../foundation/core/MemoryManager';
+import { MemoryManager } from '../foundation/core/MemoryManager';
 import {ShaderType} from '../foundation/definitions/ShaderType';
 import {
   CGAPIResourceHandle,

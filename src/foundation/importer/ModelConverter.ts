@@ -61,7 +61,7 @@ import {
 } from '../../types/RnM2';
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
-import MemoryManager from '../core/MemoryManager';
+import { MemoryManager } from '../core/MemoryManager';
 import ILoaderExtension from './ILoaderExtension';
 import PbrShadingSingleMaterialNode from '../materials/singles/PbrShadingSingleMaterialNode';
 import { Scalar } from '../math/Scalar';

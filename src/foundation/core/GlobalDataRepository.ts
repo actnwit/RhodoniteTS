@@ -12,7 +12,7 @@ import {
   IndexOf16Bytes,
 } from '../../types/CommonTypes';
 import {BufferUse} from '../definitions/BufferUse';
-import MemoryManager from './MemoryManager';
+import { MemoryManager } from './MemoryManager';
 import {CompositionType} from '../definitions/CompositionType';
 import Material from '../materials/core/Material';
 import {ComponentType} from '../definitions/ComponentType';
