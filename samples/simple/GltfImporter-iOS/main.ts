@@ -1,4 +1,4 @@
-import CameraComponent from '../../../dist/esm/foundation/components/Camera/CameraComponent';
+import {CameraComponent} from '../../../dist/esm/foundation/components/Camera/CameraComponent';
 import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
 import _Rn, {Material} from '../../../dist/esm/index';
 import {OrbitCameraController} from '../../../dist/esm/index';
