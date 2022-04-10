@@ -7,7 +7,7 @@ import {Size, TypedArray} from '../../types/CommonTypes';
 
 declare const BASIS: BASIS;
 
-export default class CubeTexture extends AbstractTexture {
+export class CubeTexture extends AbstractTexture {
   public baseUriToLoad?: string;
   public mipmapLevelNumber = 1;
   public hdriFormat = HdriFormat.LDR_SRGB;

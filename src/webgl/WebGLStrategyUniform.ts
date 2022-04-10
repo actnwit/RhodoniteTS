@@ -13,7 +13,7 @@ import Config from '../foundation/core/Config';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
-import CubeTexture from '../foundation/textures/CubeTexture';
+import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import Material from '../foundation/materials/core/Material';

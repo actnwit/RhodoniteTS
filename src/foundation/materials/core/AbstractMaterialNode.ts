@@ -11,7 +11,7 @@ import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../../math/Matrix44';
 import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
 import Texture from '../../textures/Texture';
-import CubeTexture from '../../textures/CubeTexture';
+import { CubeTexture } from '../../textures/CubeTexture';
 import Config from '../../core/Config';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import Material from './Material';

@@ -40,7 +40,7 @@ import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponen
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import { Matrix33 } from '../foundation/math/Matrix33';
-import CubeTexture from '../foundation/textures/CubeTexture';
+import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
