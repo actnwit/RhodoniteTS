@@ -2,7 +2,7 @@ import Matrix44 from '../math/Matrix44';
 import MathClassUtil from '../math/MathClassUtil';
 import {MiscUtil} from '../misc/MiscUtil';
 import ICameraController from './ICameraController';
-import MutableVector3 from '../math/MutableVector3';
+import { MutableVector3 } from '../math/MutableVector3';
 import CameraComponent from '../components/Camera/CameraComponent';
 import { Entity } from '../core/Entity';
 import MutableMatrix33 from '../math/MutableMatrix33';

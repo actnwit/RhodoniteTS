@@ -5,7 +5,7 @@ import Quaternion from './Quaternion';
 import { Vector3 } from './Vector3';
 import {Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
-import MutableVector3 from './MutableVector3';
+import { MutableVector3 } from './MutableVector3';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;

@@ -27,7 +27,7 @@ import {
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import AbstractMaterialNode from './AbstractMaterialNode';
 import { MutableVector2 } from '../../math/MutableVector2';
-import MutableVector3 from '../../math/MutableVector3';
+import { MutableVector3 } from '../../math/MutableVector3';
 import MutableVector4 from '../../math/MutableVector4';
 import MutableMatrix33 from '../../math/MutableMatrix33';
 import MutableMatrix44 from '../../math/MutableMatrix44';

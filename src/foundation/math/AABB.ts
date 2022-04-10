@@ -1,6 +1,6 @@
 import { Vector3 } from './Vector3';
 import Matrix44 from './Matrix44';
-import MutableVector3 from './MutableVector3';
+import { MutableVector3 } from './MutableVector3';
 import {Index} from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 

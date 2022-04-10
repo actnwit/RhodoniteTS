@@ -8,7 +8,7 @@ import { Vector2 } from '../math/Vector2';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { MutableVector2 } from '../math/MutableVector2';
-import MutableVector3 from '../math/MutableVector3';
+import { MutableVector3 } from '../math/MutableVector3';
 import MutableVector4 from '../math/MutableVector4';
 import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';

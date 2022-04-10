@@ -12,7 +12,7 @@ import AABB from '../math/AABB';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 import { Entity } from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
-import MutableVector3 from '../math/MutableVector3';
+import { MutableVector3 } from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';

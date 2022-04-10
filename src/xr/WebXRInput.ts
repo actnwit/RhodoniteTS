@@ -12,7 +12,7 @@ import { Vector3 } from '../foundation/math/Vector3';
 import {IMutableVector3} from '../foundation/math/IVector';
 import {valueWithDefault} from '../foundation/misc/MiscUtil';
 import {IMutableQuaternion} from '../foundation/math/IQuaternion';
-import MutableVector3 from '../foundation/math/MutableVector3';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
 import MutableMatrix33 from '../foundation/math/MutableMatrix33';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
