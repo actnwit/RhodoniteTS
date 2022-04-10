@@ -1,4 +1,4 @@
-import SceneGraphComponent from './SceneGraphComponent';
+import { SceneGraphComponent } from './SceneGraphComponent';
 import {IMatrix44} from '../../math/IMatrix';
 
 export interface ISceneGraphEntityMethods {

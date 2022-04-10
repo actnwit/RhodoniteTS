@@ -4,7 +4,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableVector4 from '../math/MutableVector4';
 import Vector3 from '../math/Vector3';
 import {Visibility} from '../definitions/visibility';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 
 /**
  * The view frustum class.

@@ -2,7 +2,7 @@ import {EntityRepository as _EntityRepository} from './foundation/core/EntityRep
 import {Entity as _Entity} from './foundation/core/Entity';
 import { ComponentRepository as _ComponentRepository } from './foundation/core/ComponentRepository';
 import { TransformComponent as _TransformComponent } from './foundation/components/Transform/TransformComponent';
-import _SceneGraphComponent from './foundation/components/SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent as _SceneGraphComponent } from './foundation/components/SceneGraph/SceneGraphComponent';
 import _MeshComponent from './foundation/components/Mesh/MeshComponent';
 import _MeshRendererComponent from './foundation/components/MeshRenderer/MeshRendererComponent';
 import {Primitive as _Primitive} from './foundation/geometry/Primitive';

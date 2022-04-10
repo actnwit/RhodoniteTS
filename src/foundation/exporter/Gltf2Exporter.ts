@@ -46,7 +46,7 @@ import {
 import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
 import {ComponentTypeEnum, CompositionTypeEnum} from '../..';
-import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import {
   IAnimationEntity,
   ISceneGraphEntity,

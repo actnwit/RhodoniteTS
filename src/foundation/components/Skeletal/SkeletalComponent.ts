@@ -3,7 +3,7 @@ import Component from '../../core/Component';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import Matrix44 from '../../math/Matrix44';
-import SceneGraphComponent from '../SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import MutableVector3 from '../../math/MutableVector3';
 import MutableQuaternion from '../../math/MutableQuaternion';

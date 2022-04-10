@@ -16,7 +16,7 @@ import MeshRendererComponent from './MeshRenderer/MeshRendererComponent';
 import {IPhysicsEntityMethods} from './Physics/IPhysicsEntity';
 import PhysicsComponent from './Physics/PhysicsComponent';
 import {ISceneGraphEntityMethods} from './SceneGraph/ISceneGraphEntity';
-import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from './SceneGraph/SceneGraphComponent';
 import {ISkeletalEntityMethods} from './Skeletal/ISkeletalEntity';
 import SkeletalComponent from './Skeletal/SkeletalComponent';
 import {ITransformEntityMethods} from './Transform/ITransfomEntity';

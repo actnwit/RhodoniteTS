@@ -34,7 +34,7 @@ import TranslationGizmo from '../../gizmos/TranslationGizmo';
 import ScaleGizmo from '../../gizmos/ScaleGizmo';
 import {IMatrix44} from '../../math/IMatrix';
 
-export default class SceneGraphComponent extends Component {
+export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
   private static __sceneGraphs: SceneGraphComponent[] = [];
   public isAbleToBeParent: boolean;

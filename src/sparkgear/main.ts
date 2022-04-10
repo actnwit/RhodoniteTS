@@ -1,7 +1,7 @@
 import SparkGearComponent from './SparkGearComponent';
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 
 const createSparkGearEntity = function () {
   const entity = EntityRepository.createEntity();
