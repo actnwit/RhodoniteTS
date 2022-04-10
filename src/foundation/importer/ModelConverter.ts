@@ -89,7 +89,7 @@ declare let DracoDecoderModule: any;
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */
-export default class ModelConverter {
+export class ModelConverter {
   private constructor() {}
 
   static _getDefaultShader(options: GltfLoadOption) {
