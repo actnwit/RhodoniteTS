@@ -72,7 +72,7 @@ import {MaterialHelper as _MaterialHelper} from './foundation/helpers/MaterialHe
 import { RenderPass as _RenderPass } from './foundation/renderer/RenderPass';
 import { Frame as _Frame } from './foundation/renderer/Frame';
 import { FrameBuffer as _FrameBuffer } from './foundation/renderer/FrameBuffer';
-import _Expression from './foundation/renderer/Expression';
+import { Expression as _Expression } from './foundation/renderer/Expression';
 import _RenderTargetTexture from './foundation/textures/RenderTargetTexture';
 import _RenderBuffer from './foundation/textures/RenderBuffer';
 import _RenderableHelper from './foundation/helpers/RenderableHelper';

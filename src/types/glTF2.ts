@@ -4,7 +4,7 @@ import {Array3, Index} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { Material } from '../foundation/materials/core/Material';
-import Expression from '../foundation/renderer/Expression';
+import { Expression } from '../foundation/renderer/Expression';
 import ILoaderExtension from '../foundation/importer/ILoaderExtension';
 import Accessor from '../foundation/memory/Accessor';
 import {

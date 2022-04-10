@@ -3,7 +3,7 @@ import RnObject from '../core/RnObject';
 import { IVector4 } from '../math/IVector';
 import {Is} from '../misc/Is';
 import RenderTargetTexture from '../textures/RenderTargetTexture';
-import Expression from './Expression';
+import { Expression } from './Expression';
 
 type ColorAttachmentIndex = number;
 type InputIndex = number;
