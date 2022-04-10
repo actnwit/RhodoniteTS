@@ -6,7 +6,7 @@ import { Matrix33 } from './Matrix33';
 import { Matrix44 } from './Matrix44';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {CompositionType} from '../definitions/CompositionType';
-import MutableMatrix44 from './MutableMatrix44';
+import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableMatrix33 } from './MutableMatrix33';
 import { MutableVector4 } from './MutableVector4';
 import { MutableVector3 } from './MutableVector3';

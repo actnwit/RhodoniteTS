@@ -11,7 +11,7 @@ import { MutableVector3 } from './MutableVector3';
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
+export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
   constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Array<number>, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);

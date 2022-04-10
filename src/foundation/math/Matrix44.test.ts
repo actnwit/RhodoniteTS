@@ -1,5 +1,5 @@
 import {Matrix44} from './Matrix44';
-import MutableMatrix44 from './MutableMatrix44';
+import {MutableMatrix44} from './MutableMatrix44';
 import {Vector3} from './Vector3';
 
 test('Test isEqual', () => {

@@ -5,7 +5,7 @@ import { Vector4 } from './Vector4';
 import {IMatrix, IMatrix44} from './IMatrix';
 import {CompositionType} from '../definitions/CompositionType';
 import { MutableVector3 } from './MutableVector3';
-import MutableMatrix44 from './MutableMatrix44';
+import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableVector4 } from './MutableVector4';
 import {IVector3} from './IVector';
 import {MathUtil} from './MathUtil';

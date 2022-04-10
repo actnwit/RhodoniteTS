@@ -22,7 +22,7 @@ import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import RenderPass from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
-import MutableMatrix44 from '../../math/MutableMatrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import BlendShapeComponent from '../../components/BlendShape/BlendShapeComponent';
 import { MutableVector4 } from '../../math/MutableVector4';

@@ -7,7 +7,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {BufferUse} from '../../definitions/BufferUse';
-import MutableMatrix44 from '../../math/MutableMatrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import MutableQuaternion from '../../math/MutableQuaternion';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';

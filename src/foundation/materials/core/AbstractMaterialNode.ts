@@ -18,7 +18,7 @@ import Material from './Material';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
-import MutableMatrix44 from '../../math/MutableMatrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import {Primitive, Attributes} from '../../geometry/Primitive';
 import Accessor from '../../memory/Accessor';

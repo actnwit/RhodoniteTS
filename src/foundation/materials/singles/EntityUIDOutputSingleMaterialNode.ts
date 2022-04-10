@@ -13,7 +13,7 @@ import { ComponentRepository } from '../../core/ComponentRepository';
 import CameraComponent from '../../components/Camera/CameraComponent';
 import Material from '../core/Material';
 import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
-import MutableMatrix44 from '../../math/MutableMatrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
 import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';

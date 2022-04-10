@@ -12,7 +12,7 @@ import { Vector3 } from '../math/Vector3';
 import VRMColliderGroup from '../physics/VRMColliderGroup';
 import VRMSpringBoneGroup from '../physics/VRMSpringBoneGroup';
 import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrategy';
-import Gltf1Importer from './Gltf1Importer';
+import { Gltf1Importer } from './Gltf1Importer';
 import DrcPointCloudImporter from './DrcPointCloudImporter';
 import Expression from '../renderer/Expression';
 import RenderPass from '../renderer/RenderPass';

@@ -9,7 +9,7 @@ import { Matrix44 } from '../../math/Matrix44';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import {BufferUse} from '../../definitions/BufferUse';
 import {ComponentType} from '../../definitions/ComponentType';
-import MutableMatrix44 from '../../math/MutableMatrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector3 } from '../../math/MutableVector3';
