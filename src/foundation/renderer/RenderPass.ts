@@ -1,6 +1,6 @@
 import RnObject from '../core/RnObject';
 import {IEntity} from '../core/Entity';
-import FrameBuffer from './FrameBuffer';
+import { FrameBuffer } from './FrameBuffer';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { Vector4 } from '../math/Vector4';

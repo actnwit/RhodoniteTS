@@ -6,7 +6,7 @@ import {
   TextureParameterEnum,
 } from '../definitions/TextureParameter';
 import {Size, CGAPIResourceHandle} from '../../types/CommonTypes';
-import FrameBuffer from '../renderer/FrameBuffer';
+import { FrameBuffer } from '../renderer/FrameBuffer';
 
 export default class RenderBuffer extends RnObject implements IRenderable {
   width = 0;

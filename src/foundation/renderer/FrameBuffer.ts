@@ -9,7 +9,7 @@ import {
 import {Index, Size, CGAPIResourceHandle} from '../../types/CommonTypes';
 import RenderTargetTexture from '../textures/RenderTargetTexture';
 
-export default class FrameBuffer extends RnObject {
+export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
   private __depthAttachment?: IRenderable;
   private __stencilAttachment?: IRenderable;
