@@ -11,7 +11,7 @@ import MeshRendererComponent from '../components/MeshRenderer/MeshRendererCompon
 import PhysicsComponent from '../components/Physics/PhysicsComponent';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
-import TransformComponent from '../components/Transform/TransformComponent';
+import { TransformComponent } from '../components/Transform/TransformComponent';
 import AnimationComponent from '../components/Animation/AnimationComponent';
 import CameraComponent from '../components/Camera/CameraComponent';
 

@@ -11,7 +11,7 @@ import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRender
 import {ISkeletalEntityMethods} from '../components/Skeletal/ISkeletalEntity';
 import {IPhysicsEntityMethods} from '../components/Physics/IPhysicsEntity';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
-import TransformComponent from '../components/Transform/TransformComponent';
+import { TransformComponent } from '../components/Transform/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraph/SceneGraphComponent';
 import MeshComponent from '../components/Mesh/MeshComponent';
 import MeshRendererComponent from '../components/MeshRenderer/MeshRendererComponent';

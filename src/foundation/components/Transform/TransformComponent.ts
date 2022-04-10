@@ -29,7 +29,7 @@ import SkeletalComponent from '../Skeletal/SkeletalComponent';
 
 // import AnimationComponent from './AnimationComponent';
 
-export default class TransformComponent extends Component {
+export class TransformComponent extends Component {
   private _translate: MutableVector3 = MutableVector3.dummy();
   private _rotate: MutableVector3 = MutableVector3.dummy();
   private _scale: MutableVector3 = MutableVector3.dummy();

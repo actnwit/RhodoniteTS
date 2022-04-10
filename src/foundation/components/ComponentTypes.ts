@@ -20,7 +20,7 @@ import SceneGraphComponent from './SceneGraph/SceneGraphComponent';
 import {ISkeletalEntityMethods} from './Skeletal/ISkeletalEntity';
 import SkeletalComponent from './Skeletal/SkeletalComponent';
 import {ITransformEntityMethods} from './Transform/ITransfomEntity';
-import TransformComponent from './Transform/TransformComponent';
+import { TransformComponent } from './Transform/TransformComponent';
 import EffekseerComponent, {
   IEffekseerEntityMethods,
 } from '../../effekseer/EffekseerComponent';
