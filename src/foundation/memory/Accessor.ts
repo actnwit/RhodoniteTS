@@ -11,7 +11,7 @@ import { MutableVector2 } from '../math/MutableVector2';
 import { MutableVector3 } from '../math/MutableVector3';
 import { MutableVector4 } from '../math/MutableVector4';
 import { Matrix33 } from '../math/Matrix33';
-import MutableMatrix33 from '../math/MutableMatrix33';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import {
   Byte,
