@@ -25,7 +25,7 @@ import type {Unzip} from 'zlib';
 import {IEntity} from '../foundation/core/Entity';
 import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
 
-export default class EffekseerComponent extends Component {
+export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
   public static readonly ANIMATION_EVENT_PAUSE = 1;
   public static readonly ANIMATION_EVENT_END = 2;

@@ -12,7 +12,7 @@ import {
   EntityUID,
   ComponentSID,
 } from '../../../types/CommonTypes';
-import GlobalDataRepository from '../../core/GlobalDataRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import { MutableVector4 } from '../../math/MutableVector4';
 import VectorN from '../../math/VectorN';

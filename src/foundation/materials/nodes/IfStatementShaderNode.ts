@@ -1,7 +1,7 @@
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import IfStatementShader from '../../../webgl/shaders/nodes/IfStatementShader';
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { IfStatementShader } from '../../../webgl/shaders/nodes/IfStatementShader';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class IfStatementShaderNode extends AbstractShaderNode {
   constructor() {

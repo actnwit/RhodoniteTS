@@ -6,14 +6,14 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {ComponentTypeEnum} from '../../definitions/ComponentType';
-import GLSLShader from '../../../webgl/shaders/GLSLShader';
+import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../../math/Matrix44';
-import WebGLResourceRepository from '../../../webgl/WebGLResourceRepository';
+import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import { Texture } from '../../textures/Texture';
 import { CubeTexture } from '../../textures/CubeTexture';
 import Config from '../../core/Config';
-import SkeletalComponent from '../../components/Skeletal/SkeletalComponent';
+import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { Material } from './Material';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';

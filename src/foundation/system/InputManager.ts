@@ -1,4 +1,4 @@
-import TranslationGizmo from '../gizmos/TranslationGizmo';
+import { TranslationGizmo } from '../gizmos/TranslationGizmo';
 import {Is} from '../misc/Is';
 import {assertExist} from '../misc/MiscUtil';
 

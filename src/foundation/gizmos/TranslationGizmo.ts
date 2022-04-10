@@ -30,14 +30,14 @@ import {
   InputManager,
   INPUT_HANDLING_STATE_GIZMO_TRNSLATION,
 } from '../system/InputManager';
-import Gizmo from './Gizmo';
+import { Gizmo } from './Gizmo';
 
 declare let window: any;
 
 /**
  * Translation Gizmo class
  */
-export default class TranslationGizmo extends Gizmo {
+export class TranslationGizmo extends Gizmo {
   private static __groupEntity: ISceneGraphEntity;
   private static __xCubeEntity: IMeshEntity;
   private static __yCubeEntity: IMeshEntity;

@@ -17,7 +17,7 @@ import {
 import {ComponentTypeEnum} from '../foundation/definitions/ComponentType';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import {ComponentType} from '../foundation/definitions/ComponentType';
-import WebGLContextWrapper from './WebGLContextWrapper';
+import { WebGLContextWrapper } from './WebGLContextWrapper';
 import {MathUtil} from '../foundation/math/MathUtil';
 import {
   ShaderSemanticsInfo,
@@ -91,7 +91,7 @@ export type WebGLResource =
   | WebGLTexture
   | WebGLTransformFeedback;
 
-export default class WebGLResourceRepository extends CGAPIResourceRepository {
+export class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance: WebGLResourceRepository;
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
   private __glw?: WebGLContextWrapper;

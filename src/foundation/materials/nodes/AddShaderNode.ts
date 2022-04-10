@@ -1,4 +1,4 @@
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {
   ComponentType,

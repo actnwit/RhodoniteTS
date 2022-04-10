@@ -10,7 +10,7 @@ import {ProcessStage} from '../../definitions/ProcessStage';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
-import ICameraController from '../../cameras/ICameraController';
+import { ICameraController } from '../../cameras/ICameraController';
 import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
 import {
   CameraControllerTypeEnum,

@@ -25,7 +25,7 @@ import {ISceneGraphEntity, ISkeletalEntity, ITransformEntity} from '../../helper
 import {MixinBase} from '../../../types/TypeGenerators';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import SkeletalComponent from '../Skeletal/SkeletalComponent';
+import { SkeletalComponent } from '../Skeletal/SkeletalComponent';
 
 // import AnimationComponent from './AnimationComponent';
 

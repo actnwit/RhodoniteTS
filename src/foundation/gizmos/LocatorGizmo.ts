@@ -5,12 +5,12 @@ import { Mesh } from '../geometry/Mesh';
 import {Primitive} from '../geometry/Primitive';
 import EntityHelper, {IMeshEntity} from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
-import Gizmo from './Gizmo';
+import { Gizmo } from './Gizmo';
 
 /**
  * Locator Gizmo class
  */
-export default class LocatorGizmo extends Gizmo {
+export class LocatorGizmo extends Gizmo {
   private static __mesh: Mesh;
   private static __length = 1;
   /**

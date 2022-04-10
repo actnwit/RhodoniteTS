@@ -4,7 +4,7 @@ import {detectFormatByArrayBuffers} from './FormatDetector';
 import { Gltf2Importer } from './Gltf2Importer';
 import {GltfLoadOption, RnM2, GltfFileBuffers} from '../../types/RnM2';
 import { ModelConverter } from './ModelConverter';
-import PhysicsComponent from '../components/Physics/PhysicsComponent';
+import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import SphereCollider from '../physics/SphereCollider';
 import { Texture } from '../textures/Texture';

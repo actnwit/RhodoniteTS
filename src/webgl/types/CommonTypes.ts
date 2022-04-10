@@ -8,7 +8,7 @@ import { MutableMatrix33 } from '../../foundation/math/MutableMatrix33';
 import { RenderPass } from '../../foundation/renderer/RenderPass';
 import { CubeTexture } from '../../foundation/textures/CubeTexture';
 import {Index} from '../../types/CommonTypes';
-import WebGLContextWrapper from '../WebGLContextWrapper';
+import { WebGLContextWrapper } from '../WebGLContextWrapper';
 
 export type RenderingArg = {
   glw: WebGLContextWrapper;

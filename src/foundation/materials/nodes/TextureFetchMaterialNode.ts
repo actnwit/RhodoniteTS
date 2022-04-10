@@ -5,7 +5,7 @@ import {
 import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import TextureFetchShader from '../../../webgl/shaders/nodes/TextureFetchShader';
+import { TextureFetchShader } from '../../../webgl/shaders/nodes/TextureFetchShader';
 import {ShaderType} from '../../definitions/ShaderType';
 
 export default class TextureFetchMaterialNode extends AbstractMaterialNode {

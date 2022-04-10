@@ -6,8 +6,8 @@ import {
   ComponentType,
   ComponentTypeEnum,
 } from '../../definitions/ComponentType';
-import BlockBeginShader from '../../../webgl/shaders/nodes/BlockBeginShader';
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { BlockBeginShader } from '../../../webgl/shaders/nodes/BlockBeginShader';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import {ShaderSocket} from '../core/AbstractMaterialNode';
 
 export class BlockBeginShaderNode extends AbstractShaderNode {

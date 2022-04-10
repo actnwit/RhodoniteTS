@@ -6,14 +6,14 @@ import {
 } from '../definitions/ProcessApproach';
 import { ModuleManager } from './ModuleManager';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import WebGLStrategy from '../../webgl/WebGLStrategy';
+import { WebGLStrategy } from '../../webgl/WebGLStrategy';
 import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { MemoryManager } from '../core/MemoryManager';
-import GlobalDataRepository from '../core/GlobalDataRepository';
+import { GlobalDataRepository } from '../core/GlobalDataRepository';
 import { Vector3 } from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
 import Time from '../misc/Time';
@@ -28,7 +28,7 @@ import Config from '../core/Config';
 import { Frame } from '../renderer/Frame';
 import { Vector4 } from '../math/Vector4';
 import { RenderPass } from '../renderer/RenderPass';
-import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
+import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import { WebXRSystem } from '../..';
 

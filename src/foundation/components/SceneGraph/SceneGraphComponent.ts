@@ -19,8 +19,8 @@ import {
 } from '../../../types/CommonTypes';
 import { CameraComponent } from '../Camera/CameraComponent';
 import { Vector4 } from '../../math/Vector4';
-import AABBGizmo from '../../gizmos/AABBGizmo';
-import LocatorGizmo from '../../gizmos/LocatorGizmo';
+import { AABBGizmo } from '../../gizmos/AABBGizmo';
+import { LocatorGizmo } from '../../gizmos/LocatorGizmo';
 import {Is} from '../../misc/Is';
 import {
   ISceneGraphEntity,
@@ -30,8 +30,8 @@ import {
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
-import TranslationGizmo from '../../gizmos/TranslationGizmo';
-import ScaleGizmo from '../../gizmos/ScaleGizmo';
+import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
+import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import {IMatrix44} from '../../math/IMatrix';
 
 export class SceneGraphComponent extends Component {

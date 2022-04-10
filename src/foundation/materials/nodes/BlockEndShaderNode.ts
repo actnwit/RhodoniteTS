@@ -1,7 +1,7 @@
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {ComponentTypeEnum} from '../../definitions/ComponentType';
-import AbstractShaderNode from '../core/AbstractShaderNode';
-import BlockEndShader from '../../../webgl/shaders/nodes/BlockEndShader';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { BlockEndShader } from '../../../webgl/shaders/nodes/BlockEndShader';
 
 export class BlockEndShaderNode extends AbstractShaderNode {
   constructor() {

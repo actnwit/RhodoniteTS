@@ -1,11 +1,11 @@
 import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribute';
-import GLSLShader from '../GLSLShader';
+import { GLSLShader } from '../GLSLShader';
 import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 
 export type AttributeNames = Array<string>;
 
-export default class EndShader extends GLSLShader {
+export class EndShader extends GLSLShader {
   static __instance: EndShader;
   public static readonly materialElement = ShaderNode.PBRShading;
   private constructor() {

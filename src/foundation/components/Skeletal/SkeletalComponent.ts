@@ -17,7 +17,7 @@ import {
   Index,
 } from '../../../types/CommonTypes';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import GlobalDataRepository from '../../core/GlobalDataRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import Config from '../../core/Config';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import {IMatrix44} from '../../math/IMatrix';
@@ -26,7 +26,7 @@ import {ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class SkeletalComponent extends Component {
+export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
   private __joints: SceneGraphComponent[] = [];
   private __inverseBindMatricesAccessor?: Accessor;

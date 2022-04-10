@@ -20,7 +20,7 @@ import {
   ComponentSID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import GlobalDataRepository from '../../core/GlobalDataRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {MathUtil} from '../../math/MathUtil';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';

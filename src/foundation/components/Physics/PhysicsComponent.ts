@@ -13,7 +13,7 @@ import PhysicsStrategy from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 
-export default class PhysicsComponent extends Component {
+export class PhysicsComponent extends Component {
   private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
 
   constructor(

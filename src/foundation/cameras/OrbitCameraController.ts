@@ -5,10 +5,10 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { Matrix44 } from '../math/Matrix44';
 import {Count, Size} from '../../types/CommonTypes';
-import ICameraController from './ICameraController';
+import { ICameraController } from './ICameraController';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import AABB from '../math/AABB';
-import AbstractCameraController from './AbstractCameraController';
+import { AbstractCameraController } from './AbstractCameraController';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {

@@ -44,7 +44,7 @@ type GlobalPropertyStruct = {
 /**
  * The class which manages global data.
  */
-export default class GlobalDataRepository {
+export class GlobalDataRepository {
   private static __instance: GlobalDataRepository;
   private __fields: Map<ShaderSemanticsIndex, GlobalPropertyStruct> = new Map();
 

@@ -19,7 +19,7 @@ import { Vector4 } from '../math/Vector4';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
-import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
+import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import {AlphaMode} from '../definitions/AlphaMode';
 import {MaterialHelper} from '../helpers/MaterialHelper';
 import {
@@ -62,7 +62,7 @@ import {
 import Config from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import { MemoryManager } from '../core/MemoryManager';
-import ILoaderExtension from './ILoaderExtension';
+import { ILoaderExtension } from './ILoaderExtension';
 import { PbrShadingSingleMaterialNode } from '../materials/singles/PbrShadingSingleMaterialNode';
 import { Scalar } from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
@@ -82,7 +82,7 @@ import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponen
 import { LightComponent } from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
 import BufferView from '../memory/BufferView';
-import RhodoniteImportExtension from './RhodoniteImportExtension';
+import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
 

@@ -4,7 +4,7 @@ import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import {Index} from '../types/CommonTypes';
 import { Vector4 } from '../foundation/math/Vector4';
 import {IEntity} from '../foundation/core/Entity';
-import WebGLContextWrapper from '../webgl/WebGLContextWrapper';
+import { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 import type {
   Navigator,
   XRSession,

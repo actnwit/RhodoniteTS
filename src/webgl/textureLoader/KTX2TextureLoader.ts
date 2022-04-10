@@ -10,7 +10,7 @@ import {
   read,
 } from 'ktx-parse';
 import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
-import WebGLContextWrapper from '../WebGLContextWrapper';
+import { WebGLContextWrapper } from '../WebGLContextWrapper';
 import {TextureData} from '../WebGLResourceRepository';
 import {
   CompressionTextureType,
@@ -66,7 +66,7 @@ interface KTX2GlobalDataBasisLZImageDesc {
 
 declare const MSC_TRANSCODER: MSC_TRANSCODER;
 
-export default class KTX2TextureLoader {
+export class KTX2TextureLoader {
   private static __instance: KTX2TextureLoader;
 
   // TODO: create type of __mscTranscoderModule

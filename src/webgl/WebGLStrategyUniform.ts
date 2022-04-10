@@ -1,7 +1,7 @@
-import WebGLResourceRepository from './WebGLResourceRepository';
-import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import {ShaderSources, WebGLStrategy} from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import WebGLContextWrapper from './WebGLContextWrapper';
+import { WebGLContextWrapper } from './WebGLContextWrapper';
 import {Primitive} from '../foundation/geometry/Primitive';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../foundation/math/Matrix44';
@@ -30,7 +30,7 @@ import {
 } from '../types/CommonTypes';
 import {BufferUse} from '../foundation/definitions/BufferUse';
 import { Buffer } from '../foundation/memory/Buffer';
-import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import {Is} from '../foundation/misc/Is';
@@ -38,7 +38,7 @@ import {IMeshEntity} from '../foundation/helpers/EntityHelper';
 
 declare const spector: any;
 
-export default class WebGLStrategyUniform implements WebGLStrategy {
+export class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();

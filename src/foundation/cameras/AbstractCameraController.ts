@@ -2,7 +2,7 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 
-export default abstract class AbstractCameraController {
+export abstract class AbstractCameraController {
   public zNearLimitFactor = 10; // must be more than 0
   public zFarScalingFactor = 10000;
   public autoCalculateZNearAndZFar = true;

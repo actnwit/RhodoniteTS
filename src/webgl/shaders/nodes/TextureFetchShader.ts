@@ -1,11 +1,11 @@
 import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribute';
-import GLSLShader from '../GLSLShader';
+import { GLSLShader } from '../GLSLShader';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 import {MaterialNodeUID} from '../../../types/CommonTypes';
 
 export type AttributeNames = Array<string>;
 
-export default class TextureFetchShader extends GLSLShader {
+export class TextureFetchShader extends GLSLShader {
   static __instance: TextureFetchShader;
   private __materialNodeUid: MaterialNodeUID = 0;
   constructor() {

@@ -13,7 +13,7 @@ interface WEBGL_compressed_texture_bptc {
   readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
 }
 
-export default class WebGLContextWrapper {
+export class WebGLContextWrapper {
   __gl: WebGLRenderingContext | WebGL2RenderingContext;
   __webglVersion = 1;
   public width: Size = 0;

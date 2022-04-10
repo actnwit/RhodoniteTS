@@ -1,4 +1,4 @@
-import Gizmo from './Gizmo';
+import { Gizmo } from './Gizmo';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {Primitive} from '../geometry/Primitive';
@@ -9,7 +9,7 @@ import EntityHelper, {ISceneGraphEntity} from '../helpers/EntityHelper';
 /**
  * AABB Gizmo class
  */
-export default class AABBGizmo extends Gizmo {
+export class AABBGizmo extends Gizmo {
   private static __mesh?: Mesh;
 
   /**

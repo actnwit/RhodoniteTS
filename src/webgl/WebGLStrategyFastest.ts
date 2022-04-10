@@ -1,14 +1,14 @@
-import WebGLResourceRepository from './WebGLResourceRepository';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
 import { MemoryManager } from '../foundation/core/MemoryManager';
 import { Buffer } from '../foundation/memory/Buffer';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
 import {BufferUse} from '../foundation/definitions/BufferUse';
-import WebGLStrategy, {ShaderSources} from './WebGLStrategy';
+import {ShaderSources, WebGLStrategy} from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import {Primitive} from '../foundation/geometry/Primitive';
-import WebGLContextWrapper from './WebGLContextWrapper';
+import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../foundation/math/Matrix44';
 import {
@@ -34,7 +34,7 @@ import {
   IndexOf16Bytes,
   IndexOf4Bytes,
 } from '../types/CommonTypes';
-import GlobalDataRepository from '../foundation/core/GlobalDataRepository';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import VectorN from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
@@ -53,7 +53,7 @@ import { LightComponent } from '../foundation/components/Light/LightComponent';
 
 declare const spector: any;
 
-export default class WebGLStrategyFastest implements WebGLStrategy {
+export class WebGLStrategyFastest implements WebGLStrategy {
   private static __instance: WebGLStrategyFastest;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();

@@ -12,8 +12,8 @@ import {
   ComponentType,
   ComponentTypeEnum,
 } from '../../definitions/ComponentType';
-import UniformDataShader from '../../../webgl/shaders/nodes/UniformDataShader';
-import AbstractShaderNode from '../core/AbstractShaderNode';
+import { UniformDataShader } from '../../../webgl/shaders/nodes/UniformDataShader';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class UniformDataShaderNode extends AbstractShaderNode {
   constructor(
