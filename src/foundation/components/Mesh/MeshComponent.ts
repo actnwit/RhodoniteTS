@@ -16,7 +16,7 @@ import {
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import MathClassUtil from '../../math/MathClassUtil';
+import { MathClassUtil } from '../../math/MathClassUtil';
 import { MutableVector3 } from '../../math/MutableVector3';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {Is} from '../../misc/Is';

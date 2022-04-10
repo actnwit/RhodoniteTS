@@ -80,7 +80,7 @@ import _VideoTexture from './foundation/textures/VideoTexture';
 import _AbstractTexture from './foundation/textures/AbstractTexture';
 import _Texture from './foundation/textures/Texture';
 import _EntityHelper from './foundation/helpers/EntityHelper';
-import _MathClassUtil from './foundation/math/MathClassUtil';
+import { MathClassUtil as _MathClassUtil } from './foundation/math/MathClassUtil';
 import _Mesh from './foundation/geometry/Mesh';
 import _Component from './foundation/core/Component';
 import _EnvConstantSingleMaterialNode from './foundation/materials/singles/EnvConstantSingleMaterialNode';

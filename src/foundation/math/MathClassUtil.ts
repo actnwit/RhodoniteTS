@@ -17,7 +17,7 @@ import { MutableScalar } from './MutableScalar';
 import VectorN from './VectorN';
 import {TypedArray} from '../../types/CommonTypes';
 
-export default class MathClassUtil {
+export class MathClassUtil {
   private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();
   private static __tmpVector4_1: MutableVector4 = MutableVector4.zero();
 

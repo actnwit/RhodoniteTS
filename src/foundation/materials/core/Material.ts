@@ -9,7 +9,7 @@ import {
   getShaderPropertyFunc,
 } from '../../definitions/ShaderSemantics';
 import {CompositionType} from '../../definitions/CompositionType';
-import MathClassUtil from '../../math/MathClassUtil';
+import { MathClassUtil } from '../../math/MathClassUtil';
 import {ComponentType} from '../../definitions/ComponentType';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import AbstractTexture from '../../textures/AbstractTexture';
