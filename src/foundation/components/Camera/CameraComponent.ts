@@ -31,7 +31,7 @@ import {ICameraEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
-export default class CameraComponent extends Component {
+export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: MutableVector3 = MutableVector3.dummy();
   private _direction: MutableVector3 = MutableVector3.dummy();

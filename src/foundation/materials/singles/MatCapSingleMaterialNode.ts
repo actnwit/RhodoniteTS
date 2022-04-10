@@ -1,5 +1,5 @@
 import AbstractTexture from '../../textures/AbstractTexture';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';

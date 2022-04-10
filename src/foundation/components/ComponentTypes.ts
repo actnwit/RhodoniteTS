@@ -27,7 +27,7 @@ import EffekseerComponent, {
 import SparkGearComponent, {
   ISparkGearEntityMethods,
 } from '../../sparkgear/SparkGearComponent';
-import CameraComponent from './Camera/CameraComponent';
+import { CameraComponent } from './Camera/CameraComponent';
 
 export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,

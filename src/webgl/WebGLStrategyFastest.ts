@@ -25,7 +25,7 @@ import { MeshRendererComponent } from '../foundation/components/MeshRenderer/Mes
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import Config from '../foundation/core/Config';
 import RenderPass from '../foundation/renderer/RenderPass';
-import CameraComponent from '../foundation/components/Camera/CameraComponent';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import {
   WebGLResourceHandle,
   Index,

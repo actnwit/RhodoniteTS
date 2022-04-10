@@ -1,5 +1,5 @@
 import OrbitCameraController from '../cameras/OrbitCameraController';
-import CameraComponent from '../components/Camera/CameraComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 import { ComponentRepository } from '../core/ComponentRepository';
 import Config from '../core/Config';
 import {AlphaMode} from '../definitions/AlphaMode';

@@ -15,7 +15,7 @@ import { MutableVector4 } from '../math/MutableVector4';
 import {IVector4} from '../math/IVector';
 import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import CameraComponent from '../components/Camera/CameraComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.

@@ -1,4 +1,4 @@
-import CameraComponent from '../components/Camera/CameraComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 

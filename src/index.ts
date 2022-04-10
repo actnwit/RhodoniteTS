@@ -41,7 +41,7 @@ import {
 import { ModelConverter as _ModelConverter } from './foundation/importer/ModelConverter';
 import { ModuleManager as _ModuleManager } from './foundation/system/ModuleManager';
 import { MemoryManager as _MemoryManager } from './foundation/core/MemoryManager';
-import _CameraComponent from './foundation/components/Camera/CameraComponent';
+import { CameraComponent as _CameraComponent } from './foundation/components/Camera/CameraComponent';
 import _AnimationComponent from './foundation/components/Animation/AnimationComponent';
 import {
   AnimationInfo as _AnimationInfo,

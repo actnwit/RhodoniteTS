@@ -18,7 +18,7 @@ import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererCo
 import CameraControllerComponent from '../components/CameraController/CameraControllerComponent';
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import PhysicsComponent from '../components/Physics/PhysicsComponent';
-import CameraComponent from '../components/Camera/CameraComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 import LightComponent from '../components/Light/LightComponent';
 
 export type ITransformEntity = IEntity & ITransformEntityMethods;

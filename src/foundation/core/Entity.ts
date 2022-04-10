@@ -13,7 +13,7 @@ import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponen
 import SkeletalComponent from '../components/Skeletal/SkeletalComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import AnimationComponent from '../components/Animation/AnimationComponent';
-import CameraComponent from '../components/Camera/CameraComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 
 /**
  * The Interface for an Entity.

@@ -8,7 +8,7 @@ import {ShaderityObject} from 'shaderity';
 import ShaderityUtility from '../core/ShaderityUtility';
 import {ShaderType} from '../../definitions/ShaderType';
 import { ComponentRepository } from '../../core/ComponentRepository';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 import GlobalDataRepository from '../../core/GlobalDataRepository';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 

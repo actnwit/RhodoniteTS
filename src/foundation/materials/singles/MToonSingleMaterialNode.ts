@@ -1,6 +1,6 @@
 import AbstractMaterialNode from '../core/AbstractMaterialNode';
 import {AlphaMode} from '../../definitions/AlphaMode';
-import CameraComponent from '../../components/Camera/CameraComponent';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 import CGAPIResourceRepository from '../../renderer/CGAPIResourceRepository';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
