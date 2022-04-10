@@ -27,7 +27,7 @@ import {
 import {Is} from '../foundation/misc/Is';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableQuaternion from '../foundation/math/MutableQuaternion';
-import MutableScalar from '../foundation/math/MutableScalar';
+import { MutableScalar } from '../foundation/math/MutableScalar';
 import EntityHelper, {
   ICameraEntity,
   ISceneGraphEntity,

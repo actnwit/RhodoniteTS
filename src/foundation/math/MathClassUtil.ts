@@ -10,10 +10,10 @@ import MutableMatrix44 from './MutableMatrix44';
 import MutableMatrix33 from './MutableMatrix33';
 import MutableVector4 from './MutableVector4';
 import MutableVector3 from './MutableVector3';
-import MutableVector2 from './MutableVector2';
+import { MutableVector2 } from './MutableVector2';
 import { Scalar } from './Scalar';
 import MutableQuaternion from './MutableQuaternion';
-import MutableScalar from './MutableScalar';
+import { MutableScalar } from './MutableScalar';
 import VectorN from './VectorN';
 import {TypedArray} from '../../types/CommonTypes';
 

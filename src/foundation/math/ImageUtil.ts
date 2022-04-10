@@ -4,7 +4,7 @@ import {MathUtil} from './MathUtil';
 import MutableVector3 from './MutableVector3';
 import {ColorRgb} from './ColorRgb';
 import {Index, Size} from '../../types/CommonTypes';
-import MutableVector2 from './MutableVector2';
+import { MutableVector2 } from './MutableVector2';
 import TextureDataFloat from '../textures/TextureDataFloat';
 
 type PixelSortType = {

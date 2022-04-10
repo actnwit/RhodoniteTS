@@ -14,7 +14,7 @@ import {valueWithDefault} from '../foundation/misc/MiscUtil';
 import {IMutableQuaternion} from '../foundation/math/IQuaternion';
 import MutableVector3 from '../foundation/math/MutableVector3';
 import MutableMatrix33 from '../foundation/math/MutableMatrix33';
-import MutableScalar from '../foundation/math/MutableScalar';
+import { MutableScalar } from '../foundation/math/MutableScalar';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers: Map<XRInputSource, MotionController> = new Map();
