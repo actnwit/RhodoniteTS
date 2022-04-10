@@ -1,4 +1,4 @@
-import ModuleManager from '../../system/ModuleManager';
+import {ModuleManager} from '../../system/ModuleManager';
 import MemoryManager from '../../core/MemoryManager';
 import ConstantVariableShaderNode from './ConstantVariableShaderNode';
 import VaryingInVariableShaderNode from './VaryingInVariableShaderNode';

@@ -1,4 +1,4 @@
-import ModuleManager from '../../system/ModuleManager';
+import {ModuleManager} from '../../system/ModuleManager';
 import MemoryManager from '../../core/MemoryManager';
 import Material from './Material';
 

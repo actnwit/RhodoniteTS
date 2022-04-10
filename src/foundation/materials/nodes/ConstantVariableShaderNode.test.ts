@@ -6,7 +6,7 @@ import AddShaderNode from './AddShaderNode';
 import OutPositionShaderNode from './OutPositionShaderNode';
 import {Vector4} from '../../math/Vector4';
 import ShaderGraphResolver from '../core/ShaderGraphResolver';
-import ModuleManager from '../../system/ModuleManager';
+import {ModuleManager} from '../../system/ModuleManager';
 
 test('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
