@@ -1,4 +1,4 @@
-import GltfImporter from './GltfImporter';
+import { GltfImporter } from './GltfImporter';
 import { Gltf2Importer } from './Gltf2Importer';
 import {GltfLoadOption} from '../../types/RnM2';
 import ModelConverter from './ModelConverter';

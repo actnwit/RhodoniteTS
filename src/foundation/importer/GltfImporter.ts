@@ -26,7 +26,7 @@ import {ISceneGraphEntity} from '../helpers/EntityHelper';
 /**
  * Importer class which can import GLTF and VRM.
  */
-export default class GltfImporter {
+export class GltfImporter {
   private constructor() {}
 
   /**
