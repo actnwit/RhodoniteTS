@@ -1,18 +1,21 @@
-import Rn from '../../../dist/esm';
+import {MeshComponent} from '../components/Mesh/MeshComponent';
+import {MemoryManager} from '../core/MemoryManager';
+import {EntityHelper} from '../helpers/EntityHelper';
+import {ArrayAsRn, enhanceArray} from './Array';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface Array<T> extends Rn.ArrayAsRn<T> {}
+  interface Array<T> extends ArrayAsRn<T> {}
 }
 
 function generateEntity() {
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = EntityHelper.createMeshEntity();
   return entity;
 }
 
 test('array[GetComponentFromEntities]', () => {
-  Rn.enhanceArray();
-  Rn.MemoryManager.createInstanceIfNotCreated({
+  enhanceArray();
+  MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
@@ -22,8 +25,8 @@ test('array[GetComponentFromEntities]', () => {
   entities.push(generateEntity());
   entities.push(generateEntity());
 
-  // console.log('getComponentFromEntities: ' +  entities.Rn.getComponentFromEntities)
+  // console.log('getComponentFromEntities: ' +  entities.getComponentFromEntities)
 
-  const components = entities.Rn.getComponentFromEntities(Rn.MeshComponent);
-  expect(components[0]).toBeInstanceOf(Rn.MeshComponent);
+  const components = entities.Rn.getComponentFromEntities(MeshComponent);
+  expect(components[0]).toBeInstanceOf(MeshComponent);
 });

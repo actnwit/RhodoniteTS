@@ -1,6 +1,6 @@
 import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import Rn from '../../../dist/esm/index';
-
+import _Rn, { CameraComponent, ComponentTypeEnum, Expression, PixelFormatEnum, RenderPass, RenderTargetTexture, TextureParameterEnum } from '../../../dist/esm/index';
+declare const Rn: typeof _Rn;
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
 
@@ -99,8 +99,8 @@ import Rn from '../../../dist/esm/index';
   }
 
   function createRenderPassesDepth(
-    cameraComponentDepth: Rn.CameraComponent,
-    cameraComponentPostEffect: Rn.CameraComponent,
+    cameraComponentDepth: CameraComponent,
+    cameraComponentPostEffect: CameraComponent,
     entitiesRenderTarget: IMeshEntity[],
     isSquareDepth: boolean
   ) {
@@ -129,7 +129,7 @@ import Rn from '../../../dist/esm/index';
   }
 
   function createRenderPassDepthEncode(
-    cameraComponent: Rn.CameraComponent,
+    cameraComponent: CameraComponent,
     entitiesTarget: IMeshEntity[],
     isSquareDepth: boolean
   ) {
@@ -146,12 +146,12 @@ import Rn from '../../../dist/esm/index';
   }
 
   function createRenderPassMain(
-    cameraComponent: Rn.CameraComponent,
+    cameraComponent: CameraComponent,
     entitySphere: IMeshEntity,
     entityBoard: IMeshEntity,
-    cameraComponentDepth: Rn.CameraComponent,
-    renderPassDepthBlurHV: Rn.RenderPass,
-    renderPassSquareDepthBlurHV: Rn.RenderPass
+    cameraComponentDepth: CameraComponent,
+    renderPassDepthBlurHV: RenderPass,
+    renderPassSquareDepthBlurHV: RenderPass
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -252,18 +252,18 @@ import Rn from '../../../dist/esm/index';
   }
 
   function createAndSetFramebuffer(
-    renderPass: Rn.RenderPass,
+    renderPass: RenderPass,
     resolution: number,
     textureNum: number,
     property: {
       level?: number | undefined;
-      internalFormat?: Rn.PixelFormatEnum | undefined;
-      format?: Rn.PixelFormatEnum | undefined;
-      type?: Rn.ComponentTypeEnum | undefined;
-      magFilter?: Rn.TextureParameterEnum | undefined;
-      minFilter?: Rn.TextureParameterEnum | undefined;
-      wrapS?: Rn.TextureParameterEnum | undefined;
-      wrapT?: Rn.TextureParameterEnum | undefined;
+      internalFormat?: PixelFormatEnum | undefined;
+      format?: PixelFormatEnum | undefined;
+      type?: ComponentTypeEnum | undefined;
+      magFilter?: TextureParameterEnum | undefined;
+      minFilter?: TextureParameterEnum | undefined;
+      wrapS?: TextureParameterEnum | undefined;
+      wrapT?: TextureParameterEnum | undefined;
       createDepthBuffer?: boolean | undefined;
       isMSAA?: boolean | undefined;
     } = {}
@@ -279,8 +279,8 @@ import Rn from '../../../dist/esm/index';
   }
 
   function createRenderPassGaussianBlurForDepth(
-    cameraComponent: Rn.CameraComponent,
-    renderPassBlurTarget: Rn.RenderPass,
+    cameraComponent: CameraComponent,
+    renderPassBlurTarget: RenderPass,
     isHorizontal: boolean
   ) {
     const material =
@@ -309,7 +309,7 @@ import Rn from '../../../dist/esm/index';
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();
     const TextureTarget = framebufferTarget
-      .colorAttachments[0] as Rn.RenderTargetTexture;
+      .colorAttachments[0] as RenderTargetTexture;
     material.setTextureParameter(
       Rn.ShaderSemantics.BaseColorTexture,
       TextureTarget
@@ -348,14 +348,14 @@ import Rn from '../../../dist/esm/index';
     return renderPass;
   }
 
-  function createExpression(renderPasses: Rn.RenderPass[]) {
-    const expression = new Rn.Expression();
+  function createExpression(renderPasses: RenderPass[]) {
+    const expression = new Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
   }
 
   function draw(
-    expressions: Rn.Expression[],
+    expressions: Expression[],
     isFirstLoop: Boolean,
     pElem?: HTMLElement
   ) {

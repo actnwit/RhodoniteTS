@@ -1,12 +1,16 @@
-import Rn from '../../../../';
+import {MemoryManager} from '../../core/MemoryManager';
+import {EntityHelper} from '../../helpers/EntityHelper';
+import {Matrix44} from '../../math/Matrix44';
+import {Vector3} from '../../math/Vector3';
+import {SceneGraphComponent} from './SceneGraphComponent';
 
 describe('SceneGraphComponent', () => {
   function generateEntity() {
-    return Rn.EntityHelper.createGroupEntity();
+    return EntityHelper.createGroupEntity();
   }
 
   beforeAll(() => {
-    Rn.MemoryManager.createInstanceIfNotCreated({
+    MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: 1,
       gpuInstanceData: 1,
       gpuVertexData: 1,
@@ -21,10 +25,10 @@ describe('SceneGraphComponent', () => {
     //  const child2Entity = generateEntity();
 
     // set transform info
-    sceneEntity.translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
-    parentEntity.translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
-    childEntity.translate = Rn.Vector3.fromCopyArray([1, 0, 0]);
-    //  child2Entity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 1, 0]);
+    sceneEntity.translate = Vector3.fromCopyArray([1, 0, 0]);
+    parentEntity.translate = Vector3.fromCopyArray([1, 0, 0]);
+    childEntity.translate = Vector3.fromCopyArray([1, 0, 0]);
+    //  child2Entity.getTransform().translate = Vector3.fromCopyArray([0, 1, 0]);
 
     // setup scene graph
     parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());
@@ -46,7 +50,7 @@ describe('SceneGraphComponent', () => {
       childEntity
         .getSceneGraph()
         .worldMatrix.isEqual(
-          new Rn.Matrix44(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
+          new Matrix44(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
           0.00001
         )
     ).toBe(true);
@@ -64,7 +68,7 @@ describe('SceneGraphComponent', () => {
     parentEntity.addChild(child2Entity.getSceneGraph());
     sceneEntity.addChild(parentEntity.getSceneGraph());
 
-    const result = Rn.SceneGraphComponent.flattenHierarchy(
+    const result = SceneGraphComponent.flattenHierarchy(
       sceneEntity.getSceneGraph(),
       false
     );
@@ -81,5 +85,4 @@ describe('SceneGraphComponent', () => {
   //   );
   //   // const
   // });
-
 });
