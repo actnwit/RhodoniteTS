@@ -1,4 +1,4 @@
-import MeshRendererComponent from '../../../dist/esm/foundation/components/MeshRenderer/MeshRendererComponent';
+import {MeshRendererComponent} from '../../../dist/esm/foundation/components/MeshRenderer/MeshRendererComponent';
 import _Rn, {OrbitCameraController} from '../../../dist/esm/index';
 
 declare const Rn: typeof _Rn;

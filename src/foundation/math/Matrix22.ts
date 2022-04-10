@@ -8,7 +8,7 @@ import {MathUtil} from './MathUtil';
 import { MutableVector2 } from './MutableVector2';
 import AbstractMatrix from './AbstractMatrix';
 
-export default class Matrix22 extends AbstractMatrix implements IMatrix22 {
+export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   constructor(m: null);
   constructor(
     m: Float32Array,

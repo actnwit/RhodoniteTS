@@ -1,6 +1,6 @@
 import Matrix44 from './Matrix44';
 import {IMutableMatrix22, IMutableMatrix} from './IMatrix';
-import Matrix22 from './Matrix22';
+import { Matrix22 } from './Matrix22';
 import {Index} from '../../types/CommonTypes';
 import Matrix33 from './Matrix33';
 import { Vector2 } from './Vector2';
