@@ -15,7 +15,7 @@ import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSing
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import CustomSingleMaterialNode from '../materials/singles/CustomSingleMaterialNode';
 import {Primitive} from '../geometry/Primitive';
-import Entity from '../core/Entity';
+import { Entity } from '../core/Entity';
 import {ProcessStage} from '../definitions/ProcessStage';
 import {AlphaMode} from '../definitions/AlphaMode';
 import AbstractTexture from '../textures/AbstractTexture';

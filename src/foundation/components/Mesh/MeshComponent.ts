@@ -7,7 +7,7 @@ import Vector3 from '../../math/Vector3';
 import CameraComponent from '../Camera/CameraComponent';
 import Vector4 from '../../math/Vector4';
 import Mesh from '../../geometry/Mesh';
-import Entity, {IEntity} from '../../core/Entity';
+import {IEntity, Entity} from '../../core/Entity';
 import {
   ComponentTID,
   EntityUID,

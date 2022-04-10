@@ -43,7 +43,7 @@ export interface IEntity extends IRnObject {
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
  */
-export default class Entity extends RnObject implements IEntity {
+export class Entity extends RnObject implements IEntity {
   /** The Unique ID of Entity */
   private readonly __entity_uid: number;
 

@@ -1,4 +1,4 @@
-import Entity, {IEntity} from './Entity';
+import {IEntity, Entity} from './Entity';
 import Component from './Component';
 import ComponentRepository from './ComponentRepository';
 import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';

@@ -1,4 +1,4 @@
-import Entity, {IEntity} from '../core/Entity';
+import {IEntity, Entity} from '../core/Entity';
 import { EntityRepository } from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
 import Gltf2Importer from './Gltf2Importer';

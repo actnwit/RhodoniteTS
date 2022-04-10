@@ -1,4 +1,4 @@
-import Entity from '../foundation/core/Entity';
+import { Entity } from '../foundation/core/Entity';
 import {RnPromise} from '../foundation/misc/RnPromise';
 import {Array3, Array4, Index} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';

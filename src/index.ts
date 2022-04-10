@@ -1,5 +1,5 @@
-import { EntityRepository as _EntityRepository } from './foundation/core/EntityRepository';
-import _Entity from './foundation/core/Entity';
+import {EntityRepository as _EntityRepository} from './foundation/core/EntityRepository';
+import { Entity as _Entity } from './foundation/core/Entity';
 import _ComponentRepository from './foundation/core/ComponentRepository';
 import _TransformComponent from './foundation/components/Transform/TransformComponent';
 import _SceneGraphComponent from './foundation/components/SceneGraph/SceneGraphComponent';
