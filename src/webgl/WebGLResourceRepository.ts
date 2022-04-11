@@ -1,7 +1,6 @@
-import { Accessor } from '../foundation/memory/Accessor';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import {Accessor} from '../foundation/memory/Accessor';
+import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
 import {Primitive} from '../foundation/geometry/Primitive';
-import {AttributeNames} from './shaders/GLSLShader';
 import {
   VertexAttributeEnum,
   VertexAttribute,
@@ -17,20 +16,20 @@ import {
 import {ComponentTypeEnum} from '../foundation/definitions/ComponentType';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import {ComponentType} from '../foundation/definitions/ComponentType';
-import { WebGLContextWrapper } from './WebGLContextWrapper';
+import {WebGLContextWrapper} from './WebGLContextWrapper';
 import {MathUtil} from '../foundation/math/MathUtil';
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
 } from '../foundation/definitions/ShaderSemantics';
-import { AbstractTexture } from '../foundation/textures/AbstractTexture';
-import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
-import { IRenderable } from '../foundation/textures/IRenderable';
-import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
+import {AbstractTexture} from '../foundation/textures/AbstractTexture';
+import {RenderTargetTexture} from '../foundation/textures/RenderTargetTexture';
+import {IRenderable} from '../foundation/textures/IRenderable';
+import {FrameBuffer} from '../foundation/renderer/FrameBuffer';
 import {HdriFormatEnum, HdriFormat} from '../foundation/definitions/HdriFormat';
-import { Vector4 } from '../foundation/math/Vector4';
+import {Vector4} from '../foundation/math/Vector4';
 import {RenderBufferTarget} from '../foundation/definitions/RenderBufferTarget';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import {RenderPass} from '../foundation/renderer/RenderPass';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import {
   WebGLResourceHandle,
@@ -42,8 +41,8 @@ import {
   Byte,
   ArrayType,
 } from '../types/CommonTypes';
-import { DataUtil } from '../foundation/misc/DataUtil';
-import { RenderBuffer } from '../foundation/textures/RenderBuffer';
+import {DataUtil} from '../foundation/misc/DataUtil';
+import {RenderBuffer} from '../foundation/textures/RenderBuffer';
 import {BasisFile} from '../types/BasisTexture';
 import {
   BasisCompressionTypeEnum,
@@ -53,11 +52,12 @@ import {WebGLExtension} from './WebGLExtension';
 import {RnWebGLProgram, RnWebGLTexture} from './WebGLExtendedTypes';
 import {Is} from '../foundation/misc/Is';
 import {CompressionTextureTypeEnum} from '../foundation/definitions/CompressionTextureType';
-import { Material } from '../foundation/materials/core/Material';
-import { System } from '../foundation/system/System';
+import {Material} from '../foundation/materials/core/Material';
+import {System} from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import {Config} from '../foundation/core/Config';
 import {GL_TEXTURE_2D} from '../types/WebGLConstants';
+import { AttributeNames } from './types';
 
 declare let HDRImage: any;
 
@@ -432,7 +432,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
 
-    attributeNames.forEach((attributeName, i) => {
+    attributeNames.forEach((attributeName: string, i: number) => {
       gl.bindAttribLocation(
         shaderProgram,
         attributeSemantics[i].getAttributeSlot(),

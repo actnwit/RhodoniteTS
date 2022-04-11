@@ -2,8 +2,7 @@ import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribu
 import { GLSLShader } from '../GLSLShader';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 import {ShaderSocket} from '../../../foundation/materials/core/AbstractMaterialNode';
-
-export type AttributeNames = Array<string>;
+import { AttributeNames } from '../../types/CommonTypes';
 
 export class BlockEndShader extends GLSLShader {
   constructor(
