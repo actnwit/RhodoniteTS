@@ -1,27 +1,27 @@
-import {IEntity, Entity} from '../core/Entity';
-import { EntityRepository } from '../core/EntityRepository';
+import {EntityRepository} from '../core/EntityRepository';
 import {detectFormatByArrayBuffers} from './FormatDetector';
-import { Gltf2Importer } from './Gltf2Importer';
-import {GltfLoadOption, RnM2, GltfFileBuffers} from '../../types/RnM2';
-import { ModelConverter } from './ModelConverter';
-import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SphereCollider } from '../physics/SphereCollider';
-import { Texture } from '../textures/Texture';
-import { Vector3 } from '../math/Vector3';
-import { VRMColliderGroup } from '../physics/VRMColliderGroup';
-import { VRMSpringBoneGroup } from '../physics/VRMSpringBoneGroup';
-import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpringBonePhysicsStrategy';
-import { Gltf1Importer } from './Gltf1Importer';
-import { DrcPointCloudImporter } from './DrcPointCloudImporter';
-import { Expression } from '../renderer/Expression';
-import { RenderPass } from '../renderer/RenderPass';
+import {Gltf2Importer} from './Gltf2Importer';
+import {RnM2} from '../../types/RnM2';
+import {ModelConverter} from './ModelConverter';
+import {PhysicsComponent} from '../components/Physics/PhysicsComponent';
+import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
+import {SphereCollider} from '../physics/SphereCollider';
+import {Texture} from '../textures/Texture';
+import {Vector3} from '../math/Vector3';
+import {VRMColliderGroup} from '../physics/VRMColliderGroup';
+import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
+import {VRMSpringBonePhysicsStrategy} from '../physics/VRMSpringBonePhysicsStrategy';
+import {Gltf1Importer} from './Gltf1Importer';
+import {DrcPointCloudImporter} from './DrcPointCloudImporter';
+import {Expression} from '../renderer/Expression';
+import {RenderPass} from '../renderer/RenderPass';
 import {VRM} from '../../types/VRM';
-import { DataUtil } from '../misc/DataUtil';
+import {DataUtil} from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
 import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
+import {GltfFileBuffers, GltfLoadOption} from '../../types';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -141,7 +141,7 @@ export class GltfImporter {
       }
     }
 
-    return options;
+    return options!;
   }
 
   private static __setRenderPassesToExpression(

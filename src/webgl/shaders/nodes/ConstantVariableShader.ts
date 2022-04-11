@@ -11,8 +11,7 @@ import {
   ComponentTypeEnum,
   ComponentType,
 } from '../../../foundation/definitions/ComponentType';
-
-export type AttributeNames = Array<string>;
+import { AttributeNames } from '../../types';
 
 export class ConstantVariableShader extends GLSLShader {
   private __constantValueStr = '';

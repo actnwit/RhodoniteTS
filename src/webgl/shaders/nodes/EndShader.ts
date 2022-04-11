@@ -2,8 +2,7 @@ import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribu
 import { GLSLShader } from '../GLSLShader';
 import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
-
-export type AttributeNames = Array<string>;
+import { AttributeNames } from '../../types';
 
 export class EndShader extends GLSLShader {
   static __instance: EndShader;

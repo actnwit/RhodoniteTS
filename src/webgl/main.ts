@@ -1,6 +1,5 @@
 import getRenderingStrategy from './getRenderingStrategy';
 import {
-  AttributeNames as attributeNames,
   GLSLShader,
 } from './shaders/GLSLShader';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
@@ -24,6 +23,5 @@ export default WebGL;
 export type RnWebGL = typeof WebGL;
 (0, eval)('this').RnWebGL = WebGL;
 
-export type AttributeNames = attributeNames;
 export type VertexHandles = vertexHandles;
 export type WebGLStrategy = webGLStrategy;

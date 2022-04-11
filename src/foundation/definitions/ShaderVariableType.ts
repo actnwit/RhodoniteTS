@@ -30,7 +30,7 @@ function fromString(str: string): ShaderVariableTypeEnum {
   return _fromString({typeList, str}) as ShaderVariableTypeEnum;
 }
 
-export const ShaderType = Object.freeze({
+export const ShaderVariableType = Object.freeze({
   Varying,
   ReadOnlyData,
   from,

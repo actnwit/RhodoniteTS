@@ -1,11 +1,11 @@
-import { EntityRepository } from '../core/EntityRepository';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
+import {EntityRepository} from '../core/EntityRepository';
+import {MeshComponent} from '../components/Mesh/MeshComponent';
 import {IEntity} from '../core/Entity';
-import { Vector3 } from '../math/Vector3';
-import { Quaternion } from '../math/Quaternion';
-import { Matrix44 } from '../math/Matrix44';
+import {Vector3} from '../math/Vector3';
+import {Quaternion} from '../math/Quaternion';
+import {Matrix44} from '../math/Matrix44';
 import {Primitive} from '../geometry/Primitive';
-import { Buffer } from '../memory/Buffer';
+import {Buffer} from '../memory/Buffer';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {CompositionType} from '../definitions/CompositionType';
 import {ComponentType} from '../definitions/ComponentType';
@@ -14,24 +14,24 @@ import {
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
 import {CameraType} from '../definitions/CameraType';
-import { Texture } from '../textures/Texture';
-import { Vector4 } from '../math/Vector4';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import {Texture} from '../textures/Texture';
+import {Vector4} from '../math/Vector4';
+import {AnimationComponent} from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {MathUtil} from '../math/MathUtil';
-import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import {SkeletalComponent} from '../components/Skeletal/SkeletalComponent';
 import {AlphaMode} from '../definitions/AlphaMode';
 import {MaterialHelper} from '../helpers/MaterialHelper';
 import {
   ShaderSemantics,
   ShaderSemanticsEnum,
 } from '../definitions/ShaderSemantics';
-import { Vector2 } from '../math/Vector2';
-import { Material } from '../materials/core/Material';
+import {Vector2} from '../math/Vector2';
+import {Material} from '../materials/core/Material';
 import {ShadingModel} from '../definitions/ShadingModel';
-import { Accessor } from '../memory/Accessor';
-import { Mesh } from '../geometry/Mesh';
-import { MutableVector4 } from '../math/MutableVector4';
+import {Accessor} from '../memory/Accessor';
+import {Mesh} from '../geometry/Mesh';
+import {MutableVector4} from '../math/MutableVector4';
 import {LightType} from '../definitions/LightType';
 import {
   Count,
@@ -44,7 +44,6 @@ import {
   VectorComponentN,
 } from '../../types/CommonTypes';
 import {
-  GltfLoadOption,
   RnM2,
   RnM2Node,
   RnM2Accessor,
@@ -55,34 +54,38 @@ import {
   RnM2Camera,
   RnM2Texture,
   RnM2Mesh,
-  KHR_lights_punctual_Light,
   RnM2TextureInfo,
   RnM2SparseIndices,
 } from '../../types/RnM2';
 import {Config} from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
-import { MemoryManager } from '../core/MemoryManager';
-import { ILoaderExtension } from './ILoaderExtension';
-import { PbrShadingSingleMaterialNode } from '../materials/singles/PbrShadingSingleMaterialNode';
-import { Scalar } from '../math/Scalar';
+import {MemoryManager} from '../core/MemoryManager';
+import {ILoaderExtension} from './ILoaderExtension';
+import {PbrShadingSingleMaterialNode} from '../materials/singles/PbrShadingSingleMaterialNode';
+import {Scalar} from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
 import {Is} from '../misc/Is';
-import { DataUtil } from '../misc/DataUtil';
+import {DataUtil} from '../misc/DataUtil';
 import {AnimationPathName} from '../../types/AnimationTypes';
-import {TagGltf2NodeIndex} from '../../types/glTF2';
-import {EntityHelper,
+import {
+  GltfLoadOption,
+  KHR_lights_punctual_Light,
+  TagGltf2NodeIndex,
+} from '../../types/glTF2';
+import {
+  EntityHelper,
   IAnimationEntity,
   ICameraEntity,
   ISceneGraphEntity,
   ILightEntity,
   IMeshEntity,
 } from '../helpers/EntityHelper';
-import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
-import { LightComponent } from '../components/Light/LightComponent';
+import {BlendShapeComponent} from '../components/BlendShape/BlendShapeComponent';
+import {LightComponent} from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
-import { BufferView } from '../memory/BufferView';
-import { RhodoniteImportExtension } from './RhodoniteImportExtension';
+import {BufferView} from '../memory/BufferView';
+import {RhodoniteImportExtension} from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
 

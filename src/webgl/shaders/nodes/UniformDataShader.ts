@@ -2,8 +2,7 @@ import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribu
 import { GLSLShader } from '../GLSLShader';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
 import {ComponentTypeEnum} from '../../../foundation/definitions/ComponentType';
-
-export type AttributeNames = Array<string>;
+import { AttributeNames } from '../../types/CommonTypes';
 
 export class UniformDataShader extends GLSLShader {
   private __variableName = '';

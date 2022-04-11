@@ -20,7 +20,7 @@ import {ComponentType} from '../../definitions/ComponentType';
 import { ModuleManager } from '../../system/ModuleManager';
 import { CubeTexture } from '../../textures/CubeTexture';
 import { RenderPass } from '../../renderer/RenderPass';
-import {Visibility} from '../../definitions/visibility';
+import {Visibility} from '../../definitions/Visibility';
 import { RnObject } from '../../core/RnObject';
 import {
   ComponentSID,

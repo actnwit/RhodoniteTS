@@ -3,8 +3,7 @@ import { GLSLShader } from '../GLSLShader';
 import {Config} from '../../../foundation/core/Config';
 import {ShaderNode} from '../../../foundation/definitions/ShaderNode';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
-
-export type AttributeNames = Array<string>;
+import { AttributeNames } from '../../types/CommonTypes';
 
 export class ClassicShadingShader extends GLSLShader {
   static __instance: ClassicShadingShader;

@@ -1,8 +1,7 @@
 import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribute';
 import { GLSLShader } from '../GLSLShader';
 import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
-
-export type AttributeNames = Array<string>;
+import { AttributeNames } from '../../types';
 
 export class IfStatementShader extends GLSLShader {
   constructor() {

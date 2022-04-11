@@ -5,6 +5,7 @@
         "barycentriccoord",
         "BASISLZ",
         "basisu",
+        "Blinn",
         "blittable",
         "BPPV",
         "BPTC",
@@ -60,6 +61,7 @@
         "webvr",
         "webxr",
         "well",
+        "Wireframe",
         "ZSTD",
         "zstddec"
     ],

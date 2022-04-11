@@ -1,14 +1,9 @@
-import { DataUtil } from '../misc/DataUtil';
-import {
-  RnM2,
-  GltfLoadOption,
-  RnM2Image,
-  GltfFileBuffers,
-  RnM2Accessor,
-} from '../../types/RnM2';
+import {DataUtil} from '../misc/DataUtil';
+import {RnM2, RnM2Image, RnM2Accessor} from '../../types/RnM2';
 import {RnPromise} from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
+import {GltfFileBuffers, GltfLoadOption} from '../../types';
 
 declare let Rn: any;
 
