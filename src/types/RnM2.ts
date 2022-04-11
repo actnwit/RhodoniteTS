@@ -1,14 +1,13 @@
-import { Entity } from '../foundation/core/Entity';
 import {RnPromise} from '../foundation/misc/RnPromise';
-import {Array3, Array4, Index} from './CommonTypes';
-import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { Material } from '../foundation/materials/core/Material';
-import { Expression } from '../foundation/renderer/Expression';
-import { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
-import { Accessor } from '../foundation/memory/Accessor';
-import {Gltf2AnimationSamplerInterpolation, Gltf2AnyObject} from './glTF2';
-import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import {Array4} from './CommonTypes';
+import {Material} from '../foundation/materials/core/Material';
+import {Accessor} from '../foundation/memory/Accessor';
+import {
+  Gltf2AnimationSamplerInterpolation,
+  Gltf2AnyObject,
+  GltfLoadOption,
+} from './glTF2';
+import {ISceneGraphEntity} from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {
@@ -362,27 +361,6 @@ export type RnM2Asset = {
   };
 };
 
-export type PointType = 'directional' | 'point' | 'spot';
-
-export type KHR_lights_punctual_Light = {
-  color: Array3<number>;
-  type: PointType;
-  name?: string;
-  intensity?: number;
-  range: number;
-};
-
-export type KHR_lights_punctual = {
-  lights: KHR_lights_punctual_Light[];
-};
-
-export type GltfFileBuffers = {
-  [s: string]: ArrayBuffer;
-  //        "foo.gltf": content of file as ArrayBuffer,
-  //        "foo.bin": content of file as ArrayBuffer,
-  //        "boo.png": content of file as ArrayBuffer
-};
-
 export type RnM2ExtensionEffekseer = {
   effects: RnM2ExtensionsEffekseerEffect[];
 };
@@ -402,45 +380,4 @@ export type RnM2Sampler = {
   name?: string;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
-};
-
-export type GltfLoadOption = {
-  files?: GltfFileBuffers;
-  loaderExtensionName?: string;
-  loaderExtension?: ILoaderExtension;
-  defaultMaterialHelperName?: string;
-  defaultMaterialHelperArgumentArray?: any[];
-  statesOfElements?: [
-    {
-      targets: any[]; //["name_foo", "name_boo"],
-      states: {
-        enable: any[];
-        // 3042,  // BLEND
-        functions: object; //"blendFuncSeparate": [1, 0, 1, 0],
-      };
-      isTransparent: boolean;
-      opacity: number;
-      isTextureImageToLoadPreMultipliedAlpha: boolean;
-    }
-  ];
-  alphaMode?: string;
-  ignoreLists?: [];
-  autoDetectTextureTransparency?: boolean;
-  autoResizeTexture?: boolean;
-  tangentCalculationMode?: Index;
-  extendedJson?: string | Object | ArrayBuffer; //   URI string / JSON Object / ArrayBuffer
-  isImportVRM?: boolean;
-  maxMorphTargetNumber?: number;
-  defaultTextures?: {
-    basePath: string; // e.g. "./assets/jpg/"
-    textureInfos: {
-      shaderSemantics: ShaderSemanticsEnum;
-      fileName: string;
-      image?: RnM2Image;
-      sampler?: RnM2Sampler;
-    }[];
-  };
-  cameraComponent?: CameraComponent;
-  fileType?: string;
-  expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
 };

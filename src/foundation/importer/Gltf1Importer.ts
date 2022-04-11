@@ -1,4 +1,4 @@
-import { DataUtil } from '../misc/DataUtil';
+import {DataUtil} from '../misc/DataUtil';
 import {
   RnM2,
   RnM2Accessor,
@@ -6,11 +6,10 @@ import {
   RnM2BufferView,
   RnM2Image,
   RnM2Material,
-  GltfFileBuffers,
-  GltfLoadOption,
 } from '../../types/RnM2';
 import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
+import {GltfFileBuffers, GltfLoadOption} from '../../types';
 
 declare let Rn: any;
 

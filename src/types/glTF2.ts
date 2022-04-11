@@ -1,12 +1,12 @@
-import { Entity } from '../foundation/core/Entity';
+import {Entity} from '../foundation/core/Entity';
 import {RnPromise} from '../foundation/misc/RnPromise';
 import {Array3, Index} from './CommonTypes';
 import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { Material } from '../foundation/materials/core/Material';
-import { Expression } from '../foundation/renderer/Expression';
-import { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
-import { Accessor } from '../foundation/memory/Accessor';
+import {CameraComponent} from '../foundation/components/Camera/CameraComponent';
+import {Material} from '../foundation/materials/core/Material';
+import {Expression} from '../foundation/renderer/Expression';
+import {ILoaderExtension} from '../foundation/importer/ILoaderExtension';
+import {Accessor} from '../foundation/memory/Accessor';
 import {
   GL_DATA_BYTE,
   GL_DATA_UNSIGNED_BYTE,
@@ -341,14 +341,6 @@ export interface Gltf2BufferView {
   extras?: Gltf2AnyObject;
 }
 
-export interface Gltf2BufferViewEx extends Gltf2BufferView {
-  buffer: number;
-  byteOffset: number;
-  extras: {
-    uint8Array: Uint8Array;
-  };
-}
-
 export interface Gltf2Accessor {
   bufferView?: number;
   byteOffset?: number;
@@ -364,12 +356,6 @@ export interface Gltf2Accessor {
   accessor?: Accessor;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
-}
-
-export interface Gltf2AccessorEx extends Gltf2Accessor {
-  extras: {
-    uint8Array?: Uint8Array;
-  };
 }
 
 export type PointType = 'directional' | 'point' | 'spot';

@@ -1,6 +1,6 @@
-import { EntityRepository } from '../core/EntityRepository';
+import {EntityRepository} from '../core/EntityRepository';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
-import { AbstractTexture } from '../textures/AbstractTexture';
+import {AbstractTexture} from '../textures/AbstractTexture';
 import {Is} from '../misc/Is';
 import {
   Gltf2,
@@ -8,7 +8,6 @@ import {
   Gltf2Animation,
   Gltf2AnimationChannel,
   Gltf2AnimationSampler,
-  Gltf2BufferViewEx,
   Gltf2Mesh,
   Gltf2Primitive,
   Gltf2AnimationPathName,
@@ -24,13 +23,14 @@ import {
 } from '../definitions/ComponentType';
 import {
   Gltf2AccessorEx,
+  Gltf2BufferViewEx,
   Gltf2Ex,
   Gltf2ImageEx,
   Gltf2MaterialEx,
 } from '../../types/glTF2ForOutput';
-import { BufferView } from '../memory/BufferView';
-import { DataUtil } from '../misc/DataUtil';
-import { Accessor } from '../memory/Accessor';
+import {BufferView} from '../memory/BufferView';
+import {DataUtil} from '../misc/DataUtil';
+import {Accessor} from '../memory/Accessor';
 import {
   Array1to4,
   Byte,
@@ -38,7 +38,7 @@ import {
   Index,
   VectorAndSquareMatrixComponentN,
 } from '../../types/CommonTypes';
-import { Buffer } from '../memory/Buffer';
+import {Buffer} from '../memory/Buffer';
 import {
   GL_ARRAY_BUFFER,
   GL_ELEMENT_ARRAY_BUFFER,
@@ -46,7 +46,7 @@ import {
 import {AnimationChannel, AnimationPathName} from '../../types/AnimationTypes';
 import {CompositionType} from '../definitions/CompositionType';
 import {ComponentTypeEnum, CompositionTypeEnum} from '../..';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
 import {
   IAnimationEntity,
   ISceneGraphEntity,
@@ -54,7 +54,7 @@ import {
   ISkeletalEntity,
 } from '../helpers/EntityHelper';
 import {createEffekseer} from './Gltf2ExporterEffekseer';
-import { Vector4 } from '../math/Vector4';
+import {Vector4} from '../math/Vector4';
 import {Tag} from '../core/RnObject';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
