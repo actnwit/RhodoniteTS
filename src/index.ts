@@ -129,7 +129,7 @@ export * from './foundation/materials/singles/PbrShadingSingleMaterialNode';
 export * from './foundation/materials/singles/MatCapSingleMaterialNode';
 export * from './foundation/materials/singles/GaussianBlurSingleMaterialNode';
 export * from './foundation/materials/singles/GaussianBlurForEncodedDepthSingleMaterialNode';
-export * from './foundation/math/ImageUtil';
+export * from './foundation/misc/ImageUtil';
 
 export const _VERSION = require('./../VERSION-FILE').default;
 
