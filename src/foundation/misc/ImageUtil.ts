@@ -1,10 +1,10 @@
-import { Vector3 } from './Vector3';
-import { MutableMatrix33 } from './MutableMatrix33';
-import {MathUtil} from './MathUtil';
-import { MutableVector3 } from './MutableVector3';
-import {ColorRgb} from './ColorRgb';
+import { Vector3 } from '../math/Vector3';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
+import {MathUtil} from '../math/MathUtil';
+import { MutableVector3 } from '../math/MutableVector3';
+import {ColorRgb} from '../math/ColorRgb';
 import {Index, Size} from '../../types/CommonTypes';
-import { MutableVector2 } from './MutableVector2';
+import { MutableVector2 } from '../math/MutableVector2';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
 
 type PixelSortType = {
