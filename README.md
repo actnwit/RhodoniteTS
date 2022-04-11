@@ -91,18 +91,16 @@ You need a bundler like Webpack to import the Rhodonite esm package directly.
 
 ```typescript
 import Rn from 'rhodonite'; // All Rhodonite Objects in this
-import { CameraComponent, RenderPass } from 'rhodonite'; // for type annotations
 
 async function load() {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const importer = Rn.Gltf1Importer.getInstance();
-  const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world') as HTMLCanvasElement);
+  const gl = Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL2,
+    canvas: document.getElementById('world') as HTMLCanvasElement
+  });
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getCamera();
+  const cameraComponent: Rn.CameraComponent = cameraEntity.getCamera();
 
   ...
   (After that, please refer to the sample codes.)
@@ -117,24 +115,21 @@ Then, import types from the `rhodonite` esm package.
 
 ```typescript
 import _Rn from 'rhodonite'; // Use this for adding type annotations to window.Rn in this sample
-import { CameraComponent, RenderPass } from 'rhodonite'; // for type annotations
+import { CameraComponent, RenderPass } from 'rhodonite'; // for type annotations for umd usage
 
 declare const window: any;
 declare const Rn: typeof _Rn; // Use the window.Rn as Rn
 
 
 async function load() {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const importer = Rn.Gltf1Importer.getInstance();
-  const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world') as HTMLCanvasElement);
-
-  const entityRepository = Rn.EntityRepository.getInstance();
+  const gl = Rn.System.init({
+    approach: Rn.ProcessApproach.UniformWebGL2,
+    canvas: document.getElementById('world') as HTMLCanvasElement
+  });
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getCamera();
+  const cameraComponent: CameraComponent = cameraEntity.getCamera();
 
   ...
   (After that, please refer to the sample codes.)
