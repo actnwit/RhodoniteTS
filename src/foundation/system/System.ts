@@ -1,36 +1,35 @@
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
-import { ComponentRepository } from '../core/ComponentRepository';
+import {ComponentRepository} from '../core/ComponentRepository';
 import {
   ProcessApproachEnum,
   ProcessApproach,
 } from '../definitions/ProcessApproach';
-import { ModuleManager } from './ModuleManager';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { WebGLStrategy } from '../../webgl/WebGLStrategy';
-import { Component } from '../core/Component';
-import { Expression } from '../renderer/Expression';
-import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
-import { EntityRepository } from '../core/EntityRepository';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { MemoryManager } from '../core/MemoryManager';
-import { GlobalDataRepository } from '../core/GlobalDataRepository';
-import { Vector3 } from '../math/Vector3';
+import {ModuleManager} from './ModuleManager';
+import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
+import {WebGLStrategy} from '../../webgl/WebGLStrategy';
+import {Component} from '../core/Component';
+import {Expression} from '../renderer/Expression';
+import {MeshRendererComponent} from '../components/MeshRenderer/MeshRendererComponent';
+import {EntityRepository} from '../core/EntityRepository';
+import {CameraComponent} from '../components/Camera/CameraComponent';
+import {MemoryManager} from '../core/MemoryManager';
+import {GlobalDataRepository} from '../core/GlobalDataRepository';
+import {Vector3} from '../math/Vector3';
 import {CameraType} from '../definitions/CameraType';
-import { Time } from '../misc/Time';
+import {Time} from '../misc/Time';
 import SystemState from './SystemState';
 import {MiscUtil, valueWithCompensation} from '../misc/MiscUtil';
 import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
-import type WebVRSystem from '../../xr/WebVRSystem';
 import {Is} from '../misc/Is';
 import {EntityHelper, ISceneGraphEntity} from '../helpers/EntityHelper';
 import {Config} from '../core/Config';
-import { Frame } from '../renderer/Frame';
-import { Vector4 } from '../math/Vector4';
-import { RenderPass } from '../renderer/RenderPass';
-import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import {Frame} from '../renderer/Frame';
+import {Vector4} from '../math/Vector4';
+import {RenderPass} from '../renderer/RenderPass';
+import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import { WebXRSystem } from '../..';
+import {WebXRSystem} from '../..';
 
 declare const spector: any;
 
@@ -80,14 +79,8 @@ export class System {
       const rnVRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
       if (Is.exist(rnVRModule)) {
-        let webVRSystem: WebVRSystem;
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._preRender(_time, xrFrame);
-        } else {
-          webVRSystem = rnVRModule.WebVRSystem.getInstance();
-          if (webVRSystem.isReadyForWebVR) {
-            webVRSystem.preRender();
-          }
         }
       }
 
@@ -96,11 +89,6 @@ export class System {
       if (Is.exist(rnVRModule)) {
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._postRender();
-        } else {
-          const webVRSystem = rnVRModule.WebVRSystem.getInstance();
-          if (webVRSystem.isReadyForWebVR) {
-            webVRSystem.postRender();
-          }
         }
       }
       this.startRenderLoop(renderLoopFunc, ...args);
@@ -114,12 +102,9 @@ export class System {
       | RnXR
       | undefined;
     if (Is.exist(rnVRModule)) {
-      const webVRSystem = rnVRModule.WebVRSystem.getInstance();
       const webXRSystem = rnVRModule.WebXRSystem.getInstance();
       if (webXRSystem.requestedToEnterWebXR) {
         animationFrameObject = webXRSystem.xrSession;
-      } else if (webVRSystem.isWebVRMode) {
-        animationFrameObject = webVRSystem.vrDisplay;
       }
       if (Is.not.exist(animationFrameObject)) {
         return window;
