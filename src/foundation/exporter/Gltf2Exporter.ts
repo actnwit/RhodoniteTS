@@ -1377,9 +1377,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     accessorByteOffset: 0,
     componentType,
     count: accessorCount,
-    compositionType: CompositionType.toGltf2AnimationAccessorCompositionType(
-      rnChannel.sampler.outputComponentN
-    ),
+    compositionType,
   });
   json.accessors.push(gltf2Accessor);
 
