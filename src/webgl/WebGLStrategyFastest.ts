@@ -50,6 +50,7 @@ import {
   ISkeletalEntity,
 } from '../foundation/helpers/EntityHelper';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
+import { DataUtil } from '../foundation/misc/DataUtil';
 
 declare const spector: any;
 
@@ -499,14 +500,24 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       BufferUse.GPUInstanceData
     );
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+    const uboTotalSize = glw!.getAlignedMaxUniformBlockSize();
 
     const startOffsetOfDataTextureOnGPUInstanceData = this.__isUboUse()
-      ? glw!.getAlignedMaxUniformBlockSize()
+      ? uboTotalSize
       : 0;
-
     if (gpuInstanceDataBuffer == null) {
       return;
     }
+    // const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
+    // if all the necessary data fits in the UBO, then no data textures will be created.
+    // if (
+    //   this.__isUboUse() &&
+    //   DataUtil.addPaddingBytes(gpuInstanceDataBuffer.takenSizeInByte, 4) +
+    //     DataUtil.addPaddingBytes(morphBuffer!.takenSizeInByte, 4) <
+    //     uboTotalSize
+    // ) {
+    //   return;
+    // }
 
     const dataTextureByteSize =
       MemoryManager.bufferWidthLength *
@@ -563,33 +574,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
       let morphBufferTakenSizeInByte = 0;
       let morphBufferArrayBuffer = new ArrayBuffer(0);
-      if (morphBuffer != null) {
+      if (Is.exist(morphBuffer)) {
         morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
         morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
-
-      // const restSizeOfDataTexture =
-      //   dataTextureByteSize - morphBufferTakenSizeInByte;
       let floatDataTextureBuffer: Float32Array;
-      // if (restSizeOfDataTexture > buffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData) {
-      //   let totalSizeOfDataTextureExceptMorphData = dataTextureByteSize - morphBufferTakenSizeInByte;
-      //   const threshold = 5000000; // Due to limitation of SAFE_MAX_INTEGER is limited around 16000000 in fp32
-      //   if (totalSizeOfDataTextureExceptMorphData / 4 / 4 > threshold) {
-      //     totalSizeOfDataTextureExceptMorphData = threshold * 4 * 4;
-      //   }
-
-      //   totalSizeOfDataTextureExceptMorphData -= totalSizeOfDataTextureExceptMorphData % 16; // taking account for vec4 unit memory aligne
-      //   const extraSpaceTexel = (totalSizeOfDataTextureExceptMorphData / 4 / 4) % MemoryManager.bufferWidthLength;
-      //   const totalSizeOfDataTexture = totalSizeOfDataTextureExceptMorphData - extraSpaceTexel * 4 * 4;
-
-      //   const finalArrayBuffer = MiscUtil.concatArrayBuffers(
-      //     [buffer.getArrayBuffer(), morphBufferArrayBuffer],
-      //     [totalSizeOfDataTexture, morphBufferTakenSizeInByte],
-      //     [startOffsetOfDataTextureOnGPUInstanceData, 0],
-      //     dataTextureByteSize);
-      //   floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-      //   Config.totalSizeOfGPUShaderDataStorageExceptMorphData = totalSizeOfDataTexture;
-      // } else {
       {
         const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
 
