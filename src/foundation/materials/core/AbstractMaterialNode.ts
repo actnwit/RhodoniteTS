@@ -361,16 +361,14 @@ export abstract class AbstractMaterialNode extends RnObject {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
-    }
-    if (firstTime || args.isVr) {
-      let cameraComponent = args.renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponentClass,
-          CameraComponentClass.main
-        ) as CameraComponent;
-      }
-      if (args.setUniform) {
+      if (firstTime || args.isVr) {
+        let cameraComponent = args.renderPass.cameraComponent;
+        if (cameraComponent == null) {
+          cameraComponent = ComponentRepository.getComponent(
+            CameraComponentClass,
+            CameraComponentClass.main
+          ) as CameraComponent;
+        }
         this.setViewInfo(
           shaderProgram,
           cameraComponent,
@@ -384,10 +382,7 @@ export abstract class AbstractMaterialNode extends RnObject {
           args.displayIdx
         );
       }
-    }
-
-    if (firstTime) {
-      if (args.setUniform) {
+      if (firstTime) {
         // Lights
         this.setLightsInfo(
           shaderProgram,
