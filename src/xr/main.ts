@@ -1,8 +1,6 @@
-import WebVRSystem from './WebVRSystem';
-import { WebXRSystem } from './WebXRSystem';
+import {WebXRSystem} from './WebXRSystem';
 
 const XR = Object.freeze({
-  WebVRSystem,
   WebXRSystem,
 });
 export default XR;

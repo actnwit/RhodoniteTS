@@ -837,9 +837,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
         cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
-      } else {
-        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-        cameraComponentSid = webvrSystem.getCameraComponentSIDAt(displayIdx);
       }
       WebGLStrategyFastest.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.CameraComponentTID

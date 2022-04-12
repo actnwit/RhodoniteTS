@@ -1,4 +1,4 @@
-import { RnObject } from '../../core/RnObject';
+import {RnObject} from '../../core/RnObject';
 import {
   ShaderSemanticsInfo,
   ShaderSemanticsEnum,
@@ -6,39 +6,39 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
 import {ComponentTypeEnum} from '../../definitions/ComponentType';
-import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { Matrix44 } from '../../math/Matrix44';
-import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { Texture } from '../../textures/Texture';
-import { CubeTexture } from '../../textures/CubeTexture';
+import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
+import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
+import {Matrix44} from '../../math/Matrix44';
+import {WebGLResourceRepository} from '../../../webgl/WebGLResourceRepository';
+import {Texture} from '../../textures/Texture';
+import {CubeTexture} from '../../textures/CubeTexture';
 import {Config} from '../../core/Config';
-import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import { Material } from './Material';
-import { MutableVector2 } from '../../math/MutableVector2';
-import { MutableVector4 } from '../../math/MutableVector4';
-import { Vector3 } from '../../math/Vector3';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MeshComponent } from '../../components/Mesh/MeshComponent';
+import {SkeletalComponent} from '../../components/Skeletal/SkeletalComponent';
+import {Material} from './Material';
+import {MutableVector2} from '../../math/MutableVector2';
+import {MutableVector4} from '../../math/MutableVector4';
+import {Vector3} from '../../math/Vector3';
+import {MutableMatrix44} from '../../math/MutableMatrix44';
+import {MeshComponent} from '../../components/Mesh/MeshComponent';
 import {Primitive, Attributes} from '../../geometry/Primitive';
-import { Accessor } from '../../memory/Accessor';
+import {Accessor} from '../../memory/Accessor';
 import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
+import {BlendShapeComponent} from '../../components/BlendShape/BlendShapeComponent';
 import {ProcessApproach} from '../../definitions/ProcessApproach';
 import {ShaderityObject} from 'shaderity';
 import {BoneDataType} from '../../definitions/BoneDataType';
 import SystemState from '../../system/SystemState';
 import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
 import {IVector3} from '../../math/IVector';
-import { ModuleManager } from '../../system/ModuleManager';
+import {ModuleManager} from '../../system/ModuleManager';
 import {RnXR} from '../../../xr/main';
-import { LightComponent } from '../../components/Light/LightComponent';
+import {LightComponent} from '../../components/Light/LightComponent';
 import {IMatrix33} from '../../math/IMatrix';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -383,10 +383,6 @@ export abstract class AbstractMaterialNode extends RnObject {
       if (webxrSystem.isWebXRMode) {
         viewMatrix = webxrSystem._getViewMatrixAt(displayIdx);
         cameraPosition = webxrSystem._getCameraWorldPositionAt(displayIdx);
-      } else {
-        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-        viewMatrix = webvrSystem.getViewMatrixAt(displayIdx);
-        cameraPosition = webvrSystem.getCameraWorldPosition();
       }
     } else if (cameraComponent) {
       cameraPosition = cameraComponent.worldPosition;
@@ -399,11 +395,11 @@ export abstract class AbstractMaterialNode extends RnObject {
     (shaderProgram as any)._gl.uniformMatrix4fv(
       (shaderProgram as any).viewMatrix,
       false,
-      viewMatrix._v
+      viewMatrix!._v
     );
     (shaderProgram as any)._gl.uniform3fv(
       (shaderProgram as any).viewPosition,
-      cameraPosition._v
+      cameraPosition!._v
     );
   }
 
@@ -419,9 +415,6 @@ export abstract class AbstractMaterialNode extends RnObject {
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       if (webxrSystem.isWebXRMode) {
         projectionMatrix = webxrSystem._getProjectMatrixAt(displayIdx);
-      } else {
-        const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-        projectionMatrix = webvrSystem.getProjectMatrixAt(displayIdx);
       }
     } else if (cameraComponent) {
       projectionMatrix = cameraComponent.projectionMatrix;
@@ -431,7 +424,7 @@ export abstract class AbstractMaterialNode extends RnObject {
     (shaderProgram as any)._gl.uniformMatrix4fv(
       (shaderProgram as any).projectionMatrix,
       false,
-      projectionMatrix._v
+      projectionMatrix!._v
     );
   }
 

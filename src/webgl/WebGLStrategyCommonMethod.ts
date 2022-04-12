@@ -1,25 +1,25 @@
-import { Material } from '../foundation/materials/core/Material';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import {Material} from '../foundation/materials/core/Material';
+import {RenderPass} from '../foundation/renderer/RenderPass';
 import {AlphaMode} from '../foundation/definitions/AlphaMode';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import {MeshRendererComponent} from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
+import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
 import {Index, IndexOf16Bytes} from '../types/CommonTypes';
-import { Mesh } from '../foundation/geometry/Mesh';
+import {Mesh} from '../foundation/geometry/Mesh';
 import {Is, Is as is} from '../foundation/misc/Is';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { WebGLResourceRepository } from './WebGLResourceRepository';
+import {ModuleManager} from '../foundation/system/ModuleManager';
+import {WebGLResourceRepository} from './WebGLResourceRepository';
 import {RnXR} from '../xr/main';
-import { Vector4 } from '../foundation/math/Vector4';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import {Vector4} from '../foundation/math/Vector4';
+import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {ShaderType} from '../foundation/definitions/ShaderType';
-import { Scalar } from '../foundation/math/Scalar';
+import {Scalar} from '../foundation/math/Scalar';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
-import { Vector3 } from '../foundation/math/Vector3';
-import { Primitive } from '..';
+import {Vector3} from '../foundation/math/Vector3';
+import {Primitive} from '..';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -249,13 +249,6 @@ function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   const webxrSystem = rnXRModule.WebXRSystem.getInstance();
   if (webxrSystem.isWebXRMode) {
     webglResourceRepository.setViewport(webxrSystem._getViewportAt(displayIdx));
-  } else {
-    const webvrSystem = rnXRModule.WebVRSystem.getInstance();
-    if (webvrSystem.isWebVRMode) {
-      webglResourceRepository.setViewport(
-        webvrSystem.getViewportAt(getViewport(renderPass), displayIdx)
-      );
-    }
   }
 }
 
@@ -270,8 +263,7 @@ function getDisplayNumber(isVRMainPass: boolean) {
 function isVrMainPass(renderPass: RenderPass) {
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const isVRMainPass =
-    (rnXRModule?.WebXRSystem.getInstance().isWebXRMode ||
-      rnXRModule?.WebVRSystem.getInstance().isWebVRMode) &&
+    rnXRModule?.WebXRSystem.getInstance().isWebXRMode &&
     renderPass.isVrRendering;
   return isVRMainPass;
 }
