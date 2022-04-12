@@ -194,7 +194,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
 
     let programUid;
     if (Is.not.exist(updatedShaderSources)) {
-      programUid = material.createProgram(
+      programUid = material._createProgram(
         this.vertexShaderMethodDefinitions_dataTexture,
         this.__getShaderProperty,
         glw.isWebGL2
@@ -203,11 +203,11 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       programUid = material.createProgramByUpdatedSources(updatedShaderSources);
     }
 
-    material.setupBasicUniformsLocations();
+    material._setupBasicUniformsLocations();
 
-    material.setUniformLocationsOfMaterialNodes(false);
+    material._setUniformLocationsOfMaterialNodes(false);
 
-    material.setupAdditionalUniformLocations(
+    material._setupAdditionalUniformLocations(
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
       false
     );

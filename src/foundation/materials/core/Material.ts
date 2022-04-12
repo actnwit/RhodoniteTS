@@ -35,11 +35,17 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import {WebGLContextWrapper} from '../../../webgl/WebGLContextWrapper';
 import {ShaderityUtility} from './ShaderityUtility';
 import {Is} from '../../misc/Is';
-import {VertexAttributeEnum} from '../../..';
 import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
 import {Primitive} from '../../geometry/Primitive';
 import {AttributeNames, RenderingArg} from '../../../webgl/types/CommonTypes';
+import {
+  GL_FUNC_ADD,
+  GL_ONE,
+  GL_ONE_MINUS_SRC_ALPHA,
+  GL_SRC_ALPHA,
+} from '../../../types';
+import {VertexAttributeEnum} from '../../definitions';
 
 type MaterialTypeName = string;
 type ShaderVariable = {
@@ -56,20 +62,39 @@ type MaterialTID = Index; // a type number of the Material Type
  */
 export class Material extends RnObject {
   private __materialNode?: AbstractMaterialNode;
-
   private __fields: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
   private __fieldsForNonSystem: Map<ShaderSemanticsIndex, ShaderVariable> =
     new Map();
+  private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> =
+    new Map();
+  private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
+  private __updatedShaderSources?: ShaderSources;
+
+  public _shaderProgramUid: CGAPIResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __materialUid: MaterialUID = -1;
+  private __materialTid: MaterialTID;
+  private __materialSid: MaterialSID = -1;
+
+  private __alphaMode = AlphaMode.Opaque;
+  public cullFace = true; // If true, enable gl.CULL_FACE
+  public cullFrontFaceCCW = true;
+  private __alphaToCoverage = false;
+  private __blendEquationMode = GL_FUNC_ADD; // gl.FUNC_ADD
+  private __blendEquationModeAlpha = GL_FUNC_ADD; // gl.FUNC_ADD
+  private __blendFuncSrcFactor = GL_SRC_ALPHA; // gl.SRC_ALPHA
+  private __blendFuncDstFactor = GL_ONE_MINUS_SRC_ALPHA; // gl.ONE_MINUS_SRC_ALPHA
+  private __blendFuncAlphaSrcFactor = GL_ONE; // gl.ONE
+  private __blendFuncAlphaDstFactor = GL_ONE; // gl.ONE
+  private __materialTypeName: MaterialTypeName;
+
+  ///
+  /// static members
+  ///
   private static __soloDatumFields: Map<
     MaterialTypeName,
     Map<ShaderSemanticsIndex, ShaderVariable>
   > = new Map();
-  private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> =
-    new Map();
-
-  public _shaderProgramUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __alphaMode = AlphaMode.Opaque;
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> =
     new Map();
@@ -83,9 +108,6 @@ export class Material extends RnObject {
   private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
   private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> =
     new Map();
-  private __materialUid: MaterialUID = -1;
-  private __materialTid: MaterialTID;
-  private __materialSid: MaterialSID = -1;
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
   private static __materialTypes: Map<
@@ -93,27 +115,11 @@ export class Material extends RnObject {
     AbstractMaterialNode | undefined
   > = new Map();
   private static __maxInstances: Map<MaterialTypeName, MaterialSID> = new Map();
-  private __materialTypeName: MaterialTypeName;
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
   private static __accessors: Map<
     MaterialTypeName,
     Map<ShaderSemanticsIndex, Accessor>
   > = new Map();
-  private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
-
-  private __updatedShaderSources?: ShaderSources;
-
-  public cullFace = true; // If true, enable gl.CULL_FACE
-  public cullFrontFaceCCW = true;
-
-  private __blendEquationMode = 32774; // gl.FUNC_ADD
-  private __blendEquationModeAlpha = 32774; // gl.FUNC_ADD
-  private __blendFuncSrcFactor = 770; // gl.SRC_ALPHA
-  private __blendFuncDstFactor = 771; // gl.ONE_MINUS_SRC_ALPHA
-  private __blendFuncAlphaSrcFactor = 1; // gl.ONE
-  private __blendFuncAlphaDstFactor = 1; // gl.ONE
-
-  private __alphaToCoverage = false;
 
   private constructor(
     materialTid: Index,
@@ -128,21 +134,31 @@ export class Material extends RnObject {
     this.__initialize();
   }
 
+  /**
+   * Initialize Method
+   */
   private __initialize() {
     this.__materialUid = ++Material.__materialUidCount;
+
     Material.__materialMap.set(this.__materialUid, this);
     Material.__instancesByTypes.set(this.__materialTypeName, this);
+
     this.tryToSetUniqueName(this.__materialTypeName, true);
+
     let countOfThisType = Material.__materialInstanceCountOfType.get(
       this.__materialTypeName
     ) as number;
     this.__materialSid = countOfThisType++;
+
+    // set this material instance for the material type
     let map = Material.__instances.get(this.__materialTypeName);
     if (Is.not.exist(map)) {
       map = new Map();
       Material.__instances.set(this.__materialTypeName, map);
     }
     map.set(this.__materialSid, this);
+
+    // set the count of instance for the material type
     Material.__materialInstanceCountOfType.set(
       this.__materialTypeName,
       countOfThisType
@@ -188,21 +204,9 @@ export class Material extends RnObject {
   //   return Array.from(this.__belongPrimitives.values());
   // }
 
-  // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
-  //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
-  setParameterByUniformName(uniformName: string, value: any, index?: Index) {
-    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
-    if (targetShaderSemantics != null) {
-      this.setParameter(targetShaderSemantics, value, index);
-    }
-  }
-
-  setTextureParameterByUniformName(uniformName: string, value: any) {
-    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
-    if (targetShaderSemantics != null) {
-      this.setTextureParameter(targetShaderSemantics, value);
-    }
-  }
+  ///
+  /// Parameter Setters
+  ///
 
   setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
@@ -280,6 +284,22 @@ export class Material extends RnObject {
     });
   }
 
+  // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
+  //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
+  setParameterByUniformName(uniformName: string, value: any, index?: Index) {
+    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
+    if (targetShaderSemantics != null) {
+      this.setParameter(targetShaderSemantics, value, index);
+    }
+  }
+
+  setTextureParameterByUniformName(uniformName: string, value: any) {
+    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
+    if (targetShaderSemantics != null) {
+      this.setTextureParameter(targetShaderSemantics, value);
+    }
+  }
+
   getParameter(shaderSemantic: ShaderSemanticsEnum): any {
     const info = this.__fieldsInfo.get(shaderSemantic.index);
     if (info != null) {
@@ -295,7 +315,12 @@ export class Material extends RnObject {
     return void 0;
   }
 
-  setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
+  /**
+   * @private
+   * called from WebGLStrategyFastest and WebGLStrategyUnfirom only
+   * @param isUniformOnlyMode
+   */
+  _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
 
@@ -324,6 +349,7 @@ export class Material extends RnObject {
 
   /**
    * @private
+   * called from WebGLStrategyFastest and WebGLStrategyUnitform only
    */
   _setParametersForGPU({
     material,
@@ -397,10 +423,10 @@ export class Material extends RnObject {
       });
     }
 
-    this.setSoloDatumParametersForGPU({shaderProgram, firstTime, args});
+    this.__setSoloDatumParametersForGPU({shaderProgram, firstTime, args});
   }
 
-  setSoloDatumParametersForGPU({
+  private __setSoloDatumParametersForGPU({
     shaderProgram,
     firstTime,
     args,
@@ -482,7 +508,7 @@ export class Material extends RnObject {
     return definitions;
   }
 
-  createProgramAsSingleOperation(
+  private __createProgramAsSingleOperation(
     vertexShaderMethodDefinitions_uniform: string,
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
@@ -555,7 +581,7 @@ export class Material extends RnObject {
     );
   }
 
-  createProgramAsSingleOperationByUpdatedSources(
+  private __createProgramAsSingleOperationByUpdatedSources(
     updatedShaderSources: ShaderSources
   ) {
     const materialNode = this.__materialNode!;
@@ -698,12 +724,20 @@ export class Material extends RnObject {
     return targetFieldsInfo.semantic;
   }
 
-  createProgram(
+  /**
+   * @private
+   * called from WebGLStrategyFastest and WebGLStrategyUnfirom
+   * @param vertexShaderMethodDefinitions_uniform
+   * @param propertySetter
+   * @param isWebGL2
+   * @returns
+   */
+  _createProgram(
     vertexShaderMethodDefinitions_uniform: string,
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
   ): CGAPIResourceHandle {
-    const programUid = this.createProgramAsSingleOperation(
+    const programUid = this.__createProgramAsSingleOperation(
       vertexShaderMethodDefinitions_uniform,
       propertySetter,
       isWebGL2
@@ -716,7 +750,9 @@ export class Material extends RnObject {
     updatedShaderSources: ShaderSources
   ): CGAPIResourceHandle {
     const programUid =
-      this.createProgramAsSingleOperationByUpdatedSources(updatedShaderSources);
+      this.__createProgramAsSingleOperationByUpdatedSources(
+        updatedShaderSources
+      );
 
     if (programUid > 0) {
       this.__updatedShaderSources = updatedShaderSources;
@@ -766,7 +802,11 @@ export class Material extends RnObject {
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
   }
 
-  setupBasicUniformsLocations() {
+  /**
+   * @private
+   * called WebGLStrategyFastest and WebGLStrategyUniform only
+   */
+  _setupBasicUniformsLocations() {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
@@ -776,7 +816,11 @@ export class Material extends RnObject {
   /// Setters
   ////////////////
 
-  setupAdditionalUniformLocations(
+  /**
+   * @private
+   * called WebGLStrategyFastest and WebGLStrategyUniform only
+   */
+  _setupAdditionalUniformLocations(
     shaderSemantics: ShaderSemanticsInfo[],
     isUniformOnlyMode: boolean
   ) {
@@ -816,12 +860,13 @@ export class Material extends RnObject {
     }
   }
 
-  getShaderSemanticInfoFromName(name: string) {
-    if (Is.exist(this.__materialNode)) {
-      return this.__materialNode.getShaderSemanticInfoFromName(name);
-    }
-    return undefined;
-  }
+  // getShaderSemanticInfoFromName(name: string) {
+  //   if (Is.exist(this.__materialNode)) {
+  //     return this.__materialNode.getShaderSemanticInfoFromName(name);
+  //   }
+  //   return undefined;
+  // }
+
   /**
    * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
    * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.
@@ -946,20 +991,20 @@ export class Material extends RnObject {
     }
   }
 
-  static getAccessorOfMemberOfMaterial(
-    materialTypeName: string,
-    propertyIndex: Index
-  ): Accessor | undefined {
-    const material = Material.__instancesByTypes.get(materialTypeName)!;
-    const info = material.__fieldsInfo.get(propertyIndex)!;
-    if (info.soloDatum) {
-      return void 0;
-    } else {
-      const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(propertyIndex);
-      return accessor;
-    }
-  }
+  // static getAccessorOfMemberOfMaterial(
+  //   materialTypeName: string,
+  //   propertyIndex: Index
+  // ): Accessor | undefined {
+  //   const material = Material.__instancesByTypes.get(materialTypeName)!;
+  //   const info = material.__fieldsInfo.get(propertyIndex)!;
+  //   if (info.soloDatum) {
+  //     return void 0;
+  //   } else {
+  //     const properties = this.__accessors.get(materialTypeName);
+  //     const accessor = properties!.get(propertyIndex);
+  //     return accessor;
+  //   }
+  // }
 
   static isRegisteredMaterialType(materialTypeName: string) {
     return Material.__materialTypes.has(materialTypeName);

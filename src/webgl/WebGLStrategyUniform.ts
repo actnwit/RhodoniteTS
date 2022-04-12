@@ -190,7 +190,7 @@ mat3 get_normalMatrix(float instanceId) {
 
     let programUid;
     if (Is.not.exist(updatedShaderSources)) {
-      programUid = material.createProgram(
+      programUid = material._createProgram(
         WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
         ShaderSemantics.getShaderProperty,
         glw.isWebGL2
@@ -199,15 +199,15 @@ mat3 get_normalMatrix(float instanceId) {
       programUid = material.createProgramByUpdatedSources(updatedShaderSources);
     }
 
-    material.setupBasicUniformsLocations();
+    material._setupBasicUniformsLocations();
 
-    material.setUniformLocationsOfMaterialNodes(true);
+    material._setUniformLocationsOfMaterialNodes(true);
 
     const shaderSemanticsInfos = this.componentMatrices;
     const shaderSemanticsInfosPointSprite =
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
-    material.setupAdditionalUniformLocations(
+    material._setupAdditionalUniformLocations(
       shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
       true
     );
