@@ -62,6 +62,7 @@ export class Primitive extends RnObject {
   private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
+  private __cachePositionAccessor?: Accessor;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -374,13 +375,18 @@ export class Primitive extends RnObject {
   }
 
   get positionAccessorVersion(): number | undefined {
-    const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZ
-    );
-    if (Is.exist(positionAccessor)) {
-      return positionAccessor.version;
+    if (this.__cachePositionAccessor != null) {
+      return this.__cachePositionAccessor.version;
     } else {
-      return undefined;
+      const positionAccessor = this.__attributes.get(
+        VertexAttribute.Position.XYZ
+      );
+      if (positionAccessor != null) {
+        this.__cachePositionAccessor = positionAccessor;
+        return positionAccessor.version;
+      } else {
+        return undefined;
+      }
     }
   }
 
