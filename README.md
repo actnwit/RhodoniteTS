@@ -67,10 +67,11 @@ $ npm install rhodonite
   <script>
   async function load() {
     // All Rhodonite classes you need are in window.Rn object.
-    await Rn.ModuleManager.getInstance().loadModule('webgl');
-    await Rn.ModuleManager.getInstance().loadModule('pbr');
     const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world'));
+    const gl = Rn.System.init({
+      approach: Rn.ProcessApproach.UniformWebGL2,
+      canvas: document.getElementById('world')
+    });
     const entityRepository = Rn.EntityRepository.getInstance();
     ...
     (After that, please refer to the sample codes.)
