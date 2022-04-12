@@ -428,8 +428,12 @@ export class Primitive extends RnObject {
     this.__indices = accessor;
   }
 
-  setTargets(targets: Array<Attributes>) {
+  setBlendShapeTargets(targets: Array<Attributes>) {
     this.__targets = targets;
+  }
+
+  getBlendShapeTargets() {
+    return this.__targets.concat();
   }
 
   get targets(): Array<Attributes> {

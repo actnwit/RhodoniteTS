@@ -16,6 +16,8 @@ import {
   Gltf2TextureSampler,
   isSameGlTF2TextureSampler,
   Gltf2Texture,
+  Gltf2AttributeBlendShapes,
+  Gltf2Attributes,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -56,6 +58,7 @@ import {
 import {createEffekseer} from './Gltf2ExporterEffekseer';
 import {Vector4} from '../math/Vector4';
 import {Tag} from '../core/RnObject';
+import {Primitive} from '../geometry';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -386,6 +389,15 @@ export class Gltf2Exporter {
       const meshComponent = entity.tryToGetMesh();
       if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
         node.mesh = meshCount++;
+      }
+
+      // BlendShape
+      const blendShapeComponent = entity.tryToGetBlendShape();
+      if (Is.exist(blendShapeComponent)) {
+        const weights = blendShapeComponent.weights;
+        if (weights.length > 0) {
+          node.weights = weights;
+        }
       }
 
       // skin
@@ -879,11 +891,11 @@ function __createBufferViewsAndAccessorsOfSkin(
 
 /**
  * create BufferViews and Accessors of mesh
- * @param entity
  * @param json
- * @param bufferViewByteLengthAccumulated
- * @param bufferViewCount
- * @param accessorCount
+ * @param entities
+ * @param existingUniqueRnBuffers
+ * @param existingUniqueRnBufferViews
+ * @param existingUniqueRnAccessors
  * @returns
  */
 function __createBufferViewsAndAccessorsOfMesh(
@@ -933,10 +945,14 @@ function __createBufferViewsAndAccessorsOfMesh(
         // For each attribute accessor
         const attributeAccessors = rnPrimitive.attributeAccessors;
         for (let j = 0; j < attributeAccessors.length; j++) {
-          const rnAttributeAccessor = attributeAccessors[j];
+          const attributeJoinedString = rnPrimitive.attributeSemantics[j];
+          const attributeName = attributeJoinedString.split('.')[0];
+          if (attributeName === 'BARY_CENTRIC_COORD') {
+            continue;
+          }
           // create a Gltf2BufferView
+          const rnAttributeAccessor = attributeAccessors[j];
           const rnBufferView = rnAttributeAccessor.bufferView;
-
           const gltf2BufferView =
             createOrReuseGltf2BufferViewForVertexAttributeBuffer(
               json,
@@ -953,15 +969,63 @@ function __createBufferViewsAndAccessorsOfMesh(
           );
 
           const accessorIdx = json.accessors.indexOf(gltf2Accessor);
-          const attributeJoinedString = rnPrimitive.attributeSemantics[j];
-          if (Is.exist(attributeJoinedString)) {
-            const attribute = attributeJoinedString.split('.')[0];
-            primitive.attributes[attribute] = accessorIdx;
-          }
+          primitive.attributes[attributeName] = accessorIdx;
         }
+        // BlendShape
+        setupBlandShapeData(
+          entity,
+          rnPrimitive,
+          primitive,
+          json,
+          existingUniqueRnBuffers,
+          existingUniqueRnBufferViews,
+          existingUniqueRnAccessors
+        );
         mesh.primitives[j] = primitive;
       }
       json.meshes.push(mesh);
+    }
+  }
+}
+
+function setupBlandShapeData(
+  entity: IMeshEntity,
+  rnPrimitive: Primitive,
+  primitive: Gltf2Primitive,
+  json: Gltf2Ex,
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  existingUniqueRnAccessors: Accessor[]
+) {
+  const blendShapeComponent = entity.tryToGetBlendShape();
+  if (Is.exist(blendShapeComponent)) {
+    const targets = rnPrimitive.getBlendShapeTargets();
+    if (Is.not.exist(primitive.targets)) {
+      primitive.targets = [] as Gltf2AttributeBlendShapes;
+    }
+    for (const target of targets) {
+      const targetJson = {} as Gltf2Attributes;
+      for (const [attributeName, rnAccessor] of target.entries()) {
+        const gltf2BufferView = createOrReuseGltf2BufferView(
+          json,
+          existingUniqueRnBuffers,
+          existingUniqueRnBufferViews,
+          rnAccessor.bufferView,
+          GL_ARRAY_BUFFER
+        );
+
+        const gltf2Accessor = createOrReuseGltf2Accessor(
+          json,
+          json.bufferViews.indexOf(gltf2BufferView),
+          existingUniqueRnAccessors,
+          rnAccessor
+        );
+        const accessorIdx = json.accessors.indexOf(gltf2Accessor);
+        const attributeJoinedString = attributeName;
+        const attribute = attributeJoinedString.split('.')[0];
+        targetJson[attribute] = accessorIdx;
+      }
+      primitive.targets.push(targetJson);
     }
   }
 }
@@ -1277,8 +1341,18 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
       ? rnChannel.sampler.output
       : new Float32Array(rnChannel.sampler.output)
   );
-  const accessorCount =
+
+  const pathName = rnChannel.target.pathName;
+  let compositionType = CompositionType.toGltf2AnimationAccessorCompositionType(
+    rnChannel.sampler.outputComponentN
+  );
+  let accessorCount =
     rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
+  if (pathName === 'weights') {
+    compositionType = CompositionType.Scalar;
+    accessorCount = rnChannel.sampler.output.length;
+  }
+
   // create a Gltf2BufferView
   const gltf2BufferView = createGltf2BufferViewForAnimation({
     bufferIdx,
@@ -1288,9 +1362,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     bufferViewByteStride:
       componentType.getSizeInBytes() * rnChannel.sampler.outputComponentN,
     componentType,
-    compositionType: CompositionType.toGltf2AnimationAccessorCompositionType(
-      rnChannel.sampler.outputComponentN
-    ),
+    compositionType,
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.output)
         ? rnChannel.sampler.output.buffer

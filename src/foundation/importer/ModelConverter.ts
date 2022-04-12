@@ -704,7 +704,7 @@ export class ModelConverter {
             targets.push(targetMap);
           }
 
-          rnPrimitive.setTargets(targets);
+          rnPrimitive.setBlendShapeTargets(targets);
         }
         rnMesh.addPrimitive(rnPrimitive);
       }
