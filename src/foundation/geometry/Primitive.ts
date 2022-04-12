@@ -26,6 +26,7 @@ import {
   PrimitiveSortKey,
   PrimitiveSortKeyOffset,
   PrimitiveSortKey_BitOffset_Material,
+  PrimitiveSortKey_BitOffset_PrimitiveType,
   PrimitiveSortKey_BitOffset_TranslucencyType,
   RaycastResult,
   RaycastResultEx1,
@@ -132,6 +133,7 @@ export class Primitive extends RnObject {
       });
     }
     this.__mode = mode;
+    this.setSortKey(PrimitiveSortKey_BitOffset_PrimitiveType, mode.index);
 
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = this;
