@@ -1,6 +1,6 @@
 {
   "name": "rhodonite",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "keywords": [
     "rhodonite",
     "webgl",
@@ -13,8 +13,7 @@
   "types": "dist/esm/index.d.ts",
   "files": [
     "dist/esm",
-    "VERSION-FILE",
-    "webxr-input-profiles-v1.0.0.tgz"
+    "VERSION-FILE"
   ],
   "repository": {
     "type": "git",
