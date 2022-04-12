@@ -17,6 +17,7 @@ import {
   isSameGlTF2TextureSampler,
   Gltf2Texture,
   Gltf2AttributeBlendShapes,
+  Gltf2Attributes,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -944,14 +945,14 @@ function __createBufferViewsAndAccessorsOfMesh(
         // For each attribute accessor
         const attributeAccessors = rnPrimitive.attributeAccessors;
         for (let j = 0; j < attributeAccessors.length; j++) {
-          const rnAttributeAccessor = attributeAccessors[j];
+          const attributeJoinedString = rnPrimitive.attributeSemantics[j];
+          const attributeName = attributeJoinedString.split('.')[0];
+          if (attributeName === 'BARY_CENTRIC_COORD') {
+            continue;
+          }
           // create a Gltf2BufferView
+          const rnAttributeAccessor = attributeAccessors[j];
           const rnBufferView = rnAttributeAccessor.bufferView;
-
-          const primitive: Gltf2Primitive = {
-            attributes: {},
-            mode: rnPrimitive.primitiveMode.index,
-          };
           const gltf2BufferView =
             createOrReuseGltf2BufferViewForVertexAttributeBuffer(
               json,
@@ -968,23 +969,18 @@ function __createBufferViewsAndAccessorsOfMesh(
           );
 
           const accessorIdx = json.accessors.indexOf(gltf2Accessor);
-          const attributeJoinedString = rnPrimitive.attributeSemantics[j];
-          if (Is.exist(attributeJoinedString)) {
-            const attribute = attributeJoinedString.split('.')[0];
-            primitive.attributes[attribute] = accessorIdx;
-          }
-
-          // BlendShape
-          setupBlandShapeData(
-            entity,
-            rnPrimitive,
-            primitive,
-            json,
-            existingUniqueRnBuffers,
-            existingUniqueRnBufferViews,
-            existingUniqueRnAccessors
-          );
+          primitive.attributes[attributeName] = accessorIdx;
         }
+        // BlendShape
+        setupBlandShapeData(
+          entity,
+          rnPrimitive,
+          primitive,
+          json,
+          existingUniqueRnBuffers,
+          existingUniqueRnBufferViews,
+          existingUniqueRnAccessors
+        );
         mesh.primitives[j] = primitive;
       }
       json.meshes.push(mesh);
@@ -1004,10 +1000,11 @@ function setupBlandShapeData(
   const blendShapeComponent = entity.tryToGetBlendShape();
   if (Is.exist(blendShapeComponent)) {
     const targets = rnPrimitive.getBlendShapeTargets();
+    if (Is.not.exist(primitive.targets)) {
+      primitive.targets = [] as Gltf2AttributeBlendShapes;
+    }
     for (const target of targets) {
-      if (Is.not.exist(primitive.targets)) {
-        primitive.targets = {} as Gltf2AttributeBlendShapes;
-      }
+      const targetJson = {} as Gltf2Attributes;
       for (const [attributeName, rnAccessor] of target.entries()) {
         const gltf2BufferView = createOrReuseGltf2BufferView(
           json,
@@ -1026,8 +1023,9 @@ function setupBlandShapeData(
         const accessorIdx = json.accessors.indexOf(gltf2Accessor);
         const attributeJoinedString = attributeName;
         const attribute = attributeJoinedString.split('.')[0];
-        (primitive.targets as any)[attribute] = accessorIdx;
+        targetJson[attribute] = accessorIdx;
       }
+      primitive.targets.push(targetJson);
     }
   }
 }
@@ -1343,8 +1341,18 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
       ? rnChannel.sampler.output
       : new Float32Array(rnChannel.sampler.output)
   );
-  const accessorCount =
+
+  const pathName = rnChannel.target.pathName;
+  let compositionType = CompositionType.toGltf2AnimationAccessorCompositionType(
+    rnChannel.sampler.outputComponentN
+  );
+  let accessorCount =
     rnChannel.sampler.output.length / rnChannel.sampler.outputComponentN;
+  if (pathName === 'weights') {
+    compositionType = CompositionType.Scalar;
+    accessorCount = rnChannel.sampler.output.length;
+  }
+
   // create a Gltf2BufferView
   const gltf2BufferView = createGltf2BufferViewForAnimation({
     bufferIdx,
@@ -1354,9 +1362,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     bufferViewByteStride:
       componentType.getSizeInBytes() * rnChannel.sampler.outputComponentN,
     componentType,
-    compositionType: CompositionType.toGltf2AnimationAccessorCompositionType(
-      rnChannel.sampler.outputComponentN
-    ),
+    compositionType,
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.output)
         ? rnChannel.sampler.output.buffer
