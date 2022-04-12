@@ -93,7 +93,7 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingGpuParameters({
     material,
     shaderProgram,
     firstTime,

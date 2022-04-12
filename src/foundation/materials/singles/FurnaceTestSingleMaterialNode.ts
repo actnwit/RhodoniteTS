@@ -133,7 +133,7 @@ export class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingGpuParameters({
     material,
     shaderProgram,
     firstTime,

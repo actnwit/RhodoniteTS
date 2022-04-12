@@ -155,7 +155,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingGpuParameters({
     material,
     shaderProgram,
     firstTime,

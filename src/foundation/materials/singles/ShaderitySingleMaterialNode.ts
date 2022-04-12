@@ -59,7 +59,7 @@ export class ShaderitySingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingGpuParameters({
     material,
     shaderProgram,
     firstTime,

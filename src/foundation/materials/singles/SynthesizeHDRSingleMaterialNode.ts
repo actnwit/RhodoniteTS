@@ -205,7 +205,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingGpuParameters({
     material,
     shaderProgram,
     firstTime,

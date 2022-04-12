@@ -363,8 +363,8 @@ export class Material extends RnObject {
     args: RenderingArg;
   }) {
     if (Is.exist(this.__materialNode)) {
-      if (Is.exist(this.__materialNode.setParametersForGPU)) {
-        this.__materialNode.setParametersForGPU({
+      if (Is.exist(this.__materialNode.setCustomSettingGpuParameters)) {
+        this.__materialNode.setCustomSettingGpuParameters({
           material,
           shaderProgram,
           firstTime,
