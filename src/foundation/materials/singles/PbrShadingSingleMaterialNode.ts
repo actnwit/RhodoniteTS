@@ -550,15 +550,6 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
 
     // IBL Parameters
     this.setupIBLParameters(args, firstTime, shaderProgram, material);
-
-    // Morph
-    const blendShapeComponent = args.entity.tryToGetBlendShape();
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getMesh(),
-      args.primitive,
-      blendShapeComponent
-    );
   }
 
   private setupIBLParameters(args: RenderingArg, firstTime: boolean, shaderProgram: WebGLProgram, material: Material) {

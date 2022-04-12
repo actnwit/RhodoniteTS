@@ -395,6 +395,15 @@ export abstract class AbstractMaterialNode extends RnObject {
         this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
       }
     }
+
+    // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    this.setMorphInfo(
+      shaderProgram,
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
+    );
   }
 
   protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
