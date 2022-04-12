@@ -166,44 +166,12 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-    }
-
-    if (firstTime || args.isVr) {
-      let cameraComponent = args.renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.main
-        ) as CameraComponent;
-      }
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-    }
-
-    if (firstTime) {
-      // Lights
-      this.setLightsInfo(
-        shaderProgram,
-        args.lightComponents,
-        material,
-        args.setUniform
-      );
-      /// Skinning
-      const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
-    }
+    this.setupBasicInfo(
+      args,
+      shaderProgram,
+      firstTime,
+      material,
+      CameraComponent
+    );
   }
 }

@@ -529,47 +529,80 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     firstTime: boolean;
     args: RenderingArg;
   }) {
+    this.setupBasicInfo(
+      args,
+      shaderProgram,
+      firstTime,
+      material,
+      CameraComponent
+    );
+
+    // // PBR maps
+    // this.__webglResourceRepository.setUniformValue(
+    //   shaderProgram,
+    //   ShaderSemantics.DiffuseEnvTexture.str,
+    //   firstTime,
+    //   [5, args.diffuseCube]
+    // );
+
+    // IBL Env map
+    this.setupIBL(args, shaderProgram, firstTime);
+
+    // IBL Parameters
+    this.setupIBLParameters(args, firstTime, shaderProgram, material);
+
+    // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    this.setMorphInfo(
+      shaderProgram,
+      args.entity.getMesh(),
+      args.primitive,
+      blendShapeComponent
+    );
+  }
+
+  private setupIBLParameters(args: RenderingArg, firstTime: boolean, shaderProgram: WebGLProgram, material: Material) {
     if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-
-      if (firstTime || args.isVr) {
-        let cameraComponent = args.renderPass.cameraComponent;
-        if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
-            CameraComponent,
-            CameraComponent.main
-          ) as CameraComponent;
-        }
-        this.setViewInfo(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-        this.setProjection(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-      }
-
       if (firstTime) {
-        // Lights
-        this.setLightsInfo(
+        const {
+          mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType,
+        } = this.setupHdriParameters(args);
+        this.__webglResourceRepository.setUniformValue(
           shaderProgram,
-          args.lightComponents,
-          material,
-          args.setUniform
+          ShaderSemantics.IBLParameter.str,
+          firstTime,
+          {
+            x: mipmapLevelNumber,
+            y: meshRenderComponent!.diffuseCubeMapContribution,
+            z: meshRenderComponent!.specularCubeMapContribution,
+            w: meshRenderComponent!.rotationOfCubeMap,
+          }
         );
-        /// Skinning
-        const skeletalComponent = args.entity.tryToGetSkeletal();
-        this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+        this.__webglResourceRepository.setUniformValue(
+          shaderProgram,
+          ShaderSemantics.HDRIFormat.str,
+          firstTime,
+          { x: diffuseHdriType, y: specularHdriType }
+        );
       }
+    } else {
+      const {
+        mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType,
+      } = this.setupHdriParameters(args);
+      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      tmp_vector4.x = mipmapLevelNumber;
+      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+      material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
+      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      tmp_vector2.x = diffuseHdriType;
+      tmp_vector2.y = specularHdriType;
+      material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
     }
+  }
 
-    // Env map
+  private setupIBL(args: RenderingArg, shaderProgram: WebGLProgram, firstTime: boolean) {
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
       this.__webglResourceRepository.setUniformValue(
         shaderProgram,
@@ -600,60 +633,6 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         [6, AbstractMaterialNode.__dummyBlackCubeTexture]
       );
     }
-
-    if (args.setUniform) {
-      if (firstTime) {
-        const {
-          mipmapLevelNumber,
-          meshRenderComponent,
-          diffuseHdriType,
-          specularHdriType,
-        } = this.setupHdriParameters(args);
-        this.__webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.IBLParameter.str,
-          firstTime,
-          {
-            x: mipmapLevelNumber,
-            y: meshRenderComponent!.diffuseCubeMapContribution,
-            z: meshRenderComponent!.specularCubeMapContribution,
-            w: meshRenderComponent!.rotationOfCubeMap,
-          }
-        );
-        this.__webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.HDRIFormat.str,
-          firstTime,
-          {x: diffuseHdriType, y: specularHdriType}
-        );
-      }
-    } else {
-      const {
-        mipmapLevelNumber,
-        meshRenderComponent,
-        diffuseHdriType,
-        specularHdriType,
-      } = this.setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
-      tmp_vector4.x = mipmapLevelNumber;
-      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
-      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-      material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
-      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
-      tmp_vector2.x = diffuseHdriType;
-      tmp_vector2.y = specularHdriType;
-      material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
-    }
-
-    // Morph
-    const blendShapeComponent = args.entity.tryToGetBlendShape();
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getMesh(),
-      args.primitive,
-      blendShapeComponent
-    );
   }
 
   private setupHdriParameters(args: RenderingArg) {

@@ -38,6 +38,7 @@ import {RnXR} from '../../../xr/main';
 import {LightComponent} from '../../components/Light/LightComponent';
 import {IMatrix33} from '../../math/IMatrix';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ComponentRepository} from '../../core/ComponentRepository';
 import {CameraComponent} from '../../components/Camera/CameraComponent';
 
 export type ShaderAttributeOrSemanticsOrString =
@@ -348,6 +349,57 @@ export abstract class AbstractMaterialNode extends RnObject {
   }
   static get dummyPbrKelemenSzirmayKalosBrdfLutTexture() {
     return this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture;
+  }
+
+  protected setupBasicInfo(
+    args: RenderingArg,
+    shaderProgram: WebGLProgram,
+    firstTime: boolean,
+    material: Material,
+    CameraComponentClass: typeof CameraComponent
+  ) {
+    if (args.setUniform) {
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
+    }
+    if (firstTime || args.isVr) {
+      let cameraComponent = args.renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        cameraComponent = ComponentRepository.getComponent(
+          CameraComponentClass,
+          CameraComponentClass.main
+        ) as CameraComponent;
+      }
+      if (args.setUniform) {
+        this.setViewInfo(
+          shaderProgram,
+          cameraComponent,
+          args.isVr,
+          args.displayIdx
+        );
+        this.setProjection(
+          shaderProgram,
+          cameraComponent,
+          args.isVr,
+          args.displayIdx
+        );
+      }
+    }
+
+    if (firstTime) {
+      if (args.setUniform) {
+        // Lights
+        this.setLightsInfo(
+          shaderProgram,
+          args.lightComponents,
+          material,
+          args.setUniform
+        );
+        /// Skinning
+        const skeletalComponent = args.entity.tryToGetSkeletal();
+        this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+      }
+    }
   }
 
   protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
