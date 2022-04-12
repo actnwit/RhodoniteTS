@@ -30,7 +30,7 @@ export class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
         min: 0,

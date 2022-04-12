@@ -63,7 +63,7 @@ type MaterialTID = Index; // a type number of the Material Type
 export class Material extends RnObject {
   private __materialNode?: AbstractMaterialNode;
   private __fields: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
-  private __fieldsForNonSystem: Map<ShaderSemanticsIndex, ShaderVariable> =
+  private __fieldsForAuto: Map<ShaderSemanticsIndex, ShaderVariable> =
     new Map();
   private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> =
     new Map();
@@ -183,8 +183,8 @@ export class Material extends RnObject {
             ),
           };
           this.__fields.set(propertyIndex, shaderVariable);
-          if (!semanticsInfo.isSystem) {
-            this.__fieldsForNonSystem.set(propertyIndex, shaderVariable);
+          if (!semanticsInfo.isCustomSetting) {
+            this.__fieldsForAuto.set(propertyIndex, shaderVariable);
           }
         }
       });
@@ -235,8 +235,8 @@ export class Material extends RnObject {
         info: array.info,
       };
       this.__fields.set(shaderSemantic.index, shaderVariable);
-      if (!array.info.isSystem) {
-        this.__fieldsForNonSystem.set(shaderSemantic.index, shaderVariable);
+      if (!array.info.isCustomSetting) {
+        this.__fieldsForAuto.set(shaderSemantic.index, shaderVariable);
       }
       if (
         shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
@@ -269,8 +269,8 @@ export class Material extends RnObject {
           info: array.info,
         };
         this.__fields.set(shaderSemantic.index, shaderVariable);
-        if (!array.info.isSystem) {
-          this.__fieldsForNonSystem.set(shaderSemantic.index, shaderVariable);
+        if (!array.info.isCustomSetting) {
+          this.__fieldsForAuto.set(shaderSemantic.index, shaderVariable);
         }
         if (
           shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
@@ -376,7 +376,7 @@ export class Material extends RnObject {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     if (args.setUniform) {
-      this.__fieldsForNonSystem.forEach(value => {
+      this.__fieldsForAuto.forEach(value => {
         const info = value.info;
         if (
           firstTime ||
@@ -399,7 +399,7 @@ export class Material extends RnObject {
         }
       });
     } else {
-      this.__fieldsForNonSystem.forEach(value => {
+      this.__fieldsForAuto.forEach(value => {
         const info = value.info;
         if (
           info.compositionType === CompositionType.Texture2D ||
@@ -447,7 +447,7 @@ export class Material extends RnObject {
         info.compositionType === CompositionType.Texture2D ||
         info.compositionType === CompositionType.TextureCube
       ) {
-        if (!info.isSystem) {
+        if (!info.isCustomSetting) {
           if (
             firstTime ||
             info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly

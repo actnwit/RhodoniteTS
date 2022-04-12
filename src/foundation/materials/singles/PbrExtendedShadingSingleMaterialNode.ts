@@ -90,7 +90,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
       {
@@ -100,7 +100,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
       },
       {
@@ -110,7 +110,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0]),
       },
       {
@@ -120,7 +120,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
       },
       {
@@ -130,7 +130,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: [2, AbstractMaterialNode.__dummyBlueTexture],
       },
       {
@@ -140,7 +140,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector3.fromCopyArray([0, 0, 1]),
       },
       {
@@ -150,7 +150,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -1,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector2.fromCopyArray2([0, 0]),
       },
       {
@@ -160,7 +160,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector2.fromCopyArray2([0.0, 0.5]),
       },
       {
@@ -170,7 +170,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector3.fromCopyArray([0.0, 0.0, 0.0]),
       },
       {
@@ -180,7 +180,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: [3, AbstractMaterialNode.__dummyBlueTexture],
       },
       {
@@ -190,7 +190,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: [4, AbstractMaterialNode.__dummySRGBGrayTexture],
       },
       {
@@ -200,7 +200,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
@@ -210,7 +210,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
@@ -220,7 +220,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
@@ -230,7 +230,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
@@ -241,7 +241,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
@@ -252,7 +252,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
@@ -263,7 +263,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
@@ -274,7 +274,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
@@ -284,7 +284,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 20,
-        isSystem: false,
+        isCustomSetting: false,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
@@ -294,7 +294,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
@@ -305,7 +305,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 5,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: Vector2.fromCopyArray2([0, 0]),
       },
@@ -316,7 +316,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       //   stage: ShaderType.PixelShader,
       //   min: 0,
       //   max: Number.MAX_SAFE_INTEGER,
-      //   isSystem: true,
+      //   isCustomSetting: true,
       //   updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //   initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture],
       // },
@@ -327,7 +327,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       //   stage: ShaderType.PixelShader,
       //   min: 0,
       //   max: Number.MAX_SAFE_INTEGER,
-      //   isSystem: true,
+      //   isCustomSetting: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       //   initialValue: Scalar.fromCopyNumber(0),
       //   soloDatum: true,
@@ -339,7 +339,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       //   stage: ShaderType.PixelShader,
       //   min: -Number.MAX_VALUE,
       //   max: Number.MAX_VALUE,
-      //   isSystem: true,
+      //   isCustomSetting: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       //   initialValue: Vector3.fromCopyArray([0, 0.0]),
       //   soloDatum: true,
@@ -351,7 +351,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture],
       },
@@ -362,7 +362,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture],
       },
@@ -383,7 +383,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       //         max: Number.MAX_VALUE,
       //         index: idx,
       //         maxIndex: 4,
-      //         isSystem: true,
+      //         isCustomSetting: true,
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //         initialValue: Vector4.fromCopyArray([0, 0, 0, 1]),
       //         soloDatum: true,
@@ -398,7 +398,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       //         max: 1,
       //         index: idx,
       //         maxIndex: 4,
-      //         isSystem: true,
+      //         isCustomSetting: true,
       //         initialValue: Vector4.fromCopyArray([0, 1, 0, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //         soloDatum: true,
@@ -413,7 +413,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       //         max: 10,
       //         index: idx,
       //         maxIndex: 4,
-      //         isSystem: true,
+      //         isCustomSetting: true,
       //         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //         soloDatum: true,
@@ -427,13 +427,13 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       this.__definitions += '#define RN_IS_SKINNING\n';
 
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-      // stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime });
+      // stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime });
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true });
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true });
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: Scalar.fromCopyNumber(0) });
+      //   stage: ShaderType.VertexShader, min: 0, max: 1, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: Scalar.fromCopyNumber(0) });
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

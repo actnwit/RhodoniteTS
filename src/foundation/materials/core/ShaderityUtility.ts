@@ -211,7 +211,7 @@ export class ShaderityUtility {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isSystem: false,
+      isCustomSetting: false,
       stage,
       none_u_prefix,
     };
@@ -232,12 +232,12 @@ export class ShaderityUtility {
     }
     shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
-    const isSystem = info.match(/isSystem[\t ]*=[\t ]*(\w+)[,\t ]*/);
-    let isSystemFlg = false;
-    if (isSystem?.[1] === 'true') {
-      isSystemFlg = true;
+    const isCustomSetting = info.match(/isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
+    let isCustomSettingFlg = false;
+    if (isCustomSetting?.[1] === 'true') {
+      isCustomSettingFlg = true;
     }
-    shaderSemanticsInfo.isSystem = isSystemFlg;
+    shaderSemanticsInfo.isCustomSetting = isCustomSettingFlg;
 
     const updateInterval = info.match(
       /updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/
