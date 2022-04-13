@@ -169,11 +169,11 @@ declare const Rn: typeof _Rn;
       Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
     );
     materialSphere.setParameter(
-      Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.ShadowColor,
+      Rn.VarianceShadowMapDecodeClassicMaterialContent.ShadowColor,
       Rn.Vector4.fromCopyArray([0.25, 0.05, 0.2, 1])
     );
     materialSphere.setParameter(
-      Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.MinimumVariance,
+      Rn.VarianceShadowMapDecodeClassicMaterialContent.MinimumVariance,
       Rn.Scalar.fromCopyNumber(0.01)
     );
     const primitiveSphere = entitySphere.getMesh().mesh.primitives[0];
@@ -190,11 +190,11 @@ declare const Rn: typeof _Rn;
       Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
     );
     materialBoard.setParameter(
-      Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.ShadowColor,
+      Rn.VarianceShadowMapDecodeClassicMaterialContent.ShadowColor,
       Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
     );
     materialBoard.setParameter(
-      Rn.VarianceShadowMapDecodeClassicSingleMaterialNode.MinimumVariance,
+      Rn.VarianceShadowMapDecodeClassicMaterialContent.MinimumVariance,
       Rn.Scalar.fromCopyNumber(0.01)
     );
     const primitiveBoard = entityBoard.getMesh().mesh.primitives[0];
@@ -292,17 +292,17 @@ declare const Rn: typeof _Rn;
         variance: gaussianVariance,
       });
     material.setParameter(
-      Rn.GaussianBlurForEncodedDepthSingleMaterialNode.GaussianKernelSize,
+      Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianKernelSize,
       gaussianKernelSize
     );
     material.setParameter(
-      Rn.GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio,
+      Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianRatio,
       gaussianDistributionRatio
     );
 
     if (isHorizontal === false) {
       material.setParameter(
-        Rn.GaussianBlurForEncodedDepthSingleMaterialNode.IsHorizontal,
+        Rn.GaussianBlurForEncodedDepthMaterialContent.IsHorizontal,
         false
       );
     }

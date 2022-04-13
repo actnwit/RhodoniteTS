@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -29,7 +29,7 @@ import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import { Is } from '../../misc/Is';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
+export class PbrShadingMaterialContent extends AbstractMaterialContent {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
     str: 'isOutputHDR',
   });
@@ -110,7 +110,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
@@ -121,9 +121,9 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.MetallicRoughnessFactor,
@@ -132,7 +132,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector2.fromCopyArray2([1, 1]),
       },
@@ -143,9 +143,9 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.OcclusionTexture,
@@ -154,9 +154,9 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [3, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [3, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.EmissiveTexture,
@@ -165,9 +165,9 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [4, AbstractMaterialNode.__dummyBlackTexture],
+        initialValue: [4, AbstractMaterialContent.__dummyBlackTexture],
       },
       {
         semantic: ShaderSemantics.Wireframe,
@@ -176,18 +176,18 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector3.fromCopyArray([0, 0, 1]),
       },
       {
-        semantic: PbrShadingSingleMaterialNode.IsOutputHDR,
+        semantic: PbrShadingMaterialContent.IsOutputHDR,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Bool,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
@@ -198,7 +198,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
       },
@@ -209,7 +209,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
@@ -220,7 +220,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 5,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector2.fromCopyArray2([0, 0]),
       },
@@ -231,9 +231,9 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [5, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.SpecularEnvTexture,
@@ -242,109 +242,109 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [6, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
-        semantic: PbrShadingSingleMaterialNode.BaseColorTextureTransform,
+        semantic: PbrShadingMaterialContent.BaseColorTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic: PbrShadingSingleMaterialNode.BaseColorTextureRotation,
+        semantic: PbrShadingMaterialContent.BaseColorTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic:
-          PbrShadingSingleMaterialNode.MetallicRoughnessTextureTransform,
+          PbrShadingMaterialContent.MetallicRoughnessTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic: PbrShadingSingleMaterialNode.MetallicRoughnessTextureRotation,
+        semantic: PbrShadingMaterialContent.MetallicRoughnessTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
 
       {
-        semantic: PbrShadingSingleMaterialNode.BaseColorTexcoordIndex,
+        semantic: PbrShadingMaterialContent.BaseColorTexcoordIndex,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic: PbrShadingSingleMaterialNode.MetallicRoughnessTexcoordIndex,
+        semantic: PbrShadingMaterialContent.MetallicRoughnessTexcoordIndex,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic: PbrShadingSingleMaterialNode.OcclusionTexcoordIndex,
+        semantic: PbrShadingMaterialContent.OcclusionTexcoordIndex,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic: PbrShadingSingleMaterialNode.EmissiveTexcoordIndex,
+        semantic: PbrShadingMaterialContent.EmissiveTexcoordIndex,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
 
       {
-        semantic: PbrShadingSingleMaterialNode.OcclusionStrength,
+        semantic: PbrShadingMaterialContent.OcclusionStrength,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(1),
       },
@@ -356,7 +356,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -368,7 +368,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -394,7 +394,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           componentType: ComponentType.Int,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: Scalar.fromCopyNumber(0),
           min: 0,
@@ -407,7 +407,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           compositionType: CompositionType.ScalarArray,
           maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: new VectorN(
             new Int32Array(Config.maxVertexMorphNumberInShader)
@@ -422,7 +422,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           compositionType: CompositionType.ScalarArray,
           maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: new VectorN(
             new Float32Array(Config.maxVertexMorphNumberInShader)
@@ -449,51 +449,51 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader,
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
-          isSystem: false,
+          isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: [2, AbstractMaterialNode.__dummyBlackTexture],
+          initialValue: [2, AbstractMaterialContent.__dummyBlackTexture],
         },
         {
-          semantic: PbrShadingSingleMaterialNode.NormalTextureTransform,
+          semantic: PbrShadingMaterialContent.NormalTextureTransform,
           compositionType: CompositionType.Vec4,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
           min: -10,
           max: 10,
-          isSystem: false,
+          isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
           initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
         },
         {
-          semantic: PbrShadingSingleMaterialNode.NormalTextureRotation,
+          semantic: PbrShadingMaterialContent.NormalTextureRotation,
           compositionType: CompositionType.Scalar,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
           min: -Math.PI,
           max: Math.PI,
-          isSystem: false,
+          isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
           initialValue: Scalar.fromCopyNumber(0),
         },
         {
-          semantic: PbrShadingSingleMaterialNode.NormalTexcoordIndex,
+          semantic: PbrShadingMaterialContent.NormalTexcoordIndex,
           compositionType: CompositionType.Scalar,
           componentType: ComponentType.Int,
           stage: ShaderType.PixelShader,
           min: 0,
           max: 1,
-          isSystem: false,
+          isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
           initialValue: Scalar.fromCopyNumber(0),
         },
         {
-          semantic: PbrShadingSingleMaterialNode.NormalScale,
+          semantic: PbrShadingMaterialContent.NormalScale,
           compositionType: CompositionType.Scalar,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
-          isSystem: false,
+          isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
           initialValue: Scalar.fromCopyNumber(1),
         }
@@ -509,7 +509,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1.0,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: Scalar.fromCopyNumber(0.01),
       });
@@ -518,7 +518,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -529,85 +529,34 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
+    this.setupBasicInfo(
+      args,
+      shaderProgram,
+      firstTime,
+      material,
+      CameraComponent
+    );
 
-      if (firstTime || args.isVr) {
-        let cameraComponent = args.renderPass.cameraComponent;
-        if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
-            CameraComponent,
-            CameraComponent.main
-          ) as CameraComponent;
-        }
-        this.setViewInfo(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-        this.setProjection(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-      }
+    // // PBR maps
+    // this.__webglResourceRepository.setUniformValue(
+    //   shaderProgram,
+    //   ShaderSemantics.DiffuseEnvTexture.str,
+    //   firstTime,
+    //   [5, args.diffuseCube]
+    // );
 
-      if (firstTime) {
-        // Lights
-        this.setLightsInfo(
-          shaderProgram,
-          args.lightComponents,
-          material,
-          args.setUniform
-        );
-        /// Skinning
-        const skeletalComponent = args.entity.tryToGetSkeletal();
-        this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
-      }
-    }
+    // IBL Env map
+    this.setupIBL(args, shaderProgram, firstTime);
 
-    // Env map
-    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        firstTime,
-        [5, args.diffuseCube]
-      );
-    } else {
-      this.__webglResourceRepository.setUniformValue(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        firstTime,
-        [5, AbstractMaterialNode.__dummyBlackCubeTexture]
-      );
-    }
-    if (args.specularCube && args.specularCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
-        shaderProgram,
-        ShaderSemantics.SpecularEnvTexture.str,
-        firstTime,
-        [6, args.specularCube]
-      );
-    } else {
-      this.__webglResourceRepository.setUniformValue(
-        shaderProgram,
-        ShaderSemantics.SpecularEnvTexture.str,
-        firstTime,
-        [6, AbstractMaterialNode.__dummyBlackCubeTexture]
-      );
-    }
+    // IBL Parameters
+    this.setupIBLParameters(args, firstTime, shaderProgram, material);
+  }
 
+  private setupIBLParameters(args: RenderingArg, firstTime: boolean, shaderProgram: WebGLProgram, material: Material) {
     if (args.setUniform) {
       if (firstTime) {
         const {
-          mipmapLevelNumber,
-          meshRenderComponent,
-          diffuseHdriType,
-          specularHdriType,
+          mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType,
         } = this.setupHdriParameters(args);
         this.__webglResourceRepository.setUniformValue(
           shaderProgram,
@@ -624,36 +573,57 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
           shaderProgram,
           ShaderSemantics.HDRIFormat.str,
           firstTime,
-          {x: diffuseHdriType, y: specularHdriType}
+          { x: diffuseHdriType, y: specularHdriType }
         );
       }
     } else {
       const {
-        mipmapLevelNumber,
-        meshRenderComponent,
-        diffuseHdriType,
-        specularHdriType,
+        mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType,
       } = this.setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
       tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
       tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
       material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
-      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
       material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
     }
+  }
 
-    // Morph
-    const blendShapeComponent = args.entity.tryToGetBlendShape();
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getMesh(),
-      args.primitive,
-      blendShapeComponent
-    );
+  private setupIBL(args: RenderingArg, shaderProgram: WebGLProgram, firstTime: boolean) {
+    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.DiffuseEnvTexture.str,
+        firstTime,
+        [5, args.diffuseCube]
+      );
+    } else {
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.DiffuseEnvTexture.str,
+        firstTime,
+        [5, AbstractMaterialContent.__dummyBlackCubeTexture]
+      );
+    }
+    if (args.specularCube && args.specularCube.isTextureReady) {
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.SpecularEnvTexture.str,
+        firstTime,
+        [6, args.specularCube]
+      );
+    } else {
+      this.__webglResourceRepository.setUniformValue(
+        shaderProgram,
+        ShaderSemantics.SpecularEnvTexture.str,
+        firstTime,
+        [6, AbstractMaterialContent.__dummyBlackCubeTexture]
+      );
+    }
   }
 
   private setupHdriParameters(args: RenderingArg) {

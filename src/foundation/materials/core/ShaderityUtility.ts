@@ -25,7 +25,7 @@ import {
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialNode } from './AbstractMaterialNode';
+import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -211,7 +211,7 @@ export class ShaderityUtility {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isSystem: false,
+      isCustomSetting: false,
       stage,
       none_u_prefix,
     };
@@ -232,12 +232,12 @@ export class ShaderityUtility {
     }
     shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
-    const isSystem = info.match(/isSystem[\t ]*=[\t ]*(\w+)[,\t ]*/);
-    let isSystemFlg = false;
-    if (isSystem?.[1] === 'true') {
-      isSystemFlg = true;
+    const isCustomSetting = info.match(/isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
+    let isCustomSettingFlg = false;
+    if (isCustomSetting?.[1] === 'true') {
+      isCustomSettingFlg = true;
     }
-    shaderSemanticsInfo.isSystem = isSystemFlg;
+    shaderSemanticsInfo.isCustomSetting = isCustomSettingFlg;
 
     const updateInterval = info.match(
       /updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/
@@ -284,7 +284,7 @@ export class ShaderityUtility {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
             initialValue = [
               parseInt(split[0]),
-              (AbstractMaterialNode as any)[`dummy${color}Texture`],
+              (AbstractMaterialContent as any)[`dummy${color}Texture`],
             ];
           } else if (
             shaderSemanticsInfo.compositionType === CompositionType.TextureCube
@@ -292,7 +292,7 @@ export class ShaderityUtility {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
             initialValue = [
               parseInt(split[0]),
-              (AbstractMaterialNode as any)[`dummy${color}CubeTexture`],
+              (AbstractMaterialContent as any)[`dummy${color}CubeTexture`],
             ];
           } else {
             checkCompositionNumber(CompositionType.Vec2);
@@ -387,11 +387,11 @@ export class ShaderityUtility {
     } else if (
       shaderSemanticsInfo.compositionType === CompositionType.Texture2D
     ) {
-      return [0, AbstractMaterialNode.dummyWhiteTexture];
+      return [0, AbstractMaterialContent.dummyWhiteTexture];
     } else if (
       shaderSemanticsInfo.compositionType === CompositionType.TextureCube
     ) {
-      return [0, AbstractMaterialNode.dummyBlackTexture];
+      return [0, AbstractMaterialContent.dummyBlackTexture];
     }
 
     console.warn('initial value is not found');

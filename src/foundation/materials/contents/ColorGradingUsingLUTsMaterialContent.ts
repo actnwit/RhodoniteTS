@@ -14,13 +14,13 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import { Texture } from '../../textures/Texture';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import { RenderPass } from '../../renderer/RenderPass';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialNode {
+export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
   static lookupTableTexture = new ShaderSemanticsClass({
     str: 'lookupTableTexture',
   });
@@ -47,7 +47,7 @@ export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialNod
     ) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
     } else {
-      targetTexture = AbstractMaterialNode.__dummyBlackTexture;
+      targetTexture = AbstractMaterialContent.__dummyBlackTexture;
       if (framebuffer != null) {
         console.warn(
           'renderPass does not have framebuffer.colorAttachments[' +
@@ -76,7 +76,7 @@ export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialNod
       lookupTableTexture = texture;
     } else {
       console.warn('no LUT texture is specified');
-      lookupTableTexture = AbstractMaterialNode.__dummyBlackTexture;
+      lookupTableTexture = AbstractMaterialContent.__dummyBlackTexture;
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -85,18 +85,18 @@ export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialNod
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, targetTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ColorGradingUsingLUTsSingleMaterialNode.lookupTableTexture,
+        semantic: ColorGradingUsingLUTsMaterialContent.lookupTableTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, lookupTableTexture],
         min: 0,
@@ -107,7 +107,7 @@ export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialNod
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

@@ -1,4 +1,4 @@
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -21,7 +21,7 @@ import {AlphaModeEnum} from '../../definitions/AlphaMode';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
+export class ClassicShadingMaterialContent extends AbstractMaterialContent {
   constructor({
     isSkinning,
     isLighting,
@@ -49,7 +49,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(ShadingModel.Constant.index),
@@ -61,7 +61,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(5),
@@ -73,7 +73,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
@@ -85,9 +85,9 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -96,9 +96,9 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -110,7 +110,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -122,7 +122,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -147,7 +147,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
       stage: ShaderType.PixelShader,
       min: 0,
       max: 1.0,
-      isSystem: false,
+      isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Scalar.fromCopyNumber(0.01),
     });
@@ -155,7 +155,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -166,44 +166,12 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-    }
-
-    if (firstTime || args.isVr) {
-      let cameraComponent = args.renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.main
-        ) as CameraComponent;
-      }
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-    }
-
-    if (firstTime) {
-      // Lights
-      this.setLightsInfo(
-        shaderProgram,
-        args.lightComponents,
-        material,
-        args.setUniform
-      );
-      /// Skinning
-      const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
-    }
+    this.setupBasicInfo(
+      args,
+      shaderProgram,
+      firstTime,
+      material,
+      CameraComponent
+    );
   }
 }

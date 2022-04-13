@@ -181,7 +181,7 @@ declare const Rn: typeof _Rn;
       diffuseColorFactorLargeBoard
     );
     materialLargeBoard.setParameter(
-      Rn.ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
+      Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
       shadowColorFactorLargeBoard
     );
 

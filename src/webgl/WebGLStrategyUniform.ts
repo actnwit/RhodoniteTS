@@ -59,7 +59,7 @@ export class WebGLStrategyUniform implements WebGLStrategy {
       stage: ShaderType.VertexShader,
       min: 0,
       max: 1,
-      isSystem: true,
+      isCustomSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
@@ -69,7 +69,7 @@ export class WebGLStrategyUniform implements WebGLStrategy {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isSystem: true,
+      isCustomSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
@@ -79,7 +79,7 @@ export class WebGLStrategyUniform implements WebGLStrategy {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isSystem: true,
+      isCustomSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
   ];
@@ -491,7 +491,7 @@ mat3 get_normalMatrix(float instanceId) {
 
         const entity = meshComponent.entity;
         WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-        material._setParametersForGPU({
+        material._setParametersToGpu({
           material,
           shaderProgram,
           firstTime,

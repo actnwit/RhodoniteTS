@@ -61,7 +61,7 @@ declare global {
 
   function createRenderPassMain(cameraComponent: CameraComponent) {
     const material = Rn.MaterialHelper.createFurnaceTestMaterial();
-    material.setParameter(Rn.FurnaceTestSingleMaterialNode.debugView, 1); // weakWhiteFurnaceResult
+    material.setParameter(Rn.FurnaceTestMaterialContent.debugView, 1); // weakWhiteFurnaceResult
     material.setParameter(
       Rn.ShaderSemantics.ScreenInfo,
       Rn.Vector2.fromCopyArray2([512, 512])
@@ -168,26 +168,23 @@ declare global {
     }
 
     function setDebugView(intValue: number) {
-      material.setParameter(
-        Rn.FurnaceTestSingleMaterialNode.debugView,
-        intValue
-      );
+      material.setParameter(Rn.FurnaceTestMaterialContent.debugView, intValue);
       draw(expressions);
     }
 
     function setGType(intValue: number) {
-      material.setParameter(Rn.FurnaceTestSingleMaterialNode.g_type, intValue);
+      material.setParameter(Rn.FurnaceTestMaterialContent.g_type, intValue);
       draw(expressions);
     }
 
     function setF0(floatValue: number) {
-      material.setParameter(Rn.FurnaceTestSingleMaterialNode.f0, floatValue);
+      material.setParameter(Rn.FurnaceTestMaterialContent.f0, floatValue);
       draw(expressions);
     }
 
     function setDisableFresnel(intValue: number) {
       material.setParameter(
-        Rn.FurnaceTestSingleMaterialNode.disable_fresnel,
+        Rn.FurnaceTestMaterialContent.disable_fresnel,
         intValue
       );
       draw(expressions);
@@ -199,7 +196,7 @@ declare global {
     }
 
     function setMode(intValue: number) {
-      material.setParameter(Rn.FurnaceTestSingleMaterialNode.mode, intValue);
+      material.setParameter(Rn.FurnaceTestMaterialContent.mode, intValue);
       if (intValue === 0) {
         window.entityBoard.getSceneGraph().isVisible = true;
         window.entitySphere.getSceneGraph().isVisible = false;

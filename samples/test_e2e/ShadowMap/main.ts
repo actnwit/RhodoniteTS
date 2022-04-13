@@ -73,7 +73,7 @@ document.body.appendChild(p);
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
-    Rn.ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
+    Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
     Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
   );
 

@@ -1,6 +1,6 @@
 import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
 import {ProcessApproach} from '../../foundation/definitions/ProcessApproach';
-import {ShaderAttributeOrSemanticsOrString} from '../../foundation/materials/core/AbstractMaterialNode';
+import {ShaderAttributeOrSemanticsOrString} from '../../foundation/materials/core/AbstractMaterialContent';
 import {ShaderSemanticsClass} from '../../foundation/definitions/ShaderSemantics';
 import {
   VertexAttribute,

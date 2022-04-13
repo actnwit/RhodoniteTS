@@ -2,7 +2,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsInfo,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import {ShaderityObject} from 'shaderity';
 import { ShaderityUtility } from '../core/ShaderityUtility';
@@ -13,7 +13,7 @@ import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
-export class ShaderitySingleMaterialNode extends AbstractMaterialNode {
+export class ShaderityMaterialContent extends AbstractMaterialContent {
   constructor({
     name,
     vertexShaderityObj,
@@ -27,11 +27,11 @@ export class ShaderitySingleMaterialNode extends AbstractMaterialNode {
 
     const vertexShaderData = ShaderityUtility.getShaderDataRefection(
       vertexShaderityObj,
-      AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
+      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
     const pixelShaderData = ShaderityUtility.getShaderDataRefection(
       pixelShaderityObj,
-      AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
+      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
     this.__vertexShaderityObject = vertexShaderityObj;
     this.__pixelShaderityObject = pixelShaderityObj;
@@ -52,14 +52,14 @@ export class ShaderitySingleMaterialNode extends AbstractMaterialNode {
       }
     }
 
-    ShaderitySingleMaterialNode.__removeUselessShaderSemantics(
+    ShaderityMaterialContent.__removeUselessShaderSemantics(
       shaderSemanticsInfoArray
     );
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

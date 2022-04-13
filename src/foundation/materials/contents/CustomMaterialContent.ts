@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
@@ -18,7 +18,7 @@ import { ShaderityUtility } from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
 
-export class CustomSingleMaterialNode extends AbstractMaterialNode {
+export class CustomMaterialContent extends AbstractMaterialContent {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   static BaseColorTextureTransform = new ShaderSemanticsClass({
@@ -70,11 +70,11 @@ export class CustomSingleMaterialNode extends AbstractMaterialNode {
 
     const vertexShaderData = ShaderityUtility.getShaderDataRefection(
       vertexShader,
-      AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
+      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
     const pixelShaderData = ShaderityUtility.getShaderDataRefection(
       pixelShader,
-      AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)
+      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
     this.__vertexShaderityObject = vertexShaderData.shaderityObject;
     this.__pixelShaderityObject = pixelShaderData.shaderityObject;
@@ -122,7 +122,7 @@ export class CustomSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -187,7 +187,7 @@ export class CustomSingleMaterialNode extends AbstractMaterialNode {
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
-        [5, AbstractMaterialNode.__dummyBlackCubeTexture]
+        [5, AbstractMaterialContent.__dummyBlackCubeTexture]
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
@@ -202,7 +202,7 @@ export class CustomSingleMaterialNode extends AbstractMaterialNode {
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
-        [6, AbstractMaterialNode.__dummyBlackCubeTexture]
+        [6, AbstractMaterialContent.__dummyBlackCubeTexture]
       );
     }
 
@@ -239,13 +239,13 @@ export class CustomSingleMaterialNode extends AbstractMaterialNode {
         diffuseHdriType,
         specularHdriType,
       } = this.setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
       tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
       tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
       material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
-      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
       material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);

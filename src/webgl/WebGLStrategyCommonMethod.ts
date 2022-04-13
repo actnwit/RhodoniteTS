@@ -296,7 +296,7 @@ function getPointSpriteShaderSemanticsInfoArray() {
       initialValue: Scalar.fromCopyNumber(30.0),
       min: 0,
       max: Number.MAX_VALUE,
-      isSystem: false,
+      isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
@@ -307,7 +307,7 @@ function getPointSpriteShaderSemanticsInfoArray() {
       initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
       min: 0,
       max: 1,
-      isSystem: false,
+      isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
   ];

@@ -4,7 +4,7 @@ import {
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector4 } from '../../math/Vector4';
@@ -26,22 +26,27 @@ import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { MutableVector4 } from '../../math/MutableVector4';
-import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
-import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { Is } from '../../misc/Is';
+import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
+import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {Is} from '../../misc/Is';
 
-export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
-  static ShadowColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
-    str: 'shadowColorFactor',
+export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
+  static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
+  static DepthTexture = new ShaderSemanticsClass({str: 'depthTexture'});
+  static SquareDepthTexture = new ShaderSemanticsClass({
+    str: 'squareDepthTexture',
   });
-  static ShadowAlpha: ShaderSemanticsEnum = new ShaderSemanticsClass({
-    str: 'shadowAlpha',
+  static DepthAdjustment = new ShaderSemanticsClass({str: 'depthAdjustment'});
+  static TextureDepthAdjustment = new ShaderSemanticsClass({
+    str: 'textureDepthAdjustment',
   });
-  static NonShadowAlpha: ShaderSemanticsEnum = new ShaderSemanticsClass({
-    str: 'nonShadowAlpha',
+  static MinimumVariance = new ShaderSemanticsClass({str: 'minimumVariance'});
+  static LightBleedingParameter = new ShaderSemanticsClass({
+    str: 'lightBleedingParameter',
   });
-  static AllowableDepthError: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  static ShadowColor = new ShaderSemanticsClass({str: 'shadowColor'});
+  static AllowableDepthError = new ShaderSemanticsClass({
     str: 'allowableDepthError',
   });
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
@@ -49,24 +54,24 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
   static DebugColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'debugColorFactor',
   });
-  static DepthTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
-    str: 'depthTexture',
-  });
-  static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
 
   private static __lastZNear = 0.0;
   private static __lastZFar = 0.0;
 
-  private __encodedDepthRenderPass: RenderPass;
+  private __depthCameraComponent?: CameraComponent;
 
   /**
-   * The constructor of the ShadowMapDecodeClassicSingleMaterialNode
+   * The constructor of the VarianceShadowMapDecodeClassicMaterialContent
    * @param isMorphing True if the morphing is to be applied
    * @param isSkinning True if the skeleton is to be applied
    * @param isLighting True if the lighting is to be applied. When isLighting is false, the Shader draws the original color of the material, except for the shadow area.
    * @param isDebugging True if the shader displays the DebugColorFactor color in areas outside of the depth map.
-   * @param colorAttachmentsNumber The index of colorAttachment in a framebuffer. The colorAttachment must have depth information drawn by the DepthEncodeSingleMaterialNode.
-   * @param encodedDepthRenderPass The render pass where the depth information from the DepthEncodeSingleMaterialNode is drawn to the frame buffer
+   *
+   *
+   *
+   *
+   * @param colorAttachmentsNumber The index of colorAttachment in a framebuffer. The colorAttachment must have depth information drawn by the DepthEncodeMaterialContent.
+   * @param encodedDepthRenderPass The render pass where the depth information from the DepthEncodeMaterialContent is drawn to the frame buffer
    */
   constructor(
     {
@@ -74,39 +79,69 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
       isSkinning,
       isLighting,
       isDebugging,
-      colorAttachmentsNumber,
+      colorAttachmentsNumberDepth,
+      colorAttachmentsNumberSquareDepth,
+      depthCameraComponent,
     }: {
       isMorphing: boolean;
       isSkinning: boolean;
       isLighting: boolean;
       isDebugging: boolean;
-      colorAttachmentsNumber: Count;
+      colorAttachmentsNumberDepth: Count;
+      colorAttachmentsNumberSquareDepth: Count;
+      depthCameraComponent?: CameraComponent;
     },
-    encodedDepthRenderPass: RenderPass
+    encodedDepthRenderPasses: RenderPass[]
   ) {
     super(
       null,
-      'ShadowMapDecodeClassicShading' +
+      'varianceShadowMapDecodeShading' +
+        (isMorphing ? '+morphing' : '') +
         (isSkinning ? '+skinning' : '') +
-        (isLighting ? '' : '-lighting'),
+        (isLighting ? '' : '-lighting') +
+        (isDebugging ? '' : '+debugging'),
       {isMorphing, isSkinning, isLighting},
-      ShadowMapDecodeSingleShaderVertex,
-      ShadowMapDecodeSingleShaderFragment
+      VarianceShadowMapDecodeClassicShaderVertex,
+      VarianceShadowMapDecodeClassicShaderFragment
     );
 
-    this.__encodedDepthRenderPass = encodedDepthRenderPass;
-
-    const encodedDepthFramebuffer = encodedDepthRenderPass.getFramebuffer();
-    if (encodedDepthFramebuffer == null) {
-      console.error('encodedDepthRenderPass does not have framebuffer');
-      return;
+    if (encodedDepthRenderPasses.length !== 2) {
+      console.error('invalid length of renderPasses');
     }
-    const encodedDepthTexture =
-      encodedDepthFramebuffer.colorAttachments[colorAttachmentsNumber];
 
-    const viewport = encodedDepthRenderPass.getViewport() as MutableVector4;
-    viewport.setComponents(1, 1, viewport.z - 1, viewport.w - 1);
-    encodedDepthRenderPass.setViewport(viewport);
+    if (depthCameraComponent == null) {
+      console.warn('need to set depth camera component');
+    } else {
+      this.__depthCameraComponent = depthCameraComponent;
+    }
+
+    for (const encodedDepthRenderPass of encodedDepthRenderPasses) {
+      const viewport = encodedDepthRenderPass.getViewport() as MutableVector4;
+      viewport.setComponents(1, 1, viewport.z - 1, viewport.w - 1);
+      encodedDepthRenderPass.setViewport(viewport);
+    }
+
+    let depthTexture;
+    const depthFramebuffer = encodedDepthRenderPasses[0].getFramebuffer();
+    if (depthFramebuffer) {
+      depthTexture =
+        depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
+    } else {
+      console.warn('renderPass of depth does not have framebuffer');
+      depthTexture = AbstractMaterialContent.__dummyBlackTexture;
+    }
+
+    let squareDepthTexture;
+    const squareDepthFramebuffer = encodedDepthRenderPasses[1].getFramebuffer();
+    if (squareDepthFramebuffer) {
+      squareDepthTexture =
+        squareDepthFramebuffer.colorAttachments[
+          colorAttachmentsNumberSquareDepth
+        ];
+    } else {
+      console.warn('renderPass of square depth does not have framebuffer');
+      squareDepthTexture = AbstractMaterialContent.__dummyBlackTexture;
+    }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
@@ -114,7 +149,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         compositionType: CompositionType.Mat4,
         componentType: ComponentType.Float,
         stage: ShaderType.VertexShader,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: MutableMatrix44.zero(),
@@ -126,7 +161,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(ShadingModel.Constant.index),
@@ -138,7 +173,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(5),
@@ -146,11 +181,12 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         max: Number.MAX_VALUE,
       },
       {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.AllowableDepthError,
+        semantic:
+          VarianceShadowMapDecodeClassicMaterialContent.AllowableDepthError,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.0001),
@@ -158,11 +194,11 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         max: 1,
       },
       {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
+        semantic: VarianceShadowMapDecodeClassicMaterialContent.ShadowColor,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([0.5, 0.5, 0.5, 1]),
@@ -174,7 +210,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
@@ -182,11 +218,35 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         max: 2,
       },
       {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.IsPointLight,
+        semantic: VarianceShadowMapDecodeClassicMaterialContent.zNearInner,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isCustomSetting: true,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: false,
+        initialValue: Scalar.fromCopyNumber(0.1),
+        min: 0.0001,
+        max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: VarianceShadowMapDecodeClassicMaterialContent.zFarInner,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isCustomSetting: true,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: false,
+        initialValue: Scalar.fromCopyNumber(10000.0),
+        min: 0.0001,
+        max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: VarianceShadowMapDecodeClassicMaterialContent.IsPointLight,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1),
@@ -198,7 +258,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector3.fromCopyArray([0, 0, 1]),
@@ -206,24 +266,65 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         max: 10,
       },
       {
-        semantic: ShaderSemantics.NormalTexture,
-        compositionType: CompositionType.Texture2D,
-        componentType: ComponentType.Int,
+        semantic:
+          VarianceShadowMapDecodeClassicMaterialContent.DepthAdjustment,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyBlueTexture],
+        soloDatum: false,
+        initialValue: Scalar.fromCopyNumber(0.0),
+        min: 0,
+        max: 1,
+      },
+      {
+        semantic:
+          VarianceShadowMapDecodeClassicMaterialContent.LightBleedingParameter,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isCustomSetting: false,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: false,
+        initialValue: Scalar.fromCopyNumber(0.0),
+        min: 0,
+        max: 1,
+      },
+      {
+        semantic:
+          VarianceShadowMapDecodeClassicMaterialContent.MinimumVariance,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isCustomSetting: false,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: false,
+        initialValue: Scalar.fromCopyNumber(0.0000001),
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ShaderSemantics.DepthTexture,
+        semantic:
+          VarianceShadowMapDecodeClassicMaterialContent.TextureDepthAdjustment,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isCustomSetting: false,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: false,
+        initialValue: Scalar.fromCopyNumber(0.0),
+        min: 0,
+        max: 1,
+      },
+      {
+        semantic: ShaderSemantics.NormalTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, encodedDepthTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -232,45 +333,45 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.zNearInner,
-        componentType: ComponentType.Float,
-        compositionType: CompositionType.Scalar,
+        semantic: VarianceShadowMapDecodeClassicMaterialContent.DepthTexture,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: true,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(0.1),
-        min: 0.0001,
+        initialValue: [2, depthTexture],
+        min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.zFarInner,
-        componentType: ComponentType.Float,
-        compositionType: CompositionType.Scalar,
+        semantic:
+          VarianceShadowMapDecodeClassicMaterialContent.SquareDepthTexture,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: true,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(10000.0),
-        min: 0.0001,
+        initialValue: [3, squareDepthTexture],
+        min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
     ];
 
+    // point cloud
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.PointSize,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -282,7 +383,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -308,7 +409,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
           componentType: ComponentType.Int,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: Scalar.fromCopyNumber(0),
           min: 0,
@@ -321,7 +422,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
           compositionType: CompositionType.ScalarArray,
           maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: new VectorN(
             new Int32Array(Config.maxVertexMorphNumberInShader)
@@ -336,7 +437,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
           compositionType: CompositionType.ScalarArray,
           maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: new VectorN(
             new Float32Array(Config.maxVertexMorphNumberInShader)
@@ -351,11 +452,12 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
     if (isDebugging) {
       this.__definitions += '#define RN_IS_DEBUGGING\n';
       shaderSemanticsInfoArray.push({
-        semantic: ShadowMapDecodeClassicSingleMaterialNode.DebugColorFactor,
+        semantic:
+          VarianceShadowMapDecodeClassicMaterialContent.DebugColorFactor,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([1, 0, 0, 1]),
@@ -367,7 +469,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -386,8 +488,9 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
       ) as CameraComponent;
     }
 
-    const encodedDepthCameraComponent = this.__encodedDepthRenderPass
-      .cameraComponent as CameraComponent;
+    const encodedDepthCameraComponent =
+      this.__depthCameraComponent ??
+      (args.renderPass.cameraComponent as CameraComponent);
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -406,26 +509,26 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
       );
 
       if (
-        ShadowMapDecodeClassicSingleMaterialNode.__lastZNear !==
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear !==
         encodedDepthCameraComponent.zNearInner
       ) {
         (shaderProgram as any)._gl.uniform1f(
           (shaderProgram as any).zNearInner,
           encodedDepthCameraComponent.zNearInner
         );
-        ShadowMapDecodeClassicSingleMaterialNode.__lastZNear =
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear =
           encodedDepthCameraComponent.zNearInner;
       }
 
       if (
-        ShadowMapDecodeClassicSingleMaterialNode.__lastZFar !==
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar !==
         encodedDepthCameraComponent.zFarInner
       ) {
         (shaderProgram as any)._gl.uniform1f(
           (shaderProgram as any).zFarInner,
           encodedDepthCameraComponent.zFarInner
         );
-        ShadowMapDecodeClassicSingleMaterialNode.__lastZFar =
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar =
           encodedDepthCameraComponent.zFarInner;
       }
       const __webglResourceRepository =
@@ -434,20 +537,20 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         shaderProgram,
         ShaderSemantics.LightViewProjectionMatrix.str,
         true,
-        this.__encodedDepthRenderPass.cameraComponent!.viewProjectionMatrix
+        encodedDepthCameraComponent.viewProjectionMatrix
       );
     } else {
       material.setParameter(
-        ShadowMapDecodeClassicSingleMaterialNode.zNearInner,
+        VarianceShadowMapDecodeClassicMaterialContent.zNearInner,
         encodedDepthCameraComponent.zNearInner
       );
       material.setParameter(
-        ShadowMapDecodeClassicSingleMaterialNode.zFarInner,
+        VarianceShadowMapDecodeClassicMaterialContent.zFarInner,
         encodedDepthCameraComponent.zFarInner
       );
       material.setParameter(
         ShaderSemantics.LightViewProjectionMatrix,
-        this.__encodedDepthRenderPass.cameraComponent!.viewProjectionMatrix
+        encodedDepthCameraComponent.viewProjectionMatrix
       );
     }
 
@@ -471,5 +574,18 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
       args.primitive,
       blendShapeComponent
     );
+
+    const __webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    __webglResourceRepository.setUniformValue(
+      shaderProgram,
+      ShaderSemantics.LightViewProjectionMatrix.str,
+      true,
+      encodedDepthCameraComponent.viewProjectionMatrix
+    );
+  }
+
+  set depthCameraComponent(depthCameraComponent: CameraComponent) {
+    this.__depthCameraComponent = depthCameraComponent;
   }
 }

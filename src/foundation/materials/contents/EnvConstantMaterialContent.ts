@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector4 } from '../../math/Vector4';
@@ -17,7 +17,7 @@ import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvC
 import EnvConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
+export class EnvConstantMaterialContent extends AbstractMaterialContent {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
   static EnvHdriFormat = new ShaderSemanticsClass({str: 'EnvHdriFormat'});
 
@@ -32,11 +32,11 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: EnvConstantSingleMaterialNode.EnvHdriFormat,
+        semantic: EnvConstantMaterialContent.EnvHdriFormat,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0),
@@ -44,11 +44,11 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
         max: 5,
       },
       {
-        semantic: EnvConstantSingleMaterialNode.envRotation,
+        semantic: EnvConstantMaterialContent.envRotation,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0),
@@ -60,7 +60,7 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
@@ -72,9 +72,9 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Int,
         compositionType: CompositionType.TextureCube,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyBlackCubeTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyBlackCubeTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -85,7 +85,7 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
       },
@@ -93,7 +93,7 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

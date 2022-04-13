@@ -1,4 +1,4 @@
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -19,7 +19,7 @@ import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/De
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
+export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
   static zFarInner = new ShaderSemanticsClass({str: 'zFarInner'});
   static isPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
@@ -39,11 +39,11 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: DepthEncodeSingleMaterialNode.zNearInner,
+        semantic: DepthEncodeMaterialContent.zNearInner,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.1),
@@ -51,11 +51,11 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: DepthEncodeSingleMaterialNode.zFarInner,
+        semantic: DepthEncodeMaterialContent.zFarInner,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(10000.0),
@@ -63,11 +63,11 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: DepthEncodeSingleMaterialNode.isPointLight,
+        semantic: DepthEncodeMaterialContent.isPointLight,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1),
@@ -75,11 +75,11 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
         max: 1,
       },
       {
-        semantic: DepthEncodeSingleMaterialNode.depthPow,
+        semantic: DepthEncodeMaterialContent.depthPow,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(depthPow),
@@ -91,7 +91,7 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -103,7 +103,7 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -119,7 +119,7 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -171,11 +171,11 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
       }
     } else {
       material.setParameter(
-        DepthEncodeSingleMaterialNode.zNearInner,
+        DepthEncodeMaterialContent.zNearInner,
         cameraComponent.zNearInner
       );
       material.setParameter(
-        DepthEncodeSingleMaterialNode.zFarInner,
+        DepthEncodeMaterialContent.zFarInner,
         cameraComponent.zFarInner
       );
     }

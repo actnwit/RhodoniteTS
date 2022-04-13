@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -28,7 +28,7 @@ import SkinPbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSin
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
+export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
@@ -78,11 +78,11 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       //  {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()},
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, initialValue: MutableMatrix44.identity()},
       //   {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()},
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, initialValue: MutableMatrix44.identity()},
       //   {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: tirue, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Vector3.fromCopyArray([0, 0, 1]), soloDatum: true},
+      //   stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: tirue, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Vector3.fromCopyArray([0, 0, 1]), soloDatum: true},
       {
         semantic: ShaderSemantics.BaseColorFactor,
         compositionType: CompositionType.Vec4,
@@ -90,7 +90,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       },
@@ -101,9 +101,9 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.MetallicRoughnessFactor,
@@ -112,7 +112,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector2.fromCopyArray2([1, 1]),
       },
@@ -123,9 +123,9 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.NormalTexture,
@@ -134,9 +134,9 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [2, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [2, AbstractMaterialContent.__dummyBlueTexture],
       },
       {
         semantic: ShaderSemantics.OcclusionTexture,
@@ -145,9 +145,9 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [3, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [3, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.EmissiveTexture,
@@ -156,23 +156,23 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [4, AbstractMaterialNode.__dummyBlackTexture],
+        initialValue: [4, AbstractMaterialContent.__dummyBlackTexture],
       },
       {
         semantic:
-          SkinPbrShadingSingleMaterialNode.pbrKelemenSzirmayKalosBrdfLutTexture,
+          SkinPbrShadingMaterialContent.pbrKelemenSzirmayKalosBrdfLutTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: [
           8,
-          AbstractMaterialNode.__dummyPbrKelemenSzirmayKalosBrdfLutTexture,
+          AbstractMaterialContent.__dummyPbrKelemenSzirmayKalosBrdfLutTexture,
         ],
       },
       {
@@ -182,18 +182,18 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector3.fromCopyArray([0, 0, 1]),
       },
       {
-        semantic: SkinPbrShadingSingleMaterialNode.IsOutputHDR,
+        semantic: SkinPbrShadingMaterialContent.IsOutputHDR,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Bool,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
@@ -204,7 +204,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
       //   stage: ShaderType.VertexAndPixelShader,
       //   min: -Number.MAX_VALUE,
       //   max: Number.MAX_VALUE,
-      //   isSystem: true,
+      //   isCustomSetting: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       //   initialValue: Vector3.fromCopyArray([0, 0, 0]),
       //   soloDatum: true
@@ -216,7 +216,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-        isSystem: true,
+        isCustomSetting: true,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       },
@@ -227,7 +227,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 5,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector2.fromCopyArray2([0, 0]),
       },
@@ -238,7 +238,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
       //   stage: ShaderType.VertexAndPixelShader,
       //   min: 0,
       //   max: Number.MAX_SAFE_INTEGER,
-      //   isSystem: true,
+      //   isCustomSetting: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       //   initialValue: Scalar.fromCopyNumber(0),
       //   soloDatum: true
@@ -250,9 +250,9 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [5, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.SpecularEnvTexture,
@@ -261,75 +261,75 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
+        isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [6, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
-        semantic: SkinPbrShadingSingleMaterialNode.baseColorTextureTransform,
+        semantic: SkinPbrShadingMaterialContent.baseColorTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic: SkinPbrShadingSingleMaterialNode.baseColorTextureRotation,
+        semantic: SkinPbrShadingMaterialContent.baseColorTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic: SkinPbrShadingSingleMaterialNode.normalTextureTransform,
+        semantic: SkinPbrShadingMaterialContent.normalTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic: SkinPbrShadingSingleMaterialNode.normalTextureRotation,
+        semantic: SkinPbrShadingMaterialContent.normalTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
         semantic:
-          SkinPbrShadingSingleMaterialNode.metallicRoughnessTextureTransform,
+          SkinPbrShadingMaterialContent.metallicRoughnessTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -10,
         max: 10,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
         semantic:
-          SkinPbrShadingSingleMaterialNode.metallicRoughnessTextureRotation,
+          SkinPbrShadingMaterialContent.metallicRoughnessTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(0),
       },
@@ -341,7 +341,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(100.0),
@@ -353,7 +353,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -378,7 +378,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
             max: Number.MAX_VALUE,
             index: idx,
             maxIndex: 4,
-            isSystem: true,
+            isCustomSetting: true,
             updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
             initialValue: Vector4.fromCopyArray([0, 0, 0, 1]),
             soloDatum: true
@@ -393,7 +393,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
           max: 1,
           index: idx,
           maxIndex: 4,
-          isSystem: true,
+          isCustomSetting: true,
           initialValue: Vector4.fromCopyArray([0, 1, 0, 1]),
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
           soloDatum: true
@@ -408,7 +408,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
             max: 10,
             index: idx,
             maxIndex: 4,
-            isSystem: true,
+            isCustomSetting: true,
             initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
             updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
             soloDatum: true
@@ -423,11 +423,11 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
       this.__definitions += '#define RN_IS_SKINNING\n';
 
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))});
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))});
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Scalar.fromCopyNumber(-1) });
+      //   stage: ShaderType.VertexShader, min: 0, max: 1, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Scalar.fromCopyNumber(-1) });
     }
 
     if (isMorphing) {
@@ -439,7 +439,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
           componentType: ComponentType.Int,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: Scalar.fromCopyNumber(0),
           min: 0,
@@ -452,7 +452,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
           compositionType: CompositionType.ScalarArray,
           maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: new VectorN(
             new Int32Array(Config.maxVertexMorphNumberInShader)
@@ -467,7 +467,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
           compositionType: CompositionType.ScalarArray,
           maxIndex: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isSystem: true,
+          isCustomSetting: true,
           soloDatum: true,
           initialValue: new VectorN(
             new Float32Array(Config.maxVertexMorphNumberInShader)
@@ -482,7 +482,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -546,7 +546,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
-        [5, AbstractMaterialNode.__dummyBlackCubeTexture]
+        [5, AbstractMaterialContent.__dummyBlackCubeTexture]
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
@@ -561,7 +561,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
-        [6, AbstractMaterialNode.__dummyBlackCubeTexture]
+        [6, AbstractMaterialContent.__dummyBlackCubeTexture]
       );
     }
 
@@ -598,13 +598,13 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         diffuseHdriType,
         specularHdriType,
       } = this.setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
       tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
       tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
       material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
-      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
       material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);

@@ -176,17 +176,17 @@ declare const Rn: typeof _Rn;
         variance: gaussianVariance,
       });
     material.setParameter(
-      Rn.GaussianBlurSingleMaterialNode.GaussianKernelSize,
+      Rn.GaussianBlurMaterialContent.GaussianKernelSize,
       gaussianKernelSize
     );
     material.setParameter(
-      Rn.GaussianBlurSingleMaterialNode.GaussianRatio,
+      Rn.GaussianBlurMaterialContent.GaussianRatio,
       gaussianDistributionRatio
     );
 
     if (isHorizontal === false) {
       material.setParameter(
-        Rn.GaussianBlurSingleMaterialNode.IsHorizontal,
+        Rn.GaussianBlurMaterialContent.IsHorizontal,
         false
       );
     }

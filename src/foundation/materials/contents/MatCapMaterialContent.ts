@@ -15,14 +15,14 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import { Texture } from '../../textures/Texture';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import { Vector3 } from '../../math/Vector3';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class MatCapSingleMaterialNode extends AbstractMaterialNode {
+export class MatCapMaterialContent extends AbstractMaterialContent {
   static MatCapTexture = new ShaderSemanticsClass({str: 'matCapTexture'});
 
   constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture) {
@@ -51,7 +51,7 @@ export class MatCapSingleMaterialNode extends AbstractMaterialNode {
       matCapTexture = texture;
     } else {
       console.warn('no matcap texture');
-      matCapTexture = AbstractMaterialNode.__dummyBlackTexture;
+      matCapTexture = AbstractMaterialContent.__dummyBlackTexture;
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
@@ -61,7 +61,7 @@ export class MatCapSingleMaterialNode extends AbstractMaterialNode {
       componentType: ComponentType.Float,
       compositionType: CompositionType.Vec3,
       stage: ShaderType.PixelShader,
-      isSystem: false,
+      isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       soloDatum: false,
       initialValue: Vector3.fromCopyArray([0, 0, 1]),
@@ -76,7 +76,7 @@ export class MatCapSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -88,7 +88,7 @@ export class MatCapSingleMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -102,11 +102,11 @@ export class MatCapSingleMaterialNode extends AbstractMaterialNode {
     }
 
     shaderSemanticsInfoArray.push({
-      semantic: MatCapSingleMaterialNode.MatCapTexture,
+      semantic: MatCapMaterialContent.MatCapTexture,
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      isSystem: false,
+      isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [0, matCapTexture],
       min: 0,
@@ -116,7 +116,7 @@ export class MatCapSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

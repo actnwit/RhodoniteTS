@@ -11,7 +11,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { VectorN } from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';
@@ -19,7 +19,7 @@ import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/S
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
+export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
     str: 'synthesizeCoefficient',
   });
@@ -65,7 +65,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
    */
   constructor(
     synthesizeTextures: AbstractTexture[],
-    targetRegionTexture: AbstractTexture = AbstractMaterialNode.dummyBlackTexture
+    targetRegionTexture: AbstractTexture = AbstractMaterialContent.dummyBlackTexture
   ) {
     super(
       null,
@@ -84,7 +84,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(synthesizeTextures[0].width),
@@ -92,12 +92,12 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeCoefficient,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeCoefficient,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         maxIndex: 6,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: new VectorN(new Float32Array(6)),
@@ -106,95 +106,95 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         needUniformInFastest: true,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture0,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture0,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           0,
-          synthesizeTextures[0] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[0] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture1,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture1,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           1,
-          synthesizeTextures[1] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[1] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture2,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture2,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           2,
-          synthesizeTextures[2] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[2] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture3,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture3,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           3,
-          synthesizeTextures[3] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[3] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture4,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture4,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           4,
-          synthesizeTextures[4] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[4] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture5,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture5,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           5,
-          synthesizeTextures[5] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[5] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.TargetRegionTexture,
+        semantic: SynthesizeHdrMaterialContent.TargetRegionTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [6, targetRegionTexture],
         min: 0,
@@ -205,7 +205,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -221,7 +221,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).synthesizeCoefficient,
-        material.getParameter(SynthesizeHDRMaterialNode.SynthesizeCoefficient)
+        material.getParameter(SynthesizeHdrMaterialContent.SynthesizeCoefficient)
           ._v
       );
     }

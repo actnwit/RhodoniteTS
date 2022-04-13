@@ -119,7 +119,7 @@ declare const Rn: typeof _Rn;
 
     const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial();
     materialSphere.setParameter(
-      Rn.EnvConstantSingleMaterialNode.EnvHdriFormat,
+      Rn.EnvConstantMaterialContent.EnvHdriFormat,
       Rn.HdriFormat.HDR_LINEAR.index
     );
     materialSphere.setTextureParameter(
@@ -160,7 +160,7 @@ declare const Rn: typeof _Rn;
       Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0])
     );
     material.setParameter(
-      Rn.ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
+      Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
       Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5])
     );
     material.alphaMode = Rn.AlphaMode.Translucent;

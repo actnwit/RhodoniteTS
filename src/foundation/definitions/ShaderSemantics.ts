@@ -340,7 +340,7 @@ export type ShaderSemanticsInfo = {
   min: number;
   max: number;
   valueStep?: number;
-  isSystem: boolean;
+  isCustomSetting: boolean;
   initialValue?: any; // initial value
   updateInterval?: ShaderVariableUpdateIntervalEnum;
   stage: ShaderTypeEnum;

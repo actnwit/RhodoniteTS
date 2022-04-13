@@ -155,7 +155,7 @@ declare const Rn: typeof _Rn;
       makeOutputSrgb: false,
     });
     materialSphere.setParameter(
-      Rn.EnvConstantSingleMaterialNode.EnvHdriFormat,
+      Rn.EnvConstantMaterialContent.EnvHdriFormat,
       Rn.HdriFormat.HDR_LINEAR.index
     );
     materialSphere.setTextureParameter(
@@ -366,7 +366,7 @@ declare const Rn: typeof _Rn;
         texturesSynthesize
       );
     materialSynthesizeTextures.setParameter(
-      Rn.SynthesizeHDRMaterialNode.SynthesizeCoefficient,
+      Rn.SynthesizeHdrMaterialContent.SynthesizeCoefficient,
       synthesizeCoefficient
     );
     const renderPassSynthesizeGlare = createRenderPassPostEffect(
@@ -398,17 +398,17 @@ declare const Rn: typeof _Rn;
         variance: gaussianVariance,
       });
     material.setParameter(
-      Rn.GaussianBlurSingleMaterialNode.GaussianKernelSize,
+      Rn.GaussianBlurMaterialContent.GaussianKernelSize,
       gaussianKernelSize
     );
     material.setParameter(
-      Rn.GaussianBlurSingleMaterialNode.GaussianRatio,
+      Rn.GaussianBlurMaterialContent.GaussianRatio,
       gaussianDistributionRatio
     );
 
     if (isHorizontal === false) {
       material.setParameter(
-        Rn.GaussianBlurSingleMaterialNode.IsHorizontal,
+        Rn.GaussianBlurMaterialContent.IsHorizontal,
         false
       );
     }

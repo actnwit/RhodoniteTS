@@ -197,17 +197,17 @@ declare const Rn: typeof _Rn;
         variance: gaussianVariance,
       });
     material.setParameter(
-      Rn.GaussianBlurForEncodedDepthSingleMaterialNode.GaussianKernelSize,
+      Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianKernelSize,
       gaussianKernelSize
     );
     material.setParameter(
-      Rn.GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio,
+      Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianRatio,
       gaussianDistributionRatio
     );
 
     if (isHorizontal === false) {
       material.setParameter(
-        Rn.GaussianBlurForEncodedDepthSingleMaterialNode.IsHorizontal,
+        Rn.GaussianBlurForEncodedDepthMaterialContent.IsHorizontal,
         false
       );
     }

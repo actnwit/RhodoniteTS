@@ -10,15 +10,15 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { VectorN } from '../../math/VectorN';
-import GaussianBlurForEncodedDepthSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
-import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
+import GaussianBlurSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
 import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMaterialNode {
+export class GaussianBlurMaterialContent extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });
@@ -28,23 +28,23 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
   private frameBufferWidth = 0;
 
   /**
-   * GaussianBlurForEncodedDepthNode applies a Gaussian blur to the result of
-   * DepthEncodeMaterial. The blur is applied only in the vertical or horizontal
-   * direction. The direction can be changed by setting IsHorizontal in
-   * material.setParameter. To use this node, you need to set GaussianKernelSize
-   * and GaussianRatio to the appropriate values using the material.setParameter
-   * method and to set BaseColorTexture to the target texture using the
-   * material.setTextureParameter method. The GaussianKernelSize must be between
-   * 1 and 30. The GaussianRatio can be computed using the
+   * GaussianBlurNode applies a Gaussian blur to a input texture. The blur is
+   * applied only in the vertical or horizontal direction. The direction can
+   * be changed by setting IsHorizontal in material.setParameter.
+   * To use this node, you need to set GaussianKernelSize and GaussianRatio
+   * to the appropriate values using the material.setParameter method and to
+   * set BaseColorTexture to the target texture using the
+   * material.setTextureParameter method. The GaussianKernelSize must be
+   * between 1 and 30. The GaussianRatio can be computed using the
    * MathUtil.computeGaussianDistributionRatioWhoseSumIsOne method.
    */
   constructor() {
     super(
       null,
-      'gaussianBlurForEncodedDepthShading',
+      'GaussianBlurShading',
       {},
-      GaussianBlurForEncodedDepthSingleShaderVertex,
-      GaussianBlurForEncodedDepthSingleShaderFragment
+      GaussianBlurSingleShaderVertex,
+      GaussianBlurSingleShaderFragment
     );
 
     const gaussianRatio = new Float32Array(30);
@@ -52,11 +52,11 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.IsHorizontal,
+        semantic: GaussianBlurMaterialContent.IsHorizontal,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1), //true
@@ -64,12 +64,12 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
         max: 1,
       },
       {
-        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio,
+        semantic: GaussianBlurMaterialContent.GaussianRatio,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         maxIndex: 30,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: new VectorN(gaussianRatio),
@@ -78,11 +78,11 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
         needUniformInFastest: true,
       },
       {
-        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.GaussianKernelSize,
+        semantic: GaussianBlurMaterialContent.GaussianKernelSize,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1),
@@ -94,7 +94,7 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1),
@@ -106,9 +106,9 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyBlackTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -117,7 +117,7 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -144,7 +144,7 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).gaussianRatio,
-        material.getParameter(GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio)._v
+        material.getParameter(GaussianBlurMaterialContent.GaussianRatio)._v
       );
     }
 

@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsEnum,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {
   CompositionType,
   CompositionTypeEnum,

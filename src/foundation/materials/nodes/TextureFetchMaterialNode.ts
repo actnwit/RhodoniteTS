@@ -2,13 +2,13 @@ import {
   ShaderSemanticsInfo,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { TextureFetchShader } from '../../../webgl/shaders/nodes/TextureFetchShader';
 import {ShaderType} from '../../definitions/ShaderType';
 
-export class TextureFetchMaterialNode extends AbstractMaterialNode {
+export class TextureFetchMaterialNode extends AbstractMaterialContent {
   generalTextureMaterialNodeUID?: ShaderSemanticsClass;
 
   constructor() {
@@ -25,7 +25,7 @@ export class TextureFetchMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         soloDatum: false,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,

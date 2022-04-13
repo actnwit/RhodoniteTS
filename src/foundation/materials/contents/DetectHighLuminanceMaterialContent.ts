@@ -13,13 +13,13 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Scalar } from '../../math/Scalar';
 import { RenderPass } from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode {
+export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'luminanceCriterion',
   });
@@ -41,11 +41,11 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: DetectHighLuminanceSingleMaterialNode.LuminanceCriterion,
+        semantic: DetectHighLuminanceMaterialContent.LuminanceCriterion,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(2),
@@ -53,11 +53,11 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
         max: Number.MAX_VALUE,
       },
       {
-        semantic: DetectHighLuminanceSingleMaterialNode.LuminanceReduce,
+        semantic: DetectHighLuminanceMaterialContent.LuminanceReduce,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.25),
@@ -77,7 +77,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
       framebufferWidth = framebuffer.width;
     } else {
-      targetTexture = AbstractMaterialNode.__dummyBlackTexture;
+      targetTexture = AbstractMaterialContent.__dummyBlackTexture;
       framebufferWidth = 1;
 
       if (framebuffer != null) {
@@ -97,7 +97,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(framebufferWidth),
@@ -109,7 +109,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isSystem: false,
+        isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, targetTexture],
         min: 0,
@@ -120,7 +120,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setParametersForGPU({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
