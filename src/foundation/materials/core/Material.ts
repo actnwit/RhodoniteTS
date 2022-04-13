@@ -212,7 +212,11 @@ export class Material extends RnObject {
   /// Parameter Setters
   ///
 
-  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
+  public setParameter(
+    shaderSemantic: ShaderSemanticsEnum,
+    value: any,
+    index?: Index
+  ) {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
     const info = this.__allFieldsInfo.get(propertyIndex);
     if (info != null) {
@@ -228,7 +232,7 @@ export class Material extends RnObject {
     }
   }
 
-  setTextureParameter(
+  public setTextureParameter(
     shaderSemantic: ShaderSemanticsEnum,
     value: AbstractTexture
   ): void {
@@ -253,7 +257,7 @@ export class Material extends RnObject {
     }
   }
 
-  getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {
+  public getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {
     if (this.__allFieldsInfo.has(shaderSemantic.index)) {
       const array = this.__allFieldVariables.get(shaderSemantic.index)!;
       return array.value[1];
@@ -261,7 +265,7 @@ export class Material extends RnObject {
     return undefined;
   }
 
-  setTextureParameterAsPromise(
+  public setTextureParameterAsPromise(
     shaderSemantic: ShaderSemanticsEnum,
     promise: Promise<AbstractTexture>
   ): void {
@@ -274,7 +278,10 @@ export class Material extends RnObject {
         };
         this.__allFieldVariables.set(shaderSemantic.index, shaderVariable);
         if (!array.info.isCustomSetting) {
-          this.__autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
+          this.__autoFieldVariablesOnly.set(
+            shaderSemantic.index,
+            shaderVariable
+          );
         }
         if (
           shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
@@ -290,21 +297,25 @@ export class Material extends RnObject {
 
   // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
   //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
-  setParameterByUniformName(uniformName: string, value: any, index?: Index) {
+  public setParameterByUniformName(
+    uniformName: string,
+    value: any,
+    index?: Index
+  ) {
     const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
     if (targetShaderSemantics != null) {
       this.setParameter(targetShaderSemantics, value, index);
     }
   }
 
-  setTextureParameterByUniformName(uniformName: string, value: any) {
+  public setTextureParameterByUniformName(uniformName: string, value: any) {
     const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
     if (targetShaderSemantics != null) {
       this.setTextureParameter(targetShaderSemantics, value);
     }
   }
 
-  getParameter(shaderSemantic: ShaderSemanticsEnum): any {
+  public getParameter(shaderSemantic: ShaderSemanticsEnum): any {
     const info = this.__allFieldsInfo.get(shaderSemantic.index);
     if (info != null) {
       if (info.soloDatum) {

@@ -3,27 +3,27 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
-import { Vector2 } from '../../math/Vector2';
+import {Vector2} from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { Vector4 } from '../../math/Vector4';
-import { Vector3 } from '../../math/Vector3';
+import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
+import {Vector4} from '../../math/Vector4';
+import {Vector3} from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { Scalar } from '../../math/Scalar';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { MeshRendererComponent } from '../../components/MeshRenderer/MeshRendererComponent';
+import {Scalar} from '../../math/Scalar';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {MeshRendererComponent} from '../../components/MeshRenderer/MeshRendererComponent';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import { Material } from '../core/Material';
+import {SkeletalComponent} from '../../components/Skeletal/SkeletalComponent';
+import {Material} from '../core/Material';
 import PBRExtendedShaderVertex from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.vert';
 import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { Is } from '../../misc/Is';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {Is} from '../../misc/Is';
 
 export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
   static detailNormalTexture = new ShaderSemanticsClass({
@@ -234,8 +234,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic:
-          PbrExtendedShadingMaterialContent.detailColorTextureTransform,
+        semantic: PbrExtendedShadingMaterialContent.detailColorTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -245,8 +244,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic:
-          PbrExtendedShadingMaterialContent.detailColorTextureRotation,
+        semantic: PbrExtendedShadingMaterialContent.detailColorTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -267,8 +265,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic:
-          PbrExtendedShadingMaterialContent.detailNormalTextureRotation,
+        semantic: PbrExtendedShadingMaterialContent.detailNormalTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,

@@ -12,9 +12,9 @@ class ShaderVariableUpdateIntervalClass
 }
 
 const FirstTimeOnly: ShaderVariableUpdateIntervalEnum =
-  new ShaderVariableUpdateIntervalClass({index: 0, str: 'FirstTimeOnly'});
+  new ShaderVariableUpdateIntervalClass({index: 0, str: 'FirstTimeOnly'}); // If the previous object was the same material as mine, the parameter will not be set in my turn.
 const EveryTime: ShaderVariableUpdateIntervalEnum =
-  new ShaderVariableUpdateIntervalClass({index: 1, str: 'EveryTime'});
+  new ShaderVariableUpdateIntervalClass({index: 1, str: 'EveryTime'}); // The parameters are set each time the object is drawn.
 const RenderPass: ShaderVariableUpdateIntervalEnum =
   new ShaderVariableUpdateIntervalClass({index: 2, str: 'RenderPass'});
 
