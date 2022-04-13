@@ -2,38 +2,38 @@ import {Config} from '../core/Config';
 import { Material } from '../materials/core/Material';
 import { RenderPass } from '../renderer/RenderPass';
 import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
-import { PbrShadingSingleMaterialNode } from '../materials/contents/PbrShadingSingleMaterialNode';
-import { ClassicShadingSingleMaterialNode } from '../materials/contents/ClassicShadingSingleMaterialNode';
-import { EnvConstantSingleMaterialNode } from '../materials/contents/EnvConstantSingleMaterialNode';
-import { FXAA3QualitySingleMaterialNode } from '../materials/contents/FXAA3QualitySingleMaterialNode';
-import { DepthEncodeSingleMaterialNode } from '../materials/contents/DepthEncodeSingleMaterialNode';
-import { ShadowMapDecodeClassicSingleMaterialNode } from '../materials/contents/ShadowMapDecodeClassicSingleMaterialNode';
-import { GammaCorrectionSingleMaterialNode } from '../materials/contents/GammaCorrectionSingleMaterialNode';
-import { EntityUIDOutputSingleMaterialNode } from '../materials/contents/EntityUIDOutputSingleMaterialNode';
-import { MToonSingleMaterialNode } from '../materials/contents/MToonSingleMaterialNode';
+import { PbrShadingMaterialContent } from '../materials/contents/PbrShadingMaterialContent';
+import { ClassicShadingMaterialContent } from '../materials/contents/ClassicShadingMaterialContent';
+import { EnvConstantMaterialContent } from '../materials/contents/EnvConstantMaterialContent';
+import { FXAA3QualityMaterialContent } from '../materials/contents/FXAA3QualityMaterialContent';
+import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
+import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
+import { GammaCorrectionMaterialContent } from '../materials/contents/GammaCorrectionMaterialContent';
+import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
+import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import { CustomSingleMaterialNode } from '../materials/contents/CustomSingleMaterialNode';
+import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
 import {Primitive} from '../geometry/Primitive';
 import { Entity } from '../core/Entity';
 import {ProcessStage} from '../definitions/ProcessStage';
 import {AlphaMode} from '../definitions/AlphaMode';
 import { AbstractTexture } from '../textures/AbstractTexture';
-import { FurnaceTestSingleMaterialNode } from '../materials/contents/FurnaceTestSingleMaterialNode';
-import { GaussianBlurForEncodedDepthSingleMaterialNode as GaussianBlurForEncodedDepthSingleMaterialNode } from '../materials/contents/GaussianBlurForEncodedDepthSingleMaterialNode';
-import { GaussianBlurSingleMaterialNode as GaussianBlurSingleMaterialNode } from '../materials/contents/GaussianBlurSingleMaterialNode';
-import { DetectHighLuminanceSingleMaterialNode } from '../materials/contents/DetectHighLuminanceSingleMaterialNode';
-import { SynthesizeHDRMaterialNode as SynthesizeHDRSingleMaterialNode } from '../materials/contents/SynthesizeHDRSingleMaterialNode';
-import { ColorGradingUsingLUTsSingleMaterialNode } from '../materials/contents/ColorGradingUsingLUTsSingleMaterialNode';
-import { MatCapSingleMaterialNode } from '../materials/contents/MatCapSingleMaterialNode';
-import { VarianceShadowMapDecodeClassicSingleMaterialNode } from '../materials/contents/VarianceShadowMapDecodeClassicSingleMaterialNode';
-import { SkinPbrShadingSingleMaterialNode } from '../materials/contents/SkinPbrShadingSingleMaterialNode';
-import { PbrExtendedShadingSingleMaterialNode } from '../materials/contents/PbrExtendedShadingSingleMaterialNode';
+import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
+import { GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent } from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';
+import { GaussianBlurMaterialContent as GaussianBlurMaterialContent } from '../materials/contents/GaussianBlurMaterialContent';
+import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
+import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
+import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
+import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
+import { SkinPbrShadingMaterialContent } from '../materials/contents/SkinPbrShadingMaterialContent';
+import { PbrExtendedShadingMaterialContent } from '../materials/contents/PbrExtendedShadingMaterialContent';
 import { Texture } from '../textures/Texture';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
-import { ShaderitySingleMaterialNode } from '../materials/contents/ShaderitySingleMaterialNode';
+import { ShaderityMaterialContent } from '../materials/contents/ShaderityMaterialContent';
 import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
 import {Is} from '../misc/Is';
 
@@ -101,7 +101,7 @@ function createPbrUberMaterial({
     '_alpha_' +
     alphaMode.str.toLowerCase();
 
-  const materialNode = new PbrShadingSingleMaterialNode({
+  const materialNode = new PbrShadingMaterialContent({
     isMorphing,
     isSkinning,
     isLighting,
@@ -135,7 +135,7 @@ function createSkinPbrUberMaterial({
     (isSkinning ? '+skinning' : '') +
     (isLighting ? '' : '-lighting');
 
-  const materialNode = new SkinPbrShadingSingleMaterialNode({
+  const materialNode = new SkinPbrShadingMaterialContent({
     isMorphing: isMorphing,
     isSkinning: isSkinning,
     isLighting: isLighting,
@@ -164,7 +164,7 @@ function createClassicUberMaterialOld({
     (isSkinning ? '+skinning' : '') +
     (isLighting ? '' : '-lighting');
 
-  const materialNode = new ClassicShadingSingleMaterialNode({
+  const materialNode = new ClassicShadingMaterialContent({
     isSkinning,
     isLighting,
     alphaMode,
@@ -195,7 +195,7 @@ function createClassicUberMaterial({
     ' alpha_' +
     alphaMode.str.toLowerCase();
 
-  const materialNode = new CustomSingleMaterialNode({
+  const materialNode = new CustomMaterialContent({
     name: 'ClassicUber',
     isSkinning,
     isLighting,
@@ -221,7 +221,7 @@ function createEnvConstantMaterial({
 } = {}) {
   const materialName = 'EnvConstant' + `_${additionalName}`;
 
-  const materialNode = new EnvConstantSingleMaterialNode(makeOutputSrgb);
+  const materialNode = new EnvConstantMaterialContent(makeOutputSrgb);
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -238,7 +238,7 @@ function createFXAA3QualityMaterial({
 } = {}) {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
-  const materialNode = new FXAA3QualitySingleMaterialNode();
+  const materialNode = new FXAA3QualityMaterialContent();
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -255,7 +255,7 @@ function createFurnaceTestMaterial({
 } = {}) {
   const materialName = 'FurnaceTest' + `_${additionalName}`;
 
-  const materialNode = new FurnaceTestSingleMaterialNode();
+  const materialNode = new FurnaceTestMaterialContent();
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -275,7 +275,7 @@ function createDepthEncodeMaterial({
   const materialName =
     'DepthEncode' + `_${additionalName}_` + (isSkinning ? '+skinning' : '');
 
-  const materialNode = new DepthEncodeSingleMaterialNode(depthPow, {
+  const materialNode = new DepthEncodeMaterialContent(depthPow, {
     isSkinning,
   });
   materialNode.isSingleOperation = true;
@@ -306,7 +306,7 @@ function createShadowMapDecodeClassicSingleMaterial(
     (isSkinning ? '+skinning' : '') +
     (isLighting ? '' : '-lighting');
 
-  const materialNode = new ShadowMapDecodeClassicSingleMaterialNode(
+  const materialNode = new ShadowMapDecodeClassicMaterialContent(
     {
       isMorphing,
       isSkinning,
@@ -332,7 +332,7 @@ function createGaussianBlurForEncodedDepthMaterial({
 } = {}) {
   const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
 
-  const materialNode = new GaussianBlurForEncodedDepthSingleMaterialNode();
+  const materialNode = new GaussianBlurForEncodedDepthMaterialContent();
   materialNode.isSingleOperation = true;
 
   const material = createMaterial(
@@ -376,7 +376,7 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
     (isLighting ? '' : '-lighting') +
     (isDebugging ? '' : '+debugging');
 
-  const materialNode = new VarianceShadowMapDecodeClassicSingleMaterialNode(
+  const materialNode = new VarianceShadowMapDecodeClassicMaterialContent(
     {
       isMorphing,
       isSkinning,
@@ -406,7 +406,7 @@ function createDetectHighLuminanceMaterial(
   HDRRenderPass: RenderPass
 ) {
   const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
-  const materialNode = new DetectHighLuminanceSingleMaterialNode(
+  const materialNode = new DetectHighLuminanceMaterialContent(
     HDRRenderPass,
     colorAttachmentsNumber
   );
@@ -425,7 +425,7 @@ function createGaussianBlurMaterial({
 } = {}) {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
-  const materialNode = new GaussianBlurSingleMaterialNode();
+  const materialNode = new GaussianBlurMaterialContent();
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -450,7 +450,7 @@ function createSynthesizeHDRMaterial(
 ) {
   const materialName = 'SynthesizeHDR' + `_${additionalName}`;
 
-  const materialNode = new SynthesizeHDRSingleMaterialNode(
+  const materialNode = new SynthesizeHDRMaterialContent(
     synthesizeTextures,
     targetRegionTexture!
   );
@@ -482,7 +482,7 @@ function createColorGradingUsingLUTsMaterial(
 ) {
   const materialName = 'ColorGradingUsingLUTs' + `_${additionalName}`;
 
-  const materialNode = new ColorGradingUsingLUTsSingleMaterialNode(
+  const materialNode = new ColorGradingUsingLUTsMaterialContent(
     targetRenderPass,
     colorAttachmentsNumber,
     uri,
@@ -504,7 +504,7 @@ function createGammaCorrectionMaterial({
 } = {}) {
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
-  const materialNode = new GammaCorrectionSingleMaterialNode();
+  const materialNode = new GammaCorrectionMaterialContent();
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -531,7 +531,7 @@ function createMatCapMaterial({
   const materialName =
     'MatCap' + `_${additionalName}` + (isSkinning ? '+skinning' : '');
 
-  const materialNode = new MatCapSingleMaterialNode(isSkinning, uri, texture);
+  const materialNode = new MatCapMaterialContent(isSkinning, uri, texture);
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -548,7 +548,7 @@ function createEntityUIDOutputMaterial({
 } = {}) {
   const materialName = 'EntityUIDOutput' + `_${additionalName}`;
 
-  const materialNode = new EntityUIDOutputSingleMaterialNode();
+  const materialNode = new EntityUIDOutputMaterialContent();
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
@@ -593,7 +593,7 @@ function createMToonMaterial({
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (isOutline ? '-outline' : '');
 
-  const materialNode = new MToonSingleMaterialNode(
+  const materialNode = new MToonMaterialContent(
     isOutline,
     materialProperties,
     textures,
@@ -624,7 +624,7 @@ function createPbrExtendedUberMaterial(maxInstancesNumber?: Count) {
     (enables.isSkinning ? '+skinning' : '') +
     (enables.isLighting ? '' : '-lighting');
 
-  const materialNode = new PbrExtendedShadingSingleMaterialNode({
+  const materialNode = new PbrExtendedShadingMaterialContent({
     isMorphing: enables.isMorphing,
     isSkinning: enables.isSkinning,
     isLighting: enables.isLighting,
@@ -660,7 +660,7 @@ function recreateCustomMaterial(
     ' alpha_' +
     alphaMode.str.toLowerCase();
 
-  const materialNode = new CustomSingleMaterialNode({
+  const materialNode = new CustomMaterialContent({
     name: materialName,
     isSkinning,
     isLighting,
@@ -698,7 +698,7 @@ function recreateShaderityMaterial(
 ) {
   const name = `Shaderity_${additionalName}`;
 
-  const materialNode = new ShaderitySingleMaterialNode({
+  const materialNode = new ShaderityMaterialContent({
     name,
     vertexShaderityObj,
     pixelShaderityObj,

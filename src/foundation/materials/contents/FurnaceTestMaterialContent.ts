@@ -17,7 +17,7 @@ import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTes
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class FurnaceTestSingleMaterialNode extends AbstractMaterialContent {
+export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   static mode = new ShaderSemanticsClass({str: 'mode'});
   static debugView = new ShaderSemanticsClass({str: 'debugView'});
   static g_type = new ShaderSemanticsClass({str: 'g_type'});
@@ -35,7 +35,7 @@ export class FurnaceTestSingleMaterialNode extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: FurnaceTestSingleMaterialNode.debugView,
+        semantic: FurnaceTestMaterialContent.debugView,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -47,7 +47,7 @@ export class FurnaceTestSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: FurnaceTestSingleMaterialNode.disable_fresnel,
+        semantic: FurnaceTestMaterialContent.disable_fresnel,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -59,7 +59,7 @@ export class FurnaceTestSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: FurnaceTestSingleMaterialNode.f0,
+        semantic: FurnaceTestMaterialContent.f0,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -71,7 +71,7 @@ export class FurnaceTestSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: FurnaceTestSingleMaterialNode.g_type,
+        semantic: FurnaceTestMaterialContent.g_type,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -83,7 +83,7 @@ export class FurnaceTestSingleMaterialNode extends AbstractMaterialContent {
         max: 3,
       },
       {
-        semantic: FurnaceTestSingleMaterialNode.mode,
+        semantic: FurnaceTestMaterialContent.mode,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,

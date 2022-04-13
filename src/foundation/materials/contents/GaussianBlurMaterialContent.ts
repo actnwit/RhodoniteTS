@@ -18,7 +18,7 @@ import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/G
 import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class GaussianBlurSingleMaterialNode extends AbstractMaterialContent {
+export class GaussianBlurMaterialContent extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });
@@ -52,7 +52,7 @@ export class GaussianBlurSingleMaterialNode extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: GaussianBlurSingleMaterialNode.IsHorizontal,
+        semantic: GaussianBlurMaterialContent.IsHorizontal,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -64,7 +64,7 @@ export class GaussianBlurSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: GaussianBlurSingleMaterialNode.GaussianRatio,
+        semantic: GaussianBlurMaterialContent.GaussianRatio,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         maxIndex: 30,
@@ -78,7 +78,7 @@ export class GaussianBlurSingleMaterialNode extends AbstractMaterialContent {
         needUniformInFastest: true,
       },
       {
-        semantic: GaussianBlurSingleMaterialNode.GaussianKernelSize,
+        semantic: GaussianBlurMaterialContent.GaussianKernelSize,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -144,7 +144,7 @@ export class GaussianBlurSingleMaterialNode extends AbstractMaterialContent {
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).gaussianRatio,
-        material.getParameter(GaussianBlurSingleMaterialNode.GaussianRatio)._v
+        material.getParameter(GaussianBlurMaterialContent.GaussianRatio)._v
       );
     }
 

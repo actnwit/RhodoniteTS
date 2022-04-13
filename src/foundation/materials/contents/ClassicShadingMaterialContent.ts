@@ -21,7 +21,7 @@ import {AlphaModeEnum} from '../../definitions/AlphaMode';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class ClassicShadingSingleMaterialNode extends AbstractMaterialContent {
+export class ClassicShadingMaterialContent extends AbstractMaterialContent {
   constructor({
     isSkinning,
     isLighting,

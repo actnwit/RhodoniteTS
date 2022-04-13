@@ -15,7 +15,7 @@ import shaderVertex from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FX
 import shaderFragment from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class FXAA3QualitySingleMaterialNode extends AbstractMaterialContent {
+export class FXAA3QualityMaterialContent extends AbstractMaterialContent {
   constructor() {
     super(
       null,

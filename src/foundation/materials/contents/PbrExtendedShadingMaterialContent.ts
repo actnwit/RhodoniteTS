@@ -25,7 +25,7 @@ import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExten
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialContent {
+export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
   static detailNormalTexture = new ShaderSemanticsClass({
     str: 'detailNormalTexture',
   });
@@ -174,7 +174,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
         initialValue: Vector3.fromCopyArray([0.0, 0.0, 0.0]),
       },
       {
-        semantic: PbrExtendedShadingSingleMaterialNode.detailNormalTexture,
+        semantic: PbrExtendedShadingMaterialContent.detailNormalTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
@@ -184,7 +184,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
         initialValue: [3, AbstractMaterialContent.__dummyBlueTexture],
       },
       {
-        semantic: PbrExtendedShadingSingleMaterialNode.detailColorTexture,
+        semantic: PbrExtendedShadingMaterialContent.detailColorTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
@@ -194,7 +194,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
         initialValue: [4, AbstractMaterialContent.__dummySRGBGrayTexture],
       },
       {
-        semantic: PbrExtendedShadingSingleMaterialNode.diffuseTextureTransform,
+        semantic: PbrExtendedShadingMaterialContent.diffuseTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -204,7 +204,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic: PbrExtendedShadingSingleMaterialNode.diffuseTextureRotation,
+        semantic: PbrExtendedShadingMaterialContent.diffuseTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -214,7 +214,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic: PbrExtendedShadingSingleMaterialNode.normalTextureTransform,
+        semantic: PbrExtendedShadingMaterialContent.normalTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -224,29 +224,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic: PbrExtendedShadingSingleMaterialNode.normalTextureRotation,
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: -Math.PI,
-        max: Math.PI,
-        isCustomSetting: false,
-        initialValue: Scalar.fromCopyNumber(0),
-      },
-      {
-        semantic:
-          PbrExtendedShadingSingleMaterialNode.detailColorTextureTransform,
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: -10,
-        max: 10,
-        isCustomSetting: false,
-        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
-      },
-      {
-        semantic:
-          PbrExtendedShadingSingleMaterialNode.detailColorTextureRotation,
+        semantic: PbrExtendedShadingMaterialContent.normalTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -257,7 +235,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
       },
       {
         semantic:
-          PbrExtendedShadingSingleMaterialNode.detailNormalTextureTransform,
+          PbrExtendedShadingMaterialContent.detailColorTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -268,7 +246,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
       },
       {
         semantic:
-          PbrExtendedShadingSingleMaterialNode.detailNormalTextureRotation,
+          PbrExtendedShadingMaterialContent.detailColorTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -278,7 +256,29 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialConten
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic: PbrExtendedShadingSingleMaterialNode.debugDisplay,
+        semantic:
+          PbrExtendedShadingMaterialContent.detailNormalTextureTransform,
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
+        min: -10,
+        max: 10,
+        isCustomSetting: false,
+        initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
+      },
+      {
+        semantic:
+          PbrExtendedShadingMaterialContent.detailNormalTextureRotation,
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
+        min: -Math.PI,
+        max: Math.PI,
+        isCustomSetting: false,
+        initialValue: Scalar.fromCopyNumber(0),
+      },
+      {
+        semantic: PbrExtendedShadingMaterialContent.debugDisplay,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,

@@ -18,7 +18,7 @@ import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shad
 import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMaterialContent {
+export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });
@@ -52,7 +52,7 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.IsHorizontal,
+        semantic: GaussianBlurForEncodedDepthMaterialContent.IsHorizontal,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -64,7 +64,7 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
         max: 1,
       },
       {
-        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio,
+        semantic: GaussianBlurForEncodedDepthMaterialContent.GaussianRatio,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         maxIndex: 30,
@@ -78,7 +78,7 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
         needUniformInFastest: true,
       },
       {
-        semantic: GaussianBlurForEncodedDepthSingleMaterialNode.GaussianKernelSize,
+        semantic: GaussianBlurForEncodedDepthMaterialContent.GaussianKernelSize,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -144,7 +144,7 @@ export class GaussianBlurForEncodedDepthSingleMaterialNode extends AbstractMater
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).gaussianRatio,
-        material.getParameter(GaussianBlurForEncodedDepthSingleMaterialNode.GaussianRatio)._v
+        material.getParameter(GaussianBlurForEncodedDepthMaterialContent.GaussianRatio)._v
       );
     }
 

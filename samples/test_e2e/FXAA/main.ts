@@ -125,7 +125,7 @@ async function setupRenderPassMain() {
     environmentCubeTexture
   );
   sphereMaterial.setParameter(
-    Rn.EnvConstantSingleMaterialNode.EnvHdriFormat,
+    Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index
   );
   const sphereMeshComponent = sphereEntity.getMesh();

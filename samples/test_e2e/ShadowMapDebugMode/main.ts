@@ -73,12 +73,12 @@ let p: any;
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
-    Rn.ShadowMapDecodeClassicSingleMaterialNode.DebugColorFactor,
+    Rn.ShadowMapDecodeClassicMaterialContent.DebugColorFactor,
     Rn.Vector4.fromCopyArray([0.85, 0.0, 0.0, 1.0])
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
-    Rn.ShadowMapDecodeClassicSingleMaterialNode.ShadowColorFactor,
+    Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
     Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
   );
 

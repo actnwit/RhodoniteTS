@@ -64,6 +64,6 @@ void main() {
   );
   expect(array.shaderSemanticsInfoArray[3].initialValue[0]).toBe(7);
   expect(array.shaderSemanticsInfoArray[3].initialValue[1]).toBe(
-    Rn.AbstractMaterialNode.dummyWhiteTexture
+    Rn.AbstractMaterialContent.dummyWhiteTexture
   );
 });

@@ -13,7 +13,7 @@ import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
 // TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
-export class ShaderitySingleMaterialNode extends AbstractMaterialContent {
+export class ShaderityMaterialContent extends AbstractMaterialContent {
   constructor({
     name,
     vertexShaderityObj,
@@ -52,7 +52,7 @@ export class ShaderitySingleMaterialNode extends AbstractMaterialContent {
       }
     }
 
-    ShaderitySingleMaterialNode.__removeUselessShaderSemantics(
+    ShaderityMaterialContent.__removeUselessShaderSemantics(
       shaderSemanticsInfoArray
     );
 

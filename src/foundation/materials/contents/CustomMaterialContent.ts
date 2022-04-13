@@ -18,7 +18,7 @@ import { ShaderityUtility } from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
 
-export class CustomSingleMaterialNode extends AbstractMaterialContent {
+export class CustomMaterialContent extends AbstractMaterialContent {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   static BaseColorTextureTransform = new ShaderSemanticsClass({

@@ -127,7 +127,7 @@ function createEnvCubeExpression(baseuri) {
     environmentCubeTexture
   );
   sphereMaterial.setParameter(
-    Rn.EnvConstantSingleMaterialNode.EnvHdriFormat,
+    Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index
   );
 

@@ -19,7 +19,7 @@ import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/S
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
+export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
     str: 'synthesizeCoefficient',
   });
@@ -92,7 +92,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeCoefficient,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeCoefficient,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         maxIndex: 6,
@@ -106,7 +106,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         needUniformInFastest: true,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture0,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture0,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -120,7 +120,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture1,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture1,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -134,7 +134,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture2,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture2,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -148,7 +148,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture3,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture3,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -162,7 +162,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture4,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture4,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -176,7 +176,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.SynthesizeTexture5,
+        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture5,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -190,7 +190,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHDRMaterialNode.TargetRegionTexture,
+        semantic: SynthesizeHdrMaterialContent.TargetRegionTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -221,7 +221,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).synthesizeCoefficient,
-        material.getParameter(SynthesizeHDRMaterialNode.SynthesizeCoefficient)
+        material.getParameter(SynthesizeHdrMaterialContent.SynthesizeCoefficient)
           ._v
       );
     }

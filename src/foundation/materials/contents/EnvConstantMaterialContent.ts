@@ -17,7 +17,7 @@ import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvC
 import EnvConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class EnvConstantSingleMaterialNode extends AbstractMaterialContent {
+export class EnvConstantMaterialContent extends AbstractMaterialContent {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
   static EnvHdriFormat = new ShaderSemanticsClass({str: 'EnvHdriFormat'});
 
@@ -32,7 +32,7 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: EnvConstantSingleMaterialNode.EnvHdriFormat,
+        semantic: EnvConstantMaterialContent.EnvHdriFormat,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -44,7 +44,7 @@ export class EnvConstantSingleMaterialNode extends AbstractMaterialContent {
         max: 5,
       },
       {
-        semantic: EnvConstantSingleMaterialNode.envRotation,
+        semantic: EnvConstantMaterialContent.envRotation,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,

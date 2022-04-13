@@ -19,7 +19,7 @@ import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/De
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class DepthEncodeSingleMaterialNode extends AbstractMaterialContent {
+export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
   static zFarInner = new ShaderSemanticsClass({str: 'zFarInner'});
   static isPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
@@ -39,7 +39,7 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: DepthEncodeSingleMaterialNode.zNearInner,
+        semantic: DepthEncodeMaterialContent.zNearInner,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -51,7 +51,7 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: DepthEncodeSingleMaterialNode.zFarInner,
+        semantic: DepthEncodeMaterialContent.zFarInner,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -63,7 +63,7 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: DepthEncodeSingleMaterialNode.isPointLight,
+        semantic: DepthEncodeMaterialContent.isPointLight,
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -75,7 +75,7 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: DepthEncodeSingleMaterialNode.depthPow,
+        semantic: DepthEncodeMaterialContent.depthPow,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -171,11 +171,11 @@ export class DepthEncodeSingleMaterialNode extends AbstractMaterialContent {
       }
     } else {
       material.setParameter(
-        DepthEncodeSingleMaterialNode.zNearInner,
+        DepthEncodeMaterialContent.zNearInner,
         cameraComponent.zNearInner
       );
       material.setParameter(
-        DepthEncodeSingleMaterialNode.zFarInner,
+        DepthEncodeMaterialContent.zFarInner,
         cameraComponent.zFarInner
       );
     }

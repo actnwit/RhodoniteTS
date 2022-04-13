@@ -28,7 +28,7 @@ import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSin
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class MToonSingleMaterialNode extends AbstractMaterialContent {
+export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
   static readonly _Color = new ShaderSemanticsClass({str: 'litColor'});
   static readonly _ShadeColor = new ShaderSemanticsClass({str: 'shadeColor'});
@@ -200,7 +200,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
     // non-Texture
     shaderSemanticsInfoArray.push(
       {
-        semantic: MToonSingleMaterialNode._Cutoff,
+        semantic: MToonMaterialContent._Cutoff,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -212,7 +212,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._Color,
+        semantic: MToonMaterialContent._Color,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader,
@@ -226,7 +226,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._ShadeColor,
+        semantic: MToonMaterialContent._ShadeColor,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -240,7 +240,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._BumpScale,
+        semantic: MToonMaterialContent._BumpScale,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -252,7 +252,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._ReceiveShadowRate,
+        semantic: MToonMaterialContent._ReceiveShadowRate,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -266,7 +266,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._ShadingGradeRate,
+        semantic: MToonMaterialContent._ShadingGradeRate,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -280,7 +280,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._ShadeShift,
+        semantic: MToonMaterialContent._ShadeShift,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -292,7 +292,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._ShadeToony,
+        semantic: MToonMaterialContent._ShadeToony,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -304,7 +304,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._LightColorAttenuation,
+        semantic: MToonMaterialContent._LightColorAttenuation,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -318,7 +318,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._AmbientColor,
+        semantic: MToonMaterialContent._AmbientColor,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -330,12 +330,12 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       // {
-      //   semantic: MToonSingleMaterialNode._IndirectLightIntensity, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+      //   semantic: MToonMaterialContent._IndirectLightIntensity, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._IndirectLightIntensity), min: 0, max: 1
       // },
       {
-        semantic: MToonSingleMaterialNode._RimColor,
+        semantic: MToonMaterialContent._RimColor,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -349,7 +349,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._RimLightingMix,
+        semantic: MToonMaterialContent._RimLightingMix,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -363,7 +363,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._RimFresnelPower,
+        semantic: MToonMaterialContent._RimFresnelPower,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -377,7 +377,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._RimLift,
+        semantic: MToonMaterialContent._RimLift,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -389,7 +389,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode.CameraUp,
+        semantic: MToonMaterialContent.CameraUp,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -400,7 +400,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonSingleMaterialNode._EmissionColor,
+        semantic: MToonMaterialContent._EmissionColor,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -414,17 +414,17 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: 1,
       },
       // {
-      //   semantic: MToonSingleMaterialNode._UvAnimScrollX, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+      //   semantic: MToonMaterialContent._UvAnimScrollX, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimScrollX), min: 0, max: 1
       // },
       // {
-      //   semantic: MToonSingleMaterialNode._UvAnimScrollY, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+      //   semantic: MToonMaterialContent._UvAnimScrollY, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue:  Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimScrollY), min: 0, max: 1
       // },
       // {
-      //   semantic: MToonSingleMaterialNode._UvAnimRotation, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+      //   semantic: MToonMaterialContent._UvAnimRotation, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimRotation), min: 0, max: 1
       // },
@@ -493,7 +493,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
 
       shaderSemanticsInfoArray.push(
         {
-          semantic: MToonSingleMaterialNode._OutlineWidth,
+          semantic: MToonMaterialContent._OutlineWidth,
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
@@ -507,7 +507,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonSingleMaterialNode._OutlineScaledMaxDistance,
+          semantic: MToonMaterialContent._OutlineScaledMaxDistance,
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
@@ -521,7 +521,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonSingleMaterialNode._OutlineColor,
+          semantic: MToonMaterialContent._OutlineColor,
           componentType: ComponentType.Float,
           compositionType: CompositionType.Vec3,
           stage: ShaderType.PixelShader,
@@ -535,7 +535,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonSingleMaterialNode._OutlineLightingMix,
+          semantic: MToonMaterialContent._OutlineLightingMix,
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.PixelShader,
@@ -549,7 +549,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonSingleMaterialNode.Aspect,
+          semantic: MToonMaterialContent.Aspect,
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
@@ -636,7 +636,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
   ) {
     shaderSemanticsInfoArray.push(
       {
-        semantic: MToonSingleMaterialNode._MainTex,
+        semantic: MToonMaterialContent._MainTex,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -647,7 +647,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonSingleMaterialNode._ShadeTexture,
+        semantic: MToonMaterialContent._ShadeTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -658,7 +658,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonSingleMaterialNode._ReceiveShadowTexture,
+        semantic: MToonMaterialContent._ReceiveShadowTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -672,7 +672,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonSingleMaterialNode._ShadingGradeTexture,
+        semantic: MToonMaterialContent._ShadingGradeTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -686,7 +686,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonSingleMaterialNode._RimTexture,
+        semantic: MToonMaterialContent._RimTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -697,7 +697,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonSingleMaterialNode._SphereAdd,
+        semantic: MToonMaterialContent._SphereAdd,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -708,7 +708,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonSingleMaterialNode._EmissionMap,
+        semantic: MToonMaterialContent._EmissionMap,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -732,7 +732,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
       shaderSemanticsInfoArray.push(
         {
           // number 7 of texture is the data Texture
-          semantic: MToonSingleMaterialNode._BumpMap,
+          semantic: MToonMaterialContent._BumpMap,
           componentType: ComponentType.Int,
           compositionType: CompositionType.Texture2D,
           stage: ShaderType.PixelShader,
@@ -743,7 +743,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
           max: Number.MAX_SAFE_INTEGER,
         }
         // {
-        //   semantic: MToonSingleMaterialNode._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        //   semantic: MToonMaterialContent._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         //   initialValue: [10, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
         // }
@@ -756,7 +756,7 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
 
       if (isOutline) {
         shaderSemanticsInfoArray.push({
-          semantic: MToonSingleMaterialNode._OutlineWidthTexture,
+          semantic: MToonMaterialContent._OutlineWidthTexture,
           componentType: ComponentType.Int,
           compositionType: CompositionType.Texture2D,
           stage: ShaderType.VertexShader,
@@ -782,8 +782,8 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
   }
 
   setMaterialParameters(material: Material, isOutline: boolean) {
-    if (MToonSingleMaterialNode.usableBlendEquationModeAlpha == null) {
-      MToonSingleMaterialNode.__initializeUsableBlendEquationModeAlpha();
+    if (MToonMaterialContent.usableBlendEquationModeAlpha == null) {
+      MToonMaterialContent.__initializeUsableBlendEquationModeAlpha();
     }
 
     if (this.__floatProperties._BlendMode !== 0) {
@@ -804,13 +804,13 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
 
       const blendEquationMode = 32774; // gl.FUNC_ADD
       const blendEquationModeAlpha =
-        MToonSingleMaterialNode.usableBlendEquationModeAlpha;
+        MToonMaterialContent.usableBlendEquationModeAlpha;
       const blendFuncSrcFactor =
-        MToonSingleMaterialNode.unityBlendEnumCorrespondence(
+        MToonMaterialContent.unityBlendEnumCorrespondence(
           this.__floatProperties._SrcBlend
         );
       const blendFuncDstFactor =
-        MToonSingleMaterialNode.unityBlendEnumCorrespondence(
+        MToonMaterialContent.unityBlendEnumCorrespondence(
           this.__floatProperties._DstBlend
         );
 
@@ -855,12 +855,12 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContextAsWebGL2();
     if (glw!.isWebGL2) {
-      MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.MAX;
+      MToonMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
     } else if (glw!.webgl1ExtBM) {
-      MToonSingleMaterialNode.usableBlendEquationModeAlpha =
+      MToonMaterialContent.usableBlendEquationModeAlpha =
         glw!.webgl1ExtBM.MAX_EXT;
     } else {
-      MToonSingleMaterialNode.usableBlendEquationModeAlpha = gl.FUNC_ADD;
+      MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
     }
   }
 
@@ -925,13 +925,13 @@ export class MToonSingleMaterialNode extends AbstractMaterialContent {
       }
     } else {
       material.setParameter(
-        MToonSingleMaterialNode.CameraUp,
+        MToonMaterialContent.CameraUp,
         cameraComponent.upInner
       );
 
       if (this.__OutlineWidthModeIsScreen) {
         material.setParameter(
-          MToonSingleMaterialNode.Aspect,
+          MToonMaterialContent.Aspect,
           cameraComponent.aspect
         );
       }

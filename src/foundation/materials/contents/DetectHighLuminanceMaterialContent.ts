@@ -19,7 +19,7 @@ import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialContent {
+export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'luminanceCriterion',
   });
@@ -41,7 +41,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialConte
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: DetectHighLuminanceSingleMaterialNode.LuminanceCriterion,
+        semantic: DetectHighLuminanceMaterialContent.LuminanceCriterion,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -53,7 +53,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialConte
         max: Number.MAX_VALUE,
       },
       {
-        semantic: DetectHighLuminanceSingleMaterialNode.LuminanceReduce,
+        semantic: DetectHighLuminanceMaterialContent.LuminanceReduce,
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,

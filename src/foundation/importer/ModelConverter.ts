@@ -61,7 +61,7 @@ import {Config} from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import {MemoryManager} from '../core/MemoryManager';
 import {ILoaderExtension} from './ILoaderExtension';
-import {PbrShadingSingleMaterialNode} from '../materials/contents/PbrShadingSingleMaterialNode';
+import {PbrShadingMaterialContent} from '../materials/contents/PbrShadingMaterialContent';
 import {Scalar} from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
 import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
@@ -1183,7 +1183,7 @@ export class ModelConverter {
         );
         if (baseColorTexture.texCoord != null) {
           material.setParameter(
-            PbrShadingSingleMaterialNode.BaseColorTexcoordIndex,
+            PbrShadingMaterialContent.BaseColorTexcoordIndex,
             baseColorTexture.texCoord
           );
         }
@@ -1191,8 +1191,8 @@ export class ModelConverter {
       ModelConverter._setupTextureTransform(
         baseColorTexture!,
         material,
-        PbrShadingSingleMaterialNode.BaseColorTextureTransform,
-        PbrShadingSingleMaterialNode.BaseColorTextureRotation
+        PbrShadingMaterialContent.BaseColorTextureTransform,
+        PbrShadingMaterialContent.BaseColorTextureRotation
       );
 
       const occlusionTexture = materialJson.occlusionTexture;
@@ -1207,13 +1207,13 @@ export class ModelConverter {
         );
         if (occlusionTexture.texCoord != null) {
           material.setParameter(
-            PbrShadingSingleMaterialNode.OcclusionTexcoordIndex,
+            PbrShadingMaterialContent.OcclusionTexcoordIndex,
             occlusionTexture.texCoord
           );
         }
         if (occlusionTexture.strength != null) {
           material.setParameter(
-            PbrShadingSingleMaterialNode.OcclusionStrength,
+            PbrShadingMaterialContent.OcclusionStrength,
             occlusionTexture.strength
           );
         }
@@ -1241,7 +1241,7 @@ export class ModelConverter {
         );
         if (metallicRoughnessTexture.texCoord != null) {
           material.setParameter(
-            PbrShadingSingleMaterialNode.MetallicRoughnessTexcoordIndex,
+            PbrShadingMaterialContent.MetallicRoughnessTexcoordIndex,
             metallicRoughnessTexture.texCoord
           );
         }
@@ -1249,8 +1249,8 @@ export class ModelConverter {
       ModelConverter._setupTextureTransform(
         metallicRoughnessTexture!,
         material,
-        PbrShadingSingleMaterialNode.MetallicRoughnessTextureTransform,
-        PbrShadingSingleMaterialNode.MetallicRoughnessTextureRotation
+        PbrShadingMaterialContent.MetallicRoughnessTextureTransform,
+        PbrShadingMaterialContent.MetallicRoughnessTextureRotation
       );
     } else {
       let param: Index = ShadingModel.Phong.index;
@@ -1288,7 +1288,7 @@ export class ModelConverter {
         emissiveTexture.texCoord != null
       ) {
         material.setParameter(
-          PbrShadingSingleMaterialNode.EmissiveTexcoordIndex,
+          PbrShadingMaterialContent.EmissiveTexcoordIndex,
           emissiveTexture.texCoord
         );
       }
@@ -1367,14 +1367,14 @@ export class ModelConverter {
       if (parseFloat(gltfModel.asset?.version) >= 2) {
         if (normalTexture.texCoord != null) {
           material.setParameter(
-            PbrShadingSingleMaterialNode.NormalTexcoordIndex,
+            PbrShadingMaterialContent.NormalTexcoordIndex,
             normalTexture.texCoord
           );
         }
 
         if (normalTexture.scale != null) {
           material.setParameter(
-            PbrShadingSingleMaterialNode.NormalScale,
+            PbrShadingMaterialContent.NormalScale,
             normalTexture.scale
           );
         }
@@ -1383,8 +1383,8 @@ export class ModelConverter {
     ModelConverter._setupTextureTransform(
       normalTexture!,
       material,
-      PbrShadingSingleMaterialNode.NormalTextureTransform,
-      PbrShadingSingleMaterialNode.NormalTextureRotation
+      PbrShadingMaterialContent.NormalTextureTransform,
+      PbrShadingMaterialContent.NormalTextureRotation
     );
 
     // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')

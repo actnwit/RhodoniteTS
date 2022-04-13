@@ -20,7 +20,7 @@ import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialContent {
+export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
   static lookupTableTexture = new ShaderSemanticsClass({
     str: 'lookupTableTexture',
   });
@@ -92,7 +92,7 @@ export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialCon
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ColorGradingUsingLUTsSingleMaterialNode.lookupTableTexture,
+        semantic: ColorGradingUsingLUTsMaterialContent.lookupTableTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
