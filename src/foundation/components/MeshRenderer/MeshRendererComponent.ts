@@ -107,6 +107,7 @@ export class MeshRendererComponent extends Component {
   }
 
   private static __setupInstanceIDBuffer() {
+    // Get CPUGeneric Buffer, take BufferView, Accessor
     if (MeshRendererComponent.__instanceIdAccessor == null) {
       const buffer = MemoryManager.getInstance().createOrGetBuffer(
         BufferUse.CPUGeneric
