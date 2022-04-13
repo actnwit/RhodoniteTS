@@ -107,7 +107,7 @@ export class ColorGradingUsingLUTsSingleMaterialNode extends AbstractMaterialNod
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setCustomSettingGpuParameters({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

@@ -681,7 +681,7 @@ export abstract class AbstractMaterialNode extends RnObject {
     );
   }
 
-  setCustomSettingGpuParameters({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

@@ -518,7 +518,7 @@ export class PbrShadingSingleMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setCustomSettingGpuParameters({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

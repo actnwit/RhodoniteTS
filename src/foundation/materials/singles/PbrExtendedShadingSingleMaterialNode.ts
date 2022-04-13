@@ -450,7 +450,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
     // );
   }
 
-  setCustomSettingGpuParameters({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

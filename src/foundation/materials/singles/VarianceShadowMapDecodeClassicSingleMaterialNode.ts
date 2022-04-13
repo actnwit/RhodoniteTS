@@ -469,7 +469,7 @@ export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setCustomSettingGpuParameters({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

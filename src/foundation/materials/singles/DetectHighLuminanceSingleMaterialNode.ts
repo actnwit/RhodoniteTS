@@ -120,7 +120,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setCustomSettingGpuParameters({
+  setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

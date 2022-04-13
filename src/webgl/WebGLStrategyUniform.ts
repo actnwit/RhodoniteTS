@@ -491,7 +491,7 @@ mat3 get_normalMatrix(float instanceId) {
 
         const entity = meshComponent.entity;
         WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-        material._setParametersForGPU({
+        material._setParametersToGpu({
           material,
           shaderProgram,
           firstTime,

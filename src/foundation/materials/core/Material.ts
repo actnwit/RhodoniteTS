@@ -351,7 +351,7 @@ export class Material extends RnObject {
    * @private
    * called from WebGLStrategyFastest and WebGLStrategyUnitform only
    */
-  _setParametersForGPU({
+  _setParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -362,17 +362,31 @@ export class Material extends RnObject {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    if (Is.exist(this.__materialNode)) {
-      if (Is.exist(this.__materialNode.setCustomSettingGpuParameters)) {
-        this.__materialNode.setCustomSettingGpuParameters({
-          material,
-          shaderProgram,
-          firstTime,
-          args,
-        });
-      }
+    // For Auto Parameters
+    this.__setAutoParametersToGpu(args, firstTime, shaderProgram);
+
+    // For Custom Setting Parameters
+    if (
+      Is.exist(this.__materialNode) &&
+      Is.exist(this.__materialNode.setCustomSettingParametersToGpu)
+    ) {
+      this.__materialNode.setCustomSettingParametersToGpu({
+        material,
+        shaderProgram,
+        firstTime,
+        args,
+      });
     }
 
+    // For SoloDatum Parameters
+    this.__setSoloDatumParametersToGpu({shaderProgram, firstTime, args});
+  }
+
+  private __setAutoParametersToGpu(
+    args: RenderingArg,
+    firstTime: boolean,
+    shaderProgram: WebGLProgram
+  ) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     if (args.setUniform) {
@@ -422,11 +436,9 @@ export class Material extends RnObject {
         }
       });
     }
-
-    this.__setSoloDatumParametersForGPU({shaderProgram, firstTime, args});
   }
 
-  private __setSoloDatumParametersForGPU({
+  private __setSoloDatumParametersToGpu({
     shaderProgram,
     firstTime,
     args,
