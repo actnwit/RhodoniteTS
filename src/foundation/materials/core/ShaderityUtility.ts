@@ -25,7 +25,7 @@ import {
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialNode } from './AbstractMaterialNode';
+import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -284,7 +284,7 @@ export class ShaderityUtility {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
             initialValue = [
               parseInt(split[0]),
-              (AbstractMaterialNode as any)[`dummy${color}Texture`],
+              (AbstractMaterialContent as any)[`dummy${color}Texture`],
             ];
           } else if (
             shaderSemanticsInfo.compositionType === CompositionType.TextureCube
@@ -292,7 +292,7 @@ export class ShaderityUtility {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
             initialValue = [
               parseInt(split[0]),
-              (AbstractMaterialNode as any)[`dummy${color}CubeTexture`],
+              (AbstractMaterialContent as any)[`dummy${color}CubeTexture`],
             ];
           } else {
             checkCompositionNumber(CompositionType.Vec2);
@@ -387,11 +387,11 @@ export class ShaderityUtility {
     } else if (
       shaderSemanticsInfo.compositionType === CompositionType.Texture2D
     ) {
-      return [0, AbstractMaterialNode.dummyWhiteTexture];
+      return [0, AbstractMaterialContent.dummyWhiteTexture];
     } else if (
       shaderSemanticsInfo.compositionType === CompositionType.TextureCube
     ) {
-      return [0, AbstractMaterialNode.dummyBlackTexture];
+      return [0, AbstractMaterialContent.dummyBlackTexture];
     }
 
     console.warn('initial value is not found');

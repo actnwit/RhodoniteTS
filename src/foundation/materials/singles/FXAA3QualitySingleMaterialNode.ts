@@ -2,7 +2,7 @@ import {
   ShaderSemanticsInfo,
   ShaderSemantics,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -15,7 +15,7 @@ import shaderVertex from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FX
 import shaderFragment from '../../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
+export class FXAA3QualitySingleMaterialNode extends AbstractMaterialContent {
   constructor() {
     super(
       null,
@@ -33,7 +33,7 @@ export class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

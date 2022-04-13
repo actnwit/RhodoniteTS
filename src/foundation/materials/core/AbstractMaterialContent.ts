@@ -61,7 +61,7 @@ type InputConnectionType = {
   inputNameOfThis: string;
 };
 
-export abstract class AbstractMaterialNode extends RnObject {
+export abstract class AbstractMaterialContent extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
   protected static __semanticsMap: Map<
     MaterialNodeTypeName,
@@ -77,7 +77,7 @@ export abstract class AbstractMaterialNode extends RnObject {
   protected __materialNodeUid: MaterialNodeUID;
   protected __vertexInputConnections: InputConnectionType[] = [];
   protected __pixelInputConnections: InputConnectionType[] = [];
-  static materialNodes: AbstractMaterialNode[] = [];
+  static materialNodes: AbstractMaterialContent[] = [];
   protected __shader: GLSLShader | null;
   protected __shaderFunctionName: string;
   public isSingleOperation = false;
@@ -116,36 +116,36 @@ export abstract class AbstractMaterialNode extends RnObject {
     super();
     this.__shader = shader;
     this.__shaderFunctionName = shaderFunctionName;
-    this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
-    AbstractMaterialNode.materialNodes[
-      AbstractMaterialNode.__invalidMaterialNodeCount
+    this.__materialNodeUid = ++AbstractMaterialContent.__invalidMaterialNodeCount;
+    AbstractMaterialContent.materialNodes[
+      AbstractMaterialContent.__invalidMaterialNodeCount
     ] = this;
 
     this.__isMorphing = isMorphing;
     this.__isSkinning = isSkinning;
     this.__isLighting = isLighting;
 
-    AbstractMaterialNode.__dummyBlackTexture.tryToSetUniqueName(
+    AbstractMaterialContent.__dummyBlackTexture.tryToSetUniqueName(
       'dummyBlackTexture',
       true
     );
-    AbstractMaterialNode.__dummyWhiteTexture.tryToSetUniqueName(
+    AbstractMaterialContent.__dummyWhiteTexture.tryToSetUniqueName(
       'dummyWhiteTexture',
       true
     );
-    AbstractMaterialNode.__dummyBlueTexture.tryToSetUniqueName(
+    AbstractMaterialContent.__dummyBlueTexture.tryToSetUniqueName(
       'dummyBlueTexture',
       true
     );
-    AbstractMaterialNode.__dummyBlackCubeTexture.tryToSetUniqueName(
+    AbstractMaterialContent.__dummyBlackCubeTexture.tryToSetUniqueName(
       'dummyBlackCubeTexture',
       true
     );
-    AbstractMaterialNode.__dummySRGBGrayTexture.tryToSetUniqueName(
+    AbstractMaterialContent.__dummySRGBGrayTexture.tryToSetUniqueName(
       'dummySRGBGrayTexture',
       true
     );
-    AbstractMaterialNode.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.tryToSetUniqueName(
+    AbstractMaterialContent.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.tryToSetUniqueName(
       'dummyPbrKelemenSzirmayKalosBrdfLutTexture',
       true
     );
@@ -179,7 +179,7 @@ export abstract class AbstractMaterialNode extends RnObject {
   }
 
   static getMaterialNode(materialNodeUid: MaterialNodeUID) {
-    return AbstractMaterialNode.materialNodes[materialNodeUid];
+    return AbstractMaterialContent.materialNodes[materialNodeUid];
   }
 
   get materialNodeUid() {
@@ -207,13 +207,13 @@ export abstract class AbstractMaterialNode extends RnObject {
     }
     this.__semantics = infoArray;
 
-    if (!AbstractMaterialNode.__semanticsMap.has(this.shaderFunctionName)) {
-      AbstractMaterialNode.__semanticsMap.set(
+    if (!AbstractMaterialContent.__semanticsMap.has(this.shaderFunctionName)) {
+      AbstractMaterialContent.__semanticsMap.set(
         this.shaderFunctionName,
         new Map()
       );
     }
-    const map = AbstractMaterialNode.__semanticsMap.get(
+    const map = AbstractMaterialContent.__semanticsMap.get(
       this.shaderFunctionName
     )!;
     for (const semantic of this.__semantics) {
@@ -222,14 +222,14 @@ export abstract class AbstractMaterialNode extends RnObject {
   }
 
   getShaderSemanticInfoFromName(name: string) {
-    const map = AbstractMaterialNode.__semanticsMap.get(
+    const map = AbstractMaterialContent.__semanticsMap.get(
       this.shaderFunctionName
     )!;
     return map.get(name);
   }
 
   addVertexInputConnection(
-    inputMaterialNode: AbstractMaterialNode,
+    inputMaterialNode: AbstractMaterialContent,
     outputNameOfPrev: string,
     inputNameOfThis: string
   ) {
@@ -241,7 +241,7 @@ export abstract class AbstractMaterialNode extends RnObject {
   }
 
   addPixelInputConnection(
-    inputMaterialNode: AbstractMaterialNode,
+    inputMaterialNode: AbstractMaterialContent,
     outputNameOfPrev: string,
     inputNameOfThis: string
   ) {
@@ -572,10 +572,10 @@ export abstract class AbstractMaterialNode extends RnObject {
         lightComponents!.length,
         Config.maxLightNumberInShader
       );
-      if (AbstractMaterialNode.__lightPositions.length !== 4 * length) {
-        AbstractMaterialNode.__lightPositions = new Float32Array(4 * length);
-        AbstractMaterialNode.__lightDirections = new Float32Array(4 * length);
-        AbstractMaterialNode.__lightIntensities = new Float32Array(4 * length);
+      if (AbstractMaterialContent.__lightPositions.length !== 4 * length) {
+        AbstractMaterialContent.__lightPositions = new Float32Array(4 * length);
+        AbstractMaterialContent.__lightDirections = new Float32Array(4 * length);
+        AbstractMaterialContent.__lightIntensities = new Float32Array(4 * length);
       }
       for (let i = 0; i < lightComponents!.length; i++) {
         if (i >= Config.maxLightNumberInShader) {
@@ -591,40 +591,40 @@ export abstract class AbstractMaterialNode extends RnObject {
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
 
-        AbstractMaterialNode.__lightPositions[i * 4 + 0] = worldLightPosition.x;
-        AbstractMaterialNode.__lightPositions[i * 4 + 1] = worldLightPosition.y;
-        AbstractMaterialNode.__lightPositions[i * 4 + 2] = worldLightPosition.z;
-        AbstractMaterialNode.__lightPositions[i * 4 + 3] =
+        AbstractMaterialContent.__lightPositions[i * 4 + 0] = worldLightPosition.x;
+        AbstractMaterialContent.__lightPositions[i * 4 + 1] = worldLightPosition.y;
+        AbstractMaterialContent.__lightPositions[i * 4 + 2] = worldLightPosition.z;
+        AbstractMaterialContent.__lightPositions[i * 4 + 3] =
           lightComponent.type.index;
 
-        AbstractMaterialNode.__lightDirections[i * 4 + 0] =
+        AbstractMaterialContent.__lightDirections[i * 4 + 0] =
           worldLightDirection.x;
-        AbstractMaterialNode.__lightDirections[i * 4 + 1] =
+        AbstractMaterialContent.__lightDirections[i * 4 + 1] =
           worldLightDirection.y;
-        AbstractMaterialNode.__lightDirections[i * 4 + 2] =
+        AbstractMaterialContent.__lightDirections[i * 4 + 2] =
           worldLightDirection.z;
-        AbstractMaterialNode.__lightDirections[i * 4 + 3] = 0;
+        AbstractMaterialContent.__lightDirections[i * 4 + 3] = 0;
 
-        AbstractMaterialNode.__lightIntensities[i * 4 + 0] =
+        AbstractMaterialContent.__lightIntensities[i * 4 + 0] =
           worldLightIntensity.x;
-        AbstractMaterialNode.__lightIntensities[i * 4 + 1] =
+        AbstractMaterialContent.__lightIntensities[i * 4 + 1] =
           worldLightIntensity.y;
-        AbstractMaterialNode.__lightIntensities[i * 4 + 2] =
+        AbstractMaterialContent.__lightIntensities[i * 4 + 2] =
           worldLightIntensity.z;
-        AbstractMaterialNode.__lightIntensities[i * 4 + 3] = 0;
+        AbstractMaterialContent.__lightIntensities[i * 4 + 3] = 0;
       }
       if (length > 0) {
         (shaderProgram as any)._gl.uniform4fv(
           (shaderProgram as any).lightPosition,
-          AbstractMaterialNode.__lightPositions
+          AbstractMaterialContent.__lightPositions
         );
         (shaderProgram as any)._gl.uniform4fv(
           (shaderProgram as any).lightDirection,
-          AbstractMaterialNode.__lightDirections
+          AbstractMaterialContent.__lightDirections
         );
         (shaderProgram as any)._gl.uniform4fv(
           (shaderProgram as any).lightIntensity,
-          AbstractMaterialNode.__lightIntensities
+          AbstractMaterialContent.__lightIntensities
         );
       }
     }

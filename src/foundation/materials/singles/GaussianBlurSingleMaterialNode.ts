@@ -10,7 +10,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { VectorN } from '../../math/VectorN';
 import GaussianBlurSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
@@ -18,7 +18,7 @@ import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/G
 import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class GaussianBlurSingleMaterialNode extends AbstractMaterialNode {
+export class GaussianBlurSingleMaterialNode extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });
@@ -108,7 +108,7 @@ export class GaussianBlurSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyBlackTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

@@ -1,4 +1,4 @@
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -21,7 +21,7 @@ import {AlphaModeEnum} from '../../definitions/AlphaMode';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
+export class ClassicShadingSingleMaterialNode extends AbstractMaterialContent {
   constructor({
     isSkinning,
     isLighting,
@@ -87,7 +87,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -98,7 +98,7 @@ export class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

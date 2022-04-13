@@ -2,7 +2,7 @@ import {
   ShaderSemanticsInfo,
   ShaderSemantics,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector3 } from '../../math/Vector3';
@@ -19,7 +19,7 @@ import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/
 import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
+export class EntityUIDOutputSingleMaterialNode extends AbstractMaterialContent {
   constructor() {
     super(
       null,

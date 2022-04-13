@@ -31,7 +31,7 @@ import {
   ComponentTID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import { AbstractMaterialNode } from '../../materials/core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../../materials/core/AbstractMaterialContent';
 import {IMatrix44} from '../../math/IMatrix';
 import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
@@ -191,7 +191,7 @@ export class MeshRendererComponent extends Component {
     MeshRendererComponent.__webglResourceRepository =
       webglModule.WebGLResourceRepository.getInstance();
 
-    AbstractMaterialNode.initDefaultTextures();
+    AbstractMaterialContent.initDefaultTextures();
   }
 
   $load() {

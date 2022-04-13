@@ -2,7 +2,7 @@ import {
   ShaderSemanticsInfo,
   ShaderSemantics,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
@@ -14,7 +14,7 @@ import GammaCorrectionShaderVertex from '../../../webgl/shaderity_shaders/GammaC
 import GammaCorrectionShaderFragment from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
+export class GammaCorrectionSingleMaterialNode extends AbstractMaterialContent {
   constructor() {
     super(
       null,
@@ -32,7 +32,7 @@ export class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: 10,
       },

@@ -9,7 +9,7 @@ import {
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import { Vector2 } from '../../math/Vector2';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Material } from '../core/Material';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
@@ -17,7 +17,7 @@ import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTes
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
+export class FurnaceTestSingleMaterialNode extends AbstractMaterialContent {
   static mode = new ShaderSemanticsClass({str: 'mode'});
   static debugView = new ShaderSemanticsClass({str: 'debugView'});
   static g_type = new ShaderSemanticsClass({str: 'g_type'});
@@ -125,7 +125,7 @@ export class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

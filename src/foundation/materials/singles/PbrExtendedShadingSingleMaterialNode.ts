@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from './../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -25,7 +25,7 @@ import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExten
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
+export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialContent {
   static detailNormalTexture = new ShaderSemanticsClass({
     str: 'detailNormalTexture',
   });
@@ -80,7 +80,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       PBRExtendedShaderVertex,
       PBRExtendedShaderFragment
     );
-    AbstractMaterialNode.initDefaultTextures();
+    AbstractMaterialContent.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
@@ -101,7 +101,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.SpecularGlossinessFactor,
@@ -121,7 +121,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.NormalTexture,
@@ -131,7 +131,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
-        initialValue: [2, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [2, AbstractMaterialContent.__dummyBlueTexture],
       },
       {
         semantic: ShaderSemantics.Wireframe,
@@ -181,7 +181,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         min: 0,
         max: 10,
         isCustomSetting: false,
-        initialValue: [3, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [3, AbstractMaterialContent.__dummyBlueTexture],
       },
       {
         semantic: PbrExtendedShadingSingleMaterialNode.detailColorTexture,
@@ -191,7 +191,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         min: 0,
         max: 10,
         isCustomSetting: false,
-        initialValue: [4, AbstractMaterialNode.__dummySRGBGrayTexture],
+        initialValue: [4, AbstractMaterialContent.__dummySRGBGrayTexture],
       },
       {
         semantic: PbrExtendedShadingSingleMaterialNode.diffuseTextureTransform,
@@ -353,7 +353,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [5, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.SpecularEnvTexture,
@@ -364,7 +364,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [6, AbstractMaterialContent.__dummyWhiteTexture],
       },
     ];
 
@@ -507,7 +507,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       args.glw.bindTextureCube(5, texture);
     } else {
       const texture = this.__webglResourceRepository.getWebGLResource(
-        AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid
+        AbstractMaterialContent.__dummyBlackCubeTexture.cgApiResourceUid
       ) as WebGLTexture;
       args.glw.bindTextureCube(5, texture);
     }
@@ -524,7 +524,7 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
       args.glw.bindTextureCube(6, texture);
     } else {
       const texture = this.__webglResourceRepository.getWebGLResource(
-        AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid
+        AbstractMaterialContent.__dummyBlackCubeTexture.cgApiResourceUid
       ) as WebGLTexture;
       args.glw.bindTextureCube(6, texture);
     }
@@ -563,13 +563,13 @@ export class PbrExtendedShadingSingleMaterialNode extends AbstractMaterialNode {
         {x: diffuseHdriType, y: specularHdriType}
       );
     } else {
-      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
       tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
       tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
       material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
-      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
       material.setParameter(ShaderSemantics.IBLParameter, tmp_vector2);

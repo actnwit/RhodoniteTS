@@ -1,5 +1,5 @@
 import { RnObject } from '../../core/RnObject';
-import {ShaderSocket} from './AbstractMaterialNode';
+import {ShaderSocket} from './AbstractMaterialContent';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
 
 export type ShaderNodeUID = number;

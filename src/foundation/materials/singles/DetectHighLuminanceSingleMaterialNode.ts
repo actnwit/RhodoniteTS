@@ -13,13 +13,13 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Scalar } from '../../math/Scalar';
 import { RenderPass } from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode {
+export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'luminanceCriterion',
   });
@@ -77,7 +77,7 @@ export class DetectHighLuminanceSingleMaterialNode extends AbstractMaterialNode 
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
       framebufferWidth = framebuffer.width;
     } else {
-      targetTexture = AbstractMaterialNode.__dummyBlackTexture;
+      targetTexture = AbstractMaterialContent.__dummyBlackTexture;
       framebufferWidth = 1;
 
       if (framebuffer != null) {

@@ -8,7 +8,7 @@ import {
 } from '../../definitions/ComponentType';
 import { BlockBeginShader } from '../../../webgl/shaders/nodes/BlockBeginShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import {ShaderSocket} from '../core/AbstractMaterialNode';
+import {ShaderSocket} from '../core/AbstractMaterialContent';
 
 export class BlockBeginShaderNode extends AbstractShaderNode {
   private __valueInputs: ShaderSocket[] = [];

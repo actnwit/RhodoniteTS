@@ -4,7 +4,7 @@ import {
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector4 } from '../../math/Vector4';
@@ -31,7 +31,7 @@ import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shader
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
+export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialContent {
   static ShadowColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'shadowColorFactor',
   });
@@ -212,7 +212,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -234,7 +234,7 @@ export class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

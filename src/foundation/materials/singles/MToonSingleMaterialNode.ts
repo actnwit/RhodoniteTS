@@ -1,4 +1,4 @@
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {AlphaMode} from '../../definitions/AlphaMode';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
@@ -28,7 +28,7 @@ import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSin
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class MToonSingleMaterialNode extends AbstractMaterialNode {
+export class MToonSingleMaterialNode extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
   static readonly _Color = new ShaderSemanticsClass({str: 'litColor'});
   static readonly _ShadeColor = new ShaderSemanticsClass({str: 'shadeColor'});
@@ -188,8 +188,8 @@ export class MToonSingleMaterialNode extends AbstractMaterialNode {
       // this.__textureProperties._UvAnimMaskTexture = 0;
 
       textures = [
-        AbstractMaterialNode.__dummyWhiteTexture,
-        AbstractMaterialNode.__dummyBlackTexture,
+        AbstractMaterialContent.__dummyWhiteTexture,
+        AbstractMaterialContent.__dummyBlackTexture,
       ];
     }
 

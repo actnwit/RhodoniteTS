@@ -1,4 +1,4 @@
-export * from './AbstractMaterialNode';
+export * from './AbstractMaterialContent';
 export * from './AbstractShaderNode';
 export * from './Material';
 export * from './ShaderGraphResolver';

@@ -1,7 +1,7 @@
 import {Config} from '../core/Config';
 import { Material } from '../materials/core/Material';
 import { RenderPass } from '../renderer/RenderPass';
-import { AbstractMaterialNode } from '../materials/core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import { PbrShadingSingleMaterialNode } from '../materials/singles/PbrShadingSingleMaterialNode';
 import { ClassicShadingSingleMaterialNode } from '../materials/singles/ClassicShadingSingleMaterialNode';
 import { EnvConstantSingleMaterialNode } from '../materials/singles/EnvConstantSingleMaterialNode';
@@ -39,7 +39,7 @@ import {Is} from '../misc/Is';
 
 function createMaterial(
   materialName: string,
-  materialNode?: AbstractMaterialNode,
+  materialNode?: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
   const isRegisteredMaterialType =
@@ -55,7 +55,7 @@ function createMaterial(
 
 function recreateMaterial(
   materialName: string,
-  materialNode?: AbstractMaterialNode,
+  materialNode?: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
   Material.forceRegisterMaterial(

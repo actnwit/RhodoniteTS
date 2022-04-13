@@ -11,7 +11,7 @@ import {
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { VectorN } from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';
@@ -19,7 +19,7 @@ import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/S
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 
-export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
+export class SynthesizeHDRMaterialNode extends AbstractMaterialContent {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
     str: 'synthesizeCoefficient',
   });
@@ -65,7 +65,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
    */
   constructor(
     synthesizeTextures: AbstractTexture[],
-    targetRegionTexture: AbstractTexture = AbstractMaterialNode.dummyBlackTexture
+    targetRegionTexture: AbstractTexture = AbstractMaterialContent.dummyBlackTexture
   ) {
     super(
       null,
@@ -114,7 +114,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           0,
-          synthesizeTextures[0] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[0] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -128,7 +128,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           1,
-          synthesizeTextures[1] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[1] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -142,7 +142,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           2,
-          synthesizeTextures[2] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[2] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -156,7 +156,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           3,
-          synthesizeTextures[3] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[3] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -170,7 +170,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           4,
-          synthesizeTextures[4] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[4] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -184,7 +184,7 @@ export class SynthesizeHDRMaterialNode extends AbstractMaterialNode {
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           5,
-          synthesizeTextures[5] ?? AbstractMaterialNode.dummyBlackTexture,
+          synthesizeTextures[5] ?? AbstractMaterialContent.dummyBlackTexture,
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,

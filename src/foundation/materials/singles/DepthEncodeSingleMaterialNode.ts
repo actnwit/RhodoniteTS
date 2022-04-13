@@ -1,4 +1,4 @@
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -19,7 +19,7 @@ import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/De
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
+export class DepthEncodeSingleMaterialNode extends AbstractMaterialContent {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
   static zFarInner = new ShaderSemanticsClass({str: 'zFarInner'});
   static isPointLight = new ShaderSemanticsClass({str: 'isPointLight'});

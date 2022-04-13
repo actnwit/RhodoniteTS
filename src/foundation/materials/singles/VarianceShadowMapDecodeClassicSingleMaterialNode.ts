@@ -4,7 +4,7 @@ import {
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import { Vector4 } from '../../math/Vector4';
@@ -31,7 +31,7 @@ import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderi
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
 
-export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
+export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialContent {
   static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
   static DepthTexture = new ShaderSemanticsClass({str: 'depthTexture'});
   static SquareDepthTexture = new ShaderSemanticsClass({
@@ -128,7 +128,7 @@ export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
     } else {
       console.warn('renderPass of depth does not have framebuffer');
-      depthTexture = AbstractMaterialNode.__dummyBlackTexture;
+      depthTexture = AbstractMaterialContent.__dummyBlackTexture;
     }
 
     let squareDepthTexture;
@@ -140,7 +140,7 @@ export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         ];
     } else {
       console.warn('renderPass of square depth does not have framebuffer');
-      squareDepthTexture = AbstractMaterialNode.__dummyBlackTexture;
+      squareDepthTexture = AbstractMaterialContent.__dummyBlackTexture;
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -324,7 +324,7 @@ export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -335,7 +335,7 @@ export class VarianceShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

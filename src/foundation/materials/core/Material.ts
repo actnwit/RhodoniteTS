@@ -1,6 +1,6 @@
 import {RnObject} from '../../core/RnObject';
 import {AlphaMode, AlphaModeEnum} from '../../definitions/AlphaMode';
-import {AbstractMaterialNode} from './AbstractMaterialNode';
+import {AbstractMaterialContent} from './AbstractMaterialContent';
 import {
   ShaderSemanticsEnum,
   ShaderSemanticsInfo,
@@ -62,7 +62,7 @@ type MaterialTID = Index; // a type number of the Material Type
  */
 export class Material extends RnObject {
   // Internal Resources
-  private __materialNode?: AbstractMaterialNode;
+  private __materialNode?: AbstractMaterialContent;
   private __allFieldVariables: Map<ShaderSemanticsIndex, ShaderVariable> =
     new Map();
   private __autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable> =
@@ -114,7 +114,7 @@ export class Material extends RnObject {
     new Map();
   private static __materialTypes: Map<
     MaterialTypeName,
-    AbstractMaterialNode | undefined
+    AbstractMaterialContent | undefined
   > = new Map();
   private static __maxInstances: Map<MaterialTypeName, MaterialSID> = new Map();
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
@@ -128,7 +128,7 @@ export class Material extends RnObject {
   private constructor(
     materialTid: Index,
     materialTypeName: string,
-    materialNode: AbstractMaterialNode
+    materialNode: AbstractMaterialContent
   ) {
     super();
     this.__materialNode = materialNode;
@@ -650,7 +650,7 @@ export class Material extends RnObject {
   }
 
   private __getAttributeInfo(
-    materialNode: AbstractMaterialNode,
+    materialNode: AbstractMaterialContent,
     glslShader: GLSLShader
   ) {
     let attributeNames;
@@ -975,7 +975,7 @@ export class Material extends RnObject {
    */
   static createMaterial(
     materialTypeName: string,
-    materialNode_?: AbstractMaterialNode
+    materialNode_?: AbstractMaterialContent
   ) {
     let materialNode = materialNode_;
     if (!materialNode) {
@@ -1053,7 +1053,7 @@ export class Material extends RnObject {
 
   private static __allocateBufferView(
     materialTypeName: string,
-    materialNode: AbstractMaterialNode
+    materialNode: AbstractMaterialContent
   ) {
     let totalByteLength = 0;
     const alignedByteLengthAndSemanticInfoArray = [];
@@ -1148,7 +1148,7 @@ export class Material extends RnObject {
    */
   static registerMaterial(
     materialTypeName: string,
-    materialNode?: AbstractMaterialNode,
+    materialNode?: AbstractMaterialContent,
     maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
   ) {
     if (!Material.__materialTypes.has(materialTypeName)) {
@@ -1172,7 +1172,7 @@ export class Material extends RnObject {
 
   static forceRegisterMaterial(
     materialTypeName: string,
-    materialNode: AbstractMaterialNode,
+    materialNode: AbstractMaterialContent,
     maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
   ) {
     Material.__materialTypes.set(materialTypeName, materialNode);

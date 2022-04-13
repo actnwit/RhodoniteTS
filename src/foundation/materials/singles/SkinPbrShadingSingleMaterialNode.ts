@@ -3,7 +3,7 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialNode } from '../core/AbstractMaterialNode';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import { Vector2 } from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
@@ -28,7 +28,7 @@ import SkinPbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSin
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 
-export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
+export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialContent {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
@@ -103,7 +103,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [0, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.MetallicRoughnessFactor,
@@ -125,7 +125,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.NormalTexture,
@@ -136,7 +136,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [2, AbstractMaterialNode.__dummyBlueTexture],
+        initialValue: [2, AbstractMaterialContent.__dummyBlueTexture],
       },
       {
         semantic: ShaderSemantics.OcclusionTexture,
@@ -147,7 +147,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [3, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [3, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.EmissiveTexture,
@@ -158,7 +158,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [4, AbstractMaterialNode.__dummyBlackTexture],
+        initialValue: [4, AbstractMaterialContent.__dummyBlackTexture],
       },
       {
         semantic:
@@ -172,7 +172,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: [
           8,
-          AbstractMaterialNode.__dummyPbrKelemenSzirmayKalosBrdfLutTexture,
+          AbstractMaterialContent.__dummyPbrKelemenSzirmayKalosBrdfLutTexture,
         ],
       },
       {
@@ -252,7 +252,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [5, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.SpecularEnvTexture,
@@ -263,7 +263,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture],
+        initialValue: [6, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: SkinPbrShadingSingleMaterialNode.baseColorTextureTransform,
@@ -546,7 +546,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
-        [5, AbstractMaterialNode.__dummyBlackCubeTexture]
+        [5, AbstractMaterialContent.__dummyBlackCubeTexture]
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
@@ -561,7 +561,7 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
-        [6, AbstractMaterialNode.__dummyBlackCubeTexture]
+        [6, AbstractMaterialContent.__dummyBlackCubeTexture]
       );
     }
 
@@ -598,13 +598,13 @@ export class SkinPbrShadingSingleMaterialNode extends AbstractMaterialNode {
         diffuseHdriType,
         specularHdriType,
       } = this.setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
       tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
       tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
       material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
-      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
       material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
