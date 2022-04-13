@@ -61,7 +61,7 @@ import {Config} from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import {MemoryManager} from '../core/MemoryManager';
 import {ILoaderExtension} from './ILoaderExtension';
-import {PbrShadingSingleMaterialNode} from '../materials/singles/PbrShadingSingleMaterialNode';
+import {PbrShadingSingleMaterialNode} from '../materials/contents/PbrShadingSingleMaterialNode';
 import {Scalar} from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
 import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
