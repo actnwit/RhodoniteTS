@@ -78,7 +78,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   protected __vertexInputConnections: InputConnectionType[] = [];
   protected __pixelInputConnections: InputConnectionType[] = [];
   static materialNodes: AbstractMaterialContent[] = [];
-  protected __shader: GLSLShader | null;
   protected __shaderFunctionName: string;
   public isSingleOperation = false;
   protected __definitions = '';
@@ -114,7 +113,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     pixelShaderityObject?: ShaderityObject
   ) {
     super();
-    this.__shader = shader;
     this.__shaderFunctionName = shaderFunctionName;
     this.__materialNodeUid = ++AbstractMaterialContent.__invalidMaterialNodeCount;
     AbstractMaterialContent.materialNodes[
@@ -160,10 +158,6 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   get shaderFunctionName() {
     return this.__shaderFunctionName;
-  }
-
-  get shader() {
-    return this.__shader;
   }
 
   get vertexShaderityObject() {

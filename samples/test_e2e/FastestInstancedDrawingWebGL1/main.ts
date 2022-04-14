@@ -78,8 +78,6 @@ declare const Rn: typeof _Rn;
 
     const primitive = readyBasicVerticesData();
 
-    Rn.MeshRendererComponent.manualTransparentSids = [];
-
     const entities = [];
     const entityNumber = 100;
     const originalMesh = new Rn.Mesh();

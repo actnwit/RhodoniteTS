@@ -1,27 +1,18 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Component } from '../../core/Component';
-import { MeshComponent } from '../Mesh/MeshComponent';
-import { WebGLStrategy } from '../../../webgl/WebGLStrategy';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {Component} from '../../core/Component';
+import {MeshComponent} from '../Mesh/MeshComponent';
+import {WebGLStrategy} from '../../../webgl/WebGLStrategy';
 import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
 import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
-import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
+import {SceneGraphComponent} from '../SceneGraph/SceneGraphComponent';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import { CameraComponent } from '../Camera/CameraComponent';
-import { Matrix44 } from '../../math/Matrix44';
-import { Accessor } from '../../memory/Accessor';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { MemoryManager } from '../../core/MemoryManager';
-import {Config} from '../../core/Config';
-import {BufferUse} from '../../definitions/BufferUse';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
-import { ModuleManager } from '../../system/ModuleManager';
-import { CubeTexture } from '../../textures/CubeTexture';
-import { RenderPass } from '../../renderer/RenderPass';
+import {CameraComponent} from '../Camera/CameraComponent';
+import {Matrix44} from '../../math/Matrix44';
+import {ModuleManager} from '../../system/ModuleManager';
+import {CubeTexture} from '../../textures/CubeTexture';
+import {RenderPass} from '../../renderer/RenderPass';
 import {Visibility} from '../../definitions/Visibility';
-import { RnObject } from '../../core/RnObject';
 import {
   ComponentSID,
   CGAPIResourceHandle,
@@ -31,9 +22,8 @@ import {
   ComponentTID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import { AbstractMaterialContent } from '../../materials/core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../../materials/core/AbstractMaterialContent';
 import {IMatrix44} from '../../math/IMatrix';
-import {IMeshEntity, ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {Is} from '../../misc/Is';
@@ -47,18 +37,13 @@ export class MeshRendererComponent extends Component {
     ObjectUID,
     CGAPIResourceHandle
   > = new Map();
-  private __sceneGraphComponent?: SceneGraphComponent;
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
   public diffuseCubeMapContribution = 1.0;
   public specularCubeMapContribution = 1.0;
   public rotationOfCubeMap = 0;
 
-  private static __webglResourceRepository?: WebGLResourceRepository;
-  private static __instanceIDBufferUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webglRenderingStrategy?: WebGLStrategy;
-  private static __instanceIdAccessor?: Accessor;
   private static __tmp_identityMatrix: IMatrix44 = Matrix44.identity();
   private static __firstTransparentIndex = -1;
   private static __lastTransparentIndex = -1;
@@ -73,14 +58,6 @@ export class MeshRendererComponent extends Component {
     entityRepository: EntityRepository
   ) {
     super(entityUid, componentSid, entityRepository);
-
-    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      SceneGraphComponent
-    ) as SceneGraphComponent;
-    const cameraComponents = ComponentRepository.getComponentsWithType(
-      CameraComponent
-    ) as CameraComponent[];
   }
 
   static get componentTID(): ComponentTID {
@@ -93,77 +70,6 @@ export class MeshRendererComponent extends Component {
 
   static get lastTransparentIndex() {
     return MeshRendererComponent.__lastTransparentIndex;
-  }
-
-  private static __isReady() {
-    if (
-      MeshRendererComponent.__instanceIDBufferUid !==
-      CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  private static __setupInstanceIDBuffer() {
-    if (MeshRendererComponent.__instanceIdAccessor == null) {
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(
-        BufferUse.CPUGeneric
-      );
-      const count = Config.maxEntityNumber;
-      const bufferView = buffer.takeBufferView({
-        byteLengthToNeed: 4 /*byte*/ * count,
-        byteStride: 0,
-      });
-      MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        count: count,
-      });
-    }
-
-    const meshComponents =
-      ComponentRepository.getComponentsWithType(MeshComponent);
-    if (meshComponents == null) {
-      return CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    }
-
-    for (let i = 0; i < meshComponents.length; i++) {
-      MeshRendererComponent.__instanceIdAccessor!.setScalar(
-        i,
-        meshComponents[i].entityUID,
-        {}
-      );
-    }
-
-    return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(
-      MeshRendererComponent.__instanceIdAccessor!
-    );
-  }
-
-  static set manualTransparentSids(sids: ComponentSID[]) {
-    MeshRendererComponent.__manualTransparentSids = sids;
-  }
-
-  static set manualTransparentEntityNames(names: string[]) {
-    MeshRendererComponent.__manualTransparentSids = [];
-    for (const name of names) {
-      const entity = RnObject.getRnObjectByName(name) as unknown as IMeshEntity;
-      if (entity) {
-        const meshComponent = entity.tryToGetMesh();
-        if (meshComponent) {
-          const mesh = meshComponent.mesh;
-          if (mesh) {
-            if (!mesh.isOpaque()) {
-              MeshRendererComponent.__manualTransparentSids.push(
-                meshComponent.componentSID
-              );
-            }
-          }
-        }
-      }
-    }
   }
 
   $create() {
@@ -187,10 +93,6 @@ export class MeshRendererComponent extends Component {
     MeshRendererComponent.__webglRenderingStrategy =
       webglModule.getRenderingStrategy(processApproach);
 
-    // ResourceRepository
-    MeshRendererComponent.__webglResourceRepository =
-      webglModule.WebGLResourceRepository.getInstance();
-
     AbstractMaterialContent.initDefaultTextures();
   }
 
@@ -209,56 +111,16 @@ export class MeshRendererComponent extends Component {
     // this.moveStageTo(ProcessStage.PreRender);
   }
 
-  static common_$prerender(): CGAPIResourceHandle {
-    const gl =
-      MeshRendererComponent.__webglResourceRepository!
-        .currentWebGLContextWrapper;
-
-    if (gl == null) {
-      throw new Error('No WebGLRenderingContext!');
-    }
-
+  static common_$prerender() {
     MeshRendererComponent.__webglRenderingStrategy!.common_$prerender();
 
-    if (MeshRendererComponent.__isReady()) {
-      return 0;
-    }
-
-    MeshRendererComponent.__instanceIDBufferUid =
-      MeshRendererComponent.__setupInstanceIDBuffer();
-
-    return MeshRendererComponent.__instanceIDBufferUid;
+    return;
   }
 
   // $prerender() {
-  //   MeshRendererComponent.__webglRenderingStrategy!.$prerender(
-  //     this.__meshComponent!,
-  //     this,
-  //     MeshRendererComponent.__instanceIDBufferUid
-  //   );
-
-  //   this.moveStageTo(ProcessStage.Render);
   // }
 
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
-    // if (MeshRendererComponent.__manualTransparentSids == null) {
-    //   const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
-    //     undefined,
-    //     renderPass
-    //   );
-    //   // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
-
-    //   return sortedMeshComponentSids;
-    // } else {
-    //   const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(
-    //     MeshRendererComponent.__manualTransparentSids,
-    //     renderPass
-    //   );
-    //   // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
-
-    //   return sortedMeshComponentSids;
-    // }
-
     const primitiveUids = MeshRendererComponent.sort_$render_inner(renderPass);
     return primitiveUids;
   }
@@ -450,32 +312,7 @@ export class MeshRendererComponent extends Component {
     i: Index;
     renderPass: RenderPass;
     renderPassTickCount: Count;
-  }) {
-    //   if (MeshRendererComponent.__webglRenderingStrategy!.$render == null) {
-    //     return;
-    //   }
-    //   const entity = this.__entityRepository.getEntity(
-    //     this.__entityUid
-    //   ) as IMeshEntity;
-    //   MeshRendererComponent.__webglRenderingStrategy!.$render!(
-    //     i,
-    //     this.__meshComponent!,
-    //     this.__sceneGraphComponent!.worldMatrixInner,
-    //     this.__sceneGraphComponent!.normalMatrixInner,
-    //     entity,
-    //     renderPass,
-    //     renderPassTickCount,
-    //     this.diffuseCubeMap,
-    //     this.specularCubeMap
-    //   );
-    //   if (this.__meshComponent!.mesh) {
-    //     if (this.__meshComponent!.mesh.weights.length > 0) {
-    //       this.moveStageTo(ProcessStage.PreRender);
-    //     }
-    //   } else {
-    //     MeshComponent.alertNoMeshSet(this.__meshComponent!);
-    //   }
-  }
+  }) {}
 
   /**
    * @override

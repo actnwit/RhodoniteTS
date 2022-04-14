@@ -20,20 +20,12 @@ export class ClassicShadingShader extends GLSLShader {
   }
 
   get vertexShaderDefinitions() {
-    const _version = this.glsl_versionText;
-    const _in = this.glsl_vertex_in;
-    const _out = this.glsl_vertex_out;
-
     return `
 
 `;
   }
 
   get pixelShaderDefinitions() {
-    const _version = this.glsl_versionText;
-    const _in = this.glsl_vertex_in;
-    const _out = this.glsl_vertex_out;
-
     return `
 uniform int u_shadingModel;
 uniform float u_shininess;

@@ -64,6 +64,9 @@ export class ShaderSemanticsClass
       return false;
     }
   }
+  static getIndexCount() {
+    return ShaderSemanticsClass.__indexCount;
+  }
 }
 
 const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -333,8 +336,7 @@ type UpdateFunc = ({
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum;
   prefix?: string;
-  index?: Count; // index of an array type shader variable
-  maxIndex?: Count; // the array length of the array type shader variable
+  arrayLength?: Count; // the array length of the array type shader variable
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   min: number;
@@ -389,8 +391,8 @@ const getShaderProperty: getShaderPropertyFunc = (
   // definition of uniform variable
   const varType = info.compositionType.getGlslStr(info.componentType);
   let varIndexStr = '';
-  if (info.maxIndex) {
-    varIndexStr = `[${info.maxIndex}]`;
+  if (info.arrayLength) {
+    varIndexStr = `[${info.arrayLength}]`;
   }
   const varDef = `  uniform ${varType} u_${variableName}${varIndexStr};\n`;
 
@@ -417,7 +419,7 @@ const getShaderProperty: getShaderPropertyFunc = (
     } else {
       str += `
         ${returnType} val;
-        for (int i=0; i<${info.maxIndex}; i++) {
+        for (int i=0; i<${info.arrayLength}; i++) {
           if (i == index) {
             val = u_${variableName};
             break;

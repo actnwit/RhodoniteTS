@@ -1,31 +1,31 @@
-import { WebGLResourceRepository } from './WebGLResourceRepository';
-import { MemoryManager } from '../foundation/core/MemoryManager';
-import { Buffer } from '../foundation/memory/Buffer';
+import {WebGLResourceRepository} from './WebGLResourceRepository';
+import {MemoryManager} from '../foundation/core/MemoryManager';
+import {Buffer} from '../foundation/memory/Buffer';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
 import {BufferUse} from '../foundation/definitions/BufferUse';
 import {ShaderSources, WebGLStrategy} from './WebGLStrategy';
-import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
+import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
 import {Primitive} from '../foundation/geometry/Primitive';
-import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { Matrix44 } from '../foundation/math/Matrix44';
+import {WebGLContextWrapper} from './WebGLContextWrapper';
+import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
+import {Matrix44} from '../foundation/math/Matrix44';
 import {
   ShaderSemantics,
   ShaderSemanticsInfo,
   ShaderSemanticsClass,
 } from '../foundation/definitions/ShaderSemantics';
-import { Material } from '../foundation/materials/core/Material';
+import {Material} from '../foundation/materials/core/Material';
 import {CompositionType} from '../foundation/definitions/CompositionType';
-import { Component } from '../foundation/core/Component';
-import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import { Mesh } from '../foundation/geometry/Mesh';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import {Component} from '../foundation/core/Component';
+import {SceneGraphComponent} from '../foundation/components/SceneGraph/SceneGraphComponent';
+import {Mesh} from '../foundation/geometry/Mesh';
+import {MeshRendererComponent} from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import {ComponentRepository} from '../foundation/core/ComponentRepository';
 import {Config} from '../foundation/core/Config';
-import { RenderPass } from '../foundation/renderer/RenderPass';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import {RenderPass} from '../foundation/renderer/RenderPass';
+import {CameraComponent} from '../foundation/components/Camera/CameraComponent';
 import {
   WebGLResourceHandle,
   Index,
@@ -34,14 +34,14 @@ import {
   IndexOf16Bytes,
   IndexOf4Bytes,
 } from '../types/CommonTypes';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import { VectorN } from '../foundation/math/VectorN';
+import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
+import {VectorN} from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import { Matrix33 } from '../foundation/math/Matrix33';
-import { CubeTexture } from '../foundation/textures/CubeTexture';
-import { ModuleManager } from '../foundation/system/ModuleManager';
+import {Matrix33} from '../foundation/math/Matrix33';
+import {CubeTexture} from '../foundation/textures/CubeTexture';
+import {ModuleManager} from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
 import {
@@ -49,8 +49,8 @@ import {
   IMeshEntity,
   ISkeletalEntity,
 } from '../foundation/helpers/EntityHelper';
-import { LightComponent } from '../foundation/components/Light/LightComponent';
-import { DataUtil } from '../foundation/misc/DataUtil';
+import {LightComponent} from '../foundation/components/Light/LightComponent';
+import {DataUtil} from '../foundation/misc/DataUtil';
 
 declare const spector: any;
 
@@ -88,7 +88,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       SceneGraphComponent,
       'worldMatrix'
     )} + 4 * int(instanceId);
-    mat4 matrix = fetchMat4(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture);
+    mat4 matrix = fetchMat4(index);
 
     return matrix;
   }
@@ -99,7 +99,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       SceneGraphComponent,
       'normalMatrix'
     )} + 3 * int(instanceId);
-    mat3 matrix = fetchMat3(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture);
+    mat3 matrix = fetchMat3(index);
     return matrix;
   }
 
@@ -118,23 +118,23 @@ export class WebGLStrategyFastest implements WebGLStrategy {
 
       vec3 addPos = vec3(0.0);
       if (posIn4bytes == 0) {
-        vec4 val = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        vec4 val = fetchElement(basePosIn16bytes);
         addPos = val.xyz;
       } else if (posIn4bytes == 1) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        vec4 val0 = fetchElement(basePosIn16bytes);
         addPos = vec3(val0.yzw);
       } else if (posIn4bytes == 2) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
+        vec4 val0 = fetchElement(basePosIn16bytes);
+        vec4 val1 = fetchElement(basePosIn16bytes+1);
         addPos = vec3(val0.zw, val1.x);
       } else if (posIn4bytes == 3) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
+        vec4 val0 = fetchElement(basePosIn16bytes);
+        vec4 val1 = fetchElement(basePosIn16bytes+1);
         addPos = vec3(val0.w, val1.xy);
       }
 
       // int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
-      // vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
+      // vec3 addPos = fetchElement(index).xyz;
 
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
@@ -239,8 +239,8 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     let varDef = '';
     const varType = info.compositionType.getGlslStr(info.componentType);
     let varIndexStr = '';
-    if (info.maxIndex) {
-      varIndexStr = `[${info.maxIndex}]`;
+    if (info.arrayLength) {
+      varIndexStr = `[${info.arrayLength}]`;
     }
     if (info.needUniformInFastest || isTexture) {
       varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
@@ -264,10 +264,10 @@ export class WebGLStrategyFastest implements WebGLStrategy {
           int vec4_idx = ${index} + ${vec4SizeOfProperty} * instanceId;
           `;
       } else {
-        for (let i = 0; i < info.maxIndex!; i++) {
+        for (let i = 0; i < info.arrayLength!; i++) {
           indexArray.push(index);
         }
-        maxIndex = info.maxIndex!;
+        maxIndex = info.arrayLength!;
         let arrayStr = `int indices[${maxIndex}];`;
         indexArray.forEach((idx, i) => {
           arrayStr += `\nindices[${i}] = ${idx};`;
@@ -286,30 +286,26 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       // for non-`index` property (this is general case)
       const scalarSizeOfProperty: IndexOf4Bytes =
         info.compositionType.getNumberOfComponents();
-      let dataBeginPos: IndexOf16Bytes = -1;
-      if (isGlobalData) {
-        dataBeginPos =
-          WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex);
-      } else {
-        dataBeginPos = WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+      const offsetOfProperty: IndexOf16Bytes =
+        WebGLStrategyFastest.getOffsetOfPropertyInShader(
+          isGlobalData,
           propertyIndex,
           materialTypeName
         );
-      }
 
-      if (dataBeginPos === -1) {
+      if (offsetOfProperty === -1) {
         console.error('Could not get the location offset of the property.');
       }
 
-      const instanceSize = vec4SizeOfProperty * (info.maxIndex ?? 1);
-      indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId;\n`;
+      const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+      indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
       if (CompositionType.isArray(info.compositionType)) {
         const instanceSizeInScalar =
-          scalarSizeOfProperty * (info.maxIndex ?? 1);
-        indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
+          scalarSizeOfProperty * (info.arrayLength ?? 1);
+        indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
         indexStr += `int scalar_idx = ${
           // IndexOf4Bytes
-          dataBeginPos * 4 // IndexOf16bytes to IndexOf4Bytes
+          offsetOfProperty * 4 // IndexOf16bytes to IndexOf4Bytes
         } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
       }
     }
@@ -336,30 +332,25 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     switch (info.compositionType) {
       case CompositionType.Vec4:
       case CompositionType.Vec4Array:
-        str +=
-          '        highp vec4 val = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        highp vec4 val = fetchElement(vec4_idx);\n';
         break;
       case CompositionType.Vec3:
-        str +=
-          '        vec4 col0 = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        vec4 col0 = fetchElement(vec4_idx);\n';
         str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`;
         break;
       case CompositionType.Vec3Array:
-        str +=
-          '        vec3 val = fetchVec3No16BytesAligned(u_dataTexture, scalar_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        vec3 val = fetchVec3No16BytesAligned(scalar_idx);\n';
         break;
       case CompositionType.Vec2:
-        str +=
-          '        highp vec4 col0 = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        highp vec4 col0 = fetchElement(vec4_idx);\n';
         str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`;
         break;
       case CompositionType.Vec2Array:
         str +=
-          '        highp vec2 val = fetchVec2No16BytesAligned(u_dataTexture, scalar_idx, widthOfDataTexture, heightOfDataTexture);\n';
+          '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
         break;
       case CompositionType.Scalar:
-        str +=
-          '        vec4 col0 = fetchElement(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        vec4 col0 = fetchElement(vec4_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += '        int val = int(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
@@ -370,7 +361,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         break;
       case CompositionType.ScalarArray:
         str +=
-          '        float col0 = fetchScalarNo16BytesAligned(u_dataTexture, scalar_idx, widthOfDataTexture, heightOfDataTexture);\n';
+          '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += '        int val = int(col0);';
         } else if (info.componentType === ComponentType.Bool) {
@@ -380,28 +371,22 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         }
         break;
       case CompositionType.Mat4:
-        str +=
-          '        mat4 val = fetchMat4(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        mat4 val = fetchMat4(vec4_idx);\n';
         break;
       case CompositionType.Mat4Array:
-        str +=
-          '        mat4 val = fetchMat4(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        mat4 val = fetchMat4(vec4_idx);\n';
         break;
       case CompositionType.Mat3:
-        str +=
-          '        mat3 val = fetchMat3(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        mat3 val = fetchMat3(vec4_idx);\n';
         break;
       case CompositionType.Mat3Array:
-        str +=
-          '        mat3 val = fetchMat3No16BytesAligned(u_dataTexture, scalar_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        mat3 val = fetchMat3No16BytesAligned(scalar_idx);\n';
         break;
       case CompositionType.Mat2:
-        str +=
-          '        mat2 val = fetchMat2(u_dataTexture, vec4_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        mat2 val = fetchMat2(vec4_idx);\n';
         break;
       case CompositionType.Mat2Array:
-        str +=
-          '        mat2 val = fetchMat2No16BytesAligned(u_dataTexture, scalar_idx, widthOfDataTexture, heightOfDataTexture);\n';
+        str += '        mat2 val = fetchMat2No16BytesAligned(scalar_idx);\n';
         break;
       default:
         // console.error('unknown composition type', info.compositionType.str, memberName);
@@ -417,6 +402,27 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     return str;
   }
+
+  private static getOffsetOfPropertyInShader(
+    isGlobalData: boolean,
+    propertyIndex: number,
+    materialTypeName: string
+  ) {
+    if (isGlobalData) {
+      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+        propertyIndex
+      );
+    } else {
+      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+        propertyIndex,
+        materialTypeName
+      );
+    }
+  }
+
+  private getOffsetOfTheOffsetVariableOfPropertyInShader(
+    propertyIndex: number
+  ) {}
 
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;

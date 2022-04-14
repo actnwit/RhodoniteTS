@@ -95,7 +95,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         semantic: SynthesizeHdrMaterialContent.SynthesizeCoefficient,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
-        maxIndex: 6,
+        arrayLength: 6,
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,

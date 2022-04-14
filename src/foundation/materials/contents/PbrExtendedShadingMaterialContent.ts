@@ -3,27 +3,27 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
-import { Vector2 } from '../../math/Vector2';
+import {Vector2} from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { Vector4 } from '../../math/Vector4';
-import { Vector3 } from '../../math/Vector3';
+import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
+import {Vector4} from '../../math/Vector4';
+import {Vector3} from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { Scalar } from '../../math/Scalar';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { MeshRendererComponent } from '../../components/MeshRenderer/MeshRendererComponent';
+import {Scalar} from '../../math/Scalar';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {MeshRendererComponent} from '../../components/MeshRenderer/MeshRendererComponent';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import { Material } from '../core/Material';
+import {SkeletalComponent} from '../../components/Skeletal/SkeletalComponent';
+import {Material} from '../core/Material';
 import PBRExtendedShaderVertex from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.vert';
 import PBRExtendedShaderFragment from '../../../webgl/shaderity_shaders/PBRExtendedShader/PBRExtendedShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { Is } from '../../misc/Is';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {Is} from '../../misc/Is';
 
 export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
   static detailNormalTexture = new ShaderSemanticsClass({
@@ -234,8 +234,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
         initialValue: Scalar.fromCopyNumber(0),
       },
       {
-        semantic:
-          PbrExtendedShadingMaterialContent.detailColorTextureTransform,
+        semantic: PbrExtendedShadingMaterialContent.detailColorTextureTransform,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -245,8 +244,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic:
-          PbrExtendedShadingMaterialContent.detailColorTextureRotation,
+        semantic: PbrExtendedShadingMaterialContent.detailColorTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -267,8 +265,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
         initialValue: Vector4.fromCopyArray([1, 1, 0, 0]),
       },
       {
-        semantic:
-          PbrExtendedShadingMaterialContent.detailNormalTextureRotation,
+        semantic: PbrExtendedShadingMaterialContent.detailNormalTextureRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -382,7 +379,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       //         min: -Number.MAX_VALUE,
       //         max: Number.MAX_VALUE,
       //         index: idx,
-      //         maxIndex: 4,
+      //         arrayLength: 4,
       //         isCustomSetting: true,
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //         initialValue: Vector4.fromCopyArray([0, 0, 0, 1]),
@@ -397,7 +394,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       //         min: -1,
       //         max: 1,
       //         index: idx,
-      //         maxIndex: 4,
+      //         arrayLength: 4,
       //         isCustomSetting: true,
       //         initialValue: Vector4.fromCopyArray([0, 1, 0, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
@@ -412,7 +409,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       //         min: 0,
       //         max: 10,
       //         index: idx,
-      //         maxIndex: 4,
+      //         arrayLength: 4,
       //         isCustomSetting: true,
       //         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
@@ -428,7 +425,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
 
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       // stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime });
-      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
+      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, arrayLength: 250, componentType: ComponentType.Float,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true });
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });

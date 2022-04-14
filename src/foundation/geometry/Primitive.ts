@@ -3,22 +3,22 @@ import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import { Accessor } from '../memory/Accessor';
-import { RnObject } from '../core/RnObject';
+import {Accessor} from '../memory/Accessor';
+import {RnObject} from '../core/RnObject';
 import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
-import { MemoryManager } from '../core/MemoryManager';
+import {MemoryManager} from '../core/MemoryManager';
 import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import { AABB } from '../math/AABB';
-import { Material } from '../materials/core/Material';
+import {AABB} from '../math/AABB';
+import {Material} from '../materials/core/Material';
 import {MaterialHelper} from '../helpers/MaterialHelper';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
 import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
-import { Vector3 } from '../math/Vector3';
-import { MutableVector3 } from '../math/MutableVector3';
+import {Vector3} from '../math/Vector3';
+import {MutableVector3} from '../math/MutableVector3';
 import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 import {
@@ -137,41 +137,6 @@ export class Primitive extends RnObject {
 
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = this;
-
-    // if (Primitive.__headerAccessor == null) {
-    //   // primitive 0
-    //   // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
-    //   //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compositionN, prim0.attrib0.componentSizeInByte
-    //   //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compositionN, prim0.attrib1.componentSizeInByte
-    //   //   ...
-    //   //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compositionN, prim0.attrib7.componentSizeInByte
-    //   // primitive 1
-    //   // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
-    //   //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compositionN, prim1.attrib0.componentSizeInByte
-    //   //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compositionN, prim1.attrib1.componentSizeInByte
-    //   //   ...
-    //   //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compositionN, prim1.attrib7.componentSizeInByte
-
-    //   const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.UBOGeneric);
-    //   const bufferView = buffer.takeBufferView({byteLengthToNeed: ((1*4) + (8*4)) * 4/*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS:false });
-    //   Primitive.__headerAccessor = bufferView.takeAccessor(
-    //     {compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount})
-    // }
-
-    // const attributeNumOfPrimitive = 1/*indices*/ + 8/*vertexAttributes*/;
-
-    // if (this.indicesAccessor != null) {
-    //   Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */,
-    //     this.indicesAccessor.byteOffsetInBuffer, this.indicesAccessor.componentSizeInBytes, this.indicesAccessor.byteLength / this.indicesAccessor.componentSizeInBytes, -1 );
-    // } else {
-    //   Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1 );
-    // }
-
-    // this.attributeAccessors.forEach((attributeAccessor, i)=>{
-    //   Primitive.__headerAccessor!.setVec4(attributeNumOfPrimitive * this.__primitiveUid + i,
-    //     attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
-
-    // });
   }
 
   static get maxPrimitiveCount() {
@@ -473,7 +438,7 @@ export class Primitive extends RnObject {
 
   update3DAPIVertexData() {
     const vertexHandles = this.__vertexHandles as VertexHandles;
-    if (!Is.exist(this.__vertexHandles)) {
+    if (Is.not.exist(this.__vertexHandles)) {
       return false;
     }
 

@@ -543,16 +543,6 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
         const identifier = semanticSingular;
 
         let shaderVarName = ShaderSemantics.fullSemanticStr(info);
-        if (info.index != null) {
-          if (shaderVarName.match(/\[.+?\]/)) {
-            shaderVarName = shaderVarName.replace(
-              /\[.+?\]/g,
-              `[${info.index}]`
-            );
-          } else {
-            shaderVarName += `[${info.index}]`;
-          }
-        }
 
         if (info.none_u_prefix !== true) {
           shaderVarName = 'u_' + shaderVarName;
@@ -560,14 +550,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
 
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);
         const _shaderProgram = shaderProgram as any;
-        if (info.index != null) {
-          if (_shaderProgram[identifier] == null) {
-            _shaderProgram[identifier] = [];
-          }
-          _shaderProgram[identifier][info.index] = location;
-        } else {
-          _shaderProgram[identifier] = location;
-        }
+        _shaderProgram[identifier] = location;
         if (location == null && glw.isDebugMode) {
           console.warn(
             `Rn: Can not get the uniform location: ${shaderVarName}`
@@ -601,8 +584,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     shaderProgram_: WebGLProgram,
     semanticStr: string,
     firstTime: boolean,
-    value: any,
-    index?: Index
+    value: any
   ) {
     const shaderProgram = shaderProgram_ as RnWebGLProgram;
     const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
@@ -641,11 +623,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
         setAsMatrix,
         componentNumber,
         false,
-        {x: value[0]},
-        index
+        {x: value[0]}
       );
       this.bindTexture(info, value);
-    } else if (Is.not.exist(index) && isCompositionTypeArray) {
+    } else if (isCompositionTypeArray) {
       if (value._v == null) {
         updated = this.setUniformValueInner(
           shaderProgram_,
@@ -654,8 +635,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           setAsMatrix,
           componentNumber,
           true,
-          {x: value},
-          index
+          {x: value}
         );
       } else {
         updated = this.setUniformValueInner(
@@ -665,8 +645,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           setAsMatrix,
           componentNumber,
           true,
-          {x: value._v},
-          index
+          {x: value._v}
         );
       }
     } else if (info.compositionType === CompositionType.Scalar) {
@@ -678,8 +657,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           setAsMatrix,
           componentNumber,
           false,
-          {x: value},
-          index
+          {x: value}
         );
       } else {
         updated = this.setUniformValueInner(
@@ -689,8 +667,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           setAsMatrix,
           componentNumber,
           true,
-          {x: value._v},
-          index
+          {x: value._v}
         );
       }
     } else {
@@ -703,8 +680,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           setAsMatrix,
           componentNumber,
           false,
-          value,
-          index
+          value
         );
       } else {
         updated = this.setUniformValueInner(
@@ -714,8 +690,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           setAsMatrix,
           componentNumber,
           true,
-          {x: value._v},
-          index
+          {x: value._v}
         );
       }
     }
@@ -775,16 +750,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       y?: number | boolean;
       z?: number | boolean;
       w?: number | boolean;
-    },
-    index?: Count
+    }
   ) {
     const identifier = semanticStr;
-    let loc: WebGLUniformLocation;
-    if (index != null) {
-      loc = (shaderProgram as any)[identifier][index];
-    } else {
-      loc = (shaderProgram as any)[identifier];
-    }
+    const loc: WebGLUniformLocation = (shaderProgram as any)[identifier];
     if (loc == null) {
       return false;
     }

@@ -35,7 +35,6 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import {WebGLContextWrapper} from '../../../webgl/WebGLContextWrapper';
 import {ShaderityUtility} from './ShaderityUtility';
 import {Is} from '../../misc/Is';
-import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
 import {Primitive} from '../../geometry/Primitive';
 import {AttributeNames, RenderingArg} from '../../../webgl/types/CommonTypes';
@@ -212,8 +211,8 @@ export class Material extends RnObject {
   /// Parameter Setters
   ///
 
-  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
+  public setParameter(shaderSemantic: ShaderSemanticsEnum, value: any) {
+    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const info = this.__allFieldsInfo.get(propertyIndex);
     if (info != null) {
       let valueObj: ShaderVariable | undefined;
@@ -228,7 +227,7 @@ export class Material extends RnObject {
     }
   }
 
-  setTextureParameter(
+  public setTextureParameter(
     shaderSemantic: ShaderSemanticsEnum,
     value: AbstractTexture
   ): void {
@@ -253,7 +252,7 @@ export class Material extends RnObject {
     }
   }
 
-  getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {
+  public getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {
     if (this.__allFieldsInfo.has(shaderSemantic.index)) {
       const array = this.__allFieldVariables.get(shaderSemantic.index)!;
       return array.value[1];
@@ -261,7 +260,7 @@ export class Material extends RnObject {
     return undefined;
   }
 
-  setTextureParameterAsPromise(
+  public setTextureParameterAsPromise(
     shaderSemantic: ShaderSemanticsEnum,
     promise: Promise<AbstractTexture>
   ): void {
@@ -274,7 +273,10 @@ export class Material extends RnObject {
         };
         this.__allFieldVariables.set(shaderSemantic.index, shaderVariable);
         if (!array.info.isCustomSetting) {
-          this.__autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
+          this.__autoFieldVariablesOnly.set(
+            shaderSemantic.index,
+            shaderVariable
+          );
         }
         if (
           shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
@@ -290,21 +292,21 @@ export class Material extends RnObject {
 
   // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
   //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
-  setParameterByUniformName(uniformName: string, value: any, index?: Index) {
+  public setParameterByUniformName(uniformName: string, value: any) {
     const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
     if (targetShaderSemantics != null) {
-      this.setParameter(targetShaderSemantics, value, index);
+      this.setParameter(targetShaderSemantics, value);
     }
   }
 
-  setTextureParameterByUniformName(uniformName: string, value: any) {
+  public setTextureParameterByUniformName(uniformName: string, value: any) {
     const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
     if (targetShaderSemantics != null) {
       this.setTextureParameter(targetShaderSemantics, value);
     }
   }
 
-  getParameter(shaderSemantic: ShaderSemanticsEnum): any {
+  public getParameter(shaderSemantic: ShaderSemanticsEnum): any {
     const info = this.__allFieldsInfo.get(shaderSemantic.index);
     if (info != null) {
       if (info.soloDatum) {
@@ -404,8 +406,7 @@ export class Material extends RnObject {
             shaderProgram,
             info.semantic.str,
             firstTime,
-            value.value,
-            info.index
+            value.value
           );
         } else {
           if (
@@ -431,8 +432,7 @@ export class Material extends RnObject {
               shaderProgram,
               info.semantic.str,
               firstTime,
-              value.value,
-              info.index
+              value.value
             );
           } else {
             webglResourceRepository.bindTexture(info, value.value);
@@ -472,8 +472,7 @@ export class Material extends RnObject {
               shaderProgram,
               info.semantic.str,
               firstTime,
-              value.value,
-              info.index
+              value.value
             );
           } else {
             webglResourceRepository.bindTexture(info, value.value);
@@ -532,7 +531,6 @@ export class Material extends RnObject {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialContent!;
-    const glslShader = materialNode.shader;
 
     const {vertexPropertiesStr, pixelPropertiesStr} = this._getProperties(
       propertySetter,
@@ -579,10 +577,8 @@ export class Material extends RnObject {
     vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
     pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
 
-    const {attributeNames, attributeSemantics} = this.__getAttributeInfo(
-      materialNode,
-      glslShader!
-    );
+    const {attributeNames, attributeSemantics} =
+      this.__getAttributeInfo(materialNode);
     const vertexAttributesBinding = this.__outputVertexAttributeBindingInfo(
       attributeNames,
       attributeSemantics
@@ -601,11 +597,8 @@ export class Material extends RnObject {
     updatedShaderSources: ShaderSources
   ) {
     const materialNode = this.__materialContent!;
-    const glslShader = materialNode.shader;
-    const {attributeNames, attributeSemantics} = this.__getAttributeInfo(
-      materialNode,
-      glslShader!
-    );
+    const {attributeNames, attributeSemantics} =
+      this.__getAttributeInfo(materialNode);
 
     return this.__createShaderProgramWithCache(
       updatedShaderSources.vertex,
@@ -649,22 +642,12 @@ export class Material extends RnObject {
     }
   }
 
-  private __getAttributeInfo(
-    materialNode: AbstractMaterialContent,
-    glslShader: GLSLShader
-  ) {
-    let attributeNames;
-    let attributeSemantics;
-    if (materialNode.vertexShaderityObject != null) {
-      const reflection = ShaderityUtility.getAttributeReflection(
-        materialNode.vertexShaderityObject
-      );
-      attributeNames = reflection.names;
-      attributeSemantics = reflection.semantics;
-    } else {
-      attributeNames = glslShader!.attributeNames;
-      attributeSemantics = glslShader!.attributeSemantics;
-    }
+  private __getAttributeInfo(materialNode: AbstractMaterialContent) {
+    const reflection = ShaderityUtility.getAttributeReflection(
+      materialNode.vertexShaderityObject!
+    );
+    const attributeNames = reflection.names;
+    const attributeSemantics = reflection.semantics;
     return {attributeNames, attributeSemantics};
   }
 
@@ -1036,7 +1019,7 @@ export class Material extends RnObject {
       alignedByteLength = semanticInfoByte + 16 - (semanticInfoByte % 16);
     }
     if (CompositionType.isArray(semanticInfo.compositionType)) {
-      const maxArrayLength = semanticInfo.maxIndex;
+      const maxArrayLength = semanticInfo.arrayLength;
       if (maxArrayLength != null) {
         alignedByteLength *= maxArrayLength;
       } else {
@@ -1098,7 +1081,7 @@ export class Material extends RnObject {
       if (!semanticInfo.soloDatum) {
         count = Material.__maxInstances.get(materialTypeName)!;
       }
-      let maxArrayLength = semanticInfo.maxIndex;
+      let maxArrayLength = semanticInfo.arrayLength;
       if (
         CompositionType.isArray(semanticInfo.compositionType) &&
         maxArrayLength == null
@@ -1195,26 +1178,15 @@ export class Material extends RnObject {
    * @private
    */
   static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
-    let propertyIndex = semanticInfo.semantic.index;
-    if (semanticInfo.index != null) {
-      propertyIndex += semanticInfo.index;
-      propertyIndex *= -1;
-    }
+    const propertyIndex = semanticInfo.semantic.index;
     return propertyIndex;
   }
 
   /**
    * @private
    */
-  static _getPropertyIndex2(
-    shaderSemantic: ShaderSemanticsEnum,
-    index?: Index
-  ) {
-    let propertyIndex = shaderSemantic.index;
-    if (index != null) {
-      propertyIndex += index;
-      propertyIndex *= -1;
-    }
+  static _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
+    const propertyIndex = shaderSemantic.index;
     return propertyIndex;
   }
 }
