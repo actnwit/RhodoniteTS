@@ -286,30 +286,26 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       // for non-`index` property (this is general case)
       const scalarSizeOfProperty: IndexOf4Bytes =
         info.compositionType.getNumberOfComponents();
-      let dataBeginPos: IndexOf16Bytes = -1;
-      if (isGlobalData) {
-        dataBeginPos =
-          WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex);
-      } else {
-        dataBeginPos = WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+      const offsetOfProperty: IndexOf16Bytes =
+        WebGLStrategyFastest.getOffsetOfPropertyInShader(
+          isGlobalData,
           propertyIndex,
           materialTypeName
         );
-      }
 
-      if (dataBeginPos === -1) {
+      if (offsetOfProperty === -1) {
         console.error('Could not get the location offset of the property.');
       }
 
       const instanceSize = vec4SizeOfProperty * (info.maxIndex ?? 1);
-      indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId;\n`;
+      indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
       if (CompositionType.isArray(info.compositionType)) {
         const instanceSizeInScalar =
           scalarSizeOfProperty * (info.maxIndex ?? 1);
-        indexStr = `int vec4_idx = ${dataBeginPos} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
+        indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
         indexStr += `int scalar_idx = ${
           // IndexOf4Bytes
-          dataBeginPos * 4 // IndexOf16bytes to IndexOf4Bytes
+          offsetOfProperty * 4 // IndexOf16bytes to IndexOf4Bytes
         } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
       }
     }
@@ -406,6 +402,27 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     return str;
   }
+
+  private static getOffsetOfPropertyInShader(
+    isGlobalData: boolean,
+    propertyIndex: number,
+    materialTypeName: string
+  ) {
+    if (isGlobalData) {
+      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+        propertyIndex
+      );
+    } else {
+      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
+        propertyIndex,
+        materialTypeName
+      );
+    }
+  }
+
+  private getOffsetOfTheOffsetVariableOfPropertyInShader(
+    propertyIndex: number
+  ) {}
 
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
