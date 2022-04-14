@@ -239,8 +239,8 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     let varDef = '';
     const varType = info.compositionType.getGlslStr(info.componentType);
     let varIndexStr = '';
-    if (info.maxIndex) {
-      varIndexStr = `[${info.maxIndex}]`;
+    if (info.arrayLength) {
+      varIndexStr = `[${info.arrayLength}]`;
     }
     if (info.needUniformInFastest || isTexture) {
       varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
@@ -264,10 +264,10 @@ export class WebGLStrategyFastest implements WebGLStrategy {
           int vec4_idx = ${index} + ${vec4SizeOfProperty} * instanceId;
           `;
       } else {
-        for (let i = 0; i < info.maxIndex!; i++) {
+        for (let i = 0; i < info.arrayLength!; i++) {
           indexArray.push(index);
         }
-        maxIndex = info.maxIndex!;
+        maxIndex = info.arrayLength!;
         let arrayStr = `int indices[${maxIndex}];`;
         indexArray.forEach((idx, i) => {
           arrayStr += `\nindices[${i}] = ${idx};`;
@@ -297,11 +297,11 @@ export class WebGLStrategyFastest implements WebGLStrategy {
         console.error('Could not get the location offset of the property.');
       }
 
-      const instanceSize = vec4SizeOfProperty * (info.maxIndex ?? 1);
+      const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
       indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
       if (CompositionType.isArray(info.compositionType)) {
         const instanceSizeInScalar =
-          scalarSizeOfProperty * (info.maxIndex ?? 1);
+          scalarSizeOfProperty * (info.arrayLength ?? 1);
         indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
         indexStr += `int scalar_idx = ${
           // IndexOf4Bytes

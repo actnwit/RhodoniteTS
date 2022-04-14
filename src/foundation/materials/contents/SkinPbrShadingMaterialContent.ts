@@ -377,7 +377,7 @@ export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
             min: -Number.MAX_VALUE,
             max: Number.MAX_VALUE,
             index: idx,
-            maxIndex: 4,
+            arrayLength: 4,
             isCustomSetting: true,
             updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
             initialValue: Vector4.fromCopyArray([0, 0, 0, 1]),
@@ -392,7 +392,7 @@ export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
           min: -1,
           max: 1,
           index: idx,
-          maxIndex: 4,
+          arrayLength: 4,
           isCustomSetting: true,
           initialValue: Vector4.fromCopyArray([0, 1, 0, 1]),
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
@@ -407,7 +407,7 @@ export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
             min: 0,
             max: 10,
             index: idx,
-            maxIndex: 4,
+            arrayLength: 4,
             isCustomSetting: true,
             initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
             updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
@@ -422,9 +422,9 @@ export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
     if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING\n';
 
-      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
+      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, arrayLength: 250, componentType: ComponentType.Float,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
-      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
+      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, arrayLength: 250, componentType: ComponentType.Float, soloDatum: true,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))});
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
       //   stage: ShaderType.VertexShader, min: 0, max: 1, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Scalar.fromCopyNumber(-1) });
@@ -450,7 +450,7 @@ export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
           semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
           componentType: ComponentType.Int,
           compositionType: CompositionType.ScalarArray,
-          maxIndex: Config.maxVertexMorphNumberInShader,
+          arrayLength: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
           soloDatum: true,
@@ -465,7 +465,7 @@ export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
           semantic: ShaderSemantics.MorphWeights,
           componentType: ComponentType.Float,
           compositionType: CompositionType.ScalarArray,
-          maxIndex: Config.maxVertexMorphNumberInShader,
+          arrayLength: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
           soloDatum: true,

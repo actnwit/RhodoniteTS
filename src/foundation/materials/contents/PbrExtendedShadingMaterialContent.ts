@@ -379,7 +379,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       //         min: -Number.MAX_VALUE,
       //         max: Number.MAX_VALUE,
       //         index: idx,
-      //         maxIndex: 4,
+      //         arrayLength: 4,
       //         isCustomSetting: true,
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //         initialValue: Vector4.fromCopyArray([0, 0, 0, 1]),
@@ -394,7 +394,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       //         min: -1,
       //         max: 1,
       //         index: idx,
-      //         maxIndex: 4,
+      //         arrayLength: 4,
       //         isCustomSetting: true,
       //         initialValue: Vector4.fromCopyArray([0, 1, 0, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
@@ -409,7 +409,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       //         min: 0,
       //         max: 10,
       //         index: idx,
-      //         maxIndex: 4,
+      //         arrayLength: 4,
       //         isCustomSetting: true,
       //         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
       //         updateInterval: ShaderVariableUpdateInterval.EveryTime,
@@ -425,7 +425,7 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
 
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       // stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime });
-      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
+      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, arrayLength: 250, componentType: ComponentType.Float,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true });
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });

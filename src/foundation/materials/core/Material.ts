@@ -1019,7 +1019,7 @@ export class Material extends RnObject {
       alignedByteLength = semanticInfoByte + 16 - (semanticInfoByte % 16);
     }
     if (CompositionType.isArray(semanticInfo.compositionType)) {
-      const maxArrayLength = semanticInfo.maxIndex;
+      const maxArrayLength = semanticInfo.arrayLength;
       if (maxArrayLength != null) {
         alignedByteLength *= maxArrayLength;
       } else {
@@ -1081,7 +1081,7 @@ export class Material extends RnObject {
       if (!semanticInfo.soloDatum) {
         count = Material.__maxInstances.get(materialTypeName)!;
       }
-      let maxArrayLength = semanticInfo.maxIndex;
+      let maxArrayLength = semanticInfo.arrayLength;
       if (
         CompositionType.isArray(semanticInfo.compositionType) &&
         maxArrayLength == null

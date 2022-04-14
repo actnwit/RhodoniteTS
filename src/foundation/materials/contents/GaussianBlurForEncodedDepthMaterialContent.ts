@@ -67,7 +67,7 @@ export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterial
         semantic: GaussianBlurForEncodedDepthMaterialContent.GaussianRatio,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
-        maxIndex: 30,
+        arrayLength: 30,
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
