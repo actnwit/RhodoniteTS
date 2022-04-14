@@ -88,7 +88,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       SceneGraphComponent,
       'worldMatrix'
     )} + 4 * int(instanceId);
-    mat4 matrix = fetchMat4(u_dataTexture, index);
+    mat4 matrix = fetchMat4(index);
 
     return matrix;
   }
@@ -99,7 +99,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       SceneGraphComponent,
       'normalMatrix'
     )} + 3 * int(instanceId);
-    mat3 matrix = fetchMat3(u_dataTexture, index);
+    mat3 matrix = fetchMat3(index);
     return matrix;
   }
 
@@ -118,23 +118,23 @@ export class WebGLStrategyFastest implements WebGLStrategy {
 
       vec3 addPos = vec3(0.0);
       if (posIn4bytes == 0) {
-        vec4 val = fetchElement(u_dataTexture, basePosIn16bytes);
+        vec4 val = fetchElement(basePosIn16bytes);
         addPos = val.xyz;
       } else if (posIn4bytes == 1) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes);
+        vec4 val0 = fetchElement(basePosIn16bytes);
         addPos = vec3(val0.yzw);
       } else if (posIn4bytes == 2) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes);
-        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1);
+        vec4 val0 = fetchElement(basePosIn16bytes);
+        vec4 val1 = fetchElement(basePosIn16bytes+1);
         addPos = vec3(val0.zw, val1.x);
       } else if (posIn4bytes == 3) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes);
-        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1);
+        vec4 val0 = fetchElement(basePosIn16bytes);
+        vec4 val1 = fetchElement(basePosIn16bytes+1);
         addPos = vec3(val0.w, val1.xy);
       }
 
       // int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
-      // vec3 addPos = fetchElement(u_dataTexture, index).xyz;
+      // vec3 addPos = fetchElement(index).xyz;
 
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
@@ -337,29 +337,29 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       case CompositionType.Vec4:
       case CompositionType.Vec4Array:
         str +=
-          '        highp vec4 val = fetchElement(u_dataTexture, vec4_idx);\n';
+          '        highp vec4 val = fetchElement(vec4_idx);\n';
         break;
       case CompositionType.Vec3:
         str +=
-          '        vec4 col0 = fetchElement(u_dataTexture, vec4_idx);\n';
+          '        vec4 col0 = fetchElement(vec4_idx);\n';
         str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`;
         break;
       case CompositionType.Vec3Array:
         str +=
-          '        vec3 val = fetchVec3No16BytesAligned(u_dataTexture, scalar_idx);\n';
+          '        vec3 val = fetchVec3No16BytesAligned(scalar_idx);\n';
         break;
       case CompositionType.Vec2:
         str +=
-          '        highp vec4 col0 = fetchElement(u_dataTexture, vec4_idx);\n';
+          '        highp vec4 col0 = fetchElement(vec4_idx);\n';
         str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`;
         break;
       case CompositionType.Vec2Array:
         str +=
-          '        highp vec2 val = fetchVec2No16BytesAligned(u_dataTexture, scalar_idx);\n';
+          '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
         break;
       case CompositionType.Scalar:
         str +=
-          '        vec4 col0 = fetchElement(u_dataTexture, vec4_idx);\n';
+          '        vec4 col0 = fetchElement(vec4_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += '        int val = int(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
@@ -370,7 +370,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         break;
       case CompositionType.ScalarArray:
         str +=
-          '        float col0 = fetchScalarNo16BytesAligned(u_dataTexture, scalar_idx);\n';
+          '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += '        int val = int(col0);';
         } else if (info.componentType === ComponentType.Bool) {
@@ -381,27 +381,27 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         break;
       case CompositionType.Mat4:
         str +=
-          '        mat4 val = fetchMat4(u_dataTexture, vec4_idx);\n';
+          '        mat4 val = fetchMat4(vec4_idx);\n';
         break;
       case CompositionType.Mat4Array:
         str +=
-          '        mat4 val = fetchMat4(u_dataTexture, vec4_idx);\n';
+          '        mat4 val = fetchMat4(vec4_idx);\n';
         break;
       case CompositionType.Mat3:
         str +=
-          '        mat3 val = fetchMat3(u_dataTexture, vec4_idx);\n';
+          '        mat3 val = fetchMat3(vec4_idx);\n';
         break;
       case CompositionType.Mat3Array:
         str +=
-          '        mat3 val = fetchMat3No16BytesAligned(u_dataTexture, scalar_idx);\n';
+          '        mat3 val = fetchMat3No16BytesAligned(scalar_idx);\n';
         break;
       case CompositionType.Mat2:
         str +=
-          '        mat2 val = fetchMat2(u_dataTexture, vec4_idx);\n';
+          '        mat2 val = fetchMat2(vec4_idx);\n';
         break;
       case CompositionType.Mat2Array:
         str +=
-          '        mat2 val = fetchMat2No16BytesAligned(u_dataTexture, scalar_idx);\n';
+          '        mat2 val = fetchMat2No16BytesAligned(scalar_idx);\n';
         break;
       default:
         // console.error('unknown composition type', info.compositionType.str, memberName);
