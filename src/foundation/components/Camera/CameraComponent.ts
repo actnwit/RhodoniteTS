@@ -59,7 +59,7 @@ export class CameraComponent extends Component {
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private __isViewMatrixUpToDate = false;
 
-  private static __main: ComponentSID = -1;
+  private static __current: ComponentSID = -1;
   private static returnVector3 = MutableVector3.zero();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
@@ -168,17 +168,17 @@ export class CameraComponent extends Component {
 
     this.setFovyAndChangeFocalLength(90);
 
-    if (CameraComponent.main === -1) {
-      CameraComponent.main = componentSid;
+    if (CameraComponent.current === -1) {
+      CameraComponent.current = componentSid;
     }
   }
 
-  static set main(componentSID: ComponentSID) {
-    this.__main = componentSID;
+  static set current(componentSID: ComponentSID) {
+    this.__current = componentSID;
   }
 
-  static get main() {
-    return this.__main;
+  static get current() {
+    return this.__current;
   }
 
   set type(type: CameraTypeEnum) {
@@ -685,6 +685,14 @@ export class CameraComponent extends Component {
     } else {
       this.setValuesToGlobalDataRepository();
     }
+  }
+
+  static getCurrentCameraEntity() {
+    const currentCameraComponent = ComponentRepository.getComponent(
+      this,
+      this.current
+    ) as CameraComponent;
+    return currentCameraComponent.entity;
   }
 
   /**

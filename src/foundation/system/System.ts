@@ -160,7 +160,7 @@ export class System {
       expressions = value.expressions;
     }
 
-    if (CameraComponent.main === Component.InvalidObjectUID) {
+    if (CameraComponent.current === Component.InvalidObjectUID) {
       const cameraEntity = EntityHelper.createCameraEntity();
       cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
       cameraEntity.getCamera().type = CameraType.Orthographic;

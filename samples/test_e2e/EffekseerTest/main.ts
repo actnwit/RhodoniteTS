@@ -94,7 +94,7 @@ declare const Rn: typeof _Rn;
   const expression = new Rn.Expression();
   expression.addRenderPasses([renderPass]);
 
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
   let count = 0;
   let setTimeDone = false;
   const draw = function () {

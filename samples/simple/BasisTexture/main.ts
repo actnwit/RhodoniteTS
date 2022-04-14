@@ -111,7 +111,7 @@ declare const Rn: typeof _Rn;
   const expression = new Rn.Expression();
   expression.addRenderPasses([renderPass]);
 
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
   let startTime = Date.now();
   let count = 0;
   const draw = function () {

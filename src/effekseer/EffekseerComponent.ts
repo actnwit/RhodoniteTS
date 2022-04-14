@@ -320,7 +320,7 @@ export class EffekseerComponent extends Component {
   $render() {
     const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent;
     const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
     const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;

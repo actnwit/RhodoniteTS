@@ -108,7 +108,7 @@ const load = async function () {
     rootGroup
   );
 
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;

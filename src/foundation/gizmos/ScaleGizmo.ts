@@ -572,7 +572,7 @@ export class ScaleGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent | undefined;
 
     const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
@@ -684,7 +684,7 @@ export class ScaleGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent | undefined;
     const result = ScaleGizmo.__groupEntity
       .getSceneGraph()
@@ -701,7 +701,7 @@ export class ScaleGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent | undefined;
     const xResult = ScaleGizmo.__xCubeEntity
       .getMesh()

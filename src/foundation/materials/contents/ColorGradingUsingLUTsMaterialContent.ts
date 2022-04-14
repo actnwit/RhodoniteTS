@@ -127,7 +127,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
-        CameraComponent.main
+        CameraComponent.current
       ) as CameraComponent;
     }
     if (cameraComponent) {

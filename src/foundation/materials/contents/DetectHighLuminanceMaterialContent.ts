@@ -140,7 +140,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
-        CameraComponent.main
+        CameraComponent.current
       ) as CameraComponent;
     }
     if (cameraComponent) {

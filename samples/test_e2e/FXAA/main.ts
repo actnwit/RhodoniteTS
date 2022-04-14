@@ -55,7 +55,7 @@ let renderPassMain: RenderPass;
 
   activeExpression = expressionWithFXAA;
 
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
   let startTime = Date.now();
   let count = 0;
   const draw = function () {
