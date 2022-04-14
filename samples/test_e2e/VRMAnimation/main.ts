@@ -79,7 +79,7 @@ declare const Rn: typeof _Rn;
   animationAssigner.assignAnimation(vrmRootEntity, animGltf2Model, vrmModel);
 
   //set default camera
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
 
   // camera controller
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;

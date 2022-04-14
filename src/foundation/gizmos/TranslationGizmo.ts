@@ -605,7 +605,7 @@ export class TranslationGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent | undefined;
 
     const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
@@ -724,7 +724,7 @@ export class TranslationGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent | undefined;
     const result = TranslationGizmo.__groupEntity
       .getSceneGraph()
@@ -741,7 +741,7 @@ export class TranslationGizmo extends Gizmo {
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
     const activeCamera = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent | undefined;
     const xResult = TranslationGizmo.__xCubeEntity
       .getMesh()

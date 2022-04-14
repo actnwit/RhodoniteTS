@@ -331,7 +331,7 @@ export class SparkGearComponent extends Component {
 
     const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
-      CameraComponent.main
+      CameraComponent.current
     ) as CameraComponent;
     let viewMatrix = SparkGearComponent.__tmp_indentityMatrix;
     let projectionMatrix = SparkGearComponent.__tmp_indentityMatrix;

@@ -382,7 +382,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
-        CameraComponent.main
+        CameraComponent.current
       ) as CameraComponent;
     }
 

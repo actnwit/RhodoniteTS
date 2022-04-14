@@ -165,7 +165,7 @@ declare const Rn: typeof _Rn;
   ).getCameraController();
   cameraControllerComponent.controller.setTarget(rootGroups[0]);
 
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
   const startTime = Date.now();
   // const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;

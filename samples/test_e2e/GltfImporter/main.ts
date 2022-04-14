@@ -66,7 +66,7 @@ declare const Rn: typeof _Rn;
   vrmRootEntity.getTransform().rotate = vrmModelRotation;
 
   //set default camera
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
 
   // cameraController
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;

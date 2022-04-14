@@ -74,7 +74,7 @@ declare const Rn: typeof _Rn;
   const expression = new Rn.Expression();
   expression.addRenderPasses([renderPass]);
 
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.current = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;

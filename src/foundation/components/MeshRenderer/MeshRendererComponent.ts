@@ -270,7 +270,7 @@ export class MeshRendererComponent extends Component {
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getComponent(
         CameraComponent,
-        CameraComponent.main
+        CameraComponent.current
       ) as CameraComponent;
     }
 
@@ -416,7 +416,7 @@ export class MeshRendererComponent extends Component {
       cameraComponent =
         ComponentRepository.getComponent(
           CameraComponent,
-          CameraComponent.main
+          CameraComponent.current
         ) as CameraComponent;
     }
     let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
