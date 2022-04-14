@@ -35,7 +35,6 @@ import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpda
 import {WebGLContextWrapper} from '../../../webgl/WebGLContextWrapper';
 import {ShaderityUtility} from './ShaderityUtility';
 import {Is} from '../../misc/Is';
-import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
 import {ShaderSources} from '../../../webgl/WebGLStrategy';
 import {Primitive} from '../../geometry/Primitive';
 import {AttributeNames, RenderingArg} from '../../../webgl/types/CommonTypes';
@@ -590,10 +589,8 @@ export class Material extends RnObject {
     vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
     pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
 
-    const {attributeNames, attributeSemantics} = this.__getAttributeInfo(
-      materialNode,
-      glslShader!
-    );
+    const {attributeNames, attributeSemantics} =
+      this.__getAttributeInfo(materialNode);
     const vertexAttributesBinding = this.__outputVertexAttributeBindingInfo(
       attributeNames,
       attributeSemantics
@@ -612,11 +609,8 @@ export class Material extends RnObject {
     updatedShaderSources: ShaderSources
   ) {
     const materialNode = this.__materialContent!;
-    const glslShader = materialNode.shader;
-    const {attributeNames, attributeSemantics} = this.__getAttributeInfo(
-      materialNode,
-      glslShader!
-    );
+    const {attributeNames, attributeSemantics} =
+      this.__getAttributeInfo(materialNode);
 
     return this.__createShaderProgramWithCache(
       updatedShaderSources.vertex,
@@ -660,22 +654,12 @@ export class Material extends RnObject {
     }
   }
 
-  private __getAttributeInfo(
-    materialNode: AbstractMaterialContent,
-    glslShader: GLSLShader
-  ) {
-    let attributeNames;
-    let attributeSemantics;
-    if (materialNode.vertexShaderityObject != null) {
-      const reflection = ShaderityUtility.getAttributeReflection(
-        materialNode.vertexShaderityObject
-      );
-      attributeNames = reflection.names;
-      attributeSemantics = reflection.semantics;
-    } else {
-      attributeNames = glslShader!.attributeNames;
-      attributeSemantics = glslShader!.attributeSemantics;
-    }
+  private __getAttributeInfo(materialNode: AbstractMaterialContent) {
+    const reflection = ShaderityUtility.getAttributeReflection(
+      materialNode.vertexShaderityObject!
+    );
+    const attributeNames = reflection.names;
+    const attributeSemantics = reflection.semantics;
     return {attributeNames, attributeSemantics};
   }
 
