@@ -687,6 +687,14 @@ export class CameraComponent extends Component {
     }
   }
 
+  static getCurrentCameraEntity() {
+    const currentCameraComponent = ComponentRepository.getComponent(
+      this,
+      this.current
+    ) as CameraComponent;
+    return currentCameraComponent.entity;
+  }
+
   /**
    * get the entity which has this component.
    * @returns the entity which has this component
