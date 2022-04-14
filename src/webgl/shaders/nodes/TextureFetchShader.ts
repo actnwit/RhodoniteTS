@@ -15,42 +15,11 @@ export class TextureFetchShader extends GLSLShader {
     this.__materialNodeUid = materialNodeUid;
   }
 
-  get vertexShaderDefinitions() {
-    return `
-
-`;
-  }
-
-  get pixelShaderDefinitions() {
-    return '';
-  }
-
   vertexShaderBody = `
-
-
   `;
 
   getPixelShaderBody() {
-    const _version = this.glsl_versionText;
-    const _in = this.glsl_vertex_in;
-    const _out = this.glsl_vertex_out;
-    const _texture = this.glsl_texture;
     return `
-uniform sampler2D u_generalTexture_${this.__materialNodeUid};
-uniform bool u_isGeneralTextureExist_${this.__materialNodeUid};
-
-bool textureFetch(
-  in vec2 texcoord,
-  out vec4 outColor
-  )
-{
-  outColor = vec4(0.0, 0.0, 0.0, 1.0);
-  // diffuseColorTexture
-  if (u_isGeneralTextureExist_${this.__materialNodeUid}) {
-    vec4 textureColor = ${_texture}(u_generalTexture_${this.__materialNodeUid}, texcoord);
-    outColor = textureColor;
-  }
-}
     `;
   }
 
