@@ -6,11 +6,9 @@ import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../foundation/definitions/VertexAttribute';
-import { WebGLResourceRepository } from '../WebGLResourceRepository';
-import {WellKnownComponentTIDs} from '../../foundation/components/WellKnownComponentTIDs';
+import {WebGLResourceRepository} from '../WebGLResourceRepository';
 import SystemState from '../../foundation/system/SystemState';
-import { MemoryManager } from '../../foundation/core/MemoryManager';
-import { AttributeNames } from '../types/CommonTypes';
+import {AttributeNames} from '../types/CommonTypes';
 
 export abstract class GLSLShader {
   static __instance: GLSLShader;

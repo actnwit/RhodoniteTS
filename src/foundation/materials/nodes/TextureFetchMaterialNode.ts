@@ -13,7 +13,6 @@ export class TextureFetchMaterialNode extends AbstractMaterialContent {
 
   constructor() {
     super(new TextureFetchShader(), 'textureFetch');
-    (this.shader as TextureFetchShader).materialNodeUid = this.materialNodeUid;
 
     this.generalTextureMaterialNodeUID = new ShaderSemanticsClass({
       str: `generalTexture_${this.materialNodeUid}`,

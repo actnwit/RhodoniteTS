@@ -542,7 +542,6 @@ export class Material extends RnObject {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialContent!;
-    const glslShader = materialNode.shader;
 
     const {vertexPropertiesStr, pixelPropertiesStr} = this._getProperties(
       propertySetter,
