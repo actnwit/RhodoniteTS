@@ -12,21 +12,21 @@ import {
   IndexOf16Bytes,
 } from '../../types/CommonTypes';
 import {BufferUse} from '../definitions/BufferUse';
-import { MemoryManager } from './MemoryManager';
+import {MemoryManager} from './MemoryManager';
 import {CompositionType} from '../definitions/CompositionType';
-import { Material } from '../materials/core/Material';
+import {Material} from '../materials/core/Material';
 import {ComponentType} from '../definitions/ComponentType';
-import { Accessor } from '../memory/Accessor';
-import { MathClassUtil } from '../math/MathClassUtil';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import {Accessor} from '../memory/Accessor';
+import {MathClassUtil} from '../math/MathClassUtil';
+import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
 import {ShaderType} from '../definitions/ShaderType';
-import { VectorN } from '../math/VectorN';
+import {VectorN} from '../math/VectorN';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
 import {Config} from './Config';
-import { Scalar } from '../math/Scalar';
-import { Vector4 } from '../math/Vector4';
-import { Vector3 } from '../math/Vector3';
-import { MutableMatrix44 } from '../math/MutableMatrix44';
+import {Scalar} from '../math/Scalar';
+import {Vector4} from '../math/Vector4';
+import {Vector3} from '../math/Vector3';
+import {MutableMatrix44} from '../math/MutableMatrix44';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import {BoneDataType} from '../definitions/BoneDataType';
 import {
@@ -343,11 +343,8 @@ export class GlobalDataRepository {
     this.__fields.set(propertyIndex, globalPropertyStruct);
   }
 
-  takeOne(shaderSemantic: ShaderSemanticsEnum, arrayIndex?: Index) {
-    const propertyIndex = Material._getPropertyIndex2(
-      shaderSemantic,
-      arrayIndex
-    );
+  takeOne(shaderSemantic: ShaderSemanticsEnum) {
+    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
@@ -366,16 +363,8 @@ export class GlobalDataRepository {
     return void 0;
   }
 
-  setValue(
-    shaderSemantic: ShaderSemanticsEnum,
-    countIndex: Index,
-    value: any,
-    arrayIndex?: Index
-  ) {
-    const propertyIndex = Material._getPropertyIndex2(
-      shaderSemantic,
-      arrayIndex
-    );
+  setValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index, value: any) {
+    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
@@ -383,15 +372,8 @@ export class GlobalDataRepository {
     }
   }
 
-  getValue(
-    shaderSemantic: ShaderSemanticsEnum,
-    countIndex: Index,
-    arrayIndex?: Index
-  ) {
-    const propertyIndex = Material._getPropertyIndex2(
-      shaderSemantic,
-      arrayIndex
-    );
+  getValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index) {
+    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
@@ -435,8 +417,7 @@ export class GlobalDataRepository {
           shaderProgram,
           info.semantic.str,
           true,
-          values[i],
-          info.index
+          values[i]
         );
       }
     });

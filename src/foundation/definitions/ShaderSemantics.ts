@@ -333,7 +333,6 @@ type UpdateFunc = ({
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum;
   prefix?: string;
-  index?: Count; // index of an array type shader variable
   maxIndex?: Count; // the array length of the array type shader variable
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;

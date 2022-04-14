@@ -211,12 +211,8 @@ export class Material extends RnObject {
   /// Parameter Setters
   ///
 
-  public setParameter(
-    shaderSemantic: ShaderSemanticsEnum,
-    value: any,
-    index?: Index
-  ) {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
+  public setParameter(shaderSemantic: ShaderSemanticsEnum, value: any) {
+    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const info = this.__allFieldsInfo.get(propertyIndex);
     if (info != null) {
       let valueObj: ShaderVariable | undefined;
@@ -296,14 +292,10 @@ export class Material extends RnObject {
 
   // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
   //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
-  public setParameterByUniformName(
-    uniformName: string,
-    value: any,
-    index?: Index
-  ) {
+  public setParameterByUniformName(uniformName: string, value: any) {
     const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
     if (targetShaderSemantics != null) {
-      this.setParameter(targetShaderSemantics, value, index);
+      this.setParameter(targetShaderSemantics, value);
     }
   }
 
@@ -414,8 +406,7 @@ export class Material extends RnObject {
             shaderProgram,
             info.semantic.str,
             firstTime,
-            value.value,
-            info.index
+            value.value
           );
         } else {
           if (
@@ -441,8 +432,7 @@ export class Material extends RnObject {
               shaderProgram,
               info.semantic.str,
               firstTime,
-              value.value,
-              info.index
+              value.value
             );
           } else {
             webglResourceRepository.bindTexture(info, value.value);
@@ -482,8 +472,7 @@ export class Material extends RnObject {
               shaderProgram,
               info.semantic.str,
               firstTime,
-              value.value,
-              info.index
+              value.value
             );
           } else {
             webglResourceRepository.bindTexture(info, value.value);
@@ -1189,26 +1178,15 @@ export class Material extends RnObject {
    * @private
    */
   static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
-    let propertyIndex = semanticInfo.semantic.index;
-    if (semanticInfo.index != null) {
-      propertyIndex += semanticInfo.index;
-      propertyIndex *= -1;
-    }
+    const propertyIndex = semanticInfo.semantic.index;
     return propertyIndex;
   }
 
   /**
    * @private
    */
-  static _getPropertyIndex2(
-    shaderSemantic: ShaderSemanticsEnum,
-    index?: Index
-  ) {
-    let propertyIndex = shaderSemantic.index;
-    if (index != null) {
-      propertyIndex += index;
-      propertyIndex *= -1;
-    }
+  static _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
+    const propertyIndex = shaderSemantic.index;
     return propertyIndex;
   }
 }
