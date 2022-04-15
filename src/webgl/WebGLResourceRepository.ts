@@ -2501,13 +2501,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     uboUid: WebGLResourceHandle,
     typedArray: TypedArray,
     offsetByte: Byte,
-    byteLength: Byte
+    arrayLength: Byte
   ) {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const ubo = this.getWebGLResource(uboUid) as WebGLBuffer;
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, typedArray, offsetByte, byteLength);
+    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, typedArray, offsetByte, arrayLength);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
 
@@ -2565,22 +2565,17 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     const ubo = gl.createBuffer();
     const resourceHandle = this.__registerResource(ubo!);
 
+    const maxConventionBlocks = this.__glw!.getMaxConventionUniformBlocks();
     const alignedMaxUniformBlockSize =
       this.__glw!.getAlignedMaxUniformBlockSize();
-    const array = typedArray
-      ? typedArray
-      : new Float32Array(alignedMaxUniformBlockSize / 4);
+    const realSize = alignedMaxUniformBlockSize * maxConventionBlocks;
+    const array = new Float32Array(realSize / 4);
+    if (Is.exist(typedArray)) {
+      array.set(typedArray.subarray(0, array.length));
+    }
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    gl.bufferData(
-      gl.UNIFORM_BUFFER,
-      array,
-      gl.DYNAMIC_DRAW,
-      0,
-      alignedMaxUniformBlockSize
-    );
-    gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+    gl.bufferData(gl.UNIFORM_BUFFER, array, gl.DYNAMIC_DRAW, 0, 0);
 
-    const maxConventionBlocks = this.__glw!.getMaxConventionUniformBlocks();
     for (let i = 0; i < maxConventionBlocks; i++) {
       gl.bindBufferRange(
         gl.UNIFORM_BUFFER,
@@ -2590,6 +2585,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
         alignedMaxUniformBlockSize
       );
     }
+    gl.bindBuffer(gl.UNIFORM_BUFFER, null);
 
     return resourceHandle;
   }

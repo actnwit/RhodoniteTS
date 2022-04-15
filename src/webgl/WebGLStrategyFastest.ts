@@ -714,6 +714,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (this.__isUboUse()) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
+      const maxConventionBlocks = glw!.getMaxConventionUniformBlocks();
       const memoryManager: MemoryManager = MemoryManager.getInstance();
       const buffer: Buffer | undefined = memoryManager.getBuffer(
         BufferUse.GPUInstanceData
@@ -726,11 +727,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             new Float32Array(buffer!.getArrayBuffer())
           );
       } else {
+        const array = new Float32Array(buffer!.getArrayBuffer());
         this.__webglResourceRepository.updateUniformBuffer(
           this.__dataUBOUid,
-          new Float32Array(buffer!.getArrayBuffer()),
+          array,
           0,
-          alignedMaxUniformBlockSize
+          (alignedMaxUniformBlockSize * maxConventionBlocks) / 4 // (4 bytes unit)
         );
       }
     }
