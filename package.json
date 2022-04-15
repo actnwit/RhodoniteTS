@@ -51,6 +51,9 @@
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.31",
+    "@types/webgl-ext": "^0.0.32",
+    "@types/webvr-api": "^0.0.35",
+    "@types/webxr": "^0.2.3",
     "@typescript-eslint/parser": "4.15.1",
     "cross-env": "^7.0.3",
     "express": "^4.17.1",
@@ -73,18 +76,15 @@
     "version-loader": "^0.1.0",
     "webpack": "^5.23.0",
     "webpack-cli": "^4.8.0",
-    "webpack-merge": "^5.7.3"
+    "webpack-merge": "^5.7.3",
+    "webxr-input-profiles": "actnwit/webxr-input-profiles#d143b0d0538d79486503e2af9fa5d6996b6272fb"
   },
   "dependencies": {
     "ktx-parse": "^0.2.1",
     "requirejs": "^2.3.6",
     "shaderity": "^0.2.2",
     "zlibjs": "^0.3.1",
-    "zstddec": "^0.0.2",
-    "@types/webgl-ext": "^0.0.32",
-    "@types/webvr-api": "^0.0.35",
-    "@types/webxr": "^0.2.3",
-    "webxr-input-profiles": "actnwit/webxr-input-profiles#d143b0d0538d79486503e2af9fa5d6996b6272fb"
+    "zstddec": "^0.0.2"
   },
   "description": "Rhodonite is a WebGL library written in TypeScript.",
   "bugs": {
