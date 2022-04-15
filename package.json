@@ -13,7 +13,8 @@
   "types": "dist/esm/index.d.ts",
   "files": [
     "dist/esm",
-    "VERSION-FILE"
+    "VERSION-FILE",
+    "vendor/effekseer.d.ts"
   ],
   "repository": {
     "type": "git",
@@ -51,7 +52,6 @@
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.31",
     "@types/webgl-ext": "^0.0.32",
-    "@types/webgl2": "^0.0.5",
     "@types/webvr-api": "^0.0.35",
     "@types/webxr": "^0.2.3",
     "@typescript-eslint/parser": "4.15.1",
