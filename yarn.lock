@@ -749,11 +749,6 @@
   resolved "https://registry.yarnpkg.com/@types/webgl-ext/-/webgl-ext-0.0.32.tgz#e27d165fe922366e223cdb5a63d228c7c2c99deb"
   integrity sha512-ySANgjcXdWpzkyQWEQ1rQjqipMNse+JPcoEWBOrIqRSLYJcLtLylJibJcEbemN/1aro1DfqEQM2N3DYNxUyAtg==
 
-"@types/webgl2@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@types/webgl2/-/webgl2-0.0.5.tgz#dd925e20ab8ace80eb4b1e46fda5b109c508fb0d"
-  integrity sha512-oGaKsBbxQOY5+aJFV3KECDhGaXt+yZJt2y/OZsnQGLRkH6Fvr7rv4pCt3SRH1somIHfej/c4u7NSpCyd9x+1Ow==
-
 "@types/webvr-api@^0.0.35":
   version "0.0.35"
   resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.35.tgz#13b3cf1cd90544524d932ed36e6b109a2ec73d22"
