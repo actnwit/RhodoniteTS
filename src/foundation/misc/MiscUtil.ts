@@ -1,6 +1,9 @@
-import {off} from 'process';
 import {Byte, Size, TypedArray} from '../../types/CommonTypes';
 import {Is} from './Is';
+
+const isMobileVr = function () {
+  return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(window.navigator.userAgent)
+};
 
 const isMobile = function () {
   const ua = [
@@ -20,12 +23,14 @@ const isMobile = function () {
 };
 
 const isSafari = function () {
-  const ua = ['Safari'];
+  const toBe = 'Safari';
+  const noToBe = 'Chrome';
 
-  for (let i = 0; i < ua.length; i++) {
-    if (navigator.userAgent.indexOf(ua[i]) > 0) {
-      return true;
-    }
+  if (
+    navigator.userAgent.indexOf(toBe) > 0 &&
+    navigator.userAgent.indexOf(noToBe) === -1
+  ) {
+    return true;
   }
 
   return false;
@@ -381,6 +386,7 @@ export function downloadTypedArray(
 }
 
 export const MiscUtil = Object.freeze({
+  isMobileVr,
   isMobile,
   isIOS,
   isSafari,

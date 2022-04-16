@@ -226,7 +226,6 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     const indexArray: IndexOf16Bytes[] = [];
-    let maxIndex = 1;
     let indexStr;
 
     const isTexture =
@@ -249,65 +248,30 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     // inner contents of 'get_' shader function
     const vec4SizeOfProperty: IndexOf16Bytes =
       info.compositionType.getVec4SizeOfProperty();
-    if (propertyIndex < 0) {
-      // if the ShaderSemanticsInfo of the property has `index` property
-      if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
-        return '';
-      }
-      const index: IndexOf16Bytes =
-        Material.getLocationOffsetOfMemberOfMaterial(
-          materialTypeName,
-          propertyIndex
-        )!;
-      if (isWebGL2) {
-        indexStr = `
-          int vec4_idx = ${index} + ${vec4SizeOfProperty} * instanceId;
-          `;
-      } else {
-        for (let i = 0; i < info.arrayLength!; i++) {
-          indexArray.push(index);
-        }
-        maxIndex = info.arrayLength!;
-        let arrayStr = `int indices[${maxIndex}];`;
-        indexArray.forEach((idx, i) => {
-          arrayStr += `\nindices[${i}] = ${idx};`;
-        });
-        indexStr = `
-          ${arrayStr}
-          int vec4_idx = 0;
-          for (int i=0; i<${maxIndex}; i++) {
-            vec4_idx = indices[i] + ${vec4SizeOfProperty} * instanceId;
-            if (i == index) {
-              break;
-            }
-          }`;
-      }
-    } else {
-      // for non-`index` property (this is general case)
-      const scalarSizeOfProperty: IndexOf4Bytes =
-        info.compositionType.getNumberOfComponents();
-      const offsetOfProperty: IndexOf16Bytes =
-        WebGLStrategyFastest.getOffsetOfPropertyInShader(
-          isGlobalData,
-          propertyIndex,
-          materialTypeName
-        );
+    // for non-`index` property (this is general case)
+    const scalarSizeOfProperty: IndexOf4Bytes =
+      info.compositionType.getNumberOfComponents();
+    const offsetOfProperty: IndexOf16Bytes =
+      WebGLStrategyFastest.getOffsetOfPropertyInShader(
+        isGlobalData,
+        propertyIndex,
+        materialTypeName
+      );
 
-      if (offsetOfProperty === -1) {
-        console.error('Could not get the location offset of the property.');
-      }
+    if (offsetOfProperty === -1) {
+      console.error('Could not get the location offset of the property.');
+    }
 
-      const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
-      indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
-      if (CompositionType.isArray(info.compositionType)) {
-        const instanceSizeInScalar =
-          scalarSizeOfProperty * (info.arrayLength ?? 1);
-        indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
-        indexStr += `int scalar_idx = ${
-          // IndexOf4Bytes
-          offsetOfProperty * 4 // IndexOf16bytes to IndexOf4Bytes
-        } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
-      }
+    const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+    indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
+    if (CompositionType.isArray(info.compositionType)) {
+      const instanceSizeInScalar =
+        scalarSizeOfProperty * (info.arrayLength ?? 1);
+      indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
+      indexStr += `int scalar_idx = ${
+        // IndexOf4Bytes
+        offsetOfProperty * 4 // IndexOf16bytes to IndexOf4Bytes
+      } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
     }
 
     let intStr = '';
@@ -714,6 +678,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (this.__isUboUse()) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
+      const maxConventionBlocks = glw!.getMaxConventionUniformBlocks();
       const memoryManager: MemoryManager = MemoryManager.getInstance();
       const buffer: Buffer | undefined = memoryManager.getBuffer(
         BufferUse.GPUInstanceData
@@ -726,11 +691,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             new Float32Array(buffer!.getArrayBuffer())
           );
       } else {
+        const array = new Float32Array(buffer!.getArrayBuffer());
         this.__webglResourceRepository.updateUniformBuffer(
           this.__dataUBOUid,
-          new Float32Array(buffer!.getArrayBuffer()),
+          array,
           0,
-          alignedMaxUniformBlockSize
+          (alignedMaxUniformBlockSize * maxConventionBlocks) / 4 // (4 bytes unit)
         );
       }
     }
