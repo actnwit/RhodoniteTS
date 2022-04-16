@@ -22,7 +22,7 @@ let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
 
-if (MiscUtil.isMobile()) {
+if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
   maxMaterialInstanceForEachType = 28;
   maxVertexMorphNumberInShader = 4;
   maxSkeletonNumber = 32;

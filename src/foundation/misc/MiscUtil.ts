@@ -1,6 +1,9 @@
-import {off} from 'process';
 import {Byte, Size, TypedArray} from '../../types/CommonTypes';
 import {Is} from './Is';
+
+const isMobileVr = function () {
+  return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(window.navigator.userAgent)
+};
 
 const isMobile = function () {
   const ua = [
@@ -383,6 +386,7 @@ export function downloadTypedArray(
 }
 
 export const MiscUtil = Object.freeze({
+  isMobileVr,
   isMobile,
   isIOS,
   isSafari,
