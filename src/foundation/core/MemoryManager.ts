@@ -57,6 +57,20 @@ export class MemoryManager {
     return this.__instance;
   }
 
+  private __createMetaBuffer() {
+    const bufferUse = BufferUse.Meta;
+    const arrayBuffer = new ArrayBuffer(65536); // 64KB
+    const buffer = new Buffer({
+      byteLength: arrayBuffer.byteLength,
+      buffer: arrayBuffer,
+      name: bufferUse.str,
+      byteAlign: 16,
+    });
+    this.__buffers[buffer.name] = buffer;
+
+    return buffer;
+  }
+
   private __createBuffer(bufferUse: BufferUseEnum) {
     const memorySize =
       MemoryManager.bufferWidthLength *
@@ -95,7 +109,11 @@ export class MemoryManager {
   createOrGetBuffer(bufferUse: BufferUseEnum): Buffer {
     let buffer = this.__buffers[bufferUse.toString()];
     if (buffer == null) {
-      buffer = this.__createBuffer(bufferUse);
+      if (bufferUse === BufferUse.Meta) {
+        buffer = this.__createMetaBuffer();
+      } else {
+        buffer = this.__createBuffer(bufferUse);
+      }
     }
     return buffer;
   }

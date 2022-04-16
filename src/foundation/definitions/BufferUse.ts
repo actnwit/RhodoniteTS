@@ -24,8 +24,12 @@ const CPUGeneric: BufferUseEnum = new BufferUseClass({
   index: 3,
   str: 'CPUGeneric',
 });
+const Meta: BufferUseEnum = new BufferUseClass({
+  index: 4,
+  str: 'Meta',
+});
 
-const typeList = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];
+const typeList = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric, Meta];
 
 function from(index: number): BufferUseEnum {
   return _from({typeList, index}) as BufferUseEnum;
@@ -40,6 +44,7 @@ export const BufferUse = Object.freeze({
   GPUVertexData,
   UBOGeneric,
   CPUGeneric,
+  Meta,
   from,
   fromString,
 });
