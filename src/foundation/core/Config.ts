@@ -19,7 +19,7 @@ let boneDataType = BoneDataType.Vec4x2;
 let noWebGLTex2DStateCache = false;
 let maxMorphTargetNumber = 4;
 let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
-let isUboEnabled = true;
+let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
 
 export const Config = {
