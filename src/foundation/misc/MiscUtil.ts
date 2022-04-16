@@ -20,12 +20,14 @@ const isMobile = function () {
 };
 
 const isSafari = function () {
-  const ua = ['Safari'];
+  const toBe = 'Safari';
+  const noToBe = 'Chrome';
 
-  for (let i = 0; i < ua.length; i++) {
-    if (navigator.userAgent.indexOf(ua[i]) > 0) {
-      return true;
-    }
+  if (
+    navigator.userAgent.indexOf(toBe) > 0 &&
+    navigator.userAgent.indexOf(noToBe) === -1
+  ) {
+    return true;
   }
 
   return false;

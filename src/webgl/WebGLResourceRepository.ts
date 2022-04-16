@@ -145,6 +145,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     this.addWebGLContext(gl, canvas, asCurrent, isDebug);
 
     if (MiscUtil.isSafari()) {
+      // Safari (WebGL2 via Metal) does't support UBO properly at 2022/04/15
       Config.isUboEnabled = false;
     }
 
