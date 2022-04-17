@@ -10,7 +10,7 @@ import {
 } from '../../foundation/definitions/ComponentType';
 
 import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok } from '../misc';
+import { Err, Ok, IResult } from '../misc';
 
 export class Buffer {
   private __byteLength: Byte = 0;
@@ -70,7 +70,7 @@ export class Buffer {
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
-  }) {
+  }): IResult<BufferView, undefined> {
     const byteAlign = this.__byteAlign;
     const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
@@ -79,7 +79,6 @@ export class Buffer {
       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
 Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
 byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
-      // console.error(message);
       return new Err({
         message,
         error: undefined,
@@ -108,7 +107,7 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__
     byteLengthToNeed: Byte;
     byteStride: Byte;
     byteOffset: Byte;
-  }) {
+  }): IResult<BufferView, undefined> {
 
     if (byteLengthToNeed + this.__takenBytesIndex > this.byteLength) {
       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.

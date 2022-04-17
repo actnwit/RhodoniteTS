@@ -398,7 +398,7 @@ export class Component extends RnObject {
         componentType,
         count: count,
         byteStride: alignedBytes,
-      });
+      }).unwrapForce();
       accessors.set(memberName, accessor);
       return accessor;
     } else {

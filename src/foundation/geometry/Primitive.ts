@@ -183,7 +183,7 @@ export class Primitive extends RnObject {
         compositionType: CompositionType.Scalar,
         componentType: indicesComponentType,
         count: indices.byteLength / indicesComponentType.getSizeInBytes(),
-      });
+      }).unwrapForce();
       // copy indices
       for (
         let i = 0;
@@ -214,7 +214,7 @@ export class Primitive extends RnObject {
           typedArray.byteLength /
           compositionType.getNumberOfComponents() /
           attributeComponentTypes[i].getSizeInBytes(),
-      });
+      }).unwrapForce();
       accessor.copyFromTypedArray(typedArray);
       attributeAccessors.push(accessor);
     });

@@ -25,7 +25,7 @@ test('An bufferView can take an accessor from itself', () => {
     compositionType: CompositionType.Mat4,
     componentType: ComponentType.Float,
     count: 1,
-  });
+  }).unwrapForce();
 
   expect(accessor instanceof Accessor).toBe(true);
 });

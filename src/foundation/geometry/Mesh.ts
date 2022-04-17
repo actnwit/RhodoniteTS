@@ -616,7 +616,7 @@ export class Mesh implements IMesh {
           compositionType: CompositionType.Vec4,
           componentType: ComponentType.Float,
           count: positionAccessor.elementCount,
-        });
+        }).unwrapForce();
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
           const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});
@@ -807,7 +807,7 @@ export class Mesh implements IMesh {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         count: num,
-      });
+      }).unwrapForce();
 
       for (let ver_i = 0; ver_i < num; ver_i++) {
         baryCentricCoordAccessor.setVec4(
@@ -872,7 +872,7 @@ export class Mesh implements IMesh {
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
         count: positionAccessor.elementCount,
-      });
+      }).unwrapForce();
       for (let i = 0; i < vertexNum - 2; i += incrementNum) {
         const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
         const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});
