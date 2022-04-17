@@ -330,7 +330,7 @@ export class Component extends RnObject {
       const bufferView = buffer.takeBufferView({
         byteLengthToNeed: byteLengthSumOfMembers * count,
         byteStride: 0,
-      });
+      }).unwrapForce();
       bufferViews.set(bufferUse, bufferView);
       return bufferView;
     }

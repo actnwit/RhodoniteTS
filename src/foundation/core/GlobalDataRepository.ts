@@ -315,7 +315,7 @@ export class GlobalDataRepository {
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: alignedByteLength * maxCount,
       byteStride: 0,
-    });
+    }).unwrapForce();
 
     let maxArrayLength = semanticInfo.arrayLength;
     if (

@@ -611,7 +611,7 @@ export class Mesh implements IMesh {
         const tangentBufferView = buffer.takeBufferView({
           byteLengthToNeed: tangentAttributeByteSize,
           byteStride: 0,
-        });
+        }).unwrapForce();
         const tangentAccessor = tangentBufferView.takeAccessor({
           compositionType: CompositionType.Vec4,
           componentType: ComponentType.Float,
@@ -802,7 +802,7 @@ export class Mesh implements IMesh {
       const baryCentricCoordBufferView = buffer.takeBufferView({
         byteLengthToNeed: baryCentricCoordAttributeByteSize,
         byteStride: 0,
-      });
+      }).unwrapForce();
       const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
@@ -867,7 +867,7 @@ export class Mesh implements IMesh {
       const normalBufferView = buffer.takeBufferView({
         byteLengthToNeed: normalAttributeByteSize,
         byteStride: 0,
-      });
+      }).unwrapForce();
       const normalAccessor = normalBufferView.takeAccessor({
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,

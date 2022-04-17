@@ -10,6 +10,7 @@ import {
 } from '../../foundation/definitions/ComponentType';
 
 import { DataUtil } from '../misc/DataUtil';
+import { Err, Ok } from '../misc';
 
 export class Buffer {
   private __byteLength: Byte = 0;
@@ -73,18 +74,30 @@ export class Buffer {
     const byteAlign = this.__byteAlign;
     const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
+    const byteSizeToTake = byteLengthToNeed + paddingBytes;
+    if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
+      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+      // console.error(message);
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
+
     const bufferView = new BufferView({
       buffer: this,
       byteOffsetInBuffer: this.__takenBytesIndex,
       defaultByteStride: byteStride,
-      byteLength: byteLengthToNeed + paddingBytes,
+      byteLength: byteSizeToTake,
       raw: this.__raw,
     });
-    this.__takenBytesIndex += byteLengthToNeed + paddingBytes;
+    this.__takenBytesIndex += byteSizeToTake;
 
     this.__bufferViews.push(bufferView);
 
-    return bufferView;
+    return new Ok(bufferView);
   }
 
   takeBufferViewWithByteOffset({
@@ -96,6 +109,18 @@ export class Buffer {
     byteStride: Byte;
     byteOffset: Byte;
   }) {
+
+    if (byteLengthToNeed + this.__takenBytesIndex > this.byteLength) {
+      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+      // console.error(message);
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
+
     const bufferView = new BufferView({
       buffer: this,
       byteOffsetInBuffer: byteOffset,
@@ -112,7 +137,7 @@ export class Buffer {
 
     this.__bufferViews.push(bufferView);
 
-    return bufferView;
+    return new Ok(bufferView);
   }
 
   _addTakenByteIndex(value: Byte) {
