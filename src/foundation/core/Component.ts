@@ -389,9 +389,9 @@ export class Component extends RnObject {
         compositionType.getNumberOfComponents() *
         componentType.getSizeInBytes();
       let alignedBytes = bytes;
-      if (bytes % 16 !== 0) {
-        alignedBytes += bytes % 16 === 0 ? 0 : 16 - (bytes % 16);
-      }
+      // if (bytes % 16 !== 0) {
+      //   alignedBytes += bytes % 16 === 0 ? 0 : 16 - (bytes % 16);
+      // }
 
       const accessor = bufferViews.get(bufferUse)!.takeAccessor({
         compositionType: compositionType,
