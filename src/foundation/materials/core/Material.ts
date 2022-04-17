@@ -1065,10 +1065,11 @@ export class Material extends RnObject {
     if (this.__bufferViews.has(materialTypeName)) {
       bufferView = this.__bufferViews.get(materialTypeName);
     } else {
-      bufferView = buffer.takeBufferView({
+      const result = buffer.takeBufferView({
         byteLengthToNeed: totalByteLength,
         byteStride: 0,
       });
+      bufferView = result.unwrapForce();
       this.__bufferViews.set(materialTypeName, bufferView);
     }
 

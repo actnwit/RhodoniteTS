@@ -645,7 +645,7 @@ export class ModelConverter {
               rnBufferView = rnBuffer.takeBufferView({
                 byteLengthToNeed: 0,
                 byteStride: 0,
-              });
+              }).unwrapForce();
             }
             const attributeRnAccessor = this.__getRnAccessor(
               rnm2attribute,
@@ -1856,7 +1856,7 @@ export class ModelConverter {
       byteLengthToNeed: gltfBufferView.byteLength,
       byteStride: gltfBufferView.byteStride ?? 0,
       byteOffset: gltfBufferView.byteOffset ?? 0,
-    });
+    }).unwrapForce();
 
     const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
       compositionType: CompositionType.fromString(accessor.type),
@@ -1880,7 +1880,7 @@ export class ModelConverter {
     const dstRnBufferView = dstRnBuffer.takeBufferView({
       byteLengthToNeed: byteSize,
       byteStride: 3 /* vec4 */ * 4 /* bytes */,
-    });
+    }).unwrapForce();
 
     const dstRnAccessor = dstRnBufferView.takeAccessor({
       compositionType: CompositionType.Vec3,
@@ -1905,7 +1905,7 @@ export class ModelConverter {
     const rnBufferView = rnBuffer.takeBufferView({
       byteLengthToNeed: numOfAttributes * compositionNum * 4,
       byteStride: 0,
-    });
+    }).unwrapForce();
 
     const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
       compositionType: CompositionType.fromString(accessor.type),
@@ -1929,7 +1929,7 @@ export class ModelConverter {
       byteLengthToNeed: rnm2bufferView.byteLength,
       byteStride: rnm2bufferView.byteStride ?? 0,
       byteOffset: rnm2bufferView.byteOffset ?? 0,
-    });
+    }).unwrapForce();
 
     return rnBufferView;
   }
