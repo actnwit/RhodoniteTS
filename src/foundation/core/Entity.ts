@@ -25,6 +25,7 @@ export interface IEntity extends IRnObject {
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
   _setComponent(componentType: typeof Component, com: Component): void;
   hasComponent(componentType: typeof Component): boolean;
+  _removeComponent(componentTID: ComponentTID): void;
   tryToGetBlendShape(): BlendShapeComponent | undefined;
   tryToGetCamera(): CameraComponent | undefined;
   tryToGetCameraController(): CameraControllerComponent | undefined;
@@ -117,6 +118,14 @@ export class Entity extends RnObject implements IEntity {
     componentTID: ComponentTID
   ): Component | undefined {
     return this.__components.get(componentTID);
+  }
+
+  /**
+   * @private
+   * @param componentTID
+   */
+  _removeComponent(componentTID: ComponentTID) {
+    this.__components.delete(componentTID);
   }
 
   ///

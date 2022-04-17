@@ -85,6 +85,7 @@ export class EntityRepository {
     if (Is.exist(component)) {
       component.destroy();
       map.delete(componentClass.componentTID);
+      entity._removeComponent(componentClass.componentTID);
     }
 
     return entity as IEntity;
