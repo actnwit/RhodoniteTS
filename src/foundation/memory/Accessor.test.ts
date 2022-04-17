@@ -36,7 +36,7 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
   const bufferView = buffer.takeBufferView({
     byteLengthToNeed: 64,
     byteStride: 0,
-  });
+  }).unwrapForce();
   let accessor = null;
   try {
     accessor = bufferView!.takeAccessor({
