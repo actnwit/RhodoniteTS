@@ -178,12 +178,12 @@ export class Primitive extends RnObject {
       indicesBufferView = buffer.takeBufferView({
         byteLengthToNeed: indices.byteLength,
         byteStride: 0,
-      });
+      }).unwrapForce();
       indicesAccessor = indicesBufferView.takeAccessor({
         compositionType: CompositionType.Scalar,
         componentType: indicesComponentType,
         count: indices.byteLength / indicesComponentType.getSizeInBytes(),
-      });
+      }).unwrapForce();
       // copy indices
       for (
         let i = 0;
@@ -197,7 +197,7 @@ export class Primitive extends RnObject {
     const attributesBufferView = buffer.takeBufferView({
       byteLengthToNeed: sumOfAttributesByteSize,
       byteStride: 0,
-    });
+    }).unwrapForce();
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
@@ -214,7 +214,7 @@ export class Primitive extends RnObject {
           typedArray.byteLength /
           compositionType.getNumberOfComponents() /
           attributeComponentTypes[i].getSizeInBytes(),
-      });
+      }).unwrapForce();
       accessor.copyFromTypedArray(typedArray);
       attributeAccessors.push(accessor);
     });

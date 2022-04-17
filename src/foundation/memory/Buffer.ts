@@ -1,4 +1,4 @@
-import { BufferView } from './BufferView';
+import {BufferView} from './BufferView';
 import {Byte, TypedArray} from '../../types/CommonTypes';
 import {
   CompositionType,
@@ -9,7 +9,8 @@ import {
   ComponentTypeEnum,
 } from '../../foundation/definitions/ComponentType';
 
-import { DataUtil } from '../misc/DataUtil';
+import {DataUtil} from '../misc/DataUtil';
+import {Err, Ok, IResult} from '../misc';
 
 export class Buffer {
   private __byteLength: Byte = 0;
@@ -69,22 +70,40 @@ export class Buffer {
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
-  }) {
+  }): IResult<BufferView, undefined> {
     const byteAlign = this.__byteAlign;
-    const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
+    // const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
+
+    // const byteSizeToTake = byteLengthToNeed + paddingBytes;
+    const byteSizeToTake = byteLengthToNeed;
+    // byteSizeToTake = DataUtil.addPaddingBytes(byteSizeToTake, this.__byteAlign);
+
+    if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
+      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+      // console.error(message);
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
 
     const bufferView = new BufferView({
       buffer: this,
       byteOffsetInBuffer: this.__takenBytesIndex,
       defaultByteStride: byteStride,
-      byteLength: byteLengthToNeed + paddingBytes,
+      byteLength: byteSizeToTake,
       raw: this.__raw,
     });
-    this.__takenBytesIndex += byteLengthToNeed + paddingBytes;
-
+    this.__takenBytesIndex += byteSizeToTake;
+    // this.__takenBytesIndex = DataUtil.addPaddingBytes(
+    //   this.__takenBytesIndex,
+    //   this.__byteAlign
+    // );
     this.__bufferViews.push(bufferView);
 
-    return bufferView;
+    return new Ok(bufferView);
   }
 
   takeBufferViewWithByteOffset({
@@ -95,7 +114,18 @@ export class Buffer {
     byteLengthToNeed: Byte;
     byteStride: Byte;
     byteOffset: Byte;
-  }) {
+  }): IResult<BufferView, undefined> {
+    const byteSizeToTake = byteLengthToNeed;
+    if (byteSizeToTake + byteOffset > this.byteLength) {
+      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
+
     const bufferView = new BufferView({
       buffer: this,
       byteOffsetInBuffer: byteOffset,
@@ -112,7 +142,7 @@ export class Buffer {
 
     this.__bufferViews.push(bufferView);
 
-    return bufferView;
+    return new Ok(bufferView);
   }
 
   _addTakenByteIndex(value: Byte) {

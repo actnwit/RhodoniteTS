@@ -1065,10 +1065,11 @@ export class Material extends RnObject {
     if (this.__bufferViews.has(materialTypeName)) {
       bufferView = this.__bufferViews.get(materialTypeName);
     } else {
-      bufferView = buffer.takeBufferView({
+      const result = buffer.takeBufferView({
         byteLengthToNeed: totalByteLength,
         byteStride: 0,
       });
+      bufferView = result.unwrapForce();
       this.__bufferViews.set(materialTypeName, bufferView);
     }
 
@@ -1088,13 +1089,15 @@ export class Material extends RnObject {
       ) {
         maxArrayLength = 100;
       }
-      const accessor = bufferView!.takeAccessor({
-        compositionType: semanticInfo.compositionType,
-        componentType: ComponentType.Float,
-        count: count,
-        byteStride: alignedByte,
-        arrayLength: maxArrayLength,
-      });
+      const accessor = bufferView!
+        .takeAccessor({
+          compositionType: semanticInfo.compositionType,
+          componentType: ComponentType.Float,
+          count: count,
+          byteStride: alignedByte,
+          arrayLength: maxArrayLength,
+        })
+        .unwrapForce();
 
       const propertyIndex = this._getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {

@@ -3,6 +3,7 @@ import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {ComponentTypeEnum} from '../definitions/ComponentType';
 import { Accessor } from './Accessor';
 import {Byte, Count, Size} from '../../types/CommonTypes';
+import { Err, IResult, Ok } from '../misc';
 
 export class BufferView {
   private __buffer: Buffer;
@@ -14,7 +15,6 @@ export class BufferView {
   private __takenAccessorCount = 0;
   private __raw: ArrayBuffer;
   private __accessors: Array<Accessor> = [];
-  private __totalBytesUpToLastAccessor: Byte = 0;
 
   constructor({
     buffer,
@@ -109,7 +109,8 @@ export class BufferView {
     min?: number[];
     arrayLength?: Size;
     normalized?: boolean;
-  }): Accessor {
+  }): IResult<Accessor, undefined> {
+
     const accessor = this.__takeAccessorInner({
       compositionType,
       componentType,
@@ -142,7 +143,7 @@ export class BufferView {
     max?: number[];
     min?: number[];
     normalized?: boolean;
-  }): Accessor {
+  }): IResult<Accessor, undefined> {
     const accessor = this.__takeAccessorInnerWithByteOffset({
       compositionType,
       componentType,
@@ -175,7 +176,7 @@ export class BufferView {
     min?: number[];
     arrayLength: Size;
     normalized: boolean;
-  }): Accessor {
+  }): IResult<Accessor, undefined> {
     const byteOffsetInBufferView = this.__takenByte;
     let actualByteStride = byteStride;
     if (actualByteStride === 0) {
@@ -183,6 +184,17 @@ export class BufferView {
         compositionType.getNumberOfComponents() *
         componentType.getSizeInBytes() *
         arrayLength;
+    }
+
+    if (this.__takenByte + actualByteStride * count > this.byteLength) {
+      const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
+      // console.error(message);
+      return new Err({
+        message,
+        error: undefined,
+      });
     }
 
     const accessor = new Accessor({
@@ -202,9 +214,8 @@ export class BufferView {
     this.__accessors.push(accessor);
 
     this.__takenByte += actualByteStride * count;
-    this.__totalBytesUpToLastAccessor = this.__takenByte;
 
-    return accessor;
+    return new Ok(accessor);
   }
 
   private __takeAccessorInnerWithByteOffset({
@@ -225,7 +236,17 @@ export class BufferView {
     max?: number[];
     min?: number[];
     normalized: boolean;
-  }): Accessor {
+  }): IResult<Accessor, undefined> {
+    if (this.__takenByte + byteStride * count > this.byteLength) {
+      const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
+
     const accessor = new Accessor({
       bufferView: this,
       byteOffsetInBufferView,
@@ -242,7 +263,7 @@ export class BufferView {
 
     this.__accessors.push(accessor);
 
-    return accessor;
+    return new Ok(accessor);
   }
 
   isSame(rnBufferView: BufferView) {

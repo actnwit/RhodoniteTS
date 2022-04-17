@@ -98,8 +98,8 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     int index = ${Component.getLocationOffsetOfMemberOfComponent(
       SceneGraphComponent,
       'normalMatrix'
-    )} + 3 * int(instanceId);
-    mat3 matrix = fetchMat3(index);
+    )} * 4 + 9 * int(instanceId);
+    mat3 matrix = fetchMat3No16BytesAligned(index);
     return matrix;
   }
 

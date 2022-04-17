@@ -310,33 +310,33 @@ export class Component extends RnObject {
    */
   registerDependency(component: Component, isMust: boolean) {}
 
-  /**
-   * take a buffer view from the buffer.
-   */
-  static takeBufferView(
-    bufferUse: BufferUseEnum,
-    componentClass: Function,
-    byteLengthSumOfMembers: Byte,
-    count: Count
-  ) {
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
+  // /**
+  //  * take a buffer view from the buffer.
+  //  */
+  // static takeBufferView(
+  //   bufferUse: BufferUseEnum,
+  //   componentClass: Function,
+  //   byteLengthSumOfMembers: Byte,
+  //   count: Count
+  // ) {
+  //   const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
 
-    if (!this.__bufferViews.has(componentClass)) {
-      this.__bufferViews.set(componentClass, new Map());
-    }
+  //   if (!this.__bufferViews.has(componentClass)) {
+  //     this.__bufferViews.set(componentClass, new Map());
+  //   }
 
-    const bufferViews = this.__bufferViews.get(componentClass)!;
-    if (!bufferViews.has(bufferUse)) {
-      const bufferView = buffer.takeBufferView({
-        byteLengthToNeed: byteLengthSumOfMembers * count,
-        byteStride: 0,
-      });
-      bufferViews.set(bufferUse, bufferView);
-      return bufferView;
-    }
+  //   const bufferViews = this.__bufferViews.get(componentClass)!;
+  //   if (!bufferViews.has(bufferUse)) {
+  //     const bufferView = buffer.takeBufferView({
+  //       byteLengthToNeed: byteLengthSumOfMembers * count,
+  //       byteStride: 0,
+  //     }).unwrapForce();
+  //     bufferViews.set(bufferUse, bufferView);
+  //     return bufferView;
+  //   }
 
-    return void 0;
-  }
+  //   return void 0;
+  // }
 
   /**
    * take one memory area for the specified member for all same type of the component instances.
@@ -383,22 +383,24 @@ export class Component extends RnObject {
     const accessors = this.__accessors.get(componentClass)!;
 
     if (!accessors.has(memberName)) {
-      const bufferViews = this.__bufferViews.get(componentClass)!;
-
       const bytes =
         compositionType.getNumberOfComponents() *
         componentType.getSizeInBytes();
-      let alignedBytes = bytes;
-      if (bytes % 16 !== 0) {
-        alignedBytes += bytes % 16 === 0 ? 0 : 16 - (bytes % 16);
-      }
-
-      const accessor = bufferViews.get(bufferUse)!.takeAccessor({
-        compositionType: compositionType,
-        componentType,
-        count: count,
-        byteStride: alignedBytes,
-      });
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
+      const bufferView = buffer
+        .takeBufferView({
+          byteLengthToNeed: bytes * count,
+          byteStride: 0,
+        })
+        .unwrapForce();
+      const accessor = bufferView
+        .takeAccessor({
+          compositionType,
+          componentType,
+          count: count,
+          byteStride: bytes,
+        })
+        .unwrapForce();
       accessors.set(memberName, accessor);
       return accessor;
     } else {
@@ -518,13 +520,13 @@ export class Component extends RnObject {
           );
         });
         if (infoArray.length > 0) {
-          const bufferView = Component.takeBufferView(
-            bufferUse,
-            componentClass,
-            byteLengthSumOfMembers.get(bufferUse)!,
-            count
-          );
-          that.__byteOffsetOfThisComponent = bufferView!.byteOffsetInBuffer;
+          // const bufferView = Component.takeBufferView(
+          //   bufferUse,
+          //   componentClass,
+          //   byteLengthSumOfMembers.get(bufferUse)!,
+          //   count
+          // );
+          // that.__byteOffsetOfThisComponent = bufferView!.byteOffsetInBuffer;
         }
       }
 

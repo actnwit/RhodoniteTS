@@ -11,7 +11,7 @@ function succeedIfValueEven(val: number): IResult<number, number> {
   }
 }
 
-test(`Result.${Ok.prototype.match.name}`, () => {
+test(`Result.match`, () => {
   const result0 = succeedIfValueEven(0);
   const result1 = succeedIfValueEven(1);
   let result = '';
@@ -44,24 +44,24 @@ test(`Result.${Ok.prototype.match.name}`, () => {
   });
 });
 
-test(`Result.${Ok.prototype.unwrap.name}`, () => {
+test(`Result.unwrap`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(
-    result0.unwrap((err: RnError<number>) => {
-      expect(true).toBe(false); // If here come, this is wrong behavior.
-    })
-  ).toBe(0);
+  const value0 = result0.unwrap((err: RnError<number>) => {
+    expect(true).toBe(false); // If here come, this is wrong behavior.
+  });
+  expect(value0).toBe(0);
+
   const result1 = succeedIfValueEven(1);
-  expect(
-    result1.unwrap((err: RnError<number>) => {
-      expect(err.message).toBe('Error');
-    })
-  ).toBeUndefined();
+  const value1 = result1.unwrap((err: RnError<number>) => {
+    expect(err.message).toBe('Error');
+  });
+  expect(value1).toBeUndefined();
 });
 
-test(`Result.${Ok.prototype.unwrapForce.name}`, () => {
+test(`Result.unwrapForce`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(result0.unwrapForce()).toBe(0);
+  const value0 = result0.unwrapForce();
+  expect(value0).toBe(0);
 
   const result1 = succeedIfValueEven(1);
   expect(() => {
@@ -80,12 +80,12 @@ test(`Result.${Ok.prototype.unwrapForce.name}`, () => {
   }
 });
 
-test(`Result.${Ok.prototype.isOk.name}`, () => {
+test(`Result.isOk`, () => {
   const result0 = succeedIfValueEven(0);
   expect(result0.isOk()).toBe(true);
 });
 
-test(`${Ok.name}.${Ok.prototype.then.name}, ${Ok.name}.${Ok.prototype.catch.name}, ${Finalizer.name}.${Finalizer.prototype.finally.name}`, () => {
+test(`Ok.then, Ok.catch, Finalizer.finally`, () => {
   {
     const result0 = succeedIfValueEven(0);
     const finalizerOfThen = result0.then((val: number) => {
