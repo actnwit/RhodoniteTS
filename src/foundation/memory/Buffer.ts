@@ -116,15 +116,15 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__
     byteOffset: Byte;
   }): IResult<BufferView, undefined> {
     const byteSizeToTake = byteLengthToNeed;
-//     if (byteSizeToTake + byteOffset > this.byteLength) {
-//       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
-// Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-// byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
-//       return new Err({
-//         message,
-//         error: undefined,
-//       });
-//     }
+    if (byteSizeToTake + byteOffset > this.byteLength) {
+      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
 
     const bufferView = new BufferView({
       buffer: this,

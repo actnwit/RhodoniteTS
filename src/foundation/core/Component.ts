@@ -383,15 +383,9 @@ export class Component extends RnObject {
     const accessors = this.__accessors.get(componentClass)!;
 
     if (!accessors.has(memberName)) {
-      const bufferViews = this.__bufferViews.get(componentClass)!;
-
       const bytes =
         compositionType.getNumberOfComponents() *
         componentType.getSizeInBytes();
-      let alignedBytes = bytes;
-      if (bytes % 16 !== 0) {
-        alignedBytes += bytes % 16 === 0 ? 0 : 16 - (bytes % 16);
-      }
       const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
       const bufferView = buffer
         .takeBufferView({
