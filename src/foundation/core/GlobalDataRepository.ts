@@ -331,7 +331,7 @@ export class GlobalDataRepository {
       count: maxCount,
       byteStride: alignedByteLength,
       arrayLength: maxArrayLength,
-    });
+    }).unwrapForce();
 
     const globalPropertyStruct: GlobalPropertyStruct = {
       shaderSemanticsInfo: semanticInfo,

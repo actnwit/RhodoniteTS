@@ -650,7 +650,7 @@ export class ModelConverter {
             const attributeRnAccessor = this.__getRnAccessor(
               rnm2attribute,
               rnBufferView
-            );
+            ).unwrapForce();
             if (Is.exist(rnm2attribute.sparse)) {
               this.setSparseAccessor(rnm2attribute, attributeRnAccessor);
             }
@@ -1867,7 +1867,7 @@ export class ModelConverter {
       max: accessor.max,
       min: accessor.min,
       normalized: accessor.normalized,
-    });
+    }).unwrapForce();
 
     return rnAccessor;
   }
@@ -1889,7 +1889,7 @@ export class ModelConverter {
       max: srcRnAccessor.max,
       min: srcRnAccessor.min,
       normalized: srcRnAccessor.normalized,
-    });
+    }).unwrapForce();
 
     dstRnAccessor.copyBuffer(srcRnAccessor);
 
@@ -1916,7 +1916,7 @@ export class ModelConverter {
       max: accessor.max,
       min: accessor.min,
       normalized: accessor.normalized,
-    });
+    }).unwrapForce();
 
     return rnAccessor;
   }

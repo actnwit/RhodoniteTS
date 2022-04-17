@@ -1095,7 +1095,7 @@ export class Material extends RnObject {
         count: count,
         byteStride: alignedByte,
         arrayLength: maxArrayLength,
-      });
+      }).unwrapForce();
 
       const propertyIndex = this._getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {
