@@ -108,11 +108,11 @@ export class Buffer {
     byteStride: Byte;
     byteOffset: Byte;
   }): IResult<BufferView, undefined> {
-//     if (byteLengthToNeed + this.__takenBytesIndex > this.byteLength) {
+    const byteSizeToTake = byteLengthToNeed;
+//     if (byteSizeToTake + byteOffset > this.byteLength) {
 //       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
 // Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
 // byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
-//       // console.error(message);
 //       return new Err({
 //         message,
 //         error: undefined,
