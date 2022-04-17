@@ -30,6 +30,7 @@ import {RenderPass} from '../renderer/RenderPass';
 import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import {WebXRSystem} from '../..';
+import { GlobalMemoryMeta } from '../core/GlobalMemoryMeta';
 
 declare const spector: any;
 
@@ -318,6 +319,7 @@ export class System {
       CGAPIResourceRepository.getWebGLResourceRepository();
     Config.eventTargetDom = desc.canvas;
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+
     MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: Is.exist(desc.memoryUsageOrder)
         ? desc.memoryUsageOrder.cpuGeneric
@@ -329,6 +331,9 @@ export class System {
         ? desc.memoryUsageOrder.gpuVertexData
         : 0.6,
     });
+
+    GlobalMemoryMeta.setupMetaBuffer();
+
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);
 

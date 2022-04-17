@@ -5,6 +5,7 @@ import {MiscUtil} from '../misc';
 let maxEntityNumber = 5000;
 let maxLightNumberInShader = 4;
 let maxVertexMorphNumberInShader = 41;
+let maxMaterialTypeNumber = 50;
 let maxMaterialInstanceForEachType = 500;
 let maxSkeletonNumber = 33;
 let maxCameraNumber = 20;
@@ -34,6 +35,7 @@ export const Config = {
   maxEntityNumber,
   maxLightNumberInShader,
   maxVertexMorphNumberInShader,
+  maxMaterialTypeNumber,
   maxMaterialInstanceForEachType,
   boneDataType,
   maxSkeletonNumber,

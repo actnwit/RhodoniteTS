@@ -990,6 +990,12 @@ export class Material extends RnObject {
     }
   }
 
+  static getTheNumberOfPropertiesOfTheMaterialType(materialTypeName: string, propertyIndex: Index) {
+    const properties = this.__accessors.get(materialTypeName);
+    const propertyNumber = Array.from(properties!.keys()).length;
+    return propertyNumber;
+  }
+
   // static getAccessorOfMemberOfMaterial(
   //   materialTypeName: string,
   //   propertyIndex: Index
