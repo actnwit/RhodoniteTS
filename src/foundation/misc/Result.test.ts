@@ -46,22 +46,22 @@ test(`Result.match`, () => {
 
 test(`Result.unwrap`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(
-    result0.unwrap((err: RnError<number>) => {
-      expect(true).toBe(false); // If here come, this is wrong behavior.
-    })
-  ).toBe(0);
+  const value0 = result0.unwrap((err: RnError<number>) => {
+    expect(true).toBe(false); // If here come, this is wrong behavior.
+  });
+  expect(value0).toBe(0);
+
   const result1 = succeedIfValueEven(1);
-  expect(
-    result1.unwrap((err: RnError<number>) => {
-      expect(err.message).toBe('Error');
-    })
-  ).toBeUndefined();
+  const value1 = result1.unwrap((err: RnError<number>) => {
+    expect(err.message).toBe('Error');
+  });
+  expect(value1).toBeUndefined();
 });
 
 test(`Result.unwrapForce`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(result0.unwrapForce()).toBe(0);
+  const value0 = result0.unwrapForce();
+  expect(value0).toBe(0);
 
   const result1 = succeedIfValueEven(1);
   expect(() => {
