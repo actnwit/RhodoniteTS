@@ -116,25 +116,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
 
       int basePosIn16bytes = u_dataTextureMorphOffsetPosition[i] + (scalar_idx - posIn4bytes)/4;
 
-      vec3 addPos = vec3(0.0);
-      if (posIn4bytes == 0) {
-        vec4 val = fetchElement(basePosIn16bytes);
-        addPos = val.xyz;
-      } else if (posIn4bytes == 1) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        addPos = vec3(val0.yzw);
-      } else if (posIn4bytes == 2) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        vec4 val1 = fetchElement(basePosIn16bytes+1);
-        addPos = vec3(val0.zw, val1.x);
-      } else if (posIn4bytes == 3) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        vec4 val1 = fetchElement(basePosIn16bytes+1);
-        addPos = vec3(val0.w, val1.xy);
-      }
-
-      // int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
-      // vec3 addPos = fetchElement(index).xyz;
+      vec3 addPos = fetchVec3No16BytesAligned(basePosIn16bytes * 4);
 
       position += addPos * u_morphWeights[i];
       if (i == u_morphTargetNumber-1) {
