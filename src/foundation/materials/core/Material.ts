@@ -1089,13 +1089,15 @@ export class Material extends RnObject {
       ) {
         maxArrayLength = 100;
       }
-      const accessor = bufferView!.takeAccessor({
-        compositionType: semanticInfo.compositionType,
-        componentType: ComponentType.Float,
-        count: count,
-        byteStride: alignedByte,
-        arrayLength: maxArrayLength,
-      }).unwrapForce();
+      const accessor = bufferView!
+        .takeAccessor({
+          compositionType: semanticInfo.compositionType,
+          componentType: ComponentType.Float,
+          count: count,
+          byteStride: alignedByte,
+          arrayLength: maxArrayLength,
+        })
+        .unwrapForce();
 
       const propertyIndex = this._getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {

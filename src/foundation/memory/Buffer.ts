@@ -1,4 +1,4 @@
-import { BufferView } from './BufferView';
+import {BufferView} from './BufferView';
 import {Byte, TypedArray} from '../../types/CommonTypes';
 import {
   CompositionType,
@@ -9,8 +9,8 @@ import {
   ComponentTypeEnum,
 } from '../../foundation/definitions/ComponentType';
 
-import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok, IResult, MiscUtil } from '../misc';
+import {DataUtil} from '../misc/DataUtil';
+import {Err, Ok, IResult} from '../misc';
 
 export class Buffer {
   private __byteLength: Byte = 0;
@@ -75,7 +75,7 @@ export class Buffer {
     // const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
     // const byteSizeToTake = byteLengthToNeed + paddingBytes;
-    let byteSizeToTake = byteLengthToNeed;
+    const byteSizeToTake = byteLengthToNeed;
     // byteSizeToTake = DataUtil.addPaddingBytes(byteSizeToTake, this.__byteAlign);
 
     if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
