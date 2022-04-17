@@ -22,12 +22,14 @@ let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
 
-if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
-  maxMaterialInstanceForEachType = 28;
-  maxVertexMorphNumberInShader = 4;
-  maxSkeletonNumber = 32;
-  dataTextureWidth = 2 ** 9;
-  dataTextureHeight = 2 ** 9;
+if (typeof navigator !== 'undefined') {
+  if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
+    maxMaterialInstanceForEachType = 28;
+    maxVertexMorphNumberInShader = 4;
+    maxSkeletonNumber = 32;
+    dataTextureWidth = 2 ** 9;
+    dataTextureHeight = 2 ** 9;
+  }
 }
 
 export const Config = {
