@@ -75,15 +75,15 @@ export class Buffer {
     const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
     const byteSizeToTake = byteLengthToNeed + paddingBytes;
-    if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
-      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
-Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
-      return new Err({
-        message,
-        error: undefined,
-      });
-    }
+//     if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
+//       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+// Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+// byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+//       return new Err({
+//         message,
+//         error: undefined,
+//       });
+//     }
 
     const bufferView = new BufferView({
       buffer: this,
@@ -108,17 +108,16 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__
     byteStride: Byte;
     byteOffset: Byte;
   }): IResult<BufferView, undefined> {
-
-    if (byteLengthToNeed + this.__takenBytesIndex > this.byteLength) {
-      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
-Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
-      // console.error(message);
-      return new Err({
-        message,
-        error: undefined,
-      });
-    }
+//     if (byteLengthToNeed + this.__takenBytesIndex > this.byteLength) {
+//       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+// Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+// byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+//       // console.error(message);
+//       return new Err({
+//         message,
+//         error: undefined,
+//       });
+//     }
 
     const bufferView = new BufferView({
       buffer: this,
