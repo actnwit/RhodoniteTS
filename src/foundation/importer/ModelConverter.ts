@@ -642,10 +642,12 @@ export class ModelConverter {
                 rnBufferViewMap.set(rnm2attribute.bufferView, rnBufferView);
               }
             } else {
-              rnBufferView = rnBuffer.takeBufferView({
-                byteLengthToNeed: 0,
-                byteStride: 0,
-              }).unwrapForce();
+              rnBufferView = rnBuffer
+                .takeBufferView({
+                  byteLengthToNeed: 0,
+                  byteStride: 0,
+                })
+                .unwrapForce();
             }
             const attributeRnAccessor = this.__getRnAccessor(
               rnm2attribute,
@@ -1852,22 +1854,26 @@ export class ModelConverter {
     rnBuffer: Buffer
   ) {
     const gltfBufferView = accessor.bufferViewObject!;
-    const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
-      byteLengthToNeed: gltfBufferView.byteLength,
-      byteStride: gltfBufferView.byteStride ?? 0,
-      byteOffset: gltfBufferView.byteOffset ?? 0,
-    }).unwrapForce();
+    const rnBufferView = rnBuffer
+      .takeBufferViewWithByteOffset({
+        byteLengthToNeed: gltfBufferView.byteLength,
+        byteStride: gltfBufferView.byteStride ?? 0,
+        byteOffset: gltfBufferView.byteOffset ?? 0,
+      })
+      .unwrapForce();
 
-    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: accessor.count,
-      byteOffsetInBufferView: accessor.byteOffset ?? 0,
-      byteStride: accessor.byteStride,
-      max: accessor.max,
-      min: accessor.min,
-      normalized: accessor.normalized,
-    }).unwrapForce();
+    const rnAccessor = rnBufferView
+      .takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteOffsetInBufferView: accessor.byteOffset ?? 0,
+        byteStride: accessor.byteStride,
+        max: accessor.max,
+        min: accessor.min,
+        normalized: accessor.normalized,
+      })
+      .unwrapForce();
 
     return rnAccessor;
   }
@@ -1877,19 +1883,23 @@ export class ModelConverter {
     const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(
       BufferUse.GPUVertexData
     );
-    const dstRnBufferView = dstRnBuffer.takeBufferView({
-      byteLengthToNeed: byteSize,
-      byteStride: 3 /* vec4 */ * 4 /* bytes */,
-    }).unwrapForce();
+    const dstRnBufferView = dstRnBuffer
+      .takeBufferView({
+        byteLengthToNeed: byteSize,
+        byteStride: 3 /* vec4 */ * 4 /* bytes */,
+      })
+      .unwrapForce();
 
-    const dstRnAccessor = dstRnBufferView.takeAccessor({
-      compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
-      count: srcRnAccessor.elementCount,
-      max: srcRnAccessor.max,
-      min: srcRnAccessor.min,
-      normalized: srcRnAccessor.normalized,
-    }).unwrapForce();
+    const dstRnAccessor = dstRnBufferView
+      .takeAccessor({
+        compositionType: CompositionType.Vec3,
+        componentType: ComponentType.Float,
+        count: srcRnAccessor.elementCount,
+        max: srcRnAccessor.max,
+        min: srcRnAccessor.min,
+        normalized: srcRnAccessor.normalized,
+      })
+      .unwrapForce();
 
     dstRnAccessor.copyBuffer(srcRnAccessor);
 
@@ -1902,21 +1912,25 @@ export class ModelConverter {
     compositionNum: Count,
     rnBuffer: Buffer
   ) {
-    const rnBufferView = rnBuffer.takeBufferView({
-      byteLengthToNeed: numOfAttributes * compositionNum * 4,
-      byteStride: 0,
-    }).unwrapForce();
+    const rnBufferView = rnBuffer
+      .takeBufferView({
+        byteLengthToNeed: numOfAttributes * compositionNum * 4,
+        byteStride: 0,
+      })
+      .unwrapForce();
 
-    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: numOfAttributes,
-      byteStride: accessor.byteStride,
-      byteOffsetInBufferView: accessor.byteOffset ?? 0,
-      max: accessor.max,
-      min: accessor.min,
-      normalized: accessor.normalized,
-    }).unwrapForce();
+    const rnAccessor = rnBufferView
+      .takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: numOfAttributes,
+        byteStride: accessor.byteStride,
+        byteOffsetInBufferView: accessor.byteOffset ?? 0,
+        max: accessor.max,
+        min: accessor.min,
+        normalized: accessor.normalized,
+      })
+      .unwrapForce();
 
     return rnAccessor;
   }
@@ -1925,11 +1939,13 @@ export class ModelConverter {
     rnm2bufferView: RnM2BufferView,
     rnBuffer: Buffer
   ) {
-    const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
-      byteLengthToNeed: rnm2bufferView.byteLength,
-      byteStride: rnm2bufferView.byteStride ?? 0,
-      byteOffset: rnm2bufferView.byteOffset ?? 0,
-    }).unwrapForce();
+    const rnBufferView = rnBuffer
+      .takeBufferViewWithByteOffset({
+        byteLengthToNeed: rnm2bufferView.byteLength,
+        byteStride: rnm2bufferView.byteStride ?? 0,
+        byteOffset: rnm2bufferView.byteOffset ?? 0,
+      })
+      .unwrapForce();
 
     return rnBufferView;
   }
