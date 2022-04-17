@@ -404,7 +404,7 @@ export class Component extends RnObject {
           compositionType,
           componentType,
           count: count,
-          byteStride: alignedBytes,
+          byteStride: bytes,
         })
         .unwrapForce();
       accessors.set(memberName, accessor);

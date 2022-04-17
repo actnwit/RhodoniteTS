@@ -10,7 +10,7 @@ import {
 } from '../../foundation/definitions/ComponentType';
 
 import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok, IResult } from '../misc';
+import { Err, Ok, IResult, MiscUtil } from '../misc';
 
 export class Buffer {
   private __byteLength: Byte = 0;
@@ -72,18 +72,22 @@ export class Buffer {
     byteStride: Byte;
   }): IResult<BufferView, undefined> {
     const byteAlign = this.__byteAlign;
-    const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
+    // const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
-    const byteSizeToTake = byteLengthToNeed + paddingBytes;
-//     if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
-//       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
-// Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-// byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
-//       return new Err({
-//         message,
-//         error: undefined,
-//       });
-//     }
+    // const byteSizeToTake = byteLengthToNeed + paddingBytes;
+    let byteSizeToTake = byteLengthToNeed;
+    // byteSizeToTake = DataUtil.addPaddingBytes(byteSizeToTake, this.__byteAlign);
+
+    if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
+      const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
+Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
+byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
+      // console.error(message);
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
 
     const bufferView = new BufferView({
       buffer: this,
@@ -93,7 +97,10 @@ export class Buffer {
       raw: this.__raw,
     });
     this.__takenBytesIndex += byteSizeToTake;
-
+    // this.__takenBytesIndex = DataUtil.addPaddingBytes(
+    //   this.__takenBytesIndex,
+    //   this.__byteAlign
+    // );
     this.__bufferViews.push(bufferView);
 
     return new Ok(bufferView);

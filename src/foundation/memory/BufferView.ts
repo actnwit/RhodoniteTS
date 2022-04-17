@@ -186,15 +186,16 @@ export class BufferView {
         arrayLength;
     }
 
-//     if (this.__takenByte + actualByteStride * count > this.byteLength) {
-//       const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
-// BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
-// byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
-//       return new Err({
-//         message,
-//         error: undefined,
-//       });
-//     }
+    if (this.__takenByte + actualByteStride * count > this.byteLength) {
+      const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
+      // console.error(message);
+      return new Err({
+        message,
+        error: undefined,
+      });
+    }
 
     const accessor = new Accessor({
       bufferView: this,
