@@ -45,7 +45,7 @@ vec2 fetchVec2No16BytesAligned(int scalar_idx) {
   int posIn4bytes = int(mod(float(scalar_idx), 4.0));
 #endif
 
-  int basePosIn16bytes = scalar_idx*4 - posIn4bytes;
+  int basePosIn16bytes = (scalar_idx - posIn4bytes) / 4;
   if (posIn4bytes == 0) {
     vec4 val = fetchElement(basePosIn16bytes);
     return val.xy;
@@ -70,7 +70,7 @@ vec3 fetchVec3No16BytesAligned(int scalar_idx) {
   int posIn4bytes = int(mod(float(scalar_idx), 4.0));
 #endif
 
-  int basePosIn16bytes = scalar_idx*4 - posIn4bytes;
+  int basePosIn16bytes = (scalar_idx - posIn4bytes) / 4;
   if (posIn4bytes == 0) {
     vec4 val = fetchElement(basePosIn16bytes);
     return val.xyz;
@@ -127,7 +127,7 @@ mat3 fetchMat3No16BytesAligned(int scalar_idx) {
   int posIn4bytes = int(mod(float(scalar_idx), 4.0));
 #endif
 
-  int basePosIn16bytes = scalar_idx*4 - posIn4bytes;
+  int basePosIn16bytes = (scalar_idx - posIn4bytes) / 4;
   if (posIn4bytes == 0) {
     vec4 col0 = fetchElement(basePosIn16bytes);
     vec4 col1 = fetchElement(basePosIn16bytes + 1);
