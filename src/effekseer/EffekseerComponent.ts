@@ -43,7 +43,7 @@ export class EffekseerComponent extends Component {
   private __context?: effekseer.EffekseerContext;
   private __handle?: effekseer.EffekseerHandle;
   private __speed = 1;
-  private __timer?: unknown;
+  private __timer?: any;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
@@ -97,6 +97,11 @@ export class EffekseerComponent extends Component {
       this.__handle.setRandomSeed(this.randomSeed);
     }
 
+    if (this.isLoop) {
+      this.__timer = setTimeout(() => {
+        this.play();
+      }, 500);
+    }
     return true;
   }
 
@@ -107,12 +112,15 @@ export class EffekseerComponent extends Component {
   pause() {
     if (Is.exist(this.__handle)) {
       this.isPause = true;
+      clearInterval(this.__timer!);
     }
   }
 
   stop() {
     if (Is.exist(this.__handle)) {
       this.__handle.stop();
+      this.isPause = true;
+      clearInterval(this.__timer!);
     }
   }
 
@@ -222,13 +230,7 @@ export class EffekseerComponent extends Component {
 
     const onLoad = () => {
       if (this.playJustAfterLoaded) {
-        if (this.isLoop) {
-          this.__timer = setInterval(() => {
-            this.play();
-          }, 500);
-        } else {
-          this.play();
-        }
+        this.play();
         this.moveStageTo(ProcessStage.Logic);
       }
     };
@@ -288,7 +290,7 @@ export class EffekseerComponent extends Component {
   $logic() {
     if (!this.isPause) {
       // Playing ...
-      if (Is.exist(this.__context)) {
+      if (Is.exist(this.__context) && Is.false(this.isPause)) {
         this.__context.update();
       }
     }
