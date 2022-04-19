@@ -59,18 +59,21 @@ import {createEffekseer} from './Gltf2ExporterEffekseer';
 import {Vector4} from '../math/Vector4';
 import {Tag} from '../core/RnObject';
 import {Primitive} from '../geometry';
+import { Ok } from '../misc';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
 export const GLTF2_EXPORT_GLB = 'glTF-Binary';
 export const GLTF2_EXPORT_DRACO = 'glTF-Draco';
 export const GLTF2_EXPORT_EMBEDDED = 'glTF-Embedded';
+export const GLTF2_EXPORT_NO_DOWNLOAD= 'No-Download';
 
 export type Gltf2ExportType =
   | typeof GLTF2_EXPORT_GLTF
   | typeof GLTF2_EXPORT_GLB
   | typeof GLTF2_EXPORT_DRACO
-  | typeof GLTF2_EXPORT_EMBEDDED;
+  | typeof GLTF2_EXPORT_EMBEDDED
+  | typeof GLTF2_EXPORT_NO_DOWNLOAD;
 export interface Gltf2ExporterArguments {
   entities?: ISceneGraphEntity[]; // The target entities. This exporter includes their descendants for the output.
   type: Gltf2ExportType;
@@ -117,11 +120,15 @@ export class Gltf2Exporter {
 
     this.__deleteEmptyArrays(json);
 
+    const glbArrayBuffer = generateGlbArrayBuffer(json, arraybuffer);
+
     if (option.type === GLTF2_EXPORT_GLB) {
-      this.__downloadGlb(json, fileName, arraybuffer);
+      this.__downloadGlb(json, fileName, glbArrayBuffer);
     } else if (option.type === GLTF2_EXPORT_GLTF) {
       this.__downloadGltf(json, fileName, arraybuffer);
     }
+
+    return glbArrayBuffer;
   }
 
   private static __deleteEmptyArrays(json: Gltf2Ex) {
@@ -729,60 +736,20 @@ export class Gltf2Exporter {
     arraybuffer: ArrayBuffer
   ): void {
     {
-      const headerBytes = 12; // 12byte-header
-
-      // .glb file
-      delete json.buffers![0].uri;
-      let jsonStr = JSON.stringify(json, null, 2);
-      let jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
-      const paddingBytes = DataUtil.calcPaddingBytes(
-        jsonArrayBuffer.byteLength,
-        4
-      );
-      if (paddingBytes > 0) {
-        for (let i = 0; i < paddingBytes; i++) {
-          jsonStr += ' ';
-        }
-        jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
-      }
-      const jsonChunkLength = jsonArrayBuffer.byteLength;
-      const headerAndChunk0 = headerBytes + 4 + 4 + jsonChunkLength; // Chunk-0
-      const totalBytes = headerAndChunk0 + 4 + 4 + arraybuffer.byteLength; // Chunk-1
-
-      const glbArrayBuffer = new ArrayBuffer(totalBytes);
-      const dataView = new DataView(glbArrayBuffer);
-      dataView.setUint32(0, 0x46546c67, true);
-      dataView.setUint32(4, 2, true);
-      dataView.setUint32(8, totalBytes, true);
-      dataView.setUint32(12, jsonArrayBuffer.byteLength, true);
-      dataView.setUint32(16, 0x4e4f534a, true);
-
-      DataUtil.copyArrayBufferAs4Bytes({
-        src: jsonArrayBuffer,
-        dist: glbArrayBuffer,
-        srcByteOffset: 0,
-        copyByteLength: jsonArrayBuffer.byteLength,
-        distByteOffset: 20,
-      });
-      DataUtil.copyArrayBufferAs4Bytes({
-        src: arraybuffer,
-        dist: glbArrayBuffer,
-        srcByteOffset: 0,
-        copyByteLength: arraybuffer.byteLength,
-        distByteOffset: 20 + jsonChunkLength + 8,
-      });
-      dataView.setUint32(headerAndChunk0, arraybuffer.byteLength, true);
-      dataView.setUint32(headerAndChunk0 + 4, 0x004e4942, true);
 
       const a = document.createElement('a');
       a.download = filename + '.glb';
-      const blob = new Blob([glbArrayBuffer], {type: 'octet/stream'});
+      const blob = new Blob([arraybuffer], {type: 'octet/stream'});
       const url = URL.createObjectURL(blob);
       a.href = url;
 
       const e = new MouseEvent('click');
       a.dispatchEvent(e);
     }
+  }
+
+  exportGlbAsArrayBuffer() {
+
   }
 
   /**
@@ -818,6 +785,55 @@ export class Gltf2Exporter {
       a.dispatchEvent(e);
     }
   }
+}
+
+function generateGlbArrayBuffer(json: Gltf2, arraybuffer: ArrayBuffer) {
+  const headerBytes = 12; // 12byte-header
+
+
+  // .glb file
+  delete json.buffers![0].uri;
+  let jsonStr = JSON.stringify(json, null, 2);
+  let jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
+  const paddingBytes = DataUtil.calcPaddingBytes(
+    jsonArrayBuffer.byteLength,
+    4
+  );
+  if (paddingBytes > 0) {
+    for (let i = 0; i < paddingBytes; i++) {
+      jsonStr += ' ';
+    }
+    jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
+  }
+  const jsonChunkLength = jsonArrayBuffer.byteLength;
+  const headerAndChunk0 = headerBytes + 4 + 4 + jsonChunkLength; // Chunk-0
+  const totalBytes = headerAndChunk0 + 4 + 4 + arraybuffer.byteLength; // Chunk-1
+
+  const glbArrayBuffer = new ArrayBuffer(totalBytes);
+  const dataView = new DataView(glbArrayBuffer);
+  dataView.setUint32(0, 0x46546c67, true);
+  dataView.setUint32(4, 2, true);
+  dataView.setUint32(8, totalBytes, true);
+  dataView.setUint32(12, jsonArrayBuffer.byteLength, true);
+  dataView.setUint32(16, 0x4e4f534a, true);
+
+  DataUtil.copyArrayBufferAs4Bytes({
+    src: jsonArrayBuffer,
+    dist: glbArrayBuffer,
+    srcByteOffset: 0,
+    copyByteLength: jsonArrayBuffer.byteLength,
+    distByteOffset: 20,
+  });
+  DataUtil.copyArrayBufferAs4Bytes({
+    src: arraybuffer,
+    dist: glbArrayBuffer,
+    srcByteOffset: 0,
+    copyByteLength: arraybuffer.byteLength,
+    distByteOffset: 20 + jsonChunkLength + 8,
+  });
+  dataView.setUint32(headerAndChunk0, arraybuffer.byteLength, true);
+  dataView.setUint32(headerAndChunk0 + 4, 0x004e4942, true);
+  return glbArrayBuffer;
 }
 
 /**
@@ -1536,7 +1552,17 @@ async function handleTextureImage(
   resolve: (v?: ArrayBuffer) => void,
   rejected: (reason?: DOMException) => void
 ) {
-  if (option.type === GLTF2_EXPORT_GLB) {
+  if (option.type === GLTF2_EXPORT_GLTF ) {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      const e = new MouseEvent('click');
+      a.href = URL.createObjectURL(blob!);
+      a.download = glTF2ImageEx.uri!;
+      a.dispatchEvent(e);
+      URL.revokeObjectURL(a.href);
+    }, Math.random() * 5000);
+    resolve();
+  } else {
     const reader = new FileReader();
     reader.addEventListener('load', () => {
       const arrayBuffer = reader.result as ArrayBuffer;
@@ -1554,16 +1580,6 @@ async function handleTextureImage(
       rejected(reader.error as DOMException);
     });
     reader.readAsArrayBuffer(blob);
-  } else {
-    setTimeout(() => {
-      const a = document.createElement('a');
-      const e = new MouseEvent('click');
-      a.href = URL.createObjectURL(blob!);
-      a.download = glTF2ImageEx.uri!;
-      a.dispatchEvent(e);
-      URL.revokeObjectURL(a.href);
-    }, Math.random() * 5000);
-    resolve();
   }
 }
 
