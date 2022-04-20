@@ -1,4 +1,4 @@
-import {RnPromise, CallbackObj} from './RnPromise';
+import {RnPromise, RnPromiseCallbackObj} from './RnPromise';
 
 test('works with RnPromise.all', () => {
   const p1 = RnPromise.resolve(1);
@@ -12,7 +12,7 @@ test('works with RnPromise.all', () => {
 });
 
 test('works with await', async () => {
-  const promise = new RnPromise((onfullfilled, onrejected)=>{
+  const promise = new RnPromise((onfullfilled, onrejected) => {
     onfullfilled(1);
   });
   promise.then(val => {
@@ -87,17 +87,15 @@ test('works with RnPromise[] and RnPromise.all callback', () => {
   const p3 = RnPromise.resolve(3);
 
   let count = 0;
-  const callback = (obj: CallbackObj) => {
+  const callback = (obj: RnPromiseCallbackObj) => {
     // console.log(obj);
     expect(obj.resolvedNum).toEqual(Math.min(++count, 3));
   };
 
-  RnPromise.allWithProgressCallback([p1, p2, p3], callback).then(
-    (results: any) => {
-      expect(results).toEqual([1, 2, 3]);
-      p1.then(() => {});
-    }
-  );
+  RnPromise.all([p1, p2, p3], callback).then((results: any) => {
+    expect(results).toEqual([1, 2, 3]);
+    p1.then(() => {});
+  });
 });
 
 test('does not works with Promise[] and RnPromise.all callback', () => {
@@ -106,16 +104,14 @@ test('does not works with Promise[] and RnPromise.all callback', () => {
   const p3 = Promise.resolve(3);
 
   let count = 0;
-  const callback = (obj: CallbackObj) => {
+  const callback = (obj: RnPromiseCallbackObj) => {
     // this callback won't be called
     console.log(obj);
     expect(obj.resolvedNum).toEqual(Math.min(++count, 3));
   };
 
-  RnPromise.allWithProgressCallback([p1, p2, p3], callback).then(
-    (results: any) => {
-      expect(results).toEqual([1, 2, 3]);
-      p1.then(() => {});
-    }
-  );
+  RnPromise.all([p1, p2, p3], callback).then((results: any) => {
+    expect(results).toEqual([1, 2, 3]);
+    p1.then(() => {});
+  });
 });
