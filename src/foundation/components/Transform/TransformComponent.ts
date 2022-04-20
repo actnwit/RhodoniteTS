@@ -612,7 +612,7 @@ export class TransformComponent extends Component {
   }
 
   get rotateMatrix44() {
-    return new Matrix44(this.quaternion);
+    return Matrix44.fromQuaternion(this.quaternion);
   }
 
   $logic() {

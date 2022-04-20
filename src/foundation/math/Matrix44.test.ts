@@ -12,9 +12,9 @@ test('Test isEqual', () => {
 
 test('Make Matrix44 from MutableMatrix44 (1)', () => {
   const a = new MutableMatrix44(1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  const b = new Matrix44(a);
+  const b = Matrix44.fromCopyMatrix(a);
 
-  expect(a.m03).toBe(1);
+  expect(b.m03).toBe(1);
 });
 test('Make Matrix44 from MutableMatrix44 (2)', () => {
   const a = new MutableMatrix44(
@@ -36,9 +36,9 @@ test('Make Matrix44 from MutableMatrix44 (2)', () => {
     1,
     true
   );
-  const b = new Matrix44(a);
+  const b = Matrix44.fromCopyMatrix(a);
 
-  expect(a.m03).toBe(0);
+  expect(b.m03).toBe(0);
 });
 
 test('Make Matrix44 from MutableMatrix44 (3)', () => {
@@ -61,9 +61,9 @@ test('Make Matrix44 from MutableMatrix44 (3)', () => {
     1,
     true
   );
-  const b = new Matrix44(a);
+  const b = Matrix44.fromCopyMatrix(a);
 
-  expect(a.m03).toBe(0);
+  expect(b.m03).toBe(0);
 });
 
 test('Make Matrix44 from MutableMatrix44 (4)', () => {
@@ -86,7 +86,7 @@ test('Make Matrix44 from MutableMatrix44 (4)', () => {
     1,
     true
   );
-  const b = new Matrix44(a, true);
+  const b = Matrix44.fromCopyMatrix(a);
 
-  expect(a.m03).toBe(0);
+  expect(b.m03).toBe(0);
 });
