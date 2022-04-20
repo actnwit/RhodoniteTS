@@ -24,7 +24,6 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   constructor(m: Array<number>, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: Matrix44, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(m: Quaternion, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
@@ -119,24 +118,6 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
         this._v[2] = v[2]; this._v[6] = v[5]; this._v[10] = v[8]; this._v[14] = 0;
         this._v[3] = 0; this._v[7] = 0; this._v[11] = 0; this._v[15] = 1;
       }
-    } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className.indexOf('Quaternion') !== -1) {
-      this._v = new FloatArray(16);
-
-      const sx = m._v[0] * m._v[0];
-      const sy = m._v[1] * m._v[1];
-      const sz = m._v[2] * m._v[2];
-      const cx = m._v[1] * m._v[2];
-      const cy = m._v[0] * m._v[2];
-      const cz = m._v[0] * m._v[1];
-      const wx = m._v[3] * m._v[0];
-      const wy = m._v[3] * m._v[1];
-      const wz = m._v[3] * m._v[2];
-
-      this._v[0] = 1.0 - 2.0 * (sy + sz); this._v[4] = 2.0 * (cz - wz); this._v[8] = 2.0 * (cy + wy); this._v[12] = 0;
-      this._v[1] = 2.0 * (cz + wz); this._v[5] = 1.0 - 2.0 * (sx + sz); this._v[9] = 2.0 * (cx - wx); this._v[13] = 0;
-      this._v[2] = 2.0 * (cy - wy); this._v[6] = 2.0 * (cx + wx); this._v[10] = 1.0 - 2.0 * (sx + sy); this._v[14] = 0;
-      this._v[3] = 0; this._v[7] = 0; this._v[11] = 0; this._v[15] = 1;
-
     } else {
       this._v = new FloatArray(16);
       this._v[0] = 1; this._v[4] = 0; this._v[8] = 0; this._v[12] = 0;
@@ -845,5 +826,24 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const quat = Quaternion.fromMatrix(this);
     const rotateMat = new (this.constructor as any)(quat) as Matrix44;
     return rotateMat;
+  }
+
+  static fromQuaternion(q: Quaternion) {
+      const sx = q._v[0] * q._v[0];
+      const sy = q._v[1] * q._v[1];
+      const sz = q._v[2] * q._v[2];
+      const cx = q._v[1] * q._v[2];
+      const cy = q._v[0] * q._v[2];
+      const cz = q._v[0] * q._v[1];
+      const wx = q._v[3] * q._v[0];
+      const wy = q._v[3] * q._v[1];
+      const wz = q._v[3] * q._v[2];
+      const v = new Float32Array(16)
+      v[0] = 1.0 - 2.0 * (sy + sz); v[4] = 2.0 * (cz - wz); v[8] = 2.0 * (cy + wy); v[12] = 0;
+      v[1] = 2.0 * (cz + wz); v[5] = 1.0 - 2.0 * (sx + sz); v[9] = 2.0 * (cx - wx); v[13] = 0;
+      v[2] = 2.0 * (cy - wy); v[6] = 2.0 * (cx + wx); v[10] = 1.0 - 2.0 * (sx + sy); v[14] = 0;
+      v[3] = 0; v[7] = 0; v[11] = 0; v[15] = 1;
+
+    return new Matrix44(v, true, true);
   }
 }
