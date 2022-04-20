@@ -1,6 +1,6 @@
 import {DataUtil} from '../misc/DataUtil';
 import {RnM2, RnM2Image, RnM2Accessor} from '../../types/RnM2';
-import {RnPromise} from '../misc/RnPromise';
+import {RnPromise, RnPromiseCallback} from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
@@ -198,7 +198,8 @@ export class Gltf2Importer {
     gltfJson: RnM2,
     fileArrayBuffers: GltfFileBuffers,
     options: GltfLoadOption,
-    uri?: string
+    uri?: string,
+    callback?: RnPromiseCallback
   ): Promise<RnM2> {
     const basePath = uri?.substring(0, uri?.lastIndexOf('/')) + '/'; // location of model file as basePath
     if (gltfJson.asset.extras === undefined) {
@@ -217,7 +218,8 @@ export class Gltf2Importer {
         fileArrayBuffers,
         options,
         undefined,
-        basePath
+        basePath,
+        callback
       );
     } catch (err) {
       console.log('this._loadInner error in _loadAsTextJson', err);
@@ -230,24 +232,25 @@ export class Gltf2Importer {
     files: GltfFileBuffers,
     options: GltfLoadOption,
     uint8array?: Uint8Array,
-    basePath?: string
-  ) {
+    basePath?: string,
+    callback?: RnPromiseCallback
+  ): RnPromise<any[]> {
     const promises = [];
 
     // Load resources to above resources object.
     promises.push(
-      this._loadResources(uint8array!, gltfJson, files, options, basePath)
+      this._loadResources(uint8array!, gltfJson, files, options, basePath, callback)
     );
 
     // Parse glTF JSON
     promises.push(
-      new Promise(resolve => {
+      new RnPromise(resolve => {
         this._loadJsonContent(gltfJson);
         resolve();
-      }) as Promise<void>
+      }) as RnPromise<void>
     );
 
-    return Promise.all(promises);
+    return RnPromise.all(promises);
   }
 
   static _loadJsonContent(gltfJson: RnM2) {
@@ -589,7 +592,8 @@ export class Gltf2Importer {
     gltfJson: RnM2,
     files: GltfFileBuffers,
     options: GltfLoadOption,
-    basePath?: string
+    basePath?: string,
+    callback?: RnPromiseCallback
   ) {
     const promisesToLoadResources = [];
 
@@ -738,7 +742,7 @@ export class Gltf2Importer {
       }
     }
 
-    return Promise.all(promisesToLoadResources).catch(err => {
+    return RnPromise.all(promisesToLoadResources, callback).catch((err: any) => {
       console.log('Promise.all error', err);
     });
   }
@@ -778,10 +782,10 @@ export class Gltf2Importer {
     imageJson: RnM2Image,
     files: GltfFileBuffers
   ) {
-    let loadImagePromise: Promise<void>;
+    let loadImagePromise: RnPromise<void>;
     if (imageUri.match(/basis$/)) {
       // load basis file from uri
-      loadImagePromise = new Promise(resolve => {
+      loadImagePromise = new RnPromise(resolve => {
         fetch(imageUri, {mode: 'cors'}).then(response => {
           response.arrayBuffer().then(buffer => {
             const uint8Array = new Uint8Array(buffer);
@@ -792,7 +796,7 @@ export class Gltf2Importer {
       });
     } else if (imageJson.uri?.match(/basis$/)) {
       // find basis file from files option
-      loadImagePromise = new Promise(resolve => {
+      loadImagePromise = new RnPromise(resolve => {
         imageJson.basis = new Uint8Array(files[imageJson.uri!]);
         resolve();
       });
@@ -802,7 +806,7 @@ export class Gltf2Importer {
       (imageJson.bufferView != null && imageJson.mimeType === 'image/ktx2')
     ) {
       // load ktx2 file from uri(ktx2 file or data uri) or bufferView
-      loadImagePromise = new Promise(resolve => {
+      loadImagePromise = new RnPromise(resolve => {
         fetch(imageUri, {mode: 'cors'}).then(response => {
           response.arrayBuffer().then(buffer => {
             const uint8Array = new Uint8Array(buffer);
@@ -813,7 +817,7 @@ export class Gltf2Importer {
       });
     } else if (imageJson.uri?.match(/ktx2$/)) {
       // find ktx2 file from files option
-      loadImagePromise = new Promise(resolve => {
+      loadImagePromise = new RnPromise(resolve => {
         imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
         resolve();
       });
@@ -824,7 +828,7 @@ export class Gltf2Importer {
       ).then(image => {
         image.crossOrigin = 'Anonymous';
         imageJson.image = image;
-      });
+      }) as RnPromise<void>;
     }
 
     return loadImagePromise;

@@ -10,6 +10,7 @@ import {
 import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
+import { RnPromise, RnPromiseCallback } from 'rhodonite';
 
 declare let Rn: any;
 
@@ -178,7 +179,8 @@ export class Gltf1Importer {
     gltfJson: glTF1,
     files: GltfFileBuffers,
     options: GltfLoadOption,
-    uri?: string
+    uri?: string,
+    callback?: RnPromiseCallback
   ): Promise<RnM2> {
     const basePath = uri?.substring(0, uri?.lastIndexOf('/')) + '/'; // location of model file as basePath
     if (gltfJson.asset === undefined) {

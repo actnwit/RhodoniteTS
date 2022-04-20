@@ -207,13 +207,14 @@ export class GltfImporter {
             fileName,
             renderPasses,
             options,
-            fileName
+            fileName,
+            callback
           )
         );
       }
     }
 
-    return RnPromise.all(importPromises, callback).then(() => {
+    return RnPromise.all(importPromises).then(() => {
       return renderPasses;
     });
   }
@@ -280,7 +281,8 @@ export class GltfImporter {
     fileName: string,
     renderPasses: RenderPass[],
     options: GltfLoadOption,
-    uri: string
+    uri: string,
+    callback?: RnPromiseCallback
   ) {
     const optionalFileType = options.fileType;
 
@@ -307,7 +309,7 @@ export class GltfImporter {
               importer = Gltf2Importer;
             }
             importer
-              .importGltf(json, options.files!, options, fileName)
+              .importGltf(json, options.files!, options, fileName, callback)
               .then(gltfModel => {
                 const rootGroup =
                   ModelConverter.convertToRhodoniteObject(gltfModel);
@@ -366,7 +368,7 @@ export class GltfImporter {
           console.error('detect invalid format');
           reject();
       }
-    }) as Promise<void>;
+    }) as RnPromise<void>;
   }
 
   private static __getFileTypeFromFilePromise(

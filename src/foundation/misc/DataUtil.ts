@@ -362,8 +362,8 @@ export class DataUtil {
   static createImageFromUri(
     uri: string,
     mimeType: string
-  ): Promise<HTMLImageElement> {
-    return new Promise(resolve => {
+  ): RnPromise<HTMLImageElement> {
+    return new RnPromise(resolve => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
 
