@@ -17,6 +17,7 @@ import {
   ComponentSID,
   EntityUID,
   Array3,
+  Array16,
 } from '../../../types/CommonTypes';
 import {IQuaternion} from '../../math/IQuaternion';
 import {IMatrix44} from '../../math/IMatrix';
@@ -540,7 +541,9 @@ export class TransformComponent extends Component {
         if (key === 'quaternion') {
           this[key] = new Quaternion((json as any)[key] as Array<number>);
         } else if (key === 'matrix') {
-          this[key] = new Matrix44((json as any)[key] as Array<number>);
+          this[key] = Matrix44.fromCopyArray16RowMajor(
+            (json as any)[key] as Array16<number>
+          );
         } else {
           (this as any)[key] = Vector3.fromCopyArray(
             (json as any)[key] as Array3<number>

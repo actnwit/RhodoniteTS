@@ -45,7 +45,7 @@ export class MathClassUtil {
   static arrayToVectorOrMatrix(element: Array<number>) {
     if (Array.isArray(element)) {
       if (typeof element[15] !== 'undefined') {
-        return new Matrix44(element);
+        return Matrix44.fromCopyArrayRowMajor(element);
       } else if (typeof element[8] !== 'undefined') {
         return new Matrix33(element);
       } else if (typeof element[3] !== 'undefined') {
