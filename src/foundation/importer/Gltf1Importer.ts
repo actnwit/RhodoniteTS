@@ -10,7 +10,7 @@ import {
 import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
-import { RnPromise, RnPromiseCallback } from 'rhodonite';
+import { RnPromiseCallback } from '../misc/RnPromise';
 
 declare let Rn: any;
 
