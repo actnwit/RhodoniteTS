@@ -335,7 +335,7 @@ export class ShaderityUtility {
           break;
         case 16:
           checkCompositionNumber(CompositionType.Mat4);
-          initialValue = new MutableMatrix44(
+          initialValue = MutableMatrix44.fromCopy16RowMajor(
             parseFloat(split[0]),
             parseFloat(split[1]),
             parseFloat(split[2]),

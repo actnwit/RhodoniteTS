@@ -46,11 +46,16 @@ describe('SceneGraphComponent', () => {
     // console.log(childEntity.getSceneGraph().worldMatrix);
     // console.log(childEntity.getSceneGraph().worldMatrix);
 
+    console.log(childEntity.getSceneGraph().worldMatrix);
     expect(
       childEntity
         .getSceneGraph()
         .worldMatrix.isEqual(
-          new Matrix44(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
+          Matrix44.fromCopy16RowMajor(
+            1, 0, 0, 3,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1),
           0.00001
         )
     ).toBe(true);

@@ -4,36 +4,24 @@ import {Vector3} from './Vector3';
 
 test('Make MutableMatrix44 from Matrix44 (1)', () => {
   // eslint-disable-next-line prettier/prettier
-  const a = new Matrix44(
+  const a = Matrix44.fromCopy16RowMajor(
     1, 0, 0, 1,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 1);
-  const b = new MutableMatrix44(a);
+  const b = MutableMatrix44.fromCopyMatrix44(a);
 
-  expect(a.m03).toBe(1);
+  expect(b.m03).toBe(1);
 });
 
 test('Make MutableMatrix44 from Matrix44 (2)', () => {
   // eslint-disable-next-line prettier/prettier
-  const a = new Matrix44(
+  const a = Matrix44.fromCopy16ColumnMajor(
     1, 0, 0, 1,
     0, 1, 0, 0,
     0, 0, 1, 0,
-    0, 0, 0, 1, true);
-  const b = new MutableMatrix44(a);
+    0, 0, 0, 1);
+  const b = MutableMatrix44.fromCopyMatrix44(a);
 
-  expect(a.m03).toBe(0);
-});
-
-test('Make MutableMatrix44 from Matrix44 (3)', () => {
-  // eslint-disable-next-line prettier/prettier
-  const a = new Matrix44(
-    1, 0, 0, 1,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1, true);
-  const b = new MutableMatrix44(a, true);
-
-  expect(a.m03).toBe(0);
+  expect(b.m03).toBe(0);
 });
