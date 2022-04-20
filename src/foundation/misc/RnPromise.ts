@@ -1,29 +1,23 @@
-type ResolveArg<T> = T | PromiseLike<T | undefined> | undefined;
 type PromiseFn<T> = (
   resolve: (value: T | PromiseLike<T>) => void,
   reject: (reason?: any) => void
 ) => void;
-type OnFulfilledFn<T> = ((value: T) => T | PromiseLike<T>) | null | undefined;
-type OnRejectedFn<T> = ((reason: any) => PromiseLike<never>) | null | undefined;
 type OnFinallyFn = (() => void) | null | undefined;
 
-type ResolveReturn = {
-  (): Promise<void>;
-  <T>(value: T | PromiseLike<T>): Promise<T>;
-};
-export type CallbackObj = {
+export type RnPromiseCallbackObj = {
   promiseAllNum: number;
   resolvedNum: number;
   rejectedNum: number;
   pendingNum: number;
   processedPromises: any[];
 };
-// export class RnPromise<T> {
+export type RnPromiseCallback = (obj: RnPromiseCallbackObj) => void;
+
 export class RnPromise<T> extends Promise<T> {
   private __promise: Promise<T | undefined>;
   private __callback?: Function;
   public name = '';
-  private __callbackObj: CallbackObj = {
+  private __callbackObj: RnPromiseCallbackObj = {
     promiseAllNum: 0,
     resolvedNum: 0,
     rejectedNum: 0,
@@ -63,27 +57,29 @@ export class RnPromise<T> extends Promise<T> {
     }
   }
 
-  static all(args: any[]) {
-    return new RnPromise(Promise.all(args));
-  }
+  static all(promises: any[], callback?: RnPromiseCallback) {
+    if (callback) {
+      const rnPromises = [];
+      const callbackObj: RnPromiseCallbackObj = {
+        promiseAllNum: promises.length,
+        resolvedNum: 0,
+        rejectedNum: 0,
+        pendingNum: promises.length,
+        processedPromises: [],
+      };
 
-  static allWithProgressCallback(promises: any[], callback: Function) {
-    const rnPromises = [];
-    const callbackObj: CallbackObj = {
-      promiseAllNum: promises.length,
-      resolvedNum: 0,
-      rejectedNum: 0,
-      pendingNum: promises.length,
-      processedPromises: [],
-    };
-
-    for (const promise of promises) {
-      const rnPromise = RnPromise.resolve(promise) as unknown as RnPromise<any>;
-      rnPromise.__callback = callback;
-      rnPromise.__callbackObj = callbackObj;
-      rnPromises.push(rnPromise);
+      for (const promise of promises) {
+        const rnPromise = RnPromise.resolve(
+          promise
+        ) as unknown as RnPromise<any>;
+        rnPromise.__callback = callback;
+        rnPromise.__callbackObj = callbackObj;
+        rnPromises.push(rnPromise);
+      }
+      return new RnPromise(Promise.all(promises as any));
+    } else {
+      return new RnPromise(Promise.all(promises));
     }
-    return new RnPromise(Promise.all(promises as any));
   }
 
   static race(args: any[]) {
