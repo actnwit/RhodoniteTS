@@ -22,6 +22,7 @@ import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
+import { RnPromise, RnPromiseCallback } from '../misc/RnPromise';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -57,7 +58,8 @@ export class GltfImporter {
    */
   static async import(
     uris: string | string[],
-    options?: GltfLoadOption
+    options?: GltfLoadOption,
+    callback?: RnPromiseCallback
   ): Promise<Expression> {
     if (!Array.isArray(uris)) {
       uris = typeof uris === 'string' ? [uris] : [];
@@ -66,7 +68,8 @@ export class GltfImporter {
 
     const renderPasses: RenderPass[] = await this.__importMultipleModelsFromUri(
       uris,
-      options
+      options,
+      callback
     );
 
     if (options && options.cameraComponent) {
@@ -160,8 +163,9 @@ export class GltfImporter {
 
   private static __importMultipleModelsFromUri(
     uris: string[],
-    options: GltfLoadOption
-  ): Promise<RenderPass[]> {
+    options: GltfLoadOption,
+    callback?: RnPromiseCallback
+  ): RnPromise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
     if (renderPasses.length === 0) {
@@ -177,9 +181,9 @@ export class GltfImporter {
       }
     }
 
-    return Promise.all(importPromises).then(() => {
+    return RnPromise.all(importPromises, callback).then(() => {
       return renderPasses;
-    });
+    }) as RnPromise<RenderPass[]>;
   }
 
   private static __importMultipleModelsFromArrayBuffers(
@@ -230,7 +234,7 @@ export class GltfImporter {
     renderPasses: RenderPass[],
     options: GltfLoadOption
   ) {
-    return DataUtil.fetchArrayBuffer(uri).then(arrayBuffer => {
+    return DataUtil.fetchArrayBuffer(uri).then((arrayBuffer: ArrayBuffer) => {
       options.files![uri] = arrayBuffer;
       return this.__importToRenderPassesFromArrayBufferPromise(
         uri,
