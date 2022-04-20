@@ -25,16 +25,15 @@ export class RnPromise<T> extends Promise<T> {
     processedPromises: [],
   };
 
-  constructor(promise: Promise<T>, callback?: Function);
-  constructor(fn: PromiseFn<T>, callback?: Function);
-  constructor(arg: Promise<T> | PromiseFn<T>, callback?: Function) {
+  constructor(promise: Promise<T>);
+  constructor(fn: PromiseFn<T>);
+  constructor(arg: Promise<T> | PromiseFn<T>) {
     super((resolve, reject) => {});
     if (arg instanceof Promise) {
       this.__promise = arg;
     } else {
       this.__promise = new Promise(arg);
     }
-    this.__callback = callback;
   }
 
   static resolve<T>(): Promise<T>;
