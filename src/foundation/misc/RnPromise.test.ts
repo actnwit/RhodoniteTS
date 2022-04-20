@@ -11,6 +11,17 @@ test('works with RnPromise.all', () => {
   });
 });
 
+test('works with await', async () => {
+  const promise = new RnPromise((onfullfilled, onrejected)=>{
+    onfullfilled(1);
+  });
+  promise.then(val => {
+    console.log(val);
+  });
+  const val2 = await promise;
+  console.log(val2);
+});
+
 test('works with Promise.all', () => {
   const p1 = RnPromise.resolve(1);
   const p2 = RnPromise.resolve(2);

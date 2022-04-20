@@ -1,11 +1,16 @@
 type ResolveArg<T> = T | PromiseLike<T | undefined> | undefined;
 type PromiseFn<T> = (
-  resolve: (value: ResolveArg<T>) => void,
+  resolve: (value: T | PromiseLike<T>) => void,
   reject: (reason?: any) => void
 ) => void;
 type OnFulfilledFn<T> = ((value: T) => T | PromiseLike<T>) | null | undefined;
 type OnRejectedFn<T> = ((reason: any) => PromiseLike<never>) | null | undefined;
 type OnFinallyFn = (() => void) | null | undefined;
+
+type ResolveReturn = {
+  (): Promise<void>;
+  <T>(value: T | PromiseLike<T>): Promise<T>;
+};
 export type CallbackObj = {
   promiseAllNum: number;
   resolvedNum: number;
@@ -13,7 +18,8 @@ export type CallbackObj = {
   pendingNum: number;
   processedPromises: any[];
 };
-export class RnPromise<T> {
+// export class RnPromise<T> {
+export class RnPromise<T> extends Promise<T> {
   private __promise: Promise<T | undefined>;
   private __callback?: Function;
   public name = '';
@@ -28,6 +34,7 @@ export class RnPromise<T> {
   constructor(promise: Promise<T>, callback?: Function);
   constructor(fn: PromiseFn<T>, callback?: Function);
   constructor(arg: Promise<T> | PromiseFn<T>, callback?: Function) {
+    super((resolve, reject) => {});
     if (arg instanceof Promise) {
       this.__promise = arg;
     } else {
@@ -36,21 +43,23 @@ export class RnPromise<T> {
     this.__callback = callback;
   }
 
-  static resolve<T>(arg: any) {
+  static resolve(): Promise<void>;
+  static resolve<T>(arg: T | PromiseLike<T>): Promise<T>;
+  static resolve<T>(arg?: T | PromiseLike<T>) {
     if (arg instanceof Promise) {
-      return new RnPromise(arg);
+      return new RnPromise(arg) as unknown as Promise<T>;
     } else if (arg instanceof RnPromise) {
-      return arg;
-    } else if (arg.then != null) {
+      return arg as unknown as Promise<T>;
+    } else if ((arg as any).then != null) {
       const rnPromise = new RnPromise((resolve, reject) => {
         resolve(arg);
       });
-      rnPromise.then = arg.then;
-      return rnPromise;
+      rnPromise.then = (arg as any).then;
+      return rnPromise as unknown as Promise<T>;
     } else {
       return new RnPromise((resolve, reject) => {
         resolve(arg);
-      });
+      }) as unknown as Promise<T>;
     }
   }
 
@@ -69,7 +78,7 @@ export class RnPromise<T> {
     };
 
     for (const promise of promises) {
-      const rnPromise = RnPromise.resolve(promise);
+      const rnPromise = RnPromise.resolve(promise) as unknown as RnPromise<any>;
       rnPromise.__callback = callback;
       rnPromise.__callbackObj = callbackObj;
       rnPromises.push(rnPromise);
@@ -81,32 +90,44 @@ export class RnPromise<T> {
     return new RnPromise(Promise.race(args));
   }
 
-  then(onFulfilled?: any, onRejected?: any) {
-    const onFulfilledWrapper = (value: T | undefined) => {
-      if (
-        this.__callbackObj.promiseAllNum !== 0 &&
-        this.__callbackObj.processedPromises.indexOf(this) === -1
-      ) {
-        this.__callbackObj.pendingNum--;
-        this.__callbackObj.resolvedNum++;
-        this.__callbackObj.processedPromises.push(this);
-      }
-      if (this.__callback) {
-        this.__callback(this.__callbackObj);
-      }
-      if (onFulfilled) {
-        onFulfilled(value);
-      }
-    };
-    return new RnPromise(this.__promise.then(onFulfilledWrapper, onRejected));
+  then<TResult1 = T, TResult2 = never>(
+    onfulfilled?:
+      | ((value: T) => TResult1 | PromiseLike<TResult1>)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+      | undefined
+      | null
+  ): Promise<TResult1 | TResult2> {
+    let onFulfilledWrapper;
+    if (onfulfilled) {
+      onFulfilledWrapper = (value: T | undefined) => {
+        if (
+          this.__callbackObj.promiseAllNum !== 0 &&
+          this.__callbackObj.processedPromises.indexOf(this) === -1
+        ) {
+          this.__callbackObj.pendingNum--;
+          this.__callbackObj.resolvedNum++;
+          this.__callbackObj.processedPromises.push(this);
+        }
+        if (this.__callback) {
+          this.__callback(this.__callbackObj);
+        }
+        return onfulfilled(value!);
+      };
+    }
+    return this.__promise.then(onFulfilledWrapper, onrejected);
   }
 
   catch(onRejected?: any) {
-    return new RnPromise(this.__promise.catch(onRejected));
+    return new RnPromise(
+      this.__promise.catch(onRejected)
+    ) as unknown as Promise<T>;
   }
 
   finally(onFinally?: OnFinallyFn) {
-    this.__promise.finally(onFinally);
+    return this.__promise.finally(onFinally) as unknown as Promise<T>;
   }
 
   static reject(e: Error) {
