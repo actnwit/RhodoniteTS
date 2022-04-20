@@ -2,6 +2,7 @@ import { GltfLoadOption } from '../../types';
 import {Byte, Size} from '../../types/CommonTypes';
 import {glTF1} from '../../types/glTF1';
 import {RnM2} from '../../types/RnM2';
+import { RnPromise } from './RnPromise';
 
 declare const URL: any;
 
@@ -361,8 +362,8 @@ export class DataUtil {
   static createImageFromUri(
     uri: string,
     mimeType: string
-  ): Promise<HTMLImageElement> {
-    return new Promise(resolve => {
+  ): RnPromise<HTMLImageElement> {
+    return new RnPromise(resolve => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
 
@@ -435,8 +436,8 @@ export class DataUtil {
     return defaultOptions;
   }
 
-  static fetchArrayBuffer(uri: string): Promise<ArrayBuffer> {
-    return new Promise(resolve => {
+  static fetchArrayBuffer(uri: string): RnPromise<ArrayBuffer> {
+    return new RnPromise(resolve => {
       fetch(uri, {mode: 'cors'})
         .then(response => {
           response.arrayBuffer().then(arrayBuffer => {

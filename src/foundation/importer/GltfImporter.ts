@@ -22,6 +22,7 @@ import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
+import {RnPromise, RnPromiseCallback} from '../misc/RnPromise';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -57,7 +58,8 @@ export class GltfImporter {
    */
   static async import(
     uris: string | string[],
-    options?: GltfLoadOption
+    options?: GltfLoadOption,
+    callback?: RnPromiseCallback
   ): Promise<Expression> {
     if (!Array.isArray(uris)) {
       uris = typeof uris === 'string' ? [uris] : [];
@@ -66,7 +68,8 @@ export class GltfImporter {
 
     const renderPasses: RenderPass[] = await this.__importMultipleModelsFromUri(
       uris,
-      options
+      options,
+      callback
     );
 
     if (options && options.cameraComponent) {
@@ -92,12 +95,13 @@ export class GltfImporter {
    */
   static async importFromArrayBuffers(
     files: GltfFileBuffers,
-    options?: GltfLoadOption
+    options?: GltfLoadOption,
+    callback?: RnPromiseCallback
   ): Promise<Expression> {
     options = this.__initOptions(options);
 
     const renderPasses: RenderPass[] =
-      await this.__importMultipleModelsFromArrayBuffers(files, options);
+      await this.__importMultipleModelsFromArrayBuffers(files, options, callback);
 
     if (options && options.cameraComponent) {
       for (const renderPass of renderPasses) {
@@ -160,8 +164,9 @@ export class GltfImporter {
 
   private static __importMultipleModelsFromUri(
     uris: string[],
-    options: GltfLoadOption
-  ): Promise<RenderPass[]> {
+    options: GltfLoadOption,
+    callback?: RnPromiseCallback
+  ): RnPromise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
     if (renderPasses.length === 0) {
@@ -177,14 +182,15 @@ export class GltfImporter {
       }
     }
 
-    return Promise.all(importPromises).then(() => {
+    return RnPromise.all(importPromises, callback).then(() => {
       return renderPasses;
-    });
+    }) as RnPromise<RenderPass[]>;
   }
 
   private static __importMultipleModelsFromArrayBuffers(
     files: GltfFileBuffers,
-    options: GltfLoadOption
+    options: GltfLoadOption,
+    callback?: RnPromiseCallback
   ): Promise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
@@ -201,13 +207,14 @@ export class GltfImporter {
             fileName,
             renderPasses,
             options,
-            fileName
+            fileName,
+            callback
           )
         );
       }
     }
 
-    return Promise.all(importPromises).then(() => {
+    return RnPromise.all(importPromises).then(() => {
       return renderPasses;
     });
   }
@@ -230,7 +237,7 @@ export class GltfImporter {
     renderPasses: RenderPass[],
     options: GltfLoadOption
   ) {
-    return DataUtil.fetchArrayBuffer(uri).then(arrayBuffer => {
+    return DataUtil.fetchArrayBuffer(uri).then((arrayBuffer: ArrayBuffer) => {
       options.files![uri] = arrayBuffer;
       return this.__importToRenderPassesFromArrayBufferPromise(
         uri,
@@ -274,7 +281,8 @@ export class GltfImporter {
     fileName: string,
     renderPasses: RenderPass[],
     options: GltfLoadOption,
-    uri: string
+    uri: string,
+    callback?: RnPromiseCallback
   ) {
     const optionalFileType = options.fileType;
 
@@ -284,7 +292,7 @@ export class GltfImporter {
       optionalFileType
     );
 
-    return new Promise((resolve, reject) => {
+    return new RnPromise((resolve, reject) => {
       const fileArrayBuffer = options.files![fileName];
       options.isImportVRM = false;
       let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
@@ -301,7 +309,7 @@ export class GltfImporter {
               importer = Gltf2Importer;
             }
             importer
-              .importGltf(json, options.files!, options, fileName)
+              .importGltf(json, options.files!, options, fileName, callback)
               .then(gltfModel => {
                 const rootGroup =
                   ModelConverter.convertToRhodoniteObject(gltfModel);
@@ -360,7 +368,7 @@ export class GltfImporter {
           console.error('detect invalid format');
           reject();
       }
-    }) as Promise<void>;
+    }) as RnPromise<void>;
   }
 
   private static __getFileTypeFromFilePromise(
