@@ -76,7 +76,7 @@ export class RnPromise<T> extends Promise<T> {
         rnPromise.__callbackObj = callbackObj;
         rnPromises.push(rnPromise);
       }
-      return new RnPromise(Promise.all(promises as any));
+      return new RnPromise(Promise.all(rnPromises as any));
     } else {
       return new RnPromise(Promise.all(promises));
     }

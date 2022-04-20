@@ -101,7 +101,7 @@ export class GltfImporter {
     options = this.__initOptions(options);
 
     const renderPasses: RenderPass[] =
-      await this.__importMultipleModelsFromArrayBuffers(files, options);
+      await this.__importMultipleModelsFromArrayBuffers(files, options, callback);
 
     if (options && options.cameraComponent) {
       for (const renderPass of renderPasses) {
@@ -189,7 +189,8 @@ export class GltfImporter {
 
   private static __importMultipleModelsFromArrayBuffers(
     files: GltfFileBuffers,
-    options: GltfLoadOption
+    options: GltfLoadOption,
+    callback?: RnPromiseCallback
   ): Promise<RenderPass[]> {
     const importPromises = [];
     const renderPasses = options.expression?.renderPasses || [];
@@ -212,7 +213,7 @@ export class GltfImporter {
       }
     }
 
-    return Promise.all(importPromises).then(() => {
+    return RnPromise.all(importPromises, callback).then(() => {
       return renderPasses;
     });
   }
