@@ -95,7 +95,7 @@ export class RnPromise<T> extends Promise<T> {
       | ((reason: any) => TResult2 | PromiseLike<TResult2>)
       | undefined
       | null
-  ): Promise<TResult1 | TResult2> {
+  ): RnPromise<TResult1 | TResult2> {
     let onFulfilledWrapper;
     if (onfulfilled) {
       onFulfilledWrapper = (value: T | undefined) => {
@@ -113,13 +113,13 @@ export class RnPromise<T> extends Promise<T> {
         return onfulfilled(value!);
       };
     }
-    return this.__promise.then(onFulfilledWrapper, onrejected);
+    return this.__promise.then(onFulfilledWrapper, onrejected) as RnPromise<
+      TResult1 | TResult2
+    >;
   }
 
-  catch(onRejected?: any) {
-    return new RnPromise(
-      this.__promise.catch(onRejected)
-    ) as unknown as Promise<T>;
+  catch(onRejected?: any): RnPromise<T> {
+    return new RnPromise(this.__promise.catch(onRejected)) as RnPromise<T>;
   }
 
   finally(onFinally?: OnFinallyFn) {
