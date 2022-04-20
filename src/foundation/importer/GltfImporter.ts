@@ -22,7 +22,7 @@ import {Is} from '../misc/Is';
 import {glTF1} from '../../types/glTF1';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
-import { RnPromise, RnPromiseCallback } from '../misc/RnPromise';
+import {RnPromise, RnPromiseCallback} from '../misc/RnPromise';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -95,7 +95,8 @@ export class GltfImporter {
    */
   static async importFromArrayBuffers(
     files: GltfFileBuffers,
-    options?: GltfLoadOption
+    options?: GltfLoadOption,
+    callback?: RnPromiseCallback
   ): Promise<Expression> {
     options = this.__initOptions(options);
 
@@ -288,7 +289,7 @@ export class GltfImporter {
       optionalFileType
     );
 
-    return new Promise((resolve, reject) => {
+    return new RnPromise((resolve, reject) => {
       const fileArrayBuffer = options.files![fileName];
       options.isImportVRM = false;
       let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2

@@ -1,5 +1,5 @@
 type PromiseFn<T> = (
-  resolve: (value: T | PromiseLike<T>) => void,
+  resolve: (value?: T | PromiseLike<T>) => void,
   reject: (reason?: any) => void
 ) => void;
 type OnFinallyFn = (() => void) | null | undefined;
@@ -37,7 +37,7 @@ export class RnPromise<T> extends Promise<T> {
     this.__callback = callback;
   }
 
-  static resolve(): Promise<void>;
+  static resolve<T>(): Promise<T>;
   static resolve<T>(arg: T | PromiseLike<T>): Promise<T>;
   static resolve<T>(arg?: T | PromiseLike<T>) {
     if (arg instanceof Promise) {
