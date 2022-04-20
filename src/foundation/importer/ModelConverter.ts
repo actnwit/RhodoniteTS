@@ -252,7 +252,9 @@ export class ModelConverter {
         );
       }
       if (nodeJson.matrix) {
-        groupTransform.matrix = new Matrix44(nodeJson.matrix, true);
+        groupTransform.matrix = Matrix44.fromCopyArrayColumnMajor(
+          nodeJson.matrix
+        );
       }
     }
   }
@@ -368,10 +370,8 @@ export class ModelConverter {
         skeletalComponent = newRnEntity.getSkeletal();
         skeletalComponent._jointIndices = node.skinObject.joints;
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
-          skeletalComponent._bindShapeMatrix = new Matrix44(
-            node.skinObject.bindShapeMatrix,
-            true
-          );
+          skeletalComponent._bindShapeMatrix =
+            Matrix44.fromCopyArrayColumnMajor(node.skinObject.bindShapeMatrix);
         }
         if (Is.exist(node.skinObject.skeleton)) {
           sg.isRootJoint = true;

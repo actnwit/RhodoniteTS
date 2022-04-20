@@ -1,16 +1,16 @@
-import { Vector3 } from './Vector3';
-import { Matrix33 } from './Matrix33';
-import { Quaternion } from './Quaternion';
-import { Vector4 } from './Vector4';
+import {Vector3} from './Vector3';
+import {Matrix33} from './Matrix33';
+import {Quaternion} from './Quaternion';
+import {Vector4} from './Vector4';
 import {IMatrix, IMatrix44} from './IMatrix';
 import {CompositionType} from '../definitions/CompositionType';
-import { MutableVector3 } from './MutableVector3';
-import { MutableMatrix44 } from './MutableMatrix44';
-import { MutableVector4 } from './MutableVector4';
+import {MutableVector3} from './MutableVector3';
+import {MutableMatrix44} from './MutableMatrix44';
+import {MutableVector4} from './MutableVector4';
 import {IVector3} from './IVector';
 import {MathUtil} from './MathUtil';
-import { IdentityMatrix44 } from './IdentityMatrix44';
-import { AbstractMatrix } from './AbstractMatrix';
+import {IdentityMatrix44} from './IdentityMatrix44';
+import {AbstractMatrix} from './AbstractMatrix';
 import {Array16, ArrayType} from '../../types/CommonTypes';
 import {mulThatAndThisToOutAsMat44_offsetAsComposition} from './raw/raw_extension';
 
@@ -64,20 +64,6 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     } else if (m instanceof FloatArray) {
       if (_notCopyFloatArray) {
         this._v = m;
-      } else {
-        this._v = new FloatArray(16);
-        if (_isColumnMajor === true) {
-          this._v[0] = m[0]; this._v[4] = m[4]; this._v[8] = m[8]; this._v[12] = m[12];
-          this._v[1] = m[1]; this._v[5] = m[5]; this._v[9] = m[9]; this._v[13] = m[13];
-          this._v[2] = m[2]; this._v[6] = m[6]; this._v[10] = m[10]; this._v[14] = m[14];
-          this._v[3] = m[3]; this._v[7] = m[7]; this._v[11] = m[11]; this._v[15] = m[15];
-        } else {
-          // 'm' must be row major values if isColumnMajor is false
-          this._v[0] = m[0]; this._v[4] = m[1]; this._v[8] = m[2]; this._v[12] = m[3];
-          this._v[1] = m[4]; this._v[5] = m[5]; this._v[9] = m[6]; this._v[13] = m[7];
-          this._v[2] = m[8]; this._v[6] = m[9]; this._v[10] = m[10]; this._v[14] = m[11];
-          this._v[3] = m[12]; this._v[7] = m[13]; this._v[11] = m[14]; this._v[15] = m[15];
-        }
       }
     } else {
       this._v = new FloatArray(16);
@@ -792,6 +778,21 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   static fromCopyMatrix44(mat: Matrix44) {
     const v = new Float32Array(16);
     v.set(mat._v);
+    return new Matrix44(v, true, true);
+  }
+
+  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    const v = new Float32Array(16);
+    v.set(float32Array);
+    return new Matrix44(v, true, true);
+  }
+
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
+    const v = new Float32Array(16);
+    v[0] = array[0]; v[4] = array[1]; v[8] = array[2]; v[12] = array[3];
+    v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
+    v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
+    v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
     return new Matrix44(v, true, true);
   }
 
