@@ -1,36 +1,35 @@
-import { OrbitCameraController } from '../cameras/OrbitCameraController';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { ComponentRepository } from '../core/ComponentRepository';
+import {CameraComponent} from '../components/Camera/CameraComponent';
+import {ComponentRepository} from '../core/ComponentRepository';
 import {Config} from '../core/Config';
 import {AlphaMode} from '../definitions/AlphaMode';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
 import {ShaderSemantics} from '../definitions/ShaderSemantics';
 import {VertexAttribute} from '../definitions/VertexAttribute';
-import { Mesh } from '../geometry/Mesh';
+import {Mesh} from '../geometry/Mesh';
 import {Primitive} from '../geometry/Primitive';
 import {Cube} from '../geometry/shapes/Cube';
 import {Plane} from '../geometry/shapes/Plane';
-import {EntityHelper,
+import {
+  EntityHelper,
   IMeshEntity,
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
 import {MaterialHelper} from '../helpers/MaterialHelper';
-import { Material } from '../materials/core/Material';
+import {Material} from '../materials/core/Material';
 import {MathUtil} from '../math/MathUtil';
-import { Matrix33 } from '../math/Matrix33';
-import { Matrix44 } from '../math/Matrix44';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { Quaternion } from '../math/Quaternion';
-import { Vector3 } from '../math/Vector3';
-import { Vector4 } from '../math/Vector4';
+import {Matrix33} from '../math/Matrix33';
+import {MutableMatrix33} from '../math/MutableMatrix33';
+import {Quaternion} from '../math/Quaternion';
+import {Vector3} from '../math/Vector3';
+import {Vector4} from '../math/Vector4';
 import {Is} from '../misc/Is';
-import {assertExist, MiscUtil} from '../misc/MiscUtil';
+import {assertExist} from '../misc/MiscUtil';
 import {
   getEvent,
   InputManager,
   INPUT_HANDLING_STATE_GIZMO_TRNSLATION,
 } from '../system/InputManager';
-import { Gizmo } from './Gizmo';
+import {Gizmo} from './Gizmo';
 
 declare let window: any;
 
@@ -535,7 +534,7 @@ export class TranslationGizmo extends Gizmo {
 
     const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
-    let rotMat = new Matrix33(
+    let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
       scaleVec.x * worldMatrix.m01,
       scaleVec.x * worldMatrix.m02,
@@ -610,7 +609,7 @@ export class TranslationGizmo extends Gizmo {
 
     const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
-    let rotMat = new Matrix33(
+    let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
       scaleVec.x * worldMatrix.m01,
       scaleVec.x * worldMatrix.m02,
@@ -680,7 +679,7 @@ export class TranslationGizmo extends Gizmo {
     if (TranslationGizmo.__space === 'local') {
       const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
       const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
-      const rotMat = new Matrix33(
+      const rotMat = Matrix33.fromCopy9RowMajor(
         scaleVec.x * worldMatrix.m00,
         scaleVec.x * worldMatrix.m01,
         scaleVec.x * worldMatrix.m02,

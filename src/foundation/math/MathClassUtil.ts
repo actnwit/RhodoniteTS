@@ -47,7 +47,7 @@ export class MathClassUtil {
       if (typeof element[15] !== 'undefined') {
         return Matrix44.fromCopyArrayRowMajor(element);
       } else if (typeof element[8] !== 'undefined') {
-        return new Matrix33(element);
+        return Matrix33.fromCopyArrayRowMajor(element);
       } else if (typeof element[3] !== 'undefined') {
         return Vector4.fromCopyArray([
           element[0],
@@ -408,7 +408,7 @@ export class MathClassUtil {
       objForDetectType instanceof Matrix33 ||
       objForDetectType instanceof MutableMatrix33
     ) {
-      obj = obj == null ? new MutableMatrix33(floatArray, false, true) : obj;
+      obj = obj == null ? new MutableMatrix33(floatArray) : obj;
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
