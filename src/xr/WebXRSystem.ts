@@ -251,9 +251,8 @@ export class WebXRSystem {
 
   get leftProjectionMatrix() {
     const xrViewLeft = this.__xrViewerPose?.views[0];
-    return new MutableMatrix44(
-      xrViewLeft?.projectionMatrix as Float32Array,
-      true
+    return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
+      xrViewLeft?.projectionMatrix as Float32Array
     );
   }
 

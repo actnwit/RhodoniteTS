@@ -1,32 +1,23 @@
-import { Matrix44 } from './Matrix44';
-import {IMutableMatrix44, IMutableMatrix, IMatrix44, IMatrix33} from './IMatrix';
-import { Matrix33 } from './Matrix33';
-import { Quaternion } from './Quaternion';
-import { Vector3 } from './Vector3';
+import {Matrix44} from './Matrix44';
+import {
+  IMutableMatrix44,
+  IMutableMatrix,
+  IMatrix44,
+  IMatrix33,
+} from './IMatrix';
+import {Quaternion} from './Quaternion';
+import {Vector3} from './Vector3';
 import {Array16, Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
-import { MutableVector3 } from './MutableVector3';
+import {MutableVector3} from './MutableVector3';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
 export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
-  constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(
-    m0: any, m1?: any, m2?: any, m3?: any,
-    m4?: number, m5?: number, m6?: number, m7?: number,
-    m8?: number, m9?: number, m10?: number, m11?: number,
-    m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor = false, notCopyFloatArray = false) {
-    const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-    const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
-
-    if (arguments.length >= 16) {
-      super(m0, _isColumnMajor, _notCopyFloatArray);
-    } else {
-      super(m0, _isColumnMajor, _notCopyFloatArray);
-    }
+  constructor(m: FloatArray) {
+    super(m);
   }
 
   public set m00(val) {
@@ -701,7 +692,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     v[1] = m10; v[5] = m11; v[9] = m12; v[13] = m13;
     v[2] = m20; v[6] = m21; v[10] = m22; v[14] = m23;
     v[3] = m30; v[7] = m31; v[11] = m32; v[15] = m33;
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   /**
@@ -719,19 +710,19 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     v[1] = m10; v[5] = m11; v[9] = m12; v[13] = m13;
     v[2] = m20; v[6] = m21; v[10] = m22; v[14] = m23;
     v[3] = m30; v[7] = m31; v[11] = m32; v[15] = m33;
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyMatrix44(mat: Matrix44) {
     const v = new Float32Array(16);
     v.set(mat._v);
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
     const v = new Float32Array(16);
     v.set(float32Array);
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
@@ -740,7 +731,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
     v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
     v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyMatrix33(mat: IMatrix33) {
@@ -749,19 +740,19 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     v[1] = mat._v[1]; v[5] = mat._v[4]; v[9] = mat._v[7]; v[13] = 0;
     v[2] = mat._v[2]; v[6] = mat._v[5]; v[10] = mat._v[8]; v[14] = 0;
     v[3] = 0; v[7] = 0; v[11] = 0; v[15] = 1;
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyArray16ColumnMajor(array: Array16<number>) {
     const v = new Float32Array(16);
     v.set(array);
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyArrayColumnMajor(array: Array<number>) {
     const v = new Float32Array(16);
     v.set(array);
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyArray16RowMajor(array: Array16<number>) {
@@ -770,7 +761,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
     v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
     v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromCopyArrayRowMajor(array: Array<number>) {
@@ -779,7 +770,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
     v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
     v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 
   static fromQuaternion(q: Quaternion) {
@@ -798,6 +789,6 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
       v[2] = 2.0 * (cy - wy); v[6] = 2.0 * (cx + wx); v[10] = 1.0 - 2.0 * (sx + sy); v[14] = 0;
       v[3] = 0; v[7] = 0; v[11] = 0; v[15] = 1;
 
-    return new MutableMatrix44(v, true, true);
+    return new MutableMatrix44(v);
   }
 }

@@ -19,31 +19,9 @@ type FloatArray = Float32Array;
 
 export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
 
-  constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(
-    m0: any, m1?: any, m2?: any, m3?: any,
-    m4?: number, m5?: number, m6?: number, m7?: number,
-    m8?: number, m9?: number, m10?: number, m11?: number,
-    m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor = false, notCopyFloatArray = false) {
+  constructor(m: FloatArray) {
     super();
-
-    const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-    const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
-
-    const m = m0;
-
-    if (m instanceof FloatArray) {
-      if (_notCopyFloatArray) {
-        this._v = m;
-      }
-    } else {
-      this._v = new FloatArray(16);
-      this._v[0] = 1; this._v[4] = 0; this._v[8] = 0; this._v[12] = 0;
-      this._v[1] = 0; this._v[5] = 1; this._v[9] = 0; this._v[13] = 0;
-      this._v[2] = 0; this._v[6] = 0; this._v[10] = 1; this._v[14] = 0;
-      this._v[3] = 0; this._v[7] = 0; this._v[11] = 0; this._v[15] = 1;
-    }
+    this._v = m;
   }
 
   public get m00() {
@@ -141,7 +119,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   static dummy() {
-    return new this(new Float32Array(0), true, true);
+    return new this(new Float32Array(0));
   }
 
   /**
@@ -759,7 +737,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     v[1] = m10; v[5] = m11; v[9] = m12; v[13] = m13;
     v[2] = m20; v[6] = m21; v[10] = m22; v[14] = m23;
     v[3] = m30; v[7] = m31; v[11] = m32; v[15] = m33;
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   /**
@@ -777,20 +755,20 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     v[1] = m10; v[5] = m11; v[9] = m12; v[13] = m13;
     v[2] = m20; v[6] = m21; v[10] = m22; v[14] = m23;
     v[3] = m30; v[7] = m31; v[11] = m32; v[15] = m33;
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
 
   static fromCopyMatrix44(mat: Matrix44) {
     const v = new Float32Array(16);
     v.set(mat._v);
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
     const v = new Float32Array(16);
     v.set(float32Array);
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
@@ -799,7 +777,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
     v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
     v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromCopyMatrix33(mat: IMatrix33) {
@@ -808,19 +786,19 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     v[1] = mat._v[1]; v[5] = mat._v[4]; v[9] = mat._v[7]; v[13] = 0;
     v[2] = mat._v[2]; v[6] = mat._v[5]; v[10] = mat._v[8]; v[14] = 0;
     v[3] = 0; v[7] = 0; v[11] = 0; v[15] = 1;
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromCopyArray16ColumnMajor(array: Array16<number>) {
     const v = new Float32Array(16);
     v.set(array);
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromCopyArrayColumnMajor(array: Array<number>) {
     const v = new Float32Array(16);
     v.set(array);
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromCopyArray16RowMajor(array: Array16<number>) {
@@ -829,7 +807,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
     v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
     v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromCopyArrayRowMajor(array: Array<number>) {
@@ -838,7 +816,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
     v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
     v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 
   static fromQuaternion(q: Quaternion) {
@@ -857,6 +835,6 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
       v[2] = 2.0 * (cy - wy); v[6] = 2.0 * (cx + wx); v[10] = 1.0 - 2.0 * (sx + sy); v[14] = 0;
       v[3] = 0; v[7] = 0; v[11] = 0; v[15] = 1;
 
-    return new Matrix44(v, true, true);
+    return new Matrix44(v);
   }
 }

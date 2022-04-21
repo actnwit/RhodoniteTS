@@ -422,7 +422,7 @@ export class MathClassUtil {
       objForDetectType instanceof Matrix44 ||
       objForDetectType instanceof MutableMatrix44
     ) {
-      obj = new MutableMatrix44(floatArray, false, true);
+      obj = new MutableMatrix44(floatArray);
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
