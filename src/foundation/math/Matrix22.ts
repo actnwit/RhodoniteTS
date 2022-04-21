@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Matrix33 } from './Matrix33';
 import { Matrix44 } from './Matrix44';
 import {IMatrix, IMatrix22} from './IMatrix';
@@ -7,118 +8,12 @@ import { MutableMatrix22 } from './MutableMatrix22';
 import {MathUtil} from './MathUtil';
 import { MutableVector2 } from './MutableVector2';
 import { AbstractMatrix } from './AbstractMatrix';
+import { Array4 } from '../../types';
 
 export class Matrix22 extends AbstractMatrix implements IMatrix22 {
-  constructor(m: null);
-  constructor(
-    m: Float32Array,
-    isColumnMajor?: boolean,
-    notCopyFloatArray?: boolean
-  );
-  constructor(m: Array<number>, isColumnMajor?: boolean);
-  constructor(m: Matrix22, isColumnMajor?: boolean);
-  constructor(m: Matrix33, isColumnMajor?: boolean);
-  constructor(m: Matrix44, isColumnMajor?: boolean);
-  constructor(
-    m0: number,
-    m1: number,
-    m2: number,
-    m3: number,
-    isColumnMajor?: boolean
-  );
-  constructor(
-    m0: any,
-    m1?: any,
-    m2?: any,
-    m3?: number,
-    isColumnMajor = false,
-    notCopyFloatArray = false
-  ) {
+  constructor(m: Float32Array) {
     super();
-    const _isColumnMajor = arguments.length === 5 ? isColumnMajor : m1;
-    const _notCopyFloatArray = arguments.length === 6 ? notCopyFloatArray : m2;
-    const m = m0;
-
-    if (m == null) {
-      this._v = new Float32Array(0);
-      return;
-    }
-
-    if (4 <= arguments.length && arguments.length <= 5 && m3 != null) {
-      this._v = new Float32Array(4);
-      if (_isColumnMajor === true) {
-        const m = arguments;
-        this._v[0] = m[0];
-        this._v[2] = m[2];
-        this._v[1] = m[1];
-        this._v[3] = m[3];
-      } else {
-        const m = arguments;
-        // arguments[0-3] must be row major values if isColumnMajor is false
-        this._v[0] = m[0];
-        this._v[2] = m[1];
-        this._v[1] = m[2];
-        this._v[3] = m[3];
-      }
-    } else if (Array.isArray(m as Array<Number>)) {
-      this._v = new Float32Array(4);
-      if (_isColumnMajor === true) {
-        this._v[0] = m[0];
-        this._v[2] = m[2];
-        this._v[1] = m[1];
-        this._v[3] = m[3];
-      } else {
-        // 'm' must be row major array if isColumnMajor is false
-        this._v[0] = m[0];
-        this._v[2] = m[1];
-        this._v[1] = m[2];
-        this._v[3] = m[3];
-      }
-    } else if (m instanceof Float32Array) {
-      if (_notCopyFloatArray) {
-        this._v = m;
-      } else {
-        this._v = new Float32Array(4);
-        if (_isColumnMajor === true) {
-          this._v[0] = m[0];
-          this._v[2] = m[2];
-          this._v[1] = m[1];
-          this._v[3] = m[3];
-        } else {
-          // 'm' must be row major array if isColumnMajor is false
-          this._v[0] = m[0];
-          this._v[2] = m[1];
-          this._v[1] = m[2];
-          this._v[3] = m[3];
-        }
-      }
-    } else if (!!m && m._v?.[3] != null) {
-      if (_notCopyFloatArray) {
-        this._v = m._v;
-      } else {
-        this._v = new Float32Array(4);
-        if (_isColumnMajor === true) {
-          const v = (m as Matrix22 | Matrix33 | Matrix44)._v;
-          this._v[0] = m[0];
-          this._v[2] = m[2];
-          this._v[1] = m[1];
-          this._v[3] = m[3];
-        } else {
-          const v = (m as Matrix22 | Matrix33 | Matrix44)._v;
-          // 'm' must be row major array if isColumnMajor is false
-          this._v[0] = m[0];
-          this._v[2] = m[1];
-          this._v[1] = m[2];
-          this._v[3] = m[3];
-        }
-      }
-    } else {
-      this._v = new Float32Array(4);
-      this._v[0] = 1;
-      this._v[2] = 0;
-      this._v[1] = 0;
-      this._v[3] = 1;
-    }
+    this._v = m;
   }
 
   public get m00() {
@@ -149,25 +44,30 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * Create zero matrix
    */
   static zero() {
-    return new this(0, 0, 0, 0);
+    return Matrix22.fromCopy4RowMajor(0, 0, 0, 0);
   }
 
   /**
    * Create identity matrix
    */
   static identity() {
-    return new this(1, 0, 0, 1);
+    return Matrix22.fromCopy4RowMajor(1, 0, 0, 1);
   }
 
   static dummy() {
-    return new this(null);
+    return new this(new Float32Array(0));
   }
 
   /**
    * Create transpose matrix
    */
   static transpose(mat: Matrix22) {
-    return new this(mat._v[0], mat._v[1], mat._v[2], mat._v[3]);
+    return Matrix22.fromCopy4RowMajor(
+      mat._v[0],
+      mat._v[1],
+      mat._v[2],
+      mat._v[3]
+    );
   }
 
   /**
@@ -184,7 +84,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
     const m10 = (mat._v[1] / det) * -1.0;
     const m11 = mat._v[0] / det;
 
-    return new this(m00, m01, m10, m11);
+    return Matrix22.fromCopy4RowMajor(m00, m01, m10, m11);
   }
 
   static invertTo(mat: Matrix22, outMat: MutableMatrix22) {
@@ -207,14 +107,14 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   static rotate(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return new this(cos, -sin, sin, cos);
+    return Matrix22.fromCopy4RowMajor(cos, -sin, sin, cos);
   }
 
   /**
    * Create Scale Matrix
    */
   static scale(vec: Vector2) {
-    return new this(vec._v[0], 0, 0, vec._v[1]);
+    return Matrix22.fromCopy4RowMajor(vec._v[0], 0, 0, vec._v[1]);
   }
 
   /**
@@ -227,7 +127,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
     const m01 = l_mat._v[0] * r_mat._v[2] + l_mat._v[2] * r_mat._v[3];
     const m11 = l_mat._v[1] * r_mat._v[2] + l_mat._v[3] * r_mat._v[3];
 
-    return new this(m00, m01, m10, m11);
+    return Matrix22.fromCopy4RowMajor(m00, m01, m10, m11);
   }
 
   /**
@@ -343,11 +243,90 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   }
 
   clone() {
-    return new (this.constructor as any)(
+    return (this.constructor as any).fromCopy4RowMajor(
       this._v[0],
       this._v[2],
       this._v[1],
       this._v[3]
-    ) as Matrix22;
+    );
+  }
+
+  /**
+   * Set values as Row Major
+   * Note that WebGL matrix keeps the values in column major.
+   * If you write 4 values in 2x2 style (2 values in each row),
+   *   It will becomes an intuitive handling.
+   * @returns
+   */
+  static fromCopy4RowMajor(
+    m00: number, m01: number,
+    m10: number, m11: number)
+  {
+    const v = new Float32Array(4);
+    v[0] = m00; v[2] = m01;
+    v[1] = m10; v[3] = m11;
+    return new Matrix22(v);
+  }
+
+  /**
+   * Set values as Column Major
+   * Note that WebGL matrix keeps the values in column major.
+   * @returns
+   */
+  static fromCopy4ColumnMajor(
+    m00: number, m10: number,
+    m01: number, m11: number)
+  {
+    const v = new Float32Array(4);
+    v[0] = m00; v[2] = m01;
+    v[1] = m10; v[3] = m11;
+    return new Matrix22(v);
+  }
+
+  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    const v = new Float32Array(4);
+    v.set(float32Array);
+    return new Matrix22(v);
+  }
+
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
+    const v = new Float32Array(4);
+    v[0] = array[0]; v[3] = array[1];
+    v[1] = array[2]; v[4] = array[3];
+
+    return new Matrix22(v);
+  }
+
+  static fromCopyMatrix22(mat: IMatrix22) {
+    const v = new Float32Array(4);
+    v[0] = mat._v[0]; v[3] = mat._v[1];
+    v[1] = mat._v[2]; v[4] = mat._v[3];
+    return new Matrix22(v);
+  }
+
+  static fromCopyArray9ColumnMajor(array: Array4<number>) {
+    const v = new Float32Array(4);
+    v.set(array);
+    return new Matrix22(v);
+  }
+
+  static fromCopyArrayColumnMajor(array: Array<number>) {
+    const v = new Float32Array(4);
+    v.set(array);
+    return new Matrix22(v);
+  }
+
+  static fromCopyArray9RowMajor(array: Array4<number>) {
+    const v = new Float32Array(4);
+    v[0] = array[0]; v[3] = array[1];
+    v[1] = array[2]; v[4] = array[3];
+    return new Matrix22(v);
+  }
+
+  static fromCopyArrayRowMajor(array: Array<number>) {
+    const v = new Float32Array(4);
+    v[0] = array[0]; v[3] = array[1];
+    v[1] = array[2]; v[4] = array[3];
+    return new Matrix22(v);
   }
 }
