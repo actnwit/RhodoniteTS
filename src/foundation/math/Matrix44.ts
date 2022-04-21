@@ -108,7 +108,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * zero matrix(static version)
    */
   static zero() {
-    return Matrix44.fromCopy16ColumnMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return Matrix44.fromCopy16RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**

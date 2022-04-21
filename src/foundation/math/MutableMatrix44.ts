@@ -180,7 +180,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * zero matrix(static version)
    */
   static zero() {
-    return MutableMatrix44.fromCopy16ColumnMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return MutableMatrix44.fromCopy16RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
