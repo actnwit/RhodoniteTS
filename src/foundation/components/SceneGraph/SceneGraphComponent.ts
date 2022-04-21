@@ -63,7 +63,7 @@ export class SceneGraphComponent extends Component {
   public isRootJoint = false;
   public jointIndex = -1;
 
-  private static invertedMatrix44 = new MutableMatrix44([
+  private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 

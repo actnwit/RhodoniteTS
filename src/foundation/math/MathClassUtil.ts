@@ -1,20 +1,20 @@
-import { Vector2 } from './Vector2';
-import { Vector3 } from './Vector3';
-import { Vector4 } from './Vector4';
-import { Quaternion } from './Quaternion';
-import { Matrix33 } from './Matrix33';
-import { Matrix44 } from './Matrix44';
+import {Vector2} from './Vector2';
+import {Vector3} from './Vector3';
+import {Vector4} from './Vector4';
+import {Quaternion} from './Quaternion';
+import {Matrix33} from './Matrix33';
+import {Matrix44} from './Matrix44';
 import {CompositionTypeEnum} from '../definitions/CompositionType';
 import {CompositionType} from '../definitions/CompositionType';
-import { MutableMatrix44 } from './MutableMatrix44';
-import { MutableMatrix33 } from './MutableMatrix33';
-import { MutableVector4 } from './MutableVector4';
-import { MutableVector3 } from './MutableVector3';
-import { MutableVector2 } from './MutableVector2';
-import { Scalar } from './Scalar';
-import { MutableQuaternion } from './MutableQuaternion';
-import { MutableScalar } from './MutableScalar';
-import { VectorN } from './VectorN';
+import {MutableMatrix44} from './MutableMatrix44';
+import {MutableMatrix33} from './MutableMatrix33';
+import {MutableVector4} from './MutableVector4';
+import {MutableVector3} from './MutableVector3';
+import {MutableVector2} from './MutableVector2';
+import {Scalar} from './Scalar';
+import {MutableQuaternion} from './MutableQuaternion';
+import {MutableScalar} from './MutableScalar';
+import {VectorN} from './VectorN';
 import {TypedArray} from '../../types/CommonTypes';
 
 export class MathClassUtil {
@@ -45,9 +45,9 @@ export class MathClassUtil {
   static arrayToVectorOrMatrix(element: Array<number>) {
     if (Array.isArray(element)) {
       if (typeof element[15] !== 'undefined') {
-        return new Matrix44(element);
+        return Matrix44.fromCopyArrayRowMajor(element);
       } else if (typeof element[8] !== 'undefined') {
-        return new Matrix33(element);
+        return Matrix33.fromCopyArrayRowMajor(element);
       } else if (typeof element[3] !== 'undefined') {
         return Vector4.fromCopyArray([
           element[0],
@@ -408,7 +408,7 @@ export class MathClassUtil {
       objForDetectType instanceof Matrix33 ||
       objForDetectType instanceof MutableMatrix33
     ) {
-      obj = obj == null ? new MutableMatrix33(floatArray, false, true) : obj;
+      obj = obj == null ? new MutableMatrix33(floatArray) : obj;
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -422,7 +422,7 @@ export class MathClassUtil {
       objForDetectType instanceof Matrix44 ||
       objForDetectType instanceof MutableMatrix44
     ) {
-      obj = new MutableMatrix44(floatArray, false, true);
+      obj = new MutableMatrix44(floatArray);
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;

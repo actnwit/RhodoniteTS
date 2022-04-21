@@ -321,7 +321,7 @@ export class ShaderityUtility {
           break;
         case 9:
           checkCompositionNumber(CompositionType.Mat3);
-          initialValue = new MutableMatrix33(
+          initialValue = MutableMatrix33.fromCopy9RowMajor(
             parseFloat(split[0]),
             parseFloat(split[1]),
             parseFloat(split[2]),
@@ -335,7 +335,7 @@ export class ShaderityUtility {
           break;
         case 16:
           checkCompositionNumber(CompositionType.Mat4);
-          initialValue = new MutableMatrix44(
+          initialValue = MutableMatrix44.fromCopy16RowMajor(
             parseFloat(split[0]),
             parseFloat(split[1]),
             parseFloat(split[2]),

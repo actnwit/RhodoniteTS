@@ -251,17 +251,15 @@ export class WebXRSystem {
 
   get leftProjectionMatrix() {
     const xrViewLeft = this.__xrViewerPose?.views[0];
-    return new MutableMatrix44(
-      xrViewLeft?.projectionMatrix as Float32Array,
-      true
+    return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
+      xrViewLeft?.projectionMatrix as Float32Array
     );
   }
 
   get rightProjectionMatrix() {
     const xrViewRight = this.__xrViewerPose?.views[1];
-    return new MutableMatrix44(
-      xrViewRight?.projectionMatrix as Float32Array,
-      true
+    return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
+      xrViewRight?.projectionMatrix as Float32Array
     );
   }
 
@@ -494,13 +492,11 @@ export class WebXRSystem {
     this.__viewerOrientation.z = orientation.z;
     this.__viewerOrientation.w = orientation.w;
 
-    const lm = new MutableMatrix44(
-      xrViewLeft?.transform.matrix as Float32Array,
-      true
+    const lm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
+      xrViewLeft?.transform.matrix as Float32Array
     );
-    const rm = new MutableMatrix44(
-      xrViewRight?.transform.matrix as Float32Array,
-      true
+    const rm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
+      xrViewRight?.transform.matrix as Float32Array
     );
 
     const rotateMatLeft = lm;
@@ -616,11 +612,11 @@ export class WebXRSystem {
           const hand = this.__controllerEntities[i];
           if (Is.exist(hand)) {
             // update the transform of the controller itself
-            const handWorldMatrix = new MutableMatrix44(
-              xrPose.transform.matrix,
-              true
-            );
-            const rotateMat = new MutableMatrix44(handWorldMatrix);
+            const handWorldMatrix =
+              MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
+                xrPose.transform.matrix
+              );
+            const rotateMat = MutableMatrix44.fromCopyMatrix44(handWorldMatrix);
             rotateMat.translateY += this.__defaultPositionInLocalSpaceMode.y;
             rotateMat.translateY += this.__viewerTranslate.y;
             hand.getTransform()!.matrix = rotateMat;

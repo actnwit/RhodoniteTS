@@ -1,43 +1,23 @@
-import { Matrix44 } from './Matrix44';
-import {IMutableMatrix44, IMutableMatrix, IMatrix44} from './IMatrix';
-import { Matrix33 } from './Matrix33';
-import { Quaternion } from './Quaternion';
-import { Vector3 } from './Vector3';
-import {Index} from '../../types/CommonTypes';
+import {Matrix44} from './Matrix44';
+import {
+  IMutableMatrix44,
+  IMutableMatrix,
+  IMatrix44,
+  IMatrix33,
+} from './IMatrix';
+import {Quaternion} from './Quaternion';
+import {Vector3} from './Vector3';
+import {Array16, Index} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
-import { MutableVector3 } from './MutableVector3';
+import {MutableVector3} from './MutableVector3';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
 export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
-  constructor(m: FloatArray, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(m: Array<number>, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(m: Matrix44, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(m: Quaternion, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(m: null);
-  constructor(
-    m0: number, m1: number, m2: number, m3: number,
-    m4: number, m5: number, m6: number, m7: number,
-    m8: number, m9: number, m10: number, m11: number,
-    m12: number, m13: number, m14: number, m15: number,
-    isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(
-    m0: any, m1?: any, m2?: any, m3?: any,
-    m4?: number, m5?: number, m6?: number, m7?: number,
-    m8?: number, m9?: number, m10?: number, m11?: number,
-    m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor = false, notCopyFloatArray = false) {
-    const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-    const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
-
-    if (arguments.length >= 16) {
-      super(m0, m1, m2, m3, m4!, m5!, m6!, m7!, m8!, m9!, m10!, m11!, m12!, m13!, m14!, m15!, _isColumnMajor, _notCopyFloatArray);
-    } else {
-      super(m0, _isColumnMajor, _notCopyFloatArray);
-    }
+  constructor(m: FloatArray) {
+    super(m);
   }
 
   public set m00(val) {
@@ -200,14 +180,15 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * zero matrix(static version)
    */
   static zero() {
-    return super.zero() as MutableMatrix44;
+    return MutableMatrix44.fromCopy16RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
    * Create identity matrix
    */
   static identity() {
-    return new MutableMatrix44(1, 0, 0, 0,
+    return MutableMatrix44.fromCopy16RowMajor(
+      1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
       0, 0, 0, 1);
@@ -221,7 +202,11 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * Create transpose matrix
    */
   static transpose(mat: Matrix44) {
-    return super.transpose(mat) as MutableMatrix44;
+    if (mat.isIdentityMatrixClass) {
+      return mat;
+    }
+
+    return MutableMatrix44.fromCopyFloat32ArrayRowMajor(mat._v);
   }
 
   /**
@@ -688,5 +673,122 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
       m20, m21, m22, m23,
       m30, m31, m32, m33
     );
+  }
+
+  /**
+   * Set values as Row Major
+   * Note that WebGL matrix keeps the values in column major.
+   * If you write 16 values in 4x4 style (4 values in each row),
+   *   It will becomes an intuitive handling.
+   * @returns
+   */
+  static fromCopy16RowMajor(
+    m00: number, m01: number, m02: number, m03: number,
+    m10: number, m11: number, m12: number, m13: number,
+    m20: number, m21: number, m22: number, m23: number,
+    m30: number, m31: number, m32: number, m33: number) {
+    const v = new Float32Array(16);
+    v[0] = m00; v[4] = m01; v[8] = m02; v[12] = m03;
+    v[1] = m10; v[5] = m11; v[9] = m12; v[13] = m13;
+    v[2] = m20; v[6] = m21; v[10] = m22; v[14] = m23;
+    v[3] = m30; v[7] = m31; v[11] = m32; v[15] = m33;
+    return new MutableMatrix44(v);
+  }
+
+  /**
+   * Set values as Column Major
+   * Note that WebGL matrix keeps the values in column major.
+   * @returns
+   */
+  static fromCopy16ColumnMajor(
+    m00: number, m10: number, m20: number, m30: number,
+    m01: number, m11: number, m21: number, m31: number,
+    m02: number, m12: number, m22: number, m32: number,
+    m03: number, m13: number, m23: number, m33: number) {
+    const v = new Float32Array(16);
+    v[0] = m00; v[4] = m01; v[8] = m02; v[12] = m03;
+    v[1] = m10; v[5] = m11; v[9] = m12; v[13] = m13;
+    v[2] = m20; v[6] = m21; v[10] = m22; v[14] = m23;
+    v[3] = m30; v[7] = m31; v[11] = m32; v[15] = m33;
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyMatrix44(mat: Matrix44) {
+    const v = new Float32Array(16);
+    v.set(mat._v);
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    const v = new Float32Array(16);
+    v.set(float32Array);
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
+    const v = new Float32Array(16);
+    v[0] = array[0]; v[4] = array[1]; v[8] = array[2]; v[12] = array[3];
+    v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
+    v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
+    v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyMatrix33(mat: IMatrix33) {
+    const v = new Float32Array(16);
+    v[0] = mat._v[0]; v[4] = mat._v[3]; v[8] = mat._v[6]; v[12] = 0;
+    v[1] = mat._v[1]; v[5] = mat._v[4]; v[9] = mat._v[7]; v[13] = 0;
+    v[2] = mat._v[2]; v[6] = mat._v[5]; v[10] = mat._v[8]; v[14] = 0;
+    v[3] = 0; v[7] = 0; v[11] = 0; v[15] = 1;
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyArray16ColumnMajor(array: Array16<number>) {
+    const v = new Float32Array(16);
+    v.set(array);
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyArrayColumnMajor(array: Array<number>) {
+    const v = new Float32Array(16);
+    v.set(array);
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyArray16RowMajor(array: Array16<number>) {
+    const v = new Float32Array(16);
+    v[0] = array[0]; v[4] = array[1]; v[8] = array[2]; v[12] = array[3];
+    v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
+    v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
+    v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
+    return new MutableMatrix44(v);
+  }
+
+  static fromCopyArrayRowMajor(array: Array<number>) {
+    const v = new Float32Array(16);
+    v[0] = array[0]; v[4] = array[1]; v[8] = array[2]; v[12] = array[3];
+    v[1] = array[4]; v[5] = array[5]; v[9] = array[6]; v[13] = array[7];
+    v[2] = array[8]; v[6] = array[9]; v[10] = array[10]; v[14] = array[11];
+    v[3] = array[12]; v[7] = array[13]; v[11] = array[14]; v[15] = array[15];
+    return new MutableMatrix44(v);
+  }
+
+  static fromQuaternion(q: Quaternion) {
+      const sx = q._v[0] * q._v[0];
+      const sy = q._v[1] * q._v[1];
+      const sz = q._v[2] * q._v[2];
+      const cx = q._v[1] * q._v[2];
+      const cy = q._v[0] * q._v[2];
+      const cz = q._v[0] * q._v[1];
+      const wx = q._v[3] * q._v[0];
+      const wy = q._v[3] * q._v[1];
+      const wz = q._v[3] * q._v[2];
+      const v = new Float32Array(16)
+      v[0] = 1.0 - 2.0 * (sy + sz); v[4] = 2.0 * (cz - wz); v[8] = 2.0 * (cy + wy); v[12] = 0;
+      v[1] = 2.0 * (cz + wz); v[5] = 1.0 - 2.0 * (sx + sz); v[9] = 2.0 * (cx - wx); v[13] = 0;
+      v[2] = 2.0 * (cy - wy); v[6] = 2.0 * (cx + wx); v[10] = 1.0 - 2.0 * (sx + sy); v[14] = 0;
+      v[3] = 0; v[7] = 0; v[11] = 0; v[15] = 1;
+
+    return new MutableMatrix44(v);
   }
 }

@@ -32,6 +32,8 @@ export type FloatTypedArrayConstructor =
   | Float32ArrayConstructor
   | Float64ArrayConstructor;
 
+export type Array16<T> = [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T];
+export type Array9<T> = [T, T, T, T, T, T, T, T, T];
 export type Array4<T> = [T, T, T, T];
 export type Array3<T> = [T, T, T];
 export type Array2<T> = [T, T];

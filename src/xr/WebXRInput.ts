@@ -300,7 +300,9 @@ function processThumbstickInput(
     deltaVector.x += xAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
     deltaVector.z += yAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
   }
-  const orientationMat = new MutableMatrix33(viewerData.viewerOrientation);
+  const orientationMat = MutableMatrix33.fromQuaternion(
+    viewerData.viewerOrientation
+  );
   const rotateMat = orientationMat.multiply(
     MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x)
   );

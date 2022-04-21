@@ -553,7 +553,7 @@ export class Accessor {
       index = indicesAccessor.getScalar(i, {});
     }
     const byteSize = this.componentSizeInBytes;
-    return new Matrix33(
+    return Matrix33.fromCopy9RowMajor(
       this.__dataViewGetter(this.__byteStride * index, endian),
       this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
       this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),
@@ -575,7 +575,7 @@ export class Accessor {
       index = indicesAccessor.getScalar(i, {});
     }
     const byteSize = this.componentSizeInBytes;
-    return new MutableMatrix44(
+    return MutableMatrix44.fromCopy16RowMajor(
       this.__dataViewGetter(this.__byteStride * index, endian),
       this.__dataViewGetter(this.__byteStride * index + 1 * byteSize, endian),
       this.__dataViewGetter(this.__byteStride * index + 2 * byteSize, endian),

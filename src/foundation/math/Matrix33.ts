@@ -1,120 +1,21 @@
-import { Vector3 } from './Vector3';
-import { Matrix44 } from './Matrix44';
-import { Quaternion } from './Quaternion';
+import {Vector3} from './Vector3';
+import {Matrix44} from './Matrix44';
+import {Quaternion} from './Quaternion';
 import {IMatrix, IMatrix33} from './IMatrix';
-import { MutableMatrix33 } from './MutableMatrix33';
+import {MutableMatrix33} from './MutableMatrix33';
 import {CompositionType} from '../definitions/CompositionType';
 import {MathUtil} from './MathUtil';
-import { MutableVector3 } from './MutableVector3';
-import { AbstractMatrix } from './AbstractMatrix';
-import { IdentityMatrix33 } from './IdentityMatrix33';
+import {MutableVector3} from './MutableVector3';
+import {AbstractMatrix} from './AbstractMatrix';
+import {IdentityMatrix33} from './IdentityMatrix33';
 import {IMutableVector3, IVector3} from './IVector';
+import {Array9} from '../../types';
 /* eslint-disable prettier/prettier */
 
 export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
-  constructor(m: null);
-  constructor(m: Float32Array, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-  constructor(m: Array<number>, isColumnMajor?: boolean);
-  constructor(m: Matrix33, isColumnMajor?: boolean);
-  constructor(m: Matrix44, isColumnMajor?: boolean);
-  constructor(m: Quaternion, isColumnMajor?: boolean);
-  constructor(
-    m0: number, m1: number, m2: number,
-    m3: number, m4: number, m5: number,
-    m6: number, m7: number, m8: number,
-    isColumnMajor?: boolean,);
-  constructor(
-    m0: any, m1?: any, m2?: any,
-    m3?: number, m4?: number, m5?: number,
-    m6?: number, m7?: number, m8?: number,
-    isColumnMajor = false, notCopyFloatArray = false) {
-
+  constructor(m: Float32Array) {
     super();
-    const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
-    const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : m2;
-    const m = m0;
-
-    if (m == null) {
-      this._v = new Float32Array(0);
-      return;
-    }
-
-    if (9 <= arguments.length && arguments.length <= 10 && m8 != null) {
-      this._v = new Float32Array(9);
-      if (_isColumnMajor === true) {
-        const m = arguments;
-        this._v[0] = m[0]; this._v[3] = m[3]; this._v[6] = m[6];
-        this._v[1] = m[1]; this._v[4] = m[4]; this._v[7] = m[7];
-        this._v[2] = m[2]; this._v[5] = m[5]; this._v[8] = m[8];
-      } else {
-        const m = arguments;
-        // arguments[0-8] must be row major values if isColumnMajor is false
-        this._v[0] = m[0]; this._v[3] = m[1]; this._v[6] = m[2];
-        this._v[1] = m[3]; this._v[4] = m[4]; this._v[7] = m[5];
-        this._v[2] = m[6]; this._v[5] = m[7]; this._v[8] = m[8];
-      }
-    } else if (Array.isArray(m as Array<Number>)) {
-      this._v = new Float32Array(9);
-      if (_isColumnMajor === true) {
-        this._v[0] = m[0]; this._v[3] = m[3]; this._v[6] = m[6];
-        this._v[1] = m[1]; this._v[4] = m[4]; this._v[7] = m[7];
-        this._v[2] = m[2]; this._v[5] = m[5]; this._v[8] = m[8];
-      } else {
-        // 'm' must be row major array if isColumnMajor is false
-        this._v[0] = m[0]; this._v[3] = m[1]; this._v[6] = m[2];
-        this._v[1] = m[3]; this._v[4] = m[4]; this._v[7] = m[5];
-        this._v[2] = m[6]; this._v[5] = m[7]; this._v[8] = m[8];
-      }
-    } else if (m instanceof Float32Array) {
-      if (_notCopyFloatArray) {
-        this._v = m;
-      } else {
-        this._v = new Float32Array(9);
-        if (_isColumnMajor === true) {
-          this._v[0] = m[0]; this._v[3] = m[3]; this._v[6] = m[6];
-          this._v[1] = m[1]; this._v[4] = m[4]; this._v[7] = m[7];
-          this._v[2] = m[2]; this._v[5] = m[5]; this._v[8] = m[8];
-        } else {
-          // 'm' must be row major array if isColumnMajor is false
-          this._v[0] = m[0]; this._v[3] = m[1]; this._v[6] = m[2];
-          this._v[1] = m[3]; this._v[4] = m[4]; this._v[7] = m[5];
-          this._v[2] = m[6]; this._v[5] = m[7]; this._v[8] = m[8];
-        }
-      }
-    } else if (!!m && m._v?.[8] != null) {
-      if (_notCopyFloatArray) {
-        this._v = m._v;
-      } else {
-        this._v = new Float32Array(9);
-        const v = (m as Matrix33 | Matrix44)._v;
-        this._v[0] = v[0]; this._v[3] = v[3]; this._v[6] = v[6];
-        this._v[1] = v[1]; this._v[4] = v[4]; this._v[7] = v[7];
-        this._v[2] = v[2]; this._v[5] = v[5]; this._v[8] = v[8];
-      }
-    } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className.indexOf('Quaternion') !== -1) {
-      this._v = new Float32Array(9);
-      const q = m as Quaternion;
-      const sx = q._v[0] * q._v[0];
-      const sy = q._v[1] * q._v[1];
-      const sz = q._v[2] * q._v[2];
-      const cx = q._v[1] * q._v[2];
-      const cy = q._v[0] * q._v[2];
-      const cz = q._v[0] * q._v[1];
-      const wx = q._v[3] * q._v[0];
-      const wy = q._v[3] * q._v[1];
-      const wz = q._v[3] * q._v[2];
-
-      this._v[0] = 1.0 - 2.0 * (sy + sz); this._v[3] = 2.0 * (cz - wz); this._v[6] = 2.0 * (cy + wy);
-      this._v[1] = 2.0 * (cz + wz); this._v[4] = 1.0 - 2.0 * (sx + sz); this._v[7] = 2.0 * (cx - wx);
-      this._v[2] = 2.0 * (cy - wy); this._v[5] = 2.0 * (cx + wx); this._v[8] = 1.0 - 2.0 * (sx + sy);
-
-    } else {
-      this._v = new Float32Array(9);
-      this._v[0] = 1; this._v[3] = 0; this._v[6] = 0;
-      this._v[1] = 0; this._v[4] = 1; this._v[7] = 0;
-      this._v[2] = 0; this._v[5] = 0; this._v[8] = 1;
-
-    }
+    this._v = m;
   }
 
   public get m00() {
@@ -165,7 +66,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * zero matrix(static version)
    */
   static zero() {
-    return new this(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return Matrix33.fromCopy9RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
@@ -182,7 +83,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   }
 
   static dummy() {
-    return new this(null);
+    return new this(new Float32Array(0));
   }
 
   /**
@@ -193,7 +94,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
       return mat;
     }
 
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       mat._v[0], mat._v[1], mat._v[2],
       mat._v[3], mat._v[4], mat._v[5],
       mat._v[6], mat._v[7], mat._v[8]
@@ -222,7 +123,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) / det;
     const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) / det;
 
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
@@ -261,7 +162,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateX(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       1, 0, 0,
       0, cos, -sin,
       0, sin, cos
@@ -274,7 +175,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateY(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       cos, 0, sin,
       0, 1, 0,
       -sin, 0, cos
@@ -287,7 +188,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateZ(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       cos, -sin, 0,
       sin, cos, 0,
       0, 0, 1
@@ -354,7 +255,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m21 = yx21;
     const m22 = yx22;
 
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
@@ -369,7 +270,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * Create Scale Matrix
    */
   static scale(vec: Vector3) {
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       vec._v[0], 0, 0,
       0, vec._v[1], 0,
       0, 0, vec._v[2]
@@ -398,7 +299,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m12 = l_mat._v[1] * r_mat._v[6] + l_mat._v[4] * r_mat._v[7] + l_mat._v[7] * r_mat._v[8];
     const m22 = l_mat._v[2] * r_mat._v[6] + l_mat._v[5] * r_mat._v[7] + l_mat._v[8] * r_mat._v[8];
 
-    return new this(
+    return Matrix33.fromCopy9RowMajor(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
@@ -534,10 +435,122 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   }
 
   clone() {
-    return new (this.constructor as any)(
+    return (this.constructor as any).fromCopy9RowMajor(
       this._v[0], this._v[3], this._v[6],
       this._v[1], this._v[4], this._v[7],
       this._v[2], this._v[5], this._v[8]
-    ) as Matrix33;
+    );
+  }
+
+  /**
+   * Set values as Row Major
+   * Note that WebGL matrix keeps the values in column major.
+   * If you write 9 values in 3x3 style (3 values in each row),
+   *   It will becomes an intuitive handling.
+   * @returns
+   */
+  static fromCopy9RowMajor(
+    m00: number, m01: number, m02: number,
+    m10: number, m11: number, m12: number,
+    m20: number, m21: number, m22: number)
+  {
+    const v = new Float32Array(9);
+    v[0] = m00; v[3] = m01; v[6] = m02;
+    v[1] = m10; v[4] = m11; v[7] = m12;
+    v[2] = m20; v[5] = m21; v[8] = m22;
+    return new Matrix33(v);
+  }
+
+  /**
+   * Set values as Column Major
+   * Note that WebGL matrix keeps the values in column major.
+   * @returns
+   */
+  static fromCopy9ColumnMajor(
+    m00: number, m10: number, m20: number,
+    m01: number, m11: number, m21: number,
+    m02: number, m12: number, m22: number)
+  {
+    const v = new Float32Array(9);
+    v[0] = m00; v[3] = m01; v[6] = m02;
+    v[1] = m10; v[4] = m11; v[7] = m12;
+    v[2] = m20; v[5] = m21; v[8] = m22;
+    return new Matrix33(v);
+  }
+
+
+  static fromCopyMatrix44(mat: Matrix44) {
+    const v = new Float32Array(9);
+    v.set(mat._v);
+    return new Matrix33(v);
+  }
+
+  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    const v = new Float32Array(9);
+    v.set(float32Array);
+    return new Matrix33(v);
+  }
+
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
+    const v = new Float32Array(9);
+    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
+    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
+    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+
+    return new Matrix33(v);
+  }
+
+  static fromCopyMatrix33(mat: IMatrix33) {
+    const v = new Float32Array(9);
+    v[0] = mat._v[0]; v[3] = mat._v[3]; v[6] = mat._v[6];
+    v[1] = mat._v[1]; v[4] = mat._v[4]; v[7] = mat._v[7];
+    v[2] = mat._v[2]; v[5] = mat._v[5]; v[8] = mat._v[8];
+    return new Matrix33(v);
+  }
+
+  static fromCopyArray9ColumnMajor(array: Array9<number>) {
+    const v = new Float32Array(9);
+    v.set(array);
+    return new Matrix33(v);
+  }
+
+  static fromCopyArrayColumnMajor(array: Array<number>) {
+    const v = new Float32Array(9);
+    v.set(array);
+    return new Matrix33(v);
+  }
+
+  static fromCopyArray9RowMajor(array: Array9<number>) {
+    const v = new Float32Array(9);
+    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
+    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
+    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    return new Matrix33(v);
+  }
+
+  static fromCopyArrayRowMajor(array: Array<number>) {
+    const v = new Float32Array(9);
+    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
+    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
+    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    return new Matrix33(v);
+  }
+
+  static fromQuaternion(q: Quaternion) {
+    const sx = q._v[0] * q._v[0];
+    const sy = q._v[1] * q._v[1];
+    const sz = q._v[2] * q._v[2];
+    const cx = q._v[1] * q._v[2];
+    const cy = q._v[0] * q._v[2];
+    const cz = q._v[0] * q._v[1];
+    const wx = q._v[3] * q._v[0];
+    const wy = q._v[3] * q._v[1];
+    const wz = q._v[3] * q._v[2];
+    const v = new Float32Array(9)
+    v[0] = 1.0 - 2.0 * (sy + sz); v[3] = 2.0 * (cz - wz); v[6] = 2.0 * (cy + wy);
+    v[1] = 2.0 * (cz + wz); v[4] = 1.0 - 2.0 * (sx + sz); v[7] = 2.0 * (cx - wx);
+    v[2] = 2.0 * (cy - wy); v[5] = 2.0 * (cx + wx); v[8] = 1.0 - 2.0 * (sx + sy);
+
+    return new Matrix33(v);
   }
 }
