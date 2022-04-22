@@ -8,17 +8,8 @@ export class MutableQuaternion
   extends Quaternion
   implements IMutableQuaternion
 {
-  constructor(
-    x?:
-      | number
-      | TypedArray
-      | IVector4
-      | null,
-    y?: number,
-    z?: number,
-    w?: number
-  ) {
-    super(x, y, z, w);
+  constructor(x: Float32Array) {
+    super(x);
   }
 
   set x(x: number) {
@@ -324,15 +315,15 @@ export class MutableQuaternion
   }
 
   static fromCopyArray4(array: Array4<number>) {
-    return new MutableQuaternion(new Float32Array(array), 0, 0, 0);
+    return new MutableQuaternion(new Float32Array(array));
   }
 
   static fromCopyArray(array: Array<number>) {
-    return new MutableQuaternion(new Float32Array(array.slice(0, 4)), 0, 0, 0);
+    return new MutableQuaternion(new Float32Array(array.slice(0, 4)));
   }
 
   static fromCopy4(x: number, y: number, z: number, w: number) {
-    return new MutableQuaternion(new Float32Array([x, y, z, w]), 0, 0, 0);
+    return new MutableQuaternion(new Float32Array([x, y, z, w]));
   }
 
   static fromCopyQuaternion(quat: IQuaternion) {
@@ -341,7 +332,7 @@ export class MutableQuaternion
     v[1] = quat._v[1];
     v[2] = quat._v[2];
     v[3] = quat._v[3];
-    return new MutableQuaternion(v, 0, 0, 0);
+    return new MutableQuaternion(v);
   }
 
   static fromCopyVector4(vec: IVector4) {
@@ -350,7 +341,7 @@ export class MutableQuaternion
     v[1] = vec._v[1];
     v[2] = vec._v[2];
     v[3] = vec._v[3];
-    return new MutableQuaternion(v, 0, 0, 0);
+    return new MutableQuaternion(v);
   }
 
   static fromCopyLogQuaternion(x: ILogQuaternion) {
@@ -361,6 +352,6 @@ export class MutableQuaternion
     v[1] = x._v[1] * (sin / theta);
     v[2] = x._v[2] * (sin / theta);
     v[3] = Math.cos(theta);
-    return new MutableQuaternion(v, 0, 0, 0);
+    return new MutableQuaternion(v);
   }
 }

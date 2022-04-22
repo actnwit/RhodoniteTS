@@ -11,65 +11,9 @@ import {AbstractQuaternion} from './AbstractQuaternion';
 export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_upVec: any = undefined;
 
-  constructor(
-    x?:
-      | number
-      | TypedArray
-      | IVector4
-      | null,
-    y?: number,
-    z?: number,
-    w?: number
-  ) {
+  constructor(x: Float32Array) {
     super();
-    if (ArrayBuffer.isView(x)) {
-      this._v = x as Float32Array;
-      return;
-    } else if (x == null) {
-      this._v = new Float32Array(0);
-      return;
-    } else {
-      this._v = new Float32Array(4);
-    }
-
-    if (Array.isArray(x)) {
-      this._v[0] = x[0];
-      this._v[1] = x[1];
-      this._v[2] = x[2];
-      this._v[3] = x[3];
-    } else if (typeof x === 'number') {
-      this._v[0] = x;
-      this._v[1] = y as number;
-      this._v[2] = z as number;
-      this._v[3] = w as number;
-    } else if (x instanceof LogQuaternion) {
-      const theta = x._v[0] * x._v[0] + x._v[1] * x._v[1] + x._v[2] * x._v[2];
-      const sin = Math.sin(theta);
-      this._v[0] = x._v[0] * (sin / theta);
-      this._v[1] = x._v[1] * (sin / theta);
-      this._v[2] = x._v[2] * (sin / theta);
-      this._v[3] = Math.cos(theta);
-    } else {
-      if (typeof x._v[2] === 'undefined') {
-        // IVector2
-        this._v[0] = x._v[0];
-        this._v[1] = x._v[1];
-        this._v[2] = 0;
-        this._v[3] = 1;
-      } else if (typeof x._v[3] === 'undefined') {
-        // IVector3
-        this._v[0] = x._v[0];
-        this._v[1] = x._v[1];
-        this._v[2] = x._v[2];
-        this._v[3] = 1;
-      } else {
-        // IVector4 and IQuaternion
-        this._v[0] = x._v[0];
-        this._v[1] = x._v[1];
-        this._v[2] = x._v[2];
-        this._v[3] = x._v[3];
-      }
-    }
+    this._v = x;
   }
 
   get className() {
@@ -81,24 +25,24 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   static identity() {
-    return new this(0, 0, 0, 1);
+    return Quaternion.fromCopy4(0, 0, 0, 1);
   }
 
   static dummy() {
-    return new this(null);
+    return new this(new Float32Array(0));
   }
 
   static invert(quat: IQuaternion): IQuaternion {
     const norm = quat.length();
     if (norm === 0.0) {
-      return new this(0, 0, 0, 0) as IQuaternion;
+      return Quaternion.fromCopy4(0, 0, 0, 0) as IQuaternion;
     }
 
     const x = -quat._v[0] / norm;
     const y = -quat._v[1] / norm;
     const z = -quat._v[2] / norm;
     const w = quat._v[3] / norm;
-    return new this(x, y, z, w) as IQuaternion;
+    return Quaternion.fromCopy4(x, y, z, w) as IQuaternion;
   }
 
   static invertTo(quat: IQuaternion, out: IMutableQuaternion): IQuaternion {
@@ -163,7 +107,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       z = z / length;
       w = w / length;
 
-      return new this(x, y, z, w) as IQuaternion;
+      return Quaternion.fromCopy4(x, y, z, w) as IQuaternion;
     }
   }
 
@@ -219,7 +163,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = l_quat._v[1] * (1 - ratio) + r_quat._v[1] * ratio;
     const z = l_quat._v[2] * (1 - ratio) + r_quat._v[2] * ratio;
     const w = l_quat._v[3] * (1 - ratio) + r_quat._v[3] * ratio;
-    return new this(x, y, z, w);
+    return Quaternion.fromCopy4(x, y, z, w);
   }
 
   static lerpTo(
@@ -244,7 +188,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       console.error('0 division occurred!');
     }
 
-    return new this(
+    return Quaternion.fromCopy4(
       (sin * vec._v[0]) / length,
       (sin * vec._v[1]) / length,
       (sin * vec._v[2]) / length,
@@ -253,7 +197,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   static fromMatrix(mat: IMatrix44) {
-    const quat = new this(0, 0, 0, 1);
+    const quat = Quaternion.fromCopy4(0, 0, 0, 1);
     const tr = mat.m00 + mat.m11 + mat.m22;
 
     if (tr > 0) {
@@ -321,7 +265,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     toDirection: IVector3
   ): IQuaternion {
     if (fromDirection.isEqual(toDirection)) {
-      return new this(0, 0, 0, 1) as IQuaternion;
+      return Quaternion.fromCopy4(0, 0, 0, 1) as IQuaternion;
     }
     return this.qlerp(
       this.lookForward(fromDirection),
@@ -387,7 +331,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     if (num8 > 0) {
       const num = Math.sqrt(num8 + 1);
       const num2 = 0.5 / num;
-      return new this(
+      return Quaternion.fromCopy4(
         (m12 - m21) * num2,
         (m20 - m02) * num2,
         (m01 - m10) * num2,
@@ -396,7 +340,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     } else if (m00 >= m11 && m00 >= m22) {
       const num7 = Math.sqrt(1 + m00 - m11 - m22);
       const num4 = 0.5 / num7;
-      return new this(
+      return Quaternion.fromCopy4(
         0.5 * num7,
         (m01 + m10) * num4,
         (m02 + m20) * num4,
@@ -405,7 +349,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     } else if (m11 > m22) {
       const num6 = Math.sqrt(1 + m11 - m00 - m22);
       const num3 = 0.5 / num6;
-      return new this(
+      return Quaternion.fromCopy4(
         (m10 + m01) * num3,
         0.5 * num6,
         (m21 + m12) * num3,
@@ -414,7 +358,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     } else {
       const num5 = Math.sqrt(1 + m22 - m00 - m11);
       const num2 = 0.5 / num5;
-      return new this(
+      return Quaternion.fromCopy4(
         (m20 + m02) * num2,
         (m21 + m12) * num2,
         0.5 * num5,
@@ -424,7 +368,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   static fromPosition(vec: IVector3) {
-    return new this(vec._v[0], vec._v[1], vec._v[2], 0);
+    return Quaternion.fromCopy4(vec._v[0], vec._v[1], vec._v[2], 0);
   }
 
   static add(l_quat: IQuaternion, r_quat: IQuaternion) {
@@ -432,7 +376,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = l_quat._v[1] + r_quat._v[1];
     const z = l_quat._v[2] + r_quat._v[2];
     const w = l_quat._v[3] + r_quat._v[3];
-    return new this(x, y, z, w);
+    return Quaternion.fromCopy4(x, y, z, w);
   }
 
   static addTo(
@@ -452,7 +396,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = l_quat._v[1] - r_quat._v[1];
     const z = l_quat._v[2] - r_quat._v[2];
     const w = l_quat._v[3] - r_quat._v[3];
-    return new this(x, y, z, w);
+    return Quaternion.fromCopy4(x, y, z, w);
   }
 
   static subtractTo(
@@ -488,7 +432,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       r_quat._v[1] * l_quat._v[1] -
       r_quat._v[2] * l_quat._v[2] +
       r_quat._v[3] * l_quat._v[3];
-    return new this(x, y, z, w);
+    return Quaternion.fromCopy4(x, y, z, w);
   }
 
   static multiplyTo(
@@ -524,7 +468,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = quat._v[1] * value;
     const z = quat._v[2] * value;
     const w = quat._v[3] * value;
-    return new this(x, y, z, w);
+    return Quaternion.fromCopy4(x, y, z, w);
   }
 
   static multiplyNumberTo(
@@ -547,7 +491,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = quat._v[1] / value;
     const z = quat._v[2] / value;
     const w = quat._v[3] / value;
-    return new this(x, y, z, w);
+    return Quaternion.fromCopy4(x, y, z, w);
   }
 
   static divideNumberTo(
@@ -662,15 +606,15 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   static fromCopyArray4(array: Array4<number>) {
-    return new Quaternion(new Float32Array(array), 0, 0, 0);
+    return new Quaternion(new Float32Array(array));
   }
 
   static fromCopyArray(array: Array<number>) {
-    return new Quaternion(new Float32Array(array.slice(0, 4)), 0, 0, 0);
+    return new Quaternion(new Float32Array(array.slice(0, 4)));
   }
 
   static fromCopy4(x: number, y: number, z: number, w: number) {
-    return new Quaternion(new Float32Array([x, y, z, w]), 0, 0, 0);
+    return new Quaternion(new Float32Array([x, y, z, w]));
   }
 
   static fromCopyQuaternion(quat: IQuaternion) {
@@ -679,7 +623,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     v[1] = quat._v[1];
     v[2] = quat._v[2];
     v[3] = quat._v[3];
-    return new Quaternion(v, 0, 0, 0);
+    return new Quaternion(v);
   }
 
   static fromCopyVector4(vec: IVector4) {
@@ -688,7 +632,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     v[1] = vec._v[1];
     v[2] = vec._v[2];
     v[3] = vec._v[3];
-    return new Quaternion(v, 0, 0, 0);
+    return new Quaternion(v);
   }
 
   static fromCopyLogQuaternion(x: ILogQuaternion) {
@@ -699,6 +643,6 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     v[1] = x._v[1] * (sin / theta);
     v[2] = x._v[2] * (sin / theta);
     v[3] = Math.cos(theta);
-    return new Quaternion(v, 0, 0, 0);
+    return new Quaternion(v);
   }
 }

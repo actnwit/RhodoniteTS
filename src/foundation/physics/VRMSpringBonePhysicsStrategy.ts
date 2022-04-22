@@ -25,7 +25,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private __currentTail = Vector3.zero();
   private __prevTail = Vector3.zero();
   private __localDir = Vector3.zero();
-  private __localRotation = new Quaternion(0, 0, 0, 1);
+  private __localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
   private __initalized = false;
   private __localChildPosition = Vector3.zero();
 
@@ -78,7 +78,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
     return this.__transform!.parent != null
       ? Quaternion.fromMatrix(this.__transform!.parent!.worldMatrixInner)
-      : new Quaternion(0, 0, 0, 1);
+      : Quaternion.fromCopy4(0, 0, 0, 1);
   }
 
   static update() {
