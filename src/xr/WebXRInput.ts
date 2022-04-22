@@ -300,7 +300,7 @@ function processThumbstickInput(
     deltaVector.x += xAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
     deltaVector.z += yAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
   }
-  const orientationMat = MutableMatrix33.fromQuaternion(
+  const orientationMat = MutableMatrix33.fromCopyQuaternion(
     viewerData.viewerOrientation
   );
   const rotateMat = orientationMat.multiply(

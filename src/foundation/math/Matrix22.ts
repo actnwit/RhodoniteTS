@@ -283,6 +283,10 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
     return new Matrix22(v);
   }
 
+  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    return new Matrix22(float32Array);
+  }
+
   static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
     const v = new Float32Array(4);
     v.set(float32Array);

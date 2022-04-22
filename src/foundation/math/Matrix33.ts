@@ -485,6 +485,10 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     return new Matrix33(v);
   }
 
+  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    return new Matrix33(float32Array);
+  }
+
   static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
     const v = new Float32Array(9);
     v.set(float32Array);
@@ -536,7 +540,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     return new Matrix33(v);
   }
 
-  static fromQuaternion(q: Quaternion) {
+  static fromCopyQuaternion(q: Quaternion) {
     const sx = q._v[0] * q._v[0];
     const sy = q._v[1] * q._v[1];
     const sz = q._v[2] * q._v[2];

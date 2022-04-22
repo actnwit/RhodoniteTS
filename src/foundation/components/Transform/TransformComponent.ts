@@ -618,7 +618,7 @@ export class TransformComponent extends Component {
   }
 
   get rotateMatrix44() {
-    return Matrix44.fromQuaternion(this.quaternion);
+    return Matrix44.fromCopyQuaternion(this.quaternion);
   }
 
   $logic() {
