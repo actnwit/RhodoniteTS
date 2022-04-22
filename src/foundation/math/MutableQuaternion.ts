@@ -13,7 +13,6 @@ export class MutableQuaternion
       | number
       | TypedArray
       | IVector4
-      | Array<number>
       | null,
     y?: number,
     z?: number,

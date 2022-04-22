@@ -16,7 +16,6 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       | number
       | TypedArray
       | IVector4
-      | Array<number>
       | null,
     y?: number,
     z?: number,
