@@ -151,7 +151,7 @@ export class TranslationGizmo extends Gizmo {
           this.__target.getTransform().quaternion;
       } else if (TranslationGizmo.__space === 'world') {
         TranslationGizmo.__groupEntity.getTransform().quaternion =
-          new Quaternion(0, 0, 0, 1);
+          Quaternion.fromCopy4(0, 0, 0, 1);
       }
     }
 

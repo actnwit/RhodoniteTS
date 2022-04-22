@@ -18,6 +18,7 @@ import {
   EntityUID,
   Array3,
   Array16,
+  Array4,
 } from '../../../types/CommonTypes';
 import {IQuaternion} from '../../math/IQuaternion';
 import {IMatrix44} from '../../math/IMatrix';
@@ -446,7 +447,7 @@ export class TransformComponent extends Component {
     // Rotation
     if (rotate != null && quaternion != null) {
       this._rotate.copyComponents(rotate);
-      this._quaternion = new MutableQuaternion(quaternion);
+      this._quaternion = MutableQuaternion.fromCopyQuaternion(quaternion);
       this._is_euler_angles_updated = true;
       this._is_quaternion_updated = true;
     } else if (rotate != null) {
@@ -539,7 +540,9 @@ export class TransformComponent extends Component {
     for (const key in json) {
       if (json.hasOwnProperty(key) && key in this) {
         if (key === 'quaternion') {
-          this[key] = new Quaternion((json as any)[key] as Array<number>);
+          this[key] = Quaternion.fromCopyArray4(
+            (json as any)[key] as Array4<number>
+          );
         } else if (key === 'matrix') {
           this[key] = Matrix44.fromCopyArray16RowMajor(
             (json as any)[key] as Array16<number>

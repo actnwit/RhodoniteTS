@@ -126,7 +126,7 @@ export class MathClassUtil {
   }
 
   static arrayToQuaternion(element: Array<number>) {
-    return new Quaternion(element[0], element[1], element[2], element[3]);
+    return Quaternion.fromCopy4(element[0], element[1], element[2], element[3]);
   }
 
   static makeSubArray(array: Array<any>, componentN: number) {
@@ -339,7 +339,7 @@ export class MathClassUtil {
     } else if (objForDetectType instanceof Vector4) {
       return Vector4.fromCopyArray([val, val, val, val]);
     } else if (objForDetectType instanceof Quaternion) {
-      return new Quaternion(0, 0, 0, 1);
+      return Quaternion.fromCopy4(0, 0, 0, 1);
     } else if (Array.isArray(objForDetectType)) {
       const arr: number[] = [];
       for (let i = 0; i < objForDetectType.length; i++) {

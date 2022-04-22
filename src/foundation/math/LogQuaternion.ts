@@ -1,53 +1,12 @@
 import {IVector3, IVector4} from './IVector';
-import { Quaternion } from './Quaternion';
-import {TypedArray} from '../../types/CommonTypes';
+import {Quaternion} from './Quaternion';
+import {Array3, TypedArray} from '../../types/CommonTypes';
 import {ILogQuaternion, IQuaternion} from './IQuaternion';
-import { AbstractVector } from './AbstractVector';
 
 export class LogQuaternion implements ILogQuaternion {
   _v: Float32Array;
-  constructor(
-    x:
-      | number
-      | TypedArray
-      | IVector3
-      | IVector4
-      | IQuaternion
-      | Array<number>
-      | null,
-    y?: number,
-    z?: number
-  ) {
-    if (ArrayBuffer.isView(x)) {
-      this._v = x as Float32Array;
-      return;
-    } else if (x == null) {
-      this._v = new Float32Array(0);
-      return;
-    } else {
-      this._v = new Float32Array(3);
-    }
-
-    if (x instanceof Quaternion) {
-      // for IQuaternion
-      const theta = Math.acos(x.w);
-      const sin = Math.sin(theta);
-      this._v[0] = x.x * (theta / sin);
-      this._v[1] = x.y * (theta / sin);
-      this._v[2] = x.z * (theta / sin);
-    } else if (Array.isArray(x)) {
-      this._v[0] = x[0];
-      this._v[1] = x[1];
-      this._v[2] = x[2];
-    } else if (typeof x === 'number') {
-      this._v[0] = x;
-      this._v[1] = y as number;
-      this._v[2] = z as number;
-    } else {
-      this._v[0] = x._v[0];
-      this._v[1] = x._v[1];
-      this._v[2] = x._v[2];
-    }
+  constructor(x: Float32Array) {
+    this._v = x;
   }
 
   get x() {
@@ -64,6 +23,45 @@ export class LogQuaternion implements ILogQuaternion {
 
   get w() {
     return 1;
+  }
+
+  static fromCopyArray3(array: Array3<number>) {
+    return new Quaternion(new Float32Array(array));
+  }
+
+  static fromCopyArray(array: Array<number>) {
+    return new Quaternion(new Float32Array(array.slice(0, 3)));
+  }
+
+  static fromCopy3(x: number, y: number, z: number) {
+    return new Quaternion(new Float32Array([x, y, z]));
+  }
+
+  static fromCopyLogQuaternion(quat: ILogQuaternion) {
+    const v = new Float32Array(3);
+    v[0] = quat._v[0];
+    v[1] = quat._v[1];
+    v[2] = quat._v[2];
+    return new Quaternion(v);
+  }
+
+  static fromCopyVector4(vec: IVector3) {
+    const v = new Float32Array(3);
+    v[0] = vec._v[0];
+    v[1] = vec._v[1];
+    v[2] = vec._v[2];
+    return new Quaternion(v);
+  }
+
+  static fromCopyQuaternion(x: IQuaternion) {
+    const theta = Math.acos(x.w);
+    const sin = Math.sin(theta);
+
+    const v = new Float32Array(3);
+    v[0] = x.x * (theta / sin);
+    v[1] = x.y * (theta / sin);
+    v[2] = x.z * (theta / sin);
+    return new LogQuaternion(v);
   }
 
   get className() {

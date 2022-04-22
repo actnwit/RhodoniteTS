@@ -151,12 +151,8 @@ export class ScaleGizmo extends Gizmo {
         ScaleGizmo.__groupEntity.getTransform().quaternion =
           this.__target.getTransform().quaternion;
       } else if (ScaleGizmo.__space === 'world') {
-        ScaleGizmo.__groupEntity.getTransform().quaternion = new Quaternion(
-          0,
-          0,
-          0,
-          1
-        );
+        ScaleGizmo.__groupEntity.getTransform().quaternion =
+          Quaternion.fromCopy4(0, 0, 0, 1);
       }
     }
 

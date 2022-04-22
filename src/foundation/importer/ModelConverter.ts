@@ -244,7 +244,7 @@ export class ModelConverter {
         ]);
       }
       if (nodeJson.rotation) {
-        groupTransform.quaternion = new Quaternion(
+        groupTransform.quaternion = Quaternion.fromCopy4(
           nodeJson.rotation[0],
           nodeJson.rotation[1],
           nodeJson.rotation[2],
