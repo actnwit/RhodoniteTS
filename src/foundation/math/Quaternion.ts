@@ -5,24 +5,17 @@ import {CompositionType} from '../definitions/CompositionType';
 import {IQuaternion, ILogQuaternion, IMutableQuaternion} from './IQuaternion';
 import {IMutableVector3} from './IVector';
 import {IMatrix44} from './IMatrix';
-import { LogQuaternion } from './LogQuaternion';
-import { AbstractQuaternion } from './AbstractQuaternion';
+import {LogQuaternion} from './LogQuaternion';
+import {AbstractQuaternion} from './AbstractQuaternion';
 
-export class Quaternion
-  extends AbstractQuaternion
-  implements IQuaternion
-{
+export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_upVec: any = undefined;
 
   constructor(
     x?:
       | number
       | TypedArray
-      | IVector2
-      | IVector3
       | IVector4
-      | IQuaternion
-      | ILogQuaternion
       | Array<number>
       | null,
     y?: number,
@@ -673,7 +666,40 @@ export class Quaternion
     return new Quaternion(new Float32Array(array), 0, 0, 0);
   }
 
-  static fromCopyXYZW(x: number, y: number, z: number, w: number) {
+  static fromCopyArray(array: Array<number>) {
+    return new Quaternion(new Float32Array(array.slice(0, 4)), 0, 0, 0);
+  }
+
+  static fromCopy4(x: number, y: number, z: number, w: number) {
     return new Quaternion(new Float32Array([x, y, z, w]), 0, 0, 0);
+  }
+
+  static fromCopyQuaternion(quat: IQuaternion) {
+    const v = new Float32Array(4);
+    v[0] = quat._v[0];
+    v[1] = quat._v[1];
+    v[2] = quat._v[2];
+    v[3] = quat._v[3];
+    return new Quaternion(v, 0, 0, 0);
+  }
+
+  static fromCopyVector4(vec: IVector4) {
+    const v = new Float32Array(4);
+    v[0] = vec._v[0];
+    v[1] = vec._v[1];
+    v[2] = vec._v[2];
+    v[3] = vec._v[3];
+    return new Quaternion(v, 0, 0, 0);
+  }
+
+  static fromCopyLogQuaternion(x: ILogQuaternion) {
+    const theta = x._v[0] * x._v[0] + x._v[1] * x._v[1] + x._v[2] * x._v[2];
+    const sin = Math.sin(theta);
+    const v = new Float32Array(4);
+    v[0] = x._v[0] * (sin / theta);
+    v[1] = x._v[1] * (sin / theta);
+    v[2] = x._v[2] * (sin / theta);
+    v[3] = Math.cos(theta);
+    return new Quaternion(v, 0, 0, 0);
   }
 }

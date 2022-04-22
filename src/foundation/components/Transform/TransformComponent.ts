@@ -446,7 +446,7 @@ export class TransformComponent extends Component {
     // Rotation
     if (rotate != null && quaternion != null) {
       this._rotate.copyComponents(rotate);
-      this._quaternion = new MutableQuaternion(quaternion);
+      this._quaternion = MutableQuaternion.fromCopyQuaternion(quaternion);
       this._is_euler_angles_updated = true;
       this._is_quaternion_updated = true;
     } else if (rotate != null) {

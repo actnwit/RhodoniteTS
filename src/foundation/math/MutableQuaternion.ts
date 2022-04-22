@@ -1,6 +1,6 @@
 import { Quaternion } from './Quaternion';
 import {IVector3, IVector4} from './IVector';
-import {TypedArray} from '../../types/CommonTypes';
+import {Array4, TypedArray} from '../../types/CommonTypes';
 import {IMutableQuaternion, ILogQuaternion, IQuaternion} from './IQuaternion';
 import {IMatrix44} from './IMatrix';
 
@@ -12,10 +12,7 @@ export class MutableQuaternion
     x?:
       | number
       | TypedArray
-      | IVector3
       | IVector4
-      | IQuaternion
-      | ILogQuaternion
       | Array<number>
       | null,
     y?: number,
@@ -325,5 +322,46 @@ export class MutableQuaternion
 
   clone(): MutableQuaternion {
     return super.clone() as MutableQuaternion;
+  }
+
+  static fromCopyArray4(array: Array4<number>) {
+    return new MutableQuaternion(new Float32Array(array), 0, 0, 0);
+  }
+
+  static fromCopyArray(array: Array<number>) {
+    return new MutableQuaternion(new Float32Array(array.slice(0, 4)), 0, 0, 0);
+  }
+
+  static fromCopy4(x: number, y: number, z: number, w: number) {
+    return new MutableQuaternion(new Float32Array([x, y, z, w]), 0, 0, 0);
+  }
+
+  static fromCopyQuaternion(quat: IQuaternion) {
+    const v = new Float32Array(4);
+    v[0] = quat._v[0];
+    v[1] = quat._v[1];
+    v[2] = quat._v[2];
+    v[3] = quat._v[3];
+    return new MutableQuaternion(v, 0, 0, 0);
+  }
+
+  static fromCopyVector4(vec: IVector4) {
+    const v = new Float32Array(4);
+    v[0] = vec._v[0];
+    v[1] = vec._v[1];
+    v[2] = vec._v[2];
+    v[3] = vec._v[3];
+    return new MutableQuaternion(v, 0, 0, 0);
+  }
+
+  static fromCopyLogQuaternion(x: ILogQuaternion) {
+    const theta = x._v[0] * x._v[0] + x._v[1] * x._v[1] + x._v[2] * x._v[2];
+    const sin = Math.sin(theta);
+    const v = new Float32Array(4);
+    v[0] = x._v[0] * (sin / theta);
+    v[1] = x._v[1] * (sin / theta);
+    v[2] = x._v[2] * (sin / theta);
+    v[3] = Math.cos(theta);
+    return new MutableQuaternion(v, 0, 0, 0);
   }
 }
