@@ -219,7 +219,6 @@ export class WalkThroughCameraController
 
   _mouseDown(evt: MouseEvent) {
     MiscUtil.preventDefaultForDesktopOnly(evt);
-    evt.stopPropagation();
     this._isMouseDown = true;
 
     const rect = (evt.target! as any).getBoundingClientRect();
@@ -234,7 +233,6 @@ export class WalkThroughCameraController
     if (!this._isMouseDown) {
       return;
     }
-    evt.stopPropagation();
 
     const rect = (evt.target! as any).getBoundingClientRect();
     this._draggedMouseXOnCanvas = evt.clientX - rect.left;
