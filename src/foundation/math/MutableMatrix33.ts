@@ -478,6 +478,10 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     return new MutableMatrix33(v);
   }
 
+  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    return new MutableMatrix33(float32Array);
+  }
+
   static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
     const v = new Float32Array(9);
     v.set(float32Array);
@@ -529,7 +533,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     return new MutableMatrix33(v);
   }
 
-  static fromQuaternion(q: Quaternion) {
+  static fromCopyQuaternion(q: Quaternion) {
     const sx = q._v[0] * q._v[0];
     const sy = q._v[1] * q._v[1];
     const sz = q._v[2] * q._v[2];

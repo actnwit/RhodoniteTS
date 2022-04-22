@@ -255,6 +255,10 @@ export class MutableMatrix22
     return new MutableMatrix22(v);
   }
 
+  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
+    return new MutableMatrix22(float32Array);
+  }
+
   static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
     const v = new Float32Array(4);
     v.set(float32Array);

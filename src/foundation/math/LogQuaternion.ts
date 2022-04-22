@@ -25,6 +25,10 @@ export class LogQuaternion implements ILogQuaternion {
     return 1;
   }
 
+  static fromFloat32Array(array: Float32Array) {
+    return new LogQuaternion(array);
+  }
+
   static fromCopyArray3(array: Array3<number>) {
     return new Quaternion(new Float32Array(array));
   }

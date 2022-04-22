@@ -314,6 +314,10 @@ export class MutableQuaternion
     return super.clone() as MutableQuaternion;
   }
 
+  static fromFloat32Array(array: Float32Array) {
+    return new MutableQuaternion(array);
+  }
+
   static fromCopyArray4(array: Array4<number>) {
     return new MutableQuaternion(new Float32Array(array));
   }

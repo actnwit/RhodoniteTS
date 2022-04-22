@@ -605,6 +605,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     ) as IQuaternion;
   }
 
+  static fromFloat32Array(array: Float32Array) {
+    return new Quaternion(array);
+  }
+
   static fromCopyArray4(array: Array4<number>) {
     return new Quaternion(new Float32Array(array));
   }
