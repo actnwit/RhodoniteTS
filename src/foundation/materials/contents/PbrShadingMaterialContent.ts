@@ -451,6 +451,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
           max: Number.MAX_SAFE_INTEGER,
           isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+          // https://github.com/actnwit/RhodoniteTS/pull/769#issuecomment-1107444507
           initialValue: [2, AbstractMaterialContent.__dummyBlackTexture],
         },
         {
