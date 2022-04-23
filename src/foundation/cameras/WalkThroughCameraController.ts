@@ -51,6 +51,7 @@ export class WalkThroughCameraController
   private _mouseMoveBind = (this._mouseMove as any).bind(this);
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
   private _eventTargetDom?: any;
+  private __doPreventDefault = false;
   private _needInitialize = true;
   protected __targetEntity?: ISceneGraphEntity;
 
@@ -105,14 +106,18 @@ export class WalkThroughCameraController
       {
         eventName: 'keydown',
         handler: this._onKeydown,
-        options: {},
+        options: {
+          passive: !this.__doPreventDefault,
+        },
         classInstance: this,
         eventTargetDom,
       },
       {
         eventName: 'keyup',
         handler: this._onKeyup,
-        options: {},
+        options: {
+          passive: !this.__doPreventDefault,
+        },
         classInstance: this,
         eventTargetDom,
       },
@@ -122,21 +127,27 @@ export class WalkThroughCameraController
         {
           eventName: 'touchstart',
           handler: this._mouseDownBind,
-          options: {},
+          options: {
+            passive: !this.__doPreventDefault,
+          },
           classInstance: this,
           eventTargetDom,
         },
         {
           eventName: 'touchend',
           handler: this._mouseUpBind,
-          options: {},
+          options: {
+            passive: !this.__doPreventDefault,
+          },
           classInstance: this,
           eventTargetDom,
         },
         {
           eventName: 'touchmove',
           handler: this._mouseMoveBind,
-          options: {},
+          options: {
+            passive: !this.__doPreventDefault,
+          },
           classInstance: this,
           eventTargetDom,
         }
@@ -147,28 +158,36 @@ export class WalkThroughCameraController
         {
           eventName: 'mousedown',
           handler: this._mouseDownBind,
-          options: {},
+          options: {
+            passive: !this.__doPreventDefault,
+          },
           classInstance: this,
           eventTargetDom,
         },
         {
           eventName: 'mouseup',
           handler: this._mouseUpBind,
-          options: {},
+          options: {
+            passive: !this.__doPreventDefault,
+          },
           classInstance: this,
           eventTargetDom,
         },
         {
           eventName: 'mouseleave',
           handler: this._mouseUpBind,
-          options: {},
+          options: {
+            passive: !this.__doPreventDefault,
+          },
           classInstance: this,
           eventTargetDom,
         },
         {
           eventName: 'mousemove',
           handler: this._mouseMoveBind,
-          options: {},
+          options: {
+            passive: !this.__doPreventDefault,
+          },
           classInstance: this,
           eventTargetDom,
         }
@@ -178,7 +197,9 @@ export class WalkThroughCameraController
       inputHandlerInfos.push({
         eventName: 'wheel',
         handler: this._mouseWheelBind,
-        options: {},
+        options: {
+          passive: !this.__doPreventDefault,
+        },
         classInstance: this,
         eventTargetDom,
       });
@@ -192,6 +213,12 @@ export class WalkThroughCameraController
 
   unregisterEventListeners() {
     InputManager.unregister(INPUT_HANDLING_STATE_CAMERACONTROLLER);
+  }
+
+  private __tryToPreventDefault(evt: Event) {
+    if (this.__doPreventDefault) {
+      evt.preventDefault();
+    }
   }
 
   _mouseWheel(e: WheelEvent) {
@@ -218,8 +245,7 @@ export class WalkThroughCameraController
   }
 
   _mouseDown(evt: MouseEvent) {
-    MiscUtil.preventDefaultForDesktopOnly(evt);
-    evt.stopPropagation();
+    this.__tryToPreventDefault(evt)
     this._isMouseDown = true;
 
     const rect = (evt.target! as any).getBoundingClientRect();
@@ -230,11 +256,10 @@ export class WalkThroughCameraController
   }
 
   _mouseMove(evt: MouseEvent) {
-    MiscUtil.preventDefaultForDesktopOnly(evt);
+    this.__tryToPreventDefault(evt);
     if (!this._isMouseDown) {
       return;
     }
-    evt.stopPropagation();
 
     const rect = (evt.target! as any).getBoundingClientRect();
     this._draggedMouseXOnCanvas = evt.clientX - rect.left;
