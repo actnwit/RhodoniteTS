@@ -2197,13 +2197,6 @@ function setupPbrMetallicRoughness(
       );
     }
   }
-  // BaseColor TexCoord Transform
-  ModelConverter._setupTextureTransform(
-    baseColorTexture!,
-    material,
-    PbrShadingMaterialContent.BaseColorTextureTransform,
-    PbrShadingMaterialContent.BaseColorTextureRotation
-  );
 
   // Ambient Occlusion Texture
   const occlusionTexture = materialJson.occlusionTexture;
@@ -2256,6 +2249,25 @@ function setupPbrMetallicRoughness(
       );
     }
   }
+
+  // BaseColor TexCoord Transform
+  setup_KHR_texture_transform(
+    baseColorTexture,
+    material,
+    metallicRoughnessTexture
+  );
+}
+function setup_KHR_texture_transform(
+  baseColorTexture: RnM2TextureInfo | undefined,
+  material: Material,
+  metallicRoughnessTexture: RnM2TextureInfo | undefined
+) {
+  ModelConverter._setupTextureTransform(
+    baseColorTexture!,
+    material,
+    PbrShadingMaterialContent.BaseColorTextureTransform,
+    PbrShadingMaterialContent.BaseColorTextureRotation
+  );
 
   // Metallic Roughness Texcoord Transform
   ModelConverter._setupTextureTransform(
