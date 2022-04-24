@@ -2179,7 +2179,7 @@ function setupPbrMetallicRoughness(
     );
   }
 
-  // BaseColor Texcoord Transform
+  // BaseColor Texture
   const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
   if (baseColorTexture != null) {
     const rnTexture = ModelConverter._createTexture(
@@ -2248,6 +2248,9 @@ function setupPbrMetallicRoughness(
         metallicRoughnessTexture.texCoord
       );
     }
+
+    //
+    setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
   }
 
   // BaseColor TexCoord Transform
@@ -2257,6 +2260,62 @@ function setupPbrMetallicRoughness(
     metallicRoughnessTexture
   );
 }
+function setup_KHR_materials_clearcoat(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_clearcoat = materialJson?.extensions?.KHR_materials_clearcoat;
+  if (Is.exist(KHR_materials_clearcoat)) {
+    const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
+      ? KHR_materials_clearcoat.clearcoatFactor
+      : 0.0;
+    material.setParameter(ShaderSemantics.ClearCoatTexture, clearCoatFactor);
+    const clearCoatTexture = KHR_materials_clearcoat.clearcoatTexture;
+    if (clearCoatTexture != null) {
+      const rnClearCoatTexture = ModelConverter._createTexture(
+        clearCoatTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.ClearCoatTexture,
+        rnClearCoatTexture
+      );
+    }
+    const clearCoatRoughnessFactor = Is.exist(
+      KHR_materials_clearcoat.clearcoatRoughnessFactor
+    )
+      ? KHR_materials_clearcoat.clearcoatRoughnessFactor
+      : 0.0;
+    material.setParameter(
+      ShaderSemantics.ClearCoatRoughnessTexture,
+      clearCoatRoughnessFactor
+    );
+    const clearCoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
+    if (clearCoatRoughnessTexture != null) {
+      const rnClearCoatRoughnessTexture = ModelConverter._createTexture(
+        clearCoatRoughnessTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.ClearCoatRoughnessTexture,
+        rnClearCoatRoughnessTexture
+      );
+    }
+    const clearCoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
+    if (clearCoatNormalTexture != null) {
+      const rnClearCoatNormalTexture = ModelConverter._createTexture(
+        clearCoatNormalTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.ClearCoatNormalTexture,
+        rnClearCoatNormalTexture
+      );
+    }
+  }
+}
+
 function setup_KHR_texture_transform(
   baseColorTexture: RnM2TextureInfo | undefined,
   material: Material,

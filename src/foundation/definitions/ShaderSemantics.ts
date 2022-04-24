@@ -244,6 +244,21 @@ const MakeOutputSrgb: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const FramebufferWidth: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'framebufferWidth',
 });
+const ClearCoatFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'ClearCoatFactor',
+});
+const ClearCoatTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'ClearCoatTexture',
+});
+const ClearCoatRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'ClearCoatRoughnessFactor',
+});
+const ClearCoatRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'ClearCoatRoughnessTexture',
+});
+const ClearCoatNormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'ClearCoatNormalTexture',
+});
 
 const typeList = [
   WorldMatrix,
@@ -304,6 +319,11 @@ const typeList = [
   AlphaTexture,
   MakeOutputSrgb,
   FramebufferWidth,
+  ClearCoatFactor,
+  ClearCoatTexture,
+  ClearCoatRoughnessFactor,
+  ClearCoatRoughnessTexture,
+  ClearCoatNormalTexture,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -502,6 +522,11 @@ export const ShaderSemantics = Object.freeze({
   SheenParameter,
   SpecularGlossinessFactor,
   SpecularGlossinessTexture,
+  ClearCoatFactor,
+  ClearCoatTexture,
+  ClearCoatRoughnessFactor,
+  ClearCoatRoughnessTexture,
+  ClearCoatNormalTexture,
   fullSemanticStr,
   getShaderProperty,
   EntityUID,
