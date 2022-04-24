@@ -97,8 +97,6 @@ declare const Rn: typeof _Rn;
         mesh.setOriginalMesh(originalMesh);
         meshComponent.setMesh(mesh);
       }
-      entity.getTransform().toUpdateAllTransform = false;
-
       // Non Instansing
       // const mesh = new Rn.Mesh();
       // mesh.addPrimitive(primitive);

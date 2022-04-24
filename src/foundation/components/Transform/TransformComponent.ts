@@ -31,7 +31,7 @@ import {ITransformEntity} from '../../helpers';
 
 export class TransformComponent extends Component {
   private _translate: MutableVector3 = MutableVector3.dummy();
-  private _rotate: MutableVector3 = MutableVector3.dummy();
+  // private _rotate: MutableVector3 = MutableVector3.dummy();
   private _scale: MutableVector3 = MutableVector3.dummy();
   private _quaternion: MutableQuaternion = MutableQuaternion.dummy();
   private _matrix: MutableMatrix44 = MutableMatrix44.dummy();
@@ -39,7 +39,6 @@ export class TransformComponent extends Component {
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
 
   private _is_translate_updated: boolean;
-  private _is_euler_angles_updated: boolean;
   private _is_scale_updated: boolean;
   private _is_quaternion_updated: boolean;
   private _is_trs_matrix_updated: boolean;
@@ -53,7 +52,6 @@ export class TransformComponent extends Component {
   private static __tmpQuaternion_0: MutableQuaternion =
     MutableQuaternion.identity();
 
-  private __toUpdateAllTransform = true;
   private _updateCount = 0;
   private __updateCountAtLastLogic = 0;
 
@@ -67,8 +65,6 @@ export class TransformComponent extends Component {
   ) {
     super(entityUid, componentSid, entityComponent);
 
-    const thisClass = TransformComponent;
-
     this.registerMember(
       BufferUse.CPUGeneric,
       'translate',
@@ -76,13 +72,13 @@ export class TransformComponent extends Component {
       ComponentType.Float,
       [0, 0, 0]
     );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'rotate',
-      MutableVector3,
-      ComponentType.Float,
-      [0, 0, 0]
-    );
+    // this.registerMember(
+    //   BufferUse.CPUGeneric,
+    //   'rotate',
+    //   MutableVector3,
+    //   ComponentType.Float,
+    //   [0, 0, 0]
+    // );
     this.registerMember(
       BufferUse.CPUGeneric,
       'scale',
@@ -122,7 +118,6 @@ export class TransformComponent extends Component {
     this.submitToAllocation(this.maxNumberOfComponent);
 
     this._is_translate_updated = true;
-    this._is_euler_angles_updated = true;
     this._is_scale_updated = true;
     this._is_quaternion_updated = true;
     this._is_trs_matrix_updated = true;
@@ -138,14 +133,6 @@ export class TransformComponent extends Component {
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.TransformComponentTID;
-  }
-
-  set toUpdateAllTransform(flag: boolean) {
-    this.__toUpdateAllTransform = flag;
-  }
-
-  get toUpdateAllTransform(): boolean {
-    return this.__toUpdateAllTransform;
   }
 
   _needUpdate() {
@@ -177,14 +164,8 @@ export class TransformComponent extends Component {
   }
 
   set rotate(vec: IVector3) {
-    this._rotate.copyComponents(vec);
-    this._is_euler_angles_updated = true;
-    this._is_quaternion_updated = false;
-    this._is_trs_matrix_updated = false;
-    this._is_inverse_trs_matrix_updated = false;
-    this._is_normal_trs_matrix_updated = false;
-
-    this.__updateTransform();
+    const rotationMat = TransformComponent.__tmpMatrix44_0.rotate(vec);
+    this.quaternion = Quaternion.fromMatrix(rotationMat);
   }
 
   get rotate() {
@@ -192,16 +173,12 @@ export class TransformComponent extends Component {
   }
 
   get rotateInner() {
-    if (this._is_euler_angles_updated) {
-      return this._rotate;
-    } else if (this._is_trs_matrix_updated) {
-      this._matrix.toEulerAnglesTo(this._rotate);
-    } else if (this._is_quaternion_updated) {
-      this._quaternion.toEulerAnglesTo(this._rotate);
+    if (this._is_trs_matrix_updated) {
+      return this._matrix.toEulerAngles();
+    } else {
+      // this._is_quaternion_updated
+      return this._quaternion.toEulerAngles();
     }
-
-    this._is_euler_angles_updated = true;
-    return this._rotate;
   }
 
   set scale(vec: IVector3) {
@@ -232,7 +209,6 @@ export class TransformComponent extends Component {
   set quaternion(quat: IQuaternion) {
     this._quaternion.copyComponents(quat);
     this._is_quaternion_updated = true;
-    this._is_euler_angles_updated = false;
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
     this._is_normal_trs_matrix_updated = false;
@@ -252,13 +228,6 @@ export class TransformComponent extends Component {
         this._is_quaternion_updated = true;
         this._quaternion.fromMatrix(this._matrix);
         return this._quaternion;
-      } else if (this._is_euler_angles_updated) {
-        const rotationMat = TransformComponent.__tmpMatrix44_0.rotate(
-          this._rotate
-        );
-        this._quaternion.fromMatrix(rotationMat);
-        this._is_quaternion_updated = true;
-        return this._quaternion;
       }
     }
     return this._quaternion;
@@ -268,7 +237,6 @@ export class TransformComponent extends Component {
     this._matrix.copyComponents(mat);
     this._is_trs_matrix_updated = true;
     this._is_translate_updated = false;
-    this._is_euler_angles_updated = false;
     this._is_quaternion_updated = false;
     this._is_scale_updated = false;
     this._is_inverse_trs_matrix_updated = false;
@@ -433,7 +401,6 @@ export class TransformComponent extends Component {
       this._matrix.copyComponents(matrix);
       this._is_trs_matrix_updated = true;
       this._is_translate_updated = false;
-      this._is_euler_angles_updated = false;
       this._is_quaternion_updated = false;
       this._is_scale_updated = false;
     }
@@ -446,17 +413,12 @@ export class TransformComponent extends Component {
 
     // Rotation
     if (rotate != null && quaternion != null) {
-      this._rotate.copyComponents(rotate);
       this._quaternion = MutableQuaternion.fromCopyQuaternion(quaternion);
-      this._is_euler_angles_updated = true;
       this._is_quaternion_updated = true;
     } else if (rotate != null) {
-      this._rotate.copyComponents(rotate);
-      this._is_euler_angles_updated = true;
       this._is_quaternion_updated = false;
     } else if (quaternion != null) {
       this._quaternion.copyComponents(quaternion);
-      this._is_euler_angles_updated = false;
       this._is_quaternion_updated = true;
     }
 
@@ -470,35 +432,18 @@ export class TransformComponent extends Component {
   }
 
   __updateTransform() {
-    if (this.__toUpdateAllTransform) {
-      this.__updateRotation();
-      this.__updateTranslate();
-      this.__updateScale();
-    }
+    this.__updateRotation();
+    this.__updateTranslate();
+    this.__updateScale();
 
     //this.__updateMatrix();
     this._needUpdate();
   }
 
   __updateRotation() {
-    if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-      const rotationMat = TransformComponent.__tmpMatrix44_0.rotate(
-        this._rotate
-      );
-      this._quaternion.fromMatrix(rotationMat);
-      this._is_quaternion_updated = true;
-    } else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-      this._quaternion.toEulerAnglesTo(this._rotate);
-      this._is_euler_angles_updated = true;
-    } else if (
-      !this._is_euler_angles_updated &&
-      !this._is_quaternion_updated &&
-      this._is_trs_matrix_updated
-    ) {
+    if (!this._is_quaternion_updated && this._is_trs_matrix_updated) {
       this._quaternion.fromMatrix(this._matrix);
       this._is_quaternion_updated = true;
-      this._matrix.toEulerAnglesTo(this._rotate);
-      this._is_euler_angles_updated = true;
     }
   }
 

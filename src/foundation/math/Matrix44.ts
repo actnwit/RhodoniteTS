@@ -12,6 +12,7 @@ import {IdentityMatrix44} from './IdentityMatrix44';
 import {AbstractMatrix} from './AbstractMatrix';
 import {Array16, ArrayType} from '../../types/CommonTypes';
 import {mulThatAndThisToOutAsMat44_offsetAsComposition} from './raw/raw_extension';
+import {IQuaternion} from './IQuaternion';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -670,7 +671,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    */
   toEulerAngles() {
     let rotate = null;
-    if (Math.abs(this._v[2]) != 1.0) {
+    if (Math.abs(this._v[2]) !== 1.0) {
       const y = -Math.asin(this._v[2]);
       const x = Math.atan2(this._v[6] / Math.cos(y), this._v[10] / Math.cos(y));
       const z = Math.atan2(this._v[1] / Math.cos(y), this._v[0] / Math.cos(y));
@@ -685,7 +686,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   toEulerAnglesTo(outVec3: MutableVector3) {
-    if (Math.abs(this._v[2]) != 1.0) {
+    if (Math.abs(this._v[2]) !== 1.0) {
       const y = -Math.asin(this._v[2]);
       const x = Math.atan2(this._v[6] / Math.cos(y), this._v[10] / Math.cos(y));
       const z = Math.atan2(this._v[1] / Math.cos(y), this._v[0] / Math.cos(y));
@@ -823,7 +824,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return new Matrix44(v);
   }
 
-  static fromCopyQuaternion(q: Quaternion) {
+  static fromCopyQuaternion(q: IQuaternion) {
       const sx = q._v[0] * q._v[0];
       const sy = q._v[1] * q._v[1];
       const sz = q._v[2] * q._v[2];
