@@ -190,18 +190,18 @@ export class WebXRSystem {
       };
       const promise = new Promise(promiseFn);
 
-      try {
-        referenceSpace = await session.requestReferenceSpace('local-floor');
-        this.__spaceType = 'local-floor';
-        this.__defaultPositionInLocalSpaceMode =
-          initialUserPosition ?? Vector3.zero();
-      } catch (err) {
-        console.error(`Failed to start XRSession: ${err}`);
+      // try {
+      //   referenceSpace = await session.requestReferenceSpace('local-floor');
+      //   this.__spaceType = 'local-floor';
+      //   this.__defaultPositionInLocalSpaceMode =
+      //     initialUserPosition ?? Vector3.zero();
+      // } catch (err) {
+        // console.error(`Failed to start XRSession: ${err}`);
         referenceSpace = await session.requestReferenceSpace('local');
         this.__spaceType = 'local';
         this.__defaultPositionInLocalSpaceMode =
           initialUserPosition ?? defaultUserPositionInVR;
-      }
+      // }
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebXR = true;
@@ -252,14 +252,18 @@ export class WebXRSystem {
   get leftProjectionMatrix() {
     const xrViewLeft = this.__xrViewerPose?.views[0];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      xrViewLeft?.projectionMatrix as Float32Array
+      Is.exist(xrViewLeft)
+        ? xrViewLeft.projectionMatrix
+        : MutableMatrix44.identity()._v
     );
   }
 
   get rightProjectionMatrix() {
     const xrViewRight = this.__xrViewerPose?.views[1];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      xrViewRight?.projectionMatrix as Float32Array
+      Is.exist(xrViewRight)
+        ? xrViewRight.projectionMatrix
+        : MutableMatrix44.identity()._v
     );
   }
 

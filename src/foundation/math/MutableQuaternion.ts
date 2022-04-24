@@ -49,7 +49,7 @@ export class MutableQuaternion
   }
 
   static identity() {
-    return super.identity() as MutableQuaternion;
+    return MutableQuaternion.fromCopy4(0, 0, 0, 1);
   }
 
   static dummy() {
