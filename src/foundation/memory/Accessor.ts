@@ -3,16 +3,16 @@ import {
   CompositionType,
   CompositionTypeEnum,
 } from '../definitions/CompositionType';
-import { BufferView } from './BufferView';
-import { Vector2 } from '../math/Vector2';
-import { Vector3 } from '../math/Vector3';
-import { Vector4 } from '../math/Vector4';
-import { MutableVector2 } from '../math/MutableVector2';
-import { MutableVector3 } from '../math/MutableVector3';
-import { MutableVector4 } from '../math/MutableVector4';
-import { Matrix33 } from '../math/Matrix33';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { MutableMatrix44 } from '../math/MutableMatrix44';
+import {BufferView} from './BufferView';
+import {Vector2} from '../math/Vector2';
+import {Vector3} from '../math/Vector3';
+import {Vector4} from '../math/Vector4';
+import {MutableVector2} from '../math/MutableVector2';
+import {MutableVector3} from '../math/MutableVector3';
+import {MutableVector4} from '../math/MutableVector4';
+import {Matrix33} from '../math/Matrix33';
+import {MutableMatrix33} from '../math/MutableMatrix33';
+import {MutableMatrix44} from '../math/MutableMatrix44';
 import {
   Byte,
   Index,
@@ -45,7 +45,7 @@ export class Accessor {
   private __count: Count = 0;
   private __raw: ArrayBuffer;
   private __dataView?: DataView;
-  private __typedArray?: TypedArray;
+  private __typedArray: TypedArray;
   private __takenCount: Count = 0;
   private __byteStride: Byte = 0; // Accessor has the byteStride. BufferView doesn't. For supporting glTF1, not only glTF2
   private __typedArrayClass?: TypedArrayConstructor;
@@ -178,17 +178,11 @@ export class Accessor {
       )
     );
 
-    if (
-      this.__byteOffsetInRawArrayBufferOfBuffer %
-        this.__componentType.getSizeInBytes() ===
-      0
-    ) {
-      this.__typedArray = new typedArrayClass!(
-        this.__raw,
-        this.__byteOffsetInRawArrayBufferOfBuffer,
-        this.__compositionType.getNumberOfComponents() * this.__count
-      );
-    }
+    this.__typedArray = new typedArrayClass!(
+      this.__raw,
+      this.__byteOffsetInRawArrayBufferOfBuffer,
+      this.__compositionType.getNumberOfComponents() * this.__count
+    );
     this.__dataViewGetter = (this.__dataView as any)[
       this.getDataViewGetter(this.__componentType)!
     ].bind(this.__dataView);
@@ -333,21 +327,25 @@ export class Accessor {
     return this.__compositionType;
   }
 
+  /**
+   *
+   * @returns
+   */
   getTypedArray(): TypedArray {
-    if (this.__bufferView.isAoS) {
-      console.warn(
-        'Be careful. this reference bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.'
-      );
-    }
-    return this.__typedArray!;
+    // if (this.__bufferView.isAoS) {
+    //   console.warn(
+    //     'Be careful. this reference bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.'
+    //   );
+    // }
+    return this.__typedArray;
   }
 
   getUint8Array(): Uint8Array {
-    if (this.__bufferView.isAoS) {
-      console.warn(
-        'Be careful. this reference bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.'
-      );
-    }
+    // if (this.__bufferView.isAoS) {
+    //   console.warn(
+    //     'Be careful. this reference bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.'
+    //   );
+    // }
     return new Uint8Array(
       this.bufferView.buffer.getArrayBuffer(),
       this.byteOffsetInRawArrayBufferOfBuffer,
