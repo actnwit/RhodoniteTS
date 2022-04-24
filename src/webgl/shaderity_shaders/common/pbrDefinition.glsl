@@ -102,11 +102,28 @@ vec3 diffuse_brdf(vec3 albedo)
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf
-float specular_brdf(float NdotL, float NdotH, float NdotV, float alphaRoughness) {
+float specular_brdf(float alphaRoughness, float NdotL, float NdotV, float NdotH) {
   float V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
   float D = d_ggx(NdotH, alphaRoughness);
-  return D * V;
+  return V * D;
 }
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#fresnel
+vec3 conductor_fresnel(vec3 f0, float brdf, float alphaRoughness, float VdotH) {
+  return vec3(brdf) * (f0.rgb + (vec3(1.0) - f0.rgb) * vec3(pow(1.0 - abs(VdotH), 5.0)));
+}
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#metal-brdf-and-dielectric-brdf
+vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float NdotV, float NdotH, float VdotH) {
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
+  return conductor_fresnel(
+    baseColor,
+    specular_brdf(alphaRoughness, NdotL, NdotV, NdotH),
+    alphaRoughness,
+    VdotH
+  );
+}
+
 vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
