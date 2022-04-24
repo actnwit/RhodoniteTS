@@ -56,6 +56,10 @@ You can use npm of course, but we recommend yarn because we use it usually.
 $ npm install rhodonite
 ```
 
+### Note
+
+If you get an error like "webxr-input-profiles not found" when building a project using Rhodonite, Try "npm install" or "yarn install again.
+
 ## Coding with Rhodonite
 
 ### In JavaScript
