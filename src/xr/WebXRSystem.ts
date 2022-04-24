@@ -190,18 +190,18 @@ export class WebXRSystem {
       };
       const promise = new Promise(promiseFn);
 
-      try {
-        referenceSpace = await session.requestReferenceSpace('local-floor');
-        this.__spaceType = 'local-floor';
-        this.__defaultPositionInLocalSpaceMode =
-          initialUserPosition ?? Vector3.zero();
-      } catch (err) {
+      // try {
+      //   referenceSpace = await session.requestReferenceSpace('local-floor');
+      //   this.__spaceType = 'local-floor';
+      //   this.__defaultPositionInLocalSpaceMode =
+      //     initialUserPosition ?? Vector3.zero();
+      // } catch (err) {
         console.error(`Failed to start XRSession: ${err}`);
         referenceSpace = await session.requestReferenceSpace('local');
         this.__spaceType = 'local';
         this.__defaultPositionInLocalSpaceMode =
           initialUserPosition ?? defaultUserPositionInVR;
-      }
+      // }
       this.__xrReferenceSpace = referenceSpace;
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebXR = true;
