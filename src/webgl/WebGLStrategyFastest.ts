@@ -678,32 +678,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  attachGPUData(primitive: Primitive): void {
-    const material = primitive.material!;
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-    const dataTexture = this.__webglResourceRepository.getWebGLResource(
-      this.__dataTextureUid
-    )! as WebGLTexture;
-    glw.bindTexture2D(0, dataTexture);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-      material._shaderProgramUid
-    ) as WebGLProgram;
-    const uniform_dataTexture = gl.getUniformLocation(
-      shaderProgram,
-      'u_dataTexture'
-    );
-    gl.uniform1i(uniform_dataTexture, 0);
-  }
+  attachGPUData(primitive: Primitive): void {}
 
-  attachGPUDataInner(gl: WebGLRenderingContext, shaderProgram: WebGLProgram) {
-    this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
-    const uniform_dataTexture = gl.getUniformLocation(
-      shaderProgram,
-      'u_dataTexture'
-    );
-    gl.uniform1i(uniform_dataTexture, 0);
-  }
+  attachGPUDataInner(gl: WebGLRenderingContext, shaderProgram: WebGLProgram) {}
 
   attachShaderProgram(material: Material): void {
     const shaderProgramUid = material._shaderProgramUid;
