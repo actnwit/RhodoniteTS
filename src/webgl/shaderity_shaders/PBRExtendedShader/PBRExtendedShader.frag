@@ -285,7 +285,8 @@ vec3 IBLContribution(float materialSID, vec3 n, vec3 v, float NV, vec3 reflectio
   vec3 specularLight = prefilteredRadiance(materialSID, v, n, NV, baseAnisotropy, t, b, userRoughness, F0) * iblParameter.z;
   // vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
   // vec3 baseSpecular = specularLight * (F0 * brdf.x + brdf.y);
-  vec3 baseSpecular = specularLight * envBRDFApprox(F0, userRoughness, NV);
+  vec2 f_ab = envBRDFApprox(userRoughness, NV);
+  vec3 baseSpecular = specularLight * (F0 * f_ab.x + f_ab.y);
   vec3 clearcoatSpecular = prefilteredRadiance(materialSID, v, n, NV, clearcoatAnisotropy, t, b, clearcoatRoughness, vec3(0.04));
   // vec3 sheenSpecular = specularLight * (F0 * brdf.z);
   vec3 sheenSpecular = specularLight * (F0 * 1.0);

@@ -17,14 +17,14 @@ float d_phong(float NH, float c1) {
 }
 
 // this is from https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-vec3 envBRDFApprox( vec3 F0, float Roughness, float NoV ) {
+vec2 envBRDFApprox( float Roughness, float NoV ) {
   const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022 );
   const vec4 c1 = vec4(1, 0.0425, 1.04, -0.04 );
   vec4 r = Roughness * c0 + c1;
   float a004 = min( r.x * r.x, exp2( -9.28 * NoV ) ) * r.x + r.y;
   vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
 
-  return F0 * AB.x + AB.y;
+  return AB;
 }
 
 // GGX NDF
@@ -115,6 +115,8 @@ float linearToSrgb(float value) {
   return pow(value, 1.0/2.2);
 }
 
+// Roughness Dependent Fresnel
+// https://www.jcgt.org/published/0008/01/03/paper.pdf
 vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
 {
   return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
