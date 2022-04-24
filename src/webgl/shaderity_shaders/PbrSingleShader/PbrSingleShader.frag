@@ -24,7 +24,7 @@ in vec3 v_baryCentricCoord;
 
 /* shaderity: @{getters} */
 
-vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float userRoughness)
+vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float perceptualRoughness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
@@ -48,7 +48,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   }
 
   float mipCount = iblParameter.x;
-  float lod = (userRoughness * (mipCount - 1.0));
+  float lod = (perceptualRoughness * (mipCount - 1.0));
 
   vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 #pragma shaderity: require(./../common/fetchCubeTexture.glsl)
@@ -67,9 +67,9 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   }
 
   // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
-  // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - userRoughness)).rgb;
-  vec2 f_ab = envBRDFApprox(userRoughness, NV);
+  vec3 kS = fresnelSchlickRoughness(F0, NV, perceptualRoughness);
+  // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - perceptualRoughness)).rgb;
+  vec2 f_ab = envBRDFApprox(perceptualRoughness, NV);
   vec3 FssEss = kS * f_ab.x + f_ab.y;
 
 
@@ -159,7 +159,6 @@ void main ()
     baseColor = vec3(1.0, 1.0, 1.0);
   }
 
-
   // BaseColor (take account for BaseColorTexture)
   vec4 baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
   float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
@@ -175,7 +174,7 @@ void main ()
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
   vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
-  float userRoughness = metallicRoughnessFactor.y;
+  float perceptualRoughness = metallicRoughnessFactor.y;
   float metallic = metallicRoughnessFactor.x;
 
   vec4 metallicRoughnessTextureTransform = get_metallicRoughnessTextureTransform(materialSID, 0);
@@ -184,12 +183,12 @@ void main ()
   vec2 metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex);
   vec2 metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransform.xy, metallicRoughnessTextureTransform.zw, metallicRoughnessTextureRotation, metallicRoughnessTexcoord);
   vec4 ormTexel = texture2D(u_metallicRoughnessTexture, metallicRoughnessTexUv);
-  userRoughness = ormTexel.g * userRoughness;
+  perceptualRoughness = ormTexel.g * perceptualRoughness;
   metallic = ormTexel.b * metallic;
 
-  userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
+  perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
   metallic = clamp(metallic, 0.0, 1.0);
-  float alphaRoughness = userRoughness * userRoughness;
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
   // F0
   vec3 diffuseMatAverageF0 = vec3(0.04);
@@ -267,7 +266,7 @@ void main ()
 //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
   }
 
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, userRoughness);
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, perceptualRoughness);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
