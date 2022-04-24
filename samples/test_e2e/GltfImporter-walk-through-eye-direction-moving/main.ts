@@ -8,6 +8,7 @@ document.body.appendChild(p);
   await Rn.System.init({
     approach: Rn.ProcessApproach.UniformWebGL1,
     canvas: document.getElementById('world') as HTMLCanvasElement,
+    rnWebGLDebug: true,
   });
 
   // expressions

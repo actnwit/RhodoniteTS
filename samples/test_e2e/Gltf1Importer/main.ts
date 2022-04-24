@@ -9,6 +9,7 @@ declare const Rn: typeof _Rn;
   const gl = await Rn.System.init({
     approach: Rn.ProcessApproach.FastestWebGL1,
     canvas: document.getElementById('world') as HTMLCanvasElement,
+    rnWebGLDebug: true,
   });
 
   // Camera

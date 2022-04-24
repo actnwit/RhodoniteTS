@@ -6,7 +6,7 @@ let p: any;
 
 (async () => {
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.UniformWebGL2,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
@@ -82,7 +82,7 @@ let p: any;
   let count = 0;
 
   const draw = function () {
-    if (p == null && count > 0) {
+    if (p == null && count > 150) {
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';

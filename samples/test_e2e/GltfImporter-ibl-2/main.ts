@@ -8,7 +8,7 @@ document.body.appendChild(p);
 
 (async () => {
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.UniformWebGL2,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
