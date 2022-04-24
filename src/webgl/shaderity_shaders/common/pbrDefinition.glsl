@@ -94,11 +94,19 @@ vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alp
 
 }
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
 vec3 diffuse_brdf(vec3 albedo)
 {
+  // (1/pi) * diffuseAlbedo
   return albedo / M_PI;
 }
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf
+float specular_brdf(float NdotL, float NdotH, float NdotV, float alphaRoughness) {
+  float V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+  float D = d_ggx(NdotH, alphaRoughness);
+  return D * V;
+}
 vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
