@@ -71,11 +71,11 @@ export class Buffer {
     byteLengthToNeed: Byte;
     byteStride: Byte;
   }): IResult<BufferView, undefined> {
-    const byteAlign = this.__byteAlign;
+    // const byteAlign = this.__byteAlign;
     // const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
     // const byteSizeToTake = byteLengthToNeed + paddingBytes;
-    const byteSizeToTake = byteLengthToNeed;
+    const byteSizeToTake = byteLengthToNeed;// + paddingBytes;
     // byteSizeToTake = DataUtil.addPaddingBytes(byteSizeToTake, this.__byteAlign);
 
     if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
@@ -97,10 +97,10 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__
       raw: this.__raw,
     });
     this.__takenBytesIndex += byteSizeToTake;
-    // this.__takenBytesIndex = DataUtil.addPaddingBytes(
-    //   this.__takenBytesIndex,
-    //   this.__byteAlign
-    // );
+    this.__takenBytesIndex = DataUtil.addPaddingBytes(
+      this.__takenBytesIndex,
+      this.__byteAlign
+    );
     this.__bufferViews.push(bufferView);
 
     return new Ok(bufferView);
