@@ -7,6 +7,7 @@ import {IMutableVector3} from './IVector';
 import {IMatrix44} from './IMatrix';
 import {LogQuaternion} from './LogQuaternion';
 import {AbstractQuaternion} from './AbstractQuaternion';
+import { Vector3 } from './Vector3';
 
 export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_upVec: any = undefined;
@@ -575,6 +576,29 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   toEulerAnglesTo(out: IMutableVector3) {
+    // this is from https://en._v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
+    const sinr_cosp = 2.0 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
+    const cosr_cosp =
+      1.0 - 2.0 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
+    out._v[0] = Math.atan2(sinr_cosp, cosr_cosp);
+
+    const sinp = 2.0 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
+    if (Math.abs(sinp) >= 1) {
+      out._v[1] = (Math.PI / 2) * Math.sign(sinp); // use 90 degrees if out of range
+    } else {
+      out._v[1] = Math.asin(sinp);
+    }
+
+    const siny_cosp = 2.0 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
+    const cosy_cosp =
+      1.0 - 2.0 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
+    out._v[2] = Math.atan2(siny_cosp, cosy_cosp);
+
+    return out;
+  }
+
+  toEulerAngles() {
+    const out = new Vector3(new Float32Array(3));
     // this is from https://en._v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
     const sinr_cosp = 2.0 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
     const cosr_cosp =

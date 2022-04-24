@@ -4,6 +4,7 @@ import {IMutableMatrix33, IMutableMatrix, IMatrix33} from './IMatrix';
 import {Matrix33} from './Matrix33';
 import {Vector3} from './Vector3';
 import {Array9, Index} from '../../types/CommonTypes';
+import { IQuaternion } from './IQuaternion';
 
 /* eslint-disable prettier/prettier */
 export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
@@ -533,7 +534,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     return new MutableMatrix33(v);
   }
 
-  static fromCopyQuaternion(q: Quaternion) {
+  static fromCopyQuaternion(q: IQuaternion) {
     const sx = q._v[0] * q._v[0];
     const sy = q._v[1] * q._v[1];
     const sz = q._v[2] * q._v[2];

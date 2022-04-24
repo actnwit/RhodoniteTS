@@ -1,15 +1,16 @@
-import { Vector3 } from '../math/Vector3';
-import { MutableVector3 } from '../math/MutableVector3';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { Quaternion } from '../math/Quaternion';
-import { Matrix44 } from '../math/Matrix44';
-import { Time } from '../misc/Time';
-import { VRMSpringBoneGroup } from './VRMSpringBoneGroup';
-import { VRMColliderGroup } from './VRMColliderGroup';
+import {Vector3} from '../math/Vector3';
+import {MutableVector3} from '../math/MutableVector3';
+import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
+import {Quaternion} from '../math/Quaternion';
+import {Matrix44} from '../math/Matrix44';
+import {Time} from '../misc/Time';
+import {VRMSpringBoneGroup} from './VRMSpringBoneGroup';
+import {VRMColliderGroup} from './VRMColliderGroup';
 import {Index} from '../../types/CommonTypes';
-import { PhysicsStrategy } from './PhysicsStrategy';
-import { MutableQuaternion } from '../math/MutableQuaternion';
-import { IPhysicsEntity } from '../helpers/EntityHelper';
+import {PhysicsStrategy} from './PhysicsStrategy';
+import {MutableQuaternion} from '../math/MutableQuaternion';
+import {IPhysicsEntity} from '../helpers/EntityHelper';
+import {IQuaternion} from '../math';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
@@ -25,7 +26,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private __currentTail = Vector3.zero();
   private __prevTail = Vector3.zero();
   private __localDir = Vector3.zero();
-  private __localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+  private __localRotation = Quaternion.fromCopy4(0, 0, 0, 1) as IQuaternion;
   private __initalized = false;
   private __localChildPosition = Vector3.zero();
 
