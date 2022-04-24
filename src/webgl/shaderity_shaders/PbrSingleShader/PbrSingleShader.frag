@@ -127,12 +127,12 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
+  vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
+  float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+  vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+  vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
   #ifdef RN_USE_NORMAL_TEXTURE
-    vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
-    float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
-    int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
-    vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
-    vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
     vec3 normalTexValue = texture2D(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence
@@ -207,6 +207,18 @@ void main ()
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
+  // Clearcoat
+  float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
+  float clearcoatTexture = texture2D(u_clearcoatTexture, baseColorTexUv).r;
+  float clearcoat = clearcoatFactor * clearcoatTexture;
+  float clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
+  float textureRoughnessTexture = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).r;
+  float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
+  vec3 textureNormal_tangent = texture2D(u_clearcoatNormalTexture, baseColorTexUv).xyz * vec3(2.0) - vec3(1.0);
+
+  vec3 clearcoatNormal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, textureNormal_tangent);
+  float VdotNc = dot(viewDirection, clearcoatNormal_inWorld);
+
   // Lighting
   vec3 diffuse = vec3(0.0, 0.0, 0.0);
   for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
@@ -257,13 +269,17 @@ void main ()
     float NL = dot(normal_inWorld, lightDirection);
     float satNL = saturateEpsilonToOne(NL);
 
+    // Base Layer
     vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, satNV, F, alphaRoughness);
-    vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
+    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
 
-    rt0.xyz += diffuseAndSpecular;
-//      rt0.xyz += specularContrib * vec3(NL) * incidentLight.rgb;
-//    rt0.xyz += diffuseContrib * vec3(NL) * incidentLight.rgb;
-//    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
+    // Clear Coat Layer
+    float NdotHc = dot(clearcoatNormal_inWorld, halfVector);
+    float LdotNc = dot(lightDirection, clearcoatNormal_inWorld);
+    vec3 coated = coated_material_s(baseLayer, perceptualRoughness,
+      clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
+
+    rt0.xyz += coated;
   }
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, perceptualRoughness);
