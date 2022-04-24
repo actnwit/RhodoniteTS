@@ -113,6 +113,13 @@ vec3 conductor_fresnel(vec3 f0, float brdf, float alphaRoughness, float VdotH) {
   return vec3(brdf) * (f0.rgb + (vec3(1.0) - f0.rgb) * vec3(pow(1.0 - abs(VdotH), 5.0)));
 }
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#fresnel
+vec3 fresnel_mix(float ior, vec3 base, vec3 layer, float VdotH) {
+  float f0 = pow((1.0 - ior)/(1.0 + ior), 2.0);
+  float fr = f0 + (1.0 - f0) * pow(1.0 - abs(VdotH), 5.0);
+  return mix(base, layer, fr);
+}
+
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#metal-brdf-and-dielectric-brdf
 vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float NdotV, float NdotH, float VdotH) {
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -122,6 +129,14 @@ vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float Nd
     alphaRoughness,
     VdotH
   );
+}
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#metal-brdf-and-dielectric-brdf
+vec3 dielectric_brdf(float ior, vec3 baseColor, float perceptualRoughness, float NdotL, float NdotV, float NdotH, float VdotH) {
+  vec3 base = diffuse_brdf(baseColor);
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
+  vec3 layer = vec3(specular_brdf(alphaRoughness, NdotL, NdotV, NdotH));
+  return fresnel_mix(ior, base, layer, VdotH);
 }
 
 vec3 srgbToLinear(vec3 srgbColor) {
