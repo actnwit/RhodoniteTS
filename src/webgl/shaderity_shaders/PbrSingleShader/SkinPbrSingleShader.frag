@@ -62,7 +62,8 @@ vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 
   vec3 diffuse = diffuseLight * albedo * kD;
   vec3 brdf = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - userRoughness)).rgb;
   vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
-  // vec3 specular = specularLight * envBRDFApprox(F0, userRoughness, NV);
+  // vec2 f_ab = envBRDFApprox(userRoughness, NV);
+  // vec3 specular = specularLight * (F0 * f_ab.x + f_ab.y);
 
   float IBLDiffuseContribution = iblParameter.y;
   float IBLSpecularContribution = iblParameter.z;

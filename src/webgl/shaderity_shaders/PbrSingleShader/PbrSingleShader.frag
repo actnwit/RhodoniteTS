@@ -33,18 +33,18 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   normal_forEnv.x *= -1.0;
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, normal_forEnv);
 
-  vec3 diffuseLight;
+  vec3 irradiance;
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
   if (hdriFormat.x == 0) {
     // LDR_SRGB
-    diffuseLight = srgbToLinear(diffuseTexel.rgb);
+    irradiance = srgbToLinear(diffuseTexel.rgb);
   }
   else if (hdriFormat.x == 3) {
     // RGBE
-    diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
+    irradiance = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
   }
   else {
-    diffuseLight = diffuseTexel.rgb;
+    irradiance = diffuseTexel.rgb;
   }
 
   float mipCount = iblParameter.x;
@@ -53,30 +53,44 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 #pragma shaderity: require(./../common/fetchCubeTexture.glsl)
 
-  vec3 specularLight;
+  vec3 radiance;
   if (hdriFormat.y == 0) {
     // LDR_SRGB
-    specularLight = srgbToLinear(specularTexel.rgb);
+    radiance = srgbToLinear(specularTexel.rgb);
   }
   else if (hdriFormat.y == 3) {
     // RGBE
-    specularLight = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
+    radiance = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
   }
   else {
-    specularLight = specularTexel.rgb;
+    radiance = specularTexel.rgb;
   }
 
+  // Roughness dependent fresnel
   vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
-  vec3 kD = 1.0 - kS;
-  vec3 diffuse = diffuseLight * albedo * kD;
-  // vec3 brdf = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - userRoughness)).rgb;
-  // vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
-  vec3 specular = specularLight * envBRDFApprox(F0, userRoughness, NV);
+  // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - userRoughness)).rgb;
+  vec2 f_ab = envBRDFApprox(userRoughness, NV);
+  vec3 FssEss = kS * f_ab.x + f_ab.y;
 
+
+  // Multiple scattering, Fdez-Aguera's approach
+  float Ems = (1.0 - (f_ab.x + f_ab.y));
+  vec3 F_avg = F0 + (1.0 - F0) / 21.0;
+  vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
+  vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
+
+  // Diffuse IBL
+  vec3 diffuse = (FmsEms + k_D) * irradiance;
+
+  // Specular IBL
+  vec3 specular = FssEss * radiance;
+
+  // scale with user parameters
   float IBLDiffuseContribution = iblParameter.y;
   float IBLSpecularContribution = iblParameter.z;
   diffuse *= IBLDiffuseContribution;
   specular *= IBLSpecularContribution;
+
   return diffuse + specular;
 }
 

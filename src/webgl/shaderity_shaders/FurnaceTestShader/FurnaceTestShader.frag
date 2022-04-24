@@ -30,14 +30,14 @@ float d_ggx(float userRoughness, float NH) {
 }
 
 // this is from https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-vec3 envBRDFApprox( vec3 F0, float Roughness, float NoV ) {
+vec2 envBRDFApprox( float Roughness, float NoV ) {
   const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022 );
   const vec4 c1 = vec4(1, 0.0425, 1.04, -0.04 );
   vec4 r = Roughness * c0 + c1;
   float a004 = min( r.x * r.x, exp2( -9.28 * NoV ) ) * r.x + r.y;
   vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
 
-  return F0 * AB.x + AB.y;
+  return AB;
 }
 
 float specularIBL(float userRoughness, float NV, float f0) {
@@ -46,8 +46,9 @@ float specularIBL(float userRoughness, float NV, float f0) {
   // float specular = 1.0 * (f0 * brdf.x + brdf.y);
 
   /// Use specular BRDF Approx
-  float specular = envBRDFApprox(vec3(f0), userRoughness, NV).x;
-  return specular;
+  vec2 f_ab = envBRDFApprox(userRoughness, NV);
+  vec3 specular = vec3(f0) * f_ab.x + f_ab.y;
+  return specular.x;
 }
 
 // The Schlick Approximation to Fresnel
