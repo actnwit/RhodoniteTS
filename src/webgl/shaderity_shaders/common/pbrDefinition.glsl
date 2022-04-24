@@ -139,6 +139,18 @@ vec3 dielectric_brdf(float ior, vec3 baseColor, float perceptualRoughness, float
   return fresnel_mix(ior, base, layer, VdotH);
 }
 
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
+vec3 coated_material_s(vec3 base, float perceptualRoughness, float clearcoatRoughness, float clearcoat, float VdotNc, float LdotNc, float NdotHc) {
+  float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
+  float clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
+  float D = d_ggx(NdotHc, clearcoatAlpha);
+  float V = v_SmithGGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
+  float f_clearcoat = clearcoatFresnel * D * V;
+
+  // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
+  return base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(f_clearcoat * clearcoat);
+}
 vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
