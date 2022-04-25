@@ -24,17 +24,10 @@ in vec3 v_baryCentricCoord;
 
 /* shaderity: @{getters} */
 
-vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float perceptualRoughness)
-{
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float rot = iblParameter.w + 3.1415;
-  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-  normal_forEnv.x *= -1.0;
+vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, normal_forEnv);
 
   vec3 irradiance;
-  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
   if (hdriFormat.x == 0) {
     // LDR_SRGB
     irradiance = srgbToLinear(diffuseTexel.rgb);
@@ -46,6 +39,21 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   else {
     irradiance = diffuseTexel.rgb;
   }
+
+  return irradiance;
+}
+
+vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float perceptualRoughness, vec3 clearcoatNormal_inWorld)
+{
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  float rot = iblParameter.w + 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  normal_forEnv.x *= -1.0;
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+
+  vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+
 
   float mipCount = iblParameter.x;
   float lod = (perceptualRoughness * (mipCount - 1.0));
@@ -282,7 +290,7 @@ void main ()
     rt0.xyz += coated;
   }
 
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, perceptualRoughness);
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, perceptualRoughness, clearcoatNormal_inWorld);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
