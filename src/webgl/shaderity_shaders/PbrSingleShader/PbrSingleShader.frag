@@ -257,7 +257,7 @@ void main ()
 
   // Clearcoat
   float clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
-  float textureRoughnessTexture = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).r;
+  float textureRoughnessTexture = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).g;
   float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
   vec3 textureNormal_tangent = texture2D(u_clearcoatNormalTexture, baseColorTexUv).xyz * vec3(2.0) - vec3(1.0);
 
