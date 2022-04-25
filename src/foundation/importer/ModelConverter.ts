@@ -2249,9 +2249,9 @@ function setupPbrMetallicRoughness(
       );
     }
 
-    //
-    setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
   }
+  //
+  setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
 
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
@@ -2270,7 +2270,7 @@ function setup_KHR_materials_clearcoat(
     const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
       ? KHR_materials_clearcoat.clearcoatFactor
       : 0.0;
-    material.setParameter(ShaderSemantics.ClearCoatTexture, clearCoatFactor);
+    material.setParameter(ShaderSemantics.ClearCoatFactor, clearCoatFactor);
     const clearCoatTexture = KHR_materials_clearcoat.clearcoatTexture;
     if (clearCoatTexture != null) {
       const rnClearCoatTexture = ModelConverter._createTexture(
@@ -2288,7 +2288,7 @@ function setup_KHR_materials_clearcoat(
       ? KHR_materials_clearcoat.clearcoatRoughnessFactor
       : 0.0;
     material.setParameter(
-      ShaderSemantics.ClearCoatRoughnessTexture,
+      ShaderSemantics.ClearCoatRoughnessFactor,
       clearCoatRoughnessFactor
     );
     const clearCoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;

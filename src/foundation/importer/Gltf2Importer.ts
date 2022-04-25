@@ -450,6 +450,29 @@ export class Gltf2Importer {
             material
           );
         }
+
+        if (Is.exist(material.extensions)) {
+          const extensions = material.extensions;
+          if (Is.exist(extensions.KHR_materials_clearcoat)) {
+            const clearcoatTexture = extensions.KHR_materials_clearcoat.clearcoatTexture;
+            if (clearcoatTexture !== void 0) {
+              clearcoatTexture.texture =
+                gltfJson.textures[clearcoatTexture.index];
+            }
+            const clearcoatRoughnessTexture =
+              extensions.KHR_materials_clearcoat.clearcoatRoughnessTexture;
+            if (clearcoatRoughnessTexture !== void 0) {
+              clearcoatRoughnessTexture.texture =
+                gltfJson.textures[clearcoatRoughnessTexture.index];
+            }
+            const clearcoatNormalTexture =
+              extensions.KHR_materials_clearcoat.clearcoatNormalTexture;
+            if (clearcoatNormalTexture !== void 0) {
+              clearcoatNormalTexture.texture =
+                gltfJson.textures[clearcoatNormalTexture.index];
+            }
+          }
+        }
       }
     }
   }
