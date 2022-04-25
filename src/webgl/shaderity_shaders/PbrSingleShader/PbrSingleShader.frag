@@ -134,7 +134,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
   vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
 
-  return base;
+  return coated;
 }
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
