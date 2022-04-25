@@ -115,66 +115,24 @@ vec3 baseIBL(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirectio
   return base;
 }
 
-vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float perceptualRoughness, vec3 clearcoatNormal_inWorld)
+vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection,
+  vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
+  float clearcoat, float VdotNc)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
 
-  // // get irradiance
-  // vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-  // normal_forEnv.x *= -1.0;
-  // vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
-
-  // // get radiance
-  // vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-  // reflection.x *= -1.0;
-  // float mipCount = iblParameter.x;
-  // float lod = (perceptualRoughness * (mipCount - 1.0));
-  // vec3 radiance = get_radiance(reflection, lod, hdriFormat);
-
-  // // Roughness dependent fresnel
-  // vec3 kS = fresnelSchlickRoughness(F0, NV, perceptualRoughness);
-  // // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - perceptualRoughness)).rgb;
-  // vec2 f_ab = envBRDFApprox(perceptualRoughness, NV);
-  // vec3 FssEss = kS * f_ab.x + f_ab.y;
-
-
-  // // Multiple scattering, Fdez-Aguera's approach
-  // float Ems = (1.0 - (f_ab.x + f_ab.y));
-  // vec3 F_avg = F0 + (1.0 - F0) / 21.0;
-  // vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
-  // vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
-
-  // // Diffuse IBL
-  // vec3 diffuse = (FmsEms + k_D) * irradiance;
-
-  // // Specular IBL
-  // vec3 specular = FssEss * radiance;
-
-  // // scale with user parameters
-  // float IBLDiffuseContribution = iblParameter.y;
-  // float IBLSpecularContribution = iblParameter.z;
-  // diffuse *= IBLDiffuseContribution;
-  // specular *= IBLSpecularContribution;
-
-  // vec3 base = diffuse + specular;
 
   vec3 base = baseIBL(materialSID, normal_inWorld, NV, viewDirection, albedo, F0,
     perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix);
 
-  // // get clearcoat irradiance
-  // vec3 normal_forEnv = rotEnvMatrix * clearcoatNormal_inWorld;
-  // normal_forEnv.x *= -1.0;
-  // vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+  vec3 coatLayer = baseIBL(materialSID, clearcoatNormal_inWorld, NV, viewDirection, albedo, F0,
+    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
 
-  // // get radiance
-  // vec3 reflection = rotEnvMatrix * reflect(-viewDirection, clearcoatNormal_inWorld);
-  // reflection.x *= -1.0;
-  // float mipCount = iblParameter.x;
-  // float lod = (perceptualRoughness * (mipCount - 1.0));
-  // vec3 radiance = get_radiance(reflection, lod, hdriFormat);
+  float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
+  vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
 
   return base;
 }
@@ -367,7 +325,9 @@ void main ()
     rt0.xyz += coated;
   }
 
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, perceptualRoughness, clearcoatNormal_inWorld);
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection,
+    albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
+    clearcoat, VdotNc);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
@@ -384,7 +344,7 @@ void main ()
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
   vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
-
+  // vec3 coated_emissive = emissive * (0.04 + (1.0 - 0.04) * pow(1.0 - NV, 5.0));
   rt0.xyz += emissive;
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0);
