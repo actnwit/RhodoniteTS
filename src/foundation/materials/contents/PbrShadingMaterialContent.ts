@@ -394,7 +394,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [8, AbstractMaterialContent.__dummyBlackTexture],
+        initialValue: [8, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.ClearCoatRoughnessFactor,
@@ -416,7 +416,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [9, AbstractMaterialContent.__dummyBlackTexture],
+        initialValue: [9, AbstractMaterialContent.__dummyWhiteTexture],
       },
       {
         semantic: ShaderSemantics.ClearCoatNormalTexture,
