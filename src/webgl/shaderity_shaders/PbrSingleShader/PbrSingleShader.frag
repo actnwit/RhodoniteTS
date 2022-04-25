@@ -43,23 +43,16 @@ vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   return irradiance;
 }
 
-vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float perceptualRoughness, vec3 clearcoatNormal_inWorld)
-{
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float rot = iblParameter.w + 3.1415;
-  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-  normal_forEnv.x *= -1.0;
-  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
+  #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
+    vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);
+  #elif defined(GLSL_ES3)
+    vec4 specularTexel = textureLod(u_specularEnvTexture, reflection, lod);
+  #else
+    vec4 specularTexel = textureCube(u_specularEnvTexture, reflection);
+  #endif
 
-  vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
-
-
-  float mipCount = iblParameter.x;
-  float lod = (perceptualRoughness * (mipCount - 1.0));
-
-  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-#pragma shaderity: require(./../common/fetchCubeTexture.glsl)
+// #pragma shaderity: require(./../common/fetchCubeTexture.glsl)
 
   vec3 radiance;
   if (hdriFormat.y == 0) {
@@ -73,6 +66,24 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   else {
     radiance = specularTexel.rgb;
   }
+
+  return radiance;
+}
+
+vec3 baseIBL(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0,
+  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix)
+{
+    // get irradiance
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  normal_forEnv.x *= -1.0;
+  vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+
+  // get radiance
+  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+  reflection.x *= -1.0;
+  float mipCount = iblParameter.x;
+  float lod = (perceptualRoughness * (mipCount - 1.0));
+  vec3 radiance = get_radiance(reflection, lod, hdriFormat);
 
   // Roughness dependent fresnel
   vec3 kS = fresnelSchlickRoughness(F0, NV, perceptualRoughness);
@@ -99,7 +110,73 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   diffuse *= IBLDiffuseContribution;
   specular *= IBLSpecularContribution;
 
-  return diffuse + specular;
+  vec3 base = diffuse + specular;
+
+  return base;
+}
+
+vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float perceptualRoughness, vec3 clearcoatNormal_inWorld)
+{
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  float rot = iblParameter.w + 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+
+  // // get irradiance
+  // vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  // normal_forEnv.x *= -1.0;
+  // vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+
+  // // get radiance
+  // vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+  // reflection.x *= -1.0;
+  // float mipCount = iblParameter.x;
+  // float lod = (perceptualRoughness * (mipCount - 1.0));
+  // vec3 radiance = get_radiance(reflection, lod, hdriFormat);
+
+  // // Roughness dependent fresnel
+  // vec3 kS = fresnelSchlickRoughness(F0, NV, perceptualRoughness);
+  // // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - perceptualRoughness)).rgb;
+  // vec2 f_ab = envBRDFApprox(perceptualRoughness, NV);
+  // vec3 FssEss = kS * f_ab.x + f_ab.y;
+
+
+  // // Multiple scattering, Fdez-Aguera's approach
+  // float Ems = (1.0 - (f_ab.x + f_ab.y));
+  // vec3 F_avg = F0 + (1.0 - F0) / 21.0;
+  // vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
+  // vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
+
+  // // Diffuse IBL
+  // vec3 diffuse = (FmsEms + k_D) * irradiance;
+
+  // // Specular IBL
+  // vec3 specular = FssEss * radiance;
+
+  // // scale with user parameters
+  // float IBLDiffuseContribution = iblParameter.y;
+  // float IBLSpecularContribution = iblParameter.z;
+  // diffuse *= IBLDiffuseContribution;
+  // specular *= IBLSpecularContribution;
+
+  // vec3 base = diffuse + specular;
+
+  vec3 base = baseIBL(materialSID, normal_inWorld, NV, viewDirection, albedo, F0,
+    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix);
+
+  // // get clearcoat irradiance
+  // vec3 normal_forEnv = rotEnvMatrix * clearcoatNormal_inWorld;
+  // normal_forEnv.x *= -1.0;
+  // vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+
+  // // get radiance
+  // vec3 reflection = rotEnvMatrix * reflect(-viewDirection, clearcoatNormal_inWorld);
+  // reflection.x *= -1.0;
+  // float mipCount = iblParameter.x;
+  // float lod = (perceptualRoughness * (mipCount - 1.0));
+  // vec3 radiance = get_radiance(reflection, lod, hdriFormat);
+
+  return base;
 }
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
