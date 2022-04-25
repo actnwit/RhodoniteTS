@@ -214,6 +214,15 @@ void main ()
 
 #pragma shaderity: require(../common/alphaMask.glsl)
 
+  // NV
+  vec3 viewDirection = normalize(viewVector);
+  float NV = dot(normal_inWorld, viewDirection);
+
+  // Clearcoat
+  float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
+  float clearcoatTexture = texture2D(u_clearcoatTexture, baseColorTexUv).r;
+  float clearcoat = clearcoatFactor * clearcoatTexture;
+
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
   vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
@@ -241,19 +250,12 @@ void main ()
   vec3 black = vec3(0.0);
   vec3 albedo = mix(baseColor.rgb, black, metallic);
 
-  // View direction
-  vec3 viewDirection = normalize(viewVector);
 
-  // NV
-  float NV = dot(normal_inWorld, viewDirection);
   float satNV = saturateEpsilonToOne(NV);
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
   // Clearcoat
-  float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
-  float clearcoatTexture = texture2D(u_clearcoatTexture, baseColorTexUv).r;
-  float clearcoat = clearcoatFactor * clearcoatTexture;
   float clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
   float textureRoughnessTexture = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).r;
   float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
@@ -344,8 +346,8 @@ void main ()
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
   vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
-  // vec3 coated_emissive = emissive * (0.04 + (1.0 - 0.04) * pow(1.0 - NV, 5.0));
-  rt0.xyz += emissive;
+  vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NV, 5.0)), clearcoat);
+  rt0.xyz += coated_emissive;
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0);
   if(isOutputHDR){
