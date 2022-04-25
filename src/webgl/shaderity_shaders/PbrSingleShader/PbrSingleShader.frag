@@ -322,7 +322,7 @@ void main ()
     float NdotHc = dot(clearcoatNormal_inWorld, halfVector);
     float LdotNc = dot(lightDirection, clearcoatNormal_inWorld);
     vec3 coated = coated_material_s(baseLayer, perceptualRoughness,
-      clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
+      clearcoatRoughness, clearcoat, saturateEpsilonToOne(VdotNc), saturateEpsilonToOne(LdotNc), saturateEpsilonToOne(NdotHc));
 
     rt0.xyz += coated;
   }
@@ -381,6 +381,7 @@ void main ()
   }
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
-
+// rt0.xyz = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).xyz;
 #pragma shaderity: require(../common/glFragColor.glsl)
+
 }
