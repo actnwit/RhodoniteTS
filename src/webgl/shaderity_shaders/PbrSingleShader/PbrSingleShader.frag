@@ -24,17 +24,10 @@ in vec3 v_baryCentricCoord;
 
 /* shaderity: @{getters} */
 
-vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 viewDirection, vec3 albedo, vec3 F0, float userRoughness)
-{
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float rot = iblParameter.w + 3.1415;
-  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-  normal_forEnv.x *= -1.0;
+vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, normal_forEnv);
 
   vec3 irradiance;
-  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
   if (hdriFormat.x == 0) {
     // LDR_SRGB
     irradiance = srgbToLinear(diffuseTexel.rgb);
@@ -47,11 +40,19 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
     irradiance = diffuseTexel.rgb;
   }
 
-  float mipCount = iblParameter.x;
-  float lod = (userRoughness * (mipCount - 1.0));
+  return irradiance;
+}
 
-  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-#pragma shaderity: require(./../common/fetchCubeTexture.glsl)
+vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
+  #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
+    vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);
+  #elif defined(GLSL_ES3)
+    vec4 specularTexel = textureLod(u_specularEnvTexture, reflection, lod);
+  #else
+    vec4 specularTexel = textureCube(u_specularEnvTexture, reflection);
+  #endif
+
+// #pragma shaderity: require(./../common/fetchCubeTexture.glsl)
 
   vec3 radiance;
   if (hdriFormat.y == 0) {
@@ -66,10 +67,28 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
     radiance = specularTexel.rgb;
   }
 
+  return radiance;
+}
+
+vec3 IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
+  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix)
+{
+    // get irradiance
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  normal_forEnv.x *= -1.0;
+  vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+
+  // get radiance
+  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+  reflection.x *= -1.0;
+  float mipCount = iblParameter.x;
+  float lod = (perceptualRoughness * (mipCount - 1.0));
+  vec3 radiance = get_radiance(reflection, lod, hdriFormat);
+
   // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
-  // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NV, 1.0 - userRoughness)).rgb;
-  vec2 f_ab = envBRDFApprox(userRoughness, NV);
+  vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
+  // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NdotV, 1.0 - perceptualRoughness)).rgb;
+  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
   vec3 FssEss = kS * f_ab.x + f_ab.y;
 
 
@@ -91,7 +110,35 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NV, vec3 view
   diffuse *= IBLDiffuseContribution;
   specular *= IBLSpecularContribution;
 
-  return diffuse + specular;
+  vec3 base = diffuse + specular;
+
+  return base;
+}
+
+vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
+  vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
+  float clearcoat, float VdotNc, vec3 geomNormal_inWorld)
+{
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  float rot = iblParameter.w + 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+
+
+  vec3 base = IBL(materialSID, normal_inWorld, NdotV, viewDirection, albedo, F0,
+    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix);
+
+  float VdotNg = dot(geomNormal_inWorld, viewDirection);
+  vec3 coatLayer = IBL(materialSID, clearcoatNormal_inWorld, VdotNc, viewDirection, vec3(0.0), F0,
+    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
+
+  // vec3 clearcoatNormal_forEnv = rotEnvMatrix * clearcoatNormal_inWorld;
+  // clearcoatNormal_forEnv.x *= -1.0;
+
+  float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
+  vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
+
+  return coated;
 }
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
@@ -127,12 +174,13 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
+  vec3 geomNormal_inWorld = normal_inWorld;
+  vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
+  float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+  vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+  vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
   #ifdef RN_USE_NORMAL_TEXTURE
-    vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
-    float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
-    int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
-    vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
-    vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
     vec3 normalTexValue = texture2D(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence
@@ -159,7 +207,6 @@ void main ()
     baseColor = vec3(1.0, 1.0, 1.0);
   }
 
-
   // BaseColor (take account for BaseColorTexture)
   vec4 baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
   float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
@@ -172,10 +219,19 @@ void main ()
 
 #pragma shaderity: require(../common/alphaMask.glsl)
 
+  // NdotV
+  vec3 viewDirection = normalize(viewVector);
+  float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
+
+  // Clearcoat
+  float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
+  float clearcoatTexture = texture2D(u_clearcoatTexture, baseColorTexUv).r;
+  float clearcoat = clearcoatFactor * clearcoatTexture;
+
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
   vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
-  float userRoughness = metallicRoughnessFactor.y;
+  float perceptualRoughness = metallicRoughnessFactor.y;
   float metallic = metallicRoughnessFactor.x;
 
   vec4 metallicRoughnessTextureTransform = get_metallicRoughnessTextureTransform(materialSID, 0);
@@ -184,29 +240,31 @@ void main ()
   vec2 metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex);
   vec2 metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransform.xy, metallicRoughnessTextureTransform.zw, metallicRoughnessTextureRotation, metallicRoughnessTexcoord);
   vec4 ormTexel = texture2D(u_metallicRoughnessTexture, metallicRoughnessTexUv);
-  userRoughness = ormTexel.g * userRoughness;
+  perceptualRoughness = ormTexel.g * perceptualRoughness;
   metallic = ormTexel.b * metallic;
 
-  userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
+  perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
   metallic = clamp(metallic, 0.0, 1.0);
-  float alphaRoughness = userRoughness * userRoughness;
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
   // F0
   vec3 diffuseMatAverageF0 = vec3(0.04);
   vec3 F0 = mix(diffuseMatAverageF0, baseColor.rgb, metallic);
 
   // Albedo
-  vec3 albedo = baseColor.rgb * (vec3(1.0) - diffuseMatAverageF0);
-  albedo.rgb *= (1.0 - metallic);
-
-  // View direction
-  vec3 viewDirection = normalize(viewVector);
-
-  // NV
-  float NV = dot(normal_inWorld, viewDirection);
-  float satNV = saturateEpsilonToOne(NV);
+  vec3 black = vec3(0.0);
+  vec3 albedo = mix(baseColor.rgb, black, metallic);
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
+
+  // Clearcoat
+  float clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
+  float textureRoughnessTexture = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).g;
+  float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
+  vec3 textureNormal_tangent = texture2D(u_clearcoatNormalTexture, baseColorTexUv).xyz * vec3(2.0) - vec3(1.0);
+
+  vec3 clearcoatNormal_inWorld = perturb_normal(geomNormal_inWorld, viewVector, normalTexUv, textureNormal_tangent);
+  float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
 
   // Lighting
   vec3 diffuse = vec3(0.0, 0.0, 0.0);
@@ -258,16 +316,22 @@ void main ()
     float NL = dot(normal_inWorld, lightDirection);
     float satNL = saturateEpsilonToOne(NL);
 
-    vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, satNV, F, alphaRoughness);
-    vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
+    // Base Layer
+    vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, NdotV, F, alphaRoughness);
+    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
 
-    rt0.xyz += diffuseAndSpecular;
-//      rt0.xyz += specularContrib * vec3(NL) * incidentLight.rgb;
-//    rt0.xyz += diffuseContrib * vec3(NL) * incidentLight.rgb;
-//    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
+    // Clear Coat Layer
+    float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
+    float LdotNc = saturateEpsilonToOne(dot(lightDirection, clearcoatNormal_inWorld));
+    vec3 coated = coated_material_s(baseLayer, perceptualRoughness,
+      clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
+
+    rt0.xyz += coated;
   }
 
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, satNV, viewDirection, albedo, F0, userRoughness);
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
+    albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
+    clearcoat, VdotNc, geomNormal_inWorld);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
@@ -284,8 +348,8 @@ void main ()
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
   vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
-
-  rt0.xyz += emissive;
+  vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
+  rt0.xyz += coated_emissive;
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0);
   if(isOutputHDR){
@@ -319,6 +383,7 @@ void main ()
   }
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
-
+// rt0.xyz = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).xyz;
 #pragma shaderity: require(../common/glFragColor.glsl)
+
 }

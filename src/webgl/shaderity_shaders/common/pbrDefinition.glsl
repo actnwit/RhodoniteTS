@@ -94,11 +94,63 @@ vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alp
 
 }
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
 vec3 diffuse_brdf(vec3 albedo)
 {
+  // (1/pi) * diffuseAlbedo
   return albedo / M_PI;
 }
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf
+float specular_brdf(float alphaRoughness, float NdotL, float NdotV, float NdotH) {
+  float V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+  float D = d_ggx(NdotH, alphaRoughness);
+  return V * D;
+}
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#fresnel
+vec3 conductor_fresnel(vec3 f0, float brdf, float alphaRoughness, float VdotH) {
+  return vec3(brdf) * (f0.rgb + (vec3(1.0) - f0.rgb) * vec3(pow(1.0 - abs(VdotH), 5.0)));
+}
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#fresnel
+vec3 fresnel_mix(float ior, vec3 base, vec3 layer, float VdotH) {
+  float f0 = pow((1.0 - ior)/(1.0 + ior), 2.0);
+  float fr = f0 + (1.0 - f0) * pow(1.0 - abs(VdotH), 5.0);
+  return mix(base, layer, fr);
+}
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#metal-brdf-and-dielectric-brdf
+vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float NdotV, float NdotH, float VdotH) {
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
+  return conductor_fresnel(
+    baseColor,
+    specular_brdf(alphaRoughness, NdotL, NdotV, NdotH),
+    alphaRoughness,
+    VdotH
+  );
+}
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#metal-brdf-and-dielectric-brdf
+vec3 dielectric_brdf(float ior, vec3 baseColor, float perceptualRoughness, float NdotL, float NdotV, float NdotH, float VdotH) {
+  vec3 base = diffuse_brdf(baseColor);
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
+  vec3 layer = vec3(specular_brdf(alphaRoughness, NdotL, NdotV, NdotH));
+  return fresnel_mix(ior, base, layer, VdotH);
+}
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
+vec3 coated_material_s(vec3 base, float perceptualRoughness, float clearcoatRoughness, float clearcoat, float VdotNc, float LdotNc, float NdotHc) {
+  float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
+  float clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
+  float D = d_ggx(NdotHc, clearcoatAlpha);
+  float V = v_SmithGGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
+  float f_clearcoat = clearcoatFresnel * D * V;
+
+  // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
+  return base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(f_clearcoat * clearcoat);
+}
 vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }

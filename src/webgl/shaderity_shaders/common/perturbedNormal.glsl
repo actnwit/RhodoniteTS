@@ -32,7 +32,11 @@
 
     vec3 perturb_normal(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord, vec3 normalTex) {
       mat3 tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord);
-      return normalize(tbnMat_tangent_to_world * normalTex);
+      if (texcoord.x > 0.0 || texcoord.y > 0.0) {
+        return normalize(tbnMat_tangent_to_world * normalTex);
+      } else {
+        return normal_inWorld;
+      }
     }
   #else
     vec3 perturb_normal(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord, vec3 normalTex) {

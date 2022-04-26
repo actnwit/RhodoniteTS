@@ -56,6 +56,7 @@ import {
   RnM2Mesh,
   RnM2TextureInfo,
   RnM2SparseIndices,
+  RnM2PbrMetallicRoughness,
 } from '../../types/RnM2';
 import {Config} from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
@@ -1162,97 +1163,13 @@ export class ModelConverter {
     const options = gltfModel.asset.extras!.rnLoaderOptions;
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
-      const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
-      if (baseColorFactor != null) {
-        material.setParameter(
-          ShaderSemantics.BaseColorFactor,
-          Vector4.fromCopyArray4(baseColorFactor)
-        );
-      }
-
-      const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
-      if (baseColorTexture != null) {
-        const rnTexture = ModelConverter._createTexture(
-          baseColorTexture.texture!,
-          gltfModel,
-          {
-            autoDetectTransparency: options?.autoDetectTextureTransparency,
-          }
-        );
-        material.setTextureParameter(
-          ShaderSemantics.BaseColorTexture,
-          rnTexture
-        );
-        if (baseColorTexture.texCoord != null) {
-          material.setParameter(
-            PbrShadingMaterialContent.BaseColorTexcoordIndex,
-            baseColorTexture.texCoord
-          );
-        }
-      }
-      ModelConverter._setupTextureTransform(
-        baseColorTexture!,
+      // BaseColor Factor
+      setupPbrMetallicRoughness(
+        pbrMetallicRoughness,
         material,
-        PbrShadingMaterialContent.BaseColorTextureTransform,
-        PbrShadingMaterialContent.BaseColorTextureRotation
-      );
-
-      const occlusionTexture = materialJson.occlusionTexture;
-      if (occlusionTexture != null) {
-        const rnTexture = ModelConverter._createTexture(
-          occlusionTexture.texture!,
-          gltfModel
-        );
-        material.setTextureParameter(
-          ShaderSemantics.OcclusionTexture,
-          rnTexture
-        );
-        if (occlusionTexture.texCoord != null) {
-          material.setParameter(
-            PbrShadingMaterialContent.OcclusionTexcoordIndex,
-            occlusionTexture.texCoord
-          );
-        }
-        if (occlusionTexture.strength != null) {
-          material.setParameter(
-            PbrShadingMaterialContent.OcclusionStrength,
-            occlusionTexture.strength
-          );
-        }
-      }
-
-      let metallicFactor = pbrMetallicRoughness.metallicFactor;
-      metallicFactor = metallicFactor ?? 1;
-      let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
-      roughnessFactor = roughnessFactor ?? 1;
-      material.setParameter(
-        ShaderSemantics.MetallicRoughnessFactor,
-        Vector2.fromCopyArray2([metallicFactor, roughnessFactor])
-      );
-
-      const metallicRoughnessTexture =
-        pbrMetallicRoughness.metallicRoughnessTexture;
-      if (metallicRoughnessTexture != null) {
-        const rnTexture = ModelConverter._createTexture(
-          metallicRoughnessTexture.texture!,
-          gltfModel
-        );
-        material.setTextureParameter(
-          ShaderSemantics.MetallicRoughnessTexture,
-          rnTexture
-        );
-        if (metallicRoughnessTexture.texCoord != null) {
-          material.setParameter(
-            PbrShadingMaterialContent.MetallicRoughnessTexcoordIndex,
-            metallicRoughnessTexture.texCoord
-          );
-        }
-      }
-      ModelConverter._setupTextureTransform(
-        metallicRoughnessTexture!,
-        material,
-        PbrShadingMaterialContent.MetallicRoughnessTextureTransform,
-        PbrShadingMaterialContent.MetallicRoughnessTextureRotation
+        gltfModel,
+        options,
+        materialJson
       );
     } else {
       let param: Index = ShadingModel.Phong.index;
@@ -2246,4 +2163,176 @@ export class ModelConverter {
       byteAlign: 4,
     });
   }
+}
+function setupPbrMetallicRoughness(
+  pbrMetallicRoughness: RnM2PbrMetallicRoughness,
+  material: Material,
+  gltfModel: RnM2,
+  options: GltfLoadOption | undefined,
+  materialJson: RnM2Material
+) {
+  const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
+  if (baseColorFactor != null) {
+    material.setParameter(
+      ShaderSemantics.BaseColorFactor,
+      Vector4.fromCopyArray4(baseColorFactor)
+    );
+  }
+
+  // BaseColor Texture
+  const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
+  if (baseColorTexture != null) {
+    const rnTexture = ModelConverter._createTexture(
+      baseColorTexture.texture!,
+      gltfModel,
+      {
+        autoDetectTransparency: options?.autoDetectTextureTransparency,
+      }
+    );
+    material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
+    if (baseColorTexture.texCoord != null) {
+      material.setParameter(
+        PbrShadingMaterialContent.BaseColorTexcoordIndex,
+        baseColorTexture.texCoord
+      );
+    }
+  }
+
+  // Ambient Occlusion Texture
+  const occlusionTexture = materialJson.occlusionTexture;
+  if (occlusionTexture != null) {
+    const rnTexture = ModelConverter._createTexture(
+      occlusionTexture.texture!,
+      gltfModel
+    );
+    material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture);
+    if (occlusionTexture.texCoord != null) {
+      material.setParameter(
+        PbrShadingMaterialContent.OcclusionTexcoordIndex,
+        occlusionTexture.texCoord
+      );
+    }
+    if (occlusionTexture.strength != null) {
+      material.setParameter(
+        PbrShadingMaterialContent.OcclusionStrength,
+        occlusionTexture.strength
+      );
+    }
+  }
+
+  // Metallic Factor
+  let metallicFactor = pbrMetallicRoughness.metallicFactor;
+  metallicFactor = metallicFactor ?? 1;
+  let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
+  roughnessFactor = roughnessFactor ?? 1;
+  material.setParameter(
+    ShaderSemantics.MetallicRoughnessFactor,
+    Vector2.fromCopyArray2([metallicFactor, roughnessFactor])
+  );
+
+  // Metallic roughness texture
+  const metallicRoughnessTexture =
+    pbrMetallicRoughness.metallicRoughnessTexture;
+  if (metallicRoughnessTexture != null) {
+    const rnTexture = ModelConverter._createTexture(
+      metallicRoughnessTexture.texture!,
+      gltfModel
+    );
+    material.setTextureParameter(
+      ShaderSemantics.MetallicRoughnessTexture,
+      rnTexture
+    );
+    if (metallicRoughnessTexture.texCoord != null) {
+      material.setParameter(
+        PbrShadingMaterialContent.MetallicRoughnessTexcoordIndex,
+        metallicRoughnessTexture.texCoord
+      );
+    }
+
+  }
+  //
+  setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
+
+  // BaseColor TexCoord Transform
+  setup_KHR_texture_transform(
+    baseColorTexture,
+    material,
+    metallicRoughnessTexture
+  );
+}
+function setup_KHR_materials_clearcoat(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_clearcoat = materialJson?.extensions?.KHR_materials_clearcoat;
+  if (Is.exist(KHR_materials_clearcoat)) {
+    const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
+      ? KHR_materials_clearcoat.clearcoatFactor
+      : 0.0;
+    material.setParameter(ShaderSemantics.ClearCoatFactor, clearCoatFactor);
+    const clearCoatTexture = KHR_materials_clearcoat.clearcoatTexture;
+    if (clearCoatTexture != null) {
+      const rnClearCoatTexture = ModelConverter._createTexture(
+        clearCoatTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.ClearCoatTexture,
+        rnClearCoatTexture
+      );
+    }
+    const clearCoatRoughnessFactor = Is.exist(
+      KHR_materials_clearcoat.clearcoatRoughnessFactor
+    )
+      ? KHR_materials_clearcoat.clearcoatRoughnessFactor
+      : 0.0;
+    material.setParameter(
+      ShaderSemantics.ClearCoatRoughnessFactor,
+      clearCoatRoughnessFactor
+    );
+    const clearCoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
+    if (clearCoatRoughnessTexture != null) {
+      const rnClearCoatRoughnessTexture = ModelConverter._createTexture(
+        clearCoatRoughnessTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.ClearCoatRoughnessTexture,
+        rnClearCoatRoughnessTexture
+      );
+    }
+    const clearCoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
+    if (clearCoatNormalTexture != null) {
+      const rnClearCoatNormalTexture = ModelConverter._createTexture(
+        clearCoatNormalTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.ClearCoatNormalTexture,
+        rnClearCoatNormalTexture
+      );
+    }
+  }
+}
+
+function setup_KHR_texture_transform(
+  baseColorTexture: RnM2TextureInfo | undefined,
+  material: Material,
+  metallicRoughnessTexture: RnM2TextureInfo | undefined
+) {
+  ModelConverter._setupTextureTransform(
+    baseColorTexture!,
+    material,
+    PbrShadingMaterialContent.BaseColorTextureTransform,
+    PbrShadingMaterialContent.BaseColorTextureRotation
+  );
+
+  // Metallic Roughness Texcoord Transform
+  ModelConverter._setupTextureTransform(
+    metallicRoughnessTexture!,
+    material,
+    PbrShadingMaterialContent.MetallicRoughnessTextureTransform,
+    PbrShadingMaterialContent.MetallicRoughnessTextureRotation
+  );
 }

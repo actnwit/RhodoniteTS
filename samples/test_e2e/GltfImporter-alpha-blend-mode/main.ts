@@ -10,6 +10,7 @@ document.body.appendChild(p);
   await Rn.System.init({
     approach: Rn.ProcessApproach.UniformWebGL1,
     canvas: world,
+    rnWebGLDebug: true,
   });
 
   // camera
