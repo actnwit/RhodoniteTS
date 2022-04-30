@@ -556,6 +556,7 @@ export class ModelConverter {
       cameraComponent.zNear = camera.orthographic!.znear;
       cameraComponent.zFar = camera.orthographic!.zfar;
     }
+    cameraComponent.tryToSetTag({tag: "OriginalAspect", value: cameraComponent.aspect});
     return cameraEntity as ICameraEntity;
   }
 
