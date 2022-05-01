@@ -200,7 +200,7 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = EntityHelper.createMeshEntity();
+    this.__topEntity = EntityHelper.createGroupEntity();
     this.__topEntity!.tryToSetUniqueName(
       `TranslationGizmo_of_${this.__target.uniqueName}`,
       true

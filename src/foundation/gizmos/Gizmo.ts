@@ -12,7 +12,7 @@ export abstract class Gizmo extends RnObject {
    * a child of the target entity's scene graph component
    * that the gizmo will belong to manually.
    */
-  protected __topEntity?: IMeshEntity;
+  protected __topEntity?: IMeshEntity | ISceneGraphEntity;
   /** the target entity which this gizmo belong to */
   protected __target: ISceneGraphEntity;
 

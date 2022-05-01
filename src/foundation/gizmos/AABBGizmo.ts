@@ -60,7 +60,7 @@ export class AABBGizmo extends Gizmo {
       .getSceneGraph()!
       ._addGizmoChild(this.__topEntity!.getSceneGraph()!);
 
-    const meshComponent = this.__topEntity!.getMesh()!;
+    const meshComponent = this.__topEntity!.tryToGetMesh()!;
     AABBGizmo.__mesh = new Mesh();
     AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
     meshComponent.setMesh(AABBGizmo.__mesh);

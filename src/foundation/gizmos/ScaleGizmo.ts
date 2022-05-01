@@ -200,7 +200,7 @@ export class ScaleGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = EntityHelper.createMeshEntity();
+    this.__topEntity = EntityHelper.createGroupEntity();
     this.__topEntity!.tryToSetUniqueName(
       `ScaleGizmo_of_${this.__target.uniqueName}`,
       true
