@@ -4,6 +4,7 @@ import { IVector4 } from '../math/IVector';
 import {Is} from '../misc/Is';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { Expression } from './Expression';
+import { FrameBuffer } from './FrameBuffer';
 
 type ColorAttachmentIndex = number;
 type InputIndex = number;
@@ -78,8 +79,13 @@ export class Frame extends RnObject {
       .__expressionMap) {
       for (const expData of this.__expressions) {
         if (exp === expData.exp) {
-          const framebuffer =
-            expData.inputRenderPasses[inputIndex].getFramebuffer();
+          const renderPass = expData.inputRenderPasses[inputIndex];
+          let framebuffer: FrameBuffer | undefined;
+          if (renderPass.getResolveFramebuffer()) {
+            framebuffer = renderPass.getResolveFramebuffer();
+          } else {
+            framebuffer = renderPass.getFramebuffer();
+          }
           if (Is.exist(framebuffer)) {
             const renderTargetTexture =
               framebuffer.getColorAttachedRenderTargetTexture(
