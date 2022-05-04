@@ -1,16 +1,19 @@
-import {RenderPass} from '../..';
-import { RnObject } from '../core/RnObject';
-import { IVector4 } from '../math/IVector';
+import {RequireOne} from '../../types/TypeGenerators';
+import {RnObject} from '../core/RnObject';
+import {IVector4} from '../math/IVector';
+import {assertExist} from '../misc/MiscUtil';
 import {Is} from '../misc/Is';
-import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { Expression } from './Expression';
-import { FrameBuffer } from './FrameBuffer';
+import {RenderTargetTexture} from '../textures/RenderTargetTexture';
+import {Expression} from './Expression';
+import {FrameBuffer} from './FrameBuffer';
+import {RenderPass} from './RenderPass';
 
 type ColorAttachmentIndex = number;
-type InputIndex = number;
+type InputRenderPassIndex = number;
+type RenderPassIndex = number;
 
 type ExpressionInputs = {
-  exp: Expression;
+  expression: Expression;
   inputRenderPasses: RenderPass[];
 };
 
@@ -24,7 +27,15 @@ export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
   private __expressionMap: Map<
     Expression,
-    [InputIndex, ColorAttachmentIndex, GeneratorOfRenderTargetTexturePromise]
+    [
+      RequireOne<{
+        index?: InputRenderPassIndex;
+        uniqueName?: string;
+        instance?: RenderPass;
+      }>,
+      ColorAttachmentIndex,
+      GeneratorOfRenderTargetTexturePromise
+    ]
   > = new Map();
   constructor() {
     super();
@@ -33,22 +44,70 @@ export class Frame extends RnObject {
   /**
    * Add render passes to the end of this expression.
    */
-  addExpression(exp: Expression, inputConnections: RenderPass[] = []) {
+  addExpression(
+    expression: Expression,
+    {
+      inputRenderPasses,
+      outputs,
+    }: {
+      inputRenderPasses?: RenderPass[];
+      outputs?: {
+        renderPass: RequireOne<{
+          index?: RenderPassIndex;
+          uniqueName?: string;
+          instance?: RenderPass;
+        }>;
+        frameBuffer: FrameBuffer;
+      }[];
+    } = {
+      inputRenderPasses: [],
+      outputs: [],
+    }
+  ) {
+    if (Is.exist(outputs)) {
+      for (const output of outputs) {
+        let renderPass = output.renderPass.instance;
+        if (Is.exist(output.renderPass.instance)) {
+          renderPass = output.renderPass.instance;
+        } else if (Is.exist(output.renderPass.index)) {
+          renderPass = expression.renderPasses[output.renderPass.index];
+        } else if (Is.exist(output.renderPass.uniqueName)) {
+          renderPass = RnObject.getRnObjectByName(
+            output.renderPass.uniqueName
+          ) as RenderPass;
+        }
+        if (Is.exist(renderPass)) {
+          renderPass.setFramebuffer(output.frameBuffer);
+        }
+      }
+    }
     this.__expressions.push({
-      exp,
-      inputRenderPasses: inputConnections,
+      expression,
+      inputRenderPasses: Is.exist(inputRenderPasses) ? inputRenderPasses : [],
     });
   }
 
+  /**
+   * Get ColorAttachment RenderBuffer from input render pass of the expression
+   * @param inputFrom input Expression
+   * @param {inputIndex: number, colorAttachmentIndex: number} input RenderPass Index and ColorAttachmen tIndex
+   * @returns {Promise<RenderTargetTexture>}
+   */
   getColorAttachmentFromInputOf(
     inputFrom: Expression,
-    {
-      inputIndex,
-      colorAttachmentIndex,
-    }: {
-      inputIndex: InputIndex;
+    renderPassArg: {
+      renderPass: RequireOne<{
+        index?: InputRenderPassIndex;
+        uniqueName?: string;
+        instance?: RenderPass;
+      }>;
       colorAttachmentIndex: ColorAttachmentIndex;
-    } = {inputIndex: 0, colorAttachmentIndex: 0}
+    } = {
+      renderPass: {
+        index: 0,
+      },
+      colorAttachmentIndex: 0,
+    }
   ): Promise<RenderTargetTexture> {
     const promise = new Promise<RenderTargetTexture>(
       (
@@ -65,8 +124,8 @@ export class Frame extends RnObject {
 
         // register the generator
         this.__expressionMap.set(inputFrom, [
-          inputIndex,
-          colorAttachmentIndex,
+          renderPassArg.renderPass,
+          renderPassArg.colorAttachmentIndex,
           generator as GeneratorOfRenderTargetTexturePromise,
         ]);
       }
@@ -74,18 +133,33 @@ export class Frame extends RnObject {
     return promise;
   }
 
+  /**
+   *
+   */
   resolve() {
-    for (const [exp, [inputIndex, colorAttachmentIndex, generator]] of this
+    for (const [exp, [renderPassArg, colorAttachmentIndex, generator]] of this
       .__expressionMap) {
       for (const expData of this.__expressions) {
-        if (exp === expData.exp) {
-          const renderPass = expData.inputRenderPasses[inputIndex];
-          let framebuffer: FrameBuffer | undefined;
-          if (renderPass.getResolveFramebuffer()) {
-            framebuffer = renderPass.getResolveFramebuffer();
-          } else {
-            framebuffer = renderPass.getFramebuffer();
+        if (exp === expData.expression) {
+
+          let renderPassObj = renderPassArg.instance;
+          if (Is.exist(renderPassArg.instance)) {
+            renderPassObj = renderPassArg.instance;
+          } else if (Is.exist(renderPassArg.index)) {
+            renderPassObj = expData.inputRenderPasses[renderPassArg.index];
+          } else if (Is.exist(renderPassArg.uniqueName)) {
+            renderPassObj = RnObject.getRnObjectByName(
+              renderPassArg.uniqueName
+            ) as RenderPass;
           }
+
+          let framebuffer: FrameBuffer | undefined;
+          if (renderPassObj!.getResolveFramebuffer()) {
+            framebuffer = renderPassObj!.getResolveFramebuffer();
+          } else {
+            framebuffer = renderPassObj!.getFramebuffer();
+          }
+
           if (Is.exist(framebuffer)) {
             const renderTargetTexture =
               framebuffer.getColorAttachedRenderTargetTexture(
@@ -112,12 +186,12 @@ export class Frame extends RnObject {
    * Get expressions
    */
   get expressions() {
-    return this.__expressions.map(exp => exp.exp);
+    return this.__expressions.map(exp => exp.expression);
   }
 
   setViewport(viewport: IVector4) {
     for (const exp of this.__expressions) {
-      exp.exp.setViewport(viewport);
+      exp.expression.setViewport(viewport);
     }
   }
 }

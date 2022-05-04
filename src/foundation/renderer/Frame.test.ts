@@ -42,7 +42,10 @@ describe('Frame Test', () => {
       frame.getColorAttachmentFromInputOf(expression1)
     );
     frame.addExpression(expression0);
-    frame.addExpression(expression1, [renderPass0_0]);
+    frame.addExpression(expression1, {
+      inputRenderPasses: [renderPass0_0],
+      outputs: [],
+    });
     frame.resolve();
     const renderTargetTexture = planePrimitive.material.getTextureParameter(
       Rn.ShaderSemantics.DiffuseColorTexture
