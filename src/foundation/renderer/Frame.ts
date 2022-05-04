@@ -7,7 +7,7 @@ import { Expression } from './Expression';
 import { FrameBuffer } from './FrameBuffer';
 
 type ColorAttachmentIndex = number;
-type InputIndex = number;
+type InputRenderPassIndex = number;
 
 type ExpressionInputs = {
   exp: Expression;
@@ -24,7 +24,11 @@ export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
   private __expressionMap: Map<
     Expression,
-    [InputIndex, ColorAttachmentIndex, GeneratorOfRenderTargetTexturePromise]
+    [
+      InputRenderPassIndex,
+      ColorAttachmentIndex,
+      GeneratorOfRenderTargetTexturePromise
+    ]
   > = new Map();
   constructor() {
     super();
@@ -40,15 +44,21 @@ export class Frame extends RnObject {
     });
   }
 
+  /**
+   * Get ColorAttachment RenderBuffer from input render pass of the expression
+   * @param inputFrom input Expression
+   * @param {inputIndex: number, colorAttachmentIndex: number} input RenderPass Index and ColorAttachmen tIndex
+   * @returns {Promise<RenderTargetTexture>}
+   */
   getColorAttachmentFromInputOf(
     inputFrom: Expression,
     {
-      inputIndex,
+      renderPassIndex,
       colorAttachmentIndex,
     }: {
-      inputIndex: InputIndex;
+      renderPassIndex: InputRenderPassIndex;
       colorAttachmentIndex: ColorAttachmentIndex;
-    } = {inputIndex: 0, colorAttachmentIndex: 0}
+    } = {renderPassIndex: 0, colorAttachmentIndex: 0}
   ): Promise<RenderTargetTexture> {
     const promise = new Promise<RenderTargetTexture>(
       (
@@ -65,7 +75,7 @@ export class Frame extends RnObject {
 
         // register the generator
         this.__expressionMap.set(inputFrom, [
-          inputIndex,
+          renderPassIndex,
           colorAttachmentIndex,
           generator as GeneratorOfRenderTargetTexturePromise,
         ]);
@@ -75,17 +85,18 @@ export class Frame extends RnObject {
   }
 
   resolve() {
-    for (const [exp, [inputIndex, colorAttachmentIndex, generator]] of this
+    for (const [exp, [renderPassIndex, colorAttachmentIndex, generator]] of this
       .__expressionMap) {
       for (const expData of this.__expressions) {
         if (exp === expData.exp) {
-          const renderPass = expData.inputRenderPasses[inputIndex];
+          const renderPass = expData.inputRenderPasses[renderPassIndex];
           let framebuffer: FrameBuffer | undefined;
           if (renderPass.getResolveFramebuffer()) {
             framebuffer = renderPass.getResolveFramebuffer();
           } else {
             framebuffer = renderPass.getFramebuffer();
           }
+          expData.inputRenderPasses[renderPassIndex].getFramebuffer();
           if (Is.exist(framebuffer)) {
             const renderTargetTexture =
               framebuffer.getColorAttachedRenderTargetTexture(
