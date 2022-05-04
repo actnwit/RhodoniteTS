@@ -53,7 +53,7 @@ export class MutableQuaternion
   }
 
   static dummy() {
-    return super.dummy() as MutableQuaternion;
+    return new this(new Float32Array(0));
   }
 
   static invert(quat: IQuaternion) {
@@ -310,8 +310,13 @@ export class MutableQuaternion
     return this;
   }
 
-  clone(): MutableQuaternion {
-    return super.clone() as MutableQuaternion;
+  clone(): IMutableQuaternion {
+    return MutableQuaternion.fromCopy4(
+      this._v[0],
+      this._v[1],
+      this._v[2],
+      this._v[3]
+    ) as IMutableQuaternion;
   }
 
   static fromFloat32Array(array: Float32Array) {
