@@ -1,4 +1,3 @@
-import Frame from '../../../dist/esm/foundation/renderer/Frame';
 import _Rn from '../../../dist/esm/index';
 import {
   OrbitCameraController,
@@ -19,7 +18,6 @@ const expressionWithOutFXAA = new Rn.Expression();
 let activeExpression: Expression;
 let framebuffer: FrameBuffer;
 let renderPassMain: RenderPass;
-
 (async () => {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   const gl = await Rn.System.init({
@@ -36,7 +34,7 @@ let renderPassMain: RenderPass;
     1,
     {}
   );
-  renderPassMain.setFramebuffer(framebuffer);
+  // renderPassMain.setFramebuffer(framebuffer);
 
   // setup the FXAA RenderPass
   const renderPassFxaa = await setupRenderPassFxaa(
@@ -50,7 +48,18 @@ let renderPassMain: RenderPass;
   expressionWithFXAA.addRenderPasses([renderPassMain, renderPassFxaa]);
   expressionWithOutFXAA.addRenderPasses([renderPassMain]);
 
-  frame.addExpression(expressionWithFXAA, [renderPassMain]);
+  frame.addExpression(expressionWithFXAA, {
+    outputs: [
+      {
+        renderPass: {
+          index: 0,
+        },
+        frameBuffer: framebuffer,
+      },
+    ],
+    inputRenderPasses: [renderPassMain],
+  });
+
   frame.resolve();
 
   activeExpression = expressionWithFXAA;
