@@ -1,12 +1,12 @@
 import {RequireOne} from '../../types/TypeGenerators';
 import {RnObject} from '../core/RnObject';
 import {IVector4} from '../math/IVector';
-import { assertExist } from '../misc';
+import {assertExist} from '../misc/MiscUtil';
 import {Is} from '../misc/Is';
 import {RenderTargetTexture} from '../textures/RenderTargetTexture';
 import {Expression} from './Expression';
 import {FrameBuffer} from './FrameBuffer';
-import { RenderPass } from './RenderPass';
+import {RenderPass} from './RenderPass';
 
 type ColorAttachmentIndex = number;
 type InputRenderPassIndex = number;
@@ -27,7 +27,15 @@ export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
   private __expressionMap: Map<
     Expression,
-    [RenderPass, ColorAttachmentIndex, GeneratorOfRenderTargetTexturePromise]
+    [
+      RequireOne<{
+        index?: InputRenderPassIndex;
+        uniqueName?: string;
+        instance?: RenderPass;
+      }>,
+      ColorAttachmentIndex,
+      GeneratorOfRenderTargetTexturePromise
+    ]
   > = new Map();
   constructor() {
     super();
@@ -87,17 +95,19 @@ export class Frame extends RnObject {
    */
   getColorAttachmentFromInputOf(
     inputFrom: Expression,
-    {
-      renderPass,
-      colorAttachmentIndex,
-    }: {
+    renderPassArg: {
       renderPass: RequireOne<{
         index?: InputRenderPassIndex;
         uniqueName?: string;
         instance?: RenderPass;
       }>;
       colorAttachmentIndex: ColorAttachmentIndex;
-    } = {renderPass: {index: 0}, colorAttachmentIndex: 0}
+    } = {
+      renderPass: {
+        index: 0,
+      },
+      colorAttachmentIndex: 0,
+    }
   ): Promise<RenderTargetTexture> {
     const promise = new Promise<RenderTargetTexture>(
       (
@@ -112,23 +122,10 @@ export class Frame extends RnObject {
         }
         const generator = generatorFunc();
 
-        let renderPassObj = renderPass.instance;
-        if (Is.exist(renderPass.instance)) {
-          renderPassObj = renderPass.instance;
-        } else if (Is.exist(renderPass.index)) {
-          renderPass = inputFrom.renderPasses[renderPass.index];
-        } else if (Is.exist(renderPass.uniqueName)) {
-          renderPassObj = RnObject.getRnObjectByName(
-            renderPass.uniqueName
-          ) as RenderPass;
-        }
-
-        assertExist(renderPassObj);
-
         // register the generator
         this.__expressionMap.set(inputFrom, [
-          renderPassObj,
-          colorAttachmentIndex,
+          renderPassArg.renderPass,
+          renderPassArg.colorAttachmentIndex,
           generator as GeneratorOfRenderTargetTexturePromise,
         ]);
       }
@@ -140,19 +137,30 @@ export class Frame extends RnObject {
    *
    */
   resolve() {
-    for (const [exp, [renderPassIndex, colorAttachmentIndex, generator]] of this
+    for (const [exp, [renderPassArg, colorAttachmentIndex, generator]] of this
       .__expressionMap) {
       for (const expData of this.__expressions) {
         if (exp === expData.expression) {
-          const renderPass = expData.inputRenderPasses[renderPassIndex];
-          let framebuffer: FrameBuffer | undefined;
-          if (renderPass.getResolveFramebuffer()) {
-            framebuffer = renderPass.getResolveFramebuffer();
-          } else {
-            framebuffer = renderPass.getFramebuffer();
+
+          let renderPassObj = renderPassArg.instance;
+          if (Is.exist(renderPassArg.instance)) {
+            renderPassObj = renderPassArg.instance;
+          } else if (Is.exist(renderPassArg.index)) {
+            renderPassObj = expData.inputRenderPasses[renderPassArg.index];
+          } else if (Is.exist(renderPassArg.uniqueName)) {
+            renderPassObj = RnObject.getRnObjectByName(
+              renderPassArg.uniqueName
+            ) as RenderPass;
           }
 
-            if (Is.exist(framebuffer)) {
+          let framebuffer: FrameBuffer | undefined;
+          if (renderPassObj!.getResolveFramebuffer()) {
+            framebuffer = renderPassObj!.getResolveFramebuffer();
+          } else {
+            framebuffer = renderPassObj!.getFramebuffer();
+          }
+
+          if (Is.exist(framebuffer)) {
             const renderTargetTexture =
               framebuffer.getColorAttachedRenderTargetTexture(
                 colorAttachmentIndex

@@ -200,10 +200,7 @@ export class System {
               }
               renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
-              if (
-                componentTid === MeshRendererComponent.componentTID &&
-                stage === ProcessStage.Render
-              ) {
+              if (componentTid === MeshRendererComponent.componentTID) {
                 // bind Framebuffer
                 System.bindFramebuffer(webXRSystem, renderPass);
 
@@ -243,10 +240,7 @@ export class System {
 
               this.__renderPassTickCount++;
 
-              if (
-                stage === ProcessStage.Render &&
-                renderPass.getResolveFramebuffer()
-              ) {
+              if (renderPass.getResolveFramebuffer()) {
                 renderPass.copyFramebufferToResolveFramebuffer();
               }
             }
