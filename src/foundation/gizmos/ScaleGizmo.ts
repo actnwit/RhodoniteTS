@@ -48,6 +48,15 @@ export class ScaleGizmo extends Gizmo {
   private static __xCubePrimitive: Cube;
   private static __yCubePrimitive: Cube;
   private static __zCubePrimitive: Cube;
+  private static __xEdgeCubeEntity: IMeshEntity;
+  private static __yEdgeCubeEntity: IMeshEntity;
+  private static __zEdgeCubeEntity: IMeshEntity;
+  private static __xEdgeCubeMesh: Mesh;
+  private static __yEdgeCubeMesh: Mesh;
+  private static __zEdgeCubeMesh: Mesh;
+  private static __xEdgeCubePrimitive: Cube;
+  private static __yEdgeCubePrimitive: Cube;
+  private static __zEdgeCubePrimitive: Cube;
   private static __xCubeMaterial: Material;
   private static __yCubeMaterial: Material;
   private static __zCubeMaterial: Material;
@@ -216,167 +225,33 @@ export class ScaleGizmo extends Gizmo {
     // setup the mesh
     // x
     if (Is.not.exist(ScaleGizmo.__xCubeEntity)) {
-      ScaleGizmo.__xCubeEntity = EntityHelper.createMeshEntity();
-      ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
-      ScaleGizmo.__xCubeEntity.getTransform().translate = Vector3.fromCopy3(
-        1,
-        0,
-        0
-      );
-      ScaleGizmo.__xCubeMesh = new Mesh();
-      ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
-      ScaleGizmo.__xCubeMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
-        Vector4.fromCopyArray4([1, 0, 0, 1])
-      );
-      ScaleGizmo.__xCubePrimitive = new Cube();
-      ScaleGizmo.__xCubePrimitive.generate({
-        widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
-        material: ScaleGizmo.__xCubeMaterial,
-      });
-      ScaleGizmo.__xCubeMesh.addPrimitive(ScaleGizmo.__xCubePrimitive);
-      ScaleGizmo.__xCubeEntity.getMesh().setMesh(ScaleGizmo.__xCubeMesh);
+      this.xMesh();
+      this.xEdgeMesh();
     }
 
     // y
     if (Is.not.exist(ScaleGizmo.__yCubeEntity)) {
-      ScaleGizmo.__yCubeEntity = EntityHelper.createMeshEntity();
-      ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
-      ScaleGizmo.__yCubeEntity.getTransform().translate = Vector3.fromCopy3(
-        0,
-        1,
-        0
-      );
-      ScaleGizmo.__yCubeMesh = new Mesh();
-      ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
-      ScaleGizmo.__yCubeMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
-        Vector4.fromCopyArray4([0, 1, 0, 1])
-      );
-      ScaleGizmo.__yCubePrimitive = new Cube();
-      ScaleGizmo.__yCubePrimitive.generate({
-        widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
-        material: ScaleGizmo.__yCubeMaterial,
-      });
-      ScaleGizmo.__yCubeMesh.addPrimitive(ScaleGizmo.__yCubePrimitive);
-      ScaleGizmo.__yCubeEntity.getMesh().setMesh(ScaleGizmo.__yCubeMesh);
+      this.yMesh();
     }
 
     // z
     if (Is.not.exist(ScaleGizmo.__zCubeEntity)) {
-      ScaleGizmo.__zCubeEntity = EntityHelper.createMeshEntity();
-      ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
-      ScaleGizmo.__zCubeEntity.getTransform().translate = Vector3.fromCopy3(
-        0,
-        0,
-        1
-      );
-      ScaleGizmo.__zCubeMesh = new Mesh();
-      ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
-      ScaleGizmo.__zCubeMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
-        Vector4.fromCopyArray4([0, 0, 1, 1])
-      );
-      ScaleGizmo.__zCubePrimitive = new Cube();
-      ScaleGizmo.__zCubePrimitive.generate({
-        widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
-        material: ScaleGizmo.__zCubeMaterial,
-      });
-      ScaleGizmo.__zCubeMesh.addPrimitive(ScaleGizmo.__zCubePrimitive);
-      ScaleGizmo.__zCubeEntity.getMesh().setMesh(ScaleGizmo.__zCubeMesh);
+      this.zMesh();
     }
 
     // xy Plane
     if (Is.not.exist(ScaleGizmo.__xyPlaneEntity)) {
-      ScaleGizmo.__xyPlaneEntity = EntityHelper.createMeshEntity();
-      ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xyPlane', true);
-      ScaleGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
-      // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      ScaleGizmo.__xyPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
-        MathUtil.degreeToRadian(90),
-        0,
-        0
-      );
-      ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-      ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Translucent;
-      ScaleGizmo.__xyPlaneMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
-        Vector4.fromCopyArray4([0, 0, 0.5, 0])
-      );
-      ScaleGizmo.__xyPlaneMesh = new Mesh();
-      ScaleGizmo.__xyPlanePrimitive = new Plane();
-      ScaleGizmo.__xyPlanePrimitive.generate({
-        width: 100000,
-        height: 100000,
-        uSpan: 1,
-        vSpan: 1,
-        isUVRepeat: true,
-        flipTextureCoordinateY: false,
-        material: ScaleGizmo.__xyPlaneMaterial,
-      });
-      ScaleGizmo.__xyPlaneMesh.addPrimitive(ScaleGizmo.__xyPlanePrimitive);
-      ScaleGizmo.__xyPlaneEntity.getMesh().setMesh(ScaleGizmo.__xyPlaneMesh);
+      this.xyPlane();
     }
 
     // yz Plane
     if (Is.not.exist(ScaleGizmo.__yzPlaneEntity)) {
-      ScaleGizmo.__yzPlaneEntity = EntityHelper.createMeshEntity();
-      ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yzPlane', true);
-      ScaleGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
-      // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      ScaleGizmo.__yzPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
-        0,
-        0,
-        MathUtil.degreeToRadian(90)
-      );
-      ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-      ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Translucent;
-      ScaleGizmo.__yzPlaneMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
-        Vector4.fromCopyArray4([0.5, 0, 0, 0])
-      );
-      ScaleGizmo.__yzPlaneMesh = new Mesh();
-      ScaleGizmo.__yzPlanePrimitive = new Plane();
-      ScaleGizmo.__yzPlanePrimitive.generate({
-        width: 100000,
-        height: 100000,
-        uSpan: 1,
-        vSpan: 1,
-        isUVRepeat: true,
-        flipTextureCoordinateY: false,
-        material: ScaleGizmo.__yzPlaneMaterial,
-      });
-      ScaleGizmo.__yzPlaneMesh.addPrimitive(ScaleGizmo.__yzPlanePrimitive);
-      ScaleGizmo.__yzPlaneEntity.getMesh().setMesh(ScaleGizmo.__yzPlaneMesh);
+      this.yzPlane();
     }
 
     // zx Plane
     if (Is.not.exist(ScaleGizmo.__zxPlaneEntity)) {
-      ScaleGizmo.__zxPlaneEntity = EntityHelper.createMeshEntity();
-      ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zxPlane', true);
-      ScaleGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
-      // TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      // TranslationGizmo.__zxPlaneEntity.getTransform().rotate =
-      // Vector3.fromCopy3(90, 0, 0);
-      ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-      ScaleGizmo.__zxPlaneMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
-        Vector4.fromCopyArray4([0, 0.5, 0, 0])
-      );
-      ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Translucent;
-      ScaleGizmo.__zxPlaneMesh = new Mesh();
-      ScaleGizmo.__zxPlanePrimitive = new Plane();
-      ScaleGizmo.__zxPlanePrimitive.generate({
-        width: 100000,
-        height: 100000,
-        uSpan: 1,
-        vSpan: 1,
-        isUVRepeat: true,
-        flipTextureCoordinateY: false,
-        material: ScaleGizmo.__zxPlaneMaterial,
-      });
-      ScaleGizmo.__zxPlaneMesh.addPrimitive(ScaleGizmo.__zxPlanePrimitive);
-      ScaleGizmo.__zxPlaneEntity.getMesh().setMesh(ScaleGizmo.__zxPlaneMesh);
+      this.zxPlane();
     }
 
     if (Is.not.exist(ScaleGizmo.__groupEntity)) {
@@ -390,6 +265,9 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__groupEntity
       .getSceneGraph()
       .addChild(ScaleGizmo.__xCubeEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity
+      .getSceneGraph()
+      .addChild(ScaleGizmo.__xEdgeCubeEntity.getSceneGraph());
     ScaleGizmo.__groupEntity
       .getSceneGraph()
       .addChild(ScaleGizmo.__yCubeEntity.getSceneGraph());
@@ -409,6 +287,191 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__latestTargetEntity = this.__target;
 
     this.setGizmoTag();
+  }
+
+  private zxPlane() {
+    ScaleGizmo.__zxPlaneEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zxPlane', true);
+    ScaleGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
+    // TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
+    // TranslationGizmo.__zxPlaneEntity.getTransform().rotate =
+    // Vector3.fromCopy3(90, 0, 0);
+    ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__zxPlaneMaterial.setParameter(
+      ShaderSemantics.DiffuseColorFactor,
+      Vector4.fromCopyArray4([0, 0.5, 0, 0])
+    );
+    ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Translucent;
+    ScaleGizmo.__zxPlaneMesh = new Mesh();
+    ScaleGizmo.__zxPlanePrimitive = new Plane();
+    ScaleGizmo.__zxPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: ScaleGizmo.__zxPlaneMaterial,
+    });
+    ScaleGizmo.__zxPlaneMesh.addPrimitive(ScaleGizmo.__zxPlanePrimitive);
+    ScaleGizmo.__zxPlaneEntity.getMesh().setMesh(ScaleGizmo.__zxPlaneMesh);
+  }
+
+  private yzPlane() {
+    ScaleGizmo.__yzPlaneEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yzPlane', true);
+    ScaleGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
+    // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
+    ScaleGizmo.__yzPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
+      0,
+      0,
+      MathUtil.degreeToRadian(90)
+    );
+    ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Translucent;
+    ScaleGizmo.__yzPlaneMaterial.setParameter(
+      ShaderSemantics.DiffuseColorFactor,
+      Vector4.fromCopyArray4([0.5, 0, 0, 0])
+    );
+    ScaleGizmo.__yzPlaneMesh = new Mesh();
+    ScaleGizmo.__yzPlanePrimitive = new Plane();
+    ScaleGizmo.__yzPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: ScaleGizmo.__yzPlaneMaterial,
+    });
+    ScaleGizmo.__yzPlaneMesh.addPrimitive(ScaleGizmo.__yzPlanePrimitive);
+    ScaleGizmo.__yzPlaneEntity.getMesh().setMesh(ScaleGizmo.__yzPlaneMesh);
+  }
+
+  private xyPlane() {
+    ScaleGizmo.__xyPlaneEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xyPlane', true);
+    ScaleGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
+    // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
+    ScaleGizmo.__xyPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
+      MathUtil.degreeToRadian(90),
+      0,
+      0
+    );
+    ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Translucent;
+    ScaleGizmo.__xyPlaneMaterial.setParameter(
+      ShaderSemantics.DiffuseColorFactor,
+      Vector4.fromCopyArray4([0, 0, 0.5, 0])
+    );
+    ScaleGizmo.__xyPlaneMesh = new Mesh();
+    ScaleGizmo.__xyPlanePrimitive = new Plane();
+    ScaleGizmo.__xyPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: ScaleGizmo.__xyPlaneMaterial,
+    });
+    ScaleGizmo.__xyPlaneMesh.addPrimitive(ScaleGizmo.__xyPlanePrimitive);
+    ScaleGizmo.__xyPlaneEntity.getMesh().setMesh(ScaleGizmo.__xyPlaneMesh);
+  }
+
+  private zMesh() {
+    ScaleGizmo.__zCubeEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
+    ScaleGizmo.__zCubeEntity.getTransform().translate = Vector3.fromCopy3(
+      0,
+      0,
+      1
+    );
+    ScaleGizmo.__zCubeMesh = new Mesh();
+    ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__zCubeMaterial.setParameter(
+      ShaderSemantics.DiffuseColorFactor,
+      Vector4.fromCopyArray4([0, 0, 1, 1])
+    );
+    ScaleGizmo.__zCubePrimitive = new Cube();
+    ScaleGizmo.__zCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
+      material: ScaleGizmo.__zCubeMaterial,
+    });
+    ScaleGizmo.__zCubeMesh.addPrimitive(ScaleGizmo.__zCubePrimitive);
+    ScaleGizmo.__zCubeEntity.getMesh().setMesh(ScaleGizmo.__zCubeMesh);
+  }
+
+  private yMesh() {
+    ScaleGizmo.__yCubeEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
+    ScaleGizmo.__yCubeEntity.getTransform().translate = Vector3.fromCopy3(
+      0,
+      1,
+      0
+    );
+    ScaleGizmo.__yCubeMesh = new Mesh();
+    ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__yCubeMaterial.setParameter(
+      ShaderSemantics.DiffuseColorFactor,
+      Vector4.fromCopyArray4([0, 1, 0, 1])
+    );
+    ScaleGizmo.__yCubePrimitive = new Cube();
+    ScaleGizmo.__yCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
+      material: ScaleGizmo.__yCubeMaterial,
+    });
+    ScaleGizmo.__yCubeMesh.addPrimitive(ScaleGizmo.__yCubePrimitive);
+    ScaleGizmo.__yCubeEntity.getMesh().setMesh(ScaleGizmo.__yCubeMesh);
+  }
+
+  private xMesh() {
+    ScaleGizmo.__xCubeEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
+    ScaleGizmo.__xCubeEntity.getTransform().translate = Vector3.fromCopy3(
+      1,
+      0,
+      0
+    );
+    ScaleGizmo.__xCubeMesh = new Mesh();
+    ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__xCubeMaterial.setParameter(
+      ShaderSemantics.DiffuseColorFactor,
+      Vector4.fromCopyArray4([1, 0, 0, 1])
+    );
+    ScaleGizmo.__xCubePrimitive = new Cube();
+    ScaleGizmo.__xCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
+      material: ScaleGizmo.__xCubeMaterial,
+    });
+    ScaleGizmo.__xCubeMesh.addPrimitive(ScaleGizmo.__xCubePrimitive);
+    ScaleGizmo.__xCubeEntity.getMesh().setMesh(ScaleGizmo.__xCubeMesh);
+  }
+
+  private xEdgeMesh() {
+    ScaleGizmo.__xEdgeCubeEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName(
+      'ScaleGizmo_xEdgeCube',
+      true
+    );
+    ScaleGizmo.__xEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(
+      2,
+      0,
+      0
+    );
+    ScaleGizmo.__xEdgeCubeMesh = new Mesh();
+    ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__xCubeMaterial.setParameter(
+      ShaderSemantics.DiffuseColorFactor,
+      Vector4.fromCopyArray4([1, 0, 0, 1])
+    );
+    ScaleGizmo.__xEdgeCubePrimitive = new Cube();
+    ScaleGizmo.__xEdgeCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      material: ScaleGizmo.__xCubeMaterial,
+    });
+    ScaleGizmo.__xEdgeCubeMesh.addPrimitive(ScaleGizmo.__xCubePrimitive);
+    ScaleGizmo.__xEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__xCubeMesh);
   }
 
   /**
