@@ -607,6 +607,8 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__originalX = evt.clientX;
     ScaleGizmo.__originalY = evt.clientY;
 
+    // InputManager.enableCameraController();
+
     const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
     let rotMat = Matrix33.fromCopy9RowMajor(
@@ -715,6 +717,7 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         console.log('Move:' + xResult.data.position.toStringApproximately());
       }
+      InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'y') {
       const yResult = ScaleGizmo.__xyPlaneEntity
@@ -731,6 +734,7 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
         console.log('Move:' + yResult.data.position.toStringApproximately());
       }
+      InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'z') {
       const zResult = ScaleGizmo.__yzPlaneEntity
@@ -747,6 +751,7 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
         console.log('Move:' + zResult.data.position.toStringApproximately());
       }
+      InputManager.disableCameraController();
     }
 
     const sg = this.__target.getSceneGraph()!;
@@ -777,6 +782,7 @@ export class ScaleGizmo extends Gizmo {
     evt.preventDefault();
     ScaleGizmo.__isPointerDown = false;
     ScaleGizmo.__activeAxis = 'none';
+    InputManager.enableCameraController();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
       ScaleGizmo.__targetScaleBackup = this.__target.getTransform().scale;

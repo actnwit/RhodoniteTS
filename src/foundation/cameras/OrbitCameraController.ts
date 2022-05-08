@@ -131,7 +131,7 @@ export class OrbitCameraController
 
   __mouseDown(e: MouseEvent) {
     this.__tryToPreventDefault(e);
-    if (this.isMouseDown) return;
+    // if (this.isMouseDown) return;
     if (this.__isPressingCtrl) return;
 
     this.__originalX = e.clientX;
@@ -141,6 +141,8 @@ export class OrbitCameraController
 
     this.__isMouseDown = true;
     this.__lastMouseDownTimeStamp = e.timeStamp;
+
+    console.log('original', this.__originalX, this.__originalY);
   }
 
   __mouseMove(e: MouseEvent) {
@@ -154,6 +156,7 @@ export class OrbitCameraController
 
     const currentMouseX = e.clientX;
     const currentMouseY = e.clientY;
+    console.log('currentMouse: ', currentMouseX, currentMouseY);
     switch (this.__buttonNumber) {
       case 1: // left
         if (this.__isPressingShift) {
