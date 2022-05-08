@@ -232,11 +232,13 @@ export class ScaleGizmo extends Gizmo {
     // y
     if (Is.not.exist(ScaleGizmo.__yCubeEntity)) {
       this.yMesh();
+      this.yEdgeMesh();
     }
 
     // z
     if (Is.not.exist(ScaleGizmo.__zCubeEntity)) {
       this.zMesh();
+      this.zEdgeMesh();
     }
 
     // xy Plane
@@ -267,13 +269,19 @@ export class ScaleGizmo extends Gizmo {
       .addChild(ScaleGizmo.__xCubeEntity.getSceneGraph());
     ScaleGizmo.__groupEntity
       .getSceneGraph()
-      .addChild(ScaleGizmo.__xEdgeCubeEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity
-      .getSceneGraph()
       .addChild(ScaleGizmo.__yCubeEntity.getSceneGraph());
     ScaleGizmo.__groupEntity
       .getSceneGraph()
       .addChild(ScaleGizmo.__zCubeEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity
+      .getSceneGraph()
+      .addChild(ScaleGizmo.__xEdgeCubeEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity
+      .getSceneGraph()
+      .addChild(ScaleGizmo.__yEdgeCubeEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity
+      .getSceneGraph()
+      .addChild(ScaleGizmo.__zEdgeCubeEntity.getSceneGraph());
     ScaleGizmo.__groupEntity
       .getSceneGraph()
       .addChild(ScaleGizmo.__xyPlaneEntity.getSceneGraph());
@@ -460,11 +468,6 @@ export class ScaleGizmo extends Gizmo {
       0
     );
     ScaleGizmo.__xEdgeCubeMesh = new Mesh();
-    ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
-    ScaleGizmo.__xCubeMaterial.setParameter(
-      ShaderSemantics.DiffuseColorFactor,
-      Vector4.fromCopyArray4([1, 0, 0, 1])
-    );
     ScaleGizmo.__xEdgeCubePrimitive = new Cube();
     ScaleGizmo.__xEdgeCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
@@ -473,6 +476,49 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xEdgeCubeMesh.addPrimitive(ScaleGizmo.__xEdgeCubePrimitive);
     ScaleGizmo.__xEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__xEdgeCubeMesh);
   }
+
+  private yEdgeMesh() {
+    ScaleGizmo.__yEdgeCubeEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName(
+      'ScaleGizmo_yEdgeCube',
+      true
+    );
+    ScaleGizmo.__yEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(
+      0,
+      2,
+      0
+    );
+    ScaleGizmo.__yEdgeCubeMesh = new Mesh();
+    ScaleGizmo.__yEdgeCubePrimitive = new Cube();
+    ScaleGizmo.__yEdgeCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      material: ScaleGizmo.__yCubeMaterial,
+    });
+    ScaleGizmo.__yEdgeCubeMesh.addPrimitive(ScaleGizmo.__yEdgeCubePrimitive);
+    ScaleGizmo.__yEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__yEdgeCubeMesh);
+  }
+
+  private zEdgeMesh() {
+    ScaleGizmo.__zEdgeCubeEntity = EntityHelper.createMeshEntity();
+    ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName(
+      'ScaleGizmo_zEdgeCube',
+      true
+    );
+    ScaleGizmo.__zEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(
+      0,
+      0,
+      2
+    );
+    ScaleGizmo.__zEdgeCubeMesh = new Mesh();
+    ScaleGizmo.__zEdgeCubePrimitive = new Cube();
+    ScaleGizmo.__zEdgeCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      material: ScaleGizmo.__zCubeMaterial,
+    });
+    ScaleGizmo.__zEdgeCubeMesh.addPrimitive(ScaleGizmo.__zEdgeCubePrimitive);
+    ScaleGizmo.__zEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__zEdgeCubeMesh);
+  }
+
 
   /**
    * @private
