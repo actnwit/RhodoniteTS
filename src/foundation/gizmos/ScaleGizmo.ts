@@ -703,9 +703,11 @@ export class ScaleGizmo extends Gizmo {
       }
     }
 
+    const sg = this.__target.getSceneGraph()!;
+    const aabb = sg.worldAABB;
     const deltaVector3 = Vector3.multiply(
       Vector3.subtract(pickInMovingPoint, ScaleGizmo.__pickStatedPoint),
-      0.1
+      1 / aabb.lengthCenterToCorner
     );
     if (ScaleGizmo.__space === 'local') {
       ScaleGizmo.__deltaPoint = Vector3.add(
