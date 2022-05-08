@@ -470,8 +470,8 @@ export class ScaleGizmo extends Gizmo {
       widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
       material: ScaleGizmo.__xCubeMaterial,
     });
-    ScaleGizmo.__xEdgeCubeMesh.addPrimitive(ScaleGizmo.__xCubePrimitive);
-    ScaleGizmo.__xEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__xCubeMesh);
+    ScaleGizmo.__xEdgeCubeMesh.addPrimitive(ScaleGizmo.__xEdgeCubePrimitive);
+    ScaleGizmo.__xEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__xEdgeCubeMesh);
   }
 
   /**
