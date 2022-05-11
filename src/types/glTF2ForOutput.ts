@@ -1,3 +1,4 @@
+import { Gltf2Camera } from '.';
 import {ISkeletalEntity} from '../foundation/helpers/EntityHelper';
 import { Texture } from '../foundation/textures/Texture';
 import { Byte, Index } from './CommonTypes';
@@ -56,6 +57,7 @@ export interface Gltf2Ex extends Gltf2 {
   textures: Gltf2Texture[];
   images: Gltf2ImageEx[];
   skins: Gltf2Skin[];
+  cameras: Gltf2Camera[];
   samplers: Gltf2TextureSampler[];
   extras: {
     rnSkins: ISkeletalEntity[];
