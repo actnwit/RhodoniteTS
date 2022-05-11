@@ -640,6 +640,7 @@ export class TranslationGizmo extends Gizmo {
         );
         console.log('Move:' + xResult.data.position.toStringApproximately());
       }
+      InputManager.disableCameraController();
     }
     if (TranslationGizmo.__activeAxis === 'y') {
       const yResult = TranslationGizmo.__xyPlaneEntity
@@ -655,6 +656,7 @@ export class TranslationGizmo extends Gizmo {
         );
         console.log('Move:' + yResult.data.position.toStringApproximately());
       }
+      InputManager.disableCameraController();
     }
     if (TranslationGizmo.__activeAxis === 'z') {
       const zResult = TranslationGizmo.__yzPlaneEntity
@@ -670,6 +672,7 @@ export class TranslationGizmo extends Gizmo {
         );
         console.log('Move:' + zResult.data.position.toStringApproximately());
       }
+      InputManager.disableCameraController();
     }
 
     const deltaVector3 = Vector3.subtract(
@@ -707,6 +710,7 @@ export class TranslationGizmo extends Gizmo {
     evt.preventDefault();
     TranslationGizmo.__isPointerDown = false;
     TranslationGizmo.__activeAxis = 'none';
+    InputManager.enableCameraController();
 
     if (TranslationGizmo.__latestTargetEntity === this.__target) {
       TranslationGizmo.__targetPointBackup =

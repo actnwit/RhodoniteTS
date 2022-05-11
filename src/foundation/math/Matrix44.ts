@@ -716,9 +716,19 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   getRotate() {
-    const quat = Quaternion.fromMatrix(this);
-    const rotateMat = (this.constructor as any).fromCopyQuaternion(quat) as Matrix44;
-    return rotateMat;
+    // const quat = Quaternion.fromMatrix(this);
+    // const rotateMat = (this.constructor as any).fromCopyQuaternion(quat) as Matrix44;
+    const scaleX = Math.hypot(this._v[0], this._v[4], this._v[8]);
+    const scaleY = Math.hypot(this._v[1], this._v[5], this._v[9]);
+    const scaleZ = Math.hypot(this._v[2], this._v[6], this._v[10]);
+
+    const mat = Matrix44.fromCopy16RowMajor(
+      this._v[0] / scaleX, this._v[4], this._v[8], 0,
+      this._v[1], this._v[5] / scaleY, this._v[9], 0,
+      this._v[2], this._v[6], this._v[10] / scaleZ, 0,
+      0, 0, 0, 1,
+    );
+    return mat;
   }
 
   /**

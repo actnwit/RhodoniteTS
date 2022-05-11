@@ -481,7 +481,15 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
 
   static fromCopyMatrix44(mat: Matrix44) {
     const v = new Float32Array(9);
-    v.set(mat._v);
+    v[0] = mat._v[0];
+    v[1] = mat._v[1];
+    v[2] = mat._v[2];
+    v[3] = mat._v[5];
+    v[4] = mat._v[6];
+    v[5] = mat._v[7];
+    v[6] = mat._v[9];
+    v[7] = mat._v[10];
+    v[8] = mat._v[11];
     return new Matrix33(v);
   }
 
