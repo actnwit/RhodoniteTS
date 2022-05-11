@@ -18,6 +18,7 @@ import {
   Gltf2Texture,
   Gltf2AttributeBlendShapes,
   Gltf2Attributes,
+  Gltf2Camera,
 } from '../../types/glTF2';
 import {
   ComponentType,
@@ -60,6 +61,8 @@ import {Vector4} from '../math/Vector4';
 import {Tag} from '../core/RnObject';
 import {Primitive} from '../geometry';
 import { Ok } from '../misc';
+import { CameraType } from '../definitions';
+import { MathUtil } from '../math';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -158,6 +161,9 @@ export class Gltf2Exporter {
     }
     if (Is.exist(json.extensionsUsed) && json.extensionsUsed.length === 0) {
       delete (json as Gltf2).extensionsUsed;
+    }
+    if (json.cameras.length === 0) {
+      delete (json as Gltf2).cameras;
     }
     delete (json as Gltf2).extras;
   }
@@ -290,6 +296,7 @@ export class Gltf2Exporter {
         // bufferViewByteLengthAccumulatedArray[1] for buffer 1
         // ...
       },
+      cameras: [],
       samplers: [],
     };
 
@@ -416,6 +423,38 @@ export class Gltf2Exporter {
         if (entityIdx >= 0) {
           node.skin = entityIdx;
         }
+      }
+
+      // camera
+      const cameraComponent = entity.tryToGetCamera();
+      if (Is.exist(cameraComponent)) {
+        let glTF2Camera: Gltf2Camera;
+        if (cameraComponent.type === CameraType.Perspective) {
+          const originalAspect = cameraComponent.getTagValue('OriginalAspect');
+            glTF2Camera = {
+              name: cameraComponent.entity.uniqueName,
+              type: 'perspective',
+              perspective: {
+                aspectRatio: Is.exist(originalAspect) ? originalAspect : cameraComponent.aspect,
+                yfov: MathUtil.degreeToRadian(cameraComponent.fovy),
+                znear: cameraComponent.zNear,
+                zfar: cameraComponent.zFar,
+              }
+            } as Gltf2Camera;
+        } else if (cameraComponent.type === CameraType.Orthographic) {
+            glTF2Camera = {
+              name: cameraComponent.entity.uniqueName,
+              type: 'orthographic',
+              orthographic: {
+                xmag: cameraComponent.xMag,
+                ymag: cameraComponent.yMag,
+                znear: cameraComponent.zNear,
+                zfar: cameraComponent.zFar,
+              }
+            } as Gltf2Camera;
+        }
+        json.cameras.push(glTF2Camera!);
+        node.camera = json.cameras.length - 1;
       }
     }
 
