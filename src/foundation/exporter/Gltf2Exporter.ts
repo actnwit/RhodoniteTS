@@ -463,6 +463,12 @@ export class Gltf2Exporter {
 
           let colorParam;
           if (Is.exist(rnMaterial)) {
+            if (Is.false(rnMaterial.isLighting)) {
+              if (Is.not.exist(material.extensions)) {
+                material.extensions = {};
+              }
+              material.extensions.KHR_materials_unlit = {};
+            }
             colorParam = rnMaterial.getParameter(
               ShaderSemantics.BaseColorFactor
             );
