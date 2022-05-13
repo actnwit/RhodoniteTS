@@ -25,11 +25,11 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
   }) {
     super(null, name, {});
 
-    const vertexShaderData = ShaderityUtility.getShaderDataRefection(
+    const vertexShaderData = ShaderityUtility.getShaderDataReflection(
       vertexShaderityObj,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
-    const pixelShaderData = ShaderityUtility.getShaderDataRefection(
+    const pixelShaderData = ShaderityUtility.getShaderDataReflection(
       pixelShaderityObj,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );

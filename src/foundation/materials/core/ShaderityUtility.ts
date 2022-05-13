@@ -107,7 +107,7 @@ export class ShaderityUtility {
     reflection.addAttributeSemanticsMap(attributeSemanticsMap);
   }
 
-  public static getShaderDataRefection(
+  public static getShaderDataReflection(
     shaderityObject: ShaderityObject,
     existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
   ): {

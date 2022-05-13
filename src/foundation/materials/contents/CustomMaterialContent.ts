@@ -1,45 +1,19 @@
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
-  ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {ShaderType} from '../../definitions/ShaderType';
-import {CGAPIResourceHandle} from '../../../types/CommonTypes';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Material} from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import {ShaderityObject} from 'shaderity';
-import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
-import { ShaderityUtility } from '../core/ShaderityUtility';
+import {AlphaModeEnum} from '../../definitions/AlphaMode';
+import {ShaderityUtility} from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {Is} from '../../misc/Is';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static BaseColorTextureTransform = new ShaderSemanticsClass({
-    str: 'baseColorTextureTransform',
-  });
-  static BaseColorTextureRotation = new ShaderSemanticsClass({
-    str: 'baseColorTextureRotation',
-  });
-  static NormalTextureTransform = new ShaderSemanticsClass({
-    str: 'normalTextureTransform',
-  });
-  static NormalTextureRotation = new ShaderSemanticsClass({
-    str: 'normalTextureRotation',
-  });
-  static MetallicRoughnessTextureTransform = new ShaderSemanticsClass({
-    str: 'metallicRoughnessTextureTransform',
-  });
-  static MetallicRoughnessTextureRotation = new ShaderSemanticsClass({
-    str: 'metallicRoughnessTextureRotation',
-  });
-
   constructor({
     name,
     isMorphing,
@@ -68,11 +42,12 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       {isMorphing, isSkinning, isLighting}
     );
 
-    const vertexShaderData = ShaderityUtility.getShaderDataRefection(
+    // Shader Reflection
+    const vertexShaderData = ShaderityUtility.getShaderDataReflection(
       vertexShader,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
-    const pixelShaderData = ShaderityUtility.getShaderDataRefection(
+    const pixelShaderData = ShaderityUtility.getShaderDataReflection(
       pixelShader,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
