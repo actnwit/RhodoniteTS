@@ -259,6 +259,17 @@ export class ShaderityUtility {
       shaderSemanticsInfo.initialValue =
         this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
+
+    const needUniformInFastest = info.match(
+      /needUniformInFastest[\t ]*=[\t ]*(.+)[,\t ]*/
+    );
+    if (needUniformInFastest) {
+      let needUniformInFastestFlg = false;
+      if (needUniformInFastest?.[1] === 'true') {
+        needUniformInFastestFlg = true;
+      }
+      shaderSemanticsInfo.needUniformInFastest = needUniformInFastestFlg;
+    }
   }
 
   private static __getInitialValueFromText(
