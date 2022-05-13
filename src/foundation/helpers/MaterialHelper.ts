@@ -151,34 +151,6 @@ function createSkinPbrUberMaterial({
   return material;
 }
 
-function createClassicUberMaterialOld({
-  additionalName = '',
-  isSkinning = true,
-  isLighting = true,
-  alphaMode = AlphaMode.Opaque,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
-} = {}) {
-  const materialName =
-    'ClassicUberOld' +
-    `_${additionalName}_` +
-    (isSkinning ? '+skinning' : '') +
-    (isLighting ? '' : '-lighting');
-
-  const materialNode = new ClassicShadingMaterialContent({
-    isSkinning,
-    isLighting,
-    alphaMode,
-  });
-  materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
-
-  return material;
-}
-
 function createClassicUberMaterial({
   additionalName = '',
   isSkinning = true,

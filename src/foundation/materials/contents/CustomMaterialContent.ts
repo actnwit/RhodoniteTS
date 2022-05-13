@@ -149,7 +149,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
-    // Env map
+    // IBL Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
       this.__webglResourceRepository.setUniformValue(
         shaderProgram,
@@ -181,6 +181,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       );
     }
 
+    // IBL Parameters
     if (args.setUniform) {
       if (firstTime) {
         const {
