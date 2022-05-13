@@ -18,6 +18,16 @@ in vec3 v_baryCentricCoord;
   in vec3 v_binormal_inWorld;
 #endif
 
+// uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
+// uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
+// uniform vec2 u_metallicRoughnessFactor; // initialValue=(1,1)
+// uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
+// uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
+// uniform sampler2D u_emissiveTexture; // initialValue=(4,black)
+// uniform vec3 u_wireframe; // initialValue=(0,0,1)
+// uniform vec3 u_isOutputHDR; // initialValue=(0)
+// uniform float u_makeOutputSrgb; // initialValue=(0)
+
 #pragma shaderity: require(../common/rt0.glsl)
 
 #pragma shaderity: require(../common/pbrDefinition.glsl)

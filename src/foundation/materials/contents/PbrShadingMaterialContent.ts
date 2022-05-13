@@ -78,7 +78,6 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     useTangentAttribute,
     useNormalTexture,
     alphaMode,
-    makeOutputSrgb,
   }: {
     isMorphing: boolean;
     isSkinning: boolean;
@@ -86,7 +85,6 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
     alphaMode: AlphaModeEnum;
-    makeOutputSrgb: boolean;
   }) {
     super(
       null,
@@ -200,7 +198,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
         max: 1,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
+        initialValue: Scalar.fromCopyNumber(1),
       },
       {
         semantic: ShaderSemantics.IBLParameter,

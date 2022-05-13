@@ -1010,7 +1010,7 @@ export class ModelConverter {
       );
       const useNormalTexture = this.__useNormalTexture(gltfModel);
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
-      return MaterialHelper.createPbrUberMaterial({
+      const material = MaterialHelper.createPbrUberMaterial({
         isMorphing,
         isSkinning,
         isLighting,
@@ -1019,8 +1019,11 @@ export class ModelConverter {
         useNormalTexture,
         additionalName: additionalName,
         maxInstancesNumber: maxMaterialInstanceNumber,
-        makeOutputSrgb,
       });
+      if (Is.exist(makeOutputSrgb)) {
+        material.setParameter(ShaderSemantics.MakeOutputSrgb, makeOutputSrgb);
+      }
+      return material;
     } else {
       return MaterialHelper.createClassicUberMaterial({
         isSkinning,
