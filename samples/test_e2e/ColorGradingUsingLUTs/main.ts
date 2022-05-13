@@ -18,6 +18,7 @@ declare const Rn: typeof _Rn;
   await Rn.System.init({
     approach: Rn.ProcessApproach.FastestWebGL1,
     canvas: rnCanvasElement,
+    rnWebGLDebug: true,
   });
 
   // prepare renderPasses
