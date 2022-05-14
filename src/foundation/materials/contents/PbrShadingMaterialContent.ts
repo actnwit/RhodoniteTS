@@ -175,7 +175,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
       {
         semantic: PbrShadingMaterialContent.IsOutputHDR,
         compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Bool,
+        componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,

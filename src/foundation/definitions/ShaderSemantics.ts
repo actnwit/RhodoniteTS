@@ -245,19 +245,19 @@ const FramebufferWidth: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'framebufferWidth',
 });
 const ClearCoatFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'clearcoatFactor',
+  str: 'clearCoatFactor',
 });
 const ClearCoatTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'clearcoatTexture',
+  str: 'clearCoatTexture',
 });
 const ClearCoatRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'clearcoatRoughnessFactor',
+  str: 'clearCoatRoughnessFactor',
 });
 const ClearCoatRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'clearcoatRoughnessTexture',
+  str: 'clearCoatRoughnessTexture',
 });
 const ClearCoatNormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'clearcoatNormalTexture',
+  str: 'clearCoatNormalTexture',
 });
 
 const typeList = [

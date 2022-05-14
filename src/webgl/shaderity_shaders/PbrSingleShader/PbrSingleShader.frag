@@ -25,31 +25,29 @@ in vec3 v_baryCentricCoord;
 // uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
 // uniform sampler2D u_emissiveTexture; // initialValue=(4,black)
 // uniform vec3 u_wireframe; // initialValue=(0,0,1)
-// uniform vec3 u_isOutputHDR; // initialValue=(0)
-// uniform float u_makeOutputSrgb; // initialValue=(1)
+// uniform bool u_isOutputHDR; // initialValue=0
+// uniform float u_makeOutputSrgb; // initialValue=1
 // uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isCustomSetting=true
-// uniform vec2 u_hdriFormat; // initialValue=(0,0), isCustomSetting=true
+// uniform ivec2 u_hdriFormat; // initialValue=(0,0), isCustomSetting=true
 // uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,white), isCustomSetting=true
 // uniform samplerCube u_specularEnvTexture; // initialValue=(6,white), isCustomSetting=true
 // uniform vec4 u_baseColorTextureTransform; // initialValue=(1,1,0,0)
-// uniform float u_baseColorTextureRotation; // initialValue=(0)
+// uniform float u_baseColorTextureRotation; // initialValue=0
 // uniform vec4 u_metallicRoughnessTextureTransform; // initialValue=(1,1,0,0)
-// uniform float u_metallicRoughnessTextureRotation; // initialValue=(0)
-// uniform int u_baseColorTexcoordIndex; // initialValue=(0)
-// uniform int u_metallicRoughnessTexcoordIndex; // initialValue=(0)
-// uniform int u_occlusionTexcoordIndex; // initialValue=(0)
-// uniform int u_emissiveTexcoordIndex; // initialValue=(0)
-// uniform float u_occlusionStrength; // initialValue=(1)
-// uniform float u_pointSize; // initialValue=(30), soloDatum=true
-// uniform float u_pointDistanceAttenuation; // initialValue=(30), soloDatum=true
-// uniform float u_clearCoatFactor; // initialValue=(0)
+// uniform float u_metallicRoughnessTextureRotation; // initialValue=0
+// uniform int u_baseColorTexcoordIndex; // initialValue=0
+// uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
+// uniform int u_occlusionTexcoordIndex; // initialValue=0
+// uniform int u_emissiveTexcoordIndex; // initialValue=0
+// uniform float u_occlusionStrength; // initialValue=1
+// uniform float u_clearCoatFactor; // initialValue=0
 // uniform sampler2D u_clearCoatTexture; // initialValue=(8,white)
-// uniform float u_clearCoatRoughnessFactor; // initialValue=(0)
+// uniform float u_clearCoatRoughnessFactor; // initialValue=0
 // uniform sampler2D u_clearCoatRoughnessTexture; // initialValue=(9,white)
 // uniform sampler2D u_clearCoatNormalTexture; // initialValue=(10,blue)
-// uniform int u_morphTargetNumber; // initialValue=(0), isCustomSetting=true, soloDatum=true, needUniformInFastest=true
-// uniform int u_dataTextureMorphOffsetPosition[];
-// uniform int u_morphWeights[]; //
+// uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDatum=true, needUniformInFastest=true
+// // uniform int u_dataTextureMorphOffsetPosition[];
+// // uniform int u_morphWeights[]; //
 
 // #ifdef RN_USE_NORMAL_TEXTURE
 //   uniform sampler2D normalTexture; // initialValue=(2,black)
@@ -267,8 +265,8 @@ void main ()
   float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
 
   // Clearcoat
-  float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
-  float clearcoatTexture = texture2D(u_clearcoatTexture, baseColorTexUv).r;
+  float clearcoatFactor = get_clearCoatFactor(materialSID, 0);
+  float clearcoatTexture = texture2D(u_clearCoatTexture, baseColorTexUv).r;
   float clearcoat = clearcoatFactor * clearcoatTexture;
 
 #ifdef RN_IS_LIGHTING
@@ -301,10 +299,10 @@ void main ()
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
   // Clearcoat
-  float clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
-  float textureRoughnessTexture = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).g;
+  float clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
+  float textureRoughnessTexture = texture2D(u_clearCoatRoughnessTexture, baseColorTexUv).g;
   float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
-  vec3 textureNormal_tangent = texture2D(u_clearcoatNormalTexture, baseColorTexUv).xyz * vec3(2.0) - vec3(1.0);
+  vec3 textureNormal_tangent = texture2D(u_clearCoatNormalTexture, baseColorTexUv).xyz * vec3(2.0) - vec3(1.0);
 
   vec3 clearcoatNormal_inWorld = perturb_normal(geomNormal_inWorld, viewVector, normalTexUv, textureNormal_tangent);
   float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
@@ -394,8 +392,8 @@ void main ()
   vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
   rt0.xyz += coated_emissive;
 
-  bool isOutputHDR = get_isOutputHDR(materialSID, 0);
-  if(isOutputHDR){
+  int isOutputHDR = get_isOutputHDR(materialSID, 0);
+  if(isOutputHDR == 1){
 #pragma shaderity: require(../common/glFragColor.glsl)
     return;
   }

@@ -24,6 +24,9 @@ out vec3 v_baryCentricCoord;
   out vec3 v_binormal_inWorld;
 #endif
 
+// uniform float u_pointSize; // initialValue=30, soloDatum=true
+// uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
+
 #pragma shaderity: require(../common/prerequisites.glsl)
 
 /* shaderity: @{getters} */
