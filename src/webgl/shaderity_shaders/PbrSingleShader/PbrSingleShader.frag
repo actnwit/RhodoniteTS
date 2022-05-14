@@ -47,19 +47,19 @@ in vec3 v_baryCentricCoord;
 // uniform float u_clearCoatRoughnessFactor; // initialValue=(0)
 // uniform sampler2D u_clearCoatRoughnessTexture; // initialValue=(9,white)
 // uniform sampler2D u_clearCoatNormalTexture; // initialValue=(10,blue)
-uniform int u_morphTargetNumber; // initialValue=(0), isCustomSetting=true, soloDatum=true, needUniformInFastest=true
-uniform int u_dataTextureMorphOffsetPosition[];
-uniform int u_morphWeights[]; //
+// uniform int u_morphTargetNumber; // initialValue=(0), isCustomSetting=true, soloDatum=true, needUniformInFastest=true
+// uniform int u_dataTextureMorphOffsetPosition[];
+// uniform int u_morphWeights[]; //
 
-#ifdef RN_USE_NORMAL_TEXTURE
-  uniform sampler2D normalTexture; // initialValue=(2,black)
-  uniform vec4 normalTextureTransform; // initialValue=(1,1,0,0)
-  uniform float normalTextureRotation; // initialValue=(0)
-  uniform int normalTexcoordIndex; // initialValue=(0)
-  uniform float normalScale; // initialValue=(1)
-#endif
+// #ifdef RN_USE_NORMAL_TEXTURE
+//   uniform sampler2D normalTexture; // initialValue=(2,black)
+//   uniform vec4 normalTextureTransform; // initialValue=(1,1,0,0)
+//   uniform float normalTextureRotation; // initialValue=(0)
+//   uniform int normalTexcoordIndex; // initialValue=(0)
+//   uniform float normalScale; // initialValue=(1)
+// #endif
 
-uniform float u_alphaCutoff; // initialValue=(0.01)
+// uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
 

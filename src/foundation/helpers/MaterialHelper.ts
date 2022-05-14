@@ -12,6 +12,8 @@ import {EntityUIDOutputMaterialContent} from '../materials/contents/EntityUIDOut
 import {MToonMaterialContent} from '../materials/contents/MToonMaterialContent';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
+import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import {CustomMaterialContent} from '../materials/contents/CustomMaterialContent';
 import {Primitive} from '../geometry/Primitive';
 import {ProcessStage} from '../definitions/ProcessStage';
@@ -33,6 +35,11 @@ import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
 import {ShaderityMaterialContent} from '../materials/contents/ShaderityMaterialContent';
 import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { ComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
+import { ShaderType } from '../definitions/ShaderType';
+import { VectorN } from '../math/VectorN';
 
 function createMaterial(
   materialName: string,
@@ -116,6 +123,79 @@ function createPbrUberMaterial({
   return material;
 }
 
+function createPbrUberMaterialNew({
+  additionalName = '',
+  isMorphing = true,
+  isSkinning = true,
+  isLighting = true,
+  useTangentAttribute = false,
+  useNormalTexture = true,
+  alphaMode = AlphaMode.Opaque,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+} = {}) {
+  const materialName =
+    'PbrUber' +
+    `_${additionalName}_` +
+    (isMorphing ? '+morphing' : '') +
+    (isSkinning ? '+skinning' : '') +
+    (isLighting ? '' : '-lighting') +
+    (useTangentAttribute ? '+tangentAttribute' : '') +
+    (useNormalTexture ? '' : '-normalTexture') +
+    '_alpha_' +
+    alphaMode.str.toLowerCase();
+
+  const materialNode = new CustomMaterialContent({
+    name: 'PbrUber',
+    isSkinning,
+    isLighting,
+    isMorphing,
+    alphaMode,
+    vertexShader: pbrSingleShaderVertex,
+    pixelShader: pbrSingleShaderFragment,
+    additionalShaderSemanticInfo: [
+      {
+        semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: Config.maxVertexMorphNumberInShader,
+        stage: ShaderType.VertexShader,
+        isCustomSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(
+          new Int32Array(Config.maxVertexMorphNumberInShader)
+        ),
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        needUniformInFastest: true,
+      },
+      {
+        semantic: ShaderSemantics.MorphWeights,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: Config.maxVertexMorphNumberInShader,
+        stage: ShaderType.VertexShader,
+        isCustomSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(
+          new Float32Array(Config.maxVertexMorphNumberInShader)
+        ),
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        needUniformInFastest: true,
+      },
+    ],
+  });
+
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    materialNode,
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
 function createSkinPbrUberMaterial({
   additionalName = '',
   isMorphing = false,
@@ -170,6 +250,7 @@ function createClassicUberMaterial({
     alphaMode,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
+    additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(
@@ -643,6 +724,7 @@ function recreateCustomMaterial(
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
+    additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
   const material = recreateMaterial(

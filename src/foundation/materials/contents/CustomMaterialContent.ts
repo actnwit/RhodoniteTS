@@ -22,6 +22,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     alphaMode,
     vertexShader,
     pixelShader,
+    additionalShaderSemanticInfo,
   }: {
     name: string;
     isMorphing: boolean;
@@ -30,6 +31,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     alphaMode: AlphaModeEnum;
     vertexShader: ShaderityObject;
     pixelShader: ShaderityObject;
+    additionalShaderSemanticInfo: ShaderSemanticsInfo[];
   }) {
     super(
       null,
@@ -54,7 +56,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     this.__vertexShaderityObject = vertexShaderData.shaderityObject;
     this.__pixelShaderityObject = pixelShaderData.shaderityObject;
 
-    const shaderSemanticsInfoArray: any = [];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
       vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
@@ -94,7 +96,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
 
-    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+    this.setShaderSemanticsInfoArray(
+      shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo)
+    );
   }
 
   setCustomSettingParametersToGpu({
