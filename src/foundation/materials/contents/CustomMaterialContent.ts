@@ -21,6 +21,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isLighting,
     alphaMode,
     useTangentAttribute,
+    useNormalTexture,
     vertexShader,
     pixelShader,
     additionalShaderSemanticInfo,
@@ -31,6 +32,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isLighting: boolean;
     alphaMode: AlphaModeEnum;
     useTangentAttribute: boolean;
+    useNormalTexture: boolean;
     vertexShader: ShaderityObject;
     pixelShader: ShaderityObject;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
@@ -100,7 +102,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (useTangentAttribute) {
       this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
     }
-    this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
+    if (useNormalTexture) {
+      this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
+    }
 
     this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
 

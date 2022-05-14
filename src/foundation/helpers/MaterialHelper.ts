@@ -35,7 +35,7 @@ import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
 import {ShaderityMaterialContent} from '../materials/contents/ShaderityMaterialContent';
 import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsInfo } from '../definitions/ShaderSemantics';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ShaderType } from '../definitions/ShaderType';
@@ -144,16 +144,9 @@ function createPbrUberMaterial({
     '_alpha_' +
     alphaMode.str.toLowerCase();
 
-  const materialNode = new CustomMaterialContent({
-    name: 'PbrUber',
-    isSkinning,
-    isLighting,
-    isMorphing,
-    alphaMode,
-    useTangentAttribute,
-    vertexShader: pbrSingleShaderVertex,
-    pixelShader: pbrSingleShaderFragment,
-    additionalShaderSemanticInfo: [
+  let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+  if (isMorphing) {
+    additionalShaderSemanticInfo = [
       {
         semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
         componentType: ComponentType.Int,
@@ -184,7 +177,20 @@ function createPbrUberMaterial({
         max: Number.MAX_VALUE,
         needUniformInFastest: true,
       },
-    ],
+    ];
+  }
+
+  const materialNode = new CustomMaterialContent({
+    name: 'PbrUber',
+    isSkinning,
+    isLighting,
+    isMorphing,
+    alphaMode,
+    useTangentAttribute,
+    useNormalTexture,
+    vertexShader: pbrSingleShaderVertex,
+    pixelShader: pbrSingleShaderFragment,
+    additionalShaderSemanticInfo,
   });
 
   materialNode.isSingleOperation = true;
@@ -250,6 +256,7 @@ function createClassicUberMaterial({
     isMorphing,
     alphaMode,
     useTangentAttribute: false,
+    useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
     additionalShaderSemanticInfo: [],
@@ -717,6 +724,7 @@ function recreateCustomMaterial(
     isMorphing,
     alphaMode,
     useTangentAttribute: false,
+    useNormalTexture: true,
     vertexShader: {
       code: vertexShaderStr,
       shaderStage: 'vertex',
