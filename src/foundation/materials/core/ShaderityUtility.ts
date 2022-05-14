@@ -288,6 +288,12 @@ export class ShaderityUtility {
       const text = tuple[1];
       const split = text.split(',');
       switch (split.length) {
+        case 1:
+          checkCompositionNumber(CompositionType.Scalar);
+          initialValue = new MutableScalar(
+            new Float32Array(parseFloat(split[0]))
+          );
+          break;
         case 2:
           if (
             shaderSemanticsInfo.compositionType === CompositionType.Texture2D
