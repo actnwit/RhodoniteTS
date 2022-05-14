@@ -184,6 +184,9 @@ function toTypedArray(
 function fromGlslString(str_: string): ComponentTypeEnum {
   let str = str_;
   switch (str_) {
+    case 'bool':
+      str = 'INT';
+      break;
     case 'int':
       str = 'INT';
       break;

@@ -350,6 +350,9 @@ function vectorFrom(componentN: number): CompositionTypeEnum {
 function fromGlslString(str_: string): CompositionTypeEnum {
   let str = str_;
   switch (str_) {
+    case 'bool':
+      str = 'scalar';
+      break;
     case 'int':
       str = 'scalar';
       break;
