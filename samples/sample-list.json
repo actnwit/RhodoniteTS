@@ -19,6 +19,7 @@
     "GltfImporter-ibl-1",
     "GltfImporter-ibl-1-webgl2",
     "GltfImporter-ibl-2",
+    "GltfImporter-ibl-clearcoat",
     "GltfImporter-ibl-metallic-roughness",
     "GltfImporter-interpolation",
     "GltfImporter-morphing",

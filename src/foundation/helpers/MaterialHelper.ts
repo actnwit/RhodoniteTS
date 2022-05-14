@@ -150,6 +150,7 @@ function createPbrUberMaterial({
     isLighting,
     isMorphing,
     alphaMode,
+    useTangentAttribute,
     vertexShader: pbrSingleShaderVertex,
     pixelShader: pbrSingleShaderFragment,
     additionalShaderSemanticInfo: [
@@ -248,6 +249,7 @@ function createClassicUberMaterial({
     isLighting,
     isMorphing,
     alphaMode,
+    useTangentAttribute: false,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
     additionalShaderSemanticInfo: [],
@@ -714,6 +716,7 @@ function recreateCustomMaterial(
     isLighting,
     isMorphing,
     alphaMode,
+    useTangentAttribute: false,
     vertexShader: {
       code: vertexShaderStr,
       shaderStage: 'vertex',
