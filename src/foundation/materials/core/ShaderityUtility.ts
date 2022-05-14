@@ -279,7 +279,10 @@ export class ShaderityUtility {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
-        console.error('component number of initialValue is invalid!');
+        console.error(
+          'component number of initialValue is invalid:' +
+            shaderSemanticsInfo.semantic.str
+        );
       }
     };
 
