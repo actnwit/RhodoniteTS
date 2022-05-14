@@ -24,8 +24,11 @@ out vec3 v_baryCentricCoord;
   out vec3 v_binormal_inWorld;
 #endif
 
-// uniform float u_pointSize; // initialValue=30, soloDatum=true
-// uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
+uniform float u_pointSize; // initialValue=30, soloDatum=true
+uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
+uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDatum=true, needUniformInFastest=true
+// uniform int u_dataTextureMorphOffsetPosition[];
+// uniform int u_morphWeights[]; //
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 

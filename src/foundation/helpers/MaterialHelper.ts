@@ -83,7 +83,7 @@ function createEmptyMaterial() {
   return material;
 }
 
-function createPbrUberMaterial({
+function createPbrUberMaterialOld({
   additionalName = '',
   isMorphing = true,
   isSkinning = true,
@@ -123,7 +123,7 @@ function createPbrUberMaterial({
   return material;
 }
 
-function createPbrUberMaterialNew({
+function createPbrUberMaterial({
   additionalName = '',
   isMorphing = true,
   isSkinning = true,

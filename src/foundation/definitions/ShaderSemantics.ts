@@ -260,6 +260,47 @@ const ClearCoatNormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatNormalTexture',
 });
 
+const IsOutputHDR = new ShaderSemanticsClass({
+  str: 'isOutputHDR',
+});
+const BaseColorTextureTransform = new ShaderSemanticsClass({
+  str: 'baseColorTextureTransform',
+});
+const BaseColorTextureRotation = new ShaderSemanticsClass({
+  str: 'baseColorTextureRotation',
+});
+const NormalTextureTransform = new ShaderSemanticsClass({
+  str: 'normalTextureTransform',
+});
+const NormalTextureRotation = new ShaderSemanticsClass({
+  str: 'normalTextureRotation',
+});
+const MetallicRoughnessTextureTransform = new ShaderSemanticsClass({
+  str: 'metallicRoughnessTextureTransform',
+});
+const MetallicRoughnessTextureRotation = new ShaderSemanticsClass({
+  str: 'metallicRoughnessTextureRotation',
+});
+const NormalTexcoordIndex = new ShaderSemanticsClass({
+  str: 'normalTexcoordIndex',
+});
+const BaseColorTexcoordIndex = new ShaderSemanticsClass({
+  str: 'baseColorTexcoordIndex',
+});
+const MetallicRoughnessTexcoordIndex = new ShaderSemanticsClass({
+  str: 'metallicRoughnessTexcoordIndex',
+});
+const OcclusionTexcoordIndex = new ShaderSemanticsClass({
+  str: 'occlusionTexcoordIndex',
+});
+const EmissiveTexcoordIndex = new ShaderSemanticsClass({
+  str: 'emissiveTexcoordIndex',
+});
+const NormalScale = new ShaderSemanticsClass({str: 'normalScale'});
+const OcclusionStrength = new ShaderSemanticsClass({
+  str: 'occlusionStrength',
+});
+
 const typeList = [
   WorldMatrix,
   ViewMatrix,
@@ -324,6 +365,20 @@ const typeList = [
   ClearCoatRoughnessFactor,
   ClearCoatRoughnessTexture,
   ClearCoatNormalTexture,
+  IsOutputHDR,
+  BaseColorTextureTransform,
+  BaseColorTextureRotation,
+  NormalTextureTransform,
+  NormalTextureRotation,
+  MetallicRoughnessTextureTransform,
+  MetallicRoughnessTextureRotation,
+  NormalTexcoordIndex,
+  BaseColorTexcoordIndex,
+  MetallicRoughnessTexcoordIndex,
+  OcclusionTexcoordIndex,
+  EmissiveTexcoordIndex,
+  NormalScale,
+  OcclusionStrength,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -538,4 +593,18 @@ export const ShaderSemantics = Object.freeze({
   AlphaTexture,
   MakeOutputSrgb,
   FramebufferWidth,
+  IsOutputHDR,
+  BaseColorTextureTransform,
+  BaseColorTextureRotation,
+  NormalTextureTransform,
+  NormalTextureRotation,
+  MetallicRoughnessTextureTransform,
+  MetallicRoughnessTextureRotation,
+  NormalTexcoordIndex,
+  BaseColorTexcoordIndex,
+  MetallicRoughnessTexcoordIndex,
+  OcclusionTexcoordIndex,
+  EmissiveTexcoordIndex,
+  NormalScale,
+  OcclusionStrength,
 });

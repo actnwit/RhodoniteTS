@@ -93,6 +93,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (isMorphing) {
       this.__definitions += '#define RN_IS_MORPHING\n';
     }
+    this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
+    this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
 
     this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
 
