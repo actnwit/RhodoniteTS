@@ -291,7 +291,7 @@ export class ShaderityUtility {
         case 1:
           checkCompositionNumber(CompositionType.Scalar);
           initialValue = new MutableScalar(
-            new Float32Array(parseFloat(split[0]))
+            new Float32Array([parseFloat(split[0])])
           );
           break;
         case 2:
