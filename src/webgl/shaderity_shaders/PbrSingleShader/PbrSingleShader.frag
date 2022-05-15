@@ -25,7 +25,7 @@ uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
 uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
 uniform sampler2D u_emissiveTexture; // initialValue=(4,black)
 uniform vec3 u_wireframe; // initialValue=(0,0,1)
-uniform int u_isOutputHDR; // initialValue=0
+uniform bool u_isOutputHDR; // initialValue=0
 uniform float u_makeOutputSrgb; // initialValue=1
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isCustomSetting=true
 uniform ivec2 u_hdriFormat; // initialValue=(0,0), isCustomSetting=true
@@ -389,8 +389,8 @@ void main ()
   vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
   rt0.xyz += coated_emissive;
 
-  int isOutputHDR = get_isOutputHDR(materialSID, 0);
-  if(isOutputHDR == 1){
+  bool isOutputHDR = get_isOutputHDR(materialSID, 0);
+  if(isOutputHDR){
 #pragma shaderity: require(../common/glFragColor.glsl)
     return;
   }

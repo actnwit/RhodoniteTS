@@ -122,6 +122,7 @@ const typeList = [
   Float,
   Double,
   HalfFloat,
+  Bool,
 ];
 
 function from(index: number): ComponentTypeEnum {
@@ -185,7 +186,7 @@ function fromGlslString(str_: string): ComponentTypeEnum {
   let str = str_;
   switch (str_) {
     case 'bool':
-      str = 'INT';
+      str = 'BOOL';
       break;
     case 'int':
       str = 'INT';
