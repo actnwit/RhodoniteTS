@@ -23,6 +23,9 @@ import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleS
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 
+/**
+ * No longer used.
+ */
 export class PbrShadingMaterialContent extends AbstractMaterialContent {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
     str: 'isOutputHDR',
