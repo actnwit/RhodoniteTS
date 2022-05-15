@@ -107,7 +107,7 @@ export class ShaderityUtility {
     reflection.addAttributeSemanticsMap(attributeSemanticsMap);
   }
 
-  public static getShaderDataRefection(
+  public static getShaderDataReflection(
     shaderityObject: ShaderityObject,
     existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
   ): {
@@ -259,6 +259,17 @@ export class ShaderityUtility {
       shaderSemanticsInfo.initialValue =
         this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
+
+    const needUniformInFastest = info.match(
+      /needUniformInFastest[\t ]*=[\t ]*(.+)[,\t ]*/
+    );
+    if (needUniformInFastest) {
+      let needUniformInFastestFlg = false;
+      if (needUniformInFastest?.[1] === 'true') {
+        needUniformInFastestFlg = true;
+      }
+      shaderSemanticsInfo.needUniformInFastest = needUniformInFastestFlg;
+    }
   }
 
   private static __getInitialValueFromText(
@@ -268,7 +279,10 @@ export class ShaderityUtility {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
-        console.error('component number of initialValue is invalid!');
+        console.error(
+          'component number of initialValue is invalid:' +
+            shaderSemanticsInfo.semantic.str
+        );
       }
     };
 
@@ -277,6 +291,12 @@ export class ShaderityUtility {
       const text = tuple[1];
       const split = text.split(',');
       switch (split.length) {
+        case 1:
+          checkCompositionNumber(CompositionType.Scalar);
+          initialValue = new MutableScalar(
+            new Float32Array([parseFloat(split[0])])
+          );
+          break;
         case 2:
           if (
             shaderSemanticsInfo.compositionType === CompositionType.Texture2D

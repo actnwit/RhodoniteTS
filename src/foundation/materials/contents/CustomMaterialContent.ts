@@ -1,61 +1,41 @@
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
-  ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {ShaderType} from '../../definitions/ShaderType';
-import {CGAPIResourceHandle} from '../../../types/CommonTypes';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Material} from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import { MeshComponent } from '../../components/Mesh/MeshComponent';
 import {ShaderityObject} from 'shaderity';
-import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
-import { ShaderityUtility } from '../core/ShaderityUtility';
+import {AlphaModeEnum} from '../../definitions/AlphaMode';
+import {ShaderityUtility} from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {Is} from '../../misc/Is';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static BaseColorTextureTransform = new ShaderSemanticsClass({
-    str: 'baseColorTextureTransform',
-  });
-  static BaseColorTextureRotation = new ShaderSemanticsClass({
-    str: 'baseColorTextureRotation',
-  });
-  static NormalTextureTransform = new ShaderSemanticsClass({
-    str: 'normalTextureTransform',
-  });
-  static NormalTextureRotation = new ShaderSemanticsClass({
-    str: 'normalTextureRotation',
-  });
-  static MetallicRoughnessTextureTransform = new ShaderSemanticsClass({
-    str: 'metallicRoughnessTextureTransform',
-  });
-  static MetallicRoughnessTextureRotation = new ShaderSemanticsClass({
-    str: 'metallicRoughnessTextureRotation',
-  });
-
   constructor({
     name,
     isMorphing,
     isSkinning,
     isLighting,
     alphaMode,
+    useTangentAttribute,
+    useNormalTexture,
     vertexShader,
     pixelShader,
+    additionalShaderSemanticInfo,
   }: {
     name: string;
     isMorphing: boolean;
     isSkinning: boolean;
     isLighting: boolean;
     alphaMode: AlphaModeEnum;
+    useTangentAttribute: boolean;
+    useNormalTexture: boolean;
     vertexShader: ShaderityObject;
     pixelShader: ShaderityObject;
+    additionalShaderSemanticInfo: ShaderSemanticsInfo[];
   }) {
     super(
       null,
@@ -63,23 +43,25 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isMorphing ? '+morphing' : '') +
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting') +
+        (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
       {isMorphing, isSkinning, isLighting}
     );
 
-    const vertexShaderData = ShaderityUtility.getShaderDataRefection(
+    // Shader Reflection
+    const vertexShaderData = ShaderityUtility.getShaderDataReflection(
       vertexShader,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
-    const pixelShaderData = ShaderityUtility.getShaderDataRefection(
+    const pixelShaderData = ShaderityUtility.getShaderDataReflection(
       pixelShader,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
     this.__vertexShaderityObject = vertexShaderData.shaderityObject;
     this.__pixelShaderityObject = pixelShaderData.shaderityObject;
 
-    const shaderSemanticsInfoArray: any = [];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
       vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
@@ -117,9 +99,18 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.__definitions += '#define RN_IS_MORPHING\n';
     }
 
+    if (useTangentAttribute) {
+      this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
+    }
+    if (useNormalTexture) {
+      this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
+    }
+
     this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
 
-    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+    this.setShaderSemanticsInfoArray(
+      shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo)
+    );
   }
 
   setCustomSettingParametersToGpu({
@@ -174,7 +165,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
-    // Env map
+    // IBL Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
       this.__webglResourceRepository.setUniformValue(
         shaderProgram,
@@ -206,6 +197,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       );
     }
 
+    // IBL Parameters
     if (args.setUniform) {
       if (firstTime) {
         const {

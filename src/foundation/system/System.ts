@@ -330,7 +330,7 @@ export class System {
       desc.canvas,
       desc.approach.webGLVersion,
       true,
-      desc.rnWebGLDebug ? desc.rnWebGLDebug : false,
+      desc.rnWebGLDebug ? desc.rnWebGLDebug : true,
       desc.webglOption,
       desc.fallback3dApi
     );

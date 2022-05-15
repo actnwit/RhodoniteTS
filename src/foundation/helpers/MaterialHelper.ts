@@ -1,41 +1,45 @@
 import {Config} from '../core/Config';
-import { Material } from '../materials/core/Material';
-import { RenderPass } from '../renderer/RenderPass';
-import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
-import { PbrShadingMaterialContent } from '../materials/contents/PbrShadingMaterialContent';
-import { ClassicShadingMaterialContent } from '../materials/contents/ClassicShadingMaterialContent';
-import { EnvConstantMaterialContent } from '../materials/contents/EnvConstantMaterialContent';
-import { FXAA3QualityMaterialContent } from '../materials/contents/FXAA3QualityMaterialContent';
-import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
-import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
-import { GammaCorrectionMaterialContent } from '../materials/contents/GammaCorrectionMaterialContent';
-import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
-import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
+import {Material} from '../materials/core/Material';
+import {RenderPass} from '../renderer/RenderPass';
+import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent';
+import {PbrShadingMaterialContent} from '../materials/contents/PbrShadingMaterialContent';
+import {EnvConstantMaterialContent} from '../materials/contents/EnvConstantMaterialContent';
+import {FXAA3QualityMaterialContent} from '../materials/contents/FXAA3QualityMaterialContent';
+import {DepthEncodeMaterialContent} from '../materials/contents/DepthEncodeMaterialContent';
+import {ShadowMapDecodeClassicMaterialContent} from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
+import {GammaCorrectionMaterialContent} from '../materials/contents/GammaCorrectionMaterialContent';
+import {EntityUIDOutputMaterialContent} from '../materials/contents/EntityUIDOutputMaterialContent';
+import {MToonMaterialContent} from '../materials/contents/MToonMaterialContent';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
+import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import {CustomMaterialContent} from '../materials/contents/CustomMaterialContent';
 import {Primitive} from '../geometry/Primitive';
-import { Entity } from '../core/Entity';
 import {ProcessStage} from '../definitions/ProcessStage';
 import {AlphaMode} from '../definitions/AlphaMode';
-import { AbstractTexture } from '../textures/AbstractTexture';
-import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
-import { GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent } from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';
-import { GaussianBlurMaterialContent as GaussianBlurMaterialContent } from '../materials/contents/GaussianBlurMaterialContent';
-import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
-import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
-import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
-import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
-import { SkinPbrShadingMaterialContent } from '../materials/contents/SkinPbrShadingMaterialContent';
-import { PbrExtendedShadingMaterialContent } from '../materials/contents/PbrExtendedShadingMaterialContent';
-import { Texture } from '../textures/Texture';
-import { CameraComponent } from '../components/Camera/CameraComponent';
+import {AbstractTexture} from '../textures/AbstractTexture';
+import {FurnaceTestMaterialContent} from '../materials/contents/FurnaceTestMaterialContent';
+import {GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent} from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';
+import {GaussianBlurMaterialContent as GaussianBlurMaterialContent} from '../materials/contents/GaussianBlurMaterialContent';
+import {DetectHighLuminanceMaterialContent} from '../materials/contents/DetectHighLuminanceMaterialContent';
+import {SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent} from '../materials/contents/SynthesizeHdrMaterialContent';
+import {ColorGradingUsingLUTsMaterialContent} from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
+import {MatCapMaterialContent} from '../materials/contents/MatCapMaterialContent';
+import {VarianceShadowMapDecodeClassicMaterialContent} from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
+import {SkinPbrShadingMaterialContent} from '../materials/contents/SkinPbrShadingMaterialContent';
+import {PbrExtendedShadingMaterialContent} from '../materials/contents/PbrExtendedShadingMaterialContent';
+import {Texture} from '../textures/Texture';
+import {CameraComponent} from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
-import { ShaderityMaterialContent } from '../materials/contents/ShaderityMaterialContent';
+import {ShaderityMaterialContent} from '../materials/contents/ShaderityMaterialContent';
 import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
-import {Is} from '../misc/Is';
+import { ShaderSemantics, ShaderSemanticsInfo } from '../definitions/ShaderSemantics';
+import { ComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
+import { ShaderType } from '../definitions/ShaderType';
+import { VectorN } from '../math/VectorN';
 
 function createMaterial(
   materialName: string,
@@ -79,7 +83,7 @@ function createEmptyMaterial() {
   return material;
 }
 
-function createPbrUberMaterial({
+function createPbrUberMaterialOld({
   additionalName = '',
   isMorphing = true,
   isSkinning = true,
@@ -88,7 +92,6 @@ function createPbrUberMaterial({
   useNormalTexture = true,
   alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
-  makeOutputSrgb = true,
 } = {}) {
   const materialName =
     'PbrUber' +
@@ -108,7 +111,86 @@ function createPbrUberMaterial({
     useTangentAttribute,
     useNormalTexture,
     alphaMode,
-    makeOutputSrgb,
+  });
+
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    materialNode,
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createPbrUberMaterial({
+  additionalName = '',
+  isMorphing = true,
+  isSkinning = true,
+  isLighting = true,
+  useTangentAttribute = false,
+  useNormalTexture = true,
+  alphaMode = AlphaMode.Opaque,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+} = {}) {
+  const materialName =
+    'PbrUber' +
+    `_${additionalName}_` +
+    (isMorphing ? '+morphing' : '') +
+    (isSkinning ? '+skinning' : '') +
+    (isLighting ? '' : '-lighting') +
+    (useTangentAttribute ? '+tangentAttribute' : '') +
+    (useNormalTexture ? '' : '-normalTexture') +
+    '_alpha_' +
+    alphaMode.str.toLowerCase();
+
+  let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+  if (isMorphing) {
+    additionalShaderSemanticInfo = [
+      {
+        semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: Config.maxVertexMorphNumberInShader,
+        stage: ShaderType.VertexShader,
+        isCustomSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(
+          new Int32Array(Config.maxVertexMorphNumberInShader)
+        ),
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        needUniformInFastest: true,
+      },
+      {
+        semantic: ShaderSemantics.MorphWeights,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: Config.maxVertexMorphNumberInShader,
+        stage: ShaderType.VertexShader,
+        isCustomSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(
+          new Float32Array(Config.maxVertexMorphNumberInShader)
+        ),
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        needUniformInFastest: true,
+      },
+    ];
+  }
+
+  const materialNode = new CustomMaterialContent({
+    name: 'PbrUber',
+    isSkinning,
+    isLighting,
+    isMorphing,
+    alphaMode,
+    useTangentAttribute,
+    useNormalTexture,
+    vertexShader: pbrSingleShaderVertex,
+    pixelShader: pbrSingleShaderFragment,
+    additionalShaderSemanticInfo,
   });
 
   materialNode.isSingleOperation = true;
@@ -151,34 +233,6 @@ function createSkinPbrUberMaterial({
   return material;
 }
 
-function createClassicUberMaterialOld({
-  additionalName = '',
-  isSkinning = true,
-  isLighting = true,
-  alphaMode = AlphaMode.Opaque,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
-} = {}) {
-  const materialName =
-    'ClassicUberOld' +
-    `_${additionalName}_` +
-    (isSkinning ? '+skinning' : '') +
-    (isLighting ? '' : '-lighting');
-
-  const materialNode = new ClassicShadingMaterialContent({
-    isSkinning,
-    isLighting,
-    alphaMode,
-  });
-  materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
-
-  return material;
-}
-
 function createClassicUberMaterial({
   additionalName = '',
   isSkinning = true,
@@ -201,8 +255,11 @@ function createClassicUberMaterial({
     isLighting,
     isMorphing,
     alphaMode,
+    useTangentAttribute: false,
+    useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
+    additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(
@@ -666,6 +723,8 @@ function recreateCustomMaterial(
     isLighting,
     isMorphing,
     alphaMode,
+    useTangentAttribute: false,
+    useNormalTexture: true,
     vertexShader: {
       code: vertexShaderStr,
       shaderStage: 'vertex',
@@ -676,6 +735,7 @@ function recreateCustomMaterial(
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
+    additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
   const material = recreateMaterial(

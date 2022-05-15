@@ -62,7 +62,6 @@ import {Config} from '../core/Config';
 import {BufferUse} from '../definitions/BufferUse';
 import {MemoryManager} from '../core/MemoryManager';
 import {ILoaderExtension} from './ILoaderExtension';
-import {PbrShadingMaterialContent} from '../materials/contents/PbrShadingMaterialContent';
 import {Scalar} from '../math/Scalar';
 import {TextureParameter} from '../definitions/TextureParameter';
 import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
@@ -1010,7 +1009,7 @@ export class ModelConverter {
       );
       const useNormalTexture = this.__useNormalTexture(gltfModel);
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
-      return MaterialHelper.createPbrUberMaterial({
+      const material = MaterialHelper.createPbrUberMaterial({
         isMorphing,
         isSkinning,
         isLighting,
@@ -1019,8 +1018,11 @@ export class ModelConverter {
         useNormalTexture,
         additionalName: additionalName,
         maxInstancesNumber: maxMaterialInstanceNumber,
-        makeOutputSrgb,
       });
+      if (Is.exist(makeOutputSrgb)) {
+        material.setParameter(ShaderSemantics.MakeOutputSrgb, makeOutputSrgb);
+      }
+      return material;
     } else {
       return MaterialHelper.createClassicUberMaterial({
         isSkinning,
@@ -1208,7 +1210,7 @@ export class ModelConverter {
         emissiveTexture.texCoord != null
       ) {
         material.setParameter(
-          PbrShadingMaterialContent.EmissiveTexcoordIndex,
+          ShaderSemantics.EmissiveTexcoordIndex,
           emissiveTexture.texCoord
         );
       }
@@ -1287,14 +1289,14 @@ export class ModelConverter {
       if (parseFloat(gltfModel.asset?.version) >= 2) {
         if (normalTexture.texCoord != null) {
           material.setParameter(
-            PbrShadingMaterialContent.NormalTexcoordIndex,
+            ShaderSemantics.NormalTexcoordIndex,
             normalTexture.texCoord
           );
         }
 
         if (normalTexture.scale != null) {
           material.setParameter(
-            PbrShadingMaterialContent.NormalScale,
+            ShaderSemantics.NormalScale,
             normalTexture.scale
           );
         }
@@ -1303,8 +1305,8 @@ export class ModelConverter {
     ModelConverter._setupTextureTransform(
       normalTexture!,
       material,
-      PbrShadingMaterialContent.NormalTextureTransform,
-      PbrShadingMaterialContent.NormalTextureRotation
+      ShaderSemantics.NormalTextureTransform,
+      ShaderSemantics.NormalTextureRotation
     );
 
     // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
@@ -2193,7 +2195,7 @@ function setupPbrMetallicRoughness(
     material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
     if (baseColorTexture.texCoord != null) {
       material.setParameter(
-        PbrShadingMaterialContent.BaseColorTexcoordIndex,
+        ShaderSemantics.BaseColorTexcoordIndex,
         baseColorTexture.texCoord
       );
     }
@@ -2209,13 +2211,13 @@ function setupPbrMetallicRoughness(
     material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture);
     if (occlusionTexture.texCoord != null) {
       material.setParameter(
-        PbrShadingMaterialContent.OcclusionTexcoordIndex,
+        ShaderSemantics.OcclusionTexcoordIndex,
         occlusionTexture.texCoord
       );
     }
     if (occlusionTexture.strength != null) {
       material.setParameter(
-        PbrShadingMaterialContent.OcclusionStrength,
+        ShaderSemantics.OcclusionStrength,
         occlusionTexture.strength
       );
     }
@@ -2245,7 +2247,7 @@ function setupPbrMetallicRoughness(
     );
     if (metallicRoughnessTexture.texCoord != null) {
       material.setParameter(
-        PbrShadingMaterialContent.MetallicRoughnessTexcoordIndex,
+        ShaderSemantics.MetallicRoughnessTexcoordIndex,
         metallicRoughnessTexture.texCoord
       );
     }
@@ -2325,15 +2327,15 @@ function setup_KHR_texture_transform(
   ModelConverter._setupTextureTransform(
     baseColorTexture!,
     material,
-    PbrShadingMaterialContent.BaseColorTextureTransform,
-    PbrShadingMaterialContent.BaseColorTextureRotation
+    ShaderSemantics.BaseColorTextureTransform,
+    ShaderSemantics.BaseColorTextureRotation
   );
 
   // Metallic Roughness Texcoord Transform
   ModelConverter._setupTextureTransform(
     metallicRoughnessTexture!,
     material,
-    PbrShadingMaterialContent.MetallicRoughnessTextureTransform,
-    PbrShadingMaterialContent.MetallicRoughnessTextureRotation
+    ShaderSemantics.MetallicRoughnessTextureTransform,
+    ShaderSemantics.MetallicRoughnessTextureRotation
   );
 }

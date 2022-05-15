@@ -30,7 +30,7 @@ void main() {
 `;
   const shaderityObject = {code: shaderText} as ShaderityObject;
 
-  const array = ShaderityUtility.getShaderDataRefection(shaderityObject);
+  const array = ShaderityUtility.getShaderDataReflection(shaderityObject);
   expect(array.shaderSemanticsInfoArray[0].semantic.str).toBe('worldMatrix');
   expect(array.shaderSemanticsInfoArray[0].componentType).toBe(
     Rn.ComponentType.Float

@@ -1,4 +1,3 @@
-export * from './ClassicShadingMaterialContent';
 export * from './ColorGradingUsingLUTsMaterialContent';
 export * from './CustomMaterialContent';
 export * from './DepthEncodeMaterialContent';

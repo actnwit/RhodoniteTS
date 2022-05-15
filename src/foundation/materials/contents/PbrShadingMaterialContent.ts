@@ -3,32 +3,29 @@ import {
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
-import { Vector2 } from '../../math/Vector2';
+import {Vector2} from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { Vector4 } from '../../math/Vector4';
-import { Vector3 } from '../../math/Vector3';
+import {Vector4} from '../../math/Vector4';
+import {Vector3} from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
-import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Material} from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import { Scalar } from '../../math/Scalar';
+import {Scalar} from '../../math/Scalar';
 import {Config} from '../../core/Config';
-import { VectorN } from '../../math/VectorN';
-import { MeshComponent } from '../../components/Mesh/MeshComponent';
-import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
+import {VectorN} from '../../math/VectorN';
 
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
-import { Is } from '../../misc/Is';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
 
+/**
+ * No longer used.
+ */
 export class PbrShadingMaterialContent extends AbstractMaterialContent {
   private static readonly IsOutputHDR = new ShaderSemanticsClass({
     str: 'isOutputHDR',
@@ -78,7 +75,6 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     useTangentAttribute,
     useNormalTexture,
     alphaMode,
-    makeOutputSrgb,
   }: {
     isMorphing: boolean;
     isSkinning: boolean;
@@ -86,7 +82,6 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
     alphaMode: AlphaModeEnum;
-    makeOutputSrgb: boolean;
   }) {
     super(
       null,
@@ -183,7 +178,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
       {
         semantic: PbrShadingMaterialContent.IsOutputHDR,
         compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Bool,
+        componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
@@ -200,7 +195,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
         max: 1,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
+        initialValue: Scalar.fromCopyNumber(1),
       },
       {
         semantic: ShaderSemantics.IBLParameter,
@@ -607,11 +602,19 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     this.setupIBLParameters(args, firstTime, shaderProgram, material);
   }
 
-  private setupIBLParameters(args: RenderingArg, firstTime: boolean, shaderProgram: WebGLProgram, material: Material) {
+  private setupIBLParameters(
+    args: RenderingArg,
+    firstTime: boolean,
+    shaderProgram: WebGLProgram,
+    material: Material
+  ) {
     if (args.setUniform) {
       if (firstTime) {
         const {
-          mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType,
+          mipmapLevelNumber,
+          meshRenderComponent,
+          diffuseHdriType,
+          specularHdriType,
         } = this.setupHdriParameters(args);
         this.__webglResourceRepository.setUniformValue(
           shaderProgram,
@@ -628,12 +631,15 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
           shaderProgram,
           ShaderSemantics.HDRIFormat.str,
           firstTime,
-          { x: diffuseHdriType, y: specularHdriType }
+          {x: diffuseHdriType, y: specularHdriType}
         );
       }
     } else {
       const {
-        mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType,
+        mipmapLevelNumber,
+        meshRenderComponent,
+        diffuseHdriType,
+        specularHdriType,
       } = this.setupHdriParameters(args);
       const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
@@ -648,7 +654,11 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  private setupIBL(args: RenderingArg, shaderProgram: WebGLProgram, firstTime: boolean) {
+  private setupIBL(
+    args: RenderingArg,
+    shaderProgram: WebGLProgram,
+    firstTime: boolean
+  ) {
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
       this.__webglResourceRepository.setUniformValue(
         shaderProgram,
