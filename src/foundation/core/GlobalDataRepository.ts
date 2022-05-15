@@ -1,6 +1,5 @@
 import {
   ShaderSemanticsIndex,
-  ShaderSemanticsInfo,
   ShaderSemanticsEnum,
   ShaderSemantics,
   getShaderPropertyFunc,
@@ -33,6 +32,7 @@ import {
   ProcessApproach,
   ProcessApproachEnum,
 } from '../../foundation/definitions/ProcessApproach';
+import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -312,10 +312,12 @@ export class GlobalDataRepository {
 
     const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
 
-    const bufferView = buffer.takeBufferView({
-      byteLengthToNeed: alignedByteLength * maxCount,
-      byteStride: 0,
-    }).unwrapForce();
+    const bufferView = buffer
+      .takeBufferView({
+        byteLengthToNeed: alignedByteLength * maxCount,
+        byteStride: 0,
+      })
+      .unwrapForce();
 
     let maxArrayLength = semanticInfo.arrayLength;
     if (
@@ -325,13 +327,15 @@ export class GlobalDataRepository {
       maxArrayLength = 100;
     }
 
-    const accessor = bufferView.takeAccessor({
-      compositionType: semanticInfo.compositionType,
-      componentType: ComponentType.Float,
-      count: maxCount,
-      byteStride: alignedByteLength,
-      arrayLength: maxArrayLength,
-    }).unwrapForce();
+    const accessor = bufferView
+      .takeAccessor({
+        compositionType: semanticInfo.compositionType,
+        componentType: ComponentType.Float,
+        count: maxCount,
+        byteStride: alignedByteLength,
+        arrayLength: maxArrayLength,
+      })
+      .unwrapForce();
 
     const globalPropertyStruct: GlobalPropertyStruct = {
       shaderSemanticsInfo: semanticInfo,

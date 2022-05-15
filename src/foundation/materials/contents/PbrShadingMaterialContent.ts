@@ -1,5 +1,4 @@
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
@@ -22,6 +21,7 @@ import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleSha
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 /**
  * No longer used.

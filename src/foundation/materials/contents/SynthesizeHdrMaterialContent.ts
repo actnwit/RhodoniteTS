@@ -5,7 +5,6 @@ import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
 import {Count} from '../../../types/CommonTypes';
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
@@ -18,6 +17,7 @@ import { Scalar } from '../../math/Scalar';
 import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   static SynthesizeCoefficient = new ShaderSemanticsClass({

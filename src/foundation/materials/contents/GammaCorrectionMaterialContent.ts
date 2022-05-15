@@ -1,18 +1,16 @@
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-} from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {ShaderSemantics} from '../../definitions/ShaderSemantics';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Material} from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import GammaCorrectionShaderVertex from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class GammaCorrectionMaterialContent extends AbstractMaterialContent {
   constructor() {

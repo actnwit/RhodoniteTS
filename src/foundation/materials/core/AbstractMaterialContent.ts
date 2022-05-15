@@ -1,6 +1,5 @@
 import {RnObject} from '../../core/RnObject';
 import {
-  ShaderSemanticsInfo,
   ShaderSemanticsEnum,
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
@@ -40,6 +39,7 @@ import {IMatrix33} from '../../math/IMatrix';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {ComponentRepository} from '../../core/ComponentRepository';
 import {CameraComponent} from '../../components/Camera/CameraComponent';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string

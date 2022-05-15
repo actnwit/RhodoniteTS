@@ -1,22 +1,22 @@
-import { CameraComponent } from '../../components/Camera/CameraComponent';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {CompositionType} from '../../definitions/CompositionType';
-import { ComponentRepository } from '../../core/ComponentRepository';
+import {ComponentRepository} from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
-import { Scalar } from '../../math/Scalar';
+import {Scalar} from '../../math/Scalar';
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
-import { VectorN } from '../../math/VectorN';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
+import {Material} from '../core/Material';
+import {VectorN} from '../../math/VectorN';
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
-import { Texture } from '../../textures/Texture';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {Texture} from '../../textures/Texture';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({
@@ -144,7 +144,9 @@ export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterial
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).gaussianRatio,
-        material.getParameter(GaussianBlurForEncodedDepthMaterialContent.GaussianRatio)._v
+        material.getParameter(
+          GaussianBlurForEncodedDepthMaterialContent.GaussianRatio
+        )._v
       );
     }
 

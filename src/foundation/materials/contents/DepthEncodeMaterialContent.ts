@@ -1,23 +1,23 @@
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { ComponentRepository } from '../../core/ComponentRepository';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {ComponentRepository} from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
-import { Material } from '../core/Material';
-import { Scalar } from '../../math/Scalar';
+import {Material} from '../core/Material';
+import {Scalar} from '../../math/Scalar';
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import { Vector3 } from '../../math/Vector3';
+import {SkeletalComponent} from '../../components/Skeletal/SkeletalComponent';
+import {Vector3} from '../../math/Vector3';
 import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
 import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { Is } from '../../misc/Is';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {Is} from '../../misc/Is';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});

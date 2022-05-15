@@ -1,5 +1,4 @@
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
 } from '../../definitions/ShaderSemantics';
 import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
@@ -12,6 +11,8 @@ import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum} from '../../definitions/AlphaMode';
 import {ShaderityUtility} from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {Is} from '../../misc/Is';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   constructor({

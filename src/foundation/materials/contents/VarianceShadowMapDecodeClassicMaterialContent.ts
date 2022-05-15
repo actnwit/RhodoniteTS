@@ -1,5 +1,4 @@
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
@@ -30,6 +29,7 @@ import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {Is} from '../../misc/Is';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
   static IsPointLight = new ShaderSemanticsClass({str: 'isPointLight'});

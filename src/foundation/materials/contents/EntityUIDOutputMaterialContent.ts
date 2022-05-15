@@ -1,23 +1,20 @@
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-} from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {ShaderSemantics} from '../../definitions/ShaderSemantics';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import { Vector3 } from '../../math/Vector3';
+import {Vector3} from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
-import { Scalar } from '../../math/Scalar';
+import {Scalar} from '../../math/Scalar';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
-import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableMatrix33 } from '../../math/MutableMatrix33';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Material} from '../core/Material';
+import {MutableMatrix44} from '../../math/MutableMatrix44';
+import {MutableMatrix33} from '../../math/MutableMatrix33';
 import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
 import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
   constructor() {

@@ -1,21 +1,21 @@
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import { Vector4 } from '../../math/Vector4';
+import {Vector4} from '../../math/Vector4';
 import {ShaderType} from '../../definitions/ShaderType';
-import { Scalar } from '../../math/Scalar';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
+import {Scalar} from '../../math/Scalar';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Material} from '../core/Material';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
 import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
 import EnvConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class EnvConstantMaterialContent extends AbstractMaterialContent {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});

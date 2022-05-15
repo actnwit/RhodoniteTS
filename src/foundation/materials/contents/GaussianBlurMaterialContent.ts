@@ -1,22 +1,22 @@
-import { CameraComponent } from '../../components/Camera/CameraComponent';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {CompositionType} from '../../definitions/CompositionType';
-import { ComponentRepository } from '../../core/ComponentRepository';
+import {ComponentRepository} from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
-import { Scalar } from '../../math/Scalar';
+import {Scalar} from '../../math/Scalar';
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
-import { VectorN } from '../../math/VectorN';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
+import {Material} from '../core/Material';
+import {VectorN} from '../../math/VectorN';
 import GaussianBlurSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
 import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
-import { Texture } from '../../textures/Texture';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {Texture} from '../../textures/Texture';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class GaussianBlurMaterialContent extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({

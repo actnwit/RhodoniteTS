@@ -11,11 +11,7 @@ import {Primitive} from '../foundation/geometry/Primitive';
 import {WebGLContextWrapper} from './WebGLContextWrapper';
 import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
 import {Matrix44} from '../foundation/math/Matrix44';
-import {
-  ShaderSemantics,
-  ShaderSemanticsInfo,
-  ShaderSemanticsClass,
-} from '../foundation/definitions/ShaderSemantics';
+import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import {Material} from '../foundation/materials/core/Material';
 import {CompositionType} from '../foundation/definitions/CompositionType';
 import {Component} from '../foundation/core/Component';
@@ -51,6 +47,7 @@ import {
 } from '../foundation/helpers/EntityHelper';
 import {LightComponent} from '../foundation/components/Light/LightComponent';
 import {DataUtil} from '../foundation/misc/DataUtil';
+import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
 
 declare const spector: any;
 

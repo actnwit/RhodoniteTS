@@ -18,10 +18,7 @@ import {CompositionType} from '../foundation/definitions/CompositionType';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {WebGLContextWrapper} from './WebGLContextWrapper';
 import {MathUtil} from '../foundation/math/MathUtil';
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-} from '../foundation/definitions/ShaderSemantics';
+import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import {AbstractTexture} from '../foundation/textures/AbstractTexture';
 import {RenderTargetTexture} from '../foundation/textures/RenderTargetTexture';
 import {IRenderable} from '../foundation/textures/IRenderable';
@@ -57,7 +54,8 @@ import {System} from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import {Config} from '../foundation/core/Config';
 import {GL_TEXTURE_2D} from '../types/WebGLConstants';
-import { AttributeNames } from './types';
+import {AttributeNames} from './types';
+import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
 
 declare let HDRImage: any;
 

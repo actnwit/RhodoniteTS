@@ -1,12 +1,10 @@
-import {
-  ShaderSemanticsInfo,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {ShaderSemanticsClass} from '../../definitions/ShaderSemantics';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
-import { TextureFetchShader } from '../../../webgl/shaders/nodes/TextureFetchShader';
+import {TextureFetchShader} from '../../../webgl/shaders/nodes/TextureFetchShader';
 import {ShaderType} from '../../definitions/ShaderType';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class TextureFetchMaterialNode extends AbstractMaterialContent {
   generalTextureMaterialNodeUID?: ShaderSemanticsClass;
