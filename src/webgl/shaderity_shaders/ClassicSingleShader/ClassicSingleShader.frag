@@ -18,6 +18,8 @@ uniform float u_shininess; // initialValue=5
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
 uniform sampler2D u_normalTexture; // initialValue=(1,blue)
+uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
+uniform float u_diffuseColorTextureRotation; // initialValue=0
 
 #pragma shaderity: require(../common/rt0.glsl)
 // #pragma shaderity: require(../common/deliot2019SeamlessTexture.glsl)
@@ -27,6 +29,8 @@ uniform sampler2D u_normalTexture; // initialValue=(1,blue)
 // uniform vec3 u_colorSpaceVector2;
 // uniform vec3 u_colorSpaceVector3;
 // uniform vec4 u_scaleTranslate;
+
+#pragma shaderity: require(../common/utilFunctions.glsl)
 
 /* shaderity: @{getters} */
 
@@ -57,7 +61,10 @@ void main ()
   }
 
   // diffuseColorTexture (Considered to be premultiplied alpha)
-  vec4 textureColor = texture2D(u_diffuseColorTexture, v_texcoord_0);
+  vec4 diffuseColorTextureTransform = get_diffuseColorTextureTransform(materialSID, 0);
+  float diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0);
+  vec2 diffuseColorTexUv = uvTransform(diffuseColorTextureTransform.xy, diffuseColorTextureTransform.zw, diffuseColorTextureRotation, v_texcoord_0);
+  vec4 textureColor = texture2D(u_diffuseColorTexture, diffuseColorTexUv);
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
 
