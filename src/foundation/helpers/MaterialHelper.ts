@@ -3,17 +3,12 @@ import {Material} from '../materials/core/Material';
 import {RenderPass} from '../renderer/RenderPass';
 import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent';
 import {PbrShadingMaterialContent} from '../materials/contents/PbrShadingMaterialContent';
-import {EnvConstantMaterialContent} from '../materials/contents/EnvConstantMaterialContent';
 import {FXAA3QualityMaterialContent} from '../materials/contents/FXAA3QualityMaterialContent';
 import {DepthEncodeMaterialContent} from '../materials/contents/DepthEncodeMaterialContent';
 import {ShadowMapDecodeClassicMaterialContent} from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import {GammaCorrectionMaterialContent} from '../materials/contents/GammaCorrectionMaterialContent';
 import {EntityUIDOutputMaterialContent} from '../materials/contents/EntityUIDOutputMaterialContent';
 import {MToonMaterialContent} from '../materials/contents/MToonMaterialContent';
-import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
-import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
-import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import {CustomMaterialContent} from '../materials/contents/CustomMaterialContent';
 import {Primitive} from '../geometry/Primitive';
 import {ProcessStage} from '../definitions/ProcessStage';
@@ -40,6 +35,12 @@ import {CompositionType} from '../definitions/CompositionType';
 import {ShaderType} from '../definitions/ShaderType';
 import {VectorN} from '../math/VectorN';
 import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
+import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
+import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
+import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 
 function createMaterial(
   materialName: string,
@@ -248,14 +249,25 @@ function createEnvConstantMaterial({
 } = {}) {
   const materialName = 'EnvConstant' + `_${additionalName}`;
 
-  const materialNode = new EnvConstantMaterialContent(makeOutputSrgb);
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    alphaMode: AlphaMode.Opaque,
+    useTangentAttribute: false,
+    useNormalTexture: false,
+    vertexShader: EnvConstantSingleShaderVertex,
+    pixelShader: EnvConstantSingleShaderFragment,
+    additionalShaderSemanticInfo: [],
+  });
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
     materialNode,
     maxInstancesNumber
   );
-
+  material.setParameter(ShaderSemantics.MakeOutputSrgb, makeOutputSrgb ? 1 : 0);
   return material;
 }
 

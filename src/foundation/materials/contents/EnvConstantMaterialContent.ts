@@ -21,7 +21,7 @@ export class EnvConstantMaterialContent extends AbstractMaterialContent {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
   static EnvHdriFormat = new ShaderSemanticsClass({str: 'EnvHdriFormat'});
 
-  constructor(makeOutputSrgb: boolean) {
+  constructor() {
     super(
       null,
       'envConstantShading',
@@ -87,7 +87,7 @@ export class EnvConstantMaterialContent extends AbstractMaterialContent {
         max: 1,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
+        initialValue: Scalar.fromCopyNumber(1),
       },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

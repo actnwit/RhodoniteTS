@@ -10,6 +10,12 @@ in vec3 v_color;
 in vec3 v_normal_inWorld;
 in vec3 v_position_inWorld;
 
+uniform int u_envHdriFormat; // initialValue=0
+uniform float u_envRotation; // initialValue=0
+uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
+uniform sampler2D u_colorEnvTexture; // initialValue=(0,black)
+uniform bool u_makeOutputSrgb; // initialValue=false
+
 #pragma shaderity: require(../common/rt0.glsl)
 
 /* shaderity: @{getters} */
