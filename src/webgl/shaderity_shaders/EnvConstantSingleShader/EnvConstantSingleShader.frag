@@ -13,8 +13,8 @@ in vec3 v_position_inWorld;
 uniform int u_envHdriFormat; // initialValue=0
 uniform float u_envRotation; // initialValue=0
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
-uniform sampler2D u_colorEnvTexture; // initialValue=(0,black)
-uniform bool u_makeOutputSrgb; // initialValue=false
+uniform samplerCube u_colorEnvTexture; // initialValue=(0,black)
+uniform bool u_makeOutputSrgb; // initialValue=true
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -58,7 +58,7 @@ void main() {
 
   vec4 diffuseTexel = textureCube(u_colorEnvTexture, envNormal);
   vec3 textureColor;
-  int EnvHdriFormat = get_EnvHdriFormat(materialSID, 0);
+  int EnvHdriFormat = get_envHdriFormat(materialSID, 0);
   if (EnvHdriFormat == 0) { // LDR_SRGB
     textureColor = srgbToLinear(diffuseTexel.rgb);
   } else if (EnvHdriFormat == 3) { // RGBE

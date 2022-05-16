@@ -19,7 +19,7 @@ import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class EnvConstantMaterialContent extends AbstractMaterialContent {
   static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
-  static EnvHdriFormat = new ShaderSemanticsClass({str: 'EnvHdriFormat'});
+  static EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
 
   constructor() {
     super(
