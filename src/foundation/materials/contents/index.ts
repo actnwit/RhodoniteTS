@@ -15,6 +15,5 @@ export * from './PbrExtendedShadingMaterialContent';
 export * from './PbrShadingMaterialContent';
 export * from './ShaderityMaterialContent';
 export * from './ShadowMapDecodeClassicMaterialContent';
-export * from './SkinPbrShadingMaterialContent';
 export * from './SynthesizeHdrMaterialContent';
 export * from './VarianceShadowMapDecodeClassicMaterialContent';

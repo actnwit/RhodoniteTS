@@ -27,7 +27,6 @@ import {SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent} from '../m
 import {ColorGradingUsingLUTsMaterialContent} from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
 import {MatCapMaterialContent} from '../materials/contents/MatCapMaterialContent';
 import {VarianceShadowMapDecodeClassicMaterialContent} from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
-import {SkinPbrShadingMaterialContent} from '../materials/contents/SkinPbrShadingMaterialContent';
 import {PbrExtendedShadingMaterialContent} from '../materials/contents/PbrExtendedShadingMaterialContent';
 import {Texture} from '../textures/Texture';
 import {CameraComponent} from '../components/Camera/CameraComponent';
@@ -759,7 +758,6 @@ export const MaterialHelper = Object.freeze({
   createEmptyMaterial,
   createClassicUberMaterial,
   createPbrUberMaterial,
-  createSkinPbrUberMaterial,
   createEnvConstantMaterial,
   createFXAA3QualityMaterial,
   createDepthEncodeMaterial,
