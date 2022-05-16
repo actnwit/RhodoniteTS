@@ -1,5 +1,4 @@
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
@@ -8,16 +7,17 @@ import {CompositionType} from '../../definitions/CompositionType';
 import {ComponentType} from '../../definitions/ComponentType';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Scalar } from '../../math/Scalar';
-import { RenderPass } from '../../renderer/RenderPass';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Scalar} from '../../math/Scalar';
+import {RenderPass} from '../../renderer/RenderPass';
 import {Count} from '../../../types/CommonTypes';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
+import {Material} from '../core/Material';
 import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({

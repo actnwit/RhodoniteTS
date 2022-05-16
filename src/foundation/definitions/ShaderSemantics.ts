@@ -11,6 +11,7 @@ import {ShaderTypeEnum} from './ShaderType';
 import { Material } from '../materials/core/Material';
 import {Count, Index} from '../../types/CommonTypes';
 import {ComponentTypeEnum} from './ComponentType';
+import { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
 
 export type ShaderSemanticsIndex = number;
 export type ShaderSemanticsName = string;
@@ -407,30 +408,6 @@ type UpdateFunc = ({
   value: any;
   args?: object;
 }) => void;
-
-export type ShaderSemanticsInfo = {
-  semantic: ShaderSemanticsEnum;
-  prefix?: string;
-  arrayLength?: Count; // the array length of the array type shader variable
-  compositionType: CompositionTypeEnum;
-  componentType: ComponentTypeEnum;
-  min: number;
-  max: number;
-  valueStep?: number;
-  isCustomSetting: boolean;
-  initialValue?: any; // initial value
-  updateInterval?: ShaderVariableUpdateIntervalEnum;
-  stage: ShaderTypeEnum;
-  xName?: string;
-  yName?: string;
-  zName?: string;
-  wName?: string;
-  soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
-  isComponentData?: boolean;
-  noControlUi?: boolean;
-  needUniformInFastest?: boolean;
-  none_u_prefix?: boolean;
-};
 
 function fullSemanticStr(info: ShaderSemanticsInfo) {
   let prefix = '';

@@ -35,11 +35,12 @@ import {Count} from '../../types/CommonTypes';
 import {ShaderityObject} from 'shaderity';
 import {ShaderityMaterialContent} from '../materials/contents/ShaderityMaterialContent';
 import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
-import { ShaderSemantics, ShaderSemanticsInfo } from '../definitions/ShaderSemantics';
-import { ComponentType } from '../definitions/ComponentType';
-import { CompositionType } from '../definitions/CompositionType';
-import { ShaderType } from '../definitions/ShaderType';
-import { VectorN } from '../math/VectorN';
+import {ShaderSemantics} from '../definitions/ShaderSemantics';
+import {ComponentType} from '../definitions/ComponentType';
+import {CompositionType} from '../definitions/CompositionType';
+import {ShaderType} from '../definitions/ShaderType';
+import {VectorN} from '../math/VectorN';
+import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
 
 function createMaterial(
   materialName: string,

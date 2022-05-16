@@ -3,7 +3,6 @@ import {AlphaMode, AlphaModeEnum} from '../../definitions/AlphaMode';
 import {AbstractMaterialContent} from './AbstractMaterialContent';
 import {
   ShaderSemanticsEnum,
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsIndex,
   getShaderPropertyFunc,
@@ -44,7 +43,7 @@ import {
   GL_ONE_MINUS_SRC_ALPHA,
   GL_SRC_ALPHA,
 } from '../../../types';
-import {VertexAttributeEnum} from '../../definitions';
+import {ShaderSemanticsInfo, VertexAttributeEnum} from '../../definitions';
 
 type MaterialTypeName = string;
 type ShaderVariable = {

@@ -15,25 +15,25 @@ import {
   VertexAttribute,
   VertexAttributeEnum,
 } from '../../definitions/VertexAttribute';
-import { MemoryManager } from '../../core/MemoryManager';
+import {MemoryManager} from '../../core/MemoryManager';
 import {WellKnownComponentTIDs} from '../../components/WellKnownComponentTIDs';
 import {Config} from '../../core/Config';
 import {
   ShaderSemantics,
   ShaderSemanticsClass,
-  ShaderSemanticsInfo,
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialContent } from './AbstractMaterialContent';
-import { MutableVector2 } from '../../math/MutableVector2';
-import { MutableVector3 } from '../../math/MutableVector3';
-import { MutableVector4 } from '../../math/MutableVector4';
-import { MutableMatrix33 } from '../../math/MutableMatrix33';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableScalar } from '../../math/MutableScalar';
-import { MutableMatrix22 } from '../../math/MutableMatrix22';
+import {AbstractMaterialContent} from './AbstractMaterialContent';
+import {MutableVector2} from '../../math/MutableVector2';
+import {MutableVector3} from '../../math/MutableVector3';
+import {MutableVector4} from '../../math/MutableVector4';
+import {MutableMatrix33} from '../../math/MutableMatrix33';
+import {MutableMatrix44} from '../../math/MutableMatrix44';
+import {MutableScalar} from '../../math/MutableScalar';
+import {MutableMatrix22} from '../../math/MutableMatrix22';
 import {ShaderType} from '../../definitions/ShaderType';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -232,7 +232,9 @@ export class ShaderityUtility {
     }
     shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
-    const isCustomSetting = info.match(/isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
+    const isCustomSetting = info.match(
+      /isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/
+    );
     let isCustomSettingFlg = false;
     if (isCustomSetting?.[1] === 'true') {
       isCustomSettingFlg = true;

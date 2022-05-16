@@ -1,21 +1,21 @@
 import {ComponentType} from '../../definitions/ComponentType';
 import {CompositionType} from '../../definitions/CompositionType';
-import { Scalar } from '../../math/Scalar';
+import {Scalar} from '../../math/Scalar';
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { Vector2 } from '../../math/Vector2';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Material } from '../core/Material';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
+import {Vector2} from '../../math/Vector2';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {Material} from '../core/Material';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   static mode = new ShaderSemanticsClass({str: 'mode'});

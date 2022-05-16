@@ -1,8 +1,6 @@
-import {
-  ShaderSemanticsInfo,
-  ShaderSemanticsName,
-} from '../foundation/definitions/ShaderSemantics';
-import { Material } from '../foundation/materials/core/Material';
+import {ShaderSemanticsName} from '../foundation/definitions/ShaderSemantics';
+import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
+import {Material} from '../foundation/materials/core/Material';
 
 export interface RnWebGLProgram extends WebGLProgram {
   _gl: WebGLRenderingContext | WebGL2RenderingContext;

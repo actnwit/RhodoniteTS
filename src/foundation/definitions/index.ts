@@ -19,6 +19,7 @@ export * from './ProcessStage';
 export * from './RenderBufferTarget';
 export * from './ShaderNode';
 export * from './ShaderSemantics';
+export * from './ShaderSemanticsInfo';
 export * from './ShaderType';
 export * from './ShaderVariableType';
 export * from './ShaderVariableUpdateInterval';

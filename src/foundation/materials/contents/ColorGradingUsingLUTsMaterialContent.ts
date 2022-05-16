@@ -1,24 +1,24 @@
-import { AbstractTexture } from '../../textures/AbstractTexture';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
+import {AbstractTexture} from '../../textures/AbstractTexture';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {CompositionType} from '../../definitions/CompositionType';
-import { ComponentRepository } from '../../core/ComponentRepository';
+import {ComponentRepository} from '../../core/ComponentRepository';
 import {ComponentType} from '../../definitions/ComponentType';
 import {Count} from '../../../types/CommonTypes';
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { Texture } from '../../textures/Texture';
+import {Texture} from '../../textures/Texture';
 import {TextureParameter} from '../../definitions/TextureParameter';
-import { RenderPass } from '../../renderer/RenderPass';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
+import {RenderPass} from '../../renderer/RenderPass';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
+import {Material} from '../core/Material';
 import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
   static lookupTableTexture = new ShaderSemanticsClass({

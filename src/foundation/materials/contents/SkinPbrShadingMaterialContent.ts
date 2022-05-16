@@ -1,32 +1,32 @@
 import {
-  ShaderSemanticsInfo,
   ShaderSemantics,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {CompositionType} from '../../definitions/CompositionType';
-import { Vector2 } from '../../math/Vector2';
+import {Vector2} from '../../math/Vector2';
 import {ComponentType} from '../../definitions/ComponentType';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { Vector4 } from '../../math/Vector4';
-import { Vector3 } from '../../math/Vector3';
+import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
+import {Vector4} from '../../math/Vector4';
+import {Vector3} from '../../math/Vector3';
 import {ShaderType} from '../../definitions/ShaderType';
 import {CGAPIResourceHandle} from '../../../types/CommonTypes';
 import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {CameraComponent} from '../../components/Camera/CameraComponent';
+import {Material} from '../core/Material';
 import {HdriFormat} from '../../definitions/HdriFormat';
-import { Scalar } from '../../math/Scalar';
+import {Scalar} from '../../math/Scalar';
 import {Config} from '../../core/Config';
-import { VectorN } from '../../math/VectorN';
-import { MeshComponent } from '../../components/Mesh/MeshComponent';
-import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
+import {VectorN} from '../../math/VectorN';
+import {MeshComponent} from '../../components/Mesh/MeshComponent';
+import {BlendShapeComponent} from '../../components/BlendShape/BlendShapeComponent';
 
 import PbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import SkinPbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/SkinPbrSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { Is } from '../../misc/Is';
+import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import {Is} from '../../misc/Is';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export class SkinPbrShadingMaterialContent extends AbstractMaterialContent {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle =
