@@ -53,6 +53,9 @@
 
 in vec2 v_texcoord_0;
 
+uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
+uniform vec2 u_screenInfo; // initialValue=(0,0)
+
 #pragma shaderity: require(../common/rt0.glsl)
 
 /* shaderity: @{getters} */

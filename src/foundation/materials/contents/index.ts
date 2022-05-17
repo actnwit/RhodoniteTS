@@ -4,7 +4,6 @@ export * from './DepthEncodeMaterialContent';
 export * from './DetectHighLuminanceMaterialContent';
 export * from './EntityUIDOutputMaterialContent';
 export * from './EnvConstantMaterialContent';
-export * from './FXAA3QualityMaterialContent';
 export * from './FurnaceTestMaterialContent';
 export * from './GammaCorrectionMaterialContent';
 export * from './GaussianBlurForEncodedDepthMaterialContent';

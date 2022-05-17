@@ -3,7 +3,6 @@ import {Material} from '../materials/core/Material';
 import {RenderPass} from '../renderer/RenderPass';
 import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent';
 import {PbrShadingMaterialContent} from '../materials/contents/PbrShadingMaterialContent';
-import {FXAA3QualityMaterialContent} from '../materials/contents/FXAA3QualityMaterialContent';
 import {DepthEncodeMaterialContent} from '../materials/contents/DepthEncodeMaterialContent';
 import {ShadowMapDecodeClassicMaterialContent} from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import {GammaCorrectionMaterialContent} from '../materials/contents/GammaCorrectionMaterialContent';
@@ -41,6 +40,8 @@ import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader
 import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
+import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
+import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 
 function createMaterial(
   materialName: string,
@@ -277,7 +278,18 @@ function createFXAA3QualityMaterial({
 } = {}) {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
-  const materialNode = new FXAA3QualityMaterialContent();
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    alphaMode: AlphaMode.Opaque,
+    useTangentAttribute: false,
+    useNormalTexture: true,
+    vertexShader: FXAA3QualityShaderVertex,
+    pixelShader: FXAA3QualityShaderFragment,
+    additionalShaderSemanticInfo: [],
+  });
   materialNode.isSingleOperation = true;
   const material = createMaterial(
     materialName,
