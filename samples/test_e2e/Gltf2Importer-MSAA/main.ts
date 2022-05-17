@@ -127,7 +127,7 @@ declare const Rn: typeof _Rn;
       makeOutputSrgb: false,
     });
     materialSphere.setParameter(
-      Rn.EnvConstantMaterialContent.EnvHdriFormat,
+      Rn.ShaderSemantics.EnvHdriFormat,
       Rn.HdriFormat.HDR_LINEAR.index
     );
     materialSphere.setTextureParameter(

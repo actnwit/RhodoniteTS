@@ -301,6 +301,8 @@ const NormalScale = new ShaderSemanticsClass({str: 'normalScale'});
 const OcclusionStrength = new ShaderSemanticsClass({
   str: 'occlusionStrength',
 });
+const envRotation = new ShaderSemanticsClass({str: 'envRotation'});
+const EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
 
 const typeList = [
   WorldMatrix,
@@ -380,6 +382,8 @@ const typeList = [
   EmissiveTexcoordIndex,
   NormalScale,
   OcclusionStrength,
+  envRotation,
+  EnvHdriFormat,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -584,4 +588,6 @@ export const ShaderSemantics = Object.freeze({
   EmissiveTexcoordIndex,
   NormalScale,
   OcclusionStrength,
+  envRotation,
+  EnvHdriFormat,
 });
