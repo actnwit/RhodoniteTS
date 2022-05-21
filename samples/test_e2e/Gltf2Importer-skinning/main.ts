@@ -1,8 +1,7 @@
-import _Rn from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   const promises = [];

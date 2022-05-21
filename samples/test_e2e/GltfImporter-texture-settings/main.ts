@@ -1,17 +1,6 @@
-import _Rn from '../../../dist/esm/index';
-import {
-  OrbitCameraController,
-  CameraComponent,
-  MeshComponent,
-  EntityRepository,
-  AbstractTexture,
-  Expression,
-  FrameBuffer,
-  RenderPass,
-} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
@@ -43,7 +32,7 @@ document.body.appendChild(p);
 
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    cameraControllerComponent.controller as OrbitCameraController;
+    cameraControllerComponent.controller as Rn.OrbitCameraController;
   const rootGroup =
     expression.renderPasses[0].sceneTopLevelGraphComponents[0].entity;
   controller.setTarget(rootGroup);

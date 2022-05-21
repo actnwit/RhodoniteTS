@@ -1,14 +1,4 @@
-import _Rn, {
-  CameraComponent,
-  ComponentTypeEnum,
-  Expression,
-  PixelFormatEnum,
-  RenderPass,
-  TextureParameterEnum,
-  Vector4,
-} from '../../../dist/esm/index';
-
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---main algorithm-----------------------------------------------------------------------------------------
@@ -56,7 +46,7 @@ declare const Rn: typeof _Rn;
     return entityCamera;
   }
 
-  function createRenderPassMain(cameraComponent: CameraComponent) {
+  function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
     renderPass.cameraComponent = cameraComponent;
@@ -80,7 +70,7 @@ declare const Rn: typeof _Rn;
     return renderPass;
   }
 
-  function createEntityColoredBoard(diffuseColor: Vector4) {
+  function createEntityColoredBoard(diffuseColor: Rn.Vector4) {
     const primitive = new Rn.Plane();
     primitive.generate({
       width: 20,
@@ -103,18 +93,18 @@ declare const Rn: typeof _Rn;
   }
 
   function createAndSetFramebuffer(
-    renderPass: RenderPass,
+    renderPass: Rn.RenderPass,
     resolution: number,
     textureNum: number,
     property: {
       level?: number | undefined;
-      internalFormat?: PixelFormatEnum | undefined;
-      format?: PixelFormatEnum | undefined;
-      type?: ComponentTypeEnum | undefined;
-      magFilter?: TextureParameterEnum | undefined;
-      minFilter?: TextureParameterEnum | undefined;
-      wrapS?: TextureParameterEnum | undefined;
-      wrapT?: TextureParameterEnum | undefined;
+      internalFormat?: Rn.PixelFormatEnum | undefined;
+      format?: Rn.PixelFormatEnum | undefined;
+      type?: Rn.ComponentTypeEnum | undefined;
+      magFilter?: Rn.TextureParameterEnum | undefined;
+      minFilter?: Rn.TextureParameterEnum | undefined;
+      wrapS?: Rn.TextureParameterEnum | undefined;
+      wrapT?: Rn.TextureParameterEnum | undefined;
       createDepthBuffer?: boolean | undefined;
       isMSAA?: boolean | undefined;
     }
@@ -141,8 +131,8 @@ declare const Rn: typeof _Rn;
 
   function createRenderPassColorGrading(
     uri: string,
-    renderPassMain: RenderPass,
-    cameraComponent: CameraComponent
+    renderPassMain: Rn.RenderPass,
+    cameraComponent: Rn.CameraComponent
   ) {
     const material = Rn.MaterialHelper.createColorGradingUsingLUTsMaterial(
       {uri},
@@ -182,14 +172,14 @@ declare const Rn: typeof _Rn;
     return renderPass;
   }
 
-  function createExpression(renderPasses: RenderPass[]) {
+  function createExpression(renderPasses: Rn.RenderPass[]) {
     const expression = new Rn.Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
   }
 
   function draw(
-    expressions: Expression[],
+    expressions: Rn.Expression[],
     isFirstLoop: Boolean,
     pElem?: HTMLElement
   ) {

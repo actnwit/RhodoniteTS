@@ -1,6 +1,5 @@
-import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, { CameraComponent, ComponentTypeEnum, Expression, PixelFormatEnum, RenderPass, RenderTargetTexture, TextureParameterEnum } from '../../../dist/esm/index';
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
+
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
 
@@ -99,9 +98,9 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassesDepth(
-    cameraComponentDepth: CameraComponent,
-    cameraComponentPostEffect: CameraComponent,
-    entitiesRenderTarget: IMeshEntity[],
+    cameraComponentDepth: Rn.CameraComponent,
+    cameraComponentPostEffect: Rn.CameraComponent,
+    entitiesRenderTarget: Rn.IMeshEntity[],
     isSquareDepth: boolean
   ) {
     const renderPassDepth = createRenderPassDepthEncode(
@@ -129,8 +128,8 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassDepthEncode(
-    cameraComponent: CameraComponent,
-    entitiesTarget: IMeshEntity[],
+    cameraComponent: Rn.CameraComponent,
+    entitiesTarget: Rn.IMeshEntity[],
     isSquareDepth: boolean
   ) {
     const renderPass = new Rn.RenderPass();
@@ -146,12 +145,12 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassMain(
-    cameraComponent: CameraComponent,
-    entitySphere: IMeshEntity,
-    entityBoard: IMeshEntity,
-    cameraComponentDepth: CameraComponent,
-    renderPassDepthBlurHV: RenderPass,
-    renderPassSquareDepthBlurHV: RenderPass
+    cameraComponent: Rn.CameraComponent,
+    entitySphere: Rn.IMeshEntity,
+    entityBoard: Rn.IMeshEntity,
+    cameraComponentDepth: Rn.CameraComponent,
+    renderPassDepthBlurHV: Rn.RenderPass,
+    renderPassSquareDepthBlurHV: Rn.RenderPass
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -252,18 +251,18 @@ declare const Rn: typeof _Rn;
   }
 
   function createAndSetFramebuffer(
-    renderPass: RenderPass,
+    renderPass: Rn.RenderPass,
     resolution: number,
     textureNum: number,
     property: {
       level?: number | undefined;
-      internalFormat?: PixelFormatEnum | undefined;
-      format?: PixelFormatEnum | undefined;
-      type?: ComponentTypeEnum | undefined;
-      magFilter?: TextureParameterEnum | undefined;
-      minFilter?: TextureParameterEnum | undefined;
-      wrapS?: TextureParameterEnum | undefined;
-      wrapT?: TextureParameterEnum | undefined;
+      internalFormat?: Rn.PixelFormatEnum | undefined;
+      format?: Rn.PixelFormatEnum | undefined;
+      type?: Rn.ComponentTypeEnum | undefined;
+      magFilter?: Rn.TextureParameterEnum | undefined;
+      minFilter?: Rn.TextureParameterEnum | undefined;
+      wrapS?: Rn.TextureParameterEnum | undefined;
+      wrapT?: Rn.TextureParameterEnum | undefined;
       createDepthBuffer?: boolean | undefined;
       isMSAA?: boolean | undefined;
     } = {}
@@ -279,8 +278,8 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassGaussianBlurForDepth(
-    cameraComponent: CameraComponent,
-    renderPassBlurTarget: RenderPass,
+    cameraComponent: Rn.CameraComponent,
+    renderPassBlurTarget: Rn.RenderPass,
     isHorizontal: boolean
   ) {
     const material =
@@ -309,7 +308,7 @@ declare const Rn: typeof _Rn;
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();
     const TextureTarget = framebufferTarget
-      .colorAttachments[0] as RenderTargetTexture;
+      .colorAttachments[0] as Rn.RenderTargetTexture;
     material.setTextureParameter(
       Rn.ShaderSemantics.BaseColorTexture,
       TextureTarget
@@ -348,14 +347,14 @@ declare const Rn: typeof _Rn;
     return renderPass;
   }
 
-  function createExpression(renderPasses: RenderPass[]) {
+  function createExpression(renderPasses: Rn.RenderPass[]) {
     const expression = new Rn.Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
   }
 
   function draw(
-    expressions: Expression[],
+    expressions: Rn.Expression[],
     isFirstLoop: Boolean,
     pElem?: HTMLElement
   ) {

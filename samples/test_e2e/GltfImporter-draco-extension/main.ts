@@ -1,7 +1,6 @@
-import _Rn, {CameraComponent, Material} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
@@ -105,8 +104,8 @@ document.body.appendChild(p);
 })();
 
 function createPostEffectRenderPass(
-  material: Material,
-  cameraComponent: CameraComponent
+  material: Rn.Material,
+  cameraComponent: Rn.CameraComponent
 ) {
   const boardPrimitive = new Rn.Plane();
   boardPrimitive.generate({

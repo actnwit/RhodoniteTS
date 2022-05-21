@@ -1,7 +1,4 @@
-import { IMeshEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {Entity, Expression} from '../../../dist/esm/index';
-
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -55,7 +52,7 @@ declare const Rn: typeof _Rn;
 
   async function createEntityPointCloud(
     pointCloudDrcUri: string
-  ): Promise<IMeshEntity> {
+  ): Promise<Rn.IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
     const primitive = await importer.importPointCloudToPrimitive(
       pointCloudDrcUri
@@ -105,7 +102,7 @@ declare const Rn: typeof _Rn;
   //   return entity;
   // }
 
-  function setPointSizeRecursively(entity: IMeshEntity, pointSize: number) {
+  function setPointSizeRecursively(entity: Rn.IMeshEntity, pointSize: number) {
     // set point size
     const meshComponent = entity.getMesh();
     if (meshComponent) {
@@ -122,13 +119,13 @@ declare const Rn: typeof _Rn;
     if (sceneGraphComponent) {
       const childSceneGraphComponents = sceneGraphComponent.children;
       for (const childSceneGraphComponent of childSceneGraphComponents) {
-        const childEntity = childSceneGraphComponent.entity as IMeshEntity;
+        const childEntity = childSceneGraphComponent.entity as Rn.IMeshEntity;
         setPointSizeRecursively(childEntity, pointSize);
       }
     }
   }
 
-  function draw(expressions: Expression[]) {
+  function draw(expressions: Rn.Expression[]) {
     Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions));
   }

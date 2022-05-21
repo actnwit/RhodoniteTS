@@ -1,8 +1,5 @@
-import _Rn from '../../../dist/esm/index';
-import {checkFinished} from '../common/testHelpers';
-import {Material} from '../../../dist/esm/foundation/materials/core/Material';
-import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
+import {checkFinished} from '../common/testHelpers.js';
 let p: HTMLParagraphElement | undefined;
 
 (async () => {
@@ -26,7 +23,7 @@ let p: HTMLParagraphElement | undefined;
   });
 })();
 
-function createGroupOfShapes(): IMeshEntity {
+function createGroupOfShapes(): Rn.IMeshEntity {
   const group = Rn.EntityHelper.createGroupEntity();
 
   const creators = [
@@ -43,7 +40,7 @@ function createGroupOfShapes(): IMeshEntity {
     group.getSceneGraph().addChild(shape.getSceneGraph());
   }
 
-  return group as IMeshEntity;
+  return group as Rn.IMeshEntity;
 }
 
 function createGrid() {
@@ -108,7 +105,7 @@ async function setupRhodonite() {
   });
 }
 
-function createCamera(group: IMeshEntity) {
+function createCamera(group: Rn.IMeshEntity) {
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;

@@ -1,4 +1,4 @@
-import Rn from '../../../../dist/esm';
+import Rn from '../../../../dist/cjs';
 import {ShaderityObject} from 'shaderity';
 import {ShaderityUtility} from './ShaderityUtility';
 

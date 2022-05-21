@@ -1,16 +1,8 @@
-import {TextureParameter} from '../../../dist/esm/foundation/definitions/TextureParameter';
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
-import {
-  GL_LINEAR,
-  GL_LINEAR_MIPMAP_LINEAR,
-  GL_REPEAT,
-} from '../../../dist/esm/types/WebGLConstants';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   const gl = await Rn.System.init({
@@ -25,10 +17,10 @@ declare const Rn: typeof _Rn;
     const buffer = await response.arrayBuffer();
     const uint8Array = new Uint8Array(buffer);
     texture.generateTextureFromBasis(uint8Array, {
-      magFilter: TextureParameter.from(GL_LINEAR),
-      minFilter: TextureParameter.from(GL_LINEAR_MIPMAP_LINEAR),
-      wrapS: TextureParameter.from(GL_REPEAT),
-      wrapT: TextureParameter.from(GL_REPEAT),
+      magFilter: Rn.TextureParameter.from(Rn.GL_LINEAR),
+      minFilter: Rn.TextureParameter.from(Rn.GL_LINEAR_MIPMAP_LINEAR),
+      wrapS: Rn.TextureParameter.from(Rn.GL_REPEAT),
+      wrapT: Rn.TextureParameter.from(Rn.GL_REPEAT),
     });
   }
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
@@ -99,7 +91,7 @@ declare const Rn: typeof _Rn;
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    cameraControllerComponent.controller as OrbitCameraController;
+    cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(planeEntity);
 
   // renderPass

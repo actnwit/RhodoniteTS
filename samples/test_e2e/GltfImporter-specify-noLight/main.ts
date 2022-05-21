@@ -1,7 +1,6 @@
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
+
 declare const window: any;
-declare const Rn: typeof _Rn;
 let p = null;
 
 (async () => {
@@ -44,7 +43,7 @@ let p = null;
   const mainRenderPass = expression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    mainCameraControllerComponent.controller as OrbitCameraController;
+    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.7;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 

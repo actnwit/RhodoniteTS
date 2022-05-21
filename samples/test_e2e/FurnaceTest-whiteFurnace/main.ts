@@ -1,18 +1,10 @@
-import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {
-  CameraComponent,
-  Expression,
-  Material,
-  RenderPass,
-} from '../../../dist/esm/index';
-
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
 
 declare global {
   interface Window {
-    entityBoard: IMeshEntity;
-    entitySphere: IMeshEntity;
-    material: Material;
+    entityBoard: Rn.IMeshEntity;
+    entitySphere: Rn.IMeshEntity;
+    material: Rn.Material;
     setRoughness: Function;
     setDebugView: Function;
     setGType: Function;
@@ -60,7 +52,7 @@ declare global {
     return entityCamera;
   }
 
-  function createRenderPassMain(cameraComponent: CameraComponent) {
+  function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
     const material = Rn.MaterialHelper.createFurnaceTestMaterial();
     material.setParameter(
       Rn.ShaderSemantics.ScreenInfo,
@@ -89,7 +81,7 @@ declare global {
     return renderPass;
   }
 
-  function createEntityBoard(material: Material) {
+  function createEntityBoard(material: Rn.Material) {
     const primitive = new Rn.Plane();
     primitive.generate({
       width: 20,
@@ -108,7 +100,7 @@ declare global {
     return entity;
   }
 
-  function createEntitySphere(material: Material) {
+  function createEntitySphere(material: Rn.Material) {
     const primitive = new Rn.Sphere();
     primitive.generate({
       radius: 1,
@@ -125,13 +117,13 @@ declare global {
     return entity;
   }
 
-  function createExpression(renderPasses: RenderPass[]) {
+  function createExpression(renderPasses: Rn.RenderPass[]) {
     const expression = new Rn.Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
   }
 
-  function draw(expressions: Expression[], createPElem = false) {
+  function draw(expressions: Rn.Expression[], createPElem = false) {
     Rn.System.process(expressions);
 
     // for e2e-test
@@ -145,7 +137,7 @@ declare global {
 
   function attachGlobalFunctions(
     gl: WebGLRenderingContext,
-    expressions: Expression[]
+    expressions: Rn.Expression[]
   ) {
     window.setRoughness = setRoughness;
     window.setDebugView = setDebugView;

@@ -1,8 +1,7 @@
-import _Rn from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const Stats: any;
 declare const window: any;
-declare const Rn: typeof _Rn;
 (function () {
   //    import Rn from '../../../dist/rhodonite.mjs';
   function readyBasicVerticesData() {

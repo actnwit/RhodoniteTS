@@ -1,7 +1,5 @@
-import _Rn, {Material, MeshRendererComponent} from '../../../dist/esm/index';
-import {OrbitCameraController, CameraComponent} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
-declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
@@ -83,7 +81,7 @@ document.body.appendChild(p);
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    mainCameraControllerComponent.controller as OrbitCameraController;
+    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.78;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
@@ -172,7 +170,7 @@ function setIBL(baseUri) {
 
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
-  ) as MeshRendererComponent[];
+  ) as Rn.MeshRendererComponent[];
   for (let i = 0; i < meshRendererComponents.length; i++) {
     const meshRendererComponent = meshRendererComponents[i];
     meshRendererComponent.specularCubeMap = specularCubeTexture;
@@ -181,8 +179,8 @@ function setIBL(baseUri) {
 }
 
 function createPostEffectRenderPass(
-  material: Material,
-  cameraComponent: CameraComponent
+  material: Rn.Material,
+  cameraComponent: Rn.CameraComponent
 ) {
   const boardPrimitive = new Rn.Plane();
   boardPrimitive.generate({

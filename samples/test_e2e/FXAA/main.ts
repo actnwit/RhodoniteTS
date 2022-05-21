@@ -1,23 +1,13 @@
-import _Rn from '../../../dist/esm/index';
-import {
-  OrbitCameraController,
-  CameraComponent,
-  MeshComponent,
-  AbstractTexture,
-  Expression,
-  FrameBuffer,
-  RenderPass,
-} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 const frame = new Rn.Frame();
 const expressionWithFXAA = new Rn.Expression();
 const expressionWithOutFXAA = new Rn.Expression();
-let activeExpression: Expression;
-let framebuffer: FrameBuffer;
-let renderPassMain: RenderPass;
+let activeExpression: Rn.Expression;
+let framebuffer: Rn.FrameBuffer;
+let renderPassMain: Rn.RenderPass;
 (async () => {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   const gl = await Rn.System.init({
@@ -154,7 +144,7 @@ async function setupRenderPassMain() {
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    cameraControllerComponent.controller as OrbitCameraController;
+    cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(planeEntity);
   // renderPass
   const renderPass = new Rn.RenderPass();
@@ -164,7 +154,7 @@ async function setupRenderPassMain() {
 }
 
 function setupRenderPassFxaa(
-  renderable: Promise<AbstractTexture>,
+  renderable: Promise<Rn.AbstractTexture>,
   width: number,
   height: number
 ) {
@@ -188,7 +178,7 @@ function setupRenderPassFxaa(
     Rn.ShaderSemantics.ScreenInfo,
     Rn.Vector2.fromCopyArray2([width, height])
   );
-  const meshComponentFxaa = entityFxaa.getMesh() as MeshComponent;
+  const meshComponentFxaa = entityFxaa.getMesh() as Rn.MeshComponent;
   const meshFxaa = new Rn.Mesh();
   meshFxaa.addPrimitive(primitiveFxaa);
   meshComponentFxaa.setMesh(meshFxaa);
@@ -199,7 +189,7 @@ function setupRenderPassFxaa(
   ]);
   renderPassFxaa.addEntities([entityFxaa]);
   const cameraEntityFxaa = Rn.EntityHelper.createCameraEntity();
-  const cameraComponentFxaa = cameraEntityFxaa.getCamera() as CameraComponent;
+  const cameraComponentFxaa = cameraEntityFxaa.getCamera() as Rn.CameraComponent;
   cameraEntityFxaa.getTransform().translate = Rn.Vector3.fromCopyArray([
     0.0, 0.0, 1.0,
   ]);

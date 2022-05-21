@@ -1,23 +1,6 @@
-import {
-  ICameraEntity,
-  ISceneGraphEntity,
-} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {
-  CameraComponent,
-  ComponentTypeEnum,
-  Expression,
-  Material,
-  MeshComponent,
-  MeshRendererComponent,
-  PixelFormatEnum,
-  RenderPass,
-  RenderTargetTexture,
-  ShaderSemanticsEnum,
-  TextureParameterEnum,
-} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -96,7 +79,7 @@ declare const Rn: typeof _Rn;
   materialGamma.setTextureParameter(
     Rn.ShaderSemantics.BaseColorTexture,
     renderPassSynthesizeGlare.getFramebuffer()
-      .colorAttachments[0] as RenderTargetTexture
+      .colorAttachments[0] as Rn.RenderTargetTexture
   );
 
   const renderPassGamma = createRenderPassPostEffect(
@@ -185,13 +168,13 @@ declare const Rn: typeof _Rn;
     return entitySphere;
   }
 
-  function createEntityMainCamera(entityCameraTarget: ISceneGraphEntity) {
+  function createEntityMainCamera(entityCameraTarget: Rn.ISceneGraphEntity) {
     const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     const cameraControllerComponent = entityCamera.getCameraController();
     const controller = cameraControllerComponent.controller;
     controller.setTarget(entityCameraTarget);
 
-    return entityCamera as ICameraEntity;
+    return entityCamera as Rn.ICameraEntity;
   }
 
   function createEntityPostEffectCamera() {
@@ -200,12 +183,12 @@ declare const Rn: typeof _Rn;
     cameraComponent.zNearInner = 0.5;
     cameraComponent.zFarInner = 2.0;
 
-    return entityCamera as ICameraEntity;
+    return entityCamera as Rn.ICameraEntity;
   }
 
   async function createRenderPassHDR(
-    cameraComponent: CameraComponent,
-    entityRenderTargets: ISceneGraphEntity[]
+    cameraComponent: Rn.CameraComponent,
+    entityRenderTargets: Rn.ISceneGraphEntity[]
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -215,8 +198,8 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassPostEffect(
-    material: Material,
-    cameraComponent: CameraComponent
+    material: Rn.Material,
+    cameraComponent: Rn.CameraComponent
   ) {
     const boardPrimitive = new Rn.Plane();
     boardPrimitive.generate({
@@ -252,18 +235,18 @@ declare const Rn: typeof _Rn;
   }
 
   function createAndSetFramebuffer(
-    renderPass: RenderPass,
+    renderPass: Rn.RenderPass,
     resolution: number,
     textureNum: number,
     property: {
       level?: number | undefined;
-      internalFormat?: PixelFormatEnum | undefined;
-      format?: PixelFormatEnum | undefined;
-      type?: ComponentTypeEnum | undefined;
-      magFilter?: TextureParameterEnum | undefined;
-      minFilter?: TextureParameterEnum | undefined;
-      wrapS?: TextureParameterEnum | undefined;
-      wrapT?: TextureParameterEnum | undefined;
+      internalFormat?: Rn.PixelFormatEnum | undefined;
+      format?: Rn.PixelFormatEnum | undefined;
+      type?: Rn.ComponentTypeEnum | undefined;
+      magFilter?: Rn.TextureParameterEnum | undefined;
+      minFilter?: Rn.TextureParameterEnum | undefined;
+      wrapS?: Rn.TextureParameterEnum | undefined;
+      wrapT?: Rn.TextureParameterEnum | undefined;
       createDepthBuffer?: boolean | undefined;
       isMSAA?: boolean | undefined;
     }
@@ -279,11 +262,11 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassesBlurredHighLuminance(
-    renderPassHighLuminance: RenderPass,
-    cameraComponentPostEffect: CameraComponent,
+    renderPassHighLuminance: Rn.RenderPass,
+    cameraComponentPostEffect: Rn.CameraComponent,
     maxResolution: number
   ) {
-    const renderPasses: RenderPass[] = [];
+    const renderPasses: Rn.RenderPass[] = [];
 
     for (let i = 0; i < gaussianBlurLevelHighLuminance; i++) {
       const resolutionBlur = maxResolution / Math.pow(2.0, i);
@@ -329,10 +312,10 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassesSynthesizeImages(
-    cameraComponentMain: CameraComponent,
-    cameraComponentPostEffect: CameraComponent,
-    renderPassHDR: RenderPass,
-    renderPassesBlurredHighLuminance: RenderPass[]
+    cameraComponentMain: Rn.CameraComponent,
+    cameraComponentPostEffect: Rn.CameraComponent,
+    renderPassHDR: Rn.RenderPass,
+    renderPassesBlurredHighLuminance: Rn.RenderPass[]
   ) {
     // the target of glare is non-white (color is not vec4(1.0)) region
     // you can choose any material that satisfy the above condition
@@ -348,11 +331,11 @@ declare const Rn: typeof _Rn;
 
     const texturesSynthesize = [
       renderPassHDR.getFramebuffer().colorAttachments[0],
-    ] as RenderTargetTexture[];
+    ] as Rn.RenderTargetTexture[];
     for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
       texturesSynthesize.push(
         renderPassesBlurredHighLuminance[i].getFramebuffer()
-          .colorAttachments[0] as RenderTargetTexture
+          .colorAttachments[0] as Rn.RenderTargetTexture
       );
     }
 
@@ -360,7 +343,7 @@ declare const Rn: typeof _Rn;
       Rn.MaterialHelper.createSynthesizeHDRMaterial(
         {
           targetRegionTexture: renderPassGlareTarget.getFramebuffer()
-            .colorAttachments[0] as RenderTargetTexture,
+            .colorAttachments[0] as Rn.RenderTargetTexture,
           maxInstancesNumber: 1,
         },
         texturesSynthesize
@@ -386,7 +369,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassGaussianBlur(
-    renderPassBlurTarget: RenderPass,
+    renderPassBlurTarget: Rn.RenderPass,
     isHorizontal: boolean,
     resolutionBlur: number
   ) {
@@ -407,15 +390,12 @@ declare const Rn: typeof _Rn;
     );
 
     if (isHorizontal === false) {
-      material.setParameter(
-        Rn.GaussianBlurMaterialContent.IsHorizontal,
-        false
-      );
+      material.setParameter(Rn.GaussianBlurMaterialContent.IsHorizontal, false);
     }
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();
     const TextureTarget = framebufferTarget
-      .colorAttachments[0] as RenderTargetTexture;
+      .colorAttachments[0] as Rn.RenderTargetTexture;
     material.setTextureParameter(
       Rn.ShaderSemantics.BaseColorTexture,
       TextureTarget
@@ -433,8 +413,8 @@ declare const Rn: typeof _Rn;
   }
 
   function setParameterForAllMaterialsInMeshComponents(
-    meshComponents: MeshComponent[],
-    shaderSemantic: ShaderSemanticsEnum,
+    meshComponents: Rn.MeshComponent[],
+    shaderSemantic: Rn.ShaderSemanticsEnum,
     value: any
   ) {
     for (let i = 0; i < meshComponents.length; i++) {
@@ -449,9 +429,9 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassGlareTargetRegion(
-    material: Material,
-    cameraComponent: CameraComponent,
-    entityGlareTarget: ISceneGraphEntity
+    material: Rn.Material,
+    cameraComponent: Rn.CameraComponent,
+    entityGlareTarget: Rn.ISceneGraphEntity
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -462,7 +442,7 @@ declare const Rn: typeof _Rn;
     return renderPass;
   }
 
-  function createExpression(renderPasses: RenderPass[]) {
+  function createExpression(renderPasses: Rn.RenderPass[]) {
     const expression = new Rn.Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
@@ -483,7 +463,7 @@ declare const Rn: typeof _Rn;
 
     const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
       Rn.MeshRendererComponent
-    ) as MeshRendererComponent[];
+    ) as Rn.MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;
@@ -492,7 +472,7 @@ declare const Rn: typeof _Rn;
   }
 
   function draw(
-    expressions: Expression[],
+    expressions: Rn.Expression[],
     loopCount: number,
     pElem?: HTMLElement
   ) {

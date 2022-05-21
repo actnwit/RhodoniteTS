@@ -1,15 +1,4 @@
-import {ISceneGraphEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {
-  CameraComponent,
-  ComponentTypeEnum,
-  Expression,
-  MeshRendererComponent,
-  PixelFormatEnum,
-  RenderPass,
-  TextureParameterEnum,
-} from '../../../dist/esm/index';
-
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -149,7 +138,7 @@ declare const Rn: typeof _Rn;
     return entitySphere;
   }
 
-  function createEntityBoard(renderPassDepth: RenderPass) {
+  function createEntityBoard(renderPassDepth: Rn.RenderPass) {
     const material =
       Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
         {},
@@ -189,8 +178,8 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassDepth(
-    cameraComponentDepth: CameraComponent,
-    entityRenderTarget: ISceneGraphEntity
+    cameraComponentDepth: Rn.CameraComponent,
+    entityRenderTarget: Rn.ISceneGraphEntity
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
@@ -206,18 +195,18 @@ declare const Rn: typeof _Rn;
   }
 
   function createAndSetFramebuffer(
-    renderPass: RenderPass,
+    renderPass: Rn.RenderPass,
     resolution: number,
     textureNum: number,
     property: {
       level?: number | undefined;
-      internalFormat?: PixelFormatEnum | undefined;
-      format?: PixelFormatEnum | undefined;
-      type?: ComponentTypeEnum | undefined;
-      magFilter?: TextureParameterEnum | undefined;
-      minFilter?: TextureParameterEnum | undefined;
-      wrapS?: TextureParameterEnum | undefined;
-      wrapT?: TextureParameterEnum | undefined;
+      internalFormat?: Rn.PixelFormatEnum | undefined;
+      format?: Rn.PixelFormatEnum | undefined;
+      type?: Rn.ComponentTypeEnum | undefined;
+      magFilter?: Rn.TextureParameterEnum | undefined;
+      minFilter?: Rn.TextureParameterEnum | undefined;
+      wrapS?: Rn.TextureParameterEnum | undefined;
+      wrapT?: Rn.TextureParameterEnum | undefined;
       createDepthBuffer?: boolean | undefined;
       isMSAA?: boolean | undefined;
     } = {}
@@ -232,7 +221,7 @@ declare const Rn: typeof _Rn;
     return framebuffer;
   }
 
-  function createExpression(renderPasses: RenderPass[]) {
+  function createExpression(renderPasses: Rn.RenderPass[]) {
     const expression = new Rn.Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
@@ -253,7 +242,7 @@ declare const Rn: typeof _Rn;
 
     const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
       Rn.MeshRendererComponent
-    ) as MeshRendererComponent[];
+    ) as Rn.MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;
@@ -261,7 +250,7 @@ declare const Rn: typeof _Rn;
     }
   }
 
-  function draw(expressions: Expression[]) {
+  function draw(expressions: Rn.Expression[]) {
     Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions));
   }

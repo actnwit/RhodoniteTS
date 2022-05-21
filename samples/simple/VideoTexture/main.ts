@@ -1,11 +1,8 @@
-import {ICameraControllerEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   const gl = await Rn.System.init({
@@ -59,10 +56,10 @@ declare const Rn: typeof _Rn;
 
   // CameraComponent
   const cameraControllerComponent = (
-    cameraEntity as ICameraControllerEntity
+    cameraEntity as Rn.ICameraControllerEntity
   ).getCameraController();
   const controller =
-    cameraControllerComponent.controller as OrbitCameraController;
+    cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(planeEntity);
 
   // renderPass

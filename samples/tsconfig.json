@@ -3,7 +3,7 @@
   "include": ["./simple", "./test_e2e/"],
   "exclude": ["./simple/4DViews/"],
   "compilerOptions": {
-    "module": "umd",
+    "module": "ESNext",
     "declaration": false,
     "declarationDir": null,
 

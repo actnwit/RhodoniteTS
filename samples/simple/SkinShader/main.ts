@@ -1,19 +1,10 @@
-import {ISceneGraphEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn from '../../../dist/esm/index';
-import {
-  CameraComponent,
-  CameraControllerComponent,
-  Entity,
-  LightComponent,
-  OrbitCameraController,
-} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 const setupRenderPassEntityUidOutput = function (
-  rootGroup: ISceneGraphEntity,
-  cameraComponent: CameraComponent,
+  rootGroup: Rn.ISceneGraphEntity,
+  cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
 ) {
   const renderPass = new Rn.RenderPass();
@@ -64,7 +55,7 @@ const load = async function () {
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getComponent(
     Rn.CameraComponent
-  ) as CameraComponent;
+  ) as Rn.CameraComponent;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(30);
@@ -78,8 +69,9 @@ const load = async function () {
   lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([
     0.0, 0.0, 10.0,
   ]);
-  (lightEntity2.getComponent(Rn.LightComponent) as LightComponent).intensity =
-    Rn.Vector3.fromCopyArray([1, 1, 1]);
+  (
+    lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent
+  ).intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
   const response = await Rn.Gltf2Importer.import('');
@@ -103,8 +95,8 @@ const load = async function () {
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(
     Rn.CameraControllerComponent
-  ) as CameraControllerComponent;
-  (cameraControllerComponent.controller as OrbitCameraController).setTarget(
+  ) as Rn.CameraControllerComponent;
+  (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(
     rootGroup
   );
 

@@ -5,7 +5,6 @@ import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent
 import {PbrShadingMaterialContent} from '../materials/contents/PbrShadingMaterialContent';
 import {DepthEncodeMaterialContent} from '../materials/contents/DepthEncodeMaterialContent';
 import {ShadowMapDecodeClassicMaterialContent} from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
-import {GammaCorrectionMaterialContent} from '../materials/contents/GammaCorrectionMaterialContent';
 import {EntityUIDOutputMaterialContent} from '../materials/contents/EntityUIDOutputMaterialContent';
 import {MToonMaterialContent} from '../materials/contents/MToonMaterialContent';
 import {CustomMaterialContent} from '../materials/contents/CustomMaterialContent';

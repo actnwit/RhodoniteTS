@@ -1,11 +1,8 @@
-import {CameraComponent} from '../../../dist/esm/foundation/components/Camera/CameraComponent';
-import {ICameraControllerEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {Material} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   const gl = await Rn.System.init({
@@ -161,7 +158,7 @@ declare const Rn: typeof _Rn;
 
   const mainCameraEntity = mainCameraComponent.entity;
   const cameraControllerComponent = (
-    mainCameraEntity as ICameraControllerEntity
+    mainCameraEntity as Rn.ICameraControllerEntity
   ).getCameraController();
   cameraControllerComponent.controller.setTarget(rootGroups[0]);
 
@@ -302,8 +299,8 @@ function materialHelperForMeshComponents(
 }
 
 function createPostEffectRenderPass(
-  material: Material,
-  cameraComponent: CameraComponent
+  material: Rn.Material,
+  cameraComponent: Rn.CameraComponent
 ) {
   const boardPrimitive = new Rn.Plane();
   boardPrimitive.generate({

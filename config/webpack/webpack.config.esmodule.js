@@ -10,10 +10,12 @@ const config = merge(baseConfig, {
   output: {
     filename: 'index.js',
     chunkFilename: 'rhodonite-[name].js',
-    path: path.resolve(__dirname, './../../dist/cjs'),
+    path: path.resolve(__dirname, './../../dist/esm'),
     library: {
-      type: 'umd',
+      type: 'module',
     },
+    chunkLoading: 'import',
+    chunkFormat: 'module',
   },
   devtool: 'inline-source-map',
   plugins: [
@@ -21,6 +23,9 @@ const config = merge(baseConfig, {
       maxChunks: 1,
     }),
   ],
+  experiments: {
+    outputModule: true,
+  },
 });
 
 module.exports = config;

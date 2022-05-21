@@ -1,10 +1,8 @@
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 let p: HTMLParagraphElement | undefined;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   const gl = await Rn.System.init({
@@ -62,7 +60,7 @@ declare const Rn: typeof _Rn;
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    cameraControllerComponent.controller as OrbitCameraController;
+    cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(rootGroups[0]);
   controller.dolly = 0.75;
 
