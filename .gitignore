@@ -74,7 +74,6 @@ tests/baselines/reference/dt
 .failed-tests
 TEST-results.xml
 .rpt2_cache
-dist/
 *.d.ts
 *.tgz
 VERSION-FILE
