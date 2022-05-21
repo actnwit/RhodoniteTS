@@ -3,4 +3,6 @@
   "compilerOptions": {
     "declarationDir": "./dist/cjs",
   },
+  "exclude": ["./dist", "./samples", "*/**/*.test.ts", "node_modules"],
+  "include": ["./src"]
 }
