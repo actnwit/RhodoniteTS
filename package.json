@@ -12,6 +12,7 @@
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
+    "dist/cjs",
     "dist/esm",
     "VERSION-FILE",
     "vendor/effekseer.d.ts"
