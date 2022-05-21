@@ -9,8 +9,8 @@
     "web3d",
     "typescript"
   ],
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/cjs/index.d.ts",
   "files": [
     "dist/cjs",
     "dist/esm",
