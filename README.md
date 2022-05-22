@@ -67,7 +67,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 ```html
 <body>
   <canvas id="world"></canvas>
-  <script src="../../../dist/rhodonite.min.js"></script>
+  <script src="../../../dist/umd/rhodonite.min.js"></script>
   <script>
   async function load() {
     // All Rhodonite classes you need are in window.Rn object.
@@ -85,17 +85,16 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 </body>
 ```
 
-
 ### In TypeScript
 
-There are two package versions of Rhodonite: esm (ESModule wrapped in CommonJS) and umd.
+There are three package versions of Rhodonite: CommmonJS, ESModule and UMD.
 
-#### Using esm package
+#### Using CommonJS package
 
 You need a bundler like Webpack to import the Rhodonite esm package directly.
 
 ```typescript
-import Rn from 'rhodonite'; // All Rhodonite Objects in this
+import Rn from 'rhodonite';
 
 async function load() {
   const gl = Rn.System.init({
@@ -113,18 +112,17 @@ async function load() {
 }
 ```
 
-#### Using umd version for actual object and esm version for type only
+### Using ESModule package
 
-You can also use `dist/umd/rhodonite.js` or `dist/umd/rhodonite.min.js` for the actual Rhodonite object by script tag in HTML file.
-Then, import types from the `rhodonite` esm package.
+You don't need any bundler.
+
+```html
+<script type="module" src="main.js">
+```
 
 ```typescript
-import _Rn from 'rhodonite'; // Use this for adding type annotations to window.Rn in this sample
-import { CameraComponent, RenderPass } from 'rhodonite'; // for type annotations for umd usage
-
-declare const window: any;
-declare const Rn: typeof _Rn; // Use the window.Rn as Rn
-
+// main.ts
+import Rn from 'rhodonite/dist/esm/index.js';
 
 async function load() {
   const gl = Rn.System.init({
@@ -134,21 +132,29 @@ async function load() {
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent: CameraComponent = cameraEntity.getCamera();
+  const cameraComponent: Rn.CameraComponent = cameraEntity.getCamera();
 
   ...
   (After that, please refer to the sample codes.)
   ...
-
+}
 ```
 
-In this approach, you don't need any bundler. just compile it by:
-
-```bash
-$ npx tsc ./main.ts --lib es2015,dom --target es2015 --module umd --moduleResolution node
+```
+// tsconfig.json
+{
+  ...
+  "compilerOptions": {
+    "module": "ESNext",
+    ...
+  }
+  ...
+}
 ```
 
-For detail, See the typescript-based samples like ./samples/simple/VideoTexture/main.ts .
+### Using UMD package
+
+See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .
 
 ## Building Rhodonite
 
