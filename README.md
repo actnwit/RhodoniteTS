@@ -90,7 +90,7 @@ There are three package versions of Rhodonite: CommmonJS, ESModule and UMD.
 
 #### Using CommonJS package
 
-You need a bundler like Webpack to import the Rhodonite esm package directly.
+You need a bundler (e.g. Webpack) to import the Rhodonite CommonJS package.
 
 ```typescript
 import Rn from 'rhodonite';
@@ -111,7 +111,7 @@ async function load() {
 }
 ```
 
-### Using ESModule package
+#### Using ESModule package
 
 You don't need any bundler.
 
@@ -151,7 +151,7 @@ async function load() {
 }
 ```
 
-### Using UMD package
+#### Using UMD package
 
 See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .
 
