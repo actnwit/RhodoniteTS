@@ -71,8 +71,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
   <script>
   async function load() {
     // All Rhodonite classes you need are in window.Rn object.
-    const system = Rn.System.getInstance();
-    const gl = Rn.System.init({
+    await Rn.System.init({
       approach: Rn.ProcessApproach.UniformWebGL2,
       canvas: document.getElementById('world')
     });
@@ -97,7 +96,7 @@ You need a bundler like Webpack to import the Rhodonite esm package directly.
 import Rn from 'rhodonite';
 
 async function load() {
-  const gl = Rn.System.init({
+  await Rn.System.init({
     approach: Rn.ProcessApproach.UniformWebGL2,
     canvas: document.getElementById('world') as HTMLCanvasElement
   });
@@ -125,7 +124,7 @@ You don't need any bundler.
 import Rn from 'rhodonite/dist/esm/index.js';
 
 async function load() {
-  const gl = Rn.System.init({
+  await Rn.System.init({
     approach: Rn.ProcessApproach.UniformWebGL2,
     canvas: document.getElementById('world') as HTMLCanvasElement
   });
@@ -267,7 +266,7 @@ Input the following command in the VSCode command palette.
 > Remote-Containers: Reopen in Container
 ```
 
-After a new dev container window opens, You can work in the Debian Linux container environment. All dependencies (node, npm, yarn, typescript, and all packages for Rhodonite) are already set up.
+After a new dev container window opens, You can work in the Debian Linux container environment. All dependencies (node, npm, yarn, typescript, chromium, and all packages for Rhodonite) are already set up.
 
 ## Debugging inside VSCode (Step execution in VSCode Debug tab)
 
