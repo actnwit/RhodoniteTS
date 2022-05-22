@@ -1,9 +1,6 @@
-// import RnForType from '../../import';
-import RnForType from '../../../dist/esm';
-import type {Window} from '../../test_e2e/common/types';
-declare const Rn: typeof RnForType;
+import Rn from '../../../dist/esm/index.js';
 
-declare const window: Window;
+declare const window: any;
 
 (async window => {
   // Init Rhodonite

@@ -1,11 +1,8 @@
-import {EffekseerComponent} from '../../../dist/esm/effekseer/EffekseerComponent';
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   Rn.Config.maxSkeletalBoneNumber = 10;
@@ -52,7 +49,7 @@ declare const Rn: typeof _Rn;
   const effekseerEntity = effekseerModule.createEffekseerEntity();
   const effekseerComponent = effekseerEntity.getComponent(
     effekseerModule.EffekseerComponent
-  ) as EffekseerComponent;
+  ) as Rn.EffekseerComponent;
   effekseerComponent.playJustAfterLoaded = true;
   effekseerComponent.randomSeed = 1;
   effekseerComponent.isLoop = false;
@@ -80,7 +77,7 @@ declare const Rn: typeof _Rn;
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    cameraControllerComponent.controller as OrbitCameraController;
+    cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(rootGroup);
 
   // renderPass

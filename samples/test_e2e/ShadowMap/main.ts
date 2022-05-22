@@ -1,5 +1,5 @@
-import _Rn from '../../../dist/esm/index';
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
+
 const p = document.createElement('p');
 document.body.appendChild(p);
 

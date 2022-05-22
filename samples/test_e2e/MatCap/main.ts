@@ -1,11 +1,4 @@
-import _Rn, {
-  CameraComponent,
-  Expression,
-  RenderPass,
-  Texture,
-} from '../../../dist/esm/index';
-
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---main algorithm-----------------------------------------------------------------------------------------
@@ -45,7 +38,7 @@ declare const Rn: typeof _Rn;
   }
 
   async function createRenderPassMain(
-    cameraComponent: CameraComponent,
+    cameraComponent: Rn.CameraComponent,
     uriMatCap: string
   ) {
     const renderPass = new Rn.RenderPass();
@@ -86,7 +79,7 @@ declare const Rn: typeof _Rn;
     return renderPass;
   }
 
-  function createEntityMatCapSphere(texture: Texture) {
+  function createEntityMatCapSphere(texture: Rn.Texture) {
     const primitive = new Rn.Sphere();
     primitive.generate({
       radius: 10,
@@ -103,7 +96,7 @@ declare const Rn: typeof _Rn;
     return entity;
   }
 
-  function createEntityMatCapBoard(texture: Texture) {
+  function createEntityMatCapBoard(texture: Rn.Texture) {
     const primitive = new Rn.Plane();
     primitive.generate({
       width: 20,
@@ -122,14 +115,14 @@ declare const Rn: typeof _Rn;
     return entity;
   }
 
-  function createExpression(renderPasses: RenderPass[]) {
+  function createExpression(renderPasses: Rn.RenderPass[]) {
     const expression = new Rn.Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
   }
 
   function draw(
-    expressions: Expression[],
+    expressions: Rn.Expression[],
     isFirstLoop: Boolean,
     pElem?: HTMLElement
   ) {

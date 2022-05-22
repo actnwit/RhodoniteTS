@@ -1,6 +1,5 @@
-import _Rn, {WalkThroughCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
-declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
@@ -36,7 +35,7 @@ document.body.appendChild(p);
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   mainCameraControllerComponent.type = Rn.CameraControllerType.WalkThrough;
   const controller =
-    mainCameraControllerComponent.controller as WalkThroughCameraController;
+    mainCameraControllerComponent.controller as Rn.WalkThroughCameraController;
   const rootGroup = mainRenderPass.sceneTopLevelGraphComponents[0].entity;
   controller.setTarget(rootGroup);
 

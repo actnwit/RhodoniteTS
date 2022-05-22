@@ -1,7 +1,6 @@
-import _Rn from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 const p = document.createElement('p');
 document.body.appendChild(p);

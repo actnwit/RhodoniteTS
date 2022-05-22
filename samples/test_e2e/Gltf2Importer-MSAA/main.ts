@@ -1,15 +1,4 @@
-import {ICameraEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {
-  CameraComponent,
-  Entity,
-  Expression,
-  Material,
-  MeshRendererComponent,
-  RenderPass,
-  RenderTargetTexture,
-} from '../../../dist/esm/index';
-
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -51,7 +40,7 @@ declare const Rn: typeof _Rn;
   materialGamma.setTextureParameter(
     Rn.ShaderSemantics.BaseColorTexture,
     renderPassMain.getResolveFramebuffer()
-      .colorAttachments[0] as RenderTargetTexture
+      .colorAttachments[0] as Rn.RenderTargetTexture
   );
   const renderPassGamma = createRenderPassPostEffect(
     materialGamma,
@@ -98,7 +87,7 @@ declare const Rn: typeof _Rn;
   async function createRenderPassMain(
     uriGltf: string,
     basePathIBL: string,
-    entityCamera: ICameraEntity
+    entityCamera: Rn.ICameraEntity
   ) {
     const entityEnvironmentCube = createEntityEnvironmentCube(basePathIBL);
     const entityRootGroup = await createEntityGltf2(uriGltf);
@@ -167,8 +156,8 @@ declare const Rn: typeof _Rn;
   }
 
   function createRenderPassPostEffect(
-    material: Material,
-    cameraComponent: CameraComponent
+    material: Rn.Material,
+    cameraComponent: Rn.CameraComponent
   ) {
     const boardPrimitive = new Rn.Plane();
     boardPrimitive.generate({
@@ -204,7 +193,7 @@ declare const Rn: typeof _Rn;
   }
 
   function createAndSetFrameBufferAndMSAAFramebuffer(
-    renderPass: RenderPass,
+    renderPass: Rn.RenderPass,
     resolutionFramebuffer: number
   ) {
     const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
@@ -239,7 +228,7 @@ declare const Rn: typeof _Rn;
 
     const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
       Rn.MeshRendererComponent
-    ) as MeshRendererComponent[];
+    ) as Rn.MeshRendererComponent[];
 
     for (const meshRendererComponent of meshRendererComponents) {
       meshRendererComponent.specularCubeMap = cubeTextureSpecular;
@@ -248,7 +237,7 @@ declare const Rn: typeof _Rn;
   }
 
   function draw(
-    expressions: Expression[],
+    expressions: Rn.Expression[],
     loopCount: number,
     pElem?: HTMLElement
   ) {

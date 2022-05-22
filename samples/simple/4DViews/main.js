@@ -1,4 +1,5 @@
 import WEB4DS from './web4dv/web4dvImporter.js';
+import Rn from '../../../dist/esm/index.js';
 
 (async function () {
   Rn.Config.maxEntityNumber = 10;

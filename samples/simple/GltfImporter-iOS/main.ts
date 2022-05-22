@@ -1,12 +1,8 @@
-import {CameraComponent} from '../../../dist/esm/foundation/components/Camera/CameraComponent';
-import { ICameraControllerEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {Material} from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   // Note: The length of one side of texture must be less than Math.pow(2, 12)
@@ -137,11 +133,11 @@ declare const Rn: typeof _Rn;
   // cameraController
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity =
-    vrmMainCameraComponent.entity as ICameraControllerEntity;
+    vrmMainCameraComponent.entity as Rn.ICameraControllerEntity;
   const vrmMainCameraControllerComponent =
     vrmMainCameraEntity.getCameraController();
   const controller =
-    vrmMainCameraControllerComponent.controller as OrbitCameraController;
+    vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.8;
   controller.setTarget(
     vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity
@@ -197,8 +193,8 @@ window.exportGltf2 = function () {
 };
 
 function createPostEffectRenderPass(
-  material: Material,
-  cameraComponent: CameraComponent
+  material: Rn.Material,
+  cameraComponent: Rn.CameraComponent
 ) {
   const boardPrimitive = new Rn.Plane();
   boardPrimitive.generate({

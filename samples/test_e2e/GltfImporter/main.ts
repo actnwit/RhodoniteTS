@@ -1,15 +1,10 @@
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
-
-
-
   Rn.Config.maxEntityNumber = 200;
   Rn.Config.maxLightNumberInShader = 1;
   Rn.Config.maxVertexMorphNumberInShader = 1;
@@ -74,7 +69,7 @@ declare const Rn: typeof _Rn;
   const vrmMainCameraControllerComponent =
     vrmMainCameraEntity.tryToGetCameraController();
   const controller =
-    vrmMainCameraControllerComponent.controller as OrbitCameraController;
+    vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.8;
   controller.setTarget(
     vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity

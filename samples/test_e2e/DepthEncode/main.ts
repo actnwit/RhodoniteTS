@@ -1,5 +1,4 @@
-import _Rn from '../../../dist/esm/index';
-declare const Rn: typeof _Rn;
+import Rn from '../../../dist/esm/index.js';
 let p: any;
 
 (async () => {

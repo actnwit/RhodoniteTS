@@ -1,6 +1,7 @@
 {
   "test_e2e": [
     "ColorGradingUsingLUTs",
+    "DepthEncode",
     "FastestInstancedDrawingWebGL1",
     "FurnaceTest-weakWhiteFurnaceResult",
     "FurnaceTest-whiteFurnace",
@@ -50,7 +51,6 @@
   "simple": [
     "4DViews",
     "BasisTexture",
-    "DepthEncode",
     "DracoPointCloudJSONImporter",
     "DracoPointCloudPrimitiveImporter",
     "Effekseer",

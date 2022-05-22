@@ -10,11 +10,10 @@ const config = merge(baseConfig, {
   output: {
     filename: 'index.js',
     chunkFilename: 'rhodonite-[name].js',
-    path: path.resolve(__dirname, './../../dist/esm'),
+    path: path.resolve(__dirname, './../../dist/cjs'),
     library: {
       type: 'umd',
     },
-
   },
   devtool: 'inline-source-map',
   plugins: [

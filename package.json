@@ -9,9 +9,10 @@
     "web3d",
     "typescript"
   ],
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/cjs/index.d.ts",
   "files": [
+    "dist/cjs",
     "dist/esm",
     "VERSION-FILE",
     "vendor/effekseer.d.ts"
@@ -25,11 +26,13 @@
   "scripts": {
     "prepublishOnly": "npm run preoutput",
     "preoutput": "npm run build && npm run build-samples && npm run test",
-    "build": "npm run build-esm && npm run build-umd-dev && npm run build-umd-prod",
+    "build": "npm run build-esm && npm run build-cjs && npm run build-umd-dev && npm run build-umd-prod",
     "build-umd-dev": "npm run create-VERSION-FILE && npx webpack --config ./config/webpack/webpack.config.development.js",
     "build-umd-prod": "npm run create-VERSION-FILE && npx webpack --config ./config/webpack/webpack.config.production.js",
-    "build-esm": "npm run create-VERSION-FILE && npx webpack --config ./config/webpack/webpack.config.common_module.js",
-    "build-type": "tsc --emitDeclarationOnly",
+    "build-cjs": "npm run create-VERSION-FILE && npx webpack --config ./config/webpack/webpack.config.common_module.js && npm run copy-defs-to-cjs",
+    "build-esm": "npm run create-VERSION-FILE && npx webpack --config ./config/webpack/webpack.config.esmodule.js",
+    "build-type-cjs": "tsc --emitDeclarationOnly -p ./tsconfig.cjs.json",
+    "copy-defs-to-cjs": "cd dist/esm && rsync -arm --include=\"*/\" --include=\"*.d.ts\" --exclude=\"*\" ./ ../cjs/ && cd ../../",
     "build-samples": "tsc -p ./samples/",
     "watch-samples": "tsc-watch -p ./samples/ --onSuccess \"npm run start\"",
     "test": "NODE_OPTIONS=--experimental-vm-modules npm run test-unit && npm run test-e2e",

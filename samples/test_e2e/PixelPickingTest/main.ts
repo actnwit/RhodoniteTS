@@ -1,16 +1,10 @@
-import {ISceneGraphEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {
-  CameraControllerComponent,
-  LightComponent,
-} from '../../../dist/esm/index';
-import {OrbitCameraController, CameraComponent} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 const setupRenderPassEntityUidOutput = function (
-  rootGroup: ISceneGraphEntity,
-  cameraComponent: CameraComponent,
+  rootGroup: Rn.ISceneGraphEntity,
+  cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
 ) {
   const renderPass = new Rn.RenderPass();
@@ -39,8 +33,8 @@ const setupRenderPassEntityUidOutput = function (
 };
 
 const setupRenderPassRendering = function (
-  rootGroup: ISceneGraphEntity,
-  cameraComponent: CameraComponent
+  rootGroup: Rn.ISceneGraphEntity,
+  cameraComponent: Rn.CameraComponent
 ) {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
@@ -79,7 +73,7 @@ let p: any;
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getCamera() as CameraComponent;
+  const cameraComponent = cameraEntity.getCamera() as Rn.CameraComponent;
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
@@ -97,7 +91,7 @@ let p: any;
   lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([
     0.0, 0.0, 10.0,
   ]);
-  (lightEntity2.getLight() as LightComponent).intensity =
+  (lightEntity2.getLight() as Rn.LightComponent).intensity =
     Rn.Vector3.fromCopyArray([1, 1, 1]);
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
@@ -141,8 +135,8 @@ let p: any;
 
   // CameraComponent
   const cameraControllerComponent =
-    cameraEntity.getCameraController() as CameraControllerComponent;
-  (cameraControllerComponent.controller as OrbitCameraController).setTarget(
+    cameraEntity.getCameraController() as Rn.CameraControllerComponent;
+  (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(
     rootGroup
   );
 

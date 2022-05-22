@@ -1,11 +1,8 @@
-import {ICameraControllerEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 
 (async () => {
   Rn.Config.maxEntityNumber = 200;
@@ -84,11 +81,11 @@ declare const Rn: typeof _Rn;
   // camera controller
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity =
-    vrmMainCameraComponent.entity as ICameraControllerEntity;
+    vrmMainCameraComponent.entity as Rn.ICameraControllerEntity;
   const vrmMainCameraControllerComponent =
     vrmMainCameraEntity.getCameraController();
   const controller =
-    vrmMainCameraControllerComponent.controller as OrbitCameraController;
+    vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.78;
   controller.setTarget(
     vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity

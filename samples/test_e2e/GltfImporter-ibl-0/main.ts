@@ -1,7 +1,5 @@
-import {MeshRendererComponent} from '../../../dist/esm/foundation/components/MeshRenderer/MeshRendererComponent';
-import _Rn, {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
-declare const Rn: typeof _Rn;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
@@ -41,7 +39,7 @@ document.body.appendChild(p);
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   const controller =
-    mainCameraControllerComponent.controller as OrbitCameraController;
+    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // lighting
@@ -127,7 +125,7 @@ function setIBL(baseUri) {
 
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
-  ) as MeshRendererComponent[];
+  ) as Rn.MeshRendererComponent[];
   for (let i = 0; i < meshRendererComponents.length; i++) {
     const meshRendererComponent = meshRendererComponents[i];
     meshRendererComponent.specularCubeMap = specularCubeTexture;

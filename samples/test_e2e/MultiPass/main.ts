@@ -1,8 +1,6 @@
-import _Rn from '../../../dist/esm/index';
-import {OrbitCameraController} from '../../../dist/esm/index';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
-declare const Rn: typeof _Rn;
 declare const Stats: any;
 (function () {
   //    import Rn from '../../../dist/rhodonite.mjs';
@@ -79,7 +77,7 @@ declare const Stats: any;
 
     const cameraControllerComponent = cameraEntity.getCameraController();
     const controller =
-      cameraControllerComponent.controller as OrbitCameraController;
+      cameraControllerComponent.controller as Rn.OrbitCameraController;
     controller.setTarget(entity);
     controller.dolly = 0.8;
 
