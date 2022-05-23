@@ -1,14 +1,14 @@
-import { Vector3 } from '../math/Vector3';
-import { MutableVector3 } from '../math/MutableVector3';
+import {Vector3} from '../math/Vector3';
+import {MutableVector3} from '../math/MutableVector3';
 import {MathUtil} from '../math/MathUtil';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { Matrix44 } from '../math/Matrix44';
+import {CameraComponent} from '../components/Camera/CameraComponent';
+import {MutableMatrix33} from '../math/MutableMatrix33';
+import {Matrix44} from '../math/Matrix44';
 import {Count, Size} from '../../types/CommonTypes';
-import { ICameraController } from './ICameraController';
-import { MutableMatrix44 } from '../math/MutableMatrix44';
-import { AABB } from '../math/AABB';
-import { AbstractCameraController } from './AbstractCameraController';
+import {ICameraController} from './ICameraController';
+import {MutableMatrix44} from '../math/MutableMatrix44';
+import {AABB} from '../math/AABB';
+import {AbstractCameraController} from './AbstractCameraController';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {
@@ -28,6 +28,8 @@ export class OrbitCameraController
   public moveSpeed = 1;
   public followTargetAABB = false;
 
+  private __fixedDolly = false;
+  private __fixedLengthOfCenterToEye = 1;
   private __isMouseDown = false;
   private __lastMouseDownTimeStamp = 0;
   private __lastMouseUpTimeStamp = 0;
@@ -342,8 +344,11 @@ export class OrbitCameraController
     this.__mouse_translate_x =
       ((currentX - originalX) / 1000) * this.__efficiency;
 
-    const scale =
-      this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
+    const scale = this.__fixedDolly
+      ? 1.0
+      : this.__lengthOfCenterToEye *
+        this.__fovyBias *
+        this.__scaleOfTranslation;
 
     const upDirTranslateVec = OrbitCameraController.__tmpVec3_0;
     upDirTranslateVec
@@ -722,10 +727,11 @@ export class OrbitCameraController
         newEyeVec
       ) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
-      let lengthCenterToCamera =
-        this.__originalTargetAABB.lengthCenterToCorner *
-        (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
-        this.scaleOfLengthCenterToCamera;
+      let lengthCenterToCamera = this.__fixedDolly
+        ? this.__fixedLengthOfCenterToEye
+        : this.__originalTargetAABB.lengthCenterToCorner *
+          (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
+          this.scaleOfLengthCenterToCamera;
       if (Math.abs(lengthCenterToCamera) < 0.00001) {
         lengthCenterToCamera = 1;
       }
@@ -756,9 +762,13 @@ export class OrbitCameraController
       this.__centerVec,
       OrbitCameraController.__tmpVec3_0
     );
-    centerToEyeVec.multiply(this.__dolly * this.dollyScale);
 
-    this.__lengthOfCenterToEye = centerToEyeVec.length();
+    if (this.__fixedDolly) {
+      this.__lengthOfCenterToEye = this.__fixedLengthOfCenterToEye;
+    } else {
+      centerToEyeVec.multiply(this.__dolly * this.dollyScale);
+      this.__lengthOfCenterToEye = centerToEyeVec.length();
+    }
 
     const newUpVec = this.__newUpVec;
     const newEyeVec = this.__newEyeVec;
@@ -891,5 +901,14 @@ export class OrbitCameraController
 
   get lastMouseUpTimeStamp(): number {
     return this.__lastMouseUpTimeStamp;
+  }
+
+  setFixedDollyTrue(lengthOfCenterToEye: number) {
+    this.__fixedLengthOfCenterToEye = lengthOfCenterToEye;
+    this.__fixedDolly = true;
+  }
+
+  unsetFixedDolly() {
+    this.__fixedDolly = false;
   }
 }
