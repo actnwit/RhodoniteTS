@@ -112,18 +112,18 @@ mat3 get_normalMatrix(float instanceId) {
 
       vec3 addPos = vec3(0.0);
       if (posIn4bytes == 0) {
-        vec4 val = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        vec4 val = fetchElement(basePosIn16bytes);
         addPos = val.xyz;
       } else if (posIn4bytes == 1) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
+        vec4 val0 = fetchElement(basePosIn16bytes);
         addPos = vec3(val0.yzw);
       } else if (posIn4bytes == 2) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
+        vec4 val0 = fetchElement(basePosIn16bytes);
+        vec4 val1 = fetchElement(basePosIn16bytes+1);
         addPos = vec3(val0.zw, val1.x);
       } else if (posIn4bytes == 3) {
-        vec4 val0 = fetchElement(u_dataTexture, basePosIn16bytes, widthOfDataTexture, heightOfDataTexture);
-        vec4 val1 = fetchElement(u_dataTexture, basePosIn16bytes+1, widthOfDataTexture, heightOfDataTexture);
+        vec4 val0 = fetchElement(basePosIn16bytes);
+        vec4 val1 = fetchElement(basePosIn16bytes+1);
         addPos = vec3(val0.w, val1.xy);
       }
 
