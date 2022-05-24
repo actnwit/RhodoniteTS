@@ -187,42 +187,42 @@ export class Gltf2Exporter {
       }
       return true;
     };
+    const excludeWithTags = (entity: ISceneGraphEntity) => {
+      if (Is.exist(option) && Is.exist(option.excludeTags)) {
+        for (const tag of option.excludeTags) {
+          if (entity.matchTag(tag.tag, tag.value)) {
+            return [];
+          }
+        }
+      }
+      return [entity];
+    };
+    const collectDescendants = (
+      entity: ISceneGraphEntity,
+      root: boolean
+    ): ISceneGraphEntity[] => {
+      const sg = entity.getSceneGraph()!;
+      if (sg.children.length > 0) {
+        const array: ISceneGraphEntity[] = root
+          ? []
+          : excludeWithTags(entity);
+        for (let i = 0; i < sg.children.length; i++) {
+          const child = sg.children[i];
+          Array.prototype.push.apply(
+            array,
+            collectDescendants(child.entity, false)
+          );
+        }
+        return array;
+      } else {
+        return root ? [] : excludeWithTags(entity);
+      }
+    };
     if (
       Is.exist(option) &&
       Is.exist(option.entities) &&
       option.entities.length > 0
     ) {
-      const excludeWithTags = (entity: ISceneGraphEntity) => {
-        if (Is.exist(option.excludeTags)) {
-          for (const tag of option.excludeTags) {
-            if (entity.matchTag(tag.tag, tag.value)) {
-              return [];
-            }
-          }
-        }
-        return [entity];
-      };
-      const collectDescendants = (
-        entity: ISceneGraphEntity,
-        root: boolean
-      ): ISceneGraphEntity[] => {
-        const sg = entity.getSceneGraph()!;
-        if (sg.children.length > 0) {
-          const array: ISceneGraphEntity[] = root
-            ? []
-            : excludeWithTags(entity);
-          for (let i = 0; i < sg.children.length; i++) {
-            const child = sg.children[i];
-            Array.prototype.push.apply(
-              array,
-              collectDescendants(child.entity, false)
-            );
-          }
-          return array;
-        } else {
-          return excludeWithTags(entity);
-        }
-      };
       const collectedDescendants = option.entities.flatMap(entity =>
         collectDescendants(entity, true)
       );
@@ -253,9 +253,13 @@ export class Gltf2Exporter {
     let topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(
       c => c.entity
     );
-    topLevelEntities = topLevelEntities.filter(entity =>
-      checkPassOrNotWithTags(entity)
+    topLevelEntities = topLevelEntities.filter(entity => checkPassOrNotWithTags(entity));
+
+    collectedEntities = collectedEntities.flatMap(entity =>
+      collectDescendants(entity, true)
     );
+    Array.prototype.push.apply(collectedEntities, topLevelEntities);
+    collectedEntities = [...new Set(collectedEntities)];
 
     return {collectedEntities, topLevelEntities};
   }
