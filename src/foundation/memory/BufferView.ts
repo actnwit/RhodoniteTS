@@ -186,7 +186,10 @@ export class BufferView {
         arrayLength;
     }
 
-    if (this.__takenByte + actualByteStride * count > this.byteLength) {
+    // Each accessor MUST fit its bufferView, i.e.,
+    // accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
+    // See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
+    if (this.__takenByte + actualByteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
       const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
 BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
 byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
@@ -237,7 +240,10 @@ byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer:
     min?: number[];
     normalized: boolean;
   }): IResult<Accessor, undefined> {
-    if (this.__takenByte + byteStride * count > this.byteLength) {
+    // Each accessor MUST fit its bufferView, i.e.,
+    // accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
+    // See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
+    if (this.__takenByte + byteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
       const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
 BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
 byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
