@@ -97,9 +97,13 @@ export class Err<T, ErrObj>
   extends Result<T, ErrObj>
   implements IResult<T, ErrObj>
 {
+  private __rnException: RnException<ErrObj>;
+
   constructor(val: RnError<ErrObj>) {
     super(val);
+    this.__rnException = new RnException(this.val as RnError<ErrObj>);
   }
+
   then(f: (value: never) => void): void {}
 
   catch(f: (value: RnError<ErrObj>) => void): Finalizer {
@@ -112,7 +116,7 @@ export class Err<T, ErrObj>
   }
 
   unwrapForce(): never {
-    throw new RnException(this.val as RnError<ErrObj>);
+    throw this.__rnException;
   }
 
   false(): false {
