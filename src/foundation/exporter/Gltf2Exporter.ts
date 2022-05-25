@@ -1235,20 +1235,19 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     }
     existingUniqueRnBufferViews.push(rnBufferView);
     json.bufferViews.push(gltf2BufferView);
+    // const {fixedBufferViewByteLength, fixedBufferViewByteOffset} =
+    //   calcBufferViewByteLengthAndByteOffset({
+    //     accessorByteOffset: rnAccessor.byteOffsetInBufferView,
+    //     accessorCount: rnAccessor.elementCount,
+    //     bufferViewByteOffset: gltf2BufferView.byteOffset,
+    //     bufferViewByteStride: gltf2BufferView.byteStride!,
+    //     sizeOfComponent: rnAccessor.componentType.getSizeInBytes(),
+    //     numberOfComponents: rnAccessor.compositionType.getNumberOfComponents(),
+    //   });
+    // gltf2BufferView.byteLength = fixedBufferViewByteLength;
     return gltf2BufferView;
   }
   const gltf2BufferView = json.bufferViews[bufferViewIdx];
-  const {fixedBufferViewByteLength, fixedBufferViewByteOffset} =
-    calcBufferViewByteLengthAndByteOffset({
-      accessorByteOffset: rnAccessor.byteOffsetInBufferView,
-      accessorCount: rnAccessor.elementCount,
-      bufferViewByteOffset: gltf2BufferView.byteOffset,
-      bufferViewByteStride: gltf2BufferView.byteStride!,
-      sizeOfComponent: rnAccessor.componentType.getSizeInBytes(),
-      numberOfComponents: rnAccessor.compositionType.getNumberOfComponents(),
-    });
-  gltf2BufferView.byteLength = fixedBufferViewByteLength;
-  // gltf2BufferView.byteOffset = fixedBufferViewByteOffset;
   return gltf2BufferView;
 }
 
