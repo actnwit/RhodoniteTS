@@ -511,6 +511,9 @@ export class Gltf2Exporter {
                 material.extensions = {};
               }
               material.extensions.KHR_materials_unlit = {};
+              if (json.extensionsUsed.indexOf('KHR_materials_unlit') < 0) {
+                json.extensionsUsed.push('KHR_materials_unlit');
+              }
             }
             colorParam = rnMaterial.getParameter(
               ShaderSemantics.BaseColorFactor

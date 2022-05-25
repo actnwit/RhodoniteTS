@@ -59,6 +59,7 @@ export interface Gltf2Ex extends Gltf2 {
   skins: Gltf2Skin[];
   cameras: Gltf2Camera[];
   samplers: Gltf2TextureSampler[];
+  extensionsUsed: string[];
   extras: {
     rnSkins: ISkeletalEntity[];
     bufferViewByteLengthAccumulatedArray: Byte[];
