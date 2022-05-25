@@ -1550,7 +1550,7 @@ function calcBufferViewByteLengthAndByteOffset({
     fixedBufferViewByteOffset
   );
 
-  const fixedBufferViewByteLength = bufferViewByteLength + paddingByte;
+  const fixedBufferViewByteLength = bufferViewByteLength;
   return {
     fixedBufferViewByteLength,
     fixedBufferViewByteOffset: alignedBufferViewByteOffset,
