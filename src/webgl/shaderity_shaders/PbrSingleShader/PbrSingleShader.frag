@@ -40,11 +40,14 @@ uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
 uniform int u_occlusionTexcoordIndex; // initialValue=0
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
-uniform float u_clearCoatFactor; // initialValue=0
-uniform sampler2D u_clearCoatTexture; // initialValue=(8,white)
-uniform float u_clearCoatRoughnessFactor; // initialValue=0
-uniform sampler2D u_clearCoatRoughnessTexture; // initialValue=(9,white)
-uniform sampler2D u_clearCoatNormalTexture; // initialValue=(10,blue)
+
+#ifdef RN_USE_CLEARCOAT
+  uniform float u_clearCoatFactor; // initialValue=0
+  uniform sampler2D u_clearCoatTexture; // initialValue=(8,white)
+  uniform float u_clearCoatRoughnessFactor; // initialValue=0
+  uniform sampler2D u_clearCoatRoughnessTexture; // initialValue=(9,white)
+  uniform sampler2D u_clearCoatNormalTexture; // initialValue=(10,blue)
+#endif
 
 #ifdef RN_USE_NORMAL_TEXTURE
   uniform sampler2D u_normalTexture; // initialValue=(2,black)
@@ -166,6 +169,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 base = IBL(materialSID, normal_inWorld, NdotV, viewDirection, albedo, F0,
     perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix);
 
+#ifdef RN_USE_CLEARCOAT
   float VdotNg = dot(geomNormal_inWorld, viewDirection);
   vec3 coatLayer = IBL(materialSID, clearcoatNormal_inWorld, VdotNc, viewDirection, vec3(0.0), F0,
     clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
@@ -177,6 +181,11 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
 
   return coated;
+#else
+  return base;
+#endif
+
+
 }
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
@@ -262,9 +271,14 @@ void main ()
   float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
 
   // Clearcoat
+#ifdef RN_USE_CLEARCOAT
   float clearcoatFactor = get_clearCoatFactor(materialSID, 0);
   float clearcoatTexture = texture2D(u_clearCoatTexture, baseColorTexUv).r;
   float clearcoat = clearcoatFactor * clearcoatTexture;
+#else
+  float clearcoat = 0.0;
+#endif
+
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
@@ -295,6 +309,7 @@ void main ()
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
+#ifdef RN_USE_CLEARCOAT
   // Clearcoat
   float clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
   float textureRoughnessTexture = texture2D(u_clearCoatRoughnessTexture, baseColorTexUv).g;
@@ -303,7 +318,11 @@ void main ()
 
   vec3 clearcoatNormal_inWorld = perturb_normal(geomNormal_inWorld, viewVector, normalTexUv, textureNormal_tangent);
   float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
-
+#else
+  float clearcoatRoughness = 0.0;
+  vec3 clearcoatNormal_inWorld = vec3(0.0);
+  float VdotNc = 0.0;
+#endif
   // Lighting
   vec3 diffuse = vec3(0.0, 0.0, 0.0);
   for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
@@ -358,13 +377,16 @@ void main ()
     vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, NdotV, F, alphaRoughness);
     vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
 
+#ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer
     float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
     float LdotNc = saturateEpsilonToOne(dot(lightDirection, clearcoatNormal_inWorld));
     vec3 coated = coated_material_s(baseLayer, perceptualRoughness,
       clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
-
     rt0.xyz += coated;
+#else
+    rt0.xyz += baseLayer;
+#endif
   }
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
@@ -386,8 +408,13 @@ void main ()
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
   vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
+
+#ifdef RN_USE_CLEARCOAT
   vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
   rt0.xyz += coated_emissive;
+#else
+  rt0.xyz += emissive;
+#endif
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0);
   if(isOutputHDR){

@@ -20,6 +20,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isMorphing,
     isSkinning,
     isLighting,
+    isClearCoat,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,
@@ -31,6 +32,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isMorphing: boolean;
     isSkinning: boolean;
     isLighting: boolean;
+    isClearCoat?: boolean;
     alphaMode: AlphaModeEnum;
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
@@ -44,6 +46,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isMorphing ? '+morphing' : '') +
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting') +
+        (isClearCoat ? '+clearcoat' : '') +
         (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
@@ -98,6 +101,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     if (isMorphing) {
       this.__definitions += '#define RN_IS_MORPHING\n';
+    }
+
+    if (isClearCoat) {
+      this.__definitions += '#define RN_USE_CLEARCOAT\n';
     }
 
     if (useTangentAttribute) {
