@@ -1013,7 +1013,9 @@ function __createBufferViewsAndAccessorsOfMesh(
         // For each attribute accessor
         const attributeAccessors = rnPrimitive.attributeAccessors;
         for (let j = 0; j < attributeAccessors.length; j++) {
-          const attributeJoinedString = rnPrimitive.attributeSemantics[j];
+          const attributeJoinedString = rnPrimitive.attributeSemantics[
+            j
+          ] as string;
           const attributeName = attributeJoinedString.split('.')[0];
           if (attributeName === 'BARY_CENTRIC_COORD') {
             continue;

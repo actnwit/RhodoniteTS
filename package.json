@@ -9,7 +9,19 @@
     "web3d",
     "typescript"
   ],
-  "main": "dist/cjs/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist//cjs/index.d.ts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    }
+  },
+  "main": "dist/cjs/index.cjs",
   "types": "dist/cjs/index.d.ts",
   "files": [
     "dist/cjs",
@@ -71,16 +83,16 @@
     "shaderity-loader": "^0.0.16",
     "shelljs": "^0.8.3",
     "shx": "0.3.3",
-    "ts-jest": "^26.5.1",
-    "ts-loader": "^8.0.17",
+    "ts-jest": "^28.0.3",
+    "ts-loader": "^9.3.0",
     "tsc-watch": "^4.2.9",
     "typedoc": "0.20.27",
-    "typescript": "^4.6.2",
+    "typescript": "4.7.2",
     "version-loader": "^0.1.0",
     "webpack": "^5.23.0",
     "webpack-cli": "^4.8.0",
     "webpack-merge": "^5.7.3",
-    "webxr-input-profiles": "actnwit/webxr-input-profiles#d143b0d0538d79486503e2af9fa5d6996b6272fb"
+    "webxr-input-profiles": "actnwit/webxr-input-profiles#21272c8a0a5512614e60dca5be26f7b1485ad6e7"
   },
   "dependencies": {
     "ktx-parse": "^0.2.1",

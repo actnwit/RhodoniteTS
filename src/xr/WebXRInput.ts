@@ -1,12 +1,12 @@
-import {MotionController} from 'webxr-input-profiles/packages/motion-controllers';
-import {fetchProfile} from 'webxr-input-profiles/packages/motion-controllers';
+import {MotionController} from 'webxr-input-profiles/packages/motion-controllers/src/motionController';
+import {fetchProfile} from 'webxr-input-profiles/packages/motion-controllers/src/profiles';
 import {Constants} from 'webxr-input-profiles/packages/motion-controllers';
+import {Component} from 'webxr-input-profiles/packages/motion-controllers/src/component';
 import {XRFrame, XRInputSource} from 'webxr';
 import { Gltf2Importer } from '../foundation/importer/Gltf2Importer';
 import { ModelConverter } from '../foundation/importer/ModelConverter';
 import {Is} from '../foundation/misc/Is';
 import { IEntity, Entity } from '../foundation/core/Entity';
-import {Component} from 'webxr-input-profiles/packages/motion-controllers/src/component';
 import { Quaternion } from '../foundation/math/Quaternion';
 import { Vector3 } from '../foundation/math/Vector3';
 import {IMutableVector3} from '../foundation/math/IVector';
@@ -84,13 +84,7 @@ export async function createMotionController(
   basePath: string,
   profilePriorities: string[]
 ) {
-  const {profile, assetPath} = await fetchProfile(
-    xrInputSource,
-    basePath,
-    undefined,
-    true,
-    profilePriorities
-  );
+  const {profile, assetPath} = await fetchProfile(xrInputSource, basePath);
   const motionController = new MotionController(
     xrInputSource,
     profile,
