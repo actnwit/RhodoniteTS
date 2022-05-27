@@ -1,5 +1,5 @@
+
 test('regression test ColorGradingUsingLUTs', async () => {
-  jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
   await page.goto(

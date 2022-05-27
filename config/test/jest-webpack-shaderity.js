@@ -8,6 +8,8 @@ module.exports = {
 
     json.shaderStage = Shaderity.shaderStage(filename);
 
-    return 'module.exports = ' + JSON.stringify(json) + ';';
+    return {
+      code: 'module.exports = ' + JSON.stringify(json) + ';',
+    };
   },
 };

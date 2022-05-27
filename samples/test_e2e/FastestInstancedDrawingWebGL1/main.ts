@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esm/index.mjs';
 
 declare const Stats: any;
 declare const window: any;

@@ -1013,6 +1013,7 @@ export class ModelConverter {
         isMorphing,
         isSkinning,
         isLighting,
+        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat) ? true : false,
         alphaMode,
         useTangentAttribute,
         useNormalTexture,

@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esm/index.mjs';
 import {checkFinished} from '../common/testHelpers.js';
 let p: HTMLParagraphElement | undefined;
 

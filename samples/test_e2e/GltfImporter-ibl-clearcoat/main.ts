@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esm/index.mjs';
 
 const p = document.createElement('p');
 document.body.appendChild(p);

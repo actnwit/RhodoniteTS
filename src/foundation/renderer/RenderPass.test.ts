@@ -1,4 +1,6 @@
-import {EntityHelper, MemoryManager, RenderPass} from '../..';
+import {MemoryManager} from '../core/MemoryManager';
+import {EntityHelper} from '../helpers/EntityHelper';
+import {RenderPass} from './RenderPass';
 
 function generateEntity() {
   return EntityHelper.createMeshEntity();
