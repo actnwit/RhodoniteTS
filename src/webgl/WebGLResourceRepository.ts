@@ -2796,4 +2796,42 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.deleteFramebuffer(fbo);
     return pixels;
   }
+
+  setWebGLStateToDefault() {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindVertexArray(null);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearDepth(1);
+    gl.clearStencil(0);
+    gl.depthFunc(gl.LESS);
+    gl.disable(gl.DEPTH_TEST);
+    gl.disable(gl.STENCIL_TEST);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DITHER);
+    gl.disable(gl.SCISSOR_TEST);
+    gl.disable(gl.POLYGON_OFFSET_FILL);
+    gl.disable(gl.SAMPLE_COVERAGE);
+    gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    gl.disable(gl.CULL_FACE);
+    gl.frontFace(gl.CCW);
+    gl.cullFace(gl.BACK);
+    gl.blendColor(0, 0, 0, 0);
+    gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+    gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
+    gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
+    gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
+    gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 0, 0xffffffff);
+    gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 0, 0xffffffff);
+    gl.stencilMaskSeparate(gl.FRONT, 0xffffffff);
+    gl.stencilMaskSeparate(gl.BACK, 0xffffffff);
+    gl.colorMask(true, true, true, true);
+    gl.depthMask(true);
+    gl.sampleCoverage(1.0, false);
+  }
 }

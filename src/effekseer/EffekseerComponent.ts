@@ -97,11 +97,11 @@ export class EffekseerComponent extends Component {
       this.__handle.setRandomSeed(this.randomSeed);
     }
 
-    if (this.isLoop) {
-      this.__timer = setTimeout(() => {
-        this.play();
-      }, 500);
-    }
+    // if (this.isLoop) {
+    //   this.__timer = setTimeout(() => {
+    //     this.play();
+    //   }, 500);
+    // }
     return true;
   }
 
@@ -320,6 +320,9 @@ export class EffekseerComponent extends Component {
   }
 
   $render() {
+    // const webGLResourceRepository =
+    //   CGAPIResourceRepository.getWebGLResourceRepository();
+    // webGLResourceRepository.setWebGLStateToDefault();
     const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.current
