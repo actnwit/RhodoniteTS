@@ -1,4 +1,4 @@
-import Rn from '../../../../dist/cjs';
+import Rn from '../../../../';
 import {ShaderityObject} from 'shaderity';
 import {ShaderityUtility} from './ShaderityUtility';
 

@@ -1,4 +1,4 @@
-import Rn from '../../../dist/cjs';
+import Rn from '../../../';
 
 describe('Frame Test', () => {
   beforeAll(() => {

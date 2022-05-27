@@ -1,5 +1,4 @@
 exports.testFunc = async (jest, browser, url, expect) => {
-  jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
   await page.goto(
@@ -34,7 +33,6 @@ exports.testCheckWindowRendered = async (
   noParam = false,
   consoleOn = false
 ) => {
-  jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
   await page.goto(url);
@@ -71,7 +69,6 @@ exports.testCheckPtoDocument = async (
   noParam = false,
   consoleOn = false
 ) => {
-  jest.setTimeout(450000);
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(450000);
   await page.goto(url);

@@ -8,8 +8,9 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   rootDir: process.cwd(),
   transformIgnorePatterns: [
-    "node_modules/(?!(webxr-input-profiles/packages/motion-controllers"
-      + "|webxr-input-profiles/packages/motion-controllers"
+    "node_modules/(?!(webxr-input-profiles/packages/motion-controllers/src/motionController"
+      + "|webxr-input-profiles/packages/motion-controllers/src/profiles"
+      + "|webxr-input-profiles/packages/motion-controllers/src/component"
       + "|webxr-input-profiles/packages/motion-controllers"
       + ")/)",
   ],

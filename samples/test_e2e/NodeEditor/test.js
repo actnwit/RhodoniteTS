@@ -1,5 +1,5 @@
 test('regression test NodeEditor', async () => {
-  jest.setTimeout(450000);
+
   const page = await browser.newPage();
   await page.goto('http://localhost:8082/samples/test_e2e/NodeEditor');
   await page.setViewport({width: 1000, height: 1000});
