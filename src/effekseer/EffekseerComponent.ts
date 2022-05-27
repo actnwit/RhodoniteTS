@@ -320,9 +320,9 @@ export class EffekseerComponent extends Component {
   }
 
   $render() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.setWebGLStateToDefault();
+    // const webGLResourceRepository =
+    //   CGAPIResourceRepository.getWebGLResourceRepository();
+    // webGLResourceRepository.setWebGLStateToDefault();
     const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.current
