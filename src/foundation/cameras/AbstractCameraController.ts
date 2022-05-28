@@ -1,10 +1,11 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc/Is';
 
 export abstract class AbstractCameraController {
-  public zNearLimitFactor = 10; // must be more than 0
-  public zFarScalingFactor = 10000;
+  public zNearMax = 0.1;
+  public zFarScalingFactor = 100000;
   public autoCalculateZNearAndZFar = true;
   protected abstract __targetEntity?: ISceneGraphEntity;
 
@@ -15,34 +16,12 @@ export abstract class AbstractCameraController {
     eyePosition: Vector3,
     eyeDirection: Vector3
   ) {
-    if (this.autoCalculateZNearAndZFar && this.__targetEntity != null) {
+    if (this.autoCalculateZNearAndZFar && Is.exist(this.__targetEntity)) {
       const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
       const lengthOfCenterToEye = Vector3.lengthBtw(
         eyePosition,
         targetAABB.centerPoint
       );
-      const sizeMin = Math.min(
-        targetAABB.sizeX,
-        targetAABB.sizeY,
-        targetAABB.sizeZ
-      );
-
-      // avoid minLimit equals to 0
-      const halfSizeMinNon0 =
-        sizeMin > 0
-          ? sizeMin / 2
-          : Math.min(
-              targetAABB.sizeX > 0 ? targetAABB.sizeX : Infinity,
-              targetAABB.sizeY > 0 ? targetAABB.sizeY : Infinity,
-              targetAABB.sizeZ > 0 ? targetAABB.sizeZ : Infinity
-            ) / 2;
-
-      const minLimit = halfSizeMinNon0 / this.zNearLimitFactor;
-
-      if (lengthOfCenterToEye - targetAABB.lengthCenterToCorner < minLimit) {
-        camera.zNearInner = minLimit;
-        return;
-      }
 
       // calc cos between eyeToTarget and eye direction
       const eyeToTargetDirectionX = targetAABB.centerPoint.x - eyePosition.x;
@@ -59,9 +38,9 @@ export abstract class AbstractCameraController {
         ) *
           eyeDirection.length());
 
-      camera.zNearInner = Math.max(
+      camera.zNearInner = Math.min(
         lengthOfCenterToEye * cos - targetAABB.lengthCenterToCorner,
-        minLimit
+        this.zNearMax
       );
     } else {
       camera.zNearInner = camera.zNear;
