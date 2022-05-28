@@ -14,7 +14,7 @@ let p = null;
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
-  cameraComponent.setFovyAndChangeFocalLength(120.0);
+  cameraComponent.setFovyAndChangeFocalLength(70.0);
   cameraComponent.aspect = 1.0;
 
   // gltf
@@ -44,7 +44,7 @@ let p = null;
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   const controller =
     mainCameraControllerComponent.controller as Rn.OrbitCameraController;
-  controller.dolly = 0.7;
+  controller.dolly = 0.76;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   let count = 0;
