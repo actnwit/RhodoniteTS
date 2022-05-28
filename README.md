@@ -121,7 +121,7 @@ You don't need any bundler.
 
 ```typescript
 // main.ts
-import Rn from 'rhodonite/dist/esm/index.js';
+import Rn from 'rhodonite/dist/esm/index.mjs';
 
 async function load() {
   await Rn.System.init({
