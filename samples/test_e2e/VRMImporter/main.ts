@@ -15,7 +15,7 @@ declare const window: any;
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
-  cameraComponent.setFovyAndChangeFocalLength(90);
+  cameraComponent.setFovyAndChangeFocalLength(50);
   cameraComponent.aspect = 1;
 
   cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
@@ -62,7 +62,7 @@ declare const window: any;
   const controller =
     cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(rootGroups[0]);
-  controller.dolly = 0.75;
+  controller.dolly = 0.78;
 
   // renderPass
   const renderPass = new Rn.RenderPass();
