@@ -1020,9 +1020,8 @@ export class ModelConverter {
         isMorphing,
         isSkinning,
         isLighting,
-        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat)
-          ? true
-          : false,
+        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
+        isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
         alphaMode,
         useTangentAttribute,
         useNormalTexture,
@@ -2293,7 +2292,7 @@ function setup_KHR_materials_transmission(
     )
       ? KHR_materials_transmission.transmissionFactor
       : 0.0;
-    material.setParameter(ShaderSemantics.ClearCoatFactor, transmissionFactor);
+    material.setParameter(ShaderSemantics.TransmissionFactor, transmissionFactor);
 
     const transmissionTexture = KHR_materials_transmission.transmissionTexture;
     if (Is.exist(transmissionTexture)) {

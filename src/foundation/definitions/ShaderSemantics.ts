@@ -261,10 +261,10 @@ const ClearCoatNormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatNormalTexture',
 });
 const TransmissionFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'TransmissionFactor',
+  str: 'transmissionFactor',
 });
 const TransmissionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'TransmissionTexture',
+  str: 'transmissionTexture',
 });
 
 const IsOutputHDR = new ShaderSemanticsClass({
