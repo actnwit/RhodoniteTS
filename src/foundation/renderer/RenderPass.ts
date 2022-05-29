@@ -52,6 +52,36 @@ export class RenderPass extends RnObject {
     super();
   }
 
+  clone() {
+    const renderPass = new RenderPass();
+    renderPass.__entities = this.__entities.concat();
+    renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
+    renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents?.concat();
+    renderPass.__meshComponents = this.__meshComponents?.concat();
+    renderPass.__frameBuffer = this.__frameBuffer;
+    renderPass.__resolveFrameBuffer = this.__resolveFrameBuffer;
+    renderPass.__viewport = this.__viewport?.clone();
+    renderPass.toClearColorBuffer = this.toClearColorBuffer;
+    renderPass.toClearDepthBuffer = this.toClearDepthBuffer;
+    renderPass.toClearStencilBuffer = this.toClearStencilBuffer;
+    renderPass.isDepthTest = this.isDepthTest;
+    renderPass.clearColor = this.clearColor.clone();
+    renderPass.clearDepth = this.clearDepth;
+    renderPass.clearStencil = this.clearStencil;
+    renderPass.cameraComponent = this.cameraComponent;
+    renderPass.cullFrontFaceCCW = this.cullFrontFaceCCW;
+    renderPass.__material = this.__material;
+    renderPass.__primitiveMaterial = new Map(this.__primitiveMaterial);
+    renderPass.__webglRenderingStrategy = this.__webglRenderingStrategy;
+    renderPass.isVrRendering = this.isVrRendering;
+    renderPass.isOutputForVr = this.isOutputForVr;
+    renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
+    renderPass.toRenderTransparentPrimitives = this.toRenderTransparentPrimitives;
+    renderPass.__preRenderFunc = this.__preRenderFunc;
+
+    return renderPass;
+  }
+
   setPreRenderFunction(func: Function) {
     this.__preRenderFunc = func;
   }
