@@ -60,6 +60,7 @@ uniform float u_occlusionStrength; // initialValue=1
 #ifdef RN_USE_TRANSMISSION
   uniform float u_transmissionFactor; // initialValue=(0)
   uniform sampler2D u_transmissionTexture; // initialValue=(11,black)
+  uniform sampler2D u_backbufferTexture; // initialValue=(12,black)
 #endif
 
 uniform float u_alphaCutoff; // initialValue=(0.01)
