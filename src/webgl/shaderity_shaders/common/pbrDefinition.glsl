@@ -108,6 +108,13 @@ float specular_brdf(float alphaRoughness, float NdotL, float NdotV, float NdotH)
   return V * D;
 }
 
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_transmission#implementation-notes
+float specular_btdf(float alphaRoughness, float NdotL, float NdotV, float NdotHt) {
+  float V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+  float D = d_ggx(NdotHt, alphaRoughness);
+  return V * D;
+}
+
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#fresnel
 vec3 conductor_fresnel(vec3 f0, float brdf, float alphaRoughness, float VdotH) {
   return vec3(brdf) * (f0.rgb + (vec3(1.0) - f0.rgb) * vec3(pow(1.0 - abs(VdotH), 5.0)));

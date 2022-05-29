@@ -57,6 +57,11 @@ uniform float u_occlusionStrength; // initialValue=1
   uniform float u_normalScale; // initialValue=(1)
 #endif
 
+#ifdef RN_USE_TRANSMISSION
+  uniform float u_transmissionFactor; // initialValue=(0)
+  uniform sampler2D u_transmissionTexture; // initialValue=(11,black)
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -114,7 +119,7 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
 vec3 IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
   float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix)
 {
-    // get irradiance
+  // get irradiance
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
   normal_forEnv.x *= -1.0;
   vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
@@ -184,7 +189,6 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
 #else
   return base;
 #endif
-
 
 }
 
@@ -279,6 +283,15 @@ void main ()
   float clearcoat = 0.0;
 #endif
 
+  // Transmission
+#ifdef RN_USE_TRANSMISSION
+  float transmissionFactor = get_transmissionFactor(materialSID, 0);
+  float transmissionTexture = texture2D(u_transmissionTexture, baseColorTexUv).r;
+  float transmission = transmissionFactor * transmissionTexture;
+  // alpha *= transmission;
+#else
+  float transmission = 0.0;
+#endif
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
@@ -364,15 +377,25 @@ void main ()
     float VdotH = dot(viewDirection, halfVector);
     vec3 F = fresnel(F0, VdotH);
 
+    float NdotL = saturateEpsilonToOne(dot(normal_inWorld, lightDirection));
+
     // Diffuse
-    vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
+    vec3 diffuseBrdf = diffuse_brdf(albedo);
+#ifdef RN_USE_TRANSMISSION
+    vec3 Ht = normalize(viewDirection + vec3(2.0) * dot(normal_inWorld, lightDirection) * normal_inWorld + lightDirection);
+    float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
+    float specularBtdf = specular_btdf(alphaRoughness, NdotL, NdotV, NdotHt);
+    vec3 mixDiffuseBrdfAndSpecularBtdf = mix(diffuseBrdf, vec3(specularBtdf), transmission);
+    vec3 diffuseContrib = (vec3(1.0) - F) * mixDiffuseBrdfAndSpecularBtdf;
+#else
+    vec3 diffuseContrib = (vec3(1.0) - F) * diffuseBrdf;
+#endif
 
     // Specular
     float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
-    float NdotL = saturateEpsilonToOne(dot(normal_inWorld, lightDirection));
+    vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness);
 
     // Base Layer
-    vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness);
     vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * incidentLight.rgb;
 
 #ifdef RN_USE_CLEARCOAT
@@ -444,6 +467,9 @@ void main ()
       discard;
     }
   }
+
+  // premultiplied alpha
+  // rt0.rgb /= alpha;
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
 // rt0.xyz = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).xyz;

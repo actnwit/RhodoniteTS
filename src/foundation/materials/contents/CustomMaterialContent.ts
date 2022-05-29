@@ -21,6 +21,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isSkinning,
     isLighting,
     isClearCoat,
+    isTransmission,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,
@@ -33,6 +34,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isSkinning: boolean;
     isLighting: boolean;
     isClearCoat?: boolean;
+    isTransmission?: boolean;
     alphaMode: AlphaModeEnum;
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
@@ -47,6 +49,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting') +
         (isClearCoat ? '+clearcoat' : '') +
+        (isTransmission? '+transmission' : '') +
         (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
@@ -105,6 +108,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     if (isClearCoat) {
       this.__definitions += '#define RN_USE_CLEARCOAT\n';
+    }
+
+    if (isTransmission) {
+      this.__definitions += '#define RN_USE_TRANSMISSION\n';
     }
 
     if (useTangentAttribute) {

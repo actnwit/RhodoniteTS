@@ -472,6 +472,13 @@ export class Gltf2Importer {
                 gltfJson.textures[clearcoatNormalTexture.index];
             }
           }
+          if (Is.exist(extensions.KHR_materials_transmission)) {
+            const transmissionTexture = extensions.KHR_materials_transmission.transmissionTexture;
+            if (transmissionTexture !== void 0) {
+              transmissionTexture.texture =
+                gltfJson.textures[transmissionTexture.index];
+            }
+          }
         }
       }
     }

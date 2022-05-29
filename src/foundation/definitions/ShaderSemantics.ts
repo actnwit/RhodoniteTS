@@ -260,6 +260,12 @@ const ClearCoatRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass(
 const ClearCoatNormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatNormalTexture',
 });
+const TransmissionFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'TransmissionFactor',
+});
+const TransmissionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'TransmissionTexture',
+});
 
 const IsOutputHDR = new ShaderSemanticsClass({
   str: 'isOutputHDR',
@@ -368,6 +374,8 @@ const typeList = [
   ClearCoatRoughnessFactor,
   ClearCoatRoughnessTexture,
   ClearCoatNormalTexture,
+  TransmissionFactor,
+  TransmissionTexture,
   IsOutputHDR,
   BaseColorTextureTransform,
   BaseColorTextureRotation,
@@ -563,6 +571,8 @@ export const ShaderSemantics = Object.freeze({
   ClearCoatRoughnessFactor,
   ClearCoatRoughnessTexture,
   ClearCoatNormalTexture,
+  TransmissionFactor,
+  TransmissionTexture,
   fullSemanticStr,
   getShaderProperty,
   EntityUID,

@@ -555,7 +555,10 @@ export class ModelConverter {
       cameraComponent.zNear = camera.orthographic!.znear;
       cameraComponent.zFar = camera.orthographic!.zfar;
     }
-    cameraComponent.tryToSetTag({tag: "OriginalAspect", value: cameraComponent.aspect});
+    cameraComponent.tryToSetTag({
+      tag: 'OriginalAspect',
+      value: cameraComponent.aspect,
+    });
     return cameraEntity as ICameraEntity;
   }
 
@@ -997,9 +1000,13 @@ export class ModelConverter {
     const isMorphing = this.__isMorphing(node, gltfModel);
     const isSkinning = this.__isSkinning(node, gltfModel);
     const isLighting = this.__isLighting(gltfModel, materialJson);
-    const alphaMode = AlphaMode.fromGlTFString(
+    let alphaMode = AlphaMode.fromGlTFString(
       materialJson?.alphaMode || 'OPAQUE'
     );
+    alphaMode = Is.exist(materialJson.extensions?.KHR_materials_transmission)
+      ? AlphaMode.Translucent
+      : alphaMode;
+
     const additionalName =
       node.skin != null ? `skin${node.skin ?? node.skinName ?? ''}` : void 0;
     if (parseFloat(gltfModel.asset?.version) >= 2) {
@@ -1013,7 +1020,9 @@ export class ModelConverter {
         isMorphing,
         isSkinning,
         isLighting,
-        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat) ? true : false,
+        isClearCoat: Is.exist(materialJson.extensions?.KHR_materials_clearcoat)
+          ? true
+          : false,
         alphaMode,
         useTangentAttribute,
         useNormalTexture,
@@ -1234,6 +1243,9 @@ export class ModelConverter {
           Scalar.fromCopyNumber(materialJson.alphaCutoff ?? 0.5)
         );
       }
+    }
+    if (Is.exist(materialJson.extensions?.KHR_materials_transmission)) {
+      material.alphaMode = AlphaMode.Translucent;
     }
 
     const doubleSided = materialJson.doubleSided;
@@ -2252,10 +2264,13 @@ function setupPbrMetallicRoughness(
         metallicRoughnessTexture.texCoord
       );
     }
-
   }
-  //
+
+  // ClearCoat
   setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
+
+  // Transmission
+  setup_KHR_materials_transmission(materialJson, material, gltfModel);
 
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
@@ -2264,12 +2279,43 @@ function setupPbrMetallicRoughness(
     metallicRoughnessTexture
   );
 }
+
+function setup_KHR_materials_transmission(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_transmission =
+    materialJson.extensions?.KHR_materials_transmission;
+  if (Is.exist(KHR_materials_transmission)) {
+    const transmissionFactor = Is.exist(
+      KHR_materials_transmission.transmissionFactor
+    )
+      ? KHR_materials_transmission.transmissionFactor
+      : 0.0;
+    material.setParameter(ShaderSemantics.ClearCoatFactor, transmissionFactor);
+
+    const transmissionTexture = KHR_materials_transmission.transmissionTexture;
+    if (Is.exist(transmissionTexture)) {
+      const rnTransmissionTexture = ModelConverter._createTexture(
+        transmissionTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.TransmissionTexture,
+        rnTransmissionTexture
+      );
+    }
+  }
+}
+
 function setup_KHR_materials_clearcoat(
   materialJson: RnM2Material,
   material: Material,
   gltfModel: RnM2
 ) {
-  const KHR_materials_clearcoat = materialJson?.extensions?.KHR_materials_clearcoat;
+  const KHR_materials_clearcoat =
+    materialJson.extensions?.KHR_materials_clearcoat;
   if (Is.exist(KHR_materials_clearcoat)) {
     const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
       ? KHR_materials_clearcoat.clearcoatFactor
@@ -2295,7 +2341,8 @@ function setup_KHR_materials_clearcoat(
       ShaderSemantics.ClearCoatRoughnessFactor,
       clearCoatRoughnessFactor
     );
-    const clearCoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
+    const clearCoatRoughnessTexture =
+      KHR_materials_clearcoat.clearcoatRoughnessTexture;
     if (clearCoatRoughnessTexture != null) {
       const rnClearCoatRoughnessTexture = ModelConverter._createTexture(
         clearCoatRoughnessTexture.texture!,
@@ -2306,7 +2353,8 @@ function setup_KHR_materials_clearcoat(
         rnClearCoatRoughnessTexture
       );
     }
-    const clearCoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
+    const clearCoatNormalTexture =
+      KHR_materials_clearcoat.clearcoatNormalTexture;
     if (clearCoatNormalTexture != null) {
       const rnClearCoatNormalTexture = ModelConverter._createTexture(
         clearCoatNormalTexture.texture!,
