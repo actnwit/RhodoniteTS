@@ -361,21 +361,19 @@ void main ()
 
     // Fresnel
     vec3 halfVector = normalize(lightDirection + viewDirection);
-    float VH = dot(viewDirection, halfVector);
-    vec3 F = fresnel(F0, VH);
+    float VdotH = dot(viewDirection, halfVector);
+    vec3 F = fresnel(F0, VdotH);
 
     // Diffuse
     vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
 
     // Specular
-    float NH = dot(normal_inWorld, halfVector);
-    float satNH = saturateEpsilonToOne(NH);
-    float NL = dot(normal_inWorld, lightDirection);
-    float satNL = saturateEpsilonToOne(NL);
+    float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
+    float NdotL = saturateEpsilonToOne(dot(normal_inWorld, lightDirection));
 
     // Base Layer
-    vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, NdotV, F, alphaRoughness);
-    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
+    vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness);
+    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * incidentLight.rgb;
 
 #ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer
