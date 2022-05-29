@@ -17,8 +17,6 @@ import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 
-type RenderType = 'both' | 'opacity_only' | 'translucent_only';
-
 /**
  * A render pass is a collection of the resources which is used in rendering process.
  */
@@ -44,7 +42,8 @@ export class RenderPass extends RnObject {
   private __webglRenderingStrategy?: WebGLStrategy;
   public isVrRendering = true;
   public isOutputForVr = false;
-  public renderType: RenderType = 'both';
+  public toRenderOpaquePrimitives = true;
+  public toRenderTransparentPrimitives = true;
 
   private __preRenderFunc?: Function;
   private static __tmp_Vector4_0 = MutableVector4.zero();

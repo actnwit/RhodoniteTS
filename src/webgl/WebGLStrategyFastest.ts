@@ -834,36 +834,40 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
       // For opaque primitives
-      for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
-        const primitiveUid = primitiveUids[i];
-        this.renderInner(
-          primitiveUid,
-          glw,
-          renderPass,
-          isVRMainPass,
-          displayIdx
-        );
-      }
-
-      if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-        // disable depth write for transparent primitives
-        gl.depthMask(false);
+      if (renderPass.toRenderOpaquePrimitives) {
+        for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
+          const primitiveUid = primitiveUids[i];
+          this.renderInner(
+            primitiveUid,
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayIdx
+          );
+        }
       }
 
       // For translucent primitives
-      for (
-        let i = MeshRendererComponent._lastOpaqueIndex + 1;
-        i <= MeshRendererComponent._lastTransparentIndex;
-        i++
-      ) {
-        const primitiveUid = primitiveUids[i];
-        this.renderInner(
-          primitiveUid,
-          glw,
-          renderPass,
-          isVRMainPass,
-          displayIdx
-        );
+      if (renderPass.toRenderTransparentPrimitives) {
+        if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+          // disable depth write for transparent primitives
+          gl.depthMask(false);
+        }
+
+        for (
+          let i = MeshRendererComponent._lastOpaqueIndex + 1;
+          i <= MeshRendererComponent._lastTransparentIndex;
+          i++
+        ) {
+          const primitiveUid = primitiveUids[i];
+          this.renderInner(
+            primitiveUid,
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayIdx
+          );
+        }
       }
 
       gl.depthMask(true);
