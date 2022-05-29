@@ -45,8 +45,10 @@ export class MeshRendererComponent extends Component {
 
   private static __webglRenderingStrategy?: WebGLStrategy;
   private static __tmp_identityMatrix: IMatrix44 = Matrix44.identity();
-  private static __firstTransparentIndex = -1;
-  private static __lastTransparentIndex = -1;
+  public static _lastOpaqueIndex = -1;
+  public static _lastTransparentIndex = -1;
+  public static _firstTransparentSortKey = -1;
+  public static _lastTransparentSortKey = -1;
   private static __manualTransparentSids?: ComponentSID[];
   public _readyForRendering = false;
   public static isViewFrustumCullingEnabled = true;
@@ -62,14 +64,6 @@ export class MeshRendererComponent extends Component {
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
-  }
-
-  static get firstTransparentIndex() {
-    return MeshRendererComponent.__firstTransparentIndex;
-  }
-
-  static get lastTransparentIndex() {
-    return MeshRendererComponent.__lastTransparentIndex;
   }
 
   $create() {
@@ -161,19 +155,24 @@ export class MeshRendererComponent extends Component {
     const primitiveUids = primitives.map(primitive => primitive.primitiveUid);
     primitiveUids.push(-1);
 
-    MeshRendererComponent.__firstTransparentIndex = -1;
+    MeshRendererComponent._lastOpaqueIndex = -1;
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
       const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
       const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
       if (isTranslucency) {
-        MeshRendererComponent.__firstTransparentIndex = primitive._sortkey;
+        MeshRendererComponent._lastOpaqueIndex = i - 1;
+        MeshRendererComponent._firstTransparentSortKey = primitive._sortkey;
         break;
       }
     }
+    if (MeshRendererComponent._lastOpaqueIndex === -1) {
+      MeshRendererComponent._lastOpaqueIndex = primitives.length - 1;
+    }
 
-    if (primitives.length > 1) {
-      MeshRendererComponent.__lastTransparentIndex =
+    if (primitives.length > 0) {
+      MeshRendererComponent._lastTransparentIndex = primitives.length - 1;
+      MeshRendererComponent._lastTransparentSortKey =
         primitives[primitives.length - 1]._sortkey;
     }
 
@@ -275,11 +274,10 @@ export class MeshRendererComponent extends Component {
   }) {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent =
-        ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
     let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;
