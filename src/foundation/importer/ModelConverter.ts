@@ -1003,7 +1003,7 @@ export class ModelConverter {
     let alphaMode = AlphaMode.fromGlTFString(
       materialJson?.alphaMode || 'OPAQUE'
     );
-    alphaMode = Is.exist(materialJson.extensions?.KHR_materials_transmission)
+    alphaMode = Is.exist(materialJson?.extensions?.KHR_materials_transmission)
       ? AlphaMode.Translucent
       : alphaMode;
 
@@ -1020,7 +1020,7 @@ export class ModelConverter {
         isMorphing,
         isSkinning,
         isLighting,
-        isClearCoat: Is.exist(materialJson.extensions?.KHR_materials_clearcoat)
+        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat)
           ? true
           : false,
         alphaMode,
@@ -2315,7 +2315,7 @@ function setup_KHR_materials_clearcoat(
   gltfModel: RnM2
 ) {
   const KHR_materials_clearcoat =
-    materialJson.extensions?.KHR_materials_clearcoat;
+    materialJson?.extensions?.KHR_materials_clearcoat;
   if (Is.exist(KHR_materials_clearcoat)) {
     const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
       ? KHR_materials_clearcoat.clearcoatFactor
