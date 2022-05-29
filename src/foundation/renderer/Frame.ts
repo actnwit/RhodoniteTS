@@ -25,9 +25,9 @@ type GeneratorOfRenderTargetTexturePromise =
  */
 export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
-  private __expressionMap: Map<
-    Expression,
+  private __expressionQueries:
     [
+      Expression,
       RequireOne<{
         index?: InputRenderPassIndex;
         uniqueName?: string;
@@ -35,8 +35,7 @@ export class Frame extends RnObject {
       }>,
       ColorAttachmentIndex,
       GeneratorOfRenderTargetTexturePromise
-    ]
-  > = new Map();
+    ][] = [];
   constructor() {
     super();
   }
@@ -123,7 +122,8 @@ export class Frame extends RnObject {
         const generator = generatorFunc();
 
         // register the generator
-        this.__expressionMap.set(inputFrom, [
+        this.__expressionQueries.push([
+          inputFrom,
           renderPassArg.renderPass,
           renderPassArg.colorAttachmentIndex,
           generator as GeneratorOfRenderTargetTexturePromise,
@@ -137,8 +137,8 @@ export class Frame extends RnObject {
    *
    */
   resolve() {
-    for (const [exp, [renderPassArg, colorAttachmentIndex, generator]] of this
-      .__expressionMap) {
+    for (const [exp, renderPassArg, colorAttachmentIndex, generator] of this
+      .__expressionQueries) {
       for (const expData of this.__expressions) {
         if (exp === expData.expression) {
 
