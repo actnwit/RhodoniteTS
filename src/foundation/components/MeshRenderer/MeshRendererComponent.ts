@@ -156,6 +156,9 @@ export class MeshRendererComponent extends Component {
     primitiveUids.push(-1);
 
     MeshRendererComponent._lastOpaqueIndex = -1;
+    MeshRendererComponent._lastTransparentIndex = -1;
+    MeshRendererComponent._firstTransparentSortKey = -1;
+    MeshRendererComponent._lastTransparentSortKey = -1;
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
       const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
