@@ -565,14 +565,14 @@ export class Material extends RnObject {
       materialNode.pixelShaderityObject!,
       {
         renderTargetBegin:
-          webglResourceRepository.getGlslRenderTargetBeginString(1),
+          webglResourceRepository.getGlslRenderTargetBeginString(4),
         getters: pixelPropertiesStr,
         definitions: definitions,
         dataUBODefinition:
           webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
         matricesGetters: vertexShaderMethodDefinitions_uniform,
-        renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(1),
+        renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
       }
     );
     const pixelShaderBody = ShaderityUtility.transformWebGLVersion(
