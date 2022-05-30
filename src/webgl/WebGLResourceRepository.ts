@@ -2589,6 +2589,32 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  getGlslRenderTargetBeginString(renderTargetNumber: number) {
+    let text = '';
+    if (this.__glw!.isWebGL2) {
+      for (let i = 0; i < renderTargetNumber; i++) {
+        text += `layout(location = ${i}) out vec4 rt${i};`;
+      }
+    } else {
+      for (let i = 0; i < renderTargetNumber; i++) {
+        text += `vec4 rt${i};`;
+      }
+    }
+
+    return text;
+  }
+
+  getGlslRenderTargetEndString(renderTargetNumber: number) {
+    let text = '';
+    if (Is.false(this.__glw!.isWebGL2)) {
+      for (let i = 0; i < renderTargetNumber; i++) {
+        text += `gl_FragData[${i}] = rt${i};`;
+      }
+    }
+
+    return text;
+  }
+
   getGlslDataUBODefinitionString() {
     let text = '';
     const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();
