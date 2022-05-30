@@ -510,7 +510,9 @@ void main ()
   // rt0.rgb /= alpha;
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
-// rt0.xyz = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).xyz;
+rt1 = rt0;
+rt2 = rt0;
+rt3 = rt0;
 #pragma shaderity: require(../common/glFragColor.glsl)
 
 }
