@@ -72,6 +72,8 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 /* shaderity: @{getters} */
 
+#pragma shaderity: require(../common/opticalDefinition.glsl)
+
 vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, normal_forEnv);
 
@@ -398,45 +400,19 @@ void main ()
     }
 
     // Light
-    vec4 gotLightDirection = get_lightDirection(0.0, i);
-    vec4 gotLightPosition = get_lightPosition(0.0, i);
-    vec4 gotLightIntensity = get_lightIntensity(0.0, i);
-    vec3 lightDirection = gotLightDirection.xyz;
-    vec3 lightIntensity = gotLightIntensity.xyz;
-    vec3 lightPosition = gotLightPosition.xyz;
-    float lightType = gotLightPosition.w;
-    float spotCosCutoff = gotLightDirection.w;
-    float spotExponent = gotLightIntensity.w;
-
-    if (0.75 < lightType) { // is pointlight or spotlight
-      lightDirection = normalize(lightPosition.xyz - v_position_inWorld.xyz);
-    }
-    float spotEffect = 1.0;
-    if (lightType > 1.75) { // is spotlight
-      spotEffect = dot(gotLightDirection.xyz, lightDirection);
-      if (spotEffect > spotCosCutoff) {
-        spotEffect = pow(spotEffect, spotExponent);
-      } else {
-        spotEffect = 0.0;
-      }
-    }
-    //diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * lightIntensity.xyz;
-
-    // IncidentLight
-    vec3 incidentLight = spotEffect * lightIntensity.xyz;
-    incidentLight *= M_PI;
+    Light light = getLight(i, v_position_inWorld.xyz);
 
     // Fresnel
-    vec3 halfVector = normalize(lightDirection + viewDirection);
+    vec3 halfVector = normalize(light.direction + viewDirection);
     float VdotH = dot(viewDirection, halfVector);
     vec3 F = fresnel(F0, VdotH);
 
-    float NdotL = saturateEpsilonToOne(dot(normal_inWorld, lightDirection));
+    float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
     // Diffuse
     vec3 diffuseBrdf = diffuse_brdf(albedo);
-#ifdef RN_USE_TRANSMISSION
-    vec3 Ht = normalize(viewDirection + vec3(2.0) * dot(normal_inWorld, lightDirection) * normal_inWorld + lightDirection);
+#if 0 //#ifdef RN_USE_TRANSMISSION
+    vec3 Ht = normalize(viewDirection + vec3(2.0) * dot(normal_inWorld, light.direction) * normal_inWorld + light.direction);
     float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
     float specularBtdf = specular_btdf(alphaRoughness, NdotL, NdotV, NdotHt);
     vec3 mixDiffuseBrdfAndSpecularBtdf = mix(diffuseBrdf, vec3(specularBtdf), transmission);
@@ -444,18 +420,18 @@ void main ()
 #else
     vec3 diffuseContrib = (vec3(1.0) - F) * diffuseBrdf;
 #endif
-diffuseContrib = (vec3(1.0) - F) * diffuseBrdf;
+
     // Specular
     float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
     vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness);
 
     // Base Layer
-    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * incidentLight.rgb;
+    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * light.intensity;
 
 #ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer
     float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
-    float LdotNc = saturateEpsilonToOne(dot(lightDirection, clearcoatNormal_inWorld));
+    float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
     vec3 coated = coated_material_s(baseLayer, perceptualRoughness,
       clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
     rt0.xyz += coated;
