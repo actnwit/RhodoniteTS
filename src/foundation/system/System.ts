@@ -243,6 +243,9 @@ export class System {
               if (renderPass.getResolveFramebuffer()) {
                 renderPass.copyFramebufferToResolveFramebuffer();
               }
+              if (renderPass.getResolveFramebuffer2()) {
+                renderPass.copyFramebufferToResolveFramebuffer2();
+              }
             }
           }
         } else {
@@ -300,7 +303,7 @@ export class System {
         renderPass.getFramebuffer()
       );
       this.__webglResourceRepository.setDrawTargets(
-        renderPass.getFramebuffer()
+        renderPass
       );
     }
   }

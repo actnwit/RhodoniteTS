@@ -25,6 +25,10 @@ type GeneratorOfRenderTargetTexturePromise =
  */
 export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
+  public static readonly FrameBuffer = 'FrameBuffer';
+  public static readonly ResolveFrameBuffer = 'ResolveFrameBuffer';
+  public static readonly ResolveFrameBuffer2 = 'ResolveFrameBuffer2';
+
   private __expressionQueries:
     [
       Expression,
@@ -34,7 +38,8 @@ export class Frame extends RnObject {
         instance?: RenderPass;
       }>,
       ColorAttachmentIndex,
-      GeneratorOfRenderTargetTexturePromise
+      GeneratorOfRenderTargetTexturePromise,
+      'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2'
     ][] = [];
   constructor() {
     super();
@@ -101,11 +106,13 @@ export class Frame extends RnObject {
         instance?: RenderPass;
       }>;
       colorAttachmentIndex: ColorAttachmentIndex;
+      framebufferType: 'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2';
     } = {
       renderPass: {
         index: 0,
       },
       colorAttachmentIndex: 0,
+      framebufferType: Frame.FrameBuffer,
     }
   ): Promise<RenderTargetTexture> {
     const promise = new Promise<RenderTargetTexture>(
@@ -127,6 +134,7 @@ export class Frame extends RnObject {
           renderPassArg.renderPass,
           renderPassArg.colorAttachmentIndex,
           generator as GeneratorOfRenderTargetTexturePromise,
+          renderPassArg.framebufferType,
         ]);
       }
     );
@@ -137,7 +145,7 @@ export class Frame extends RnObject {
    *
    */
   resolve() {
-    for (const [exp, renderPassArg, colorAttachmentIndex, generator] of this
+    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this
       .__expressionQueries) {
       for (const expData of this.__expressions) {
         if (exp === expData.expression) {
@@ -154,9 +162,11 @@ export class Frame extends RnObject {
           }
 
           let framebuffer: FrameBuffer | undefined;
-          if (renderPassObj!.getResolveFramebuffer()) {
+          if (frameBufferType === 'ResolveFrameBuffer2') {
+            framebuffer = renderPassObj!.getResolveFramebuffer2();
+          } else if (frameBufferType === 'ResolveFrameBuffer') {
             framebuffer = renderPassObj!.getResolveFramebuffer();
-          } else {
+          } else if (frameBufferType === 'FrameBuffer') {
             framebuffer = renderPassObj!.getFramebuffer();
           }
 

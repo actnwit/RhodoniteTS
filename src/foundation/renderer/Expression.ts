@@ -12,6 +12,16 @@ export class Expression extends RnObject {
     super();
   }
 
+  clone() {
+    const exp = new Expression();
+    const renderPasses = [];
+    for (const renderPass of this.__renderPasses) {
+      renderPasses.push(renderPass.clone());
+    }
+    exp.addRenderPasses(renderPasses);
+    return exp;
+  }
+
   /**
    * Add render passes to the end of this expression.
    */

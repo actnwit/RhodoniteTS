@@ -1652,9 +1652,15 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
    * set drawTargets
    * @param framebuffer
    */
-  setDrawTargets(framebuffer?: FrameBuffer) {
+  setDrawTargets(renderPass: RenderPass) {
+    const framebuffer = renderPass.getFramebuffer();
     if (framebuffer) {
-      this.__glw!.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
+      const renderBufferTargetEnums = renderPass.getRenderTargetColorAttachments();
+      if (Is.exist(renderBufferTargetEnums)) {
+        this.__glw!.drawBuffers(renderBufferTargetEnums);
+      } else {
+        this.__glw!.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
+      }
     } else {
       this.__glw!.drawBuffers([RenderBufferTarget.Back]);
     }
