@@ -61,6 +61,7 @@ uniform float u_occlusionStrength; // initialValue=1
   uniform float u_transmissionFactor; // initialValue=(0)
   uniform sampler2D u_transmissionTexture; // initialValue=(11,white)
   uniform sampler2D u_backBufferTexture; // initialValue=(12,black)
+  uniform vec2 u_backBufferTextureSize; // initialValue=(0,0)
 #endif
 
 uniform float u_alphaCutoff; // initialValue=(0.01)
@@ -90,11 +91,25 @@ vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   return irradiance;
 }
 
-vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, float ior) {
+float scaleForLod(float perceptualRoughness, float ior)
+{
+  // Scale roughness to the range [0, 1],
+  // ior=1.0 will be scale 0,
+  // ior=1.5 will be scale 1.0,
+  // ior=2 will be scale 1.0 (clamped),
+  float scale = clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+  return perceptualRoughness * scale;
+}
+
+vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perceptualRoughness, float ior) {
+  vec2 backBufferTextureSize = get_backBufferTextureSize(materialSID, 0);
+  float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
+  float framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
+
   #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
-    vec3 transmittedLight = texture2DLodEXT(u_backBufferTexture, sampleCoord, 0.0).rgb;
+    vec3 transmittedLight = texture2DLodEXT(u_backBufferTexture, sampleCoord, framebufferLod).rgb;
   #elif defined(GLSL_ES3)
-    vec3 transmittedLight = textureLod(u_backBufferTexture, sampleCoord, 0.0).rgb;
+    vec3 transmittedLight = textureLod(u_backBufferTexture, sampleCoord, framebufferLod).rgb;
   #else
     vec3 transmittedLight = texture2D(u_backBufferTexture, sampleCoord).rgb;
   #endif
@@ -204,7 +219,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec2 refractionCoords = ndcPoint.xy / ndcPoint.w;
   refractionCoords += 1.0;
   refractionCoords /= 2.0;
-  vec3 transmittedLight = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, ior);
+  vec3 transmittedLight = get_sample_from_backbuffer(materialSID, refractionCoords, perceptualRoughness, ior);
   vec3 transmissionComp = (vec3(1.0) - baseResult.FssEss) * transmittedLight * albedo;
   vec3 diffuse = mix(baseResult.diffuse, transmissionComp, transmission);
   vec3 base = diffuse + baseResult.specular;

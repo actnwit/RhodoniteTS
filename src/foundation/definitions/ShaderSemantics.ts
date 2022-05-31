@@ -269,6 +269,9 @@ const TransmissionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const BackBufferTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'backBufferTexture',
 });
+const BackBufferTextureSize: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'backBufferTextureSize',
+});
 
 const IsOutputHDR = new ShaderSemanticsClass({
   str: 'isOutputHDR',
@@ -380,6 +383,7 @@ const typeList = [
   TransmissionFactor,
   TransmissionTexture,
   BackBufferTexture,
+  BackBufferTextureSize,
   IsOutputHDR,
   BaseColorTextureTransform,
   BaseColorTextureRotation,
@@ -578,6 +582,7 @@ export const ShaderSemantics = Object.freeze({
   TransmissionFactor,
   TransmissionTexture,
   BackBufferTexture,
+  BackBufferTextureSize,
   fullSemanticStr,
   getShaderProperty,
   EntityUID,
