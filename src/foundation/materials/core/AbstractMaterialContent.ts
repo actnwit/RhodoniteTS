@@ -591,13 +591,22 @@ export abstract class AbstractMaterialContent extends RnObject {
         AbstractMaterialContent.__lightPositions[i * 4 + 3] =
           lightComponent.type.index;
 
+        const lightAngleScale =
+          1.0 /
+          Math.max(
+            0.001,
+            Math.cos(lightComponent.innerConeAngle) -
+              Math.cos(lightComponent.outerConeAngle)
+          );
+        const lightAngleOffset =
+          -Math.cos(lightComponent.outerConeAngle) * lightAngleScale;
         AbstractMaterialContent.__lightDirections[i * 4 + 0] =
           worldLightDirection.x;
         AbstractMaterialContent.__lightDirections[i * 4 + 1] =
           worldLightDirection.y;
         AbstractMaterialContent.__lightDirections[i * 4 + 2] =
           worldLightDirection.z;
-        AbstractMaterialContent.__lightDirections[i * 4 + 3] = 0;
+        AbstractMaterialContent.__lightDirections[i * 4 + 3] = lightAngleScale;
 
         AbstractMaterialContent.__lightIntensities[i * 4 + 0] =
           worldLightIntensity.x;
@@ -605,7 +614,8 @@ export abstract class AbstractMaterialContent extends RnObject {
           worldLightIntensity.y;
         AbstractMaterialContent.__lightIntensities[i * 4 + 2] =
           worldLightIntensity.z;
-        AbstractMaterialContent.__lightIntensities[i * 4 + 3] = 0;
+        AbstractMaterialContent.__lightIntensities[i * 4 + 3] =
+          lightAngleOffset;
       }
       if (length > 0) {
         (shaderProgram as any)._gl.uniform4fv(
