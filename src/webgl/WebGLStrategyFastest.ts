@@ -29,6 +29,7 @@ import {
   Count,
   IndexOf16Bytes,
   IndexOf4Bytes,
+  PrimitiveUID,
 } from '../types/CommonTypes';
 import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
 import {VectorN} from '../foundation/math/VectorN';
@@ -822,7 +823,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     const displayNumber =
       WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
-
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
@@ -831,126 +831,162 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         renderPass,
         displayIdx,
         isVRMainPass
-      ); // update u_currentComponentSIDs(uniform)
+      );
 
-      for (let i = 0; i < primitiveUids.length; i++) {
-        const primitiveUid = primitiveUids[i];
-        if (primitiveUid === Component.invalidComponentSID) {
-          break;
-        }
-
-        const primitive = Primitive.getPrimitive(primitiveUid);
-        const mesh = primitive.mesh as Mesh;
-        const meshEntity = mesh.meshEntity!;
-        if (!meshEntity.getSceneGraph().isVisible) {
-          continue;
-        }
-        const meshComponent = meshEntity.getMesh();
-        if (!mesh?.isOriginalMesh()) {
-          continue;
-        }
-
-        WebGLStrategyCommonMethod.startDepthMasking(primitive, gl);
-
-        const entity = meshComponent.entity as IMeshEntity;
-        this.__setCurrentComponentSIDsForEachEntity(
-          gl,
-          renderPass,
-          entity as unknown as ISkeletalEntity
-        );
-
-        const meshRendererComponent = entity.getMeshRenderer()!;
-
-        let firstTime = false;
-
-        const material: Material = renderPass.getAppropriateMaterial(primitive);
-        if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
-          continue;
-        }
-
-        const shaderProgramUid = material._shaderProgramUid;
-        const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
-
-        this.attachVertexDataInner(
-          mesh,
-          primitive,
-          primitiveIndex,
-          glw,
-          mesh._variationVBOUid
-        );
-        if (shaderProgramUid !== this.__lastShader) {
-          const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-            shaderProgramUid
-          )! as WebGLProgram;
-          gl.useProgram(shaderProgram);
-
-          // Bind DataTexture
-          gl.uniform1i((shaderProgram as any).dataTexture, 7);
-          this.__webglResourceRepository.bindTexture2D(
-            7,
-            this.__dataTextureUid
-          );
-
-          WebGLStrategyFastest.__shaderProgram = shaderProgram;
-          firstTime = true;
-        }
-        if (this.__lastMaterial !== material) {
-          firstTime = true;
-          this.__lastMaterial = material;
-        }
-
-        this.__setCurrentComponentSIDsForEachPrimitive(
-          gl,
-          material,
-          WebGLStrategyFastest.__shaderProgram
-        );
-
-        WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-
-        material._setParametersToGpu({
-          material: material,
-          shaderProgram: WebGLStrategyFastest.__shaderProgram,
-          firstTime: firstTime,
-          args: {
-            glw: glw,
-            entity: entity,
-            worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
-            normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
-            lightComponents: this.__lightComponents!,
-            renderPass: renderPass,
-            primitive: primitive,
-            diffuseCube: meshRendererComponent.diffuseCubeMap,
-            specularCube: meshRendererComponent.specularCubeMap!,
-            setUniform: false,
-            isVr: isVRMainPass,
-            displayIdx,
-          },
-        });
-
-        if (primitive.indicesAccessor) {
-          glw.drawElementsInstanced(
-            primitive.primitiveMode.index,
-            primitive.indicesAccessor.elementCount,
-            primitive.indicesAccessor.componentType.index,
-            0,
-            mesh.instanceCountIncludeOriginal
-          );
-        } else {
-          glw.drawArraysInstanced(
-            primitive.primitiveMode.index,
-            0,
-            primitive.getVertexCountAsVerticesBased(),
-            mesh.instanceCountIncludeOriginal
+      // For opaque primitives
+      if (renderPass.toRenderOpaquePrimitives) {
+        for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
+          const primitiveUid = primitiveUids[i];
+          this.renderInner(
+            primitiveUid,
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayIdx
           );
         }
-
-        this.__lastShader = shaderProgramUid;
       }
+
+      // For translucent primitives
+      if (renderPass.toRenderTransparentPrimitives) {
+        if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+          // disable depth write for transparent primitives
+          gl.depthMask(false);
+        }
+
+        for (
+          let i = MeshRendererComponent._lastOpaqueIndex + 1;
+          i <= MeshRendererComponent._lastTransparentIndex;
+          i++
+        ) {
+          const primitiveUid = primitiveUids[i];
+          this.renderInner(
+            primitiveUid,
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayIdx
+          );
+        }
+      }
+
       gl.depthMask(true);
     }
 
     this.__lastRenderPassTickCount = renderPassTickCount;
     return false;
+  }
+
+  renderInner(
+    primitiveUid: PrimitiveUID,
+    glw: WebGLContextWrapper,
+    renderPass: RenderPass,
+    isVRMainPass: boolean,
+    displayIdx: Index
+  ) {
+    const gl = glw.getRawContext();
+    const primitive = Primitive.getPrimitive(primitiveUid);
+    const mesh = primitive.mesh as Mesh;
+    const meshEntity = mesh.meshEntity!;
+    if (!meshEntity.getSceneGraph().isVisible) {
+      return false;
+    }
+    const meshComponent = meshEntity.getMesh();
+    const material: Material = renderPass.getAppropriateMaterial(primitive);
+    if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
+      return false;
+    }
+    if (!mesh?.isOriginalMesh()) {
+      return false;
+    }
+
+    const entity = meshComponent.entity as IMeshEntity;
+    this.__setCurrentComponentSIDsForEachEntity(
+      gl,
+      renderPass,
+      entity as unknown as ISkeletalEntity
+    );
+
+    const meshRendererComponent = entity.getMeshRenderer()!;
+
+    let firstTime = false;
+
+    const shaderProgramUid = material._shaderProgramUid;
+    const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
+
+    this.attachVertexDataInner(
+      mesh,
+      primitive,
+      primitiveIndex,
+      glw,
+      mesh._variationVBOUid
+    );
+    if (shaderProgramUid !== this.__lastShader) {
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(
+        shaderProgramUid
+      )! as WebGLProgram;
+      gl.useProgram(shaderProgram);
+
+      // Bind DataTexture
+      gl.uniform1i((shaderProgram as any).dataTexture, 7);
+      this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+
+      WebGLStrategyFastest.__shaderProgram = shaderProgram;
+      firstTime = true;
+    }
+    if (this.__lastMaterial !== material) {
+      firstTime = true;
+      this.__lastMaterial = material;
+    }
+
+    this.__setCurrentComponentSIDsForEachPrimitive(
+      gl,
+      material,
+      WebGLStrategyFastest.__shaderProgram
+    );
+
+    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+
+    material._setParametersToGpu({
+      material: material,
+      shaderProgram: WebGLStrategyFastest.__shaderProgram,
+      firstTime: firstTime,
+      args: {
+        glw: glw,
+        entity: entity,
+        worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
+        normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
+        lightComponents: this.__lightComponents!,
+        renderPass: renderPass,
+        primitive: primitive,
+        diffuseCube: meshRendererComponent.diffuseCubeMap,
+        specularCube: meshRendererComponent.specularCubeMap!,
+        setUniform: false,
+        isVr: isVRMainPass,
+        displayIdx,
+      },
+    });
+
+    if (primitive.indicesAccessor) {
+      glw.drawElementsInstanced(
+        primitive.primitiveMode.index,
+        primitive.indicesAccessor.elementCount,
+        primitive.indicesAccessor.componentType.index,
+        0,
+        mesh.instanceCountIncludeOriginal
+      );
+    } else {
+      glw.drawArraysInstanced(
+        primitive.primitiveMode.index,
+        0,
+        primitive.getVertexCountAsVerticesBased(),
+        mesh.instanceCountIncludeOriginal
+      );
+    }
+
+    this.__lastShader = shaderProgramUid;
+
+    return true;
   }
 
   $render() {}

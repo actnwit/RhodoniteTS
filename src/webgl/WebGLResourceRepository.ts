@@ -1652,9 +1652,15 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
    * set drawTargets
    * @param framebuffer
    */
-  setDrawTargets(framebuffer?: FrameBuffer) {
+  setDrawTargets(renderPass: RenderPass) {
+    const framebuffer = renderPass.getFramebuffer();
     if (framebuffer) {
-      this.__glw!.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
+      const renderBufferTargetEnums = renderPass.getRenderTargetColorAttachments();
+      if (Is.exist(renderBufferTargetEnums)) {
+        this.__glw!.drawBuffers(renderBufferTargetEnums);
+      } else {
+        this.__glw!.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
+      }
     } else {
       this.__glw!.drawBuffers([RenderBufferTarget.Back]);
     }
@@ -2587,6 +2593,32 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
 
     return resourceHandle;
+  }
+
+  getGlslRenderTargetBeginString(renderTargetNumber: number) {
+    let text = '';
+    if (this.__glw!.isWebGL2) {
+      for (let i = 0; i < renderTargetNumber; i++) {
+        text += `layout(location = ${i}) out vec4 rt${i};`;
+      }
+    } else {
+      for (let i = 0; i < renderTargetNumber; i++) {
+        text += `vec4 rt${i};`;
+      }
+    }
+
+    return text;
+  }
+
+  getGlslRenderTargetEndString(renderTargetNumber: number) {
+    let text = '';
+    if (Is.false(this.__glw!.isWebGL2)) {
+      for (let i = 0; i < renderTargetNumber; i++) {
+        text += `gl_FragData[${i}] = rt${i};`;
+      }
+    }
+
+    return text;
   }
 
   getGlslDataUBODefinitionString() {

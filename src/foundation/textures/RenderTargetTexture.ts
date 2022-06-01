@@ -161,4 +161,17 @@ export class RenderTargetTexture
     ]);
     return color;
   }
+
+  generateMipmap() {
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const gl = glw!.getRawContext() as WebGLRenderingContext;
+    const texture = webGLResourceRepository.getWebGLResource(
+      this.cgApiResourceUid
+    ) as WebGLTexture;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
 }

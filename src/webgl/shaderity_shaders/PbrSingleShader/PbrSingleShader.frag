@@ -57,6 +57,13 @@ uniform float u_occlusionStrength; // initialValue=1
   uniform float u_normalScale; // initialValue=(1)
 #endif
 
+#ifdef RN_USE_TRANSMISSION
+  uniform float u_transmissionFactor; // initialValue=(0)
+  uniform sampler2D u_transmissionTexture; // initialValue=(11,white)
+  uniform sampler2D u_backBufferTexture; // initialValue=(12,black)
+  uniform vec2 u_backBufferTextureSize; // initialValue=(0,0)
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -64,6 +71,8 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 #pragma shaderity: require(../common/pbrDefinition.glsl)
 
 /* shaderity: @{getters} */
+
+#pragma shaderity: require(../common/opticalDefinition.glsl)
 
 vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, normal_forEnv);
@@ -83,6 +92,33 @@ vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
 
   return irradiance;
 }
+
+float scaleForLod(float perceptualRoughness, float ior)
+{
+  // Scale roughness to the range [0, 1],
+  // ior=1.0 will be scale 0,
+  // ior=1.5 will be scale 1.0,
+  // ior=2 will be scale 1.0 (clamped),
+  float scale = clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+  return perceptualRoughness * scale;
+}
+
+vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perceptualRoughness, float ior) {
+  vec2 backBufferTextureSize = get_backBufferTextureSize(materialSID, 0);
+  float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
+  float framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
+
+  #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
+    vec3 transmittedLight = texture2DLodEXT(u_backBufferTexture, sampleCoord, framebufferLod).rgb;
+  #elif defined(GLSL_ES3)
+    vec3 transmittedLight = textureLod(u_backBufferTexture, sampleCoord, framebufferLod).rgb;
+  #else
+    vec3 transmittedLight = texture2D(u_backBufferTexture, sampleCoord).rgb;
+  #endif
+
+  return transmittedLight;
+}
+
 
 vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
   #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
@@ -111,10 +147,17 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
   return radiance;
 }
 
-vec3 IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
+struct IblResult
+{
+  vec3 specular;
+  vec3 diffuse;
+  vec3 FssEss;
+};
+
+IblResult IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
   float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix)
 {
-    // get irradiance
+  // get irradiance
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
   normal_forEnv.x *= -1.0;
   vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
@@ -131,7 +174,8 @@ vec3 IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection
   // vec3 f_ab = texture2D(u_brdfLutTexture, vec2(1.0 - NdotV, 1.0 - perceptualRoughness)).rgb;
   vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
   vec3 FssEss = kS * f_ab.x + f_ab.y;
-
+  IblResult result;
+  result.FssEss = FssEss;
 
   // Multiple scattering, Fdez-Aguera's approach
   float Ems = (1.0 - (f_ab.x + f_ab.y));
@@ -151,28 +195,45 @@ vec3 IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection
   diffuse *= IBLDiffuseContribution;
   specular *= IBLSpecularContribution;
 
-  vec3 base = diffuse + specular;
+  result.diffuse = diffuse;
+  result.specular = specular;
 
-  return base;
+  return result;
 }
 
 vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
-  float clearcoat, float VdotNc, vec3 geomNormal_inWorld)
+  float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
 
-
-  vec3 base = IBL(materialSID, normal_inWorld, NdotV, viewDirection, albedo, F0,
+  IblResult baseResult = IBL(materialSID, normal_inWorld, NdotV, viewDirection, albedo, F0,
     perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix);
+
+#ifdef RN_USE_TRANSMISSION
+  float ior = 1.5;
+  vec3 refractedRay = refract(-viewDirection, normal_inWorld, 1.0 / ior);
+  vec3 refractedRayFromVPosition = v_position_inWorld + refractedRay * 0.03;
+  vec4 ndcPoint = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayFromVPosition, 1.0);
+  vec2 refractionCoords = ndcPoint.xy / ndcPoint.w;
+  refractionCoords += 1.0;
+  refractionCoords /= 2.0;
+  vec3 transmittedLight = get_sample_from_backbuffer(materialSID, refractionCoords, perceptualRoughness, ior);
+  vec3 transmissionComp = (vec3(1.0) - baseResult.FssEss) * transmittedLight * albedo;
+  vec3 diffuse = mix(baseResult.diffuse, transmissionComp, transmission);
+  vec3 base = diffuse + baseResult.specular;
+#else
+  vec3 base = baseResult.diffuse + baseResult.specular;
+#endif
 
 #ifdef RN_USE_CLEARCOAT
   float VdotNg = dot(geomNormal_inWorld, viewDirection);
-  vec3 coatLayer = IBL(materialSID, clearcoatNormal_inWorld, VdotNc, viewDirection, vec3(0.0), F0,
+  IblResult coatResult = IBL(materialSID, clearcoatNormal_inWorld, VdotNc, viewDirection, vec3(0.0), F0,
     clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
+  vec3 coatLayer = coatResult.diffuse + coatResult.specular;
 
   // vec3 clearcoatNormal_forEnv = rotEnvMatrix * clearcoatNormal_inWorld;
   // clearcoatNormal_forEnv.x *= -1.0;
@@ -184,7 +245,6 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
 #else
   return base;
 #endif
-
 
 }
 
@@ -279,6 +339,15 @@ void main ()
   float clearcoat = 0.0;
 #endif
 
+  // Transmission
+#ifdef RN_USE_TRANSMISSION
+  float transmissionFactor = get_transmissionFactor(materialSID, 0);
+  float transmissionTexture = texture2D(u_transmissionTexture, baseColorTexUv).r;
+  float transmission = transmissionFactor * transmissionTexture;
+  // alpha *= transmission;
+#else
+  float transmission = 0.0;
+#endif
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
@@ -331,56 +400,38 @@ void main ()
     }
 
     // Light
-    vec4 gotLightDirection = get_lightDirection(0.0, i);
-    vec4 gotLightPosition = get_lightPosition(0.0, i);
-    vec4 gotLightIntensity = get_lightIntensity(0.0, i);
-    vec3 lightDirection = gotLightDirection.xyz;
-    vec3 lightIntensity = gotLightIntensity.xyz;
-    vec3 lightPosition = gotLightPosition.xyz;
-    float lightType = gotLightPosition.w;
-    float spotCosCutoff = gotLightDirection.w;
-    float spotExponent = gotLightIntensity.w;
-
-    if (0.75 < lightType) { // is pointlight or spotlight
-      lightDirection = normalize(lightPosition.xyz - v_position_inWorld.xyz);
-    }
-    float spotEffect = 1.0;
-    if (lightType > 1.75) { // is spotlight
-      spotEffect = dot(gotLightDirection.xyz, lightDirection);
-      if (spotEffect > spotCosCutoff) {
-        spotEffect = pow(spotEffect, spotExponent);
-      } else {
-        spotEffect = 0.0;
-      }
-    }
-    //diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * lightIntensity.xyz;
-
-    // IncidentLight
-    vec3 incidentLight = spotEffect * lightIntensity.xyz;
-    incidentLight *= M_PI;
+    Light light = getLight(i, v_position_inWorld.xyz);
 
     // Fresnel
-    vec3 halfVector = normalize(lightDirection + viewDirection);
-    float VH = dot(viewDirection, halfVector);
-    vec3 F = fresnel(F0, VH);
+    vec3 halfVector = normalize(light.direction + viewDirection);
+    float VdotH = dot(viewDirection, halfVector);
+    vec3 F = fresnel(F0, VdotH);
+
+    float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
     // Diffuse
-    vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
+    vec3 diffuseBrdf = diffuse_brdf(albedo);
+#if 0 //#ifdef RN_USE_TRANSMISSION
+    vec3 Ht = normalize(viewDirection + vec3(2.0) * dot(normal_inWorld, light.direction) * normal_inWorld + light.direction);
+    float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
+    float specularBtdf = specular_btdf(alphaRoughness, NdotL, NdotV, NdotHt);
+    vec3 mixDiffuseBrdfAndSpecularBtdf = mix(diffuseBrdf, vec3(specularBtdf), transmission);
+    vec3 diffuseContrib = (vec3(1.0) - F) * mixDiffuseBrdfAndSpecularBtdf;
+#else
+    vec3 diffuseContrib = (vec3(1.0) - F) * diffuseBrdf;
+#endif
 
     // Specular
-    float NH = dot(normal_inWorld, halfVector);
-    float satNH = saturateEpsilonToOne(NH);
-    float NL = dot(normal_inWorld, lightDirection);
-    float satNL = saturateEpsilonToOne(NL);
+    float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
+    vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness);
 
     // Base Layer
-    vec3 specularContrib = cook_torrance_specular_brdf(satNH, satNL, NdotV, F, alphaRoughness);
-    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(satNL) * incidentLight.rgb;
+    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * light.intensity;
 
 #ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer
     float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
-    float LdotNc = saturateEpsilonToOne(dot(lightDirection, clearcoatNormal_inWorld));
+    float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
     vec3 coated = coated_material_s(baseLayer, perceptualRoughness,
       clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
     rt0.xyz += coated;
@@ -391,7 +442,7 @@ void main ()
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
-    clearcoat, VdotNc, geomNormal_inWorld);
+    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
@@ -447,8 +498,13 @@ void main ()
     }
   }
 
+  // premultiplied alpha
+  // rt0.rgb /= alpha;
+
 #pragma shaderity: require(../common/outputSrgb.glsl)
-// rt0.xyz = texture2D(u_clearcoatRoughnessTexture, baseColorTexUv).xyz;
+rt1 = rt0;
+rt2 = rt0;
+rt3 = rt0;
 #pragma shaderity: require(../common/glFragColor.glsl)
 
 }

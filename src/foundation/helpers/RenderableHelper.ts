@@ -58,7 +58,7 @@ function createTexturesForRenderTarget(
       isMSAA,
       sampleCountMSAA,
     });
-    frameBuffer.setColorAttachmentAt(textureNum, renderBuffer);
+    frameBuffer.setColorAttachmentAt(0, renderBuffer);
   }
 
   return frameBuffer;

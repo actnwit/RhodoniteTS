@@ -174,13 +174,13 @@ function startDepthMasking(primitive: Primitive, gl: WebGLRenderingContext) {
   if (MeshRendererComponent.isDepthMaskTrueForTransparencies) {
     return;
   }
-  if (primitive._sortkey === MeshRendererComponent.firstTransparentIndex) {
+  if (primitive._sortkey === MeshRendererComponent._firstTransparentSortKey) {
     gl.depthMask(false);
   }
 }
 
 function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext) {
-  if (primitive._sortkey === MeshRendererComponent.lastTransparentIndex) {
+  if (primitive._sortkey === MeshRendererComponent._lastTransparentSortKey) {
     gl.depthMask(true);
   }
 }

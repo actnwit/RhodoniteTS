@@ -505,6 +505,9 @@ export class Material extends RnObject {
     if (glw.webgl1ExtDRV) {
       definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
     }
+    if (glw.webgl1ExtDB) {
+      definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
+    }
 
     if (glw.isWebGL2 || glw.webgl1ExtDRV) {
       definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
@@ -561,11 +564,15 @@ export class Material extends RnObject {
     const pixelShaderityObject = ShaderityUtility.fillTemplate(
       materialNode.pixelShaderityObject!,
       {
+        renderTargetBegin:
+          webglResourceRepository.getGlslRenderTargetBeginString(4),
         getters: pixelPropertiesStr,
         definitions: definitions,
         dataUBODefinition:
           webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+        matricesGetters: vertexShaderMethodDefinitions_uniform,
+        renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
       }
     );
     const pixelShaderBody = ShaderityUtility.transformWebGLVersion(

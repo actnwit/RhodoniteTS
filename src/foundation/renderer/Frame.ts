@@ -25,18 +25,22 @@ type GeneratorOfRenderTargetTexturePromise =
  */
 export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
-  private __expressionMap: Map<
-    Expression,
+  public static readonly FrameBuffer = 'FrameBuffer';
+  public static readonly ResolveFrameBuffer = 'ResolveFrameBuffer';
+  public static readonly ResolveFrameBuffer2 = 'ResolveFrameBuffer2';
+
+  private __expressionQueries:
     [
+      Expression,
       RequireOne<{
         index?: InputRenderPassIndex;
         uniqueName?: string;
         instance?: RenderPass;
       }>,
       ColorAttachmentIndex,
-      GeneratorOfRenderTargetTexturePromise
-    ]
-  > = new Map();
+      GeneratorOfRenderTargetTexturePromise,
+      'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2'
+    ][] = [];
   constructor() {
     super();
   }
@@ -102,11 +106,13 @@ export class Frame extends RnObject {
         instance?: RenderPass;
       }>;
       colorAttachmentIndex: ColorAttachmentIndex;
+      framebufferType: 'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2';
     } = {
       renderPass: {
         index: 0,
       },
       colorAttachmentIndex: 0,
+      framebufferType: Frame.FrameBuffer,
     }
   ): Promise<RenderTargetTexture> {
     const promise = new Promise<RenderTargetTexture>(
@@ -123,10 +129,12 @@ export class Frame extends RnObject {
         const generator = generatorFunc();
 
         // register the generator
-        this.__expressionMap.set(inputFrom, [
+        this.__expressionQueries.push([
+          inputFrom,
           renderPassArg.renderPass,
           renderPassArg.colorAttachmentIndex,
           generator as GeneratorOfRenderTargetTexturePromise,
+          renderPassArg.framebufferType,
         ]);
       }
     );
@@ -137,8 +145,8 @@ export class Frame extends RnObject {
    *
    */
   resolve() {
-    for (const [exp, [renderPassArg, colorAttachmentIndex, generator]] of this
-      .__expressionMap) {
+    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this
+      .__expressionQueries) {
       for (const expData of this.__expressions) {
         if (exp === expData.expression) {
 
@@ -154,9 +162,11 @@ export class Frame extends RnObject {
           }
 
           let framebuffer: FrameBuffer | undefined;
-          if (renderPassObj!.getResolveFramebuffer()) {
+          if (frameBufferType === 'ResolveFrameBuffer2') {
+            framebuffer = renderPassObj!.getResolveFramebuffer2();
+          } else if (frameBufferType === 'ResolveFrameBuffer') {
             framebuffer = renderPassObj!.getResolveFramebuffer();
-          } else {
+          } else if (frameBufferType === 'FrameBuffer') {
             framebuffer = renderPassObj!.getFramebuffer();
           }
 

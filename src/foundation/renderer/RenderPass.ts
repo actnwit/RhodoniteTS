@@ -4,7 +4,7 @@ import { FrameBuffer } from './FrameBuffer';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { Vector4 } from '../math/Vector4';
-import {EntityUID} from '../../types/CommonTypes';
+import {EntityUID, Index} from '../../types/CommonTypes';
 import { Material } from '../materials/core/Material';
 import {WebGLStrategy} from '../../webgl/main';
 import { System } from '../system/System';
@@ -16,6 +16,7 @@ import {IVector4} from '../math/IVector';
 import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
+import { RenderBufferTargetEnum } from '../definitions';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -27,6 +28,7 @@ export class RenderPass extends RnObject {
   private __meshComponents?: MeshComponent[];
   private __frameBuffer?: FrameBuffer;
   private __resolveFrameBuffer?: FrameBuffer;
+  private __resolveFrameBuffer2?: FrameBuffer;
   private __viewport?: MutableVector4;
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
@@ -42,12 +44,45 @@ export class RenderPass extends RnObject {
   private __webglRenderingStrategy?: WebGLStrategy;
   public isVrRendering = true;
   public isOutputForVr = false;
-
+  public toRenderOpaquePrimitives = true;
+  public toRenderTransparentPrimitives = true;
+  public __renderTargetColorAttachments?: RenderBufferTargetEnum[];
   private __preRenderFunc?: Function;
   private static __tmp_Vector4_0 = MutableVector4.zero();
 
   constructor() {
     super();
+  }
+
+  clone() {
+    const renderPass = new RenderPass();
+    renderPass.__entities = this.__entities.concat();
+    renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
+    renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents?.concat();
+    renderPass.__meshComponents = this.__meshComponents?.concat();
+    renderPass.__frameBuffer = this.__frameBuffer;
+    renderPass.__resolveFrameBuffer = this.__resolveFrameBuffer;
+    renderPass.__resolveFrameBuffer2 = this.__resolveFrameBuffer2;
+    renderPass.__viewport = this.__viewport?.clone();
+    renderPass.toClearColorBuffer = this.toClearColorBuffer;
+    renderPass.toClearDepthBuffer = this.toClearDepthBuffer;
+    renderPass.toClearStencilBuffer = this.toClearStencilBuffer;
+    renderPass.isDepthTest = this.isDepthTest;
+    renderPass.clearColor = this.clearColor.clone();
+    renderPass.clearDepth = this.clearDepth;
+    renderPass.clearStencil = this.clearStencil;
+    renderPass.cameraComponent = this.cameraComponent;
+    renderPass.cullFrontFaceCCW = this.cullFrontFaceCCW;
+    renderPass.__material = this.__material;
+    renderPass.__primitiveMaterial = new Map(this.__primitiveMaterial);
+    renderPass.__webglRenderingStrategy = this.__webglRenderingStrategy;
+    renderPass.isVrRendering = this.isVrRendering;
+    renderPass.isOutputForVr = this.isOutputForVr;
+    renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
+    renderPass.toRenderTransparentPrimitives = this.toRenderTransparentPrimitives;
+    renderPass.__preRenderFunc = this.__preRenderFunc;
+
+    return renderPass;
   }
 
   setPreRenderFunction(func: Function) {
@@ -190,6 +225,14 @@ export class RenderPass extends RnObject {
     }
   }
 
+  setRenderTargetColorAttachments(indeces?: RenderBufferTargetEnum[]) {
+    this.__renderTargetColorAttachments = indeces;
+  }
+
+  getRenderTargetColorAttachments(): RenderBufferTargetEnum[] | undefined {
+    return this.__renderTargetColorAttachments;
+  }
+
   /**
    * Gets the framebuffer if this render pass has the target framebuffer.
    * @return A framebuffer
@@ -249,6 +292,20 @@ export class RenderPass extends RnObject {
     return this.__resolveFrameBuffer;
   }
 
+  setResolveFramebuffer2(framebuffer: FrameBuffer) {
+    const repo = WebGLResourceRepository.getInstance();
+    const glw = repo.currentWebGLContextWrapper!;
+    if (!glw || !glw.isWebGL2) {
+      console.error('resolve framebuffer is unavailable in this webgl context');
+      return;
+    }
+    this.__resolveFrameBuffer2 = framebuffer;
+  }
+
+  getResolveFramebuffer2(): FrameBuffer | undefined {
+    return this.__resolveFrameBuffer2;
+  }
+
   copyFramebufferToResolveFramebuffer() {
     const repo = WebGLResourceRepository.getInstance();
     const webGLResourceFrameBuffer = repo.getWebGLResource(
@@ -271,11 +328,43 @@ export class RenderPass extends RnObject {
       0,
       this.__resolveFrameBuffer!.width,
       this.__resolveFrameBuffer!.height,
+      gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT,
+      gl.NEAREST
+    );
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+  }
+
+  copyFramebufferToResolveFramebuffer2() {
+    const repo = WebGLResourceRepository.getInstance();
+    const webGLResourceFrameBuffer = repo.getWebGLResource(
+      this.__frameBuffer!.cgApiResourceUid
+    ) as WebGLFramebuffer;
+    const webGLResourceResolveFramebuffer2 = repo.getWebGLResource(
+      this.__resolveFrameBuffer2!.cgApiResourceUid
+    ) as WebGLFramebuffer;
+
+    const glw = repo.currentWebGLContextWrapper!;
+    const gl = glw.getRawContextAsWebGL2();
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, webGLResourceFrameBuffer);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, webGLResourceResolveFramebuffer2);
+    gl.blitFramebuffer(
+      0,
+      0,
+      this.__frameBuffer!.width,
+      this.__frameBuffer!.height,
+      0,
+      0,
+      this.__resolveFrameBuffer2!.width,
+      this.__resolveFrameBuffer2!.height,
       gl.COLOR_BUFFER_BIT,
       gl.NEAREST
     );
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+
+    const renderTargetTexture = this.getResolveFramebuffer2()!.getColorAttachedRenderTargetTexture(0)!
+    renderTargetTexture.generateMipmap();
   }
 
   private __setupMaterial(material: Material) {
