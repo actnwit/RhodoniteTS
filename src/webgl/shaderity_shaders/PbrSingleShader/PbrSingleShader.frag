@@ -411,10 +411,18 @@ void main ()
 
     // Diffuse
     vec3 diffuseBrdf = diffuse_brdf(albedo);
-#if 0 //#ifdef RN_USE_TRANSMISSION
-    vec3 Ht = normalize(viewDirection + vec3(2.0) * dot(normal_inWorld, light.direction) * normal_inWorld + light.direction);
+#ifdef RN_USE_TRANSMISSION
+    float ior = 1.5;
+    vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
+    Light transmittedLightFromUnderSurface = light;
+    transmittedLightFromUnderSurface.pointToLight -= refractionVector;
+    vec3 transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
+    transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
+
+    vec3 Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
     float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
-    float specularBtdf = specular_btdf(alphaRoughness, NdotL, NdotV, NdotHt);
+    float NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
+    float specularBtdf = specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt);
     vec3 mixDiffuseBrdfAndSpecularBtdf = mix(diffuseBrdf, vec3(specularBtdf), transmission);
     vec3 diffuseContrib = (vec3(1.0) - F) * mixDiffuseBrdfAndSpecularBtdf;
 #else
