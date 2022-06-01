@@ -25,8 +25,8 @@ export class LightComponent extends Component {
   private __intensity = Vector3.fromCopyArray([1, 1, 1]);
   private readonly __initialdirection = Vector3.fromCopyArray([0, 1, 0]);
   private __direction = Vector3.fromCopyArray([0, 1, 0]);
-  public spotExponent = 1.0;
-  public spotCutoff = 30; // in degree
+  public innerConeAngle = 0.0;
+  public outerConeAngle = Math.PI / 4.0; // in radian
   public range = -1;
   private __sceneGraphComponent?: SceneGraphComponent;
   private static __globalDataRepository = GlobalDataRepository.getInstance();

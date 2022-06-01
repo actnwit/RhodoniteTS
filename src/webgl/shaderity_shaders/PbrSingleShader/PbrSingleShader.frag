@@ -426,7 +426,7 @@ void main ()
     vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness);
 
     // Base Layer
-    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * light.intensity;
+    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer
