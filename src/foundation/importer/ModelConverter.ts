@@ -195,12 +195,22 @@ export class ModelConverter {
           gltfModel
         );
       }
+      if (
+        options &&
+        options.expression
+      ) {
+        options.expression.tryToSetTag({
+          tag: 'gltfModel',
+          value: gltfModel,
+        })
+      }
     }
 
     // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);
     rootGroup.tryToSetTag({tag: 'rnEntities', value: rnEntities});
     rootGroup.tryToSetTag({tag: 'rnEntitiesByNames', value: rnEntitiesByNames});
     rootGroup.tryToSetTag({tag: 'gltfModel', value: gltfModel});
+
 
     // Effekseer
     RhodoniteImportExtension.importEffect(gltfModel, rootGroup);
@@ -2269,7 +2279,10 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
 
   // Transmission
-  setup_KHR_materials_transmission(materialJson, material, gltfModel);
+  const transmission = setup_KHR_materials_transmission(materialJson, material, gltfModel);
+  if (!options!.transmission) {
+    options!.transmission = transmission;
+  }
 
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
@@ -2305,7 +2318,9 @@ function setup_KHR_materials_transmission(
         rnTransmissionTexture
       );
     }
+    return true;
   }
+  return false;
 }
 
 function setup_KHR_materials_clearcoat(
