@@ -557,13 +557,16 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
     if (setUniform) {
+
+      const lightComponentsEnabled = lightComponents.filter(lightComponent => lightComponent.enable);
+
       (shaderProgram as any)._gl.uniform1i(
         (shaderProgram as any).lightNumber,
-        lightComponents!.length
+        lightComponentsEnabled!.length
       );
 
       const length = Math.min(
-        lightComponents!.length,
+        lightComponentsEnabled!.length,
         Config.maxLightNumberInShader
       );
       if (AbstractMaterialContent.__lightPositions.length !== 4 * length) {
@@ -571,7 +574,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         AbstractMaterialContent.__lightDirections = new Float32Array(4 * length);
         AbstractMaterialContent.__lightIntensities = new Float32Array(4 * length);
       }
-      for (let i = 0; i < lightComponents!.length; i++) {
+      for (let i = 0; i < lightComponentsEnabled!.length; i++) {
         if (i >= Config.maxLightNumberInShader) {
           break;
         }
@@ -579,7 +582,7 @@ export abstract class AbstractMaterialContent extends RnObject {
           break;
         }
 
-        const lightComponent = lightComponents![i];
+        const lightComponent = lightComponentsEnabled![i];
         const sceneGraphComponent = lightComponent.entity.getSceneGraph()!;
         const worldLightPosition = sceneGraphComponent.worldPosition;
         const worldLightDirection = lightComponent.direction;
