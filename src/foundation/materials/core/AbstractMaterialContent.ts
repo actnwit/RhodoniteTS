@@ -39,7 +39,7 @@ import {IMatrix33} from '../../math/IMatrix';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {ComponentRepository} from '../../core/ComponentRepository';
 import {CameraComponent} from '../../components/Camera/CameraComponent';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -114,7 +114,8 @@ export abstract class AbstractMaterialContent extends RnObject {
   ) {
     super();
     this.__shaderFunctionName = shaderFunctionName;
-    this.__materialNodeUid = ++AbstractMaterialContent.__invalidMaterialNodeCount;
+    this.__materialNodeUid =
+      ++AbstractMaterialContent.__invalidMaterialNodeCount;
     AbstractMaterialContent.materialNodes[
       AbstractMaterialContent.__invalidMaterialNodeCount
     ] = this;
@@ -557,8 +558,9 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
     if (setUniform) {
-
-      const lightComponentsEnabled = lightComponents.filter(lightComponent => lightComponent.enable);
+      const lightComponentsEnabled = lightComponents.filter(
+        lightComponent => lightComponent.enable
+      );
 
       (shaderProgram as any)._gl.uniform1i(
         (shaderProgram as any).lightNumber,
@@ -571,8 +573,12 @@ export abstract class AbstractMaterialContent extends RnObject {
       );
       if (AbstractMaterialContent.__lightPositions.length !== 4 * length) {
         AbstractMaterialContent.__lightPositions = new Float32Array(4 * length);
-        AbstractMaterialContent.__lightDirections = new Float32Array(4 * length);
-        AbstractMaterialContent.__lightIntensities = new Float32Array(4 * length);
+        AbstractMaterialContent.__lightDirections = new Float32Array(
+          4 * length
+        );
+        AbstractMaterialContent.__lightIntensities = new Float32Array(
+          4 * length
+        );
       }
       for (let i = 0; i < lightComponentsEnabled!.length; i++) {
         if (i >= Config.maxLightNumberInShader) {
@@ -588,11 +594,14 @@ export abstract class AbstractMaterialContent extends RnObject {
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
 
-        AbstractMaterialContent.__lightPositions[i * 4 + 0] = worldLightPosition.x;
-        AbstractMaterialContent.__lightPositions[i * 4 + 1] = worldLightPosition.y;
-        AbstractMaterialContent.__lightPositions[i * 4 + 2] = worldLightPosition.z;
+        AbstractMaterialContent.__lightPositions[i * 4 + 0] =
+          worldLightPosition.x;
+        AbstractMaterialContent.__lightPositions[i * 4 + 1] =
+          worldLightPosition.y;
+        AbstractMaterialContent.__lightPositions[i * 4 + 2] =
+          worldLightPosition.z;
         AbstractMaterialContent.__lightPositions[i * 4 + 3] =
-          lightComponent.type.index;
+          lightComponent.enable ? lightComponent.type.index : -1;
 
         const lightAngleScale =
           1.0 /
