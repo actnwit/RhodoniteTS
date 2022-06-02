@@ -28,6 +28,7 @@ export class LightComponent extends Component {
   public innerConeAngle = 0.0;
   public outerConeAngle = Math.PI / 4.0; // in radian
   public range = -1;
+  public enable = true;
   private __sceneGraphComponent?: SceneGraphComponent;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
