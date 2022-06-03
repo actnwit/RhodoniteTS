@@ -439,6 +439,14 @@ export class CameraComponent extends Component {
     this._filmWidth = this._filmHeight * val;
   }
 
+  set aspectInner(val: number) {
+    this._parametersInner.w = val;
+  }
+
+  get aspectInner() {
+    return this._parametersInner.w;
+  }
+
   get aspect() {
     return this._parameters.w;
   }
