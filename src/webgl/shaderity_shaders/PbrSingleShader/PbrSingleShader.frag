@@ -64,6 +64,13 @@ uniform float u_occlusionStrength; // initialValue=1
   uniform vec2 u_backBufferTextureSize; // initialValue=(0,0)
 #endif
 
+#ifdef RN_USE_VOLUME
+  uniform float u_thicknessFactor; // initialValue=(0)
+  uniform sampler2D u_thicknessTexture; // initialValue=(13,white)
+  uniform float u_attenuationDistance; // initialValue=(0.000001)
+  uniform vec3 u_attenuationColor; // initialValue=(1,1,1)
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -147,6 +154,14 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
   return radiance;
 }
 
+// from gltf Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
+vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
+{
+    vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+
+    return normalize(refractionVector) * thickness;
+}
+
 struct IblResult
 {
   vec3 specular;
@@ -203,7 +218,7 @@ IblResult IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDire
 
 vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
-  float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld)
+  float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld, float thickness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
@@ -215,8 +230,8 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
 
 #ifdef RN_USE_TRANSMISSION
   float ior = 1.5;
-  vec3 refractedRay = refract(-viewDirection, normal_inWorld, 1.0 / ior);
-  vec3 refractedRayFromVPosition = v_position_inWorld + refractedRay * 0.03;
+  vec3 refractedRay = getVolumeTransmissionRay(geomNormal_inWorld, viewDirection, thickness, ior);
+  vec3 refractedRayFromVPosition = v_position_inWorld + refractedRay;
   vec4 ndcPoint = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayFromVPosition, 1.0);
   vec2 refractionCoords = ndcPoint.xy / ndcPoint.w;
   refractionCoords += 1.0;
@@ -392,6 +407,20 @@ void main ()
   vec3 clearcoatNormal_inWorld = vec3(0.0);
   float VdotNc = 0.0;
 #endif
+
+#ifdef RN_USE_VOLUME
+  // Volume
+  float thicknessFactor = get_thicknessFactor(materialSID, 0);
+  float thicknessTexture = texture2D(u_thicknessTexture, baseColorTexUv).g;
+  float attenuationDistance = get_attenuationDistance(materialSID, 0);
+  vec3 attenuationColor = get_attenuationColor(materialSID, 0);
+  float thickness = thicknessFactor * thicknessTexture;
+#else
+  float thickness = 0.0;
+  vec3 attenuationColor = vec3(0.0);
+  float attenuationDistance = 0.000001;
+#endif
+
   // Lighting
   vec3 diffuse = vec3(0.0, 0.0, 0.0);
   for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
@@ -450,7 +479,7 @@ void main ()
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
-    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz);
+    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);

@@ -272,6 +272,18 @@ const BackBufferTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const BackBufferTextureSize: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'backBufferTextureSize',
 });
+const ThicknessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'thicknessFactor',
+});
+const ThicknessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'thicknessTexture',
+});
+const AttenuationDistance: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'attenuationDistance',
+});
+const AttenuationColor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'attenuationColor',
+});
 
 const IsOutputHDR = new ShaderSemanticsClass({
   str: 'isOutputHDR',
@@ -384,6 +396,10 @@ const typeList = [
   TransmissionTexture,
   BackBufferTexture,
   BackBufferTextureSize,
+  ThicknessFactor,
+  ThicknessTexture,
+  AttenuationDistance,
+  AttenuationColor,
   IsOutputHDR,
   BaseColorTextureTransform,
   BaseColorTextureRotation,
@@ -583,6 +599,10 @@ export const ShaderSemantics = Object.freeze({
   TransmissionTexture,
   BackBufferTexture,
   BackBufferTextureSize,
+  ThicknessFactor,
+  ThicknessTexture,
+  AttenuationDistance,
+  AttenuationColor,
   fullSemanticStr,
   getShaderProperty,
   EntityUID,
