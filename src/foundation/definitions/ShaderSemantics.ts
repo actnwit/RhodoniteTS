@@ -76,6 +76,9 @@ const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const ViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'viewMatrix',
 });
+const EnableViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'enableViewMatrix',
+});
 const ProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'projectionMatrix',
 });
@@ -334,6 +337,7 @@ const EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
 const typeList = [
   WorldMatrix,
   ViewMatrix,
+  EnableViewMatrix,
   ProjectionMatrix,
   NormalMatrix,
   BoneMatrix,
@@ -547,6 +551,7 @@ export const ShaderSemantics = Object.freeze({
   fromStringCaseSensitively,
   WorldMatrix,
   ViewMatrix,
+  EnableViewMatrix,
   ProjectionMatrix,
   NormalMatrix,
   BoneMatrix,

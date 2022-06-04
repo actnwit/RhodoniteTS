@@ -14,6 +14,8 @@ out vec3 v_color;
 out vec3 v_normal_inWorld;
 out vec3 v_position_inWorld;
 
+uniform bool u_enableViewMatrix; // initialValue=true
+
 #pragma shaderity: require(../common/prerequisites.glsl)
 
 /* shaderity: @{getters} */
@@ -27,7 +29,12 @@ void main(){
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
-  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+
+  if (get_enableViewMatrix(materialSID, 0)) {
+    gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+  } else {
+    gl_Position = projectionMatrix * worldMatrix * vec4(a_position, 1.0);
+  }
 
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
   v_normal_inWorld = normalMatrix * a_normal;
