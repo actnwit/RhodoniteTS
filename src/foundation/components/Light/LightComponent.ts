@@ -1,10 +1,10 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Component } from '../../core/Component';
+import {ComponentRepository} from '../../core/ComponentRepository';
+import {Component} from '../../core/Component';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {LightType} from '../../definitions/LightType';
-import { Vector3 } from '../../math/Vector3';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import {Vector3} from '../../math/Vector3';
+import {SceneGraphComponent} from '../SceneGraph/SceneGraphComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
 import {Config} from '../../core/Config';
 import {
@@ -12,10 +12,10 @@ import {
   EntityUID,
   ComponentSID,
 } from '../../../types/CommonTypes';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import {GlobalDataRepository} from '../../core/GlobalDataRepository';
 import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import { MutableVector4 } from '../../math/MutableVector4';
-import { VectorN } from '../../math/VectorN';
+import {MutableVector4} from '../../math/MutableVector4';
+import {VectorN} from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
@@ -108,13 +108,22 @@ export class LightComponent extends Component {
         this.__initialdirection
       );
 
+    const lightAngleScale =
+      1.0 /
+      Math.max(
+        0.001,
+        Math.cos(this.innerConeAngle) - Math.cos(this.outerConeAngle)
+      );
+    const lightAngleOffset = -Math.cos(this.outerConeAngle) * lightAngleScale;
+
     LightComponent.__lightDirections._v[4 * this.componentSID + 0] =
       this.__direction.x;
     LightComponent.__lightDirections._v[4 * this.componentSID + 1] =
       this.__direction.y;
     LightComponent.__lightDirections._v[4 * this.componentSID + 2] =
       this.__direction.z;
-    LightComponent.__lightDirections._v[4 * this.componentSID + 3] = 0;
+    LightComponent.__lightDirections._v[4 * this.componentSID + 3] =
+      lightAngleScale;
 
     const lightPosition = this.__sceneGraphComponent!.worldPosition;
     LightComponent.__lightPositions._v[4 * this.componentSID + 0] =
@@ -123,8 +132,9 @@ export class LightComponent extends Component {
       lightPosition.y;
     LightComponent.__lightPositions._v[4 * this.componentSID + 2] =
       lightPosition.z;
-    LightComponent.__lightPositions._v[4 * this.componentSID + 3] =
-      this.type.index;
+    LightComponent.__lightPositions._v[4 * this.componentSID + 3] = this.enable
+      ? this.type.index
+      : -1;
 
     LightComponent.__lightIntensities._v[4 * this.componentSID + 0] =
       this.__intensity.x;
@@ -132,7 +142,8 @@ export class LightComponent extends Component {
       this.__intensity.y;
     LightComponent.__lightIntensities._v[4 * this.componentSID + 2] =
       this.__intensity.z;
-    LightComponent.__lightIntensities._v[4 * this.componentSID + 3] = 0;
+    LightComponent.__lightIntensities._v[4 * this.componentSID + 3] =
+      lightAngleOffset;
   }
 
   /**

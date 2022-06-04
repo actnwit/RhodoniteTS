@@ -136,6 +136,7 @@ function createPbrUberMaterial({
   isLighting = true,
   isClearCoat = false,
   isTransmission = false,
+  isVolume = false,
   useTangentAttribute = false,
   useNormalTexture = true,
   alphaMode = AlphaMode.Opaque,
@@ -149,6 +150,7 @@ function createPbrUberMaterial({
     (isLighting ? '' : '-lighting') +
     (isClearCoat ? '+clearcoat' : '') +
     (isTransmission? '+transmission' : '') +
+    (isVolume ? '+volume' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (useNormalTexture ? '' : '-normalTexture') +
     '_alpha_' +
@@ -197,6 +199,7 @@ function createPbrUberMaterial({
     isMorphing,
     isClearCoat,
     isTransmission,
+    isVolume,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,

@@ -86,6 +86,7 @@ import {LightComponent} from '../components/Light/LightComponent';
 import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEntity';
 import {BufferView} from '../memory/BufferView';
 import {RhodoniteImportExtension} from './RhodoniteImportExtension';
+import Rn from '../../cjs';
 
 declare let DracoDecoderModule: any;
 
@@ -1032,6 +1033,7 @@ export class ModelConverter {
         isLighting,
         isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
         isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
+        isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
         alphaMode,
         useTangentAttribute,
         useNormalTexture,
@@ -2284,6 +2286,8 @@ function setupPbrMetallicRoughness(
     options!.transmission = transmission;
   }
 
+  setup_KHR_materials_volume(materialJson, material, gltfModel);
+
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
     baseColorTexture,
@@ -2378,6 +2382,46 @@ function setup_KHR_materials_clearcoat(
         ShaderSemantics.ClearCoatNormalTexture,
         rnClearCoatNormalTexture
       );
+    }
+  }
+}
+
+function setup_KHR_materials_volume(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+): void {
+  const KHR_materials_volume =
+    materialJson?.extensions?.KHR_materials_volume;
+  if (Is.exist(KHR_materials_volume)) {
+    const thicknessFactor = KHR_materials_volume.thicknessFactor
+    ? KHR_materials_volume.thicknessFactor
+    : 0.0;
+    if (thicknessFactor != null) {
+      material.setParameter(ShaderSemantics.ThicknessFactor, thicknessFactor);
+    }
+    const thicknessTexture = KHR_materials_volume.thicknessTexture;
+    if (thicknessTexture != null) {
+      const rnThicknessTexture = ModelConverter._createTexture(
+        thicknessTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.ThicknessTexture,
+        rnThicknessTexture
+      );
+    }
+    const attenuationDistance = KHR_materials_volume.attenuationDistance
+    ? KHR_materials_volume.attenuationDistance
+    : 0.0;
+    if (thicknessFactor != null) {
+      material.setParameter(ShaderSemantics.AttenuationDistance, attenuationDistance);
+    }
+    const attenuationColor = KHR_materials_volume.attenuationColor
+    ? Rn.Vector3.fromCopyArray3(KHR_materials_volume.attenuationColor)
+    : Rn.Vector3.fromCopy3(1.0, 1.0, 1.0);
+    if (attenuationColor != null) {
+      material.setParameter(ShaderSemantics.AttenuationColor, attenuationColor);
     }
   }
 }

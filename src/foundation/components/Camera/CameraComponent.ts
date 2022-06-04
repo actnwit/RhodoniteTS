@@ -41,7 +41,7 @@ export class CameraComponent extends Component {
   private _filmWidth = 36; // mili meter
   private _filmHeight = 24; // mili meter
   private _focalLength = 20;
-
+  private primitiveMode = false;
   // x: left, y:right, z:top, w: bottom
   private _corner: MutableVector4 = MutableVector4.dummy();
   private _cornerInner: MutableVector4 = MutableVector4.dummy();
@@ -439,6 +439,14 @@ export class CameraComponent extends Component {
     this._filmWidth = this._filmHeight * val;
   }
 
+  set aspectInner(val: number) {
+    this._parametersInner.w = val;
+  }
+
+  get aspectInner() {
+    return this._parametersInner.w;
+  }
+
   get aspect() {
     return this._parameters.w;
   }
@@ -576,12 +584,14 @@ export class CameraComponent extends Component {
       1
     );
 
-    const invertWorldMatrix = MutableMatrix44.invertTo(
-      this.__sceneGraphComponent!.worldMatrixInner,
-      CameraComponent.__tmpMatrix44_0
-    );
+    if (!this.primitiveMode) {
+      const invertWorldMatrix = MutableMatrix44.invertTo(
+        this.__sceneGraphComponent!.worldMatrixInner,
+        CameraComponent.__tmpMatrix44_0
+      );
 
-    this._viewMatrix.multiply(invertWorldMatrix);
+      this._viewMatrix.multiply(invertWorldMatrix);
+    }
 
     return this._viewMatrix;
   }
@@ -667,11 +677,13 @@ export class CameraComponent extends Component {
       CameraControllerComponent
     ) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
-      this._eyeInner.copyComponents(CameraComponent._eye);
-      this._directionInner.copyComponents(this._direction);
-      this._upInner.copyComponents(this._up);
-      this._cornerInner.copyComponents(this._corner);
-      this._parametersInner.copyComponents(this._parameters);
+      if (!this.primitiveMode) {
+        this._eyeInner.copyComponents(CameraComponent._eye);
+        this._directionInner.copyComponents(this._direction);
+        this._upInner.copyComponents(this._up);
+        this._cornerInner.copyComponents(this._corner);
+        this._parametersInner.copyComponents(this._parameters);
+      }
     } else {
       this._parametersInner.w = this._parameters.w;
     }

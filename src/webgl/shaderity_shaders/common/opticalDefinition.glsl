@@ -60,7 +60,10 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
 
   light.intensity = lightIntensity;
   light.position = lightPosition;
-  if (0.75 < lightType) { // is pointlight or spotlight
+  if (lightType < -0.5) { // disabled light
+    light.intensity = vec3(0.0);
+    light.type = -1;
+  } else if (0.75 < lightType) { // is pointlight or spotlight
     light.pointToLight = lightPosition - v_position_inWorld;
     light.direction = normalize(light.pointToLight);
     light.type = 1;

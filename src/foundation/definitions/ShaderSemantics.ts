@@ -127,6 +127,9 @@ const DiffuseEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const SpecularEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'specularEnvTexture',
 });
+const InverseEnvironment: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'inverseEnvironment',
+});
 const IBLParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'iblParameter',
 });
@@ -272,6 +275,18 @@ const BackBufferTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const BackBufferTextureSize: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'backBufferTextureSize',
 });
+const ThicknessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'thicknessFactor',
+});
+const ThicknessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'thicknessTexture',
+});
+const AttenuationDistance: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'attenuationDistance',
+});
+const AttenuationColor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'attenuationColor',
+});
 
 const IsOutputHDR = new ShaderSemanticsClass({
   str: 'isOutputHDR',
@@ -336,6 +351,7 @@ const typeList = [
   BrdfLutTexture,
   DiffuseEnvTexture,
   SpecularEnvTexture,
+  InverseEnvironment,
   IBLParameter,
   ViewPosition,
   Wireframe,
@@ -384,6 +400,10 @@ const typeList = [
   TransmissionTexture,
   BackBufferTexture,
   BackBufferTextureSize,
+  ThicknessFactor,
+  ThicknessTexture,
+  AttenuationDistance,
+  AttenuationColor,
   IsOutputHDR,
   BaseColorTextureTransform,
   BaseColorTextureRotation,
@@ -544,6 +564,7 @@ export const ShaderSemantics = Object.freeze({
   BrdfLutTexture,
   DiffuseEnvTexture,
   SpecularEnvTexture,
+  InverseEnvironment,
   IBLParameter,
   ViewPosition,
   Wireframe,
@@ -583,6 +604,10 @@ export const ShaderSemantics = Object.freeze({
   TransmissionTexture,
   BackBufferTexture,
   BackBufferTextureSize,
+  ThicknessFactor,
+  ThicknessTexture,
+  AttenuationDistance,
+  AttenuationColor,
   fullSemanticStr,
   getShaderProperty,
   EntityUID,

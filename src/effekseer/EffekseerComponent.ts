@@ -234,7 +234,9 @@ export class EffekseerComponent extends Component {
         this.moveStageTo(ProcessStage.Logic);
       }
     };
-    const onError = () => {};
+    const onError = (message: string, path: string) => {
+      console.error(message, path);
+    };
     if (this.type === 'efkpkg') {
       if (Is.not.exist(EffekseerComponent.Unzip)) {
         console.error('Please Set an Unzip object to EffekseerComponent.Unzip');
