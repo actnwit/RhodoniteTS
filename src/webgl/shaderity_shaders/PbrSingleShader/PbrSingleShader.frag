@@ -40,6 +40,7 @@ uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
 uniform int u_occlusionTexcoordIndex; // initialValue=0
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
+uniform bool u_inverseEnvironment; // initialValue=false
 
 #ifdef RN_USE_CLEARCOAT
   uniform float u_clearCoatFactor; // initialValue=0
@@ -174,12 +175,16 @@ IblResult IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDire
 {
   // get irradiance
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-  normal_forEnv.x *= -1.0;
+  if (get_inverseEnvironment(materialSID, 0)) {
+    normal_forEnv.x *= -1.0;
+  }
   vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
 
   // get radiance
   vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-  reflection.x *= -1.0;
+  if (get_inverseEnvironment(materialSID, 0)) {
+    reflection.x *= -1.0;
+  }
   float mipCount = iblParameter.x;
   float lod = (perceptualRoughness * (mipCount - 1.0));
   vec3 radiance = get_radiance(reflection, lod, hdriFormat);
@@ -249,9 +254,6 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   IblResult coatResult = IBL(materialSID, clearcoatNormal_inWorld, VdotNc, viewDirection, vec3(0.0), F0,
     clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
   vec3 coatLayer = coatResult.diffuse + coatResult.specular;
-
-  // vec3 clearcoatNormal_forEnv = rotEnvMatrix * clearcoatNormal_inWorld;
-  // clearcoatNormal_forEnv.x *= -1.0;
 
   float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
   vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);

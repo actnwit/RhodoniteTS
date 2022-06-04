@@ -295,9 +295,19 @@ export class ShaderityUtility {
       switch (split.length) {
         case 1:
           checkCompositionNumber(CompositionType.Scalar);
-          initialValue = new MutableScalar(
-            new Float32Array([parseFloat(split[0])])
-          );
+          if (split[0] === 'true') {
+            initialValue = new MutableScalar(
+              new Float32Array([1])
+            );
+          } else if (split[0] === 'false') {
+            initialValue = new MutableScalar(
+              new Float32Array([0])
+            );
+          } else {
+            initialValue = new MutableScalar(
+              new Float32Array([parseFloat(split[0])])
+            );
+          }
           break;
         case 2:
           if (
@@ -381,9 +391,19 @@ export class ShaderityUtility {
       }
     } else {
       checkCompositionNumber(CompositionType.Scalar);
-      initialValue = new MutableScalar(
-        new Float32Array([parseFloat(initialValueText)])
-      );
+      if (initialValueText === 'true') {
+        initialValue = new MutableScalar(
+          new Float32Array([1])
+        );
+      } else if (initialValueText === 'false') {
+        initialValue = new MutableScalar(
+          new Float32Array([0])
+        );
+      } else {
+        initialValue = new MutableScalar(
+          new Float32Array([parseFloat(initialValueText)])
+        );
+      }
     }
 
     return initialValue;

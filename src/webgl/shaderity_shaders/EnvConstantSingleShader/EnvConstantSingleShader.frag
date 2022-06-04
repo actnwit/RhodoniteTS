@@ -16,6 +16,7 @@ uniform float u_envRotation; // initialValue=0
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
 uniform samplerCube u_colorEnvTexture; // initialValue=(0,black)
 uniform bool u_makeOutputSrgb; // initialValue=true
+uniform bool u_inverseEnvironment; // initialValue=false
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -55,7 +56,10 @@ void main() {
   float rot = envRotation + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
-  envNormal.x *= -1.0;
+
+  if (get_inverseEnvironment(materialSID, 0)) {
+    envNormal.x *= -1.0;
+  }
 
   vec4 diffuseTexel = textureCube(u_colorEnvTexture, envNormal);
   vec3 textureColor;
