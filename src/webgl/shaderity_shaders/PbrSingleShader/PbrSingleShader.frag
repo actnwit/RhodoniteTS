@@ -40,7 +40,7 @@ uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
 uniform int u_occlusionTexcoordIndex; // initialValue=0
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
-uniform bool u_inverseEnvironment; // initialValue=false
+uniform bool u_inverseEnvironment; // initialValue=true
 
 #ifdef RN_USE_CLEARCOAT
   uniform float u_clearCoatFactor; // initialValue=0

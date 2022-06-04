@@ -16,7 +16,7 @@ uniform float u_envRotation; // initialValue=0
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
 uniform samplerCube u_colorEnvTexture; // initialValue=(0,black)
 uniform bool u_makeOutputSrgb; // initialValue=true
-uniform bool u_inverseEnvironment; // initialValue=false
+uniform bool u_inverseEnvironment; // initialValue=true
 
 #pragma shaderity: require(../common/rt0.glsl)
 

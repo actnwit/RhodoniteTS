@@ -127,6 +127,9 @@ const DiffuseEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const SpecularEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'specularEnvTexture',
 });
+const InverseEnvironment: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'inverseEnvironment',
+});
 const IBLParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'iblParameter',
 });
@@ -348,6 +351,7 @@ const typeList = [
   BrdfLutTexture,
   DiffuseEnvTexture,
   SpecularEnvTexture,
+  InverseEnvironment,
   IBLParameter,
   ViewPosition,
   Wireframe,
@@ -560,6 +564,7 @@ export const ShaderSemantics = Object.freeze({
   BrdfLutTexture,
   DiffuseEnvTexture,
   SpecularEnvTexture,
+  InverseEnvironment,
   IBLParameter,
   ViewPosition,
   Wireframe,
