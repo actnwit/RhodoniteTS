@@ -202,3 +202,15 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
 
   return uvTransformed;
 }
+
+// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
+vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 intensity, float transmissionDistance)
+{
+  if (attenuationDistance == 0.0) { // means Infinite distance
+    return intensity; // No attenuation
+  } else {
+    vec3 attenuationCo = -log(attenuationColor) / attenuationDistance;
+    vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
+    return intensity * attenuatedTransmittance;
+  }
+}

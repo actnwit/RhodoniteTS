@@ -2414,7 +2414,7 @@ function setup_KHR_materials_volume(
     const attenuationDistance = KHR_materials_volume.attenuationDistance
     ? KHR_materials_volume.attenuationDistance
     : 0.0;
-    if (thicknessFactor != null) {
+    if (attenuationDistance != null) {
       material.setParameter(ShaderSemantics.AttenuationDistance, attenuationDistance);
     }
     const attenuationColor = KHR_materials_volume.attenuationColor
