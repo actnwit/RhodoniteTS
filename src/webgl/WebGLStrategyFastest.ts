@@ -101,7 +101,8 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     return matrix;
   }
 
-#ifdef RN_IS_MORPHING
+#ifdef RN_IS_VERTEX_SHADER
+  #ifdef RN_IS_MORPHING
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
@@ -118,8 +119,9 @@ export class WebGLStrategyFastest implements WebGLStrategy {
 
     return position;
   }
+  #endif
 #endif
-  `;
+`;
   }
 
   setupShaderProgramForMeshComponent(meshComponent: MeshComponent): void {

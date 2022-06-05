@@ -214,3 +214,17 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
     return intensity * attenuatedTransmittance;
   }
 }
+
+float d_Charlie(float alphaRoughness, float NoH) {
+  // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
+  float invAlpha  = 1.0 / alphaRoughness;
+  float cos2h = NoH * NoH;
+  float sin2h = 1.0 - cos2h;
+  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * PI);
+}
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
+float sheenSimpleVisibility(float NdotL, float NdotV, float NdotL, float NdotV) {
+  return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+}
+

@@ -96,7 +96,8 @@ mat3 get_normalMatrix(float instanceId) {
   return u_normalMatrix;
 }
 
-#ifdef RN_IS_MORPHING
+#ifdef RN_IS_VERTEX_SHADER
+# ifdef RN_IS_MORPHING
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
@@ -137,6 +138,7 @@ mat3 get_normalMatrix(float instanceId) {
 
     return position;
   }
+# endif
 #endif
   `;
 
