@@ -63,7 +63,7 @@ uniform bool u_inverseEnvironment; // initialValue=true
   uniform float u_transmissionFactor; // initialValue=(0)
   uniform sampler2D u_transmissionTexture; // initialValue=(11,white)
   uniform sampler2D u_backBufferTexture; // initialValue=(12,black)
-  uniform vec2 u_backBufferTextureSize; // initialValue=(0,0)
+  uniform vec2 u_backBufferTextureSize; // initialValue=(0,0), isCustomSetting=true
 #endif
 
 #ifdef RN_USE_VOLUME
@@ -115,8 +115,16 @@ float scaleForLod(float perceptualRoughness, float ior)
 }
 
 vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perceptualRoughness, float ior) {
+  ivec2 vrState = get_vrState(0.0, 0);
   vec2 backBufferTextureSize = get_backBufferTextureSize(materialSID, 0);
   float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
+  if (vrState.x == 1) { // For VR
+    backBufferTextureLength = max(backBufferTextureSize.x / 2.0, backBufferTextureSize.y);
+    sampleCoord.x = sampleCoord.x * 0.5;
+    if (vrState.y == 1) { // For right eye
+      sampleCoord.x += 0.5;
+    }
+  }
   float framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
 
   #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD

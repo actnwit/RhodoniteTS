@@ -224,7 +224,7 @@ float d_Charlie(float alphaRoughness, float NoH) {
 }
 
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
-float sheenSimpleVisibility(float NdotL, float NdotV, float NdotL, float NdotV) {
+float sheenSimpleVisibility(float NdotL, float NdotV) {
   return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
 }
 

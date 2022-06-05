@@ -33,6 +33,7 @@ import {
   ProcessApproachEnum,
 } from '../../foundation/definitions/ProcessApproach';
 import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
+import { Vector2 } from '../math';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -294,6 +295,23 @@ export class GlobalDataRepository {
     };
     this.registerProperty(lightNumberInfo, 1);
     this.takeOne(ShaderSemantics.LightNumber);
+
+    const vrState = {
+      semantic: ShaderSemantics.VrState,
+      compositionType: CompositionType.Vec2,
+      componentType: ComponentType.Int,
+      stage: ShaderType.VertexAndPixelShader,
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+      isCustomSetting: true,
+      needUniformInFastest: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: Vector2.fromCopy2(0, 0),
+      // x: 0: not vr, 1: vr
+      // y: 0: left eye, 1: right eye
+    };
+    this.registerProperty(vrState, 1);
+    this.takeOne(ShaderSemantics.VrState);
   }
 
   static getInstance() {
