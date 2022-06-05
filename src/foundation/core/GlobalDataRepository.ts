@@ -428,6 +428,24 @@ export class GlobalDataRepository {
     );
   }
 
+  setUniformLocationsForFastestModeOnly(shaderProgramUid: CGAPIResourceHandle) {
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    const semanticsInfoArray: ShaderSemanticsInfo[] = [];
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
+      const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
+      if (semanticInfo.needUniformInFastest) {
+        semanticsInfoArray.push(semanticInfo);
+      }
+    });
+
+    webglResourceRepository.setupUniformLocations(
+      shaderProgramUid,
+      semanticsInfoArray,
+      true
+    );
+  }
+
   setUniformValues(shaderProgram: WebGLProgram) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();

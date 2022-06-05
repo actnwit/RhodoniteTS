@@ -281,12 +281,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     const vrState = CustomMaterialContent.__globalDataRepository.getValue(ShaderSemantics.VrState, 0) as Vector2;
     vrState._v[0] = args.isVr ? 1 : 0;
     vrState._v[1] = args.displayIdx;
-    if (args.setUniform) {
-      (shaderProgram as any)._gl.uniform2iv(
-        (shaderProgram as any).vrState,
-        vrState._v
-      );
-    }
+    (shaderProgram as any)._gl.uniform2iv(
+      (shaderProgram as any).vrState,
+      vrState._v
+    );
   }
 
   private setupHdriParameters(args: RenderingArg) {
