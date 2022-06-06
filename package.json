@@ -97,7 +97,7 @@
   "dependencies": {
     "ktx-parse": "^0.2.1",
     "requirejs": "^2.3.6",
-    "shaderity": "0.2.4",
+    "shaderity": "0.2.5",
     "zlibjs": "^0.3.1",
     "zstddec": "^0.0.2"
   },
