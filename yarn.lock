@@ -4851,10 +4851,10 @@ setprototypeof@1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
-shaderity-loader@0.0.17:
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/shaderity-loader/-/shaderity-loader-0.0.17.tgz#3762e84579bc5f2178dbbdd04b87dbb87e9de4e9"
-  integrity sha512-SxHrKxsH2rIhJzm03rYAktnwkND8CZ85Lxq4TvpSvZBnV+xIC2grEy1YLOjpKRfTdsZ6DmpMVJy0SQjut112JA==
+shaderity-loader@0.0.18:
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/shaderity-loader/-/shaderity-loader-0.0.18.tgz#e204166053c23229a701dd35024544bb7bfb9b50"
+  integrity sha512-au0f/hI9898trt4z0U/DwOT4aZZG//czicHqY2mEloxpvg9FLHCbs5/52+bMvP8JhhS54tB15kmw0I4cn5MJEA==
   dependencies:
     shaderity-node "0.0.7"
 
@@ -4863,10 +4863,10 @@ shaderity-node@0.0.7:
   resolved "https://registry.yarnpkg.com/shaderity-node/-/shaderity-node-0.0.7.tgz#266bed366b124078e3f776723540c8552c6febf0"
   integrity sha512-XJY22VjkiQBYYBcMQ1lv8Rq0DNbYjHUrNCyViy30swAih0sE+T7jaz3kPTi+hlU2eWeSutqlSEu9kpt+QX0mmg==
 
-shaderity@0.2.3:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/shaderity/-/shaderity-0.2.3.tgz#84cdf8f3e97e4b4b793d3dc3d617241f035ed83d"
-  integrity sha512-o8GMCw25q+Mm6ug3xNiYGy8kyGXCkkY8i9vQpuJ23q92wxLEdWZ2GUx1ceTDzn2okNz8PW5LMrZwubnmcqmI0w==
+shaderity@0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/shaderity/-/shaderity-0.2.4.tgz#2daa686b4fc5b583c33c75c53790d4980d17a1dd"
+  integrity sha512-lav3nj/6qOh1ls775SEirC/byTHiIPxSFi0ZuABFhdBTSvQOFkj6Szv4O7sx2iKwVpoDxnV6MH6CklBq2Z5Vmw==
 
 shallow-clone@^0.1.2:
   version "0.1.2"
