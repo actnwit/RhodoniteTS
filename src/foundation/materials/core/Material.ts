@@ -543,7 +543,9 @@ export class Material extends RnObject {
 
     // Shader Construction
     let vertexShader = this.__setupGlobalShaderDefinition();
+    vertexShader += '#define RN_IS_VERTEX_SHADER\n';
     let pixelShader = this.__setupGlobalShaderDefinition();
+    pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
     const vertexShaderityObject = ShaderityUtility.fillTemplate(
       materialNode.vertexShaderityObject!,
@@ -553,7 +555,7 @@ export class Material extends RnObject {
         dataUBODefinition:
           webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-        matricesGetters: vertexShaderMethodDefinitions_uniform,
+        matricesGetters: vertexShaderMethodDefinitions_uniform
       }
     );
     const vertexShaderBody = ShaderityUtility.transformWebGLVersion(
@@ -572,7 +574,8 @@ export class Material extends RnObject {
           webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
         matricesGetters: vertexShaderMethodDefinitions_uniform,
-        renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
+        renderTargetEnd:
+          webglResourceRepository.getGlslRenderTargetEndString(4),
       }
     );
     const pixelShaderBody = ShaderityUtility.transformWebGLVersion(

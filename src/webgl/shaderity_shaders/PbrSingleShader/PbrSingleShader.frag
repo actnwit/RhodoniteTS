@@ -12,6 +12,7 @@ in vec4 v_position_inWorld;
 in vec2 v_texcoord_0;
 in vec2 v_texcoord_1;
 in vec3 v_baryCentricCoord;
+in float v_instanceID;
 
 #ifdef RN_USE_TANGENT_ATTRIBUTE
   in vec3 v_tangent_inWorld;
@@ -62,7 +63,6 @@ uniform bool u_inverseEnvironment; // initialValue=true
   uniform float u_transmissionFactor; // initialValue=(0)
   uniform sampler2D u_transmissionTexture; // initialValue=(11,white)
   uniform sampler2D u_backBufferTexture; // initialValue=(12,black)
-  uniform vec2 u_backBufferTextureSize; // initialValue=(0,0)
 #endif
 
 #ifdef RN_USE_VOLUME
@@ -79,6 +79,8 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 #pragma shaderity: require(../common/pbrDefinition.glsl)
 
 /* shaderity: @{getters} */
+
+/* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
 
@@ -112,8 +114,16 @@ float scaleForLod(float perceptualRoughness, float ior)
 }
 
 vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perceptualRoughness, float ior) {
+  ivec2 vrState = get_vrState(0.0, 0);
   vec2 backBufferTextureSize = get_backBufferTextureSize(materialSID, 0);
   float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
+  if (vrState.x == 1) { // For VR
+    backBufferTextureLength = max(backBufferTextureSize.x / 2.0, backBufferTextureSize.y);
+    sampleCoord.x = sampleCoord.x * 0.5;
+    if (vrState.y == 1) { // For right eye
+      sampleCoord.x += 0.5;
+    }
+  }
   float framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
 
   #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
@@ -155,12 +165,18 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
   return radiance;
 }
 
-// from gltf Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
+// from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
-    vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+  vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+  mat4 worldMatrix = get_worldMatrix(v_instanceID);
 
-    return normalize(refractionVector) * thickness;
+  vec3 modelScale;
+  modelScale.x = length(vec3(worldMatrix[0].xyz));
+  modelScale.y = length(vec3(worldMatrix[1].xyz));
+  modelScale.z = length(vec3(worldMatrix[2].xyz));
+
+  return normalize(refractionVector) * thickness * modelScale;
 }
 
 struct IblResult
@@ -242,6 +258,13 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   refractionCoords += 1.0;
   refractionCoords /= 2.0;
   vec3 transmittedLight = get_sample_from_backbuffer(materialSID, refractionCoords, perceptualRoughness, ior);
+
+#ifdef RN_USE_VOLUME
+  vec3 attenuationColor = get_attenuationColor(materialSID, 0);
+  float attenuationDistance = get_attenuationDistance(materialSID, 0);
+  transmittedLight = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, length(refractedRay));
+#endif
+
   vec3 transmissionComp = (vec3(1.0) - baseResult.FssEss) * transmittedLight * albedo;
   vec3 diffuse = mix(baseResult.diffuse, transmissionComp, transmission);
   vec3 base = diffuse + baseResult.specular;
@@ -442,6 +465,8 @@ void main ()
 
     // Diffuse
     vec3 diffuseBrdf = diffuse_brdf(albedo);
+    vec3 pureDiffuse = (vec3(1.0) - F) * diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
+
 #ifdef RN_USE_TRANSMISSION
     float ior = 1.5;
     vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
@@ -453,19 +478,26 @@ void main ()
     vec3 Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
     float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
     float NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
-    float specularBtdf = specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt);
-    vec3 mixDiffuseBrdfAndSpecularBtdf = mix(diffuseBrdf, vec3(specularBtdf), transmission);
-    vec3 diffuseContrib = (vec3(1.0) - F) * mixDiffuseBrdfAndSpecularBtdf;
+
+    vec3 transmittedContrib = (vec3(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+
+#ifdef RN_USE_VOLUME
+    vec3 attenuationColor = get_attenuationColor(materialSID, 0);
+    float attenuationDistance = get_attenuationDistance(materialSID, 0);
+    transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+#endif
+
+    vec3 diffuseContrib = mix(pureDiffuse, vec3(transmittedContrib), transmission);
 #else
-    vec3 diffuseContrib = (vec3(1.0) - F) * diffuseBrdf;
+    vec3 diffuseContrib = pureDiffuse;
 #endif
 
     // Specular
     float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
-    vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness);
+    vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
 
     // Base Layer
-    vec3 baseLayer = (diffuseContrib + specularContrib) * vec3(NdotL) * light.attenuatedIntensity;
+    vec3 baseLayer = diffuseContrib + specularContrib;
 
 #ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer

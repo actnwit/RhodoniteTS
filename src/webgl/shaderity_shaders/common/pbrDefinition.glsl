@@ -202,3 +202,29 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
 
   return uvTransformed;
 }
+
+// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
+vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 intensity, float transmissionDistance)
+{
+  if (attenuationDistance == 0.0) { // means Infinite distance
+    return intensity; // No attenuation
+  } else {
+    vec3 attenuationCo = -log(attenuationColor) / attenuationDistance;
+    vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
+    return intensity * attenuatedTransmittance;
+  }
+}
+
+float d_Charlie(float alphaRoughness, float NoH) {
+  // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
+  float invAlpha  = 1.0 / alphaRoughness;
+  float cos2h = NoH * NoH;
+  float sin2h = 1.0 - cos2h;
+  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * PI);
+}
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
+float sheenSimpleVisibility(float NdotL, float NdotV) {
+  return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+}
+

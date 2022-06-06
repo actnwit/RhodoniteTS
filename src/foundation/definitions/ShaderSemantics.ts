@@ -333,6 +333,7 @@ const OcclusionStrength = new ShaderSemanticsClass({
 });
 const envRotation = new ShaderSemanticsClass({str: 'envRotation'});
 const EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
+const VrState = new ShaderSemanticsClass({str: 'vrState'});
 
 const typeList = [
   WorldMatrix,
@@ -424,6 +425,7 @@ const typeList = [
   OcclusionStrength,
   envRotation,
   EnvHdriFormat,
+  VrState,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -640,4 +642,5 @@ export const ShaderSemantics = Object.freeze({
   OcclusionStrength,
   envRotation,
   EnvHdriFormat,
+  VrState,
 });

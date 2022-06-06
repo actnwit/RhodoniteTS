@@ -101,7 +101,8 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     return matrix;
   }
 
-#ifdef RN_IS_MORPHING
+#ifdef RN_IS_VERTEX_SHADER
+  #ifdef RN_IS_MORPHING
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
@@ -118,8 +119,9 @@ export class WebGLStrategyFastest implements WebGLStrategy {
 
     return position;
   }
+  #endif
 #endif
-  `;
+`;
   }
 
   setupShaderProgramForMeshComponent(meshComponent: MeshComponent): void {
@@ -185,6 +187,10 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     material._setupAdditionalUniformLocations(
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
       false
+    );
+
+    WebGLStrategyFastest.__globalDataRepository.setUniformLocationsForFastestModeOnly(
+      material._shaderProgramUid
     );
 
     return programUid;
@@ -257,88 +263,101 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     }
 
     let firstPartOfInnerFunc = '';
-    if (!isTexture) {
+    if (!isTexture && !info.needUniformInFastest) {
       firstPartOfInnerFunc += `
 ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   int instanceId = int(_instanceId);
   ${indexStr}
   `;
-    }
 
-    let str = `${varDef}${firstPartOfInnerFunc}`;
+      let str = `${varDef}\n${firstPartOfInnerFunc}`;
 
-    switch (info.compositionType) {
-      case CompositionType.Vec4:
-      case CompositionType.Vec4Array:
-        str += '        highp vec4 val = fetchElement(vec4_idx);\n';
-        break;
-      case CompositionType.Vec3:
-        str += '        vec4 col0 = fetchElement(vec4_idx);\n';
-        str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`;
-        break;
-      case CompositionType.Vec3Array:
-        str += '        vec3 val = fetchVec3No16BytesAligned(scalar_idx);\n';
-        break;
-      case CompositionType.Vec2:
-        str += '        highp vec4 col0 = fetchElement(vec4_idx);\n';
-        str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`;
-        break;
-      case CompositionType.Vec2Array:
-        str +=
-          '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
-        break;
-      case CompositionType.Scalar:
-        str += '        vec4 col0 = fetchElement(vec4_idx);\n';
-        if (info.componentType === ComponentType.Int) {
-          str += '        int val = int(col0.x);';
-        } else if (info.componentType === ComponentType.Bool) {
-          str += '        bool val = bool(col0.x);';
-        } else {
-          str += '       float val = col0.x;';
-        }
-        break;
-      case CompositionType.ScalarArray:
-        str +=
-          '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
-        if (info.componentType === ComponentType.Int) {
-          str += '        int val = int(col0);';
-        } else if (info.componentType === ComponentType.Bool) {
-          str += '        bool val = bool(col0);';
-        } else {
-          str += '       float val = col0;';
-        }
-        break;
-      case CompositionType.Mat4:
-        str += '        mat4 val = fetchMat4(vec4_idx);\n';
-        break;
-      case CompositionType.Mat4Array:
-        str += '        mat4 val = fetchMat4(vec4_idx);\n';
-        break;
-      case CompositionType.Mat3:
-        str += '        mat3 val = fetchMat3(vec4_idx);\n';
-        break;
-      case CompositionType.Mat3Array:
-        str += '        mat3 val = fetchMat3No16BytesAligned(scalar_idx);\n';
-        break;
-      case CompositionType.Mat2:
-        str += '        mat2 val = fetchMat2(vec4_idx);\n';
-        break;
-      case CompositionType.Mat2Array:
-        str += '        mat2 val = fetchMat2No16BytesAligned(scalar_idx);\n';
-        break;
-      default:
-        // console.error('unknown composition type', info.compositionType.str, memberName);
-        str += '';
-    }
-
-    if (!isTexture) {
+      switch (info.compositionType) {
+        case CompositionType.Vec4:
+        case CompositionType.Vec4Array:
+          str += '        highp vec4 val = fetchElement(vec4_idx);\n';
+          break;
+        case CompositionType.Vec3:
+          str += '        vec4 col0 = fetchElement(vec4_idx);\n';
+          str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`;
+          break;
+        case CompositionType.Vec3Array:
+          str += '        vec3 val = fetchVec3No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Vec2:
+          str += '        highp vec4 col0 = fetchElement(vec4_idx);\n';
+          str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`;
+          break;
+        case CompositionType.Vec2Array:
+          str +=
+            '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Scalar:
+          str += '        vec4 col0 = fetchElement(vec4_idx);\n';
+          if (info.componentType === ComponentType.Int) {
+            str += '        int val = int(col0.x);';
+          } else if (info.componentType === ComponentType.Bool) {
+            str += '        bool val = bool(col0.x);';
+          } else {
+            str += '       float val = col0.x;';
+          }
+          break;
+        case CompositionType.ScalarArray:
+          str +=
+            '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
+          if (info.componentType === ComponentType.Int) {
+            str += '        int val = int(col0);';
+          } else if (info.componentType === ComponentType.Bool) {
+            str += '        bool val = bool(col0);';
+          } else {
+            str += '       float val = col0;';
+          }
+          break;
+        case CompositionType.Mat4:
+          str += '        mat4 val = fetchMat4(vec4_idx);\n';
+          break;
+        case CompositionType.Mat4Array:
+          str += '        mat4 val = fetchMat4(vec4_idx);\n';
+          break;
+        case CompositionType.Mat3:
+          str += '        mat3 val = fetchMat3(vec4_idx);\n';
+          break;
+        case CompositionType.Mat3Array:
+          str += '        mat3 val = fetchMat3No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Mat2:
+          str += '        mat2 val = fetchMat2(vec4_idx);\n';
+          break;
+        case CompositionType.Mat2Array:
+          str += '        mat2 val = fetchMat2No16BytesAligned(scalar_idx);\n';
+          break;
+        default:
+          // console.error('unknown composition type', info.compositionType.str, memberName);
+          str += '';
+      }
       str += `
-      return val;
+  return val;
+}
+`;
+      return str;
+    } else if (!isTexture && info.needUniformInFastest) {
+      if (!isWebGL2 && info.arrayLength) {
+        return `\n${varDef}\n`;
+      } else {
+        let varIndexStr = '';
+        if (info.arrayLength) {
+          varIndexStr = '[idxOfArray]';
+        }
+        const str = `${varDef}
+${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+  return u_${methodName}${varIndexStr};
+}
+`;
+        return str;
+      }
+    } else {
+      return varDef;
     }
-  `;
-    }
-
-    return str;
   }
 
   private static getOffsetOfPropertyInShader(

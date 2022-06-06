@@ -33,6 +33,7 @@ import {
   ProcessApproachEnum,
 } from '../../foundation/definitions/ProcessApproach';
 import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
+import { Vector2 } from '../math';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -294,6 +295,38 @@ export class GlobalDataRepository {
     };
     this.registerProperty(lightNumberInfo, 1);
     this.takeOne(ShaderSemantics.LightNumber);
+
+    const backBufferTextureSize = {
+      semantic: ShaderSemantics.BackBufferTextureSize,
+      compositionType: CompositionType.Vec2,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+      isCustomSetting: true,
+      needUniformInFastest: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: Vector2.fromCopy2(0, 0),
+    };
+    this.registerProperty(backBufferTextureSize, 1);
+    this.takeOne(ShaderSemantics.BackBufferTextureSize);
+
+    const vrState = {
+      semantic: ShaderSemantics.VrState,
+      compositionType: CompositionType.Vec2,
+      componentType: ComponentType.Int,
+      stage: ShaderType.PixelShader,
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+      isCustomSetting: true,
+      needUniformInFastest: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: Vector2.fromCopy2(0, 0),
+      // x: 0: not vr, 1: vr
+      // y: 0: left eye, 1: right eye
+    };
+    this.registerProperty(vrState, 1);
+    this.takeOne(ShaderSemantics.VrState);
   }
 
   static getInstance() {
@@ -401,6 +434,24 @@ export class GlobalDataRepository {
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       semanticsInfoArray.push(semanticInfo);
+    });
+
+    webglResourceRepository.setupUniformLocations(
+      shaderProgramUid,
+      semanticsInfoArray,
+      true
+    );
+  }
+
+  setUniformLocationsForFastestModeOnly(shaderProgramUid: CGAPIResourceHandle) {
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    const semanticsInfoArray: ShaderSemanticsInfo[] = [];
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
+      const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
+      if (semanticInfo.needUniformInFastest) {
+        semanticsInfoArray.push(semanticInfo);
+      }
     });
 
     webglResourceRepository.setupUniformLocations(
