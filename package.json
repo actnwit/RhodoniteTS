@@ -1,6 +1,6 @@
 {
   "name": "rhodonite",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "keywords": [
     "rhodonite",
     "webgl",
@@ -80,7 +80,7 @@
     "puppeteer": "9.1.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "shaderity-loader": "^0.0.16",
+    "shaderity-loader": "0.0.17",
     "shelljs": "^0.8.3",
     "shx": "0.3.3",
     "ts-jest": "^28.0.3",
@@ -97,7 +97,7 @@
   "dependencies": {
     "ktx-parse": "^0.2.1",
     "requirejs": "^2.3.6",
-    "shaderity": "^0.2.2",
+    "shaderity": "0.2.3",
     "zlibjs": "^0.3.1",
     "zstddec": "^0.0.2"
   },
