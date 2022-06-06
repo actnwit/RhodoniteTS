@@ -296,11 +296,26 @@ export class GlobalDataRepository {
     this.registerProperty(lightNumberInfo, 1);
     this.takeOne(ShaderSemantics.LightNumber);
 
+    const backBufferTextureSize = {
+      semantic: ShaderSemantics.BackBufferTextureSize,
+      compositionType: CompositionType.Vec2,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+      isCustomSetting: true,
+      needUniformInFastest: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: Vector2.fromCopy2(0, 0),
+    };
+    this.registerProperty(backBufferTextureSize, 1);
+    this.takeOne(ShaderSemantics.BackBufferTextureSize);
+
     const vrState = {
       semantic: ShaderSemantics.VrState,
       compositionType: CompositionType.Vec2,
       componentType: ComponentType.Int,
-      stage: ShaderType.VertexAndPixelShader,
+      stage: ShaderType.PixelShader,
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
       isCustomSetting: true,

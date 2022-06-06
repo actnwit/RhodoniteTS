@@ -63,7 +63,6 @@ uniform bool u_inverseEnvironment; // initialValue=true
   uniform float u_transmissionFactor; // initialValue=(0)
   uniform sampler2D u_transmissionTexture; // initialValue=(11,white)
   uniform sampler2D u_backBufferTexture; // initialValue=(12,black)
-  uniform vec2 u_backBufferTextureSize; // initialValue=(0,0), isCustomSetting=true
 #endif
 
 #ifdef RN_USE_VOLUME
