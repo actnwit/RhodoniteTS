@@ -270,7 +270,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   ${indexStr}
   `;
 
-      let str = `${varDef}${firstPartOfInnerFunc}`;
+      let str = `${varDef}\n${firstPartOfInnerFunc}`;
 
       switch (info.compositionType) {
         case CompositionType.Vec4:
@@ -337,18 +337,24 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
       str += `
   return val;
-    }`;
-      return str;
-    } else if (!isTexture && info.needUniformInFastest) {
-      let varIndexStr = '';
-      if (info.arrayLength) {
-        varIndexStr = '[idxOfArray]';
-      }
-      const str = `${varDef}${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
-  return u_${methodName}${varIndexStr};
 }
 `;
       return str;
+    } else if (!isTexture && info.needUniformInFastest) {
+      if (!isWebGL2 && info.arrayLength) {
+        return `\n${varDef}\n`;
+      } else {
+        let varIndexStr = '';
+        if (info.arrayLength) {
+          varIndexStr = '[idxOfArray]';
+        }
+        const str = `${varDef}
+${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+  return u_${methodName}${varIndexStr};
+}
+`;
+        return str;
+      }
     } else {
       return varDef;
     }
