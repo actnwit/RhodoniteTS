@@ -1,11 +1,11 @@
 exports.testFunc = async (jest, browser, url, expect) => {
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(450000);
+  await page.setDefaultNavigationTimeout(2000000);
   await page.goto(
     'http://localhost:8082/samples/test_e2e/ColorGradingUsingLUTs'
   );
   await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 450000});
+  await page.waitForSelector('p#rendered', {timeout: 2000000});
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot();
@@ -34,7 +34,7 @@ exports.testCheckWindowRendered = async (
   consoleOn = false
 ) => {
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(450000);
+  await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
   if (consoleOn) {
     this.consoleLog(page);
@@ -44,7 +44,7 @@ exports.testCheckWindowRendered = async (
     () => {
       return window._rendered;
     },
-    {timeout: 450000}
+    {timeout: 2000000}
   );
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
@@ -70,13 +70,13 @@ exports.testCheckPtoDocument = async (
   consoleOn = false
 ) => {
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(450000);
+  await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
   if (consoleOn) {
     this.consoleLog(page);
   }
   await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 450000});
+  await page.waitForSelector('p#rendered', {timeout: 2000000});
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   if (noParam) {

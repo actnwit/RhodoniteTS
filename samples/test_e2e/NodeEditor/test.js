@@ -3,7 +3,7 @@ test('regression test NodeEditor', async () => {
   const page = await browser.newPage();
   await page.goto('http://localhost:8082/samples/test_e2e/NodeEditor');
   await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 450000});
+  await page.waitForSelector('p#rendered', {timeout: 2000000});
   const windowHandle = await page.evaluateHandle(() => window);
   const vertexValueHandle = await windowHandle.getProperty('vertexShader');
   const pixelValueHandle = await windowHandle.getProperty('pixelShader');
