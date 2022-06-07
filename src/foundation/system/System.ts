@@ -186,10 +186,12 @@ export class System {
           ComponentRepository.getComponentClass(componentTid)!;
         if (stage === ProcessStage.Render) {
           for (const exp of expressions) {
-            let renderPassN = 1;
-            if (componentTid === MeshRendererComponent.componentTID) {
-              renderPassN = exp!.renderPasses.length;
+            let renderPassN = 0;
+            if (!(componentTid === WellKnownComponentTIDs.MeshRendererComponentTID ||
+              componentTid === WellKnownComponentTIDs.EffekseerComponentTID)) {
+              continue;
             }
+            renderPassN = exp!.renderPasses.length;
 
             for (let i = 0; i < renderPassN; i++) {
               const renderPass = exp!.renderPasses[i];
