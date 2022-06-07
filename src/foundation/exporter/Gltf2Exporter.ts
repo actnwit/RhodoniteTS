@@ -538,7 +538,7 @@ export class Gltf2Exporter {
             material.pbrMetallicRoughness.baseColorFactor =
               Array.prototype.slice.call(colorParam._v);
 
-            material.alphaMode = rnMaterial.alphaMode.str;
+            material.alphaMode = rnMaterial.alphaMode.toGltfString();
 
             const existedImages: string[] = [];
 
