@@ -1,10 +1,20 @@
 import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
 
-export type AlphaModeEnum = EnumIO;
+export interface AlphaModeEnum extends EnumIO {
+  toGltfString(): string;
+}
 
 class AlphaModeClass extends EnumClass implements AlphaModeEnum {
   constructor({index, str}: {index: number; str: string}) {
     super({index, str});
+  }
+
+  toGltfString(): string {
+    if (this.str === 'TRANSLUCENT') {
+      return 'BLEND';
+    } else {
+      return this.str;
+    }
   }
 }
 
@@ -19,7 +29,7 @@ const Additive: AlphaModeEnum = new AlphaModeClass({index: 3, str: 'ADDITIVE'});
 const typeList = [Opaque, Mask, Translucent, Additive];
 
 function from(index: number): AlphaModeEnum | undefined {
-  return _from({typeList, index});
+  return _from({typeList, index}) as AlphaModeEnum;
 }
 
 function fromString(str: string): AlphaModeEnum | undefined {
