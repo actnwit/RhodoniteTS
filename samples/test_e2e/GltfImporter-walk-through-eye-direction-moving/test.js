@@ -13,7 +13,7 @@ test('regression test GltfImporter-walk-through-eye-direction-moving', async () 
   await page.mouse.move(0, 100);
   await page.mouse.up();
 
-  await page.waitForSelector('p#moved', {timeout: 10000});
+  await page.waitForSelector('p#moved', {timeout: 2000000});
 
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
