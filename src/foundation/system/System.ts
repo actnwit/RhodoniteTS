@@ -181,11 +181,11 @@ export class System {
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
-      for (const componentTid of componentTids) {
-        const componentClass: typeof Component =
-          ComponentRepository.getComponentClass(componentTid)!;
-        if (stage === ProcessStage.Render) {
-          for (const exp of expressions) {
+      for (const exp of expressions) {
+        for (const componentTid of componentTids) {
+          const componentClass: typeof Component =
+            ComponentRepository.getComponentClass(componentTid)!;
+          if (stage === ProcessStage.Render) {
             let renderPassN = 1;
             if (componentTid === MeshRendererComponent.componentTID) {
               renderPassN = exp!.renderPasses.length;
@@ -247,33 +247,33 @@ export class System {
                 renderPass.copyFramebufferToResolveFramebuffer2();
               }
             }
-          }
-        } else {
-          componentClass.updateComponentsOfEachProcessStage(
-            componentClass,
-            stage
-          );
+          } else {
+            componentClass.updateComponentsOfEachProcessStage(
+              componentClass,
+              stage
+            );
 
-          const componentClass_commonMethod = (componentClass as any)[
-            commonMethodName
-          ];
-          if (componentClass_commonMethod) {
-            componentClass_commonMethod({
-              processApproach: this.__processApproach,
-              renderPass: void 0,
+            const componentClass_commonMethod = (componentClass as any)[
+              commonMethodName
+            ];
+            if (componentClass_commonMethod) {
+              componentClass_commonMethod({
+                processApproach: this.__processApproach,
+                renderPass: void 0,
+                processStage: stage,
+                renderPassTickCount: this.__renderPassTickCount,
+              });
+            }
+
+            componentClass.process({
+              componentType: componentClass,
               processStage: stage,
+              processApproach: this.__processApproach,
+              strategy: this.__webglStrategy!,
+              renderPass: void 0,
               renderPassTickCount: this.__renderPassTickCount,
             });
           }
-
-          componentClass.process({
-            componentType: componentClass,
-            processStage: stage,
-            processApproach: this.__processApproach,
-            strategy: this.__webglStrategy!,
-            renderPass: void 0,
-            renderPassTickCount: this.__renderPassTickCount,
-          });
         }
       }
     }
