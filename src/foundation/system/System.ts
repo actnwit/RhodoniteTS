@@ -181,11 +181,11 @@ export class System {
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
-      for (const componentTid of componentTids) {
-        const componentClass: typeof Component =
-          ComponentRepository.getComponentClass(componentTid)!;
-        if (stage === ProcessStage.Render) {
-          for (const exp of expressions) {
+      if (stage === ProcessStage.Render) {
+        for (const exp of expressions) {
+          for (const componentTid of componentTids) {
+            const componentClass: typeof Component =
+              ComponentRepository.getComponentClass(componentTid)!;
             let renderPassN = 0;
             if (!(componentTid === WellKnownComponentTIDs.MeshRendererComponentTID ||
               componentTid === WellKnownComponentTIDs.EffekseerComponentTID)) {
@@ -202,7 +202,7 @@ export class System {
               }
               renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
-              if (componentTid === MeshRendererComponent.componentTID) {
+              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                 // bind Framebuffer
                 System.bindFramebuffer(webXRSystem, renderPass);
 
@@ -250,7 +250,11 @@ export class System {
               }
             }
           }
-        } else {
+        }
+      } else {
+        for (const componentTid of componentTids) {
+          const componentClass: typeof Component =
+            ComponentRepository.getComponentClass(componentTid)!;
           componentClass.updateComponentsOfEachProcessStage(
             componentClass,
             stage

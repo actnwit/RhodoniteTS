@@ -24,6 +24,7 @@ import {IVector3} from '../foundation/math/IVector';
 import type {Unzip} from 'zlib';
 import {IEntity} from '../foundation/core/Entity';
 import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
+import { RenderPass } from '../foundation/renderer/RenderPass';
 
 export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
@@ -325,6 +326,10 @@ export class EffekseerComponent extends Component {
     // const webGLResourceRepository =
     //   CGAPIResourceRepository.getWebGLResourceRepository();
     // webGLResourceRepository.setWebGLStateToDefault();
+    if (Is.not.exist(this.__effect)) {
+      this.moveStageTo(ProcessStage.Load);
+      return;
+    }
     const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.current
@@ -346,6 +351,14 @@ export class EffekseerComponent extends Component {
     }
 
     this.moveStageTo(ProcessStage.Logic);
+  }
+
+  static sort_$render(renderPass: RenderPass): ComponentSID[] {
+    if (Is.false(renderPass.toRenderEffekseerEffects)) {
+      return [];
+    }
+    const components = ComponentRepository.getComponentsWithType(EffekseerComponent);
+    return components.map(c => c.componentSID);
   }
 
   /**

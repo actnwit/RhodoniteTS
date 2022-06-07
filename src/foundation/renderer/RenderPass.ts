@@ -46,6 +46,7 @@ export class RenderPass extends RnObject {
   public isOutputForVr = false;
   public toRenderOpaquePrimitives = true;
   public toRenderTransparentPrimitives = true;
+  public toRenderEffekseerEffects = false;
   public __renderTargetColorAttachments?: RenderBufferTargetEnum[];
   private __preRenderFunc?: Function;
   private static __tmp_Vector4_0 = MutableVector4.zero();
