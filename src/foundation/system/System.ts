@@ -94,9 +94,8 @@ export class System {
     }) as FrameRequestCallback);
   }
 
-  private static __getAnimationFrameObject(): Window | VRDisplay | XRSession {
-    let animationFrameObject: Window | VRDisplay | XRSession | undefined =
-      window;
+  private static __getAnimationFrameObject(): Window | XRSession {
+    let animationFrameObject: Window | XRSession | undefined = window;
     const rnVRModule = ModuleManager.getInstance().getModule('xr') as
       | RnXR
       | undefined;
