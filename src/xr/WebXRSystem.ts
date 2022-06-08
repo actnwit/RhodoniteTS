@@ -5,17 +5,6 @@ import {Index} from '../types/CommonTypes';
 import {Vector4} from '../foundation/math/Vector4';
 import {IEntity} from '../foundation/core/Entity';
 import {WebGLContextWrapper} from '../webgl/WebGLContextWrapper';
-import type {
-  Navigator,
-  XRSession,
-  XRReferenceSpace,
-  XRViewerPose,
-  XRWebGLLayer,
-  XRFrame,
-  XRReferenceSpaceType,
-  XRInputSourceChangeEvent,
-  XRInputSource,
-} from 'webxr';
 import {System} from '../foundation/system/System';
 import {ModuleManager} from '../foundation/system/ModuleManager';
 import {
@@ -112,7 +101,7 @@ export class WebXRSystem {
       return [];
     }
     this.__glw = glw;
-    const supported = await navigator.xr.isSessionSupported('immersive-vr');
+    const supported = await navigator.xr!.isSessionSupported('immersive-vr');
     if (supported) {
       if (requestButtonDom) {
         requestButtonDom.style.display = 'block';
@@ -161,7 +150,7 @@ export class WebXRSystem {
 
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
-      const session = (await navigator.xr.requestSession(
+      const session = (await navigator.xr!.requestSession(
         'immersive-vr'
       )) as XRSession;
       this.__xrSession = session;
