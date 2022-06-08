@@ -19,7 +19,6 @@ import {CameraType} from '../definitions/CameraType';
 import {Time} from '../misc/Time';
 import SystemState from './SystemState';
 import {MiscUtil, valueWithCompensation} from '../misc/MiscUtil';
-import {XRFrame, XRSession} from 'webxr';
 import type {RnXR} from '../../xr/main';
 import {Is} from '../misc/Is';
 import {EntityHelper, ISceneGraphEntity} from '../helpers/EntityHelper';
