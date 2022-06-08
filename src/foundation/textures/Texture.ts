@@ -157,7 +157,7 @@ export class Texture extends AbstractTexture {
 
     const transcodedData =
       KTX2TextureLoader.getInstance().transcode(uint8Array);
-    transcodedData.then(data => {
+    transcodedData.then((data: any) => {
       this.__width = data.width;
       this.__height = data.height;
       this.generateCompressedTextureWithMipmapFromTypedArray(
