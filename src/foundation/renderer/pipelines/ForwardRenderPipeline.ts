@@ -7,16 +7,21 @@ import {RenderableHelper} from '../../helpers/RenderableHelper';
 import {MathUtil} from '../../math/MathUtil';
 import {Scalar} from '../../math/Scalar';
 import {Vector4} from '../../math/Vector4';
+import {IOption, None, Some} from '../../misc/Option';
 import {Is} from '../../misc/Is';
 import {CubeTexture} from '../../textures/CubeTexture';
 import {Expression} from '../Expression';
+import {Frame} from '../Frame';
 import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
 
 export class ForwardRenderPipeline {
+  private __oFrame: IOption<Frame> = new None();
   constructor() {}
 
   setup(canvasWidth: number, canvasHeight: number) {
+    const sFrame = new Some(new Frame());
+    this.__oFrame = sFrame;
     // create Frame Buffers
     const {
       framebufferTargetOfGammaMsaa,
@@ -25,6 +30,13 @@ export class ForwardRenderPipeline {
     } = this.createRenderTargets(canvasWidth, canvasHeight);
 
     this.setupInitialExpression(framebufferTargetOfGammaMsaa);
+
+    this.setupMsaaResolveExpression(
+      sFrame,
+      framebufferTargetOfGammaMsaa,
+      framebufferTargetOfGammaResolve,
+      framebufferTargetOfGammaResolveForReference
+    );
   }
 
   setOpaqueRenderPass(renderPass: RenderPass) {
@@ -147,5 +159,28 @@ export class ForwardRenderPipeline {
         }
       }
     }
+  }
+
+  setupMsaaResolveExpression(
+    frame: Some<Frame>,
+    framebufferTargetOfGammaMsaa: FrameBuffer,
+    framebufferTargetOfGammaResolve: FrameBuffer,
+    framebufferTargetOfGammaResolveForReference: FrameBuffer
+  ) {
+    const expressionForResolve = new Expression();
+    expressionForResolve.tryToSetUniqueName('Resolve', true);
+    const renderPassForResolve = new RenderPass();
+    expressionForResolve.addRenderPasses([renderPassForResolve]);
+
+    renderPassForResolve.toClearDepthBuffer = false;
+    renderPassForResolve.setFramebuffer(framebufferTargetOfGammaMsaa);
+    renderPassForResolve.setResolveFramebuffer(framebufferTargetOfGammaResolve);
+    renderPassForResolve.setResolveFramebuffer2(
+      framebufferTargetOfGammaResolveForReference
+    );
+
+    frame.get().addExpression(expressionForResolve);
+
+    return expressionForResolve;
   }
 }
