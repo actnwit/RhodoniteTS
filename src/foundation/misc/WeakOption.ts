@@ -11,6 +11,7 @@ export interface IWeakOption<B extends object, T> {
   unwrapOrElse(base: B, f: (...vals: any) => T): T;
   unwrapForce(base: B): T;
   unwrapOrUndefined(base: B): T | undefined;
+  has(base: B): boolean;
 }
 
 export class WeakOption<B extends object, T> implements IWeakOption<B, T> {
@@ -52,6 +53,10 @@ export class WeakOption<B extends object, T> implements IWeakOption<B, T> {
 
   unwrapOrUndefined(base: B): T | undefined {
     return this.__weakMap.get(base);
+  }
+
+  has(base: B): boolean {
+    return this.__weakMap.has(base);
   }
 }
 
@@ -98,6 +103,10 @@ export class WeakSome<B extends object, T> implements IWeakOption<B, T> {
   unwrapOrUndefined(base: B): T | undefined {
     return this.__weakMap.get(base);
   }
+
+  has(base: B): true {
+    return true;
+  }
 }
 
 /**
@@ -120,7 +129,11 @@ export class WeakNone<B extends object> implements IWeakOption<B, never> {
     throw new ReferenceError(errorStr);
   }
 
-  unwrapOrUndefined(base: B): undefined {
-    return undefined;
+  unwrapOrUndefined(base: B): never {
+    return undefined as never;
+  }
+
+  has(): false {
+    return false;
   }
 }

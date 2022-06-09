@@ -15,10 +15,11 @@ export interface IOption<T> {
   unwrapOrElse(f: (...vals: any) => T): T;
   unwrapOrUndefined(): T | undefined;
   unwrapForce(): T;
+  has(): boolean;
 }
 
 export class Option<T> implements IOption<T> {
-  private value?: T;
+  constructor(private value?: T) {}
 
   set(val: T) {
     this.value = val;
@@ -68,6 +69,10 @@ export class Option<T> implements IOption<T> {
       return undefined;
     }
   }
+
+  has(): boolean {
+    return Is.exist(this.value);
+  }
 }
 
 /**
@@ -80,7 +85,7 @@ export class Some<T> implements IOption<T> {
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then<U>(f: (value: T) => None): None;
+  then(f: (value: T) => None): None;
   then<U>(f: (value: T) => Some<U>): Some<U>;
   then<U>(f: (value: T) => IOption<U>): IOption<U> {
     return f(this.value);
@@ -116,6 +121,10 @@ export class Some<T> implements IOption<T> {
   unwrapOrUndefined(): T {
     return this.value;
   }
+
+  has(): true {
+    return true;
+  }
 }
 
 /**
@@ -138,7 +147,11 @@ export class None implements IOption<never> {
     throw new ReferenceError(errorStr);
   }
 
-  unwrapOrUndefined(): undefined {
-    return undefined;
+  unwrapOrUndefined(): never {
+    return undefined as never;
+  }
+
+  has(): false {
+    return false;
   }
 }
