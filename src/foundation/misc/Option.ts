@@ -92,7 +92,6 @@ export class Some<T> implements IOption<T> {
   }
 
   /**
-   * @deprecated use the 'get' method instead
    * @param altValue
    * @returns
    */
@@ -101,7 +100,6 @@ export class Some<T> implements IOption<T> {
   }
 
   /**
-   * @deprecated use the 'get' method instead
    * @param altValue
    * @returns
    */
@@ -110,7 +108,6 @@ export class Some<T> implements IOption<T> {
   }
 
   /**
-   * @deprecated use the 'get' method instead
    * @param altValue
    * @returns
    */

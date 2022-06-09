@@ -70,7 +70,6 @@ export class WeakSome<B extends object, T> implements IWeakOption<B, T> {
   }
 
   /**
-   * @deprecated use the 'get' method instead
    * @param altValue
    * @returns
    */
@@ -79,7 +78,6 @@ export class WeakSome<B extends object, T> implements IWeakOption<B, T> {
   }
 
   /**
-   * @deprecated use the 'get' method instead
    * @param altValue
    * @returns
    */
@@ -88,7 +86,6 @@ export class WeakSome<B extends object, T> implements IWeakOption<B, T> {
   }
 
   /**
-   * @deprecated use the 'get' method instead
    * @param altValue
    * @returns
    */
