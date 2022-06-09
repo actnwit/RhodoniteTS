@@ -1,7 +1,10 @@
 import {MeshComponent} from '../../components/Mesh/MeshComponent';
 import {MeshRendererComponent} from '../../components/MeshRenderer/MeshRendererComponent';
 import {ComponentRepository} from '../../core/ComponentRepository';
-import {ShaderSemantics, ShaderSemanticsEnum} from '../../definitions/ShaderSemantics';
+import {
+  ShaderSemantics,
+  ShaderSemanticsEnum,
+} from '../../definitions/ShaderSemantics';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import {RenderableHelper} from '../../helpers/RenderableHelper';
 import {MathUtil} from '../../math/MathUtil';
@@ -20,11 +23,17 @@ import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {Mesh} from '../../geometry/Mesh';
 import {EntityHelper} from '../../helpers/EntityHelper';
 import {Vector3} from '../../math/Vector3';
-import { MaterialHelper } from '../../helpers/MaterialHelper';
-import { RenderTargetTexture } from '../../textures';
+import {MaterialHelper} from '../../helpers/MaterialHelper';
+import {RenderTargetTexture} from '../../textures';
+import { Size } from '../../../types';
+import { Err, Ok } from '../../misc/Result';
 
 export class ForwardRenderPipeline {
   private __oFrame: IOption<Frame> = new None();
+  private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
+  private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
+  private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
+
   constructor() {}
 
   setup(canvasWidth: number, canvasHeight: number) {
@@ -36,18 +45,23 @@ export class ForwardRenderPipeline {
     this.__oFrame = sFrame;
     // create Frame Buffers
     const {
-      framebufferTargetOfGammaMsaa,
-      framebufferTargetOfGammaResolve,
-      framebufferTargetOfGammaResolveForReference,
+      framebufferMsaa,
+      framebufferResolve,
+      framebufferResolveForReference,
     } = this.__createRenderTargets(canvasWidth, canvasHeight);
 
-    this.__setupInitialExpression(framebufferTargetOfGammaMsaa);
+    this.__setupInitialExpression(framebufferMsaa);
 
     this.__setupMsaaResolveExpression(
       sFrame,
-      framebufferTargetOfGammaMsaa,
-      framebufferTargetOfGammaResolve,
-      framebufferTargetOfGammaResolveForReference
+      framebufferMsaa,
+      framebufferResolve,
+      framebufferResolveForReference
+    );
+    this.__oFrameBufferMsaa = new Some(framebufferMsaa);
+    this.__oFrameBufferResolve = new Some(framebufferResolve);
+    this.__oFrameBufferResolveForReference = new Some(
+      framebufferResolveForReference
     );
 
     return true;
@@ -90,38 +104,33 @@ export class ForwardRenderPipeline {
 
   __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     // MSAA depth
-    const framebufferTargetOfGammaMsaa =
-      RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        0,
-        {
-          isMSAA: true,
-          sampleCountMSAA: 4,
-        }
-      );
-    framebufferTargetOfGammaMsaa.tryToSetUniqueName(
-      'FramebufferTargetOfGammaMsaa',
-      true
+    const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
+      canvasWidth,
+      canvasHeight,
+      0,
+      {
+        isMSAA: true,
+        sampleCountMSAA: 4,
+      }
     );
+    framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfGammaMsaa', true);
 
     // Resolve Color 1
-    const framebufferTargetOfGammaResolve =
-      RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        1,
-        {
-          createDepthBuffer: true,
-        }
-      );
-    framebufferTargetOfGammaResolve.tryToSetUniqueName(
+    const framebufferResolve = RenderableHelper.createTexturesForRenderTarget(
+      canvasWidth,
+      canvasHeight,
+      1,
+      {
+        createDepthBuffer: true,
+      }
+    );
+    framebufferResolve.tryToSetUniqueName(
       'FramebufferTargetOfGammaResolve',
       true
     );
 
     // Resolve Color 2
-    const framebufferTargetOfGammaResolveForReference =
+    const framebufferResolveForReference =
       RenderableHelper.createTexturesForRenderTarget(
         canvasWidth,
         canvasHeight,
@@ -131,14 +140,14 @@ export class ForwardRenderPipeline {
           minFilter: TextureParameter.LinearMipmapLinear,
         }
       );
-    framebufferTargetOfGammaResolveForReference.tryToSetUniqueName(
+    framebufferResolveForReference.tryToSetUniqueName(
       'FramebufferTargetOfGammaResolveForReference',
       true
     );
     return {
-      framebufferTargetOfGammaMsaa,
-      framebufferTargetOfGammaResolve,
-      framebufferTargetOfGammaResolveForReference,
+      framebufferMsaa,
+      framebufferResolve,
+      framebufferResolveForReference,
     };
   }
 
@@ -283,5 +292,19 @@ export class ForwardRenderPipeline {
     renderPass.addEntities([boardEntity]);
 
     return renderPass;
+  }
+
+  resize(width: Size, height: Size) {
+    if (Is.false(this.__oFrame.has())) {
+      return new Err({
+        message: 'not initialized.',
+      });
+    }
+
+    this.__oFrameBufferMsaa.unwrapForce().resize(width, height);
+    this.__oFrameBufferResolve.unwrapForce().resize(width, height);
+    this.__oFrameBufferResolveForReference.unwrapForce().resize(width, height);
+
+    return new Ok();
   }
 }
