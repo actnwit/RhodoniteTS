@@ -477,7 +477,7 @@ declare const window: any;
     pElem?: HTMLElement
   ) {
     // for e2e-test
-    if (pElem === undefined && loopCount > 100) {
+    if (pElem === undefined && loopCount > 50) {
       pElem = document.createElement('p');
       pElem.setAttribute('id', 'rendered');
       pElem.innerText = 'Rendered.';

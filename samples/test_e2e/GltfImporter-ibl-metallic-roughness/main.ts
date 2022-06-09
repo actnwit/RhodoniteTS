@@ -80,7 +80,7 @@ let p: any;
   let count = 0;
 
   const draw = function () {
-    if (p == null && count > 150) {
+    if (p == null && count > 50) {
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';
