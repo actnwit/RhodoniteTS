@@ -1,3 +1,4 @@
+export * from './cache';
 export * from './DataUtil';
 export * from './EnumIO';
 export * from './ImageUtil';
@@ -7,3 +8,4 @@ export * from './Option';
 export * from './Result';
 export * from './RnPromise';
 export * from './Time';
+export * from './WeakOption';
