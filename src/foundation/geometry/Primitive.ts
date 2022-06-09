@@ -31,6 +31,8 @@ import {
   RaycastResult,
   RaycastResultEx1,
 } from './types/GeometryTypes';
+import {IWeakOption, WeakNone, WeakSome} from '../misc/WeakOption';
+import {IOption, None, Some, Option} from '../misc/Option';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -51,7 +53,7 @@ export class Primitive extends RnObject {
   private __material: Material = MaterialHelper.createEmptyMaterial();
   public _prevMaterial: Material = MaterialHelper.createEmptyMaterial();
   private __attributes: Attributes = new Map();
-  private __indices?: Accessor;
+  private __oIndices: IOption<Accessor> = new None();
   private static __primitiveCount: Count = 0;
   private __primitiveUid: PrimitiveUID = -1; // start ID from zero
   private static __headerAccessor?: Accessor;
@@ -59,7 +61,7 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __latestPositionAccessorVersion = 0;
-  private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
+  private __woMesh: IWeakOption<Primitive, IMesh> = new WeakNone();
   private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
@@ -96,11 +98,11 @@ export class Primitive extends RnObject {
    */
   _belongToMesh(mesh: IMesh) {
     // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
-    this.__weakRefMesh.set(this, mesh);
+    this.__woMesh = new WeakSome(this, mesh);
   }
 
   get mesh(): IMesh | undefined {
-    return this.__weakRefMesh.get(this);
+    return this.__woMesh.unwrapOrUndefined(this);
   }
 
   _backupMaterial() {
@@ -121,7 +123,7 @@ export class Primitive extends RnObject {
     material?: Material,
     indicesAccessor?: Accessor
   ) {
-    this.__indices = indicesAccessor;
+    this.__oIndices = new Option(indicesAccessor);
     this.__attributes = attributes;
 
     if (material != null) {
@@ -175,15 +177,19 @@ export class Primitive extends RnObject {
     let indicesAccessor;
     if (indices != null) {
       indicesComponentType = ComponentType.fromTypedArray(indices);
-      indicesBufferView = buffer.takeBufferView({
-        byteLengthToNeed: indices.byteLength,
-        byteStride: 0,
-      }).unwrapForce();
-      indicesAccessor = indicesBufferView.takeAccessor({
-        compositionType: CompositionType.Scalar,
-        componentType: indicesComponentType,
-        count: indices.byteLength / indicesComponentType.getSizeInBytes(),
-      }).unwrapForce();
+      indicesBufferView = buffer
+        .takeBufferView({
+          byteLengthToNeed: indices.byteLength,
+          byteStride: 0,
+        })
+        .unwrapForce();
+      indicesAccessor = indicesBufferView
+        .takeAccessor({
+          compositionType: CompositionType.Scalar,
+          componentType: indicesComponentType,
+          count: indices.byteLength / indicesComponentType.getSizeInBytes(),
+        })
+        .unwrapForce();
       // copy indices
       for (
         let i = 0;
@@ -194,10 +200,12 @@ export class Primitive extends RnObject {
       }
     }
 
-    const attributesBufferView = buffer.takeBufferView({
-      byteLengthToNeed: sumOfAttributesByteSize,
-      byteStride: 0,
-    }).unwrapForce();
+    const attributesBufferView = buffer
+      .takeBufferView({
+        byteLengthToNeed: sumOfAttributesByteSize,
+        byteStride: 0,
+      })
+      .unwrapForce();
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
@@ -207,14 +215,16 @@ export class Primitive extends RnObject {
         VertexAttribute.toVectorComponentN(attributeSemantics[i])
       );
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor: Accessor = attributesBufferView.takeAccessor({
-        compositionType,
-        componentType: ComponentType.fromTypedArray(attributes[i]),
-        count:
-          typedArray.byteLength /
-          compositionType.getNumberOfComponents() /
-          attributeComponentTypes[i].getSizeInBytes(),
-      }).unwrapForce();
+      const accessor: Accessor = attributesBufferView
+        .takeAccessor({
+          compositionType,
+          componentType: ComponentType.fromTypedArray(attributes[i]),
+          count:
+            typedArray.byteLength /
+            compositionType.getNumberOfComponents() /
+            attributeComponentTypes[i].getSizeInBytes(),
+        })
+        .unwrapForce();
       accessor.copyFromTypedArray(typedArray);
       attributeAccessors.push(accessor);
     });
@@ -236,7 +246,7 @@ export class Primitive extends RnObject {
   }
 
   get indicesAccessor(): Accessor | undefined {
-    return this.__indices;
+    return this.__oIndices.unwrapOrUndefined();
   }
 
   getVertexCountAsIndicesBased() {
@@ -288,7 +298,7 @@ export class Primitive extends RnObject {
   }
 
   hasIndices() {
-    return this.__indices != null;
+    return this.__oIndices.has();
   }
 
   get attributeAccessors(): Array<Accessor> {
@@ -394,11 +404,11 @@ export class Primitive extends RnObject {
   }
 
   removeIndices() {
-    this.__indices = undefined;
+    this.__oIndices = new None();
   }
 
   setIndices(accessor: Accessor) {
-    this.__indices = accessor;
+    this.__oIndices = new Some(accessor);
   }
 
   setBlendShapeTargets(targets: Array<Attributes>) {
@@ -493,15 +503,16 @@ export class Primitive extends RnObject {
     let u = 0;
     let v = 0;
     if (this.hasIndices()) {
-      for (let i = 0; i < this.__indices!.elementCount - 2; i++) {
+      const indices = this.__oIndices.unwrapForce();
+      for (let i = 0; i < indices.elementCount - 2; i++) {
         const j = i * incrementNum;
-        if (j + 2 > this.__indices!.elementCount - 1) {
+        if (j + 2 > indices.elementCount - 1) {
           // gl.TRIANGLES
           break;
         }
-        const pos0IndexBase = this.__indices!.getScalar(j, {});
-        const pos1IndexBase = this.__indices!.getScalar(j + 1, {});
-        const pos2IndexBase = this.__indices!.getScalar(j + 2, {});
+        const pos0IndexBase = indices.getScalar(j, {});
+        const pos1IndexBase = indices.getScalar(j + 1, {});
+        const pos2IndexBase = indices.getScalar(j + 2, {});
         const result = this.__castRayInnerTomasMoller(
           origVec3,
           dirVec3,

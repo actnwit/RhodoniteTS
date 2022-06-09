@@ -2,25 +2,25 @@ import {IOption, None, Option, Some} from './Option';
 
 test('Basic usage of Option', () => {
   const val: Option<number> = new Option();
-  expect(val.getOrDefault(0)).toEqual(0);
+  expect(val.unwrapOrDefault(0)).toEqual(0);
   expect(
-    val.getOrElse(() => {
+    val.unwrapOrElse(() => {
       return 100;
     })
   ).toEqual(100);
   expect(() => {
-    val.getOrError();
+    val.unwrapForce();
   }).toThrowError(ReferenceError);
 
   val.set(10);
 
-  expect(val.getOrDefault(0)).toEqual(10);
+  expect(val.unwrapOrDefault(0)).toEqual(10);
   expect(
-    val.getOrElse(() => {
+    val.unwrapOrElse(() => {
       return 100;
     })
   ).toEqual(10);
-  expect(val.getOrError()).toEqual(10);
+  expect(val.unwrapForce()).toEqual(10);
 });
 
 test('Basic usage of Some and None', () => {
@@ -38,16 +38,16 @@ test('Basic usage of Some and None', () => {
 
   const result0: IOption<Hit> = funcUsingSomeAndNone(0); // Some
   const result1: IOption<Hit> = funcUsingSomeAndNone(1); // None
-  expect(result0.getOrError().constructor.name).toBe(Hit.name);
+  expect(result0.unwrapForce().constructor.name).toBe(Hit.name);
   expect(() => {
-    result1.getOrError().constructor.name;
+    result1.unwrapForce().constructor.name;
   }).toThrowError(ReferenceError);
 });
 
 test('An IOption variable can be replaced by Some', () => {
   let val: IOption<number> = new None();
   val = new Some(10);
-  const valRaw = val.getOrError();
+  const valRaw = val.unwrapForce();
 
   expect(valRaw).toEqual(10);
 });

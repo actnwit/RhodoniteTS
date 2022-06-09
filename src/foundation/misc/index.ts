@@ -2,7 +2,6 @@ export * from './DataUtil';
 export * from './EnumIO';
 export * from './ImageUtil';
 export * from './Is';
-export * from './ManualCache';
 export * from './MiscUtil';
 export * from './Option';
 export * from './Result';
