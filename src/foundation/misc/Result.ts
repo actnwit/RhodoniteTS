@@ -2,7 +2,7 @@ import {Is} from './Is';
 
 export interface RnError<ErrObj> {
   message: string;
-  error: ErrObj;
+  error?: ErrObj;
 }
 
 /**
@@ -28,7 +28,7 @@ export interface IResult<T, ErrObj> {
 }
 
 abstract class Result<T, ErrObj> {
-  constructor(protected val: T | RnError<ErrObj>) {}
+  constructor(protected val?: T | RnError<ErrObj>) {}
   match(obj: {
     Ok: (value: T) => void;
     Err: (value: RnError<ErrObj>) => void;
@@ -55,7 +55,7 @@ export class Ok<T, ErrObj>
   extends Result<T, ErrObj>
   implements IResult<T, ErrObj>
 {
-  constructor(val: T) {
+  constructor(val?: T) {
     super(val);
   }
   /**
@@ -99,7 +99,7 @@ export class Err<T, ErrObj>
 {
   private __rnException: RnException<ErrObj>;
 
-  constructor(val: RnError<ErrObj>) {
+  constructor(val?: RnError<ErrObj>) {
     super(val);
     this.__rnException = new RnException(this.val as RnError<ErrObj>);
   }

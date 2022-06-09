@@ -8,10 +8,13 @@ test('Basic usage of Option', () => {
       return 100;
     })
   ).toEqual(100);
+
+  // throw error
   expect(() => {
     val.unwrapForce();
   }).toThrowError(ReferenceError);
 
+  // now set a real value
   val.set(10);
 
   expect(val.unwrapOrDefault(0)).toEqual(10);
