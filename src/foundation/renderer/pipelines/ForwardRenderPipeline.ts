@@ -25,8 +25,9 @@ import {EntityHelper} from '../../helpers/EntityHelper';
 import {Vector3} from '../../math/Vector3';
 import {MaterialHelper} from '../../helpers/MaterialHelper';
 import {RenderTargetTexture} from '../../textures';
-import { Size } from '../../../types';
-import { Err, Ok } from '../../misc/Result';
+import {Size} from '../../../types';
+import {Err, Ok} from '../../misc/Result';
+import { System } from '../../system/System';
 
 export class ForwardRenderPipeline {
   private __oFrame: IOption<Frame> = new None();
@@ -36,13 +37,24 @@ export class ForwardRenderPipeline {
 
   constructor() {}
 
-  setup(canvasWidth: number, canvasHeight: number) {
+  setup(
+    canvasWidth: number,
+    canvasHeight: number,
+    opaqueExpressions: Expression[],
+    transparentExpressions: Expression[]
+  ) {
     if (this.__oFrame.has()) {
-      console.log('Already setup');
-      return false;
+      return new Err({
+        message: 'Already setup',
+      });
     }
+
+    this.setOpaqueExpressions(opaqueExpressions);
+    this.setTransparentExpressions(transparentExpressions);
+
     const sFrame = new Some(new Frame());
     this.__oFrame = sFrame;
+
     // create Frame Buffers
     const {
       framebufferMsaa,
@@ -50,9 +62,11 @@ export class ForwardRenderPipeline {
       framebufferResolveForReference,
     } = this.__createRenderTargets(canvasWidth, canvasHeight);
 
-    this.__setupInitialExpression(framebufferMsaa);
+    // Initial Expression
+    const initialExpression = this.__setupInitialExpression(framebufferMsaa);
 
-    this.__setupMsaaResolveExpression(
+    // Msaa Expression
+    const msaaResolveExpression = this.__setupMsaaResolveExpression(
       sFrame,
       framebufferMsaa,
       framebufferResolve,
@@ -64,19 +78,35 @@ export class ForwardRenderPipeline {
       framebufferResolveForReference
     );
 
-    return true;
+    // gamma Expression
+    const gammaExpression = this.__setupGammaExpression(
+      sFrame,
+      framebufferResolve
+    );
+
+    sFrame.unwrapForce().addExpression(initialExpression);
+    sFrame.unwrapForce().addExpression(msaaResolveExpression);
+    sFrame.unwrapForce().addExpression(gammaExpression);
+
+    return new Ok();
   }
 
-  setOpaqueRenderPass(renderPass: RenderPass) {
-    const rp = renderPass.clone();
-    rp.toRenderOpaquePrimitives = true;
-    rp.toRenderTransparentPrimitives = false;
+  setOpaqueExpressions(expressions: Expression[]) {
+    for (const expression of expressions) {
+      for (const rp of expression.renderPasses) {
+        rp.toRenderOpaquePrimitives = true;
+        rp.toRenderTransparentPrimitives = false;
+      }
+    }
   }
 
-  setTransparentRenderPass(renderPass: RenderPass) {
-    const rp = renderPass.clone();
-    rp.toRenderOpaquePrimitives = false;
-    rp.toRenderTransparentPrimitives = true;
+  setTransparentExpressions(expressions: Expression[]) {
+    for (const expression of expressions) {
+      for (const rp of expression.renderPasses) {
+        rp.toRenderOpaquePrimitives = false;
+        rp.toRenderTransparentPrimitives = true;
+      }
+    }
   }
 
   __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
@@ -185,7 +215,7 @@ export class ForwardRenderPipeline {
   }
 
   __setupMsaaResolveExpression(
-    frame: Some<Frame>,
+    sFrame: Some<Frame>,
     framebufferTargetOfGammaMsaa: FrameBuffer,
     framebufferTargetOfGammaResolve: FrameBuffer,
     framebufferTargetOfGammaResolveForReference: FrameBuffer
@@ -202,7 +232,7 @@ export class ForwardRenderPipeline {
       framebufferTargetOfGammaResolveForReference
     );
 
-    frame.unwrapForce().addExpression(expressionForResolve);
+    sFrame.unwrapForce().addExpression(expressionForResolve);
 
     return expressionForResolve;
   }
@@ -215,7 +245,10 @@ export class ForwardRenderPipeline {
     return cameraEntity;
   }
 
-  __setupGammaExpression(frame: Frame, gammaTargetFramebuffer: FrameBuffer) {
+  __setupGammaExpression(
+    sFrame: Some<Frame>,
+    gammaTargetFramebuffer: FrameBuffer
+  ) {
     const expressionGammaEffect = new Expression();
 
     // gamma correction (and super sampling)
@@ -237,7 +270,7 @@ export class ForwardRenderPipeline {
 
     expressionGammaEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
-    frame.addExpression(expressionGammaEffect);
+    return expressionGammaEffect;
   }
 
   __setTextureParameterForMeshComponents(
@@ -304,6 +337,20 @@ export class ForwardRenderPipeline {
     this.__oFrameBufferMsaa.unwrapForce().resize(width, height);
     this.__oFrameBufferResolve.unwrapForce().resize(width, height);
     this.__oFrameBufferResolveForReference.unwrapForce().resize(width, height);
+
+    return new Ok();
+  }
+
+  startRenderLoop(func: (frame: Frame) => void) {
+    if (Is.false(this.__oFrame.has())) {
+      return new Err({
+        message: 'not initialized.',
+      });
+    }
+
+    System.startRenderLoop(() => {
+      func(this.__oFrame.unwrapForce());
+    });
 
     return new Ok();
   }
