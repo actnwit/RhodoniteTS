@@ -11,9 +11,10 @@ export interface IOption<T> {
   then<U>(f: (value: T) => IOption<U>): IOption<U>;
   then(f: (value: T) => None): None;
 
-  getOrDefault(altValue: T): T;
-  getOrElse(f: (...vals: any) => T): T;
-  getOrError(): T;
+  unwrapOrDefault(altValue: T): T;
+  unwrapOrElse(f: (...vals: any) => T): T;
+  unwrapOrUndefined(): T | undefined;
+  unwrapForce(): T;
 }
 
 export class Option<T> implements IOption<T> {
@@ -24,10 +25,10 @@ export class Option<T> implements IOption<T> {
   }
 
   /**
-   * This method is essentially same to the Some::and_then() in Rust language
+   * if inner
    * @param f
    */
-  then<U>(f: (value: T) => None): None;
+  then(f: (value: T) => None): None;
   then<U>(f: (value: T) => Some<U>): Some<U>;
   then<U>(f: (value: T) => IOption<U>): IOption<U> {
     return Is.exist(this.value) ? f(this.value) : new None();
@@ -37,7 +38,7 @@ export class Option<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  getOrDefault(altValue: T): T {
+  unwrapOrDefault(altValue: T): T {
     return Is.exist(this.value) ? this.value : altValue;
   }
 
@@ -45,18 +46,26 @@ export class Option<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  getOrElse(f: (...vals: any) => T): T {
+  unwrapOrElse(f: (...vals: any) => T): T {
     return Is.exist(this.value) ? this.value : f();
   }
 
   /**
    * @returns
    */
-  getOrError(): T {
+  unwrapForce(): T {
     if (Is.exist(this.value)) {
       return this.value;
     } else {
       throw new ReferenceError(errorStr);
+    }
+  }
+
+  unwrapOrUndefined(): T | undefined {
+    if (Is.exist(this.value)) {
+      return this.value;
+    } else {
+      return undefined;
     }
   }
 }
@@ -82,7 +91,7 @@ export class Some<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  getOrDefault(altValue: T): T {
+  unwrapOrDefault(altValue: T): T {
     return this.value;
   }
 
@@ -91,7 +100,7 @@ export class Some<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  getOrElse(f: (value: T) => T): T {
+  unwrapOrElse(f: (value: T) => T): T {
     return this.value;
   }
 
@@ -100,11 +109,11 @@ export class Some<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  getOrError(): T {
+  unwrapForce(): T {
     return this.value;
   }
 
-  get(): T {
+  unwrapOrUndefined(): T {
     return this.value;
   }
 }
@@ -117,15 +126,19 @@ export class None implements IOption<never> {
     return this;
   }
 
-  getOrDefault<T>(value: T): T {
+  unwrapOrDefault<T>(value: T): T {
     return value;
   }
 
-  getOrElse(f: (...vals: any) => never): never {
+  unwrapOrElse(f: (...vals: any) => never): never {
     return f(undefined as never);
   }
 
-  getOrError(): never {
+  unwrapForce(): never {
     throw new ReferenceError(errorStr);
+  }
+
+  unwrapOrUndefined(): undefined {
+    return undefined;
   }
 }

@@ -7,7 +7,5 @@ export class Cache<T> {
     this.__symbolWeakMap.set(Symbol(), value);
   }
 
-  public read(): T {
-
-  }
+  // public read(): T {}
 }

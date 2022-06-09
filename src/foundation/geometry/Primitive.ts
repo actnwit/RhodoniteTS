@@ -31,6 +31,7 @@ import {
   RaycastResult,
   RaycastResultEx1,
 } from './types/GeometryTypes';
+import { IWeakOption, WeakNone, WeakOption, WeakSome } from '../misc/WeakOption';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -59,7 +60,7 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __latestPositionAccessorVersion = 0;
-  private __weakRefMesh: WeakMap<Primitive, IMesh> = new WeakMap();
+  private __woMesh: IWeakOption<Primitive, IMesh> = new WeakNone();
   private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
@@ -96,11 +97,11 @@ export class Primitive extends RnObject {
    */
   _belongToMesh(mesh: IMesh) {
     // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
-    this.__weakRefMesh.set(this, mesh);
+    this.__woMesh = new WeakSome(this, mesh);
   }
 
   get mesh(): IMesh | undefined {
-    return this.__weakRefMesh.get(this);
+    return this.__woMesh.unwrapOrUndefined(this);
   }
 
   _backupMaterial() {

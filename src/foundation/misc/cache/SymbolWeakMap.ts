@@ -1,4 +1,4 @@
-import {Is} from './Is';
+import {Is} from '../Is';
 
 export class SymbolWeakMap<V> {
   private __weakMap: WeakMap<Symbol, V> = new WeakMap();
