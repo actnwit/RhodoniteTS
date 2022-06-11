@@ -34,6 +34,7 @@ export class ForwardRenderPipeline {
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
+  private __oInitialExpression: IOption<Expression> = new None();
 
   constructor() {}
 
@@ -64,6 +65,7 @@ export class ForwardRenderPipeline {
 
     // Initial Expression
     const initialExpression = this.__setupInitialExpression(framebufferMsaa);
+    this.__oInitialExpression = new Some(initialExpression);
 
     // Msaa Expression
     const msaaResolveExpression = this.__setupMsaaResolveExpression(
@@ -371,5 +373,9 @@ export class ForwardRenderPipeline {
     });
 
     return new Ok();
+  }
+
+  getInitialExpression(): Expression | undefined {
+    return this.__oInitialExpression.unwrapOrUndefined();
   }
 }
