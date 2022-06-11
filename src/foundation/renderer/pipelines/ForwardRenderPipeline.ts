@@ -27,7 +27,7 @@ import {MaterialHelper} from '../../helpers/MaterialHelper';
 import {RenderTargetTexture} from '../../textures';
 import {Size} from '../../../types';
 import {Err, Ok} from '../../misc/Result';
-import { System } from '../../system/System';
+import {System} from '../../system/System';
 
 export class ForwardRenderPipeline {
   private __oFrame: IOption<Frame> = new None();
@@ -105,6 +105,24 @@ export class ForwardRenderPipeline {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = false;
         rp.toRenderTransparentPrimitives = true;
+
+        for (const entity of rp.entities) {
+          const meshComponent = entity.tryToGetMesh();
+          if (Is.exist(meshComponent)) {
+            const mesh = meshComponent.mesh;
+            if (Is.exist(mesh)) {
+              for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
+                const primitive = mesh.getPrimitiveAt(i);
+                primitive.material.setTextureParameter(
+                  ShaderSemantics.BackBufferTexture,
+                  this.__oFrameBufferResolveForReference
+                    .unwrapForce()
+                    .getColorAttachedRenderTargetTexture(0)!
+                );
+              }
+            }
+          }
+        }
       }
     }
   }
