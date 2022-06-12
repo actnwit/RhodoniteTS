@@ -28,15 +28,22 @@ import {RenderTargetTexture} from '../../textures';
 import {Size} from '../../../types';
 import {Err, Ok} from '../../misc/Result';
 import {System} from '../../system/System';
+import { RnObject } from '../../core/RnObject';
 
-export class ForwardRenderPipeline {
+export class ForwardRenderPipeline extends RnObject {
   private __oFrame: IOption<Frame> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
   private __oInitialExpression: IOption<Expression> = new None();
+  private __oMsaaResolveExpression: IOption<Expression> = new None();
+  private __oGammaExpression: IOption<Expression> = new None();
+  private __opaqueExpressions: Expression[] = [];
+  private __transparentExpressions: Expression[] = [];
 
-  constructor() {}
+  constructor() {
+    super();
+  }
 
   setup(
     canvasWidth: number,
@@ -74,6 +81,7 @@ export class ForwardRenderPipeline {
       framebufferResolve,
       framebufferResolveForReference
     );
+    this.__oMsaaResolveExpression = new Some(msaaResolveExpression);
     this.__oFrameBufferMsaa = new Some(framebufferMsaa);
     this.__oFrameBufferResolve = new Some(framebufferResolve);
     this.__oFrameBufferResolveForReference = new Some(
@@ -85,10 +93,7 @@ export class ForwardRenderPipeline {
       sFrame,
       framebufferResolve
     );
-
-    sFrame.unwrapForce().addExpression(initialExpression);
-    sFrame.unwrapForce().addExpression(msaaResolveExpression);
-    sFrame.unwrapForce().addExpression(gammaExpression);
+    this.__oGammaExpression = new Some(gammaExpression);
 
     return new Ok();
   }
@@ -98,8 +103,10 @@ export class ForwardRenderPipeline {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = true;
         rp.toRenderTransparentPrimitives = false;
+        rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
       }
     }
+    this.__opaqueExpressions = expressions;
   }
 
   setTransparentExpressions(expressions: Expression[]) {
@@ -107,6 +114,8 @@ export class ForwardRenderPipeline {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = false;
         rp.toRenderTransparentPrimitives = true;
+        rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
+        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
 
         for (const entity of rp.entities) {
           const meshComponent = entity.tryToGetMesh();
@@ -127,6 +136,7 @@ export class ForwardRenderPipeline {
         }
       }
     }
+    this.__transparentExpressions = expressions;
   }
 
   __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
@@ -361,6 +371,20 @@ export class ForwardRenderPipeline {
     return new Ok();
   }
 
+  __setExpressions() {
+    const frame = this.__oFrame.unwrapForce();
+    frame.clearExpressions();
+    frame.addExpression(this.getInitialExpression()!);
+    for (const exp of this.__opaqueExpressions) {
+      frame.addExpression(exp);
+    }
+    for (const exp of this.__transparentExpressions) {
+      frame.addExpression(exp);
+    }
+    frame.addExpression(this.getMsaaResolveExpression()!);
+    frame.addExpression(this.getGammaExpression()!);
+  }
+
   startRenderLoop(func: (frame: Frame) => void) {
     if (Is.false(this.__oFrame.has())) {
       return new Err({
@@ -369,6 +393,7 @@ export class ForwardRenderPipeline {
     }
 
     System.startRenderLoop(() => {
+      this.__setExpressions();
       func(this.__oFrame.unwrapForce());
     });
 
@@ -377,5 +402,13 @@ export class ForwardRenderPipeline {
 
   getInitialExpression(): Expression | undefined {
     return this.__oInitialExpression.unwrapOrUndefined();
+  }
+
+  getMsaaResolveExpression(): Expression | undefined {
+    return this.__oMsaaResolveExpression.unwrapOrUndefined();
+  }
+
+  getGammaExpression(): Expression | undefined {
+    return this.__oGammaExpression.unwrapOrUndefined();
   }
 }
