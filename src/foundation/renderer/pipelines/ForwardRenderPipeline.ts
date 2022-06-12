@@ -21,7 +21,7 @@ import {Plane} from '../../geometry/shapes/Plane';
 import {Material} from '../../materials/core/Material';
 import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {Mesh} from '../../geometry/Mesh';
-import {EntityHelper} from '../../helpers/EntityHelper';
+import {EntityHelper, ICameraEntity, IMeshEntity, ISceneGraphEntity} from '../../helpers/EntityHelper';
 import {Vector3} from '../../math/Vector3';
 import {MaterialHelper} from '../../helpers/MaterialHelper';
 import {RenderTargetTexture} from '../../textures';
@@ -29,6 +29,7 @@ import {Size} from '../../../types';
 import {Err, Ok} from '../../misc/Result';
 import {System} from '../../system/System';
 import { RnObject } from '../../core/RnObject';
+import Rn from '../../../cjs';
 
 export class ForwardRenderPipeline extends RnObject {
   private __oFrame: IOption<Frame> = new None();
@@ -40,6 +41,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __oGammaExpression: IOption<Expression> = new None();
   private __opaqueExpressions: Expression[] = [];
   private __transparentExpressions: Expression[] = [];
+  private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
+  private __oGammaCameraEntity: IOption<ICameraEntity> = new None();
 
   constructor() {
     super();
@@ -91,7 +94,8 @@ export class ForwardRenderPipeline extends RnObject {
     // gamma Expression
     const gammaExpression = this.__setupGammaExpression(
       sFrame,
-      framebufferResolve
+      framebufferResolve,
+      canvasWidth / canvasHeight
     );
     this.__oGammaExpression = new Some(gammaExpression);
 
@@ -278,30 +282,74 @@ export class ForwardRenderPipeline extends RnObject {
 
   __setupGammaExpression(
     sFrame: Some<Frame>,
-    gammaTargetFramebuffer: FrameBuffer
+    gammaTargetFramebuffer: FrameBuffer,
+    aspect: number
   ) {
     const expressionGammaEffect = new Expression();
 
-    // gamma correction (and super sampling)
-    const postEffectCameraEntity = this.__createPostEffectCameraEntity();
-    const postEffectCameraComponent = postEffectCameraEntity.getCamera();
+    const entityGamma = Rn.EntityHelper.createMeshEntity()
+    entityGamma.tryToSetUniqueName('Gamma Plane', true)
+    entityGamma.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    })
+    entityGamma.getTransform().scale = Rn.Vector3.fromCopyArray3([aspect, 1, 1])
+    entityGamma.getTransform().rotate = Rn.Vector3.fromCopyArray3([Math.PI / 2, 0, 0]);
 
-    const gammaCorrectionMaterial =
-      MaterialHelper.createGammaCorrectionMaterial();
-    const gammaCorrectionRenderPass = this.__createGammaRenderPass(
-      gammaCorrectionMaterial,
-      postEffectCameraComponent
-    );
+    const primitiveGamma = new Rn.Plane()
+    primitiveGamma.generate({ width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false, flipTextureCoordinateY: false })
+    primitiveGamma.material = Rn.MaterialHelper.createGammaCorrectionMaterial()
+    primitiveGamma.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!);
 
-    this.__setTextureParameterForMeshComponents(
-      gammaCorrectionRenderPass.meshComponents!,
-      ShaderSemantics.BaseColorTexture,
-      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!
-    );
+    const meshGamma = new Rn.Mesh()
+    meshGamma.addPrimitive(primitiveGamma)
+    this.__oGammaBoardEntity = new Some(entityGamma)
 
-    expressionGammaEffect.addRenderPasses([gammaCorrectionRenderPass]);
+    const meshComponentGamma = entityGamma.getComponent(Rn.MeshComponent) as Rn.MeshComponent
+    meshComponentGamma.setMesh(meshGamma)
 
-    return expressionGammaEffect;
+    const cameraEntityGamma = Rn.EntityHelper.createCameraEntity()
+    cameraEntityGamma.tryToSetUniqueName('Gamma Expression Camera', true)
+    cameraEntityGamma.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    })
+    const cameraComponentGamma = cameraEntityGamma.getComponent(Rn.CameraComponent) as Rn.CameraComponent
+    cameraEntityGamma.getTransform().translate = Rn.Vector3.fromCopyArray3([0.0, 0.0, 1.0])
+    cameraComponentGamma.type = Rn.CameraType.Orthographic
+    cameraComponentGamma.zNear = 0.01
+    cameraComponentGamma.zFar = 1000
+    cameraComponentGamma.xMag = aspect
+    cameraComponentGamma.yMag = 1;
+    this.__oGammaCameraEntity = new Some(cameraEntityGamma);
+
+    const renderPassGamma = new Rn.RenderPass()
+    renderPassGamma.tryToSetUniqueName('renderPassGamma', true)
+    renderPassGamma.toClearColorBuffer = false
+    renderPassGamma.toClearDepthBuffer = false
+    renderPassGamma.isDepthTest = false
+    renderPassGamma.clearColor = Rn.Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0])
+    renderPassGamma.addEntities([entityGamma])
+    renderPassGamma.cameraComponent = cameraComponentGamma
+    renderPassGamma.isVrRendering = false
+    renderPassGamma.isOutputForVr = false
+    // getRnAppModel().setRenderPassGamma(renderPassGamma.objectUID)
+
+    const renderPassGammaVr = new Rn.RenderPass()
+    renderPassGammaVr.tryToSetUniqueName('renderPassGammaVr', true)
+    renderPassGammaVr.toClearColorBuffer = false
+    renderPassGammaVr.toClearDepthBuffer = false
+    renderPassGammaVr.isDepthTest = false
+    renderPassGammaVr.clearColor = Rn.Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0])
+    renderPassGammaVr.addEntities([entityGamma])
+    renderPassGammaVr.cameraComponent = cameraComponentGamma
+    renderPassGammaVr.isVrRendering = false
+    renderPassGammaVr.isOutputForVr = true
+
+    expressionGammaEffect.addRenderPasses([renderPassGamma, renderPassGammaVr])
+
+    return expressionGammaEffect
+
   }
 
   __setTextureParameterForMeshComponents(
@@ -321,43 +369,6 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  __createGammaRenderPass(
-    material: Material,
-    cameraComponent: CameraComponent
-  ) {
-    const boardPrimitive = new Plane();
-    boardPrimitive.generate({
-      width: 1,
-      height: 1,
-      uSpan: 1,
-      vSpan: 1,
-      isUVRepeat: false,
-      material,
-    });
-
-    const boardMesh = new Mesh();
-    boardMesh.addPrimitive(boardPrimitive);
-
-    const boardEntity = EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Vector3.fromCopyArray([
-      Math.PI / 2,
-      0.0,
-      0.0,
-    ]);
-    boardEntity.getTransform().translate = Vector3.fromCopyArray([
-      0.0, 0.0, -0.5,
-    ]);
-    const boardMeshComponent = boardEntity.getMesh();
-    boardMeshComponent.setMesh(boardMesh);
-
-    const renderPass = new RenderPass();
-    renderPass.toClearColorBuffer = false;
-    renderPass.cameraComponent = cameraComponent;
-    renderPass.addEntities([boardEntity]);
-
-    return renderPass;
-  }
-
   resize(width: Size, height: Size) {
     if (Is.false(this.__oFrame.has())) {
       return new Err({
@@ -365,9 +376,17 @@ export class ForwardRenderPipeline extends RnObject {
       });
     }
 
+    Rn.System.resizeCanvas(width, height);
+
     this.__oFrameBufferMsaa.unwrapForce().resize(width, height);
     this.__oFrameBufferResolve.unwrapForce().resize(width, height);
     this.__oFrameBufferResolveForReference.unwrapForce().resize(width, height);
+
+    const aspect = width / height;
+    this.__oGammaBoardEntity.unwrapForce().getTransform().scale = Rn.Vector3.fromCopyArray3([aspect, 1, 1])
+    this.__oGammaCameraEntity.unwrapForce().getCamera().xMag = aspect;
+    this.__oGammaExpression.unwrapForce().renderPasses[0].setViewport(Rn.Vector4.fromCopy4(0, 0, width, height))
+    this.__oFrame.unwrapForce().setViewport(Rn.Vector4.fromCopy4(0, 0, width, height))
 
     return new Ok();
   }
