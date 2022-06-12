@@ -333,6 +333,8 @@ export class ForwardRenderPipeline extends RnObject {
     cameraComponentGamma.yMag = 1;
     this.__oGammaCameraEntity = new Some(cameraEntityGamma);
 
+
+    // Rendering for Canvas Frame Buffer
     const renderPassGamma = new RenderPass()
     renderPassGamma.tryToSetUniqueName('renderPassGamma', true)
     renderPassGamma.toClearColorBuffer = false
@@ -343,8 +345,8 @@ export class ForwardRenderPipeline extends RnObject {
     renderPassGamma.cameraComponent = cameraComponentGamma
     renderPassGamma.isVrRendering = false
     renderPassGamma.isOutputForVr = false
-    // getRnAppModel().setRenderPassGamma(renderPassGamma.objectUID)
 
+    // Rendering for VR HeadSet Frame Buffer
     const renderPassGammaVr = new RenderPass()
     renderPassGammaVr.tryToSetUniqueName('renderPassGammaVr', true)
     renderPassGammaVr.toClearColorBuffer = false
