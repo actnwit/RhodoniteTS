@@ -394,20 +394,20 @@ export class ForwardRenderPipeline extends RnObject {
       // width = canvasWidth
       // height = canvasHeight
       // System.resizeCanvas(canvasWidth, canvasHeight);
-      // System.resizeCanvas(width, height);
+      System.resizeCanvas(width, height);
     } else {
       System.resizeCanvas(width, height);
     }
+
+    this.__oFrame.unwrapForce().setViewport(Vector4.fromCopy4(0, 0, width, height))
 
     this.__oFrameBufferMsaa.unwrapForce().resize(width, height);
     this.__oFrameBufferResolve.unwrapForce().resize(width, height);
     this.__oFrameBufferResolveForReference.unwrapForce().resize(width, height);
 
     let aspect = width / height;
-      this.__oFrame.unwrapForce().setViewport(Vector4.fromCopy4(0, 0, width, height))
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
       // aspect = width / height / 2;
-      this.__oGammaExpression.unwrapForce().renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height))
     } else {
     // this.__oGammaExpression.unwrapForce().renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height))
     // this.__oGammaExpression.unwrapForce().renderPasses[1].setViewport(Vector4.fromCopy4(0, 0, width, height))
@@ -416,6 +416,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__oGammaBoardEntity.unwrapForce().getTransform().scale = Vector3.fromCopyArray3([aspect, 1, 1])
     this.__oGammaCameraEntity.unwrapForce().getCamera().xMag = aspect;
+    this.__oGammaExpression.unwrapForce().renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height))
 
 
     return new Ok();
