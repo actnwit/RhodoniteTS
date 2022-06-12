@@ -117,6 +117,7 @@ export class ForwardRenderPipeline extends RnObject {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = true;
         rp.toRenderTransparentPrimitives = false;
+        rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
       }
     }
