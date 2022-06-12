@@ -31,7 +31,11 @@ void main(){
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
   if (get_enableViewMatrix(materialSID, 0)) {
-    gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+    mat4 rotateMatrix = viewMatrix;
+    rotateMatrix[3][0] = 0.0;
+    rotateMatrix[3][1] = 0.0;
+    rotateMatrix[3][2] = 0.0;
+    gl_Position = projectionMatrix * rotateMatrix * worldMatrix * vec4(a_position, 1.0);
   } else {
     gl_Position = projectionMatrix * worldMatrix * vec4(a_position, 1.0);
   }
