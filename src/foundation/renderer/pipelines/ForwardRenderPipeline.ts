@@ -65,8 +65,8 @@ export class ForwardRenderPipeline extends RnObject {
       });
     }
 
-    this.setOpaqueExpressions(opaqueExpressions);
-    this.setTransparentExpressions(transparentExpressions);
+    this.setExpressionsInner(opaqueExpressions);
+    this.setTransparentExpressionsForTransmission(transparentExpressions);
 
     const sFrame = new Some(new Frame());
     this.__oFrame = sFrame;
@@ -112,11 +112,33 @@ export class ForwardRenderPipeline extends RnObject {
     return new Ok();
   }
 
-  setOpaqueExpressions(expressions: Expression[]) {
+  setExpressions(expressions: Expression[], options: {
+    isTransmission: boolean,
+  } = {
+    isTransmission: true
+  }) {
+    this.setExpressionsInner(expressions, {
+      isTransmission: options.isTransmission
+    });
+    const clonedExpressions = expressions.map(expression => expression.clone());
+    if (options.isTransmission) {
+      this.setTransparentExpressionsForTransmission(clonedExpressions)
+    }
+  }
+
+  setExpressionsInner(expressions: Expression[], options: {
+    isTransmission: boolean,
+  } = {
+    isTransmission: true
+  }) {
     for (const expression of expressions) {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = true;
-        rp.toRenderTransparentPrimitives = false;
+        if (options.isTransmission) {
+          rp.toRenderTransparentPrimitives = false;
+        } else {
+          rp.toRenderTransparentPrimitives = true;
+        }
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
       }
@@ -124,8 +146,9 @@ export class ForwardRenderPipeline extends RnObject {
     this.__opaqueExpressions = expressions;
   }
 
-  setTransparentExpressions(expressions: Expression[]) {
+  setTransparentExpressionsForTransmission(expressions: Expression[]) {
     for (const expression of expressions) {
+      expression.tryToSetUniqueName('modelTransparentForTransmission', true);
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = false;
         rp.toRenderTransparentPrimitives = true;
