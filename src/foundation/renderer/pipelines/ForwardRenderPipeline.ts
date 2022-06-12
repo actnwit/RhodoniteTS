@@ -114,8 +114,9 @@ export class ForwardRenderPipeline extends RnObject {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = false;
         rp.toRenderTransparentPrimitives = true;
+        rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
-        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+        // rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
 
         for (const entity of rp.entities) {
           const meshComponent = entity.tryToGetMesh();
@@ -378,6 +379,7 @@ export class ForwardRenderPipeline extends RnObject {
     for (const exp of this.__opaqueExpressions) {
       frame.addExpression(exp);
     }
+    frame.addExpression(this.getMsaaResolveExpression()!);
     for (const exp of this.__transparentExpressions) {
       frame.addExpression(exp);
     }
