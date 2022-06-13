@@ -16,6 +16,7 @@
     "GltfImporter-alpha-blend-mode",
     "GltfImporter-animation-in-second-bin-file",
     "GltfImporter-draco-extension",
+    "GltfImporter-forward-render-pipeline",
     "GltfImporter-ibl-0",
     "GltfImporter-ibl-1",
     "GltfImporter-ibl-1-webgl2",
