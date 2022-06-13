@@ -9,6 +9,7 @@
 in vec2 v_texcoord_0;
 
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
+uniform bool u_enableLinearToSrgb; // initialValue=true
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -23,7 +24,10 @@ void main ()
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
 vec4 baseColor = texture2D(u_baseColorTexture, v_texcoord_0);
-baseColor.rgb = linearToSrgb(baseColor.rgb);
+
+if (get_enableLinearToSrgb(materialSID, 0)) {
+  baseColor.rgb = linearToSrgb(baseColor.rgb);
+}
 
 rt0 = baseColor;
 

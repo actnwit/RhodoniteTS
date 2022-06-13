@@ -692,8 +692,6 @@ export class CameraComponent extends Component {
 
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     if (rnXRModule?.WebXRSystem.getInstance().isWebXRMode) {
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
-      webxrSystem._setValuesToGlobalDataRepository();
     } else {
       this.setValuesToGlobalDataRepository();
     }

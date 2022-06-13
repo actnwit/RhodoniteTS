@@ -190,11 +190,10 @@ export class WebXRSystem {
         this.__spaceType = 'local';
         this.__defaultPositionInLocalSpaceMode =
           initialUserPosition ?? defaultUserPositionInVR;
-      // }
       this.__xrReferenceSpace = referenceSpace;
+      System.stopRenderLoop();
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebXR = true;
-      System.stopRenderLoop();
       System.restartRenderLoop();
       console.warn('End of enterWebXR.');
       return promise;
@@ -439,7 +438,7 @@ export class WebXRSystem {
       // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
     if (this.requestedToEnterWebVR) {
-      this.__isWebXRMode = true;
+      // this.__isWebXRMode = true;
     }
   }
 
@@ -583,6 +582,7 @@ export class WebXRSystem {
         this.__canvasWidthForVR,
         this.__canvasHeightForVR
       );
+      this.__isWebXRMode = true;
       callbackOnXrSessionStart();
     } else {
       console.error('WebGL context is not ready for WebXR.');
