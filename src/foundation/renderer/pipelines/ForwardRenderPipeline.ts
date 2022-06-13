@@ -53,20 +53,12 @@ export class ForwardRenderPipeline extends RnObject {
     super();
   }
 
-  async setup(
-    canvasWidth: number,
-    canvasHeight: number,
-    opaqueExpressions: Expression[],
-    transparentExpressions: Expression[]
-  ) {
+  async setup(canvasWidth: number, canvasHeight: number) {
     if (this.__oFrame.has()) {
       return new Err({
         message: 'Already setup',
       });
     }
-
-    this.setExpressionsInner(opaqueExpressions);
-    this.setTransparentExpressionsForTransmission(transparentExpressions);
 
     const sFrame = new Some(new Frame());
     this.__oFrame = sFrame;
