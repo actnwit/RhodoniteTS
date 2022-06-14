@@ -186,7 +186,7 @@ mat3 fetchMat3(int vec4_idx) {
   return val;
 }
 
-mat3 fetchMat4No16BytesAligned(int scalar_idx) {
+mat4 fetchMat4No16BytesAligned(int scalar_idx) {
 #ifdef GLSL_ES3
   int posIn4bytes = scalar_idx % 4;
 #else
@@ -199,7 +199,7 @@ mat3 fetchMat4No16BytesAligned(int scalar_idx) {
     vec4 col1 = fetchElement(basePosIn16bytes + 1);
     vec4 col2 = fetchElement(basePosIn16bytes + 2);
     vec4 col3 = fetchElement(basePosIn16bytes + 3);
-    mat3 val = mat4(
+    mat4 val = mat4(
       col0.x, col0.y, col0.z, col0.w,
       col1.x, col1.y, col1.z, col1.w,
       col2.x, col2.y, col2.z, col2.w,
@@ -212,7 +212,7 @@ mat3 fetchMat4No16BytesAligned(int scalar_idx) {
     vec4 col2 = fetchElement(basePosIn16bytes + 2);
     vec4 col3 = fetchElement(basePosIn16bytes + 3);
     vec4 col4 = fetchElement(basePosIn16bytes + 4);
-    mat3 val = mat4(
+    mat4 val = mat4(
       col0.y, col0.z, col0.w, col1.x,
       col1.y, col1.z, col1.w, col2.x,
       col2.y, col2.z, col2.w, col3.x,
@@ -225,7 +225,7 @@ mat3 fetchMat4No16BytesAligned(int scalar_idx) {
     vec4 col2 = fetchElement(basePosIn16bytes + 2);
     vec4 col3 = fetchElement(basePosIn16bytes + 3);
     vec4 col4 = fetchElement(basePosIn16bytes + 4);
-    mat3 val = mat4(
+    mat4 val = mat4(
       col0.z, col0.w, col1.x, col1.y,
       col1.z, col1.w, col2.x, col2.y,
       col2.z, col2.w, col3.x, col3.y,
@@ -238,7 +238,7 @@ mat3 fetchMat4No16BytesAligned(int scalar_idx) {
     vec4 col2 = fetchElement(basePosIn16bytes + 2);
     vec4 col3 = fetchElement(basePosIn16bytes + 3);
     vec4 col4 = fetchElement(basePosIn16bytes + 4);
-    mat3 val = mat4(
+    mat4 val = mat4(
       col0.w, col1.x, col1.y, col1.z,
       col1.w, col2.x, col2.y, col2.z,
       col2.w, col3.x, col3.y, col3.z,
