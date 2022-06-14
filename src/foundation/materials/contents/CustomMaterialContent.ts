@@ -154,12 +154,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
             CameraComponent.current
           ) as CameraComponent;
         }
-        this.setViewInfo(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
         this.setProjection(
           shaderProgram,
           cameraComponent,
