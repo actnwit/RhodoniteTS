@@ -66,6 +66,8 @@ export class CameraComponent extends Component {
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
   private static __tmpMatrix44_0 = MutableMatrix44.zero();
+  _xrLeft = false;
+  _xrRight = false;
 
   private __frustum = new Frustum();
 
@@ -547,9 +549,6 @@ export class CameraComponent extends Component {
     return this._projectionMatrix;
   }
 
-  get projectionMatrix() {
-    return this._projectionMatrix;
-  }
 
   calcViewMatrix() {
     const eye = this.eyeInner;
@@ -602,6 +601,21 @@ export class CameraComponent extends Component {
 
   set viewMatrix(viewMatrix: Matrix44) {
     this._viewMatrix.copyComponents(viewMatrix);
+  }
+
+  get projectionMatrix() {
+    if (this._xrLeft || this._xrRight) {
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      if (rnXRModule?.WebXRSystem.getInstance().isWebXRMode) {
+        const webXRSystem = rnXRModule.WebXRSystem.getInstance();
+        if (this._xrLeft) {
+          return webXRSystem.leftProjectionMatrix;
+        } else if (this._xrRight) {
+          return webXRSystem.rightProjectionMatrix;
+        }
+      }
+    }
+    return this._projectionMatrix;
   }
 
   set projectionMatrix(projectionMatrix: Matrix44) {
@@ -688,13 +702,12 @@ export class CameraComponent extends Component {
       this._parametersInner.w = this._parameters.w;
     }
     this.calcViewMatrix();
-    this.calcProjectionMatrix();
 
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (rnXRModule?.WebXRSystem.getInstance().isWebXRMode) {
-    } else {
-      this.setValuesToGlobalDataRepository();
+
+    if (!this._xrLeft && !this._xrRight) {
+      this.calcProjectionMatrix();
     }
+    this.setValuesToGlobalDataRepository();
   }
 
   static getCurrentCameraEntity() {

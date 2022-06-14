@@ -765,7 +765,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
-      webxrSystem._setValuesToGlobalDataRepository();
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
         cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
