@@ -56,7 +56,7 @@ vec2 fetchVec2No16BytesAligned(int scalar_idx) {
     vec4 val0 = fetchElement(basePosIn16bytes);
     vec4 val1 = fetchElement(basePosIn16bytes+1);
     return vec2(val0.zw);
-  } else if (posIn4bytes == 3) {
+  } else { // posIn4bytes == 3
     vec4 val0 = fetchElement(basePosIn16bytes);
     vec4 val1 = fetchElement(basePosIn16bytes+1);
     return vec2(val0.w, val1.x);
@@ -81,7 +81,7 @@ vec3 fetchVec3No16BytesAligned(int scalar_idx) {
     vec4 val0 = fetchElement(basePosIn16bytes);
     vec4 val1 = fetchElement(basePosIn16bytes+1);
     return vec3(val0.zw, val1.x);
-  } else if (posIn4bytes == 3) {
+  } else { // posIn4bytes == 3
     vec4 val0 = fetchElement(basePosIn16bytes);
     vec4 val1 = fetchElement(basePosIn16bytes+1);
     return vec3(val0.w, val1.xy);
@@ -184,6 +184,68 @@ mat3 fetchMat3(int vec4_idx) {
     );
 
   return val;
+}
+
+mat3 fetchMat4No16BytesAligned(int scalar_idx) {
+#ifdef GLSL_ES3
+  int posIn4bytes = scalar_idx % 4;
+#else
+  int posIn4bytes = int(mod(float(scalar_idx), 4.0));
+#endif
+
+  int basePosIn16bytes = (scalar_idx - posIn4bytes) / 4;
+  if (posIn4bytes == 0) {
+    vec4 col0 = fetchElement(basePosIn16bytes);
+    vec4 col1 = fetchElement(basePosIn16bytes + 1);
+    vec4 col2 = fetchElement(basePosIn16bytes + 2);
+    vec4 col3 = fetchElement(basePosIn16bytes + 3);
+    mat3 val = mat4(
+      col0.x, col0.y, col0.z, col0.w,
+      col1.x, col1.y, col1.z, col1.w,
+      col2.x, col2.y, col2.z, col2.w,
+      col3.x, col3.y, col3.z, col3.w
+      );
+    return val;
+  } else if (posIn4bytes == 1) {
+    vec4 col0 = fetchElement(basePosIn16bytes);
+    vec4 col1 = fetchElement(basePosIn16bytes + 1);
+    vec4 col2 = fetchElement(basePosIn16bytes + 2);
+    vec4 col3 = fetchElement(basePosIn16bytes + 3);
+    vec4 col4 = fetchElement(basePosIn16bytes + 4);
+    mat3 val = mat4(
+      col0.y, col0.z, col0.w, col1.x,
+      col1.y, col1.z, col1.w, col2.x,
+      col2.y, col2.z, col2.w, col3.x,
+      col3.y, col3.z, col3.w, col4.x
+      );
+    return val;
+  } else if (posIn4bytes == 2) {
+    vec4 col0 = fetchElement(basePosIn16bytes);
+    vec4 col1 = fetchElement(basePosIn16bytes + 1);
+    vec4 col2 = fetchElement(basePosIn16bytes + 2);
+    vec4 col3 = fetchElement(basePosIn16bytes + 3);
+    vec4 col4 = fetchElement(basePosIn16bytes + 4);
+    mat3 val = mat4(
+      col0.z, col0.w, col1.x, col1.y,
+      col1.z, col1.w, col2.x, col2.y,
+      col2.z, col2.w, col3.x, col3.y,
+      col3.z, col3.w, col4.x, col4.y
+      );
+    return val;
+  } else { // posIn4bytes == 3
+    vec4 col0 = fetchElement(basePosIn16bytes);
+    vec4 col1 = fetchElement(basePosIn16bytes + 1);
+    vec4 col2 = fetchElement(basePosIn16bytes + 2);
+    vec4 col3 = fetchElement(basePosIn16bytes + 3);
+    vec4 col4 = fetchElement(basePosIn16bytes + 4);
+    mat3 val = mat4(
+      col0.w, col1.x, col1.y, col1.z,
+      col1.w, col2.x, col2.y, col2.z,
+      col2.w, col3.x, col3.y, col3.z,
+      col3.w, col4.x, col4.y, col4.z
+      );
+    return val;
+  }
 }
 
 mat4 fetchMat4(int vec4_idx) {
