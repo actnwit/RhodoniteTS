@@ -146,11 +146,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-
-      if (firstTime || args.isVr) {
+      // if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = ComponentRepository.getComponent(
@@ -170,7 +166,11 @@ export class CustomMaterialContent extends AbstractMaterialContent {
           args.isVr,
           args.displayIdx
         );
-      }
+      // }
+    if (args.setUniform) {
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
+
 
       if (firstTime) {
         // Lights

@@ -79,6 +79,7 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isCustomSetting: true,
+      needUniformInFastest: true,
       initialValue: MutableMatrix44.identity(),
     };
     const projectionMatrixInfo = {
@@ -89,6 +90,7 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isCustomSetting: true,
+      needUniformInFastest: true,
       initialValue: MutableMatrix44.identity(),
     };
     const viewPositionInfo = {
