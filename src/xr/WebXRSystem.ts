@@ -121,8 +121,7 @@ export class WebXRSystem {
 
       this.__isReadyForWebXR = true;
     } else {
-      console.error('WebXR is not supported in this environment.');
-      return [];
+      throw new Error('WebXR is not supported in this environment.');
     }
     return [];
   }
