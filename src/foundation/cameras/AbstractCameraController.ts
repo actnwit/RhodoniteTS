@@ -38,10 +38,10 @@ export abstract class AbstractCameraController {
         ) *
           eyeDirection.length());
 
-      camera.zNearInner = Math.min(
+      camera.zNearInner = Math.max(Math.min(
         lengthOfCenterToEye * cos - targetAABB.lengthCenterToCorner,
         this.zNearMax
-      );
+      ), 0.01);
     } else {
       camera.zNearInner = camera.zNear;
     }
