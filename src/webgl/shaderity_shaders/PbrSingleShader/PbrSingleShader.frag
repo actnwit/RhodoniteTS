@@ -166,6 +166,7 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
 }
 
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
+// https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6386b1d8b1a0af257b280aea92d6cd39456e9689/source/Renderer/shaders/punctual.glsl#L128
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
   vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
