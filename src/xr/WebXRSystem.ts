@@ -66,12 +66,15 @@ export class WebXRSystem {
       tag: 'type',
       value: 'background-assets',
     });
+    this.__leftCameraEntity.getCamera()._xrLeft = true;
+
     this.__rightCameraEntity = EntityHelper.createCameraEntity();
     this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true);
     this.__rightCameraEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
     });
+    this.__rightCameraEntity.getCamera()._xrRight = true;
 
     this.__viewerEntity
       .getSceneGraph()
@@ -121,8 +124,7 @@ export class WebXRSystem {
 
       this.__isReadyForWebXR = true;
     } else {
-      console.error('WebXR is not supported in this environment.');
-      return [];
+      throw new Error('WebXR is not supported in this environment.');
     }
     return [];
   }

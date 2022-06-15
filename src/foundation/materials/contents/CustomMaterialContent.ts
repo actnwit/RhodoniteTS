@@ -149,7 +149,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
-
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
@@ -171,6 +170,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
           args.displayIdx
         );
       }
+
 
       if (firstTime) {
         // Lights
