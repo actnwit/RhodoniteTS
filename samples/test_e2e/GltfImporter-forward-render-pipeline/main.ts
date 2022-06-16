@@ -52,7 +52,20 @@ declare const window: any;
   forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
 
   // lighting
-  setIBL('./../../../assets/ibl/papermill');
+  forwardRenderPipeline.setIBL({
+    diffuse: {
+      baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
+      hdriFormat: Rn.HdriFormat.RGBE_PNG,
+      isNamePosNeg: true,
+      mipmapLevelNumber: 1,
+    },
+    specular: {
+      baseUri: './../../../assets/ibl/papermill/specular/specular',
+      hdriFormat: Rn.HdriFormat.RGBE_PNG,
+      isNamePosNeg: true,
+      mipmapLevelNumber: 10,
+    },
+  });
 
   let count = 0;
   let startTime = Date.now();
@@ -90,29 +103,6 @@ function createCamera() {
   cameraComponent.setFovyAndChangeFocalLength(30.0);
   cameraComponent.aspect = 1.0;
   return {cameraComponent, cameraEntity};
-}
-
-function setIBL(baseUri) {
-  const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
-  specularCubeTexture.isNamePosNeg = true;
-  specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-  specularCubeTexture.mipmapLevelNumber = 10;
-
-  const diffuseCubeTexture = new Rn.CubeTexture();
-  diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
-  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-  diffuseCubeTexture.mipmapLevelNumber = 1;
-  diffuseCubeTexture.isNamePosNeg = true;
-
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
-    Rn.MeshRendererComponent
-  ) as Rn.MeshRendererComponent[];
-  for (let i = 0; i < meshRendererComponents.length; i++) {
-    const meshRendererComponent = meshRendererComponents[i];
-    meshRendererComponent.specularCubeMap = specularCubeTexture;
-    meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
-  }
 }
 
 function createEnvCubeExpression(baseuri, cameraEntity) {
