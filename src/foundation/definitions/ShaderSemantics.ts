@@ -335,9 +335,6 @@ const envRotation = new ShaderSemanticsClass({str: 'envRotation'});
 const EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
 const VrState = new ShaderSemanticsClass({str: 'vrState'});
 const EnableLinearToSrgb = new ShaderSemanticsClass({str: 'enableLinearToSrgb'});
-const Ior: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'ior',
-});
 
 const typeList = [
   WorldMatrix,
@@ -431,7 +428,6 @@ const typeList = [
   EnvHdriFormat,
   VrState,
   EnableLinearToSrgb,
-  Ior,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -650,5 +646,4 @@ export const ShaderSemantics = Object.freeze({
   EnvHdriFormat,
   VrState,
   EnableLinearToSrgb,
-  Ior,
 });

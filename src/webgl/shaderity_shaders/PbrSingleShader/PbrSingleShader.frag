@@ -42,7 +42,6 @@ uniform int u_occlusionTexcoordIndex; // initialValue=0
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
 uniform bool u_inverseEnvironment; // initialValue=true
-uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_CLEARCOAT
   uniform float u_clearCoatFactor; // initialValue=0
@@ -167,7 +166,6 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
 }
 
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-// https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6386b1d8b1a0af257b280aea92d6cd39456e9689/source/Renderer/shaders/punctual.glsl#L128
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
   vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
@@ -240,7 +238,7 @@ IblResult IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDire
 }
 
 vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
-  vec3 albedo, vec3 dielectricF0, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
+  vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
   float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld, float thickness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
@@ -252,7 +250,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
     perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix);
 
 #ifdef RN_USE_TRANSMISSION
-  float ior = get_ior(materialSID, 0);
+  float ior = 1.5;
   vec3 refractedRay = getVolumeTransmissionRay(geomNormal_inWorld, viewDirection, thickness, ior);
   vec3 refractedRayFromVPosition = v_position_inWorld + refractedRay;
   vec4 ndcPoint = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayFromVPosition, 1.0);
@@ -280,7 +278,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
     clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
   vec3 coatLayer = coatResult.diffuse + coatResult.specular;
 
-  float clearcoatFresnel = dielectricF0.x + (1.0 - dielectricF0.x) * pow(1.0 - abs(VdotNc), 5.0);
+  float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
   vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
 
   return coated;
@@ -411,9 +409,8 @@ void main ()
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
   // F0
-  float ior = get_ior(materialSID, 0);
-  vec3 dielectricF0 = vec3(((ior - 1.0)/(ior + 1.0)) * ((ior - 1.0)/(ior + 1.0)));
-  vec3 F0 = mix(dielectricF0, baseColor.rgb, metallic);
+  vec3 diffuseMatAverageF0 = vec3(0.04);
+  vec3 F0 = mix(diffuseMatAverageF0, baseColor.rgb, metallic);
 
   // Albedo
   vec3 black = vec3(0.0);
@@ -471,6 +468,7 @@ void main ()
     vec3 pureDiffuse = (vec3(1.0) - F) * diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
+    float ior = 1.5;
     vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
     Light transmittedLightFromUnderSurface = light;
     transmittedLightFromUnderSurface.pointToLight -= refractionVector;
@@ -514,7 +512,7 @@ void main ()
   }
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
-    albedo, dielectricF0, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
+    albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
@@ -534,7 +532,7 @@ void main ()
   vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
 
 #ifdef RN_USE_CLEARCOAT
-  vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(dielectricF0 + (1.0 - dielectricF0) * pow(1.0 - NdotV, 5.0)), clearcoat);
+  vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
   rt0.xyz += coated_emissive;
 #else
   rt0.xyz += emissive;
