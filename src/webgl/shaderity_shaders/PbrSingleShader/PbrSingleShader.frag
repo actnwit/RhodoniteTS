@@ -280,7 +280,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
     clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
   vec3 coatLayer = coatResult.diffuse + coatResult.specular;
 
-  float clearcoatFresnel = dielectricF0 + (1.0 - dielectricF0) * pow(1.0 - abs(VdotNc), 5.0);
+  float clearcoatFresnel = dielectricF0.x + (1.0 - dielectricF0.x) * pow(1.0 - abs(VdotNc), 5.0);
   vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
 
   return coated;
