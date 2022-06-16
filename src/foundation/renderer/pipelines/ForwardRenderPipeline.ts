@@ -156,6 +156,7 @@ export class ForwardRenderPipeline extends RnObject {
       }
     }
     this.__opaqueExpressions = expressions;
+    this.__setIblInnerForOpaque();
   }
 
   setTransparentExpressionsForTransmission(expressions: Expression[]) {
@@ -188,6 +189,7 @@ export class ForwardRenderPipeline extends RnObject {
       }
     }
     this.__transparentExpressions = expressions;
+    this.__setIblInnerForTransparent();
   }
 
   __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
@@ -444,6 +446,7 @@ export class ForwardRenderPipeline extends RnObject {
     diffuseCubeTexture.hdriFormat = arg.diffuse.hdriFormat;
     diffuseCubeTexture.isNamePosNeg = arg.diffuse.isNamePosNeg;
     diffuseCubeTexture.mipmapLevelNumber = arg.diffuse.mipmapLevelNumber;
+    diffuseCubeTexture.loadTextureImagesAsync();
     this.__oDiffuseCubeTexture = new Some(diffuseCubeTexture);
 
     const specularCubeTexture = new CubeTexture();
@@ -451,10 +454,77 @@ export class ForwardRenderPipeline extends RnObject {
     specularCubeTexture.isNamePosNeg = arg.specular.isNamePosNeg;
     specularCubeTexture.hdriFormat = arg.specular.hdriFormat;
     specularCubeTexture.mipmapLevelNumber = arg.specular.mipmapLevelNumber;
+    specularCubeTexture.loadTextureImagesAsync();
     this.__oSpecularCubeTexture = new Some(specularCubeTexture);
 
     this.__setIblInnerForOpaque();
     this.__setIblInnerForTransparent();
+  }
+
+  setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
+    this.__oDiffuseCubeTexture = new Some(diffuse);
+    this.__oSpecularCubeTexture = new Some(specular);
+    this.__setIblInnerForOpaque();
+    this.__setIblInnerForTransparent();
+  }
+
+  setDiffuseIBLContribution(value: number) {
+    for (const expression of this.__opaqueExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.diffuseCubeMapContribution = value;
+          }
+        }
+      }
+    }
+    for (const expression of this.__transparentExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.diffuseCubeMapContribution = value;
+          }
+        }
+      }
+    }
+  }
+
+  setSpecularIBLContribution(value: number) {
+    for (const expression of this.__opaqueExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.specularCubeMapContribution = value;
+          }
+        }
+      }
+    }
+    for (const expression of this.__transparentExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.specularCubeMapContribution = value;
+          }
+        }
+      }
+    }
+  }
+
+  setIBLRotation(radian: number) {
+    for (const expression of this.__opaqueExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.rotationOfCubeMap = radian;
+          }
+        }
+      }
+    }
   }
 
   private __setIblInnerForOpaque() {
