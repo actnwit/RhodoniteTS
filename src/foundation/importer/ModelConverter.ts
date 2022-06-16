@@ -2294,19 +2294,6 @@ function setupPbrMetallicRoughness(
     material,
     metallicRoughnessTexture
   );
-
-  setup_KHR_materials_ior(materialJson, material);
-}
-
-function setup_KHR_materials_ior(
-  materialJson: RnM2Material,
-  material: Material
-) {
-  const KHR_materials_ior = materialJson.extensions?.KHR_materials_ior;
-  if (Is.exist(KHR_materials_ior)) {
-    const ior = Is.exist(KHR_materials_ior.ior) ? KHR_materials_ior.ior : 1.5;
-    material.setParameter(ShaderSemantics.Ior, ior);
-  }
 }
 
 function setup_KHR_materials_transmission(
