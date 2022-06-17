@@ -46,6 +46,14 @@ type IBLCubeTextureParameter = {
   mipmapLevelNumber: number;
 };
 
+/**
+ * ForwardRenderPipeline is a one of render pipelines
+ *
+ * @remarks
+ * A render pipeline is a class of complex multi-pass setups already built in,
+ * which allows users to easily benefit from advanced expressions such as refraction and MSAA.
+ * (like the URP (Universal Render Pipeline) in the Unity engine).
+ */
 export class ForwardRenderPipeline extends RnObject {
   private __oFrame: IOption<Frame> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
@@ -67,6 +75,11 @@ export class ForwardRenderPipeline extends RnObject {
     super();
   }
 
+  /**
+   * Initializes the pipeline.
+   * @param canvasWidth - The width of the canvas.
+   * @param canvasHeight - The height of the canvas.
+   */
   async setup(canvasWidth: number, canvasHeight: number) {
     if (this.__oFrame.has()) {
       return new Err({
@@ -118,6 +131,11 @@ export class ForwardRenderPipeline extends RnObject {
     return new Ok();
   }
 
+  /**
+   * set Expressions for drawing
+   * @param expressions - expressions to draw
+   * @param options - option parameters
+   */
   setExpressions(
     expressions: Expression[],
     options: {
