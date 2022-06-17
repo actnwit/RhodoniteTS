@@ -114,6 +114,13 @@ export class OrbitCameraController
     this.registerEventListeners();
   }
 
+  resetDollyAndTranslation() {
+    this.__dolly = 0.5;
+    this.__mouse_translate_x = 0;
+    this.__mouse_translate_y = 0;
+    this.__mouseTranslateVec = MutableVector3.zero();
+}
+
   setTarget(targetEntity: ISceneGraphEntity) {
     this.__targetEntity = targetEntity;
     this.__originalTargetAABB = undefined;
