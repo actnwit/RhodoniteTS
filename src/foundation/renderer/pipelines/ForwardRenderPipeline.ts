@@ -18,14 +18,12 @@ import {Frame} from '../Frame';
 import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
 import {Plane} from '../../geometry/shapes/Plane';
-import {Material} from '../../materials/core/Material';
 import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {Mesh} from '../../geometry/Mesh';
 import {
   EntityHelper,
   ICameraEntity,
   IMeshEntity,
-  ISceneGraphEntity,
 } from '../../helpers/EntityHelper';
 import {Vector3} from '../../math/Vector3';
 import {MaterialHelper} from '../../helpers/MaterialHelper';
@@ -46,6 +44,14 @@ type IBLCubeTextureParameter = {
   mipmapLevelNumber: number;
 };
 
+/**
+ * ForwardRenderPipeline is a one of render pipelines
+ *
+ * @remarks
+ * A render pipeline is a class of complex multi-pass setups already built in,
+ * which allows users to easily benefit from advanced expressions such as refraction and MSAA.
+ * (like the URP (Universal Render Pipeline) in the Unity engine).
+ */
 export class ForwardRenderPipeline extends RnObject {
   private __oFrame: IOption<Frame> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
@@ -67,6 +73,11 @@ export class ForwardRenderPipeline extends RnObject {
     super();
   }
 
+  /**
+   * Initializes the pipeline.
+   * @param canvasWidth - The width of the canvas.
+   * @param canvasHeight - The height of the canvas.
+   */
   async setup(canvasWidth: number, canvasHeight: number) {
     if (this.__oFrame.has()) {
       return new Err({
@@ -118,6 +129,11 @@ export class ForwardRenderPipeline extends RnObject {
     return new Ok();
   }
 
+  /**
+   * set Expressions for drawing
+   * @param expressions - expressions to draw
+   * @param options - option parameters
+   */
   setExpressions(
     expressions: Expression[],
     options: {
@@ -126,16 +142,218 @@ export class ForwardRenderPipeline extends RnObject {
       isTransmission: true,
     }
   ) {
-    this.setExpressionsInner(expressions, {
+    this.__setExpressionsInner(expressions, {
       isTransmission: options.isTransmission,
     });
     const clonedExpressions = expressions.map(expression => expression.clone());
     if (options.isTransmission) {
-      this.setTransparentExpressionsForTransmission(clonedExpressions);
+      this.__setTransparentExpressionsForTransmission(clonedExpressions);
     }
   }
 
-  setExpressionsInner(
+  /**
+   * Start rendering loop
+   * @param func - function to be called when the frame is rendered
+   * @returns RnResult
+   */
+  startRenderLoop(func: (frame: Frame) => void) {
+    this.__oDrawFunc = new Some(func);
+
+    if (Is.false(this.__oFrame.has())) {
+      return new Err({
+        message: 'not initialized.',
+      });
+    }
+
+    System.startRenderLoop(() => {
+      this.__setExpressions();
+      func(this.__oFrame.unwrapForce());
+    });
+
+    return new Ok();
+  }
+
+  /**
+   * draw with the given function in startRenderLoop method
+   */
+  draw() {
+    this.__oDrawFunc.unwrapForce()(this.__oFrame.unwrapForce());
+  }
+
+  /**
+   * Resize screen
+   * @param width - width of the screen
+   * @param height - height of the screen
+   * @returns RnResult
+   */
+  resize(width: Size, height: Size) {
+    if (Is.false(this.__oFrame.has())) {
+      return new Err({
+        message: 'not initialized.',
+      });
+    }
+
+    const webXRSystem = this.__oWebXRSystem.unwrapOrUndefined();
+    if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
+      width = webXRSystem.getCanvasWidthForVr();
+      height = webXRSystem.getCanvasHeightForVr();
+    }
+    System.resizeCanvas(width, height);
+
+    this.__oFrame
+      .unwrapForce()
+      .setViewport(Vector4.fromCopy4(0, 0, width, height));
+
+    this.__oFrameBufferMsaa.unwrapForce().resize(width, height);
+    this.__oFrameBufferResolve.unwrapForce().resize(width, height);
+    this.__oFrameBufferResolveForReference.unwrapForce().resize(width, height);
+
+    const aspect = width / height;
+
+    this.__oGammaBoardEntity.unwrapForce().getTransform().scale =
+      Vector3.fromCopyArray3([aspect, 1, 1]);
+    this.__oGammaCameraEntity.unwrapForce().getCamera().xMag = aspect;
+    this.__oGammaExpression
+      .unwrapForce()
+      .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
+
+    return new Ok();
+  }
+
+
+  /**
+   * set IBL textures from uri
+   * @param arg - argument for diffuse and specular IBL
+   */
+  setIBL(arg: {
+    diffuse: IBLCubeTextureParameter;
+    specular: IBLCubeTextureParameter;
+  }) {
+    const diffuseCubeTexture = new CubeTexture();
+    diffuseCubeTexture.baseUriToLoad = arg.diffuse.baseUri;
+    diffuseCubeTexture.hdriFormat = arg.diffuse.hdriFormat;
+    diffuseCubeTexture.isNamePosNeg = arg.diffuse.isNamePosNeg;
+    diffuseCubeTexture.mipmapLevelNumber = arg.diffuse.mipmapLevelNumber;
+    diffuseCubeTexture.loadTextureImagesAsync();
+    this.__oDiffuseCubeTexture = new Some(diffuseCubeTexture);
+
+    const specularCubeTexture = new CubeTexture();
+    specularCubeTexture.baseUriToLoad = arg.specular.baseUri;
+    specularCubeTexture.isNamePosNeg = arg.specular.isNamePosNeg;
+    specularCubeTexture.hdriFormat = arg.specular.hdriFormat;
+    specularCubeTexture.mipmapLevelNumber = arg.specular.mipmapLevelNumber;
+    specularCubeTexture.loadTextureImagesAsync();
+    this.__oSpecularCubeTexture = new Some(specularCubeTexture);
+
+    this.__setIblInnerForOpaque();
+    this.__setIblInnerForTransparent();
+  }
+
+  /**
+   * set IBL cube textures
+   * @param diffuse - diffuse IBL Cube Texture
+   * @param specular - specular IBL Cube Texture
+   */
+  setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
+    this.__oDiffuseCubeTexture = new Some(diffuse);
+    this.__oSpecularCubeTexture = new Some(specular);
+    this.__setIblInnerForOpaque();
+    this.__setIblInnerForTransparent();
+  }
+
+  /**
+   * getter of initial expression
+   */
+  getInitialExpression(): Expression | undefined {
+    return this.__oInitialExpression.unwrapOrUndefined();
+  }
+
+  /**
+   * getter of msaa resolve expression
+   */
+  getMsaaResolveExpression(): Expression | undefined {
+    return this.__oMsaaResolveExpression.unwrapOrUndefined();
+  }
+
+  /**
+   * getter of gamma expression
+   */
+  getGammaExpression(): Expression | undefined {
+    return this.__oGammaExpression.unwrapOrUndefined();
+  }
+
+  /**
+   * set diffuse IBL contribution
+   * @param value - 0.0 ~ 1.0 or greater
+   */
+  setDiffuseIBLContribution(value: number) {
+    for (const expression of this.__opaqueExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.diffuseCubeMapContribution = value;
+          }
+        }
+      }
+    }
+    for (const expression of this.__transparentExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.diffuseCubeMapContribution = value;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * set specular IBL contribution
+   * @param value - 0.0 ~ 1.0 or greater
+   */
+  setSpecularIBLContribution(value: number) {
+    for (const expression of this.__opaqueExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.specularCubeMapContribution = value;
+          }
+        }
+      }
+    }
+    for (const expression of this.__transparentExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.specularCubeMapContribution = value;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * set the rotation of IBL
+   * @param radian - rotation in radian
+   */
+  setIBLRotation(radian: number) {
+    for (const expression of this.__opaqueExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        for (const entity of renderPass.entities) {
+          const meshRendererComponent = entity.tryToGetMeshRenderer();
+          if (Is.exist(meshRendererComponent)) {
+            meshRendererComponent.rotationOfCubeMap = radian;
+          }
+        }
+      }
+    }
+  }
+
+  __setExpressionsInner(
     expressions: Expression[],
     options: {
       isTransmission: boolean;
@@ -159,7 +377,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInnerForOpaque();
   }
 
-  setTransparentExpressionsForTransmission(expressions: Expression[]) {
+  __setTransparentExpressionsForTransmission(expressions: Expression[]) {
     for (const expression of expressions) {
       expression.tryToSetUniqueName('modelTransparentForTransmission', true);
       for (const rp of expression.renderPasses) {
@@ -437,96 +655,6 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  setIBL(arg: {
-    diffuse: IBLCubeTextureParameter;
-    specular: IBLCubeTextureParameter;
-  }) {
-    const diffuseCubeTexture = new CubeTexture();
-    diffuseCubeTexture.baseUriToLoad = arg.diffuse.baseUri;
-    diffuseCubeTexture.hdriFormat = arg.diffuse.hdriFormat;
-    diffuseCubeTexture.isNamePosNeg = arg.diffuse.isNamePosNeg;
-    diffuseCubeTexture.mipmapLevelNumber = arg.diffuse.mipmapLevelNumber;
-    diffuseCubeTexture.loadTextureImagesAsync();
-    this.__oDiffuseCubeTexture = new Some(diffuseCubeTexture);
-
-    const specularCubeTexture = new CubeTexture();
-    specularCubeTexture.baseUriToLoad = arg.specular.baseUri;
-    specularCubeTexture.isNamePosNeg = arg.specular.isNamePosNeg;
-    specularCubeTexture.hdriFormat = arg.specular.hdriFormat;
-    specularCubeTexture.mipmapLevelNumber = arg.specular.mipmapLevelNumber;
-    specularCubeTexture.loadTextureImagesAsync();
-    this.__oSpecularCubeTexture = new Some(specularCubeTexture);
-
-    this.__setIblInnerForOpaque();
-    this.__setIblInnerForTransparent();
-  }
-
-  setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
-    this.__oDiffuseCubeTexture = new Some(diffuse);
-    this.__oSpecularCubeTexture = new Some(specular);
-    this.__setIblInnerForOpaque();
-    this.__setIblInnerForTransparent();
-  }
-
-  setDiffuseIBLContribution(value: number) {
-    for (const expression of this.__opaqueExpressions) {
-      for (const renderPass of expression.renderPasses) {
-        for (const entity of renderPass.entities) {
-          const meshRendererComponent = entity.tryToGetMeshRenderer();
-          if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.diffuseCubeMapContribution = value;
-          }
-        }
-      }
-    }
-    for (const expression of this.__transparentExpressions) {
-      for (const renderPass of expression.renderPasses) {
-        for (const entity of renderPass.entities) {
-          const meshRendererComponent = entity.tryToGetMeshRenderer();
-          if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.diffuseCubeMapContribution = value;
-          }
-        }
-      }
-    }
-  }
-
-  setSpecularIBLContribution(value: number) {
-    for (const expression of this.__opaqueExpressions) {
-      for (const renderPass of expression.renderPasses) {
-        for (const entity of renderPass.entities) {
-          const meshRendererComponent = entity.tryToGetMeshRenderer();
-          if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.specularCubeMapContribution = value;
-          }
-        }
-      }
-    }
-    for (const expression of this.__transparentExpressions) {
-      for (const renderPass of expression.renderPasses) {
-        for (const entity of renderPass.entities) {
-          const meshRendererComponent = entity.tryToGetMeshRenderer();
-          if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.specularCubeMapContribution = value;
-          }
-        }
-      }
-    }
-  }
-
-  setIBLRotation(radian: number) {
-    for (const expression of this.__opaqueExpressions) {
-      for (const renderPass of expression.renderPasses) {
-        for (const entity of renderPass.entities) {
-          const meshRendererComponent = entity.tryToGetMeshRenderer();
-          if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.rotationOfCubeMap = radian;
-          }
-        }
-      }
-    }
-  }
-
   private __setIblInnerForOpaque() {
     for (const expression of this.__opaqueExpressions) {
       for (const renderPass of expression.renderPasses) {
@@ -559,40 +687,6 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  resize(width: Size, height: Size) {
-    if (Is.false(this.__oFrame.has())) {
-      return new Err({
-        message: 'not initialized.',
-      });
-    }
-
-    const webXRSystem = this.__oWebXRSystem.unwrapOrUndefined();
-    if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
-      width = webXRSystem.getCanvasWidthForVr();
-      height = webXRSystem.getCanvasHeightForVr();
-    }
-    System.resizeCanvas(width, height);
-
-    this.__oFrame
-      .unwrapForce()
-      .setViewport(Vector4.fromCopy4(0, 0, width, height));
-
-    this.__oFrameBufferMsaa.unwrapForce().resize(width, height);
-    this.__oFrameBufferResolve.unwrapForce().resize(width, height);
-    this.__oFrameBufferResolveForReference.unwrapForce().resize(width, height);
-
-    const aspect = width / height;
-
-    this.__oGammaBoardEntity.unwrapForce().getTransform().scale =
-      Vector3.fromCopyArray3([aspect, 1, 1]);
-    this.__oGammaCameraEntity.unwrapForce().getCamera().xMag = aspect;
-    this.__oGammaExpression
-      .unwrapForce()
-      .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
-
-    return new Ok();
-  }
-
   __setExpressions() {
     const frame = this.__oFrame.unwrapForce();
     frame.clearExpressions();
@@ -606,38 +700,5 @@ export class ForwardRenderPipeline extends RnObject {
     }
     frame.addExpression(this.getMsaaResolveExpression()!);
     frame.addExpression(this.getGammaExpression()!);
-  }
-
-  startRenderLoop(func: (frame: Frame) => void) {
-    this.__oDrawFunc = new Some(func);
-
-    if (Is.false(this.__oFrame.has())) {
-      return new Err({
-        message: 'not initialized.',
-      });
-    }
-
-    System.startRenderLoop(() => {
-      this.__setExpressions();
-      func(this.__oFrame.unwrapForce());
-    });
-
-    return new Ok();
-  }
-
-  draw() {
-    this.__oDrawFunc.unwrapForce()(this.__oFrame.unwrapForce());
-  }
-
-  getInitialExpression(): Expression | undefined {
-    return this.__oInitialExpression.unwrapOrUndefined();
-  }
-
-  getMsaaResolveExpression(): Expression | undefined {
-    return this.__oMsaaResolveExpression.unwrapOrUndefined();
-  }
-
-  getGammaExpression(): Expression | undefined {
-    return this.__oGammaExpression.unwrapOrUndefined();
   }
 }
