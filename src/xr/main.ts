@@ -1,7 +1,9 @@
 import {WebXRSystem} from './WebXRSystem';
+import {WebARSystem} from './WebARSystem';
 
 const XR = Object.freeze({
   WebXRSystem,
+  WebARSystem,
 });
 export default XR;
 
