@@ -9,6 +9,7 @@ in vec3 a_normal;
 in float a_instanceID;
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
+in vec2 a_texcoord_2;
 in vec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
@@ -17,6 +18,7 @@ out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 out vec2 v_texcoord_0;
 out vec2 v_texcoord_1;
+out vec2 v_texcoord_2;
 out vec3 v_baryCentricCoord;
 out float v_instanceID;
 #ifdef RN_USE_TANGENT_ATTRIBUTE
@@ -76,7 +78,7 @@ void main()
 
   v_texcoord_0 = a_texcoord_0;
   v_texcoord_1 = a_texcoord_1;
-
+  v_texcoord_2 = a_texcoord_2;
 
   #ifdef RN_USE_TANGENT_ATTRIBUTE
     v_tangent_inWorld = normalMatrix * a_tangent.xyz;

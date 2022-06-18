@@ -13,6 +13,7 @@ export type VertexAttributeTypeName =
   'TANGENT' |
   'TEXCOORD_0' |
   'TEXCOORD_1' |
+  'TEXCOORD_2' |
   'COLOR_0' |
   'JOINTS_0' |
   'WEIGHTS_0' |
@@ -212,6 +213,13 @@ const BaryCentricCoord: VertexAttributeEnum =
     attributeSlot: 10,
     gltfComponentN: 3,
   });
+const Texcoord2: VertexAttributeEnum =
+  VertexAttributeClass.__createVertexAttributeClass({
+    str: 'TEXCOORD_2',
+    shaderStr: 'a_texcoord_2',
+    attributeSlot: 11,
+    gltfComponentN: 2,
+  });
 
 const typeList = [
   Unknown, // -1
@@ -226,6 +234,7 @@ const typeList = [
   Instance,
   FaceNormal,
   BaryCentricCoord,
+  Texcoord2,
 ];
 
 const AttributeTypeNumber = typeList.length - 1;
@@ -280,6 +289,8 @@ function toVertexAttributeSemanticJoinedStringAsGltfStyle(
       return attribute.XY;
     case Texcoord1:
       return attribute.XY;
+    case Texcoord2:
+      return attribute.XY;
     case Joints0:
       return attribute.XYZW;
     case Weights0:
@@ -311,6 +322,8 @@ function toAttributeSlotFromJoinedString(
       return Texcoord0.getAttributeSlot();
     case Texcoord1.XY:
       return Texcoord1.getAttributeSlot();
+    case Texcoord2.XY:
+      return Texcoord2.getAttributeSlot();
     case Joints0.XYZW:
       return Joints0.getAttributeSlot();
     case Weights0.XYZW:
