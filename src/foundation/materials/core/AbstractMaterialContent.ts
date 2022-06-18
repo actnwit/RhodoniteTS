@@ -99,6 +99,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   private static __lightPositions = new Float32Array(0);
   private static __lightDirections = new Float32Array(0);
   private static __lightIntensities = new Float32Array(0);
+  private static __lightProperties = new Float32Array(0);
 
   protected __vertexShaderityObject?: ShaderityObject;
   protected __pixelShaderityObject?: ShaderityObject;
@@ -571,12 +572,15 @@ export abstract class AbstractMaterialContent extends RnObject {
         lightComponentsEnabled!.length,
         Config.maxLightNumberInShader
       );
-      if (AbstractMaterialContent.__lightPositions.length !== 4 * length) {
-        AbstractMaterialContent.__lightPositions = new Float32Array(4 * length);
+      if (AbstractMaterialContent.__lightPositions.length !== 3 * length) {
+        AbstractMaterialContent.__lightPositions = new Float32Array(3 * length);
         AbstractMaterialContent.__lightDirections = new Float32Array(
-          4 * length
+          3 * length
         );
         AbstractMaterialContent.__lightIntensities = new Float32Array(
+          3 * length
+        );
+        AbstractMaterialContent.__lightProperties = new Float32Array(
           4 * length
         );
       }
@@ -594,14 +598,12 @@ export abstract class AbstractMaterialContent extends RnObject {
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
 
-        AbstractMaterialContent.__lightPositions[i * 4 + 0] =
+        AbstractMaterialContent.__lightPositions[i * 3 + 0] =
           worldLightPosition.x;
-        AbstractMaterialContent.__lightPositions[i * 4 + 1] =
+        AbstractMaterialContent.__lightPositions[i * 3 + 1] =
           worldLightPosition.y;
-        AbstractMaterialContent.__lightPositions[i * 4 + 2] =
+        AbstractMaterialContent.__lightPositions[i * 3 + 2] =
           worldLightPosition.z;
-        AbstractMaterialContent.__lightPositions[i * 4 + 3] =
-          lightComponent.enable ? lightComponent.type.index : -1;
 
         const lightAngleScale =
           1.0 /
@@ -612,35 +614,44 @@ export abstract class AbstractMaterialContent extends RnObject {
           );
         const lightAngleOffset =
           -Math.cos(lightComponent.outerConeAngle) * lightAngleScale;
-        AbstractMaterialContent.__lightDirections[i * 4 + 0] =
-          worldLightDirection.x;
-        AbstractMaterialContent.__lightDirections[i * 4 + 1] =
-          worldLightDirection.y;
-        AbstractMaterialContent.__lightDirections[i * 4 + 2] =
-          worldLightDirection.z;
-        AbstractMaterialContent.__lightDirections[i * 4 + 3] = lightAngleScale;
 
-        AbstractMaterialContent.__lightIntensities[i * 4 + 0] =
+        AbstractMaterialContent.__lightDirections[i * 3 + 0] =
+          worldLightDirection.x;
+        AbstractMaterialContent.__lightDirections[i * 3 + 1] =
+          worldLightDirection.y;
+        AbstractMaterialContent.__lightDirections[i * 3 + 2] =
+          worldLightDirection.z;
+
+        AbstractMaterialContent.__lightIntensities[i * 3 + 0] =
           worldLightIntensity.x;
-        AbstractMaterialContent.__lightIntensities[i * 4 + 1] =
+        AbstractMaterialContent.__lightIntensities[i * 3 + 1] =
           worldLightIntensity.y;
-        AbstractMaterialContent.__lightIntensities[i * 4 + 2] =
+        AbstractMaterialContent.__lightIntensities[i * 3 + 2] =
           worldLightIntensity.z;
-        AbstractMaterialContent.__lightIntensities[i * 4 + 3] =
-          lightAngleOffset;
+
+        AbstractMaterialContent.__lightProperties[i * 4 + 0] =
+          lightComponent.enable ? lightComponent.type.index : -1;
+        AbstractMaterialContent.__lightProperties[i * 4 + 1] =
+          lightComponent.range;
+        AbstractMaterialContent.__lightDirections[i * 4 + 2] = lightAngleScale;
+        AbstractMaterialContent.__lightProperties[i * 4 + 3] = lightAngleOffset;
       }
       if (length > 0) {
-        (shaderProgram as any)._gl.uniform4fv(
+        (shaderProgram as any)._gl.uniform3fv(
           (shaderProgram as any).lightPosition,
           AbstractMaterialContent.__lightPositions
         );
-        (shaderProgram as any)._gl.uniform4fv(
+        (shaderProgram as any)._gl.uniform3fv(
           (shaderProgram as any).lightDirection,
           AbstractMaterialContent.__lightDirections
         );
-        (shaderProgram as any)._gl.uniform4fv(
+        (shaderProgram as any)._gl.uniform3fv(
           (shaderProgram as any).lightIntensity,
           AbstractMaterialContent.__lightIntensities
+        );
+        (shaderProgram as any)._gl.uniform4fv(
+          (shaderProgram as any).lightProperty,
+          AbstractMaterialContent.__lightProperties
         );
       }
     }

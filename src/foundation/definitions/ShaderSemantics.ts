@@ -118,6 +118,9 @@ const LightDirection: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const LightIntensity: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'lightIntensity',
 });
+const LightProperty: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'lightProperty',
+});
 const MetallicRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'metallicRoughnessFactor',
 });
@@ -353,6 +356,7 @@ const typeList = [
   LightPosition,
   LightDirection,
   LightIntensity,
+  LightProperty,
   MetallicRoughnessFactor,
   BrdfLutTexture,
   DiffuseEnvTexture,
@@ -569,6 +573,7 @@ export const ShaderSemantics = Object.freeze({
   LightPosition,
   LightDirection,
   LightIntensity,
+  LightProperty,
   MetallicRoughnessFactor,
   BrdfLutTexture,
   DiffuseEnvTexture,

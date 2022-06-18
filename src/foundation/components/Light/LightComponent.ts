@@ -35,6 +35,7 @@ export class LightComponent extends Component {
   private static __lightPositions = new VectorN(new Float32Array(0));
   private static __lightDirections = new VectorN(new Float32Array(0));
   private static __lightIntensities = new VectorN(new Float32Array(0));
+  private static __lightProperties = new VectorN(new Float32Array(0));
 
   constructor(
     entityUid: EntityUID,
@@ -98,6 +99,11 @@ export class LightComponent extends Component {
         ShaderSemantics.LightIntensity,
         0
       );
+    LightComponent.__lightProperties =
+      LightComponent.__globalDataRepository.getValue(
+        ShaderSemantics.LightProperty,
+        0
+      );
 
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -116,33 +122,35 @@ export class LightComponent extends Component {
       );
     const lightAngleOffset = -Math.cos(this.outerConeAngle) * lightAngleScale;
 
-    LightComponent.__lightDirections._v[4 * this.componentSID + 0] =
+    LightComponent.__lightDirections._v[3 * this.componentSID + 0] =
       this.__direction.x;
-    LightComponent.__lightDirections._v[4 * this.componentSID + 1] =
+    LightComponent.__lightDirections._v[3 * this.componentSID + 1] =
       this.__direction.y;
-    LightComponent.__lightDirections._v[4 * this.componentSID + 2] =
+    LightComponent.__lightDirections._v[3 * this.componentSID + 2] =
       this.__direction.z;
-    LightComponent.__lightDirections._v[4 * this.componentSID + 3] =
-      lightAngleScale;
 
     const lightPosition = this.__sceneGraphComponent!.worldPosition;
-    LightComponent.__lightPositions._v[4 * this.componentSID + 0] =
+    LightComponent.__lightPositions._v[3 * this.componentSID + 0] =
       lightPosition.x;
-    LightComponent.__lightPositions._v[4 * this.componentSID + 1] =
+    LightComponent.__lightPositions._v[3 * this.componentSID + 1] =
       lightPosition.y;
-    LightComponent.__lightPositions._v[4 * this.componentSID + 2] =
+    LightComponent.__lightPositions._v[3 * this.componentSID + 2] =
       lightPosition.z;
-    LightComponent.__lightPositions._v[4 * this.componentSID + 3] = this.enable
+
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 0] =
+      this.__intensity.x;
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 1] =
+      this.__intensity.y;
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 2] =
+      this.__intensity.z;
+
+    LightComponent.__lightProperties._v[4 * this.componentSID + 0] = this.enable
       ? this.type.index
       : -1;
-
-    LightComponent.__lightIntensities._v[4 * this.componentSID + 0] =
-      this.__intensity.x;
-    LightComponent.__lightIntensities._v[4 * this.componentSID + 1] =
-      this.__intensity.y;
-    LightComponent.__lightIntensities._v[4 * this.componentSID + 2] =
-      this.__intensity.z;
-    LightComponent.__lightIntensities._v[4 * this.componentSID + 3] =
+    LightComponent.__lightProperties._v[4 * this.componentSID + 1] = this.range;
+    LightComponent.__lightProperties._v[4 * this.componentSID + 2] =
+      lightAngleScale;
+    LightComponent.__lightProperties._v[4 * this.componentSID + 3] =
       lightAngleOffset;
   }
 
