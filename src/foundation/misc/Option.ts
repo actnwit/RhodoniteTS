@@ -15,7 +15,7 @@ export interface IOption<T> {
   unwrapOrElse(f: (...vals: any) => T): T;
   unwrapOrUndefined(): T | undefined;
   unwrapForce(): T;
-  has(): boolean;
+  has(): this is Some<T>;
 }
 
 export class Option<T> implements IOption<T> {
@@ -70,7 +70,7 @@ export class Option<T> implements IOption<T> {
     }
   }
 
-  has(): boolean {
+  has(): this is Some<T> {
     return Is.exist(this.value);
   }
 }
@@ -119,7 +119,11 @@ export class Some<T> implements IOption<T> {
     return this.value;
   }
 
-  has(): true {
+  unwrap(): T {
+    return this.value;
+  }
+
+  has(): this is Some<T> {
     return true;
   }
 }
@@ -148,7 +152,7 @@ export class None implements IOption<never> {
     return undefined as never;
   }
 
-  has(): false {
+  has(): this is Some<never> {
     return false;
   }
 }
