@@ -571,8 +571,8 @@ export class WebXRSystem {
       const webglLayer = this.__webglLayer;
       xrSession.updateRenderState({
         baseLayer: webglLayer,
-        depthNear: 0.1,
-        depthFar: 10000,
+        depthNear: 0.01,
+        depthFar: 1000,
       });
       const webglResourceRepository =
         CGAPIResourceRepository.getWebGLResourceRepository();
