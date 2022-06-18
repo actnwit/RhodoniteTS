@@ -9,7 +9,6 @@ import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
 import {WebGLStrategy} from '../../webgl/WebGLStrategy';
 import {Component} from '../core/Component';
 import {Expression} from '../renderer/Expression';
-import {MeshRendererComponent} from '../components/MeshRenderer/MeshRendererComponent';
 import {EntityRepository} from '../core/EntityRepository';
 import {CameraComponent} from '../components/Camera/CameraComponent';
 import {MemoryManager} from '../core/MemoryManager';
@@ -28,8 +27,6 @@ import {Vector4} from '../math/Vector4';
 import {RenderPass} from '../renderer/RenderPass';
 import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import {WebXRSystem} from '../..';
-import { WebARSystem } from '../../xr/WebARSystem';
 
 declare const spector: any;
 
@@ -82,8 +79,9 @@ export class System {
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._preRender(_time, xrFrame);
         }
-        if (rnXRModule.WebARSystem.isReadyForWebAR) {
-          rnXRModule.WebARSystem._preRender(_time, xrFrame);
+        const webARSystem = rnXRModule.WebARSystem.getInstance();
+        if (webARSystem.isReadyForWebAR) {
+          webARSystem._preRender(_time, xrFrame);
         }
       }
 
@@ -94,8 +92,9 @@ export class System {
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._postRender();
         }
-        if (rnXRModule.WebARSystem.isReadyForWebAR) {
-          rnXRModule.WebARSystem._preRender(_time, xrFrame);
+        const webARSystem = rnXRModule.WebARSystem.getInstance();
+        if (webARSystem.isReadyForWebAR) {
+          webARSystem._preRender(_time, xrFrame);
         }
       }
       this.startRenderLoop(renderLoopFunc, ...args);
@@ -109,10 +108,11 @@ export class System {
       | undefined;
     if (Is.exist(rnXRModule)) {
       const webXRSystem = rnXRModule.WebXRSystem.getInstance();
+      const webARSystem = rnXRModule.WebARSystem.getInstance();
       if (webXRSystem.requestedToEnterWebXR) {
         animationFrameObject = webXRSystem.xrSession;
-      } else if (rnXRModule.WebARSystem.requestedToEnterWebAR) {
-        animationFrameObject = rnXRModule.WebARSystem.arSession;
+      } else if (webARSystem.requestedToEnterWebAR) {
+        animationFrameObject = webARSystem.arSession;
       }
       if (Is.not.exist(animationFrameObject)) {
         return window;
@@ -299,10 +299,10 @@ export class System {
     rnXRModule?: RnXR
   ) {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+    const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (
-      !webXRSystem?.isWebXRMode &&
-      !renderPass.isVrRendering &&
-      !rnXRModule?.WebARSystem.isWebARMode
+      (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) &&
+      !webARSystem?.isWebARMode
     ) {
       this.__webglResourceRepository.setViewport(renderPass.getViewport());
     }
@@ -310,14 +310,15 @@ export class System {
 
   private static bindFramebuffer(renderPass: RenderPass, rnXRModule?: RnXR) {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+    const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
-    } else if (rnXRModule?.WebARSystem.isWebARMode) {
+    } else if (webARSystem?.isWebARMode) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
-      gl.bindFramebuffer(gl.FRAMEBUFFER, rnXRModule.WebARSystem.framebuffer!);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, webARSystem.framebuffer!);
     } else {
       this.__webglResourceRepository.bindFramebuffer(
         renderPass.getFramebuffer()
