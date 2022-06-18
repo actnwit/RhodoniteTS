@@ -366,6 +366,10 @@ export type KHR_lights_punctual_Light = {
   name?: string;
   intensity?: number;
   range: number;
+  spot?: {
+    innerConeAngle?: number;
+    outerConeAngle?: number;
+  };
 };
 
 export type KHR_lights_punctual = {

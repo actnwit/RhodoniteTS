@@ -17,6 +17,8 @@ in vec4 v_projPosition_from_light;
 
 /* shaderity: @{getters} */
 
+#pragma shaderity: require(../common/opticalDefinition.glsl)
+
 float decodeRGBAToDepth(vec4 RGBA){
   const float rMask = 1.0;
   const float gMask = 1.0 / 255.0;
@@ -98,34 +100,10 @@ void main (){
         break;
       }
 
-      vec4 gotLightDirection = get_lightDirection(0.0, i);
-      vec4 gotLightIntensity = get_lightIntensity(0.0, i);
-      vec4 gotLightPosition = get_lightPosition(0.0, i);
+      // Light
+      Light light = getLight(i, v_position_inWorld.xyz);
 
-      vec3 lightDirection = gotLightDirection.xyz;
-      vec3 lightIntensity = gotLightIntensity.xyz;
-      vec3 lightPosition = gotLightPosition.xyz;
-      float spotCosCutoff = gotLightDirection.w;
-      float spotExponent = gotLightIntensity.w;
-      float lightType = gotLightPosition.w;
-
-      if (0.75 < lightType) { // is pointlight or spotlight
-        lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
-      }
-      float spotEffect = 1.0;
-      if (lightType > 1.75) { // is spotlight
-        spotEffect = dot(gotLightDirection.xyz, lightDirection);
-        if (spotEffect > spotCosCutoff) {
-          spotEffect = pow(spotEffect, spotExponent);
-        } else {
-          spotEffect = 0.0;
-        }
-      }
-
-      vec3 incidentLight = spotEffect * lightIntensity.xyz;
-//      incidentLight *= M_PI;
-
-      diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
+      diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
       float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
       vec3 viewPosition = get_viewPosition(cameraSID, 0);
@@ -133,11 +111,11 @@ void main (){
       if (shadingModel == 2) {// BLINN
         // ViewDirection
         vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
-        vec3 halfVector = normalize(lightDirection + viewDirection);
+        vec3 halfVector = normalize(light.direction + viewDirection);
         specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
       } else if (shadingModel == 3) { // PHONG
         vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
-        vec3 R = reflect(lightDirection, normal_inWorld);
+        vec3 R = reflect(light.direction, normal_inWorld);
         specular += pow(max(0.0, dot(R, viewDirection)), shininess);
       }
 

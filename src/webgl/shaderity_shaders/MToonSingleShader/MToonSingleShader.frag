@@ -22,6 +22,8 @@ in vec4 v_position_inWorld;
 
 /* shaderity: @{getters} */
 
+#pragma shaderity: require(../common/opticalDefinition.glsl)
+
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
   vec3 x = bary3+vec3(1.0 - wireframeWidthInner)*d;
@@ -138,37 +140,11 @@ void main (){
       break;
     }
 
-    // Rn_Light
-    vec4 gotLightDirection = get_lightDirection(0.0, i);
-    vec4 gotLightIntensity = get_lightIntensity(0.0, i); //light color
-    vec4 gotLightPosition = get_lightPosition(0.0, i);
-    vec3 lightDirection = gotLightDirection.xyz;
-    vec3 lightColor = gotLightIntensity.xyz;
-    vec3 lightPosition = gotLightPosition.xyz;
-    float lightType = gotLightPosition.w;
-    float spotCosCutoff = gotLightDirection.w;
-    float spotExponent = gotLightIntensity.w;
-
-    float distanceAttenuation = 1.0;
-    if (lightType > 0.75) { // is point light or spotlight
-      lightDirection = normalize(lightPosition.xyz - v_position_inWorld.xyz);
-
-      float distance = dot(lightPosition - v_position_inWorld.xyz, lightPosition - v_position_inWorld.xyz);
-      distanceAttenuation = 1.0 / pow(distance, 2.0);
-    }
-
-    float spotEffect = 1.0;
-    if (lightType > 1.75) { // is spotlight
-      spotEffect *= dot(gotLightDirection.xyz, lightDirection);
-      if (spotEffect > spotCosCutoff) {
-        spotEffect *= pow(clamp(spotEffect, 0.0, 1.0), spotExponent);
-      } else {
-        spotEffect = 0.0;
-      }
-    }
+    // Light
+    Light light = getLight(i, v_position_inWorld.xyz);
 
     // lightAttenuation *= distanceAttenuation * spotEffect;
-    float dotNL = dot(lightDirection, normal_inWorld);
+    float dotNL = dot(light.direction, normal_inWorld);
     float lightIntensity = dotNL * 0.5 + 0.5; // from [-1, +1] to [0, 1]
     lightIntensity = lightIntensity * lightAttenuation; // TODO: receive shadow
     lightIntensity = lightIntensity * shadingGrade; // darker
@@ -186,7 +162,7 @@ void main (){
     vec3 col = mix(shadeColor, litColor, lightIntensity);
 
     // Direct Light
-    vec3 lighting = lightColor;
+    vec3 lighting = light.attenuatedIntensity;
     lighting = mix(lighting, vec3(max(EPS_COL, max(lighting.x, max(lighting.y, lighting.z)))), lightColorAttenuation); // color atten
 
 

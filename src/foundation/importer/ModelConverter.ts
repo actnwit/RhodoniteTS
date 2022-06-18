@@ -167,9 +167,6 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
-    // Camera
-    //this._setupCamera(gltfModel, groups);
-
     // Animation
     this._setupAnimation(gltfModel, rnEntities);
 
@@ -527,6 +524,14 @@ export class ModelConverter {
       lightComponent.intensity = Vector3.multiply(color, intensity);
       if (light.range != null) {
         lightComponent.range = light.range;
+      }
+      if (light.type === 'spot') {
+        if (light.spot?.innerConeAngle != null) {
+          lightComponent.innerConeAngle = light.spot.innerConeAngle;
+        }
+        if (light.spot?.outerConeAngle != null) {
+          lightComponent.outerConeAngle = light.spot.outerConeAngle;
+        }
       }
     }
     return lightEntity as ILightEntity;

@@ -235,7 +235,7 @@ export class GlobalDataRepository {
     // Lighting
     const lightPositionInfo = {
       semantic: ShaderSemantics.LightPosition,
-      compositionType: CompositionType.Vec4Array,
+      compositionType: CompositionType.Vec3Array,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
       arrayLength: Config.maxLightNumberInShader,
@@ -249,7 +249,7 @@ export class GlobalDataRepository {
     };
     const lightDirectionInfo = {
       semantic: ShaderSemantics.LightDirection,
-      compositionType: CompositionType.Vec4Array,
+      compositionType: CompositionType.Vec3Array,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
       arrayLength: Config.maxLightNumberInShader,
@@ -263,6 +263,20 @@ export class GlobalDataRepository {
     };
     const lightIntensityInfo = {
       semantic: ShaderSemantics.LightIntensity,
+      compositionType: CompositionType.Vec3Array,
+      componentType: ComponentType.Float,
+      stage: ShaderType.PixelShader,
+      arrayLength: Config.maxLightNumberInShader,
+      min: 0,
+      max: 10,
+      isCustomSetting: true,
+      initialValue: new VectorN(
+        new Float32Array(Config.maxLightNumberInShader)
+      ),
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    };
+    const lightPropertyInfo = {
+      semantic: ShaderSemantics.LightProperty,
       compositionType: CompositionType.Vec4Array,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
@@ -278,9 +292,11 @@ export class GlobalDataRepository {
     this.registerProperty(lightPositionInfo, 1);
     this.registerProperty(lightDirectionInfo, 1);
     this.registerProperty(lightIntensityInfo, 1);
+    this.registerProperty(lightPropertyInfo, 1);
     this.takeOne(ShaderSemantics.LightDirection);
     this.takeOne(ShaderSemantics.LightIntensity);
     this.takeOne(ShaderSemantics.LightPosition);
+    this.takeOne(ShaderSemantics.LightProperty);
 
     const lightNumberInfo = {
       semantic: ShaderSemantics.LightNumber,
