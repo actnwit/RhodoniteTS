@@ -1,18 +1,18 @@
 import {Primitive} from './Primitive';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import { MemoryManager } from '../core/MemoryManager';
+import {MemoryManager} from '../core/MemoryManager';
 import {BufferUse} from '../definitions/BufferUse';
 import {ComponentType} from '../definitions/ComponentType';
 import {CompositionType} from '../definitions/CompositionType';
-import { Vector3 } from '../math/Vector3';
-import { Accessor } from '../memory/Accessor';
-import { Vector2 } from '../math/Vector2';
-import { AABB } from '../math/AABB';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Entity } from '../core/Entity';
+import {Vector3} from '../math/Vector3';
+import {Accessor} from '../memory/Accessor';
+import {Vector2} from '../math/Vector2';
+import {AABB} from '../math/AABB';
+import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
+import {Entity} from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
-import { MutableVector3 } from '../math/MutableVector3';
+import {MutableVector3} from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
@@ -46,7 +46,7 @@ export class Mesh implements IMesh {
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
   private __latestPrimitivePositionAccessorVersion = 0;
-  private __weakRefMeshEntity: WeakMap<Mesh, IMeshEntity> = new WeakMap();
+  private __belongToEntities: IMeshEntity[] = [];
 
   /**
    * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
@@ -110,12 +110,12 @@ export class Mesh implements IMesh {
     }
   }
 
-  get meshEntity() {
-    return this.__weakRefMeshEntity.get(this);
+  get meshEntitiesInner() {
+    return this.__belongToEntities;
   }
 
   _belongToMeshComponent(meshComponent: MeshComponent) {
-    this.__weakRefMeshEntity.set(this, meshComponent.entity);
+    this.__belongToEntities.push(meshComponent.entity);
   }
   /**
    * Adds primitive.
@@ -608,15 +608,19 @@ export class Mesh implements IMesh {
         );
 
         const tangentAttributeByteSize = (positionAccessor.byteLength * 4) / 3;
-        const tangentBufferView = buffer.takeBufferView({
-          byteLengthToNeed: tangentAttributeByteSize,
-          byteStride: 0,
-        }).unwrapForce();
-        const tangentAccessor = tangentBufferView.takeAccessor({
-          compositionType: CompositionType.Vec4,
-          componentType: ComponentType.Float,
-          count: positionAccessor.elementCount,
-        }).unwrapForce();
+        const tangentBufferView = buffer
+          .takeBufferView({
+            byteLengthToNeed: tangentAttributeByteSize,
+            byteStride: 0,
+          })
+          .unwrapForce();
+        const tangentAccessor = tangentBufferView
+          .takeAccessor({
+            compositionType: CompositionType.Vec4,
+            componentType: ComponentType.Float,
+            count: positionAccessor.elementCount,
+          })
+          .unwrapForce();
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
           const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});
@@ -799,15 +803,19 @@ export class Mesh implements IMesh {
 
       const baryCentricCoordAttributeByteSize =
         num * 4 /* vec4 */ * 4; /* bytes */
-      const baryCentricCoordBufferView = buffer.takeBufferView({
-        byteLengthToNeed: baryCentricCoordAttributeByteSize,
-        byteStride: 0,
-      }).unwrapForce();
-      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        count: num,
-      }).unwrapForce();
+      const baryCentricCoordBufferView = buffer
+        .takeBufferView({
+          byteLengthToNeed: baryCentricCoordAttributeByteSize,
+          byteStride: 0,
+        })
+        .unwrapForce();
+      const baryCentricCoordAccessor = baryCentricCoordBufferView
+        .takeAccessor({
+          compositionType: CompositionType.Vec4,
+          componentType: ComponentType.Float,
+          count: num,
+        })
+        .unwrapForce();
 
       for (let ver_i = 0; ver_i < num; ver_i++) {
         baryCentricCoordAccessor.setVec4(
@@ -864,15 +872,19 @@ export class Mesh implements IMesh {
       );
 
       const normalAttributeByteSize = positionAccessor.byteLength;
-      const normalBufferView = buffer.takeBufferView({
-        byteLengthToNeed: normalAttributeByteSize,
-        byteStride: 0,
-      }).unwrapForce();
-      const normalAccessor = normalBufferView.takeAccessor({
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        count: positionAccessor.elementCount,
-      }).unwrapForce();
+      const normalBufferView = buffer
+        .takeBufferView({
+          byteLengthToNeed: normalAttributeByteSize,
+          byteStride: 0,
+        })
+        .unwrapForce();
+      const normalAccessor = normalBufferView
+        .takeAccessor({
+          compositionType: CompositionType.Vec3,
+          componentType: ComponentType.Float,
+          count: positionAccessor.elementCount,
+        })
+        .unwrapForce();
       for (let i = 0; i < vertexNum - 2; i += incrementNum) {
         const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
         const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});

@@ -591,19 +591,17 @@ export class ModelConverter {
     ];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
     const meshComponent = meshEntity.getMesh();
-    const rnMesh = new Mesh();
 
-    // set flag to rnMesh with options
-    const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
-    if (rnLoaderOptions?.tangentCalculationMode != null) {
-      rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
-    }
-
-    let originalRnMesh = rnMesh;
     if (existingRnMesh != null) {
-      rnMesh.setOriginalMesh(existingRnMesh);
-      originalRnMesh = existingRnMesh;
+      meshComponent.setMesh(existingRnMesh);
     } else {
+      const rnMesh = new Mesh();
+      // set flag to rnMesh with options
+      const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
+      if (rnLoaderOptions?.tangentCalculationMode != null) {
+        rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
+      }
+
       for (const i in mesh.primitives) {
         const primitive = mesh.primitives[i] as RnM2Primitive;
         if (primitive.mode != null) {
@@ -734,12 +732,10 @@ export class ModelConverter {
       if (mesh.weights) {
         rnMesh.weights = mesh.weights;
       }
+
+      meshComponent.setMesh(rnMesh);
+      (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = rnMesh;
     }
-
-    meshComponent.setMesh(rnMesh);
-
-    (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] =
-      originalRnMesh;
 
     return meshEntity;
   }
