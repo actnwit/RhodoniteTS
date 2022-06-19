@@ -187,8 +187,8 @@ export class WebXRSystem {
       //   this.__defaultPositionInLocalSpaceMode =
       //     initialUserPosition ?? Vector3.zero();
       // } catch (err) {
-        // console.error(`Failed to start XRSession: ${err}`);
-        referenceSpace = await session.requestReferenceSpace('local');
+      // console.error(`Failed to start XRSession: ${err}`);
+      referenceSpace = await session.requestReferenceSpace('local');
         this.__spaceType = 'local';
         this.__defaultPositionInLocalSpaceMode =
           initialUserPosition ?? defaultUserPositionInVR;

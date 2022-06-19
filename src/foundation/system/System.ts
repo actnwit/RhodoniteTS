@@ -9,7 +9,6 @@ import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
 import {WebGLStrategy} from '../../webgl/WebGLStrategy';
 import {Component} from '../core/Component';
 import {Expression} from '../renderer/Expression';
-import {MeshRendererComponent} from '../components/MeshRenderer/MeshRendererComponent';
 import {EntityRepository} from '../core/EntityRepository';
 import {CameraComponent} from '../components/Camera/CameraComponent';
 import {MemoryManager} from '../core/MemoryManager';
@@ -28,7 +27,6 @@ import {Vector4} from '../math/Vector4';
 import {RenderPass} from '../renderer/RenderPass';
 import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import {WebXRSystem} from '../..';
 
 declare const spector: any;
 
@@ -75,19 +73,28 @@ export class System {
       _time: number,
       xrFrame: XRFrame
     ) => {
-      const rnVRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
-      if (Is.exist(rnVRModule)) {
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      if (Is.exist(rnXRModule)) {
+        const webXRSystem = rnXRModule.WebXRSystem.getInstance();
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._preRender(_time, xrFrame);
+        }
+        const webARSystem = rnXRModule.WebARSystem.getInstance();
+        if (webARSystem.isReadyForWebAR) {
+          webARSystem._preRender(_time, xrFrame);
         }
       }
 
       renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
 
-      if (Is.exist(rnVRModule)) {
+      if (Is.exist(rnXRModule)) {
+        const webXRSystem = rnXRModule.WebXRSystem.getInstance();
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._postRender();
+        }
+        const webARSystem = rnXRModule.WebARSystem.getInstance();
+        if (webARSystem.isReadyForWebAR) {
+          webARSystem._preRender(_time, xrFrame);
         }
       }
       this.startRenderLoop(renderLoopFunc, ...args);
@@ -96,13 +103,16 @@ export class System {
 
   private static __getAnimationFrameObject(): Window | XRSession {
     let animationFrameObject: Window | XRSession | undefined = window;
-    const rnVRModule = ModuleManager.getInstance().getModule('xr') as
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as
       | RnXR
       | undefined;
-    if (Is.exist(rnVRModule)) {
-      const webXRSystem = rnVRModule.WebXRSystem.getInstance();
+    if (Is.exist(rnXRModule)) {
+      const webXRSystem = rnXRModule.WebXRSystem.getInstance();
+      const webARSystem = rnXRModule.WebARSystem.getInstance();
       if (webXRSystem.requestedToEnterWebXR) {
         animationFrameObject = webXRSystem.xrSession;
+      } else if (webARSystem.requestedToEnterWebAR) {
+        animationFrameObject = webARSystem.arSession;
       }
       if (Is.not.exist(animationFrameObject)) {
         return window;
@@ -170,10 +180,9 @@ export class System {
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    const rnVRModule = ModuleManager.getInstance().getModule('xr') as
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as
       | RnXR
       | undefined;
-    const webXRSystem = rnVRModule?.WebXRSystem.getInstance();
 
     const componentTids = ComponentRepository.getComponentTIDs();
     for (const stage of Component._processStages) {
@@ -202,10 +211,10 @@ export class System {
               repo.switchDepthTest(renderPass.isDepthTest);
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                 // bind Framebuffer
-                System.bindFramebuffer(webXRSystem, renderPass);
+                System.bindFramebuffer(renderPass, rnXRModule);
 
                 // set Viewport for Normal (Not WebXR)
-                System.setViewportForNormalRendering(webXRSystem, renderPass);
+                System.setViewportForNormalRendering(renderPass, rnXRModule);
 
                 // clear Framebuffer
                 this.__webglResourceRepository.clearFrameBuffer(renderPass);
@@ -286,22 +295,30 @@ export class System {
   }
 
   private static setViewportForNormalRendering(
-    webXRSystem: WebXRSystem | undefined,
-    renderPass: RenderPass
+    renderPass: RenderPass,
+    rnXRModule?: RnXR
   ) {
-    if (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) {
+    const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+    const webARSystem = rnXRModule?.WebARSystem.getInstance();
+    if (
+      (!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) &&
+      !webARSystem?.isWebARMode
+    ) {
       this.__webglResourceRepository.setViewport(renderPass.getViewport());
     }
   }
 
-  private static bindFramebuffer(
-    webXRSystem: WebXRSystem | undefined,
-    renderPass: RenderPass
-  ) {
+  private static bindFramebuffer(renderPass: RenderPass, rnXRModule?: RnXR) {
+    const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+    const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
+    } else if (webARSystem?.isWebARMode) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, webARSystem.framebuffer!);
     } else {
       this.__webglResourceRepository.bindFramebuffer(
         renderPass.getFramebuffer()
