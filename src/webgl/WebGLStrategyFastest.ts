@@ -447,11 +447,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    if (meshComponent.mesh.isInstanceMesh()) {
-      meshRendererComponent._readyForRendering = true;
-      return;
-    }
-
     meshRendererComponent._readyForRendering = true;
   }
 
@@ -913,9 +908,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
       const material: Material = renderPass.getAppropriateMaterial(primitive);
       if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
-        return false;
-      }
-      if (!mesh?.isOriginalMesh()) {
         return false;
       }
 

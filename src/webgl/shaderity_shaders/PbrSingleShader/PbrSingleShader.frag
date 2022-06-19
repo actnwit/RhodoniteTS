@@ -11,6 +11,7 @@ in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
 in vec2 v_texcoord_0;
 in vec2 v_texcoord_1;
+in vec2 v_texcoord_2;
 in vec3 v_baryCentricCoord;
 in float v_instanceID;
 
@@ -299,7 +300,9 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 
 vec2 getTexcoord(int texcoordIndex) {
   vec2 texcoord;
-  if(texcoordIndex == 1){
+  if(texcoordIndex == 2){
+    texcoord = v_texcoord_2;
+  } else if(texcoordIndex == 1){
     texcoord = v_texcoord_1;
   }else{
     texcoord = v_texcoord_0;
