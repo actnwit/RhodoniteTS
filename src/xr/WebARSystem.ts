@@ -56,19 +56,19 @@ export class WebARSystem {
    * @param requestButtonDom
    * @returns true: prepared properly, false: failed to prepare
    */
-  async readyForWebXR(requestButtonDom: HTMLElement) {
+  async readyForWebAR(requestButtonDom: HTMLElement) {
     await ModuleManager.getInstance().loadModule('xr');
 
     const glw =
       CGAPIResourceRepository.getWebGLResourceRepository()
         .currentWebGLContextWrapper;
     if (glw == null) {
-      console.error('WebGL Context is not ready yet.');
-      return [];
+      throw new Error('WebGL Context is not ready yet.');
     }
     this.__oGlw = new Some(glw);
     const supported = await navigator.xr!.isSessionSupported('immersive-ar');
     if (supported) {
+      console.log('WebAR is supported.');
       if (requestButtonDom) {
         requestButtonDom.style.display = 'block';
       } else {
@@ -102,12 +102,10 @@ export class WebARSystem {
     initialUserPosition,
     callbackOnXrSessionStart = () => {},
     callbackOnXrSessionEnd = () => {},
-    profilePriorities = [],
   }: {
     initialUserPosition?: Vector3;
     callbackOnXrSessionStart: Function;
     callbackOnXrSessionEnd: Function;
-    profilePriorities: string[];
   }) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();

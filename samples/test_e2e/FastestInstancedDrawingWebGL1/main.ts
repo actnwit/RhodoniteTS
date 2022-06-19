@@ -89,17 +89,7 @@ declare const window: any;
       const meshComponent = entity.getMesh();
 
       // Instansing
-      if (i === 0) {
-        meshComponent.setMesh(originalMesh);
-      } else {
-        const mesh = new Rn.Mesh();
-        mesh.setOriginalMesh(originalMesh);
-        meshComponent.setMesh(mesh);
-      }
-      // Non Instansing
-      // const mesh = new Rn.Mesh();
-      // mesh.addPrimitive(primitive);
-      // meshComponent.setMesh(mesh);
+      meshComponent.setMesh(originalMesh);
 
       entity.getTransform().scale = Rn.Vector3.fromCopyArray([
         1 / sqrtEntityNumber / 2,

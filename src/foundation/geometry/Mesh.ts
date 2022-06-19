@@ -1,18 +1,18 @@
 import {Primitive} from './Primitive';
 import {VertexAttribute} from '../definitions/VertexAttribute';
 import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import { MemoryManager } from '../core/MemoryManager';
+import {MemoryManager} from '../core/MemoryManager';
 import {BufferUse} from '../definitions/BufferUse';
 import {ComponentType} from '../definitions/ComponentType';
 import {CompositionType} from '../definitions/CompositionType';
-import { Vector3 } from '../math/Vector3';
-import { Accessor } from '../memory/Accessor';
-import { Vector2 } from '../math/Vector2';
-import { AABB } from '../math/AABB';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Entity } from '../core/Entity';
+import {Vector3} from '../math/Vector3';
+import {Accessor} from '../memory/Accessor';
+import {Vector2} from '../math/Vector2';
+import {AABB} from '../math/AABB';
+import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
+import {Entity} from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
-import { MutableVector3 } from '../math/MutableVector3';
+import {MutableVector3} from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
 import {Is, Is as is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
@@ -30,23 +30,18 @@ export class Mesh implements IMesh {
   private readonly __meshUID: MeshUID;
   public static readonly invalidateMeshUID = -1;
   public static __mesh_uid_count = Mesh.invalidateMeshUID;
-  private __instanceIdx = 0;
   private __primitives: Primitive[] = [];
   private __opaquePrimitives: Array<Primitive> = [];
   private __transparentPrimitives: Array<Primitive> = [];
   private __morphPrimitives: Array<Primitive> = [];
-  private __instanceOf?: Mesh;
   public weights: number[] = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __instances: Mesh[] = [];
   public _attachedEntityUID = Entity.invalidEntityUID;
-  private __instancesDirty = true;
-  private static __originalMeshes: Mesh[] = [];
   private __latestPrimitivePositionAccessorVersion = 0;
-  private __weakRefMeshEntity: WeakMap<Mesh, IMeshEntity> = new WeakMap();
+  private __belongToEntities: IMeshEntity[] = [];
 
   /**
    * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
@@ -91,11 +86,7 @@ export class Mesh implements IMesh {
   ///
 
   public getVaoUids(index: Index): CGAPIResourceHandle {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.getVaoUids(index);
-    } else {
-      return this.__vaoUids[index];
-    }
+    return this.__vaoUids[index];
   }
 
   public getVaoUidsByPrimitiveUid(primitiveUid: Index): CGAPIResourceHandle {
@@ -103,19 +94,15 @@ export class Mesh implements IMesh {
       primitive => primitive.primitiveUid === primitiveUid
     );
 
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.getVaoUids(index);
-    } else {
-      return this.__vaoUids[index];
-    }
+    return this.__vaoUids[index];
   }
 
-  get meshEntity() {
-    return this.__weakRefMeshEntity.get(this);
+  get meshEntitiesInner() {
+    return this.__belongToEntities;
   }
 
   _belongToMeshComponent(meshComponent: MeshComponent) {
-    this.__weakRefMeshEntity.set(this, meshComponent.entity);
+    this.__belongToEntities.push(meshComponent.entity);
   }
   /**
    * Adds primitive.
@@ -123,19 +110,6 @@ export class Mesh implements IMesh {
    */
   public addPrimitive(primitive: Primitive): void {
     primitive._belongToMesh(this);
-    if (this.isInstanceMesh()) {
-      // De-instancing
-      this.__instanceOf!.__instances = this.__instanceOf!.__instances.filter(
-        mesh => mesh !== this
-      );
-      this.__instanceOf = void 0;
-      this.__instanceIdx = 0;
-
-      // this.__primitives will initialize in this.__setPrimitives
-      this.__opaquePrimitives = this.__opaquePrimitives.slice();
-      this.__transparentPrimitives = this.__transparentPrimitives.slice();
-      this.__morphPrimitives = this.__morphPrimitives.slice();
-    }
 
     if (primitive.material == null || !primitive.material.isBlend()) {
       this.__opaquePrimitives.push(primitive);
@@ -145,43 +119,10 @@ export class Mesh implements IMesh {
     this.__setPrimitives(
       this.__opaquePrimitives.concat(this.__transparentPrimitives)
     );
-
-    Mesh.__originalMeshes.push(this);
   }
 
   private __setPrimitives(primitives: Primitive[]) {
     this.__primitives = primitives;
-
-    for (const instanceMesh of this.__instances) {
-      instanceMesh.__primitives = this.__primitives;
-      instanceMesh.__opaquePrimitives = this.__opaquePrimitives;
-      instanceMesh.__transparentPrimitives = this.__transparentPrimitives;
-      instanceMesh.__morphPrimitives = this.__morphPrimitives;
-    }
-  }
-
-  /**
-   * Sets mesh.
-   * @param mesh The mesh.
-   */
-  public setOriginalMesh(mesh: Mesh) {
-    if (mesh.isInstanceMesh()) {
-      console.error("Don't set InstanceMesh.");
-      return false;
-    }
-    this.__primitives = mesh.__primitives;
-    this.__opaquePrimitives = mesh.__opaquePrimitives;
-    this.__transparentPrimitives = mesh.__transparentPrimitives;
-    this.__morphPrimitives = mesh.__morphPrimitives;
-
-    this.__instanceOf = mesh;
-    mesh._addMeshToInstanceArray(this);
-    this.__instanceIdx = mesh.instanceIndex + 1;
-
-    // Remove this from original mesh list
-    Mesh.__originalMeshes = Mesh.__originalMeshes.filter(mesh => mesh !== this);
-
-    return true;
   }
 
   /**
@@ -226,38 +167,6 @@ export class Mesh implements IMesh {
     }
   }
 
-  public isFirstOpaquePrimitiveAt(index: Index): boolean {
-    if (this.isFirstOpaquePrimitiveAt(index)) {
-      return this.__instanceOf!.isFirstOpaquePrimitiveAt(index);
-    } else {
-      if (this.__opaquePrimitives.length > 0) {
-        if (index === 0) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    }
-  }
-
-  public isFirstTransparentPrimitiveAt(index: Index): boolean {
-    if (this.isFirstOpaquePrimitiveAt(index)) {
-      return this.__instanceOf!.isFirstTransparentPrimitiveAt(index);
-    } else {
-      if (this.__transparentPrimitives.length > 0) {
-        if (this.__opaquePrimitives.length === index) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    }
-  }
-
   public getPrimitiveAt(i: number): Primitive {
     // if (this.weights.length > 0) {
     // return this.__morphPrimitives[i];
@@ -270,54 +179,30 @@ export class Mesh implements IMesh {
     return this.__primitives.length;
   }
 
-  public isInstanceMesh() {
-    if (this.__instanceOf != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public isOriginalMesh() {
-    return !this.isInstanceMesh();
-  }
-
   /**
    * @private
    * @returns true: updated, false: not changed (not dirty)
    */
   updateVariationVBO(): boolean {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.updateVariationVBO();
-    } else {
-      if (!this.__instancesDirty) {
-        return false;
-      }
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
 
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-
-      if (
-        this.__variationVBOUid !==
-        CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
-        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-      }
-
-      const instanceNum = this.__instances.length;
-      const entityUIDs = new Float32Array(instanceNum + 1); // instances and original
-      entityUIDs[0] = this._attachedEntityUID;
-      for (let i = 0; i < instanceNum; i++) {
-        entityUIDs[i + 1] = this.__instances[i]._attachedEntityUID;
-      }
-
-      this.__variationVBOUid =
-        webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
-
-      this.__instancesDirty = false;
-
-      return true;
+    if (
+      this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
+      webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
     }
+
+    const instanceNum = this.__belongToEntities.length;
+    const entityUIDs = new Float32Array(instanceNum);
+    entityUIDs[0] = this._attachedEntityUID;
+    for (let i = 0; i < instanceNum; i++) {
+      entityUIDs[i + 1] = this.__belongToEntities[i].entityUID;
+    }
+    this.__variationVBOUid =
+      webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
+
+    return true;
   }
 
   ///
@@ -329,31 +214,20 @@ export class Mesh implements IMesh {
    * @returns true: updated, false: not changed (not dirty)
    */
   deleteVariationVBO(): boolean {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.deleteVariationVBO();
-    } else {
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-      if (
-        this.__variationVBOUid !==
-        CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
-        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-        this.__variationVBOUid =
-          CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    if (
+      this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
+      webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+      this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
-        this.__instancesDirty = true;
-        return true;
-      }
+      return true;
     }
     return false;
   }
 
   public updateVAO(): void {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.updateVAO();
-    }
-
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
 
@@ -393,10 +267,6 @@ export class Mesh implements IMesh {
   }
 
   public deleteVAO() {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.updateVAO();
-    }
-
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
@@ -462,29 +332,17 @@ export class Mesh implements IMesh {
     return this.__meshUID;
   }
 
-  get instanceCountIncludeOriginal() {
-    return this.__instances.length + 1;
-  }
-
   /**
    * @private
    */
   get _variationVBOUid(): CGAPIResourceHandle {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!._variationVBOUid;
-    } else {
-      return this.__variationVBOUid;
-    }
+    return this.__variationVBOUid;
   }
 
   /**
    * Gets AABB in local space.
    */
   get AABB(): AABB {
-    if (this.isInstanceMesh()) {
-      return this.__instanceOf!.AABB;
-    }
-
     for (const primitive of this.__primitives) {
       if (
         primitive.positionAccessorVersion !==
@@ -506,25 +364,11 @@ export class Mesh implements IMesh {
     return this.__localAABB;
   }
 
-  get instanceIndex() {
-    return this.__instanceIdx;
-  }
-
   ///
   ///
   // Friend Members
   ///
   ///
-
-  /**
-   * @private
-   * Adds the other mesh to this mesh as instanced meshes.
-   * @param mesh The other mesh.
-   */
-  _addMeshToInstanceArray(mesh: Mesh) {
-    this.__instances.push(mesh);
-    this.__instancesDirty = true;
-  }
 
   ///
   ///
@@ -533,10 +377,6 @@ export class Mesh implements IMesh {
   ///
 
   private __calcMorphPrimitives() {
-    if (this.weights.length === 0 || this.isInstanceMesh()) {
-      return;
-    }
-
     for (let i = 0; i < this.__primitives.length; i++) {
       const morphPrimitive = this.__morphPrimitives[i];
       const primitive = this.__primitives[i];
@@ -608,15 +448,19 @@ export class Mesh implements IMesh {
         );
 
         const tangentAttributeByteSize = (positionAccessor.byteLength * 4) / 3;
-        const tangentBufferView = buffer.takeBufferView({
-          byteLengthToNeed: tangentAttributeByteSize,
-          byteStride: 0,
-        }).unwrapForce();
-        const tangentAccessor = tangentBufferView.takeAccessor({
-          compositionType: CompositionType.Vec4,
-          componentType: ComponentType.Float,
-          count: positionAccessor.elementCount,
-        }).unwrapForce();
+        const tangentBufferView = buffer
+          .takeBufferView({
+            byteLengthToNeed: tangentAttributeByteSize,
+            byteStride: 0,
+          })
+          .unwrapForce();
+        const tangentAccessor = tangentBufferView
+          .takeAccessor({
+            compositionType: CompositionType.Vec4,
+            componentType: ComponentType.Float,
+            count: positionAccessor.elementCount,
+          })
+          .unwrapForce();
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
           const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});
@@ -762,8 +606,7 @@ export class Mesh implements IMesh {
     if (
       this.tangentCalculationMode === 0 ||
       this.tangentCalculationMode === 1 ||
-      this.tangentCalculationMode === 3 ||
-      this.isInstanceMesh()
+      this.tangentCalculationMode === 3
     ) {
       return false;
     } else {
@@ -775,10 +618,6 @@ export class Mesh implements IMesh {
    * @private
    */
   _calcBaryCentricCoord() {
-    if (this.isInstanceMesh()) {
-      return;
-    }
-
     for (const primitive of this.__primitives) {
       const BaryCentricCoordId = primitive.attributeSemantics.indexOf(
         VertexAttribute.BaryCentricCoord.XYZ
@@ -799,15 +638,19 @@ export class Mesh implements IMesh {
 
       const baryCentricCoordAttributeByteSize =
         num * 4 /* vec4 */ * 4; /* bytes */
-      const baryCentricCoordBufferView = buffer.takeBufferView({
-        byteLengthToNeed: baryCentricCoordAttributeByteSize,
-        byteStride: 0,
-      }).unwrapForce();
-      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        count: num,
-      }).unwrapForce();
+      const baryCentricCoordBufferView = buffer
+        .takeBufferView({
+          byteLengthToNeed: baryCentricCoordAttributeByteSize,
+          byteStride: 0,
+        })
+        .unwrapForce();
+      const baryCentricCoordAccessor = baryCentricCoordBufferView
+        .takeAccessor({
+          compositionType: CompositionType.Vec4,
+          componentType: ComponentType.Float,
+          count: num,
+        })
+        .unwrapForce();
 
       for (let ver_i = 0; ver_i < num; ver_i++) {
         baryCentricCoordAccessor.setVec4(
@@ -830,10 +673,6 @@ export class Mesh implements IMesh {
    * @private
    */
   _calcFaceNormalsIfNonNormal() {
-    if (this.isInstanceMesh()) {
-      return;
-    }
-
     for (const primitive of this.__primitives) {
       const normalIdx = primitive.attributeSemantics.indexOf(
         VertexAttribute.Normal.XYZ
@@ -864,15 +703,19 @@ export class Mesh implements IMesh {
       );
 
       const normalAttributeByteSize = positionAccessor.byteLength;
-      const normalBufferView = buffer.takeBufferView({
-        byteLengthToNeed: normalAttributeByteSize,
-        byteStride: 0,
-      }).unwrapForce();
-      const normalAccessor = normalBufferView.takeAccessor({
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        count: positionAccessor.elementCount,
-      }).unwrapForce();
+      const normalBufferView = buffer
+        .takeBufferView({
+          byteLengthToNeed: normalAttributeByteSize,
+          byteStride: 0,
+        })
+        .unwrapForce();
+      const normalAccessor = normalBufferView
+        .takeAccessor({
+          compositionType: CompositionType.Vec3,
+          componentType: ComponentType.Float,
+          count: positionAccessor.elementCount,
+        })
+        .unwrapForce();
       for (let i = 0; i < vertexNum - 2; i += incrementNum) {
         const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
         const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});

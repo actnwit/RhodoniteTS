@@ -447,11 +447,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    if (meshComponent.mesh.isInstanceMesh()) {
-      meshRendererComponent._readyForRendering = true;
-      return;
-    }
-
     meshRendererComponent._readyForRendering = true;
   }
 
@@ -906,20 +901,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const mesh = primitive.mesh as Mesh;
-    const meshEntity = mesh.meshEntity!;
-    if (!meshEntity.getSceneGraph().isVisible) {
+    const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
+    if (!entity.getSceneGraph().isVisible) {
       return false;
     }
-    const meshComponent = meshEntity.getMesh();
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
       return false;
     }
-    if (!mesh?.isOriginalMesh()) {
-      return false;
-    }
 
-    const entity = meshComponent.entity as IMeshEntity;
     this.__setCurrentComponentSIDsForEachEntity(
       gl,
       renderPass,
@@ -992,14 +982,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         primitive.indicesAccessor.elementCount,
         primitive.indicesAccessor.componentType.index,
         0,
-        mesh.instanceCountIncludeOriginal
+        mesh.meshEntitiesInner.length
       );
     } else {
       glw.drawArraysInstanced(
         primitive.primitiveMode.index,
         0,
         primitive.getVertexCountAsVerticesBased(),
-        mesh.instanceCountIncludeOriginal
+        mesh.meshEntitiesInner.length
       );
     }
 

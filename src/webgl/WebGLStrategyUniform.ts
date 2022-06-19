@@ -497,77 +497,78 @@ mat3 get_normalMatrix(float instanceId) {
       return false;
     }
     const mesh = primitive.mesh as Mesh;
-    const meshEntity = mesh.meshEntity!;
-    if (!meshEntity.getSceneGraph().isVisible) {
-      return false;
-    }
-    const meshComponent = meshEntity.getMesh();
+    const meshEntities = mesh.meshEntitiesInner;
+    for (const entity of meshEntities) {
+      if (!entity.getSceneGraph().isVisible) {
+        return false;
+      }
+      const meshComponent = entity.getMesh();
 
-    this.attachVertexDataInner(
-      meshComponent.mesh!,
-      primitive,
-      primitiveUid,
-      glw,
-      CGAPIResourceRepository.InvalidCGAPIResourceUid
-    );
-
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-      material._shaderProgramUid
-    )! as WebGLProgram;
-    const shaderProgramUid = material._shaderProgramUid;
-
-    let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
-
-    if (shaderProgramUid !== this.__lastShader) {
-      firstTime = true;
-
-      gl.useProgram(shaderProgram);
-      gl.uniform1i((shaderProgram as any).dataTexture, 7);
-      this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-
-      this.__lastShader = shaderProgramUid;
-    }
-
-    if (this.__lastMaterial !== material) {
-      firstTime = true;
-      this.__lastMaterial = material;
-    }
-
-    const entity = meshComponent.entity;
-    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-    material._setParametersToGpu({
-      material,
-      shaderProgram,
-      firstTime,
-      args: {
-        setUniform: true,
-        glw: glw,
-        entity,
-        primitive: primitive,
-        worldMatrix: entity.getSceneGraph().worldMatrix,
-        normalMatrix: entity.getSceneGraph().normalMatrix,
-        lightComponents: this.__lightComponents!,
-        renderPass: renderPass,
-        diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
-        specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
-        isVr: isVRMainPass,
-        displayIdx,
-      },
-    });
-
-    if (primitive.indicesAccessor) {
-      gl.drawElements(
-        primitive.primitiveMode.index,
-        primitive.indicesAccessor.elementCount,
-        primitive.indicesAccessor.componentType.index,
-        0
+      this.attachVertexDataInner(
+        meshComponent.mesh!,
+        primitive,
+        primitiveUid,
+        glw,
+        CGAPIResourceRepository.InvalidCGAPIResourceUid
       );
-    } else {
-      gl.drawArrays(
-        primitive.primitiveMode.index,
-        0,
-        primitive.getVertexCountAsVerticesBased()
-      );
+
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(
+        material._shaderProgramUid
+      )! as WebGLProgram;
+      const shaderProgramUid = material._shaderProgramUid;
+
+      let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
+
+      if (shaderProgramUid !== this.__lastShader) {
+        firstTime = true;
+
+        gl.useProgram(shaderProgram);
+        gl.uniform1i((shaderProgram as any).dataTexture, 7);
+        this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+
+        this.__lastShader = shaderProgramUid;
+      }
+
+      if (this.__lastMaterial !== material) {
+        firstTime = true;
+        this.__lastMaterial = material;
+      }
+
+      WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+      material._setParametersToGpu({
+        material,
+        shaderProgram,
+        firstTime,
+        args: {
+          setUniform: true,
+          glw: glw,
+          entity,
+          primitive: primitive,
+          worldMatrix: entity.getSceneGraph().worldMatrix,
+          normalMatrix: entity.getSceneGraph().normalMatrix,
+          lightComponents: this.__lightComponents!,
+          renderPass: renderPass,
+          diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
+          specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
+          isVr: isVRMainPass,
+          displayIdx,
+        },
+      });
+
+      if (primitive.indicesAccessor) {
+        gl.drawElements(
+          primitive.primitiveMode.index,
+          primitive.indicesAccessor.elementCount,
+          primitive.indicesAccessor.componentType.index,
+          0
+        );
+      } else {
+        gl.drawArrays(
+          primitive.primitiveMode.index,
+          0,
+          primitive.getVertexCountAsVerticesBased()
+        );
+      }
     }
 
     return true;
