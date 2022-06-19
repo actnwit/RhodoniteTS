@@ -89,13 +89,7 @@ declare const window: any;
       const meshComponent = entity.getMesh();
 
       // Instansing
-      if (i === 0) {
-        meshComponent.setMesh(originalMesh);
-      } else {
-        const mesh = new Rn.Mesh();
-        mesh.setOriginalMesh(originalMesh);
-        meshComponent.setMesh(mesh);
-      }
+      meshComponent.setMesh(originalMesh);
       // Non Instansing
       // const mesh = new Rn.Mesh();
       // mesh.addPrimitive(primitive);

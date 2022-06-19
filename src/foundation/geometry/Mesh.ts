@@ -188,8 +188,7 @@ export class Mesh implements IMesh {
       CGAPIResourceRepository.getWebGLResourceRepository();
 
     if (
-      this.__variationVBOUid !==
-      CGAPIResourceRepository.InvalidCGAPIResourceUid
+      this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
     }
@@ -215,12 +214,10 @@ export class Mesh implements IMesh {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     if (
-      this.__variationVBOUid !==
-      CGAPIResourceRepository.InvalidCGAPIResourceUid
+      this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-      this.__variationVBOUid =
-        CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
       return true;
     }
@@ -228,7 +225,6 @@ export class Mesh implements IMesh {
   }
 
   public updateVAO(): void {
-
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
 
@@ -674,7 +670,6 @@ export class Mesh implements IMesh {
    * @private
    */
   _calcFaceNormalsIfNonNormal() {
-
     for (const primitive of this.__primitives) {
       const normalIdx = primitive.attributeSemantics.indexOf(
         VertexAttribute.Normal.XYZ
