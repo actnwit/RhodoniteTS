@@ -90,10 +90,6 @@ declare const window: any;
 
       // Instansing
       meshComponent.setMesh(originalMesh);
-      // Non Instansing
-      // const mesh = new Rn.Mesh();
-      // mesh.addPrimitive(primitive);
-      // meshComponent.setMesh(mesh);
 
       entity.getTransform().scale = Rn.Vector3.fromCopyArray([
         1 / sqrtEntityNumber / 2,

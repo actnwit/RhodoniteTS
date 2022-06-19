@@ -193,9 +193,12 @@ export class Mesh implements IMesh {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
     }
 
-    const entityUIDs = new Float32Array(1); // instances and original
+    const instanceNum = this.__belongToEntities.length;
+    const entityUIDs = new Float32Array(instanceNum);
     entityUIDs[0] = this._attachedEntityUID;
-
+    for (let i = 0; i < instanceNum; i++) {
+      entityUIDs[i + 1] = this.__belongToEntities[i].entityUID;
+    }
     this.__variationVBOUid =
       webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
 
