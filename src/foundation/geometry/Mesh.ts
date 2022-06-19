@@ -110,13 +110,6 @@ export class Mesh implements IMesh {
    */
   public addPrimitive(primitive: Primitive): void {
     primitive._belongToMesh(this);
-    if (this.isInstanceMesh()) {
-
-      // this.__primitives will initialize in this.__setPrimitives
-      this.__opaquePrimitives = this.__opaquePrimitives.slice();
-      this.__transparentPrimitives = this.__transparentPrimitives.slice();
-      this.__morphPrimitives = this.__morphPrimitives.slice();
-    }
 
     if (primitive.material == null || !primitive.material.isBlend()) {
       this.__opaquePrimitives.push(primitive);
@@ -126,13 +119,11 @@ export class Mesh implements IMesh {
     this.__setPrimitives(
       this.__opaquePrimitives.concat(this.__transparentPrimitives)
     );
-
   }
 
   private __setPrimitives(primitives: Primitive[]) {
     this.__primitives = primitives;
   }
-
 
   /**
    * Gets true if these primitives are all 'Blend' type
@@ -616,7 +607,7 @@ export class Mesh implements IMesh {
     if (
       this.tangentCalculationMode === 0 ||
       this.tangentCalculationMode === 1 ||
-      this.tangentCalculationMode === 3 ||
+      this.tangentCalculationMode === 3
     ) {
       return false;
     } else {

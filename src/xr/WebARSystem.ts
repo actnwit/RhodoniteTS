@@ -64,7 +64,6 @@ export class WebARSystem {
         .currentWebGLContextWrapper;
     if (glw == null) {
       throw new Error('WebGL Context is not ready yet.');
-      return [];
     }
     this.__oGlw = new Some(glw);
     const supported = await navigator.xr!.isSessionSupported('immersive-ar');

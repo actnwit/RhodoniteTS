@@ -983,14 +983,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           primitive.indicesAccessor.elementCount,
           primitive.indicesAccessor.componentType.index,
           0,
-          mesh.instanceCountIncludeOriginal
+          1
         );
       } else {
         glw.drawArraysInstanced(
           primitive.primitiveMode.index,
           0,
           primitive.getVertexCountAsVerticesBased(),
-          mesh.instanceCountIncludeOriginal
+          1
         );
       }
 
