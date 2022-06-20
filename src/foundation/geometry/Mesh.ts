@@ -14,7 +14,7 @@ import {Entity} from '../core/Entity';
 import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
 import {MutableVector3} from '../math/MutableVector3';
 import {VertexHandles} from '../../webgl/WebGLResourceRepository';
-import {Is, Is as is} from '../misc/Is';
+import {Is} from '../misc/Is';
 import {IVector3} from '../math/IVector';
 import {IMesh, RaycastResultEx1} from './types/GeometryTypes';
 import {IMeshEntity} from '../helpers/EntityHelper';
@@ -39,7 +39,6 @@ export class Mesh implements IMesh {
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  public _attachedEntityUID = Entity.invalidEntityUID;
   private __latestPrimitivePositionAccessorVersion = 0;
   private __belongToEntities: IMeshEntity[] = [];
 
@@ -195,9 +194,8 @@ export class Mesh implements IMesh {
 
     const instanceNum = this.__belongToEntities.length;
     const entityUIDs = new Float32Array(instanceNum);
-    entityUIDs[0] = this._attachedEntityUID;
     for (let i = 0; i < instanceNum; i++) {
-      entityUIDs[i + 1] = this.__belongToEntities[i].entityUID;
+      entityUIDs[i] = this.__belongToEntities[i].entityUID;
     }
     this.__variationVBOUid =
       webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
@@ -235,7 +233,7 @@ export class Mesh implements IMesh {
     for (let i = 0; i < this.__primitives.length; i++) {
       const primitive = this.__primitives[i];
       const vertexHandles = primitive.vertexHandles as VertexHandles;
-      if (is.undefined(vertexHandles)) {
+      if (Is.undefined(vertexHandles)) {
         console.warn('Need to create 3DAPIVertexData before update VAO');
         continue;
       }
