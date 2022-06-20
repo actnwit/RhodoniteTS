@@ -5,7 +5,7 @@
 
 // This shader is based on https://github.com/Santarh/MToon
 
-in float a_instanceID;
+in vec2 a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec3 a_position;
 in vec3 a_normal;
@@ -47,8 +47,8 @@ void main(){
 
   #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat3 normalMatrix = get_normalMatrix(a_instanceID);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   bool isSkinning = false;
   isSkinning = processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,

@@ -3,7 +3,7 @@ bool wireframe(
   in vec4 wireframeColor,
   out vec4 outColor
 ) {
-  vec3 wireframeInfo = get_wireframe(a_instanceID);
+  vec3 wireframeInfo = get_wireframe(a_instanceInfo.x);
 
   // Wireframe
   float threshold = 0.001;
