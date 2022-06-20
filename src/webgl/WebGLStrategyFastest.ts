@@ -101,6 +101,15 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     return matrix;
   }
 
+  float get_isVisible(float instanceId) {
+    int index = ${Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'isVisible'
+    )} * 4 + int(instanceId);
+    float visibility = fetchScalarNo16BytesAligned(index);
+    return visibility;
+  }
+
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
   vec3 get_position(float vertexId, vec3 basePosition) {

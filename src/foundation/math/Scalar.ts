@@ -6,6 +6,7 @@ import {
 } from '../../types/CommonTypes';
 import {MathUtil} from './MathUtil';
 import { AbstractVector } from './AbstractVector';
+import { CompositionType } from '../definitions/CompositionType';
 
 export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   constructor(v: TypedArray, {type}: {type: T}) {
@@ -59,6 +60,10 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
 
   static _dummy(type: FloatTypedArrayConstructor) {
     return new this(new type(), {type});
+  }
+
+  static get compositionType() {
+    return CompositionType.Scalar;
   }
 }
 

@@ -93,8 +93,22 @@ vec4 fetchVec4(int vec4_idx) {
 }
 
 float fetchScalarNo16BytesAligned(int scalar_idx) {
-  vec4 val = fetchElement(scalar_idx);
-  return val.x;
+#ifdef GLSL_ES3
+  int posIn4bytes = scalar_idx % 4;
+#else
+  int posIn4bytes = int(mod(float(scalar_idx), 4.0));
+#endif
+  int basePosIn16bytes = (scalar_idx - posIn4bytes) / 4;
+  vec4 val = fetchElement(basePosIn16bytes);
+  if (posIn4bytes == 0) {
+    return val.x;
+  } else if (posIn4bytes == 1) {
+    return val.y;
+  } else if (posIn4bytes == 2) {
+    return val.z;
+  } else if (posIn4bytes == 3) {
+    return val.w;
+  }
 }
 
 mat2 fetchMat2No16BytesAligned(int scalar_idx) {

@@ -33,6 +33,7 @@ import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import {IMatrix44} from '../../math/IMatrix';
+import { MutableScalar } from '../../math';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -49,7 +50,7 @@ export class SceneGraphComponent extends Component {
   private __isWorldAABBDirty = true;
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
-  public isVisible = true;
+  private _isVisible: MutableScalar = MutableScalar.dummy();
   private __aabbGizmo?: AABBGizmo;
   private __locatorGizmo?: LocatorGizmo;
   private __translationGizmo?: TranslationGizmo;
@@ -92,8 +93,23 @@ export class SceneGraphComponent extends Component {
       ComponentType.Float,
       [1, 0, 0, 0, 1, 0, 0, 0, 1]
     );
+    this.registerMember(
+      BufferUse.GPUInstanceData,
+      'isVisible',
+      MutableScalar,
+      ComponentType.Float,
+      [1]
+    );
 
     this.submitToAllocation(this.maxNumberOfComponent);
+  }
+
+  set isVisible(flg: boolean) {
+    this._isVisible.setValue(flg ? 1 : 0);
+  }
+
+  get isVisible() {
+    return this._isVisible.getValue() === 1 ? true : false;
   }
 
   set isAABBGizmoVisible(flg: boolean) {

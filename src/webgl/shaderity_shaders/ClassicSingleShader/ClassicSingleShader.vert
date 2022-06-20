@@ -63,6 +63,12 @@ void main()
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
+  float visibility = get_isVisible(a_instanceInfo.x);
+  if (visibility < 0.5)
+  {
+    gl_Position = vec4(0.0);
+  }
+
 #pragma shaderity: require(../common/pointSprite.glsl)
 
 }
