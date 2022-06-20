@@ -6,7 +6,7 @@
 in vec3 a_position;
 in vec3 a_color;
 in vec3 a_normal;
-in vec2 a_instanceInfo;
+in float a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;
@@ -20,7 +20,7 @@ out vec2 v_texcoord_0;
 out vec2 v_texcoord_1;
 out vec2 v_texcoord_2;
 out vec3 v_baryCentricCoord;
-out vec2 v_instanceInfo;
+out float v_instanceInfo;
 #ifdef RN_USE_TANGENT_ATTRIBUTE
   in vec4 a_tangent;
   out vec3 v_tangent_inWorld;
@@ -54,10 +54,10 @@ void main()
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
-  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
-  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
 
   v_color = a_color;
 
@@ -87,6 +87,12 @@ void main()
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
   v_instanceInfo = a_instanceInfo;
+
+  float visibility = get_isVisible(a_instanceInfo);
+  if (visibility < 0.5)
+  {
+    gl_Position = vec4(0.0);
+  }
 
 #pragma shaderity: require(../common/pointSprite.glsl)
 

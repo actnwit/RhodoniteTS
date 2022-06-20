@@ -8,7 +8,7 @@
 
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
-in vec2 v_instanceInfo;
+in float v_instanceInfo;
 
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -21,7 +21,7 @@ void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  rt0 = encodeFloatRGBA(v_instanceInfo.x);
+  rt0 = encodeFloatRGBA(v_instanceInfo);
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 }

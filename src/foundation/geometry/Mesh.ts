@@ -193,13 +193,15 @@ export class Mesh implements IMesh {
     }
 
     const instanceNum = this.__belongToEntities.length;
-    const entityInfo = new Float32Array(instanceNum * 2);
+    const entityInfo = new Float32Array(instanceNum);
+    // const entityInfo = new Float32Array(instanceNum * 2);
     for (let i = 0; i < instanceNum; i++) {
-      entityInfo[2 * i + 0] = this.__belongToEntities[i].entityUID;
-      entityInfo[2 * i + 1] = this.__belongToEntities[i].getSceneGraph()
-        .isVisible
-        ? 1
-        : 0;
+      entityInfo[i] = this.__belongToEntities[i].entityUID;
+      // entityInfo[2 * i + 0] = this.__belongToEntities[i].entityUID;
+      // entityInfo[2 * i + 1] = this.__belongToEntities[i].getSceneGraph()
+      //   .isVisible
+      //   ? 1
+      //   : 0;
     }
     this.__variationVBOUid =
       webglResourceRepository.createVertexBufferFromTypedArray(entityInfo);

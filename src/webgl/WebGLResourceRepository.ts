@@ -904,7 +904,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
       gl.vertexAttribPointer(
         VertexAttribute.Instance.getAttributeSlot(),
-        CompositionType.Vec2.getNumberOfComponents(),
+        CompositionType.Scalar.getNumberOfComponents(),
         ComponentType.Float.index,
         false,
         0,
