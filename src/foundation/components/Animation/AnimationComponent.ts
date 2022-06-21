@@ -87,6 +87,7 @@ export class AnimationComponent extends Component {
 
   /// flags ///
   private __isAnimating = true;
+  static isAnimating = true;
 
   /// Static Members ///
 
@@ -129,7 +130,7 @@ export class AnimationComponent extends Component {
 
   $logic() {
     if (
-      this.isAnimating &&
+      AnimationComponent.isAnimating && this.isAnimating &&
       this.__currentActiveAnimationTrackName !== undefined
     ) {
       const animationSet = this.__animationTracks.get(
@@ -301,7 +302,7 @@ export class AnimationComponent extends Component {
     }
   }
 
-  setAnimating(flg: boolean) {
+  setIsAnimating(flg: boolean) {
     this.__isAnimating = flg;
   }
 
@@ -309,12 +310,12 @@ export class AnimationComponent extends Component {
     this.restoreDefaultValues();
   }
 
-  static setAnimatingForAll(flg: boolean) {
+  static setIsAnimatingForAll(flg: boolean) {
     const animationComponents = ComponentRepository._getComponents(
       AnimationComponent
     )! as AnimationComponent[];
     for (const animationComponent of animationComponents) {
-      animationComponent.setAnimating(flg);
+      animationComponent.setIsAnimating(flg);
     }
   }
 
@@ -524,19 +525,6 @@ export class AnimationComponent extends Component {
       const lastInfo = infoArray[infoArray.length - 1];
       return lastInfo.maxEndInputTime;
     }
-  }
-
-  static get isAnimating() {
-    const components = ComponentRepository.getComponentsWithType(
-      AnimationComponent
-    ) as AnimationComponent[];
-
-    for (const component of components) {
-      if (component.isAnimating) {
-        return true;
-      }
-    }
-    return false;
   }
 
   static get componentTID(): ComponentTID {
