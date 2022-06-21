@@ -1022,8 +1022,8 @@ export class AnimationComponent extends Component {
     frame: Index,
     fps: number
   ) {
-    const secBegin = frame * fps;
-    const secEnd = (frame + 1) * fps;
+    const secBegin = frame / fps;
+    const secEnd = (frame + 1) / fps + Number.EPSILON;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
