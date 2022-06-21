@@ -829,9 +829,9 @@ export class AnimationComponent extends Component {
     frameToInsert: Index,
     fps: number
   ) {
-    const secBegin = frameToInsert * fps;
+    const secBegin = frameToInsert / fps;
     const input = secBegin;
-    const secEnd = (frameToInsert + 1) * fps;
+    const secEnd = (frameToInsert + 1) / fps;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
@@ -844,9 +844,11 @@ export class AnimationComponent extends Component {
       return false;
     }
 
+    // if the input is ArrayBuffer, convert it to Array
     if (ArrayBuffer.isView(channel.sampler.input)) {
       channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
     }
+    // if the output is ArrayBuffer, convert it to Array
     if (ArrayBuffer.isView(channel.sampler.output)) {
       channel.sampler.output = Array.from(
         channel.sampler.output as Float32Array
@@ -854,22 +856,46 @@ export class AnimationComponent extends Component {
     }
 
     const i = AnimationAttribute.fromString(pathName).index;
-    const value = AnimationComponent.__interpolate(
+    const output = AnimationComponent.__interpolate(
       channel,
       AnimationComponent.globalTime,
       i
     );
 
-    for (let i = 0; i < channel.sampler.input.length; i++) {
-      const existedInput = channel.sampler.input[i];
-      if (secBegin < existedInput && existedInput <= secEnd) {
-        channel.sampler.input.splice(i - 1, 0, input);
-        channel.sampler.output.splice(
-          (i - 1) * channel.sampler.outputComponentN,
-          0,
-          ...value
-        );
-        break;
+    if (channel.sampler.input.length === 0) {
+      channel.sampler.input.push(input);
+      channel.sampler.output.push(...output);
+    } else if (channel.sampler.input.length === 1) {
+      const existedInput = channel.sampler.input[0];
+      if (secEnd < existedInput) {
+        channel.sampler.input.unshift(input);
+        channel.sampler.output.unshift(...output);
+      } else if (existedInput < secBegin) {
+        channel.sampler.input.push(input);
+        channel.sampler.output.push(...output);
+      } else { // secBegin <= existedInput <= secEnd
+        channel.sampler.input.splice(0, 0, input);
+        channel.sampler.output.splice(0, 0, ...output);
+      }
+    } else { // channel.sampler.input.length >= 2
+      for (let i = 0; i < channel.sampler.input.length; i++) {
+        const existedInput = channel.sampler.input[i];
+        if (secBegin <= existedInput) {
+          if (secBegin <= existedInput && existedInput <= secEnd) {
+            channel.sampler.input[i] = input;
+            for (let j = 0; j < channel.sampler.outputComponentN; j++) {
+              channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
+            }
+          } else {
+            channel.sampler.input.splice(i, 0, input);
+            channel.sampler.output.splice(
+              (i) * channel.sampler.outputComponentN,
+              0,
+              ...output
+            );
+          }
+          break;
+        }
       }
     }
 
@@ -883,9 +909,9 @@ export class AnimationComponent extends Component {
     output: Array<number>,
     fps: number
   ) {
-    const secBegin = frameToInsert * fps;
+    const secBegin = frameToInsert / fps;
     const input = secBegin;
-    const secEnd = (frameToInsert + 1) * fps;
+    const secEnd = (frameToInsert + 1) / fps + Number.EPSILON;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
@@ -907,16 +933,40 @@ export class AnimationComponent extends Component {
       );
     }
 
-    for (let i = 0; i < channel.sampler.input.length; i++) {
-      const existedInput = channel.sampler.input[i];
-      if (secBegin < existedInput && existedInput <= secEnd) {
-        channel.sampler.input.splice(i - 1, 0, input);
-        channel.sampler.output.splice(
-          (i - 1) * channel.sampler.outputComponentN,
-          0,
-          ...output
-        );
-        break;
+    if (channel.sampler.input.length === 0) {
+      channel.sampler.input.push(input);
+      channel.sampler.output.push(...output);
+    } else if (channel.sampler.input.length === 1) {
+      const existedInput = channel.sampler.input[0];
+      if (secEnd < existedInput) {
+        channel.sampler.input.unshift(input);
+        channel.sampler.output.unshift(...output);
+      } else if (existedInput < secBegin) {
+        channel.sampler.input.push(input);
+        channel.sampler.output.push(...output);
+      } else { // secBegin <= existedInput <= secEnd
+        channel.sampler.input.splice(0, 0, input);
+        channel.sampler.output.splice(0, 0, ...output);
+      }
+    } else { // channel.sampler.input.length >= 2
+      for (let i = 0; i < channel.sampler.input.length; i++) {
+        const existedInput = channel.sampler.input[i];
+        if (secBegin <= existedInput) {
+          if (secBegin <= existedInput && existedInput <= secEnd) {
+            channel.sampler.input[i] = input;
+            for (let j = 0; j < channel.sampler.outputComponentN; j++) {
+              channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
+            }
+          } else {
+            channel.sampler.input.splice(i, 0, input);
+            channel.sampler.output.splice(
+              (i) * channel.sampler.outputComponentN,
+              0,
+              ...output
+            );
+          }
+          break;
+        }
       }
     }
 
