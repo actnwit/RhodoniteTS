@@ -979,8 +979,8 @@ export class AnimationComponent extends Component {
     frameToDelete: Index,
     fps: number
   ) {
-    const secBegin = frameToDelete * fps;
-    const secEnd = (frameToDelete + 1) * fps;
+    const secBegin = frameToDelete / fps;
+    const secEnd = (frameToDelete + 1) / fps + Number.EPSILON;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
