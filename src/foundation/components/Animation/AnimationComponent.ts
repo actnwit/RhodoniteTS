@@ -1045,5 +1045,9 @@ export class AnimationComponent extends Component {
 
     return false;
   }
+
+  static setIsAnimating(flag: boolean) {
+    this.isAnimating = flag;
+  }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);
