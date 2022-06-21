@@ -13,7 +13,7 @@ in vec2 v_texcoord_0;
 in vec2 v_texcoord_1;
 in vec2 v_texcoord_2;
 in vec3 v_baryCentricCoord;
-in float v_instanceID;
+in float v_instanceInfo;
 
 #ifdef RN_USE_TANGENT_ATTRIBUTE
   in vec3 v_tangent_inWorld;
@@ -170,7 +170,7 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
   vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  mat4 worldMatrix = get_worldMatrix(v_instanceID);
+  mat4 worldMatrix = get_worldMatrix(v_instanceInfo);
 
   vec3 modelScale;
   modelScale.x = length(vec3(worldMatrix[0].xyz));

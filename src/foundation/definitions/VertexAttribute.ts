@@ -195,7 +195,7 @@ const Weights0: VertexAttributeEnum =
 const Instance: VertexAttributeEnum =
   VertexAttributeClass.__createVertexAttributeClass({
     str: 'INSTANCE',
-    shaderStr: 'a_instance',
+    shaderStr: 'a_instanceInfo',
     attributeSlot: 8,
     gltfComponentN: 1,
   });

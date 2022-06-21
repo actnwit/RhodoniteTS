@@ -1,7 +1,7 @@
 #pragma shaderity: require(../common/version.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
-in float a_instanceID;
+in float a_instanceInfo;
 in vec3 a_baryCentricCoord;
 in vec3 a_position;
 

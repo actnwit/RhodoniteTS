@@ -1,5 +1,6 @@
 import {Scalar_} from './Scalar';
 import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+import { CompositionType } from '../definitions/CompositionType';
 
 export class MutableScalar_<
   T extends TypedArrayConstructor
@@ -40,6 +41,10 @@ export class MutableScalar_<
   setValue(value: number) {
     this.x = value;
     return this;
+  }
+
+  static get compositionType() {
+    return CompositionType.Scalar;
   }
 }
 

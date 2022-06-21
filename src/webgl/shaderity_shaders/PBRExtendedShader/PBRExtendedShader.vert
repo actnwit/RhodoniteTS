@@ -7,7 +7,7 @@ in vec3 a_position;
 in vec3 a_color;
 in vec3 a_normal;
 in vec4 a_tangent;
-in float a_instanceID;
+in float a_instanceInfo;
 in vec2 a_texcoord;
 in vec4 a_joint;
 in vec4 a_weight;
@@ -37,8 +37,8 @@ void main()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat3 normalMatrix = get_normalMatrix(a_instanceID);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
 
   v_color = a_color;
 

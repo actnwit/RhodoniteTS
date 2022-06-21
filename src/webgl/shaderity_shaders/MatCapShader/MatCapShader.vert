@@ -3,7 +3,7 @@
 
 /* shaderity: @{definitions} */
 
-in float a_instanceID;
+in float a_instanceInfo;
 in vec3 a_baryCentricCoord;
 in vec3 a_position;
 in vec3 a_normal;
@@ -30,8 +30,8 @@ out vec4 v_position_inWorld;
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat3 normalMatrix = get_normalMatrix(a_instanceID);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
 
   bool isSkinning = false;
   isSkinning = processGeometryWithMorphingAndSkinning(

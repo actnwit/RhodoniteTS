@@ -96,6 +96,10 @@ mat3 get_normalMatrix(float instanceId) {
   return u_normalMatrix;
 }
 
+float get_isVisible(float instanceId) {
+  return 1.0;
+}
+
 #ifdef RN_IS_VERTEX_SHADER
 # ifdef RN_IS_MORPHING
   vec3 get_position(float vertexId, vec3 basePosition) {

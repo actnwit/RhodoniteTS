@@ -3,6 +3,7 @@ import Rn from '../../../dist/esm/index.mjs';
 declare const Stats: any;
 declare const window: any;
 (function () {
+  window.Rn = Rn;
   //    import Rn from '../../../dist/rhodonite.mjs';
   function readyBasicVerticesData() {
     const indices = new Uint16Array([
@@ -90,6 +91,10 @@ declare const window: any;
 
       // Instansing
       meshComponent.setMesh(originalMesh);
+
+      if (i % 3 === 1) {
+        entity.getSceneGraph().isVisible = false;
+      }
 
       entity.getTransform().scale = Rn.Vector3.fromCopyArray([
         1 / sqrtEntityNumber / 2,

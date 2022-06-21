@@ -6,7 +6,7 @@
 in vec3 a_position;
 in vec3 a_color;
 in vec3 a_normal;
-in float a_instanceID;
+in float a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec4 a_joint;
 in vec4 a_weight;
@@ -38,10 +38,10 @@ void main()
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
-  mat3 normalMatrix = get_normalMatrix(a_instanceID);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
 
   // Skeletal
   processGeometryWithMorphingAndSkinning(
@@ -62,6 +62,12 @@ void main()
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
+
+  float visibility = get_isVisible(a_instanceInfo);
+  if (visibility < 0.5)
+  {
+    gl_Position = vec4(0.0);
+  }
 
 #pragma shaderity: require(../common/pointSprite.glsl)
 
