@@ -354,6 +354,20 @@ export class AnimationComponent extends Component {
     return this.__currentActiveAnimationTrackName;
   }
 
+  hasAnimation(
+    trackName: AnimationTrackName,
+    pathName: AnimationPathName
+  ): boolean {
+    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
+
+    if (Is.not.exist(animationSet)) {
+      return false;
+    }
+
+    return animationSet.has(pathName);
+  }
+
   setAnimation(
     trackName: AnimationTrackName,
     pathName: AnimationPathName,
