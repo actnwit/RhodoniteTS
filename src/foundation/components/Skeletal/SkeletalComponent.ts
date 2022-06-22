@@ -34,9 +34,7 @@ export class SkeletalComponent extends Component {
   private __jointMatrices?: number[];
   public topOfJointsHierarchy?: SceneGraphComponent;
   public isSkinning = true;
-  public isOptimizingMode = true;
   private static __tmpVec3_0 = MutableVector3.zero();
-  private static __tmpVec3_1 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(
     0,
