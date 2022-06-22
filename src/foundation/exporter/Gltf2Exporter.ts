@@ -1370,7 +1370,7 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.input)
         ? rnChannel.sampler.input.buffer
-        : rnChannel.sampler.input
+        : (new Float32Array(rnChannel.sampler.input)).buffer
     ),
   });
   json.bufferViews.push(gltf2BufferView);
@@ -1435,7 +1435,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.output)
         ? rnChannel.sampler.output.buffer
-        : rnChannel.sampler.output
+        : (new Float32Array(rnChannel.sampler.output)).buffer
     ),
   });
   json.bufferViews.push(gltf2BufferView);
@@ -1713,7 +1713,6 @@ function createGltf2BufferViewForAnimation({
     buffer: bufferIdx,
     byteLength: fixedBufferViewByteLength,
     byteOffset: fixedBufferViewByteOffset,
-    byteStride: bufferViewByteStride,
     extras: {
       uint8Array,
     },
