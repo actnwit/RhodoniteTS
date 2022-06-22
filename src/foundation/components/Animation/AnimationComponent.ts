@@ -55,6 +55,7 @@ import {Is} from '../../misc/Is';
 import {IAnimationEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import { EffekseerComponent } from '../../../effekseer';
 
 const defaultAnimationInfo = {
   name: '',
@@ -84,6 +85,7 @@ export class AnimationComponent extends Component {
   /// cache references of other components
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
+  private __effekseerComponent?: EffekseerComponent;
 
   /// flags ///
   private __isAnimating = true;
@@ -125,6 +127,11 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
+    this.__effekseerComponent = EntityRepository.getComponentOfEntity(
+      this.__entityUid,
+      EffekseerComponent
+    ) as EffekseerComponent;
+
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -158,6 +165,12 @@ export class AnimationComponent extends Component {
             );
           } else if (i === AnimationAttribute.Weights.index) {
             this.__meshComponent!.weights = value;
+          } else if (i === AnimationAttribute.Effekseer.index) {
+            if (value[0] > 0.5) {
+              this.__effekseerComponent?.play();
+            } else {
+              this.__effekseerComponent?.pause();
+            }
           }
         }
       }
