@@ -17,7 +17,7 @@ let p: any;
     2.0, 2.0, 5.0,
   ]);
 
-  const mainCameraComponent = createCameraComponent();
+  const mainCameraComponent = createCameraControllerComponent();
   const mainCameraEntity = mainCameraComponent.entity;
   mainCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
     -0.1, -0.1, -0.2,
@@ -143,6 +143,12 @@ let p: any;
 
   function createCameraComponent() {
     const cameraEntity = Rn.EntityHelper.createCameraEntity();
+    const cameraComponent = cameraEntity.getCamera();
+    return cameraComponent;
+  }
+
+  function createCameraControllerComponent() {
+    const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
     const cameraComponent = cameraEntity.getCamera();
     return cameraComponent;
   }

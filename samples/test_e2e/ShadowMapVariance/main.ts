@@ -90,7 +90,7 @@ import Rn from '../../../dist/esm/index.mjs';
   }
 
   function createEntityMainCamera() {
-    const entityCamera = Rn.EntityHelper.createCameraEntity();
+    const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     const transformCamera = entityCamera.getTransform();
     transformCamera.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
