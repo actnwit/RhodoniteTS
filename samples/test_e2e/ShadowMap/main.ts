@@ -1,3 +1,4 @@
+import { ICameraEntity } from '../../../dist/esm/index.js';
 import Rn from '../../../dist/esm/index.mjs';
 
 const p = document.createElement('p');
@@ -10,27 +11,21 @@ document.body.appendChild(p);
   });
 
   // setting cameras except for post effect
-  const depthCameraComponent = createCameraComponent();
-  depthCameraComponent.zFar = 50.0;
-  depthCameraComponent.setFovyAndChangeFocalLength(40);
-  const depthCameraEntity = depthCameraComponent.entity;
-  depthCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    2.0, 2.0, 5.0,
-  ]);
+  const depthCameraEntity = Rn.EntityHelper.createCameraEntity();
+  depthCameraEntity.getCamera().zFar = 50.0;
+  depthCameraEntity.getCamera().setFovyAndChangeFocalLength(40);
+  depthCameraEntity.translate = Rn.Vector3.fromCopyArray([2.0, 2.0, 5.0]);
 
-  const mainCameraComponent = createCameraControllerComponent();
-  const mainCameraEntity = mainCameraComponent.entity;
-  mainCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    -0.1, -0.1, -0.2,
-  ]);
+  const mainCameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  mainCameraEntity.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
 
   // setting render passes
   const renderPassDepth =
-    createRenderPassSpecifyingCameraComponent(depthCameraComponent);
+    createRenderPassSpecifyingCameraComponent(depthCameraEntity);
   createFramebuffer(renderPassDepth, 1024, 1024, 1, {});
 
   const renderPassMain =
-    createRenderPassSpecifyingCameraComponent(mainCameraComponent);
+    createRenderPassSpecifyingCameraComponent(mainCameraEntity);
 
   const expression = new Rn.Expression();
   expression.addRenderPasses([renderPassDepth, renderPassMain]);
@@ -135,18 +130,6 @@ document.body.appendChild(p);
     return entity;
   }
 
-  function createCameraComponent() {
-    const cameraEntity = Rn.EntityHelper.createCameraEntity();
-    const cameraComponent = cameraEntity.getCamera();
-    return cameraComponent;
-  }
-
-  function createCameraControllerComponent() {
-    const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-    const cameraComponent = cameraEntity.getCamera();
-    return cameraComponent;
-  }
-
   function createFramebuffer(renderPass, height, width, textureNum, property) {
     const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
       height,
@@ -158,10 +141,12 @@ document.body.appendChild(p);
     return framebuffer;
   }
 
-  function createRenderPassSpecifyingCameraComponent(cameraComponent) {
+  function createRenderPassSpecifyingCameraComponent(
+    cameraEntity: ICameraEntity
+  ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
-    renderPass.cameraComponent = cameraComponent;
+    renderPass.cameraComponent = cameraEntity.getCamera();
     return renderPass;
   }
 
