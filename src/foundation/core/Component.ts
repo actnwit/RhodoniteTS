@@ -1,20 +1,17 @@
-import { MemoryManager } from '../core/MemoryManager';
-import { EntityRepository } from './EntityRepository';
-import { BufferView } from '../memory/BufferView';
-import { Accessor } from '../memory/Accessor';
+import {MemoryManager} from '../core/MemoryManager';
+import {EntityRepository} from './EntityRepository';
+import {BufferView} from '../memory/BufferView';
+import {Accessor} from '../memory/Accessor';
 import {BufferUseEnum} from '../definitions/BufferUse';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../../foundation/definitions/CompositionType';
+import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import {ProcessApproachEnum} from '../definitions/ProcessApproach';
-import { ComponentRepository } from './ComponentRepository';
+import {ComponentRepository} from './ComponentRepository';
 import {Config} from './Config';
-import { WebGLStrategy } from '../../webgl/WebGLStrategy';
-import { RenderPass } from '../renderer/RenderPass';
-import { RnObject } from './RnObject';
+import {WebGLStrategy} from '../../webgl/WebGLStrategy';
+import {RenderPass} from '../renderer/RenderPass';
+import {RnObject} from './RnObject';
 import {
   EntityUID,
   ComponentSID,
