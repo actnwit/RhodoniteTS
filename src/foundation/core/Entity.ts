@@ -202,9 +202,12 @@ export class Entity extends RnObject implements IEntity {
     ) as TransformComponent | undefined;
   }
 
+  /**
+   * Mark the entity as destroyed
+   */
   destroy() {
     this.__components.forEach(component => {
-      component.destroy();
+      component._destroy();
     });
     this._isAlive = false;
   }

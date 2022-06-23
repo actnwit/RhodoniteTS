@@ -26,6 +26,12 @@ export class EntityRepository {
     return entity;
   }
 
+  /**
+   * Add a Component to the entity
+   * @param componentClass - a ComponentClass to add
+   * @param entity - the entity
+   * @returns the entity added a component
+   */
   public static addComponentToEntity<
     ComponentType extends typeof Component,
     EntityType extends IEntity
@@ -83,7 +89,7 @@ export class EntityRepository {
     }
     const component = map.get(componentClass.componentTID);
     if (Is.exist(component)) {
-      component.destroy();
+      component._destroy();
       map.delete(componentClass.componentTID);
       entity._removeComponent(componentClass.componentTID);
     }

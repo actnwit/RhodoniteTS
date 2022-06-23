@@ -705,6 +705,12 @@ export class Component extends RnObject {
   /// convenient methods but not used yet
   ///
 
+  /**
+   * Get the CompositionType of the member
+   * @param memberName - the member name
+   * @param componentClass - the component class
+   * @returns CompositionType or undefined
+   */
   static getCompositionTypeOfMember(
     memberName: string,
     componentClass: Function
@@ -720,6 +726,12 @@ export class Component extends RnObject {
     }
   }
 
+  /**
+   * Get the ComponentType of the member
+   * @param memberName - the member name
+   * @param componentClass - the component class
+   * @returns ComponentType or undefined
+   */
   static getComponentTypeOfMember(
     memberName: string,
     componentClass: Function
@@ -735,7 +747,11 @@ export class Component extends RnObject {
     }
   }
 
-  destroy() {
+  /**
+   * @private
+   * Mark the component as destroyed
+   */
+  _destroy(): void {
     this._isAlive = false;
   }
 }

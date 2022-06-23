@@ -696,7 +696,7 @@ export class SceneGraphComponent extends Component {
     this.__scaleGizmo?.setSpace(space);
   }
 
-  destroy() {
+  _destroy() {
     // this.__aabbGizmo?.destroy();
     // this.__locatorGizmo?.destroy();
     // this.__translationGizmo?.destroy();

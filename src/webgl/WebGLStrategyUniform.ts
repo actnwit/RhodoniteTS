@@ -217,7 +217,7 @@ float get_isVisible(float instanceId) {
       true
     );
 
-    WebGLStrategyUniform.__globalDataRepository.setUniformLocationsForUniformModeOnly(
+    WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
       material._shaderProgramUid
     );
 

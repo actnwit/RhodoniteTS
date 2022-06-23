@@ -33,7 +33,7 @@ import {
   ProcessApproachEnum,
 } from '../../foundation/definitions/ProcessApproach';
 import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
-import { Vector2 } from '../math';
+import {Vector2} from '../math';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -51,6 +51,10 @@ export class GlobalDataRepository {
 
   private constructor() {}
 
+  /**
+   * Initialize the GlobalDataRepository
+   * @param approach - ProcessApproachEnum for initialization
+   */
   initialize(approach: ProcessApproachEnum) {
     // CurrentComponentSIDs
     const currentComponentSIDsInfo = {
@@ -67,7 +71,7 @@ export class GlobalDataRepository {
         new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber)
       ),
     };
-    this.registerProperty(currentComponentSIDsInfo, 1);
+    this.__registerProperty(currentComponentSIDsInfo, 1);
     this.takeOne(ShaderSemantics.CurrentComponentSIDs);
 
     // Camera
@@ -102,9 +106,9 @@ export class GlobalDataRepository {
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Vector3.fromCopyArray([0, 0, 1]),
     };
-    this.registerProperty(viewMatrixInfo, Config.maxCameraNumber);
-    this.registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
-    this.registerProperty(viewPositionInfo, Config.maxCameraNumber);
+    this.__registerProperty(viewMatrixInfo, Config.maxCameraNumber);
+    this.__registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
+    this.__registerProperty(viewPositionInfo, Config.maxCameraNumber);
 
     const maxSkeletalBoneNumber = ProcessApproach.isUniformApproach(approach)
       ? Config.maxSkeletalBoneNumberForUniformMode
@@ -213,23 +217,29 @@ export class GlobalDataRepository {
       initialValue: Scalar.fromCopyNumber(-1),
     };
     if (Config.boneDataType === BoneDataType.Mat44x1) {
-      this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      this.registerProperty(
+      this.__registerProperty(
         boneTranslatePackedQuatInfo,
         Config.maxSkeletonNumber
       );
-      this.registerProperty(boneScalePackedQuatInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(
+        boneScalePackedQuatInfo,
+        Config.maxSkeletonNumber
+      );
     } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
-      this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
-      this.registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
-      this.registerProperty(boneCompressedInfoInfo, 1);
+      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(
+        boneCompressedChunkInfo,
+        Config.maxSkeletonNumber
+      );
+      this.__registerProperty(boneCompressedInfoInfo, 1);
       this.takeOne(ShaderSemantics.BoneCompressedInfo);
     }
-    this.registerProperty(skeletalComponentSIDInfo, 1);
+    this.__registerProperty(skeletalComponentSIDInfo, 1);
     this.takeOne(ShaderSemantics.SkinningMode);
 
     // Lighting
@@ -289,10 +299,10 @@ export class GlobalDataRepository {
       ),
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
-    this.registerProperty(lightPositionInfo, 1);
-    this.registerProperty(lightDirectionInfo, 1);
-    this.registerProperty(lightIntensityInfo, 1);
-    this.registerProperty(lightPropertyInfo, 1);
+    this.__registerProperty(lightPositionInfo, 1);
+    this.__registerProperty(lightDirectionInfo, 1);
+    this.__registerProperty(lightIntensityInfo, 1);
+    this.__registerProperty(lightPropertyInfo, 1);
     this.takeOne(ShaderSemantics.LightDirection);
     this.takeOne(ShaderSemantics.LightIntensity);
     this.takeOne(ShaderSemantics.LightPosition);
@@ -309,7 +319,7 @@ export class GlobalDataRepository {
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Scalar.fromCopyNumber(0),
     };
-    this.registerProperty(lightNumberInfo, 1);
+    this.__registerProperty(lightNumberInfo, 1);
     this.takeOne(ShaderSemantics.LightNumber);
 
     const backBufferTextureSize = {
@@ -324,7 +334,7 @@ export class GlobalDataRepository {
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Vector2.fromCopy2(0, 0),
     };
-    this.registerProperty(backBufferTextureSize, 1);
+    this.__registerProperty(backBufferTextureSize, 1);
     this.takeOne(ShaderSemantics.BackBufferTextureSize);
 
     const vrState = {
@@ -341,7 +351,7 @@ export class GlobalDataRepository {
       // x: 0: not vr, 1: vr
       // y: 0: left eye, 1: right eye
     };
-    this.registerProperty(vrState, 1);
+    this.__registerProperty(vrState, 1);
     this.takeOne(ShaderSemantics.VrState);
   }
 
@@ -352,7 +362,10 @@ export class GlobalDataRepository {
     return this.__instance;
   }
 
-  registerProperty(semanticInfo: ShaderSemanticsInfo, maxCount: Count) {
+  private __registerProperty(
+    semanticInfo: ShaderSemanticsInfo,
+    maxCount: Count
+  ): void {
     const propertyIndex = Material._getPropertyIndex(semanticInfo);
 
     const buffer = MemoryManager.getInstance().createOrGetBuffer(
@@ -396,7 +409,7 @@ export class GlobalDataRepository {
     this.__fields.set(propertyIndex, globalPropertyStruct);
   }
 
-  takeOne(shaderSemantic: ShaderSemanticsEnum) {
+  public takeOne(shaderSemantic: ShaderSemanticsEnum): any {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
@@ -416,7 +429,11 @@ export class GlobalDataRepository {
     return void 0;
   }
 
-  setValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index, value: any) {
+  public setValue(
+    shaderSemantic: ShaderSemanticsEnum,
+    countIndex: Index,
+    value: any
+  ): void {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
@@ -425,7 +442,7 @@ export class GlobalDataRepository {
     }
   }
 
-  getValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index) {
+  public getValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index): any {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
@@ -439,11 +456,13 @@ export class GlobalDataRepository {
     return this.__fields.get(propertyIndex);
   }
 
-  getGlobalProperties() {
+  public getGlobalProperties(): GlobalPropertyStruct[] {
     return Array.from(this.__fields.values());
   }
 
-  setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle) {
+  _setUniformLocationsForUniformModeOnly(
+    shaderProgramUid: CGAPIResourceHandle
+  ) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
@@ -459,7 +478,9 @@ export class GlobalDataRepository {
     );
   }
 
-  setUniformLocationsForFastestModeOnly(shaderProgramUid: CGAPIResourceHandle) {
+  _setUniformLocationsForFastestModeOnly(
+    shaderProgramUid: CGAPIResourceHandle
+  ) {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
@@ -519,7 +540,7 @@ export class GlobalDataRepository {
     return 0;
   }
 
-  addPropertiesStr(
+  _addPropertiesStr(
     vertexPropertiesStr: string,
     pixelPropertiesStr: string,
     propertySetter: getShaderPropertyFunc,
