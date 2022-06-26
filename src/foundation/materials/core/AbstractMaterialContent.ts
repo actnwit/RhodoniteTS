@@ -4,7 +4,7 @@ import {
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import {CompositionTypeEnum} from '../../definitions/CompositionType';
-import {ComponentTypeEnum} from '../../definitions/ComponentType';
+import {ComponentType, ComponentTypeEnum} from '../../definitions/ComponentType';
 import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
 import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
 import {Matrix44} from '../../math/Matrix44';
@@ -40,6 +40,8 @@ import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {ComponentRepository} from '../../core/ComponentRepository';
 import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { TextureParameter } from '../../definitions/TextureParameter';
+import { PixelFormat } from '../../definitions/PixelFormat';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -90,6 +92,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
   static __dummySRGBGrayTexture = new Texture();
   static __dummyBlackCubeTexture = new CubeTexture();
+  static __sheenLutTextureUid: MaterialNodeUID = -1;
 
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();
@@ -103,7 +106,6 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   protected __vertexShaderityObject?: ShaderityObject;
   protected __pixelShaderityObject?: ShaderityObject;
-
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   constructor(
@@ -308,7 +310,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     return this.__pixelOutputs;
   }
 
-  public static initDefaultTextures() {
+  public static async initDefaultTextures() {
     if (this.__dummyWhiteTexture.isTextureReady) {
       return;
     }
@@ -326,9 +328,28 @@ export abstract class AbstractMaterialContent extends RnObject {
     const moduleName = 'pbr';
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = moduleManager.getModule(moduleName)! as any;
-    this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.generateTextureFromUri(
-      pbrModule.pbrKelemenSzirmayKalosBrdfLutDataUrl
-    );
+
+    const webglResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+
+    this.__sheenLutTextureUid =
+      await webglResourceRepository!.createTextureFromDataUri(
+        pbrModule.sheen_E_and_DGTerm,
+        {
+          level: 0,
+          internalFormat: TextureParameter.RGBA8,
+          border: 0,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+          magFilter: TextureParameter.Linear,
+          minFilter: TextureParameter.Linear,
+          wrapS: TextureParameter.ClampToEdge,
+          wrapT: TextureParameter.ClampToEdge,
+          generateMipmap: false,
+          anisotropy: false,
+          isPremultipliedAlpha: false,
+        }
+      );
   }
 
   static get dummyWhiteTexture() {
