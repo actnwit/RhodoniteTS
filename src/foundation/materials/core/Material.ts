@@ -707,7 +707,7 @@ export class Material extends RnObject {
     });
     const globalDataRepository = GlobalDataRepository.getInstance();
     [vertexPropertiesStr, pixelPropertiesStr] =
-      globalDataRepository.addPropertiesStr(
+      globalDataRepository._addPropertiesStr(
         vertexPropertiesStr,
         pixelPropertiesStr,
         propertySetter,

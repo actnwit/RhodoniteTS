@@ -87,12 +87,12 @@ export class MemoryManager {
     return buffer;
   }
 
-  getBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
+  public getBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
     const buffer = this.__buffers[bufferUse.toString()];
     return buffer;
   }
 
-  createOrGetBuffer(bufferUse: BufferUseEnum): Buffer {
+  public createOrGetBuffer(bufferUse: BufferUseEnum): Buffer {
     let buffer = this.__buffers[bufferUse.toString()];
     if (buffer == null) {
       buffer = this.__createBuffer(bufferUse);
@@ -100,7 +100,7 @@ export class MemoryManager {
     return buffer;
   }
 
-  createBufferOnDemand(size: Byte, object: RnObject, byteAlign: Byte) {
+  public createBufferOnDemand(size: Byte, object: RnObject, byteAlign: Byte) {
     const arrayBuffer = new ArrayBuffer(size);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
@@ -112,7 +112,7 @@ export class MemoryManager {
     return buffer;
   }
 
-  getBufferOnDemand(object: RnObject) {
+  public getBufferOnDemand(object: RnObject) {
     return this.__buffersOnDemand.get(object.objectUID);
   }
 
@@ -124,7 +124,7 @@ export class MemoryManager {
     return Config.dataTextureHeight;
   }
 
-  printMemoryUsage() {
+  public printMemoryUsage() {
     const cpuGeneric = this.__buffers[BufferUse.CPUGeneric.toString()];
     const gpuInstanceData =
       this.__buffers[BufferUse.GPUInstanceData.toString()];
@@ -158,7 +158,7 @@ export class MemoryManager {
     // console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);
   }
 
-  dumpBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
+  public dumpBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
     const buffer = this.__buffers[bufferUse.toString()];
 
     MiscUtil.downloadArrayBuffer(bufferUse.toString(), buffer.getArrayBuffer());

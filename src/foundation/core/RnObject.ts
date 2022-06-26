@@ -1,5 +1,5 @@
 import {RnTags, ObjectUID} from '../../types/CommonTypes';
-import { deepCopyUsingJsonStringify } from '../misc/MiscUtil';
+import {deepCopyUsingJsonStringify} from '../misc/MiscUtil';
 
 export type Tag = {
   tag: string;

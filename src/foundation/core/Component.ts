@@ -1,20 +1,17 @@
-import { MemoryManager } from '../core/MemoryManager';
-import { EntityRepository } from './EntityRepository';
-import { BufferView } from '../memory/BufferView';
-import { Accessor } from '../memory/Accessor';
+import {MemoryManager} from '../core/MemoryManager';
+import {EntityRepository} from './EntityRepository';
+import {BufferView} from '../memory/BufferView';
+import {Accessor} from '../memory/Accessor';
 import {BufferUseEnum} from '../definitions/BufferUse';
 import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../../foundation/definitions/CompositionType';
+import {CompositionTypeEnum} from '../../foundation/definitions/CompositionType';
 import {ProcessStage, ProcessStageEnum} from '../definitions/ProcessStage';
 import {ProcessApproachEnum} from '../definitions/ProcessApproach';
-import { ComponentRepository } from './ComponentRepository';
+import {ComponentRepository} from './ComponentRepository';
 import {Config} from './Config';
-import { WebGLStrategy } from '../../webgl/WebGLStrategy';
-import { RenderPass } from '../renderer/RenderPass';
-import { RnObject } from './RnObject';
+import {WebGLStrategy} from '../../webgl/WebGLStrategy';
+import {RenderPass} from '../renderer/RenderPass';
+import {RnObject} from './RnObject';
 import {
   EntityUID,
   ComponentSID,
@@ -708,6 +705,12 @@ export class Component extends RnObject {
   /// convenient methods but not used yet
   ///
 
+  /**
+   * Get the CompositionType of the member
+   * @param memberName - the member name
+   * @param componentClass - the component class
+   * @returns CompositionType or undefined
+   */
   static getCompositionTypeOfMember(
     memberName: string,
     componentClass: Function
@@ -723,6 +726,12 @@ export class Component extends RnObject {
     }
   }
 
+  /**
+   * Get the ComponentType of the member
+   * @param memberName - the member name
+   * @param componentClass - the component class
+   * @returns ComponentType or undefined
+   */
   static getComponentTypeOfMember(
     memberName: string,
     componentClass: Function
@@ -738,7 +747,11 @@ export class Component extends RnObject {
     }
   }
 
-  destroy() {
+  /**
+   * @private
+   * Mark the component as destroyed
+   */
+  _destroy(): void {
     this._isAlive = false;
   }
 }

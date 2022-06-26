@@ -1,19 +1,19 @@
-import { Component } from './Component';
+import {Component} from './Component';
 import {IRnObject, RnObject} from './RnObject';
 import {ComponentTID, EntityUID} from '../../types/CommonTypes';
 import {Is} from '../misc/Is';
-import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
+import {BlendShapeComponent} from '../components/BlendShape/BlendShapeComponent';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
-import { LightComponent } from '../components/Light/LightComponent';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
-import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { TransformComponent } from '../components/Transform/TransformComponent';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { CameraComponent } from '../components/Camera/CameraComponent';
+import {CameraControllerComponent} from '../components/CameraController/CameraControllerComponent';
+import {LightComponent} from '../components/Light/LightComponent';
+import {MeshComponent} from '../components/Mesh/MeshComponent';
+import {MeshRendererComponent} from '../components/MeshRenderer/MeshRendererComponent';
+import {PhysicsComponent} from '../components/Physics/PhysicsComponent';
+import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
+import {SkeletalComponent} from '../components/Skeletal/SkeletalComponent';
+import {TransformComponent} from '../components/Transform/TransformComponent';
+import {AnimationComponent} from '../components/Animation/AnimationComponent';
+import {CameraComponent} from '../components/Camera/CameraComponent';
 
 /**
  * The Interface for an Entity.
@@ -202,9 +202,12 @@ export class Entity extends RnObject implements IEntity {
     ) as TransformComponent | undefined;
   }
 
+  /**
+   * Mark the entity as destroyed
+   */
   destroy() {
-    this.__components.forEach((component) => {
-      component.destroy();
+    this.__components.forEach(component => {
+      component._destroy();
     });
     this._isAlive = false;
   }

@@ -198,7 +198,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       false
     );
 
-    WebGLStrategyFastest.__globalDataRepository.setUniformLocationsForFastestModeOnly(
+    WebGLStrategyFastest.__globalDataRepository._setUniformLocationsForFastestModeOnly(
       material._shaderProgramUid
     );
 

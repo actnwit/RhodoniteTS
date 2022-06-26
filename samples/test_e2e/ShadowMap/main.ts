@@ -1,4 +1,4 @@
-import { ICameraEntity } from '../../../dist/esm/index.js';
+import {ICameraEntity} from '../../../dist/esm/index.js';
 import Rn from '../../../dist/esm/index.mjs';
 
 const p = document.createElement('p');
@@ -10,50 +10,54 @@ document.body.appendChild(p);
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  // setting cameras except for post effect
+  // Depth Camera
   const depthCameraEntity = Rn.EntityHelper.createCameraEntity();
   depthCameraEntity.getCamera().zFar = 50.0;
   depthCameraEntity.getCamera().setFovyAndChangeFocalLength(40);
   depthCameraEntity.translate = Rn.Vector3.fromCopyArray([2.0, 2.0, 5.0]);
 
+  // Main Camera
   const mainCameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   mainCameraEntity.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
 
-  // setting render passes
+  // Depth RenderPass
   const renderPassDepth =
     createRenderPassSpecifyingCameraComponent(depthCameraEntity);
   createFramebuffer(renderPassDepth, 1024, 1024, 1, {});
 
+  // Main RenderPass
   const renderPassMain =
     createRenderPassSpecifyingCameraComponent(mainCameraEntity);
 
+  // Expression
   const expression = new Rn.Expression();
   expression.addRenderPasses([renderPassDepth, renderPassMain]);
 
-  //main
-  const entitySmallBoardForDepth = createBoardEntityWithMaterial(
-    'createDepthEncodeMaterial',
-    [{}]
-  );
-  const entityLargeBoardForDepth = createBoardEntityWithMaterial(
-    'createDepthEncodeMaterial',
-    [{}]
-  );
-  renderPassDepth.addEntities([
-    entitySmallBoardForDepth,
-    entityLargeBoardForDepth,
-  ]);
+  // Scene Objects
+  const entitySmallBoard = createBoardEntityWithMaterial([{}, renderPassDepth]);
+  const entityLargeBoard = createBoardEntityWithMaterial([{}, renderPassDepth]);
 
-  const entitySmallBoard = createBoardEntityWithMaterial(
-    'createShadowMapDecodeClassicSingleMaterial',
-    [{}, renderPassDepth]
-  );
-  const entityLargeBoard = createBoardEntityWithMaterial(
-    'createShadowMapDecodeClassicSingleMaterial',
-    [{}, renderPassDepth]
-  );
+  // set Transforms
+  const scaleSmallBoard = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
+  const translateSmallBoard = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
+  const rotateSmallBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+  const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -1.5]);
+  const rotateBigBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+
+  entitySmallBoard.getTransform().scale = scaleSmallBoard;
+  entitySmallBoard.getTransform().translate = translateSmallBoard;
+  entitySmallBoard.getTransform().rotate = rotateSmallBoard;
+  entityLargeBoard.getTransform().translate = translateBigBoard;
+  entityLargeBoard.getTransform().rotate = rotateBigBoard;
+
+  // set entities to render passes
+  renderPassDepth.addEntities([entitySmallBoard, entityLargeBoard]);
   renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
+  // set depth shader to depth render pass
+  renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthEncodeMaterial());
+
+  // set parameters
   const meshComponentSmallBoard = entitySmallBoard.getMesh();
   const meshComponentLargeBoard = entityLargeBoard.getMesh();
   setParameterForMeshComponent(
@@ -72,24 +76,6 @@ document.body.appendChild(p);
     Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
   );
 
-  const scaleSmallBoard = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
-  const translateSmallBoard = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
-  const rotateSmallBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
-  const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -1.5]);
-  const rotateBigBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
-
-  entitySmallBoardForDepth.getTransform().scale = scaleSmallBoard;
-  entitySmallBoardForDepth.getTransform().translate = translateSmallBoard;
-  entitySmallBoardForDepth.getTransform().rotate = rotateSmallBoard;
-  entityLargeBoardForDepth.getTransform().translate = translateBigBoard;
-  entityLargeBoardForDepth.getTransform().rotate = rotateBigBoard;
-
-  entitySmallBoard.getTransform().scale = scaleSmallBoard;
-  entitySmallBoard.getTransform().translate = translateSmallBoard;
-  entitySmallBoard.getTransform().rotate = rotateSmallBoard;
-  entityLargeBoard.getTransform().translate = translateBigBoard;
-  entityLargeBoard.getTransform().rotate = rotateBigBoard;
-
   let count = 0;
 
   const draw = function () {
@@ -105,10 +91,7 @@ document.body.appendChild(p);
 
   draw();
 
-  function createBoardEntityWithMaterial(
-    materialHelperFunctionStr,
-    arrayOfHelperFunctionArgument = []
-  ) {
+  function createBoardEntityWithMaterial(arrayOfHelperFunctionArgument = []) {
     const entity = Rn.EntityHelper.createMeshEntity();
 
     const primitive = new Rn.Plane();
@@ -118,7 +101,7 @@ document.body.appendChild(p);
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
-      material: Rn.MaterialHelper[materialHelperFunctionStr](
+      material: Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
         ...arrayOfHelperFunctionArgument
       ),
     });
