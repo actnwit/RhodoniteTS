@@ -1,6 +1,4 @@
-import {
-  ShaderSemantics,
-} from '../../definitions/ShaderSemantics';
+import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
 import {ShaderType} from '../../definitions/ShaderType';
 import {ComponentRepository} from '../../core/ComponentRepository';
@@ -11,9 +9,9 @@ import {ShaderityObject} from 'shaderity';
 import {AlphaModeEnum} from '../../definitions/AlphaMode';
 import {ShaderityUtility} from '../core/ShaderityUtility';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Vector2 } from '../../math';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import {Vector2} from '../../math';
+import {GlobalDataRepository} from '../../core/GlobalDataRepository';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -53,8 +51,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting') +
         (isClearCoat ? '+clearcoat' : '') +
-        (isTransmission? '+transmission' : '') +
-        (isVolume? '+volume' : '') +
+        (isTransmission ? '+transmission' : '') +
+        (isVolume ? '+volume' : '') +
         (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
@@ -171,7 +169,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         );
       }
 
-
       if (firstTime) {
         // Lights
         this.setLightsInfo(
@@ -276,7 +273,11 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     const width = args.glw.canvas.width;
     const height = args.glw.canvas.height;
-    const backBufferTextureSize = CustomMaterialContent.__globalDataRepository.getValue(ShaderSemantics.BackBufferTextureSize, 0) as Vector2;
+    const backBufferTextureSize =
+      CustomMaterialContent.__globalDataRepository.getValue(
+        ShaderSemantics.BackBufferTextureSize,
+        0
+      ) as Vector2;
     backBufferTextureSize._v[0] = width;
     backBufferTextureSize._v[1] = height;
     (shaderProgram as any)._gl.uniform2fv(
@@ -284,7 +285,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       backBufferTextureSize._v
     );
 
-    const vrState = CustomMaterialContent.__globalDataRepository.getValue(ShaderSemantics.VrState, 0) as Vector2;
+    const vrState = CustomMaterialContent.__globalDataRepository.getValue(
+      ShaderSemantics.VrState,
+      0
+    ) as Vector2;
     vrState._v[0] = args.isVr ? 1 : 0;
     vrState._v[1] = args.displayIdx;
     (shaderProgram as any)._gl.uniform2iv(
