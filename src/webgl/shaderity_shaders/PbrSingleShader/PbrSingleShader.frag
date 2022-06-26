@@ -67,6 +67,14 @@ uniform bool u_inverseEnvironment; // initialValue=true
   uniform vec3 u_attenuationColor; // initialValue=(1,1,1)
 #endif
 
+#ifdef RN_USE_SHEEN
+  uniform vec3 u_sheenColorFactor; // initialValue(0,0,0)
+  uniform sampler2D u_sheenColorTexture; // initialValue=(14,black)
+  uniform float u_sheenRoughness; // initialValue=(0)
+  uniform sampler2D u_sheenRoughnessTexture; // initialValue(15,black)
+  uniform sampler2D u_sheenLUTTexture; // initialValue(16,black)
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -442,6 +450,15 @@ void main ()
   float thickness = 0.0;
   vec3 attenuationColor = vec3(0.0);
   float attenuationDistance = 0.000001;
+#endif
+
+#ifdef RN_USE_SHEEN
+  // Sheen
+  vec3 sheenColorFactor = get_sheenColorFactor(materialSID, 0);
+  vec3 sheenColorTexture = texture2D(u_sheenColorTexture, baseColorTexUv);
+  float sheenRoughnessFactor = get_sheenRoughnessFactor(materialSID, 0);
+  float sheenRoughnessTexture = texture2D(u_sheenRoughnessTexture, baseColorTexUv).a;
+  vec2 sheenLutTexture = texture2D(u_sheenLutTexture, baseColorTexUv).rg;
 #endif
 
   // Lighting
