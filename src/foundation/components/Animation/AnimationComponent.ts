@@ -86,6 +86,7 @@ export class AnimationComponent extends Component {
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
   private __effekseerComponent?: EffekseerComponent;
+  private __isEffekseerState: number = -1;
 
   /// flags ///
   private __isAnimating = true;
@@ -167,10 +168,15 @@ export class AnimationComponent extends Component {
             this.__meshComponent!.weights = value;
           } else if (i === AnimationAttribute.Effekseer.index) {
             if (value[0] > 0.5) {
-              this.__effekseerComponent?.play();
+              if (this.__isEffekseerState === 0) {
+                this.__effekseerComponent?.play();
+              }
             } else {
-              this.__effekseerComponent?.pause();
+              if (this.__isEffekseerState === 1) {
+                this.__effekseerComponent?.pause();
+              }
             }
+            this.__isEffekseerState = value[0];
           }
         }
       }
