@@ -32,7 +32,7 @@ const Effekseer: AnimationAttributeEnum = new AnimationAttributeClass({
   str: 'Effekseer',
 });
 
-const typeList = [Quaternion, Translate, Scale, Weights];
+const typeList = [Quaternion, Translate, Scale, Weights, Effekseer];
 
 function from(index: number): AnimationAttributeEnum {
   return _from({typeList, index}) as AnimationAttributeEnum;
