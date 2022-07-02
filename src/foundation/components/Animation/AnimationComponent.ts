@@ -938,7 +938,7 @@ export class AnimationComponent extends Component {
   ) {
     const secBegin = frameToInsert / fps;
     const input = secBegin;
-    const secEnd = (frameToInsert + 1) / fps + Number.EPSILON;
+    const secEnd = (frameToInsert + 1) / fps;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
@@ -1007,7 +1007,7 @@ export class AnimationComponent extends Component {
     fps: number
   ) {
     const secBegin = frameToDelete / fps;
-    const secEnd = (frameToDelete + 1) / fps + Number.EPSILON;
+    const secEnd = (frameToDelete + 1) / fps;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
@@ -1050,7 +1050,7 @@ export class AnimationComponent extends Component {
     fps: number
   ) {
     const secBegin = frame / fps;
-    const secEnd = (frame + 1) / fps + Number.EPSILON;
+    const secEnd = (frame + 1) / fps;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
