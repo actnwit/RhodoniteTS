@@ -1130,6 +1130,10 @@ function __createBufferViewsAndAccessorsOfAnimation(
         if (Is.exist(rnAnimationTrack)) {
           const rnChannels = rnAnimationTrack.values();
           for (const rnChannel of rnChannels) {
+            if (rnChannel.target.pathName === 'effekseer') {
+              // continue;
+            }
+
             // create and register Gltf2BufferView and Gltf2Accessor
             //   and set Input animation data as Uint8Array to the Gltf2Accessor
             const {inputAccessorIdx, inputBufferViewByteLengthAccumulated} =
@@ -1308,6 +1312,8 @@ function convertToGltfAnimationPathName(
       return 'scale';
     case 'weights':
       return 'weights';
+    case 'effekseer':
+      return 'effekseer';
     default:
       throw new Error('Invalid Path Name');
   }

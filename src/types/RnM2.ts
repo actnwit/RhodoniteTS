@@ -370,7 +370,18 @@ export type RnM2ExtensionsEffekseerEffect = {
   name?: string;
   uri?: string;
   bufferView?: number;
+  timelines?: RnM2ExtensionsEffekseerTimeline[];
 };
+
+export type RnM2ExtensionsEffekseerTimeline = {
+  name?: string;
+  values: RnM2ExtensionsEffekseerTimelineItem[];
+}
+
+export type RnM2ExtensionsEffekseerTimelineItem = {
+  input: number;
+  event: 'play' | 'stop' | 'pause';
+}
 
 export type RnM2Sampler = {
   magFilter?: number;
