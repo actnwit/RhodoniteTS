@@ -21,6 +21,7 @@ import {
 } from '../../types/CommonTypes';
 import {IEntity} from './Entity';
 import {ComponentToComponentMethods} from '../components/ComponentTypes';
+import { IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
 
 type MemberInfo = {
   memberName: string;
@@ -552,8 +553,8 @@ export class Component extends RnObject {
    * get the entity which has this component.
    * @returns the entity which has this component
    */
-  get entity(): IEntity {
-    return EntityRepository.getEntity(this.__entityUid);
+  get entity(): IEntity & IEffekseerEntityMethods {
+    return EntityRepository.getEntity(this.__entityUid) as IEntity & IEffekseerEntityMethods;
   }
 
   /**
