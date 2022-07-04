@@ -96,6 +96,7 @@ export class AnimationComponent extends Component {
 
   // Global animation time in Rhodonite
   public static globalTime = 0;
+  public static defaultTrackName = 'Default';
 
   // Event for pubsub of notifications
   public static readonly Event = {
