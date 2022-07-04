@@ -242,7 +242,7 @@ export class DataUtil {
   static createBlobImageUriFromUint8Array(
     uint8Array: Uint8Array,
     mimeType: string
-  ) {
+  ): string {
     const blob = new Blob([uint8Array], {type: mimeType});
     const imageUrl = URL.createObjectURL(blob);
     return imageUrl;
@@ -381,6 +381,7 @@ export class DataUtil {
           );
           img.onload = () => {
             resolve(img);
+            URL.revokeObjectURL(imageUri);
           };
           img.src = imageUri;
         };
