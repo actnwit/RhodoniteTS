@@ -44,6 +44,7 @@ export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
 
   if (effekseerExists) {
     json.extensions!.RHODONITE_effekseer = {
+      version: '1.0',
       effects: effects,
     } as RnM2ExtensionEffekseer;
     json.extensionsUsed!.push('RHODONITE_effekseer');
