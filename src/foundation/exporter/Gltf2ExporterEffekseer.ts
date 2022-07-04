@@ -58,7 +58,7 @@ export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
   }
 }
 
-function __createEffekseerTimeline(entity: IEntity & IEffekseerEntityMethods, effekseer: RnM2ExtensionsEffekseerEffect) {
+function __createEffekseerTimeline(entity: IEntity, effekseer: RnM2ExtensionsEffekseerEffect) {
   const animationComponent = entity.tryToGetAnimation();
   if (Is.exist(animationComponent)) {
     const trackNames = animationComponent.getAnimationTrackNames();
