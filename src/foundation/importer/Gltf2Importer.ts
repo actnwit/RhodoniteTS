@@ -632,7 +632,7 @@ export class Gltf2Importer {
     basePath?: string,
     callback?: RnPromiseCallback
   ) {
-    const promisesToLoadResources = [];
+    const promisesToLoadResources: RnPromise<ArrayBuffer | RnM2Image>[] = [];
 
     // Buffers Async load
     let rnpArrayBuffer: RnPromise<ArrayBuffer>;
@@ -772,6 +772,7 @@ export class Gltf2Importer {
           image => {
             image.crossOrigin = 'Anonymous';
             textureInfo.image = {image: image};
+            return textureInfo.image as RnM2Image;
           }
         );
 
@@ -818,8 +819,8 @@ export class Gltf2Importer {
     imageUri: string,
     imageJson: RnM2Image,
     files: GltfFileBuffers
-  ) {
-    let loadImagePromise: RnPromise<void>;
+  ): RnPromise<RnM2Image> {
+    let loadImagePromise: RnPromise<RnM2Image>;
     if (imageUri.match(/basis$/)) {
       // load basis file from uri
       loadImagePromise = new RnPromise(resolve => {
@@ -827,7 +828,7 @@ export class Gltf2Importer {
           response.arrayBuffer().then(buffer => {
             const uint8Array = new Uint8Array(buffer);
             imageJson.basis = uint8Array;
-            resolve();
+            resolve(imageJson);
           });
         });
       });
@@ -835,7 +836,7 @@ export class Gltf2Importer {
       // find basis file from files option
       loadImagePromise = new RnPromise(resolve => {
         imageJson.basis = new Uint8Array(files[imageJson.uri!]);
-        resolve();
+        resolve(imageJson);
       });
     } else if (
       imageUri.match(/\.ktx2$/) ||
@@ -848,7 +849,7 @@ export class Gltf2Importer {
           response.arrayBuffer().then(buffer => {
             const uint8Array = new Uint8Array(buffer);
             imageJson.ktx2 = uint8Array;
-            resolve();
+            resolve(imageJson);
           });
         });
       });
@@ -856,7 +857,7 @@ export class Gltf2Importer {
       // find ktx2 file from files option
       loadImagePromise = new RnPromise(resolve => {
         imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
-        resolve();
+        resolve(imageJson);
       });
     } else {
       loadImagePromise = DataUtil.createImageFromUri(
@@ -865,7 +866,8 @@ export class Gltf2Importer {
       ).then(image => {
         image.crossOrigin = 'Anonymous';
         imageJson.image = image;
-      }) as RnPromise<void>;
+        return imageJson;
+      });
     }
 
     return loadImagePromise;
