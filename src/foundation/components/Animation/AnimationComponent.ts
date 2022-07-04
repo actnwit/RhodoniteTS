@@ -55,6 +55,7 @@ import {Is} from '../../misc/Is';
 import {IAnimationEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import { EffekseerComponent } from '../../../effekseer';
 
 const defaultAnimationInfo = {
   name: '',
@@ -84,6 +85,8 @@ export class AnimationComponent extends Component {
   /// cache references of other components
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
+  private __effekseerComponent?: EffekseerComponent;
+  private __isEffekseerState: number = -1;
 
   /// flags ///
   private __isAnimating = true;
@@ -125,6 +128,11 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
+    this.__effekseerComponent = EntityRepository.getComponentOfEntity(
+      this.__entityUid,
+      EffekseerComponent
+    ) as EffekseerComponent;
+
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -158,6 +166,17 @@ export class AnimationComponent extends Component {
             );
           } else if (i === AnimationAttribute.Weights.index) {
             this.__meshComponent!.weights = value;
+          } else if (i === AnimationAttribute.Effekseer.index) {
+            if (value[0] > 0.5) {
+              if (this.__isEffekseerState === 0) {
+                this.__effekseerComponent?.play();
+              }
+            } else {
+              if (this.__isEffekseerState === 1) {
+                this.__effekseerComponent?.pause();
+              }
+            }
+            this.__isEffekseerState = value[0];
           }
         }
       }
@@ -339,6 +358,20 @@ export class AnimationComponent extends Component {
 
   getActiveAnimationTrack() {
     return this.__currentActiveAnimationTrackName;
+  }
+
+  hasAnimation(
+    trackName: AnimationTrackName,
+    pathName: AnimationPathName
+  ): boolean {
+    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
+
+    if (Is.not.exist(animationSet)) {
+      return false;
+    }
+
+    return animationSet.has(pathName);
   }
 
   setAnimation(
@@ -911,7 +944,7 @@ export class AnimationComponent extends Component {
   ) {
     const secBegin = frameToInsert / fps;
     const input = secBegin;
-    const secEnd = (frameToInsert + 1) / fps + Number.EPSILON;
+    const secEnd = (frameToInsert + 1) / fps;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
@@ -980,7 +1013,7 @@ export class AnimationComponent extends Component {
     fps: number
   ) {
     const secBegin = frameToDelete / fps;
-    const secEnd = (frameToDelete + 1) / fps + Number.EPSILON;
+    const secEnd = (frameToDelete + 1) / fps;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);
@@ -1023,7 +1056,7 @@ export class AnimationComponent extends Component {
     fps: number
   ) {
     const secBegin = frame / fps;
-    const secEnd = (frame + 1) / fps + Number.EPSILON;
+    const secEnd = (frame + 1) / fps;
 
     const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
       this.__animationTracks.get(trackName);

@@ -1130,6 +1130,10 @@ function __createBufferViewsAndAccessorsOfAnimation(
         if (Is.exist(rnAnimationTrack)) {
           const rnChannels = rnAnimationTrack.values();
           for (const rnChannel of rnChannels) {
+            if (rnChannel.target.pathName === 'effekseer') {
+              continue;
+            }
+
             // create and register Gltf2BufferView and Gltf2Accessor
             //   and set Input animation data as Uint8Array to the Gltf2Accessor
             const {inputAccessorIdx, inputBufferViewByteLengthAccumulated} =
@@ -1308,6 +1312,8 @@ function convertToGltfAnimationPathName(
       return 'scale';
     case 'weights':
       return 'weights';
+    // case 'effekseer':
+    //   return 'effekseer';
     default:
       throw new Error('Invalid Path Name');
   }
@@ -1370,7 +1376,7 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.input)
         ? rnChannel.sampler.input.buffer
-        : rnChannel.sampler.input
+        : (new Float32Array(rnChannel.sampler.input)).buffer
     ),
   });
   json.bufferViews.push(gltf2BufferView);
@@ -1435,7 +1441,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.output)
         ? rnChannel.sampler.output.buffer
-        : rnChannel.sampler.output
+        : (new Float32Array(rnChannel.sampler.output)).buffer
     ),
   });
   json.bufferViews.push(gltf2BufferView);
@@ -1713,7 +1719,6 @@ function createGltf2BufferViewForAnimation({
     buffer: bufferIdx,
     byteLength: fixedBufferViewByteLength,
     byteOffset: fixedBufferViewByteOffset,
-    byteStride: bufferViewByteStride,
     extras: {
       uint8Array,
     },

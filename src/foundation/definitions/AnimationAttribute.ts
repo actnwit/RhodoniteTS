@@ -27,8 +27,12 @@ const Weights: AnimationAttributeEnum = new AnimationAttributeClass({
   index: 3,
   str: 'Weights',
 });
+const Effekseer: AnimationAttributeEnum = new AnimationAttributeClass({
+  index: 4,
+  str: 'Effekseer',
+});
 
-const typeList = [Quaternion, Translate, Scale, Weights];
+const typeList = [Quaternion, Translate, Scale, Weights, Effekseer];
 
 function from(index: number): AnimationAttributeEnum {
   return _from({typeList, index}) as AnimationAttributeEnum;
@@ -43,6 +47,7 @@ export const AnimationAttribute = Object.freeze({
   Translate,
   Scale,
   Weights,
+  Effekseer,
   from,
   fromString,
 });

@@ -13,7 +13,8 @@ export type AnimationPathName =
   | 'translate'
   | 'quaternion'
   | 'scale'
-  | 'weights';
+  | 'weights'
+  | 'effekseer';
 
 export type AnimationTrackName = string;
 

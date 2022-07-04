@@ -239,7 +239,8 @@ export type Gltf2AnimationPathName =
   | 'translation'
   | 'rotation'
   | 'scale'
-  | 'weights';
+  | 'weights'
+  | 'effekseer';
 
 export type Gltf2AnimationChannelTarget = {
   node?: number;
