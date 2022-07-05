@@ -16,6 +16,7 @@ import {
 } from '../helpers/EntityHelper';
 import {MaterialHelper} from '../helpers/MaterialHelper';
 import {Material} from '../materials/core/Material';
+import { Matrix44 } from '../math/Matrix44';
 import {MathUtil} from '../math/MathUtil';
 import {Matrix33} from '../math/Matrix33';
 import {MutableMatrix33} from '../math/MutableMatrix33';
@@ -383,8 +384,6 @@ export class TranslationGizmo extends Gizmo {
         true
       );
       TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
-      // TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      // TranslationGizmo.__zxPlaneEntity.getTransform().rotate =
       // Vector3.fromCopy3(90, 0, 0);
       TranslationGizmo.__zxPlaneMaterial =
         MaterialHelper.createClassicUberMaterial();
@@ -439,7 +438,7 @@ export class TranslationGizmo extends Gizmo {
       .getSceneGraph()
       .addChild(TranslationGizmo.__zxPlaneEntity.getSceneGraph());
 
-    TranslationGizmo.__latestTargetEntity = this.__target;
+    this.__latestTargetEntity = this.__target;
 
     this.setGizmoTag();
   }
@@ -462,10 +461,10 @@ export class TranslationGizmo extends Gizmo {
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
     ]);
 
-    if (TranslationGizmo.__isPointerDown) {
-      if (TranslationGizmo.__latestTargetEntity === this.__target) {
+    if (this.__isPointerDown) {
+      if (this.__latestTargetEntity === this.__target) {
         this.__target.getTransform().translate =
-          TranslationGizmo.__deltaPoint.clone();
+          this.__deltaPoint.clone();
       }
     }
   }
@@ -528,7 +527,7 @@ export class TranslationGizmo extends Gizmo {
 
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
-    TranslationGizmo.__isPointerDown = true;
+    this.__isPointerDown = true;
     TranslationGizmo.__originalX = evt.clientX;
     TranslationGizmo.__originalY = evt.clientY;
 
@@ -555,44 +554,44 @@ export class TranslationGizmo extends Gizmo {
     const {xResult, yResult, zResult} = TranslationGizmo.castRay(evt);
     if (xResult.result) {
       assertExist(xResult.data);
-      TranslationGizmo.__pickStatedPoint = rotMat.multiplyVector(
+      this.__pickStatedPoint = rotMat.multiplyVector(
         xResult.data.position.clone()
       );
       console.log(
-        'Down:' + TranslationGizmo.__pickStatedPoint.toStringApproximately()
+        'Down:' + this.__pickStatedPoint.toStringApproximately()
       );
       TranslationGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data);
-      TranslationGizmo.__pickStatedPoint = rotMat.multiplyVector(
+      this.__pickStatedPoint = rotMat.multiplyVector(
         yResult.data.position.clone()
       );
       console.log(
-        'Down:' + TranslationGizmo.__pickStatedPoint.toStringApproximately()
+        'Down:' + this.__pickStatedPoint.toStringApproximately()
       );
       TranslationGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data);
-      TranslationGizmo.__pickStatedPoint = rotMat.multiplyVector(
+      this.__pickStatedPoint = rotMat.multiplyVector(
         zResult.data.position.clone()
       );
       console.log(
-        'Down:' + TranslationGizmo.__pickStatedPoint.toStringApproximately()
+        'Down:' + this.__pickStatedPoint.toStringApproximately()
       );
       TranslationGizmo.__activeAxis = 'z';
     }
 
-    if (TranslationGizmo.__latestTargetEntity === this.__target) {
-      TranslationGizmo.__targetPointBackup =
+    if (this.__latestTargetEntity === this.__target) {
+      this.__targetPointBackup =
         this.__target.getTransform().translate;
     }
   }
 
   private __onPointerMove(evt: PointerEvent) {
     evt.preventDefault();
-    if (Is.false(TranslationGizmo.__isPointerDown)) {
+    if (Is.false(this.__isPointerDown)) {
       return;
     }
 
@@ -608,7 +607,7 @@ export class TranslationGizmo extends Gizmo {
     ) as CameraComponent | undefined;
 
     const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
-    const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
+    const scaleVec = Vector3.one();
     let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
       scaleVec.x * worldMatrix.m01,
@@ -625,7 +624,7 @@ export class TranslationGizmo extends Gizmo {
     } else if (TranslationGizmo.__space === 'world') {
       rotMat = MutableMatrix33.identity();
     }
-    let pickInMovingPoint: Vector3 = TranslationGizmo.__pickStatedPoint.clone();
+    let pickInMovingPoint: Vector3 = this.__pickStatedPoint.clone();
     if (TranslationGizmo.__activeAxis === 'x') {
       const xResult = TranslationGizmo.__xyPlaneEntity
         .getMesh()
@@ -638,7 +637,7 @@ export class TranslationGizmo extends Gizmo {
           pickInMovingPoint.y,
           pickInMovingPoint.z
         );
-        console.log('Move:' + xResult.data.position.toStringApproximately());
+        // console.log('Move:' + xResult.data.position.toStringApproximately());
       }
       InputManager.disableCameraController();
     }
@@ -654,7 +653,7 @@ export class TranslationGizmo extends Gizmo {
           position.y,
           pickInMovingPoint.z
         );
-        console.log('Move:' + yResult.data.position.toStringApproximately());
+        // console.log('Move:' + yResult.data.position.toStringApproximately());
       }
       InputManager.disableCameraController();
     }
@@ -670,19 +669,26 @@ export class TranslationGizmo extends Gizmo {
           pickInMovingPoint.y,
           position.z
         );
-        console.log('Move:' + zResult.data.position.toStringApproximately());
+        // console.log('Move:' + zResult.data.position.toStringApproximately());
       }
       InputManager.disableCameraController();
     }
 
     const deltaVector3 = Vector3.subtract(
       pickInMovingPoint,
-      TranslationGizmo.__pickStatedPoint
+      this.__pickStatedPoint
     );
+
+    if (deltaVector3.length() === 0) {
+      return;
+    }
+
+    console.log(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
+
     if (TranslationGizmo.__space === 'local') {
       const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
-      const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
-      const rotMat = Matrix33.fromCopy9RowMajor(
+      const scaleVec = Vector3.one();
+      let rotMat = Matrix33.fromCopy9RowMajor(
         scaleVec.x * worldMatrix.m00,
         scaleVec.x * worldMatrix.m01,
         scaleVec.x * worldMatrix.m02,
@@ -693,27 +699,48 @@ export class TranslationGizmo extends Gizmo {
         scaleVec.z * worldMatrix.m21,
         scaleVec.z * worldMatrix.m22
       );
-      TranslationGizmo.__deltaPoint = Vector3.add(
+      rotMat = Matrix33.transpose(rotMat);
+      this.__deltaPoint = Vector3.add(
         rotMat.multiplyVector(deltaVector3),
-        TranslationGizmo.__targetPointBackup
+        this.__targetPointBackup
       );
     } else if (TranslationGizmo.__space === 'world') {
-      const deltaDeltaVector3 = Vector3.add(
-        TranslationGizmo.__targetPointBackup,
-        deltaVector3
+      const parent = this.__target.getSceneGraph().parent;
+      let worldMatrix = Matrix44.identity();
+      if (Is.exist(parent)) {
+        worldMatrix = parent.worldMatrix.getRotate();
+      }
+
+      // const worldMatrix = this.__target.getTransform().matrixInner.getRotate();
+      const scaleVec = Vector3.one();
+      let rotMat = Matrix33.fromCopy9RowMajor(
+        scaleVec.x * worldMatrix.m00,
+        scaleVec.x * worldMatrix.m01,
+        scaleVec.x * worldMatrix.m02,
+        scaleVec.y * worldMatrix.m10,
+        scaleVec.y * worldMatrix.m11,
+        scaleVec.y * worldMatrix.m12,
+        scaleVec.z * worldMatrix.m20,
+        scaleVec.z * worldMatrix.m21,
+        scaleVec.z * worldMatrix.m22
       );
-      TranslationGizmo.__deltaPoint = deltaDeltaVector3;
+      rotMat = Matrix33.transpose(rotMat);
+      const deltaDeltaVector3 = Vector3.add(
+        this.__targetPointBackup,
+        rotMat.multiplyVector(deltaVector3),
+      );
+      this.__deltaPoint = deltaDeltaVector3;
     }
   }
 
   private __onPointerUp(evt: PointerEvent) {
     evt.preventDefault();
-    TranslationGizmo.__isPointerDown = false;
+    this.__isPointerDown = false;
     TranslationGizmo.__activeAxis = 'none';
     InputManager.enableCameraController();
 
-    if (TranslationGizmo.__latestTargetEntity === this.__target) {
-      TranslationGizmo.__targetPointBackup =
+    if (this.__latestTargetEntity === this.__target) {
+      this.__targetPointBackup =
         this.__target.getTransform().translate;
     }
   }
