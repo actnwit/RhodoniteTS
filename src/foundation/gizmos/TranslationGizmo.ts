@@ -31,6 +31,7 @@ import {
   INPUT_HANDLING_STATE_GIZMO_TRANSLATION as INPUT_HANDLING_STATE_GIZMO_TRANSLATION,
 } from '../system/InputManager';
 import {Gizmo} from './Gizmo';
+import { IQuaternion } from '../math';
 
 declare let window: any;
 
@@ -149,12 +150,11 @@ export class TranslationGizmo extends Gizmo {
       this.__latestTargetEntity = this.__target;
       if (TranslationGizmo.__space === 'local') {
         const parent = this.__target.getSceneGraph().parent;
-        let worldMatrix = Matrix44.identity();
+        let quaternion: IQuaternion = Quaternion.identity();
         if (Is.exist(parent)) {
-          worldMatrix = parent.worldMatrixInner;
+          quaternion = parent.getQuaternionRecursively();
         }
-        TranslationGizmo.__groupEntity.getTransform().quaternion =
-          Quaternion.fromMatrix(worldMatrix);
+        TranslationGizmo.__groupEntity.getTransform().quaternion = quaternion;
       } else if (TranslationGizmo.__space === 'world') {
         TranslationGizmo.__groupEntity.getTransform().quaternion =
           Quaternion.fromCopy4(0, 0, 0, 1);
