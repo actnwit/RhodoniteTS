@@ -27,7 +27,7 @@ import {assertExist} from '../misc/MiscUtil';
 import {
   getEvent,
   InputManager,
-  INPUT_HANDLING_STATE_GIZMO_TRNSLATION,
+  INPUT_HANDLING_STATE_GIZMO_TRANSLATION as INPUT_HANDLING_STATE_GIZMO_TRANSLATION,
 } from '../system/InputManager';
 import {Gizmo} from './Gizmo';
 
@@ -64,13 +64,13 @@ export class TranslationGizmo extends Gizmo {
   private static __zxPlaneMaterial: Material;
   private static __originalX = 0;
   private static __originalY = 0;
-  private static __pickStatedPoint = Vector3.zero();
-  private static __deltaPoint = Vector3.zero();
-  private static __targetPointBackup = Vector3.zero();
-  private static __isPointerDown = false;
+  private __pickStatedPoint = Vector3.zero();
+  private __deltaPoint = Vector3.zero();
+  private __targetPointBackup = Vector3.zero();
+  private __isPointerDown = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
   private static __space: 'local' | 'world' = 'world';
-  private static __latestTargetEntity?: ISceneGraphEntity;
+  private __latestTargetEntity?: ISceneGraphEntity;
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
@@ -112,7 +112,7 @@ export class TranslationGizmo extends Gizmo {
       if (Is.exist(Config.eventTargetDom)) {
         eventTargetDom = Config.eventTargetDom;
       }
-      InputManager.register(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, [
+      InputManager.register(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, [
         {
           eventName: getEvent('start'),
           handler: this.__onPointerDownFunc,
@@ -145,10 +145,10 @@ export class TranslationGizmo extends Gizmo {
       this.__topEntity!.getSceneGraph().addChild(
         TranslationGizmo.__groupEntity.getSceneGraph()
       );
-      TranslationGizmo.__latestTargetEntity = this.__target;
+      this.__latestTargetEntity = this.__target;
       if (TranslationGizmo.__space === 'local') {
         TranslationGizmo.__groupEntity.getTransform().quaternion =
-          this.__target.getTransform().quaternion;
+          Quaternion.fromMatrix(this.__target.getSceneGraph().worldMatrixInner);
       } else if (TranslationGizmo.__space === 'world') {
         TranslationGizmo.__groupEntity.getTransform().quaternion =
           Quaternion.fromCopy4(0, 0, 0, 1);
@@ -156,16 +156,16 @@ export class TranslationGizmo extends Gizmo {
     }
 
     if (this.__isVisible === true && flg === false) {
-      InputManager.unregister(INPUT_HANDLING_STATE_GIZMO_TRNSLATION);
-      TranslationGizmo.__deltaPoint = this.__target.getTransform().translate;
-      TranslationGizmo.__pickStatedPoint = Vector3.zero();
-      TranslationGizmo.__isPointerDown = false;
-      TranslationGizmo.__targetPointBackup =
+      InputManager.unregister(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+      this.__deltaPoint = this.__target.getTransform().translate;
+      this.__pickStatedPoint = Vector3.zero();
+      this.__isPointerDown = false;
+      this.__targetPointBackup =
         this.__target.getTransform().translate;
       TranslationGizmo.__activeAxis = 'none';
     }
 
-    InputManager.setActive(INPUT_HANDLING_STATE_GIZMO_TRNSLATION, flg);
+    InputManager.setActive(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, flg);
 
     this.__setVisible(flg);
     TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;

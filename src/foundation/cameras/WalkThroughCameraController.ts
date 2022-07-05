@@ -11,7 +11,7 @@ import { AbstractCameraController } from './AbstractCameraController';
 import {MathUtil} from '../math/MathUtil';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {Is} from '../misc/Is';
-import {InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERACONTROLLER} from '../system/InputManager';
+import {InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER} from '../system/InputManager';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -206,13 +206,13 @@ export class WalkThroughCameraController
     }
 
     InputManager.register(
-      INPUT_HANDLING_STATE_CAMERACONTROLLER,
+      INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
       inputHandlerInfos
     );
   }
 
   unregisterEventListeners() {
-    InputManager.unregister(INPUT_HANDLING_STATE_CAMERACONTROLLER);
+    InputManager.unregister(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
   }
 
   private __tryToPreventDefault(evt: Event) {
