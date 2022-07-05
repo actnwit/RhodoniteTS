@@ -766,6 +766,9 @@ export class ScaleGizmo extends Gizmo {
       Vector3.subtract(pickInMovingPoint, ScaleGizmo.__pickStatedPoint),
       1 / aabb.lengthCenterToCorner
     );
+
+    console.log(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
+
     if (ScaleGizmo.__space === 'local') {
       ScaleGizmo.__deltaPoint = Vector3.add(
         ScaleGizmo.__targetScaleBackup,
