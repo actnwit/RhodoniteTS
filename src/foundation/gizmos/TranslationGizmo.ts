@@ -148,8 +148,13 @@ export class TranslationGizmo extends Gizmo {
       );
       this.__latestTargetEntity = this.__target;
       if (TranslationGizmo.__space === 'local') {
+        const parent = this.__target.getSceneGraph().parent;
+        let worldMatrix = Matrix44.identity();
+        if (Is.exist(parent)) {
+          worldMatrix = parent.worldMatrixInner;
+        }
         TranslationGizmo.__groupEntity.getTransform().quaternion =
-          Quaternion.fromMatrix(this.__target.getSceneGraph().worldMatrixInner);
+          Quaternion.fromMatrix(worldMatrix);
       } else if (TranslationGizmo.__space === 'world') {
         TranslationGizmo.__groupEntity.getTransform().quaternion =
           Quaternion.fromCopy4(0, 0, 0, 1);
@@ -531,7 +536,11 @@ export class TranslationGizmo extends Gizmo {
     TranslationGizmo.__originalX = evt.clientX;
     TranslationGizmo.__originalY = evt.clientY;
 
-    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const parent = this.__target.getSceneGraph().parent;
+    let worldMatrix = Matrix44.identity();
+    if (Is.exist(parent)) {
+      worldMatrix = parent.worldMatrixInner.getRotate();
+    }
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
     let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
@@ -606,7 +615,11 @@ export class TranslationGizmo extends Gizmo {
       CameraComponent.current
     ) as CameraComponent | undefined;
 
-    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const parent = this.__target.getSceneGraph().parent;
+    let worldMatrix = Matrix44.identity();
+    if (Is.exist(parent)) {
+      worldMatrix = parent.worldMatrixInner.getRotate();
+    }
     const scaleVec = Vector3.one();
     let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
@@ -686,7 +699,12 @@ export class TranslationGizmo extends Gizmo {
     console.log(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
 
     if (TranslationGizmo.__space === 'local') {
-      const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+      const parent = this.__target.getSceneGraph().parent;
+      let worldMatrix = Matrix44.identity();
+      if (Is.exist(parent)) {
+        worldMatrix = parent.worldMatrix.getRotate();
+      }
+
       const scaleVec = Vector3.one();
       let rotMat = Matrix33.fromCopy9RowMajor(
         scaleVec.x * worldMatrix.m00,
@@ -699,9 +717,10 @@ export class TranslationGizmo extends Gizmo {
         scaleVec.z * worldMatrix.m21,
         scaleVec.z * worldMatrix.m22
       );
-      rotMat = Matrix33.transpose(rotMat);
+      // rotMat = Matrix33.transpose(rotMat);
       this.__deltaPoint = Vector3.add(
-        rotMat.multiplyVector(deltaVector3),
+        // rotMat.multiplyVector(deltaVector3),
+        deltaVector3,
         this.__targetPointBackup
       );
     } else if (TranslationGizmo.__space === 'world') {
@@ -711,7 +730,6 @@ export class TranslationGizmo extends Gizmo {
         worldMatrix = parent.worldMatrix.getRotate();
       }
 
-      // const worldMatrix = this.__target.getTransform().matrixInner.getRotate();
       const scaleVec = Vector3.one();
       let rotMat = Matrix33.fromCopy9RowMajor(
         scaleVec.x * worldMatrix.m00,
