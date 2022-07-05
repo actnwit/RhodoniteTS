@@ -231,7 +231,7 @@ export class Gltf2Importer {
     gltfJson: RnM2,
     files: GltfFileBuffers,
     options: GltfLoadOption,
-    uint8array?: Uint8Array,
+    uint8arrayOfGlb?: Uint8Array,
     basePath?: string,
     callback?: RnPromiseCallback
   ): RnPromise<any[]> {
@@ -239,7 +239,7 @@ export class Gltf2Importer {
 
     // Load resources to above resources object.
     promises.push(
-      this._loadResources(uint8array!, gltfJson, files, options, basePath, callback)
+      this._loadResources(uint8arrayOfGlb!, gltfJson, files, options, basePath, callback)
     );
 
     // Parse glTF JSON
@@ -625,14 +625,14 @@ export class Gltf2Importer {
   }
 
   static _loadResources(
-    uint8Array: Uint8Array,
+    uint8ArrayOfGlb: Uint8Array,
     gltfJson: RnM2,
     files: GltfFileBuffers,
     options: GltfLoadOption,
     basePath?: string,
     callback?: RnPromiseCallback
   ) {
-    const promisesToLoadResources = [];
+    const promisesToLoadResources: RnPromise<ArrayBuffer | RnM2Image>[] = [];
 
     // Buffers Async load
     let rnpArrayBuffer: RnPromise<ArrayBuffer>;
@@ -645,8 +645,8 @@ export class Gltf2Importer {
 
       if (typeof rnm2Buffer.uri === 'undefined') {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
-          rnm2Buffer.buffer = uint8Array;
-          resolve(uint8Array);
+          rnm2Buffer.buffer = uint8ArrayOfGlb;
+          resolve(uint8ArrayOfGlb);
         });
       } else if (rnm2Buffer.uri.match(/^data:application\/(.*);base64,/)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
@@ -683,7 +683,21 @@ export class Gltf2Importer {
     // Textures Async load
     for (const rnm2Image of gltfJson.images ?? []) {
       if (rnm2Image.uri == null) {
-        if (uint8Array == null) {
+        if (Is.exist(uint8ArrayOfGlb)) { // Glb
+          // Load Texture from gltfJson.buffer
+          const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
+            gltfJson,
+            rnm2Image.bufferView!,
+            uint8ArrayOfGlb
+          );
+          const imageUri = DataUtil.createBlobImageUriFromUint8Array(
+            imageUint8Array,
+            rnm2Image.mimeType!
+          );
+          promisesToLoadResources.push(
+            this.__loadImageUri(imageUri, rnm2Image, files)
+          );
+        } else { // glTF+bin
           // Load Texture from gltfJson.buffer
           const rnm2BufferView = gltfJson.bufferViews[rnm2Image.bufferView!];
           const bufferInfo = rnm2BufferView.bufferObject;
@@ -718,19 +732,6 @@ export class Gltf2Importer {
           promisesToLoadResources[bufferPromiseIndex] =
             loadImageAfterLoadingBuffer;
           bufferInfo.bufferPromise = loadImageAfterLoadingBuffer;
-        } else {
-          const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
-            gltfJson,
-            rnm2Image.bufferView!,
-            uint8Array
-          );
-          const imageUri = DataUtil.createBlobImageUriFromUint8Array(
-            imageUint8Array,
-            rnm2Image.mimeType!
-          );
-          promisesToLoadResources.push(
-            this.__loadImageUri(imageUri, rnm2Image, files)
-          );
         }
       } else {
         // Load Texture from URI
@@ -772,6 +773,7 @@ export class Gltf2Importer {
           image => {
             image.crossOrigin = 'Anonymous';
             textureInfo.image = {image: image};
+            return textureInfo.image as RnM2Image;
           }
         );
 
@@ -818,8 +820,8 @@ export class Gltf2Importer {
     imageUri: string,
     imageJson: RnM2Image,
     files: GltfFileBuffers
-  ) {
-    let loadImagePromise: RnPromise<void>;
+  ): RnPromise<RnM2Image> {
+    let loadImagePromise: RnPromise<RnM2Image>;
     if (imageUri.match(/basis$/)) {
       // load basis file from uri
       loadImagePromise = new RnPromise(resolve => {
@@ -827,7 +829,7 @@ export class Gltf2Importer {
           response.arrayBuffer().then(buffer => {
             const uint8Array = new Uint8Array(buffer);
             imageJson.basis = uint8Array;
-            resolve();
+            resolve(imageJson);
           });
         });
       });
@@ -835,7 +837,7 @@ export class Gltf2Importer {
       // find basis file from files option
       loadImagePromise = new RnPromise(resolve => {
         imageJson.basis = new Uint8Array(files[imageJson.uri!]);
-        resolve();
+        resolve(imageJson);
       });
     } else if (
       imageUri.match(/\.ktx2$/) ||
@@ -848,7 +850,7 @@ export class Gltf2Importer {
           response.arrayBuffer().then(buffer => {
             const uint8Array = new Uint8Array(buffer);
             imageJson.ktx2 = uint8Array;
-            resolve();
+            resolve(imageJson);
           });
         });
       });
@@ -856,7 +858,7 @@ export class Gltf2Importer {
       // find ktx2 file from files option
       loadImagePromise = new RnPromise(resolve => {
         imageJson.ktx2 = new Uint8Array(files[imageJson.uri!]);
-        resolve();
+        resolve(imageJson);
       });
     } else {
       loadImagePromise = DataUtil.createImageFromUri(
@@ -865,7 +867,8 @@ export class Gltf2Importer {
       ).then(image => {
         image.crossOrigin = 'Anonymous';
         imageJson.image = image;
-      }) as RnPromise<void>;
+        return imageJson;
+      });
     }
 
     return loadImagePromise;
