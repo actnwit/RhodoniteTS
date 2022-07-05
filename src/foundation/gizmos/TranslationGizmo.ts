@@ -699,27 +699,7 @@ export class TranslationGizmo extends Gizmo {
     console.log(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
 
     if (TranslationGizmo.__space === 'local') {
-      const parent = this.__target.getSceneGraph().parent;
-      let worldMatrix = Matrix44.identity();
-      if (Is.exist(parent)) {
-        worldMatrix = parent.worldMatrix.getRotate();
-      }
-
-      const scaleVec = Vector3.one();
-      let rotMat = Matrix33.fromCopy9RowMajor(
-        scaleVec.x * worldMatrix.m00,
-        scaleVec.x * worldMatrix.m01,
-        scaleVec.x * worldMatrix.m02,
-        scaleVec.y * worldMatrix.m10,
-        scaleVec.y * worldMatrix.m11,
-        scaleVec.y * worldMatrix.m12,
-        scaleVec.z * worldMatrix.m20,
-        scaleVec.z * worldMatrix.m21,
-        scaleVec.z * worldMatrix.m22
-      );
-      // rotMat = Matrix33.transpose(rotMat);
       this.__deltaPoint = Vector3.add(
-        // rotMat.multiplyVector(deltaVector3),
         deltaVector3,
         this.__targetPointBackup
       );
