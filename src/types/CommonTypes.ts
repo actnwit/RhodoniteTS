@@ -69,3 +69,5 @@ export type WebGLResourceHandle = number;
 export type CGAPIResourceHandle = WebGLResourceHandle;
 
 export type RnTags = {[s: string]: string};
+
+export type ColorComponentLetter = 'r' | 'g' | 'b' | 'a';

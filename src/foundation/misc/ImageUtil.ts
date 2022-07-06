@@ -3,7 +3,7 @@ import { MutableMatrix33 } from '../math/MutableMatrix33';
 import {MathUtil} from '../math/MathUtil';
 import { MutableVector3 } from '../math/MutableVector3';
 import {ColorRgb} from '../math/ColorRgb';
-import {Index, Size} from '../../types/CommonTypes';
+import { ColorComponentLetter, Index, Size} from '../../types/CommonTypes';
 import { MutableVector2 } from '../math/MutableVector2';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
 
@@ -449,6 +449,57 @@ function precomputations(
   }
 
   return retVal as SeamlessTextureData;
+}
+
+export function convertHTMLImageElementToCanvas(image: HTMLImageElement, width: number, height: number) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(image,
+    0, 0, image.width, image.height,
+    0, 0, width, height);
+
+  return canvas;
+}
+
+export function combineImages(
+  data:
+  {
+    r_image: HTMLCanvasElement,
+    g_image: HTMLCanvasElement,
+    b_image: HTMLCanvasElement,
+    a_image: HTMLCanvasElement,
+  })
+{
+  const inputR_ctx = data.r_image.getContext('2d')!;
+  const r_imageData = inputR_ctx.getImageData(0, 0, data.r_image.width, data.r_image.height);
+  const inputG_ctx = data.g_image.getContext('2d')!;
+  const g_imageData = inputG_ctx.getImageData(0, 0, data.g_image.width, data.g_image.height);
+  const inputB_ctx = data.b_image.getContext('2d')!;
+  const b_imageData = inputB_ctx.getImageData(0, 0, data.b_image.width, data.b_image.height);
+  const inputA_ctx = data.a_image.getContext('2d')!;
+  const a_imageData = inputA_ctx.getImageData(0, 0, data.a_image.width, data.a_image.height);
+
+  const width = r_imageData.width;
+  const height = r_imageData.height;
+
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = width;
+  outputCanvas.height = height;
+  const outputCtx = outputCanvas.getContext('2d')!;
+  const outputImageData = outputCtx.getImageData(0, 0, r_imageData.width, r_imageData.height);
+
+  for (let i = 0; i < width * height; i++) {
+    outputImageData.data[i * 4 + 0] = r_imageData.data[i * 4 + 0];
+    outputImageData.data[i * 4 + 1] = g_imageData.data[i * 4 + 1];
+    outputImageData.data[i * 4 + 2] = b_imageData.data[i * 4 + 2];
+    outputImageData.data[i * 4 + 3] = a_imageData.data[i * 4 + 3];
+  }
+
+  outputCtx.putImageData(outputImageData, 0, 0);
+
+  return outputCanvas;
 }
 
 export const ImageUtil = Object.freeze({precomputations});
