@@ -87,6 +87,7 @@ import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEnti
 import {BufferView} from '../memory/BufferView';
 import {RhodoniteImportExtension} from './RhodoniteImportExtension';
 import Rn from '../../cjs';
+import { convertHTMLImageElementToCanvas } from '../misc';
 
 declare let DracoDecoderModule: any;
 
@@ -2277,6 +2278,15 @@ function setupPbrMetallicRoughness(
       );
     }
   }
+
+  // if (Is.exist(metallicRoughnessTexture?.texture?.image?.image)) {
+  //   const image = metallicRoughnessTexture!.texture!.image!.image;
+  //   const width = image.width;
+  //   const height = image.height;
+
+  //   const metallicRoughnessCanvas = convertHTMLImageElementToCanvas(image, width, height);
+  // }
+
 
   // ClearCoat
   setup_KHR_materials_clearcoat(materialJson, material, gltfModel);

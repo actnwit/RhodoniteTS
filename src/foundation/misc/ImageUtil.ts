@@ -6,6 +6,7 @@ import {ColorRgb} from '../math/ColorRgb';
 import { ColorComponentLetter, Index, Size} from '../../types/CommonTypes';
 import { MutableVector2 } from '../math/MutableVector2';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
+import { Is } from './Is';
 
 type PixelSortType = {
   x: Index;
@@ -466,35 +467,69 @@ export function convertHTMLImageElementToCanvas(image: HTMLImageElement, width: 
 export function combineImages(
   data:
   {
-    r_image: HTMLCanvasElement,
-    g_image: HTMLCanvasElement,
-    b_image: HTMLCanvasElement,
-    a_image: HTMLCanvasElement,
+    r_image?: HTMLCanvasElement,
+    g_image?: HTMLCanvasElement,
+    b_image?: HTMLCanvasElement,
+    a_image?: HTMLCanvasElement,
+    width: number,
+    height: number,
   })
 {
-  const inputR_ctx = data.r_image.getContext('2d')!;
-  const r_imageData = inputR_ctx.getImageData(0, 0, data.r_image.width, data.r_image.height);
-  const inputG_ctx = data.g_image.getContext('2d')!;
-  const g_imageData = inputG_ctx.getImageData(0, 0, data.g_image.width, data.g_image.height);
-  const inputB_ctx = data.b_image.getContext('2d')!;
-  const b_imageData = inputB_ctx.getImageData(0, 0, data.b_image.width, data.b_image.height);
-  const inputA_ctx = data.a_image.getContext('2d')!;
-  const a_imageData = inputA_ctx.getImageData(0, 0, data.a_image.width, data.a_image.height);
-
-  const width = r_imageData.width;
-  const height = r_imageData.height;
+  const width = data.width;
+  const height = data.height;
 
   const outputCanvas = document.createElement('canvas');
   outputCanvas.width = width;
   outputCanvas.height = height;
   const outputCtx = outputCanvas.getContext('2d')!;
-  const outputImageData = outputCtx.getImageData(0, 0, r_imageData.width, r_imageData.height);
+  const outputImageData = outputCtx.getImageData(0, 0, width, height);
 
-  for (let i = 0; i < width * height; i++) {
-    outputImageData.data[i * 4 + 0] = r_imageData.data[i * 4 + 0];
-    outputImageData.data[i * 4 + 1] = g_imageData.data[i * 4 + 1];
-    outputImageData.data[i * 4 + 2] = b_imageData.data[i * 4 + 2];
-    outputImageData.data[i * 4 + 3] = a_imageData.data[i * 4 + 3];
+  if (Is.exist(data.r_image)) {
+    const inputR_ctx = data.r_image.getContext('2d')!;
+    const r_imageData = inputR_ctx.getImageData(0, 0, data.r_image.width, data.r_image.height);
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 0] = r_imageData.data[i * 4 + 0];
+    }
+  } else {
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 0] = 0;
+    }
+  }
+
+  if (Is.exist(data.g_image)) {
+    const inputG_ctx = data.g_image.getContext('2d')!;
+    const g_imageData = inputG_ctx.getImageData(0, 0, data.g_image.width, data.g_image.height);
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 1] = g_imageData.data[i * 4 + 1];
+    }
+  } else {
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 1] = 0;
+    }
+  }
+
+  if (Is.exist(data.b_image)) {
+    const inputB_ctx = data.b_image.getContext('2d')!;
+    const b_imageData = inputB_ctx.getImageData(0, 0, data.b_image.width, data.b_image.height);
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 2] = b_imageData.data[i * 4 + 2];
+    }
+  } else {
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 2] = 0;
+    }
+  }
+
+  if (Is.exist(data.a_image)) {
+    const inputA_ctx = data.a_image.getContext('2d')!;
+    const a_imageData = inputA_ctx.getImageData(0, 0, data.a_image.width, data.a_image.height);
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 3] = a_imageData.data[i * 4 + 3];
+    }
+  } else {
+    for (let i = 0; i < width * height; i++) {
+      outputImageData.data[i * 4 + 3] = 0;
+    }
   }
 
   outputCtx.putImageData(outputImageData, 0, 0);
