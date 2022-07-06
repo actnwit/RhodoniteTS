@@ -13,7 +13,7 @@ import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {
   InputManager,
-  INPUT_HANDLING_STATE_CAMERACONTROLLER,
+  INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
 } from '../system/InputManager';
 import {Config} from '../core/Config';
 
@@ -165,7 +165,7 @@ export class OrbitCameraController
 
     const currentMouseX = e.clientX;
     const currentMouseY = e.clientY;
-    console.log('currentMouse: ', currentMouseX, currentMouseY);
+    // console.log('currentMouse: ', currentMouseX, currentMouseY);
     switch (this.__buttonNumber) {
       case 1: // left
         if (this.__isPressingShift) {
@@ -498,7 +498,7 @@ export class OrbitCameraController
 
     if ('ontouchend' in document) {
       // touch devices
-      InputManager.register(INPUT_HANDLING_STATE_CAMERACONTROLLER, [
+      InputManager.register(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, [
         {
           eventName: 'touchstart',
           handler: this.__touchDownFunc,
@@ -574,7 +574,7 @@ export class OrbitCameraController
       ]);
     } else {
       // pc devices
-      InputManager.register(INPUT_HANDLING_STATE_CAMERACONTROLLER, [
+      InputManager.register(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, [
         {
           eventName: 'mousedown',
           handler: this.__mouseDownFunc,
@@ -679,7 +679,7 @@ export class OrbitCameraController
   }
 
   unregisterEventListeners() {
-    InputManager.unregister(INPUT_HANDLING_STATE_CAMERACONTROLLER);
+    InputManager.unregister(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
   }
 
   __getFovyFromCamera(camera: CameraComponent) {

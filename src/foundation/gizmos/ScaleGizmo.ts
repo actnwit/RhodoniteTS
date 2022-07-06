@@ -16,6 +16,7 @@ import {
 } from '../helpers/EntityHelper';
 import {MaterialHelper} from '../helpers/MaterialHelper';
 import {Material} from '../materials/core/Material';
+import { IQuaternion } from '../math/IQuaternion';
 import {MathUtil} from '../math/MathUtil';
 import {Matrix33} from '../math/Matrix33';
 import {Matrix44} from '../math/Matrix44';
@@ -74,10 +75,10 @@ export class ScaleGizmo extends Gizmo {
   private static __zxPlaneMaterial: Material;
   private static __originalX = 0;
   private static __originalY = 0;
-  private static __pickStatedPoint = Vector3.zero();
-  private static __deltaPoint = Vector3.one();
-  private static __targetScaleBackup = Vector3.one();
-  private static __isPointerDown = false;
+  private __pickStatedPoint = Vector3.zero();
+  private __deltaPoint = Vector3.one();
+  private __targetScaleBackup = Vector3.one();
+  private __isPointerDown = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
   private static __space: 'local' | 'world' = 'world';
   private static __latestTargetEntity?: ISceneGraphEntity;
@@ -157,8 +158,13 @@ export class ScaleGizmo extends Gizmo {
       );
       ScaleGizmo.__latestTargetEntity = this.__target;
       if (ScaleGizmo.__space === 'local') {
-        ScaleGizmo.__groupEntity.getTransform().quaternion =
-          this.__target.getTransform().quaternion;
+        const parent = this.__target.getSceneGraph();
+        let quaternion: IQuaternion = Quaternion.identity();
+        if (Is.exist(parent)) {
+          quaternion = parent.getQuaternionRecursively();
+        }
+        ScaleGizmo.__groupEntity.getTransform().quaternion = quaternion;
+
       } else if (ScaleGizmo.__space === 'world') {
         ScaleGizmo.__groupEntity.getTransform().quaternion =
           Quaternion.fromCopy4(0, 0, 0, 1);
@@ -167,10 +173,10 @@ export class ScaleGizmo extends Gizmo {
 
     if (this.__isVisible === true && flg === false) {
       InputManager.unregister(INPUT_HANDLING_STATE_GIZMO_SCALE);
-      ScaleGizmo.__deltaPoint = this.__target.getTransform().scale;
-      ScaleGizmo.__pickStatedPoint = Vector3.zero();
-      ScaleGizmo.__isPointerDown = false;
-      ScaleGizmo.__targetScaleBackup = this.__target.getTransform().scale;
+      this.__deltaPoint = this.__target.getTransform().scale;
+      this.__pickStatedPoint = Vector3.zero();
+      this.__isPointerDown = false;
+      this.__targetScaleBackup = this.__target.getTransform().scale;
       ScaleGizmo.__activeAxis = 'none';
     }
 
@@ -544,9 +550,9 @@ export class ScaleGizmo extends Gizmo {
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
     ]);
 
-    if (ScaleGizmo.__isPointerDown) {
+    if (this.__isPointerDown) {
       if (ScaleGizmo.__latestTargetEntity === this.__target) {
-        this.__target.getTransform().scale = ScaleGizmo.__deltaPoint.clone();
+        this.__target.getTransform().scale = this.__deltaPoint.clone();
       }
     }
   }
@@ -609,14 +615,14 @@ export class ScaleGizmo extends Gizmo {
 
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
-    ScaleGizmo.__isPointerDown = true;
+    this.__isPointerDown = true;
     ScaleGizmo.__originalX = evt.clientX;
     ScaleGizmo.__originalY = evt.clientY;
 
     // InputManager.enableCameraController();
 
     const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
-    const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
+    const scaleVec = Vector3.one();
     let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
       scaleVec.x * worldMatrix.m01,
@@ -638,43 +644,43 @@ export class ScaleGizmo extends Gizmo {
     const {xResult, yResult, zResult} = ScaleGizmo.castRay(evt);
     if (xResult.result) {
       assertExist(xResult.data);
-      ScaleGizmo.__pickStatedPoint = rotMat.multiplyVector(
+      this.__pickStatedPoint = rotMat.multiplyVector(
         xResult.data.position.clone()
       );
       console.log(
-        'Down:' + ScaleGizmo.__pickStatedPoint.toStringApproximately()
+        'Down:' + this.__pickStatedPoint.toStringApproximately()
       );
       ScaleGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data);
-      ScaleGizmo.__pickStatedPoint = rotMat.multiplyVector(
+      this.__pickStatedPoint = rotMat.multiplyVector(
         yResult.data.position.clone()
       );
       console.log(
-        'Down:' + ScaleGizmo.__pickStatedPoint.toStringApproximately()
+        'Down:' + this.__pickStatedPoint.toStringApproximately()
       );
       ScaleGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data);
-      ScaleGizmo.__pickStatedPoint = rotMat.multiplyVector(
+      this.__pickStatedPoint = rotMat.multiplyVector(
         zResult.data.position.clone()
       );
       console.log(
-        'Down:' + ScaleGizmo.__pickStatedPoint.toStringApproximately()
+        'Down:' + this.__pickStatedPoint.toStringApproximately()
       );
       ScaleGizmo.__activeAxis = 'z';
     }
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
-      ScaleGizmo.__targetScaleBackup = this.__target.getTransform().scale;
+      this.__targetScaleBackup = this.__target.getTransform().scale;
     }
   }
 
   private __onPointerMove(evt: PointerEvent) {
     evt.preventDefault();
-    if (Is.false(ScaleGizmo.__isPointerDown)) {
+    if (Is.false(this.__isPointerDown)) {
       return;
     }
 
@@ -707,7 +713,7 @@ export class ScaleGizmo extends Gizmo {
     } else if (ScaleGizmo.__space === 'world') {
       rotMat = MutableMatrix33.identity();
     }
-    let pickInMovingPoint: Vector3 = ScaleGizmo.__pickStatedPoint.clone();
+    let pickInMovingPoint: Vector3 = this.__pickStatedPoint.clone();
     if (ScaleGizmo.__activeAxis === 'x') {
       const xResult = ScaleGizmo.__xyPlaneEntity
         .getMesh()
@@ -763,35 +769,85 @@ export class ScaleGizmo extends Gizmo {
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
     const deltaVector3 = Vector3.multiply(
-      Vector3.subtract(pickInMovingPoint, ScaleGizmo.__pickStatedPoint),
+      Vector3.subtract(pickInMovingPoint, this.__pickStatedPoint),
       1 / aabb.lengthCenterToCorner
     );
+
+    console.log(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
+
     if (ScaleGizmo.__space === 'local') {
-      ScaleGizmo.__deltaPoint = Vector3.add(
-        ScaleGizmo.__targetScaleBackup,
+      this.__deltaPoint = Vector3.add(
+        this.__targetScaleBackup,
         deltaVector3
       );
+      this.__deltaPoint = Vector3.fromCopy3(
+        Math.max(this.__deltaPoint.x, 0.01),
+        Math.max(this.__deltaPoint.y, 0.01),
+        Math.max(this.__deltaPoint.z, 0.01)
+      );
     } else if (ScaleGizmo.__space === 'world') {
-      const worldMat = this.__target.getSceneGraph().worldMatrix;
+      const worldMat = Matrix44.fromCopyQuaternion(this.__target.getSceneGraph().getQuaternionRecursively());
       const existedScale = Matrix44.multiply(
         worldMat,
-        Matrix44.scale(ScaleGizmo.__targetScaleBackup)
+        Matrix44.scale(this.__targetScaleBackup)
       ).getScale();
-      ScaleGizmo.__deltaPoint = Matrix44.multiply(
+      let scale = Vector4.add(deltaVector3, existedScale);
+      scale = Vector4.fromCopy4(
+        Math.max(scale.x, 0.01),
+        Math.max(scale.y, 0.01),
+        Math.max(scale.z, 0.01),
+        Math.max(scale.w, 0.01)
+      )
+      this.__deltaPoint = Matrix44.multiply(
         Matrix44.invert(worldMat),
-        Matrix44.scale(Vector4.add(deltaVector3, existedScale))
+        Matrix44.scale(scale)
       ).getScale();
+      this.__deltaPoint = Vector3.fromCopy3(
+        Math.max(this.__deltaPoint.x, 0.01),
+        Math.max(this.__deltaPoint.y, 0.01),
+        Math.max(this.__deltaPoint.z, 0.01)
+      );
+
+      // const parent = this.__target.getSceneGraph();
+      // let worldMatrix = Matrix44.identity();
+      // if (Is.exist(parent)) {
+      //   worldMatrix = parent.worldMatrix.getRotate();
+      // }
+
+      // const scaleVec = Vector3.one();
+      // let rotMat = Matrix33.fromCopy9RowMajor(
+      //   scaleVec.x * worldMatrix.m00,
+      //   scaleVec.x * worldMatrix.m01,
+      //   scaleVec.x * worldMatrix.m02,
+      //   scaleVec.y * worldMatrix.m10,
+      //   scaleVec.y * worldMatrix.m11,
+      //   scaleVec.y * worldMatrix.m12,
+      //   scaleVec.z * worldMatrix.m20,
+      //   scaleVec.z * worldMatrix.m21,
+      //   scaleVec.z * worldMatrix.m22
+      // );
+      // rotMat = Matrix33.transpose(rotMat);
+      // const deltaDeltaVector3 = Vector3.add(
+      //   this.__targetScaleBackup,
+      //   rotMat.multiplyVector(deltaVector3),
+      // );
+      // this.__deltaPoint = deltaDeltaVector3;
+      // this.__deltaPoint = Vector3.fromCopy3(
+      //   Math.max(this.__deltaPoint.x, 0.01),
+      //   Math.max(this.__deltaPoint.y, 0.01),
+      //   Math.max(this.__deltaPoint.z, 0.01)
+      // );
     }
   }
 
   private __onPointerUp(evt: PointerEvent) {
     evt.preventDefault();
-    ScaleGizmo.__isPointerDown = false;
+    this.__isPointerDown = false;
     ScaleGizmo.__activeAxis = 'none';
     InputManager.enableCameraController();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
-      ScaleGizmo.__targetScaleBackup = this.__target.getTransform().scale;
+      this.__targetScaleBackup = this.__target.getTransform().scale;
     }
   }
 

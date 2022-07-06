@@ -33,7 +33,7 @@ import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import {IMatrix44} from '../../math/IMatrix';
-import { MutableScalar } from '../../math';
+import { IQuaternion, MutableScalar, Quaternion } from '../../math';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -369,6 +369,18 @@ export class SceneGraphComponent extends Component {
       transform.matrixInner,
       this.__tmpMatrix
     );
+  }
+
+  getQuaternionRecursively(): IQuaternion {
+    if (Is.not.exist(this.parent)) {
+      return this.entity.getTransform().quaternion;
+    }
+
+    const matrixFromAncestorToParent =
+      this.parent.getQuaternionRecursively();
+    return Quaternion.multiply(
+      matrixFromAncestorToParent,
+      this.entity.getTransform().quaternion);
   }
 
   /**
