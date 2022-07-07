@@ -11,22 +11,13 @@ declare const window: any;
 
   // Plane
   const planeEntity = Rn.MeshHelper.createPlane();
-  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI, 0, 0]);
-  planeEntity.getTransform().scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
-
-  // renderPass
-  const renderPass = new Rn.RenderPass();
-  renderPass.clearColor = Rn.Vector3.fromCopyArray([0, 0, 1]);
-  renderPass.toClearColorBuffer = true;
-  renderPass.addEntities([planeEntity]);
-
-  // expression
-  const expression = new Rn.Expression();
-  expression.addRenderPasses([renderPass]);
+  planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+  planeEntity.scale = Rn.Vector3.fromCopy3(0.5, 0.5, 0.5);
 
   // Render Loop
   let count = 0;
-  const draw = function () {
+
+  Rn.System.startRenderLoop(() => {
     if (!window._rendered && count > 0) {
       window._rendered = true;
       const p = document.createElement('p');
@@ -35,11 +26,8 @@ declare const window: any;
       document.body.appendChild(p);
     }
 
-    Rn.System.process([expression]);
+    Rn.System.processAuto();
     count++;
+  });
 
-    requestAnimationFrame(draw);
-  };
-
-  draw();
 })(window);

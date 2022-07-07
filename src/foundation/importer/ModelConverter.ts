@@ -87,7 +87,6 @@ import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEnti
 import {BufferView} from '../memory/BufferView';
 import {RhodoniteImportExtension} from './RhodoniteImportExtension';
 import Rn from '../../cjs';
-import { convertHTMLImageElementToCanvas } from '../misc';
 
 declare let DracoDecoderModule: any;
 
@@ -96,20 +95,6 @@ declare let DracoDecoderModule: any;
  */
 export class ModelConverter {
   private constructor() {}
-
-  static _getDefaultShader(options: GltfLoadOption) {
-    const defaultShader = null;
-
-    // if (options && typeof options.defaultShaderClass !== "undefined") {
-    //   if (typeof options.defaultShaderClass === "string") {
-    //     defaultShader = GLBoost[options.defaultShaderClass];
-    //   } else {
-    //     defaultShader = options.defaultShaderClass;
-    //   }
-    // }
-
-    return defaultShader;
-  }
 
   private static __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
     const entity = EntityHelper.createGroupEntity();
@@ -194,14 +179,11 @@ export class ModelConverter {
           gltfModel
         );
       }
-      if (
-        options &&
-        options.expression
-      ) {
+      if (options && options.expression) {
         options.expression.tryToSetTag({
           tag: 'gltfModel',
           value: gltfModel,
-        })
+        });
       }
     }
 
@@ -209,7 +191,6 @@ export class ModelConverter {
     rootGroup.tryToSetTag({tag: 'rnEntities', value: rnEntities});
     rootGroup.tryToSetTag({tag: 'rnEntitiesByNames', value: rnEntitiesByNames});
     rootGroup.tryToSetTag({tag: 'gltfModel', value: gltfModel});
-
 
     // Effekseer
     RhodoniteImportExtension.importEffect(gltfModel, rootGroup);
@@ -968,11 +949,13 @@ export class ModelConverter {
     primitive: RnM2Primitive,
     materialJson: RnM2Material
   ): Material {
+    // if rnLoaderOptions is set something, do special deal
     if (gltfModel.asset.extras?.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
 
+      // For specified loader extension
       if (
-        rnLoaderOptions?.loaderExtension?.isNeededToUseThisMaterial != null &&
+        rnLoaderOptions.loaderExtension?.isNeededToUseThisMaterial != null &&
         rnLoaderOptions.loaderExtension.isNeededToUseThisMaterial(gltfModel)
       ) {
         const loaderExtension =
@@ -982,6 +965,7 @@ export class ModelConverter {
         }
       }
 
+      // For VRM
       if (rnLoaderOptions.isImportVRM) {
         const material = this.__setVRMMaterial(
           rnPrimitive,
@@ -994,6 +978,7 @@ export class ModelConverter {
         if (material != null) return material;
       }
 
+      // For specified default material helper
       const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       if (materialHelperName != null) {
         return (MaterialHelper as any)[materialHelperName](
@@ -1002,6 +987,7 @@ export class ModelConverter {
       }
     }
 
+    // do normal handling
     let maxMaterialInstanceNumber: number =
       Config.maxMaterialInstanceForEachType;
     if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
@@ -1010,6 +996,7 @@ export class ModelConverter {
         Math.floor(Config.maxMaterialInstanceForEachType / 2);
     }
 
+    // pre data
     const isMorphing = this.__isMorphing(node, gltfModel);
     const isSkinning = this.__isSkinning(node, gltfModel);
     const isLighting = this.__isLighting(gltfModel, materialJson);
@@ -1019,10 +1006,11 @@ export class ModelConverter {
     alphaMode = Is.exist(materialJson?.extensions?.KHR_materials_transmission)
       ? AlphaMode.Translucent
       : alphaMode;
-
     const additionalName =
       node.skin != null ? `skin${node.skin ?? node.skinName ?? ''}` : void 0;
+
     if (parseFloat(gltfModel.asset?.version) >= 2) {
+      // For glTF 2
       const useTangentAttribute = this.__useTangentAttribute(
         gltfModel,
         primitive
@@ -1033,8 +1021,12 @@ export class ModelConverter {
         isMorphing,
         isSkinning,
         isLighting,
-        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
-        isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
+        isClearCoat: Is.exist(
+          materialJson?.extensions?.KHR_materials_clearcoat
+        ),
+        isTransmission: Is.exist(
+          materialJson?.extensions?.KHR_materials_transmission
+        ),
         isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
         alphaMode,
         useTangentAttribute,
@@ -1047,6 +1039,7 @@ export class ModelConverter {
       }
       return material;
     } else {
+      // For glTF 1
       return MaterialHelper.createClassicUberMaterial({
         isSkinning,
         isLighting,
@@ -2287,12 +2280,15 @@ function setupPbrMetallicRoughness(
   //   const metallicRoughnessCanvas = convertHTMLImageElementToCanvas(image, width, height);
   // }
 
-
   // ClearCoat
   setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
 
   // Transmission
-  const transmission = setup_KHR_materials_transmission(materialJson, material, gltfModel);
+  const transmission = setup_KHR_materials_transmission(
+    materialJson,
+    material,
+    gltfModel
+  );
   if (!options!.transmission) {
     options!.transmission = transmission;
   }
@@ -2320,7 +2316,10 @@ function setup_KHR_materials_transmission(
     )
       ? KHR_materials_transmission.transmissionFactor
       : 0.0;
-    material.setParameter(ShaderSemantics.TransmissionFactor, transmissionFactor);
+    material.setParameter(
+      ShaderSemantics.TransmissionFactor,
+      transmissionFactor
+    );
 
     const transmissionTexture = KHR_materials_transmission.transmissionTexture;
     if (Is.exist(transmissionTexture)) {
@@ -2402,12 +2401,11 @@ function setup_KHR_materials_volume(
   material: Material,
   gltfModel: RnM2
 ): void {
-  const KHR_materials_volume =
-    materialJson?.extensions?.KHR_materials_volume;
+  const KHR_materials_volume = materialJson?.extensions?.KHR_materials_volume;
   if (Is.exist(KHR_materials_volume)) {
     const thicknessFactor = KHR_materials_volume.thicknessFactor
-    ? KHR_materials_volume.thicknessFactor
-    : 0.0;
+      ? KHR_materials_volume.thicknessFactor
+      : 0.0;
     if (thicknessFactor != null) {
       material.setParameter(ShaderSemantics.ThicknessFactor, thicknessFactor);
     }
@@ -2423,14 +2421,17 @@ function setup_KHR_materials_volume(
       );
     }
     const attenuationDistance = KHR_materials_volume.attenuationDistance
-    ? KHR_materials_volume.attenuationDistance
-    : 0.0;
+      ? KHR_materials_volume.attenuationDistance
+      : 0.0;
     if (attenuationDistance != null) {
-      material.setParameter(ShaderSemantics.AttenuationDistance, attenuationDistance);
+      material.setParameter(
+        ShaderSemantics.AttenuationDistance,
+        attenuationDistance
+      );
     }
     const attenuationColor = KHR_materials_volume.attenuationColor
-    ? Rn.Vector3.fromCopyArray3(KHR_materials_volume.attenuationColor)
-    : Rn.Vector3.fromCopy3(1.0, 1.0, 1.0);
+      ? Rn.Vector3.fromCopyArray3(KHR_materials_volume.attenuationColor)
+      : Rn.Vector3.fromCopy3(1.0, 1.0, 1.0);
     if (attenuationColor != null) {
       material.setParameter(ShaderSemantics.AttenuationColor, attenuationColor);
     }
