@@ -86,46 +86,6 @@ function createEmptyMaterial() {
   return material;
 }
 
-function createPbrUberMaterialOld({
-  additionalName = '',
-  isMorphing = true,
-  isSkinning = true,
-  isLighting = true,
-  useTangentAttribute = false,
-  useNormalTexture = true,
-  alphaMode = AlphaMode.Opaque,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
-} = {}) {
-  const materialName =
-    'PbrUber' +
-    `_${additionalName}_` +
-    (isMorphing ? '+morphing' : '') +
-    (isSkinning ? '+skinning' : '') +
-    (isLighting ? '' : '-lighting') +
-    (useTangentAttribute ? '+tangentAttribute' : '') +
-    (useNormalTexture ? '' : '-normalTexture') +
-    '_alpha_' +
-    alphaMode.str.toLowerCase();
-
-  const materialNode = new PbrShadingMaterialContent({
-    isMorphing,
-    isSkinning,
-    isLighting,
-    useTangentAttribute,
-    useNormalTexture,
-    alphaMode,
-  });
-
-  materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
-
-  return material;
-}
-
 function createPbrUberMaterial({
   additionalName = '',
   isMorphing = true,
