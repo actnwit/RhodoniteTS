@@ -43,6 +43,7 @@ import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3Quality
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
 
 function createMaterial(
   materialName: string,
@@ -86,46 +87,6 @@ function createEmptyMaterial() {
   return material;
 }
 
-function createPbrUberMaterialOld({
-  additionalName = '',
-  isMorphing = true,
-  isSkinning = true,
-  isLighting = true,
-  useTangentAttribute = false,
-  useNormalTexture = true,
-  alphaMode = AlphaMode.Opaque,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
-} = {}) {
-  const materialName =
-    'PbrUber' +
-    `_${additionalName}_` +
-    (isMorphing ? '+morphing' : '') +
-    (isSkinning ? '+skinning' : '') +
-    (isLighting ? '' : '-lighting') +
-    (useTangentAttribute ? '+tangentAttribute' : '') +
-    (useNormalTexture ? '' : '-normalTexture') +
-    '_alpha_' +
-    alphaMode.str.toLowerCase();
-
-  const materialNode = new PbrShadingMaterialContent({
-    isMorphing,
-    isSkinning,
-    isLighting,
-    useTangentAttribute,
-    useNormalTexture,
-    alphaMode,
-  });
-
-  materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
-
-  return material;
-}
-
 function createPbrUberMaterial({
   additionalName = '',
   isMorphing = true,
@@ -146,7 +107,7 @@ function createPbrUberMaterial({
     (isSkinning ? '+skinning' : '') +
     (isLighting ? '' : '-lighting') +
     (isClearCoat ? '+clearcoat' : '') +
-    (isTransmission? '+transmission' : '') +
+    (isTransmission ? '+transmission' : '') +
     (isVolume ? '+volume' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (useNormalTexture ? '' : '-normalTexture') +
@@ -187,6 +148,101 @@ function createPbrUberMaterial({
         needUniformInFastest: true,
       },
     ];
+  }
+
+  let textureSlotIdx = 8;
+  if (isClearCoat) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.ClearCoatTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.ClearCoatRoughnessTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.ClearCoatNormalTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyBlueTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
+
+  if (isTransmission) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.TransmissionTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.BackBufferTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyBlackTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
+
+  if (isVolume) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.ThicknessTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      needUniformInFastest: true,
+    });
   }
 
   const materialNode = new CustomMaterialContent({

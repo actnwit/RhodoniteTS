@@ -44,14 +44,6 @@ uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
 uniform bool u_inverseEnvironment; // initialValue=true
 
-#ifdef RN_USE_CLEARCOAT
-  uniform float u_clearCoatFactor; // initialValue=0
-  uniform sampler2D u_clearCoatTexture; // initialValue=(8,white)
-  uniform float u_clearCoatRoughnessFactor; // initialValue=0
-  uniform sampler2D u_clearCoatRoughnessTexture; // initialValue=(9,white)
-  uniform sampler2D u_clearCoatNormalTexture; // initialValue=(10,blue)
-#endif
-
 #ifdef RN_USE_NORMAL_TEXTURE
   uniform sampler2D u_normalTexture; // initialValue=(2,black)
   uniform vec4 u_normalTextureTransform; // initialValue=(1,1,0,0)
@@ -60,15 +52,17 @@ uniform bool u_inverseEnvironment; // initialValue=true
   uniform float u_normalScale; // initialValue=(1)
 #endif
 
+#ifdef RN_USE_CLEARCOAT
+  uniform float u_clearCoatFactor; // initialValue=0
+  uniform float u_clearCoatRoughnessFactor; // initialValue=0
+#endif
+
 #ifdef RN_USE_TRANSMISSION
   uniform float u_transmissionFactor; // initialValue=(0)
-  uniform sampler2D u_transmissionTexture; // initialValue=(11,white)
-  uniform sampler2D u_backBufferTexture; // initialValue=(12,black)
 #endif
 
 #ifdef RN_USE_VOLUME
   uniform float u_thicknessFactor; // initialValue=(0)
-  uniform sampler2D u_thicknessTexture; // initialValue=(13,white)
   uniform float u_attenuationDistance; // initialValue=(0.000001)
   uniform vec3 u_attenuationColor; // initialValue=(1,1,1)
 #endif
@@ -114,6 +108,7 @@ float scaleForLod(float perceptualRoughness, float ior)
   return perceptualRoughness * scale;
 }
 
+#ifdef RN_USE_TRANSMISSION
 vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perceptualRoughness, float ior) {
   ivec2 vrState = get_vrState(0.0, 0);
   vec2 backBufferTextureSize = get_backBufferTextureSize(materialSID, 0);
@@ -137,7 +132,7 @@ vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perce
 
   return transmittedLight;
 }
-
+#endif
 
 vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
   #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD

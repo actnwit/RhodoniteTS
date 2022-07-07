@@ -138,7 +138,7 @@ export class Texture extends AbstractTexture {
     basisFile.delete();
   }
 
-  generateTextureFromKTX2(
+  async generateTextureFromKTX2(
     uint8Array: Uint8Array,
     {
       magFilter = TextureParameter.Linear,
@@ -155,24 +155,21 @@ export class Texture extends AbstractTexture {
     this.__wrapS = wrapS;
     this.__wrapT = wrapT;
 
-    const transcodedData =
-      KTX2TextureLoader.getInstance().transcode(uint8Array);
-    transcodedData.then((data: any) => {
-      this.__width = data.width;
-      this.__height = data.height;
-      this.generateCompressedTextureWithMipmapFromTypedArray(
-        data.mipmapData,
-        data.compressionTextureType,
-        {
-          magFilter,
-          minFilter,
-          wrapS,
-          wrapT,
-          anisotropy,
-          // isPremultipliedAlpha = false,
-        }
-      );
-    });
+    const transcodedData = await KTX2TextureLoader.getInstance().transcode(uint8Array);
+    this.__width = transcodedData.width;
+    this.__height = transcodedData.height;
+    this.generateCompressedTextureWithMipmapFromTypedArray(
+      transcodedData.mipmapData,
+      transcodedData.compressionTextureType,
+      {
+        magFilter,
+        minFilter,
+        wrapS,
+        wrapT,
+        anisotropy,
+        // isPremultipliedAlpha = false,
+      }
+    );
   }
 
   generateTextureFromImage(

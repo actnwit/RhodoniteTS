@@ -84,12 +84,12 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
-  protected static __dummyWhiteTexture = new Texture();
-  protected static __dummyBlueTexture = new Texture();
-  protected static __dummyBlackTexture = new Texture();
-  protected static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
-  protected static __dummySRGBGrayTexture = new Texture();
-  protected static __dummyBlackCubeTexture = new CubeTexture();
+  static __dummyWhiteTexture = new Texture();
+  static __dummyBlueTexture = new Texture();
+  static __dummyBlackTexture = new Texture();
+  static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
+  static __dummySRGBGrayTexture = new Texture();
+  static __dummyBlackCubeTexture = new CubeTexture();
 
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();

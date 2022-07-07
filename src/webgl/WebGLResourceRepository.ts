@@ -1058,12 +1058,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
   }
   /**
    * create a Texture
-   * @param data
+   * @param imageData
    * @param param1
    * @returns
    */
   createTexture(
-    data: DirectTextureData,
+    imageData: DirectTextureData,
     {
       level,
       internalFormat,
@@ -1110,9 +1110,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     if (
-      data instanceof HTMLImageElement ||
-      data instanceof HTMLCanvasElement ||
-      data instanceof HTMLVideoElement
+      imageData instanceof HTMLImageElement ||
+      imageData instanceof HTMLCanvasElement ||
+      imageData instanceof HTMLVideoElement
     ) {
       if (isWebGL2) {
         const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1134,7 +1134,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           0,
           format.index,
           type.index,
-          data
+          imageData
         );
       } else {
         gl.texImage2D(
@@ -1143,7 +1143,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
           format.index,
           type.index,
-          data
+          imageData
         );
       }
     } else {
@@ -1169,7 +1169,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           height,
           format.index,
           type.index,
-          data as any as ArrayBufferView
+          imageData as any as ArrayBufferView
         );
       } else {
         gl.texImage2D(
@@ -1181,7 +1181,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           border,
           format.index,
           type.index,
-          data
+          imageData
         );
       }
     }
