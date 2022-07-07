@@ -45,7 +45,7 @@ import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorr
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
 
-function createMaterial(
+export function createMaterial(
   materialName: string,
   materialNode?: AbstractMaterialContent,
   maxInstancesNumber?: Count

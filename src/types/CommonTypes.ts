@@ -1,3 +1,4 @@
+import {ShaderityObject} from 'shaderity';
 
 export type TypedArray =
   | Int8Array
@@ -71,3 +72,5 @@ export type CGAPIResourceHandle = WebGLResourceHandle;
 export type RnTags = {[s: string]: string};
 
 export type ColorComponentLetter = 'r' | 'g' | 'b' | 'a';
+
+export type RnShaderityObject = ShaderityObject;

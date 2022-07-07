@@ -2,6 +2,7 @@
   "test_e2e": [
     "ColorGradingUsingLUTs",
     "DepthEncode",
+    "DynamicShaderImport",
     "FastestInstancedDrawingWebGL1",
     "FurnaceTest-weakWhiteFurnaceResult",
     "FurnaceTest-whiteFurnace",
