@@ -96,20 +96,6 @@ declare let DracoDecoderModule: any;
 export class ModelConverter {
   private constructor() {}
 
-  static _getDefaultShader(options: GltfLoadOption) {
-    const defaultShader = null;
-
-    // if (options && typeof options.defaultShaderClass !== "undefined") {
-    //   if (typeof options.defaultShaderClass === "string") {
-    //     defaultShader = GLBoost[options.defaultShaderClass];
-    //   } else {
-    //     defaultShader = options.defaultShaderClass;
-    //   }
-    // }
-
-    return defaultShader;
-  }
-
   private static __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
     const entity = EntityHelper.createGroupEntity();
     this.addTags(entity, gltfModel);
