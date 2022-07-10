@@ -27,6 +27,7 @@ import {Vector4} from '../math/Vector4';
 import {RenderPass} from '../renderer/RenderPass';
 import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 
 declare const spector: any;
 
@@ -393,6 +394,7 @@ export class System {
     });
 
     // this.detectComponentMethods();
+    await AbstractMaterialContent.initDefaultTextures();
 
     return gl;
   }

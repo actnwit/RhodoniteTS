@@ -86,8 +86,6 @@ export class MeshRendererComponent extends Component {
     // Strategy
     MeshRendererComponent.__webglRenderingStrategy =
       webglModule.getRenderingStrategy(processApproach);
-
-    AbstractMaterialContent.initDefaultTextures();
   }
 
   $load() {

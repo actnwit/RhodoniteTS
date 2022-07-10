@@ -158,6 +158,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
+
   }
 
   get shaderFunctionName() {
@@ -340,7 +341,7 @@ export abstract class AbstractMaterialContent extends RnObject {
           internalFormat: TextureParameter.RGBA8,
           border: 0,
           format: PixelFormat.RGBA,
-          type: ComponentType.Float,
+          type: ComponentType.UnsignedByte,
           magFilter: TextureParameter.Linear,
           minFilter: TextureParameter.Linear,
           wrapS: TextureParameter.ClampToEdge,

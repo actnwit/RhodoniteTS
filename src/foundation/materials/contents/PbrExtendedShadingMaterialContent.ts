@@ -78,7 +78,6 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       PBRExtendedShaderVertex,
       PBRExtendedShaderFragment
     );
-    AbstractMaterialContent.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
