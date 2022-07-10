@@ -455,7 +455,11 @@ void main ()
   vec3 sheenColorTexture = texture2D(u_sheenColorTexture, baseColorTexUv).rgb;
   float sheenRoughnessFactor = get_sheenRoughnessFactor(materialSID, 0);
   float sheenRoughnessTexture = texture2D(u_sheenRoughnessTexture, baseColorTexUv).a;
-  vec2 sheenLutTexture = texture2D(u_sheenLutTexture, baseColorTexUv).rg;
+  vec3 sheenColor = sheenColorFactor * sheenColorTexture;
+  float sheenRoughness = sheenRoughnessFactor * sheenRoughnessTexture;
+#else
+  vec3 sheenColor = vec3(0.0);
+  float sheenRoughness = 0.0;
 #endif
 
   // Lighting
@@ -511,16 +515,30 @@ void main ()
     // Base Layer
     vec3 baseLayer = diffuseContrib + specularContrib;
 
+#ifdef RN_USE_SHEEN
+    // Sheen
+    vec3 sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+    float albedoSheenScaling = min(
+        1.0 - max3(sheenColor) * texture2D(u_sheenLutTexture, vec2(NdotV, sheenRoughness)).b,
+        1.0 - max3(sheenColor) * texture2D(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).b);
+    float vec3 color = sheenContrib + baseLayer * albedoSheenScaling;
+#else
+    vec3 color = baseLayer;
+#endif
+
 #ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer
     float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
     float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
-    vec3 coated = coated_material_s(baseLayer, perceptualRoughness,
+    vec3 coated = coated_material_s(color, perceptualRoughness,
       clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
     rt0.xyz += coated;
 #else
-    rt0.xyz += baseLayer;
+    rt0.xyz += color;
 #endif
+
+
+
   }
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
