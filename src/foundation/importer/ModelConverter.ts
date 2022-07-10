@@ -1028,6 +1028,7 @@ export class ModelConverter {
           materialJson?.extensions?.KHR_materials_transmission
         ),
         isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
+        isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
         alphaMode,
         useTangentAttribute,
         useNormalTexture,

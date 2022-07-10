@@ -69,10 +69,7 @@ uniform bool u_inverseEnvironment; // initialValue=true
 
 #ifdef RN_USE_SHEEN
   uniform vec3 u_sheenColorFactor; // initialValue(0,0,0)
-  uniform sampler2D u_sheenColorTexture; // initialValue=(14,black)
   uniform float u_sheenRoughness; // initialValue=(0)
-  uniform sampler2D u_sheenRoughnessTexture; // initialValue(15,black)
-  uniform sampler2D u_sheenLUTTexture; // initialValue(16,black)
 #endif
 
 uniform float u_alphaCutoff; // initialValue=(0.01)

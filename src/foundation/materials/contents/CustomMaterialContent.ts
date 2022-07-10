@@ -23,6 +23,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isClearCoat,
     isTransmission,
     isVolume,
+    isSheen,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,
@@ -37,6 +38,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isClearCoat?: boolean;
     isTransmission?: boolean;
     isVolume?: boolean;
+    isSheen?: boolean;
     alphaMode: AlphaModeEnum;
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
@@ -53,6 +55,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isClearCoat ? '+clearcoat' : '') +
         (isTransmission ? '+transmission' : '') +
         (isVolume ? '+volume' : '') +
+        (isSheen ? '+sheen' : '') +
         (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
@@ -118,6 +121,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
     if (isVolume) {
       this.__definitions += '#define RN_USE_VOLUME\n';
+    }
+    if (isSheen) {
+      this.__definitions += '#define RN_USE_SHEEN\n';
     }
     if (useTangentAttribute) {
       this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
