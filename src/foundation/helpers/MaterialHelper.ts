@@ -235,6 +235,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [
         textureSlotIdx++,
         AbstractMaterialContent.dummyWhiteTexture,
@@ -256,7 +257,7 @@ function createPbrUberMaterial({
         textureSlotIdx++,
         AbstractMaterialContent.dummyBlackTexture,
       ],
-      min: -Number.MAX_VALUE,
+      min: 0,
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
@@ -266,11 +267,12 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [
         textureSlotIdx++,
         AbstractMaterialContent.dummyBlackTexture,
       ],
-      min: -Number.MAX_VALUE,
+      min: 0,
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
@@ -280,11 +282,12 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [
         textureSlotIdx++,
         AbstractMaterialContent.__sheenLutTextureUid,
       ],
-      min: -Number.MAX_VALUE,
+      min: 0,
       max: Number.MAX_VALUE,
     });
   }
