@@ -2296,6 +2296,8 @@ function setupPbrMetallicRoughness(
 
   setup_KHR_materials_volume(materialJson, material, gltfModel);
 
+  setup_KHR_materials_sheen(materialJson, material, gltfModel);
+
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
     baseColorTexture,
@@ -2458,4 +2460,52 @@ function setup_KHR_texture_transform(
     ShaderSemantics.MetallicRoughnessTextureTransform,
     ShaderSemantics.MetallicRoughnessTextureRotation
   );
+}
+
+function setup_KHR_materials_sheen(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_sheen = materialJson?.extensions?.KHR_materials_sheen;
+  if (Is.exist(KHR_materials_sheen)) {
+    const sheenColorFactor = Is.exist(KHR_materials_sheen.sheenColorFactor)
+      ? KHR_materials_sheen.sheenColorFactor
+      : [0.0, 0.0, 0.0];
+    material.setParameter(
+      ShaderSemantics.SheenColorFactor,
+      Vector3.fromCopyArray3(sheenColorFactor)
+    );
+    const sheenColorTexture = KHR_materials_sheen.sheenColorTexture;
+    if (sheenColorTexture != null) {
+      const rnSheenColorTexture = ModelConverter._createTexture(
+        sheenColorTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.SheenColorTexture,
+        rnSheenColorTexture
+      );
+    }
+    const sheenRoughnessFactor = Is.exist(
+      KHR_materials_sheen.sheenRoughnessFactor
+    )
+      ? KHR_materials_sheen.sheenRoughnessFactor
+      : 0.0;
+    material.setParameter(
+      ShaderSemantics.SheenRoughnessFactor,
+      sheenRoughnessFactor
+    );
+    const sheenRoughnessTexture = KHR_materials_sheen.sheenRoughnessTexture;
+    if (sheenRoughnessTexture != null) {
+      const rnSheenRoughnessTexture = ModelConverter._createTexture(
+        sheenRoughnessTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.SheenRoughnessTexture,
+        rnSheenRoughnessTexture
+      );
+    }
+  }
 }

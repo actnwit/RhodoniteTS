@@ -284,7 +284,7 @@ function createPbrUberMaterial({
         soloDatum: false,
         initialValue: [
           textureSlotIdx++,
-          AbstractMaterialContent.dummyBlackTexture,
+          AbstractMaterialContent.__sheenLutTextureUid,
         ],
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,

@@ -452,7 +452,7 @@ void main ()
 #ifdef RN_USE_SHEEN
   // Sheen
   vec3 sheenColorFactor = get_sheenColorFactor(materialSID, 0);
-  vec3 sheenColorTexture = texture2D(u_sheenColorTexture, baseColorTexUv);
+  vec3 sheenColorTexture = texture2D(u_sheenColorTexture, baseColorTexUv).rgb;
   float sheenRoughnessFactor = get_sheenRoughnessFactor(materialSID, 0);
   float sheenRoughnessTexture = texture2D(u_sheenRoughnessTexture, baseColorTexUv).a;
   vec2 sheenLutTexture = texture2D(u_sheenLutTexture, baseColorTexUv).rg;
