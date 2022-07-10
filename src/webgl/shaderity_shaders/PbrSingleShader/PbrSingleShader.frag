@@ -69,7 +69,7 @@ uniform bool u_inverseEnvironment; // initialValue=true
 
 #ifdef RN_USE_SHEEN
   uniform vec3 u_sheenColorFactor; // initialValue(0,0,0)
-  uniform float u_sheenRoughness; // initialValue=(0)
+  uniform float u_sheenRoughnessFactor; // initialValue=(0)
 #endif
 
 uniform float u_alphaCutoff; // initialValue=(0.01)
@@ -187,21 +187,14 @@ struct IblResult
   vec3 FssEss;
 };
 
-IblResult IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
-  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix)
+IblResult IBL(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
+  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
+  vec3 normal_forEnv, vec3 reflection)
 {
   // get irradiance
-  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-  if (get_inverseEnvironment(materialSID, 0)) {
-    normal_forEnv.x *= -1.0;
-  }
   vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
 
   // get radiance
-  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
-  if (get_inverseEnvironment(materialSID, 0)) {
-    reflection.x *= -1.0;
-  }
   float mipCount = iblParameter.x;
   float lod = (perceptualRoughness * (mipCount - 1.0));
   vec3 radiance = get_radiance(reflection, lod, hdriFormat);
@@ -238,17 +231,52 @@ IblResult IBL(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDire
   return result;
 }
 
+#ifdef RN_USE_SHEEN
+vec3 sheenIBL(float NdotV, float sheenPerceptualRoughness, vec3 sheenColor, vec4 iblParameter, vec3 reflection, ivec2 hdriFormat)
+{
+  float mipCount = iblParameter.x;
+  float lod = (sheenPerceptualRoughness * (mipCount - 1.0));
+
+  vec2 sheenLutUV = vec2(NdotV, sheenPerceptualRoughness);
+  float brdf = texture(u_sheenLutTexture, sheenLutUV).g;
+  vec3 sheenLight = get_radiance(reflection, lod, hdriFormat);
+
+  return sheenLight * sheenColor * brdf;
+}
+#endif
+
+vec3 getNormalForEnv(mat3 rotEnvMatrix, vec3 normal_inWorld, float materialSID) {
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  if (get_inverseEnvironment(materialSID, 0)) {
+    normal_forEnv.x *= -1.0;
+  }
+  return normal_forEnv;
+}
+
+vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, float materialSID) {
+  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+  if (get_inverseEnvironment(materialSID, 0)) {
+    reflection.x *= -1.0;
+  }
+  return reflection;
+}
+
 vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
-  float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld, float thickness)
+  float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
+  float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
 
-  IblResult baseResult = IBL(materialSID, normal_inWorld, NdotV, viewDirection, albedo, F0,
-    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix);
+  vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID);
+
+  // IBL
+  IblResult baseResult = IBL(materialSID, NdotV, viewDirection, albedo, F0,
+    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection);
 
 #ifdef RN_USE_TRANSMISSION
   float ior = 1.5;
@@ -273,18 +301,26 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 base = baseResult.diffuse + baseResult.specular;
 #endif
 
+#ifdef RN_USE_SHEEN
+  vec3 sheen = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
+  vec3 color = base + sheen * albedoSheenScalingNdotV;
+#else
+  vec3 color = base;
+#endif
+
 #ifdef RN_USE_CLEARCOAT
   float VdotNg = dot(geomNormal_inWorld, viewDirection);
-  IblResult coatResult = IBL(materialSID, clearcoatNormal_inWorld, VdotNc, viewDirection, vec3(0.0), F0,
-    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix);
+  vec3 clearcoatNormal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  vec3 clearcoatReflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID);
+  IblResult coatResult = IBL(materialSID, VdotNc, viewDirection, vec3(0.0), F0,
+    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, clearcoatReflection);
   vec3 coatLayer = coatResult.diffuse + coatResult.specular;
 
   float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
-  vec3 coated = base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
-
+  vec3 coated = color * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
   return coated;
 #else
-  return base;
+  return color;
 #endif
 
 }
@@ -456,10 +492,12 @@ void main ()
   float sheenRoughnessFactor = get_sheenRoughnessFactor(materialSID, 0);
   float sheenRoughnessTexture = texture2D(u_sheenRoughnessTexture, baseColorTexUv).a;
   vec3 sheenColor = sheenColorFactor * sheenColorTexture;
-  float sheenRoughness = sheenRoughnessFactor * sheenRoughnessTexture;
+  float sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
+  float albedoSheenScalingNdotV = 1.0 - max3(sheenColor) * texture2D(u_sheenLutTexture, vec2(NdotV, sheenRoughness)).r;
 #else
   vec3 sheenColor = vec3(0.0);
-  float sheenRoughness = 0.0;
+  float sheenRoughness = 0.000001;
+  float albedoSheenScalingNdotV = 1.0;
 #endif
 
   // Lighting
@@ -519,11 +557,12 @@ void main ()
     // Sheen
     vec3 sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
     float albedoSheenScaling = min(
-        1.0 - max3(sheenColor) * texture2D(u_sheenLutTexture, vec2(NdotV, sheenRoughness)).b,
-        1.0 - max3(sheenColor) * texture2D(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).b);
-    float vec3 color = sheenContrib + baseLayer * albedoSheenScaling;
+      albedoSheenScalingNdotV,
+      1.0 - max3(sheenColor) * texture2D(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).r);
+    vec3 color = sheenContrib + baseLayer * albedoSheenScaling;
 #else
     vec3 color = baseLayer;
+    float albedoSheenScaling = 1.0;
 #endif
 
 #ifdef RN_USE_CLEARCOAT
@@ -536,14 +575,12 @@ void main ()
 #else
     rt0.xyz += color;
 #endif
-
-
-
   }
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
-    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness);
+    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);

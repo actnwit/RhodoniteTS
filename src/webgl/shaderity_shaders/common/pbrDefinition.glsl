@@ -217,8 +217,7 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
 
 float d_Charlie(float sheenPerceptualRoughness, float NoH) {
   // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
-  float sheenRoughness = clamp(sheenRoughness, 0.000001, 1.0);
-  float alphaG = sheenRoughness * sheenRoughness;
+  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
   float invAlpha  = 1.0 / alphaG;
   float cos2h = NoH * NoH;
   float sin2h = 1.0 - cos2h;
@@ -247,13 +246,12 @@ float lambdaSheen(float cosTheta, float alphaG)
 }
 
 float sheenCharlieVisibility(float NdotL, float NdotV, float sheenPerceptualRoughness) {
-  float sheenRoughness = clamp(sheenPerceptualRoughness, 0.000001, 1.0);
-  float alphaG = sheenRoughness * sheenRoughness;
+  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
   float sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
   return sheenVisibility;
 }
 
-float sheen_brdf(vec3 sheenColor, float sheenPerceptualRoughness, float NdotL, float NdotV, float NdotH) {
+vec3 sheen_brdf(vec3 sheenColor, float sheenPerceptualRoughness, float NdotL, float NdotV, float NdotH) {
   float sheenDistribution = d_Charlie(sheenPerceptualRoughness, NdotH);
   float sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
   return sheenColor * sheenDistribution * sheenVisibility;

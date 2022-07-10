@@ -493,7 +493,7 @@ export class Gltf2Importer {
                 gltfJson.textures[sheenColorTexture.index];
             }
             const sheenRoughnessTexture =
-              extensions.KHR_materials_clearcoat.sheenRoughnessTexture;
+              extensions.KHR_materials_sheen.sheenRoughnessTexture;
             if (sheenRoughnessTexture !== void 0) {
               sheenRoughnessTexture.texture =
                 gltfJson.textures[sheenRoughnessTexture.index];

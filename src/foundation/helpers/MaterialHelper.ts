@@ -241,56 +241,52 @@ function createPbrUberMaterial({
       ],
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      needUniformInFastest: true,
     });
+  }
 
-    if (isSheen) {
-      additionalShaderSemanticInfo.push({
-        semantic: ShaderSemantics.SheenColorTexture,
-        componentType: ComponentType.Int,
-        compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader,
-        isCustomSetting: false,
-        soloDatum: false,
-        initialValue: [
-          textureSlotIdx++,
-          AbstractMaterialContent.dummyBlackTexture,
-        ],
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        needUniformInFastest: true,
-      });
-      additionalShaderSemanticInfo.push({
-        semantic: ShaderSemantics.SheenRoughnessTexture,
-        componentType: ComponentType.Int,
-        compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader,
-        isCustomSetting: false,
-        soloDatum: false,
-        initialValue: [
-          textureSlotIdx++,
-          AbstractMaterialContent.dummyBlackTexture,
-        ],
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        needUniformInFastest: true,
-      });
-      additionalShaderSemanticInfo.push({
-        semantic: ShaderSemantics.SheenLutTexture,
-        componentType: ComponentType.Int,
-        compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader,
-        isCustomSetting: false,
-        soloDatum: false,
-        initialValue: [
-          textureSlotIdx++,
-          AbstractMaterialContent.__sheenLutTextureUid,
-        ],
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        needUniformInFastest: true,
-      });
-    }
+  if (isSheen) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.SheenColorTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyBlackTexture,
+      ],
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.SheenRoughnessTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyBlackTexture,
+      ],
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.SheenLutTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.__sheenLutTextureUid,
+      ],
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+    });
   }
 
   const materialNode = new CustomMaterialContent({

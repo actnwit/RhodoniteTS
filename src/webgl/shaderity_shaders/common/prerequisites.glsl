@@ -290,3 +290,8 @@ vec3 descramble(vec3 v) {
 }
 
 const float PI = 3.14159265358979323846;
+
+float max3(vec3 v)
+{
+  return max(max(v.x, v.y), v.z);
+}
