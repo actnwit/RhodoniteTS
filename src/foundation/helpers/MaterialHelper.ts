@@ -19,7 +19,6 @@ import {SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent} from '../m
 import {ColorGradingUsingLUTsMaterialContent} from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
 import {MatCapMaterialContent} from '../materials/contents/MatCapMaterialContent';
 import {VarianceShadowMapDecodeClassicMaterialContent} from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
-import {PbrExtendedShadingMaterialContent} from '../materials/contents/PbrExtendedShadingMaterialContent';
 import {Texture} from '../textures/Texture';
 import {CameraComponent} from '../components/Camera/CameraComponent';
 import {Count} from '../../types/CommonTypes';
@@ -793,29 +792,6 @@ function createMToonMaterial({
   return material;
 }
 
-function createPbrExtendedUberMaterial(maxInstancesNumber?: Count) {
-  const enables = {isMorphing: false, isSkinning: false, isLighting: true};
-  const materialName =
-    'PbrExtendedShadingUber' +
-    (enables.isMorphing ? '+morphing' : '') +
-    (enables.isSkinning ? '+skinning' : '') +
-    (enables.isLighting ? '' : '-lighting');
-
-  const materialNode = new PbrExtendedShadingMaterialContent({
-    isMorphing: enables.isMorphing,
-    isSkinning: enables.isSkinning,
-    isLighting: enables.isLighting,
-  });
-  materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
-
-  return material;
-}
-
 function recreateCustomMaterial(
   vertexShaderStr: string,
   pixelShaderStr: string,
@@ -923,6 +899,5 @@ export const MaterialHelper = Object.freeze({
   createSynthesizeHDRMaterial,
   createColorGradingUsingLUTsMaterial,
   createMatCapMaterial,
-  createPbrExtendedUberMaterial,
   changeMaterial,
 });
