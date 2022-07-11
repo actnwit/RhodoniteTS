@@ -2,7 +2,6 @@ import {Config} from '../core/Config';
 import {Material} from '../materials/core/Material';
 import {RenderPass} from '../renderer/RenderPass';
 import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent';
-import {PbrShadingMaterialContent} from '../materials/contents/PbrShadingMaterialContent';
 import {DepthEncodeMaterialContent} from '../materials/contents/DepthEncodeMaterialContent';
 import {ShadowMapDecodeClassicMaterialContent} from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import {EntityUIDOutputMaterialContent} from '../materials/contents/EntityUIDOutputMaterialContent';
@@ -95,6 +94,7 @@ function createPbrUberMaterial({
   isClearCoat = false,
   isTransmission = false,
   isVolume = false,
+  isSheen = false,
   useTangentAttribute = false,
   useNormalTexture = true,
   alphaMode = AlphaMode.Opaque,
@@ -109,6 +109,7 @@ function createPbrUberMaterial({
     (isClearCoat ? '+clearcoat' : '') +
     (isTransmission ? '+transmission' : '') +
     (isVolume ? '+volume' : '') +
+    (isSheen ? '+sheen' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (useNormalTexture ? '' : '-normalTexture') +
     '_alpha_' +
@@ -235,13 +236,60 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [
         textureSlotIdx++,
         AbstractMaterialContent.dummyWhiteTexture,
       ],
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      needUniformInFastest: true,
+    });
+  }
+
+  if (isSheen) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.SheenColorTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.SheenRoughnessTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.SheenLutTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.__sheenLutTextureUid,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
     });
   }
 
@@ -253,6 +301,7 @@ function createPbrUberMaterial({
     isClearCoat,
     isTransmission,
     isVolume,
+    isSheen,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,

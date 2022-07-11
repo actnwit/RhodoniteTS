@@ -78,7 +78,6 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
       PBRExtendedShaderVertex,
       PBRExtendedShaderFragment
     );
-    AbstractMaterialContent.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
@@ -161,16 +160,16 @@ export class PbrExtendedShadingMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         initialValue: Vector2.fromCopyArray2([0.0, 0.5]),
       },
-      {
-        semantic: ShaderSemantics.SheenParameter,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 1,
-        isCustomSetting: false,
-        initialValue: Vector3.fromCopyArray([0.0, 0.0, 0.0]),
-      },
+      // {
+      //   semantic: ShaderSemantics.SheenParameter,
+      //   compositionType: CompositionType.Vec3,
+      //   componentType: ComponentType.Float,
+      //   stage: ShaderType.PixelShader,
+      //   min: 0,
+      //   max: 1,
+      //   isCustomSetting: false,
+      //   initialValue: Vector3.fromCopyArray([0.0, 0.0, 0.0]),
+      // },
       {
         semantic: PbrExtendedShadingMaterialContent.detailNormalTexture,
         compositionType: CompositionType.Texture2D,

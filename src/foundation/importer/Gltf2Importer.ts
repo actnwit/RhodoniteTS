@@ -486,6 +486,19 @@ export class Gltf2Importer {
                 gltfJson.textures[thicknessTexture.index];
             }
           }
+          if (Is.exist(extensions.KHR_materials_sheen)) {
+            const sheenColorTexture = extensions.KHR_materials_sheen.sheenColorTexture;
+            if (sheenColorTexture !== void 0) {
+              sheenColorTexture.texture =
+                gltfJson.textures[sheenColorTexture.index];
+            }
+            const sheenRoughnessTexture =
+              extensions.KHR_materials_sheen.sheenRoughnessTexture;
+            if (sheenRoughnessTexture !== void 0) {
+              sheenRoughnessTexture.texture =
+                gltfJson.textures[sheenRoughnessTexture.index];
+            }
+          }
         }
       }
     }

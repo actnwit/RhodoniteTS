@@ -216,8 +216,20 @@ const Anisotropy: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const ClearCoatParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearcoatParameter',
 });
-const SheenParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'sheenParameter',
+const SheenColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'sheenColorFactor',
+});
+const SheenColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'sheenColorTexture',
+});
+const SheenRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'sheenRoughnessFactor',
+});
+const SheenRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'sheenRoughnessTexture',
+});
+const SheenLutTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'sheenLutTexture',
 });
 const SpecularGlossinessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'specularGlossinessFactor',
@@ -389,7 +401,11 @@ const typeList = [
   LightViewProjectionMatrix,
   Anisotropy,
   ClearCoatParameter,
-  SheenParameter,
+  SheenColorFactor,
+  SheenColorTexture,
+  SheenRoughnessFactor,
+  SheenRoughnessTexture,
+  SheenLutTexture,
   SpecularGlossinessFactor,
   SpecularGlossinessTexture,
   EntityUID,
@@ -606,7 +622,11 @@ export const ShaderSemantics = Object.freeze({
   LightViewProjectionMatrix,
   Anisotropy,
   ClearCoatParameter,
-  SheenParameter,
+  SheenColorFactor,
+  SheenColorTexture,
+  SheenRoughnessFactor,
+  SheenRoughnessTexture,
+  SheenLutTexture,
   SpecularGlossinessFactor,
   SpecularGlossinessTexture,
   ClearCoatFactor,

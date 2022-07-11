@@ -23,6 +23,7 @@
     "GltfImporter-ibl-2",
     "GltfImporter-ibl-clearcoat",
     "GltfImporter-ibl-metallic-roughness",
+    "GltfImporter-ibl-sheen",
     "GltfImporter-interpolation",
     "GltfImporter-morphing",
     "GltfImporter-multiUV",
