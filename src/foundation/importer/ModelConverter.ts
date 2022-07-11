@@ -1029,6 +1029,7 @@ export class ModelConverter {
         ),
         isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
         isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
+        isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
         alphaMode,
         useTangentAttribute,
         useNormalTexture,
@@ -2297,6 +2298,8 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_volume(materialJson, material, gltfModel);
 
   setup_KHR_materials_sheen(materialJson, material, gltfModel);
+
+  setup_KHR_materials_specular(materialJson, material, gltfModel);
 
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
