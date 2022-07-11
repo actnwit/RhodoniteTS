@@ -303,7 +303,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
 
 #ifdef RN_USE_SHEEN
   vec3 sheen = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
-  vec3 color = base + sheen * albedoSheenScalingNdotV;
+  vec3 color = sheen + base * albedoSheenScalingNdotV;
 #else
   vec3 color = base;
 #endif
