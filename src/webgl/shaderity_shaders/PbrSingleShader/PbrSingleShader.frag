@@ -238,7 +238,7 @@ vec3 sheenIBL(float NdotV, float sheenPerceptualRoughness, vec3 sheenColor, vec4
   float lod = (sheenPerceptualRoughness * (mipCount - 1.0));
 
   vec2 sheenLutUV = vec2(NdotV, sheenPerceptualRoughness);
-  float brdf = texture(u_sheenLutTexture, sheenLutUV).g;
+  float brdf = texture(u_sheenLutTexture, sheenLutUV).b;
   vec3 sheenLight = get_radiance(reflection, lod, hdriFormat);
   float IBLSpecularContribution = iblParameter.z;
   sheenLight *= IBLSpecularContribution;
