@@ -159,6 +159,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
 
+    AbstractMaterialContent.initDefaultTextures();
   }
 
   get shaderFunctionName() {

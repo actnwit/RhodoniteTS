@@ -109,6 +109,7 @@ function createPbrUberMaterial({
     (isClearCoat ? '+clearcoat' : '') +
     (isTransmission ? '+transmission' : '') +
     (isVolume ? '+volume' : '') +
+    (isSheen ? '+sheen' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (useNormalTexture ? '' : '-normalTexture') +
     '_alpha_' +
@@ -255,7 +256,7 @@ function createPbrUberMaterial({
       soloDatum: false,
       initialValue: [
         textureSlotIdx++,
-        AbstractMaterialContent.dummyBlackTexture,
+        AbstractMaterialContent.dummyWhiteTexture,
       ],
       min: 0,
       max: Number.MAX_VALUE,
@@ -270,7 +271,7 @@ function createPbrUberMaterial({
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [
         textureSlotIdx++,
-        AbstractMaterialContent.dummyBlackTexture,
+        AbstractMaterialContent.dummyWhiteTexture,
       ],
       min: 0,
       max: Number.MAX_VALUE,
