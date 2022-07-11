@@ -2509,3 +2509,51 @@ function setup_KHR_materials_sheen(
     }
   }
 }
+
+function setup_KHR_materials_specular(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_specular = materialJson?.extensions?.KHR_materials_specular;
+  if (Is.exist(KHR_materials_specular)) {
+    const specularFactor = Is.exist(KHR_materials_specular.specularFactor)
+      ? KHR_materials_specular.specularFactor
+      : [0.0, 0.0, 0.0];
+    material.setParameter(
+      ShaderSemantics.SpecularFactor,
+      Vector3.fromCopyArray3(specularFactor)
+    );
+    const specularTexture = KHR_materials_specular.specularTexture;
+    if (specularTexture != null) {
+      const rnSpecularTexture = ModelConverter._createTexture(
+        specularTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.SpecularTexture,
+        rnSpecularTexture
+      );
+    }
+    const SpecularColorFactor = Is.exist(
+      KHR_materials_specular.SpecularColorFactor
+    )
+      ? KHR_materials_specular.SpecularColorFactor
+      : 0.0;
+    material.setParameter(
+      ShaderSemantics.SpecularColorFactor,
+      SpecularColorFactor
+    );
+    const SpecularColorTexture = KHR_materials_specular.SpecularColorTexture;
+    if (SpecularColorTexture != null) {
+      const rnSpecularColorTexture = ModelConverter._createTexture(
+        SpecularColorTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.SpecularColorTexture,
+        rnSpecularColorTexture
+      );
+    }
+  }
+}
