@@ -394,6 +394,7 @@ export class System {
     });
 
     // this.detectComponentMethods();
+    await AbstractMaterialContent.initDefaultTextures();
 
     return gl;
   }

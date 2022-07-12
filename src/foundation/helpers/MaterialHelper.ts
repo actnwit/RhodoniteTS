@@ -236,13 +236,12 @@ function createPbrUberMaterial({
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
-      soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [
         textureSlotIdx++,
         AbstractMaterialContent.dummyWhiteTexture,
       ],
-      min: -Number.MAX_VALUE,
+      min: 0,
       max: Number.MAX_VALUE,
     });
   }
