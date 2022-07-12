@@ -69,12 +69,12 @@ uniform float u_ior; // initialValue=1.5
 #endif
 
 #ifdef RN_USE_SHEEN
-  uniform vec3 u_sheenColorFactor; // initialValue(0,0,0)
+  uniform vec3 u_sheenColorFactor; // initialValue=(0,0,0)
   uniform float u_sheenRoughnessFactor; // initialValue=(0)
 #endif
 
 #ifdef RN_USE_SPECULAR
-  uniform float u_specularFactor; // initialValue(1.0)
+  uniform float u_specularFactor; // initialValue=(1.0)
   uniform vec3 u_specularColorFactor; // initialValue=(1,1,1)
 #endif
 
