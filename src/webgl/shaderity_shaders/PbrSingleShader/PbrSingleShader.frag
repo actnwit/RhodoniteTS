@@ -72,6 +72,11 @@ uniform bool u_inverseEnvironment; // initialValue=true
   uniform float u_sheenRoughnessFactor; // initialValue=(0)
 #endif
 
+#ifdef RN_USE_SPECULAR
+  uniform float u_specularFactor; // initialValue(1.0)
+  uniform vec3 u_specularColorFactor; // initialValue=(1,1,1)
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -449,9 +454,26 @@ void main ()
   metallic = clamp(metallic, 0.0, 1.0);
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
-  // F0
-  vec3 diffuseMatAverageF0 = vec3(0.04);
-  vec3 F0 = mix(diffuseMatAverageF0, baseColor.rgb, metallic);
+#ifdef RN_USE_SPECULAR
+  vec3 specularTexture = texture(u_specularTexture, baseColorTexUv).a;
+  float specular = get_specularFactor(materialSID, 0) * specularTexture;
+  vec3 specularColorTexture = srgbToLinear(texture(u_specularTexture, baseColorTexUv).rgb);
+  vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
+#else
+  float specular = 1.0;
+  vec3 specularColor = vec3(1.0, 1.0, 1.0);
+#endif
+
+  // F0, F90
+  float ior = 1.5;
+  float outsideIor = 1.0;
+  vec3 dielectricSpecularF0 = min(
+    ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
+    vec3(1.0)
+    ) * specular;
+  vec3 dielectricSpecularF90 = vec3(specular);
+  vec3 F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
+  vec3 F90 = mix(dielectricSpecularF90, vec3(1.0), metallic);
 
   // Albedo
   vec3 black = vec3(0.0);
@@ -515,7 +537,7 @@ void main ()
     // Fresnel
     vec3 halfVector = normalize(light.direction + viewDirection);
     float VdotH = dot(viewDirection, halfVector);
-    vec3 F = fresnel(F0, VdotH);
+    vec3 F = fresnel(F0, F90, VdotH);
 
     float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
