@@ -43,6 +43,7 @@ uniform int u_occlusionTexcoordIndex; // initialValue=0
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
 uniform bool u_inverseEnvironment; // initialValue=true
+uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_NORMAL_TEXTURE
   uniform sampler2D u_normalTexture; // initialValue=(2,black)
@@ -271,7 +272,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, f
 vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
   float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
-  float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV)
+  float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
@@ -286,7 +287,6 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
     perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection);
 
 #ifdef RN_USE_TRANSMISSION
-  float ior = 1.5;
   vec3 refractedRay = getVolumeTransmissionRay(geomNormal_inWorld, viewDirection, thickness, ior);
   vec3 refractedRayFromVPosition = v_position_inWorld + refractedRay;
   vec4 ndcPoint = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayFromVPosition, 1.0);
@@ -455,7 +455,7 @@ void main ()
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
 #ifdef RN_USE_SPECULAR
-  vec3 specularTexture = texture(u_specularTexture, baseColorTexUv).a;
+  float specularTexture = texture(u_specularTexture, baseColorTexUv).a;
   float specular = get_specularFactor(materialSID, 0) * specularTexture;
   vec3 specularColorTexture = srgbToLinear(texture(u_specularTexture, baseColorTexUv).rgb);
   vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
@@ -465,7 +465,7 @@ void main ()
 #endif
 
   // F0, F90
-  float ior = 1.5;
+  float ior = get_ior(materialSID, 0);
   float outsideIor = 1.0;
   vec3 dielectricSpecularF0 = min(
     ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
@@ -546,7 +546,6 @@ void main ()
     vec3 pureDiffuse = (vec3(1.0) - F) * diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
-    float ior = 1.5;
     vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
     Light transmittedLightFromUnderSurface = light;
     transmittedLightFromUnderSurface.pointToLight -= refractionVector;
@@ -604,7 +603,7 @@ void main ()
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV);
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV, ior);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);

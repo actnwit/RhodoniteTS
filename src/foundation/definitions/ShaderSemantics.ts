@@ -348,6 +348,7 @@ const SpecularFactor = new ShaderSemanticsClass({str: 'specularFactor'});
 const SpecularTexture = new ShaderSemanticsClass({str: 'specularTexture'});
 const SpecularColorFactor = new ShaderSemanticsClass({str: 'specularColorFactor'});
 const SpecularColorTexture = new ShaderSemanticsClass({str: 'specularColorTexture'});
+const Ior = new ShaderSemanticsClass({str: 'ior'});
 
 const typeList = [
   WorldMatrix,
@@ -448,6 +449,7 @@ const typeList = [
   SpecularTexture,
   SpecularColorFactor,
   SpecularColorTexture,
+  Ior,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -673,4 +675,5 @@ export const ShaderSemantics = Object.freeze({
   SpecularTexture,
   SpecularColorFactor,
   SpecularColorTexture,
+  Ior,
 });
