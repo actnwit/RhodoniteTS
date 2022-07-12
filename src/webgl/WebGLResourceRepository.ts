@@ -129,17 +129,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     webglOption?: WebGLContextAttributes,
     fallback = true
   ) {
-    let gl: WebGL2RenderingContext | WebGLRenderingContext;
-    if (version === 2) {
-      gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
-      if (fallback && Is.not.exist(gl)) {
-        gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
-        console.warn('WebGL2 Not Supported. Fallback to WebGL1.');
-        return gl;
-      }
-    } else {
-      gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext;
-    }
+    const gl = canvas.getContext(
+      'webgl2',
+      webglOption
+    ) as WebGL2RenderingContext;
     this.addWebGLContext(gl, canvas, asCurrent, isDebug);
 
     if (MiscUtil.isSafari()) {
@@ -1045,12 +1038,6 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
           this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
           4
         );
-      } else if (this.__glw!.webgl1ExtTFA) {
-        gl.samplerParameteri(
-          sampler,
-          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
-          4
-        );
       }
     }
 
@@ -1114,76 +1101,51 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       imageData instanceof HTMLCanvasElement ||
       imageData instanceof HTMLVideoElement
     ) {
-      if (isWebGL2) {
-        const gl = this.__glw!.getRawContextAsWebGL2();
-        // const levels = Math.max(Math.log2(width), Math.log2(height));
-        const levels = generateMipmap
-          ? Math.max(Math.log2(width), Math.log2(height))
-          : 1;
-        gl.texStorage2D(
-          GL_TEXTURE_2D,
-          levels,
-          internalFormat.index,
-          width,
-          height
-        );
-        gl.texSubImage2D(
-          gl.TEXTURE_2D,
-          0,
-          0,
-          0,
-          format.index,
-          type.index,
-          imageData
-        );
-      } else {
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          level,
-          TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
-          format.index,
-          type.index,
-          imageData
-        );
-      }
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      // const levels = Math.max(Math.log2(width), Math.log2(height));
+      const levels = generateMipmap
+        ? Math.max(Math.log2(width), Math.log2(height))
+        : 1;
+      gl.texStorage2D(
+        GL_TEXTURE_2D,
+        levels,
+        internalFormat.index,
+        width,
+        height
+      );
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        format.index,
+        type.index,
+        imageData
+      );
     } else {
-      if (isWebGL2) {
-        const gl = this.__glw!.getRawContextAsWebGL2();
-        // const levels = Math.max(Math.log2(width), Math.log2(height));
-        const levels = generateMipmap
-          ? Math.max(Math.log2(width), Math.log2(height))
-          : 1;
-        gl.texStorage2D(
-          GL_TEXTURE_2D,
-          levels,
-          internalFormat.index,
-          width,
-          height
-        );
-        gl.texSubImage2D(
-          gl.TEXTURE_2D,
-          0,
-          0,
-          0,
-          width,
-          height,
-          format.index,
-          type.index,
-          imageData as any as ArrayBufferView
-        );
-      } else {
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          level,
-          TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
-          width,
-          height,
-          border,
-          format.index,
-          type.index,
-          imageData
-        );
-      }
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      // const levels = Math.max(Math.log2(width), Math.log2(height));
+      const levels = generateMipmap
+        ? Math.max(Math.log2(width), Math.log2(height))
+        : 1;
+      gl.texStorage2D(
+        GL_TEXTURE_2D,
+        levels,
+        internalFormat.index,
+        width,
+        height
+      );
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        width,
+        height,
+        format.index,
+        type.index,
+        imageData as any as ArrayBufferView
+      );
     }
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
@@ -1198,19 +1160,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
             this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
             4
           );
-        } else if (this.__glw!.webgl1ExtTFA) {
-          gl.texParameteri(
-            gl.TEXTURE_2D,
-            this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
-            4
-          );
         }
-      } else if (this.__glw!.webgl1ExtTFA) {
-        gl.texParameteri(
-          gl.TEXTURE_2D,
-          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
-          1
-        );
       }
 
       const isGenerateMipmap = generateMipmap && height !== 1 && width !== 1;
@@ -1285,19 +1235,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
             this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
             4
           );
-        } else if (this.__glw!.webgl1ExtTFA) {
-          gl.texParameteri(
-            gl.TEXTURE_2D,
-            this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
-            4
-          );
         }
-      } else if (this.__glw!.webgl1ExtTFA) {
-        gl.texParameteri(
-          gl.TEXTURE_2D,
-          this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT,
-          1
-        );
       }
     }
 
@@ -1624,17 +1562,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
     if (isMSAA) {
-      if (this.__glw!.isWebGL2) {
-        (gl as WebGL2RenderingContext).renderbufferStorageMultisample(
-          gl.RENDERBUFFER,
-          sampleCountMSAA,
-          (gl as any)[internalFormat.str],
-          width,
-          height
-        );
-      } else {
-        console.error('MSAA is unavailable in this webgl context');
-      }
+      (gl as WebGL2RenderingContext).renderbufferStorageMultisample(
+        gl.RENDERBUFFER,
+        sampleCountMSAA,
+        (gl as any)[internalFormat.str],
+        width,
+        height
+      );
     } else {
       gl.renderbufferStorage(
         gl.RENDERBUFFER,
@@ -1655,11 +1589,14 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
   setDrawTargets(renderPass: RenderPass) {
     const framebuffer = renderPass.getFramebuffer();
     if (framebuffer) {
-      const renderBufferTargetEnums = renderPass.getRenderTargetColorAttachments();
+      const renderBufferTargetEnums =
+        renderPass.getRenderTargetColorAttachments();
       if (Is.exist(renderBufferTargetEnums)) {
         this.__glw!.drawBuffers(renderBufferTargetEnums);
       } else {
-        this.__glw!.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
+        this.__glw!.drawBuffers(
+          framebuffer.colorAttachmentsRenderBufferTargets
+        );
       }
     } else {
       this.__glw!.drawBuffers([RenderBufferTarget.Back]);
@@ -1728,13 +1665,11 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
     if (
-      // if WebGL2
-      this.__glw!.isWebGL2 &&
       // if DEPTH_COMPONENT
-      (internalFormat.index === 6402 ||
-        internalFormat.index === 33189 ||
-        internalFormat.index === 33190 ||
-        internalFormat.index === 33191)
+      internalFormat.index === 6402 ||
+      internalFormat.index === 33189 ||
+      internalFormat.index === 33190 ||
+      internalFormat.index === 33191
     ) {
       gl.texParameteri(
         gl.TEXTURE_2D,
@@ -1743,31 +1678,17 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       );
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
     }
-    if (this.__glw!.isWebGL2) {
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        level,
-        internalFormat.index,
-        width,
-        height,
-        0,
-        format.index,
-        ComponentType.UnsignedByte.index,
-        null
-      );
-    } else {
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        level,
-        TextureParameter.migrateToWebGL1InternalFormat(internalFormat).index,
-        width,
-        height,
-        0,
-        format.index,
-        type.index,
-        null
-      );
-    }
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      level,
+      internalFormat.index,
+      width,
+      height,
+      0,
+      format.index,
+      ComponentType.UnsignedByte.index,
+      null
+    );
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
@@ -1840,32 +1761,18 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       i: Index
     ) => {
       if ((image as any).hdriFormat === HdriFormat.HDR_LINEAR) {
-        if (this.__glw!.isWebGL2) {
-          const gl = this.__glw!.getRawContextAsWebGL2();
-          gl.texImage2D(
-            cubeMapSide,
-            i,
-            gl.RGB32F,
-            (image as any).width,
-            (image as any).height,
-            0,
-            gl.RGB,
-            gl.FLOAT,
-            (image as any).dataFloat
-          );
-        } else {
-          gl.texImage2D(
-            cubeMapSide,
-            i,
-            gl.RGB,
-            (image as any).width,
-            (image as any).height,
-            0,
-            gl.RGB,
-            gl.FLOAT,
-            (image as any).dataFloat
-          );
-        }
+        const gl = this.__glw!.getRawContextAsWebGL2();
+        gl.texImage2D(
+          cubeMapSide,
+          i,
+          gl.RGB32F,
+          (image as any).width,
+          (image as any).height,
+          0,
+          gl.RGB,
+          gl.FLOAT,
+          (image as any).dataFloat
+        );
       } else if (
         image instanceof HTMLImageElement ||
         image instanceof HTMLCanvasElement
@@ -2303,37 +2210,21 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   ) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
-    const isWebGL2 = this.__glw!.isWebGL2;
-
     this.__glw!.bindTexture2D(0, texture);
 
-    if (isWebGL2 || ArrayBuffer.isView(textureData)) {
-      const gl = this.__glw!.getRawContextAsWebGL2();
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        width,
-        height,
-        format.index,
-        type.index,
-        textureData as any as ArrayBufferView
-      );
-      gl.generateMipmap(gl.TEXTURE_2D);
-    } else {
-      const gl = this.__glw!.getRawContextAsWebGL1();
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        format.index,
-        type.index,
-        textureData
-      );
-      gl.generateMipmap(gl.TEXTURE_2D);
-    }
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      width,
+      height,
+      format.index,
+      type.index,
+      textureData as any as ArrayBufferView
+    );
+    gl.generateMipmap(gl.TEXTURE_2D);
     this.__glw!.unbindTexture2D(0);
   }
 
@@ -2359,35 +2250,21 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   ) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
-    const isWebGL2 = this.__glw!.isWebGL2;
 
     this.__glw!.bindTexture2D(0, texture);
 
-    if (isWebGL2 || ArrayBuffer.isView(textureData)) {
-      const gl = this.__glw!.getRawContextAsWebGL2();
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        level,
-        0,
-        0,
-        width,
-        height,
-        format.index,
-        type.index,
-        textureData as any as ArrayBufferView
-      );
-    } else {
-      const gl = this.__glw!.getRawContextAsWebGL1();
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        level,
-        0,
-        0,
-        format.index,
-        type.index,
-        textureData
-      );
-    }
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      level,
+      0,
+      0,
+      width,
+      height,
+      format.index,
+      type.index,
+      textureData as any as ArrayBufferView
+    );
     this.__glw!.unbindTexture2D(0);
   }
 
@@ -2597,26 +2474,20 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
 
   getGlslRenderTargetBeginString(renderTargetNumber: number) {
     let text = '';
-    if (this.__glw!.isWebGL2) {
-      for (let i = 0; i < renderTargetNumber; i++) {
-        text += `layout(location = ${i}) out vec4 rt${i};`;
-      }
-    } else {
-      for (let i = 0; i < renderTargetNumber; i++) {
-        text += `vec4 rt${i};`;
-      }
+    for (let i = 0; i < renderTargetNumber; i++) {
+      text += `layout(location = ${i}) out vec4 rt${i};`;
     }
 
     return text;
   }
 
   getGlslRenderTargetEndString(renderTargetNumber: number) {
-    let text = '';
-    if (Is.false(this.__glw!.isWebGL2)) {
-      for (let i = 0; i < renderTargetNumber; i++) {
-        text += `gl_FragData[${i}] = rt${i};`;
-      }
-    }
+    const text = '';
+    // if (Is.false(this.__glw!.isWebGL2)) {
+    //   for (let i = 0; i < renderTargetNumber; i++) {
+    //     text += `gl_FragData[${i}] = rt${i};`;
+    //   }
+    // }
 
     return text;
   }

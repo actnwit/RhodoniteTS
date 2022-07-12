@@ -603,47 +603,25 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
 
       // write data
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(
-          floatDataTextureBuffer!,
-          {
-            level: 0,
-            internalFormat: TextureParameter.RGBA32F,
-            width: MemoryManager.bufferWidthLength,
-            height: MemoryManager.bufferHeightLength,
-            border: 0,
-            format: PixelFormat.RGBA,
-            type: ComponentType.Float,
-            magFilter: TextureParameter.Nearest,
-            minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat,
-            wrapT: TextureParameter.Repeat,
-            generateMipmap: false,
-            anisotropy: false,
-            isPremultipliedAlpha: true,
-          }
-        );
-      } else {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(
-          floatDataTextureBuffer!,
-          {
-            level: 0,
-            internalFormat: TextureParameter.RGBA8,
-            width: MemoryManager.bufferWidthLength,
-            height: MemoryManager.bufferHeightLength,
-            border: 0,
-            format: PixelFormat.RGBA,
-            type: ComponentType.Float,
-            magFilter: TextureParameter.Nearest,
-            minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat,
-            wrapT: TextureParameter.Repeat,
-            generateMipmap: false,
-            anisotropy: false,
-            isPremultipliedAlpha: true,
-          }
-        );
-      }
+      this.__dataTextureUid = this.__webglResourceRepository.createTexture(
+        floatDataTextureBuffer!,
+        {
+          level: 0,
+          internalFormat: TextureParameter.RGBA32F,
+          width: MemoryManager.bufferWidthLength,
+          height: MemoryManager.bufferHeightLength,
+          border: 0,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+          magFilter: TextureParameter.Nearest,
+          minFilter: TextureParameter.Nearest,
+          wrapS: TextureParameter.Repeat,
+          wrapT: TextureParameter.Repeat,
+          generateMipmap: false,
+          anisotropy: false,
+          isPremultipliedAlpha: true,
+        }
+      );
     }
   }
 
