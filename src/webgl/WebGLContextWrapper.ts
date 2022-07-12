@@ -399,21 +399,6 @@ export class WebGLContextWrapper {
   }
 
   bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture) {
-    if (this.__isDebugMode) {
-      if (texture) {
-        if ((texture as any)._bound_as === 'CUBE_MAP') {
-          debugger;
-        }
-        (texture as any)._bound_as = '2D';
-      }
-    }
-
-    if (
-      !Config.noWebGLTex2DStateCache &&
-      this.__activeTextures2D[activeTextureIndex] === texture
-    ) {
-      return;
-    }
 
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
@@ -422,18 +407,6 @@ export class WebGLContextWrapper {
   }
 
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
-    if (this.__isDebugMode) {
-      if (texture) {
-        if ((texture as any)._bound_as === '2D') {
-          debugger;
-        }
-        (texture as any)._bound_as = 'CUBE_MAP';
-      }
-    }
-
-    if (this.__activeTexturesCube[activeTextureIndex] === texture) {
-      return;
-    }
 
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);
