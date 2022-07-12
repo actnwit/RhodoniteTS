@@ -24,6 +24,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isTransmission,
     isVolume,
     isSheen,
+    isSpecular,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,
@@ -39,6 +40,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isTransmission?: boolean;
     isVolume?: boolean;
     isSheen?: boolean;
+    isSpecular?: boolean;
     alphaMode: AlphaModeEnum;
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
@@ -124,6 +126,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
     if (isSheen) {
       this.__definitions += '#define RN_USE_SHEEN\n';
+    }
+    if (isSpecular) {
+      this.__definitions += '#define RN_USE_SPECULAR\n';
     }
     if (useTangentAttribute) {
       this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';

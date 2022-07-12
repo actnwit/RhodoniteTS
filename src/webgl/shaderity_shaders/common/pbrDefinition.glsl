@@ -81,8 +81,8 @@ float v_SmithGGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
 }
 
 // The Schlick Approximation to Fresnel
-vec3 fresnel(vec3 f0, float VH) {
-  return vec3(f0) + (vec3(1.0) - f0) * pow(1.0 - VH, 5.0);
+vec3 fresnel(vec3 f0, vec3 f90, float VH) {
+  return f0 + (f90 - f0) * pow(1.0 - VH, 5.0);
 }
 
 vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness) {

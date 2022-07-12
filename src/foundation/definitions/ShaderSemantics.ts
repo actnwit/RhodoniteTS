@@ -151,12 +151,6 @@ const DiffuseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const DiffuseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'diffuseColorTexture',
 });
-const SpecularColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'specularColorFactor',
-});
-const SpecularColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'specularColorTexture',
-});
 const Shininess: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'shininess',
 });
@@ -350,6 +344,11 @@ const envRotation = new ShaderSemanticsClass({str: 'envRotation'});
 const EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
 const VrState = new ShaderSemanticsClass({str: 'vrState'});
 const EnableLinearToSrgb = new ShaderSemanticsClass({str: 'enableLinearToSrgb'});
+const SpecularFactor = new ShaderSemanticsClass({str: 'specularFactor'});
+const SpecularTexture = new ShaderSemanticsClass({str: 'specularTexture'});
+const SpecularColorFactor = new ShaderSemanticsClass({str: 'specularColorFactor'});
+const SpecularColorTexture = new ShaderSemanticsClass({str: 'specularColorTexture'});
+const Ior = new ShaderSemanticsClass({str: 'ior'});
 
 const typeList = [
   WorldMatrix,
@@ -379,8 +378,6 @@ const typeList = [
   Wireframe,
   DiffuseColorFactor,
   DiffuseColorTexture,
-  SpecularColorFactor,
-  SpecularColorTexture,
   Shininess,
   ShadingModel,
   SkinningMode,
@@ -448,6 +445,11 @@ const typeList = [
   EnvHdriFormat,
   VrState,
   EnableLinearToSrgb,
+  SpecularFactor,
+  SpecularTexture,
+  SpecularColorFactor,
+  SpecularColorTexture,
+  Ior,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -600,8 +602,6 @@ export const ShaderSemantics = Object.freeze({
   Wireframe,
   DiffuseColorFactor,
   DiffuseColorTexture,
-  SpecularColorFactor,
-  SpecularColorTexture,
   Shininess,
   ShadingModel,
   SkinningMode,
@@ -671,4 +671,9 @@ export const ShaderSemantics = Object.freeze({
   EnvHdriFormat,
   VrState,
   EnableLinearToSrgb,
+  SpecularFactor,
+  SpecularTexture,
+  SpecularColorFactor,
+  SpecularColorTexture,
+  Ior,
 });

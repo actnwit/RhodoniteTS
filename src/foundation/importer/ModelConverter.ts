@@ -1029,6 +1029,7 @@ export class ModelConverter {
         ),
         isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
         isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
+        isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
         alphaMode,
         useTangentAttribute,
         useNormalTexture,
@@ -2298,6 +2299,10 @@ function setupPbrMetallicRoughness(
 
   setup_KHR_materials_sheen(materialJson, material, gltfModel);
 
+  setup_KHR_materials_specular(materialJson, material, gltfModel);
+
+  setup_KHR_materials_ior(materialJson, material, gltfModel);
+
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
     baseColorTexture,
@@ -2507,5 +2512,62 @@ function setup_KHR_materials_sheen(
         rnSheenRoughnessTexture
       );
     }
+  }
+}
+
+function setup_KHR_materials_specular(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_specular = materialJson?.extensions?.KHR_materials_specular;
+  if (Is.exist(KHR_materials_specular)) {
+    const specularFactor = Is.exist(KHR_materials_specular.specularFactor)
+      ? KHR_materials_specular.specularFactor
+      : 1.0;
+    material.setParameter(ShaderSemantics.SpecularFactor, specularFactor);
+    const specularTexture = KHR_materials_specular.specularTexture;
+    if (specularTexture != null) {
+      const rnSpecularTexture = ModelConverter._createTexture(
+        specularTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.SpecularTexture,
+        rnSpecularTexture
+      );
+    }
+    const SpecularColorFactor = Is.exist(
+      KHR_materials_specular.SpecularColorFactor
+    )
+      ? KHR_materials_specular.SpecularColorFactor
+      : [1.0, 1.0, 1.0];
+    material.setParameter(
+      ShaderSemantics.SpecularColorFactor,
+      Vector3.fromCopyArray3(SpecularColorFactor)
+    );
+    const SpecularColorTexture = KHR_materials_specular.SpecularColorTexture;
+    if (SpecularColorTexture != null) {
+      const rnSpecularColorTexture = ModelConverter._createTexture(
+        SpecularColorTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.SpecularColorTexture,
+        rnSpecularColorTexture
+      );
+    }
+  }
+}
+
+function setup_KHR_materials_ior(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_ior = materialJson?.extensions?.KHR_materials_ior;
+  if (Is.exist(KHR_materials_ior)) {
+    const ior = Is.exist(KHR_materials_ior.ior) ? KHR_materials_ior.ior : 1.5;
+    material.setParameter(ShaderSemantics.Ior, ior);
   }
 }
