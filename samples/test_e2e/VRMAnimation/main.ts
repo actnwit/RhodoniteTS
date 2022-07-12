@@ -17,7 +17,7 @@ declare const window: any;
   Rn.Config.isUboEnabled = false;
 
   await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL1,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 

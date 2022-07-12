@@ -11,7 +11,7 @@ let renderPassMain: Rn.RenderPass;
 (async () => {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   const gl = await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.Uniform,
     canvas,
     webglOption: {antialias: false},
   });

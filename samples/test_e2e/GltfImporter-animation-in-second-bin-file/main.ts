@@ -6,7 +6,7 @@ declare const window: any;
 
 (async () => {
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 

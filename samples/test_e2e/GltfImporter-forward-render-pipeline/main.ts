@@ -9,7 +9,7 @@ declare const window: any;
   Rn.Config.isUboEnabled = false;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL2,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas,
   });
 

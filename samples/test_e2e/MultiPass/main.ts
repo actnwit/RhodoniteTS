@@ -9,7 +9,7 @@ declare const Stats: any;
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
   Promise.all(promises).then(async () => {
     const gl = await Rn.System.init({
-      approach: Rn.ProcessApproach.UniformWebGL1,
+      approach: Rn.ProcessApproach.Uniform,
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });
 

@@ -11,7 +11,7 @@ declare const window: any;
   Rn.Config.dataTextureHeight = Math.pow(2, 9);
 
   await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL1,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: document.getElementById('world') as HTMLCanvasElement,
     memoryUsageOrder: {
       cpuGeneric: 1.3,

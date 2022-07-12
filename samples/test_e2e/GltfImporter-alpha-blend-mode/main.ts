@@ -7,7 +7,7 @@ document.body.appendChild(p);
   const world = document.getElementById('world') as HTMLCanvasElement;
 
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.Uniform,
     canvas: world,
     rnWebGLDebug: true,
   });
