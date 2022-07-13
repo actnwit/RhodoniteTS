@@ -31,7 +31,7 @@ export class UniformDataShader extends GLSLShader {
     void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
       this.__componentType
     )} outValue) {
-#ifdef RN_IS_FASTEST_MODE
+#ifdef RN_IS_DATATEXTURE_MODE
   float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 #else
   float materialSID = u_materialSID;
@@ -50,7 +50,7 @@ outValue = get_${this.__variableName}(materialSID, 0);
     void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
       this.__componentType
     )} outValue) {
-#ifdef RN_IS_FASTEST_MODE
+#ifdef RN_IS_DATATEXTURE_MODE
   float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 #else
   float materialSID = u_materialSID;

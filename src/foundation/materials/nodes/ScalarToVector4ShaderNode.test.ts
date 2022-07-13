@@ -95,7 +95,7 @@ test('ScalarToVector4 works correctly 1', async () => {
         }
 
         void main() {
-        #ifdef RN_IS_FASTEST_MODE
+        #ifdef RN_IS_DATATEXTURE_MODE
       float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 
       int lightNumber = 0;

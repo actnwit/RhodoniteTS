@@ -6,14 +6,14 @@ uniform highp sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{widthOfDataTexture} */
 /* shaderity: @{heightOfDataTexture} */
 
-#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE) && defined(RN_IS_UBO_ENABLED)
+#if defined(GLSL_ES3) && defined(RN_IS_DATATEXTURE_MODE) && defined(RN_IS_UBO_ENABLED)
 /* shaderity: @{dataUBOVec4Size} */
 /* shaderity: @{dataUBODefinition} */
 #endif
 
 
 highp vec4 fetchElement(int vec4_idx) {
-#if defined(GLSL_ES3) && defined(RN_IS_FASTEST_MODE) && defined(RN_IS_UBO_ENABLED)
+#if defined(GLSL_ES3) && defined(RN_IS_DATATEXTURE_MODE) && defined(RN_IS_UBO_ENABLED)
   if (vec4_idx < dataUBOVec4Size) {
     return fetchVec4FromVec4Block(vec4_idx);
   } else {

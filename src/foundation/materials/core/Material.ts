@@ -495,7 +495,7 @@ export class Material extends RnObject {
     }
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
     if (ProcessApproach.isFastestApproach(System.processApproach)) {
-      definitions += '#define RN_IS_FASTEST_MODE\n';
+      definitions += '#define RN_IS_DATATEXTURE_MODE\n';
     } else {
       definitions += '#define RN_IS_UNIFORM_MODE\n';
     }
