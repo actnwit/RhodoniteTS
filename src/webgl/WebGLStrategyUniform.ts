@@ -154,7 +154,7 @@ float get_isVisible(float instanceId) {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material == null) {
+      if (material == null || material.isEmptyMaterial()) {
         continue;
       }
 
