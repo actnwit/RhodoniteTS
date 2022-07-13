@@ -143,7 +143,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material == null || material.isEmptyMaterial()) {
+      if (material == null) {
         continue;
       }
 

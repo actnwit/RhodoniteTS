@@ -374,7 +374,6 @@ export class RenderPass extends RnObject {
   }
 
   private __setupMaterial(material: Material) {
-    if (material.isEmptyMaterial()) return;
 
     const webglRenderingStrategy = this.__setWebglRenderingStrategyIfNotYet(
       this.__webglRenderingStrategy

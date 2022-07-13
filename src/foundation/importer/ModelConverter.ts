@@ -599,9 +599,7 @@ export class ModelConverter {
           primitive.materialObject!
         );
 
-        if (material.isEmptyMaterial() === false) {
-          ModelConverter.setDefaultTextures(material, gltfModel);
-        }
+        ModelConverter.setDefaultTextures(material, gltfModel);
 
         // indices
         let indicesRnAccessor;

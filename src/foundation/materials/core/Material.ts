@@ -846,14 +846,6 @@ export class Material extends RnObject {
   /// Getters
   ///
 
-  isEmptyMaterial(): boolean {
-    if (this.__materialContent === undefined) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   isBlend() {
     if (
       this.alphaMode === AlphaMode.Translucent ||
