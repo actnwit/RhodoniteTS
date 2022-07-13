@@ -46,7 +46,7 @@ const load = async function () {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
   const gl = await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.Uniform,
     canvas,
   });
   const expression = new Rn.Expression();

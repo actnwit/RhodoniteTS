@@ -21,7 +21,7 @@ declare global {
   // prepare memory
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
   const gl = await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL1,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: rnCanvasElement,
   });
 

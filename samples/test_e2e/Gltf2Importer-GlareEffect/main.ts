@@ -22,7 +22,7 @@ declare const window: any;
   // prepare memory
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL2,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: rnCanvasElement,
   });
 

@@ -582,7 +582,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           initialValue: Scalar.fromCopyNumber(0),
           min: 0,
           max: Config.maxVertexMorphNumberInShader,
-          needUniformInFastest: true,
+          needUniformInDataTextureMode: true,
         },
         {
           semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
@@ -597,7 +597,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           ),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
-          needUniformInFastest: true,
+          needUniformInDataTextureMode: true,
         },
         {
           semantic: ShaderSemantics.MorphWeights,
@@ -612,7 +612,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           ),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
-          needUniformInFastest: true,
+          needUniformInDataTextureMode: true,
         }
       );
     }

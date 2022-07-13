@@ -103,7 +103,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         initialValue: new VectorN(new Float32Array(6)),
         min: 0,
         max: 1,
-        needUniformInFastest: true,
+        needUniformInDataTextureMode: true,
       },
       {
         semantic: SynthesizeHdrMaterialContent.SynthesizeTexture0,

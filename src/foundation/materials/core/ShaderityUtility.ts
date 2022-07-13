@@ -262,15 +262,15 @@ export class ShaderityUtility {
         this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
 
-    const needUniformInFastest = info.match(
-      /needUniformInFastest[\t ]*=[\t ]*(.+)[,\t ]*/
+    const needUniformInDataTextureMode = info.match(
+      /needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/
     );
-    if (needUniformInFastest) {
-      let needUniformInFastestFlg = false;
-      if (needUniformInFastest?.[1] === 'true') {
-        needUniformInFastestFlg = true;
+    if (needUniformInDataTextureMode) {
+      let needUniformInDataTextureModeFlg = false;
+      if (needUniformInDataTextureMode?.[1] === 'true') {
+        needUniformInDataTextureModeFlg = true;
       }
-      shaderSemanticsInfo.needUniformInFastest = needUniformInFastestFlg;
+      shaderSemanticsInfo.needUniformInDataTextureMode = needUniformInDataTextureModeFlg;
     }
   }
 

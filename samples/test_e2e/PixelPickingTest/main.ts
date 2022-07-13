@@ -66,7 +66,7 @@ let p: any;
   window.canvas = canvas;
 
   const gl = await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.Uniform,
     canvas,
   });
   const expression = new Rn.Expression();

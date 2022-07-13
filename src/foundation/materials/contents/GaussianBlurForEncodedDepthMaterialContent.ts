@@ -75,7 +75,7 @@ export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterial
         initialValue: new VectorN(gaussianRatio),
         min: 0,
         max: 1,
-        needUniformInFastest: true,
+        needUniformInDataTextureMode: true,
       },
       {
         semantic: GaussianBlurForEncodedDepthMaterialContent.GaussianKernelSize,

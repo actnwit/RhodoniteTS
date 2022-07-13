@@ -7,12 +7,9 @@ export class ProcessApproachClass extends EnumClass implements EnumIO {
 
   get webGLVersion() {
     switch (this) {
-      case UniformWebGL2:
-      case FastestWebGL2:
+      case Uniform:
+      case DataTexture:
         return 2;
-      case UniformWebGL1:
-      case FastestWebGL1:
-        return 1;
       default:
         return 0;
     }
@@ -25,39 +22,24 @@ const None: ProcessApproachEnum = new ProcessApproachClass({
   index: 0,
   str: 'NONE',
 });
-const UniformWebGL1: ProcessApproachEnum = new ProcessApproachClass({
+const Uniform: ProcessApproachEnum = new ProcessApproachClass({
   index: 1,
-  str: 'UNIFORM_WEBGL1',
+  str: 'UNIFORM',
 });
-const UniformWebGL2: ProcessApproachEnum = new ProcessApproachClass({
+const DataTexture: ProcessApproachEnum = new ProcessApproachClass({
   index: 2,
-  str: 'UNIFORM_WEBGL2',
-});
-const FastestWebGL1: ProcessApproachEnum = new ProcessApproachClass({
-  index: 7,
-  str: 'FASTEST_WEBGL1',
-});
-const FastestWebGL2: ProcessApproachEnum = new ProcessApproachClass({
-  index: 8,
-  str: 'FASTEST_WEBGL2',
+  str: 'DataTexture',
 });
 
-const typeList = [
-  None,
-  UniformWebGL1,
-  UniformWebGL2,
-  FastestWebGL1,
-  FastestWebGL2,
-];
+const typeList = [None, Uniform, DataTexture];
 
 function from(index: number): ProcessApproachEnum | undefined {
   return _from({typeList, index}) as ProcessApproachEnum;
 }
 
-const isFastestApproach = (processApproach: ProcessApproachEnum) => {
+const isDataTextureApproach = (processApproach: ProcessApproachEnum) => {
   switch (processApproach) {
-    case FastestWebGL1:
-    case FastestWebGL2:
+    case DataTexture:
       return true;
     default:
       return false;
@@ -66,8 +48,7 @@ const isFastestApproach = (processApproach: ProcessApproachEnum) => {
 
 const isUniformApproach = (processApproach: ProcessApproachEnum) => {
   switch (processApproach) {
-    case UniformWebGL1:
-    case UniformWebGL2:
+    case Uniform:
       return true;
     default:
       return false;
@@ -76,8 +57,8 @@ const isUniformApproach = (processApproach: ProcessApproachEnum) => {
 
 const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
   switch (processApproach) {
-    case UniformWebGL2:
-    case FastestWebGL2:
+    case Uniform:
+    case DataTexture:
       return true;
     default:
       return false;
@@ -85,12 +66,10 @@ const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
 };
 
 export const ProcessApproach = Object.freeze({
-  isFastestApproach,
+  isDataTextureApproach,
   isUniformApproach,
   None,
-  UniformWebGL1,
-  UniformWebGL2,
-  FastestWebGL1,
-  FastestWebGL2,
+  Uniform,
+  DataTexture,
   isWebGL2Approach,
 });

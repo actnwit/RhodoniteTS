@@ -72,7 +72,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
   async function load() {
     // All Rhodonite classes you need are in window.Rn object.
     await Rn.System.init({
-      approach: Rn.ProcessApproach.UniformWebGL2,
+      approach: Rn.ProcessApproach.Uniform,
       canvas: document.getElementById('world')
     });
     const entityRepository = Rn.EntityRepository.getInstance();
@@ -97,7 +97,7 @@ import Rn from 'rhodonite';
 
 async function load() {
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL2,
+    approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement
   });
 
@@ -125,7 +125,7 @@ import Rn from 'rhodonite/dist/esm/index.mjs';
 
 async function load() {
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL2,
+    approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement
   });
 

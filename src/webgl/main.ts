@@ -8,7 +8,7 @@ import {
 } from './WebGLResourceRepository';
 import { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyUniform } from './WebGLStrategyUniform';
-import { WebGLStrategyFastest } from './WebGLStrategyFastest';
+import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
@@ -16,7 +16,7 @@ const WebGL = Object.freeze({
   WebGLContextWrapper,
   WebGLResourceRepository,
   WebGLStrategyUniform,
-  WebGLStrategyFastest,
+  WebGLStrategyDataTexture,
 });
 export default WebGL;
 

@@ -11,7 +11,7 @@ declare const window: any;
   //-------------------------------
   Promise.all(promises).then(async () => {
     const gl = await Rn.System.init({
-      approach: Rn.ProcessApproach.UniformWebGL1,
+      approach: Rn.ProcessApproach.Uniform,
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });
 

@@ -22,7 +22,7 @@ import Rn from '../../../dist/esm/index.mjs';
 
   const system = Rn.System.getInstance();
   const rnCanvasElem = document.getElementById('world');
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, rnCanvasElem);
+  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.Uniform, rnCanvasElem);
 
   Rn.MeshRendererComponent.isViewFrustumCullingEnabled = false;
 

@@ -6,7 +6,7 @@ declare const window: any;
 
 (async () => {
   const gl = await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL1,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 

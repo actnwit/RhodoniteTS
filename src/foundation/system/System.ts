@@ -370,7 +370,7 @@ export class System {
       ProcessApproach.isUniformApproach(desc.approach)
     ) {
       alert(
-        'Use the FastestWebGL1/FastestWebGL2 as the argument of setProcessApproachAndCanvas method for this device.'
+        'Use the DataTexture/DataTexture as the argument of setProcessApproachAndCanvas method for this device.'
       );
     }
 

@@ -13,7 +13,7 @@ import Rn from '../../../dist/esm/index.mjs';
   // prepare memory
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL1,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: rnCanvasElement,
   });
 

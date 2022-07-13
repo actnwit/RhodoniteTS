@@ -52,8 +52,8 @@ import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo
 
 declare const spector: any;
 
-export class WebGLStrategyFastest implements WebGLStrategy {
-  private static __instance: WebGLStrategyFastest;
+export class WebGLStrategyDataTexture implements WebGLStrategy {
+  private static __instance: WebGLStrategyDataTexture;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle =
@@ -198,7 +198,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       false
     );
 
-    WebGLStrategyFastest.__globalDataRepository._setUniformLocationsForFastestModeOnly(
+    WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
       material._shaderProgramUid
     );
 
@@ -230,7 +230,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     if (info.arrayLength) {
       varIndexStr = `[${info.arrayLength}]`;
     }
-    if (info.needUniformInFastest || isTexture) {
+    if (info.needUniformInDataTextureMode || isTexture) {
       varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
     }
 
@@ -241,7 +241,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     const scalarSizeOfProperty: IndexOf4Bytes =
       info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes =
-      WebGLStrategyFastest.getOffsetOfPropertyInShader(
+      WebGLStrategyDataTexture.getOffsetOfPropertyInShader(
         isGlobalData,
         propertyIndex,
         materialTypeName
@@ -272,7 +272,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     }
 
     let firstPartOfInnerFunc = '';
-    if (!isTexture && !info.needUniformInFastest) {
+    if (!isTexture && !info.needUniformInDataTextureMode) {
       firstPartOfInnerFunc += `
 ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   int instanceId = int(_instanceId);
@@ -349,7 +349,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 }
 `;
       return str;
-    } else if (!isTexture && info.needUniformInFastest) {
+    } else if (!isTexture && info.needUniformInDataTextureMode) {
       if (!isWebGL2 && info.arrayLength) {
         return `\n${varDef}\n`;
       } else {
@@ -397,8 +397,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    WebGLStrategyFastest.__currentComponentSIDs =
-      WebGLStrategyFastest.__globalDataRepository.getValue(
+    WebGLStrategyDataTexture.__currentComponentSIDs =
+      WebGLStrategyDataTexture.__globalDataRepository.getValue(
         ShaderSemantics.CurrentComponentSIDs,
         0
       );
@@ -530,12 +530,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
       // debug
-      if (!WebGLStrategyFastest.__isDebugOperationToDataTextureBufferDone) {
+      if (!WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone) {
         MiscUtil.downloadTypedArray(
           'Rhodonite_dataTextureBuffer.bin',
           floatDataTextureBuffer
         );
-        WebGLStrategyFastest.__isDebugOperationToDataTextureBufferDone = true;
+        WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone = true;
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
@@ -603,47 +603,25 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
 
       // write data
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(
-          floatDataTextureBuffer!,
-          {
-            level: 0,
-            internalFormat: TextureParameter.RGBA32F,
-            width: MemoryManager.bufferWidthLength,
-            height: MemoryManager.bufferHeightLength,
-            border: 0,
-            format: PixelFormat.RGBA,
-            type: ComponentType.Float,
-            magFilter: TextureParameter.Nearest,
-            minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat,
-            wrapT: TextureParameter.Repeat,
-            generateMipmap: false,
-            anisotropy: false,
-            isPremultipliedAlpha: true,
-          }
-        );
-      } else {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(
-          floatDataTextureBuffer!,
-          {
-            level: 0,
-            internalFormat: TextureParameter.RGBA8,
-            width: MemoryManager.bufferWidthLength,
-            height: MemoryManager.bufferHeightLength,
-            border: 0,
-            format: PixelFormat.RGBA,
-            type: ComponentType.Float,
-            magFilter: TextureParameter.Nearest,
-            minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat,
-            wrapT: TextureParameter.Repeat,
-            generateMipmap: false,
-            anisotropy: false,
-            isPremultipliedAlpha: true,
-          }
-        );
-      }
+      this.__dataTextureUid = this.__webglResourceRepository.createTexture(
+        floatDataTextureBuffer!,
+        {
+          level: 0,
+          internalFormat: TextureParameter.RGBA32F,
+          width: MemoryManager.bufferWidthLength,
+          height: MemoryManager.bufferHeightLength,
+          border: 0,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+          magFilter: TextureParameter.Nearest,
+          minFilter: TextureParameter.Nearest,
+          wrapS: TextureParameter.Repeat,
+          wrapT: TextureParameter.Repeat,
+          generateMipmap: false,
+          anisotropy: false,
+          isPremultipliedAlpha: true,
+        }
+      );
     }
   }
 
@@ -755,7 +733,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   static getInstance() {
     if (!this.__instance) {
-      this.__instance = new WebGLStrategyFastest();
+      this.__instance = new WebGLStrategyDataTexture();
     }
 
     return this.__instance;
@@ -773,7 +751,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (webxrSystem.isWebXRMode) {
         cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
       }
-      WebGLStrategyFastest.__currentComponentSIDs!._v[
+      WebGLStrategyDataTexture.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.CameraComponentTID
       ] = cameraComponentSid;
     } else {
@@ -785,11 +763,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         ) as CameraComponent;
       }
       if (cameraComponent) {
-        WebGLStrategyFastest.__currentComponentSIDs!._v[
+        WebGLStrategyDataTexture.__currentComponentSIDs!._v[
           WellKnownComponentTIDs.CameraComponentTID
         ] = cameraComponent.componentSID;
       } else {
-        WebGLStrategyFastest.__currentComponentSIDs!._v[
+        WebGLStrategyDataTexture.__currentComponentSIDs!._v[
           WellKnownComponentTIDs.CameraComponentTID
         ] = -1;
       }
@@ -807,11 +785,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {
         index = skeletalComponent.componentSID;
       }
-      WebGLStrategyFastest.__currentComponentSIDs!._v[
+      WebGLStrategyDataTexture.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.SkeletalComponentTID
       ] = index;
     } else {
-      WebGLStrategyFastest.__currentComponentSIDs!._v[
+      WebGLStrategyDataTexture.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.SkeletalComponentTID
       ] = -1;
     }
@@ -822,10 +800,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     material: Material,
     shaderProgram: WebGLProgram
   ) {
-    WebGLStrategyFastest.__currentComponentSIDs!._v[0] = material.materialSID;
+    WebGLStrategyDataTexture.__currentComponentSIDs!._v[0] = material.materialSID;
     gl.uniform1fv(
       (shaderProgram as any).currentComponentSIDs,
-      WebGLStrategyFastest.__currentComponentSIDs!._v as Float32Array
+      WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
     );
   }
 
@@ -949,7 +927,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       gl.uniform1i((shaderProgram as any).dataTexture, 7);
       this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
-      WebGLStrategyFastest.__shaderProgram = shaderProgram;
+      WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
       firstTime = true;
     }
     if (this.__lastMaterial !== material) {
@@ -960,14 +938,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     this.__setCurrentComponentSIDsForEachPrimitive(
       gl,
       material,
-      WebGLStrategyFastest.__shaderProgram
+      WebGLStrategyDataTexture.__shaderProgram
     );
 
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
     material._setParametersToGpu({
       material: material,
-      shaderProgram: WebGLStrategyFastest.__shaderProgram,
+      shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
       firstTime: firstTime,
       args: {
         glw: glw,

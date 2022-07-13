@@ -5,7 +5,7 @@ declare const window: any;
 (async window => {
   // Init Rhodonite
   await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL1,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 

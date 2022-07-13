@@ -12,11 +12,11 @@ import Rn from '../../../dist/esm/index.mjs';
   // prepare memory
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
-    approach: Rn.ProcessApproach.FastestWebGL2,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: rnCanvasElement,
   });
 
-  // when "ProcessApproach.FastestWebGL2" is specified,
+  // when "ProcessApproach.DataTexture" is specified,
   // we need to specify the following setting in order to avoid the error
   //  "Too many temporary registers required to compile shader".
   Rn.Config.isUboEnabled = false;

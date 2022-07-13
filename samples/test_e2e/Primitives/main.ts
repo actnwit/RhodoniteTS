@@ -100,7 +100,7 @@ function createSphere() {
 
 async function setupRhodonite() {
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 }

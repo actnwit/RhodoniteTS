@@ -17,7 +17,7 @@ declare const Rn: typeof _Rn;
   // prepare memory
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
-    approach: Rn.ProcessApproach.UniformWebGL1,
+    approach: Rn.ProcessApproach.Uniform,
     canvas: rnCanvasElement,
   });
 
