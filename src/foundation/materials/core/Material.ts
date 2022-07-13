@@ -60,7 +60,8 @@ type MaterialTID = Index; // a type number of the Material Type
  */
 export class Material extends RnObject {
   // Internal Resources
-  private __materialContent?: AbstractMaterialContent;
+  private __materialTypeName: MaterialTypeName;
+  private __materialContent: AbstractMaterialContent;
   private __allFieldVariables: Map<ShaderSemanticsIndex, ShaderVariable> =
     new Map();
   private __autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable> =
@@ -77,7 +78,7 @@ export class Material extends RnObject {
   private __materialTid: MaterialTID;
   private __materialSid: MaterialSID = -1;
 
-  // Rendering States
+  // Common Rendering States
   private __alphaMode = AlphaMode.Opaque;
   public cullFace = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW = true;
@@ -88,7 +89,6 @@ export class Material extends RnObject {
   private __blendFuncDstFactor = GL_ONE_MINUS_SRC_ALPHA; // gl.ONE_MINUS_SRC_ALPHA
   private __blendFuncAlphaSrcFactor = GL_ONE; // gl.ONE
   private __blendFuncAlphaDstFactor = GL_ONE; // gl.ONE
-  private __materialTypeName: MaterialTypeName;
 
   ///
   /// static members
@@ -371,10 +371,7 @@ export class Material extends RnObject {
     this.__setAutoParametersToGpu(args, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
-    if (
-      Is.exist(this.__materialContent) &&
-      Is.exist(this.__materialContent.setCustomSettingParametersToGpu)
-    ) {
+    if (Is.exist(this.__materialContent.setCustomSettingParametersToGpu)) {
       this.__materialContent.setCustomSettingParametersToGpu({
         material,
         shaderProgram,
@@ -532,7 +529,7 @@ export class Material extends RnObject {
   ): CGAPIResourceHandle {
     const webglResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
-    const materialNode = this.__materialContent!;
+    const materialNode = this.__materialContent;
 
     const {vertexPropertiesStr, pixelPropertiesStr} = this._getProperties(
       propertySetter,
@@ -605,7 +602,7 @@ export class Material extends RnObject {
   private __createProgramAsSingleOperationByUpdatedSources(
     updatedShaderSources: ShaderSources
   ) {
-    const materialNode = this.__materialContent!;
+    const materialNode = this.__materialContent;
     const {attributeNames, attributeSemantics} =
       this.__getAttributeInfo(materialNode);
 
@@ -945,15 +942,15 @@ export class Material extends RnObject {
   }
 
   get isSkinning() {
-    return this.__materialContent!.isSkinning;
+    return this.__materialContent.isSkinning;
   }
 
   get isMorphing() {
-    return this.__materialContent!.isMorphing;
+    return this.__materialContent.isMorphing;
   }
 
   get isLighting() {
-    return this.__materialContent!.isLighting;
+    return this.__materialContent.isLighting;
   }
 
   get materialTypeName() {
