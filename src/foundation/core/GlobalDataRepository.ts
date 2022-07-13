@@ -66,7 +66,7 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isCustomSetting: true,
-      needUniformInFastest: true,
+      needUniformInDataTextureMode: true,
       initialValue: new VectorN(
         new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber)
       ),
@@ -330,7 +330,7 @@ export class GlobalDataRepository {
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
       isCustomSetting: true,
-      needUniformInFastest: true,
+      needUniformInDataTextureMode: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Vector2.fromCopy2(0, 0),
     };
@@ -345,7 +345,7 @@ export class GlobalDataRepository {
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
       isCustomSetting: true,
-      needUniformInFastest: true,
+      needUniformInDataTextureMode: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Vector2.fromCopy2(0, 0),
       // x: 0: not vr, 1: vr
@@ -478,7 +478,7 @@ export class GlobalDataRepository {
     );
   }
 
-  _setUniformLocationsForFastestModeOnly(
+  _setUniformLocationsForDataTextureModeOnly(
     shaderProgramUid: CGAPIResourceHandle
   ) {
     const webglResourceRepository =
@@ -486,7 +486,7 @@ export class GlobalDataRepository {
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
-      if (semanticInfo.needUniformInFastest) {
+      if (semanticInfo.needUniformInDataTextureMode) {
         semanticsInfoArray.push(semanticInfo);
       }
     });

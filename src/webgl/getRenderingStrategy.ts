@@ -10,7 +10,7 @@ const getRenderingStrategy = function (
   processApproach: ProcessApproachEnum
 ): WebGLStrategy {
   // Strategy
-  if (ProcessApproach.isFastestApproach(processApproach)) {
+  if (ProcessApproach.isDataTextureApproach(processApproach)) {
     return WebGLStrategyFastest.getInstance();
   } else if (ProcessApproach.isUniformApproach(processApproach)) {
     return WebGLStrategyUniform.getInstance();

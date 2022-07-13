@@ -198,7 +198,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
       false
     );
 
-    WebGLStrategyFastest.__globalDataRepository._setUniformLocationsForFastestModeOnly(
+    WebGLStrategyFastest.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
       material._shaderProgramUid
     );
 
@@ -230,7 +230,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     if (info.arrayLength) {
       varIndexStr = `[${info.arrayLength}]`;
     }
-    if (info.needUniformInFastest || isTexture) {
+    if (info.needUniformInDataTextureMode || isTexture) {
       varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
     }
 
@@ -272,7 +272,7 @@ export class WebGLStrategyFastest implements WebGLStrategy {
     }
 
     let firstPartOfInnerFunc = '';
-    if (!isTexture && !info.needUniformInFastest) {
+    if (!isTexture && !info.needUniformInDataTextureMode) {
       firstPartOfInnerFunc += `
 ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   int instanceId = int(_instanceId);
@@ -349,7 +349,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 }
 `;
       return str;
-    } else if (!isTexture && info.needUniformInFastest) {
+    } else if (!isTexture && info.needUniformInDataTextureMode) {
       if (!isWebGL2 && info.arrayLength) {
         return `\n${varDef}\n`;
       } else {

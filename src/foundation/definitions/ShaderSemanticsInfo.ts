@@ -25,7 +25,7 @@ export type ShaderSemanticsInfo = {
   soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
   isComponentData?: boolean;
   noControlUi?: boolean;
-  needUniformInFastest?: boolean;
+  needUniformInDataTextureMode?: boolean;
   none_u_prefix?: boolean;
 };
 

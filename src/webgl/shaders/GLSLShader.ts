@@ -64,7 +64,7 @@ void main() {
 
   get mainPrerequisites() {
     const processApproach = SystemState.currentProcessApproach;
-    if (ProcessApproach.isFastestApproach(processApproach)) {
+    if (ProcessApproach.isDataTextureApproach(processApproach)) {
       return `
 `;
     } else {

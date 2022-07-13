@@ -37,7 +37,7 @@ function from(index: number): ProcessApproachEnum | undefined {
   return _from({typeList, index}) as ProcessApproachEnum;
 }
 
-const isFastestApproach = (processApproach: ProcessApproachEnum) => {
+const isDataTextureApproach = (processApproach: ProcessApproachEnum) => {
   switch (processApproach) {
     case DataTexture:
       return true;
@@ -66,7 +66,7 @@ const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
 };
 
 export const ProcessApproach = Object.freeze({
-  isFastestApproach,
+  isDataTextureApproach,
   isUniformApproach,
   None,
   Uniform,

@@ -526,7 +526,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       const info = infoArray[i];
       const isUniformExist =
         isUniformOnlyMode ||
-        info.needUniformInFastest ||
+        info.needUniformInDataTextureMode ||
         CompositionType.isTexture(info.compositionType);
 
       if (isUniformExist) {

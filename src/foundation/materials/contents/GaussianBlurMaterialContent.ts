@@ -75,7 +75,7 @@ export class GaussianBlurMaterialContent extends AbstractMaterialContent {
         initialValue: new VectorN(gaussianRatio),
         min: 0,
         max: 1,
-        needUniformInFastest: true,
+        needUniformInDataTextureMode: true,
       },
       {
         semantic: GaussianBlurMaterialContent.GaussianKernelSize,

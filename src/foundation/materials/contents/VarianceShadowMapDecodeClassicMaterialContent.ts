@@ -414,7 +414,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
           initialValue: Scalar.fromCopyNumber(0),
           min: 0,
           max: Config.maxVertexMorphNumberInShader,
-          needUniformInFastest: true,
+          needUniformInDataTextureMode: true,
         },
         {
           semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
@@ -429,7 +429,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
           ),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
-          needUniformInFastest: true,
+          needUniformInDataTextureMode: true,
         },
         {
           semantic: ShaderSemantics.MorphWeights,
@@ -444,7 +444,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
           ),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
-          needUniformInFastest: true,
+          needUniformInDataTextureMode: true,
         }
       );
     }

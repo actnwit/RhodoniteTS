@@ -31,7 +31,7 @@ uniform float u_pointSize; // initialValue=30, soloDatum=true
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
 
 #ifdef RN_IS_MORPHING
-uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDatum=true, needUniformInFastest=true
+uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDatum=true, needUniformInDataTextureMode=true
 // uniform int u_dataTextureMorphOffsetPosition[];
 // uniform int u_morphWeights[]; //
 #endif

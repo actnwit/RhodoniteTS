@@ -132,7 +132,7 @@ function createPbrUberMaterial({
         ),
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-        needUniformInFastest: true,
+        needUniformInDataTextureMode: true,
       },
       {
         semantic: ShaderSemantics.MorphWeights,
@@ -147,7 +147,7 @@ function createPbrUberMaterial({
         ),
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-        needUniformInFastest: true,
+        needUniformInDataTextureMode: true,
       },
     ];
   }
