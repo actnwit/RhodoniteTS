@@ -10,7 +10,6 @@ import {GlobalDataRepository} from '../../core/GlobalDataRepository';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 
-// TODO: support fastest strategy (Currently, this material node can be used when the webgl strategy is uniform only)
 export class ShaderityMaterialContent extends AbstractMaterialContent {
   constructor({
     name,

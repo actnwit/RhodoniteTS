@@ -2,7 +2,7 @@
   "test_e2e": [
     "ColorGradingUsingLUTs",
     "DepthEncode",
-    "FastestInstancedDrawingWebGL1",
+    "DataTextureInstancedDrawing",
     "FurnaceTest-weakWhiteFurnaceResult",
     "FurnaceTest-whiteFurnace",
     "FXAA",
