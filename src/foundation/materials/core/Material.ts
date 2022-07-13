@@ -24,6 +24,9 @@ import {
   Count,
   IndexOf16Bytes,
   PrimitiveUID,
+  MaterialSID,
+  MaterialTID,
+  MaterialUID,
 } from '../../../types/CommonTypes';
 import {DataUtil} from '../../misc/DataUtil';
 import {GlobalDataRepository} from '../../core/GlobalDataRepository';
@@ -44,15 +47,7 @@ import {
   GL_SRC_ALPHA,
 } from '../../../types';
 import {ShaderSemanticsInfo, VertexAttributeEnum} from '../../definitions';
-
-type MaterialTypeName = string;
-type ShaderVariable = {
-  value: any;
-  info: ShaderSemanticsInfo;
-};
-type MaterialUID = Index; // a unique number of any Material
-type MaterialSID = Index; // a serial number in the Material Type
-type MaterialTID = Index; // a type number of the Material Type
+import {MaterialTypeName, ShaderVariable} from './MaterialTypes';
 
 /**
  * The material class.
@@ -552,7 +547,7 @@ export class Material extends RnObject {
         dataUBODefinition:
           webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-        matricesGetters: vertexShaderMethodDefinitions_uniform
+        matricesGetters: vertexShaderMethodDefinitions_uniform,
       }
     );
     const vertexShaderBody = ShaderityUtility.transformWebGLVersion(
