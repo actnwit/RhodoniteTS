@@ -169,10 +169,10 @@ export class MaterialRepository {
       const propertyIndex = MaterialRepository._getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {
         const typedArray = accessor.takeOne() as Float32Array;
-        let map = Material.__soloDatumFields.get(materialTypeName);
+        let map = Material._soloDatumFields.get(materialTypeName);
         if (map == null) {
           map = new Map();
-          Material.__soloDatumFields.set(materialTypeName, map);
+          Material._soloDatumFields.set(materialTypeName, map);
         }
 
         map.set(MaterialRepository._getPropertyIndex(semanticInfo), {
@@ -219,13 +219,18 @@ export class MaterialRepository {
       materialNode = MaterialRepository.__materialTypes.get(materialTypeName)!;
     }
 
+    let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(
+      materialTypeName
+    ) as number;
     const material = new Material(
       MaterialRepository.__materialTids.get(materialTypeName)!,
+      ++MaterialRepository.__materialUidCount,
+      countOfThisType++,
       materialTypeName,
       materialNode
     );
 
-    this.__initialize(material);
+    this.__initialize(material, countOfThisType);
 
     return material;
   }
@@ -233,45 +238,38 @@ export class MaterialRepository {
   /**
    * Initialize Method
    */
-  private static __initialize(material: Material) {
-    material.__materialUid = ++MaterialRepository.__materialUidCount;
-
-    MaterialRepository.__materialMap.set(material.__materialUid, material);
+  private static __initialize(material: Material, countOfThisType: Count) {
+    MaterialRepository.__materialMap.set(material.materialUID, material);
     MaterialRepository.__instancesByTypes.set(
-      material.__materialTypeName,
+      material.materialTypeName,
       material
     );
 
     material.tryToSetUniqueName(material.__materialTypeName, true);
 
-    let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(
-      material.__materialTypeName
-    ) as number;
-    material.__materialSid = countOfThisType++;
-
     // set this material instance for the material type
     let map = MaterialRepository.__instances.get(material.__materialTypeName);
     if (Is.not.exist(map)) {
       map = new Map();
-      MaterialRepository.__instances.set(material.__materialTypeName, map);
+      MaterialRepository.__instances.set(material.materialTypeName, map);
     }
-    map.set(material.__materialSid, material);
+    map.set(material.materialSID, material);
 
     // set the count of instance for the material type
     MaterialRepository.__materialInstanceCountOfType.set(
-      material.__materialTypeName,
+      material.materialTypeName,
       countOfThisType
     );
 
-    if (Is.exist(material.__materialContent)) {
-      const semanticsInfoArray = material.__materialContent._semanticsInfoArray;
+    if (Is.exist(material._materialContent)) {
+      const semanticsInfoArray = material._materialContent._semanticsInfoArray;
       const accessorMap = MaterialRepository.__accessors.get(
-        material.__materialTypeName
+        material.materialTypeName
       );
       semanticsInfoArray.forEach(semanticsInfo => {
         const propertyIndex =
           MaterialRepository._getPropertyIndex(semanticsInfo);
-        material.__allFieldsInfo.set(propertyIndex, semanticsInfo);
+        material._allFieldsInfo.set(propertyIndex, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
           const accessor = accessorMap!.get(propertyIndex) as Accessor;
           const typedArray = accessor.takeOne() as Float32Array;
@@ -284,12 +282,9 @@ export class MaterialRepository {
               semanticsInfo.compositionType
             ),
           };
-          material.__allFieldVariables.set(propertyIndex, shaderVariable);
+          material._allFieldVariables.set(propertyIndex, shaderVariable);
           if (!semanticsInfo.isCustomSetting) {
-            material.__autoFieldVariablesOnly.set(
-              propertyIndex,
-              shaderVariable
-            );
+            material._autoFieldVariablesOnly.set(propertyIndex, shaderVariable);
           }
         }
       });
@@ -302,10 +297,10 @@ export class MaterialRepository {
   ): IndexOf16Bytes {
     const material =
       MaterialRepository.__instancesByTypes.get(materialTypeName)!;
-    const info = material.__allFieldsInfo.get(propertyIndex)!;
+    const info = material._allFieldsInfo.get(propertyIndex)!;
     if (info.soloDatum) {
-      const value = Material.__soloDatumFields
-        .get(material.__materialTypeName)!
+      const value = Material._soloDatumFields
+        .get(material.materialTypeName)!
         .get(propertyIndex);
       return (value!.value._v as Float32Array).byteOffset / 4 / 4;
     } else {
