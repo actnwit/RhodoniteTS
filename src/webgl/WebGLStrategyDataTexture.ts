@@ -816,7 +816,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     renderPassTickCount: Count
   ) {
     if (typeof spector !== 'undefined') {
-      spector.setMarker('|  |  Fastest:common_$render#');
+      spector.setMarker('|  |  DataTexture:common_$render#');
     }
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();

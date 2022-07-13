@@ -322,7 +322,7 @@ export class Material extends RnObject {
 
   /**
    * @private
-   * called from WebGLStrategyFastest and WebGLStrategyUnfirom only
+   * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom only
    * @param isUniformOnlyMode
    */
   _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
@@ -354,7 +354,7 @@ export class Material extends RnObject {
 
   /**
    * @private
-   * called from WebGLStrategyFastest and WebGLStrategyUnitform only
+   * called from WebGLStrategyDataTexture and WebGLStrategyUnitform only
    */
   _setParametersToGpu({
     material,
@@ -734,7 +734,7 @@ export class Material extends RnObject {
 
   /**
    * @private
-   * called from WebGLStrategyFastest and WebGLStrategyUnfirom
+   * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom
    * @param vertexShaderMethodDefinitions_uniform
    * @param propertySetter
    * @param isWebGL2
@@ -812,7 +812,7 @@ export class Material extends RnObject {
 
   /**
    * @private
-   * called WebGLStrategyFastest and WebGLStrategyUniform only
+   * called WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
   _setupBasicUniformsLocations() {
     const webglResourceRepository =
@@ -826,7 +826,7 @@ export class Material extends RnObject {
 
   /**
    * @private
-   * called WebGLStrategyFastest and WebGLStrategyUniform only
+   * called WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
   _setupAdditionalUniformLocations(
     shaderSemantics: ShaderSemanticsInfo[],

@@ -219,7 +219,7 @@ $ yarn test-unit-part -- ./src/foundation/core/Entity.test.ts
 ### For E2E (visual) test
 
 ```bash
-$ yarn test-e2e-part -- ./samples/test_e2e/FastestInstancedDrawingWebGL1
+$ yarn test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawingWebGL1
 ```
 
 ### For M1 Mac in E2E test
