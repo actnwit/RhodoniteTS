@@ -4,7 +4,7 @@ export * from './WebGLExtension';
 export * from './WebGLResourceRepository';
 export * from './WebGLStrategy';
 export * from './WebGLStrategyCommonMethod';
-export * from './WebGLStrategyFastest';
+export * from './WebGLStrategyDataTexture';
 export * from './WebGLStrategyUniform';
 export * from './getRenderingStrategy';
 

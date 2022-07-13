@@ -4,14 +4,14 @@ import {
 } from '../foundation/definitions/ProcessApproach';
 import { WebGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyUniform } from './WebGLStrategyUniform';
-import { WebGLStrategyFastest } from './WebGLStrategyFastest';
+import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 
 const getRenderingStrategy = function (
   processApproach: ProcessApproachEnum
 ): WebGLStrategy {
   // Strategy
   if (ProcessApproach.isDataTextureApproach(processApproach)) {
-    return WebGLStrategyFastest.getInstance();
+    return WebGLStrategyDataTexture.getInstance();
   } else if (ProcessApproach.isUniformApproach(processApproach)) {
     return WebGLStrategyUniform.getInstance();
   }
