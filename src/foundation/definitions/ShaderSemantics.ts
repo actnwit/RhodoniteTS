@@ -5,13 +5,10 @@ import {
   _fromString,
   _fromStringCaseSensitively,
 } from '../misc/EnumIO';
-import {CompositionType, CompositionTypeEnum} from './CompositionType';
-import {ShaderVariableUpdateIntervalEnum} from './ShaderVariableUpdateInterval';
-import {ShaderTypeEnum} from './ShaderType';
-import { Material } from '../materials/core/Material';
-import {Count, Index} from '../../types/CommonTypes';
-import {ComponentTypeEnum} from './ComponentType';
-import { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
+import {CompositionType} from './CompositionType';
+import type {Material} from '../materials/core/Material';
+import {Index} from '../../types/CommonTypes';
+import {ShaderSemanticsInfo} from './ShaderSemanticsInfo';
 
 export type ShaderSemanticsIndex = number;
 export type ShaderSemanticsName = string;
@@ -269,9 +266,11 @@ const ClearCoatTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const ClearCoatRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatRoughnessFactor',
 });
-const ClearCoatRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'clearCoatRoughnessTexture',
-});
+const ClearCoatRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass(
+  {
+    str: 'clearCoatRoughnessTexture',
+  }
+);
 const ClearCoatNormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatNormalTexture',
 });
@@ -343,11 +342,17 @@ const OcclusionStrength = new ShaderSemanticsClass({
 const envRotation = new ShaderSemanticsClass({str: 'envRotation'});
 const EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
 const VrState = new ShaderSemanticsClass({str: 'vrState'});
-const EnableLinearToSrgb = new ShaderSemanticsClass({str: 'enableLinearToSrgb'});
+const EnableLinearToSrgb = new ShaderSemanticsClass({
+  str: 'enableLinearToSrgb',
+});
 const SpecularFactor = new ShaderSemanticsClass({str: 'specularFactor'});
 const SpecularTexture = new ShaderSemanticsClass({str: 'specularTexture'});
-const SpecularColorFactor = new ShaderSemanticsClass({str: 'specularColorFactor'});
-const SpecularColorTexture = new ShaderSemanticsClass({str: 'specularColorTexture'});
+const SpecularColorFactor = new ShaderSemanticsClass({
+  str: 'specularColorFactor',
+});
+const SpecularColorTexture = new ShaderSemanticsClass({
+  str: 'specularColorTexture',
+});
 const Ior = new ShaderSemanticsClass({str: 'ior'});
 
 const typeList = [
@@ -570,6 +575,14 @@ const getShaderProperty: getShaderPropertyFunc = (
 
   return `${varDef}${funcDef}`;
 };
+
+/**
+ * @private
+ */
+export function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
+  const propertyIndex = shaderSemantic.index;
+  return propertyIndex;
+}
 
 export const ShaderSemantics = Object.freeze({
   from,

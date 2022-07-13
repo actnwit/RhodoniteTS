@@ -41,7 +41,8 @@ import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3Quality
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
-import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
+import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
+import {MaterialRepository} from '../materials/core/MaterialRepository';
 
 function createMaterial(
   materialName: string,
@@ -49,13 +50,20 @@ function createMaterial(
   maxInstancesNumber?: Count
 ): Material {
   const isRegisteredMaterialType =
-    Material.isRegisteredMaterialType(materialName);
+    MaterialRepository.isRegisteredMaterialType(materialName);
 
   if (!isRegisteredMaterialType) {
-    Material.registerMaterial(materialName, materialNode, maxInstancesNumber!);
+    MaterialRepository.registerMaterial(
+      materialName,
+      materialNode,
+      maxInstancesNumber!
+    );
   }
 
-  const material = Material.createMaterial(materialName, materialNode);
+  const material = MaterialRepository.createMaterial(
+    materialName,
+    materialNode
+  );
   return material;
 }
 
@@ -64,13 +72,16 @@ function recreateMaterial(
   materialNode?: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
-  Material.forceRegisterMaterial(
+  MaterialRepository.forceRegisterMaterial(
     materialName,
     materialNode!,
     maxInstancesNumber!
   );
 
-  const material = Material.createMaterial(materialName, materialNode);
+  const material = MaterialRepository.createMaterial(
+    materialName,
+    materialNode
+  );
   return material;
 }
 

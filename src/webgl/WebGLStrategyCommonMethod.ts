@@ -19,7 +19,8 @@ import {ShaderType} from '../foundation/definitions/ShaderType';
 import {Scalar} from '../foundation/math/Scalar';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
 import {Vector3} from '../foundation/math/Vector3';
-import {Primitive} from '..';
+import {Primitive} from '../foundation/geometry/Primitive';
+import {MaterialRepository} from '../foundation/materials/core/MaterialRepository';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -273,7 +274,7 @@ function getLocationOffsetOfProperty(
   materialTypeName?: string
 ): IndexOf16Bytes {
   if (Is.exist(materialTypeName)) {
-    const dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(
+    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
       materialTypeName,
       propertyIndex
     );
