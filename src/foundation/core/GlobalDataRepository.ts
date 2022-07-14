@@ -3,6 +3,7 @@ import {
   ShaderSemanticsEnum,
   ShaderSemantics,
   getShaderPropertyFunc,
+  _getPropertyIndex2,
 } from '../definitions/ShaderSemantics';
 import {
   Count,
@@ -13,7 +14,6 @@ import {
 import {BufferUse} from '../definitions/BufferUse';
 import {MemoryManager} from './MemoryManager';
 import {CompositionType} from '../definitions/CompositionType';
-import {Material} from '../materials/core/Material';
 import {ComponentType} from '../definitions/ComponentType';
 import {Accessor} from '../memory/Accessor';
 import {MathClassUtil} from '../math/MathClassUtil';
@@ -32,7 +32,11 @@ import {
   ProcessApproach,
   ProcessApproachEnum,
 } from '../../foundation/definitions/ProcessApproach';
-import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
+import {
+  calcAlignedByteLength,
+  ShaderSemanticsInfo,
+  _getPropertyIndex,
+} from '../definitions/ShaderSemanticsInfo';
 import {Vector2} from '../math';
 
 type GlobalPropertyStruct = {
@@ -366,13 +370,13 @@ export class GlobalDataRepository {
     semanticInfo: ShaderSemanticsInfo,
     maxCount: Count
   ): void {
-    const propertyIndex = Material._getPropertyIndex(semanticInfo);
+    const propertyIndex = _getPropertyIndex(semanticInfo);
 
     const buffer = MemoryManager.getInstance().createOrGetBuffer(
       BufferUse.GPUInstanceData
     );
 
-    const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
+    const alignedByteLength = calcAlignedByteLength(semanticInfo);
 
     const bufferView = buffer
       .takeBufferView({
@@ -410,7 +414,7 @@ export class GlobalDataRepository {
   }
 
   public takeOne(shaderSemantic: ShaderSemanticsEnum): any {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
+    const propertyIndex = _getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
@@ -434,7 +438,7 @@ export class GlobalDataRepository {
     countIndex: Index,
     value: any
   ): void {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
+    const propertyIndex = _getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
@@ -443,7 +447,7 @@ export class GlobalDataRepository {
   }
 
   public getValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index): any {
-    const propertyIndex = Material._getPropertyIndex2(shaderSemantic);
+    const propertyIndex = _getPropertyIndex2(shaderSemantic);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];

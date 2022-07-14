@@ -1,6 +1,6 @@
 import {ModuleManager} from '../../system/ModuleManager';
 import {MemoryManager} from '../../core/MemoryManager';
-import {Material} from './Material';
+import {MaterialRepository} from './MaterialRepository';
 
 test('MaterialTID are processed correctly', () => {
   ModuleManager.getInstance().loadModule('webgl');
@@ -11,13 +11,13 @@ test('MaterialTID are processed correctly', () => {
   });
 
   // 0st
-  Material.registerMaterial('MyMaterial0', undefined);
-  const material0 = Material.createMaterial('MyMaterial0')!;
+  MaterialRepository.registerMaterial('MyMaterial0', undefined);
+  const material0 = MaterialRepository.createMaterial('MyMaterial0')!;
 
   // 1st
-  Material.registerMaterial('MyMaterial1', undefined);
-  const material1a = Material.createMaterial('MyMaterial1')!;
-  const material1b = Material.createMaterial('MyMaterial1')!;
+  MaterialRepository.registerMaterial('MyMaterial1', undefined);
+  const material1a = MaterialRepository.createMaterial('MyMaterial1')!;
+  const material1b = MaterialRepository.createMaterial('MyMaterial1')!;
 
   expect(material1b.materialTID).toEqual(1);
 });

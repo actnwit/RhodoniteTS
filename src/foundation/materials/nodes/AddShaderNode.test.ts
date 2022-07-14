@@ -1,9 +1,9 @@
 import {ModuleManager} from '../../system/ModuleManager';
 import {MemoryManager} from '../../core/MemoryManager';
-import {Material} from '../core/Material';
 import {OutPositionShaderNode} from './OutPositionShaderNode';
 import {AttributePositionShaderNode} from './AttributePositionShaderNode';
 import {ShaderGraphResolver} from '../core/ShaderGraphResolver';
+import {MaterialRepository} from '../core/MaterialRepository';
 
 test('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -14,7 +14,7 @@ test('AttributePosition works correctly 1', async () => {
   });
 
   // Material.registerMaterial('MyMaterial', undefined);
-  const material = Material.createMaterial('MyMaterial')!;
+  const material = MaterialRepository.createMaterial('MyMaterial')!;
 
   const a_position = new AttributePositionShaderNode();
 

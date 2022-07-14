@@ -59,8 +59,10 @@ export type EntityUID = number;
 export type ComponentTID = number;
 export type ComponentSID = number;
 
-export type MaterialUID = number;
 export type MaterialNodeUID = number;
+export type MaterialUID = Index; // a unique number of any Material
+export type MaterialSID = Index; // a serial number in the Material Type
+export type MaterialTID = Index; // a type number of the Material Type
 export type TextureUID = number;
 export type MeshUID = number;
 

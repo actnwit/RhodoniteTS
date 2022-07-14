@@ -1,24 +1,24 @@
-import { WebGLResourceRepository } from './WebGLResourceRepository';
+import {WebGLResourceRepository} from './WebGLResourceRepository';
 import {ShaderSources, WebGLStrategy} from './WebGLStrategy';
-import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import { WebGLContextWrapper } from './WebGLContextWrapper';
+import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
+import {WebGLContextWrapper} from './WebGLContextWrapper';
 import {Primitive} from '../foundation/geometry/Primitive';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { Matrix44 } from '../foundation/math/Matrix44';
+import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
+import {Matrix44} from '../foundation/math/Matrix44';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
-import { LightComponent } from '../foundation/components/Light/LightComponent';
+import {ComponentRepository} from '../foundation/core/ComponentRepository';
+import {LightComponent} from '../foundation/components/Light/LightComponent';
 import {Config} from '../foundation/core/Config';
 import {PixelFormat} from '../foundation/definitions/PixelFormat';
 import {ComponentType} from '../foundation/definitions/ComponentType';
 import {TextureParameter} from '../foundation/definitions/TextureParameter';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import {MeshRendererComponent} from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import {CompositionType} from '../foundation/definitions/CompositionType';
-import { Material } from '../foundation/materials/core/Material';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import {Material} from '../foundation/materials/core/Material';
+import {RenderPass} from '../foundation/renderer/RenderPass';
 import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
-import { Mesh } from '../foundation/geometry/Mesh';
-import { MemoryManager } from '../foundation/core/MemoryManager';
+import {Mesh} from '../foundation/geometry/Mesh';
+import {MemoryManager} from '../foundation/core/MemoryManager';
 import {ShaderType} from '../foundation/definitions/ShaderType';
 import {
   CGAPIResourceHandle,
@@ -28,12 +28,11 @@ import {
   PrimitiveUID,
 } from '../types/CommonTypes';
 import {BufferUse} from '../foundation/definitions/BufferUse';
-import { Buffer } from '../foundation/memory/Buffer';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import {Buffer} from '../foundation/memory/Buffer';
+import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import {Is} from '../foundation/misc/Is';
-import {IMeshEntity} from '../foundation/helpers/EntityHelper';
 
 declare const spector: any;
 
