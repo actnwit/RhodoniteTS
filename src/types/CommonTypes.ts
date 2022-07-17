@@ -53,18 +53,19 @@ export type Byte = number;
 export type Second = number;
 export type MilliSecond = number;
 
-export type ObjectUID = number;
-export type PrimitiveUID = number;
-export type EntityUID = number;
-export type ComponentTID = number;
-export type ComponentSID = number;
+export type ObjectUID = Index;
+export type PrimitiveUID = Index;
+export type EntityUID = Index;
+export type ComponentTID = Index;
+export type ComponentSID = Index;
 
-export type MaterialNodeUID = number;
+export type MaterialNodeUID = Index;
 export type MaterialUID = Index; // a unique number of any Material
 export type MaterialSID = Index; // a serial number in the Material Type
 export type MaterialTID = Index; // a type number of the Material Type
-export type TextureUID = number;
-export type MeshUID = number;
+export type TextureUID = Index;
+export type MeshUID = Index;
+export type CameraSID = Index;
 
 export type WebGLResourceHandle = number;
 
