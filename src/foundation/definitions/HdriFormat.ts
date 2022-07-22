@@ -1,4 +1,4 @@
-import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
 
 export type HdriFormatEnum = EnumIO;
 
@@ -40,6 +40,11 @@ function from(index: number): HdriFormatEnum {
   return _from({typeList, index}) as HdriFormatEnum;
 }
 
+function fromString(str: string): HdriFormatEnum {
+  return _fromString({typeList, str}) as HdriFormatEnum;
+}
+
+
 export const HdriFormat = Object.freeze({
   LDR_SRGB,
   LDR_LINEAR,
@@ -47,4 +52,6 @@ export const HdriFormat = Object.freeze({
   RGBE_PNG,
   RGB9_E5_PNG,
   OpenEXR,
+  from,
+  fromString,
 });
