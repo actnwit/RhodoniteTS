@@ -44,7 +44,6 @@ function fromString(str: string): HdriFormatEnum {
   return _fromString({typeList, str}) as HdriFormatEnum;
 }
 
-
 export const HdriFormat = Object.freeze({
   LDR_SRGB,
   LDR_LINEAR,

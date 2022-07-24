@@ -73,7 +73,15 @@ export class EffekseerComponent extends Component {
   }
 
   isPlay(): boolean {
-    return Is.exist(this.__handle) ? this.__handle.exists : false;
+    if (Is.exist(this.__handle)) {
+      if (this.__handle.exists) {
+        return !this.isPause;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 
   play() {
