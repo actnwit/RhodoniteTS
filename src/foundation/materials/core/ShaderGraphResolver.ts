@@ -84,6 +84,7 @@ precision highp int;
 ${prerequisitesShaderityObject.code}
 `;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
+    pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
 
     let shaderBody = '';
 

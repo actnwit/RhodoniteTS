@@ -1,4 +1,4 @@
-test('regression test NodeEditor', async () => {
+test.skip('regression test NodeEditor', async () => {
 
   const page = await browser.newPage();
   await page.goto('http://localhost:8082/samples/test_e2e/NodeEditor');
