@@ -45,7 +45,7 @@ function createTexturesForRenderTarget(
 
   if (createDepthBuffer) {
     const renderBuffer = new RenderBuffer();
-    renderBuffer.create(width, height, TextureParameter.Depth16, {
+    renderBuffer.create(width, height, TextureParameter.Depth24, {
       isMSAA,
       sampleCountMSAA,
     });
