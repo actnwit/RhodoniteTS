@@ -1,0 +1,24 @@
+import { EnumIO } from '../foundation/misc/EnumIO';
+export declare type WebGLExtensionEnum = EnumIO;
+export declare const WebGLExtension: Readonly<{
+    VertexArrayObject: EnumIO;
+    TextureFloat: EnumIO;
+    TextureHalfFloat: EnumIO;
+    TextureFloatLinear: EnumIO;
+    TextureHalfFloatLinear: EnumIO;
+    InstancedArrays: EnumIO;
+    TextureFilterAnisotropic: EnumIO;
+    ElementIndexUint: EnumIO;
+    ShaderTextureLod: EnumIO;
+    ShaderDerivatives: EnumIO;
+    DrawBuffers: EnumIO;
+    BlendMinmax: EnumIO;
+    ColorBufferFloat: EnumIO;
+    CompressedTextureAstc: EnumIO;
+    CompressedTextureS3tc: EnumIO;
+    CompressedTexturePvrtc: EnumIO;
+    CompressedTextureAtc: EnumIO;
+    CompressedTextureEtc: EnumIO;
+    CompressedTextureEtc1: EnumIO;
+    CompressedTextureBptc: EnumIO;
+}>;

@@ -1,0 +1,19 @@
+export declare const Config: {
+    maxEntityNumber: number;
+    maxLightNumberInShader: number;
+    maxVertexMorphNumberInShader: number;
+    maxMaterialInstanceForEachType: number;
+    boneDataType: import("../misc").EnumIO;
+    maxSkeletonNumber: number;
+    maxCameraNumber: number;
+    maxSizeLimitOfNonCompressedTexture: number;
+    maxSkeletalBoneNumber: number;
+    maxSkeletalBoneNumberForUniformMode: number;
+    dataTextureWidth: number;
+    dataTextureHeight: number;
+    noWebGLTex2DStateCache: boolean;
+    maxMorphTargetNumber: number;
+    totalSizeOfGPUShaderDataStorageExceptMorphData: number;
+    isUboEnabled: boolean;
+    eventTargetDom: HTMLElement | undefined;
+};

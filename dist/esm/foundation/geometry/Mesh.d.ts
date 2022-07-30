@@ -1,0 +1,125 @@
+import { Primitive } from './Primitive';
+import { AABB } from '../math/AABB';
+import { Index, CGAPIResourceHandle } from '../../types/CommonTypes';
+import { IVector3 } from '../math/IVector';
+import { IMesh, RaycastResultEx1 } from './types/GeometryTypes';
+import { IMeshEntity } from '../helpers/EntityHelper';
+import { MeshComponent } from '../..';
+/**
+ * The Mesh class.
+ * This mesh object has primitives (geometries) or a reference of 'original mesh'.
+ * If the latter, this mesh object is an 'instanced mesh', which has no primitives.
+ * Instanced meshes refer original mesh's primitives when drawing.
+ */
+export declare class Mesh implements IMesh {
+    private readonly __meshUID;
+    static readonly invalidateMeshUID = -1;
+    static __mesh_uid_count: number;
+    private __primitives;
+    private __opaquePrimitives;
+    private __transparentPrimitives;
+    private __morphPrimitives;
+    weights: number[];
+    private __localAABB;
+    private __vaoUids;
+    private __variationVBOUid;
+    private __latestPrimitivePositionAccessorVersion;
+    private __belongToEntities;
+    /**
+     * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
+     * 0: Not calculate tangent (not apply normal texture)
+     * 1: (default) Use original tangent in a vertex, if a vertex has tangent attribute. If a vertex does not have it, calculate a tangent in a shader.
+     * 2: Use original tangent in a vertex, if a vertex has tangent attribute. If a vertex does not have it, precalculate a tangent in the javascript.
+     * 3: Calculate all tangent in a shader.
+     * 4: Precalculate all tangent in the javascript
+     */
+    tangentCalculationMode: Index;
+    private __hasFaceNormal;
+    private static __tmpVec3_0;
+    private static __tmpVec3_1;
+    private static __tmpVec3_2;
+    private static __tmpVec3_3;
+    private static __tmpVec3_4;
+    private static __tmpVec3_5;
+    private static __tmpVec3_6;
+    private static __tmpVec3_7;
+    private static __tmpVec3_8;
+    private static __tmpVec3_9;
+    private static __tmpVec3_10;
+    private static __tmpVec3_11;
+    private static __tmpReturnVec3_0;
+    private static __tmpReturnVec3_1;
+    private static __tmpReturnVec3_2;
+    /**
+     * Constructor
+     */
+    constructor();
+    getVaoUids(index: Index): CGAPIResourceHandle;
+    getVaoUidsByPrimitiveUid(primitiveUid: Index): CGAPIResourceHandle;
+    get meshEntitiesInner(): IMeshEntity[];
+    _belongToMeshComponent(meshComponent: MeshComponent): void;
+    /**
+     * Adds primitive.
+     * @param primitive The primitive object.
+     */
+    addPrimitive(primitive: Primitive): void;
+    private __setPrimitives;
+    /**
+     * Gets true if these primitives are all 'Blend' type
+     */
+    isAllBlend(): boolean;
+    /**
+     * Gets true if some primitives are 'Blend' type
+     */
+    isBlendPartially(): boolean;
+    /**
+     * Gets true if these primitives are all 'Opaque' type
+     */
+    isOpaque(): boolean;
+    getPrimitiveAt(i: number): Primitive;
+    getPrimitiveNumber(): number;
+    /**
+     * @private
+     * @returns true: updated, false: not changed (not dirty)
+     */
+    updateVariationVBO(): boolean;
+    /**
+     * @private
+     * @returns true: updated, false: not changed (not dirty)
+     */
+    deleteVariationVBO(): boolean;
+    updateVAO(): void;
+    deleteVAO(): void;
+    castRay(srcPointInLocal: IVector3, directionInLocal: IVector3, dotThreshold?: number): RaycastResultEx1;
+    get primitives(): Primitive[];
+    get meshUID(): number;
+    /**
+     * @private
+     */
+    get _variationVBOUid(): CGAPIResourceHandle;
+    /**
+     * Gets AABB in local space.
+     */
+    get AABB(): AABB;
+    private __calcMorphPrimitives;
+    /**
+     * @private
+     */
+    _calcTangents(): void;
+    /**
+     * @private
+     */
+    private __calcTangentFor3Vertices;
+    private __calcTangentPerVertex;
+    private __usePreCalculatedTangent;
+    /**
+     * @private
+     */
+    _calcBaryCentricCoord(): void;
+    /**
+     * @private
+     */
+    _calcFaceNormalsIfNonNormal(): void;
+    private __calcFaceNormalFor3Vertices;
+    getPrimitiveIndexInMesh(primitive: Primitive): number;
+}
