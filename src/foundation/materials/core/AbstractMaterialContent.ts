@@ -42,7 +42,6 @@ import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { PixelFormat } from '../../definitions/PixelFormat';
-import { _getCameraComponentForRendering } from '../../components/Camera/CameraComponentUtilOps';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -381,10 +380,15 @@ export abstract class AbstractMaterialContent extends RnObject {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setIsBillboard(shaderProgram, args.isBillboard);
       if (firstTime || args.isVr) {
-        const cameraComponent = _getCameraComponentForRendering(
-          args.renderPass
-        )!;
+        let cameraComponent = args.renderPass.cameraComponent;
+        if (cameraComponent == null) {
+          cameraComponent = ComponentRepository.getComponent(
+            CameraComponentClass,
+            CameraComponentClass.current
+          ) as CameraComponent;
+        }
         this.setViewInfo(
           shaderProgram,
           cameraComponent,
@@ -438,6 +442,13 @@ export abstract class AbstractMaterialContent extends RnObject {
       (shaderProgram as any).normalMatrix,
       false,
       normalMatrix._v
+    );
+  }
+
+  protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean) {
+    (shaderProgram as any)._gl.uniform1i(
+      (shaderProgram as any).isBillboard,
+      isBillboard ? 1 : 0
     );
   }
 

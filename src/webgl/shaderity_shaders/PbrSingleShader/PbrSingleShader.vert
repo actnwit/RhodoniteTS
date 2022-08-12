@@ -58,6 +58,7 @@ void main()
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
+  bool isBillboard = get_isBillboard(a_instanceInfo);
 
   v_color = a_color;
 
@@ -66,6 +67,8 @@ void main()
   isSkinning = processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,
     worldMatrix,
+    viewMatrix,
+    isBillboard,
     normalMatrix,
     normalMatrix,
     a_position,
@@ -88,8 +91,8 @@ void main()
 
   v_instanceInfo = a_instanceInfo;
 
-  float visibility = get_isVisible(a_instanceInfo);
-  if (visibility < 0.5)
+  bool visibility = get_isVisible(a_instanceInfo);
+  if (!visibility)
   {
     gl_Position = vec4(0.0);
   }

@@ -158,6 +158,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setIsBillboard(shaderProgram, args.isBillboard);
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {

@@ -112,6 +112,7 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     protected setupBasicInfo(args: RenderingArg, shaderProgram: WebGLProgram, firstTime: boolean, material: Material, CameraComponentClass: typeof CameraComponent): void;
     protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44): void;
     protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33): void;
+    protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean): void;
     protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
     protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
     protected setSkinning(shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent): void;

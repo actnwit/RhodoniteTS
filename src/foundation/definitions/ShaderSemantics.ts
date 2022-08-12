@@ -73,6 +73,9 @@ const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const ViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'viewMatrix',
 });
+const IsBillboard: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'isBillboard',
+});
 const EnableViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'enableViewMatrix',
 });
@@ -358,6 +361,7 @@ const Ior = new ShaderSemanticsClass({str: 'ior'});
 const typeList = [
   WorldMatrix,
   ViewMatrix,
+  IsBillboard,
   EnableViewMatrix,
   ProjectionMatrix,
   NormalMatrix,
@@ -590,6 +594,7 @@ export const ShaderSemantics = Object.freeze({
   fromStringCaseSensitively,
   WorldMatrix,
   ViewMatrix,
+  IsBillboard,
   EnableViewMatrix,
   ProjectionMatrix,
   NormalMatrix,
