@@ -30,7 +30,6 @@ import { RenderPass } from '../../renderer/RenderPass';
 import {ICameraEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import { Is } from '../../misc/Is';
 
 export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();

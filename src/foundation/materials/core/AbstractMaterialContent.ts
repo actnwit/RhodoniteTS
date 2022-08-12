@@ -42,7 +42,6 @@ import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { PixelFormat } from '../../definitions/PixelFormat';
-import { _getCameraComponentForRendering } from '../../components/Camera/CameraComponentUtilOps';
 
 export type ShaderAttributeOrSemanticsOrString =
   | string
@@ -383,9 +382,13 @@ export abstract class AbstractMaterialContent extends RnObject {
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
       this.setIsBillboard(shaderProgram, args.isBillboard);
       if (firstTime || args.isVr) {
-        const cameraComponent = _getCameraComponentForRendering(
-          args.renderPass
-        )!;
+        let cameraComponent = args.renderPass.cameraComponent;
+        if (cameraComponent == null) {
+          cameraComponent = ComponentRepository.getComponent(
+            CameraComponentClass,
+            CameraComponentClass.current
+          ) as CameraComponent;
+        }
         this.setViewInfo(
           shaderProgram,
           cameraComponent,

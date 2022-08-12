@@ -21,6 +21,7 @@ import {MeshRendererComponent} from '../foundation/components/MeshRenderer/MeshR
 import {ComponentRepository} from '../foundation/core/ComponentRepository';
 import {Config} from '../foundation/core/Config';
 import {RenderPass} from '../foundation/renderer/RenderPass';
+import {CameraComponent} from '../foundation/components/Camera/CameraComponent';
 import {
   WebGLResourceHandle,
   Index,
@@ -35,13 +36,19 @@ import {VectorN} from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
+import {Matrix33} from '../foundation/math/Matrix33';
+import {CubeTexture} from '../foundation/textures/CubeTexture';
 import {ModuleManager} from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
 import {Is, Is as is} from '../foundation/misc/Is';
-import {ISkeletalEntity} from '../foundation/helpers/EntityHelper';
+import {
+  ISceneGraphEntity,
+  IMeshEntity,
+  ISkeletalEntity,
+} from '../foundation/helpers/EntityHelper';
 import {LightComponent} from '../foundation/components/Light/LightComponent';
+import {DataUtil} from '../foundation/misc/DataUtil';
 import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
-import {_getCameraComponentForRendering} from '../foundation/components/Camera/CameraComponentUtilOps';
 
 declare const spector: any;
 
@@ -757,13 +764,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         WellKnownComponentTIDs.CameraComponentTID
       ] = cameraComponentSid;
     } else {
-      const cameraComponent = _getCameraComponentForRendering(renderPass);
-      if (Is.exist(cameraComponent)) {
+      let cameraComponent = renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        cameraComponent = ComponentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
+      }
+      if (cameraComponent) {
         WebGLStrategyDataTexture.__currentComponentSIDs!._v[
           WellKnownComponentTIDs.CameraComponentTID
         ] = cameraComponent.componentSID;
       } else {
-        // this is rare case, but it can happen when there is no CameraComponent in the scene
         WebGLStrategyDataTexture.__currentComponentSIDs!._v[
           WellKnownComponentTIDs.CameraComponentTID
         ] = -1;
