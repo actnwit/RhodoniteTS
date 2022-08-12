@@ -95,8 +95,9 @@ mat3 get_normalMatrix(float instanceId) {
   return u_normalMatrix;
 }
 
-float get_isVisible(float instanceId) {
-  return 1.0;
+bool get_isVisible(float instanceId) {
+  return true; // visibility is handled in CPU side in WebGLStrategyUniform, so this is dummy value.
+}
 }
 
 #ifdef RN_IS_VERTEX_SHADER

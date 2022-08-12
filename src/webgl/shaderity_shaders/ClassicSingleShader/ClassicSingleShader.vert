@@ -63,8 +63,8 @@ void main()
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
-  float visibility = get_isVisible(a_instanceInfo);
-  if (visibility < 0.5)
+  bool visibility = get_isVisible(a_instanceInfo);
+  if (!visibility)
   {
     gl_Position = vec4(0.0);
   }

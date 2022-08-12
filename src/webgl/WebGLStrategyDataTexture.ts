@@ -94,7 +94,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     return matrix;
   }
 
-  float get_isVisible(float instanceId) {
+  bool get_isVisible(float instanceId) {
     int index = ${Component.getLocationOffsetOfMemberOfComponent(
       SceneGraphComponent,
       'isVisible'

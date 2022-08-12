@@ -88,8 +88,8 @@ void main()
 
   v_instanceInfo = a_instanceInfo;
 
-  float visibility = get_isVisible(a_instanceInfo);
-  if (visibility < 0.5)
+  bool visibility = get_isVisible(a_instanceInfo);
+  if (!visibility)
   {
     gl_Position = vec4(0.0);
   }
