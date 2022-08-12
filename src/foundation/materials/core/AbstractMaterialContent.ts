@@ -381,6 +381,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setIsBillboard(shaderProgram, args.isBillboard);
       if (firstTime || args.isVr) {
         const cameraComponent = _getCameraComponentForRendering(
           args.renderPass
@@ -438,6 +439,13 @@ export abstract class AbstractMaterialContent extends RnObject {
       (shaderProgram as any).normalMatrix,
       false,
       normalMatrix._v
+    );
+  }
+
+  protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean) {
+    (shaderProgram as any)._gl.uniform1i(
+      (shaderProgram as any).isBillboard,
+      isBillboard ? 1 : 0
     );
   }
 

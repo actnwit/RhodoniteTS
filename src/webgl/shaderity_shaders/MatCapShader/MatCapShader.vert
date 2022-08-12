@@ -30,13 +30,17 @@ out vec4 v_position_inWorld;
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
+  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
 
   bool isSkinning = false;
   isSkinning = processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,
     worldMatrix,
+    viewMatrix,
+    false,
     normalMatrix,
     normalMatrix,
     a_position,
@@ -45,8 +49,6 @@ void main(){
     v_normal_inWorld
   );
 
-  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
-  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 

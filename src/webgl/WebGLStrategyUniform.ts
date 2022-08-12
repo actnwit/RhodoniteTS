@@ -33,6 +33,7 @@ import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
 import {Is} from '../foundation/misc/Is';
+import { ShaderSemanticsInfo } from '../foundation';
 
 declare const spector: any;
 
@@ -49,7 +50,7 @@ export class WebGLStrategyUniform implements WebGLStrategy {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private __latestPrimitivePositionAccessorVersions: number[] = [];
 
-  private readonly componentMatrices = [
+  private readonly componentMatrices: ShaderSemanticsInfo[] = [
     {
       semantic: ShaderSemantics.VertexAttributesExistenceArray,
       compositionType: CompositionType.ScalarArray,
@@ -80,12 +81,23 @@ export class WebGLStrategyUniform implements WebGLStrategy {
       isCustomSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
+    {
+      semantic: ShaderSemantics.IsBillboard,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Bool,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isCustomSetting: true,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+    },
   ];
 
   private constructor() {}
 
   private static __vertexShaderMethodDefinitions_uniform = `uniform mat4 u_worldMatrix;
 uniform mat3 u_normalMatrix;
+uniform bool u_isBillboard;
 
 mat4 get_worldMatrix(float instanceId) {
   return u_worldMatrix;
@@ -98,6 +110,9 @@ mat3 get_normalMatrix(float instanceId) {
 bool get_isVisible(float instanceId) {
   return true; // visibility is handled in CPU side in WebGLStrategyUniform, so this is dummy value.
 }
+
+bool get_isBillboard(float instanceId) {
+  return u_isBillboard;
 }
 
 #ifdef RN_IS_VERTEX_SHADER
@@ -528,6 +543,7 @@ bool get_isVisible(float instanceId) {
           primitive: primitive,
           worldMatrix: entity.getSceneGraph().worldMatrix,
           normalMatrix: entity.getSceneGraph().normalMatrix,
+          isBillboard: entity.getSceneGraph().isBillboard,
           lightComponents: this.__lightComponents!,
           renderPass: renderPass,
           diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,

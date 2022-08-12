@@ -39,6 +39,8 @@ void main(){
   processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,
     worldMatrix,
+    viewMatrix,
+    false,
     normalMatrix,
     normalMatrix,
     a_position,

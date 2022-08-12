@@ -16,6 +16,7 @@ export type RenderingArg = {
   primitive: Primitive;
   worldMatrix: Matrix44;
   normalMatrix: IMatrix33;
+  isBillboard: boolean;
   lightComponents: LightComponent[];
   renderPass: RenderPass;
   diffuseCube?: CubeTexture;

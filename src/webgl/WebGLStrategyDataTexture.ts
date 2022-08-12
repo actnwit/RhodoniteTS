@@ -100,7 +100,16 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
       'isVisible'
     )} * 4 + int(instanceId);
     float visibility = fetchScalarNo16BytesAligned(index);
-    return visibility;
+    return (visibility > 0.5) ? true : false;
+  }
+
+  bool get_isBillboard(float instanceId) {
+    int index = ${Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'isBillboard'
+    )} * 4 + int(instanceId);
+    float isBillboard = fetchScalarNo16BytesAligned(index);
+    return (isBillboard > 0.5) ? true : false;
   }
 
 #ifdef RN_IS_VERTEX_SHADER
@@ -940,6 +949,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         entity: entity,
         worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
         normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
+        isBillboard: entity.getSceneGraph().isBillboard,
         lightComponents: this.__lightComponents!,
         renderPass: renderPass,
         primitive: primitive,

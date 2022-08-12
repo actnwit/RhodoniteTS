@@ -51,6 +51,7 @@ export class SceneGraphComponent extends Component {
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   private _isVisible: MutableScalar = MutableScalar.dummy();
+  private _isBillboard: MutableScalar = MutableScalar.dummy();
   private __aabbGizmo?: AABBGizmo;
   private __locatorGizmo?: LocatorGizmo;
   private __translationGizmo?: TranslationGizmo;
@@ -100,6 +101,13 @@ export class SceneGraphComponent extends Component {
       ComponentType.Float,
       [1]
     );
+    this.registerMember(
+      BufferUse.GPUInstanceData,
+      'isBillboard',
+      MutableScalar,
+      ComponentType.Float,
+      [0]
+    );
 
     this.submitToAllocation(this.maxNumberOfComponent);
   }
@@ -110,6 +118,28 @@ export class SceneGraphComponent extends Component {
 
   get isVisible() {
     return this._isVisible.getValue() === 1 ? true : false;
+  }
+
+  setVisibilityRecursively(flag: boolean) {
+    this.isVisible = flag;
+    for (const child of this.__children) {
+      child.setVisibilityRecursively(flag);
+    }
+  }
+
+  set isBillboard(flg: boolean) {
+    this._isBillboard.setValue(flg ? 1 : 0);
+  }
+
+  get isBillboard() {
+    return this._isBillboard.getValue() === 1 ? true : false;
+  }
+
+  setIsBillboardRecursively(flg: boolean) {
+    this._isBillboard.setValue(flg ? 1 : 0);
+    for (const child of this.__children) {
+      child.isBillboard = flg;
+    }
   }
 
   set isAABBGizmoVisible(flg: boolean) {
@@ -468,13 +498,6 @@ export class SceneGraphComponent extends Component {
       // console.count('skipped')
     }
     return this.__worldAABB;
-  }
-
-  setVisibilityRecursively(flag: boolean) {
-    this.isVisible = flag;
-    for (const child of this.__children) {
-      child.setVisibilityRecursively(flag);
-    }
   }
 
   /**

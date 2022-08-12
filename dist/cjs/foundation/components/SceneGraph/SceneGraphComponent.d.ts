@@ -28,6 +28,7 @@ export declare class SceneGraphComponent extends Component {
     private static readonly __originVector3;
     private static returnVector3;
     private _isVisible;
+    private _isBillboard;
     private __aabbGizmo?;
     private __locatorGizmo?;
     private __translationGizmo?;
@@ -42,6 +43,10 @@ export declare class SceneGraphComponent extends Component {
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     set isVisible(flg: boolean);
     get isVisible(): boolean;
+    setVisibilityRecursively(flag: boolean): void;
+    set isBillboard(flg: boolean);
+    get isBillboard(): boolean;
+    setIsBillboardRecursively(flg: boolean): void;
     set isAABBGizmoVisible(flg: boolean);
     get isAABBGizmoVisible(): boolean;
     set isLocatorGizmoVisible(flg: boolean);
@@ -96,7 +101,6 @@ export declare class SceneGraphComponent extends Component {
     calcWorldAABB(): AABB;
     private get __shouldJointWorldAabbBeCalculated();
     get worldAABB(): AABB;
-    setVisibilityRecursively(flag: boolean): void;
     /**
      * castRay Methods
      *

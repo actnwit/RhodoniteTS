@@ -35,6 +35,7 @@ export declare const ShaderSemantics: Readonly<{
     fromStringCaseSensitively: typeof fromStringCaseSensitively;
     WorldMatrix: ShaderSemanticsEnum;
     ViewMatrix: ShaderSemanticsEnum;
+    IsBillboard: ShaderSemanticsEnum;
     EnableViewMatrix: ShaderSemanticsEnum;
     ProjectionMatrix: ShaderSemanticsEnum;
     NormalMatrix: ShaderSemanticsEnum;

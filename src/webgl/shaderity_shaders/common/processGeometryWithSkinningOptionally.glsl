@@ -22,6 +22,8 @@ bool skinning(
 bool processGeometryWithMorphingAndSkinning(
   float skeletalComponentSID,
   in mat4 worldMatrix,
+  in mat4 viewMatrix,
+  in bool isBillboard,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
   in vec3 inPosition_inLocal,
@@ -43,6 +45,14 @@ bool processGeometryWithMorphingAndSkinning(
   }
 #endif
 
+  mat4 worldMatrixInner = worldMatrix;
+  if (isBillboard) {
+    mat4 inverseViewMatrix = inverse(viewMatrix);
+    inverseViewMatrix[3][0] = 0.0;//worldMatrix[3][0];
+    inverseViewMatrix[3][1] = 0.0;//worldMatrix[3][1];
+    inverseViewMatrix[3][2] = 0.0;//worldMatrix[3][2];
+    worldMatrixInner = inverseViewMatrix * worldMatrix;
+  }
 
 #ifdef RN_IS_SKINNING
   if (skeletalComponentSID >= 0.0) {
@@ -50,7 +60,7 @@ bool processGeometryWithMorphingAndSkinning(
   } else {
 #endif
     outNormalMatrix = inNormalMatrix;
-    outPosition_inWorld = worldMatrix * vec4(position_inLocal, 1.0);
+    outPosition_inWorld = worldMatrixInner * vec4(position_inLocal, 1.0);
     outNormal_inWorld = normalize(inNormalMatrix * inNormal_inLocal);
 #ifdef RN_IS_SKINNING
   }
