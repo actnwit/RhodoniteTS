@@ -60,16 +60,16 @@ import {createEffekseer} from './Gltf2ExporterEffekseer';
 import {Vector4} from '../math/Vector4';
 import {Tag} from '../core/RnObject';
 import {Primitive} from '../geometry';
-import { Ok } from '../misc';
-import { CameraType } from '../definitions';
-import { MathUtil } from '../math';
+import {Ok} from '../misc';
+import {CameraType} from '../definitions';
+import {MathUtil} from '../math';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
 export const GLTF2_EXPORT_GLB = 'glTF-Binary';
 export const GLTF2_EXPORT_DRACO = 'glTF-Draco';
 export const GLTF2_EXPORT_EMBEDDED = 'glTF-Embedded';
-export const GLTF2_EXPORT_NO_DOWNLOAD= 'No-Download';
+export const GLTF2_EXPORT_NO_DOWNLOAD = 'No-Download';
 
 export type Gltf2ExportType =
   | typeof GLTF2_EXPORT_GLTF
@@ -203,9 +203,7 @@ export class Gltf2Exporter {
     ): ISceneGraphEntity[] => {
       const sg = entity.getSceneGraph()!;
       if (sg.children.length > 0) {
-        const array: ISceneGraphEntity[] = root
-          ? []
-          : excludeWithTags(entity);
+        const array: ISceneGraphEntity[] = root ? [] : excludeWithTags(entity);
         for (let i = 0; i < sg.children.length; i++) {
           const child = sg.children[i];
           Array.prototype.push.apply(
@@ -253,7 +251,9 @@ export class Gltf2Exporter {
     let topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(
       c => c.entity
     );
-    topLevelEntities = topLevelEntities.filter(entity => checkPassOrNotWithTags(entity));
+    topLevelEntities = topLevelEntities.filter(entity =>
+      checkPassOrNotWithTags(entity)
+    );
 
     collectedEntities = collectedEntities.flatMap(entity =>
       collectDescendants(entity, true)
@@ -435,27 +435,29 @@ export class Gltf2Exporter {
         let glTF2Camera: Gltf2Camera;
         if (cameraComponent.type === CameraType.Perspective) {
           const originalAspect = cameraComponent.getTagValue('OriginalAspect');
-            glTF2Camera = {
-              name: cameraComponent.entity.uniqueName,
-              type: 'perspective',
-              perspective: {
-                aspectRatio: Is.exist(originalAspect) ? originalAspect : cameraComponent.aspect,
-                yfov: MathUtil.degreeToRadian(cameraComponent.fovy),
-                znear: cameraComponent.zNear,
-                zfar: cameraComponent.zFar,
-              }
-            } as Gltf2Camera;
+          glTF2Camera = {
+            name: cameraComponent.entity.uniqueName,
+            type: 'perspective',
+            perspective: {
+              aspectRatio: Is.exist(originalAspect)
+                ? originalAspect
+                : cameraComponent.aspect,
+              yfov: MathUtil.degreeToRadian(cameraComponent.fovy),
+              znear: cameraComponent.zNear,
+              zfar: cameraComponent.zFar,
+            },
+          } as Gltf2Camera;
         } else if (cameraComponent.type === CameraType.Orthographic) {
-            glTF2Camera = {
-              name: cameraComponent.entity.uniqueName,
-              type: 'orthographic',
-              orthographic: {
-                xmag: cameraComponent.xMag,
-                ymag: cameraComponent.yMag,
-                znear: cameraComponent.zNear,
-                zfar: cameraComponent.zFar,
-              }
-            } as Gltf2Camera;
+          glTF2Camera = {
+            name: cameraComponent.entity.uniqueName,
+            type: 'orthographic',
+            orthographic: {
+              xmag: cameraComponent.xMag,
+              ymag: cameraComponent.yMag,
+              znear: cameraComponent.zNear,
+              zfar: cameraComponent.zFar,
+            },
+          } as Gltf2Camera;
         }
         json.cameras.push(glTF2Camera!);
         node.camera = json.cameras.length - 1;
@@ -788,7 +790,6 @@ export class Gltf2Exporter {
     arraybuffer: ArrayBuffer
   ): void {
     {
-
       const a = document.createElement('a');
       a.download = filename + '.glb';
       const blob = new Blob([arraybuffer], {type: 'octet/stream'});
@@ -800,9 +801,7 @@ export class Gltf2Exporter {
     }
   }
 
-  exportGlbAsArrayBuffer() {
-
-  }
+  exportGlbAsArrayBuffer() {}
 
   /**
    * download the glTF2 files
@@ -842,15 +841,11 @@ export class Gltf2Exporter {
 function generateGlbArrayBuffer(json: Gltf2, arraybuffer: ArrayBuffer) {
   const headerBytes = 12; // 12byte-header
 
-
   // .glb file
   delete json.buffers![0].uri;
   let jsonStr = JSON.stringify(json, null, 2);
   let jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
-  const paddingBytes = DataUtil.calcPaddingBytes(
-    jsonArrayBuffer.byteLength,
-    4
-  );
+  const paddingBytes = DataUtil.calcPaddingBytes(jsonArrayBuffer.byteLength, 4);
   if (paddingBytes > 0) {
     for (let i = 0; i < paddingBytes; i++) {
       jsonStr += ' ';
@@ -1376,7 +1371,7 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.input)
         ? rnChannel.sampler.input.buffer
-        : (new Float32Array(rnChannel.sampler.input)).buffer
+        : new Float32Array(rnChannel.sampler.input).buffer
     ),
   });
   json.bufferViews.push(gltf2BufferView);
@@ -1441,7 +1436,7 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     uint8Array: new Uint8Array(
       ArrayBuffer.isView(rnChannel.sampler.output)
         ? rnChannel.sampler.output.buffer
-        : (new Float32Array(rnChannel.sampler.output)).buffer
+        : new Float32Array(rnChannel.sampler.output).buffer
     ),
   });
   json.bufferViews.push(gltf2BufferView);
@@ -1611,7 +1606,7 @@ async function handleTextureImage(
   resolve: (v?: ArrayBuffer) => void,
   rejected: (reason?: DOMException) => void
 ) {
-  if (option.type === GLTF2_EXPORT_GLTF ) {
+  if (option.type === GLTF2_EXPORT_GLTF) {
     setTimeout(() => {
       const a = document.createElement('a');
       const e = new MouseEvent('click');
