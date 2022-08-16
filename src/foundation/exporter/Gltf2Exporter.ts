@@ -384,6 +384,18 @@ export class Gltf2Exporter {
         }
       }
 
+      if (sceneGraphComponent.isBillboard) {
+        node.extensions = {
+          RHODONITE_billboard: {
+            isBillboard: true,
+          },
+        };
+
+        if (json.extensionsUsed.indexOf('RHODONITE_billboard') === -1) {
+          json.extensionsUsed.push('RHODONITE_billboard');
+        }
+      }
+
       // matrix
       const transform = entity.getTransform()!;
       node.rotation = [
