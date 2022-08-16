@@ -11,6 +11,32 @@ import {Is} from '../misc/Is';
 export class RhodoniteImportExtension {
   private static __instance: RhodoniteImportExtension;
 
+  static importBillboard(gltfJson: RnM2, groups: ISceneGraphEntity[]) {
+    const RHODONITE_billboard = 'RHODONITE_billboard';
+    if (
+      Is.not.exist(gltfJson.extensions) ||
+      Is.not.exist(gltfJson.extensions.RHODONITE_billboard) ||
+      gltfJson.extensionsUsed.findIndex(extension => {
+        return RHODONITE_billboard === extension;
+      }) === -1
+    ) {
+      return;
+    }
+
+    for (const node_i in gltfJson.nodes) {
+      const group = groups[node_i];
+      const nodeJson = gltfJson.nodes[node_i];
+      const sceneGraphComponent = group.getSceneGraph();
+      if (nodeJson.extensions !== undefined) {
+        if (nodeJson.extensions.RHODONITE_billboard !== undefined) {
+          if (nodeJson.extensions.RHODONITE_billboard.isBillboard === true) {
+            sceneGraphComponent.isBillboard = true;
+          }
+        }
+      }
+    }
+  }
+
   static importEffect(gltfJson: RnM2, rootGroup: ISceneGraphEntity) {
     const RHODONITE_effekseer = 'RHODONITE_effekseer';
     if (
