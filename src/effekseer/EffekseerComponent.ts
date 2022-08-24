@@ -47,7 +47,7 @@ export class EffekseerComponent extends Component {
   private __timer?: any;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
-  private static __isInitialized = false;
+  private __isInitialized = false;
   private static __tmp_identityMatrix_0: MutableMatrix44 =
     MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 =
@@ -232,7 +232,7 @@ export class EffekseerComponent extends Component {
     const webGLResourceRepository =
       CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    EffekseerComponent.__isInitialized = true;
+    this.__isInitialized = true;
     const gl = glw!.getRawContext();
     const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;
     this.__context.init(gl);
@@ -271,7 +271,7 @@ export class EffekseerComponent extends Component {
   }
 
   $load() {
-    if (EffekseerComponent.__isInitialized) {
+    if (this.__isInitialized) {
       return;
     }
     if (Is.not.exist(this.__context) && Is.not.exist(this.__effect)) {
