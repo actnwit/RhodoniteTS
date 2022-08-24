@@ -330,6 +330,18 @@ export class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Render);
   }
 
+  _destroy(): void {
+    if (Is.exist(this.__context)) {
+      this.__context.releaseEffect(!this.__effect);
+      effekseer.releaseContext(this.__context);
+      this.__context = undefined;
+    }
+    if (Is.exist(this.__handle)) {
+      this.__handle = undefined;
+    }
+    this.__effect = undefined;
+  }
+
   $render() {
     // const webGLResourceRepository =
     //   CGAPIResourceRepository.getWebGLResourceRepository();
