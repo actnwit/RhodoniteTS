@@ -195,6 +195,9 @@ export class ModelConverter {
     // Effekseer
     RhodoniteImportExtension.importEffect(gltfModel, rootGroup);
 
+    // Billboard
+    RhodoniteImportExtension.importBillboard(gltfModel, rnEntities);
+
     return rootGroup;
   }
 
