@@ -31,7 +31,7 @@ export declare class EffekseerComponent extends Component {
     private __timer?;
     private __sceneGraphComponent?;
     private __transformComponent?;
-    private static __isInitialized;
+    private __isInitialized;
     private static __tmp_identityMatrix_0;
     private static __tmp_identityMatrix_1;
     private isLoadEffect;
@@ -56,6 +56,7 @@ export declare class EffekseerComponent extends Component {
     private __createEffekseerContext;
     $load(): void;
     $logic(): void;
+    _destroy(): void;
     $render(): void;
     static sort_$render(renderPass: RenderPass): ComponentSID[];
     /**
