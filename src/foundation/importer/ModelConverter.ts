@@ -550,11 +550,23 @@ export class ModelConverter {
       cameraComponent.zFar = camera.perspective!.zfar
         ? camera.perspective!.zfar
         : 100000;
+      cameraComponent.tryToSetTag({
+        tag: 'OriginalFovY',
+        value: cameraComponent.fovy,
+      });
     } else if (cameraComponent.type === CameraType.Orthographic) {
       cameraComponent.xMag = camera.orthographic!.xmag;
       cameraComponent.yMag = camera.orthographic!.ymag;
       cameraComponent.zNear = camera.orthographic!.znear;
       cameraComponent.zFar = camera.orthographic!.zfar;
+      cameraComponent.tryToSetTag({
+        tag: 'OriginalXMag',
+        value: cameraComponent.xMag,
+      });
+      cameraComponent.tryToSetTag({
+        tag: 'OriginalYMag',
+        value: cameraComponent.yMag,
+      });
     }
     cameraComponent.tryToSetTag({
       tag: 'OriginalAspect',
