@@ -447,6 +447,7 @@ export class Gltf2Exporter {
         let glTF2Camera: Gltf2Camera;
         if (cameraComponent.type === CameraType.Perspective) {
           const originalAspect = cameraComponent.getTagValue('OriginalAspect');
+          const originalFovY = cameraComponent.getTagValue('OriginalFovY');
           glTF2Camera = {
             name: cameraComponent.entity.uniqueName,
             type: 'perspective',
@@ -454,18 +455,26 @@ export class Gltf2Exporter {
               aspectRatio: Is.exist(originalAspect)
                 ? originalAspect
                 : cameraComponent.aspect,
-              yfov: MathUtil.degreeToRadian(cameraComponent.fovy),
+              yfov: Is.exist(originalFovY)
+                ? MathUtil.degreeToRadian(originalFovY)
+                : MathUtil.degreeToRadian(cameraComponent.fovy),
               znear: cameraComponent.zNear,
               zfar: cameraComponent.zFar,
             },
           } as Gltf2Camera;
         } else if (cameraComponent.type === CameraType.Orthographic) {
+          const originalXMag = cameraComponent.getTagValue('OriginalXMag');
+          const originalYMag = cameraComponent.getTagValue('OriginalYMag');
           glTF2Camera = {
             name: cameraComponent.entity.uniqueName,
             type: 'orthographic',
             orthographic: {
-              xmag: cameraComponent.xMag,
-              ymag: cameraComponent.yMag,
+              xmag: Is.exist(originalXMag)
+                ? originalXMag
+                : cameraComponent.xMag,
+              ymag: Is.exist(originalYMag)
+                ? originalYMag
+                : cameraComponent.yMag,
               znear: cameraComponent.zNear,
               zfar: cameraComponent.zFar,
             },
