@@ -81,6 +81,10 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
     return this.setComponents(1, 1, 1, 1);
   }
 
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
+
   /**
    * normalize
    */

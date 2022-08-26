@@ -46,6 +46,10 @@ export class MutableScalar_<
   static get compositionType() {
     return CompositionType.Scalar;
   }
+
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
 }
 
 export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {

@@ -55,6 +55,7 @@ export declare class MutableVector3_<T extends FloatTypedArrayConstructor> exten
      * quaternion * vector3
      */
     multiplyQuaternion(quat: IQuaternion): this;
+    get bytesPerComponent(): number;
 }
 export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
     constructor(v: TypedArray);

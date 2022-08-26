@@ -101,6 +101,7 @@ export declare class Vector4_<T extends FloatTypedArrayConstructor> extends Abst
     dot(vec: IVector4): number;
     get className(): string;
     clone(): any;
+    get bytesPerComponent(): number;
 }
 export declare class Vector4 extends Vector4_<Float32ArrayConstructor> {
     constructor(x: Float32Array);

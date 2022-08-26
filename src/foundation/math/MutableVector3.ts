@@ -203,6 +203,10 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
 
     return this.setComponents(x, y, z);
   }
+
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
 }
 
 export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {

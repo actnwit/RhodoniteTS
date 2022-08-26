@@ -113,6 +113,7 @@ export declare class Vector3_<T extends FloatTypedArrayConstructor> extends Abst
     dot(vec: IVector3): number;
     get className(): string;
     clone(): any;
+    get bytesPerComponent(): number;
     static _lerp(lhs: IVector3, rhs: IVector3, ratio: number, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;
     static _fromCopyArray3(array: Array3<number>, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;
     static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;

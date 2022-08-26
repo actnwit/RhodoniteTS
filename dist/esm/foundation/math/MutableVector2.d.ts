@@ -42,6 +42,7 @@ export declare class MutableVector2_<T extends FloatTypedArrayConstructor> exten
      * divide vector
      */
     divideVector(vec: IVector2): this;
+    get bytesPerComponent(): number;
 }
 export declare class MutableVector2 extends MutableVector2_<Float32ArrayConstructor> implements IMutableVector, IMutableVector2 {
     constructor(x: TypedArray);

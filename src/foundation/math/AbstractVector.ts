@@ -58,4 +58,8 @@ export abstract class AbstractVector implements IVector {
   get className(): string {
     return this.constructor.name;
   }
+
+  get bytesPerComponent(): number {
+    throw new Error('Method not implemented.');
+  }
 }

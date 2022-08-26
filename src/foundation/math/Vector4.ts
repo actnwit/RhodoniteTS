@@ -467,6 +467,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       ])
     );
   }
+
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
 }
 
 export class Vector4 extends Vector4_<Float32ArrayConstructor> {

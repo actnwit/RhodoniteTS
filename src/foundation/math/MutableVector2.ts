@@ -135,6 +135,10 @@ export class MutableVector2_<
     }
     return this;
   }
+
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
 }
 
 export class MutableVector2

@@ -100,6 +100,7 @@ export declare class Vector2_<T extends FloatTypedArrayConstructor> extends Abst
     static _fromCopyVector2(vec2: IVector2, type: FloatTypedArrayConstructor): Vector2_<FloatTypedArrayConstructor>;
     static _fromCopyVector3(vec3: IVector3, type: FloatTypedArrayConstructor): Vector2_<FloatTypedArrayConstructor>;
     static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor): Vector2_<FloatTypedArrayConstructor>;
+    get bytesPerComponent(): number;
 }
 export declare class Vector2 extends Vector2_<Float32ArrayConstructor> implements IVector, IVector2 {
     constructor(x: TypedArray);
