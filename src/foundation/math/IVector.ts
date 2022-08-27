@@ -1,10 +1,12 @@
 import {TypedArray} from '../../types/CommonTypes';
+import {IQuaternion} from './IQuaternion';
 
 export interface IVector {
   readonly _v: TypedArray;
   readonly className: string;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
+  readonly bytesPerComponent: number;
   toString(): string;
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
@@ -172,6 +174,7 @@ export interface IMutableVector3 extends IMutableVector {
   divide(value: number): IMutableVector3;
   divideVector(vec: IVector3): IMutableVector3;
   cross(vec: IVector3): IMutableVector3;
+  multiplyQuaternion(quat: IQuaternion): IMutableVector3;
 }
 
 export interface IVector4 extends IVector {

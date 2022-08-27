@@ -203,6 +203,19 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
 
     return this.setComponents(x, y, z);
   }
+
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
+
+  static _fromCopy3(
+    x: number,
+    y: number,
+    z: number,
+    type: FloatTypedArrayConstructor
+  ) {
+    return new this(new type([x, y, z]), {type});
+  }
 }
 
 export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
@@ -260,6 +273,10 @@ export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
 
   get className() {
     return 'MutableVector3';
+  }
+
+  static fromCopy3(x: number, y: number, z: number): MutableVector3 {
+    return super._fromCopy3(x, y, z, Float32Array);
   }
 
   static fromCopyArray3(array: Array3<number>): MutableVector3 {
@@ -337,6 +354,10 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
       vec,
       Float64Array
     ) as MutableVector3d;
+  }
+
+  static fromCopy3(x: number, y: number, z: number): MutableVector3d {
+    return super._fromCopy3(x, y, z, Float64Array);
   }
 
   static fromCopyArray3(array: Array3<number>): MutableVector3d {

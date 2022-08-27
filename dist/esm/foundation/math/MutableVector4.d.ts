@@ -19,6 +19,7 @@ export declare class MutableVector4_<T extends FloatTypedArrayConstructor> exten
     copyComponents(vec: IVector4): this;
     zero(): this;
     one(): this;
+    get bytesPerComponent(): number;
     /**
      * normalize
      */

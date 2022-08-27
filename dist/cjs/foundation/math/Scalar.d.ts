@@ -16,6 +16,7 @@ export declare class Scalar_<T extends TypedArrayConstructor> extends AbstractVe
     static _fromCopyNumber(value: number, type: FloatTypedArrayConstructor): Scalar_<FloatTypedArrayConstructor>;
     static _dummy(type: FloatTypedArrayConstructor): Scalar_<FloatTypedArrayConstructor>;
     static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
+    get bytesPerComponent(): number;
 }
 export declare class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar {
     constructor(x: TypedArray);

@@ -65,6 +65,10 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   static get compositionType() {
     return CompositionType.Scalar;
   }
+
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
 }
 
 export class Scalar

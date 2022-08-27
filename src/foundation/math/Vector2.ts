@@ -383,6 +383,10 @@ export class Vector2_<
     });
     return vec;
   }
+
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
 }
 
 export class Vector2

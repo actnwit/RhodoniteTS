@@ -16,6 +16,7 @@ export declare class MutableScalar_<T extends TypedArrayConstructor> extends Sca
     toString(): string;
     setValue(value: number): this;
     static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
+    get bytesPerComponent(): number;
 }
 export declare class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
     constructor(x: TypedArray);

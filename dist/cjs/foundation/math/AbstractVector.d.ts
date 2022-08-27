@@ -18,4 +18,5 @@ export declare abstract class AbstractVector implements IVector {
     v(i: number): number;
     isTheSourceSame(arrayBuffer: ArrayBuffer): boolean;
     get className(): string;
+    get bytesPerComponent(): number;
 }

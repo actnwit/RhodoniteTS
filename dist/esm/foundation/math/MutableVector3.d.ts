@@ -55,6 +55,8 @@ export declare class MutableVector3_<T extends FloatTypedArrayConstructor> exten
      * quaternion * vector3
      */
     multiplyQuaternion(quat: IQuaternion): this;
+    get bytesPerComponent(): number;
+    static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor): MutableVector3_<FloatTypedArrayConstructor>;
 }
 export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
     constructor(v: TypedArray);
@@ -71,6 +73,7 @@ export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3;
     static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3;
     get className(): string;
+    static fromCopy3(x: number, y: number, z: number): MutableVector3;
     static fromCopyArray3(array: Array3<number>): MutableVector3;
     static fromCopyArray(array: Array<number>): MutableVector3;
     static fromFloat32Array(float32Array: Float32Array): MutableVector3;
@@ -91,6 +94,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
     static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
     static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
     static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3d;
+    static fromCopy3(x: number, y: number, z: number): MutableVector3d;
     static fromCopyArray3(array: Array3<number>): MutableVector3d;
     static fromCopyArray(array: Array<number>): MutableVector3d;
     clone(): MutableVector3d;

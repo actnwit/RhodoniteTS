@@ -486,6 +486,10 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     );
   }
 
+  get bytesPerComponent() {
+    return this._v.BYTES_PER_ELEMENT;
+  }
+
   static _lerp(
     lhs: IVector3,
     rhs: IVector3,
