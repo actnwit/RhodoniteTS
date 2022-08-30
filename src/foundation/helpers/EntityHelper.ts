@@ -123,6 +123,9 @@ function createLightWithCameraEntity(): ILightEntity {
     CameraComponent,
     entityAddedComponent
   );
+
+  entityAddedComponent2.getCamera().isSyncToLight = true;
+
   return entityAddedComponent2;
 }
 
