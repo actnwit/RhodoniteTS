@@ -1,4 +1,4 @@
-import {ICameraEntity} from '../../../dist/esm/index.js';
+import {ICameraEntity, ICameraEntityMethods, ILightEntity} from '../../../dist/esm/index.js';
 import Rn from '../../../dist/esm/index.mjs';
 
 const p = document.createElement('p');
@@ -11,16 +11,16 @@ document.body.appendChild(p);
   });
 
   // Spot Light
-  const spotLight = Rn.EntityHelper.createLightEntity();
-  spotLight.light.type = Rn.LightType.Spot;
+  const spotLight = Rn.EntityHelper.createLightWithCameraEntity();
+  spotLight.getLight().type = Rn.LightType.Spot;
+  spotLight.getTransform().rotate = new Rn.Vector3(Math.PI, 0, 0);
 
   // Main Camera
   const mainCameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   mainCameraEntity.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
 
   // Depth RenderPass
-  const renderPassDepth =
-    createRenderPassSpecifyingCameraComponent(depthCameraEntity);
+  const renderPassDepth = createRenderPassSpecifyingCameraComponent(spotLight);
   createFramebuffer(renderPassDepth, 1024, 1024);
 
   // Main RenderPass
@@ -69,9 +69,14 @@ document.body.appendChild(p);
     Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
   );
   setParameterForMeshComponent(
+    meshComponentSmallBoard,
+    Rn.ShaderSemantics.DepthBiasPV,
+    spotLight.getCamera().biasViewProjectionMatrix
+  );
+  setParameterForMeshComponent(
     meshComponentLargeBoard,
-    Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
-    Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
+    Rn.ShaderSemantics.DepthBiasPV,
+    spotLight.getCamera().biasViewProjectionMatrix
   );
 
   let count = 0;
@@ -122,11 +127,11 @@ document.body.appendChild(p);
   }
 
   function createRenderPassSpecifyingCameraComponent(
-    cameraEntity: ICameraEntity
+    lightWithCameraEntity: ILightEntity & ICameraEntityMethods
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
-    renderPass.cameraComponent = cameraEntity.getCamera();
+    renderPass.cameraComponent = lightWithCameraEntity.getCamera();
     return renderPass;
   }
 

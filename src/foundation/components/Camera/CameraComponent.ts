@@ -68,6 +68,13 @@ export class CameraComponent extends Component {
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
   private static __tmpMatrix44_0 = MutableMatrix44.zero();
+  private static __tmpMatrix44_1 = MutableMatrix44.zero();
+  private static __biasMatrix = Matrix44.fromCopy16ColumnMajor(
+    0.5, 0.0, 0.0, 0.0,
+    0.0, 0.5, 0.0, 0.0,
+    0.0, 0.0, 0.5, 0.0,
+    0.5, 0.5, 0.5, 1.0
+  );
   _xrLeft = false;
   _xrRight = false;
   public isSyncToLight = false;
@@ -629,6 +636,19 @@ export class CameraComponent extends Component {
       this._projectionMatrix,
       this._viewMatrix,
       CameraComponent.__tmpMatrix44_0
+    );
+  }
+
+  get biasViewProjectionMatrix() {
+    MutableMatrix44.multiplyTo(
+      this._projectionMatrix,
+      this._viewMatrix,
+      CameraComponent.__tmpMatrix44_0
+    );
+    return MutableMatrix44.multiplyTo(
+      CameraComponent.__biasMatrix,
+      CameraComponent.__tmpMatrix44_0,
+      CameraComponent.__tmpMatrix44_1
     );
   }
 
