@@ -36,18 +36,11 @@ import {VectorN} from '../foundation/math/VectorN';
 import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
 import {MiscUtil} from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import {Matrix33} from '../foundation/math/Matrix33';
-import {CubeTexture} from '../foundation/textures/CubeTexture';
 import {ModuleManager} from '../foundation/system/ModuleManager';
 import {RnXR} from '../xr/main';
-import {Is, Is as is} from '../foundation/misc/Is';
-import {
-  ISceneGraphEntity,
-  IMeshEntity,
-  ISkeletalEntity,
-} from '../foundation/helpers/EntityHelper';
+import {Is} from '../foundation/misc/Is';
+import {ISkeletalEntity} from '../foundation/helpers/EntityHelper';
 import {LightComponent} from '../foundation/components/Light/LightComponent';
-import {DataUtil} from '../foundation/misc/DataUtil';
 import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
 
 declare const spector: any;
@@ -401,7 +394,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
-    if (is.not.exist(mesh)) {
+    if (Is.not.exist(mesh)) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
