@@ -19,6 +19,7 @@ import {VectorN} from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import {Matrix44} from '../../math';
 
 export class LightComponent extends Component {
   public type = LightType.Point;
@@ -63,6 +64,80 @@ export class LightComponent extends Component {
 
   get intensity(): Vector3 {
     return this.__intensity;
+  }
+
+  get _up() {
+    return Vector3.fromCopy3(0, 1, 0);
+  }
+
+  getBiasProjectionViewMatrix() {
+    const eye = Vector3.fromCopy3(0, 0, 0);
+    const f = Vector3.normalize(Vector3.subtract(this.direction, eye));
+    const s = Vector3.normalize(Vector3.cross(f, this._up));
+    const u = Vector3.cross(s, f);
+
+    const cameraMatrix = Matrix44.fromCopy16RowMajor(
+      s.x,
+      s.y,
+      s.z,
+      -Vector3.dot(s, eye),
+      u.x,
+      u.y,
+      u.z,
+      -Vector3.dot(u, eye),
+      -f.x,
+      -f.y,
+      -f.z,
+      Vector3.dot(f, eye),
+      0,
+      0,
+      0,
+      1
+    );
+
+    const invertWorldMatrix = Matrix44.invert(
+      this.__sceneGraphComponent!.worldMatrixInner
+    );
+    const viewMatrix = Matrix44.multiply(cameraMatrix, invertWorldMatrix);
+
+    const zNear = 0.1;
+    const zFar = this.range !== -1 ? this.range : 10000;
+
+    // Projection matrix
+    const fovy = this.outerConeAngle;
+    const aspect = 1;
+    const yscale = 1.0 / Math.tan(0.5 * fovy);
+    const xscale = yscale / aspect;
+    const projectionMatrix = Matrix44.fromCopy16RowMajor(
+      xscale,
+      0,
+      0,
+      0,
+      0,
+      yscale,
+      0,
+      0,
+      0,
+      0,
+      -(zFar + zNear) / (zFar - zNear),
+      -(2.0 * zFar * zNear) / (zFar - zNear),
+      0,
+      0,
+      -1,
+      0
+    );
+
+    const biasMatrix = Matrix44.fromCopy16ColumnMajor(
+      0.5, 0.0, 0.0, 0.0,
+      0.0, 0.5, 0.0, 0.0,
+      0.0, 0.0, 0.5, 0.0,
+      0.5, 0.5, 0.5, 1.0
+    );
+
+    const pv = Matrix44.multiply(projectionMatrix, viewMatrix);
+    const biasPV = Matrix44.multiply(biasMatrix, pv);
+
+    return biasPV;
   }
 
   $create() {

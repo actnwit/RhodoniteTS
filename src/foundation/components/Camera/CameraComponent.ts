@@ -549,7 +549,6 @@ export class CameraComponent extends Component {
     return this._projectionMatrix;
   }
 
-
   calcViewMatrix() {
     const eye = this.eyeInner;
     const f = MutableVector3.subtractTo(

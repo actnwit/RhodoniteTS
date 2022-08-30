@@ -10,11 +10,9 @@ document.body.appendChild(p);
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  // Depth Camera
-  const depthCameraEntity = Rn.EntityHelper.createCameraEntity();
-  depthCameraEntity.getCamera().zFar = 50.0;
-  depthCameraEntity.getCamera().setFovyAndChangeFocalLength(40);
-  depthCameraEntity.translate = Rn.Vector3.fromCopyArray([2.0, 2.0, 5.0]);
+  // Spot Light
+  const spotLight = Rn.EntityHelper.createLightEntity();
+  spotLight.light.type = Rn.LightType.Spot;
 
   // Main Camera
   const mainCameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -34,8 +32,8 @@ document.body.appendChild(p);
   expression.addRenderPasses([renderPassDepth, renderPassMain]);
 
   // Scene Objects
-  const entitySmallBoard = createBoardEntityWithMaterial([{}, renderPassDepth]);
-  const entityLargeBoard = createBoardEntityWithMaterial([{}, renderPassDepth]);
+  const entitySmallBoard = createBoardEntityWithMaterial();
+  const entityLargeBoard = createBoardEntityWithMaterial();
 
   // set Transforms
   const scaleSmallBoard = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
@@ -91,7 +89,7 @@ document.body.appendChild(p);
 
   draw();
 
-  function createBoardEntityWithMaterial(arrayOfHelperFunctionArgument = []) {
+  function createBoardEntityWithMaterial() {
     const entity = Rn.EntityHelper.createMeshEntity();
 
     const primitive = new Rn.Plane();
@@ -101,9 +99,9 @@ document.body.appendChild(p);
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
-      material: Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-        ...arrayOfHelperFunctionArgument
-      ),
+      material: Rn.MaterialHelper.createClassicUberMaterial({
+        isShadow: true,
+      }),
     });
 
     const meshComponent = entity.getMesh();
@@ -114,7 +112,11 @@ document.body.appendChild(p);
   }
 
   function createFramebuffer(renderPass, height, width) {
-    const framebuffer = Rn.RenderableHelper.createDepthBuffer(height, width);
+    const framebuffer = Rn.RenderableHelper.createDepthBuffer(
+      height,
+      width,
+      {}
+    );
     renderPass.setFramebuffer(framebuffer);
     return framebuffer;
   }

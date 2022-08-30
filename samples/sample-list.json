@@ -43,6 +43,7 @@
     "PixelPickingTest",
     "Primitives",
     "ShadowMap",
+    "ShadowMap2",
     "ShadowMapDebugMode",
     "ShadowMapVariance",
     "Simple",
