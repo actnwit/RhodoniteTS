@@ -371,6 +371,9 @@ function fromGlslString(str_: string): CompositionTypeEnum {
     case 'sampler2D':
       str = 'TEXTURE_2D';
       break;
+    case 'sampler2DShadow':
+      str = 'TEXTURE_2D';
+      break;
     case 'samplerCube':
       str = 'TEXTURE_CUBE_MAP';
       break;

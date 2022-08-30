@@ -16,9 +16,13 @@ out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 out vec2 v_texcoord_0;
 out vec3 v_baryCentricCoord;
+out vec4 v_shadowCoord;
 
 uniform float u_pointSize; // initialValue=30
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
+
+// BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
+uniform mat4 u_depthBiasPV;
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -71,6 +75,8 @@ void main()
   {
     gl_Position = vec4(0.0);
   }
+
+  v_shadowCoord = u_depthBiasPV * v_position_inWorld;
 
 #pragma shaderity: require(../common/pointSprite.glsl)
 

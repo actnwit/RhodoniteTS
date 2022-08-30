@@ -224,6 +224,9 @@ function fromGlslString(str_: string): ComponentTypeEnum {
     case 'sampler2D':
       str = 'INT';
       break;
+    case 'sampler2DShadow':
+      str = 'INT';
+      break;
     case 'sampler3D':
       str = 'INT';
       break;

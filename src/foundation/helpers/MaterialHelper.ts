@@ -372,6 +372,7 @@ function createClassicUberMaterial({
   isSkinning = true,
   isLighting = false,
   isMorphing = false,
+  isShadow = false,
   alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
@@ -388,6 +389,7 @@ function createClassicUberMaterial({
     isSkinning,
     isLighting,
     isMorphing,
+    isShadow,
     alphaMode,
     useTangentAttribute: false,
     useNormalTexture: true,
