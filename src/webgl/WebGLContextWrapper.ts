@@ -315,26 +315,19 @@ export class WebGLContextWrapper {
   }
 
   drawBuffers(buffers: RenderBufferTargetEnum[]) {
-    const gl = this.__gl;
+    const gl = this.__gl as WebGL2RenderingContext;
     if (buffers.length === 0) {
+      gl.drawBuffers([gl.NONE]);
       return;
     }
     const buffer = buffers[0].webGLConstantValue();
-    if (this.getIsWebGL2(gl)) {
-      gl.drawBuffers(
-        buffers.map(buf => {
-          return buf.webGLConstantValue();
-        })
-      );
-    } else if (this.webgl1ExtDB) {
-      this.webgl1ExtDB.drawBuffersWEBGL(
-        buffers.map(buf => {
-          return buf.webGLConstantValue();
-        })
-      );
-    }
+    gl.drawBuffers(
+      buffers.map(buf => {
+        return buf.webGLConstantValue();
+      })
+    );
 
-    if (buffer === gl.NONE) {
+    if (buffer === gl.NONE || buffers.length === 0) {
       gl.colorMask(false, false, false, false);
     } else {
       gl.colorMask(true, true, true, true);
