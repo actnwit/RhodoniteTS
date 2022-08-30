@@ -139,6 +139,28 @@ export class RenderTargetTexture
     return data;
   }
 
+  downloadTexturePixelData() {
+    const data = this.getTexturePixelData();
+    const canvas = document.createElement('canvas');
+    canvas.width = this.__width;
+    canvas.height = this.__height;
+    const ctx = canvas.getContext('2d')!;
+    const imageData = new ImageData(
+      new Uint8ClampedArray(data.buffer),
+      this.__width,
+      this.__height
+    );
+    ctx.putImageData(imageData, this.__width, this.__height);
+    const dataUri = canvas.toDataURL('image/png');
+
+    const a = document.createElement('a');
+    const e = document.createEvent('MouseEvent');
+    a.href = dataUri;
+    a.download = 'texture.png';
+    e.initEvent('click', true, true); //, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null)
+    a.dispatchEvent(e);
+  }
+
   /**
    * Origin is left bottom
    *
