@@ -55,7 +55,7 @@ document.body.appendChild(p);
   renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
   // set depth shader to depth render pass
-  renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthEncodeMaterial());
+  renderPassDepth.setMaterial(Rn.MaterialHelper.createFlatMaterial());
 
   // set parameters
   const meshComponentSmallBoard = entitySmallBoard.getMesh();

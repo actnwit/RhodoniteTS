@@ -41,6 +41,8 @@ import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3Quality
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
 import {MaterialRepository} from '../materials/core/MaterialRepository';
 
@@ -391,6 +393,42 @@ function createClassicUberMaterial({
     useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
+    additionalShaderSemanticInfo: [],
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    materialNode,
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createFlatMaterial({
+  additionalName = '',
+  isSkinning = true,
+  isMorphing = false,
+  alphaMode = AlphaMode.Opaque,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+} = {}) {
+  const materialName =
+    'Flat' +
+    `_${additionalName}_` +
+    (isSkinning ? '+skinning' : '') +
+    ' alpha_' +
+    alphaMode.str.toLowerCase();
+
+  const materialNode = new CustomMaterialContent({
+    name: 'Flat',
+    isSkinning,
+    isLighting: false,
+    isMorphing,
+    alphaMode,
+    useTangentAttribute: false,
+    useNormalTexture: true,
+    vertexShader: FlatSingleShaderVertex,
+    pixelShader: FlatSingleShaderFragment,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -929,6 +967,7 @@ export const MaterialHelper = Object.freeze({
   recreateShaderityMaterial,
   createEmptyMaterial,
   createClassicUberMaterial,
+  createFlatMaterial,
   createPbrUberMaterial,
   createEnvConstantMaterial,
   createFXAA3QualityMaterial,
