@@ -1686,8 +1686,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       height,
       0,
       format.index,
-      // type.index,
-      ComponentType.UnsignedByte.index,
+      type.index,
       null
     );
     this.__glw!.unbindTexture2D(0);
