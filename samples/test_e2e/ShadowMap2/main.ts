@@ -16,7 +16,7 @@ declare const window: any;
   const spotLight = Rn.EntityHelper.createLightWithCameraEntity();
   spotLight.getLight().type = Rn.LightType.Spot;
   spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
-  // spotLight.getLight().range = 4;
+  // spotLight.getLight().range = 0.01;
   // spotLight.getCamera().zFar = 10000.5;
   // spotLight.getCamera().setFovyAndChangeFocalLength(40);
   spotLight.rotate = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
@@ -140,7 +140,7 @@ declare const window: any;
   }
 
   function createFramebuffer(renderPass, height, width) {
-    const framebuffer = Rn.RenderableHelper.createDepthBuffer(
+    const framebuffer = Rn.RenderableHelper.createDepthBuffer2(
       height,
       width,
       {}
