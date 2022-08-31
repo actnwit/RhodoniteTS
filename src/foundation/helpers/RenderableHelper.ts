@@ -72,8 +72,8 @@ function createDepthBuffer(
     internalFormat = TextureParameter.Depth32F,
     format = PixelFormat.DepthComponent,
     type = ComponentType.Float,
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.Linear,
+    magFilter = TextureParameter.Nearest,
+    minFilter = TextureParameter.Nearest,
     wrapS = TextureParameter.Repeat,
     wrapT = TextureParameter.Repeat,
   }
@@ -108,8 +108,8 @@ function createDepthBuffer2(
     internalFormat = TextureParameter.Depth32F,
     format = PixelFormat.DepthComponent,
     type = ComponentType.Float,
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.Linear,
+    magFilter = TextureParameter.Nearest,
+    minFilter = TextureParameter.Nearest,
     wrapS = TextureParameter.Repeat,
     wrapT = TextureParameter.Repeat,
   }

@@ -15,10 +15,12 @@ declare const window: any;
   // Spot Light
   const spotLight = Rn.EntityHelper.createLightWithCameraEntity();
   spotLight.getLight().type = Rn.LightType.Spot;
-  spotLight.getCamera().zFar = 5.5;
-  spotLight.getCamera().setFovyAndChangeFocalLength(40);
+  spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
+  // spotLight.getLight().range = 4;
+  // spotLight.getCamera().zFar = 10000.5;
+  // spotLight.getCamera().setFovyAndChangeFocalLength(40);
   spotLight.rotate = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
-  spotLight.translate = Rn.Vector3.fromCopy3(0.0, 2.0, 0);
+  spotLight.translate = Rn.Vector3.fromCopy3(0.0, 1.0, 0);
 
   // Main Camera
   const mainCameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -72,16 +74,6 @@ declare const window: any;
     Rn.ShaderSemantics.DiffuseColorFactor,
     Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
   );
-  setParameterForMeshComponent(
-    meshComponentSmallBoard,
-    Rn.ShaderSemantics.DepthBiasPV,
-    spotLight.getCamera().biasViewProjectionMatrix
-  );
-  setParameterForMeshComponent(
-    meshComponentLargeBoard,
-    Rn.ShaderSemantics.DepthBiasPV,
-    spotLight.getCamera().biasViewProjectionMatrix
-  );
   setTextureParameterForMeshComponent(
     meshComponentSmallBoard,
     Rn.ShaderSemantics.DepthTexture,
@@ -109,6 +101,16 @@ declare const window: any;
     }
     Rn.System.process([expression]);
 
+    setParameterForMeshComponent(
+      meshComponentSmallBoard,
+      Rn.ShaderSemantics.DepthBiasPV,
+      spotLight.getCamera().biasViewProjectionMatrix
+    );
+    setParameterForMeshComponent(
+      meshComponentLargeBoard,
+      Rn.ShaderSemantics.DepthBiasPV,
+      spotLight.getCamera().biasViewProjectionMatrix
+    );
     count++;
     requestAnimationFrame(draw);
   };
@@ -138,7 +140,7 @@ declare const window: any;
   }
 
   function createFramebuffer(renderPass, height, width) {
-    const framebuffer = Rn.RenderableHelper.createDepthBuffer2(
+    const framebuffer = Rn.RenderableHelper.createDepthBuffer(
       height,
       width,
       {}

@@ -466,7 +466,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     ) {
       console.log('MaterialTypeName: ' + materialTypeName);
       console.log(MiscUtil.addLineNumberToCode(shaderText));
-      throw new Error(
+      console.error(
         'An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader)
       );
     }
@@ -491,7 +491,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       console.log(MiscUtil.addLineNumberToCode(vertexShaderText));
       console.log(MiscUtil.addLineNumberToCode('Fragment Shader:'));
       console.log(MiscUtil.addLineNumberToCode(fragmentShaderText));
-      throw new Error(
+      console.error(
         'Unable to initialize the shader program: ' +
           gl.getProgramInfoLog(shaderProgram)
       );

@@ -709,20 +709,20 @@ export class CameraComponent extends Component {
 
   $logic({renderPass}: {renderPass: RenderPass}) {
     const lightComponent = this.entity.tryToGetLight();
-    // if (this.isSyncToLight && Is.exist(lightComponent)) {
-    //   this._eyeInner.copyComponents(CameraComponent._eye);
-    //   this._directionInner.copyComponents(this._direction);
-    //   // this._directionInner.copyComponents(lightComponent.direction);
-    //   this._upInner.copyComponents(this._up);
-    //   // this.setFovyAndChangeFilmSize(
-    //   //   MathUtil.radianToDegree(lightComponent.outerConeAngle)
-    //   // );
-    //   this._cornerInner.copyComponents(this._corner);
-    //   // this.aspect = 1;
-    //   // this.zNear = 0.1;
-    //   // this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
-    //   this._parametersInner.copyComponents(this._parameters);
-    // } else {
+    if (this.isSyncToLight && Is.exist(lightComponent)) {
+      this._eyeInner.copyComponents(CameraComponent._eye);
+      this._directionInner.copyComponents(this._direction);
+      // this._directionInner.copyComponents(lightComponent.direction);
+      this._upInner.copyComponents(this._up);
+      this.setFovyAndChangeFilmSize(
+        MathUtil.radianToDegree(lightComponent.outerConeAngle)
+      );
+      this._cornerInner.copyComponents(this._corner);
+      this.aspect = 1;
+      this.zNear = 0.1;
+      this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
+      this._parametersInner.copyComponents(this._parameters);
+    } else {
       const cameraControllerComponent = this.entity.tryToGetCameraController();
       if (Is.exist(cameraControllerComponent)) {
         this._parametersInner.w = this._parameters.w;
@@ -735,7 +735,7 @@ export class CameraComponent extends Component {
           this._parametersInner.copyComponents(this._parameters);
         }
       }
-    // }
+    }
 
     this.calcViewMatrix();
 

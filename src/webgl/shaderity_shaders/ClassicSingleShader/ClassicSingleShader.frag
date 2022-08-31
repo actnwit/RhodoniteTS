@@ -21,7 +21,7 @@ uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
 uniform sampler2D u_normalTexture; // initialValue=(1,blue)
 uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_diffuseColorTextureRotation; // initialValue=0
-uniform sampler2D u_depthTexture; // initialValue=(2,white)
+uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 
 #pragma shaderity: require(../common/rt0.glsl)
 // #pragma shaderity: require(../common/deliot2019SeamlessTexture.glsl)
@@ -124,13 +124,16 @@ void main ()
   // Shadow
 #ifdef RN_USE_SHADOW_MAPPING
   float visibility = 1.0;
-  if ( textureProj( u_depthTexture, v_shadowCoord ).r  <  v_shadowCoord.z / v_shadowCoord.w){
+  float bias = 0.005;
+  if ( textureProj( u_depthTexture, v_shadowCoord ).r  < (v_shadowCoord.z - bias) / v_shadowCoord.w ) {
     visibility = 0.5;
   }
-  // shadingColor *= visibility;
-  // shadingColor *= texture( u_depthTexture, v_shadowCoord.xy ).z;
+  shadingColor *= visibility;
+  // shadingColor.rgb = texture( u_depthTexture, v_shadowCoord.xy ).rrr;
   // shadingColor.rgb = vec3(v_shadowCoord.xy, 0.0);
-  shadingColor.rgb = vec3(texture( u_depthTexture, diffuseColorTexUv).r, 0.0, 0.0);
+  // shadingColor.rgb = vec3(diffuseColorTexUv, 0.0);
+  // shadingColor.rgb = vec3(texture( u_depthTexture, diffuseColorTexUv).rrr);
+  // shadingColor.rgb = texture( u_depthTexture, diffuseColorTexUv).rgb;
   // shadingColor.rgb = vec3(textureProj( u_depthTexture, v_shadowCoord ).z, 0.0, 0.0);
   alpha = 1.0;
 #endif
