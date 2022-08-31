@@ -1,8 +1,10 @@
-import {ICameraEntity, ICameraEntityMethods, ILightEntity} from '../../../dist/esm/index.js';
+import {ICameraEntityMethods, ILightEntity} from '../../../dist/esm/index.js';
 import Rn from '../../../dist/esm/index.mjs';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
+
+declare const window: any;
 
 (async () => {
   await Rn.System.init({
@@ -13,11 +15,15 @@ document.body.appendChild(p);
   // Spot Light
   const spotLight = Rn.EntityHelper.createLightWithCameraEntity();
   spotLight.getLight().type = Rn.LightType.Spot;
-  spotLight.getTransform().rotate = new Rn.Vector3(Math.PI, 0, 0);
+  spotLight.getCamera().zFar = 5.5;
+  spotLight.getCamera().setFovyAndChangeFocalLength(40);
+  spotLight.rotate = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
+  spotLight.translate = Rn.Vector3.fromCopy3(0.0, 2.0, 0);
 
   // Main Camera
   const mainCameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  mainCameraEntity.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
+  mainCameraEntity.translate = Rn.Vector3.fromCopyArray([0.5, 3, 0.5]);
+  mainCameraEntity.rotate = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 
   // Depth RenderPass
   const renderPassDepth = createRenderPassSpecifyingCameraComponent(spotLight);
@@ -29,6 +35,7 @@ document.body.appendChild(p);
 
   // Expression
   const expression = new Rn.Expression();
+  // expression.addRenderPasses([renderPassDepth]);
   expression.addRenderPasses([renderPassDepth, renderPassMain]);
 
   // Scene Objects
@@ -36,17 +43,14 @@ document.body.appendChild(p);
   const entityLargeBoard = createBoardEntityWithMaterial();
 
   // set Transforms
-  const scaleSmallBoard = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
-  const translateSmallBoard = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
-  const rotateSmallBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
-  const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -1.5]);
-  const rotateBigBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+  const translateSmallBoard = Rn.Vector3.fromCopyArray([0.0, 0.5, -0.0]);
+  const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -0.0]);
 
-  entitySmallBoard.getTransform().scale = scaleSmallBoard;
+  entitySmallBoard.getTransform().scale = Rn.Vector3.fromCopy3(0.2, 0.2, 0.2);
   entitySmallBoard.getTransform().translate = translateSmallBoard;
-  entitySmallBoard.getTransform().rotate = rotateSmallBoard;
+  // entitySmallBoard.getTransform().rotate = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
   entityLargeBoard.getTransform().translate = translateBigBoard;
-  entityLargeBoard.getTransform().rotate = rotateBigBoard;
+  // entityLargeBoard.getTransform().rotate = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
 
   // set entities to render passes
   renderPassDepth.addEntities([entitySmallBoard, entityLargeBoard]);
@@ -78,6 +82,23 @@ document.body.appendChild(p);
     Rn.ShaderSemantics.DepthBiasPV,
     spotLight.getCamera().biasViewProjectionMatrix
   );
+  setTextureParameterForMeshComponent(
+    meshComponentSmallBoard,
+    Rn.ShaderSemantics.DepthTexture,
+    renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
+  );
+  setTextureParameterForMeshComponent(
+    meshComponentLargeBoard,
+    Rn.ShaderSemantics.DepthTexture,
+    renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
+  );
+
+  window.download = function () {
+    renderPassDepth
+      .getFramebuffer()
+      .getDepthAttachedRenderTargetTexture()!
+      .downloadTexturePixelData();
+  };
 
   let count = 0;
 
@@ -117,11 +138,17 @@ document.body.appendChild(p);
   }
 
   function createFramebuffer(renderPass, height, width) {
-    const framebuffer = Rn.RenderableHelper.createDepthBuffer(
+    const framebuffer = Rn.RenderableHelper.createDepthBuffer2(
       height,
       width,
       {}
     );
+    // const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
+    //   height,
+    //   width,
+    //   1,
+    //   {}
+    // );
     renderPass.setFramebuffer(framebuffer);
     return framebuffer;
   }
@@ -142,6 +169,19 @@ document.body.appendChild(p);
     for (let j = 0; j < primitiveNumber; j++) {
       const primitive = mesh.getPrimitiveAt(j);
       primitive.material.setParameter(shaderSemantic, value);
+    }
+  }
+  function setTextureParameterForMeshComponent(
+    meshComponent,
+    shaderSemantic,
+    value
+  ) {
+    const mesh = meshComponent.mesh;
+    const primitiveNumber = mesh.getPrimitiveNumber();
+
+    for (let j = 0; j < primitiveNumber; j++) {
+      const primitive = mesh.getPrimitiveAt(j);
+      primitive.material.setTextureParameter(shaderSemantic, value);
     }
   }
 })();

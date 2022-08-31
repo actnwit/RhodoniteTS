@@ -24,8 +24,8 @@ import {Matrix44} from '../../math';
 export class LightComponent extends Component {
   public type = LightType.Point;
   private __intensity = Vector3.fromCopyArray([1, 1, 1]);
-  private readonly __initialdirection = Vector3.fromCopyArray([0, 1, 0]);
-  private __direction = Vector3.fromCopyArray([0, 1, 0]);
+  private readonly __initialdirection = Vector3.fromCopyArray([0, 0, -1]);
+  private __direction = Vector3.fromCopyArray([0, 0, -1]);
   public innerConeAngle = 0.0;
   public outerConeAngle = Math.PI / 4.0; // in radian
   public range = -1;

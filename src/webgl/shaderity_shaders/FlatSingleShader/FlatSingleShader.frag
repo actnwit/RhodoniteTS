@@ -62,11 +62,12 @@ void main ()
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
 
-#pragma shaderity: require(../common/alphaMask.glsl)
+// #pragma shaderity: require(../common/alphaMask.glsl)
 
-  rt0 = vec4(diffuseColor* alpha, alpha);
+  // rt0 = vec4(diffuseColor * alpha, alpha);
+  rt0 = vec4(1.0, 0.0, 0.0, 1.0);
 
-#pragma shaderity: require(../common/setAlphaIfNotInAlphaBlendMode.glsl)
+// #pragma shaderity: require(../common/setAlphaIfNotInAlphaBlendMode.glsl)
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 

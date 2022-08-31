@@ -1527,7 +1527,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
-        gl.DEPTH_STENCIL_ATTACHMENT,
+        attachmentType,
         gl.TEXTURE_2D,
         renderableWebGLResource,
         0
@@ -1686,7 +1686,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       height,
       0,
       format.index,
-      ComponentType.UnsignedByte.index,
+      type.index,
       null
     );
     this.__glw!.unbindTexture2D(0);
