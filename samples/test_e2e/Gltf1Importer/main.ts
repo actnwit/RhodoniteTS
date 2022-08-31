@@ -34,11 +34,7 @@ declare const window: any;
   ]);
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   lightEntity.getLight().type = Rn.LightType.Directional;
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0,
-    0,
-  ]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI, 0, 0]);
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
