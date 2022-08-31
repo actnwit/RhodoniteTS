@@ -135,5 +135,6 @@ export declare const ShaderSemantics: Readonly<{
     SpecularColorFactor: ShaderSemanticsClass;
     SpecularColorTexture: ShaderSemanticsClass;
     Ior: ShaderSemanticsClass;
+    DepthBiasPV: ShaderSemanticsClass;
 }>;
 export {};

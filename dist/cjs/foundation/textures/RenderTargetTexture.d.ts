@@ -27,6 +27,7 @@ export declare class RenderTargetTexture extends AbstractTexture implements IRen
     resize(width: Size, height: Size): void;
     destroy3DAPIResources(): boolean;
     getTexturePixelData(): Uint8Array;
+    downloadTexturePixelData(): void;
     /**
      * Origin is left bottom
      *

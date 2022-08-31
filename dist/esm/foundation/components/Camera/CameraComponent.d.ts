@@ -41,8 +41,11 @@ export declare class CameraComponent extends Component {
     private static __tmpVector3_1;
     private static __tmpVector3_2;
     private static __tmpMatrix44_0;
+    private static __tmpMatrix44_1;
+    private static __biasMatrix;
     _xrLeft: boolean;
     _xrRight: boolean;
+    isSyncToLight: boolean;
     private __frustum;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static set current(componentSID: ComponentSID);
@@ -113,6 +116,7 @@ export declare class CameraComponent extends Component {
     get projectionMatrix(): Matrix44;
     set projectionMatrix(projectionMatrix: Matrix44);
     get viewProjectionMatrix(): MutableMatrix44;
+    get biasViewProjectionMatrix(): MutableMatrix44;
     setValuesToGlobalDataRepositoryOnlyMatrices(): void;
     setValuesToGlobalDataRepository(): void;
     get worldPosition(): MutableVector3;

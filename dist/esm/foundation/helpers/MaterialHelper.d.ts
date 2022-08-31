@@ -26,10 +26,18 @@ declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning,
     alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createClassicUberMaterial({ additionalName, isSkinning, isLighting, isMorphing, alphaMode, maxInstancesNumber, }?: {
+declare function createClassicUberMaterial({ additionalName, isSkinning, isLighting, isMorphing, isShadow, alphaMode, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
+    isMorphing?: boolean | undefined;
+    isShadow?: boolean | undefined;
+    alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
+    maxInstancesNumber?: number | undefined;
+}): Material;
+declare function createFlatMaterial({ additionalName, isSkinning, isMorphing, alphaMode, maxInstancesNumber, }?: {
+    additionalName?: string | undefined;
+    isSkinning?: boolean | undefined;
     isMorphing?: boolean | undefined;
     alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
@@ -146,6 +154,7 @@ export declare const MaterialHelper: Readonly<{
     recreateShaderityMaterial: typeof recreateShaderityMaterial;
     createEmptyMaterial: typeof createEmptyMaterial;
     createClassicUberMaterial: typeof createClassicUberMaterial;
+    createFlatMaterial: typeof createFlatMaterial;
     createPbrUberMaterial: typeof createPbrUberMaterial;
     createEnvConstantMaterial: typeof createEnvConstantMaterial;
     createFXAA3QualityMaterial: typeof createFXAA3QualityMaterial;
