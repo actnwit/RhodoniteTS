@@ -26,6 +26,7 @@ export declare class LightComponent extends Component {
     get direction(): Vector3;
     set intensity(value: Vector3);
     get intensity(): Vector3;
+    get _up(): Vector3;
     $create(): void;
     $load(): void;
     $logic(): void;

@@ -38,27 +38,28 @@ declare const window: any;
 
   // prepare renderPasses
 
-  const renderPassHDR = await createRenderPassHDR(cameraComponentMain, [
+  const renderPassLDR = await createRenderPassLDR(cameraComponentMain, [
     rootGroup,
     entityEnvironmentCube,
   ]);
-  createAndSetFramebuffer(renderPassHDR, rnCanvasElement.width, 1, {
-    type: Rn.ComponentType.HalfFloat,
-  });
-  renderPassHDR.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
+  createAndSetFramebuffer(renderPassLDR, rnCanvasElement.width, 1, {});
+  renderPassLDR.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
   const materialHighLuminance =
     Rn.MaterialHelper.createDetectHighLuminanceMaterial(
       {maxInstancesNumber: 1},
-      renderPassHDR
+      renderPassLDR
     );
   const renderPassHighLuminance = createRenderPassPostEffect(
     materialHighLuminance,
     cameraComponentPostEffect
   );
-  createAndSetFramebuffer(renderPassHighLuminance, rnCanvasElement.width, 1, {
-    type: Rn.ComponentType.HalfFloat,
-  });
+  createAndSetFramebuffer(
+    renderPassHighLuminance,
+    rnCanvasElement.width,
+    1,
+    {}
+  );
 
   const renderPassesBlurredHighLuminance =
     createRenderPassesBlurredHighLuminance(
@@ -70,7 +71,7 @@ declare const window: any;
   const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
     cameraComponentMain,
     cameraComponentPostEffect,
-    renderPassHDR,
+    renderPassLDR,
     renderPassesBlurredHighLuminance
   );
 
@@ -89,7 +90,7 @@ declare const window: any;
 
   // prepare expressions
   const expressionDetectHighLuminance = createExpression([
-    renderPassHDR,
+    renderPassLDR,
     renderPassHighLuminance,
   ]);
   const expressionHighLuminance = createExpression(
@@ -186,7 +187,7 @@ declare const window: any;
     return entityCamera as Rn.ICameraEntity;
   }
 
-  async function createRenderPassHDR(
+  async function createRenderPassLDR(
     cameraComponent: Rn.CameraComponent,
     entityRenderTargets: Rn.ISceneGraphEntity[]
   ) {
@@ -314,7 +315,7 @@ declare const window: any;
   function createRenderPassesSynthesizeImages(
     cameraComponentMain: Rn.CameraComponent,
     cameraComponentPostEffect: Rn.CameraComponent,
-    renderPassHDR: Rn.RenderPass,
+    renderPassLDR: Rn.RenderPass,
     renderPassesBlurredHighLuminance: Rn.RenderPass[]
   ) {
     // the target of glare is non-white (color is not vec4(1.0)) region
@@ -325,12 +326,15 @@ declare const window: any;
       cameraComponentMain,
       rootGroup
     );
-    createAndSetFramebuffer(renderPassGlareTarget, rnCanvasElement.width, 1, {
-      type: Rn.ComponentType.HalfFloat,
-    });
+    createAndSetFramebuffer(
+      renderPassGlareTarget,
+      rnCanvasElement.width,
+      1,
+      {}
+    );
 
     const texturesSynthesize = [
-      renderPassHDR.getFramebuffer().colorAttachments[0],
+      renderPassLDR.getFramebuffer().colorAttachments[0],
     ] as Rn.RenderTargetTexture[];
     for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
       texturesSynthesize.push(
@@ -360,9 +364,7 @@ declare const window: any;
       renderPassSynthesizeGlare,
       rnCanvasElement.width,
       1,
-      {
-        type: Rn.ComponentType.HalfFloat,
-      }
+      {}
     );
 
     return [renderPassGlareTarget, renderPassSynthesizeGlare];
@@ -405,9 +407,7 @@ declare const window: any;
       material,
       cameraComponentPostEffect
     );
-    createAndSetFramebuffer(renderPass, resolutionBlur, 1, {
-      type: Rn.ComponentType.HalfFloat,
-    });
+    createAndSetFramebuffer(renderPass, resolutionBlur, 1, {});
 
     return renderPass;
   }

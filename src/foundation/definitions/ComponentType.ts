@@ -106,8 +106,8 @@ const Bool: ComponentTypeEnum = new ComponentTypeClass({
   sizeInBytes: 1,
 });
 const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({
-  index: 0x8d61,
-  str: 'HALF_FLOAT_OES',
+  index: 0x140b,
+  str: 'HALF_FLOAT',
   sizeInBytes: 2,
 });
 
@@ -222,6 +222,9 @@ function fromGlslString(str_: string): ComponentTypeEnum {
       str = 'INT';
       break;
     case 'sampler2D':
+      str = 'INT';
+      break;
+    case 'sampler2DShadow':
       str = 'INT';
       break;
     case 'sampler3D':

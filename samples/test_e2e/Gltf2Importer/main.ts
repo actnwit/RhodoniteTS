@@ -32,7 +32,7 @@ declare const window: any;
     lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
     lightEntity.getLight().type = Rn.LightType.Directional;
     lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
+      Math.PI,
       0,
       0,
     ]);

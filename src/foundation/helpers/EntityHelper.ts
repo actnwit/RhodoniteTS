@@ -113,6 +113,22 @@ function createLightEntity(): ILightEntity {
   return entityAddedComponent;
 }
 
+function createLightWithCameraEntity(): ILightEntity {
+  const entity = createGroupEntity();
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
+    LightComponent,
+    entity
+  );
+  const entityAddedComponent2 = EntityRepository.addComponentToEntity(
+    CameraComponent,
+    entityAddedComponent
+  );
+
+  entityAddedComponent2.getCamera().isSyncToLight = true;
+
+  return entityAddedComponent2;
+}
+
 export const EntityHelper = Object.freeze({
   createTransformEntity,
   createGroupEntity,
@@ -121,5 +137,6 @@ export const EntityHelper = Object.freeze({
   createCameraControllerEntity,
   createSkeletalEntity,
   createLightEntity,
+  createLightWithCameraEntity,
   createPhysicsEntity,
 });

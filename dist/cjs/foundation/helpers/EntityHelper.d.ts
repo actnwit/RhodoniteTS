@@ -29,6 +29,7 @@ declare function createCameraControllerEntity(): ICameraControllerEntity;
 declare function createSkeletalEntity(): ISkeletalEntity;
 declare function createPhysicsEntity(): IPhysicsEntity;
 declare function createLightEntity(): ILightEntity;
+declare function createLightWithCameraEntity(): ILightEntity;
 export declare const EntityHelper: Readonly<{
     createTransformEntity: typeof createTransformEntity;
     createGroupEntity: typeof createGroupEntity;
@@ -37,6 +38,7 @@ export declare const EntityHelper: Readonly<{
     createCameraControllerEntity: typeof createCameraControllerEntity;
     createSkeletalEntity: typeof createSkeletalEntity;
     createLightEntity: typeof createLightEntity;
+    createLightWithCameraEntity: typeof createLightWithCameraEntity;
     createPhysicsEntity: typeof createPhysicsEntity;
 }>;
 export {};

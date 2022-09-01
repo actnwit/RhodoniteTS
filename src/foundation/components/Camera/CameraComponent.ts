@@ -30,6 +30,8 @@ import { RenderPass } from '../../renderer/RenderPass';
 import {ICameraEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import { Is } from '../../misc/Is';
+import { MiscUtil } from '../../misc';
 
 export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
@@ -66,8 +68,16 @@ export class CameraComponent extends Component {
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
   private static __tmpMatrix44_0 = MutableMatrix44.zero();
+  private static __tmpMatrix44_1 = MutableMatrix44.zero();
+  private static __biasMatrix = Matrix44.fromCopy16ColumnMajor(
+    0.5, 0.0, 0.0, 0.0,
+    0.0, 0.5, 0.0, 0.0,
+    0.0, 0.0, 0.5, 0.0,
+    0.5, 0.5, 0.5, 1.0
+  );
   _xrLeft = false;
   _xrRight = false;
+  public isSyncToLight = false;
 
   private __frustum = new Frustum();
 
@@ -549,7 +559,6 @@ export class CameraComponent extends Component {
     return this._projectionMatrix;
   }
 
-
   calcViewMatrix() {
     const eye = this.eyeInner;
     const f = MutableVector3.subtractTo(
@@ -630,6 +639,19 @@ export class CameraComponent extends Component {
     );
   }
 
+  get biasViewProjectionMatrix() {
+    MutableMatrix44.multiplyTo(
+      this._projectionMatrix,
+      this._viewMatrix,
+      CameraComponent.__tmpMatrix44_0
+    );
+    return MutableMatrix44.multiplyTo(
+      CameraComponent.__biasMatrix,
+      CameraComponent.__tmpMatrix44_0,
+      CameraComponent.__tmpMatrix44_1
+    );
+  }
+
   setValuesToGlobalDataRepositoryOnlyMatrices() {
     CameraComponent.__globalDataRepository.setValue(
       ShaderSemantics.ViewMatrix,
@@ -686,23 +708,36 @@ export class CameraComponent extends Component {
   }
 
   $logic({renderPass}: {renderPass: RenderPass}) {
-    const cameraControllerComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      CameraControllerComponent
-    ) as CameraControllerComponent;
-    if (cameraControllerComponent == null) {
-      if (!this.primitiveMode) {
-        this._eyeInner.copyComponents(CameraComponent._eye);
-        this._directionInner.copyComponents(this._direction);
-        this._upInner.copyComponents(this._up);
-        this._cornerInner.copyComponents(this._corner);
-        this._parametersInner.copyComponents(this._parameters);
-      }
+    const lightComponent = this.entity.tryToGetLight();
+    if (this.isSyncToLight && Is.exist(lightComponent)) {
+      this._eyeInner.copyComponents(CameraComponent._eye);
+      this._directionInner.copyComponents(this._direction);
+      // this._directionInner.copyComponents(lightComponent.direction);
+      this._upInner.copyComponents(this._up);
+      this.setFovyAndChangeFilmSize(
+        MathUtil.radianToDegree(lightComponent.outerConeAngle)
+      );
+      this._cornerInner.copyComponents(this._corner);
+      this.aspect = 1;
+      this.zNear = 0.1;
+      this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
+      this._parametersInner.copyComponents(this._parameters);
     } else {
-      this._parametersInner.w = this._parameters.w;
+      const cameraControllerComponent = this.entity.tryToGetCameraController();
+      if (Is.exist(cameraControllerComponent)) {
+        this._parametersInner.w = this._parameters.w;
+      } else {
+        if (!this.primitiveMode) {
+          this._eyeInner.copyComponents(CameraComponent._eye);
+          this._directionInner.copyComponents(this._direction);
+          this._upInner.copyComponents(this._up);
+          this._cornerInner.copyComponents(this._corner);
+          this._parametersInner.copyComponents(this._parameters);
+        }
+      }
     }
-    this.calcViewMatrix();
 
+    this.calcViewMatrix();
 
     if (!this._xrLeft && !this._xrRight) {
       this.calcProjectionMatrix();

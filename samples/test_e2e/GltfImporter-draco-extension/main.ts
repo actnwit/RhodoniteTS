@@ -81,7 +81,7 @@ document.body.appendChild(p);
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
   lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
+    Math.PI,
     0.0,
     0.0,
   ]);

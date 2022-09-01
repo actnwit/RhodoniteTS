@@ -6,7 +6,7 @@ import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export declare class CustomMaterialContent extends AbstractMaterialContent {
     private static __globalDataRepository;
-    constructor({ name, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, alphaMode, useTangentAttribute, useNormalTexture, vertexShader, pixelShader, additionalShaderSemanticInfo, }: {
+    constructor({ name, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isShadow, alphaMode, useTangentAttribute, useNormalTexture, vertexShader, pixelShader, additionalShaderSemanticInfo, }: {
         name: string;
         isMorphing: boolean;
         isSkinning: boolean;
@@ -16,6 +16,7 @@ export declare class CustomMaterialContent extends AbstractMaterialContent {
         isVolume?: boolean;
         isSheen?: boolean;
         isSpecular?: boolean;
+        isShadow?: boolean;
         alphaMode: AlphaModeEnum;
         useTangentAttribute: boolean;
         useNormalTexture: boolean;
