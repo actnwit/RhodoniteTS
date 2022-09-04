@@ -33,7 +33,7 @@ import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import {IMatrix44} from '../../math/IMatrix';
-import { IQuaternion, MutableScalar, Quaternion } from '../../math';
+import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -713,6 +713,72 @@ export class SceneGraphComponent extends Component {
     ) {
       this.__scaleGizmo._update();
     }
+  }
+
+  set translate(vec: IVector3) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().translate = vec;
+    } else {
+      MutableMatrix44.invertTo(
+        this.__parent.entity.getSceneGraph().worldMatrixInner,
+        this.__tmpMatrix
+      );
+      this.entity.getTransform().translate =
+        this.__tmpMatrix.multiplyVector3(vec);
+    }
+  }
+
+  get translate(): IVector3 {
+    return this.worldMatrixInner.getTranslate();
+  }
+
+  set rotate(vec: IVector3) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().rotate = vec;
+    } else {
+      MutableMatrix44.invertTo(
+        this.__parent.entity.getSceneGraph().worldMatrixInner.getRotate(),
+        this.__tmpMatrix
+      );
+      this.entity.getTransform().rotate = this.__tmpMatrix.multiplyVector3(vec);
+    }
+  }
+
+  get rotate() {
+    return this.worldMatrixInner.toEulerAngles();
+  }
+
+  set quaternion(quat: IQuaternion) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().quaternion = quat;
+    } else {
+      const quat = Quaternion.fromMatrix(
+        this.__parent.entity.getSceneGraph().worldMatrixInner
+      );
+      const invQuat = Quaternion.invert(quat);
+      this.entity.getTransform().quaternion = Quaternion.multiply(
+        invQuat,
+        quat
+      );
+    }
+  }
+
+  set scale(vec: IVector3) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().scale = vec;
+    } else {
+      MutableMatrix44.invertTo(
+        Matrix44.scale(
+          this.__parent.entity.getSceneGraph().worldMatrixInner.getScale()
+        ),
+        this.__tmpMatrix
+      );
+      this.entity.getTransform().scale = this.__tmpMatrix.multiplyVector3(vec);
+    }
+  }
+
+  get scale() {
+    return this.worldMatrixInner.getScale();
   }
 
   /**
