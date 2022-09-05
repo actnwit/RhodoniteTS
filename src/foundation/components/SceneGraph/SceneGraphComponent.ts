@@ -773,13 +773,12 @@ export class SceneGraphComponent extends Component {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().scale = vec;
     } else {
-      MutableMatrix44.invertTo(
-        Matrix44.scale(
-          this.__parent.entity.getSceneGraph().worldMatrixInner.getScale()
-        ),
-        this.__tmpMatrix
-      );
-      this.entity.getTransform().scale = this.__tmpMatrix.multiplyVector3(vec);
+      const mat = this.__parent.entity.getSceneGraph().worldMatrix;
+      mat._v[12] = 0;
+      mat._v[13] = 0;
+      mat._v[14] = 0;
+      const invMat = MutableMatrix44.invert(mat);
+      this.entity.getTransform().scale = invMat.multiplyVector3(vec);
     }
   }
 
