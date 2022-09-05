@@ -406,11 +406,11 @@ export class SceneGraphComponent extends Component {
       return this.entity.getTransform().quaternion;
     }
 
-    const matrixFromAncestorToParent =
-      this.parent.getQuaternionRecursively();
+    const matrixFromAncestorToParent = this.parent.getQuaternionRecursively();
     return Quaternion.multiply(
       matrixFromAncestorToParent,
-      this.entity.getTransform().quaternion);
+      this.entity.getTransform().quaternion
+    );
   }
 
   /**
