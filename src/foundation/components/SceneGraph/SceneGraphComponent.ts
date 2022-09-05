@@ -736,11 +736,13 @@ export class SceneGraphComponent extends Component {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().rotate = vec;
     } else {
-      MutableMatrix44.invertTo(
-        this.__parent.entity.getSceneGraph().worldMatrixInner.getRotate(),
-        this.__tmpMatrix
+      const quat = Quaternion.fromMatrix(
+        this.__parent.entity.getSceneGraph().worldMatrixInner
       );
-      this.entity.getTransform().rotate = this.__tmpMatrix.multiplyVector3(vec);
+      const invQuat = Quaternion.invert(quat);
+      const rotation = Quaternion.fromMatrix(Matrix44.rotate(vec));
+      const result = Quaternion.multiply(rotation, invQuat);
+      this.entity.getTransform().rotate = result.toEulerAngles();
     }
   }
 
@@ -752,13 +754,13 @@ export class SceneGraphComponent extends Component {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().quaternion = quat;
     } else {
-      const quat = Quaternion.fromMatrix(
+      const quatInner = Quaternion.fromMatrix(
         this.__parent.entity.getSceneGraph().worldMatrixInner
       );
-      const invQuat = Quaternion.invert(quat);
+      const invQuat = Quaternion.invert(quatInner);
       this.entity.getTransform().quaternion = Quaternion.multiply(
-        invQuat,
-        quat
+        quat,
+        invQuat
       );
     }
   }
