@@ -11,7 +11,7 @@ import { Vector4 } from '../../math/Vector4';
 import { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
-import { IQuaternion } from '../../math';
+import { IQuaternion, IVector3 } from '../../math';
 export declare class SceneGraphComponent extends Component {
     private __parent?;
     private static __sceneGraphs;
@@ -126,6 +126,14 @@ export declare class SceneGraphComponent extends Component {
     $create(): void;
     $logic(): void;
     private __updateGizmos;
+    set translate(vec: IVector3);
+    get translate(): IVector3;
+    set rotate(vec: IVector3);
+    get rotate(): IVector3;
+    set quaternion(quat: IQuaternion);
+    get quaternion(): IQuaternion;
+    set scale(vec: IVector3);
+    get scale(): IVector3;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component
