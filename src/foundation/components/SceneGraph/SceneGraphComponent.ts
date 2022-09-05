@@ -763,6 +763,10 @@ export class SceneGraphComponent extends Component {
     }
   }
 
+  get quaternion() {
+    return Quaternion.fromMatrix(this.worldMatrixInner);
+  }
+
   set scale(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().scale = vec;
