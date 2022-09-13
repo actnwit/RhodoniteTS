@@ -33,7 +33,7 @@ import {RaycastResultEx2} from '../../geometry/types/GeometryTypes';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import {IMatrix44} from '../../math/IMatrix';
-import { IQuaternion, MutableScalar, Quaternion } from '../../math';
+import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -406,11 +406,11 @@ export class SceneGraphComponent extends Component {
       return this.entity.getTransform().quaternion;
     }
 
-    const matrixFromAncestorToParent =
-      this.parent.getQuaternionRecursively();
+    const matrixFromAncestorToParent = this.parent.getQuaternionRecursively();
     return Quaternion.multiply(
       matrixFromAncestorToParent,
-      this.entity.getTransform().quaternion);
+      this.entity.getTransform().quaternion
+    );
   }
 
   /**
@@ -713,6 +713,77 @@ export class SceneGraphComponent extends Component {
     ) {
       this.__scaleGizmo._update();
     }
+  }
+
+  set translate(vec: IVector3) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().translate = vec;
+    } else {
+      MutableMatrix44.invertTo(
+        this.__parent.entity.getSceneGraph().worldMatrixInner,
+        this.__tmpMatrix
+      );
+      this.entity.getTransform().translate =
+        this.__tmpMatrix.multiplyVector3(vec);
+    }
+  }
+
+  get translate(): IVector3 {
+    return this.worldMatrixInner.getTranslate();
+  }
+
+  set rotate(vec: IVector3) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().rotate = vec;
+    } else {
+      const quat = Quaternion.fromMatrix(
+        this.__parent.entity.getSceneGraph().worldMatrixInner
+      );
+      const invQuat = Quaternion.invert(quat);
+      const rotation = Quaternion.fromMatrix(Matrix44.rotate(vec));
+      const result = Quaternion.multiply(rotation, invQuat);
+      this.entity.getTransform().rotate = result.toEulerAngles();
+    }
+  }
+
+  get rotate() {
+    return this.worldMatrixInner.toEulerAngles();
+  }
+
+  set quaternion(quat: IQuaternion) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().quaternion = quat;
+    } else {
+      const quatInner = Quaternion.fromMatrix(
+        this.__parent.entity.getSceneGraph().worldMatrixInner
+      );
+      const invQuat = Quaternion.invert(quatInner);
+      this.entity.getTransform().quaternion = Quaternion.multiply(
+        quat,
+        invQuat
+      );
+    }
+  }
+
+  get quaternion() {
+    return Quaternion.fromMatrix(this.worldMatrixInner);
+  }
+
+  set scale(vec: IVector3) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().scale = vec;
+    } else {
+      const mat = this.__parent.entity.getSceneGraph().worldMatrix;
+      mat._v[12] = 0;
+      mat._v[13] = 0;
+      mat._v[14] = 0;
+      const invMat = MutableMatrix44.invert(mat);
+      this.entity.getTransform().scale = invMat.multiplyVector3(vec);
+    }
+  }
+
+  get scale() {
+    return this.worldMatrixInner.getScale();
   }
 
   /**
