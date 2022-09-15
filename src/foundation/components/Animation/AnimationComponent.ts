@@ -300,6 +300,30 @@ export class AnimationComponent extends Component {
     }
   }
 
+  get defaultTranslate() {
+    return this.__backupDefaultValues.get(
+      AnimationAttribute.Translate.str as AnimationPathName
+    ) as IVector3;
+  }
+
+  get defaultQuaternion() {
+    return this.__backupDefaultValues.get(
+      AnimationAttribute.Quaternion.str as AnimationPathName
+    ) as Quaternion;
+  }
+
+  get defaultRotation() {
+    return (this.__backupDefaultValues.get(
+      AnimationAttribute.Quaternion.str as AnimationPathName
+    ) as Quaternion)!.toEulerAngles();
+  }
+
+  get defaultScale() {
+    return this.__backupDefaultValues.get(
+      AnimationAttribute.Scale.str as AnimationPathName
+    ) as IVector3;
+  }
+
   private backupDefaultValues() {
     this.__backupDefaultValues.set(
       AnimationAttribute.Quaternion.str as AnimationPathName,
