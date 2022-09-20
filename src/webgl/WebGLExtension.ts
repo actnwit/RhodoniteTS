@@ -88,6 +88,10 @@ const CompressedTextureBptc: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 20,
   str: 'EXT_texture_compression_bptc',
 });
+const GMAN_WEBGL_MEMORY: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 21,
+  str: 'GMAN_webgl_memory',
+});
 
 const typeList = [
   VertexArrayObject,
@@ -137,4 +141,5 @@ export const WebGLExtension = Object.freeze({
   CompressedTextureEtc,
   CompressedTextureEtc1,
   CompressedTextureBptc,
+  GMAN_WEBGL_MEMORY,
 });
