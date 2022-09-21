@@ -29,6 +29,7 @@
         "fxaa",
         "glsl",
         "gltf",
+        "GMAN",
         "hdri",
         "hlsl",
         "instanceid",

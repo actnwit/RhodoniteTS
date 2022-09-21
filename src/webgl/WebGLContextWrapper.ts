@@ -49,6 +49,7 @@ export class WebGLContextWrapper {
   public readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
   public readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
   public readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
+  public readonly webgl2ExtGmanWM?: any;
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
@@ -116,46 +117,8 @@ export class WebGLContextWrapper {
       this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureBptc
       );
-    } else {
-      this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
-      this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
-      this.webgl1ExtTF = this.__getExtension(WebGLExtension.TextureFloat);
-      this.webgl1ExtTHF = this.__getExtension(WebGLExtension.TextureHalfFloat);
-      this.webgl1ExtTFL = this.__getExtension(
-        WebGLExtension.TextureFloatLinear
-      );
-      this.webgl1ExtTHFL = this.__getExtension(
-        WebGLExtension.TextureHalfFloatLinear
-      );
-      this.webgl1ExtTFA = this.__getExtension(
-        WebGLExtension.TextureFilterAnisotropic
-      );
-      this.webgl1ExtEIUI = this.__getExtension(WebGLExtension.ElementIndexUint);
-      this.webgl1ExtSTL = this.__getExtension(WebGLExtension.ShaderTextureLod);
-      this.webgl1ExtDRV = this.__getExtension(WebGLExtension.ShaderDerivatives);
-      this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
-      this.webgl1ExtBM = this.__getExtension(WebGLExtension.BlendMinmax);
-      this.webgl1ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloat);
-      this.webgl1ExtCTAstc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureAstc
-      );
-      this.webgl1ExtCTS3tc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureS3tc
-      );
-      this.webgl1ExtCTPvrtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTexturePvrtc
-      );
-      this.webgl1ExtCTAtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureAtc
-      );
-      this.webgl1ExtCTEtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureEtc
-      );
-      this.webgl1ExtCTEtc1 = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureEtc1
-      );
-      this.webgl1ExtCTBptc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureBptc
+      this.webgl2ExtGmanWM = this.__getCompressedTextureExtension(
+        WebGLExtension.GMAN_WEBGL_MEMORY
       );
     }
     this.__getUniformBufferInfo();
@@ -557,5 +520,14 @@ export class WebGLContextWrapper {
 
   getMaxFragmentUniformVectors() {
     return this.__maxFragmentUniformVectors;
+  }
+
+  getWebGLMemoryInfo() {
+    if (this.webgl2ExtGmanWM) {
+      const result = this.webgl2ExtGmanWM.getMemoryInfo();
+      return result;
+    }
+
+    return undefined;
   }
 }

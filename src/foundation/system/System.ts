@@ -445,4 +445,8 @@ export class System {
 
     return this.__instance;
   }
+
+  static getCurrentWebGLContextWrapper() {
+    return this.__webglResourceRepository?.currentWebGLContextWrapper;
+  }
 }
