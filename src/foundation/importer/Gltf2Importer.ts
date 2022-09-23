@@ -222,7 +222,7 @@ export class Gltf2Importer {
         callback
       );
     } catch (err) {
-      console.log('this._loadInner error in _loadAsTextJson', err);
+      console.error('this._loadInner error in _loadAsTextJson', err);
     }
     return gltfJson;
   }

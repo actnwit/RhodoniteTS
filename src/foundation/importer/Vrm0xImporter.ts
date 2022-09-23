@@ -70,24 +70,11 @@ export class Vrm0xImporter {
     return rootGroups;
   }
 
-  static async __importVRM(
-    uri: string,
-    file: ArrayBuffer,
-    renderPasses: RenderPass[],
-    options: GltfLoadOption
+  static async __importVRM0x(
+    gltfModel: RnM2,
+    renderPasses: RenderPass[]
   ): Promise<void> {
-    const gltfModel = await Gltf2Importer._importGltfOrGlbFromArrayBuffers(
-      file,
-      options.files!,
-      options
-    );
-
-    if (Is.not.exist(gltfModel)) {
-      console.error('failed to load VRM file');
-      return;
-    }
-
-    //
+    // process defaultMaterialHelperArgumentArray
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray;
@@ -104,6 +91,7 @@ export class Vrm0xImporter {
       );
     }
 
+    // get rootGroup
     let rootGroup;
     const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
