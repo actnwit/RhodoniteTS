@@ -423,7 +423,6 @@ export type GltfLoadOption = {
   cameraComponent?: CameraComponent;
   fileType?: string;
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
-  transmission?: boolean;
   __isImportVRM?: boolean; // internal use only
 };
 
