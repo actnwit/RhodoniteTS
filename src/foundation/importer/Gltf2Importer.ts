@@ -28,7 +28,7 @@ export class Gltf2Importer {
         const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.importGltfOrGlbFromArrayBuffers(
+          return await this._importGltfOrGlbFromArrayBuffers(
             (options.files as GltfFileBuffers)[fileName],
             options.files,
             options,
@@ -42,7 +42,7 @@ export class Gltf2Importer {
     }
 
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
+    const glTFJson = await this._importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
       options?.files ?? {},
       options,
@@ -59,7 +59,7 @@ export class Gltf2Importer {
     options?: GltfLoadOption
   ) {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    const glTFJson = await this.importGltfOrGlbFromArrayBuffers(
+    const glTFJson = await this._importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
       {},
       options,
@@ -78,7 +78,7 @@ export class Gltf2Importer {
    * @param uri .gltf file's uri (Optional)
    * @returns a glTF2 based JSON pre-processed
    */
-  public static async importGltfOrGlbFromArrayBuffers(
+  public static async _importGltfOrGlbFromArrayBuffers(
     arrayBuffer: ArrayBuffer,
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
@@ -98,7 +98,7 @@ export class Gltf2Importer {
         options as GltfLoadOption,
         uri
       ).catch(err => {
-        console.log('this.__loadAsTextJson error', err);
+        console.error('this.__importGltf error', err);
         return undefined;
       });
       return gltfJson;
@@ -108,7 +108,7 @@ export class Gltf2Importer {
         otherFiles,
         options as GltfLoadOption
       ).catch(err => {
-        console.log('this.__loadAsBinaryJson error', err);
+        console.error('this.importGlb error', err);
         return undefined;
       });
       return gltfJson;

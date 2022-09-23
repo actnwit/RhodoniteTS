@@ -72,7 +72,7 @@ export class GltfImporter {
     options = this.__initOptions(options);
 
     const renderPasses: RenderPass[] =
-      await this.__importMultipleModelsFromArrayBuffers(
+      await this.__findMainFileContentFromArrayBuffers(
         files,
         options,
         callback
@@ -162,7 +162,7 @@ export class GltfImporter {
     }) as RnPromise<RenderPass[]>;
   }
 
-  private static __importMultipleModelsFromArrayBuffers(
+  private static __findMainFileContentFromArrayBuffers(
     files: GltfFileBuffers,
     options: GltfLoadOption,
     callback?: RnPromiseCallback
@@ -174,11 +174,12 @@ export class GltfImporter {
     }
 
     for (const fileName in files) {
-      // filename is uri
+      // filename is uri with file extension
       const fileExtension = DataUtil.getExtension(fileName);
+      // if the file is main file type?
       if (this.__isValidExtension(fileExtension)) {
         importPromises.push(
-          this.__importToRenderPassesFromArrayBufferPromise(
+          this.__detectTheModelFileTypeAndImport(
             fileName,
             renderPasses,
             options,
@@ -214,7 +215,7 @@ export class GltfImporter {
   ) {
     return DataUtil.fetchArrayBuffer(uri).then((arrayBuffer: ArrayBuffer) => {
       options.files![uri] = arrayBuffer;
-      return this.__importToRenderPassesFromArrayBufferPromise(
+      return this.__detectTheModelFileTypeAndImport(
         uri,
         renderPasses,
         options,
@@ -252,7 +253,7 @@ export class GltfImporter {
     }
   }
 
-  private static __importToRenderPassesFromArrayBufferPromise(
+  private static __detectTheModelFileTypeAndImport(
     fileName: string,
     renderPasses: RenderPass[],
     options: GltfLoadOption,
@@ -332,15 +333,17 @@ export class GltfImporter {
           }
           break;
         case FileType.VRM:
-          options.__isImportVRM = true;
-          Vrm0xImporter.__importVRM(
-            uri,
-            fileArrayBuffer,
-            renderPasses,
-            options
-          ).then(() => {
-            resolve();
-          });
+          {
+            options.__isImportVRM = true;
+            Vrm0xImporter.__importVRM(
+              uri,
+              fileArrayBuffer,
+              renderPasses,
+              options
+            ).then(() => {
+              resolve();
+            });
+          }
           break;
         default:
           console.error('detect invalid format');
