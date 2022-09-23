@@ -423,7 +423,7 @@ export type GltfLoadOption = {
   cameraComponent?: CameraComponent;
   fileType?: string;
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
-  transmission?: boolean;
+  transmission?: boolean; // Set to true by the importer if the KHS_material_transmission extension is used.
   __isImportVRM?: boolean; // internal use only
 };
 
