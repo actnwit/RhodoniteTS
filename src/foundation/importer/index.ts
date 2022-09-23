@@ -7,4 +7,4 @@ export * from './GltfImporter';
 export * from './ILoaderExtension';
 export * from './ModelConverter';
 export * from './RhodoniteImportExtension';
-export * from './VrmImporter';
+export * from './Vrm0xImporter';

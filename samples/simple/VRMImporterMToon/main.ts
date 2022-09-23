@@ -81,7 +81,7 @@ declare const window: any;
   ]);
 
   // rootGroups[0]: main entity, rootGroups[1]: outline entity(if exist)
-  const rootGroups = await Rn.VrmImporter.import(
+  const rootGroups = await Rn.Vrm0xImporter.import(
     './../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [

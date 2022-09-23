@@ -20,7 +20,7 @@ import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
  * The VRM Importer class.
  * This class will be integrated into GltfImporter.
  */
-export class VrmImporter {
+export class Vrm0xImporter {
   private constructor() {}
 
   /**
@@ -37,7 +37,7 @@ export class VrmImporter {
       return [];
     }
 
-    const textures = VrmImporter._createTextures(gltfModel);
+    const textures = Vrm0xImporter._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray;
@@ -45,13 +45,13 @@ export class VrmImporter {
       defaultMaterialHelperArgumentArray[0].textures = textures;
     }
 
-    VrmImporter._initializeMaterialProperties(gltfModel, textures.length);
+    Vrm0xImporter._initializeMaterialProperties(gltfModel, textures.length);
 
     // setup rootGroup
     let rootGroups;
     const rootGroupMain = ModelConverter.convertToRhodoniteObject(gltfModel!);
 
-    const existOutline = VrmImporter._existOutlineMaterial(
+    const existOutline = Vrm0xImporter._existOutlineMaterial(
       gltfModel.extensions.VRM
     );
     if (existOutline) {
@@ -65,8 +65,8 @@ export class VrmImporter {
     } else {
       rootGroups = [rootGroupMain];
     }
-    VrmImporter._readSpringBone(rootGroupMain, gltfModel as VRM);
-    VrmImporter._readVRMHumanoidInfo(gltfModel as VRM, rootGroupMain);
+    Vrm0xImporter._readSpringBone(rootGroupMain, gltfModel as VRM);
+    Vrm0xImporter._readVRMHumanoidInfo(gltfModel as VRM, rootGroupMain);
 
     return rootGroups;
   }
@@ -479,7 +479,7 @@ export class VrmImporter {
     if (Is.not.exist(gltfModel)) {
       return undefined;
     }
-    VrmImporter._readVRMHumanoidInfo(gltfModel as VRM);
+    Vrm0xImporter._readVRMHumanoidInfo(gltfModel as VRM);
     return gltfModel as VRM;
   }
 

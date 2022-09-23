@@ -11,7 +11,7 @@ import {FileType} from '../definitions/FileType';
 import {glTF1} from '../../types/glTF1';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
 import {RnPromise, RnPromiseCallback} from '../misc/RnPromise';
-import {VrmImporter} from './VrmImporter';
+import {Vrm0xImporter} from './Vrm0xImporter';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -333,7 +333,7 @@ export class GltfImporter {
           break;
         case FileType.VRM:
           options.__isImportVRM = true;
-          VrmImporter.__importVRM(
+          Vrm0xImporter.__importVRM(
             uri,
             fileArrayBuffer,
             renderPasses,
