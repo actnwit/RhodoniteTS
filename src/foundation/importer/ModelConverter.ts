@@ -981,7 +981,7 @@ export class ModelConverter {
       }
 
       // For VRM
-      if (rnLoaderOptions.isImportVRM) {
+      if (rnLoaderOptions.__isImportVRM) {
         const material = this.__setVRMMaterial(
           rnPrimitive,
           node,
@@ -1259,7 +1259,7 @@ export class ModelConverter {
       // set alpha threshold except for VRM
       if (
         material.alphaMode === AlphaMode.Mask &&
-        !gltfModel.asset.extras?.rnLoaderOptions?.isImportVRM
+        !gltfModel.asset.extras?.rnLoaderOptions?.__isImportVRM
       ) {
         material.setParameter(
           ShaderSemantics.AlphaCutoff,

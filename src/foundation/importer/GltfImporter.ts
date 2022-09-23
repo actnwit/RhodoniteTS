@@ -269,7 +269,7 @@ export class GltfImporter {
 
     return new RnPromise((resolve, reject) => {
       const fileArrayBuffer = options.files![fileName];
-      options.isImportVRM = false;
+      options.__isImportVRM = false;
       let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
       switch (fileType) {
         case FileType.Gltf:
@@ -332,7 +332,7 @@ export class GltfImporter {
           }
           break;
         case FileType.VRM:
-          options.isImportVRM = true;
+          options.__isImportVRM = true;
           VrmImporter.__importVRM(
             uri,
             fileArrayBuffer,
