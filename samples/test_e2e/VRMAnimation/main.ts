@@ -37,7 +37,7 @@ declare const window: any;
   const animGltf2ModelPromise = Rn.Gltf2Importer.import(
     '../../../assets/vrm/test.glb'
   );
-  const vrmModelPromise = Rn.GltfImporter.importJsonOfVRM(
+  const vrmModelPromise = Rn.VrmImporter.importJsonOfVRM(
     '../../../assets/vrm/test.vrm'
   );
   const vrmExpressionPromise = Rn.GltfImporter.import(
