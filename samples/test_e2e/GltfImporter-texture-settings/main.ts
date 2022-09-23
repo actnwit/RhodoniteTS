@@ -18,7 +18,7 @@ document.body.appendChild(p);
   cameraComponent.setFovyAndChangeFocalLength(25.0);
 
   // gltf
-  const expression = await Rn.GltfImporter.import(
+  const expression = (await Rn.GltfImporter.importFromUri(
     './../../../assets/gltf/glTF-Sample-Models/2.0/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb',
     {
       cameraComponent: cameraComponent,
@@ -28,7 +28,7 @@ document.body.appendChild(p);
         },
       ],
     }
-  );
+  )).unwrapForce();
 
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller =

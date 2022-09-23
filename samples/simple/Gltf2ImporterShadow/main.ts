@@ -88,7 +88,9 @@ import Rn from '../../../dist/esm/index.mjs';
   }
 
   async function createEntityGltf2(uriGltf: string) {
-    const gltf2JSON = await Rn.Gltf2Importer.import(uriGltf);
+    const gltf2JSON = (
+      await Rn.Gltf2Importer.importFromUri(uriGltf)
+    ).unwrapForce();
     const entityRootGroup =
       Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 

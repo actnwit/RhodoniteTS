@@ -67,10 +67,9 @@ declare const window: any;
   cameraComponent.aspect = 1;
 
   // 3D Model for Test
-  const response = await Rn.Gltf2Importer.import(
+  const response = (await Rn.Gltf2Importer.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
-  );
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
+  )).unwrapForce();
   const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
   // const sphereEntity = createSphere();
 

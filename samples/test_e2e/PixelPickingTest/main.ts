@@ -96,23 +96,23 @@ let p: any;
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-  //  const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/Box/glTF/Box.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/BoxTextured/glTF/BoxTextured.gltf');
-  //  const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/Lantern/glTF/Lantern.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/VC/glTF/VC.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/GearboxAssy/glTF/GearboxAssy.gltf');
-  // const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/Buggy/glTF/Buggy.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
-  //  const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-  //  const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
-  const response = await Rn.Gltf1Importer.import(
-    '../../../assets/gltf/glTF-Sample-Models/1.0/BoxAnimated/glTF/BoxAnimated.gltf'
-  );
-  //const response = await importer.import('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
+  //  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/Box/glTF/Box.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/BoxTextured/glTF/BoxTextured.gltf');
+  //  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/Lantern/glTF/Lantern.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/VC/glTF/VC.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/GearboxAssy/glTF/GearboxAssy.gltf');
+  // const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Buggy/glTF/Buggy.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
+  //  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
+  //  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
+  const response = (await Rn.Gltf2Importer.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+  )).unwrapForce();
+  //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
   const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
   //  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);

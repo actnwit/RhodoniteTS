@@ -21,7 +21,7 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const mainExpression = await Rn.GltfImporter.import(
+  const mainExpression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/BarramundiFish/glTF-Binary/BarramundiFish.glb',
     {
       cameraComponent: cameraComponent,
@@ -31,7 +31,7 @@ document.body.appendChild(p);
         },
       ],
     }
-  );
+  )).unwrapForce();
   expressions.push(mainExpression);
 
   // env

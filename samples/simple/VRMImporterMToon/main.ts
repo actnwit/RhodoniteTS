@@ -81,7 +81,7 @@ declare const window: any;
   ]);
 
   // rootGroups[0]: main entity, rootGroups[1]: outline entity(if exist)
-  const rootGroups = await Rn.Vrm0xImporter.import(
+  const rootGroups = (await Rn.Vrm0xImporter.importFromUri(
     './../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [
@@ -94,7 +94,7 @@ declare const window: any;
       ],
       // autoResizeTexture: true
     }
-  );
+  )).unwrapForce();
 
   for (const rootGroup of rootGroups) {
     rootGroup.getTransform().scale = rootGroupScale;

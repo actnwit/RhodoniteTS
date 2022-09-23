@@ -4,6 +4,7 @@ import {RnPromise, RnPromiseCallback} from '../misc/RnPromise';
 import {Is} from '../misc/Is';
 import {ifDefinedThen} from '../misc/MiscUtil';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
+import {Err, IResult, Ok} from '../misc/Result';
 
 declare let Rn: any;
 
@@ -19,64 +20,55 @@ export class Gltf2Importer {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  public static async import(
+  public static async importFromUri(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<RnM2 | undefined> {
+  ): Promise<IResult<RnM2, never>> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
 
-    try {
-      const glTFJson = await this._importGltfOrGlbFromArrayBuffers(
-        arrayBuffer,
-        options?.files ?? {},
-        options,
-        uri
-      );
-      return glTFJson;
-    } catch (err) {
-      console.log('this.__loadFromArrayBuffer error', err);
-      return undefined;
-    }
+    const result = await this._importGltfOrGlbFromArrayBuffers(
+      arrayBuffer,
+      options?.files ?? {},
+      options,
+      uri
+    );
+    return result;
   }
 
   public static async importFromArrayBuffers(
     files: GltfFileBuffers,
     options?: GltfLoadOption
-  ) {
+  ): Promise<IResult<RnM2, never>> {
     for (const fileName in files) {
       const fileExtension = DataUtil.getExtension(fileName);
 
       if (fileExtension === 'gltf' || fileExtension === 'glb') {
-        try {
-          const gltFJson = await this._importGltfOrGlbFromArrayBuffers(
-            files[fileName],
-            files,
-            options
-          );
-          return gltFJson;
-        } catch (err) {
-          console.log('this.__loadFromArrayBuffer error', err);
-          return undefined;
-        }
+        const result = await this._importGltfOrGlbFromArrayBuffers(
+          files[fileName],
+          files,
+          options
+        );
+        return result;
       }
     }
-    return undefined;
+    return new Err({
+      message: 'no gltf or glb file found',
+    });
   }
 
   public static async importGltfOrGlbFromFile(
     uri: string,
     options?: GltfLoadOption
-  ) {
+  ): Promise<IResult<RnM2, never>> {
     const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    const glTFJson = await this._importGltfOrGlbFromArrayBuffers(
+    const result = await this._importGltfOrGlbFromArrayBuffers(
       arrayBuffer,
       {},
       options,
       uri
-    ).catch(err => {
-      console.log('this.__loadFromArrayBuffer error', err);
-    });
-    return glTFJson;
+    );
+
+    return result;
   }
 
   /**
@@ -92,7 +84,7 @@ export class Gltf2Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ): Promise<RnM2 | undefined> {
+  ): Promise<IResult<RnM2, never>> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);
@@ -103,10 +95,11 @@ export class Gltf2Importer {
       const json = JSON.parse(gotText);
       try {
         const gltfJson = await this.importGltf(json, otherFiles, options!, uri);
-        return gltfJson;
+        return new Ok(gltfJson);
       } catch (err) {
-        console.error('this.__importGltf error', err);
-        return undefined;
+        return new Err({
+          message: 'this.__importGltf error',
+        });
       }
     } else {
       try {
@@ -115,10 +108,11 @@ export class Gltf2Importer {
           otherFiles,
           options!
         );
-        return gltfJson;
+        return new Ok(gltfJson);
       } catch (err) {
-        console.error('this.importGlb error', err);
-        return undefined;
+        return new Err({
+          message: 'this.importGlb error',
+        });
       }
     }
   }

@@ -14,6 +14,7 @@ import {SphereCollider} from '../physics/SphereCollider';
 import {Vector3} from '../math/Vector3';
 import {VRMColliderGroup} from '../physics/VRMColliderGroup';
 import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
+import {Err, IResult, Ok} from '../misc/Result';
 
 /**
  * The VRM Importer class.
@@ -25,17 +26,20 @@ export class Vrm0xImporter {
   /**
    * Import VRM file.
    */
-  public static async import(
+  public static async importFromUri(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<ISceneGraphEntity[]> {
+  ): Promise<IResult<ISceneGraphEntity[], never>> {
     options = this._getOptions(options);
 
-    const gltfModel = await Gltf2Importer.import(uri, options);
-    if (Is.not.exist(gltfModel)) {
-      return [];
+    const result = await Gltf2Importer.importFromUri(uri, options);
+    if (result.isErr()) {
+      new Err({
+        message: 'Failed to import VRM file.',
+      });
     }
 
+    const gltfModel = result.unwrapForce();
     const textures = Vrm0xImporter._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
@@ -67,7 +71,7 @@ export class Vrm0xImporter {
     Vrm0xImporter._readSpringBone(rootGroupMain, gltfModel as VRM);
     Vrm0xImporter._readVRMHumanoidInfo(gltfModel as VRM, rootGroupMain);
 
-    return rootGroups;
+    return new Ok(rootGroups);
   }
 
   static async __importVRM0x(
@@ -467,12 +471,15 @@ export class Vrm0xImporter {
   ): Promise<VRM | undefined> {
     options = this._getOptions(options);
 
-    const gltfModel = await Gltf2Importer.import(uri, options);
-    if (Is.not.exist(gltfModel)) {
+    const result = await Gltf2Importer.importFromUri(uri, options);
+    if (result.isErr()) {
       return undefined;
     }
-    Vrm0xImporter._readVRMHumanoidInfo(gltfModel as VRM);
-    return gltfModel as VRM;
+
+    const gltfJson = result.unwrapForce();
+    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as VRM);
+
+    return gltfJson as VRM;
   }
 
   static _getOptions(options?: GltfLoadOption): GltfLoadOption {

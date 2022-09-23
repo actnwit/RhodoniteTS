@@ -22,7 +22,7 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const mainExpression = await Rn.GltfImporter.import(
+  const mainExpression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
     {
       cameraComponent: cameraComponent,
@@ -32,7 +32,7 @@ document.body.appendChild(p);
         },
       ],
     }
-  );
+  )).unwrapForce();
   expressions.push(mainExpression);
 
   // post effects

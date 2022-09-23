@@ -2,7 +2,6 @@ import {detectFormatByArrayBuffers} from './FormatDetector';
 import {Gltf2Importer} from './Gltf2Importer';
 import {RnM2} from '../../types/RnM2';
 import {ModelConverter} from './ModelConverter';
-import {Gltf1Importer} from './Gltf1Importer';
 import {DrcPointCloudImporter} from './DrcPointCloudImporter';
 import {Expression} from '../renderer/Expression';
 import {RenderPass} from '../renderer/RenderPass';
@@ -10,9 +9,9 @@ import {DataUtil} from '../misc/DataUtil';
 import {FileType} from '../definitions/FileType';
 import {glTF1} from '../../types/glTF1';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
-import {RnPromise, RnPromiseCallback} from '../misc/RnPromise';
+import {RnPromiseCallback} from '../misc/RnPromise';
 import {Vrm0xImporter} from './Vrm0xImporter';
-import {Is} from '../misc';
+import {Err, IResult, Ok} from '../misc/Result';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -28,11 +27,11 @@ export class GltfImporter {
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  static async import(
+  static async importFromUri(
     uri: string,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<Expression> {
+  ): Promise<IResult<Expression, never>> {
     options = this.__initOptions(options);
 
     const renderPasses = options.expression?.renderPasses || [];
@@ -61,7 +60,7 @@ export class GltfImporter {
       renderPasses,
       options
     );
-    return expression;
+    return new Ok(expression);
   }
 
   /**
@@ -206,7 +205,7 @@ export class GltfImporter {
     options: GltfLoadOption,
     uri: string,
     callback?: RnPromiseCallback
-  ) {
+  ): Promise<IResult<void, never>> {
     const optionalFileType = options.fileType;
 
     const fileType = this.__getFileTypeFromFilePromise(
@@ -219,86 +218,79 @@ export class GltfImporter {
     options.__isImportVRM = false;
     let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
     switch (fileType) {
-      case FileType.Gltf:
-        {
-          const gotText = DataUtil.arrayBufferToString(fileArrayBuffer);
-          const json = JSON.parse(gotText);
-          glTFVer = this.__getGltfVersion(json);
-          let importer;
-          if (glTFVer === 1) {
-            importer = Gltf1Importer;
-          } else {
-            importer = Gltf2Importer;
-          }
-          const gltfModel = await importer.importGltf(
-            json,
-            options.files!,
-            options,
-            fileName,
-            callback
-          );
+      case FileType.Gltf: {
+        const gotText = DataUtil.arrayBufferToString(fileArrayBuffer);
+        const json = JSON.parse(gotText);
+        glTFVer = this.__getGltfVersion(json);
+        const importer = Gltf2Importer;
+        const gltfModel = await importer.importGltf(
+          json,
+          options.files!,
+          options,
+          fileName,
+          callback
+        );
+        const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+        renderPasses[0].addEntities([rootGroup]);
+        return new Ok();
+      }
+      case FileType.GltfBinary: {
+        glTFVer = this.__getGlbVersion(fileArrayBuffer);
+        const importer = Gltf2Importer;
+        const gltfModel = await importer.importGlb(
+          fileArrayBuffer,
+          options.files!,
+          options
+        );
+        const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+        renderPasses[0].addEntities([rootGroup]);
+        return new Ok();
+      }
+      case FileType.Draco: {
+        const importer =
+          DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
+        const gltfModel = await importer.importArrayBuffer(
+          uri,
+          fileArrayBuffer,
+          options
+        );
+        if (gltfModel == null) {
+          return new Err({
+            message: 'importArrayBuffer error is occurred',
+          });
+        } else {
           const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
           renderPasses[0].addEntities([rootGroup]);
+          return new Ok();
         }
-        break;
-      case FileType.GltfBinary:
-        {
-          glTFVer = this.__getGlbVersion(fileArrayBuffer);
-          let importer;
-          if (glTFVer === 1) {
-            importer = Gltf1Importer;
-          } else {
-            importer = Gltf2Importer;
-          }
-          const gltfModel = await importer.importGlb(
-            fileArrayBuffer,
-            options.files!,
-            options
-          );
-          const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
-          renderPasses[0].addEntities([rootGroup]);
-        }
-        break;
-      case FileType.Draco:
-        {
-          const importer =
-            DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
-          const gltfModel = await importer.importArrayBuffer(
-            uri,
-            fileArrayBuffer,
-            options
-          );
-          if (gltfModel == null) {
-            console.error('importArrayBuffer error is occurred');
-          } else {
-            const rootGroup =
-              ModelConverter.convertToRhodoniteObject(gltfModel);
-            renderPasses[0].addEntities([rootGroup]);
-          }
-        }
-        break;
-      case FileType.VRM:
-        {
-          options.__isImportVRM = true;
-          const gltfModel =
-            await Gltf2Importer._importGltfOrGlbFromArrayBuffers(
-              fileArrayBuffer,
-              options.files!,
-              options
-            );
-          if (Is.not.exist(gltfModel)) {
-            return;
-          }
+      }
+      case FileType.VRM: {
+        options.__isImportVRM = true;
+        const result = await Gltf2Importer._importGltfOrGlbFromArrayBuffers(
+          fileArrayBuffer,
+          options.files!,
+          options
+        );
+
+        if (result.isOk()) {
+          const gltfModel = result.unwrapForce();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
             // TODO: support VRM1.0
             console.error('VRM1.0 is not supported yet');
           } else if (gltfModel.extensionsUsed.indexOf('VRM') > 0) {
             await Vrm0xImporter.__importVRM0x(gltfModel, renderPasses);
           }
+          return new Ok();
+        } else {
+          return new Err({
+            message: result.getErr().message,
+          });
         }
-        break;
+      }
       default:
-        console.error('detect invalid format');
+        return new Err({
+          message: 'detect invalid format',
+        });
     }
   }
 

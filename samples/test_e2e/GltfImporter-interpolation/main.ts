@@ -22,12 +22,12 @@ document.body.appendChild(p);
   cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 4.2, 25]);
 
   // gltf
-  const expression = await Rn.GltfImporter.import(
+  const expression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/InterpolationTest/glTF-Binary/InterpolationTest.glb',
     {
       cameraComponent: cameraComponent,
     }
-  );
+  )).unwrapForce();
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();

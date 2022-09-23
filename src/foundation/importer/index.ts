@@ -1,7 +1,6 @@
 export * from './AnimationAssigner';
 export * from './DrcPointCloudImporter';
 export * from './FormatDetector';
-export * from './Gltf1Importer';
 export * from './Gltf2Importer';
 export * from './GltfImporter';
 export * from './ILoaderExtension';

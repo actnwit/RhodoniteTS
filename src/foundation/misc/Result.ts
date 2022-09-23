@@ -19,11 +19,13 @@ export interface IResult<T, ErrObj> {
     Err: (value: RnError<ErrObj>) => void;
     Finally?: () => void;
   }): void;
-  then(f: (value: T) => void): Finalizer | void;
-  catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
+  // then(f: (value: T) => void): Finalizer | void;
+  // catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
   unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
   unwrapForce(): T;
   isOk(): boolean;
+  isErr(): boolean;
+  getErr(): RnError<ErrObj>;
   name(): string;
 }
 
@@ -62,10 +64,10 @@ export class Ok<T, ErrObj>
    * This method is essentially same to the Ok::and_then() in Rust language
    * @param f
    */
-  then(f: (value: T) => void): Finalizer {
-    f(this.val as T);
-    return new Finalizer();
-  }
+  // then(f: (value: T) => void): Finalizer {
+  //   f(this.val as T);
+  //   return new Finalizer();
+  // }
 
   unwrap(catchFn: (err: RnError<ErrObj>) => void): T {
     return this.val as T;
@@ -75,7 +77,7 @@ export class Ok<T, ErrObj>
     return this.val as T;
   }
 
-  catch(f: (value: RnError<ErrObj>) => void): void {}
+  // catch(f: (value: RnError<ErrObj>) => void): void {}
 
   true(): true {
     return true;
@@ -83,6 +85,14 @@ export class Ok<T, ErrObj>
 
   isOk(): true {
     return true;
+  }
+
+  isErr(): false {
+    return false;
+  }
+
+  getErr(): never {
+    throw new Error('This is Ok. No error.');
   }
 
   get(): T {
@@ -104,12 +114,12 @@ export class Err<T, ErrObj>
     this.__rnException = new RnException(this.val as RnError<ErrObj>);
   }
 
-  then(f: (value: never) => void): void {}
+  // then(f: (value: never) => void): void {}
 
-  catch(f: (value: RnError<ErrObj>) => void): Finalizer {
-    f(this.val as RnError<ErrObj>);
-    return new Finalizer();
-  }
+  // catch(f: (value: RnError<ErrObj>) => void): Finalizer {
+  //   f(this.val as RnError<ErrObj>);
+  //   return new Finalizer();
+  // }
 
   unwrap(catchFn: (err: RnError<ErrObj>) => void): void {
     catchFn(this.val as RnError<ErrObj>);
@@ -127,16 +137,24 @@ export class Err<T, ErrObj>
     return false;
   }
 
+  isErr(): true {
+    return true;
+  }
+
+  getErr(): RnError<ErrObj> {
+    return this.val as RnError<ErrObj>;
+  }
+
   get(): RnError<ErrObj> {
     return this.val as RnError<ErrObj>;
   }
 }
 
-export class Finalizer {
-  finally(f: () => void): void {
-    f();
-  }
-}
+// export class Finalizer {
+//   finally(f: () => void): void {
+//     f();
+//   }
+// }
 
 export class RnException<ErrObj> extends Error {
   static readonly _prefix = 'Rhodonite Exception';

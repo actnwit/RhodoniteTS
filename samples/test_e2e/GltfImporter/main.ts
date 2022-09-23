@@ -36,9 +36,8 @@ declare const window: any;
   const expressions = [];
 
   // vrm
-  const vrmExpression = await Rn.GltfImporter.import(
-    '../../../assets/vrm/test.vrm',
-    {
+  const vrmExpression = (
+    await Rn.GltfImporter.importFromUri('../../../assets/vrm/test.vrm', {
       defaultMaterialHelperArgumentArray: [
         {
           isSkinning: false,
@@ -49,8 +48,8 @@ declare const window: any;
       autoResizeTexture: true,
       tangentCalculationMode: 0,
       cameraComponent: cameraComponent,
-    }
-  );
+    })
+  ).unwrapForce();
   expressions.push(vrmExpression);
 
   const vrmMainRenderPass = vrmExpression.renderPasses[0];
