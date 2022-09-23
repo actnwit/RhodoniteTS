@@ -2301,7 +2301,14 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
 
   // Transmission
-  setup_KHR_materials_transmission(materialJson, material, gltfModel);
+  const transmission = setup_KHR_materials_transmission(
+    materialJson,
+    material,
+    gltfModel
+  );
+  if (!options!.transmission) {
+    options!.transmission = transmission;
+  }
 
   setup_KHR_materials_volume(materialJson, material, gltfModel);
 
@@ -2323,7 +2330,7 @@ function setup_KHR_materials_transmission(
   materialJson: RnM2Material,
   material: Material,
   gltfModel: RnM2
-): boolean {
+) {
   const KHR_materials_transmission =
     materialJson.extensions?.KHR_materials_transmission;
   if (Is.exist(KHR_materials_transmission)) {
