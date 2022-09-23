@@ -31,6 +31,10 @@ document.body.appendChild(p);
     '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
     {
       cameraComponent: cameraComponent,
+    },
+    (obj: Rn.RnPromiseCallbackObj) => {
+      // this callback won't be called
+      console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
     }
   );
   expressions.push(mainExpression);

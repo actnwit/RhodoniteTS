@@ -47,7 +47,8 @@ export class GltfImporter {
       uri,
       renderPasses,
       options,
-      uri
+      uri,
+      callback
     );
 
     if (options && options.cameraComponent) {
