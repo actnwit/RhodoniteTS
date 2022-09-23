@@ -88,7 +88,7 @@ test('works with RnPromise[] and RnPromise.all callback', () => {
 
   let count = 0;
   const callback = (obj: RnPromiseCallbackObj) => {
-    // console.log(obj);
+    console.log(obj);
     expect(obj.resolvedNum).toEqual(Math.min(++count, 3));
   };
 
@@ -98,7 +98,7 @@ test('works with RnPromise[] and RnPromise.all callback', () => {
   });
 });
 
-test('does not works with Promise[] and RnPromise.all callback', () => {
+test('works even with Promise[] and RnPromise.all callback', () => {
   const p1 = Promise.resolve(1);
   const p2 = Promise.resolve(2);
   const p3 = Promise.resolve(3);
