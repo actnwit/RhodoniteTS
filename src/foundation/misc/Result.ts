@@ -25,7 +25,6 @@ export interface IResult<T, ErrObj> {
   unwrapForce(): T;
   isOk(): this is Ok<T, ErrObj>;
   isErr(): this is Err<T, ErrObj>;
-  getRnError(): RnError<ErrObj>;
   name(): string;
 }
 
@@ -91,10 +90,6 @@ export class Ok<T, ErrObj>
     return false;
   }
 
-  getRnError(): never {
-    throw new Error('This is Ok. No error.');
-  }
-
   get(): T {
     return this.val as T;
   }
@@ -145,12 +140,20 @@ export class Err<T, ErrObj>
     return this.val as RnError<ErrObj>;
   }
 
-  get(): RnError<ErrObj> {
-    return this.val as RnError<ErrObj>;
-  }
-
   toString(): string {
     return this.__rnException.stack!;
+  }
+}
+
+export function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any> {
+  if (result.isErr()) {
+    throw new Error('This is Err. No Ok.');
+  }
+}
+
+export function assertIsErr(result: IResult<any, any>): asserts result is Err<any, any> {
+  if (result.isOk()) {
+    throw new Error('This is Ok. No Err.');
   }
 }
 
