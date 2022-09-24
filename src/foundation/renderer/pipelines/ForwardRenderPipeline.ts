@@ -82,6 +82,7 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__oFrame.has()) {
       return new Err({
         message: 'Already setup',
+        error: undefined,
       });
     }
 
@@ -162,6 +163,7 @@ export class ForwardRenderPipeline extends RnObject {
     if (Is.false(this.__oFrame.has())) {
       return new Err({
         message: 'not initialized.',
+        error: undefined,
       });
     }
 
@@ -190,6 +192,7 @@ export class ForwardRenderPipeline extends RnObject {
     if (Is.false(this.__oFrame.has())) {
       return new Err({
         message: 'not initialized.',
+        error: undefined,
       });
     }
 
@@ -219,7 +222,6 @@ export class ForwardRenderPipeline extends RnObject {
 
     return new Ok();
   }
-
 
   /**
    * set IBL textures from uri

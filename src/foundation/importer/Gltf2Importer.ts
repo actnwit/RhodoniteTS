@@ -23,11 +23,18 @@ export class Gltf2Importer {
   public static async importFromUri(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<RnM2, never>> {
-    const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
+  ): Promise<IResult<RnM2, undefined>> {
+    const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
+
+    if (r_arrayBuffer.isErr()) {
+      return new Err({
+        message: 'fetchArrayBuffer error',
+        error: undefined,
+      });
+    }
 
     const result = await this._importGltfOrGlbFromArrayBuffers(
-      arrayBuffer,
+      r_arrayBuffer.unwrapForce(),
       options?.files ?? {},
       options,
       uri
@@ -38,7 +45,7 @@ export class Gltf2Importer {
   public static async importFromArrayBuffers(
     files: GltfFileBuffers,
     options?: GltfLoadOption
-  ): Promise<IResult<RnM2, never>> {
+  ): Promise<IResult<RnM2, undefined>> {
     for (const fileName in files) {
       const fileExtension = DataUtil.getExtension(fileName);
 
@@ -53,6 +60,7 @@ export class Gltf2Importer {
     }
     return new Err({
       message: 'no gltf or glb file found',
+      error: undefined,
     });
   }
 
@@ -69,7 +77,7 @@ export class Gltf2Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ): Promise<IResult<RnM2, never>> {
+  ): Promise<IResult<RnM2, undefined>> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);
@@ -79,11 +87,17 @@ export class Gltf2Importer {
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
       try {
-        const gltfJson = await this._importGltf(json, otherFiles, options!, uri);
+        const gltfJson = await this._importGltf(
+          json,
+          otherFiles,
+          options!,
+          uri
+        );
         return new Ok(gltfJson);
       } catch (err) {
         return new Err({
           message: 'this.__importGltf error',
+          error: undefined,
         });
       }
     } else {
@@ -97,6 +111,7 @@ export class Gltf2Importer {
       } catch (err) {
         return new Err({
           message: 'this.importGlb error',
+          error: undefined,
         });
       }
     }

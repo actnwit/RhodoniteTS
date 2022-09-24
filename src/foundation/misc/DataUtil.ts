@@ -2,6 +2,7 @@ import { GltfLoadOption } from '../../types';
 import {Byte, Size} from '../../types/CommonTypes';
 import {glTF1} from '../../types/glTF1';
 import {RnM2} from '../../types/RnM2';
+import { Err, IResult, Ok } from './Result';
 import { RnPromise } from './RnPromise';
 
 declare const URL: any;
@@ -437,18 +438,19 @@ export class DataUtil {
     return defaultOptions;
   }
 
-  static fetchArrayBuffer(uri: string): RnPromise<ArrayBuffer> {
-    return new RnPromise(resolve => {
-      fetch(uri, {mode: 'cors'})
-        .then(response => {
-          response.arrayBuffer().then(arrayBuffer => {
-            resolve(arrayBuffer);
-          });
-        })
-        .catch(err => {
-          throw new Error('import error: ' + err);
-        });
-    });
+  static async fetchArrayBuffer(
+    uri: string
+  ): Promise<IResult<ArrayBuffer, unknown>> {
+    try {
+      const response = await fetch(uri, {mode: 'cors'});
+      const arraybuffer = await response.arrayBuffer();
+      return new Ok(arraybuffer);
+    } catch (e) {
+      return new Err({
+        message: `fetchArrayBuffer failed. uri: ${uri}`,
+        error: e,
+      });
+    }
   }
 
   static getResizedCanvas(

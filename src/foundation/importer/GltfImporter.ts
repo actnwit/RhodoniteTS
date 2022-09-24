@@ -31,7 +31,7 @@ export class GltfImporter {
     uri: string,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<IResult<Expression, never>> {
+  ): Promise<IResult<Expression, Err<ArrayBuffer, unknown>>> {
     options = this.__initOptions(options);
 
     const renderPasses = options.expression?.renderPasses || [];
@@ -39,8 +39,14 @@ export class GltfImporter {
       renderPasses.push(new RenderPass());
     }
 
-    const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    options.files![uri] = arrayBuffer;
+    const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
+    if (r_arrayBuffer.isErr()) {
+      return new Err({
+        message: 'Failed to fetch array buffer',
+        error: r_arrayBuffer,
+      });
+    }
+    options.files![uri] = r_arrayBuffer.unwrapForce();
 
     await this.__detectTheModelFileTypeAndImport(
       uri,
@@ -210,7 +216,7 @@ export class GltfImporter {
     options: GltfLoadOption,
     uri: string,
     callback?: RnPromiseCallback
-  ): Promise<IResult<void, never>> {
+  ): Promise<IResult<void, undefined>> {
     const optionalFileType = options.fileType;
 
     const fileType = this.__getFileTypeFromFilePromise(
@@ -262,6 +268,7 @@ export class GltfImporter {
         if (gltfModel == null) {
           return new Err({
             message: 'importArrayBuffer error is occurred',
+            error: undefined,
           });
         } else {
           const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
@@ -288,13 +295,15 @@ export class GltfImporter {
           return new Ok();
         } else {
           return new Err({
-            message: result.getErr().message,
+            message: result.getRnError().message,
+            error: undefined,
           });
         }
       }
       default:
         return new Err({
           message: 'detect invalid format',
+          error: undefined,
         });
     }
   }

@@ -1,8 +1,6 @@
 import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import _Rn, {Expression} from '../../../dist/esm/index';
+import Rn, {Expression} from '../../../dist/esm/index.mjs';
 import {RnM2} from '../../../dist/esm/types/RnM2';
-
-declare const Rn: typeof _Rn;
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -52,11 +50,11 @@ declare const Rn: typeof _Rn;
     pointCloudDrcUri: string
   ): Promise<IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
-    const gltf2JSON = (await importer.importPointCloud(
-      pointCloudDrcUri
-    )) as RnM2;
+    const r_gltf2JSON = (
+      await importer.importPointCloud(pointCloudDrcUri)
+    ).unwrapForce() as RnM2;
 
-    const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+    const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(r_gltf2JSON);
     return rootGroup as IMeshEntity;
   }
 

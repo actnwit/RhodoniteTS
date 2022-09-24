@@ -29,13 +29,14 @@ export class Vrm0xImporter {
   public static async importFromUri(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<ISceneGraphEntity[], never>> {
+  ): Promise<IResult<ISceneGraphEntity[], Err<RnM2, undefined>>> {
     options = this._getOptions(options);
 
     const result = await Gltf2Importer.importFromUri(uri, options);
     if (result.isErr()) {
-      new Err({
+      return new Err({
         message: 'Failed to import VRM file.',
+        error: result,
       });
     }
 
@@ -81,13 +82,14 @@ export class Vrm0xImporter {
   static async importJsonOfVRM(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<VRM, never>> {
+  ): Promise<IResult<VRM, Err<RnM2, undefined>>> {
     options = this._getOptions(options);
 
     const result = await Gltf2Importer.importFromUri(uri, options);
     if (result.isErr()) {
       return new Err({
         message: 'Failed to import VRM file.',
+        error: result,
       });
     }
 

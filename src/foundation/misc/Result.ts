@@ -2,7 +2,7 @@ import {Is} from './Is';
 
 export interface RnError<ErrObj> {
   message: string;
-  error?: ErrObj;
+  error: ErrObj;
 }
 
 /**
@@ -23,9 +23,9 @@ export interface IResult<T, ErrObj> {
   // catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
   unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
   unwrapForce(): T;
-  isOk(): boolean;
-  isErr(): boolean;
-  getErr(): RnError<ErrObj>;
+  isOk(): this is Ok<T, ErrObj>;
+  isErr(): this is Err<T, ErrObj>;
+  getRnError(): RnError<ErrObj>;
   name(): string;
 }
 
@@ -91,7 +91,7 @@ export class Ok<T, ErrObj>
     return false;
   }
 
-  getErr(): never {
+  getRnError(): never {
     throw new Error('This is Ok. No error.');
   }
 
@@ -109,7 +109,7 @@ export class Err<T, ErrObj>
 {
   private __rnException: RnException<ErrObj>;
 
-  constructor(val?: RnError<ErrObj>) {
+  constructor(val: RnError<ErrObj>) {
     super(val);
     this.__rnException = new RnException(this.val as RnError<ErrObj>);
   }
@@ -141,12 +141,16 @@ export class Err<T, ErrObj>
     return true;
   }
 
-  getErr(): RnError<ErrObj> {
+  getRnError(): RnError<ErrObj> {
     return this.val as RnError<ErrObj>;
   }
 
   get(): RnError<ErrObj> {
     return this.val as RnError<ErrObj>;
+  }
+
+  toString(): string {
+    return this.__rnException.stack!;
   }
 }
 
@@ -157,9 +161,12 @@ export class Err<T, ErrObj>
 // }
 
 export class RnException<ErrObj> extends Error {
-  static readonly _prefix = 'Rhodonite Exception';
+  static readonly _prefix = '\nRhodonite Exception';
   constructor(private err: RnError<ErrObj>) {
-    super(err.message);
+    super(`
+  message: ${err.message}
+  error: ${(err.error instanceof Err<unknown, unknown>) ? 'see below Exception ↓' + err.error : err.error}
+`);
     this.name = RnException._prefix;
   }
 
