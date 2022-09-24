@@ -27,13 +27,13 @@ declare const window: any;
       0.0, 0, 0.5,
     ]);
 
-    const promise = Rn.Gltf2Importer.import(
+    const promise = Rn.Gltf2Importer.importFromUri(
       // '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
       '../../../assets/gltf/glTF-Sample-Models/2.0/BrainStem/glTF/BrainStem.gltf'
     );
 
     promise.then(response => {
-      const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
+      const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
       //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
       rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 

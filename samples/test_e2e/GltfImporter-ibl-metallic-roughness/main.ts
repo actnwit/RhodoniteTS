@@ -20,7 +20,7 @@ let p: any;
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const mainExpression = await Rn.GltfImporter.import(
+  const mainExpression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/MetalRoughSpheresNoTextures/glTF/MetalRoughSpheresNoTextures.gltf',
     {
       cameraComponent: cameraComponent,
@@ -30,7 +30,7 @@ let p: any;
         },
       ],
     }
-  );
+  )).unwrapForce();
   expressions.push(mainExpression);
 
   // post effects

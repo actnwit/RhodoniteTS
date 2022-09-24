@@ -38,13 +38,14 @@ declare const window: any;
     ]);
     //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-    const promise = Rn.Gltf2Importer.import(
+    const promise = Rn.Gltf2Importer.importFromUri(
       '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
     );
-    //    const promise = importer.import('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');
     //---------------------------
     promise.then(response => {
-      const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
+      const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(
+        response.unwrapForce()
+      );
       //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
       rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 

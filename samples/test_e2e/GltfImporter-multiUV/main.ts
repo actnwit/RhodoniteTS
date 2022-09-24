@@ -26,12 +26,12 @@ document.body.appendChild(p);
   ]);
 
   // gltf
-  const expression = await Rn.GltfImporter.import(
+  const expression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/MultiUVTest/glTF/MultiUVTest.gltf',
     {
       cameraComponent: cameraComponent,
     }
-  );
+  )).unwrapForce();
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();

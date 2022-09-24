@@ -90,9 +90,11 @@ export async function createMotionController(
     assetPath!
   );
   motionControllers.set(xrInputSource, motionController);
-  const asset = await addMotionControllerToScene(motionController);
-  if (Is.exist(asset)) {
-    const rootGroup = ModelConverter.convertToRhodoniteObject(asset);
+  const result = await addMotionControllerToScene(motionController);
+  if (result.isOk()) {
+    const rootGroup = ModelConverter.convertToRhodoniteObject(
+      result.unwrapForce()
+    );
     return rootGroup;
   } else {
     return undefined;
@@ -100,7 +102,7 @@ export async function createMotionController(
 }
 
 async function addMotionControllerToScene(motionController: MotionController) {
-  const asset = await Gltf2Importer.import(motionController.assetUrl);
+  const asset = await Gltf2Importer.importFromUri(motionController.assetUrl);
   addTouchPointDots(motionController, asset);
   // MyEngine.scene.add(asset);
 

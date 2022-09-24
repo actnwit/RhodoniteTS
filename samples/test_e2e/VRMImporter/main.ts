@@ -38,13 +38,13 @@ declare const window: any;
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-  const rootGroups = await Rn.VrmImporter.import(
+  const rootGroups = (await Rn.Vrm0xImporter.importFromUri(
     '../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [{isLighting: true}],
       tangentCalculationMode: 0,
     }
-  );
+  )).unwrapForce();
   //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 
   for (const rootGroup of rootGroups) {

@@ -18,7 +18,7 @@ let p = null;
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const expression = await Rn.GltfImporter.import(
+  const expression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
     {
       defaultMaterialHelperArgumentArray: [
@@ -28,7 +28,7 @@ let p = null;
       ],
       cameraComponent: cameraComponent,
     }
-  );
+  )).unwrapForce();
 
   const meshComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshComponent

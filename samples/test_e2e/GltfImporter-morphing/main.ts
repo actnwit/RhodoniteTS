@@ -21,12 +21,12 @@ declare const window: any;
   cameraTransform.rotate = Rn.Vector3.fromCopyArray([0, Math.PI / 4, 0]);
 
   // gltf
-  const expression = await Rn.GltfImporter.import(
+  const expression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb',
     {
       cameraComponent: cameraComponent,
     }
-  );
+  )).unwrapForce();
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();

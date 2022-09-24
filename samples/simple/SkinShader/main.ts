@@ -74,7 +74,7 @@ const load = async function () {
   ).intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
-  const response = await Rn.Gltf2Importer.import('');
+  const response = (await Rn.Gltf2Importer.importFromUri('')).unwrapForce();
   const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
 
   const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(

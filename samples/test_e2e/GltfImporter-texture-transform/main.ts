@@ -21,7 +21,7 @@ document.body.appendChild(p);
   cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 0, 5.5]);
 
   // gltf
-  const expression = await Rn.GltfImporter.import(
+  const expression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/TextureTransformTest/glTF/TextureTransformTest.gltf',
     {
       cameraComponent: cameraComponent,
@@ -31,7 +31,7 @@ document.body.appendChild(p);
         },
       ],
     }
-  );
+  )).unwrapForce();
 
   Rn.System.process([expression]);
 

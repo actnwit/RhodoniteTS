@@ -15,6 +15,10 @@ export class ComponentRepository {
 
   constructor() {}
 
+  /**
+   * Registers the class object of the component.
+   * @param componentClass A class object of the component.
+   */
   public static registerComponentClass(componentClass: typeof Component) {
     const thisClass = ComponentRepository;
     thisClass.__componentClasses.set(
@@ -23,7 +27,11 @@ export class ComponentRepository {
     );
   }
 
-  public static unregisterComponentClass(componentTID: ComponentTID) {
+  /**
+   * deregister the component.
+   * @param componentTID A componentTID
+   */
+  public static deregisterComponentClass(componentTID: ComponentTID) {
     const thisClass = ComponentRepository;
     thisClass.__componentClasses.delete(componentTID);
   }

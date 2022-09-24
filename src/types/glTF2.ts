@@ -410,7 +410,6 @@ export type GltfLoadOption = {
   autoResizeTexture?: boolean;
   tangentCalculationMode?: Index;
   extendedJson?: string | Object | ArrayBuffer; //   URI string / JSON Object / ArrayBuffer
-  isImportVRM?: boolean;
   maxMorphTargetNumber?: number;
   defaultTextures?: {
     basePath: string; // e.g. "./assets/jpg/"
@@ -424,7 +423,8 @@ export type GltfLoadOption = {
   cameraComponent?: CameraComponent;
   fileType?: string;
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
-  transmission?: boolean;
+  transmission?: boolean; // Set to true by the importer if the KHS_material_transmission extension is used.
+  __isImportVRM?: boolean; // internal use only
 };
 
 export const TagGltf2NodeIndex = 'gltf_node_index';

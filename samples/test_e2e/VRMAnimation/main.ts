@@ -34,13 +34,13 @@ declare const window: any;
   cameraComponent.aspect = 1.0;
 
   // vrm
-  const animGltf2ModelPromise = Rn.Gltf2Importer.import(
+  const animGltf2ModelPromise = Rn.Gltf2Importer.importFromUri(
     '../../../assets/vrm/test.glb'
   );
-  const vrmModelPromise = Rn.GltfImporter.importJsonOfVRM(
+  const vrmModelPromise = Rn.Vrm0xImporter.importJsonOfVRM(
     '../../../assets/vrm/test.vrm'
   );
-  const vrmExpressionPromise = Rn.GltfImporter.import(
+  const vrmExpressionPromise = Rn.GltfImporter.importFromUri(
     '../../../assets/vrm/test.vrm',
     {
       defaultMaterialHelperArgumentArray: [
@@ -55,16 +55,17 @@ declare const window: any;
     }
   );
 
-  const [animGltf2Model, vrmModel, vrmExpression] = await Promise.all([
-    animGltf2ModelPromise,
-    vrmModelPromise,
-    vrmExpressionPromise,
-  ]);
+  const [animGltf2Result, vrmModelResult, vrmExpressionResult] =
+    await Promise.all([
+      animGltf2ModelPromise,
+      vrmModelPromise,
+      vrmExpressionPromise,
+    ]);
 
   // expresions
-  const expressions = [vrmExpression];
+  const expressions = [vrmExpressionResult.unwrapForce()];
 
-  const vrmMainRenderPass = vrmExpression.renderPasses[0];
+  const vrmMainRenderPass = vrmExpressionResult.unwrapForce().renderPasses[0];
   vrmMainRenderPass.toClearColorBuffer = true;
 
   const vrmRootEntity =
@@ -73,7 +74,11 @@ declare const window: any;
 
   // animation
   const animationAssigner = Rn.AnimationAssigner.getInstance();
-  animationAssigner.assignAnimation(vrmRootEntity, animGltf2Model, vrmModel);
+  animationAssigner.assignAnimation(
+    vrmRootEntity,
+    animGltf2Result.unwrapForce(),
+    vrmModelResult.unwrapForce()
+  );
 
   //set default camera
   Rn.CameraComponent.current = 0;

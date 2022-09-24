@@ -23,7 +23,7 @@ declare const window: any;
   const {cameraComponent, cameraEntity} = createCamera();
 
   // gltf
-  const mainExpression = await Rn.GltfImporter.import(
+  const mainExpression = (await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Models/2.0/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb',
     {
       cameraComponent: cameraComponent,
@@ -33,7 +33,7 @@ declare const window: any;
         },
       ],
     }
-  );
+  )).unwrapForce();
 
   // env
   const envExpression = createEnvCubeExpression(
