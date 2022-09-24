@@ -10,7 +10,7 @@ import {RenderableHelper} from '../../helpers/RenderableHelper';
 import {MathUtil} from '../../math/MathUtil';
 import {Scalar} from '../../math/Scalar';
 import {Vector4} from '../../math/Vector4';
-import {IOption, None, Some} from '../../misc/Option';
+import {assertHas, IOption, None, Some} from '../../misc/Option';
 import {Is} from '../../misc/Is';
 import {CubeTexture} from '../../textures/CubeTexture';
 import {Expression} from '../Expression';
@@ -158,14 +158,14 @@ export class ForwardRenderPipeline extends RnObject {
    * @returns RnResult
    */
   startRenderLoop(func: (frame: Frame) => void) {
-    this.__oDrawFunc = new Some(func);
-
-    if (Is.false(this.__oFrame.has())) {
+    if (this.__oFrame.doesNotHave()) {
       return new Err({
         message: 'not initialized.',
         error: undefined,
       });
     }
+
+    this.__oDrawFunc = new Some(func);
 
     System.startRenderLoop(() => {
       this.__setExpressions();
@@ -189,12 +189,19 @@ export class ForwardRenderPipeline extends RnObject {
    * @returns RnResult
    */
   resize(width: Size, height: Size) {
-    if (Is.false(this.__oFrame.has())) {
+    if (this.__oFrame.doesNotHave()) {
       return new Err({
         message: 'not initialized.',
         error: undefined,
       });
     }
+    assertHas(this.__oFrame);
+    assertHas(this.__oFrameBufferMsaa);
+    assertHas(this.__oFrameBufferResolve);
+    assertHas(this.__oFrameBufferResolveForReference);
+    assertHas(this.__oGammaExpression);
+    assertHas(this.__oGammaBoardEntity);
+    assertHas(this.__oGammaCameraEntity);
 
     const webXRSystem = this.__oWebXRSystem.unwrapOrUndefined();
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
@@ -203,21 +210,19 @@ export class ForwardRenderPipeline extends RnObject {
     }
     System.resizeCanvas(width, height);
 
-    this.__oFrame
-      .unwrapForce()
-      .setViewport(Vector4.fromCopy4(0, 0, width, height));
+    this.__oFrame.get().setViewport(Vector4.fromCopy4(0, 0, width, height));
 
-    this.__oFrameBufferMsaa.unwrapForce().resize(width, height);
-    this.__oFrameBufferResolve.unwrapForce().resize(width, height);
-    this.__oFrameBufferResolveForReference.unwrapForce().resize(width, height);
+    this.__oFrameBufferMsaa.get().resize(width, height);
+    this.__oFrameBufferResolve.get().resize(width, height);
+    this.__oFrameBufferResolveForReference.get().resize(width, height);
 
     const aspect = width / height;
 
-    this.__oGammaBoardEntity.unwrapForce().getTransform().scale =
+    this.__oGammaBoardEntity.get().getTransform().scale =
       Vector3.fromCopyArray3([aspect, 1, 1]);
-    this.__oGammaCameraEntity.unwrapForce().getCamera().xMag = aspect;
+    this.__oGammaCameraEntity.get().getCamera().xMag = aspect;
     this.__oGammaExpression
-      .unwrapForce()
+      .get()
       .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
 
     return new Ok();
