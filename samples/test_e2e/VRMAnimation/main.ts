@@ -55,11 +55,12 @@ declare const window: any;
     }
   );
 
-  const [animGltf2Result, vrmModel, vrmExpressionResult] = await Promise.all([
-    animGltf2ModelPromise,
-    vrmModelPromise,
-    vrmExpressionPromise,
-  ]);
+  const [animGltf2Result, vrmModelResult, vrmExpressionResult] =
+    await Promise.all([
+      animGltf2ModelPromise,
+      vrmModelPromise,
+      vrmExpressionPromise,
+    ]);
 
   // expresions
   const expressions = [vrmExpressionResult.unwrapForce()];
@@ -76,7 +77,7 @@ declare const window: any;
   animationAssigner.assignAnimation(
     vrmRootEntity,
     animGltf2Result.unwrapForce(),
-    vrmModel
+    vrmModelResult.unwrapForce()
   );
 
   //set default camera

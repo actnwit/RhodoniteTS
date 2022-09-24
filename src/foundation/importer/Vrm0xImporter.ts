@@ -74,6 +74,29 @@ export class Vrm0xImporter {
     return new Ok(rootGroups);
   }
 
+  /**
+   * For VRM file only
+   * Generate JSON.
+   */
+  static async importJsonOfVRM(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<IResult<VRM, never>> {
+    options = this._getOptions(options);
+
+    const result = await Gltf2Importer.importFromUri(uri, options);
+    if (result.isErr()) {
+      return new Err({
+        message: 'Failed to import VRM file.',
+      });
+    }
+
+    const gltfJson = result.unwrapForce();
+    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as VRM);
+
+    return new Ok(gltfJson as VRM);
+  }
+
   static async __importVRM0x(
     gltfModel: RnM2,
     renderPasses: RenderPass[]
@@ -174,7 +197,7 @@ export class Vrm0xImporter {
     VRMSpringBonePhysicsStrategy.setBoneGroups(boneGroups);
     for (const boneGroup of boneGroups) {
       for (const sg of boneGroup.rootBones) {
-        this.addPhysicsComponentRecursively(EntityRepository, sg);
+        this.__addPhysicsComponentRecursively(EntityRepository, sg);
       }
     }
 
@@ -209,7 +232,7 @@ export class Vrm0xImporter {
     }
   }
 
-  private static addPhysicsComponentRecursively(
+  private static __addPhysicsComponentRecursively(
     entityRepository: EntityRepository,
     sg: SceneGraphComponent
   ): void {
@@ -218,7 +241,7 @@ export class Vrm0xImporter {
     VRMSpringBonePhysicsStrategy.initialize(sg);
     if (sg.children.length > 0) {
       for (const child of sg.children) {
-        this.addPhysicsComponentRecursively(entityRepository, child);
+        this.__addPhysicsComponentRecursively(entityRepository, child);
       }
     }
   }
@@ -459,27 +482,6 @@ export class Vrm0xImporter {
     initialValue: any
   ): void {
     if (object[propertyName] == null) object[propertyName] = initialValue;
-  }
-
-  /**
-   * For VRM file only
-   * Generate JSON.
-   */
-  static async importJsonOfVRM(
-    uri: string,
-    options?: GltfLoadOption
-  ): Promise<VRM | undefined> {
-    options = this._getOptions(options);
-
-    const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result.isErr()) {
-      return undefined;
-    }
-
-    const gltfJson = result.unwrapForce();
-    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as VRM);
-
-    return gltfJson as VRM;
   }
 
   static _getOptions(options?: GltfLoadOption): GltfLoadOption {

@@ -75,7 +75,7 @@ export class GltfImporter {
     files: GltfFileBuffers,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<Expression> {
+  ): Promise<IResult<Expression, never>> {
     options = this.__initOptions(options);
 
     const renderPasses = options.expression?.renderPasses || [];
@@ -104,7 +104,12 @@ export class GltfImporter {
       }
     }
 
-    return this.__setRenderPassesToExpression(renderPasses, options);
+    const expression = this.__setRenderPassesToExpression(
+      renderPasses,
+      options
+    );
+
+    return new Ok(expression);
   }
 
   private static __initOptions(options?: GltfLoadOption): GltfLoadOption {
@@ -223,7 +228,7 @@ export class GltfImporter {
         const json = JSON.parse(gotText);
         glTFVer = this.__getGltfVersion(json);
         const importer = Gltf2Importer;
-        const gltfModel = await importer.importGltf(
+        const gltfModel = await importer._importGltf(
           json,
           options.files!,
           options,
@@ -237,7 +242,7 @@ export class GltfImporter {
       case FileType.GltfBinary: {
         glTFVer = this.__getGlbVersion(fileArrayBuffer);
         const importer = Gltf2Importer;
-        const gltfModel = await importer.importGlb(
+        const gltfModel = await importer._importGlb(
           fileArrayBuffer,
           options.files!,
           options

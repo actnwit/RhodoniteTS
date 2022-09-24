@@ -56,21 +56,6 @@ export class Gltf2Importer {
     });
   }
 
-  public static async importGltfOrGlbFromFile(
-    uri: string,
-    options?: GltfLoadOption
-  ): Promise<IResult<RnM2, never>> {
-    const arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    const result = await this._importGltfOrGlbFromArrayBuffers(
-      arrayBuffer,
-      {},
-      options,
-      uri
-    );
-
-    return result;
-  }
-
   /**
    * Import glTF2 array buffer.
    * @param arrayBuffer .gltf/.glb file in ArrayBuffer
@@ -94,7 +79,7 @@ export class Gltf2Importer {
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
       try {
-        const gltfJson = await this.importGltf(json, otherFiles, options!, uri);
+        const gltfJson = await this._importGltf(json, otherFiles, options!, uri);
         return new Ok(gltfJson);
       } catch (err) {
         return new Err({
@@ -103,7 +88,7 @@ export class Gltf2Importer {
       }
     } else {
       try {
-        const gltfJson = await this.importGlb(
+        const gltfJson = await this._importGlb(
           arrayBuffer,
           otherFiles,
           options!
@@ -152,7 +137,7 @@ export class Gltf2Importer {
     return defaultOptions;
   }
 
-  static async importGlb(
+  static async _importGlb(
     arrayBuffer: ArrayBuffer,
     files: GltfFileBuffers,
     options: GltfLoadOption
@@ -196,7 +181,7 @@ export class Gltf2Importer {
     return gltfJson;
   }
 
-  public static async importGltf(
+  public static async _importGltf(
     gltfJson: RnM2,
     fileArrayBuffers: GltfFileBuffers,
     options: GltfLoadOption,
