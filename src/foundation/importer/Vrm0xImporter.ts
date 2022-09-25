@@ -1,7 +1,7 @@
 import {Gltf2Importer} from './Gltf2Importer';
 import {ModelConverter} from './ModelConverter';
 import {Is} from '../misc/Is';
-import {VRM} from '../../types/VRM';
+import {VRM} from '../../types/VRM0x';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {GltfLoadOption, RnM2} from '../../types';
 import {RenderPass} from '../renderer/RenderPass';
@@ -165,10 +165,6 @@ export class Vrm0xImporter {
         value: mapNameNodeId,
       });
     }
-    // rootEntity.tryToSetTag({
-    //   tag: 'humanoid_map_name_nodeName',
-    //   value: mapNameNodeName
-    // });
   }
 
   static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void {
