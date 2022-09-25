@@ -70,7 +70,7 @@ export class Vrm0xImporter {
     } else {
       rootGroups = [rootGroupMain];
     }
-    Vrm0xImporter._readSpringBone(rootGroupMain, gltfModel as Vrm0x);
+    Vrm0xImporter._readSpringBone(gltfModel as Vrm0x);
     Vrm0xImporter._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroupMain);
 
     return new Ok(rootGroups);
@@ -143,7 +143,7 @@ export class Vrm0xImporter {
     const renderPassMain = renderPasses[0];
     renderPassMain.addEntities([rootGroup]);
 
-    this._readSpringBone(rootGroup, gltfModel as Vrm0x);
+    this._readSpringBone(gltfModel as Vrm0x);
     this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
   }
 
@@ -167,7 +167,7 @@ export class Vrm0xImporter {
     }
   }
 
-  static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: Vrm0x): void {
+  static _readSpringBone(gltfModel: Vrm0x): void {
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
       .boneGroups) {
