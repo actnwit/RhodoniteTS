@@ -9,7 +9,6 @@ import {VRMColliderGroup} from './VRMColliderGroup';
 import {Index} from '../../types/CommonTypes';
 import {PhysicsStrategy} from './PhysicsStrategy';
 import {MutableQuaternion} from '../math/MutableQuaternion';
-import {IPhysicsEntity} from '../helpers/EntityHelper';
 import {IQuaternion} from '../math';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {

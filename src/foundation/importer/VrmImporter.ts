@@ -217,13 +217,15 @@ export class VrmImporter {
     gltfModel: RnM2,
     texturesLength: number
   ): void {
-    const materialProperties = gltfModel.extensions.VRM.materialProperties;
+    for (const material of gltfModel.materials) {
+      const mtoonMaterial = material.extensions?.VRMC_materials_mtoon;
+      if (mtoonMaterial == null) {
+        continue;
+      }
+      const dummyWhiteTextureNumber = texturesLength - 2;
+      const dummyBlackTextureNumber = texturesLength - 1;
 
-    const dummyWhiteTextureNumber = texturesLength - 2;
-    const dummyBlackTextureNumber = texturesLength - 1;
-
-    for (let i = 0; i < materialProperties.length; i++) {
-      const floatProperties = materialProperties[i].floatProperties;
+      const floatProperties = material.floatProperties;
       this.__initializeForUndefinedProperty(floatProperties, '_BlendMode', 0.0);
       this.__initializeForUndefinedProperty(floatProperties, '_BumpScale', 1.0);
       this.__initializeForUndefinedProperty(floatProperties, '_CullMode', 2.0);

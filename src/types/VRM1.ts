@@ -28,22 +28,6 @@ export type Vrm1BlendShapeGroup = {
   materialValues: [];
 };
 
-export type Vrm1BoneGroup = {
-  comment: string;
-  stiffiness: number; // don't fix typo https://github.com/vrm-c/UniVRM/issues/18
-  gravityPower: number;
-  gravityDir: {
-    x: number;
-    y: number;
-    z: number;
-  };
-  dragForce: number;
-  center: number;
-  hitRadius: number;
-  bones: number[];
-  colliderGroups: number[];
-};
-
 export type Vrm1SpringBone_Spring = {
   colliderGroups: number[];
   joints: Vrm1SpringBone_Joint[];
@@ -99,59 +83,59 @@ export type Vrm1SpringBone_ColliderGroup = {
   colliders: number[];
 };
 
-export type Vrm1MaterialProperty = {
-  name: string;
-  renderQueue: number;
-  shader: string;
-  floatProperties: {
-    _Cutoff: number;
-    _BumpScale: number;
-    _ReceiveShadowRate: number;
-    _ShadingGradeRate: number;
-    _ShadeShift: number;
-    _ShadeToony: number;
-    _LightColorAttenuation: number;
-    _IndirectLightIntensity: number;
-    _OutlineWidth: number;
-    _OutlineScaledMaxDistance: number;
-    _OutlineLightingMix: number;
-    _DebugMode: number;
-    _BlendMode: number;
-    _OutlineWidthMode: number;
-    _OutlineColorMode: number;
-    _CullMode: number;
-    _OutlineCullMode: number;
-    _SrcBlend: number;
-    _DstBlend: number;
-    _ZWrite: number;
+export type Vrm1_Materials_MToon = {
+  // Meta
+  specVersion: string;
+
+  // Rendering
+  transparentWithZWrite: boolean; // Whether write to depth buffer or not when alphaMode is BLEND
+  renderQueueOffsetNumber: number; // Offset value to the rendering order
+
+  // Lighting
+  shadeColorFactor: [number, number, number];
+  shadeMultiplyTexture: {
+    index: number;
+    texCoord?: number;
+    scale?: number;
   };
-  vectorProperties: {
-    _Color: number[];
-    _ShadeColor: number[];
-    _MainTex: number[];
-    _ShadeTexture: number[];
-    _BumpMap: number[];
-    _ReceiveShadowTexture: number[];
-    _ShadingGradeTexture: number[];
-    _SphereAdd: number[];
-    _EmissionColor: number[];
-    _EmissionMap: number[];
-    _OutlineWidthTexture: number[];
-    _OutlineColor: number[];
+  shadingShiftFactor: number;
+  shadingShiftTexture: {
+    index: number;
+    texCoord?: number;
+    scale?: number;
   };
-  textureProperties: {
-    _MainTex: number;
-    _ShadeTexture: number;
-    _BumpMap: number;
-    _SphereAdd: number;
-    _EmissionMap: number;
+  shadingToonyFactor: number;
+
+  // Global Illumination
+  giEqualizationFactor: number;
+
+  // Rim Lighting
+  matcapFactor: [number, number, number];
+  matcapTexture: {
+    index: number;
+    texCoord?: number;
+    scale?: number;
   };
-  keywordMap: {
-    _NORMALMAP: boolean;
+  parametricRimColorFactor: [number, number, number];
+  parametricRimFresnelPowerFactor: number;
+  parametricRimLiftFactor: number;
+  rimMultiplyTexture: {
+    index: number;
+    texCoord?: number;
+    scale?: number;
   };
-  tagMap: {
-    RenderType: string;
-  };
+  rimLightingMixFactor: number;
+
+  // Outline
+  outlineColorFactor: [number, number, number];
+  outlineLightingMixFactor: number;
+  outlineWidthFactor: number;
+  outlineWidthMode: 'none' | 'worldCoordinates' | 'screenCoordinates';
+
+  // UV Animation
+  uvAnimationRotationSpeedFactor: number;
+  uvAnimationScrollXSpeedFactor: number;
+  uvAnimationScrollYSpeedFactor: number;
 };
 
 export type Vrm1_NodeConstraint_Constraint = {
