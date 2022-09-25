@@ -1,5 +1,5 @@
 import {RnPromise} from '../foundation/misc/RnPromise';
-import {Array4} from './CommonTypes';
+import {Array3, Array4} from './CommonTypes';
 import {Material} from '../foundation/materials/core/Material';
 import {Accessor} from '../foundation/memory/Accessor';
 import {
@@ -160,7 +160,7 @@ export type RnM2Material = {
   normalTexture?: RnM2NormalTextureInfo;
   occlusionTexture?: RnM2OcclusionTextureInfo;
   emissiveTexture?: RnM2TextureInfo;
-  emissiveFactor?: number[];
+  emissiveFactor?: Array3<number>;
   diffuseTexture?: RnM2TextureInfo;
   diffuseColorFactor?: number[];
   alphaMode?: string;

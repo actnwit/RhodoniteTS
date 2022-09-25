@@ -45,6 +45,7 @@ import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShad
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
 import {MaterialRepository} from '../materials/core/MaterialRepository';
+import { Vrm0xMaterialProperty } from '../../types';
 
 function createMaterial(
   materialName: string,
@@ -876,7 +877,7 @@ function createMToonMaterial({
   isLighting?: boolean;
   useTangentAttribute?: boolean;
   isOutline?: boolean;
-  materialProperties?: any[];
+  materialProperties?: Vrm0xMaterialProperty;
   textures?: any[];
   debugMode?: any;
   maxInstancesNumber?: Count;

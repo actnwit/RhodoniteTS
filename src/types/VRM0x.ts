@@ -1,3 +1,4 @@
+import { Array3, Array4 } from './CommonTypes';
 import {RnM2} from './RnM2';
 
 export type Vrm0xHumanBone = {
@@ -69,6 +70,9 @@ export type Vrm0xMaterialProperty = {
     _ShadeToony: number;
     _LightColorAttenuation: number;
     _IndirectLightIntensity: number;
+    _RimLightingMix: number;
+    _RimFresnelPower: number;
+    _RimLift: number;
     _OutlineWidth: number;
     _OutlineScaledMaxDistance: number;
     _OutlineLightingMix: number;
@@ -83,18 +87,19 @@ export type Vrm0xMaterialProperty = {
     _ZWrite: number;
   };
   vectorProperties: {
-    _Color: number[];
-    _ShadeColor: number[];
-    _MainTex: number[];
-    _ShadeTexture: number[];
-    _BumpMap: number[];
-    _ReceiveShadowTexture: number[];
-    _ShadingGradeTexture: number[];
-    _SphereAdd: number[];
-    _EmissionColor: number[];
-    _EmissionMap: number[];
-    _OutlineWidthTexture: number[];
-    _OutlineColor: number[];
+    _Color: Array4<number>;
+    _ShadeColor: Array3<number>;
+    _MainTex: Array4<number>;
+    _ShadeTexture: Array4<number>;
+    _BumpMap: Array4<number>;
+    _ReceiveShadowTexture: Array4<number>;
+    _ShadingGradeTexture: Array4<number>;
+    _SphereAdd: Array4<number>;
+    _EmissionColor: Array3<number>;
+    _EmissionMap: Array4<number>;
+    _OutlineWidthTexture: Array4<number>;
+    _OutlineColor: Array3<number>;
+    _RimColor: Array3<number>;
   };
   textureProperties: {
     _MainTex: number;
@@ -102,13 +107,17 @@ export type Vrm0xMaterialProperty = {
     _BumpMap: number;
     _SphereAdd: number;
     _EmissionMap: number;
+    _OutlineWidthTexture: number;
+    _ReceiveShadowTexture: number;
+    _RimTexture: number;
+    _ShadingGradeTexture: number;
   };
-  keywordMap: {
-    _NORMALMAP: boolean;
-  };
-  tagMap: {
-    RenderType: string;
-  };
+  // keywordMap: {
+  //   _NORMALMAP: boolean;
+  // };
+  // tagMap: {
+  //   RenderType: string;
+  // };
 };
 
 export type Vrm0x_Extension = {

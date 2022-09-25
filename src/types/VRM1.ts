@@ -131,6 +131,9 @@ export type Vrm1_Materials_MToon = {
   outlineLightingMixFactor: number;
   outlineWidthFactor: number;
   outlineWidthMode: 'none' | 'worldCoordinates' | 'screenCoordinates';
+  outlineWidthMultiplyTexture: {
+    index: number;
+  };
 
   // UV Animation
   uvAnimationRotationSpeedFactor: number;
