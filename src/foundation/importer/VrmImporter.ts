@@ -26,27 +26,27 @@ export class VrmImporter {
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray;
+    const textures = this._createTextures(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
         defaultMaterialHelperArgumentArray[0].textures ??
-        this._createTextures(gltfModel);
+        textures;
       defaultMaterialHelperArgumentArray[0].isLighting =
         defaultMaterialHelperArgumentArray[0].isLighting ?? true;
-
-      this._initializeMaterialProperties(
-        gltfModel,
-        defaultMaterialHelperArgumentArray[0].textures.length
-      );
     }
+    const existOutline = this.__initializeMToonMaterialProperties(
+        gltfModel,
+        textures.length
+      );
 
     // get rootGroup
     let rootGroup;
-    const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
       renderPasses[1] = renderPasses[1] ?? new RenderPass();
       const renderPassOutline = renderPasses[1];
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;
+      gltfModel.extensions.VRM = {};
       gltfModel.extensions.VRM.rnExtension = {
         renderPassOutline: renderPassOutline,
       };
@@ -87,20 +87,21 @@ export class VrmImporter {
     for (const spring of gltfModel.extensions.VRMC_springBone.springs) {
       const vrmSpringBoneGroup = new VRMSpringBoneGroup();
       vrmSpringBoneGroup.tryToSetUniqueName(spring.name, true);
-      vrmSpringBoneGroup.colliderGroupIndices = spring.colliderGroups;
+      vrmSpringBoneGroup.colliderGroupIndices = Is.exist(spring.colliderGroups) ? spring.colliderGroups : [];
       for (const jointIdx in spring.joints) {
         const joint = spring.joints[jointIdx];
         vrmSpringBoneGroup.dragForce = joint.dragForce;
         vrmSpringBoneGroup.stiffnessForce = joint.stiffness;
-        vrmSpringBoneGroup.gravityPower = joint.gravityPower;
-        vrmSpringBoneGroup.gravityDir = Vector3.fromCopyArray([
+        vrmSpringBoneGroup.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
+        vrmSpringBoneGroup.gravityDir = Is.exist(joint.gravityDir) ? Vector3.fromCopyArray3([
           joint.gravityDir[0],
           joint.gravityDir[1],
           joint.gravityDir[2],
-        ]);
+        ]) : Vector3.fromCopyArray3([0, -1, 0]);
         vrmSpringBoneGroup.hitRadius = joint.hitRadius;
         const entity = gltfModel.asset.extras!.rnEntities![joint.node];
         vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph()!);
+
         // const boneNodeIndex = boneGroup.bones[idxOfArray];
         // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
         // entityRepository.addComponentToEntity(PhysicsComponent, entity.entityUID);
@@ -140,6 +141,7 @@ export class VrmImporter {
           const baseSg =
             gltfModel.asset.extras!.rnEntities![collider.node].getSceneGraph();
           sphereCollider.baseSceneGraph = baseSg;
+          vrmColliderGroup.baseSceneGraph = baseSg;
         }
       }
       vrmColliderGroup.colliders = colliders;
@@ -187,37 +189,11 @@ export class VrmImporter {
     return rnTextures;
   }
 
-  static _existOutlineMaterial(extensionsVRM: any): boolean {
-    const materialProperties = extensionsVRM.materialProperties;
-    if (materialProperties != null) {
-      for (const materialProperty of materialProperties) {
-        if (materialProperty.floatProperties._OutlineWidthMode !== 0) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  static _initializeMaterialProperties(
-    gltfModel: RnM2,
-    texturesLength: number
-  ): void {
-    const materialProperties = gltfModel.extensions.VRM.materialProperties;
-
-    for (const materialProperty of materialProperties) {
-      if (materialProperty.shader === 'VRM/MToon') {
-        this.__initializeMToonMaterialProperties(gltfModel, texturesLength);
-        break;
-      }
-    }
-  }
-
   private static __initializeMToonMaterialProperties(
     gltfModel: RnM2,
     texturesLength: number
-  ): void {
+  ): boolean {
+    let isOutline = false;
     for (const material of gltfModel.materials) {
       const mtoonMaterial: Vrm1_Materials_MToon = material.extensions?.VRMC_materials_mtoon;
       if (mtoonMaterial == null) {
@@ -287,15 +263,18 @@ export class VrmImporter {
           _SphereAdd: dummyBlackTextureNumber
         }
       }
-    }
-  }
 
-  private static __initializeForUndefinedProperty(
-    object: any,
-    propertyName: string,
-    initialValue: any
-  ): void {
-    if (object[propertyName] == null) object[propertyName] = initialValue;
+      if (Is.not.exist(material.extras)) {
+        material.extras = {};
+      }
+      material.extras.vrm0xMaterialProperty = vrm0xMaterialProperty;
+
+      if (mtoonMaterial.outlineWidthMode !== 'none') {
+        isOutline = true;
+      }
+    }
+
+    return isOutline;
   }
 
   static _getOptions(options?: GltfLoadOption): GltfLoadOption {
