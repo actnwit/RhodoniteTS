@@ -14,7 +14,7 @@ import {SphereCollider} from '../physics/SphereCollider';
 import {Vector3} from '../math/Vector3';
 import {VRMColliderGroup} from '../physics/VRMColliderGroup';
 import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
-import {Err, IResult, Ok} from '../misc/Result';
+import {assertIsOk, Err, IResult, Ok} from '../misc/Result';
 
 /**
  * The VRM Importer class.
@@ -40,7 +40,8 @@ export class Vrm0xImporter {
       });
     }
 
-    const gltfModel = result.unwrapForce();
+    assertIsOk(result);
+    const gltfModel = result.get();
     const textures = Vrm0xImporter._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
@@ -93,7 +94,8 @@ export class Vrm0xImporter {
       });
     }
 
-    const gltfJson = result.unwrapForce();
+    assertIsOk(result);
+    const gltfJson = result.get();
     Vrm0xImporter._readVRMHumanoidInfo(gltfJson as VRM);
 
     return new Ok(gltfJson as VRM);

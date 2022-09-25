@@ -11,7 +11,7 @@ import {glTF1} from '../../types/glTF1';
 import {GltfFileBuffers, GltfLoadOption} from '../../types';
 import {RnPromiseCallback} from '../misc/RnPromise';
 import {Vrm0xImporter} from './Vrm0xImporter';
-import {Err, IResult, Ok} from '../misc/Result';
+import {assertIsErr, assertIsOk, Err, IResult, Ok} from '../misc/Result';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -46,7 +46,9 @@ export class GltfImporter {
         error: r_arrayBuffer,
       });
     }
-    options.files![uri] = r_arrayBuffer.unwrapForce();
+
+    assertIsOk(r_arrayBuffer);
+    options.files![uri] = r_arrayBuffer.get();
 
     await this.__detectTheModelFileTypeAndImport(
       uri,
@@ -285,7 +287,7 @@ export class GltfImporter {
         );
 
         if (result.isOk()) {
-          const gltfModel = result.unwrapForce();
+          const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
             // TODO: support VRM1.0
             console.error('VRM1.0 is not supported yet');
@@ -294,6 +296,7 @@ export class GltfImporter {
           }
           return new Ok();
         } else {
+          assertIsErr(result);
           return new Err({
             message: result.getRnError().message,
             error: undefined,

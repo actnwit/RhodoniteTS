@@ -195,7 +195,7 @@ export class WebARSystem {
   async exitWebAR() {
     if (this.__oArSession.has()) {
       // End the XR session now.
-      await this.__oArSession.unwrap().end();
+      await this.__oArSession.get().end();
     }
   }
 

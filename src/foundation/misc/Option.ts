@@ -16,6 +16,7 @@ export interface IOption<T> {
   unwrapOrUndefined(): T | undefined;
   unwrapForce(): T;
   has(): this is Some<T>;
+  doesNotHave(): this is None;
 }
 
 export class Option<T> implements IOption<T> {
@@ -73,6 +74,10 @@ export class Option<T> implements IOption<T> {
   has(): this is Some<T> {
     return Is.exist(this.value);
   }
+
+  doesNotHave(): this is None {
+    return !Is.exist(this.value);
+  }
 }
 
 /**
@@ -119,12 +124,16 @@ export class Some<T> implements IOption<T> {
     return this.value;
   }
 
-  unwrap(): T {
+  get(): T {
     return this.value;
   }
 
   has(): this is Some<T> {
     return true;
+  }
+
+  doesNotHave(): this is None {
+    return false;
   }
 }
 
@@ -154,5 +163,21 @@ export class None implements IOption<never> {
 
   has(): this is Some<never> {
     return false;
+  }
+
+  doesNotHave(): this is None {
+    return true;
+  }
+}
+
+export function assertHas(value: IOption<any>): asserts value is Some<any> {
+  if (!value.has()) {
+    throw new ReferenceError(errorStr);
+  }
+}
+
+export function assertDoesNotHave(value: IOption<any>): asserts value is None {
+  if (value.has()) {
+    throw new ReferenceError(errorStr);
   }
 }
