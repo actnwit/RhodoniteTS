@@ -109,18 +109,14 @@ export class Vrm0xImporter {
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray;
+    const textures = this._createTextures(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
-        defaultMaterialHelperArgumentArray[0].textures ??
-        this._createTextures(gltfModel);
+        defaultMaterialHelperArgumentArray[0].textures ?? textures;
       defaultMaterialHelperArgumentArray[0].isLighting =
         defaultMaterialHelperArgumentArray[0].isLighting ?? true;
-
-      this._initializeMaterialProperties(
-        gltfModel,
-        defaultMaterialHelperArgumentArray[0].textures.length
-      );
     }
+    this._initializeMaterialProperties(gltfModel, textures.length);
 
     // get rootGroup
     let rootGroup;
