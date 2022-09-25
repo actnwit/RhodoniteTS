@@ -1,7 +1,7 @@
 import {Gltf2Importer} from './Gltf2Importer';
 import {ModelConverter} from './ModelConverter';
 import {Is} from '../misc/Is';
-import {VRM} from '../../types/VRM0x';
+import {Vrm0x} from '../../types/VRM0x';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {GltfLoadOption, RnM2} from '../../types';
 import {RenderPass} from '../renderer/RenderPass';
@@ -70,8 +70,8 @@ export class Vrm0xImporter {
     } else {
       rootGroups = [rootGroupMain];
     }
-    Vrm0xImporter._readSpringBone(rootGroupMain, gltfModel as VRM);
-    Vrm0xImporter._readVRMHumanoidInfo(gltfModel as VRM, rootGroupMain);
+    Vrm0xImporter._readSpringBone(rootGroupMain, gltfModel as Vrm0x);
+    Vrm0xImporter._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroupMain);
 
     return new Ok(rootGroups);
   }
@@ -83,7 +83,7 @@ export class Vrm0xImporter {
   static async importJsonOfVRM(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<VRM, Err<RnM2, undefined>>> {
+  ): Promise<IResult<Vrm0x, Err<RnM2, undefined>>> {
     options = this._getOptions(options);
 
     const result = await Gltf2Importer.importFromUri(uri, options);
@@ -96,9 +96,9 @@ export class Vrm0xImporter {
 
     assertIsOk(result);
     const gltfJson = result.get();
-    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as VRM);
+    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as Vrm0x);
 
-    return new Ok(gltfJson as VRM);
+    return new Ok(gltfJson as Vrm0x);
   }
 
   static async __importVRM0x(
@@ -143,12 +143,12 @@ export class Vrm0xImporter {
     const renderPassMain = renderPasses[0];
     renderPassMain.addEntities([rootGroup]);
 
-    this._readSpringBone(rootGroup, gltfModel as VRM);
-    this._readVRMHumanoidInfo(gltfModel as VRM, rootGroup);
+    this._readSpringBone(rootGroup, gltfModel as Vrm0x);
+    this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
   }
 
   static _readVRMHumanoidInfo(
-    gltfModel: VRM,
+    gltfModel: Vrm0x,
     rootEntity?: ISceneGraphEntity
   ): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
@@ -167,7 +167,7 @@ export class Vrm0xImporter {
     }
   }
 
-  static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void {
+  static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: Vrm0x): void {
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
       .boneGroups) {

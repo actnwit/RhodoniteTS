@@ -4,7 +4,7 @@ import {EntityRepository} from '../core/EntityRepository';
 import {AnimationComponent} from '../components/Animation/AnimationComponent';
 import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
 import {Index} from '../../types/CommonTypes';
-import {VRM} from '../../types/VRM0x';
+import {Vrm0x} from '../../types/VRM0x';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 
@@ -14,7 +14,7 @@ export class AnimationAssigner {
   assignAnimation(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: VRM,
+    vrmModel: Vrm0x,
     isSameSkeleton = false
   ) {
     this.__setupAnimationForSameSkeleton(
@@ -43,7 +43,7 @@ export class AnimationAssigner {
   private __getCorrespondingEntity(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: VRM,
+    vrmModel: Vrm0x,
     nodeIndex: Index,
     nodeName: string | undefined,
     isSameSkeleton: boolean
@@ -88,7 +88,7 @@ export class AnimationAssigner {
 
   private __isHips(
     rootEntity: ISceneGraphEntity,
-    vrmModel: VRM,
+    vrmModel: Vrm0x,
     nodeIndex: Index
   ) {
     const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
@@ -110,7 +110,7 @@ export class AnimationAssigner {
   private __setupAnimationForSameSkeleton(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: VRM,
+    vrmModel: Vrm0x,
     isSameSkeleton: boolean
   ) {
     if (gltfModel.animations) {

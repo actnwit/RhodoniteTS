@@ -1,32 +1,32 @@
 import {RnM2} from './RnM2';
 
-export type HumanBone = {
+export type Vrm0xHumanBone = {
   bone: string;
   node: number;
   name?: string;
   useDefaultValues: boolean;
 };
 
-export type LookAt = {
+export type Vrm0xLookAt = {
   curve: number[];
   xRange: number;
   yRange: number;
 };
 
-export type BlendShapeBind = {
+export type Vrm0xBlendShapeBind = {
   mesh: number;
   index: number;
   weight: number;
 };
 
-export type BlendShapeGroup = {
+export type Vrm0xBlendShapeGroup = {
   name: string;
   presetName: string;
-  binds: BlendShapeBind[];
+  binds: Vrm0xBlendShapeBind[];
   materialValues: [];
 };
 
-export type BoneGroup = {
+export type Vrm0xBoneGroup = {
   comment: string;
   stiffiness: number; // don't fix typo https://github.com/vrm-c/UniVRM/issues/18
   gravityPower: number;
@@ -42,7 +42,7 @@ export type BoneGroup = {
   colliderGroups: number[];
 };
 
-export type Collider = {
+export type Vrm0xCollider = {
   offset: {
     x: number;
     y: number;
@@ -51,12 +51,12 @@ export type Collider = {
   radius: number;
 };
 
-export type ColliderGroup = {
+export type Vrm0xColliderGroup = {
   node: number;
-  colliders: Collider[];
+  colliders: Vrm0xCollider[];
 };
 
-export type MaterialProperty = {
+export type Vrm0xMaterialProperty = {
   name: string;
   renderQueue: number;
   shader: string;
@@ -111,7 +111,7 @@ export type MaterialProperty = {
   };
 };
 
-export type VRM_Extension = {
+export type Vrm0x_Extension = {
   extensions: {
     VRM: {
       exporterVersion: string;
@@ -131,7 +131,7 @@ export type VRM_Extension = {
         otherLicenseUrl: string;
       };
       humanoid: {
-        humanBones: HumanBone[];
+        humanBones: Vrm0xHumanBone[];
         armStretch: number;
         legStretch: number;
         upperArmTwist: number;
@@ -150,21 +150,21 @@ export type VRM_Extension = {
         };
         meshAnnotations: [];
         lookAtTypeName: string;
-        lookAtHorizontalInner: LookAt;
-        lookAtHorizontalOuter: LookAt;
-        lookAtVerticalDown: LookAt;
-        lookAtVerticalUP: LookAt;
+        lookAtHorizontalInner: Vrm0xLookAt;
+        lookAtHorizontalOuter: Vrm0xLookAt;
+        lookAtVerticalDown: Vrm0xLookAt;
+        lookAtVerticalUP: Vrm0xLookAt;
       };
       blendShapeMaster: {
-        blendShapeGroups: BlendShapeGroup[];
+        blendShapeGroups: Vrm0xBlendShapeGroup[];
       };
       secondaryAnimation: {
-        boneGroups: BoneGroup[];
-        colliderGroups: ColliderGroup[];
+        boneGroups: Vrm0xBoneGroup[];
+        colliderGroups: Vrm0xColliderGroup[];
       };
-      materialProperties: MaterialProperty[];
+      materialProperties: Vrm0xMaterialProperty[];
     };
   };
 };
 
-export type VRM = VRM_Extension & RnM2;
+export type Vrm0x = Vrm0x_Extension & RnM2;
