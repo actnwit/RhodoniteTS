@@ -1,7 +1,5 @@
-import {Gltf2Importer} from './Gltf2Importer';
 import {ModelConverter} from './ModelConverter';
 import {Is} from '../misc/Is';
-import {Vrm0x} from '../../types/VRM0x';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {GltfLoadOption, RnM2} from '../../types';
 import {RenderPass} from '../renderer/RenderPass';
@@ -14,7 +12,7 @@ import {SphereCollider} from '../physics/SphereCollider';
 import {Vector3} from '../math/Vector3';
 import {VRMColliderGroup} from '../physics/VRMColliderGroup';
 import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
-import {assertIsOk, Err, IResult, Ok} from '../misc/Result';
+import {Vrm1} from '../../types/VRM1';
 
 export class VrmImporter {
   private constructor() {}
@@ -61,21 +59,19 @@ export class VrmImporter {
     const renderPassMain = renderPasses[0];
     renderPassMain.addEntities([rootGroup]);
 
-    this._readSpringBone(rootGroup, gltfModel as Vrm0x);
-    this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
+    this._readSpringBone(gltfModel as Vrm1);
+    this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
   }
 
   static _readVRMHumanoidInfo(
-    gltfModel: Vrm0x,
+    gltfModel: Vrm1,
     rootEntity?: ISceneGraphEntity
   ): void {
-    const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
+    const humanBones = gltfModel.extensions.VRMC_vrm.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
     for (const boneName in humanBones) {
       const bone = humanBones[boneName];
       mapNameNodeId.set(boneName, bone.node);
-      const boneNode = gltfModel.nodes[bone.node];
-      bone.name = boneNode.name;
     }
     if (rootEntity != null) {
       rootEntity.tryToSetTag({
@@ -85,25 +81,24 @@ export class VrmImporter {
     }
   }
 
-  static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: Vrm0x): void {
+  static _readSpringBone(gltfModel: Vrm1): void {
     const boneGroups: VRMSpringBoneGroup[] = [];
-    for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
-      .boneGroups) {
+    for (const spring of gltfModel.extensions.VRMC_springBone.springs) {
       const vrmSpringBoneGroup = new VRMSpringBoneGroup();
-      vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
-      vrmSpringBoneGroup.dragForce = boneGroup.dragForce;
-      vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffiness;
-      vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
-      vrmSpringBoneGroup.gravityDir = Vector3.fromCopyArray([
-        boneGroup.gravityDir.x,
-        boneGroup.gravityDir.y,
-        boneGroup.gravityDir.z,
-      ]);
-      vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
-      vrmSpringBoneGroup.hitRadius = boneGroup.hitRadius;
-      for (const idxOfArray in boneGroup.bones) {
-        const boneNodeIndex = boneGroup.bones[idxOfArray];
-        const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
+      vrmSpringBoneGroup.tryToSetUniqueName(spring.name, true);
+      vrmSpringBoneGroup.colliderGroupIndices = spring.colliderGroups;
+      for (const jointIdx in spring.joints) {
+        const joint = spring.joints[jointIdx];
+        vrmSpringBoneGroup.dragForce = joint.dragForce;
+        vrmSpringBoneGroup.stiffnessForce = joint.stiffness;
+        vrmSpringBoneGroup.gravityPower = joint.gravityPower;
+        vrmSpringBoneGroup.gravityDir = Vector3.fromCopyArray([
+          joint.gravityDir[0],
+          joint.gravityDir[1],
+          joint.gravityDir[2],
+        ]);
+        vrmSpringBoneGroup.hitRadius = joint.hitRadius;
+        const entity = gltfModel.asset.extras!.rnEntities![joint.node];
         vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph()!);
         // const boneNodeIndex = boneGroup.bones[idxOfArray];
         // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
@@ -120,29 +115,33 @@ export class VrmImporter {
     }
 
     const colliderGroups: VRMColliderGroup[] = [];
-    for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation
+    for (const colliderGroupIdx in gltfModel.extensions.VRMC_springBone
       .colliderGroups) {
       const colliderGroup =
-        gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[
-          colliderGroupIdx
-        ];
+        gltfModel.extensions.VRMC_springBone.colliderGroups[colliderGroupIdx];
+
       const vrmColliderGroup = new VRMColliderGroup();
       colliderGroups.push(vrmColliderGroup);
       const colliders: SphereCollider[] = [];
-      for (const collider of colliderGroup.colliders) {
-        const sphereCollider = new SphereCollider();
-        sphereCollider.position = Vector3.fromCopyArray([
-          collider.offset.x,
-          collider.offset.y,
-          collider.offset.z,
-        ]);
-        sphereCollider.radius = collider.radius;
-        colliders.push(sphereCollider);
+      for (const colliderIdx of colliderGroup.colliders) {
+        const collider =
+          gltfModel.extensions.VRMC_springBone.colliders[colliderIdx];
+
+        if (collider.shape.sphere) {
+          const sphereCollider = new SphereCollider();
+          sphereCollider.position = Vector3.fromCopyArray([
+            collider.shape.sphere.offset[0],
+            collider.shape.sphere.offset[1],
+            collider.shape.sphere.offset[2],
+          ]);
+          sphereCollider.radius = collider.shape.sphere.radius;
+          colliders.push(sphereCollider);
+          const baseSg =
+            gltfModel.asset.extras!.rnEntities![collider.node].getSceneGraph();
+          sphereCollider.baseSceneGraph = baseSg;
+        }
       }
       vrmColliderGroup.colliders = colliders;
-      const baseSg =
-        gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
-      vrmColliderGroup.baseSceneGraph = baseSg;
       VRMSpringBonePhysicsStrategy.addColliderGroup(
         parseInt(colliderGroupIdx),
         vrmColliderGroup
