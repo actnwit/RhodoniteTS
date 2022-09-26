@@ -1112,20 +1112,7 @@ export class ModelConverter {
       }
 
       // For VRM0x
-      if (rnLoaderOptions.__isImportVRM) {
-        if (materialJson.extensions?.VRMC_materials_mtoon != null) {
-          const material = this.__setVRM1Material(
-            rnPrimitive,
-            node,
-            gltfModel,
-            primitive,
-            materialJson,
-            rnLoaderOptions
-          );
-          if (Is.exist(material)) {
-            return material;
-          }
-        }
+      if (rnLoaderOptions.__isImportVRM0x) {
         const material = this.__setVRM0xMaterial(
           rnPrimitive,
           node,
@@ -1169,6 +1156,21 @@ export class ModelConverter {
       : alphaMode;
     const additionalName =
       node.skin != null ? `skin${node.skin ?? node.skinName ?? ''}` : void 0;
+
+    if (materialJson.extensions?.VRMC_materials_mtoon != null) {
+      const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
+      const material = this.__setVRM1Material(
+        rnPrimitive,
+        node,
+        gltfModel,
+        primitive,
+        materialJson,
+        rnLoaderOptions
+      );
+      if (Is.exist(material)) {
+        return material;
+      }
+    }
 
     if (parseFloat(gltfModel.asset?.version) >= 2) {
       // For glTF 2
@@ -1401,7 +1403,7 @@ export class ModelConverter {
       // set alpha threshold except for VRM
       if (
         material.alphaMode === AlphaMode.Mask &&
-        !gltfModel.asset.extras?.rnLoaderOptions?.__isImportVRM
+        !gltfModel.asset.extras?.rnLoaderOptions?.__isImportVRM0x
       ) {
         material.setParameter(
           ShaderSemantics.AlphaCutoff,

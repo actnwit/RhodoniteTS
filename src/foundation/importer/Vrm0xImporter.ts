@@ -492,7 +492,7 @@ export class Vrm0xImporter {
       }
 
       //set default values
-      options.__isImportVRM = true;
+      options.__isImportVRM0x = true;
       if (options.defaultMaterialHelperArgumentArray == null) {
         options.defaultMaterialHelperArgumentArray = [{}];
       }
@@ -520,7 +520,7 @@ export class Vrm0xImporter {
             isTextureImageToLoadPreMultipliedAlpha: false,
           },
         ],
-        __isImportVRM: true,
+        __isImportVRM0x: true,
       };
     }
 

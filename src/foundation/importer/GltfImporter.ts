@@ -229,7 +229,7 @@ export class GltfImporter {
     );
 
     const fileArrayBuffer = options.files![fileName];
-    options.__isImportVRM = false;
+    options.__isImportVRM0x = false;
     let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
     switch (fileType) {
       case FileType.Gltf: {
@@ -280,7 +280,7 @@ export class GltfImporter {
         }
       }
       case FileType.VRM: {
-        options.__isImportVRM = true;
+        options.__isImportVRM0x = true;
         const result = await Gltf2Importer._importGltfOrGlbFromArrayBuffers(
           fileArrayBuffer,
           options.files!,
@@ -290,6 +290,8 @@ export class GltfImporter {
         if (result.isOk()) {
           const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
+            options.__isImportVRM0x = false;
+            gltfModel.asset.extras!.rnLoaderOptions!.__isImportVRM0x = false;
             await VrmImporter.__importVRM(gltfModel, renderPasses);
           } else if (gltfModel.extensionsUsed.indexOf('VRM') > 0) {
             await Vrm0xImporter.__importVRM0x(gltfModel, renderPasses);

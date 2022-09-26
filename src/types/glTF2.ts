@@ -424,7 +424,7 @@ export type GltfLoadOption = {
   fileType?: string;
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
   transmission?: boolean; // Set to true by the importer if the KHS_material_transmission extension is used.
-  __isImportVRM?: boolean; // internal use only
+  __isImportVRM0x?: boolean; // internal use only
 };
 
 export const TagGltf2NodeIndex = 'gltf_node_index';
