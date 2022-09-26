@@ -87,8 +87,9 @@ import {IBlendShapeEntityMethods} from '../components/BlendShape/IBlendShapeEnti
 import {BufferView} from '../memory/BufferView';
 import {RhodoniteImportExtension} from './RhodoniteImportExtension';
 import Rn from '../../cjs';
-import { Vrm1_Materials_MToon } from '../../types/VRM1';
-import { Vrm0xMaterialProperty } from '../../types';
+import {Vrm1_Materials_MToon} from '../../types/VRM1';
+import {Vrm0xMaterialProperty} from '../../types';
+import {MutableMatrix44} from '../math/MutableMatrix44';
 
 declare let DracoDecoderModule: any;
 
@@ -199,6 +200,10 @@ export class ModelConverter {
 
     // Billboard
     RhodoniteImportExtension.importBillboard(gltfModel, rnEntities);
+
+    if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
+      this.__generateVrmNormalizedSkeleton(gltfModel, rnEntities);
+    }
 
     return rootGroup;
   }
@@ -2326,7 +2331,99 @@ export class ModelConverter {
       byteAlign: 4,
     });
   }
+
+  private static __generateVrmNormalizedSkeleton(
+    gltfModel: RnM2,
+    rnEntities: ISceneGraphEntity[]
+  ) {
+    // Create a Copy of Skeleton
+    const backupRnJoints: ISceneGraphEntity[] = [];
+    const createHierarchyRecursively = (
+      rnm2Node: RnM2Node,
+      rnEntity: ISceneGraphEntity
+    ) => {
+      if (Is.exist(rnm2Node.children)) {
+        for (const childIdx of rnm2Node.children) {
+          const rnJoint = backupRnJoints[childIdx];
+          if (Is.exist(rnJoint)) {
+            rnEntity.getSceneGraph().addChild(rnJoint.getSceneGraph());
+            createHierarchyRecursively(gltfModel.nodes[childIdx], rnJoint);
+          }
+        }
+      }
+    };
+
+    for (const node of gltfModel.nodes) {
+      if (Is.exist(node.skinObject)) {
+        const joints = node.skinObject.joints;
+        for (const jointIdx of joints) {
+          const rnJointEntity = rnEntities[jointIdx];
+          const newRnJointEntity = EntityHelper.createGroupEntity();
+          newRnJointEntity.getTransform().matrix =
+            rnJointEntity.getTransform().matrix;
+          backupRnJoints[jointIdx] = newRnJointEntity;
+        }
+      }
+    }
+    for (const node of gltfModel.nodes) {
+      if (Is.exist(node.skinObject)) {
+        const rnJointEntity = backupRnJoints[node.skinObject.joints[0]];
+        createHierarchyRecursively(
+          node.skinObject.jointsObjects[0],
+          rnJointEntity
+        );
+      }
+    }
+
+    // Normalize Skeleton
+    for (let i = 0; i < gltfModel.nodes.length; i++) {
+      const node = gltfModel.nodes[i];
+      if (Is.exist(node.skinObject)) {
+        const joints = node.skinObject.joints;
+        for (const jointIdx of joints) {
+          const rnJointEntity = rnEntities[jointIdx];
+          rnJointEntity.getTransform().matrix = Matrix44.identity();
+        }
+        for (const jointIdx of joints) {
+          const rnJointEntity = rnEntities[jointIdx];
+          let parentInvWorldMatrix = MutableMatrix44.identity();
+          if (backupRnJoints[jointIdx].getSceneGraph().parent) {
+            parentInvWorldMatrix = backupRnJoints[jointIdx]
+              .getSceneGraph()
+              .parent!.worldMatrix.invert();
+          }
+          rnJointEntity.getTransform().translate =
+            parentInvWorldMatrix.multiplyVector3(
+              backupRnJoints[jointIdx].getSceneGraph().translate
+            );
+        }
+      }
+    }
+
+    // Update Inverse Bind Matrices from the normalized skeleton
+    for (let i = 0; i < gltfModel.nodes.length; i++) {
+      const node = gltfModel.nodes[i];
+      if (Is.exist(node.skinObject)) {
+        const joints = node.skinObject.joints;
+        const rnSkeletalEntity = rnEntities[i];
+        const skeletalComponent = rnSkeletalEntity.tryToGetSkeletal();
+        if (Is.exist(skeletalComponent)) {
+          const accessor = skeletalComponent.getInverseBindMatricesAccessor();
+          for (let j = 0; j < joints.length; j++) {
+            const jointIdx = joints[j];
+            const rnJointEntity = rnEntities[jointIdx];
+            accessor!.setMat4AsMatrix44(
+              j,
+              rnJointEntity.getSceneGraph().worldMatrix.invert(),
+              {}
+            );
+          }
+        }
+      }
+    }
+  }
 }
+
 function setupPbrMetallicRoughness(
   pbrMetallicRoughness: RnM2PbrMetallicRoughness,
   material: Material,
