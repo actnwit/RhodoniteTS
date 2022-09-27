@@ -2,6 +2,7 @@
 import {ISceneGraphEntity} from '../../../helpers/EntityHelper';
 import { IVector3, Matrix44, Quaternion, Vector3 } from '../../../math';
 import {IQuaternion} from '../../../math/IQuaternion';
+import { Is } from '../../../misc/Is';
 import {IAnimationRetarget} from './AnimationRetarget';
 
 export class GlobalRetarget implements IAnimationRetarget {
@@ -9,9 +10,12 @@ export class GlobalRetarget implements IAnimationRetarget {
     srcEntity: ISceneGraphEntity,
     dstEntity: ISceneGraphEntity
   ): IQuaternion {
+    // extract global retarget quaternion
     const srcPoseQ = srcEntity.getTransform().quaternionInner;
     const srcRestQ = srcEntity.tryToGetAnimation()!.restQuaternion;
-    const srcPGRestQ = srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion;
+    const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent) ?
+      srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
+      Quaternion.identity();
 
     const animQ =
       Quaternion.multiply(
@@ -25,8 +29,11 @@ export class GlobalRetarget implements IAnimationRetarget {
           )
       );
 
+    // retarget quaternion to local pose
     const dstRestQ = dstEntity.tryToGetAnimation()!.restQuaternion;
-    const dstPgRestQ = dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion;
+    const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent) ?
+      dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
+      Quaternion.identity();
 
     const tgtPoseQ =
       Quaternion.multiply(
@@ -47,14 +54,28 @@ export class GlobalRetarget implements IAnimationRetarget {
     srcEntity: ISceneGraphEntity,
     dstEntity: ISceneGraphEntity
   ): IVector3 {
-    const pose = srcEntity.getTransform().translateInner;
-    const rest = srcEntity.tryToGetAnimation()!.restTranslate;
-    const delta = Vector3.subtract(pose, rest);
+    // extract global retarget translate
+    const srcPoseT = srcEntity.getTransform().translateInner;
+    const srcRestT = srcEntity.tryToGetAnimation()!.restTranslate;
+    const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent) ?
+      srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
+      Quaternion.identity();
+    const srcDelta = Vector3.subtract(srcPoseT, srcRestT);
+    const AnimT = Matrix44.fromCopyQuaternion(srcPGRestQ).multiplyVector3(srcDelta);
 
-    const parentPgRest = srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion;
-    const dstPose = Matrix44.fromCopyQuaternion(parentPgRest).multiplyVector3(delta);
+    // retarget translate to local pose
+    const dstRestT = dstEntity.tryToGetAnimation()!.restTranslate;
+    const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent) ?
+      dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
+      Quaternion.identity();
 
-    return dstPose;
+    const dstPoseT =
+      Vector3.add(
+        Matrix44.fromCopyQuaternion(Quaternion.invert(dstPgRestQ)).multiplyVector3(AnimT),
+          dstRestT
+        );
+
+    return dstPoseT;
   }
 
   retargetScale(
