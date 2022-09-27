@@ -56,6 +56,8 @@ import {IAnimationEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import { EffekseerComponent } from '../../../effekseer';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableQuaternion } from '../../math';
 
 const defaultAnimationInfo = {
   name: '',
@@ -90,6 +92,9 @@ export class AnimationComponent extends Component {
   private __meshComponent?: MeshComponent;
   private __effekseerComponent?: EffekseerComponent;
   private __isEffekseerState = -1;
+
+  private __globalRestQuaternion: MutableQuaternion =
+    MutableQuaternion.identity();
 
   /// flags ///
   private __isAnimating = true;
@@ -325,6 +330,21 @@ export class AnimationComponent extends Component {
     return this.__backupDefaultValues.get(
       AnimationAttribute.Scale.str as AnimationPathName
     ) as IVector3;
+  }
+
+  get globalRestQuaternion(): IQuaternion {
+    const parent = this.entity.getSceneGraph().parent;
+    if (parent !== undefined) {
+      const parentAnimation = parent.entity.tryToGetAnimation();
+      if (parentAnimation !== undefined) {
+        return Quaternion.multiply(
+          parentAnimation.globalRestQuaternion,
+          this.restQuaternion
+        );
+      }
+    }
+
+    return this.restQuaternion;
   }
 
   private __backupRestValues() {
