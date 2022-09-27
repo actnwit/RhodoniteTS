@@ -89,7 +89,7 @@ export class AnimationComponent extends Component {
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
   private __effekseerComponent?: EffekseerComponent;
-  private __isEffekseerState: number = -1;
+  private __isEffekseerState = -1;
 
   /// flags ///
   private __isAnimating = true;
@@ -285,7 +285,7 @@ export class AnimationComponent extends Component {
     return inputArray.length - 1;
   }
 
-  private restoreDefaultValues() {
+  private __restoreRestValues() {
     this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion;
@@ -303,31 +303,31 @@ export class AnimationComponent extends Component {
     }
   }
 
-  get defaultTranslate() {
+  get restTranslate() {
     return this.__backupDefaultValues.get(
       AnimationAttribute.Translate.str as AnimationPathName
     ) as IVector3;
   }
 
-  get defaultQuaternion() {
+  get restQuaternion() {
     return this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion;
   }
 
-  get defaultRotation() {
+  get restRotation() {
     return (this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion)!.toEulerAngles();
   }
 
-  get defaultScale() {
+  get restScale() {
     return this.__backupDefaultValues.get(
       AnimationAttribute.Scale.str as AnimationPathName
     ) as IVector3;
   }
 
-  private backupDefaultValues() {
+  private __backupRestValues() {
     this.__backupDefaultValues.set(
       AnimationAttribute.Quaternion.str as AnimationPathName,
       this.__transformComponent!.quaternion
@@ -353,7 +353,7 @@ export class AnimationComponent extends Component {
   }
 
   setAnimationToRest() {
-    this.restoreDefaultValues();
+    this.__restoreRestValues();
   }
 
   static setIsAnimatingForAll(flg: boolean) {
@@ -478,7 +478,7 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
-    this.backupDefaultValues();
+    this.__backupRestValues();
   }
 
   public getStartInputValueOfAnimation(animationTrackName?: string): number {
