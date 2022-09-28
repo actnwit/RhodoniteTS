@@ -433,6 +433,7 @@ export class DataUtil {
       ],
       tangentCalculationMode: 1,
       extendedJson: void 0, //   URI string / JSON Object / ArrayBuffer
+      __importedType: 'undefined',
     };
 
     return defaultOptions;

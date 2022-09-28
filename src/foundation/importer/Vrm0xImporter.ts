@@ -521,6 +521,7 @@ export class Vrm0xImporter {
           },
         ],
         __isImportVRM0x: true,
+        __importedType: 'vrm0x',
       };
     }
 

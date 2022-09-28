@@ -26,7 +26,6 @@ import {ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {Is} from '../../misc';
-import {GlobalRetarget} from './AnimationRetarget/GlobalRetarget';
 import {IAnimationRetarget} from './AnimationRetarget/AnimationRetarget';
 
 export class SkeletalComponent extends Component {

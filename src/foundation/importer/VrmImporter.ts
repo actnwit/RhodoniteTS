@@ -318,6 +318,7 @@ export class VrmImporter {
           },
         ],
         __isImportVRM0x: true,
+        __importedType: 'vrm1'
       };
     }
 

@@ -124,13 +124,13 @@ export class Gltf2Importer {
   ): GltfLoadOption {
     if (json.asset?.extras?.rnLoaderOptions != null) {
       for (const optionName in json.asset.extras.rnLoaderOptions) {
-        defaultOptions[optionName as keyof GltfLoadOption] = json.asset.extras
-          .rnLoaderOptions[optionName as keyof GltfLoadOption] as any;
+        (defaultOptions as any)[optionName as keyof GltfLoadOption] = json.asset
+          .extras.rnLoaderOptions[optionName as keyof GltfLoadOption] as any;
       }
     }
 
     for (const optionName in options) {
-      defaultOptions[optionName as keyof GltfLoadOption] = options[
+      (defaultOptions as any)[optionName as keyof GltfLoadOption] = options[
         optionName as keyof GltfLoadOption
       ] as any;
     }

@@ -246,6 +246,7 @@ export class GltfImporter {
         );
         const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPasses[0].addEntities([rootGroup]);
+        options.__importedType = 'gltf2';
         return new Ok();
       }
       case FileType.GltfBinary: {
@@ -258,6 +259,7 @@ export class GltfImporter {
         );
         const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPasses[0].addEntities([rootGroup]);
+        options.__importedType = 'glb2';
         return new Ok();
       }
       case FileType.Draco: {
@@ -274,6 +276,7 @@ export class GltfImporter {
             error: undefined,
           });
         } else {
+          options.__importedType = 'draco';
           const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
           renderPasses[0].addEntities([rootGroup]);
           return new Ok();
@@ -292,8 +295,10 @@ export class GltfImporter {
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
             options.__isImportVRM0x = false;
             gltfModel.asset.extras!.rnLoaderOptions!.__isImportVRM0x = false;
+            options.__importedType = 'vrm1';
             await VrmImporter.__importVRM(gltfModel, renderPasses);
           } else if (gltfModel.extensionsUsed.indexOf('VRM') > 0) {
+            options.__importedType = 'vrm0x';
             await Vrm0xImporter.__importVRM0x(gltfModel, renderPasses);
           }
           return new Ok();
