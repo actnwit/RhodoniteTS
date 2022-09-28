@@ -150,6 +150,9 @@ export class ModelConverter {
     // Transform
     this._setupTransform(gltfModel, rnEntities);
 
+    // Animation
+    this._setupAnimation(gltfModel, rnEntities);
+
     // Skeleton
     this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
 
@@ -201,8 +204,10 @@ export class ModelConverter {
     // Billboard
     RhodoniteImportExtension.importBillboard(gltfModel, rnEntities);
 
-    if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
-      this.__generateVrmNormalizedSkeleton(gltfModel, rnEntities);
+    if (Is.exist(gltfModel.extensionsUsed)) {
+      if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
+        this.__generateVrmNormalizedSkeleton(gltfModel, rnEntities);
+      }
     }
 
     return rootGroup;
@@ -1098,7 +1103,7 @@ export class ModelConverter {
     node: RnM2Node,
     gltfModel: RnM2,
     primitive: RnM2Primitive,
-    materialJson: RnM2Material
+    materialJson?: RnM2Material
   ): Material {
     // if rnLoaderOptions is set something, do special deal
     if (gltfModel.asset.extras?.rnLoaderOptions != null) {
@@ -1112,7 +1117,7 @@ export class ModelConverter {
         const loaderExtension =
           gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension;
         if (loaderExtension?.generateMaterial != null) {
-          return loaderExtension.generateMaterial(materialJson);
+          return loaderExtension.generateMaterial(materialJson!);
         }
       }
 
@@ -1123,7 +1128,7 @@ export class ModelConverter {
           node,
           gltfModel,
           primitive,
-          materialJson,
+          materialJson!,
           rnLoaderOptions
         );
         if (Is.exist(material)) {
@@ -1162,18 +1167,20 @@ export class ModelConverter {
     const additionalName =
       node.skin != null ? `skin${node.skin ?? node.skinName ?? ''}` : void 0;
 
-    if (materialJson.extensions?.VRMC_materials_mtoon != null) {
-      const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
-      const material = this.__setVRM1Material(
-        rnPrimitive,
-        node,
-        gltfModel,
-        primitive,
-        materialJson,
-        rnLoaderOptions
-      );
-      if (Is.exist(material)) {
-        return material;
+    if (Is.exist(materialJson)) {
+      if (materialJson.extensions?.VRMC_materials_mtoon != null) {
+        const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
+        const material = this.__setVRM1Material(
+          rnPrimitive,
+          node,
+          gltfModel,
+          primitive,
+          materialJson,
+          rnLoaderOptions
+        );
+        if (Is.exist(material)) {
+          return material;
+        }
       }
     }
 

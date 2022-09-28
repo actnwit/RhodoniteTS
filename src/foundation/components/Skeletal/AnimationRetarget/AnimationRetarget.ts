@@ -3,16 +3,7 @@ import {IVector3} from '../../../math';
 import {IQuaternion} from '../../../math/IQuaternion';
 
 export interface IAnimationRetarget {
-  retargetQuaternion(
-    srcEntity: ISceneGraphEntity,
-    DstEntity: ISceneGraphEntity
-  ): IQuaternion;
-  retargetTranslate(
-    srcEntity: ISceneGraphEntity,
-    DstEntity: ISceneGraphEntity
-  ): IVector3;
-  retargetScale(
-    srcEntity: ISceneGraphEntity,
-    DstEntity: ISceneGraphEntity
-  ): IVector3;
+  retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
+  retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
+  retargetScale(dstEntity: ISceneGraphEntity): IVector3;
 }

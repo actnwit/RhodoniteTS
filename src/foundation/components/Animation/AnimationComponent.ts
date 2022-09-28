@@ -52,12 +52,13 @@ import {
 } from '../../math/raw/raw_extension';
 import { Vector3 } from '../../math/Vector3';
 import {Is} from '../../misc/Is';
-import {IAnimationEntity} from '../../helpers/EntityHelper';
+import {IAnimationEntity, ISceneGraphEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import { EffekseerComponent } from '../../../effekseer';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableQuaternion } from '../../math';
+import { ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
 
 const defaultAnimationInfo = {
   name: '',
@@ -93,12 +94,14 @@ export class AnimationComponent extends Component {
   private __effekseerComponent?: EffekseerComponent;
   private __isEffekseerState = -1;
 
-  private __globalRestQuaternion: MutableQuaternion =
-    MutableQuaternion.identity();
-
   /// flags ///
   private __isAnimating = true;
   static isAnimating = true;
+
+  /**
+   * @private
+   */
+  public __skeletalComponent?: SkeletalComponent;
 
   /// Static Members ///
 
@@ -145,10 +148,22 @@ export class AnimationComponent extends Component {
   }
 
   $logic() {
-    if (
-      AnimationComponent.isAnimating && this.isAnimating &&
-      this.__currentActiveAnimationTrackName !== undefined
-    ) {
+    if (!AnimationComponent.isAnimating || !this.isAnimating) {
+      return;
+    }
+
+    const animationRetarget = this.__skeletalComponent?._animationRetarget;
+    if (Is.exist(animationRetarget)) {
+      animationRetarget.retargetQuaternion(this.entity);
+      animationRetarget.retargetTranslate(this.entity);
+      animationRetarget.retargetScale(this.entity);
+    } else {
+      this.__applyAnimation();
+    }
+  }
+
+  private __applyAnimation() {
+    if (this.__currentActiveAnimationTrackName !== undefined) {
       const animationSet = this.__animationTracks.get(
         this.__currentActiveAnimationTrackName
       );

@@ -6,10 +6,17 @@ import { Is } from '../../../misc/Is';
 import {IAnimationRetarget} from './AnimationRetarget';
 
 export class GlobalRetarget implements IAnimationRetarget {
+  private __srcEntity: ISceneGraphEntity;
+
+  constructor(srcEntity: ISceneGraphEntity) {
+    this.__srcEntity = srcEntity;
+  }
+
   retargetQuaternion(
-    srcEntity: ISceneGraphEntity,
     dstEntity: ISceneGraphEntity
   ): IQuaternion {
+    const srcEntity = this.__srcEntity;
+
     // extract global retarget quaternion
     const srcPoseQ = srcEntity.getTransform().quaternionInner;
     const srcRestQ = srcEntity.tryToGetAnimation()!.restQuaternion;
@@ -51,9 +58,10 @@ export class GlobalRetarget implements IAnimationRetarget {
   }
 
   retargetTranslate(
-    srcEntity: ISceneGraphEntity,
     dstEntity: ISceneGraphEntity
   ): IVector3 {
+    const srcEntity = this.__srcEntity;
+
     // extract global retarget translate
     const srcPoseT = srcEntity.getTransform().translateInner;
     const srcRestT = srcEntity.tryToGetAnimation()!.restTranslate;
@@ -79,9 +87,10 @@ export class GlobalRetarget implements IAnimationRetarget {
   }
 
   retargetScale(
-    srcEntity: ISceneGraphEntity,
     dstEntity: ISceneGraphEntity
   ): IVector3 {
+    const srcEntity = this.__srcEntity;
+
     return srcEntity.getTransform().scaleInner;
   }
 }

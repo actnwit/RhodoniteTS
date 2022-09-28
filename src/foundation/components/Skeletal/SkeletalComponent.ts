@@ -25,6 +25,9 @@ import {Accessor} from '../../memory/Accessor';
 import {ISkeletalEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
+import {Is} from '../../misc';
+import {GlobalRetarget} from './AnimationRetarget/GlobalRetarget';
+import {IAnimationRetarget} from './AnimationRetarget/AnimationRetarget';
 
 export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -54,6 +57,7 @@ export class SkeletalComponent extends Component {
   private __isWorldMatrixVanilla = true;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
+  _animationRetarget?: IAnimationRetarget;
 
   constructor(
     entityUid: EntityUID,
@@ -108,6 +112,16 @@ export class SkeletalComponent extends Component {
 
   setJoints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
+
+    // register this skeleton entity to each joint's animation component
+    for (const joint of joints) {
+      const animationComponent = joint.entity.tryToGetAnimation();
+      if (Is.exist(animationComponent)) {
+        animationComponent.__skeletalComponent = this;
+      }
+    }
+
+    // get each array data from global data repository
     let index = 0;
     if (this.componentSID < Config.maxSkeletonNumber) {
       index = this.componentSID;
