@@ -206,7 +206,7 @@ export class ModelConverter {
 
     if (Is.exist(gltfModel.extensionsUsed)) {
       if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
-        this.__generateVrmNormalizedSkeleton(gltfModel, rnEntities);
+        // this.__generateVrmNormalizedSkeleton(gltfModel, rnEntities);
       }
     }
 
