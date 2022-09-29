@@ -49,6 +49,7 @@ export class AnimationAssigner {
     isSameSkeleton: boolean
   ) {
     if (isSameSkeleton) {
+      // isSameSkeleton is true, so we find joints from joints name.
       const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<
         string,
         ISceneGraphEntity
@@ -57,6 +58,7 @@ export class AnimationAssigner {
       const rnEntity = rnEntities.get(node.name!);
       return rnEntity;
     } else {
+      // isSameSkeleton is false, so we find joints from humanoid bone mapping data
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
       let humanoidBoneName: string | undefined;
       const srcMapNodeIdName: Map<number, string> = new Map();
@@ -129,6 +131,7 @@ export class AnimationAssigner {
     if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
+          // get animation data
           const animInputArray =
             channel.samplerObject?.inputObject?.extras!.typedDataArray;
           const animOutputArray =
@@ -138,14 +141,7 @@ export class AnimationAssigner {
               ? channel.samplerObject!.interpolation
               : 'LINEAR';
 
-          let animationAttributeType = 'translate';
-          if (channel.target!.path === 'translation') {
-            animationAttributeType = 'translate';
-          } else if (channel.target!.path! === 'rotation') {
-            animationAttributeType = 'quaternion';
-          } else {
-            animationAttributeType = channel.target!.path;
-          }
+          // find the corresponding joint entity
           const node = gltfModel.nodes[channel.target!.node!];
           const rnEntity = this.__getCorrespondingEntity(
             rootEntity,
@@ -161,6 +157,16 @@ export class AnimationAssigner {
               rnEntity
             );
             const animationComponent = newRnEntity.getAnimation();
+
+            // apply animation data to the target joint entity
+            let animationAttributeType = 'translate';
+            if (channel.target!.path === 'translation') {
+              animationAttributeType = 'translate';
+            } else if (channel.target!.path! === 'rotation') {
+              animationAttributeType = 'quaternion';
+            } else {
+              animationAttributeType = channel.target!.path;
+            }
             if (animationAttributeType === 'quaternion') {
               animationComponent.setAnimation(
                 Is.exist(animation.name) ? animation.name! : 'Untitled',
