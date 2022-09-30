@@ -689,7 +689,7 @@ export class ModelConverter {
             break;
           }
         } else {
-          // attributes
+          // indices
           if (Is.exist(primitive.indices)) {
             indicesRnAccessor = this.__getRnBufferViewAndRnAccessor(
               primitive.indicesObject!,
@@ -697,6 +697,7 @@ export class ModelConverter {
             );
           }
 
+          // attributes
           const rnBufferViewMap: Map<number, BufferView> = new Map();
           for (const attributeName in primitive.attributesObjects!) {
             const rnm2attribute = primitive.attributesObjects[attributeName]!;
@@ -790,43 +791,42 @@ export class ModelConverter {
   }
 
   static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void {
-    const uint8Array: Uint8Array =
-      accessor.bufferViewObject!.bufferObject!.buffer!;
+    const buffer: Uint8Array = accessor.bufferViewObject!.bufferObject!.buffer!;
     const count = accessor.sparse!.count;
 
-    // indices
+    // get sparse indices
     const accessorIndices = accessor.sparse!.indices!;
     const bufferViewIndices = accessorIndices.bufferViewObject;
-    const byteOffsetIndices: number =
+    const byteOffsetBufferViewAndAccessorIndices: number =
       (bufferViewIndices.byteOffset ?? 0) + (accessorIndices.byteOffset ?? 0);
 
     const componentBytesIndices = this._checkBytesPerComponent(accessorIndices);
     const byteLengthIndices = componentBytesIndices * count; // index is scalar
     const dataViewIndices: any = new DataView(
-      uint8Array.buffer,
-      byteOffsetIndices + uint8Array.byteOffset,
+      buffer.buffer,
+      byteOffsetBufferViewAndAccessorIndices + buffer.byteOffset,
       byteLengthIndices
     );
 
     const dataViewMethodIndices = this._checkDataViewMethod(accessorIndices);
 
-    // sparse values
+    // get sparse values
     const accessorValues = accessor.sparse!.values!;
     const bufferViewValues = accessorValues.bufferViewObject;
-    const byteOffsetValues: number =
+    const byteOffsetBufferViewAndAccessorValues: number =
       (bufferViewValues.byteOffset ?? 0) + (accessorValues.byteOffset ?? 0);
 
     const componentBytesValues = this._checkBytesPerComponent(accessor);
     const componentNValues = this._checkComponentNumber(accessor);
     const byteLengthValues = componentBytesValues * componentNValues * count;
     const dataViewValues: any = new DataView(
-      uint8Array.buffer,
-      byteOffsetValues + uint8Array.byteOffset,
+      buffer.buffer,
+      byteOffsetBufferViewAndAccessorValues + buffer.byteOffset,
       byteLengthValues
     );
     const dataViewMethodValues = this._checkDataViewMethod(accessor);
 
-    // set sparse values
+    // set sparse values to rnAccessor
     const typedArray = rnAccessor.getTypedArray();
     const littleEndian = true;
     for (let i = 0; i < count; i++) {
