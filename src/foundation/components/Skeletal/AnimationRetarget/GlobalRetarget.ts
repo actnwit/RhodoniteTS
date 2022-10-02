@@ -19,8 +19,8 @@ export class GlobalRetarget implements IAnimationRetarget {
 
     // extract global retarget quaternion
     const srcPoseQ = srcEntity.getTransform().quaternionInner;
-    const srcRestQ = srcEntity.tryToGetAnimation()!.restQuaternion;
-    const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent) ?
+    const srcRestQ = Is.exist(srcEntity.tryToGetAnimation()) ? srcEntity.tryToGetAnimation()!.restQuaternion : srcEntity.getTransform().quaternionInner;
+    const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
       srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
 
@@ -37,8 +37,8 @@ export class GlobalRetarget implements IAnimationRetarget {
       );
 
     // retarget quaternion to local pose
-    const dstRestQ = dstEntity.tryToGetAnimation()!.restQuaternion;
-    const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent) ?
+    const dstRestQ = Is.exist(dstEntity.tryToGetAnimation()) ? dstEntity.tryToGetAnimation()!.restQuaternion : dstEntity.getTransform().quaternionInner;
+    const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
       dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
 
@@ -64,16 +64,16 @@ export class GlobalRetarget implements IAnimationRetarget {
 
     // extract global retarget translate
     const srcPoseT = srcEntity.getTransform().translateInner;
-    const srcRestT = srcEntity.tryToGetAnimation()!.restTranslate;
-    const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent) ?
+    const srcRestT = Is.exist(srcEntity.tryToGetAnimation()) ? srcEntity.tryToGetAnimation()!.restTranslate : srcEntity.getTransform().translateInner;
+    const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
       srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
     const srcDelta = Vector3.subtract(srcPoseT, srcRestT);
     const AnimT = Matrix44.fromCopyQuaternion(srcPGRestQ).multiplyVector3(srcDelta);
 
     // retarget translate to local pose
-    const dstRestT = dstEntity.tryToGetAnimation()!.restTranslate;
-    const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent) ?
+    const dstRestT = Is.exist(dstEntity.tryToGetAnimation()) ? dstEntity.tryToGetAnimation()!.restTranslate : dstEntity.getTransform().translateInner;
+    const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
       dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
 

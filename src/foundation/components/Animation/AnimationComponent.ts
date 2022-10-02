@@ -155,9 +155,13 @@ export class AnimationComponent extends Component {
 
     const animationRetarget = this._animationRetarget;
     if (Is.exist(animationRetarget)) {
-      animationRetarget.retargetQuaternion(this.entity);
-      animationRetarget.retargetTranslate(this.entity);
-      animationRetarget.retargetScale(this.entity);
+      this.__transformComponent!.quaternion =
+        animationRetarget.retargetQuaternion(this.entity);
+      this.__transformComponent!.translate =
+        animationRetarget.retargetTranslate(this.entity);
+      this.__transformComponent!.scale = animationRetarget.retargetScale(
+        this.entity
+      );
     } else {
       this.__applyAnimation();
     }
@@ -325,27 +329,51 @@ export class AnimationComponent extends Component {
   }
 
   get restTranslate() {
-    return this.__backupDefaultValues.get(
+    const backUpValue = this.__backupDefaultValues.get(
       AnimationAttribute.Translate.str as AnimationPathName
     ) as IVector3;
+
+    if (backUpValue == null) {
+      return this.entity.getTransform().translateInner;
+    }
+
+    return backUpValue;
   }
 
   get restQuaternion() {
-    return this.__backupDefaultValues.get(
+    const backUpValue = this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion;
+
+    if (backUpValue == null) {
+      return this.entity.getTransform().quaternionInner;
+    }
+
+    return backUpValue;
   }
 
   get restRotation() {
-    return (this.__backupDefaultValues.get(
+    const backupValue = (this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion)!.toEulerAngles();
+
+    if (backupValue == null) {
+      return this.entity.getTransform().rotateInner;
+    }
+
+    return backupValue;
   }
 
   get restScale() {
-    return this.__backupDefaultValues.get(
+    const backupValue = this.__backupDefaultValues.get(
       AnimationAttribute.Scale.str as AnimationPathName
     ) as IVector3;
+
+    if (backupValue == null) {
+      return this.entity.getTransform().scaleInner;
+    }
+
+    return backupValue;
   }
 
   get globalRestQuaternion(): IQuaternion {
