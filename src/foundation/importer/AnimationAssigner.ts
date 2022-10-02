@@ -93,6 +93,9 @@ export class AnimationAssigner {
           )! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
+          console.log(
+            `humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`
+          );
           return void 0;
         }
       } else if (Is.exist(vrmModel.extensions.VRMC_vrm)) {
@@ -117,6 +120,9 @@ export class AnimationAssigner {
           )! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
+          console.log(
+            `humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`
+          );
           return void 0;
         }
       }

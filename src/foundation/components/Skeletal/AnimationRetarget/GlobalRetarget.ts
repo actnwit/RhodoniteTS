@@ -24,14 +24,25 @@ export class GlobalRetarget implements IAnimationRetarget {
       srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
 
+    // const animQ =
+    //   Quaternion.multiply(
+    //     srcPGRestQ,
+    //       Quaternion.multiply(
+    //         srcPoseQ,
+    //           Quaternion.multiply(
+    //             Quaternion.invert(srcRestQ),
+    //               Quaternion.invert(srcPGRestQ)
+    //           )
+    //       )
+    //   );
     const animQ =
       Quaternion.multiply(
-        srcPGRestQ,
+        Quaternion.invert(srcPGRestQ),
           Quaternion.multiply(
-            srcPoseQ,
-              Quaternion.multiply(
                 Quaternion.invert(srcRestQ),
-                  Quaternion.invert(srcPGRestQ)
+              Quaternion.multiply(
+                srcPoseQ,
+                srcPGRestQ,
               )
           )
       );
@@ -42,14 +53,47 @@ export class GlobalRetarget implements IAnimationRetarget {
       dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
 
+    // const tgtPoseQ =
+    //   Quaternion.multiply(
+    //     Quaternion.invert(dstPgRestQ),
+    //       Quaternion.multiply(
+    //         animQ,
+    //           Quaternion.multiply(
+    //             dstPgRestQ,
+    //               dstRestQ
+    //           )
+    //       )
+    //   );
+    // const tgtPoseQ =
+    //   Quaternion.multiply(
+    //     Quaternion.invert(dstPgRestQ),
+    //       Quaternion.multiply(
+    //         animQ,
+    //           Quaternion.multiply(
+    //             dstRestQ,
+    //             dstPgRestQ
+    //           )
+    //       )
+    //   );
+    // const tgtPoseQ =
+    //   Quaternion.multiply(
+    //     dstRestQ,
+    //       Quaternion.multiply(
+    //         dstPgRestQ,
+    //           Quaternion.multiply(
+    //             animQ,
+    //             Quaternion.invert(dstPgRestQ),
+    //           )
+    //       )
+    //   );
     const tgtPoseQ =
       Quaternion.multiply(
-        Quaternion.invert(dstPgRestQ),
+        dstPgRestQ,
           Quaternion.multiply(
-            animQ,
+            dstRestQ,
               Quaternion.multiply(
-                dstPgRestQ,
-                  dstRestQ
+                animQ,
+                Quaternion.invert(dstPgRestQ),
               )
           )
       );

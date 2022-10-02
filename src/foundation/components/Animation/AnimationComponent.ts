@@ -382,8 +382,10 @@ export class AnimationComponent extends Component {
       const parentAnimation = parent.entity.tryToGetAnimation();
       if (parentAnimation !== undefined) {
         return Quaternion.multiply(
-          parentAnimation.globalRestQuaternion,
-          this.restQuaternion
+          this.restQuaternion,
+          parentAnimation.globalRestQuaternion
+          // parentAnimation.globalRestQuaternion,
+          // this.restQuaternion
         );
       }
     }
