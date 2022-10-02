@@ -57,8 +57,9 @@ import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import { EffekseerComponent } from '../../../effekseer';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableQuaternion } from '../../math';
+import { IMatrix44, Matrix44, MutableQuaternion } from '../../math';
 import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
+import { SceneGraphComponent } from '../SceneGraph';
 
 const defaultAnimationInfo = {
   name: '',
@@ -1174,6 +1175,35 @@ export class AnimationComponent extends Component {
 
   static setIsAnimating(flag: boolean) {
     this.isAnimating = flag;
+  }
+
+  private __calcGlobalInverseBindMatrix(sg: SceneGraphComponent): IMatrix44 {
+    const parentSg = sg.parent;
+
+    const inverseBindMatrix = Is.exist(this.inverseBindMatrix)
+      ? this.inverseBindMatrix
+      : Matrix44.identity();
+
+    if (Is.exist(parentSg)) {
+      return Matrix44.multiply(
+        inverseBindMatrix,
+        this.__calcGlobalInverseBindMatrix(parentSg)
+      );
+    } else {
+      return inverseBindMatrix;
+    }
+  }
+
+  get inverseBindMatrix() {
+    const inverseBindMatrix = this.__skeletalComponent?._getInverseBindMatrices(
+      this.entity.getSceneGraph()
+    );
+
+    return inverseBindMatrix;
+  }
+
+  get globalInverseBindMatrix() {
+    return this.__calcGlobalInverseBindMatrix(this.entity.getSceneGraph());
   }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);

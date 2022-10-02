@@ -449,5 +449,13 @@ export class SkeletalComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
       EntityBase;
   }
+
+  _getInverseBindMatrices(sg: SceneGraphComponent): IMatrix44 {
+    const index = this.__joints.indexOf(sg);
+    const float32Array =
+      this.__inverseBindMatricesAccessor!.getTypedArray() as Float32Array;
+    const m = new Matrix44(float32Array.slice(index * 16, index * 16 + 16));
+    return m;
+  }
 }
 ComponentRepository.registerComponentClass(SkeletalComponent);

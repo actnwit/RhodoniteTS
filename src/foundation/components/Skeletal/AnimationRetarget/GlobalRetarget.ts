@@ -20,10 +20,22 @@ export class GlobalRetarget implements IAnimationRetarget {
     // extract global retarget quaternion
     const srcPoseQ = srcEntity.getTransform().quaternionInner;
     const srcRestQ = Is.exist(srcEntity.tryToGetAnimation()) ? srcEntity.tryToGetAnimation()!.restQuaternion : srcEntity.getTransform().quaternionInner;
+    // const srcRestQ = Is.exist(srcEntity.tryToGetAnimation()) ? srcEntity.tryToGetAnimation()!.restQuaternion : Quaternion.identity();
     const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
       srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
 
+    const animQ =
+      Quaternion.multiply(
+        srcPGRestQ,
+          Quaternion.multiply(
+            srcPoseQ,
+              Quaternion.multiply(
+                Quaternion.invert(srcRestQ),
+                  Quaternion.invert(srcPGRestQ)
+              )
+          )
+      );
     // const animQ =
     //   Quaternion.multiply(
     //     srcPGRestQ,
@@ -35,35 +47,36 @@ export class GlobalRetarget implements IAnimationRetarget {
     //           )
     //       )
     //   );
-    const animQ =
-      Quaternion.multiply(
-        Quaternion.invert(srcPGRestQ),
-          Quaternion.multiply(
-                Quaternion.invert(srcRestQ),
-              Quaternion.multiply(
-                srcPoseQ,
-                srcPGRestQ,
-              )
-          )
-      );
+    // const animQ =
+    //   Quaternion.multiply(
+    //     Quaternion.invert(srcPGRestQ),
+    //       Quaternion.multiply(
+    //             Quaternion.invert(srcRestQ),
+    //           Quaternion.multiply(
+    //             srcPoseQ,
+    //             srcPGRestQ,
+    //           )
+    //       )
+    //   );
 
     // retarget quaternion to local pose
     const dstRestQ = Is.exist(dstEntity.tryToGetAnimation()) ? dstEntity.tryToGetAnimation()!.restQuaternion : dstEntity.getTransform().quaternionInner;
+    // const dstRestQ = Is.exist(dstEntity.tryToGetAnimation()) ? dstEntity.tryToGetAnimation()!.restQuaternion : Quaternion.identity();
     const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
       dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
       Quaternion.identity();
 
-    // const tgtPoseQ =
-    //   Quaternion.multiply(
-    //     Quaternion.invert(dstPgRestQ),
-    //       Quaternion.multiply(
-    //         animQ,
-    //           Quaternion.multiply(
-    //             dstPgRestQ,
-    //               dstRestQ
-    //           )
-    //       )
-    //   );
+    const tgtPoseQ =
+      Quaternion.multiply(
+        Quaternion.invert(dstPgRestQ),
+          Quaternion.multiply(
+            animQ,
+              Quaternion.multiply(
+                dstPgRestQ,
+                  dstRestQ
+              )
+          )
+      );
     // const tgtPoseQ =
     //   Quaternion.multiply(
     //     Quaternion.invert(dstPgRestQ),
@@ -86,17 +99,17 @@ export class GlobalRetarget implements IAnimationRetarget {
     //           )
     //       )
     //   );
-    const tgtPoseQ =
-      Quaternion.multiply(
-        dstPgRestQ,
-          Quaternion.multiply(
-            dstRestQ,
-              Quaternion.multiply(
-                animQ,
-                Quaternion.invert(dstPgRestQ),
-              )
-          )
-      );
+    // const tgtPoseQ =
+    //   Quaternion.multiply(
+    //     dstPgRestQ,
+    //       Quaternion.multiply(
+    //         dstRestQ,
+    //           Quaternion.multiply(
+    //             animQ,
+    //             Quaternion.invert(dstPgRestQ),
+    //           )
+    //       )
+    //   );
 
     return tgtPoseQ;
   }

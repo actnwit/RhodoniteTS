@@ -7,10 +7,10 @@ import {Index} from '../../types/CommonTypes';
 import {Vrm0x} from '../../types/VRM0x';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import { AbsoluteAnimation, GlobalRetarget } from '../components';
+import { AbsoluteAnimation, GlobalRetarget, GlobalRetarget2, IAnimationRetarget } from '../components';
 import { Vrm1 } from '../../types/VRM1';
 
-type RetargetMode = 'none' | 'global' | 'absolute';
+type RetargetMode = 'none' | 'global' | 'global2' | 'absolute';
 
 export class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -245,11 +245,17 @@ export class AnimationAssigner {
             if (retargetMode !== 'none' && Is.exist(srcRootEntityForRetarget)) {
               const gltfEntity =
                 gltfModel.extras.rnEntities[channel.target!.node!];
-              const globalRetarget =
-                retargetMode === 'global'
-                  ? new GlobalRetarget(gltfEntity)
-                  : new AbsoluteAnimation(gltfEntity);
-              animationComponent._animationRetarget = globalRetarget;
+              let retarget: IAnimationRetarget | undefined;
+              if (retargetMode === 'global') {
+                retarget = new GlobalRetarget(gltfEntity);
+              } else if (retargetMode === 'global2') {
+                retarget = new GlobalRetarget2(gltfEntity);
+              } else if (retargetMode === 'absolute') {
+                retarget = new AbsoluteAnimation(gltfEntity);
+              } else {
+                throw new Error('unknown retarget mode');
+              }
+              animationComponent._animationRetarget = retarget;
             }
           }
         }
