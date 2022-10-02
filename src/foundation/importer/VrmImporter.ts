@@ -2,7 +2,7 @@
 import {ModelConverter} from './ModelConverter';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import {GltfLoadOption, RnM2, Vrm0xMaterialProperty} from '../../types';
+import {GltfLoadOption, RnM2, Vrm0x, Vrm0xMaterialProperty} from '../../types';
 import {RenderPass} from '../renderer/RenderPass';
 import {Texture} from '../textures/Texture';
 import {EntityRepository} from '../core/EntityRepository';
@@ -14,6 +14,8 @@ import {Vector3} from '../math/Vector3';
 import {VRMColliderGroup} from '../physics/VRMColliderGroup';
 import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
 import {Vrm1, Vrm1_Materials_MToon} from '../../types/VRM1';
+import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
+import { Gltf2Importer } from './Gltf2Importer';
 
 export class VrmImporter {
   private constructor() {}
@@ -323,5 +325,71 @@ export class VrmImporter {
     }
 
     return options;
+  }
+
+  /**
+   * For VRM file only
+   * Generate JSON.
+   */
+    static async importJsonOfVRM(
+    uri: string,
+    options?: GltfLoadOption
+  ): Promise<IResult<Vrm1, Err<RnM2, undefined>>> {
+    options = this._getOptions(options);
+
+    const result = await Gltf2Importer.importFromUri(uri, options);
+    if (result.isErr()) {
+      return new Err({
+        message: 'Failed to import VRM file.',
+        error: result,
+      });
+    }
+
+    assertIsOk(result);
+    const gltfJson = result.get();
+    VrmImporter._readVRMHumanoidInfo(gltfJson as Vrm1);
+
+    return new Ok(gltfJson as Vrm1);
+  }
+
+  static async __importVRM0x(
+    gltfModel: RnM2,
+    renderPasses: RenderPass[]
+  ): Promise<void> {
+    // process defaultMaterialHelperArgumentArray
+    const defaultMaterialHelperArgumentArray =
+      gltfModel.asset.extras?.rnLoaderOptions
+        ?.defaultMaterialHelperArgumentArray;
+    const textures = this._createTextures(gltfModel);
+    if (Is.exist(defaultMaterialHelperArgumentArray)) {
+      defaultMaterialHelperArgumentArray[0].textures =
+        defaultMaterialHelperArgumentArray[0].textures ?? textures;
+      defaultMaterialHelperArgumentArray[0].isLighting =
+        defaultMaterialHelperArgumentArray[0].isLighting ?? true;
+    }
+    const existOutline = this.__initializeMToonMaterialProperties(gltfModel, textures.length);
+
+    // get rootGroup
+    let rootGroup;
+    if (existOutline) {
+      renderPasses[1] = renderPasses[1] ?? new RenderPass();
+      const renderPassOutline = renderPasses[1];
+      renderPassOutline.toClearColorBuffer = false;
+      renderPassOutline.toClearDepthBuffer = false;
+      gltfModel.extensions.VRM.rnExtension = {
+        renderPassOutline: renderPassOutline,
+      };
+
+      rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+      renderPassOutline.addEntities([rootGroup]);
+    } else {
+      rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+    }
+
+    const renderPassMain = renderPasses[0];
+    renderPassMain.addEntities([rootGroup]);
+
+    this._readSpringBone(gltfModel as Vrm1);
+    this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
   }
 }

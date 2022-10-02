@@ -8,6 +8,7 @@ import {Vrm0x} from '../../types/VRM0x';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import { GlobalRetarget } from '../components';
+import { Vrm1 } from '../../types/VRM1';
 
 export class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -15,7 +16,7 @@ export class AnimationAssigner {
   assignAnimation(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: Vrm0x,
+    vrmModel: Vrm0x | Vrm1,
     isSameSkeleton: boolean,
     isAnimationRetargeting: boolean,
     srcRootEntityForRetarget?: ISceneGraphEntity
@@ -48,7 +49,7 @@ export class AnimationAssigner {
   private __getCorrespondingEntity(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: Vrm0x,
+    vrmModel: Vrm0x | Vrm1,
     nodeIndex: Index,
     nodeName: string | undefined,
     isSameSkeleton: boolean
@@ -64,44 +65,80 @@ export class AnimationAssigner {
       return rnEntity;
     } else {
       // isSameSkeleton is false, so we find joints from humanoid bone mapping data
-      const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
-      let humanoidBoneName: string | undefined;
-      const srcMapNodeIdName: Map<number, string> = new Map();
-      const srcMapNodeNameName: Map<string, string> = new Map();
-      for (const bone of humanBones) {
-        srcMapNodeIdName.set(bone.node, bone.bone);
-        srcMapNodeNameName.set(bone.name!, bone.bone);
-      }
-      if (nodeName != null) {
-        humanoidBoneName = srcMapNodeNameName.get(nodeName);
-        if (humanoidBoneName == null) {
+      if (Is.exist(vrmModel.extensions.VRM)) {
+        // VRM0.x
+        const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
+        let humanoidBoneName: string | undefined;
+        const srcMapNodeIdName: Map<number, string> = new Map();
+        const srcMapNodeNameName: Map<string, string> = new Map();
+        for (const bone of humanBones) {
+          srcMapNodeIdName.set(bone.node, bone.bone);
+          srcMapNodeNameName.set(bone.name!, bone.bone);
+        }
+        if (nodeName != null) {
+          humanoidBoneName = srcMapNodeNameName.get(nodeName);
+          if (humanoidBoneName == null) {
+            humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
+          }
+        }
+        const dstMapNameNodeId = rootEntity.getTagValue(
+          'humanoid_map_name_nodeId'
+        )! as Map<string, number>;
+        const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
+        if (dstBoneNodeId != null) {
+          const rnEntities = rootEntity.getTagValue(
+            'rnEntities'
+          )! as ISceneGraphEntity[];
+          return rnEntities[dstBoneNodeId];
+        } else {
+          return void 0;
+        }
+      } else if (Is.exist(vrmModel.extensions.VRMC_vrm)) {
+        // VRM1.0
+        const humanBones = vrmModel.extensions.VRMC_vrm.humanoid.humanBones;
+        let humanoidBoneName: string | undefined;
+        const srcMapNodeIdName: Map<number, string> = new Map();
+        for (const boneName in humanBones) {
+          const bone = humanBones[boneName];
+          srcMapNodeIdName.set(bone.node, boneName);
+        }
+        if (nodeName != null) {
           humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
         }
+        const dstMapNameNodeId = rootEntity.getTagValue(
+          'humanoid_map_name_nodeId'
+        )! as Map<string, number>;
+        const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
+        if (dstBoneNodeId != null) {
+          const rnEntities = rootEntity.getTagValue(
+            'rnEntities'
+          )! as ISceneGraphEntity[];
+          return rnEntities[dstBoneNodeId];
+        } else {
+          return void 0;
+        }
       }
-      const dstMapNameNodeId = rootEntity.getTagValue(
-        'humanoid_map_name_nodeId'
-      )! as Map<string, number>;
-      const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
-      if (dstBoneNodeId != null) {
-        const rnEntities = rootEntity.getTagValue(
-          'rnEntities'
-        )! as ISceneGraphEntity[];
-        return rnEntities[dstBoneNodeId];
-      } else {
-        return void 0;
-      }
+      return void 0;
     }
   }
 
   private __isHips(
     rootEntity: ISceneGraphEntity,
-    vrmModel: Vrm0x,
+    vrmModel: Vrm0x | Vrm1,
     nodeIndex: Index
   ) {
-    const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
     const srcMapNodeIdName: Map<number, string> = new Map();
-    for (const bone of humanBones) {
-      srcMapNodeIdName.set(bone.node, bone.bone);
+    if (Is.exist(vrmModel.extensions.VRM)) {
+      const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
+      for (const bone of humanBones) {
+        srcMapNodeIdName.set(bone.node, bone.bone);
+      }
+    } else if (Is.exist(vrmModel.extensions.VRMC_vrm)) {
+      const humanBones = vrmModel.extensions.VRMC_vrm.humanoid.humanBones;
+      for (const boneName in humanBones) {
+        const bone = humanBones[boneName];
+        srcMapNodeIdName.set(bone.node, boneName);
+      }
     }
     const dstMapNameNodeId = rootEntity.getTagValue(
       'humanoid_map_name_nodeId'
@@ -117,7 +154,7 @@ export class AnimationAssigner {
   private __setupAnimationForSameSkeleton(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: Vrm0x,
+    vrmModel: Vrm0x | Vrm1,
     isSameSkeleton: boolean,
     isAnimationRetargeting: boolean,
     srcRootEntityForRetarget?: ISceneGraphEntity
@@ -197,7 +234,7 @@ export class AnimationAssigner {
               );
             }
 
-            if (isAnimationRetargeting) {
+            if (isAnimationRetargeting && Is.exist(srcRootEntityForRetarget)) {
               const gltfEntity =
                 gltfModel.extras.rnEntities[channel.target!.node!];
               const globalRetarget = new GlobalRetarget(gltfEntity);
