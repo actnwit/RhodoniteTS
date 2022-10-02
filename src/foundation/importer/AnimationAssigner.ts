@@ -7,8 +7,10 @@ import {Index} from '../../types/CommonTypes';
 import {Vrm0x} from '../../types/VRM0x';
 import {Is} from '../misc/Is';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import { GlobalRetarget } from '../components';
+import { AbsoluteAnimation, GlobalRetarget } from '../components';
 import { Vrm1 } from '../../types/VRM1';
+
+type RetargetMode = 'none' | 'global' | 'absolute';
 
 export class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -18,7 +20,7 @@ export class AnimationAssigner {
     gltfModel: RnM2,
     vrmModel: Vrm0x | Vrm1,
     isSameSkeleton: boolean,
-    isAnimationRetargeting: boolean,
+    retargetMode: RetargetMode = 'none',
     srcRootEntityForRetarget?: ISceneGraphEntity
   ) {
     this.__setupAnimationForSameSkeleton(
@@ -26,7 +28,7 @@ export class AnimationAssigner {
       gltfModel,
       vrmModel,
       isSameSkeleton,
-      isAnimationRetargeting,
+      retargetMode,
       srcRootEntityForRetarget
     );
 
@@ -156,7 +158,7 @@ export class AnimationAssigner {
     gltfModel: RnM2,
     vrmModel: Vrm0x | Vrm1,
     isSameSkeleton: boolean,
-    isAnimationRetargeting: boolean,
+    retargetMode: RetargetMode,
     srcRootEntityForRetarget?: ISceneGraphEntity
   ) {
     if (gltfModel.animations) {
@@ -234,10 +236,13 @@ export class AnimationAssigner {
               );
             }
 
-            if (isAnimationRetargeting && Is.exist(srcRootEntityForRetarget)) {
+            if (retargetMode !== 'none' && Is.exist(srcRootEntityForRetarget)) {
               const gltfEntity =
                 gltfModel.extras.rnEntities[channel.target!.node!];
-              const globalRetarget = new GlobalRetarget(gltfEntity);
+              const globalRetarget =
+                retargetMode === 'global'
+                  ? new GlobalRetarget(gltfEntity)
+                  : new AbsoluteAnimation(gltfEntity);
               animationComponent._animationRetarget = globalRetarget;
             }
           }
