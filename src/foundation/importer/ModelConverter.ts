@@ -197,6 +197,11 @@ export class ModelConverter {
     rootGroup.tryToSetTag({tag: 'rnEntities', value: rnEntities});
     rootGroup.tryToSetTag({tag: 'rnEntitiesByNames', value: rnEntitiesByNames});
     rootGroup.tryToSetTag({tag: 'gltfModel', value: gltfModel});
+    if (Is.not.exist(gltfModel.extras)) {
+      (gltfModel as any).extras = {};
+    }
+    gltfModel.extras.rnEntities = rnEntities;
+    gltfModel.extras.rnEntitiesByNames = rnEntitiesByNames;
 
     // Effekseer
     RhodoniteImportExtension.importEffect(gltfModel, rootGroup);
@@ -423,7 +428,7 @@ export class ModelConverter {
 
   private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
     const rnEntities: ISceneGraphEntity[] = [];
-    const rnEntitiesByNames: Map<String, IEntity> = new Map();
+    const rnEntitiesByNames: Map<string, ISceneGraphEntity> = new Map();
 
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[parseInt(node_i)] as RnM2Node;

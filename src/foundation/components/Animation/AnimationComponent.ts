@@ -58,7 +58,7 @@ import {ComponentToComponentMethods} from '../ComponentTypes';
 import { EffekseerComponent } from '../../../effekseer';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableQuaternion } from '../../math';
-import { ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
+import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
 
 const defaultAnimationInfo = {
   name: '',
@@ -102,6 +102,7 @@ export class AnimationComponent extends Component {
    * @private
    */
   public __skeletalComponent?: SkeletalComponent;
+  public _animationRetarget?: IAnimationRetarget;
 
   /// Static Members ///
 
@@ -152,7 +153,7 @@ export class AnimationComponent extends Component {
       return;
     }
 
-    const animationRetarget = this.__skeletalComponent?._animationRetarget;
+    const animationRetarget = this._animationRetarget;
     if (Is.exist(animationRetarget)) {
       animationRetarget.retargetQuaternion(this.entity);
       animationRetarget.retargetTranslate(this.entity);

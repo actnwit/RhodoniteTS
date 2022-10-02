@@ -29,7 +29,11 @@ export type RnM2 = {
   skins: RnM2Skin[];
   textures?: RnM2Texture[];
   extensions: Gltf2AnyObject;
-  extras: Gltf2AnyObject;
+  extras: {
+    rnEntities: ISceneGraphEntity[];
+    rnEntitiesByNames: Map<string, ISceneGraphEntity>;
+    [key: string]: any;
+  };
 };
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
