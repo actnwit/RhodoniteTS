@@ -78,7 +78,6 @@ declare const window: any;
     vrmRootEntity,
     animGltf2Result.unwrapForce(),
     vrmModelResult.unwrapForce(),
-    false,
     false
   );
 
