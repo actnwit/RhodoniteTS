@@ -20,9 +20,8 @@ export class GlobalRetarget implements IAnimationRetarget {
     // extract global retarget quaternion
     const srcPoseQ = srcEntity.getTransform().quaternionInner;
     const srcRestQ = Is.exist(srcEntity.tryToGetAnimation()) ? srcEntity.tryToGetAnimation()!.restQuaternion : srcEntity.getTransform().quaternionInner;
-    // const srcRestQ = Is.exist(srcEntity.tryToGetAnimation()) ? srcEntity.tryToGetAnimation()!.restQuaternion : Quaternion.identity();
     const srcPGRestQ = Is.exist(srcEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
-      srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
+      Quaternion.fromMatrix(srcEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestMatrix):
       Quaternion.identity();
 
     const animQ =
@@ -63,7 +62,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     const dstRestQ = Is.exist(dstEntity.tryToGetAnimation()) ? dstEntity.tryToGetAnimation()!.restQuaternion : dstEntity.getTransform().quaternionInner;
     // const dstRestQ = Is.exist(dstEntity.tryToGetAnimation()) ? dstEntity.tryToGetAnimation()!.restQuaternion : Quaternion.identity();
     const dstPgRestQ = Is.exist(dstEntity.getSceneGraph().parent?.entity.tryToGetAnimation()) ?
-      dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestQuaternion :
+      Quaternion.fromMatrix(dstEntity.getSceneGraph().parent!.entity.tryToGetAnimation()!.globalRestMatrix) :
       Quaternion.identity();
 
     const tgtPoseQ =

@@ -329,6 +329,59 @@ export class AnimationComponent extends Component {
     }
   }
 
+  get restMatrix() {
+    const scale = this.restScale;
+    const q = this.restQuaternion;
+    const n00 = scale._v[0];
+    const n11 = scale._v[1];
+    const n22 = scale._v[2];
+    const sx = q._v[0] * q._v[0];
+    const sy = q._v[1] * q._v[1];
+    const sz = q._v[2] * q._v[2];
+    const cx = q._v[1] * q._v[2];
+    const cy = q._v[0] * q._v[2];
+    const cz = q._v[0] * q._v[1];
+    const wx = q._v[3] * q._v[0];
+    const wy = q._v[3] * q._v[1];
+    const wz = q._v[3] * q._v[2];
+    const m00 = 1.0 - 2.0 * (sy + sz);
+    const m01 = 2.0 * (cz - wz);
+    const m02 = 2.0 * (cy + wy);
+    // const m03 = 0.0;
+    const m10 = 2.0 * (cz + wz);
+    const m11 = 1.0 - 2.0 * (sx + sz);
+    const m12 = 2.0 * (cx - wx);
+    // const m13 = 0.0;
+    const m20 = 2.0 * (cy - wy);
+    const m21 = 2.0 * (cx + wx);
+    const m22 = 1.0 - 2.0 * (sx + sy);
+
+    const translate = this.restTranslate;
+
+    const matrix = MutableMatrix44.identity();
+    matrix.m00 = m00 * n00;
+    matrix.m01 = m01 * n11;
+    matrix.m02 = m02 * n22;
+    matrix.m03 = translate.x;
+
+    matrix.m10 = m10 * n00;
+    matrix.m11 = m11 * n11;
+    matrix.m12 = m12 * n22;
+    matrix.m13 = translate.y;
+
+    matrix.m20 = m20 * n00;
+    matrix.m21 = m21 * n11;
+    matrix.m22 = m22 * n22;
+    matrix.m23 = translate.z;
+
+    matrix.m30 = 0;
+    matrix.m31 = 0;
+    matrix.m32 = 0;
+    matrix.m33 = 1;
+
+    return matrix;
+  }
+
   get restTranslate() {
     const backUpValue = this.__backupDefaultValues.get(
       AnimationAttribute.Translate.str as AnimationPathName
@@ -392,6 +445,21 @@ export class AnimationComponent extends Component {
     }
 
     return this.restQuaternion;
+  }
+
+  get globalRestMatrix(): IMatrix44 {
+    const parent = this.entity.getSceneGraph().parent;
+    if (parent !== undefined) {
+      const parentAnimation = parent.entity.tryToGetAnimation();
+      if (parentAnimation !== undefined) {
+        return Matrix44.multiply(
+          parentAnimation.globalRestMatrix,
+          this.restMatrix
+        );
+      }
+    }
+
+    return this.restMatrix;
   }
 
   private __backupRestValues() {
