@@ -2413,6 +2413,12 @@ function setup_KHR_materials_clearcoat(
         ShaderSemantics.ClearCoatRoughnessTexture,
         rnClearCoatRoughnessTexture
       );
+      if (clearCoatRoughnessTexture.texCoord != null) {
+        material.setParameter(
+          ShaderSemantics.ClearCoatRoughnessTexcoordIndex,
+          clearCoatRoughnessTexture.texCoord
+        );
+      }
     }
     // ClearCoat Normal Texture
     const clearCoatNormalTexture =
