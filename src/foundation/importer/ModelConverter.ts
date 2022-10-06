@@ -2368,10 +2368,12 @@ function setup_KHR_materials_clearcoat(
   const KHR_materials_clearcoat =
     materialJson?.extensions?.KHR_materials_clearcoat;
   if (Is.exist(KHR_materials_clearcoat)) {
+    // ClearCoat Factor
     const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
       ? KHR_materials_clearcoat.clearcoatFactor
       : 0.0;
     material.setParameter(ShaderSemantics.ClearCoatFactor, clearCoatFactor);
+    // ClearCoat Texture
     const clearCoatTexture = KHR_materials_clearcoat.clearcoatTexture;
     if (clearCoatTexture != null) {
       const rnClearCoatTexture = ModelConverter._createTexture(
@@ -2382,7 +2384,14 @@ function setup_KHR_materials_clearcoat(
         ShaderSemantics.ClearCoatTexture,
         rnClearCoatTexture
       );
+      if (clearCoatTexture.texCoord != null) {
+        material.setParameter(
+          ShaderSemantics.ClearCoatTexcoordIndex,
+          clearCoatTexture.texCoord
+        );
+      }
     }
+    // ClearCoat Roughness Factor
     const clearCoatRoughnessFactor = Is.exist(
       KHR_materials_clearcoat.clearcoatRoughnessFactor
     )
@@ -2392,6 +2401,7 @@ function setup_KHR_materials_clearcoat(
       ShaderSemantics.ClearCoatRoughnessFactor,
       clearCoatRoughnessFactor
     );
+    // ClearCoat Roughness Texture
     const clearCoatRoughnessTexture =
       KHR_materials_clearcoat.clearcoatRoughnessTexture;
     if (clearCoatRoughnessTexture != null) {
@@ -2404,6 +2414,7 @@ function setup_KHR_materials_clearcoat(
         rnClearCoatRoughnessTexture
       );
     }
+    // ClearCoat Normal Texture
     const clearCoatNormalTexture =
       KHR_materials_clearcoat.clearcoatNormalTexture;
     if (clearCoatNormalTexture != null) {
@@ -2417,6 +2428,7 @@ function setup_KHR_materials_clearcoat(
       );
     }
 
+    // ClearCoat Texture Transform
     ModelConverter._setupTextureTransform(
       clearCoatTexture!,
       material,
@@ -2424,6 +2436,7 @@ function setup_KHR_materials_clearcoat(
       ShaderSemantics.ClearCoatTextureRotation
     );
 
+    // ClearCoat Roughness Texture Transform
     ModelConverter._setupTextureTransform(
       clearCoatRoughnessTexture!,
       material,
@@ -2431,6 +2444,7 @@ function setup_KHR_materials_clearcoat(
       ShaderSemantics.ClearCoatRoughnessTextureRotation
     );
 
+    // ClearCoat Normal Texture Transform
     ModelConverter._setupTextureTransform(
       clearCoatNormalTexture!,
       material,

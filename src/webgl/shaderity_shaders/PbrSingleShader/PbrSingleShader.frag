@@ -62,6 +62,7 @@ uniform float u_ior; // initialValue=1.5
   uniform float u_clearCoatRoughnessTextureRotation; // initialValue=0
   uniform vec4 u_clearCoatNormalTextureTransform; // initialValue=(1,1,0,0)
   uniform float u_clearCoatNormalTextureRotation; // initialValue=0
+  uniform int u_clearCoatTexcoordIndex; // initialValue=(0)
 #endif
 
 #ifdef RN_USE_TRANSMISSION
@@ -427,7 +428,9 @@ void main ()
   float clearcoatFactor = get_clearCoatFactor(materialSID, 0);
   vec4 clearcoatTextureTransform = get_clearCoatTextureTransform(materialSID, 0);
   float clearcoatTextureRotation = get_clearCoatTextureRotation(materialSID, 0);
-  vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransform.xy, clearcoatTextureTransform.zw, clearcoatTextureRotation, baseColorTexUv);
+  int clearCoatTexcoordIndex = get_clearCoatTexcoordIndex(materialSID, 0);
+  vec2 clearCoatTexcoord = getTexcoord(clearCoatTexcoordIndex);
+  vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransform.xy, clearcoatTextureTransform.zw, clearcoatTextureRotation, clearCoatTexcoord);
   float clearcoatTexture = texture2D(u_clearCoatTexture, clearcoatTexUv).r;
   float clearcoat = clearcoatFactor * clearcoatTexture;
 #else

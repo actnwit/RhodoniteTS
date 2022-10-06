@@ -376,6 +376,9 @@ const ClearCoatNormalTextureTransform = new ShaderSemanticsClass({
 const ClearCoatNormalTextureRotation = new ShaderSemanticsClass({
   str: 'clearCoatNormalTextureRotation',
 });
+const ClearCoatTexcoordIndex = new ShaderSemanticsClass({
+  str: 'clearCoatTexcoordIndex',
+});
 
 const typeList = [
   WorldMatrix,
@@ -485,6 +488,7 @@ const typeList = [
   ClearCoatRoughnessTextureRotation,
   ClearCoatNormalTextureTransform,
   ClearCoatNormalTextureRotation,
+  ClearCoatTexcoordIndex,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -727,4 +731,5 @@ export const ShaderSemantics = Object.freeze({
   ClearCoatRoughnessTextureRotation,
   ClearCoatNormalTextureTransform,
   ClearCoatNormalTextureRotation,
+  ClearCoatTexcoordIndex,
 });
