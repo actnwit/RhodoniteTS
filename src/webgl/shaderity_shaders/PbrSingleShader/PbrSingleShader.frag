@@ -40,7 +40,11 @@ uniform float u_metallicRoughnessTextureRotation; // initialValue=0
 uniform int u_baseColorTexcoordIndex; // initialValue=0
 uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
 uniform int u_occlusionTexcoordIndex; // initialValue=0
+uniform vec4 u_occlusionTextureTransform; // initialValue=(1,1,0,0)
+uniform float u_occlusionTextureRotation; // initialValue=0
 uniform int u_emissiveTexcoordIndex; // initialValue=0
+uniform vec4 u_emissiveTextureTransform; // initialValue=(1,1,0,0)
+uniform float u_emissiveTextureRotation; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
 uniform bool u_inverseEnvironment; // initialValue=true
 uniform float u_ior; // initialValue=1.5
@@ -631,7 +635,10 @@ void main ()
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
-  float occlusion = texture2D(u_occlusionTexture, occlusionTexcoord).r;
+  vec4 occlusionTextureTransform = get_occlusionTextureTransform(materialSID, 0);
+  float occlusionTextureRotation = get_occlusionTextureRotation(materialSID, 0);
+  vec2 occlusionTexUv = uvTransform(occlusionTextureTransform.xy, occlusionTextureTransform.zw, occlusionTextureRotation, occlusionTexcoord);
+  float occlusion = texture2D(u_occlusionTexture, occlusionTexUv).r;
   float occlusionStrength = get_occlusionStrength(materialSID, 0);
 
   // Occlution to Indirect Lights
@@ -643,7 +650,10 @@ void main ()
   // Emissive
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
-  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
+  vec4 emissiveTextureTransform = get_emissiveTextureTransform(materialSID, 0);
+  float emissiveTextureRotation = get_emissiveTextureRotation(materialSID, 0);
+  vec2 emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
+  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexUv).xyz);
 
 #ifdef RN_USE_CLEARCOAT
   vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);

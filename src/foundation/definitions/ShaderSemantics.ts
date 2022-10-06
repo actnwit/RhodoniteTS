@@ -335,8 +335,20 @@ const MetallicRoughnessTexcoordIndex = new ShaderSemanticsClass({
 const OcclusionTexcoordIndex = new ShaderSemanticsClass({
   str: 'occlusionTexcoordIndex',
 });
+const OcclusionTextureTransform = new ShaderSemanticsClass({
+  str: 'occlusionTextureTransform',
+});
+const OcclusionTextureRotation = new ShaderSemanticsClass({
+  str: 'occlusionTextureRotation',
+});
 const EmissiveTexcoordIndex = new ShaderSemanticsClass({
   str: 'emissiveTexcoordIndex',
+});
+const EmissiveTextureTransform = new ShaderSemanticsClass({
+  str: 'emissiveTextureTransform',
+});
+const EmissiveTextureRotation = new ShaderSemanticsClass({
+  str: 'emissiveTextureRotation',
 });
 const NormalScale = new ShaderSemanticsClass({str: 'normalScale'});
 const OcclusionStrength = new ShaderSemanticsClass({
@@ -475,7 +487,11 @@ const typeList = [
   BaseColorTexcoordIndex,
   MetallicRoughnessTexcoordIndex,
   OcclusionTexcoordIndex,
+  OcclusionTextureTransform,
+  OcclusionTextureRotation,
   EmissiveTexcoordIndex,
+  EmissiveTextureTransform,
+  EmissiveTextureRotation,
   NormalScale,
   OcclusionStrength,
   envRotation,
@@ -720,7 +736,11 @@ export const ShaderSemantics = Object.freeze({
   BaseColorTexcoordIndex,
   MetallicRoughnessTexcoordIndex,
   OcclusionTexcoordIndex,
+  OcclusionTextureTransform,
+  OcclusionTextureRotation,
   EmissiveTexcoordIndex,
+  EmissiveTextureTransform,
+  EmissiveTextureRotation,
   NormalScale,
   OcclusionStrength,
   envRotation,

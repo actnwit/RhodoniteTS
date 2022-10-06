@@ -1247,6 +1247,12 @@ export class ModelConverter {
           emissiveTexture.texCoord
         );
       }
+      ModelConverter._setupTextureTransform(
+        emissiveTexture!,
+        material,
+        ShaderSemantics.EmissiveTextureTransform,
+        ShaderSemantics.EmissiveTextureRotation
+      );
     }
 
     let alphaMode = materialJson.alphaMode;
@@ -2257,6 +2263,12 @@ function setupPbrMetallicRoughness(
         occlusionTexture.strength
       );
     }
+    ModelConverter._setupTextureTransform(
+      occlusionTexture,
+      material,
+      ShaderSemantics.OcclusionTextureTransform,
+      ShaderSemantics.OcclusionTextureRotation
+    );
   }
 
   // Metallic Factor
