@@ -2416,6 +2416,13 @@ function setup_KHR_materials_clearcoat(
         rnClearCoatNormalTexture
       );
     }
+
+    ModelConverter._setupTextureTransform(
+      clearCoatTexture!,
+      material,
+      ShaderSemantics.ClearCoatTextureTransform,
+      ShaderSemantics.ClearCoatTextureRotation
+    );
   }
 }
 

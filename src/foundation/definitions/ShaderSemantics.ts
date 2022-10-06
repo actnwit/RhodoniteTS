@@ -358,6 +358,12 @@ const SpecularColorTexture = new ShaderSemanticsClass({
 });
 const Ior = new ShaderSemanticsClass({str: 'ior'});
 const DepthBiasPV = new ShaderSemanticsClass({str: 'depthBiasPV'});
+const ClearCoatTextureTransform = new ShaderSemanticsClass({
+  str: 'clearCoatTextureTransform',
+});
+const ClearCoatTextureRotation = new ShaderSemanticsClass({
+  str: 'clearCoatTextureRotation',
+});
 
 const typeList = [
   WorldMatrix,
@@ -461,6 +467,8 @@ const typeList = [
   SpecularColorTexture,
   Ior,
   DepthBiasPV,
+  ClearCoatTextureTransform,
+  ClearCoatTextureRotation,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -697,4 +705,6 @@ export const ShaderSemantics = Object.freeze({
   SpecularColorTexture,
   Ior,
   DepthBiasPV,
+  ClearCoatTextureTransform,
+  ClearCoatTextureRotation,
 });
