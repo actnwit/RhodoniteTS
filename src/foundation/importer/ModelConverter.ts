@@ -1247,6 +1247,12 @@ export class ModelConverter {
           emissiveTexture.texCoord
         );
       }
+      ModelConverter._setupTextureTransform(
+        emissiveTexture!,
+        material,
+        ShaderSemantics.EmissiveTextureTransform,
+        ShaderSemantics.EmissiveTextureRotation
+      );
     }
 
     let alphaMode = materialJson.alphaMode;
@@ -2257,6 +2263,12 @@ function setupPbrMetallicRoughness(
         occlusionTexture.strength
       );
     }
+    ModelConverter._setupTextureTransform(
+      occlusionTexture,
+      material,
+      ShaderSemantics.OcclusionTextureTransform,
+      ShaderSemantics.OcclusionTextureRotation
+    );
   }
 
   // Metallic Factor
@@ -2368,10 +2380,12 @@ function setup_KHR_materials_clearcoat(
   const KHR_materials_clearcoat =
     materialJson?.extensions?.KHR_materials_clearcoat;
   if (Is.exist(KHR_materials_clearcoat)) {
+    // ClearCoat Factor
     const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
       ? KHR_materials_clearcoat.clearcoatFactor
       : 0.0;
     material.setParameter(ShaderSemantics.ClearCoatFactor, clearCoatFactor);
+    // ClearCoat Texture
     const clearCoatTexture = KHR_materials_clearcoat.clearcoatTexture;
     if (clearCoatTexture != null) {
       const rnClearCoatTexture = ModelConverter._createTexture(
@@ -2382,7 +2396,21 @@ function setup_KHR_materials_clearcoat(
         ShaderSemantics.ClearCoatTexture,
         rnClearCoatTexture
       );
+      if (clearCoatTexture.texCoord != null) {
+        material.setParameter(
+          ShaderSemantics.ClearCoatTexcoordIndex,
+          clearCoatTexture.texCoord
+        );
+      }
+      // ClearCoat Texture Transform
+      ModelConverter._setupTextureTransform(
+        clearCoatTexture,
+        material,
+        ShaderSemantics.ClearCoatTextureTransform,
+        ShaderSemantics.ClearCoatTextureRotation
+      );
     }
+    // ClearCoat Roughness Factor
     const clearCoatRoughnessFactor = Is.exist(
       KHR_materials_clearcoat.clearcoatRoughnessFactor
     )
@@ -2392,6 +2420,7 @@ function setup_KHR_materials_clearcoat(
       ShaderSemantics.ClearCoatRoughnessFactor,
       clearCoatRoughnessFactor
     );
+    // ClearCoat Roughness Texture
     const clearCoatRoughnessTexture =
       KHR_materials_clearcoat.clearcoatRoughnessTexture;
     if (clearCoatRoughnessTexture != null) {
@@ -2403,7 +2432,21 @@ function setup_KHR_materials_clearcoat(
         ShaderSemantics.ClearCoatRoughnessTexture,
         rnClearCoatRoughnessTexture
       );
+      if (clearCoatRoughnessTexture.texCoord != null) {
+        material.setParameter(
+          ShaderSemantics.ClearCoatRoughnessTexcoordIndex,
+          clearCoatRoughnessTexture.texCoord
+        );
+      }
+      // ClearCoat Roughness Texture Transform
+      ModelConverter._setupTextureTransform(
+        clearCoatRoughnessTexture,
+        material,
+        ShaderSemantics.ClearCoatRoughnessTextureTransform,
+        ShaderSemantics.ClearCoatRoughnessTextureRotation
+      );
     }
+    // ClearCoat Normal Texture
     const clearCoatNormalTexture =
       KHR_materials_clearcoat.clearcoatNormalTexture;
     if (clearCoatNormalTexture != null) {
@@ -2414,6 +2457,19 @@ function setup_KHR_materials_clearcoat(
       material.setTextureParameter(
         ShaderSemantics.ClearCoatNormalTexture,
         rnClearCoatNormalTexture
+      );
+      if (clearCoatNormalTexture.texCoord != null) {
+        material.setParameter(
+          ShaderSemantics.ClearCoatNormalTexcoordIndex,
+          clearCoatNormalTexture.texCoord
+        );
+      }
+      // ClearCoat Normal Texture Transform
+      ModelConverter._setupTextureTransform(
+        clearCoatNormalTexture,
+        material,
+        ShaderSemantics.ClearCoatNormalTextureTransform,
+        ShaderSemantics.ClearCoatNormalTextureRotation
       );
     }
   }

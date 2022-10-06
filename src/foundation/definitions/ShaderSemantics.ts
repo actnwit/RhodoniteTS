@@ -335,8 +335,20 @@ const MetallicRoughnessTexcoordIndex = new ShaderSemanticsClass({
 const OcclusionTexcoordIndex = new ShaderSemanticsClass({
   str: 'occlusionTexcoordIndex',
 });
+const OcclusionTextureTransform = new ShaderSemanticsClass({
+  str: 'occlusionTextureTransform',
+});
+const OcclusionTextureRotation = new ShaderSemanticsClass({
+  str: 'occlusionTextureRotation',
+});
 const EmissiveTexcoordIndex = new ShaderSemanticsClass({
   str: 'emissiveTexcoordIndex',
+});
+const EmissiveTextureTransform = new ShaderSemanticsClass({
+  str: 'emissiveTextureTransform',
+});
+const EmissiveTextureRotation = new ShaderSemanticsClass({
+  str: 'emissiveTextureRotation',
 });
 const NormalScale = new ShaderSemanticsClass({str: 'normalScale'});
 const OcclusionStrength = new ShaderSemanticsClass({
@@ -358,6 +370,33 @@ const SpecularColorTexture = new ShaderSemanticsClass({
 });
 const Ior = new ShaderSemanticsClass({str: 'ior'});
 const DepthBiasPV = new ShaderSemanticsClass({str: 'depthBiasPV'});
+const ClearCoatTextureTransform = new ShaderSemanticsClass({
+  str: 'clearCoatTextureTransform',
+});
+const ClearCoatTextureRotation = new ShaderSemanticsClass({
+  str: 'clearCoatTextureRotation',
+});
+const ClearCoatRoughnessTextureTransform = new ShaderSemanticsClass({
+  str: 'clearCoatRoughnessTextureTransform',
+});
+const ClearCoatRoughnessTextureRotation = new ShaderSemanticsClass({
+  str: 'clearCoatRoughnessTextureRotation',
+});
+const ClearCoatNormalTextureTransform = new ShaderSemanticsClass({
+  str: 'clearCoatNormalTextureTransform',
+});
+const ClearCoatNormalTextureRotation = new ShaderSemanticsClass({
+  str: 'clearCoatNormalTextureRotation',
+});
+const ClearCoatTexcoordIndex = new ShaderSemanticsClass({
+  str: 'clearCoatTexcoordIndex',
+});
+const ClearCoatRoughnessTexcoordIndex = new ShaderSemanticsClass({
+  str: 'clearCoatRoughnessTexcoordIndex',
+});
+const ClearCoatNormalTexcoordIndex = new ShaderSemanticsClass({
+  str: 'clearCoatNormalTexcoordIndex',
+});
 
 const typeList = [
   WorldMatrix,
@@ -448,7 +487,11 @@ const typeList = [
   BaseColorTexcoordIndex,
   MetallicRoughnessTexcoordIndex,
   OcclusionTexcoordIndex,
+  OcclusionTextureTransform,
+  OcclusionTextureRotation,
   EmissiveTexcoordIndex,
+  EmissiveTextureTransform,
+  EmissiveTextureRotation,
   NormalScale,
   OcclusionStrength,
   envRotation,
@@ -461,6 +504,15 @@ const typeList = [
   SpecularColorTexture,
   Ior,
   DepthBiasPV,
+  ClearCoatTextureTransform,
+  ClearCoatTextureRotation,
+  ClearCoatRoughnessTextureTransform,
+  ClearCoatRoughnessTextureRotation,
+  ClearCoatNormalTextureTransform,
+  ClearCoatNormalTextureRotation,
+  ClearCoatTexcoordIndex,
+  ClearCoatRoughnessTexcoordIndex,
+  ClearCoatNormalTexcoordIndex,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -684,7 +736,11 @@ export const ShaderSemantics = Object.freeze({
   BaseColorTexcoordIndex,
   MetallicRoughnessTexcoordIndex,
   OcclusionTexcoordIndex,
+  OcclusionTextureTransform,
+  OcclusionTextureRotation,
   EmissiveTexcoordIndex,
+  EmissiveTextureTransform,
+  EmissiveTextureRotation,
   NormalScale,
   OcclusionStrength,
   envRotation,
@@ -697,4 +753,13 @@ export const ShaderSemantics = Object.freeze({
   SpecularColorTexture,
   Ior,
   DepthBiasPV,
+  ClearCoatTextureTransform,
+  ClearCoatTextureRotation,
+  ClearCoatRoughnessTextureTransform,
+  ClearCoatRoughnessTextureRotation,
+  ClearCoatNormalTextureTransform,
+  ClearCoatNormalTextureRotation,
+  ClearCoatTexcoordIndex,
+  ClearCoatRoughnessTexcoordIndex,
+  ClearCoatNormalTexcoordIndex,
 });

@@ -40,7 +40,11 @@ uniform float u_metallicRoughnessTextureRotation; // initialValue=0
 uniform int u_baseColorTexcoordIndex; // initialValue=0
 uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
 uniform int u_occlusionTexcoordIndex; // initialValue=0
+uniform vec4 u_occlusionTextureTransform; // initialValue=(1,1,0,0)
+uniform float u_occlusionTextureRotation; // initialValue=0
 uniform int u_emissiveTexcoordIndex; // initialValue=0
+uniform vec4 u_emissiveTextureTransform; // initialValue=(1,1,0,0)
+uniform float u_emissiveTextureRotation; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
 uniform bool u_inverseEnvironment; // initialValue=true
 uniform float u_ior; // initialValue=1.5
@@ -56,6 +60,15 @@ uniform float u_ior; // initialValue=1.5
 #ifdef RN_USE_CLEARCOAT
   uniform float u_clearCoatFactor; // initialValue=0
   uniform float u_clearCoatRoughnessFactor; // initialValue=0
+  uniform vec4 u_clearCoatTextureTransform; // initialValue=(1,1,0,0)
+  uniform float u_clearCoatTextureRotation; // initialValue=0
+  uniform vec4 u_clearCoatRoughnessTextureTransform; // initialValue=(1,1,0,0)
+  uniform float u_clearCoatRoughnessTextureRotation; // initialValue=0
+  uniform vec4 u_clearCoatNormalTextureTransform; // initialValue=(1,1,0,0)
+  uniform float u_clearCoatNormalTextureRotation; // initialValue=0
+  uniform int u_clearCoatTexcoordIndex; // initialValue=(0)
+  uniform int u_clearCoatRoughnessTexcoordIndex; // initialValue=(0)
+  uniform int u_clearCoatNormalTexcoordIndex; // initialValue=(0)
 #endif
 
 #ifdef RN_USE_TRANSMISSION
@@ -419,7 +432,12 @@ void main ()
   // Clearcoat
 #ifdef RN_USE_CLEARCOAT
   float clearcoatFactor = get_clearCoatFactor(materialSID, 0);
-  float clearcoatTexture = texture2D(u_clearCoatTexture, baseColorTexUv).r;
+  vec4 clearcoatTextureTransform = get_clearCoatTextureTransform(materialSID, 0);
+  float clearcoatTextureRotation = get_clearCoatTextureRotation(materialSID, 0);
+  int clearCoatTexcoordIndex = get_clearCoatTexcoordIndex(materialSID, 0);
+  vec2 clearCoatTexcoord = getTexcoord(clearCoatTexcoordIndex);
+  vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransform.xy, clearcoatTextureTransform.zw, clearcoatTextureRotation, clearCoatTexcoord);
+  float clearcoatTexture = texture2D(u_clearCoatTexture, clearcoatTexUv).r;
   float clearcoat = clearcoatFactor * clearcoatTexture;
 #else
   float clearcoat = 0.0;
@@ -484,10 +502,20 @@ void main ()
 #ifdef RN_USE_CLEARCOAT
   // Clearcoat
   float clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
-  float textureRoughnessTexture = texture2D(u_clearCoatRoughnessTexture, baseColorTexUv).g;
+  int clearCoatRoughnessTexcoordIndex = get_clearCoatRoughnessTexcoordIndex(materialSID, 0);
+  vec2 clearCoatRoughnessTexcoord = getTexcoord(clearCoatRoughnessTexcoordIndex);
+  vec4 clearcoatRoughnessTextureTransform = get_clearCoatRoughnessTextureTransform(materialSID, 0);
+  float clearcoatRoughnessTextureRotation = get_clearCoatRoughnessTextureRotation(materialSID, 0);
+  vec2 clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransform.xy, clearcoatRoughnessTextureTransform.zw, clearcoatRoughnessTextureRotation, clearCoatRoughnessTexcoord);
+  float textureRoughnessTexture = texture2D(u_clearCoatRoughnessTexture, clearcoatRoughnessTexUv).g;
   float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
-  vec3 textureNormal_tangent = texture2D(u_clearCoatNormalTexture, baseColorTexUv).xyz * vec3(2.0) - vec3(1.0);
 
+  int clearCoatNormalTexcoordIndex = get_clearCoatNormalTexcoordIndex(materialSID, 0);
+  vec2 clearCoatNormalTexcoord = getTexcoord(clearCoatNormalTexcoordIndex);
+  vec4 clearcoatNormalTextureTransform = get_clearCoatNormalTextureTransform(materialSID, 0);
+  float clearcoatNormalTextureRotation = get_clearCoatNormalTextureRotation(materialSID, 0);
+  vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, clearCoatNormalTexcoord);
+  vec3 textureNormal_tangent = texture2D(u_clearCoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
   vec3 clearcoatNormal_inWorld = perturb_normal(geomNormal_inWorld, viewVector, normalTexUv, textureNormal_tangent);
   float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
 #else
@@ -607,7 +635,10 @@ void main ()
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
-  float occlusion = texture2D(u_occlusionTexture, occlusionTexcoord).r;
+  vec4 occlusionTextureTransform = get_occlusionTextureTransform(materialSID, 0);
+  float occlusionTextureRotation = get_occlusionTextureRotation(materialSID, 0);
+  vec2 occlusionTexUv = uvTransform(occlusionTextureTransform.xy, occlusionTextureTransform.zw, occlusionTextureRotation, occlusionTexcoord);
+  float occlusion = texture2D(u_occlusionTexture, occlusionTexUv).r;
   float occlusionStrength = get_occlusionStrength(materialSID, 0);
 
   // Occlution to Indirect Lights
@@ -619,7 +650,10 @@ void main ()
   // Emissive
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
-  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexcoord).xyz);
+  vec4 emissiveTextureTransform = get_emissiveTextureTransform(materialSID, 0);
+  float emissiveTextureRotation = get_emissiveTextureRotation(materialSID, 0);
+  vec2 emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
+  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexUv).xyz);
 
 #ifdef RN_USE_CLEARCOAT
   vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
