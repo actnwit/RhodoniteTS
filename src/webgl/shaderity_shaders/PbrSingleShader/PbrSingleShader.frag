@@ -64,6 +64,7 @@ uniform float u_ior; // initialValue=1.5
   uniform float u_clearCoatNormalTextureRotation; // initialValue=0
   uniform int u_clearCoatTexcoordIndex; // initialValue=(0)
   uniform int u_clearCoatRoughnessTexcoordIndex; // initialValue=(0)
+  uniform int u_clearCoatNormalTexcoordIndex; // initialValue=(0)
 #endif
 
 #ifdef RN_USE_TRANSMISSION
@@ -505,9 +506,11 @@ void main ()
   float textureRoughnessTexture = texture2D(u_clearCoatRoughnessTexture, clearcoatRoughnessTexUv).g;
   float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
 
+  int clearCoatNormalTexcoordIndex = get_clearCoatNormalTexcoordIndex(materialSID, 0);
+  vec2 clearCoatNormalTexcoord = getTexcoord(clearCoatNormalTexcoordIndex);
   vec4 clearcoatNormalTextureTransform = get_clearCoatNormalTextureTransform(materialSID, 0);
   float clearcoatNormalTextureRotation = get_clearCoatNormalTextureRotation(materialSID, 0);
-  vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, baseColorTexUv);
+  vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, clearCoatNormalTexcoord);
   vec3 textureNormal_tangent = texture2D(u_clearCoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
   vec3 clearcoatNormal_inWorld = perturb_normal(geomNormal_inWorld, viewVector, normalTexUv, textureNormal_tangent);
   float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));

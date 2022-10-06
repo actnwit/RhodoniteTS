@@ -2390,6 +2390,13 @@ function setup_KHR_materials_clearcoat(
           clearCoatTexture.texCoord
         );
       }
+      // ClearCoat Texture Transform
+      ModelConverter._setupTextureTransform(
+        clearCoatTexture,
+        material,
+        ShaderSemantics.ClearCoatTextureTransform,
+        ShaderSemantics.ClearCoatTextureRotation
+      );
     }
     // ClearCoat Roughness Factor
     const clearCoatRoughnessFactor = Is.exist(
@@ -2419,6 +2426,13 @@ function setup_KHR_materials_clearcoat(
           clearCoatRoughnessTexture.texCoord
         );
       }
+      // ClearCoat Roughness Texture Transform
+      ModelConverter._setupTextureTransform(
+        clearCoatRoughnessTexture,
+        material,
+        ShaderSemantics.ClearCoatRoughnessTextureTransform,
+        ShaderSemantics.ClearCoatRoughnessTextureRotation
+      );
     }
     // ClearCoat Normal Texture
     const clearCoatNormalTexture =
@@ -2432,31 +2446,20 @@ function setup_KHR_materials_clearcoat(
         ShaderSemantics.ClearCoatNormalTexture,
         rnClearCoatNormalTexture
       );
+      if (clearCoatNormalTexture.texCoord != null) {
+        material.setParameter(
+          ShaderSemantics.ClearCoatNormalTexcoordIndex,
+          clearCoatNormalTexture.texCoord
+        );
+      }
+      // ClearCoat Normal Texture Transform
+      ModelConverter._setupTextureTransform(
+        clearCoatNormalTexture,
+        material,
+        ShaderSemantics.ClearCoatNormalTextureTransform,
+        ShaderSemantics.ClearCoatNormalTextureRotation
+      );
     }
-
-    // ClearCoat Texture Transform
-    ModelConverter._setupTextureTransform(
-      clearCoatTexture!,
-      material,
-      ShaderSemantics.ClearCoatTextureTransform,
-      ShaderSemantics.ClearCoatTextureRotation
-    );
-
-    // ClearCoat Roughness Texture Transform
-    ModelConverter._setupTextureTransform(
-      clearCoatRoughnessTexture!,
-      material,
-      ShaderSemantics.ClearCoatRoughnessTextureTransform,
-      ShaderSemantics.ClearCoatRoughnessTextureRotation
-    );
-
-    // ClearCoat Normal Texture Transform
-    ModelConverter._setupTextureTransform(
-      clearCoatNormalTexture!,
-      material,
-      ShaderSemantics.ClearCoatNormalTextureTransform,
-      ShaderSemantics.ClearCoatNormalTextureRotation
-    );
   }
 }
 
