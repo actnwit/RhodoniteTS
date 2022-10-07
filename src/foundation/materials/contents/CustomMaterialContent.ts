@@ -25,6 +25,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isVolume,
     isSheen,
     isSpecular,
+    isIridescence,
     isShadow,
     alphaMode,
     useTangentAttribute,
@@ -42,6 +43,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isVolume?: boolean;
     isSheen?: boolean;
     isSpecular?: boolean;
+    isIridescence?: boolean;
     isShadow?: boolean;
     alphaMode: AlphaModeEnum;
     useTangentAttribute: boolean;
@@ -59,7 +61,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isClearCoat ? '+clearcoat' : '') +
         (isTransmission ? '+transmission' : '') +
         (isVolume ? '+volume' : '') +
+        (isSpecular ? '+specular' : '') +
         (isSheen ? '+sheen' : '') +
+        (isIridescence ? '+iridescence' : '') +
         (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
@@ -131,6 +135,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
     if (isSpecular) {
       this.__definitions += '#define RN_USE_SPECULAR\n';
+    }
+    if (isIridescence) {
+      this.__definitions += '#define RN_USE_IRIDESCENCE\n';
     }
     if (isShadow) {
       this.__definitions += '#define RN_USE_SHADOW_MAPPING\n';

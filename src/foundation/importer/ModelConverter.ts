@@ -2330,6 +2330,8 @@ function setupPbrMetallicRoughness(
 
   setup_KHR_materials_ior(materialJson, material, gltfModel);
 
+  setup_KHR_materials_iridescence(materialJson, material, gltfModel);
+
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(
     baseColorTexture,
@@ -2591,7 +2593,8 @@ function setup_KHR_materials_specular(
   material: Material,
   gltfModel: RnM2
 ) {
-  const KHR_materials_specular = materialJson?.extensions?.KHR_materials_specular;
+  const KHR_materials_specular =
+    materialJson?.extensions?.KHR_materials_specular;
   if (Is.exist(KHR_materials_specular)) {
     const specularFactor = Is.exist(KHR_materials_specular.specularFactor)
       ? KHR_materials_specular.specularFactor
@@ -2640,5 +2643,69 @@ function setup_KHR_materials_ior(
   if (Is.exist(KHR_materials_ior)) {
     const ior = Is.exist(KHR_materials_ior.ior) ? KHR_materials_ior.ior : 1.5;
     material.setParameter(ShaderSemantics.Ior, ior);
+  }
+}
+
+function setup_KHR_materials_iridescence(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_iridescence =
+    materialJson?.extensions?.KHR_materials_iridescence;
+  if (Is.exist(KHR_materials_iridescence)) {
+    const iridescenceFactor = Is.exist(KHR_materials_iridescence.specularFactor)
+      ? KHR_materials_iridescence.iridescenceFactor
+      : 0.0;
+    material.setParameter(ShaderSemantics.IridescenceFactor, iridescenceFactor);
+    const iridescenceTexture = KHR_materials_iridescence.iridescenceTexture;
+    if (iridescenceTexture != null) {
+      const rnIridescenceTexture = ModelConverter._createTexture(
+        iridescenceTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.IridescenceTexture,
+        rnIridescenceTexture
+      );
+    }
+
+    const iridescenceIor = Is.exist(KHR_materials_iridescence.iridescenceIor)
+      ? KHR_materials_iridescence.iridescenceIor
+      : 1.3;
+    material.setParameter(ShaderSemantics.IridescenceIor, iridescenceIor);
+
+    const iridescenceThicknessMinimum = Is.exist(
+      KHR_materials_iridescence.iridescenceThicknessMinimum
+    )
+      ? KHR_materials_iridescence.iridescenceThicknessMinimum
+      : 100.0;
+    material.setParameter(
+      ShaderSemantics.IridescenceThicknessMinimum,
+      iridescenceThicknessMinimum
+    );
+
+    const iridescenceThicknessMaximum = Is.exist(
+      KHR_materials_iridescence.iridescenceThicknessMaximum
+    )
+      ? KHR_materials_iridescence.iridescenceThicknessMaximum
+      : 400.0;
+    material.setParameter(
+      ShaderSemantics.IridescenceThicknessMaximum,
+      iridescenceThicknessMaximum
+    );
+
+    const iridescenceThicknessTexture =
+      KHR_materials_iridescence.iridescenceThicknessTexture;
+    if (iridescenceThicknessTexture != null) {
+      const rnIridescenceThicknessTexture = ModelConverter._createTexture(
+        iridescenceThicknessTexture.texture!,
+        gltfModel
+      );
+      material.setTextureParameter(
+        ShaderSemantics.IridescenceThicknessTexture,
+        rnIridescenceThicknessTexture
+      );
+    }
   }
 }

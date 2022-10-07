@@ -91,6 +91,13 @@ uniform float u_ior; // initialValue=1.5
   uniform vec3 u_specularColorFactor; // initialValue=(1,1,1)
 #endif
 
+#ifdef RN_USE_IRIDESCENCE
+  uniform float u_iridescenceFactor; // initialValue=0
+  uniform vec3 u_iridescenceIor; // initialValue=1.3
+  uniform float u_iridescenceThicknessMinimum; // initialValue=100
+  uniform float u_iridescenceThicknessMaximum; // initialValue=400
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)

@@ -526,6 +526,20 @@ export class Gltf2Importer {
                 gltfJson.textures[specularColorTexture.index];
             }
           }
+          if (Is.exist(extensions.KHR_materials_iridescence)) {
+            const iridescenceTexture =
+              extensions.KHR_materials_iridescence.iridescenceTexture;
+            if (iridescenceTexture !== void 0) {
+              iridescenceTexture.texture =
+                gltfJson.textures[iridescenceTexture.index];
+            }
+            const iridescenceThicknessTexture =
+              extensions.KHR_materials_iridescence.iridescenceThicknessTexture;
+            if (iridescenceThicknessTexture !== void 0) {
+              iridescenceThicknessTexture.texture =
+                gltfJson.textures[iridescenceThicknessTexture.index];
+            }
+          }
         }
       }
     }

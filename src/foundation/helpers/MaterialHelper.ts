@@ -108,6 +108,7 @@ function createPbrUberMaterial({
   isVolume = false,
   isSheen = false,
   isSpecular = false,
+  isIridescence = false,
   useTangentAttribute = false,
   useNormalTexture = true,
   alphaMode = AlphaMode.Opaque,
@@ -124,6 +125,7 @@ function createPbrUberMaterial({
     (isVolume ? '+volume' : '') +
     (isSheen ? '+sheen' : '') +
     (isSpecular ? '+specular' : '') +
+    (isIridescence ? '+iridescence' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (useNormalTexture ? '' : '-normalTexture') +
     '_alpha_' +
@@ -339,6 +341,39 @@ function createPbrUberMaterial({
     });
   }
 
+  if (isIridescence) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.IridescenceTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.IridescenceThicknessTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
+
   const materialNode = new CustomMaterialContent({
     name: 'PbrUber',
     isSkinning,
@@ -349,6 +384,7 @@ function createPbrUberMaterial({
     isVolume,
     isSheen,
     isSpecular,
+    isIridescence,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,
