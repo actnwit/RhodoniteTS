@@ -93,7 +93,7 @@ uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_IRIDESCENCE
   uniform float u_iridescenceFactor; // initialValue=0
-  uniform vec3 u_iridescenceIor; // initialValue=1.3
+  uniform float u_iridescenceIor; // initialValue=1.3
   uniform float u_iridescenceThicknessMinimum; // initialValue=100
   uniform float u_iridescenceThicknessMaximum; // initialValue=400
 #endif
@@ -458,6 +458,20 @@ void main ()
   // alpha *= transmission;
 #else
   float transmission = 0.0;
+#endif
+
+// Iridescence
+#ifdef RN_USE_IRIDESCENCE
+  float iridescenceFactor = get_iridescenceFactor(materialSID, 0);
+  float iridescenceTexture = texture2D(u_iridescenceTexture, baseColorTexUv).r;
+  float iridescence = iridescenceFactor * iridescenceTexture;
+  float iridescenceIor = get_iridescenceIor(materialSID, 0);
+  float thicknessRatio = texture2D(u_iridescenceThicknessTexture, baseColorTexUv).r;
+  float iridescenceThicknessMinimum = get_iridescenceThicknessMinimum(materialSID, 0);
+  float iridescenceThicknessMaximum = get_iridescenceThicknessMaximum(materialSID, 0);
+  float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
+#else
+  float iridescence = 0.0;
 #endif
 
 #ifdef RN_IS_LIGHTING

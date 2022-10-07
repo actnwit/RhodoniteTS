@@ -1045,6 +1045,9 @@ export class ModelConverter {
         isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
         isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
         isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
+        isIridescence: Is.exist(
+          materialJson?.extensions?.KHR_materials_iridescence
+        ),
         alphaMode,
         useTangentAttribute,
         useNormalTexture,
