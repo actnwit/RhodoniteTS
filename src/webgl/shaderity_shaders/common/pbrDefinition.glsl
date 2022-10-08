@@ -5,10 +5,6 @@ float angular_n_h(float NH) {
   return acos(NH);
 }
 
-float sqr(float x) {
-  return x*x;
-}
-
 float d_phong(float NH, float c1) {
   return pow(
     cos(acos(NH))
@@ -37,8 +33,8 @@ float d_ggx(float NH, float alphaRoughness) {
 float d_torrance_reiz(float NH, float c3) {
   float CosSquared = NH*NH;
   float TanSquared = (1.0 - CosSquared)/CosSquared;
-  //return (1.0/M_PI) * sqr(c3/(CosSquared * (c3*c3 + TanSquared)));  // gamma = 2, aka GGX
-  return (1.0/sqrt(M_PI)) * (sqr(c3)/(CosSquared * (c3*c3 + TanSquared))); // gamma = 1, D_Berry
+  //return (1.0/M_PI) * sq(c3/(CosSquared * (c3*c3 + TanSquared)));  // gamma = 2, aka GGX
+  return (1.0/sqrt(M_PI)) * (sq(c3)/(CosSquared * (c3*c3 + TanSquared))); // gamma = 1, D_Berry
 }
 
 float d_beckmann(float NH, float m) {
@@ -81,8 +77,37 @@ float v_SmithGGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
 }
 
 // The Schlick Approximation to Fresnel
-vec3 fresnel(vec3 f0, vec3 f90, float VH) {
-  return f0 + (f90 - f0) * pow(1.0 - VH, 5.0);
+float fresnel(float f0, float f90, float VdotH) {
+  float x = clamp(1.0 - VdotH, 0.0, 1.0);
+  float x2 = x * x;
+  float x5 = x * x2 * x2;
+  return f0 + (f90 - f0) * x5;
+}
+
+vec3 fresnel(vec3 f0, vec3 f90, float VdotH) {
+  float x = clamp(1.0 - VdotH, 0.0, 1.0);
+  float x2 = x * x;
+  float x5 = x * x2 * x2;
+  return f0 + (f90 - f0) * x5;
+}
+
+vec3 fresnel(vec3 f0, float f90, float VdotH)
+{
+  float x = clamp(1.0 - VdotH, 0.0, 1.0);
+  float x2 = x * x;
+  float x5 = x * x2 * x2;
+  return f0 + (f90 - f0) * x5;
+}
+
+float fresnel(float f0, float VdotH)
+{
+  float f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
+  return fresnel(f0, f90, VdotH);
+}
+vec3 fresnel(vec3 f0, float VdotH)
+{
+  float f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
+  return fresnel(f0, f90, VdotH);
 }
 
 vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness) {
@@ -178,7 +203,44 @@ float linearToSrgb(float value) {
 // https://www.jcgt.org/published/0008/01/03/paper.pdf
 vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
 {
-  return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+  vec3 k_S = F0 + Fr * pow(1.0 - cosTheta, 5.0);
+  return k_S;
+}
+
+vec3 fresnelSchlickRoughnessWithIridescence(
+  vec3 F0, float cosTheta, float roughness,
+  vec3 iridescenceFresnel, float iridescence
+  )
+{
+  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescence);
+  return k_S;
+}
+
+// From: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/e2c7b8c8bd12916c1a387cd41f9ef061edc718df/source/Renderer/shaders/brdf.glsl#L44-L66
+vec3 Schlick_to_F0(vec3 f, vec3 f90, float VdotH) {
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+float Schlick_to_F0(float f, float f90, float VdotH) {
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+vec3 Schlick_to_F0(vec3 f, float VdotH) {
+    return Schlick_to_F0(f, vec3(1.0), VdotH);
+}
+
+float Schlick_to_F0(float f, float VdotH) {
+    return Schlick_to_F0(f, 1.0, VdotH);
 }
 
 vec3 normalBlendingUDN(sampler2D baseMap, sampler2D detailMap, vec2 baseUv, vec2 detailUv) {
@@ -213,46 +275,4 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
     vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
     return intensity * attenuatedTransmittance;
   }
-}
-
-float d_Charlie(float sheenPerceptualRoughness, float NoH) {
-  // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
-  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
-  float invAlpha  = 1.0 / alphaG;
-  float cos2h = NoH * NoH;
-  float sin2h = 1.0 - cos2h;
-  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * PI);
-}
-
-// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
-float sheenSimpleVisibility(float NdotL, float NdotV) {
-  return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
-}
-
-// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
-float charlieL(float x, float alphaG) {
-  float oneMinusAlphaSq = (1.0 - alphaG) * (1.0 - alphaG);
-  float a = mix(21.5473, 25.3245, oneMinusAlphaSq);
-  float b = mix(3.82987, 3.32435, oneMinusAlphaSq);
-  float c = mix(0.19823, 0.16801, oneMinusAlphaSq);
-  float d = mix(-1.97760, -1.27393, oneMinusAlphaSq);
-  float e = mix(-4.32054, -4.85967, oneMinusAlphaSq);
-  return a / (1.0 + b * pow(x, c)) + d * x + e;
-}
-
-float lambdaSheen(float cosTheta, float alphaG)
-{
-  return abs(cosTheta) < 0.5 ? exp(charlieL(cosTheta, alphaG)) : exp(2.0 * charlieL(0.5, alphaG) - charlieL(1.0 - cosTheta, alphaG));
-}
-
-float sheenCharlieVisibility(float NdotL, float NdotV, float sheenPerceptualRoughness) {
-  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
-  float sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
-  return sheenVisibility;
-}
-
-vec3 sheen_brdf(vec3 sheenColor, float sheenPerceptualRoughness, float NdotL, float NdotV, float NdotH) {
-  float sheenDistribution = d_Charlie(sheenPerceptualRoughness, NdotH);
-  float sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
-  return sheenColor * sheenDistribution * sheenVisibility;
 }

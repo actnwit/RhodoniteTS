@@ -397,6 +397,24 @@ const ClearCoatRoughnessTexcoordIndex = new ShaderSemanticsClass({
 const ClearCoatNormalTexcoordIndex = new ShaderSemanticsClass({
   str: 'clearCoatNormalTexcoordIndex',
 });
+const IridescenceFactor = new ShaderSemanticsClass({
+  str: 'iridescenceFactor',
+});
+const IridescenceTexture = new ShaderSemanticsClass({
+  str: 'iridescenceTexture',
+});
+const IridescenceIor = new ShaderSemanticsClass({
+  str: 'iridescenceIor',
+});
+const IridescenceThicknessMinimum = new ShaderSemanticsClass({
+  str: 'iridescenceThicknessMinimum',
+});
+const IridescenceThicknessMaximum = new ShaderSemanticsClass({
+  str: 'iridescenceThicknessMaximum',
+});
+const IridescenceThicknessTexture = new ShaderSemanticsClass({
+  str: 'iridescenceThicknessTexture',
+});
 
 const typeList = [
   WorldMatrix,
@@ -513,6 +531,12 @@ const typeList = [
   ClearCoatTexcoordIndex,
   ClearCoatRoughnessTexcoordIndex,
   ClearCoatNormalTexcoordIndex,
+  IridescenceFactor,
+  IridescenceTexture,
+  IridescenceIor,
+  IridescenceThicknessMinimum,
+  IridescenceThicknessMaximum,
+  IridescenceThicknessTexture,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -762,4 +786,10 @@ export const ShaderSemantics = Object.freeze({
   ClearCoatTexcoordIndex,
   ClearCoatRoughnessTexcoordIndex,
   ClearCoatNormalTexcoordIndex,
+  IridescenceFactor,
+  IridescenceTexture,
+  IridescenceIor,
+  IridescenceThicknessMinimum,
+  IridescenceThicknessMaximum,
+  IridescenceThicknessTexture,
 });
