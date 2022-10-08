@@ -1208,26 +1208,13 @@ export class ModelConverter {
     primitive: RnM2Primitive,
     materialJson: RnM2Material
   ): Material {
-    const materialHash = this.__getMaterialHash(
+    const material: Material = this.__generateAppropriateMaterial(
+      rnPrimitive,
       node,
       gltfModel,
       primitive,
       materialJson
     );
-    let material = gltfModel.asset.extras?.rnMaterials![materialHash];
-    if (material != null) {
-      return material;
-    } else {
-      const newMaterial: Material = this.__generateAppropriateMaterial(
-        rnPrimitive,
-        node,
-        gltfModel,
-        primitive,
-        materialJson
-      );
-      gltfModel.asset.extras!.rnMaterials![materialHash] = newMaterial;
-      material = newMaterial;
-    }
 
     // avoid unexpected initialization
     if (
