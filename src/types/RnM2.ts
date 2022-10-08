@@ -52,6 +52,11 @@ export type RnM2AttributeAccessors = {[s: string]: RnM2Accessor};
 export type RnM2AttributeBlendShapes = RnM2Attributes[];
 export type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
 
+export type RnM2MaterialVariant = {
+  materialObject: RnM2Material;
+  variants: string[];
+};
+
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
 export type RnM2Primitive = {
   attributesObjects?: RnM2AttributeAccessors;
@@ -60,6 +65,7 @@ export type RnM2Primitive = {
   indicesObject?: RnM2Accessor;
   indices?: number;
   materialObject?: RnM2Material;
+  materialVariants?: RnM2MaterialVariant[];
   material?: number;
   materialName?: string;
   mode?: number;
@@ -376,12 +382,12 @@ export type RnM2ExtensionsEffekseerEffect = {
 export type RnM2ExtensionsEffekseerTimeline = {
   name?: string;
   values: RnM2ExtensionsEffekseerTimelineItem[];
-}
+};
 
 export type RnM2ExtensionsEffekseerTimelineItem = {
   input: number;
   event: 'play' | 'stop' | 'pause';
-}
+};
 
 export type RnM2Sampler = {
   magFilter?: number;
