@@ -365,6 +365,25 @@ export class Gltf2Importer {
           primitive.materialObject = gltfJson.materials[primitive.material];
         }
 
+        if (primitive.extensions?.KHR_materials_variants != null) {
+          primitive.materialVariants = [];
+          const mappings = primitive.extensions.KHR_materials_variants.mappings;
+          const variantNames =
+            gltfJson.extensions.KHR_materials_variants.variants;
+          for (const mapping of mappings) {
+            const variants = mapping.variants.map((variantIdx: number) => {
+              return variantNames[variantIdx].name;
+            });
+
+            const materialVariant = {
+              materialObject: gltfJson.materials[mapping.material],
+              variants: variants,
+            };
+
+            primitive.materialVariants.push(materialVariant);
+          }
+        }
+
         primitive.attributesObjects = {} as unknown as {
           [s: string]: RnM2Accessor;
         };

@@ -51,6 +51,8 @@ export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
 export class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   private __material: Material = MaterialHelper.createEmptyMaterial();
+  private __materialVariants: Map<string, Material> = new Map();
+  private __currentVariantName: string | undefined = undefined;
   public _prevMaterial: Material = MaterialHelper.createEmptyMaterial();
   private __attributes: Attributes = new Map();
   private __oIndices: IOption<Accessor> = new None();
@@ -71,6 +73,22 @@ export class Primitive extends RnObject {
 
   constructor() {
     super();
+  }
+
+  setMaterialVariant(variantName: string, material: Material) {
+    this.__materialVariants.set(variantName, material);
+  }
+
+  applyMaterialVariant(variantName: string) {
+    const variant = this.__materialVariants.get(variantName);
+    if (variant) {
+      this.material = variant;
+      this.__currentVariantName = variantName;
+    }
+  }
+
+  getVariantNames() {
+    return Array.from(this.__materialVariants.keys());
   }
 
   set material(mat: Material) {

@@ -599,13 +599,10 @@ export class ModelConverter {
         rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
       }
 
-      for (const i in mesh.primitives) {
-        const primitive = mesh.primitives[i] as RnM2Primitive;
-        if (primitive.mode != null) {
-          rnPrimitiveMode = PrimitiveMode.from(primitive.mode)!;
-        }
-
-        const rnPrimitive = new Primitive();
+      const setupMaterial = (
+        rnPrimitive: Primitive,
+        primitive: RnM2Primitive
+      ) => {
         const material = this.__setupMaterial(
           rnPrimitive,
           node,
@@ -617,6 +614,46 @@ export class ModelConverter {
         if (material.isEmptyMaterial() === false) {
           ModelConverter.setDefaultTextures(material, gltfModel);
         }
+        return material;
+      };
+
+      const setupMaterialVariants = (
+        rnPrimitive: Primitive,
+        primitive: RnM2Primitive
+      ) => {
+        const materialVariants = primitive.materialVariants;
+        if (Is.not.exist(materialVariants)) {
+          return;
+        }
+        for (const materialVariant of materialVariants) {
+          const material = this.__setupMaterial(
+            rnPrimitive,
+            node,
+            gltfModel,
+            primitive,
+            materialVariant.materialObject
+          );
+
+          if (material.isEmptyMaterial() === false) {
+            ModelConverter.setDefaultTextures(material, gltfModel);
+          }
+
+          for (const variantName of materialVariant.variants) {
+            rnPrimitive.setMaterialVariant(variantName, material);
+          }
+        }
+      };
+
+      for (const i in mesh.primitives) {
+        const primitive = mesh.primitives[i] as RnM2Primitive;
+        if (primitive.mode != null) {
+          rnPrimitiveMode = PrimitiveMode.from(primitive.mode)!;
+        }
+
+        const rnPrimitive = new Primitive();
+
+        const material = setupMaterial(rnPrimitive, primitive);
+        setupMaterialVariants(rnPrimitive, primitive);
 
         // indices
         let indicesRnAccessor;
@@ -681,6 +718,8 @@ export class ModelConverter {
         }
 
         rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
+
+
 
         // morph targets
         if (primitive.targets != null) {
@@ -1148,7 +1187,7 @@ export class ModelConverter {
     gltfModel: RnM2,
     primitive: RnM2Primitive,
     materialJson: RnM2Material
-  ) {
+  ): string {
     return (
       primitive.material! +
       '_isSkinning_' +
