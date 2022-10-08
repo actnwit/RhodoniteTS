@@ -91,6 +91,10 @@ export class Primitive extends RnObject {
     return Array.from(this.__materialVariants.keys());
   }
 
+  getVariantMaterial(variantName: string) {
+    return this.__materialVariants.get(variantName);
+  }
+
   set material(mat: Material) {
     this.__material = mat;
     this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
