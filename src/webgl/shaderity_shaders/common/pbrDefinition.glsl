@@ -203,7 +203,44 @@ float linearToSrgb(float value) {
 // https://www.jcgt.org/published/0008/01/03/paper.pdf
 vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
 {
-  return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+  vec3 k_S = F0 + Fr * pow(1.0 - cosTheta, 5.0);
+  return k_S;
+}
+
+vec3 fresnelSchlickRoughnessWithIridescence(
+  vec3 F0, float cosTheta, float roughness,
+  vec3 iridescenceFresnel, float iridescenceFactor
+  )
+{
+  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescenceFactor);
+  return k_S;
+}
+
+// From: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/e2c7b8c8bd12916c1a387cd41f9ef061edc718df/source/Renderer/shaders/brdf.glsl#L44-L66
+vec3 Schlick_to_F0(vec3 f, vec3 f90, float VdotH) {
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+float Schlick_to_F0(float f, float f90, float VdotH) {
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+vec3 Schlick_to_F0(vec3 f, float VdotH) {
+    return Schlick_to_F0(f, vec3(1.0), VdotH);
+}
+
+float Schlick_to_F0(float f, float VdotH) {
+    return Schlick_to_F0(f, 1.0, VdotH);
 }
 
 vec3 normalBlendingUDN(sampler2D baseMap, sampler2D detailMap, vec2 baseUv, vec2 detailUv) {
