@@ -103,6 +103,12 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 #pragma shaderity: require(../common/rt0.glsl)
 
 #pragma shaderity: require(../common/pbrDefinition.glsl)
+#ifdef RN_USE_SHEEN
+  #pragma shaderity: require(../common/pbrSheen.glsl)
+#endif
+#ifdef RN_USE_IRIDESCENCE
+  #pragma shaderity: require(../common/pbrIridescence.glsl)
+#endif
 
 /* shaderity: @{getters} */
 

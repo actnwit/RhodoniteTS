@@ -295,3 +295,23 @@ float max3(vec3 v)
 {
   return max(max(v.x, v.y), v.z);
 }
+
+float sq(float t)
+{
+  return t * t;
+}
+
+vec2 sq(vec2 t)
+{
+  return t * t;
+}
+
+vec3 sq(vec3 t)
+{
+  return t * t;
+}
+
+vec4 sq(vec4 t)
+{
+  return t * t;
+}
