@@ -210,11 +210,11 @@ vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
 
 vec3 fresnelSchlickRoughnessWithIridescence(
   vec3 F0, float cosTheta, float roughness,
-  vec3 iridescenceFresnel, float iridescenceFactor
+  vec3 iridescenceFresnel, float iridescence
   )
 {
   vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
-  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescenceFactor);
+  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescence);
   return k_S;
 }
 

@@ -2657,7 +2657,9 @@ function setup_KHR_materials_iridescence(
   const KHR_materials_iridescence =
     materialJson?.extensions?.KHR_materials_iridescence;
   if (Is.exist(KHR_materials_iridescence)) {
-    const iridescenceFactor = Is.exist(KHR_materials_iridescence.specularFactor)
+    const iridescenceFactor = Is.exist(
+      KHR_materials_iridescence.iridescenceFactor
+    )
       ? KHR_materials_iridescence.iridescenceFactor
       : 0.0;
     material.setParameter(ShaderSemantics.IridescenceFactor, iridescenceFactor);
