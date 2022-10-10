@@ -325,7 +325,6 @@ export declare type GltfLoadOption = {
     autoResizeTexture?: boolean;
     tangentCalculationMode?: Index;
     extendedJson?: string | Object | ArrayBuffer;
-    isImportVRM?: boolean;
     maxMorphTargetNumber?: number;
     defaultTextures?: {
         basePath: string;
@@ -340,6 +339,7 @@ export declare type GltfLoadOption = {
     fileType?: string;
     expression?: Expression;
     transmission?: boolean;
+    __isImportVRM?: boolean;
 };
 export declare const TagGltf2NodeIndex = "gltf_node_index";
 export declare function isSameGlTF2TextureSampler(lhs: Gltf2TextureSampler, rhs: Gltf2TextureSampler): boolean;

@@ -47,7 +47,7 @@ export declare class ForwardRenderPipeline extends RnObject {
      * @param canvasWidth - The width of the canvas.
      * @param canvasHeight - The height of the canvas.
      */
-    setup(canvasWidth: number, canvasHeight: number): Promise<unknown>;
+    setup(canvasWidth: number, canvasHeight: number): Promise<Err<unknown, undefined> | Ok<unknown, unknown>>;
     /**
      * set Expressions for drawing
      * @param expressions - expressions to draw
@@ -61,7 +61,7 @@ export declare class ForwardRenderPipeline extends RnObject {
      * @param func - function to be called when the frame is rendered
      * @returns RnResult
      */
-    startRenderLoop(func: (frame: Frame) => void): Err<unknown, unknown> | Ok<unknown, unknown>;
+    startRenderLoop(func: (frame: Frame) => void): Err<unknown, undefined> | Ok<unknown, unknown>;
     /**
      * draw with the given function in startRenderLoop method
      */
@@ -72,7 +72,7 @@ export declare class ForwardRenderPipeline extends RnObject {
      * @param height - height of the screen
      * @returns RnResult
      */
-    resize(width: Size, height: Size): Err<unknown, unknown> | Ok<unknown, unknown>;
+    resize(width: Size, height: Size): Err<unknown, undefined> | Ok<unknown, unknown>;
     /**
      * set IBL textures from uri
      * @param arg - argument for diffuse and specular IBL

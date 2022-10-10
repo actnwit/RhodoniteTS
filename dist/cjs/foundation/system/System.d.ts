@@ -42,5 +42,6 @@ export declare class System {
     static resizeCanvas(width: number, height: number): void;
     static getCanvasSize(): [number, number];
     static getInstance(): System;
+    static getCurrentWebGLContextWrapper(): import("../..").WebGLContextWrapper | undefined;
 }
 export {};

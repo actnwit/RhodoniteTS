@@ -11,7 +11,7 @@ import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRend
 declare function createMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createEmptyMaterial(): Material;
-declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, useTangentAttribute, useNormalTexture, alphaMode, maxInstancesNumber, }?: {
+declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, useTangentAttribute, useNormalTexture, alphaMode, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
@@ -21,6 +21,7 @@ declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning,
     isVolume?: boolean | undefined;
     isSheen?: boolean | undefined;
     isSpecular?: boolean | undefined;
+    isIridescence?: boolean | undefined;
     useTangentAttribute?: boolean | undefined;
     useNormalTexture?: boolean | undefined;
     alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;

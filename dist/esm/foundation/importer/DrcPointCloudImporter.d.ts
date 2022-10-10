@@ -1,6 +1,7 @@
 import { Primitive } from '../geometry/Primitive';
 import { RnM2 } from '../../types/RnM2';
 import { GltfLoadOption } from '../../types';
+import { Err, IResult } from '../misc/Result';
 /**
  * The draco Importer class.
  */
@@ -14,7 +15,7 @@ export declare class DrcPointCloudImporter {
      * @param options - options for loading process
      * @returns a glTF2 based JSON pre-processed
      */
-    importPointCloud(uri: string, options?: GltfLoadOption): Promise<void | RnM2>;
+    importPointCloud(uri: string, options?: GltfLoadOption): Promise<IResult<RnM2, Err<ArrayBuffer, unknown>>>;
     /**
      * Import the specified array buffer of draco file where the type must be point cloud.
      * WEIGHTS_0 and JOINTS_0 attribute and all the mesh type and is not support yet.

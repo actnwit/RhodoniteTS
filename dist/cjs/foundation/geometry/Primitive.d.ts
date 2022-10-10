@@ -24,6 +24,8 @@ export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
 export declare class Primitive extends RnObject {
     private __mode;
     private __material;
+    private __materialVariants;
+    private __currentVariantName;
     _prevMaterial: Material;
     private __attributes;
     private __oIndices;
@@ -41,6 +43,10 @@ export declare class Primitive extends RnObject {
     private __cachePositionAccessor?;
     private static __tmpVec3_0;
     constructor();
+    setMaterialVariant(variantName: string, material: Material): void;
+    applyMaterialVariant(variantName: string): void;
+    getVariantNames(): string[];
+    getVariantMaterial(variantName: string): Material | undefined;
     set material(mat: Material);
     get material(): Material;
     setSortKey(offset: PrimitiveSortKeyOffset, value: number): void;
