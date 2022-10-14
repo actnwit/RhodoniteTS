@@ -45,6 +45,10 @@ export declare type RnM2AttributeAccessors = {
 };
 export declare type RnM2AttributeBlendShapes = RnM2Attributes[];
 export declare type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
+export declare type RnM2MaterialVariant = {
+    materialObject: RnM2Material;
+    variants: string[];
+};
 export declare type RnM2Primitive = {
     attributesObjects?: RnM2AttributeAccessors;
     attributesNames?: {
@@ -56,6 +60,7 @@ export declare type RnM2Primitive = {
     indicesObject?: RnM2Accessor;
     indices?: number;
     materialObject?: RnM2Material;
+    materialVariants?: RnM2MaterialVariant[];
     material?: number;
     materialName?: string;
     mode?: number;

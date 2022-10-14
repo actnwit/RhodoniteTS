@@ -45,6 +45,7 @@ export declare class WebGLContextWrapper {
     readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
     readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
     readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
+    readonly webgl2ExtGmanWM?: any;
     private __activeTextureBackup;
     private __activeTextures2D;
     private __activeTexturesCube;
@@ -95,5 +96,6 @@ export declare class WebGLContextWrapper {
     getAlignedMaxUniformBlockSize(): number;
     getMaxVertexUniformVectors(): number;
     getMaxFragmentUniformVectors(): number;
+    getWebGLMemoryInfo(): any;
 }
 export {};

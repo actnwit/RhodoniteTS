@@ -21,4 +21,5 @@ export declare const WebGLExtension: Readonly<{
     CompressedTextureEtc: EnumIO;
     CompressedTextureEtc1: EnumIO;
     CompressedTextureBptc: EnumIO;
+    GMAN_WEBGL_MEMORY: EnumIO;
 }>;

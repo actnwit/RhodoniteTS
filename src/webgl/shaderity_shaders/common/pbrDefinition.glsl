@@ -1,4 +1,5 @@
 const float M_PI = 3.141592653589793;
+const float RECIPROCAL_PI = 0.3183098861837907;
 const float c_MinRoughness = 0.04;
 
 float angular_n_h(float NH) {
@@ -123,7 +124,7 @@ vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alp
 vec3 diffuse_brdf(vec3 albedo)
 {
   // (1/pi) * diffuseAlbedo
-  return albedo / M_PI;
+  return RECIPROCAL_PI * albedo;
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf

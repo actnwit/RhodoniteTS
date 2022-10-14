@@ -9,8 +9,16 @@ export declare class ComponentRepository {
     private static __components;
     static __componentClasses: Map<ComponentTID, typeof Component>;
     constructor();
+    /**
+     * Registers the class object of the component.
+     * @param componentClass A class object of the component.
+     */
     static registerComponentClass(componentClass: typeof Component): void;
-    static unregisterComponentClass(componentTID: ComponentTID): void;
+    /**
+     * deregister the component.
+     * @param componentTID A componentTID
+     */
+    static deregisterComponentClass(componentTID: ComponentTID): void;
     /**
      * Gets the class object of the component corresponding to specified ComponentTID.
      * @param componentTid The componentTID to get the class object.

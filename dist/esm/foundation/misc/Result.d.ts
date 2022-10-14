@@ -1,6 +1,6 @@
 export interface RnError<ErrObj> {
     message: string;
-    error?: ErrObj;
+    error: ErrObj;
 }
 /**
  * An interface to handle the results in a unified manner,
@@ -12,11 +12,10 @@ export interface IResult<T, ErrObj> {
         Err: (value: RnError<ErrObj>) => void;
         Finally?: () => void;
     }): void;
-    then(f: (value: T) => void): Finalizer | void;
-    catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
     unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
     unwrapForce(): T;
-    isOk(): boolean;
+    isOk(): this is Ok<T, ErrObj>;
+    isErr(): this is Err<T, ErrObj>;
     name(): string;
 }
 declare abstract class Result<T, ErrObj> {
@@ -38,12 +37,11 @@ export declare class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<
      * This method is essentially same to the Ok::and_then() in Rust language
      * @param f
      */
-    then(f: (value: T) => void): Finalizer;
     unwrap(catchFn: (err: RnError<ErrObj>) => void): T;
     unwrapForce(): T;
-    catch(f: (value: RnError<ErrObj>) => void): void;
-    true(): true;
-    isOk(): true;
+    true(): this is Ok<T, ErrObj>;
+    isOk(): this is Ok<T, ErrObj>;
+    isErr(): false;
     get(): T;
 }
 /**
@@ -51,21 +49,20 @@ export declare class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<
  */
 export declare class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrObj> {
     private __rnException;
-    constructor(val?: RnError<ErrObj>);
-    then(f: (value: never) => void): void;
-    catch(f: (value: RnError<ErrObj>) => void): Finalizer;
+    constructor(val: RnError<ErrObj>);
     unwrap(catchFn: (err: RnError<ErrObj>) => void): void;
     unwrapForce(): never;
     false(): false;
     isOk(): false;
-    get(): RnError<ErrObj>;
+    isErr(): this is Err<T, ErrObj>;
+    getRnError(): RnError<ErrObj>;
+    toString(): string;
 }
-export declare class Finalizer {
-    finally(f: () => void): void;
-}
+export declare function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any>;
+export declare function assertIsErr(result: IResult<any, any>): asserts result is Err<any, any>;
 export declare class RnException<ErrObj> extends Error {
     private err;
-    static readonly _prefix = "Rhodonite Exception";
+    static readonly _prefix = "\nRhodonite Exception";
     constructor(err: RnError<ErrObj>);
     getRnError(): RnError<ErrObj>;
 }

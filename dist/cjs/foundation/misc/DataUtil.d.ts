@@ -2,6 +2,7 @@ import { GltfLoadOption } from '../../types';
 import { Byte, Size } from '../../types/CommonTypes';
 import { glTF1 } from '../../types/glTF1';
 import { RnM2 } from '../../types/RnM2';
+import { IResult } from './Result';
 import { RnPromise } from './RnPromise';
 export declare class DataUtil {
     static crc32table: string[];
@@ -27,7 +28,7 @@ export declare class DataUtil {
     static createUint8ArrayFromBufferViewInfo(json: RnM2 | glTF1, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array;
     static createImageFromUri(uri: string, mimeType: string): RnPromise<HTMLImageElement>;
     static createDefaultGltfOptions(): GltfLoadOption;
-    static fetchArrayBuffer(uri: string): RnPromise<ArrayBuffer>;
+    static fetchArrayBuffer(uri: string): Promise<IResult<ArrayBuffer, unknown>>;
     static getResizedCanvas(image: HTMLImageElement, maxSize: Size): [HTMLCanvasElement, Size, Size];
     static detectTransparentPixelExistence(image: HTMLImageElement | HTMLCanvasElement | ImageData, threshold?: number): boolean;
     /**

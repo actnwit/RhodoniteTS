@@ -6,6 +6,7 @@ export interface IOption<T> {
     unwrapOrUndefined(): T | undefined;
     unwrapForce(): T;
     has(): this is Some<T>;
+    doesNotHave(): this is None;
 }
 export declare class Option<T> implements IOption<T> {
     private value?;
@@ -33,6 +34,7 @@ export declare class Option<T> implements IOption<T> {
     unwrapForce(): T;
     unwrapOrUndefined(): T | undefined;
     has(): this is Some<T>;
+    doesNotHave(): this is None;
 }
 /**
  * a class indicating that the included value exists.
@@ -62,8 +64,9 @@ export declare class Some<T> implements IOption<T> {
      */
     unwrapForce(): T;
     unwrapOrUndefined(): T;
-    unwrap(): T;
+    get(): T;
     has(): this is Some<T>;
+    doesNotHave(): this is None;
 }
 /**
  * a class indicating no existence.
@@ -75,4 +78,7 @@ export declare class None implements IOption<never> {
     unwrapForce(): never;
     unwrapOrUndefined(): never;
     has(): this is Some<never>;
+    doesNotHave(): this is None;
 }
+export declare function assertHas(value: IOption<any>): asserts value is Some<any>;
+export declare function assertDoesNotHave(value: IOption<any>): asserts value is None;
