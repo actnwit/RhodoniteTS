@@ -149,10 +149,16 @@ export class TransformComponent extends Component {
     this.__updateTransform();
   }
 
+  /**
+   * return a copy of a local translate vector
+   */
   get translate() {
     return this.translateInner.clone();
   }
 
+  /**
+   * return a local translate vector
+   */
   get translateInner(): MutableVector3 {
     if (this._is_translate_updated) {
       return this._translate;
@@ -168,10 +174,16 @@ export class TransformComponent extends Component {
     this.quaternion = Quaternion.fromMatrix(rotationMat);
   }
 
+  /**
+   * return a copy of a local rotation (XYZ euler) vector
+   */
   get rotate() {
     return this.rotateInner.clone();
   }
 
+  /**
+   * return a local rotation (XYZ euler) vector
+   */
   get rotateInner() {
     if (this._is_trs_matrix_updated) {
       return this._matrix.toEulerAngles();
@@ -191,10 +203,16 @@ export class TransformComponent extends Component {
     this.__updateTransform();
   }
 
+  /**
+   * return a copy of a local scale vector
+   */
   get scale() {
     return this.scaleInner.clone();
   }
 
+  /**
+   * return a local scale vector
+   */
   get scaleInner() {
     if (this._is_scale_updated) {
       return this._scale;
@@ -216,10 +234,16 @@ export class TransformComponent extends Component {
     this.__updateTransform();
   }
 
+  /**
+   * return a copy of a local quaternion vector
+   */
   get quaternion() {
     return this.quaternionInner.clone();
   }
 
+  /**
+   * return a local quaternion vector
+   */
   get quaternionInner(): Quaternion {
     if (this._is_quaternion_updated) {
       return this._quaternion;
@@ -245,10 +269,16 @@ export class TransformComponent extends Component {
     this.__updateTransform();
   }
 
+  /**
+   * return a copy of local transform matrix
+   */
   get matrix() {
     return this.matrixInner.clone();
   }
 
+  /**
+   * return a local transform matrix
+   */
   get matrixInner() {
     if (this._is_trs_matrix_updated) {
       return this._matrix;
@@ -338,10 +368,16 @@ export class TransformComponent extends Component {
     return this._matrix;
   }
 
+  /**
+   * return a copy of an inverse local transform matrix
+   */
   get inverseMatrix(): Matrix44 {
     return this.inverseMatrixInner.clone();
   }
 
+  /**
+   * return an inverse local transform matrix
+   */
   get inverseMatrixInner() {
     if (!this._is_inverse_trs_matrix_updated) {
       MutableMatrix44.invertTo(this.matrixInner, this._invMatrix);
