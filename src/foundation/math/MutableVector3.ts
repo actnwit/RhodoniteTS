@@ -13,6 +13,9 @@ import {
 import {Vector3d, Vector3_} from './Vector3';
 import {IQuaternion} from './IQuaternion';
 
+/**
+ * @private
+ */
 export class MutableVector3_<T extends FloatTypedArrayConstructor>
   extends Vector3_<T>
   implements IMutableVector, IMutableVector3

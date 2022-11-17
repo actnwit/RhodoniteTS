@@ -6,6 +6,9 @@ import {
 } from '../../types/CommonTypes';
 import {Vector4_} from './Vector4';
 
+/**
+ * @private
+ */
 export class MutableVector4_<T extends FloatTypedArrayConstructor>
   extends Vector4_<T>
   implements IMutableVector, IMutableVector4

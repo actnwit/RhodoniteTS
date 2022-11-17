@@ -6,6 +6,9 @@ import {
   Array2,
 } from '../../types/CommonTypes';
 
+/**
+ * @private
+ */
 export class MutableVector2_<
   T extends FloatTypedArrayConstructor
 > extends Vector2_<T> {

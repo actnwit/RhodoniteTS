@@ -2,6 +2,9 @@ import {Scalar_} from './Scalar';
 import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 
+/**
+ * @private
+ */
 export class MutableScalar_<
   T extends TypedArrayConstructor
 > extends Scalar_<T> {
