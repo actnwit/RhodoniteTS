@@ -7,6 +7,7 @@ import {MutableVector3} from './MutableVector3';
 import {MutableMatrix44} from './MutableMatrix44';
 import {MutableVector4} from './MutableVector4';
 import {IVector3} from './IVector';
+import {IVector4} from './IVector';
 import {MathUtil} from './MathUtil';
 import {IdentityMatrix44} from './IdentityMatrix44';
 import {AbstractMatrix} from './AbstractMatrix';
@@ -126,7 +127,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   /**
    * Create transpose matrix
    */
-  static transpose(mat: Matrix44) {
+  static transpose(mat: IMatrix44) {
     if (mat.isIdentityMatrixClass) {
       return mat;
     }
@@ -137,7 +138,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   /**
    * Create invert matrix
    */
-  static invert(mat: Matrix44) {
+  static invert(mat: IMatrix44): IMatrix44 {
     if (mat.isIdentityMatrixClass) {
       return mat;
     }
@@ -381,7 +382,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   /**
    * multiply matrixes
    */
-  static multiply(l_mat: Matrix44, r_mat: Matrix44) {
+  static multiply(l_mat: IMatrix44, r_mat: IMatrix44): IMatrix44 {
     if (l_mat.isIdentityMatrixClass) {
       return r_mat;
     } else if (r_mat.isIdentityMatrixClass) {
@@ -582,7 +583,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
       this._v[12] * this._v[1] * this._v[6] * this._v[11] - this._v[12] * this._v[5] * this._v[10] * this._v[3] - this._v[12] * this._v[9] * this._v[2] * this._v[7];
   }
 
-  multiplyVector(vec: Vector4) {
+  multiplyVector(vec: IVector4): IVector4 {
     const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12] * vec._v[3];
     const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13] * vec._v[3];
     const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14] * vec._v[3];
@@ -615,7 +616,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outVec;
   }
 
-  multiplyVector3(vec: Vector3) {
+  multiplyVector3(vec: IVector3): IVector3 {
     const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12]; // regards vec.w(vec._v[3]) as 1
     const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13];
     const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14];
