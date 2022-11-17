@@ -185,7 +185,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
-  static invertTo(mat: Matrix44, outMat: MutableMatrix44) {
+  static invertTo(mat: IMatrix44, outMat: MutableMatrix44) {
     if (mat.isIdentityMatrixClass) {
       return outMat.copyComponents(mat);
     }
@@ -363,14 +363,14 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
-  static rotate(vec: Vector3) {
+  static rotate(vec: IVector3) {
     return this.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]);
   }
 
   /**
    * Create Scale Matrix
    */
-  static scale(vec: Vector3) {
+  static scale(vec: IVector3) {
     return Matrix44.fromCopy16RowMajor(
       vec._v[0], 0, 0, 0,
       0, vec._v[1], 0, 0,
