@@ -840,11 +840,11 @@ export class SceneGraphComponent extends Component {
         }
         return this.__sceneGraphComponent;
       }
-      get worldMatrx(): IMatrix44 {
+      get worldMatrix(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.worldMatrix;
       }
-      get worldMatrxInner(): IMatrix44 {
+      get worldMatrixInner(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.worldMatrixInner;
       }
