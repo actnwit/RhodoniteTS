@@ -15,6 +15,9 @@ import {
   TypedArray,
 } from '../../types/CommonTypes';
 
+/**
+ * @private
+ */
 export class Vector3_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
   implements IVector, IVector3

@@ -8,6 +8,9 @@ import {MathUtil} from './MathUtil';
 import {CompositionType} from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 
+/**
+ * @private
+ */
 export class Vector4_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
   implements IVector4
