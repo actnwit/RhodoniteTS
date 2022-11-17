@@ -89,7 +89,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   /**
    * Create transpose matrix
    */
-  static transpose(mat: Matrix33) {
+  static transpose(mat: IMatrix33): IMatrix33 {
     if (mat.isIdentityMatrixClass) {
       return mat;
     }
@@ -104,7 +104,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   /**
    * Create invert matrix
    */
-  static invert(mat: Matrix33) {
+  static invert(mat: IMatrix33) {
     if (mat.isIdentityMatrixClass) {
       return mat;
     }
@@ -130,7 +130,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     );
   }
 
-  static invertTo(mat: Matrix33, outMat: MutableMatrix33) {
+  static invertTo(mat: IMatrix33, outMat: MutableMatrix33) {
     if (mat.isIdentityMatrixClass) {
       return outMat.copyComponents(mat);
     }
@@ -269,7 +269,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   /**
    * Create Scale Matrix
    */
-  static scale(vec: Vector3) {
+  static scale(vec: IVector3) {
     return Matrix33.fromCopy9RowMajor(
       vec._v[0], 0, 0,
       0, vec._v[1], 0,
@@ -280,7 +280,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   /**
    * multiply matrixes
    */
-  static multiply(l_mat: Matrix33, r_mat: Matrix33) {
+  static multiply(l_mat: IMatrix33, r_mat: IMatrix33): IMatrix33 {
     if (l_mat.isIdentityMatrixClass) {
       return r_mat;
     } else if (r_mat.isIdentityMatrixClass) {
@@ -309,7 +309,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   /**
    * multiply matrixes
    */
-  static multiplyTo(l_mat: Matrix33, r_mat: Matrix33, outMat: MutableMatrix33) {
+  static multiplyTo(l_mat: IMatrix33, r_mat: IMatrix33, outMat: MutableMatrix33) {
     if (l_mat.isIdentityMatrixClass) {
       return outMat.copyComponents(r_mat);
     } else if (r_mat.isIdentityMatrixClass) {
@@ -361,7 +361,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     }
   }
 
-  isEqual(mat: Matrix33, delta: number = Number.EPSILON) {
+  isEqual(mat: IMatrix33, delta: number = Number.EPSILON) {
     if (Math.abs(mat._v[0] - this._v[0]) < delta &&
       Math.abs(mat._v[1] - this._v[1]) < delta &&
       Math.abs(mat._v[2] - this._v[2]) < delta &&
