@@ -555,7 +555,7 @@ export class TranslationGizmo extends Gizmo {
     );
 
     if (TranslationGizmo.__space === 'local') {
-      rotMat = Matrix33.transpose(rotMat);
+      rotMat = Matrix33.transpose(rotMat) as Matrix33;
     } else if (TranslationGizmo.__space === 'world') {
       rotMat = MutableMatrix33.identity();
     }
@@ -633,7 +633,7 @@ export class TranslationGizmo extends Gizmo {
       scaleVec.z * worldMatrix.m22
     );
     if (TranslationGizmo.__space === 'local') {
-      rotMat = Matrix33.transpose(rotMat);
+      rotMat = Matrix33.transpose(rotMat) as Matrix33;
     } else if (TranslationGizmo.__space === 'world') {
       rotMat = MutableMatrix33.identity();
     }
@@ -722,7 +722,7 @@ export class TranslationGizmo extends Gizmo {
         scaleVec.z * worldMatrix.m21,
         scaleVec.z * worldMatrix.m22
       );
-      rotMat = Matrix33.transpose(rotMat);
+      rotMat = Matrix33.transpose(rotMat) as Matrix33;
       const deltaDeltaVector3 = Vector3.add(
         this.__targetPointBackup,
         rotMat.multiplyVector(deltaVector3),

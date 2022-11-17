@@ -1,8 +1,9 @@
 import {Matrix44} from './Matrix44';
 import {Quaternion} from './Quaternion';
-import {IMutableMatrix33, IMutableMatrix, IMatrix33} from './IMatrix';
+import {IMutableMatrix33, IMutableMatrix, IMatrix33, IMatrix44} from './IMatrix';
 import {Matrix33} from './Matrix33';
 import {Vector3} from './Vector3';
+import {IVector3} from './IVector';
 import {Array9, Index} from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
 
@@ -110,14 +111,14 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   /**
    * Create transpose matrix
    */
-  static transpose(mat: Matrix33) {
+  static transpose(mat: IMatrix33) {
     return super.transpose(mat) as MutableMatrix33;
   }
 
   /**
    * Create invert matrix
    */
-  static invert(mat: Matrix33) {
+  static invert(mat: IMatrix33) {
     return super.invert(mat) as MutableMatrix33;
   }
 
@@ -146,21 +147,21 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     return super.rotateXYZ(x, y, z) as MutableMatrix33;
   }
 
-  static rotate(vec: Vector3) {
+  static rotate(vec: IVector3) {
     return super.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]) as MutableMatrix33;
   }
 
   /**
    * Create Scale Matrix
    */
-  static scale(vec: Vector3) {
+  static scale(vec: IVector3) {
     return super.scale(vec) as MutableMatrix33;
   }
 
   /**
    * multiply matrixes
    */
-  static multiply(l_mat: Matrix33, r_mat: Matrix33) {
+  static multiply(l_mat: IMatrix33, r_mat: IMatrix33) {
     return super.multiply(l_mat, r_mat) as MutableMatrix33;
   }
 
@@ -190,7 +191,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     return this;
   }
 
-  copyComponents(mat: Matrix33 | Matrix44) {
+  copyComponents(mat: IMatrix33 | IMatrix44) {
     this._v[0] = mat.m00; this._v[3] = mat.m01; this._v[6] = mat.m02; // mat.m01 is mat._v[3 or 4]
     this._v[1] = mat.m10; this._v[4] = mat.m11; this._v[7] = mat.m12;
     this._v[2] = mat.m20; this._v[5] = mat.m21; this._v[8] = mat.m22;

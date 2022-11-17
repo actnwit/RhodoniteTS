@@ -636,7 +636,7 @@ export class ScaleGizmo extends Gizmo {
     );
 
     if (ScaleGizmo.__space === 'local') {
-      rotMat = Matrix33.transpose(rotMat);
+      rotMat = Matrix33.transpose(rotMat) as Matrix33;
     } else if (ScaleGizmo.__space === 'world') {
       rotMat = MutableMatrix33.identity();
     }
@@ -709,7 +709,7 @@ export class ScaleGizmo extends Gizmo {
       scaleVec.z * worldMatrix.m22
     );
     if (ScaleGizmo.__space === 'local') {
-      rotMat = Matrix33.transpose(rotMat);
+      rotMat = Matrix33.transpose(rotMat) as Matrix33;
     } else if (ScaleGizmo.__space === 'world') {
       rotMat = MutableMatrix33.identity();
     }
