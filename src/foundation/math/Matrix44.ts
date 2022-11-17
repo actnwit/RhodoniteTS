@@ -465,7 +465,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outMat;
   }
 
-  static fromQuaternionTo(quat: Quaternion, outMat: MutableMatrix44) {
+  static fromQuaternionTo(quat: IQuaternion, outMat: MutableMatrix44) {
     const sx = quat._v[0] * quat._v[0];
     const sy = quat._v[1] * quat._v[1];
     const sz = quat._v[2] * quat._v[2];
@@ -554,7 +554,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     }
   }
 
-  isStrictEqual(mat: Matrix44) {
+  isStrictEqual(mat: IMatrix44) {
     if (
       mat._v[0] === this._v[0] && mat._v[1] === this._v[1] && mat._v[2] === this._v[2] && mat._v[3] === this._v[3] &&
       mat._v[4] === this._v[4] && mat._v[5] === this._v[5] && mat._v[6] === this._v[6] && mat._v[7] === this._v[7] &&
@@ -592,7 +592,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return Vector4.fromCopyArray([x, y, z, w]);
   }
 
-  multiplyVectorTo(vec: Vector4, outVec: MutableVector4) {
+  multiplyVectorTo(vec: IVector4, outVec: MutableVector4) {
     const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12] * vec._v[3];
     const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13] * vec._v[3];
     const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14] * vec._v[3];
@@ -605,7 +605,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outVec;
   }
 
-  multiplyVectorToVec3(vec: Vector4, outVec: MutableVector3) {
+  multiplyVectorToVec3(vec: IVector4, outVec: MutableVector3) {
     const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12] * vec._v[3];
     const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13] * vec._v[3];
     const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14] * vec._v[3];
