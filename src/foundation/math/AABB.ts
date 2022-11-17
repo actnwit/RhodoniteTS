@@ -212,55 +212,13 @@ export class AABB {
     return this.__max.z - this.__min.z;
   }
 
-  static multiplyMatrix(matrix: Matrix44, aabb: AABB) {
-    if (aabb.isVanilla()) {
-      return aabb.clone();
-    }
-    const newAabb = new AABB();
-
-    AABB.__tmpVector3.x = aabb.__min.x;
-    AABB.__tmpVector3.y = aabb.__min.y;
-    AABB.__tmpVector3.z = aabb.__min.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    AABB.__tmpVector3.x = aabb.__max.x;
-    AABB.__tmpVector3.y = aabb.__min.y;
-    AABB.__tmpVector3.z = aabb.__min.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    AABB.__tmpVector3.x = aabb.__min.x;
-    AABB.__tmpVector3.y = aabb.__max.y;
-    AABB.__tmpVector3.z = aabb.__min.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    AABB.__tmpVector3.x = aabb.__min.x;
-    AABB.__tmpVector3.y = aabb.__min.y;
-    AABB.__tmpVector3.z = aabb.__max.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    AABB.__tmpVector3.x = aabb.__min.x;
-    AABB.__tmpVector3.y = aabb.__max.y;
-    AABB.__tmpVector3.z = aabb.__max.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    AABB.__tmpVector3.x = aabb.__max.x;
-    AABB.__tmpVector3.y = aabb.__min.y;
-    AABB.__tmpVector3.z = aabb.__max.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    AABB.__tmpVector3.x = aabb.__max.x;
-    AABB.__tmpVector3.y = aabb.__max.y;
-    AABB.__tmpVector3.z = aabb.__min.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    AABB.__tmpVector3.x = aabb.__max.x;
-    AABB.__tmpVector3.y = aabb.__max.y;
-    AABB.__tmpVector3.z = aabb.__max.z;
-    newAabb.addPosition(AABB.__tmpVector3);
-
-    return newAabb;
-  }
-
+  /**
+   * multiply this AABB with a given matrix.
+   * @param matrix a matrix to convert aabb.
+   * @param aabb given AABB to convert.
+   * @param outAabb converted AABB by given matrix.
+   * @returns converted AABB.
+   */
   static multiplyMatrixTo(matrix: Matrix44, aabb: AABB, outAabb: AABB) {
     if (aabb.isVanilla()) {
       return outAabb.copyComponents(aabb);
