@@ -74,6 +74,9 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   }
 }
 
+/**
+ * Immutable Scalar class with 32bit float components
+ */
 export class Scalar
   extends Scalar_<Float32ArrayConstructor>
   implements IScalar
@@ -114,6 +117,9 @@ export class Scalar
   }
 }
 
+/**
+ * Immutable Scalar class with 64bit float components
+ */
 export class Scalard extends Scalar_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
     super(x, {type: Float64Array});

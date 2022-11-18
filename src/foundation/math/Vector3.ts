@@ -554,6 +554,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   }
 }
 
+/**
+ * Immutable 3D(x,y,z) Vector class with 32bit float components
+ */
 export class Vector3 extends Vector3_<Float32ArrayConstructor> {
   constructor(v: TypedArray) {
     super(v, {type: Float32Array});
@@ -644,6 +647,9 @@ export class Vector3 extends Vector3_<Float32ArrayConstructor> {
   }
 }
 
+/**
+ * Immutable 3D(x,y,z) Vector class with 64bit float components
+ */
 export class Vector3d extends Vector3_<Float64ArrayConstructor> {
   private constructor(v: TypedArray) {
     super(v, {type: Float64Array});
