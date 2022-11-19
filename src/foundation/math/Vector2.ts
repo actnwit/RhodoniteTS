@@ -15,7 +15,7 @@ import {CompositionType} from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 
 /**
- * @private
+ * @internal
  */
 export class Vector2_<
   T extends FloatTypedArrayConstructor

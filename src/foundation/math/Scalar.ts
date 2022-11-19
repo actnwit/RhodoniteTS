@@ -9,7 +9,7 @@ import { AbstractVector } from './AbstractVector';
 import { CompositionType } from '../definitions/CompositionType';
 
 /**
- * @private
+ * @internal
  */
 export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   constructor(v: TypedArray, {type}: {type: T}) {

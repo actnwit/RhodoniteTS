@@ -659,7 +659,7 @@ const getShaderProperty: getShaderPropertyFunc = (
 };
 
 /**
- * @private
+ * @internal
  */
 export function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
   const propertyIndex = shaderSemantic.index;

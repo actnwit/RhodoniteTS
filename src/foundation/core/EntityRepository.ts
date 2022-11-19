@@ -155,7 +155,7 @@ export class EntityRepository {
   }
 
   /**
-   * @private
+   * @internal
    * Gets all entities.
    */
   public static _getEntities(): IEntity[] {

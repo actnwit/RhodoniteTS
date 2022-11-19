@@ -234,7 +234,7 @@ export class RnObject implements IRnObject {
   }
 
   /**
-   * @private
+   * @internal
    */
   static _reset() {
     this.currentMaxObjectCount = 0;

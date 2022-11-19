@@ -7,7 +7,7 @@ import {
 } from '../../types/CommonTypes';
 
 /**
- * @private
+ * @internal
  */
 export class MutableVector2_<
   T extends FloatTypedArrayConstructor

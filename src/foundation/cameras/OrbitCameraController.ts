@@ -699,7 +699,8 @@ export class OrbitCameraController
   }
 
   /**
-   * @private update center, eye and up vectors of OrbitCameraController
+   * update center, eye and up vectors of OrbitCameraController
+   * @internal
    */
   __updateTargeting(camera: CameraComponent) {
     const eyeVec = camera.eye;
@@ -761,7 +762,8 @@ export class OrbitCameraController
   }
 
   /**
-   * @private calculate up, eye, center and tangent vector with controller influence
+   * calculate up, eye, center and tangent vector with controller influence
+   * @internal
    */
   __calculateInfluenceOfController() {
     const centerToEyeVec = MutableVector3.subtractTo(

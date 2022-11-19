@@ -52,13 +52,13 @@ export abstract class Gizmo extends RnObject {
   abstract isSetup: boolean;
 
   /**
-   * @private
+   * @internal
    * setup entities of Gizmo if not done yet
    */
   abstract _setup(): void;
 
   /**
-   * @private
+   * @internal
    * update the transform and etc of the gizmo
    */
   abstract _update(): void;

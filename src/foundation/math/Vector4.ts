@@ -10,7 +10,7 @@ import { AbstractVector } from './AbstractVector';
 
 /**
  *
- * @private
+ * @internal
  */
 export class Vector4_<T extends FloatTypedArrayConstructor>
   extends AbstractVector

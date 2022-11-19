@@ -16,7 +16,7 @@ import {
 } from '../../types/CommonTypes';
 
 /**
- * @private
+ * @internal
  */
 export class Vector3_<T extends FloatTypedArrayConstructor>
   extends AbstractVector

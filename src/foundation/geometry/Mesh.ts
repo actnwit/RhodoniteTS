@@ -178,7 +178,7 @@ export class Mesh implements IMesh {
   }
 
   /**
-   * @private
+   * @internal
    * @returns true: updated, false: not changed (not dirty)
    */
   updateVariationVBO(): boolean {
@@ -213,7 +213,7 @@ export class Mesh implements IMesh {
   ///
 
   /**
-   * @private
+   * @internal
    * @returns true: updated, false: not changed (not dirty)
    */
   deleteVariationVBO(): boolean {
@@ -336,7 +336,7 @@ export class Mesh implements IMesh {
   }
 
   /**
-   * @private
+   * @internal
    */
   get _variationVBOUid(): CGAPIResourceHandle {
     return this.__variationVBOUid;
@@ -408,7 +408,7 @@ export class Mesh implements IMesh {
   }
 
   /**
-   * @private
+   * @internal
    */
   _calcTangents() {
     if (!this.__usePreCalculatedTangent()) {
@@ -495,7 +495,7 @@ export class Mesh implements IMesh {
   }
 
   /**
-   * @private
+   * @internal
    */
   private __calcTangentFor3Vertices(
     i: Index,
@@ -618,7 +618,7 @@ export class Mesh implements IMesh {
   }
 
   /**
-   * @private
+   * @internal
    */
   _calcBaryCentricCoord() {
     for (const primitive of this.__primitives) {
@@ -673,7 +673,7 @@ export class Mesh implements IMesh {
   }
 
   /**
-   * @private
+   * @internal
    */
   _calcFaceNormalsIfNonNormal() {
     for (const primitive of this.__primitives) {

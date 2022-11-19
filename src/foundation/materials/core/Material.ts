@@ -101,7 +101,7 @@ export class Material extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * called from Primitive class only
    * @param primitive
    */
@@ -228,7 +228,7 @@ export class Material extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom only
    * @param isUniformOnlyMode
    */
@@ -260,7 +260,7 @@ export class Material extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * called from WebGLStrategyDataTexture and WebGLStrategyUnitform only
    */
   _setParametersToGpu({
@@ -576,7 +576,7 @@ export class Material extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * @param propertySetter
    */
   _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
@@ -637,7 +637,7 @@ export class Material extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom
    * @param vertexShaderMethodDefinitions_uniform
    * @param propertySetter
@@ -715,7 +715,7 @@ export class Material extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * called WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
   _setupBasicUniformsLocations() {
@@ -729,7 +729,7 @@ export class Material extends RnObject {
   ////////////////
 
   /**
-   * @private
+   * @internal
    * called WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
   _setupAdditionalUniformLocations(

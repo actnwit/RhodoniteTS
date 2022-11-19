@@ -228,7 +228,7 @@ export class CameraComponent extends Component {
   }
 
   /**
-   * @private
+   * @internal
    */
   set eyeInner(vec: Vector3) {
     this._eyeInner.copyComponents(vec);

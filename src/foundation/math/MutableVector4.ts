@@ -7,7 +7,7 @@ import {
 import {Vector4_} from './Vector4';
 
 /**
- * @private
+ * @internal
  */
 export class MutableVector4_<T extends FloatTypedArrayConstructor>
   extends Vector4_<T>

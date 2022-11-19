@@ -3,7 +3,7 @@ import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 
 /**
- * @private
+ * @internal
  */
 export class MutableScalar_<
   T extends TypedArrayConstructor
