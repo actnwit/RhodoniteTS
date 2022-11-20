@@ -41,6 +41,9 @@ export interface IEntity extends IRnObject {
 }
 
 /**
+ * The class that represents an entity.
+ *
+ * @remarks
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
  */

@@ -11,6 +11,9 @@ import {
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
+/**
+ * The Component that manages the blend shape.
+ */
 export class BlendShapeComponent extends Component {
   private __weights: number[] = [];
   private __targetNames: string[] = [];

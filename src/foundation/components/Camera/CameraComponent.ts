@@ -33,6 +33,9 @@ import {ComponentToComponentMethods} from '../ComponentTypes';
 import { Is } from '../../misc/Is';
 import { MiscUtil } from '../../misc';
 
+/**
+ * The Component that represents a camera.
+ */
 export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: MutableVector3 = MutableVector3.dummy();

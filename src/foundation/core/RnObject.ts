@@ -1,11 +1,17 @@
 import {RnTags, ObjectUID} from '../../types/CommonTypes';
 import {deepCopyUsingJsonStringify} from '../misc/MiscUtil';
 
+/**
+ * A Tag class
+ */
 export type Tag = {
   tag: string;
   value: any;
 };
 
+/**
+ * The Interface of the RnObject.
+ */
 export interface IRnObject {
   objectUID: ObjectUID;
   uniqueName: string;
